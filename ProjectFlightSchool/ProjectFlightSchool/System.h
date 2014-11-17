@@ -27,6 +27,6 @@ class System
 		HRESULT Initialize( HINSTANCE hInstance, int nCmdShow );
 		void	Release();
 				System();
-				virtual ~System(); //why is this so fucked up man?
+				virtual ~System(); //Test of git
 };
 #endif

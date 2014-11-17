@@ -113,6 +113,12 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 	ShowWindow( mHWnd, nCmdShow );
 	ShowCursor( false );
 
+	///////////////////////////////
+	// Initialize sub-applications
+	///////////////////////////////
+
+	Graphics::GetInstance()->Initialize();
+
 	return S_OK;
 }
 

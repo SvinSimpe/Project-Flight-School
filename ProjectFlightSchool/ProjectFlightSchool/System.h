@@ -2,6 +2,7 @@
 #define SYSTEM_H
 
 #include <Windows.h>
+#include "Graphics.h"
 
 class System
 {
@@ -27,6 +28,6 @@ class System
 		HRESULT Initialize( HINSTANCE hInstance, int nCmdShow );
 		void	Release();
 				System();
-				virtual ~System(); //Test of git
+		virtual ~System();
 };
 #endif

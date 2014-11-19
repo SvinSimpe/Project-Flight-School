@@ -41,6 +41,8 @@ HRESULT	System::Update( float deltaTime )
 
 HRESULT	System::Render()
 {
+	Graphics::GetInstance()->BeginScene();
+	Graphics::GetInstance()->EndScene();
 	return S_OK;
 }
 
@@ -111,7 +113,13 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 		return E_FAIL;
 
 	ShowWindow( mHWnd, nCmdShow );
-	ShowCursor( false );
+	ShowCursor( true );
+
+	///////////////////////////////
+	// Initialize sub-applications
+	///////////////////////////////
+
+	Graphics::GetInstance()->Initialize( mHWnd, mScreenWidth, mScreenHeight );
 
 	return S_OK;
 }
@@ -119,7 +127,7 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 //Release all data used.
 void System::Release()
 {
-
+	Graphics::GetInstance()->Release();
 }
 
 System::System()

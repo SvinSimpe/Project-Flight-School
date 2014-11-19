@@ -13,15 +13,45 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="AssetClasses">
+      <UniqueIdentifier>{96e4b984-2131-4a9d-b93c-e213f4d084fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AssetClasses\Header Files">
+      <UniqueIdentifier>{9dd87402-c9f6-47ef-8750-7d520436cb8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AssetClasses\Source Files">
+      <UniqueIdentifier>{e048f0e4-5cce-495e-8331-c8d6d4aef865}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetBase.h">
+      <Filter>AssetClasses\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetManager.h">
+      <Filter>AssetClasses\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Static3dAsset.h">
+      <Filter>AssetClasses\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphics.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetBase.cpp">
+      <Filter>AssetClasses\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetManager.cpp">
+      <Filter>AssetClasses\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Static3dAsset.cpp">
+      <Filter>AssetClasses\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

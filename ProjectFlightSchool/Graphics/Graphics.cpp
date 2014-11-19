@@ -12,11 +12,25 @@ Graphics::Graphics()
 
 	mRenderTargetView	= nullptr;
 	mDepthStencilView	= nullptr;
+
+	mAssetManager		= nullptr;
 }
 
 Graphics::~Graphics()
 {
 
+}
+
+//Load a static 3d asset to the AssetManager.
+HRESULT Graphics::LoadStatic3dAsset( char* fileName, UINT &assetId )
+{
+	return mAssetManager->LoadStatic3dAsset( mDevice, fileName, assetId );
+}
+
+//Render a static 3d asset given the assetId
+void Graphics::RenderStatic3dAsset( UINT assetId )
+{
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
 }
 
 //Clear canvas and prepare for rendering.
@@ -139,6 +153,8 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	SAFE_RELEASE( depthStencil );
 
+	mAssetManager = new AssetManager;
+
 	return hr;
 }
 
@@ -150,4 +166,6 @@ void Graphics::Release()
 	SAFE_RELEASE( mDeviceContext );
 	SAFE_RELEASE( mRenderTargetView );
 	SAFE_RELEASE( mDepthStencilView );
+
+	SAFE_DELETE( mAssetManager );
 }

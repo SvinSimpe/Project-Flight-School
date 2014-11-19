@@ -2,10 +2,10 @@
 #define GRAPHICS_H
 
 #pragma comment( lib, "d3d11.lib" )
-#pragma comment( lib, "d3dcompiler.lib" )
+//#pragma comment( lib, "d3dcompiler.lib" )
 
 #include <d3d11.h>
-#include <d3dcompiler.h>
+//#include <d3dcompiler.h>
 
 #define SAFE_RELEASE( x ) if( x ) { ( x )->Release(); ( x ) = nullptr; }
 
@@ -19,6 +19,16 @@ class LIBRARY_EXPORT Graphics
 {
 	//Class members
 	private:
+		HWND		mHWnd;
+		UINT		mScreenWidth;
+		UINT		mScreenHeight;				
+
+		IDXGISwapChain*			mSwapChain;
+		ID3D11Device*			mDevice;
+		ID3D11DeviceContext*	mDeviceContext;
+
+		ID3D11RenderTargetView*	mRenderTargetView;
+		ID3D11DepthStencilView*	mDepthStencilView;
 
 	protected:
 	public:
@@ -30,9 +40,10 @@ class LIBRARY_EXPORT Graphics
 
 	protected:
 	public:
-		HRESULT Initialize();
-		void	Release();
+		void	BeginScene();
+		void	EndScene();
 		static	Graphics* GetInstance();
-		
+		HRESULT Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight );
+		void	Release();
 };
 #endif

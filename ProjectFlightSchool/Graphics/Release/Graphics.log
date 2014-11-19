@@ -1,14 +1,20 @@
-﻿Build started 2014-11-19 13:37:48.
-     1>Project "C:\Users\Mikael\Documents\Project-Flight-School\ProjectFlightSchool\Graphics\Graphics.vcxproj" on node 2 (Build target(s)).
-     1>Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Mikael\Documents\Project-Flight-School\ProjectFlightSchool\ProjectFlightSchool\Graphics.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Mikael\Documents\Project-Flight-School\ProjectFlightSchool\ProjectFlightSchool\Graphics.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Mikael\Documents\Project-Flight-School\ProjectFlightSchool\ProjectFlightSchool\Graphics.lib" /MACHINE:X86 /SAFESEH /DLL Release\Graphics.obj
+﻿Build started 2014-11-19 15:48:43.
+     1>Project "C:\Users\xXxSn1p3rPr0xXx\Documents\GitHub\Project-Flight-School\ProjectFlightSchool\Graphics\Graphics.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D COMPILE_LIBRARY /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D GRAPHICS_EXPORTS /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Graphics.cpp
+         Graphics.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\xXxSn1p3rPr0xXx\Documents\GitHub\Project-Flight-School\ProjectFlightSchool\ProjectFlightSchool\Graphics.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\xXxSn1p3rPr0xXx\Documents\GitHub\Project-Flight-School\ProjectFlightSchool\ProjectFlightSchool\Graphics.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\xXxSn1p3rPr0xXx\Documents\GitHub\Project-Flight-School\ProjectFlightSchool\ProjectFlightSchool\Graphics.lib" /MACHINE:X86 /SAFESEH /DLL Release\AssetBase.obj
+         Release\AssetManager.obj
+         Release\Graphics.obj
+         Release\Static3dAsset.obj
      1>LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/LTCG' specification
-            Creating library C:\Users\Mikael\Documents\Project-Flight-School\ProjectFlightSchool\ProjectFlightSchool\Graphics.lib and object C:\Users\Mikael\Documents\Project-Flight-School\ProjectFlightSchool\ProjectFlightSchool\Graphics.exp
+            Creating library C:\Users\xXxSn1p3rPr0xXx\Documents\GitHub\Project-Flight-School\ProjectFlightSchool\ProjectFlightSchool\Graphics.lib and object C:\Users\xXxSn1p3rPr0xXx\Documents\GitHub\Project-Flight-School\ProjectFlightSchool\ProjectFlightSchool\Graphics.exp
          Generating code
          Finished generating code
-         Graphics.vcxproj -> C:\Users\Mikael\Documents\Project-Flight-School\ProjectFlightSchool\ProjectFlightSchool\Graphics.dll
-     1>Done Building Project "C:\Users\Mikael\Documents\Project-Flight-School\ProjectFlightSchool\Graphics\Graphics.vcxproj" (Build target(s)).
+         Graphics.vcxproj -> C:\Users\xXxSn1p3rPr0xXx\Documents\GitHub\Project-Flight-School\ProjectFlightSchool\ProjectFlightSchool\Graphics.dll
+     1>Done Building Project "C:\Users\xXxSn1p3rPr0xXx\Documents\GitHub\Project-Flight-School\ProjectFlightSchool\Graphics\Graphics.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.23
+Time Elapsed 00:00:01.03

@@ -4,10 +4,8 @@
 #pragma comment( lib, "d3d11.lib" )
 //#pragma comment( lib, "d3dcompiler.lib" )
 
-#include <d3d11.h>
+#include "AssetManager.h"
 //#include <d3dcompiler.h>
-
-#define SAFE_RELEASE( x ) if( x ) { ( x )->Release(); ( x ) = nullptr; }
 
 #ifdef COMPILE_LIBRARY
 	#define LIBRARY_EXPORT __declspec( dllexport )
@@ -30,6 +28,8 @@ class LIBRARY_EXPORT Graphics
 		ID3D11RenderTargetView*	mRenderTargetView;
 		ID3D11DepthStencilView*	mDepthStencilView;
 
+		AssetManager*			mAssetManager;
+
 	protected:
 	public:
 
@@ -40,6 +40,10 @@ class LIBRARY_EXPORT Graphics
 
 	protected:
 	public:
+		HRESULT LoadStatic3dAsset( char* fileName, UINT &assetId );
+
+		void RenderStatic3dAsset( UINT assetId );
+
 		void	BeginScene();
 		void	EndScene();
 		static	Graphics* GetInstance();

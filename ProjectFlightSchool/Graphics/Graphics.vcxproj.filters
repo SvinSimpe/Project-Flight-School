@@ -22,6 +22,15 @@
     <Filter Include="AssetClasses\Source Files">
       <UniqueIdentifier>{e048f0e4-5cce-495e-8331-c8d6d4aef865}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EffectClasses">
+      <UniqueIdentifier>{6e3c136b-642a-452d-9473-b074fcb45a22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EffectClasses\Header Files">
+      <UniqueIdentifier>{0934f899-9037-4641-a2d6-e9ba4ba1d772}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EffectClasses\Source Files">
+      <UniqueIdentifier>{90478068-403f-428f-b643-591df0c348e1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics.h">
@@ -39,6 +48,12 @@
     <ClInclude Include="Vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Effect.h">
+      <Filter>EffectClasses\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectInfo.h">
+      <Filter>EffectClasses\Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphics.cpp">
@@ -52,6 +67,9 @@
     </ClCompile>
     <ClCompile Include="Static3dAsset.cpp">
       <Filter>AssetClasses\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Effect.cpp">
+      <Filter>EffectClasses\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

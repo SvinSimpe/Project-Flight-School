@@ -90,6 +90,8 @@
   <ItemGroup>
     <ClInclude Include="AssetBase.h" />
     <ClInclude Include="AssetManager.h" />
+    <ClInclude Include="Effect.h" />
+    <ClInclude Include="EffectInfo.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Static3dAsset.h" />
     <ClInclude Include="Vertex.h" />
@@ -97,6 +99,7 @@
   <ItemGroup>
     <ClCompile Include="AssetBase.cpp" />
     <ClCompile Include="AssetManager.cpp" />
+    <ClCompile Include="Effect.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Static3dAsset.cpp" />
   </ItemGroup>

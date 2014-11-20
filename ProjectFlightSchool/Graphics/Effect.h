@@ -3,41 +3,10 @@
 
 #include <d3d11.h>
 #include <d3dcompiler.h>
-#include <string>
 #include <fstream>
+#include "EffectInfo.h"
 
 #define SAFE_RELEASE( x ) if( x ) { ( x )->Release(); ( x ) = nullptr; }
-
-struct EffectInfo
-{
-	char* fileName					= "";
-	bool isVertexShaderIncluded		= false;
-	bool isHullShaderIncluded		= false;
-	bool isDomainShaderIncluded		= false;
-	bool isGeometryShaderIncluded	= false;
-	bool isPixelShaderIncluded		= false;
-
-	//Reset ALL struct variables
-	void Reset()
-	{
-		fileName					= "";
-		isVertexShaderIncluded		= false;
-		isHullShaderIncluded		= false;
-		isDomainShaderIncluded		= false;
-		isGeometryShaderIncluded	= false;
-		isPixelShaderIncluded		= false;
-	}
-
-	//Returns TRUE all shader flags are OFF
-	bool IsAllNull() const
-	{
-		return ( !isVertexShaderIncluded	&&
-				 !isHullShaderIncluded		&&
-				 !isDomainShaderIncluded	&&
-				 !isGeometryShaderIncluded	&&
-				 !isPixelShaderIncluded );
-	}
-};
 
 class Effect
 {

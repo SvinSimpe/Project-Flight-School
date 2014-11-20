@@ -1,9 +1,11 @@
-﻿Build started 2014-11-20 10:28:08.
-     1>Project "C:\Users\Mikael\Documents\Project-Flight-School\ProjectFlightSchool\ProjectFlightSchool\ProjectFlightSchool.vcxproj" on node 2 (Build target(s)).
+﻿Build started 11/20/2014 7:13:06 PM.
+     1>Project "C:\Stort Spelprojekt\ProjectFlightSchool\ProjectFlightSchool\ProjectFlightSchool.vcxproj" on node 2 (Build target(s)).
      1>Link:
-         ProjectFlightSchool.vcxproj -> C:\Users\Mikael\Documents\Project-Flight-School\ProjectFlightSchool\Debug\ProjectFlightSchool.exe
-     1>Done Building Project "C:\Users\Mikael\Documents\Project-Flight-School\ProjectFlightSchool\ProjectFlightSchool\ProjectFlightSchool.vcxproj" (Build target(s)).
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Stort Spelprojekt\ProjectFlightSchool\Debug\ProjectFlightSchool.exe" /INCREMENTAL /NOLOGO Graphics.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Stort Spelprojekt\ProjectFlightSchool\Debug\ProjectFlightSchool.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Stort Spelprojekt\ProjectFlightSchool\Debug\ProjectFlightSchool.lib" /MACHINE:X86 Debug\Main.obj
+         Debug\System.obj
+         ProjectFlightSchool.vcxproj -> C:\Stort Spelprojekt\ProjectFlightSchool\Debug\ProjectFlightSchool.exe
+     1>Done Building Project "C:\Stort Spelprojekt\ProjectFlightSchool\ProjectFlightSchool\ProjectFlightSchool.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.04
+Time Elapsed 00:00:00.34

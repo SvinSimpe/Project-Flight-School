@@ -22,9 +22,9 @@ class Effect
 		HRESULT CompileShader( char* shaderFile, char* pEntrypoint, char* pTarget, D3D10_SHADER_MACRO* pDefines, ID3DBlob** pCompiledShader );
 
 	public:
-		ID3D11InputLayout*	GetInputLayout();
-		ID3D11VertexShader*	GetVertexShader();
-		ID3D11PixelShader*	GetPixelShader();
+		ID3D11InputLayout*	GetInputLayout() const;
+		ID3D11VertexShader*	GetVertexShader() const;
+		ID3D11PixelShader*	GetPixelShader() const;
 
 		HRESULT Intialize( ID3D11Device* device, EffectInfo* effectInfo );
 		void Release();

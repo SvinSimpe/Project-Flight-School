@@ -35,17 +35,17 @@ HRESULT Effect::CompileShader( char* shaderFile, char* pEntrypoint, char* pTarge
 	return hr;
 }
 
-ID3D11InputLayout*	Effect::GetInputLayout()
+ID3D11InputLayout*	Effect::GetInputLayout() const
 {
 	return mInputLayout;
 }
 
-ID3D11VertexShader*	Effect::GetVertexShader()
+ID3D11VertexShader*	Effect::GetVertexShader() const
 {
 	return mVertexShader;
 }
 
-ID3D11PixelShader*	Effect::GetPixelShader()
+ID3D11PixelShader*	Effect::GetPixelShader() const
 {
 	return mPixelShader;
 }

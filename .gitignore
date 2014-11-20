@@ -21,7 +21,10 @@
 *.app
 
 # Custom
+<<<<<<< HEAD:.gitignore
 *.idb
+=======
+>>>>>>> aea6a23c4583718ae13aef075ae2b4c565c51d16:.gitignore
 *.lastbuildstate
 *.sdf
 *.opensdf

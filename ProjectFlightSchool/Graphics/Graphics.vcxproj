@@ -88,18 +88,26 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+<<<<<<< HEAD
     <ClInclude Include="AssetBase.h" />
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="Effect.h" />
     <ClInclude Include="EffectInfo.h" />
+=======
+    <ClInclude Include="Camera.h" />
+>>>>>>> aea6a23c4583718ae13aef075ae2b4c565c51d16
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Static3dAsset.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
+<<<<<<< HEAD
     <ClCompile Include="AssetBase.cpp" />
     <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="Effect.cpp" />
+=======
+    <ClCompile Include="Camera.cpp" />
+>>>>>>> aea6a23c4583718ae13aef075ae2b4c565c51d16
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Static3dAsset.cpp" />
   </ItemGroup>

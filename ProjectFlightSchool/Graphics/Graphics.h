@@ -2,12 +2,11 @@
 #define GRAPHICS_H
 
 #pragma comment( lib, "d3d11.lib" )
-//#pragma comment( lib, "d3dcompiler.lib" )
+#pragma comment( lib, "d3dcompiler.lib" )
 
-#include <d3d11.h>
+#include "AssetManager.h"
+#include "Effect.h"
 //#include <d3dcompiler.h>
-
-#define SAFE_RELEASE( x ) if( x ) { ( x )->Release(); ( x ) = nullptr; }
 
 #ifdef COMPILE_LIBRARY
 	#define LIBRARY_EXPORT __declspec( dllexport )
@@ -21,7 +20,7 @@ class LIBRARY_EXPORT Graphics
 	private:
 		HWND		mHWnd;
 		UINT		mScreenWidth;
-		UINT		mScreenHeight;				
+		UINT		mScreenHeight;			
 
 		IDXGISwapChain*			mSwapChain;
 		ID3D11Device*			mDevice;
@@ -29,6 +28,11 @@ class LIBRARY_EXPORT Graphics
 
 		ID3D11RenderTargetView*	mRenderTargetView;
 		ID3D11DepthStencilView*	mDepthStencilView;
+		D3D11_VIEWPORT			mStandardView;
+
+		AssetManager*			mAssetManager;
+
+		Effect*					mEffect;
 
 	protected:
 	public:
@@ -40,6 +44,10 @@ class LIBRARY_EXPORT Graphics
 
 	protected:
 	public:
+		HRESULT LoadStatic3dAsset( char* fileName, UINT &assetId );
+
+		void RenderStatic3dAsset( UINT assetId );
+
 		void	BeginScene();
 		void	EndScene();
 		static	Graphics* GetInstance();

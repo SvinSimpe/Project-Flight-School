@@ -21,6 +21,7 @@
 *.app
 
 # Custom
+*.idb
 *.lastbuildstate
 *.sdf
 *.opensdf

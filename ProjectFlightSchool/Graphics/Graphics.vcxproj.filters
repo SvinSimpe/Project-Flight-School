@@ -13,6 +13,7 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+<<<<<<< HEAD
     <Filter Include="Camera">
       <UniqueIdentifier>{4d4a6ae4-3722-4747-9fb1-e381cd3ee263}</UniqueIdentifier>
     </Filter>
@@ -21,22 +22,84 @@
     </Filter>
     <Filter Include="Camera\Header Files">
       <UniqueIdentifier>{a636f07c-f510-4161-b52c-c3499a2db1d4}</UniqueIdentifier>
+=======
+    <Filter Include="AssetClasses">
+      <UniqueIdentifier>{96e4b984-2131-4a9d-b93c-e213f4d084fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AssetClasses\Header Files">
+      <UniqueIdentifier>{9dd87402-c9f6-47ef-8750-7d520436cb8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AssetClasses\Source Files">
+      <UniqueIdentifier>{e048f0e4-5cce-495e-8331-c8d6d4aef865}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EffectClasses">
+      <UniqueIdentifier>{6e3c136b-642a-452d-9473-b074fcb45a22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EffectClasses\Header Files">
+      <UniqueIdentifier>{0934f899-9037-4641-a2d6-e9ba4ba1d772}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EffectClasses\Source Files">
+      <UniqueIdentifier>{90478068-403f-428f-b643-591df0c348e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Effects">
+      <UniqueIdentifier>{d819a03e-5e39-4448-9007-0abc298ac144}</UniqueIdentifier>
+>>>>>>> Development
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="Camera.h">
       <Filter>Camera\Header Files</Filter>
+=======
+    <ClInclude Include="AssetBase.h">
+      <Filter>AssetClasses\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetManager.h">
+      <Filter>AssetClasses\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Static3dAsset.h">
+      <Filter>AssetClasses\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Effect.h">
+      <Filter>EffectClasses\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectInfo.h">
+      <Filter>EffectClasses\Header Files</Filter>
+>>>>>>> Development
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="Camera.cpp">
       <Filter>Camera\Source Files</Filter>
     </ClCompile>
+=======
+    <ClCompile Include="AssetBase.cpp">
+      <Filter>AssetClasses\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetManager.cpp">
+      <Filter>AssetClasses\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Static3dAsset.cpp">
+      <Filter>AssetClasses\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Effect.cpp">
+      <Filter>EffectClasses\Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Content\Effects\TestShader.hlsl">
+      <Filter>Effects</Filter>
+    </Text>
+>>>>>>> Development
   </ItemGroup>
 </Project>

@@ -12,10 +12,44 @@ Graphics::Graphics()
 
 	mRenderTargetView	= nullptr;
 	mDepthStencilView	= nullptr;
+
+	mAssetManager		= nullptr;
 }
 
 Graphics::~Graphics()
 {
+
+}
+
+//Load a static 3d asset to the AssetManager.
+HRESULT Graphics::LoadStatic3dAsset( char* fileName, UINT &assetId )
+{
+	return mAssetManager->LoadStatic3dAsset( mDevice, fileName, assetId );
+}
+
+//Render a static 3d asset given the assetId
+void Graphics::RenderStatic3dAsset( UINT assetId )
+{
+	mDeviceContext->OMSetRenderTargets( 1, &mRenderTargetView, mDepthStencilView );
+	mDeviceContext->RSSetViewports( 1, &mStandardView );
+
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
+
+	UINT32 vertexSize				= sizeof( Vertex );
+	UINT32 offset					= 0;
+
+	ID3D11Buffer* buffersToSet[]	= { mAssetManager->mTestAsset->mVertexBuffer };
+	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+
+	mDeviceContext->IASetInputLayout( mEffect->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffect->GetPixelShader(), nullptr, 0 );
+
+	mDeviceContext->Draw( 4, 0 );
 
 }
 
@@ -139,6 +173,28 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	SAFE_RELEASE( depthStencil );
 
+	//////////////////////////////
+	// CREATE VIEWPORT
+	//////////////////////////////
+	mStandardView.Height	= (float)screenHeight;
+	mStandardView.Width		= (float)screenWidth;
+	mStandardView.MaxDepth	= 1.0f;
+	mStandardView.MinDepth	= 0.0f;
+	mStandardView.TopLeftX	= 0.0f;
+	mStandardView.TopLeftY	= 0.0f;
+
+	mAssetManager = new AssetManager;
+
+	mEffect	= new Effect;
+
+	EffectInfo effectInfo;
+	ZeroMemory( &effectInfo, sizeof( EffectInfo ) );
+	effectInfo.fileName					= "../Content/Effects/TestShader.hlsl";
+	effectInfo.isVertexShaderIncluded	= true;
+	effectInfo.isPixelShaderIncluded	= true;
+
+	hr = mEffect->Intialize( mDevice, &effectInfo );
+
 	return hr;
 }
 
@@ -150,4 +206,10 @@ void Graphics::Release()
 	SAFE_RELEASE( mDeviceContext );
 	SAFE_RELEASE( mRenderTargetView );
 	SAFE_RELEASE( mDepthStencilView );
+
+	mAssetManager->Release();
+	mEffect->Release();
+
+	SAFE_DELETE( mAssetManager );
+	SAFE_DELETE( mEffect );
 }

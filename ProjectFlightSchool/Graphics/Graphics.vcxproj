@@ -88,12 +88,33 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+<<<<<<< HEAD
     <ClInclude Include="Camera.h" />
+=======
+    <ClInclude Include="AssetBase.h" />
+    <ClInclude Include="AssetManager.h" />
+    <ClInclude Include="Effect.h" />
+    <ClInclude Include="EffectInfo.h" />
+>>>>>>> Development
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="Static3dAsset.h" />
+    <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
+<<<<<<< HEAD
     <ClCompile Include="Camera.cpp" />
+=======
+    <ClCompile Include="AssetBase.cpp" />
+    <ClCompile Include="AssetManager.cpp" />
+    <ClCompile Include="Effect.cpp" />
+>>>>>>> Development
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="Static3dAsset.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Content\Effects\TestShader.hlsl">
+      <FileType>Document</FileType>
+    </Text>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,10 +2,10 @@
 
 HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, UINT &assetId )
 {
+	mTestAsset	= new Static3dAsset;
+
 	assetId					= 1;
 	mTestAsset->mAssetId	= assetId;
-
-	mTestAsset	= new Static3dAsset();
 	
 	////////////////////////////////
 	//		TESTU-BUFFERU
@@ -37,7 +37,8 @@ HRESULT	AssetManager::Initialize()
 
 void AssetManager::Release()
 {
-
+	mTestAsset->Release();
+	SAFE_DELETE( mTestAsset );
 }
 
 AssetManager::AssetManager()

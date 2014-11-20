@@ -8,10 +8,9 @@
 class AssetManager
 {
 	private:
-		AssetBase*	mTestAsset;
-
 	protected:
 	public:
+		AssetBase*	mTestAsset;
 
 	private:
 	protected:

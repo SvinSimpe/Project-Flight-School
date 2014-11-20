@@ -103,6 +103,11 @@
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Static3dAsset.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Content\Effects\TestShader.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

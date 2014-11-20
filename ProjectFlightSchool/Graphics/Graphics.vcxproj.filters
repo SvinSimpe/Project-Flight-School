@@ -31,6 +31,9 @@
     <Filter Include="EffectClasses\Source Files">
       <UniqueIdentifier>{90478068-403f-428f-b643-591df0c348e1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Effects">
+      <UniqueIdentifier>{d819a03e-5e39-4448-9007-0abc298ac144}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics.h">
@@ -71,5 +74,10 @@
     <ClCompile Include="Effect.cpp">
       <Filter>EffectClasses\Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Content\Effects\TestShader.hlsl">
+      <Filter>Effects</Filter>
+    </Text>
   </ItemGroup>
 </Project>

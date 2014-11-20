@@ -13,6 +13,8 @@ class System
 		UINT		mScreenWidth;
 		UINT		mScreenHeight;
 
+		UINT		mAssetId;
+
 	protected:
 	public:
 

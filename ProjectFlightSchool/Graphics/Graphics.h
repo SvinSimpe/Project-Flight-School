@@ -2,9 +2,10 @@
 #define GRAPHICS_H
 
 #pragma comment( lib, "d3d11.lib" )
-//#pragma comment( lib, "d3dcompiler.lib" )
+#pragma comment( lib, "d3dcompiler.lib" )
 
 #include "AssetManager.h"
+#include "Effect.h"
 //#include <d3dcompiler.h>
 
 #ifdef COMPILE_LIBRARY
@@ -19,7 +20,7 @@ class LIBRARY_EXPORT Graphics
 	private:
 		HWND		mHWnd;
 		UINT		mScreenWidth;
-		UINT		mScreenHeight;				
+		UINT		mScreenHeight;			
 
 		IDXGISwapChain*			mSwapChain;
 		ID3D11Device*			mDevice;
@@ -27,8 +28,11 @@ class LIBRARY_EXPORT Graphics
 
 		ID3D11RenderTargetView*	mRenderTargetView;
 		ID3D11DepthStencilView*	mDepthStencilView;
+		D3D11_VIEWPORT			mStandardView;
 
 		AssetManager*			mAssetManager;
+
+		Effect*					mEffect;
 
 	protected:
 	public:

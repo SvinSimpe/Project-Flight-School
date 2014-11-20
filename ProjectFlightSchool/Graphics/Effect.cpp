@@ -35,24 +35,39 @@ HRESULT Effect::CompileShader( char* shaderFile, char* pEntrypoint, char* pTarge
 	return hr;
 }
 
-HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo effectInfo )
+ID3D11InputLayout*	Effect::GetInputLayout()
+{
+	return mInputLayout;
+}
+
+ID3D11VertexShader*	Effect::GetVertexShader()
+{
+	return mVertexShader;
+}
+
+ID3D11PixelShader*	Effect::GetPixelShader()
+{
+	return mPixelShader;
+}
+
+HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo* effectInfo )
 {
 	HRESULT hr = S_OK;
 
-	if ( effectInfo.fileName == "" || effectInfo.IsAllNull() )
+	if ( effectInfo->fileName == "" || effectInfo->IsAllNull() )
 	{
 		OutputDebugStringA( "EffectInfo was missing vital information, resetting effect struct..." );
-		effectInfo.Reset();
+		effectInfo->Reset();
 		hr = E_FAIL;
 	}
 
-	if ( effectInfo.isVertexShaderIncluded )
+	if ( effectInfo->isVertexShaderIncluded )
 	{
 		//------------------------
 		// Compile Vertex Shader |
 		//------------------------
 		ID3DBlob* vertexShaderBlob = nullptr;
-		if ( SUCCEEDED( hr = CompileShader( effectInfo.fileName, "VS_main", "vs_5_0", nullptr, &vertexShaderBlob ) ) )
+		if ( SUCCEEDED( hr = CompileShader( effectInfo->fileName, "VS_main", "vs_5_0", nullptr, &vertexShaderBlob ) ) )
 		{
 			if ( SUCCEEDED( hr = device->CreateVertexShader(vertexShaderBlob->GetBufferPointer(),
 				vertexShaderBlob->GetBufferSize(),
@@ -76,20 +91,20 @@ HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo effectInfo )
 		if ( FAILED( hr ) )
 		{
 			OutputDebugStringA( "Failed to compile  " );
-			OutputDebugStringA( (LPCSTR)effectInfo.fileName );
+			OutputDebugStringA( (LPCSTR)effectInfo->fileName );
 			OutputDebugStringA( " at VertexShader stage" );
 		}
 	}
 
 
 
-	if ( effectInfo.isPixelShaderIncluded )
+	if ( effectInfo->isPixelShaderIncluded )
 	{
 		//-----------------------
 		// Compile Pixel Shader | 
 		//-----------------------
 		ID3DBlob* pixelShaderBlob = nullptr;
-		if ( SUCCEEDED( hr = CompileShader(effectInfo.fileName, "PS_main", "ps_5_0", nullptr, &pixelShaderBlob ) ) )
+		if ( SUCCEEDED( hr = CompileShader(effectInfo->fileName, "PS_main", "ps_5_0", nullptr, &pixelShaderBlob ) ) )
 		{
 			hr = device->CreatePixelShader( pixelShaderBlob->GetBufferPointer(),
 				pixelShaderBlob->GetBufferSize(),
@@ -102,7 +117,7 @@ HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo effectInfo )
 		if ( FAILED( hr ) )
 		{
 			OutputDebugStringA( "Failed to compile " );
-			OutputDebugStringA( (LPCSTR)effectInfo.fileName );
+			OutputDebugStringA( (LPCSTR)effectInfo->fileName );
 			OutputDebugStringA( " at PixelShader stage" );
 		}
 	}
@@ -122,12 +137,12 @@ void Effect::Release()
 
 Effect::Effect()
 {
-	mInputLayout = nullptr;
-	mVertexShader = nullptr;
-	mHullShader = nullptr;
-	mDomainShader = nullptr;
+	mInputLayout	= nullptr;
+	mVertexShader	= nullptr;
+	mHullShader		= nullptr;
+	mDomainShader	= nullptr;
 	mGeometryShader = nullptr;
-	mPixelShader = nullptr;
+	mPixelShader	= nullptr;
 }
 
 Effect::~Effect()

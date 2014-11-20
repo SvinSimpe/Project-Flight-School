@@ -89,12 +89,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ClInclude Include="Camera.h" />
 =======
+=======
+>>>>>>> Development
     <ClInclude Include="AssetBase.h" />
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="Effect.h" />
     <ClInclude Include="EffectInfo.h" />
+<<<<<<< HEAD
+>>>>>>> Development
+=======
+=======
+    <ClInclude Include="Camera.h" />
+>>>>>>> aea6a23c4583718ae13aef075ae2b4c565c51d16
 >>>>>>> Development
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Static3dAsset.h" />
@@ -102,11 +111,20 @@
   </ItemGroup>
   <ItemGroup>
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ClCompile Include="Camera.cpp" />
 =======
     <ClCompile Include="AssetBase.cpp" />
     <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="Effect.cpp" />
+>>>>>>> Development
+=======
+    <ClCompile Include="AssetBase.cpp" />
+    <ClCompile Include="AssetManager.cpp" />
+    <ClCompile Include="Effect.cpp" />
+=======
+    <ClCompile Include="Camera.cpp" />
+>>>>>>> aea6a23c4583718ae13aef075ae2b4c565c51d16
 >>>>>>> Development
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Static3dAsset.cpp" />

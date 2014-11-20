@@ -14,6 +14,7 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
 <<<<<<< HEAD
+<<<<<<< HEAD
     <Filter Include="Camera">
       <UniqueIdentifier>{4d4a6ae4-3722-4747-9fb1-e381cd3ee263}</UniqueIdentifier>
     </Filter>
@@ -23,6 +24,8 @@
     <Filter Include="Camera\Header Files">
       <UniqueIdentifier>{a636f07c-f510-4161-b52c-c3499a2db1d4}</UniqueIdentifier>
 =======
+=======
+>>>>>>> Development
     <Filter Include="AssetClasses">
       <UniqueIdentifier>{96e4b984-2131-4a9d-b93c-e213f4d084fe}</UniqueIdentifier>
     </Filter>
@@ -43,6 +46,19 @@
     </Filter>
     <Filter Include="Effects">
       <UniqueIdentifier>{d819a03e-5e39-4448-9007-0abc298ac144}</UniqueIdentifier>
+<<<<<<< HEAD
+>>>>>>> Development
+=======
+=======
+    <Filter Include="Camera">
+      <UniqueIdentifier>{4d4a6ae4-3722-4747-9fb1-e381cd3ee263}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Camera\Source Files">
+      <UniqueIdentifier>{d1af2533-f9e1-409a-a0b7-5b4db631fe13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Camera\Header Files">
+      <UniqueIdentifier>{a636f07c-f510-4161-b52c-c3499a2db1d4}</UniqueIdentifier>
+>>>>>>> aea6a23c4583718ae13aef075ae2b4c565c51d16
 >>>>>>> Development
     </Filter>
   </ItemGroup>
@@ -51,9 +67,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ClInclude Include="Camera.h">
       <Filter>Camera\Header Files</Filter>
 =======
+=======
+>>>>>>> Development
     <ClInclude Include="AssetBase.h">
       <Filter>AssetClasses\Header Files</Filter>
     </ClInclude>
@@ -71,6 +90,13 @@
     </ClInclude>
     <ClInclude Include="EffectInfo.h">
       <Filter>EffectClasses\Header Files</Filter>
+<<<<<<< HEAD
+>>>>>>> Development
+=======
+=======
+    <ClInclude Include="Camera.h">
+      <Filter>Camera\Header Files</Filter>
+>>>>>>> aea6a23c4583718ae13aef075ae2b4c565c51d16
 >>>>>>> Development
     </ClInclude>
   </ItemGroup>
@@ -79,10 +105,13 @@
       <Filter>Source Files</Filter>
     </ClCompile>
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ClCompile Include="Camera.cpp">
       <Filter>Camera\Source Files</Filter>
     </ClCompile>
 =======
+=======
+>>>>>>> Development
     <ClCompile Include="AssetBase.cpp">
       <Filter>AssetClasses\Source Files</Filter>
     </ClCompile>
@@ -100,6 +129,14 @@
     <Text Include="..\Content\Effects\TestShader.hlsl">
       <Filter>Effects</Filter>
     </Text>
+<<<<<<< HEAD
+>>>>>>> Development
+=======
+=======
+    <ClCompile Include="Camera.cpp">
+      <Filter>Camera\Source Files</Filter>
+    </ClCompile>
+>>>>>>> aea6a23c4583718ae13aef075ae2b4c565c51d16
 >>>>>>> Development
   </ItemGroup>
 </Project>

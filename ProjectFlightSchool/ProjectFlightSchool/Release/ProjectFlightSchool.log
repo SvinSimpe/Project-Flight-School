@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 ﻿Build started 2014-11-19 13:52:01.
      1>Project "C:\Users\luckman\Desktop\Flight-School-Project\ProjectFlightSchool\ProjectFlightSchool\ProjectFlightSchool.vcxproj" on node 2 (Rebuild target(s)).
      1>ClCompile:
@@ -18,6 +19,8 @@ Build succeeded.
 
 Time Elapsed 00:00:01.59
 =======
+=======
+>>>>>>> Development
 ﻿Build started 2014-11-20 11:34:01.
      1>Project "C:\Users\Mikael\Documents\Project-Flight-School\ProjectFlightSchool\ProjectFlightSchool\ProjectFlightSchool.vcxproj" on node 2 (Build target(s)).
      1>Link:
@@ -27,4 +30,7 @@ Time Elapsed 00:00:01.59
 Build succeeded.
 
 Time Elapsed 00:00:00.15
+<<<<<<< HEAD
+>>>>>>> Development
+=======
 >>>>>>> Development

@@ -21,12 +21,14 @@
 *.app
 
 # Custom
+*.lastbuildstate
 *.sdf
 *.opensdf
 *.suo
 *.ipch
 *.exe
 *.tlog
+*.log
 *.filters
 *.ilk
 *.exp

@@ -88,9 +88,9 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
-
     <ClInclude Include="AssetBase.h" />
     <ClInclude Include="AssetManager.h" />
+    <ClInclude Include="CameraInfo.h" />
     <ClInclude Include="Effect.h" />
     <ClInclude Include="EffectInfo.h" />
     <ClInclude Include="Camera.h" />
@@ -99,7 +99,6 @@
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
-
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="AssetBase.cpp" />
     <ClCompile Include="AssetManager.cpp" />

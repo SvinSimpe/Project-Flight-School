@@ -1,15 +1,17 @@
 #ifndef CAMERAINFO_H
 #define CAMERAINFO_H
 
+#include <DirectXMath.h>
+
 struct CameraInfo
 {
-	XMFLOAT4	eyePos;
-	XMFLOAT4	focusPoint;
-	XMFLOAT4	up;
-	float		foVY;
-	float		width;
-	float		height;
-	float		nearZ;
-	float		farZ;
+	DirectX::XMFLOAT4	eyePos;
+	DirectX::XMFLOAT4	focusPoint;
+	DirectX::XMFLOAT4	up;
+	float				foVY;
+	float				width;
+	float				height;
+	float				nearZ;
+	float				farZ;
 };
 #endif

@@ -11,51 +11,6 @@ bool Camera::Update()
 	return true;
 }
 
-bool Camera::Initialize( XMFLOAT4 eyePos, XMFLOAT4 focusPoint, XMFLOAT4 up , float foVY, float width, float height, float nearZ, float farZ )
-{
-	this->mPos			= eyePos;
-	this->mFocusPoint	= focusPoint;
-	this->mUp			= up;
-
-	this->mFoV			= foVY;
-	this->mNearZ		= nearZ;
-	this->mFarZ			= farZ;
-	this->mWidth		= width;
-	this->mHeight		= height;
-	this->mAspectRatio	= mWidth/mHeight;
-
-	XMVECTOR vecPos		= XMLoadFloat4( &mPos );
-	XMVECTOR vecFocus	= XMLoadFloat4( &mFocusPoint );
-	XMVECTOR vecUp		= XMLoadFloat4( &mUp );
-
-	XMStoreFloat4x4( &mViewMatrix, XMMatrixLookAtLH( vecPos, vecFocus, vecUp ) );
-	XMStoreFloat4x4( &mProjMatrix, XMMatrixPerspectiveFovLH( mFoV, mAspectRatio, mNearZ, mFarZ ) );
-
-	return true;
-}
-
-void Camera::Release()
-{
-}
-
-Camera::Camera()
-{
-	mPos		= XMFLOAT4(0,0,0,0);
-	mUp			= XMFLOAT4(0,1,0,0);
-	mFocusPoint	= XMFLOAT4(0,0,0,0);
-
-	this->mFoV			= 0;
-	this->mNearZ		= 0;
-	this->mFarZ			= 0;
-	this->mWidth		= 0;
-	this->mHeight		= 0;
-	this->mAspectRatio	= 0;
-}
-
-Camera::~Camera()
-{
-}
-
 void Camera::SetFocus(XMFLOAT4 focusPoint)
 {
 	mFocusPoint = focusPoint;
@@ -81,4 +36,47 @@ XMMATRIX Camera::GetProjMatrix() const
 	return XMLoadFloat4x4( &mProjMatrix );
 }
 
+bool Camera::Initialize( CameraInfo* cameraInfo )
+{
+	mPos			= cameraInfo->eyePos;
+	mFocusPoint		= cameraInfo->focusPoint;
+	mUp				= cameraInfo->up;
 
+	mFoV			= cameraInfo->foVY;
+	mNearZ			= cameraInfo->nearZ;
+	mFarZ			= cameraInfo->farZ;
+	mWidth			= cameraInfo->width;
+	mHeight			= cameraInfo->height;
+	mAspectRatio	= mWidth/mHeight;
+
+	XMVECTOR vecPos		= XMLoadFloat4( &mPos );
+	XMVECTOR vecFocus	= XMLoadFloat4( &mFocusPoint );
+	XMVECTOR vecUp		= XMLoadFloat4( &mUp );
+
+	XMStoreFloat4x4( &mViewMatrix, XMMatrixLookAtLH( vecPos, vecFocus, vecUp ) );
+	XMStoreFloat4x4( &mProjMatrix, XMMatrixPerspectiveFovLH( mFoV, mAspectRatio, mNearZ, mFarZ ) );
+
+	return true;
+}
+
+void Camera::Release()
+{
+}
+
+Camera::Camera()
+{
+	mPos		= XMFLOAT4(0,0,0,0);
+	mUp			= XMFLOAT4(0,1,0,0);
+	mFocusPoint	= XMFLOAT4(0,0,0,0);
+
+	mFoV			= 0;
+	mNearZ			= 0;
+	mFarZ			= 0;
+	mWidth			= 0;
+	mHeight			= 0;
+	mAspectRatio	= 0;
+}
+
+Camera::~Camera()
+{
+}

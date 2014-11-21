@@ -2,6 +2,7 @@
 #define CAMERA_H
 
 #include "CameraInfo.h"
+#include <d3d11.h>
 
 using namespace DirectX;
 
@@ -37,7 +38,7 @@ class Camera
 		XMMATRIX GetProjMatrix() const;
 
 		//Must be called before GetViewMatrix, GetProjMatrix
-		bool Initialize( CameraInfo* cameraInfo );
+		HRESULT Initialize( CameraInfo* cameraInfo );
 		void Release();
 
 		Camera();

@@ -124,6 +124,8 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 
 	Graphics::GetInstance()->Graphics::LoadStatic3dAsset( "derpdufinnsinte", mAssetId );
 
+	Server::GetInstance()->Initialize(DEFAULT_PORT);
+
 	return S_OK;
 }
 
@@ -131,6 +133,7 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 void System::Release()
 {
 	Graphics::GetInstance()->Release();
+	Server::GetInstance()->Release();
 }
 
 System::System()

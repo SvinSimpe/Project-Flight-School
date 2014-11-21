@@ -1,7 +1,7 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
-#include <Windows.h>
+#include "Server.h" // This include should always be first since it includes windows.h...... for now
 #include "Graphics.h"
 
 class System

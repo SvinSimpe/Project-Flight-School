@@ -18,7 +18,7 @@ class Server
 		bool Connect();
 		bool AcceptConnection();
 		bool Update();
-		bool RecvLoop( int index );
+		bool ReceiveLoop( int index );
 		void HandleMsg( SOCKET &socket, char* msg );
 		void Release();
 

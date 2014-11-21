@@ -5,34 +5,34 @@ bool Client::Connect()
 	addrinfo* ptr = nullptr;
 	for (ptr = mAddrResult; ptr != nullptr; ptr = ptr->ai_next)
 	{
-		mSocket = socket( ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol );
-		if ( mSocket == INVALID_SOCKET )
+		mServerSocket = socket( ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol );
+		if ( mServerSocket == INVALID_SOCKET )
 		{
 			printf( "socket failed with error: %d\n", WSAGetLastError() );
 			WSACleanup();
 			return false;
 		}
 
-		mResult = connect( mSocket, ptr->ai_addr, (int)ptr->ai_addrlen );
+		mResult = connect( mServerSocket, ptr->ai_addr, (int)ptr->ai_addrlen );
 		if ( mResult == SOCKET_ERROR )
 		{
-			closesocket( mSocket );
-			mSocket = INVALID_SOCKET;
+			closesocket( mServerSocket );
+			mServerSocket = INVALID_SOCKET;
 			continue;
 		}
 		break;
 	}
 	freeaddrinfo( mAddrResult );
 
-	if ( mSocket == INVALID_SOCKET )
+	if ( mServerSocket == INVALID_SOCKET )
 	{
 		printf( "Unable to connect to server.\n" );
-		closesocket( mSocket );
+		closesocket( mServerSocket );
 		WSACleanup();
 		return false;
 	}
 
-	printf( "Connected to: %d\n", mSocket );
+	printf( "Connected to: %d\n", mServerSocket );
 
 	return true;
 }
@@ -40,7 +40,7 @@ bool Client::Connect()
 bool Client::Run()
 {
 	std::thread write( &Client::MsgLoop, this );
-	std::thread listen( &Client::RecvLoop, this );
+	std::thread listen( &Client::ReceiveLoop, this );
 
 	write.join();
 	listen.join();
@@ -51,27 +51,31 @@ bool Client::Run()
 bool Client::MsgLoop()
 {
 	bool result = false;
-	while ( mSocket != INVALID_SOCKET )
+	while ( mServerSocket != INVALID_SOCKET )
 	{
 		std::string msg = "";
 		std::getline( std::cin, msg );
-		result = mConn->SendMsg( mSocket, (char*)msg.c_str() );
+		
+		if ( mServerSocket != INVALID_SOCKET )
+		{
+			result = mConn->SendMsg(mServerSocket, (char*)msg.c_str());
+		}
 	};
 
 	return true;
 }
 
-bool Client::RecvLoop()
+bool Client::ReceiveLoop()
 {
 	do
 	{
-		char* msg = mConn->RecvMsg( mSocket );
+		char* msg = mConn->ReceiveMsg(mServerSocket);
 		if ( msg )
 		{
 			HandleMsg( msg );
 			delete msg;
 		}
-	} while ( mSocket != INVALID_SOCKET );
+	} while ( mServerSocket != INVALID_SOCKET );
 	return true;
 }
 
@@ -79,7 +83,7 @@ bool Client::HandleMsg( char* msg )
 {
 	if ( strcmp( msg, "Quit" ) == 0 )
 	{
-		mConn->DisconnectSocket( mSocket );
+		mConn->DisconnectSocket( mServerSocket );
 		mConn->PrintMsg( "Connection lost." );
 	}
 	else
@@ -101,13 +105,13 @@ bool Client::Initialize( const char* ip, const char* port )
 	}
 
 	addrinfo hints = { 0 };
-	ZeroMemory(&hints, sizeof( hints ));
+	ZeroMemory( &hints, sizeof( hints ) );
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 
 	mResult = getaddrinfo( ip, port, &hints, &mAddrResult );
-	if (mResult != 0)
+	if ( mResult != 0 )
 	{
 		printf( "getaddrinfo failed with error: %d\n", mResult );
 		WSACleanup();
@@ -126,7 +130,7 @@ void Client::Release()
 	WSACleanup();
 
 	mConn->Release();
-	if (mConn)
+	if ( mConn )
 		delete mConn;
 }
 
@@ -134,7 +138,7 @@ Client::Client()
 {
 	mResult		= 0;
 	mAddrResult = nullptr;
-	mSocket		= INVALID_SOCKET;
+	mServerSocket		= INVALID_SOCKET;
 	mConn		= nullptr;
 }
 

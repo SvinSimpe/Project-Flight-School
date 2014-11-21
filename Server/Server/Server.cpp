@@ -78,17 +78,17 @@ bool Server::Connect()
 bool Server::AcceptConnection()
 {
 	SOCKET s = INVALID_SOCKET;
-	s = accept(mListenSocket, nullptr, nullptr);
-	if (s == INVALID_SOCKET)
+	s = accept( mListenSocket, nullptr, nullptr );
+	if ( s == INVALID_SOCKET )
 	{
-		printf("accept failed with error: %d\n", WSAGetLastError());
+		printf( "accept failed with error: %d\n", WSAGetLastError() );
 		return false;
 	}
 	else
 	{
-		mClientSockets.push_back(s);
+		mClientSockets.push_back( s );
 	}
-	printf("%d connected.\n", s);
+	printf( "%d connected.\n", s );
 
 	return true;
 }
@@ -96,87 +96,87 @@ bool Server::AcceptConnection()
 bool Server::Update()
 {
 	std::vector<std::thread> listenThreads = std::vector<std::thread>(0);
-	while (true)
+	while ( true )
 	{
-		if (AcceptConnection())
-			listenThreads.push_back(std::thread(&Server::RecvLoop, this, mClientSockets.size() - 1));
+		if ( AcceptConnection() )
+			listenThreads.push_back( std::thread( &Server::ReceiveLoop, this, mClientSockets.size() - 1) );
 		else
 			break;
 	}
 
-	for (auto& t : listenThreads)
+	for ( auto& t : listenThreads )
 	{
 		t.join();
-		mConn->PrintMsg("Join!");
+		mConn->PrintMsg( "Join!" );
 	}
 	return true;
 }
 
-bool Server::RecvLoop(int index)
+bool Server::ReceiveLoop( int index )
 {
-	while (mClientSockets.at(index) != INVALID_SOCKET)
+	while ( mClientSockets.at(index) != INVALID_SOCKET )
 	{
-		char* msg = mConn->RecvMsg(mClientSockets.at(index));
+		char* msg = mConn->ReceiveMsg( mClientSockets.at(index) );
 
-		if (msg)
+		if ( msg )
 		{
-			HandleMsg(mClientSockets.at(index), msg);
+			HandleMsg( mClientSockets.at( index ), msg );
 			delete msg;
 		}
 	}
-	mConn->PrintMsg("Client disconnected.");
+	mConn->PrintMsg( "Client disconnected." );
 	return true;
 }
 
-void Server::HandleMsg(SOCKET &socket, char* msg)
+void Server::HandleMsg( SOCKET &socket, char* msg )
 {
-	if (strcmp(msg, "Quit") == 0)
+	if ( strcmp( msg, "Quit" ) == 0 )
 	{
-		mConn->SendMsg(socket, msg);
-		mConn->DisconnectSocket(socket);
+		mConn->SendMsg( socket, msg );
+		mConn->DisconnectSocket( socket );
 
 		bool allClosed = true;
-		for (auto& s : mClientSockets)
+		for ( auto& s : mClientSockets )
 		{
-			if (s != INVALID_SOCKET)
+			if ( s != INVALID_SOCKET )
 			{
 				allClosed = false;
 			}
 		}
-		if (allClosed)
+		if ( allClosed )
 		{
-			mConn->DisconnectSocket(mListenSocket);
+			mConn->DisconnectSocket( mListenSocket );
 		}
 	}
-	else if (strcmp(msg, "Shutdown") == 0)
+	else if ( strcmp( msg, "Shutdown" ) == 0 )
 	{
-		for (auto& s : mClientSockets)
+		for ( auto& s : mClientSockets )
 		{
-			if (s != INVALID_SOCKET)
+			if ( s != INVALID_SOCKET )
 			{
-				mConn->SendMsg(s, "Quit");
+				mConn->SendMsg( s, "Quit" );
 			}
 		}
 
-		for (auto& s : mClientSockets)
+		for ( auto& s : mClientSockets )
 		{
-			if (s != INVALID_SOCKET)
+			if ( s != INVALID_SOCKET )
 			{
-				mConn->DisconnectSocket(s);
+				mConn->DisconnectSocket( s );
 			}
 		}
-		mConn->DisconnectSocket(mListenSocket);
+		mConn->DisconnectSocket( mListenSocket );
 	}
 	else
 	{
-		for (auto& s : mClientSockets)
+		for ( auto& s : mClientSockets )
 		{
-			if (s != INVALID_SOCKET)
+			if ( s != INVALID_SOCKET )
 			{
-				if (s != socket)
-					mConn->SendMsg(s, msg);
+				if ( s != socket )
+					mConn->SendMsg( s, msg );
 				else
-					mConn->SendMsg(socket, "Message sent.");
+					mConn->SendMsg( socket, "Message sent." );
 			}
 		}
 	}
@@ -188,9 +188,9 @@ void Server::Release()
 	WSACleanup();
 	mConn->Release();
 
-	if (mConn)
+	if ( mConn )
 		delete mConn;
-	if (mInstance)
+	if ( mInstance )
 		delete mInstance;
 }
 
@@ -199,7 +199,7 @@ Server::Server()
 	mResult			= 0;
 	mAddrResult		= nullptr;
 	mListenSocket	= INVALID_SOCKET;
-	mClientSockets	= std::vector<SOCKET>(0);
+	mClientSockets	= std::vector<SOCKET>( 0 );
 	mConn			= nullptr;
 }
 

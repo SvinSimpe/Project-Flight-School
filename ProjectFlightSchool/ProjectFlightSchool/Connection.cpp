@@ -1,14 +1,9 @@
 #include "Connection.h"
 
-bool Connection::Initialize()
-{
-	return true;
-}
-
 bool Connection::SendMsg( SOCKET &to, char* msg )
 {
-	int msgLen = (int)strlen( msg );
-	mResult = send( to, msg, msgLen, 0 );
+	int msgLen	= (int)strlen( msg );
+	mResult		= send( to, msg, msgLen, 0 );
 	if ( mResult == SOCKET_ERROR )
 	{
 		printf( "send failed when sending to %d with error: %d\n", to, WSAGetLastError() );
@@ -58,6 +53,12 @@ bool Connection::DisconnectSocket( SOCKET &socket )
 	socket = INVALID_SOCKET;
 	return xXxTinaReTurnerxXx;
 }
+
+bool Connection::Initialize()
+{
+	return true;
+}
+
 
 void Connection::Release()
 {

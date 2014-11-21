@@ -2,83 +2,10 @@
 
 Server* Server::mInstance = nullptr;
 
-Server* Server::GetInstance()
-{
-	if ( !mInstance )
-		mInstance = new Server();
-	return mInstance;
-}
-
-bool Server::Initialize( const char* port )
-{
-	WSADATA WSAData;
-
-	mResult = WSAStartup( MAKEWORD( 2, 2 ), &WSAData );
-	if ( mResult != 0 )
-	{
-		printf( "WSAStartup failed with error: %d\n", mResult );
-		return false;
-	}
-
-	addrinfo hints;
-	ZeroMemory( &hints, sizeof( hints ) );
-	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol = IPPROTO_TCP;
-	hints.ai_flags = AI_PASSIVE;
-
-	mResult = getaddrinfo( nullptr, port, &hints, &mAddrResult );
-	if (mResult != 0)
-	{
-		printf( "getaddrinfo failed with error: %d\n", mResult );
-		WSACleanup();
-		return false;
-	}
-
-	mConn = new Connection();
-	mConn->Initialize();
-
-	return true;
-}
-
-bool Server::Connect()
-{
-	mListenSocket = socket( mAddrResult->ai_family, mAddrResult->ai_socktype, mAddrResult->ai_protocol );
-	if ( mListenSocket == INVALID_SOCKET )
-	{
-		printf( "socket failed with error: %d\n", WSAGetLastError() );
-		freeaddrinfo( mAddrResult );
-		WSACleanup();
-		return false;
-	}
-
-	mResult = bind( mListenSocket, mAddrResult->ai_addr, (int)mAddrResult->ai_addrlen );
-	if ( mResult != 0 )
-	{
-		printf( "bind failed with error: %d\n", WSAGetLastError() );
-		freeaddrinfo( mAddrResult );
-		closesocket( mListenSocket );
-		WSACleanup();
-		return false;
-	}
-	freeaddrinfo( mAddrResult );
-
-	mResult = listen( mListenSocket, SOMAXCONN );
-	if ( mResult == SOCKET_ERROR )
-	{
-		printf( "listen failed with error: %d\n", WSAGetLastError() );
-		closesocket( mListenSocket );
-		WSACleanup();
-		return false;
-	}
-
-	return true;
-}
-
 bool Server::AcceptConnection()
 {
-	SOCKET s = INVALID_SOCKET;
-	s = accept( mListenSocket, nullptr, nullptr );
+	SOCKET s	= INVALID_SOCKET;
+	s			= accept( mListenSocket, nullptr, nullptr );
 	if ( s == INVALID_SOCKET )
 	{
 		printf( "accept failed with error: %d\n", WSAGetLastError() );
@@ -90,25 +17,6 @@ bool Server::AcceptConnection()
 	}
 	printf( "%d connected.\n", s );
 
-	return true;
-}
-
-bool Server::Update()
-{
-	std::vector<std::thread> listenThreads = std::vector<std::thread>(0);
-	while ( true )
-	{
-		if ( AcceptConnection() )
-			listenThreads.push_back( std::thread( &Server::ReceiveLoop, this, mClientSockets.size() - 1) );
-		else
-			break;
-	}
-
-	for ( auto& t : listenThreads )
-	{
-		t.join();
-		mConn->PrintMsg( "Join!" );
-	}
 	return true;
 }
 
@@ -180,6 +88,98 @@ void Server::HandleMsg( SOCKET &socket, char* msg )
 			}
 		}
 	}
+}
+
+Server* Server::GetInstance()
+{
+	if ( !mInstance )
+		mInstance = new Server();
+	return mInstance;
+}
+
+bool Server::Connect()
+{
+	mListenSocket = socket( mAddrResult->ai_family, mAddrResult->ai_socktype, mAddrResult->ai_protocol );
+	if ( mListenSocket == INVALID_SOCKET )
+	{
+		printf( "socket failed with error: %d\n", WSAGetLastError() );
+		freeaddrinfo( mAddrResult );
+		WSACleanup();
+		return false;
+	}
+
+	mResult = bind( mListenSocket, mAddrResult->ai_addr, (int)mAddrResult->ai_addrlen );
+	if ( mResult != 0 )
+	{
+		printf( "bind failed with error: %d\n", WSAGetLastError() );
+		freeaddrinfo( mAddrResult );
+		closesocket( mListenSocket );
+		WSACleanup();
+		return false;
+	}
+	freeaddrinfo( mAddrResult );
+
+	mResult = listen( mListenSocket, SOMAXCONN );
+	if ( mResult == SOCKET_ERROR )
+	{
+		printf( "listen failed with error: %d\n", WSAGetLastError() );
+		closesocket( mListenSocket );
+		WSACleanup();
+		return false;
+	}
+
+	return true;
+}
+
+bool Server::Run()
+{
+	std::vector<std::thread> listenThreads = std::vector<std::thread>(0);
+	while ( true )
+	{
+		if ( AcceptConnection() )
+			listenThreads.push_back( std::thread( &Server::ReceiveLoop, this, mClientSockets.size() - 1) );
+		else
+			break;
+	}
+
+	for ( auto& t : listenThreads )
+	{
+		t.join();
+		mConn->PrintMsg( "Join!" );
+	}
+	return true;
+}
+
+bool Server::Initialize( const char* port )
+{
+	WSADATA WSAData;
+
+	mResult = WSAStartup( MAKEWORD( 2, 2 ), &WSAData );
+	if ( mResult != 0 )
+	{
+		printf( "WSAStartup failed with error: %d\n", mResult );
+		return false;
+	}
+
+	addrinfo hints;
+	ZeroMemory( &hints, sizeof( hints ) );
+	hints.ai_family		= AF_INET;
+	hints.ai_socktype	= SOCK_STREAM;
+	hints.ai_protocol	= IPPROTO_TCP;
+	hints.ai_flags		= AI_PASSIVE;
+
+	mResult = getaddrinfo( nullptr, port, &hints, &mAddrResult );
+	if ( mResult != 0 )
+	{
+		printf( "getaddrinfo failed with error: %d\n", mResult );
+		WSACleanup();
+		return false;
+	}
+
+	mConn = new Connection();
+	mConn->Initialize();
+
+	return true;
 }
 
 void Server::Release()

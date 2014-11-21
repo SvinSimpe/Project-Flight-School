@@ -12,7 +12,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 	//_CrtSetBreakAlloc(142); // Break at specific memory allocation point
 
-	// Below code is used to open a separate console window, only used in debug
+	// Below code is used to open a separate console window only used in debug
 	AllocConsole();
 	HANDLE handle_out = GetStdHandle( STD_OUTPUT_HANDLE );
 	int hCrt = _open_osfhandle( (long)handle_out, _O_TEXT );

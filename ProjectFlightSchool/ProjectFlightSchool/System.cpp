@@ -123,8 +123,24 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 	Graphics::GetInstance()->Initialize( mHWnd, mScreenWidth, mScreenHeight );
 
 	Graphics::GetInstance()->Graphics::LoadStatic3dAsset( "derpdufinnsinte", mAssetId );
+	
+	const char* port = DEFAULT_PORT;
+	const char* ip = DEFAULT_IP;
 
-	Server::GetInstance()->Initialize(DEFAULT_PORT);
+	int choice = 0;
+	std::cin >> choice;
+	if (choice == 0)
+	{
+		Server::GetInstance()->Initialize( DEFAULT_PORT );
+		Server::GetInstance()->Connect();
+		mServerThread = std::thread( &Server::Run, Server::GetInstance() );
+	}
+	else
+	{
+		mClient.Initialize(ip, port);
+		mClient.Connect();
+		mClientThread = std::thread( &Client::Run, mClient);
+	}
 
 	return S_OK;
 }
@@ -133,7 +149,10 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 void System::Release()
 {
 	Graphics::GetInstance()->Release();
+	mServerThread.join();
 	Server::GetInstance()->Release();
+	mClientThread.join();
+	mClient.Release();
 }
 
 System::System()

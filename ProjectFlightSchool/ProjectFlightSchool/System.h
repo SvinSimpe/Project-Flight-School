@@ -3,6 +3,9 @@
 
 #include "Server.h" // This include should always be first since it includes windows.h...... for now
 #include "Graphics.h"
+#include "Client.h"
+#include <iostream>
+
 
 class System
 {
@@ -14,6 +17,10 @@ class System
 		UINT		mScreenHeight;
 
 		UINT		mAssetId;
+
+		std::thread	mServerThread;
+		std::thread	mClientThread;
+		Client		mClient;
 
 	protected:
 	public:

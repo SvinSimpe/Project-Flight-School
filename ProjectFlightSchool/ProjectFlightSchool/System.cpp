@@ -42,7 +42,7 @@ HRESULT	System::Update( float deltaTime )
 HRESULT	System::Render()
 {
 	Graphics::GetInstance()->BeginScene();
-	Graphics::GetInstance()->RenderStatic3dAsset( mAssetId );
+	Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset );
 	Graphics::GetInstance()->EndScene();
 	return S_OK;
 }
@@ -122,7 +122,7 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 
 	Graphics::GetInstance()->Initialize( mHWnd, mScreenWidth, mScreenHeight );
 
-	Graphics::GetInstance()->Graphics::LoadStatic3dAsset( "derpdufinnsinte", mAssetId );
+	Graphics::GetInstance()->Graphics::LoadStatic3dAsset( "CUBE", mPlaneAsset );
 
 	return S_OK;
 }

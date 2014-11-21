@@ -29,9 +29,10 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 	// Plane placeholder
 	//////////////////////////
 	AssetBase* plane;
-	plane			= new Static3dAsset;
-	plane->mAssetId	= 0;
-	plane->mFileName = "PLANEFILENAME"; //ADD CORRECT FILENAME HERE
+	plane				= new Static3dAsset;
+	plane->mAssetId		= 0;
+	plane->mFileName	= "PLANE"; //ADD CORRECT FILENAME HERE
+	plane->mVertexCount	= 4;
 
 	Vertex planePlaceholder[4];
 	planePlaceholder[0].position = DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( -0.75f, -0.75f, 0.0f ) );
@@ -64,8 +65,9 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 	//////////////////////////
 	AssetBase* cube;
 	cube = new Static3dAsset;
-	cube->mAssetId = 1;
-	cube->mFileName = "CUBEFILENAME"; //ADD CORRECT FILENAME HERE
+	cube->mAssetId		= 1;
+	cube->mFileName		= "CUBE"; //ADD CORRECT FILENAME HERE
+	cube->mVertexCount	= 8;
 
 	Vertex cubePlaceholder[8];
 	cubePlaceholder[0].position = DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( -0.25f, -0.25f, 0.0f ) );
@@ -79,6 +81,8 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 	cubePlaceholder[7].position = DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( 0.25f, 0.25f, -0.5f ) );
 	
 	subData.pSysMem = cubePlaceholder;
+
+	bufferDesc.ByteWidth		= sizeof( cubePlaceholder );
 
 	hr = device->CreateBuffer( &bufferDesc, &subData, &cube->mVertexBuffer );
 	if(FAILED((hr)))
@@ -138,7 +142,7 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, U
 			return hr;
 		}
 
-		mAssetContainer.push_back(temp);
+		mAssetContainer.push_back( temp );
 
 		return hr;
 	}
@@ -157,7 +161,7 @@ void AssetManager::Release()
 	for( UINT i = 0; i < mAssetContainer.size(); i++ )
 	{
 		mAssetContainer[i]->Release();
-		SAFE_DELETE(mAssetContainer[i]);
+		SAFE_DELETE( mAssetContainer[i] );
 	}
 	mAssetContainer.clear();
 }

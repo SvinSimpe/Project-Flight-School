@@ -6,7 +6,7 @@
 
 #include "AssetManager.h"
 #include "Effect.h"
-//#include <d3dcompiler.h>
+#include "CbufferPerFrame.h"
 
 #ifdef COMPILE_LIBRARY
 	#define LIBRARY_EXPORT __declspec( dllexport )
@@ -29,6 +29,8 @@ class LIBRARY_EXPORT Graphics
 		ID3D11RenderTargetView*	mRenderTargetView;
 		ID3D11DepthStencilView*	mDepthStencilView;
 		D3D11_VIEWPORT			mStandardView;
+
+		ID3D11Buffer*			mCbufferPerFrame;
 
 		AssetManager*			mAssetManager;
 

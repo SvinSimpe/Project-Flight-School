@@ -45,6 +45,18 @@ bool Client::HandleMsg( char* msg )
 	return true;
 }
 
+template <typename T>
+void Client::StructToCharPtr( T* inStruct, char* result )
+{
+	memcpy( result, inStruct, sizeof(*inStruct) );
+}
+
+template <typename T>
+void Client::CharPtrToStruct( T* result, char* inChar )
+{
+	memcpy( result, inChar, sizeof(*result) );
+}
+
 bool Client::Connect()
 {
 	addrinfo* ptr = nullptr;
@@ -124,7 +136,6 @@ bool Client::Initialize( const char* ip, const char* port )
 	return true;
 }
 
-
 void Client::Release()
 {
 	WSACleanup();
@@ -141,7 +152,6 @@ Client::Client()
 	mServerSocket	= INVALID_SOCKET;
 	mConn			= nullptr;
 }
-
 
 Client::~Client()
 {

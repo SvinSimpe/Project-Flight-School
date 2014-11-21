@@ -20,6 +20,10 @@ class Client // The class used by clients to connect to the server
 		bool	MsgLoop();
 		bool	ReceiveLoop();
 		bool	HandleMsg( char* msg );
+		template <typename T>
+		void	StructToCharPtr( T* inStruct, char* result );
+		template <typename T>
+		void	CharPtrToStruct( T* result, char* inChar );
 
 	protected:
 

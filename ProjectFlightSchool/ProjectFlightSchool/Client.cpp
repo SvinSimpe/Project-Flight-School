@@ -1,5 +1,50 @@
 #include "Client.h"
 
+bool Client::MsgLoop()
+{
+	bool result = false;
+	while ( mServerSocket != INVALID_SOCKET )
+	{
+		std::string msg = "";
+		std::getline( std::cin, msg );
+		
+		if ( mServerSocket != INVALID_SOCKET )
+		{
+			result = mConn->SendMsg(mServerSocket, (char*)msg.c_str());
+		}
+	};
+
+	return true;
+}
+
+bool Client::ReceiveLoop()
+{
+	do
+	{
+		char* msg = mConn->ReceiveMsg(mServerSocket);
+		if ( msg )
+		{
+			HandleMsg( msg );
+			delete msg;
+		}
+	} while ( mServerSocket != INVALID_SOCKET );
+	return true;
+}
+
+bool Client::HandleMsg( char* msg )
+{
+	if ( strcmp( msg, "Quit" ) == 0 )
+	{
+		mConn->DisconnectSocket( mServerSocket );
+		printf("Connection lost...");
+	}
+	else
+	{
+		printf("%s\n", msg);
+	}
+	return true;
+}
+
 bool Client::Connect()
 {
 	addrinfo* ptr = nullptr;
@@ -48,51 +93,6 @@ bool Client::Run()
 	return true;
 }
 
-bool Client::MsgLoop()
-{
-	bool result = false;
-	while ( mServerSocket != INVALID_SOCKET )
-	{
-		std::string msg = "";
-		std::getline( std::cin, msg );
-		
-		if ( mServerSocket != INVALID_SOCKET )
-		{
-			result = mConn->SendMsg(mServerSocket, (char*)msg.c_str());
-		}
-	};
-
-	return true;
-}
-
-bool Client::ReceiveLoop()
-{
-	do
-	{
-		char* msg = mConn->ReceiveMsg(mServerSocket);
-		if ( msg )
-		{
-			HandleMsg( msg );
-			delete msg;
-		}
-	} while ( mServerSocket != INVALID_SOCKET );
-	return true;
-}
-
-bool Client::HandleMsg( char* msg )
-{
-	if ( strcmp( msg, "Quit" ) == 0 )
-	{
-		mConn->DisconnectSocket( mServerSocket );
-		mConn->PrintMsg( "Connection lost." );
-	}
-	else
-	{
-		mConn->PrintMsg( msg );
-	}
-	return true;
-}
-
 bool Client::Initialize( const char* ip, const char* port )
 {
 	WSADATA WSAData;
@@ -106,9 +106,9 @@ bool Client::Initialize( const char* ip, const char* port )
 
 	addrinfo hints = { 0 };
 	ZeroMemory( &hints, sizeof( hints ) );
-	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol = IPPROTO_TCP;
+	hints.ai_family		= AF_INET;
+	hints.ai_socktype	= SOCK_STREAM;
+	hints.ai_protocol	= IPPROTO_TCP;
 
 	mResult = getaddrinfo( ip, port, &hints, &mAddrResult );
 	if ( mResult != 0 )
@@ -136,10 +136,10 @@ void Client::Release()
 
 Client::Client()
 {
-	mResult		= 0;
-	mAddrResult = nullptr;
-	mServerSocket		= INVALID_SOCKET;
-	mConn		= nullptr;
+	mResult			= 0;
+	mAddrResult		= nullptr;
+	mServerSocket	= INVALID_SOCKET;
+	mConn			= nullptr;
 }
 
 

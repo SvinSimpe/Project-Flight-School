@@ -1,8 +1,11 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
-#include <Windows.h>
+#include "Server.h" // This include should always be first since it includes windows.h...... for now
 #include "Graphics.h"
+#include "Client.h"
+#include <iostream>
+
 
 class System
 {
@@ -16,6 +19,9 @@ class System
 		UINT		mPlaneAsset;
 		UINT		mCubeAsset;
 
+		std::thread	mNetworkThread;
+		Client		mClient;
+
 	protected:
 	public:
 
@@ -24,6 +30,7 @@ class System
 		static LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
 		HRESULT					Update( float deltaTime );
 		HRESULT					Render();
+		void					NetworkInit();
 
 	protected:
 	public:

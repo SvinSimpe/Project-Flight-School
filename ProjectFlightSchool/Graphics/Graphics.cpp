@@ -38,7 +38,7 @@ void Graphics::RenderStatic3dAsset( UINT assetId )
 	UINT32 vertexSize				= sizeof( Vertex );
 	UINT32 offset					= 0;
 
-	ID3D11Buffer* buffersToSet[]	= { mAssetManager->mTestAsset->mVertexBuffer };
+	ID3D11Buffer* buffersToSet[]	= { mAssetManager->mAssetContainer[assetId]->mVertexBuffer };
 	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
 
 	mDeviceContext->IASetInputLayout( mEffect->GetInputLayout() );
@@ -184,12 +184,13 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	mStandardView.TopLeftY	= 0.0f;
 
 	mAssetManager = new AssetManager;
+	mAssetManager->Initialize( mDevice );
 
 	mEffect	= new Effect;
 
 	EffectInfo effectInfo;
 	ZeroMemory( &effectInfo, sizeof( EffectInfo ) );
-	effectInfo.fileName					= "../Content/Effects/TestShader.hlsl";
+	effectInfo.fileName					= "../Content/Effects/Placeholder.hlsl";
 	effectInfo.isVertexShaderIncluded	= true;
 	effectInfo.isPixelShaderIncluded	= true;
 

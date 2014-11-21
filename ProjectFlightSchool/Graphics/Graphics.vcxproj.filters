@@ -88,7 +88,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\Content\Effects\TestShader.hlsl">
+    <Text Include="..\Content\Effects\Placeholder.hlsl">
       <Filter>Effects</Filter>
     </Text>
   </ItemGroup>

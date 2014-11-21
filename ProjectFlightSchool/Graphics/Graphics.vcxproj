@@ -41,12 +41,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)ProjectFlightSchool\</OutDir>
+    <OutDir>$(SolutionDir)Debug\</OutDir>
     <IntDir>ProjectFlightSchool\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)ProjectFlightSchool\</OutDir>
+    <OutDir>$(SolutionDir)Release</OutDir>
     <IntDir>Release\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -91,6 +91,7 @@
     <ClInclude Include="AssetBase.h" />
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="CameraInfo.h" />
+    <ClInclude Include="CbufferPerFrame.h" />
     <ClInclude Include="Effect.h" />
     <ClInclude Include="EffectInfo.h" />
     <ClInclude Include="Camera.h" />
@@ -107,7 +108,7 @@
     <ClCompile Include="Static3dAsset.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\Content\Effects\TestShader.hlsl">
+    <Text Include="..\Content\Effects\Placeholder.hlsl">
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>

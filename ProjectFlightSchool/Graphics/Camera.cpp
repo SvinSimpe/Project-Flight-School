@@ -28,15 +28,15 @@ void Camera::SetPos(XMFLOAT4 pos)
 
 XMMATRIX Camera::GetViewMatrix() const
 {
-	return XMLoadFloat4x4( &mViewMatrix );
+	return XMMatrixTranspose( XMLoadFloat4x4( &mViewMatrix ) );
 }
 
 XMMATRIX Camera::GetProjMatrix() const
 {
-	return XMLoadFloat4x4( &mProjMatrix );
+	return XMMatrixTranspose( XMLoadFloat4x4( &mProjMatrix ) );
 }
 
-bool Camera::Initialize( CameraInfo* cameraInfo )
+HRESULT Camera::Initialize( CameraInfo* cameraInfo )
 {
 	mPos			= cameraInfo->eyePos;
 	mFocusPoint		= cameraInfo->focusPoint;
@@ -56,7 +56,7 @@ bool Camera::Initialize( CameraInfo* cameraInfo )
 	XMStoreFloat4x4( &mViewMatrix, XMMatrixLookAtLH( vecPos, vecFocus, vecUp ) );
 	XMStoreFloat4x4( &mProjMatrix, XMMatrixPerspectiveFovLH( mFoV, mAspectRatio, mNearZ, mFarZ ) );
 
-	return true;
+	return S_OK;
 }
 
 void Camera::Release()
@@ -66,7 +66,7 @@ void Camera::Release()
 Camera::Camera()
 {
 	mPos		= XMFLOAT4(0,0,0,0);
-	mUp			= XMFLOAT4(0,1,0,0);
+	mUp			= XMFLOAT4(0,0,0,0);
 	mFocusPoint	= XMFLOAT4(0,0,0,0);
 
 	mFoV			= 0;

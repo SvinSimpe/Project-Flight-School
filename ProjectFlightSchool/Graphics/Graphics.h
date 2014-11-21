@@ -6,7 +6,8 @@
 
 #include "AssetManager.h"
 #include "Effect.h"
-//#include <d3dcompiler.h>
+#include "CbufferPerFrame.h"
+#include "Camera.h"
 
 #ifdef COMPILE_LIBRARY
 	#define LIBRARY_EXPORT __declspec( dllexport )
@@ -29,10 +30,11 @@ class LIBRARY_EXPORT Graphics
 		ID3D11RenderTargetView*	mRenderTargetView;
 		ID3D11DepthStencilView*	mDepthStencilView;
 		D3D11_VIEWPORT			mStandardView;
+		ID3D11Buffer*			mCbufferPerFrame;
 
 		AssetManager*			mAssetManager;
-
 		Effect*					mEffect;
+		Camera*					mCamera;
 
 	protected:
 	public:
@@ -41,6 +43,8 @@ class LIBRARY_EXPORT Graphics
 	private:
 		Graphics();
 		virtual	~Graphics();
+
+		HRESULT MapBuffer( ID3D11Buffer* buffer, void* data, int size );
 
 	protected:
 	public:

@@ -43,6 +43,7 @@ HRESULT	System::Render()
 {
 	Graphics::GetInstance()->BeginScene();
 	Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset );
+	Graphics::GetInstance()->RenderStatic3dAsset( mCubeAsset );
 	Graphics::GetInstance()->EndScene();
 	return S_OK;
 }
@@ -143,6 +144,7 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 
 	Graphics::GetInstance()->Initialize( mHWnd, mScreenWidth, mScreenHeight );
 	Graphics::GetInstance()->LoadStatic3dAsset( "CUBE", mPlaneAsset );
+	Graphics::GetInstance()->LoadStatic3dAsset( "PLANE", mPlaneAsset );
 
 	const char* port = DEFAULT_PORT;
 	const char* ip = DEFAULT_IP;

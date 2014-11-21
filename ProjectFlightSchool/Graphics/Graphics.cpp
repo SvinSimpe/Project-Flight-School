@@ -22,6 +22,17 @@ Graphics::~Graphics()
 
 }
 
+//Map buffer
+HRESULT Graphics::MapBuffer( ID3D11Buffer* buffer, void* data, int size )
+{
+	D3D11_MAPPED_SUBRESOURCE mapRes;
+	mDeviceContext->Map( buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapRes );
+	memcpy( mapRes.pData, data, size );
+	mDeviceContext->Unmap( buffer, 0 );
+
+	return S_OK;
+}
+
 //Load a static 3d asset to the AssetManager.
 HRESULT Graphics::LoadStatic3dAsset( char* fileName, UINT &assetId )
 {
@@ -31,10 +42,7 @@ HRESULT Graphics::LoadStatic3dAsset( char* fileName, UINT &assetId )
 //Render a static 3d asset given the assetId
 void Graphics::RenderStatic3dAsset( UINT assetId )
 {
-	mDeviceContext->OMSetRenderTargets( 1, &mRenderTargetView, mDepthStencilView );
-	mDeviceContext->RSSetViewports( 1, &mStandardView );
-
-	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
 	UINT32 vertexSize				= sizeof( Vertex );
 	UINT32 offset					= 0;
@@ -55,9 +63,20 @@ void Graphics::RenderStatic3dAsset( UINT assetId )
 //Clear canvas and prepare for rendering.
 void Graphics::BeginScene()
 {
-	static float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	static float clearColor[4] = { 0.3f, 0.3f, 0.3f, 1.0f };
 	mDeviceContext->ClearRenderTargetView( mRenderTargetView, clearColor );
 	mDeviceContext->ClearDepthStencilView( mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
+
+	mDeviceContext->OMSetRenderTargets( 1, &mRenderTargetView, mDepthStencilView );
+	mDeviceContext->RSSetViewports( 1, &mStandardView );
+
+	//Map CbufferPerFrame
+	CbufferPerFrame data;
+	data.viewMatrix			= mCamera->GetViewMatrix();
+	data.projectionMatrix	= mCamera->GetProjMatrix();
+	MapBuffer( mCbufferPerFrame, &data, sizeof( CbufferPerFrame ) );
+
+	mDeviceContext->VSSetConstantBuffers( 0, 1, &mCbufferPerFrame );
 }
 
 //Finalize rendering.
@@ -182,19 +201,6 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	mStandardView.TopLeftX	= 0.0f;
 	mStandardView.TopLeftY	= 0.0f;
 
-	mAssetManager = new AssetManager;
-	mAssetManager->Initialize( mDevice );
-
-	mEffect	= new Effect;
-
-	EffectInfo effectInfo;
-	ZeroMemory( &effectInfo, sizeof( EffectInfo ) );
-	effectInfo.fileName					= "../Content/Effects/Placeholder.hlsl";
-	effectInfo.isVertexShaderIncluded	= true;
-	effectInfo.isPixelShaderIncluded	= true;
-
-	hr = mEffect->Intialize( mDevice, &effectInfo );
-
 	///////////////////////////////
 	// CREATE CBUFFERPERFRAME
 	///////////////////////////////
@@ -207,6 +213,37 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mCbufferPerFrame );
 
+	//AssetManager
+	mAssetManager = new AssetManager;
+	mAssetManager->Initialize( mDevice );
+
+	//Effect
+	mEffect	= new Effect;
+
+	EffectInfo effectInfo;
+	ZeroMemory( &effectInfo, sizeof( EffectInfo ) );
+	effectInfo.fileName					= "../Content/Effects/Placeholder.hlsl";
+	effectInfo.isVertexShaderIncluded	= true;
+	effectInfo.isPixelShaderIncluded	= true;
+
+	hr = mEffect->Intialize( mDevice, &effectInfo );
+	
+	//Camera
+	mCamera = new Camera;
+
+	CameraInfo cameraInfo;
+	ZeroMemory( &cameraInfo, sizeof( cameraInfo ) );
+	cameraInfo.eyePos		= DirectX::XMFLOAT4( 2.0f, 2.0f, -2.0f, 1.0f );
+	cameraInfo.focusPoint	= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
+	cameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
+	cameraInfo.width		= (float)screenWidth;
+	cameraInfo.height		= (float)screenHeight;
+	cameraInfo.foVY			= 0.75f;
+	cameraInfo.nearZ		= 0.1f;
+	cameraInfo.farZ			= 10.0f;
+
+	hr = mCamera->Initialize( &cameraInfo );
+	
 	return hr;
 }
 
@@ -222,7 +259,10 @@ void Graphics::Release()
 
 	mAssetManager->Release();
 	mEffect->Release();
+	mCamera->Release();
 
 	SAFE_DELETE( mAssetManager );
 	SAFE_DELETE( mEffect );
+	SAFE_DELETE( mCamera );
+
 }

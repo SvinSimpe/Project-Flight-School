@@ -15,7 +15,7 @@ class Client // The class used by clients to connect to the server
 		bool Connect();
 		bool Run();
 		bool MsgLoop();
-		bool RecvLoop();
+		bool ReceiveLoop();
 		bool HandleMsg( char* msg );
 		bool Initialize( const char* ip, const char* port ); // Sets up and connects to the server
 		void Release();
@@ -25,7 +25,7 @@ class Client // The class used by clients to connect to the server
 	private:
 		int mResult;
 		addrinfo* mAddrResult;
-		SOCKET mSocket;
+		SOCKET mServerSocket;
 		Connection* mConn;
 
 	protected:

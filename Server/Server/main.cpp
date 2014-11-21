@@ -5,7 +5,10 @@
 
 int main()
 {
+#if defined(DEBUG) | defined(_DEBUG)
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+	//_CrtSetBreakAlloc(142); // Break at specific memory allocation point
+#endif
 
 	const char* port = DEFAULT_PORT;
 	const char* ip = DEFAULT_IP;

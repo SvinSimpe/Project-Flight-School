@@ -26,10 +26,10 @@ class Connection
 
 	public:
 		bool Initialize();
-		bool SendMsg(SOCKET &to, char* msg);
-		char* RecvMsg(SOCKET &from);
-		void PrintMsg(char* msg);
-		bool DisconnectSocket(SOCKET &socket);
+		bool SendMsg( SOCKET &to, char* msg );
+		char* ReceiveMsg( SOCKET &from );
+		void PrintMsg( char* msg );
+		bool DisconnectSocket( SOCKET &socket );
 		void Release();
 		Connection();
 		~Connection();

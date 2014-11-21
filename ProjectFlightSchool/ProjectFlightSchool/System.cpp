@@ -47,6 +47,57 @@ HRESULT	System::Render()
 	return S_OK;
 }
 
+UINT System::DetecAndRegisterDevices()
+{
+	UINT cbSize, puiNrOfDevices, nrOfDevices = 0;
+	PRAWINPUTDEVICELIST prids;
+
+	if( GetRawInputDeviceList( NULL, &puiNrOfDevices, sizeof( PRAWINPUTDEVICELIST ) ) != 0 )
+	{
+		return GetLastError();
+	}
+
+	prids = (PRAWINPUTDEVICELIST)malloc( sizeof( RAWINPUTDEVICELIST ) * puiNrOfDevices);
+	if( prids == NULL ) 
+	{
+		return GetLastError();
+	}
+
+	if( nrOfDevices = GetRawInputDeviceList( prids, &puiNrOfDevices, sizeof( RAWINPUTDEVICELIST ) ) == (UINT)-1 )
+	{
+		return GetLastError();
+	}
+
+	RID_DEVICE_INFO rdi;
+	rdi.cbSize = sizeof( RID_DEVICE_INFO );
+	cbSize = rdi.cbSize;
+	for( UINT i = 0; i < nrOfDevices; i++ )
+	{
+		if( GetRawInputDeviceInfo( prids[i].hDevice, RIDI_DEVICEINFO, &rdi, &cbSize ) < 0 ) 
+		{
+			return GetLastError();
+		}
+		else
+		{
+			RAWINPUTDEVICE rid;
+			switch( rdi.dwType )
+			{
+				case RIM_TYPEMOUSE:
+					break;
+				case RIM_TYPEKEYBOARD:
+					break;
+				case RIM_TYPEHID:
+					break;
+			}
+			
+			
+		}
+	}
+
+	return 0;
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
@@ -115,6 +166,14 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 
 	ShowWindow( mHWnd, nCmdShow );
 	ShowCursor( true );
+
+	///////////////////////////////
+	// Initialize sub-applications
+	///////////////////////////////
+	if( DetecAndRegisterDevices() != 0 )
+	{
+		return S_FALSE;
+	}
 
 	///////////////////////////////
 	// Initialize sub-applications

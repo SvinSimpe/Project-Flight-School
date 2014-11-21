@@ -1,6 +1,8 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
+#define WIN32_LEAN_AND_MEAN
+#define VC_EXTRALEAN
 #include <Windows.h>
 #include "Graphics.h"
 
@@ -15,6 +17,8 @@ class System
 
 		UINT		mAssetId;
 
+		std::vector<RAWINPUTDEVICE> mRid;
+
 	protected:
 	public:
 
@@ -23,6 +27,7 @@ class System
 		static LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
 		HRESULT					Update( float deltaTime );
 		HRESULT					Render();
+		UINT					DetecAndRegisterDevices();
 
 	protected:
 	public:

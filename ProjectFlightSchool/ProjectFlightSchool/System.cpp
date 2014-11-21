@@ -47,6 +47,27 @@ HRESULT	System::Render()
 	return S_OK;
 }
 
+void System::NetworkInit()
+{
+	const char* port = DEFAULT_PORT;
+
+	int choice = 0;
+	std::cin >> choice;
+	if (choice == 0)
+	{
+		Server::GetInstance()->Initialize( port );
+		Server::GetInstance()->Connect();
+		Server::GetInstance()->Run();
+	}
+	else
+	{
+		const char* ip = DEFAULT_IP;
+		mClient.Initialize(ip, port);
+		mClient.Connect();
+		mClient.Run();
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
@@ -127,20 +148,7 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 	const char* port = DEFAULT_PORT;
 	const char* ip = DEFAULT_IP;
 
-	int choice = 0;
-	std::cin >> choice;
-	if (choice == 0)
-	{
-		Server::GetInstance()->Initialize( DEFAULT_PORT );
-		Server::GetInstance()->Connect();
-		mServerThread = std::thread( &Server::Run, Server::GetInstance() );
-	}
-	else
-	{
-		mClient.Initialize(ip, port);
-		mClient.Connect();
-		mClientThread = std::thread( &Client::Run, mClient);
-	}
+	mNetworkThread = std::thread( &System::NetworkInit, this );
 
 	return S_OK;
 }
@@ -149,9 +157,8 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 void System::Release()
 {
 	Graphics::GetInstance()->Release();
-	mServerThread.join();
+	mNetworkThread.join();
 	Server::GetInstance()->Release();
-	mClientThread.join();
 	mClient.Release();
 }
 

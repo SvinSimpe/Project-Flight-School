@@ -18,8 +18,7 @@ class System
 
 		UINT		mAssetId;
 
-		std::thread	mServerThread;
-		std::thread	mClientThread;
+		std::thread	mNetworkThread;
 		Client		mClient;
 
 	protected:
@@ -30,6 +29,7 @@ class System
 		static LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
 		HRESULT					Update( float deltaTime );
 		HRESULT					Render();
+		void					NetworkInit();
 
 	protected:
 	public:

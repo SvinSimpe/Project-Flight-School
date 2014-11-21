@@ -22,14 +22,14 @@ bool Server::AcceptConnection()
 
 bool Server::ReceiveLoop( int index )
 {
-	while ( mClientSockets.at(index) != INVALID_SOCKET )
+	while ( mClientSockets.at( index ) != INVALID_SOCKET )
 	{
-		char* msg = mConn->ReceiveMsg( mClientSockets.at(index) );
+		char* msg = mConn->ReceiveMsg( mClientSockets.at( index ) );
 
 		if ( msg )
 		{
 			HandleMsg( mClientSockets.at( index ), msg );
-			printf( "%d sent: %s\n", mClientSockets.at(index), msg );
+			printf( "%d sent: %s\n", mClientSockets.at( index ), msg );
 			delete msg;
 		}
 	}
@@ -84,7 +84,7 @@ void Server::HandleMsg( SOCKET &socket, char* msg )
 			{
 				if (s != socket)
 				{
-					std::string sMsg = std::to_string(socket) + "says: " + msg;
+					std::string sMsg = std::to_string( socket ) + "says: " + msg;
 					msg = (char*)sMsg.c_str();
 					mConn->SendMsg( s, msg );
 				}

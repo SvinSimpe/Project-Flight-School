@@ -42,7 +42,7 @@ HRESULT	System::Update( float deltaTime )
 HRESULT	System::Render()
 {
 	Graphics::GetInstance()->BeginScene();
-	Graphics::GetInstance()->RenderStatic3dAsset( mAssetId );
+	Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset );
 	Graphics::GetInstance()->EndScene();
 	return S_OK;
 }
@@ -142,14 +142,12 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 	///////////////////////////////
 
 	Graphics::GetInstance()->Initialize( mHWnd, mScreenWidth, mScreenHeight );
+	Graphics::GetInstance()->Graphics::LoadStatic3dAsset( "CUBE", mPlaneAsset );
 
-	Graphics::GetInstance()->Graphics::LoadStatic3dAsset( "derpdufinnsinte", mAssetId );
-	
 	const char* port = DEFAULT_PORT;
 	const char* ip = DEFAULT_IP;
 
 	mNetworkThread = std::thread( &System::NetworkInit, this );
-
 	return S_OK;
 }
 

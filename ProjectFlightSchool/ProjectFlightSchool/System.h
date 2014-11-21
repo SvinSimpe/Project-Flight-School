@@ -16,7 +16,8 @@ class System
 		UINT		mScreenWidth;
 		UINT		mScreenHeight;
 
-		UINT		mAssetId;
+		UINT		mPlaneAsset;
+		UINT		mCubeAsset;
 
 		std::thread	mNetworkThread;
 		Client		mClient;

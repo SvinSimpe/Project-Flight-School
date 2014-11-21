@@ -91,6 +91,7 @@
     <ClInclude Include="AssetBase.h" />
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="CameraInfo.h" />
+    <ClInclude Include="CbufferPerFrame.h" />
     <ClInclude Include="Effect.h" />
     <ClInclude Include="EffectInfo.h" />
     <ClInclude Include="Camera.h" />
@@ -107,7 +108,7 @@
     <ClCompile Include="Static3dAsset.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\Content\Effects\TestShader.hlsl">
+    <Text Include="..\Content\Effects\Placeholder.hlsl">
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>

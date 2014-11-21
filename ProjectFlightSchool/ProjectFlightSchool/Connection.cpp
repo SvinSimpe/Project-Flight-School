@@ -36,16 +36,6 @@ char* Connection::ReceiveMsg( SOCKET &from )
 	return msg;
 }
 
-void Connection::PrintMsg( char* msg )
-{
-	int msgLen = (int)strlen( msg );
-	for ( int i(0); i < msgLen; i++ )
-	{
-		printf( "%c", msg[i] );
-	}
-	printf( "\n" );
-}
-
 bool Connection::DisconnectSocket( SOCKET &socket )
 {
 	bool xXxTinaReTurnerxXx = true;

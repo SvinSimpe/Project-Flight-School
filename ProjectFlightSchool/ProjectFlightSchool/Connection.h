@@ -15,9 +15,9 @@
 #include <IPHlpApi.h>
 #include <stdio.h>
 #include <thread>
+#include <string>
 
 #define DEFAULT_BUFLEN 512
-
 #define DEFAULT_PORT "27015"
 #define DEFAULT_IP "192.168.1.61"
 
@@ -38,7 +38,6 @@ class Connection
 	public:
 		bool	SendMsg( SOCKET &to, char* msg );
 		char*	ReceiveMsg( SOCKET &from );
-		void	PrintMsg( char* msg );
 		bool	DisconnectSocket( SOCKET &socket );
 		bool	Initialize();
 		void	Release();

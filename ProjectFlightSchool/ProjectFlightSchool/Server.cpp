@@ -29,10 +29,10 @@ bool Server::ReceiveLoop( int index )
 		if ( msg )
 		{
 			HandleMsg( mClientSockets.at( index ), msg );
+			printf( "%d sent: %s\n", mClientSockets.at(index), msg );
 			delete msg;
 		}
 	}
-	mConn->PrintMsg( "Client disconnected." );
 	return true;
 }
 
@@ -40,6 +40,7 @@ void Server::HandleMsg( SOCKET &socket, char* msg )
 {
 	if ( strcmp( msg, "Quit" ) == 0 )
 	{
+		printf("%d disconnected.\n", socket);
 		mConn->SendMsg( socket, msg );
 		mConn->DisconnectSocket( socket );
 
@@ -81,10 +82,16 @@ void Server::HandleMsg( SOCKET &socket, char* msg )
 		{
 			if ( s != INVALID_SOCKET )
 			{
-				if ( s != socket )
+				if (s != socket)
+				{
+					std::string sMsg = std::to_string(socket) + "says: " + msg;
+					msg = (char*)sMsg.c_str();
 					mConn->SendMsg( s, msg );
+				}
 				else
+				{
 					mConn->SendMsg( socket, "Message sent." );
+				}
 			}
 		}
 	}
@@ -128,6 +135,8 @@ bool Server::Connect()
 		return false;
 	}
 
+	printf("Server up and running.\n");
+
 	return true;
 }
 
@@ -145,7 +154,6 @@ bool Server::Run()
 	for ( auto& t : listenThreads )
 	{
 		t.join();
-		mConn->PrintMsg( "Join!" );
 	}
 	return true;
 }

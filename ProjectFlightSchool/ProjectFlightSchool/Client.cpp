@@ -36,11 +36,11 @@ bool Client::HandleMsg( char* msg )
 	if ( strcmp( msg, "Quit" ) == 0 )
 	{
 		mConn->DisconnectSocket( mServerSocket );
-		mConn->PrintMsg( "Connection lost." );
+		printf("Connection lost...");
 	}
 	else
 	{
-		mConn->PrintMsg( msg );
+		printf("%s\n", msg);
 	}
 	return true;
 }

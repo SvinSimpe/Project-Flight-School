@@ -89,10 +89,20 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BaseState.cpp" />
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="PlayState.cpp" />
+    <ClCompile Include="StartMenuState.cpp" />
+    <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="System.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BaseState.h" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="PlayState.h" />
+    <ClInclude Include="StartMenuState.h" />
+    <ClInclude Include="StateMachine.h" />
     <ClInclude Include="System.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

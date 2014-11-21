@@ -13,6 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="EventSystem">
+      <UniqueIdentifier>{ac5e98c4-d2f5-4c37-9a2e-35ff58e51e85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EventSystem\Header Files">
+      <UniqueIdentifier>{422dc58b-5b17-47fe-99e4-96d865f3547a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EventSystem\Source Files">
+      <UniqueIdentifier>{15ffd449-0730-495c-af4f-bfe1f37621a2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -21,10 +30,28 @@
     <ClCompile Include="System.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="EventManager.cpp">
+      <Filter>EventSystem\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Events.cpp">
+      <Filter>EventSystem\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IEventManager.cpp">
+      <Filter>EventSystem\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EventManager.h">
+      <Filter>EventSystem\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Events.h">
+      <Filter>EventSystem\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IEventManager.h">
+      <Filter>EventSystem\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

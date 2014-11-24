@@ -7,6 +7,8 @@
 
 Create branch
 -------------
+-git pull origin development	// Pull newest version of branch
+
 -git checkout -b branchName	// Create branch on local repo
 
 -git push origin branchName	// Push branch to remote repo
@@ -26,7 +28,9 @@ Changes
 
 	-IF CONFLICT-	// Resolve conflicts in file/s
 
-	-git commit	// Commit changes, commit msg editor is visible
+		-git add -A	// Add all changes, stages modified files
+
+		-git commit	// Commit changes, commit msg editor is visible
 	
 		-'i' 		// Insert Mode
 		-'Esc'		// Exit Insert mode
@@ -53,7 +57,9 @@ Commit all changes on current branch before merging!
 
 	-IF CONFLICT-	// Resolve conflicts in file/s
 
-	-git commit	// Commit changes, commit msg editor is visible
+		-git add -A	// Add all changes, stages modified files
+
+		-git commit	// Commit changes, commit msg editor is visible
 	
 		-'i' 		// Insert Mode
 		-'Esc'		// Exit Insert mode

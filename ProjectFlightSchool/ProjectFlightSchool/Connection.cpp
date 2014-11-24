@@ -2,21 +2,27 @@
 
 bool Connection::SendMsg( SOCKET &to, char* msg )
 {
-	int msgLen	= (int)strlen( msg );
-	mResult		= send( to, msg, msgLen, 0 );
+	Position test;
+	test.x = 3;
+	test.y = 5;
+	msg = (char*)malloc(sizeof(Position));
+	memcpy(msg, &test, sizeof(test));
+	printf("Printar struct send: %d, %d\n", test.x, test.y);
+
+	mResult		= send( to, msg, sizeof(Position), 0 );
 	if ( mResult == SOCKET_ERROR )
 	{
 		printf( "send failed when sending to %d with error: %d\n", to, WSAGetLastError() );
 		DisconnectSocket( to );
 		return false;
 	}
+	delete msg;
 	return true;
 }
 
 char* Connection::ReceiveMsg( SOCKET &from )
 {
-	char* recvBuf = new char[DEFAULT_BUFLEN];
-
+	char* recvBuf = (char*)malloc(sizeof(Position));
 	mResult = recv( from, recvBuf, mRecvBufLen, 0 );
 	if ( mResult < 0 )
 	{
@@ -27,13 +33,18 @@ char* Connection::ReceiveMsg( SOCKET &from )
 		return nullptr;
 	}
 
-	char* msg = new char[mResult + 1];
+	Position test;
+	memcpy(&test, recvBuf, sizeof(Position));
+	printf("Printar struct recv: %d, %d\n", test.x, test.y);
+
+	//If you receive something else than a struct. Can be deleted when package struct is in place.
+	/*char* msg = new char[mResult + 1];
 	memset( msg, '\0', mResult + 1 );
-	memcpy( msg, recvBuf, mResult );
+	memcpy( msg, recvBuf, mResult );*/
 
 	if ( recvBuf )
 		delete[] recvBuf;
-	return msg;
+	return "Hej!";
 }
 
 bool Connection::DisconnectSocket( SOCKET &socket )
@@ -48,7 +59,6 @@ bool Connection::Initialize()
 {
 	return true;
 }
-
 
 void Connection::Release()
 {

@@ -19,7 +19,13 @@
 
 #define DEFAULT_BUFLEN 512
 #define DEFAULT_PORT "27015"
-#define DEFAULT_IP "192.168.1.61"
+#define DEFAULT_IP "localhost"
+
+struct Position
+{
+	int x;
+	int y;
+};
 
 class Connection
 {

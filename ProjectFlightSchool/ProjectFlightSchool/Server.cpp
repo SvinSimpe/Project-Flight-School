@@ -28,8 +28,7 @@ bool Server::ReceiveLoop( int index )
 
 		if ( msg )
 		{
-			HandleMsg( mClientSockets.at( index ), msg );
-			printf( "%d sent: %s\n", mClientSockets.at( index ), msg );
+			//printf( "%d sent: %s\n", mClientSockets.at( index ), msg );
 			delete msg;
 		}
 	}

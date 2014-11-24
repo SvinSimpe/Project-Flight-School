@@ -1,6 +1,7 @@
 #ifndef SERVER_H
 #define SERVER_H
 #include "Connection.h"
+#include "Package.h"
 #include <vector>
 
 class Server

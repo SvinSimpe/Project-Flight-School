@@ -53,8 +53,11 @@
     <ClInclude Include="Server.h">
       <Filter>Network\Header Files</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="Package.h">
       <Filter>Network\Header Files</Filter>
     </ClInclude>
+=======
+>>>>>>> 4b8b53c6171f63c6c6a19b0e9c8d3b61c2c2922a
   </ItemGroup>
 </Project>

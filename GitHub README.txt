@@ -25,8 +25,6 @@ Changes
 -git pull origin branchName	// Pull newest version of branch
 
 	-IF CONFLICT-	// Resolve conflicts in file/s
-	
-	-git add -A	// Add all changes, stages modified files
 
 	-git commit	// Commit changes, commit msg editor is visible
 	
@@ -54,8 +52,6 @@ Commit all changes on current branch before merging!
 -git merge development		// Merge development into branchName
 
 	-IF CONFLICT-	// Resolve conflicts in file/s
-	
-	-git add -A	// Add all changes, stages modified files
 
 	-git commit	// Commit changes, commit msg editor is visible
 	

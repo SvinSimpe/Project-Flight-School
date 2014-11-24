@@ -7,19 +7,19 @@ enum class Operation
 	MESSAGE
 };
 
-struct Head
-{
-	Operation op;
-	int size;
-};
-
-struct Body
-{
-	char* content;
-};
-
 struct Package
 {
+	struct Head
+	{
+		Operation op;
+		int size;
+	};
+
+	struct Body
+	{
+		char* content;
+	};
+
 	Head head;
 	Body body;
 };

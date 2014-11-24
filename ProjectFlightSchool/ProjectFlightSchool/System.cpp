@@ -143,7 +143,7 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 	///////////////////////////////
 
 	Graphics::GetInstance()->Initialize( mHWnd, mScreenWidth, mScreenHeight );
-	Graphics::GetInstance()->LoadStatic3dAsset( "CUBE", mPlaneAsset );
+	Graphics::GetInstance()->LoadStatic3dAsset( "CUBE", mCubeAsset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "PLANE", mPlaneAsset );
 
 	const char* port = DEFAULT_PORT;

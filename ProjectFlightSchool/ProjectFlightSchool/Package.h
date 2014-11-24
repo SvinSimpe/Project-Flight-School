@@ -11,16 +11,16 @@ struct Package
 {
 	struct Head
 	{
-		Operation op;
-		int size;
+		Operation op = Operation::INVALID_OPERATION;
+		int size = 0;
 	};
 
 	struct Body
 	{
-		char* content;
+		char* content = nullptr;
 	};
 
-	Head head;
-	Body body;
+	Head head = Head();
+	Body body = Body();
 };
 #endif

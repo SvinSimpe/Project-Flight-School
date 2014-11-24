@@ -2,6 +2,7 @@
 #define BASESTATE_H
 
 #include <Windows.h>
+#include "Graphics.h"
 
 enum StateType{ STATE_TYPE_START_MENU, STATE_TYPE_PLAY };
 

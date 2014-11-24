@@ -26,6 +26,7 @@ class ImportAnimation
 	//Class members
 	private:
 		animationData mTempAnimData;
+
 	protected:
 	public:
 	

@@ -4,7 +4,7 @@
 class ImportAnimation
 {
 	private:
-
+		int MaxIsPung;
 	protected:
 	public:
 	

@@ -145,9 +145,6 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 
 	Graphics::GetInstance()->Graphics::LoadStatic3dAsset( "derpdufinnsinte", mAssetId );
 	
-	const char* port = DEFAULT_PORT;
-	const char* ip = DEFAULT_IP;
-
 	mNetworkThread = std::thread( &System::NetworkInit, this );
 
 	return S_OK;

@@ -210,6 +210,9 @@ void Server::Release()
 
 	if ( mConn )
 		delete mConn;
+
+	if ( mInstance )
+		delete mInstance;
 }
 
 Server::Server()
@@ -223,6 +226,4 @@ Server::Server()
 
 Server::~Server()
 {
-	if ( mInstance )
-		delete mInstance;
 }

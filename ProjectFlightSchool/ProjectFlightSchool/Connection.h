@@ -21,10 +21,10 @@
 #define DEFAULT_PORT "27015"
 #define DEFAULT_IP "localhost"
 
-struct Position
+struct Pack
 {
-	int x;
-	int y;
+	int	x;
+	int	y;
 };
 
 class Connection

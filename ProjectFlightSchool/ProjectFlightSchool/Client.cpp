@@ -25,7 +25,7 @@ bool Client::ReceiveLoop()
 		if ( msg )
 		{
 			HandleMsg( msg );
-			delete msg;
+			//delete msg;
 		}
 	} while ( mServerSocket != INVALID_SOCKET );
 	return true;

@@ -2,14 +2,14 @@
 
 bool Connection::SendMsg( SOCKET &to, char* msg )
 {
-	Position test;
-	test.x = 3;
-	test.y = 5;
-	msg = (char*)malloc(sizeof(Position));
-	memcpy(msg, &test, sizeof(test));
-	printf("Printar struct send: %d, %d\n", test.x, test.y);
+	Pack test;
+	test.x	= 3;
+	test.y	= 5;
+	msg = (char*)malloc( sizeof(Pack) );
+	memcpy( msg, &test, sizeof(test) );
+	printf( "Printar struct send: %d, %d\n", test.x, test.y );
 
-	mResult		= send( to, msg, sizeof(Position), 0 );
+	mResult = send( to, msg, sizeof(Pack), 0 );
 	if ( mResult == SOCKET_ERROR )
 	{
 		printf( "send failed when sending to %d with error: %d\n", to, WSAGetLastError() );
@@ -22,8 +22,8 @@ bool Connection::SendMsg( SOCKET &to, char* msg )
 
 char* Connection::ReceiveMsg( SOCKET &from )
 {
-	char* recvBuf = (char*)malloc(sizeof(Position));
-	mResult = recv( from, recvBuf, mRecvBufLen, 0 );
+	char* recvBuf	= (char*)malloc( sizeof(Pack) );
+	mResult			= recv( from, recvBuf, mRecvBufLen, 0 );
 	if ( mResult < 0 )
 	{
 		printf( "recv failed when receiving from %d with error: %d\n", from, WSAGetLastError() );
@@ -33,9 +33,9 @@ char* Connection::ReceiveMsg( SOCKET &from )
 		return nullptr;
 	}
 
-	Position test;
-	memcpy(&test, recvBuf, sizeof(Position));
-	printf("Printar struct recv: %d, %d\n", test.x, test.y);
+	Pack test;
+	memcpy( &test, recvBuf, sizeof(Pack) );
+	printf( "Printar struct recv: %d, %d\n", test.x, test.y );
 
 	//If you receive something else than a struct. Can be deleted when package struct is in place.
 	/*char* msg = new char[mResult + 1];

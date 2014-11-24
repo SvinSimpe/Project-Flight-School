@@ -53,7 +53,6 @@ bool EventManager::Update( unsigned long maxMillis )
 	m_activeQueue = ( m_activeQueue + 1 ) % EVENTMANAGER_NUM_QUEUES;
 	m_queues[m_activeQueue].clear();
 
-    //GCC_LOG("EventLoop", "Processing Event Queue " + ToStr(queueToProcess) + "; " + ToStr((unsigned long)m_queues[queueToProcess].size()) + " events to process");
 
 	// Process the queue
 	while ( !m_queues[queueToProcess].empty() )
@@ -61,22 +60,19 @@ bool EventManager::Update( unsigned long maxMillis )
         // pop the front of the queue
 		IEventPtr pEvent = m_queues[queueToProcess].front();
         m_queues[queueToProcess].pop_front();
-        //GCC_LOG("EventLoop", "\t\tProcessing Event " + std::string(pEvent->GetName()));
 
 		const EventType& eventType = pEvent->GetEventType();
 
         // find all the delegate functions registered for this event
-		auto findIt = m_eventListeners.find(eventType);
+		auto findIt = m_eventListeners.find( eventType );
 		if ( findIt != m_eventListeners.end() )
 		{
 			const EventListenerList& eventListeners = findIt->second;
-            //GCC_LOG("EventLoop", "\t\tFound " + ToStr((unsigned long)eventListeners.size()) + " delegates");
 
             // call each listener
 			for ( auto it = eventListeners.begin(); it != eventListeners.end(); ++it )
 			{
 				EventListenerDelegate listener = ( *it );
-                //GCC_LOG("EventLoop", "\t\tSending event " + std::string(pEvent->GetName()) + " to delegate");
 				listener( pEvent );
 			}
 		}
@@ -85,7 +81,6 @@ bool EventManager::Update( unsigned long maxMillis )
 		currMs = GetTickCount();
 		if ( maxMillis != IEventManager::kINFINITE && currMs >= maxMs )
         {
-            //GCC_LOG("EventLoop", "Aborting event processing; time ran out");
 			break;
         }
 	}
@@ -111,11 +106,9 @@ bool EventManager::Update( unsigned long maxMillis )
 
 bool EventManager::AddListener( const EventListenerDelegate& eventDelegate, const EventType& type )
 {
-    //GCC_LOG("Events", "Attempting to add delegate function for event type: " + ToStr(type, 16));
 
-	EventListenerList& eventListenerList = m_eventListeners[ type ];  // this will find or create the entry
+	EventListenerList& eventListenerList = m_eventListeners[type];  // this will find or create the entry
 	eventListenerList.push_back( eventDelegate );
-    //GCC_LOG("Events", "Successfully added delegate for event type: " + ToStr(type, 16));
 	
 	return true;
 }
@@ -126,7 +119,6 @@ bool EventManager::AddListener( const EventListenerDelegate& eventDelegate, cons
 //---------------------------------------------------------------------------------------------------------------------
 bool EventManager::RemoveListener( const EventListenerDelegate& eventDelegate, const EventType& type )
 {
-    //GCC_LOG("Events", "Attempting to remove delegate function from event type: " + ToStr(type, 16));
 	bool success = false;
 
     auto findIt = m_eventListeners.find( type );
@@ -137,8 +129,7 @@ bool EventManager::RemoveListener( const EventListenerDelegate& eventDelegate, c
         {
             if ( (void*)&eventDelegate == (void*)&(*it) )
             {
-                listeners.erase(it);
-                //GCC_LOG("Events", "Successfully removed delegate function from event type: " + ToStr(type, 16));
+                listeners.erase( it );
                 success = true;
                 break;  // we don't need to continue because it should be impossible for the same delegate function to be registered for the same event more than once
             }
@@ -154,7 +145,6 @@ bool EventManager::RemoveListener( const EventListenerDelegate& eventDelegate, c
 //---------------------------------------------------------------------------------------------------------------------
 bool EventManager::TriggerEvent( const IEventPtr& pEvent ) const
 {
-    //GCC_LOG("Events", "Attempting to trigger event " + std::string(pEvent->GetName()));
     bool processed = false;
 
 	auto findIt = m_eventListeners.find( pEvent->GetEventType() );
@@ -164,7 +154,6 @@ bool EventManager::TriggerEvent( const IEventPtr& pEvent ) const
 	    for ( EventListenerList::const_iterator it = eventListenerList.begin(); it != eventListenerList.end(); ++it )
 	    {
 		    EventListenerDelegate listener = ( *it );
-            //GCC_LOG("Events", "Sending Event " + std::string(pEvent->GetName()) + " to delegate.");
 		    listener( pEvent );  // call the delegate
             processed = true;
 	    }
@@ -179,30 +168,25 @@ bool EventManager::TriggerEvent( const IEventPtr& pEvent ) const
 //---------------------------------------------------------------------------------------------------------------------
 bool EventManager::QueueEvent( const IEventPtr& pEvent )
 {
-	//GCC_ASSERT(m_activeQueue >= 0);
-	//GCC_ASSERT(m_activeQueue < EVENTMANAGER_NUM_QUEUES);
+
 
     // make sure the event is valid
     if ( !pEvent )
     {
-        //GCC_ERROR("Invalid event in VQueueEvent()");
         return false;
     }
 
-    //GCC_LOG("Events", "Attempting to queue event: " + std::string(pEvent->GetName()));
 	EnterCriticalSection( &lock );
 	auto findIt = m_eventListeners.find( pEvent->GetEventType() );
 	if ( findIt != m_eventListeners.end() )
 	{
 		m_queues[m_activeQueue].push_back( pEvent );
-		//GCC_LOG("Events", "Successfully queued event: " + std::string(pEvent->GetName()));
 		LeaveCriticalSection( &lock );
 		return true;
 	}
 	else
 	{	
 		LeaveCriticalSection( &lock );
-		//GCC_LOG("Events", "Skipping event since there are no delegates registered to receive it: " + std::string(pEvent->GetName()));
 		return false;
 	}
 
@@ -213,8 +197,7 @@ bool EventManager::QueueEvent( const IEventPtr& pEvent )
 //---------------------------------------------------------------------------------------------------------------------
 bool EventManager::AbortEvent( const EventType& inType, bool allOfType )
 {
-	//GCC_ASSERT(m_activeQueue >= 0);
-	//GCC_ASSERT(m_activeQueue < EVENTMANAGER_NUM_QUEUES);
+
 
     bool success = false;
 	EventListenerMap::iterator findIt = m_eventListeners.find( inType );

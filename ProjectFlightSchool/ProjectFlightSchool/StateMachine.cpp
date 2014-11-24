@@ -22,19 +22,6 @@ HRESULT StateMachine::Render()
 	return S_OK;
 }
 
-HRESULT StateMachine::Initialize()
-{
-	mStates							= new BaseState*[NR_OF_STATES];
-	mStates[START_MENU_STATE]		= new StartMenuState();
-	mStates[PLAY_STATE]				= new PlayState();
-	mCurrentState					= START_MENU_STATE;
-
-	mStates[START_MENU_STATE]->Initialize();
-	mStates[PLAY_STATE]->Initialize();
-
-	return S_OK;
-}
-
 // In parameter const int NEW_STATE must be a valid state
 // If valid close current state and change to new state
 HRESULT StateMachine::ChangeState( const int NEW_STATE )
@@ -57,6 +44,19 @@ HRESULT StateMachine::ChangeState( const int NEW_STATE )
 void StateMachine::ResetState( const int STATE )
 {
 	mStates[STATE]->Reset();
+}
+
+HRESULT StateMachine::Initialize()
+{
+	mStates							= new BaseState*[NR_OF_STATES];
+	mStates[START_MENU_STATE]		= new StartMenuState();
+	mStates[PLAY_STATE]				= new PlayState();
+	mCurrentState					= START_MENU_STATE;
+
+	mStates[START_MENU_STATE]->Initialize();
+	mStates[PLAY_STATE]->Initialize();
+
+	return S_OK;
 }
 
 void StateMachine::Release()

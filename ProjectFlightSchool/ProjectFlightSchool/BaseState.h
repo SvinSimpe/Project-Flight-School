@@ -19,12 +19,13 @@ class BaseState
 	public:
 		virtual HRESULT Update( float deltaTime )	= 0;
 		virtual HRESULT Render()					= 0;
-		virtual HRESULT Initialize()				= 0;
 		virtual void	OnEnter()					= 0;
 		virtual void	OnExit()					= 0;
 		virtual void	Reset()						= 0;
+		StateType		GetStateType();	
+
+		virtual HRESULT Initialize()				= 0;
 		virtual void	Release()					= 0;
-		StateType		GetStateType();		
 						BaseState();
 		virtual			~BaseState();
 };

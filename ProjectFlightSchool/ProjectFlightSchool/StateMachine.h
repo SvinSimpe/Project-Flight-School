@@ -25,9 +25,10 @@ class StateMachine
 	public:
 		HRESULT Update( float deltaTime );
 		HRESULT Render();
-		HRESULT Initialize();
 		HRESULT ChangeState( const int NEW_STATE );
 		void	ResetState( const int STATE );
+
+		HRESULT Initialize();
 		void	Release();
 				StateMachine();
 				~StateMachine();

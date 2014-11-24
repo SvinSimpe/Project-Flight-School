@@ -19,12 +19,6 @@ HRESULT PlayState::Render()
 	return S_OK;
 }
 
-HRESULT PlayState::Initialize()
-{
-	mStateType		= STATE_TYPE_PLAY;
-	return S_OK;
-}
-
 void PlayState::OnEnter()
 {
 }
@@ -35,6 +29,12 @@ void PlayState::OnExit()
 
 void PlayState::Reset()
 {
+}
+
+HRESULT PlayState::Initialize()
+{
+	mStateType		= STATE_TYPE_PLAY;
+	return S_OK;
 }
 
 void PlayState::Release()

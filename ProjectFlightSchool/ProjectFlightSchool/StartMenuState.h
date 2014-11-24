@@ -16,10 +16,11 @@ class StartMenuState : public BaseState
 	public:
 		virtual HRESULT Update( float deltaTime );
 		virtual HRESULT Render();
-		virtual HRESULT Initialize();
 		virtual void	OnEnter();
 		virtual void	OnExit();
 		virtual void	Reset();
+
+		virtual HRESULT Initialize();
 		virtual void	Release();
 						StartMenuState();
 		virtual			~StartMenuState();

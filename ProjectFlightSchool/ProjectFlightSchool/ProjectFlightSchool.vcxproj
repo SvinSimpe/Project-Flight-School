@@ -92,12 +92,18 @@
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="Connection.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Package.cpp" />
     <ClCompile Include="Server.cpp" />
+    <ClCompile Include="Body.cpp" />
+    <ClCompile Include="Head.cpp" />
     <ClCompile Include="System.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h" />
     <ClInclude Include="Connection.h" />
+    <ClInclude Include="Body.h" />
+    <ClInclude Include="Head.h" />
+    <ClInclude Include="Package.h" />
     <ClInclude Include="Server.h" />
     <ClInclude Include="System.h" />
   </ItemGroup>

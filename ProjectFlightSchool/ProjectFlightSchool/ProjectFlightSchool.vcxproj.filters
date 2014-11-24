@@ -22,6 +22,15 @@
     <Filter Include="Network\Source Files">
       <UniqueIdentifier>{e51bef76-09aa-4f08-969e-6023e977180e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Network\Package">
+      <UniqueIdentifier>{c9ef8ace-2b41-4536-b69f-a4130a958773}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\Package\Header Files">
+      <UniqueIdentifier>{6af354ca-709b-4913-832d-da454e2fc63a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\Package\Source Files">
+      <UniqueIdentifier>{00eafd17-4ffd-44c5-b07c-3e2d00fe171e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -39,6 +48,15 @@
     <ClCompile Include="Server.cpp">
       <Filter>Network\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Package.cpp">
+      <Filter>Network\Package\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Body.cpp">
+      <Filter>Network\Package\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Head.cpp">
+      <Filter>Network\Package\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
@@ -52,6 +70,15 @@
     </ClInclude>
     <ClInclude Include="Server.h">
       <Filter>Network\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Package.h">
+      <Filter>Network\Package\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Body.h">
+      <Filter>Network\Package\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Head.h">
+      <Filter>Network\Package\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

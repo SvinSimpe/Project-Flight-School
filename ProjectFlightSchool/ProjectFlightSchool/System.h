@@ -5,6 +5,7 @@
 #define VC_EXTRALEAN
 #include <Windows.h>
 #include "Graphics.h"
+#include "Input.h"
 
 class System
 {
@@ -17,7 +18,7 @@ class System
 
 		UINT		mAssetId;
 
-		std::vector<RAWINPUTDEVICE> mRid;
+		
 
 	protected:
 	public:
@@ -27,7 +28,7 @@ class System
 		static LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
 		HRESULT					Update( float deltaTime );
 		HRESULT					Render();
-		UINT					DetecAndRegisterDevices();
+
 
 	protected:
 	public:

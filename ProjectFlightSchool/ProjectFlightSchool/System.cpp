@@ -26,6 +26,10 @@ LRESULT CALLBACK System::WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM
 					PostQuitMessage( 0 );
 					break;
 			}
+			break;
+		case WM_INPUT:
+			Input::GetInstance()->ReadMessage(lParam);
+			break;
 
 		default:
 			return DefWindowProc( hWnd, message, wParam, lParam );
@@ -45,56 +49,6 @@ HRESULT	System::Render()
 	Graphics::GetInstance()->RenderStatic3dAsset( mAssetId );
 	Graphics::GetInstance()->EndScene();
 	return S_OK;
-}
-
-UINT System::DetecAndRegisterDevices()
-{
-	UINT cbSize, puiNrOfDevices, nrOfDevices = 0;
-	PRAWINPUTDEVICELIST prids;
-
-	if( GetRawInputDeviceList( NULL, &puiNrOfDevices, sizeof( PRAWINPUTDEVICELIST ) ) != 0 )
-	{
-		return GetLastError();
-	}
-
-	prids = (PRAWINPUTDEVICELIST)malloc( sizeof( RAWINPUTDEVICELIST ) * puiNrOfDevices);
-	if( prids == NULL ) 
-	{
-		return GetLastError();
-	}
-
-	if( nrOfDevices = GetRawInputDeviceList( prids, &puiNrOfDevices, sizeof( RAWINPUTDEVICELIST ) ) == (UINT)-1 )
-	{
-		return GetLastError();
-	}
-
-	RID_DEVICE_INFO rdi;
-	rdi.cbSize = sizeof( RID_DEVICE_INFO );
-	cbSize = rdi.cbSize;
-	for( UINT i = 0; i < nrOfDevices; i++ )
-	{
-		if( GetRawInputDeviceInfo( prids[i].hDevice, RIDI_DEVICEINFO, &rdi, &cbSize ) < 0 ) 
-		{
-			return GetLastError();
-		}
-		else
-		{
-			RAWINPUTDEVICE rid;
-			switch( rdi.dwType )
-			{
-				case RIM_TYPEMOUSE:
-					break;
-				case RIM_TYPEKEYBOARD:
-					break;
-				case RIM_TYPEHID:
-					break;
-			}
-			
-			
-		}
-	}
-
-	return 0;
 }
 
 
@@ -170,18 +124,12 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 	///////////////////////////////
 	// Initialize sub-applications
 	///////////////////////////////
-	if( DetecAndRegisterDevices() != 0 )
-	{
-		return S_FALSE;
-	}
-
-	///////////////////////////////
-	// Initialize sub-applications
-	///////////////////////////////
 
 	Graphics::GetInstance()->Initialize( mHWnd, mScreenWidth, mScreenHeight );
 
 	Graphics::GetInstance()->Graphics::LoadStatic3dAsset( "derpdufinnsinte", mAssetId );
+
+	Input::GetInstance()->Initialize();
 
 	return S_OK;
 }

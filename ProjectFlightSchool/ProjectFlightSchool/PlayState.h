@@ -7,6 +7,9 @@ class PlayState : public BaseState
 {
 	// Class members
 	private:
+
+		UINT		mPlaneAsset;
+		UINT		mCubeAsset;
 	protected:
 	public:
 

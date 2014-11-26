@@ -51,7 +51,7 @@ HRESULT StateMachine::Initialize()
 	mStates							= new BaseState*[NR_OF_STATES];
 	mStates[START_MENU_STATE]		= new StartMenuState();
 	mStates[PLAY_STATE]				= new PlayState();
-	mCurrentState					= START_MENU_STATE;
+	mCurrentState					= PLAY_STATE;
 
 	mStates[START_MENU_STATE]->Initialize();
 	mStates[PLAY_STATE]->Initialize();

@@ -16,6 +16,11 @@ HRESULT PlayState::Update( float deltaTime )
 
 HRESULT PlayState::Render()
 {
+	Graphics::GetInstance()->BeginScene();
+	Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset );
+	Graphics::GetInstance()->RenderStatic3dAsset( mCubeAsset );
+	Graphics::GetInstance()->EndScene();
+
 	return S_OK;
 }
 
@@ -34,6 +39,10 @@ void PlayState::Reset()
 HRESULT PlayState::Initialize()
 {
 	mStateType		= STATE_TYPE_PLAY;
+
+	Graphics::GetInstance()->LoadStatic3dAsset( "CUBE", mCubeAsset );
+	Graphics::GetInstance()->LoadStatic3dAsset( "PLANE", mPlaneAsset );
+
 	return S_OK;
 }
 

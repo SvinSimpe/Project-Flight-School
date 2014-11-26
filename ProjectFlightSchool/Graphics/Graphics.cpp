@@ -95,6 +95,8 @@ Graphics* Graphics::GetInstance()
 //Initialize graphics interfaces.
 HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 {
+	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+
 	mHWnd			= hWnd;
 	mScreenWidth	= screenWidth;
 	mScreenHeight	= screenHeight;
@@ -233,14 +235,14 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	CameraInfo cameraInfo;
 	ZeroMemory( &cameraInfo, sizeof( cameraInfo ) );
-	cameraInfo.eyePos		= DirectX::XMFLOAT4( 2.0f, 2.0f, -2.0f, 1.0f );
+	cameraInfo.eyePos		= DirectX::XMFLOAT4( 50.0f, 50.0f, -50.0f, 1.0f );
 	cameraInfo.focusPoint	= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
 	cameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
 	cameraInfo.width		= (float)screenWidth;
 	cameraInfo.height		= (float)screenHeight;
 	cameraInfo.foVY			= 0.75f;
 	cameraInfo.nearZ		= 0.1f;
-	cameraInfo.farZ			= 10.0f;
+	cameraInfo.farZ			= 100.0f;
 
 	hr = mCamera->Initialize( &cameraInfo );
 	

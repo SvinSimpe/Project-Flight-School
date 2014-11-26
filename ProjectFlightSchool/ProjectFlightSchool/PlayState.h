@@ -10,6 +10,8 @@ class PlayState : public BaseState
 
 		UINT		mPlaneAsset;
 		UINT		mCubeAsset;
+		UINT		mTestAsset;
+
 	protected:
 	public:
 

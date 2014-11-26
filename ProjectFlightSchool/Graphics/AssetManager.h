@@ -5,6 +5,23 @@
 #include "Static3dAsset.h"
 #include "Vertex.h"
 #include <vector>
+#include <fstream>
+
+struct MeshInfo
+{
+	UINT vertexCount;
+
+	char meshName[50];
+	char diffuseMapName[50];
+	char normalMapName[50];
+	char specularMapName[50];
+};
+
+struct MeshData //MeshData_Export
+{
+	MeshInfo meshInfo;
+	Vertex* vertices;
+};
 
 class AssetManager
 {

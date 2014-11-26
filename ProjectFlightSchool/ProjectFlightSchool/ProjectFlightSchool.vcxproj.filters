@@ -14,7 +14,6 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="System.cpp" />
-    <ClCompile Include="ImportAnimation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseState.h" />
@@ -29,6 +28,5 @@
     <ClInclude Include="Events.h" />
     <ClInclude Include="IEventManager.h" />
     <ClInclude Include="System.h" />
-    <ClInclude Include="ImportAnimation.h" />
   </ItemGroup>
 </Project>

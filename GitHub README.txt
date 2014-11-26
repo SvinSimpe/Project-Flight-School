@@ -4,6 +4,17 @@
 	Who you gonna call? SvinSimpe!!
 ================================================
 
+Commit Messages
+---------------
+The following format should be used in a commit message.
+See example below:
+
+Reconstruct vcx.filters due to faulty confl.resolv			// -Header, consist of max 50 chars. Should describe the changes in short
+#									// -Use '#' to produce a whitespace
+Filters were missing in project due to faulty conflict resolves.	// -Commit description should give a more thorough description of the commit
+	XML code were missing vital closure tags for both compile	//  aswell as why it was performed.
+	and include sections.
+
 
 Create branch
 -------------

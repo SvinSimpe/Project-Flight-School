@@ -17,9 +17,9 @@ HRESULT PlayState::Update( float deltaTime )
 HRESULT PlayState::Render()
 {
 	Graphics::GetInstance()->BeginScene();
-	Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset );
-	//Graphics::GetInstance()->RenderStatic3dAsset( mCubeAsset );
-	Graphics::GetInstance()->RenderStatic3dAsset( mTestAsset );
+	//Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset );
+	Graphics::GetInstance()->RenderStatic3dAsset( mCubeAsset );
+	//Graphics::GetInstance()->RenderStatic3dAsset( mTestAsset );
 	Graphics::GetInstance()->EndScene();
 
 	return S_OK;

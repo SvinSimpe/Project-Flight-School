@@ -24,12 +24,13 @@ bool Server::ReceiveLoop( int index )
 {
 	while ( mClientSockets.at( index ) != INVALID_SOCKET )
 	{
-		char* msg = mConn->ReceiveMsg( mClientSockets.at( index ) );
+		Message* msg = nullptr;
+		mConn->ReceiveMsg(mClientSockets.at(index), &msg);
 
-		if ( msg )
+		if ( msg->msg )
 		{
-			HandleMsg(mClientSockets.at(index), msg);
-			printf( "%d sent: %s\n", mClientSockets.at( index ), msg );
+			HandleMsg(mClientSockets.at(index), msg->msg);
+			printf( "%d sent: %s\n", mClientSockets.at( index ), msg->msg );
 			//delete msg;
 		}
 	}

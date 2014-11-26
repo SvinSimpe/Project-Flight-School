@@ -1,9 +1,9 @@
 #ifndef PACKAGE_H
 #define PACKAGE_H
 
-enum class Operation
+enum class ContentType
 {
-	INVALID_OPERATION, // Used to initialize operations
+	OPERATION,
 	MESSAGE
 };
 
@@ -11,8 +11,9 @@ struct Package
 {
 	struct Head
 	{
-		Operation op = Operation::INVALID_OPERATION;
-		int size = 0;
+		int index = 0;
+		ContentType contentType = ContentType::OPERATION;
+		int contentSize = 0;
 	};
 
 	struct Body

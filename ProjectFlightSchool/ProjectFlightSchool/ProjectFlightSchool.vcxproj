@@ -100,6 +100,7 @@
     <ClInclude Include="Connection.h" />
     <ClInclude Include="Package.h" />
     <ClInclude Include="Server.h" />
+    <ClInclude Include="Structs.h" />
     <ClInclude Include="System.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

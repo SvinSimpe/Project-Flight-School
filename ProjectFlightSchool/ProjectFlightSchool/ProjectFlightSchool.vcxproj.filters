@@ -1,34 +1,126 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="BaseState.cpp" />
-    <ClCompile Include="Game.cpp" />
-    <ClCompile Include="PlayState.cpp" />
-    <ClCompile Include="StartMenuState.cpp" />
-    <ClCompile Include="StateMachine.cpp" />
-    <ClCompile Include="Client.cpp" />
-    <ClCompile Include="Connection.cpp" />
-    <ClCompile Include="EventManager.cpp" />
-    <ClCompile Include="Events.cpp" />
-    <ClCompile Include="IEventManager.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Server.cpp" />
-    <ClCompile Include="System.cpp" />
-    <ClCompile Include="ImportAnimation.cpp" />
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    
+    <Filter Include="Network">
+      <UniqueIdentifier>{c34a8e21-c7fa-404b-86dc-7a33fb6ab201}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\Header Files">
+      <UniqueIdentifier>{5c20827f-2b5a-4bc0-902c-850fb4e45fd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\Source Files">
+      <UniqueIdentifier>{e51bef76-09aa-4f08-969e-6023e977180e}</UniqueIdentifier>
+    </Filter>
+    
+    <Filter Include="EventSystem">
+      <UniqueIdentifier>{ac5e98c4-d2f5-4c37-9a2e-35ff58e51e85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EventSystem\Header Files">
+      <UniqueIdentifier>{422dc58b-5b17-47fe-99e4-96d865f3547a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EventSystem\Source Files">
+      <UniqueIdentifier>{15ffd449-0730-495c-af4f-bfe1f37621a2}</UniqueIdentifier>   
+    </Filter>
+    
+      
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BaseState.h" />
-    <ClInclude Include="Game.h" />
-    <ClInclude Include="PlayState.h" />
-    <ClInclude Include="StartMenuState.h" />
-    <ClInclude Include="StateMachine.h" />
-    <ClInclude Include="Client.h" />
-    <ClInclude Include="Connection.h" />
-    <ClInclude Include="Server.h" />
-    <ClInclude Include="EventManager.h" />
-    <ClInclude Include="Events.h" />
-    <ClInclude Include="IEventManager.h" />
-    <ClInclude Include="System.h" />
-    <ClInclude Include="ImportAnimation.h" />
+    <ClCompile Include="Main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="System.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    
+    <ClCompile Include="Game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StartMenuState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StateMachine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+      
+    <ClCompile Include="Client.cpp">
+      <Filter>Network\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Connection.cpp">
+      <Filter>Network\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Server.cpp">
+      <Filter>Network\Source Files</Filter>
+    </ClCompile>
+      
+    <ClCompile Include="EventManager.cpp">
+      <Filter>EventSystem\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Events.cpp">
+      <Filter>EventSystem\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IEventManager.cpp">
+      <Filter>EventSystem\Source Files</Filter>
+      
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="System.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    
+    <ClInclude Include="Game.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StartMenuState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StateMachine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+      
+    <ClInclude Include="Client.h">
+      <Filter>Network\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Connection.h">
+      <Filter>Network\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Server.h">
+      <Filter>Network\Header Files</Filter>
+    </ClInclude>
+      
+    <ClInclude Include="EventManager.h">
+      <Filter>EventSystem\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Events.h">
+      <Filter>EventSystem\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IEventManager.h">
+      <Filter>EventSystem\Header Files</Filter>
+      
+    </ClInclude>
   </ItemGroup>
 </Project>

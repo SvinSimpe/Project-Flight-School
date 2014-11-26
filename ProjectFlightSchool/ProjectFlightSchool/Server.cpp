@@ -154,18 +154,16 @@ bool Server::Connect()
 
 bool Server::Run()
 {
-	std::vector<std::thread> listenThreads = std::vector<std::thread>(0);
 	while ( true )
 	{
 		if ( AcceptConnection() )
-			listenThreads.push_back( std::thread( &Server::ReceiveLoop, this, mClientSockets.size() - 1) );
+		{
+			mListenThreads.push_back( std::thread( &Server::ReceiveLoop, this, mClientSockets.size() - 1) );
+		}
 		else
+		{
 			break;
-	}
-
-	for ( auto& t : listenThreads )
-	{
-		t.join();
+		}
 	}
 	return true;
 }
@@ -204,6 +202,15 @@ bool Server::Initialize( const char* port )
 
 void Server::Release()
 {
+	for ( auto& t : mListenThreads )
+	{
+		if ( t.joinable() )
+		{
+			t.join();
+		}
+	}
+	mListenThreads.clear();
+
 	mClientSockets.clear();
 	WSACleanup();
 	mConn->Release();
@@ -222,6 +229,7 @@ Server::Server()
 	mListenSocket	= INVALID_SOCKET;
 	mClientSockets	= std::vector<SOCKET>( 0 );
 	mConn			= nullptr;
+	mListenThreads	= std::vector<std::thread>( 0 );
 }
 
 Server::~Server()

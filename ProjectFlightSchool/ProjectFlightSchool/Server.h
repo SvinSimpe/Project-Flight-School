@@ -7,12 +7,13 @@
 class Server
 {
 	private:
-		static Server*			mInstance;
-		int						mResult;
-		addrinfo*				mAddrResult;
-		SOCKET					mListenSocket;
-		std::vector<SOCKET>		mClientSockets;
-		Connection*				mConn;
+		static Server*				mInstance;
+		int							mResult;
+		addrinfo*					mAddrResult;
+		SOCKET						mListenSocket;
+		std::vector<SOCKET>			mClientSockets;
+		Connection*					mConn;
+		std::vector<std::thread>	mListenThreads;
 
 	protected:
 

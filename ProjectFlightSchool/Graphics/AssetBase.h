@@ -20,7 +20,7 @@ struct AssetBase
 		ID3D11Buffer*		mVertexBuffer;
 		ID3D11Buffer*		mIndexBUffer;
 
-		//DirectX::XMMATRIX	mWorld;
+		DirectX::XMMATRIX	mWorldMatrix;
 
 	private:
 	protected:

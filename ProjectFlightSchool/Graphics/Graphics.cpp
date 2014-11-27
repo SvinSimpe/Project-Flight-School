@@ -60,6 +60,39 @@ void Graphics::RenderStatic3dAsset( UINT assetId )
 	mDeviceContext->Draw( mAssetManager->mAssetContainer[assetId]->mVertexCount, 0 );
 }
 
+void Graphics::RenderStatic3dAsset( UINT assetId, float x, float y, float z )
+{
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+
+	UINT32 vertexSize				= sizeof( Vertex );
+	UINT32 offset					= 0;
+	ID3D11Buffer* buffersToSet[]	= { mAssetManager->mAssetContainer[assetId]->mVertexBuffer };
+	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+
+	mDeviceContext->IASetInputLayout( mEffect->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffect->GetPixelShader(), nullptr, 0 );
+
+	//Map CbufferPerObject
+	DirectX::XMFLOAT4 temp;
+	temp.x = x;
+	temp.y = y;
+	temp.z = z;
+	temp.w = 0;		//Always 0 since it's not used currently.
+	CbufferPerObject data;
+	data.worldMatrix	= mAssetManager->mAssetContainer[assetId]->mWorldMatrix;
+	data.strangeFloat	= temp;
+	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
+
+	mDeviceContext->VSSetConstantBuffers( 0, 1, &mCbufferPerObject );
+
+	mDeviceContext->Draw( mAssetManager->mAssetContainer[assetId]->mVertexCount, 0 );
+}
+
 //Clear canvas and prepare for rendering.
 void Graphics::BeginScene()
 {
@@ -215,6 +248,20 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mCbufferPerFrame );
 
+	///////////////////////////////
+	// CREATE CBUFFERPEROBJECT
+	///////////////////////////////
+	D3D11_BUFFER_DESC bufferObjDesc;
+	ZeroMemory( &bufferDesc, sizeof( bufferObjDesc ) );
+	bufferObjDesc.BindFlags				= D3D11_BIND_CONSTANT_BUFFER;
+	bufferObjDesc.ByteWidth				= sizeof( CbufferPerObject );
+	bufferObjDesc.CPUAccessFlags		= D3D11_CPU_ACCESS_WRITE;
+	bufferObjDesc.Usage					= D3D11_USAGE_DYNAMIC;
+	bufferObjDesc.MiscFlags				= 0;
+	bufferObjDesc.StructureByteStride	= 0;
+
+	hr = mDevice->CreateBuffer( &bufferObjDesc, nullptr, &mCbufferPerObject );
+
 	//AssetManager
 	mAssetManager = new AssetManager;
 	mAssetManager->Initialize( mDevice );
@@ -258,6 +305,7 @@ void Graphics::Release()
 	SAFE_RELEASE( mRenderTargetView );
 	SAFE_RELEASE( mDepthStencilView );
 	SAFE_RELEASE( mCbufferPerFrame );
+	SAFE_RELEASE( mCbufferPerObject );
 
 	mAssetManager->Release();
 	mEffect->Release();

@@ -55,6 +55,7 @@
     <ClInclude Include="ImporterAnim.h">
       <Filter>AssetClasses\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CbufferPerObject.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AssetClasses">

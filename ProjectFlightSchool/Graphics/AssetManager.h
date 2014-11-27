@@ -5,6 +5,7 @@
 #include "Static3dAsset.h"
 #include "Vertex.h"
 #include "ImporterAnim.h"
+#include "MapPathImportHandler.h"
 #include <vector>
 #include <fstream>
 

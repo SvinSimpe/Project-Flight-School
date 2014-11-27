@@ -3,19 +3,12 @@
 bool Client::MsgLoop()
 {
 	bool result = false;
-	std::string input = "fisk";
 	while ( mServerSocket != INVALID_SOCKET )
 	{
-		//std::getline( std::cin, mess );
 		system("pause");
-		char* msg = (char*)input.c_str();
-		/*char* msg = new char[sizeof(mess)];
-		memcpy(msg, mess.c_str(), sizeof(mess));
-		printf("Client: %s\n", msg);*/
-		char* msg2 = "Hittad";
 		if ( mServerSocket != INVALID_SOCKET )
 		{
-			result = mConn->SendMsg(mServerSocket, msg2);
+			result = mConn->SendMsg(mServerSocket, "Fisk");
 		}
 	};
 
@@ -46,18 +39,6 @@ bool Client::HandleMsg( char* msg )
 		printf("%s\n", msg);
 	}
 	return true;
-}
-
-template <typename T>
-void Client::StructToCharPtr( T* inStruct, char* result )
-{
-	memcpy( result, inStruct, sizeof(*inStruct) );
-}
-
-template <typename T>
-void Client::CharPtrToStruct( T* result, char* inChar )
-{
-	memcpy( result, inChar, sizeof(*result) );
 }
 
 bool Client::Connect()

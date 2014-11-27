@@ -34,6 +34,7 @@ class Connection
 	// Members
 	private:
 		int mResult;
+		char* mRecvBuf;
 		int mRecvBufLen;
 
 	protected:
@@ -47,9 +48,9 @@ class Connection
 		char*	Pack( char* body, int index );
 		char*	ReceiveMsg( SOCKET from);
 		template <typename T>
-		void	StructToCharPtr( T* inStruct, char* result );
+		void	StructToCharPtr( T* inStruct, char* result, int size );
 		template <typename T>
-		void	CharPtrToStruct( T* result, char* inChar );
+		void	CharPtrToStruct( T* result, char* inChar, int size );
 
 		// Functions
 	private:
@@ -70,24 +71,14 @@ class Connection
 
 
 template <typename T>
-void Connection::StructToCharPtr( T* inStruct, char* result )
+void Connection::StructToCharPtr( T* inStruct, char* result, int size)
 {
-	if (sizeof(T) == sizeof(result))
-	{
-		int i = 0;
-	}
-	memcpy( result, inStruct, sizeof( T ) );
+	memcpy(result, inStruct, size);
 }
 
 template <typename T>
-void Connection::CharPtrToStruct( T* result, char* inChar )
+void Connection::CharPtrToStruct( T* result, char* inChar, int size)
 {
-	if (sizeof(result) == sizeof(inChar))
-	{
-		int i = 0;
-	}
-	memcpy( result, inChar, sizeof( T ) );
+	memcpy(result, inChar, size);
 }
-
-
 #endif

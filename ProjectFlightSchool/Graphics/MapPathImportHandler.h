@@ -13,18 +13,17 @@ using namespace std;
 class MapPathImportHandler
 {
 	//Class members
-private:
-	vector<AnimationData>	mAnimationList;
-protected:
-public:
+	private:
+		vector<AnimationData>	mAnimationList;
+	protected:
+	public:
 
 	//Class functions
-private:
-protected:
-public:
+	private:
+	protected:
+	public:
 					MapPathImportHandler();
 	virtual			~MapPathImportHandler();
 	HRESULT			HandlePath( string folderPath );
 };
-
 #endif

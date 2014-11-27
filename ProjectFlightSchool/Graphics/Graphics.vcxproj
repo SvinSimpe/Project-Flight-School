@@ -88,7 +88,6 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\Moreus%27\Desktop\GitProjekt\ProjectFlightSchool\Graphics\ImporterAnim.h" />
     <ClInclude Include="AssetBase.h" />
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="CameraInfo.h" />
@@ -97,16 +96,17 @@
     <ClInclude Include="EffectInfo.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="ImporterAnim.h" />
     <ClInclude Include="Static3dAsset.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\Moreus%27\Desktop\GitProjekt\ProjectFlightSchool\Graphics\ImporterAnim.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="AssetBase.cpp" />
     <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="Effect.cpp" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="ImporterAnim.cpp" />
     <ClCompile Include="Static3dAsset.cpp" />
   </ItemGroup>
   <ItemGroup>

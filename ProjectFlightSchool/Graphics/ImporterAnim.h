@@ -8,22 +8,22 @@
 #include <string>
 using namespace std;
 
-struct animationMatrix
+struct AnimationMatrix
 {
 	double matrixData[4][4];
 };
-struct jointAnimation
+struct JointAnimation
 {
 	string							jointName;
 	string							parentName;
 	std::vector<int>				keys;
-	std::vector<animationMatrix>	matricies;
+	std::vector<AnimationMatrix>	matricies;
 };
-struct animationData
+struct AnimationData
 {
 	int								nrOfJoints;
 	string							animationName;
-	std::vector<jointAnimation>		joints;
+	std::vector<JointAnimation>		joints;
 };
 
 
@@ -32,8 +32,6 @@ class ImporterAnim
 {
 	//Class members
 private:
-	animationData mTempAnimData;
-
 protected:
 public:
 
@@ -43,7 +41,7 @@ protected:
 public:
 	ImporterAnim();
 	virtual			~ImporterAnim();
-	animationData	ImportBinaryAnimData(string path);
+	AnimationData	ImportBinaryAnimData( string path );
 };
 
 #endif

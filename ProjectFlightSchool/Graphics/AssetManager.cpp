@@ -29,16 +29,22 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 	// Plane placeholder
 	//////////////////////////
 	AssetBase* plane;
-	plane			= new Static3dAsset;
-	plane->mAssetId	= 0;
-	plane->mFileName = "PLANEFILENAME"; //ADD CORRECT FILENAME HERE
+	plane				= new Static3dAsset;
+	plane->mAssetId		= 0;
+	plane->mFileName	= "PLANE"; //ADD CORRECT FILENAME HERE
+	plane->mVertexCount	= 6;
 
-	Vertex planePlaceholder[4];
-	planePlaceholder[0].position = DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( -0.75f, -0.75f, 0.0f ) );
-	planePlaceholder[1].position = DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( -0.75f, 0.75f, 0.0f ) );
-	planePlaceholder[2].position = DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( 0.75f, -0.75f, 0.0f ) );
-	planePlaceholder[3].position = DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( 0.75f, 0.75f, 0.0f ) );
+	float planeSize = 10.0f;
 
+	Vertex planePlaceholder[6] = {
+			-0.5f * planeSize, 0.0f, -0.5f * planeSize	,	0.0f, 1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 1.0f,
+			-0.5f * planeSize, 0.0f,  0.5f * planeSize	,	0.0f, 1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f * planeSize, 0.0f,  0.5f * planeSize	,	0.0f, 1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+
+			-0.5f * planeSize, 0.0f, -0.5f * planeSize	,	0.0f, 1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 1.0f,
+			 0.5f * planeSize, 0.0f,  0.5f * planeSize	,	0.0f, 1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+			 0.5f * planeSize, 0.0f, -0.5f * planeSize	,	0.0f, 1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   1.0f, 1.0f
+	};
 
 	D3D11_BUFFER_DESC bufferDesc;
 	ZeroMemory( &bufferDesc, sizeof( bufferDesc ) );
@@ -64,24 +70,74 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 	//////////////////////////
 	AssetBase* cube;
 	cube = new Static3dAsset;
-	cube->mAssetId = 1;
-	cube->mFileName = "CUBEFILENAME"; //ADD CORRECT FILENAME HERE
+	cube->mAssetId		= 1;
+	cube->mFileName		= "CUBE"; //ADD CORRECT FILENAME HERE
+	cube->mVertexCount	= 36;
 
-	Vertex cubePlaceholder[8];
-	cubePlaceholder[0].position = DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( -0.25f, -0.25f, 0.0f ) );
-	cubePlaceholder[1].position = DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( -0.25f, 0.25f, 0.0f ) );
-	cubePlaceholder[2].position = DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( 0.25f, -0.25f, 0.0f ) );
-	cubePlaceholder[3].position = DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( 0.25f, 0.25f, 0.0f ) );
-	
-	cubePlaceholder[4].position = DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( -0.25f, -0.25f, -0.5f ) );
-	cubePlaceholder[5].position = DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( -0.25f, 0.25f, -0.5f ) );
-	cubePlaceholder[6].position = DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( 0.25f, -0.25f, -0.5f ) );
-	cubePlaceholder[7].position = DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( 0.25f, 0.25f, -0.5f ) );
-	
+	float cubeSize = 1.0f;
+
+	Vertex cubePlaceholder[36] = {
+		// Bottom
+			-0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			-0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+
+			-0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+		
+		// Left
+			-0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	-1.0f, 0.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			-0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	-1.0f, 0.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			-0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	-1.0f, 0.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+
+			-0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	-1.0f, 0.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			-0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	-1.0f, 0.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			-0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	-1.0f, 0.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+		
+		// Back
+			-0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	0.0f, 0.0f, 1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	0.0f, 0.0f, 1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			-0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	0.0f, 0.0f, 1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+
+			-0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	0.0f, 0.0f, 1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	0.0f, 0.0f, 1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	0.0f, 0.0f, 1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+
+		// Right
+			 0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	1.0f, 0.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	1.0f, 0.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	1.0f, 0.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+
+			 0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	1.0f, 0.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	1.0f, 0.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	1.0f, 0.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+
+		 // front
+			-0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	0.0f, 0.0f, -1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			-0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	0.0f, 0.0f, -1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	0.0f, 0.0f, -1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+
+			 0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	0.0f, 0.0f, -1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			-0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	0.0f, 0.0f, -1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	0.0f, 0.0f, -1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+
+		 // top
+			-0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	0.0f, 1.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			-0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	0.0f, 1.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	0.0f, 1.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+
+			-0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	0.0f, 1.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	0.0f, 1.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	0.0f, 1.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f
+	};
+
 	subData.pSysMem = cubePlaceholder;
 
+	bufferDesc.ByteWidth		= sizeof( cubePlaceholder );
+
 	hr = device->CreateBuffer( &bufferDesc, &subData, &cube->mVertexBuffer );
-	if(FAILED((hr)))
+	if( FAILED( ( hr ) ) )
 	{
 		//Failed to create vertex buffer for cube placeholder
 		return hr;
@@ -106,39 +162,71 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, U
 	}
 	else
 	{
+		MeshData	meshData;
+		UINT		meshCount	= 0;
+		UINT		vertexSize	= sizeof( Vertex );
+
+		std::ifstream myFile( fileName, std::ios::binary );
+
+		if( !myFile )
+		{
+			assetId = 1;
+			return S_FALSE;
+		}
+
+		//Read fileheader. Holds information about meshes in scene
+		myFile.read( (char*)&meshCount, sizeof( UINT ) );
+		
+		float* rawData = nullptr;
+
+		for( UINT i = 0; i < meshCount; i++ )
+		{
+			//Read actual data
+			myFile.read( (char*)&meshData.meshInfo, sizeof(meshData.meshInfo) );
+	
+			//Memory alloc + reading vertices
+			meshData.vertices	= new Vertex[meshData.meshInfo.vertexCount];
+			//rawData				= new float[11  * meshData.meshInfo.vertexCount];
+
+			myFile.read( (char*)meshData.vertices, vertexSize  * meshData.meshInfo.vertexCount );
+
+			for( UINT j = 0; j < meshData.meshInfo.vertexCount * 11; j += 11 )
+			{
+				//meshData.vertices[j / 11].position	= DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( rawData[j], rawData[j + 1], rawData[j + 2] ) );
+				//meshData.vertices[j / 11].normal	= DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( rawData[j + 3], rawData[j + 4], rawData[j + 5] ) );
+			}
+			
+			//delete [] rawData;
+		}
+
+		myFile.close();
+
 		AssignAssetId( assetId );
 		AssetBase* temp;
-		temp			= new Static3dAsset;
-		temp->mAssetId	= assetId;
-		temp->mFileName = fileName;
-	
-		////////////////////////////////
-		//		TESTU-BUFFERU
-		//////////////////////////////
-
-		Vertex derpface[4];
-		derpface[0].position = DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( -0.5f, -0.5f, 0.0f ) );
-		derpface[1].position = DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( -0.5f, 0.5f, 0.0f ) );
-		derpface[2].position = DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( 0.5f, -0.5f, 0.0f ) );
-		derpface[3].position = DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( 0.5f, 0.5f, 0.0f ) );
+		temp				= new Static3dAsset;
+		temp->mAssetId		= assetId;
+		temp->mFileName		= fileName;
+		temp->mVertexCount	= meshData.meshInfo.vertexCount;
 
 		D3D11_BUFFER_DESC bufferDesc;
 		ZeroMemory( &bufferDesc, sizeof( bufferDesc ) );
 		bufferDesc.BindFlags		= D3D11_BIND_VERTEX_BUFFER;
-		bufferDesc.ByteWidth		= sizeof( derpface );
+		bufferDesc.ByteWidth		= sizeof( Vertex ) * meshData.meshInfo.vertexCount;
 		bufferDesc.Usage			= D3D11_USAGE_DEFAULT;
 	
 		D3D11_SUBRESOURCE_DATA subData;
-		subData.pSysMem = derpface;
+		subData.pSysMem = meshData.vertices;
 	
 		hr = device->CreateBuffer( &bufferDesc, &subData, &temp->mVertexBuffer );
-		if(FAILED((hr)))
+		if( FAILED( ( hr ) ) )
 		{
 			//Failed to create vertex buffer
 			return hr;
 		}
 
-		mAssetContainer.push_back(temp);
+		mAssetContainer.push_back( temp );
+
+		delete [] meshData.vertices;
 
 		return hr;
 	}
@@ -149,6 +237,14 @@ HRESULT	AssetManager::Initialize( ID3D11Device* device )
 	mAssetIdCounter = 2;
 	mAssetContainer.resize( mAssetIdCounter );
 	PlaceholderAssets( device );
+
+	////////////////////////////////////////////////////////////////////////////////
+
+	ImporterAnim testAnimation;
+	testAnimation.ImportBinaryAnimData( "bajs" );
+
+	////////////////////////////////////////////////////////////////////////////////
+	
 	return S_OK;
 }
 
@@ -157,7 +253,7 @@ void AssetManager::Release()
 	for( UINT i = 0; i < mAssetContainer.size(); i++ )
 	{
 		mAssetContainer[i]->Release();
-		SAFE_DELETE(mAssetContainer[i]);
+		SAFE_DELETE( mAssetContainer[i] );
 	}
 	mAssetContainer.clear();
 }

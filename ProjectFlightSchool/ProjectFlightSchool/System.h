@@ -1,11 +1,17 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
+
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
-#include <Windows.h>
-#include "Graphics.h"
+#include "Server.h" // This include should always be first since it includes windows.h...... for now
 #include "Input.h"
+#include "Graphics.h"
+#include "Client.h"
+#include <iostream>
+#include "Game.h"
+
+
 
 class System
 {
@@ -16,7 +22,10 @@ class System
 		UINT		mScreenWidth;
 		UINT		mScreenHeight;
 
-		UINT		mAssetId;
+		std::thread	mNetworkThread;
+		Client		mClient;
+
+		Game*		mGame;
 
 		
 
@@ -29,7 +38,7 @@ class System
 		HRESULT					Update( float deltaTime );
 		HRESULT					Render();
 		static void				InterpetrateRawInput( LPARAM lParam );
-
+		void					NetworkInit();
 
 	protected:
 	public:

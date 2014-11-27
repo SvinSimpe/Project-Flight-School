@@ -19,6 +19,9 @@
     <ClCompile Include="Graphics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ImporterAnim.cpp">
+      <Filter>AssetClasses\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssetBase.h">
@@ -47,6 +50,10 @@
     </ClInclude>
     <ClInclude Include="CameraInfo.h">
       <Filter>Camera\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CbufferPerFrame.h" />
+    <ClInclude Include="ImporterAnim.h">
+      <Filter>AssetClasses\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

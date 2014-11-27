@@ -44,10 +44,8 @@ class Connection
 	private:
 	protected:
 	public:
-		template <typename T>
-		char*	Pack( T body, int index );
-		template <typename T>
-		void	ReceiveMsg( SOCKET &from, T** result );
+		char*	Pack( char* body, int index );
+		char*	ReceiveMsg( SOCKET from);
 		template <typename T>
 		void	StructToCharPtr( T* inStruct, char* result );
 		template <typename T>
@@ -59,9 +57,9 @@ class Connection
 	protected:
 
 	public:
-		bool	SendMsg( SOCKET &to, char* msg );
+		bool	SendMsg( SOCKET &to, char* body );
 		Package		Unpack(char* package);
-		char*	ReceiveMsg( SOCKET &from );
+		//char*	ReceiveMsg( SOCKET &from );
 		bool	DisconnectSocket( SOCKET &socket );
 		bool	Initialize();
 		void	Release();
@@ -69,56 +67,26 @@ class Connection
 		virtual	~Connection();
 };
 
-template <typename T>
-char* Connection::Pack( T body, int index )
-{
-	char* result = ( char* )malloc( sizeof( Package ) );
-	Package p;
 
-	p.head.index		= index;
-	p.head.contentType	= ContentType::MESSAGE;
-	p.head.contentSize	= sizeof( body );
-	p.body.content		= ( char* )malloc( sizeof ( body ) );
-	StructToCharPtr(&body, p.body.content);
-	//p.body.content		= body;
-	//StructToCharPtr( &body, p.body.content );
-	StructToCharPtr( &p, result );
-
-	return result;
-}
-
-template<typename T>
-void Connection::ReceiveMsg(SOCKET &from, T** result)
-{
-	char* recvBuf = (char*)malloc(sizeof(Package));
-	mResult = recv(from, recvBuf, mRecvBufLen, 0);
-	if (mResult < 0)
-	{
-		printf("recv failed when receiving from %d with error: %d\n", from, WSAGetLastError());
-		DisconnectSocket(from);
-		if (recvBuf)
-			free(recvBuf);
-		return;
-	}
-
-	Package p = Unpack(recvBuf);
-
-	*result = (T*)malloc(p.head.contentSize);
-	CharPtrToStruct(*result, p.body.content);
-	if (recvBuf)
-		free(recvBuf);
-}
 
 template <typename T>
 void Connection::StructToCharPtr( T* inStruct, char* result )
 {
-	memcpy( result, inStruct, sizeof( *inStruct ) );
+	if (sizeof(T) == sizeof(result))
+	{
+		int i = 0;
+	}
+	memcpy( result, inStruct, sizeof( T ) );
 }
 
 template <typename T>
 void Connection::CharPtrToStruct( T* result, char* inChar )
 {
-	memcpy( result, inChar, sizeof( *result ) );
+	if (sizeof(result) == sizeof(inChar))
+	{
+		int i = 0;
+	}
+	memcpy( result, inChar, sizeof( T ) );
 }
 
 

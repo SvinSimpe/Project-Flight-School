@@ -53,6 +53,7 @@ void System::NetworkInit()
 
 	int choice = 0;
 	std::cin >> choice;
+	std::cin.ignore();
 	if (choice == 0)
 	{
 		Server::GetInstance()->Initialize( port );

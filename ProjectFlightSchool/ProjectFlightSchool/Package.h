@@ -1,5 +1,6 @@
 #ifndef PACKAGE_H
 #define PACKAGE_H
+#include "Structs.h"
 
 enum class ContentType
 {
@@ -18,7 +19,7 @@ struct Package
 
 	struct Body
 	{
-		char* content = nullptr;
+		char* content;
 	};
 
 	Head head = Head();

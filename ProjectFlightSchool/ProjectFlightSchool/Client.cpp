@@ -3,14 +3,19 @@
 bool Client::MsgLoop()
 {
 	bool result = false;
+	std::string input = "fisk";
 	while ( mServerSocket != INVALID_SOCKET )
 	{
-		std::string msg = "";
-		std::getline( std::cin, msg );
-		
+		//std::getline( std::cin, mess );
+		system("pause");
+		char* msg = (char*)input.c_str();
+		/*char* msg = new char[sizeof(mess)];
+		memcpy(msg, mess.c_str(), sizeof(mess));
+		printf("Client: %s\n", msg);*/
+		char* msg2 = "Hittad";
 		if ( mServerSocket != INVALID_SOCKET )
 		{
-			result = mConn->SendMsg(mServerSocket, (char*)msg.c_str());
+			result = mConn->SendMsg(mServerSocket, msg2);
 		}
 	};
 
@@ -21,14 +26,10 @@ bool Client::ReceiveLoop()
 {
 	do
 	{
-		Message* msg = nullptr;
-		mConn->ReceiveMsg(mServerSocket, &msg);
+		char* msg = mConn->ReceiveMsg(mServerSocket);
 		
-		if ( msg->msg )
-		{
-			HandleMsg( msg->msg );
+			HandleMsg( msg );
 			//delete msg;
-		}
 	} while ( mServerSocket != INVALID_SOCKET );
 	return true;
 }

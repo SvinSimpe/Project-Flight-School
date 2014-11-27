@@ -24,14 +24,12 @@ bool Server::ReceiveLoop( int index )
 {
 	while ( mClientSockets.at( index ) != INVALID_SOCKET )
 	{
-		Message* msg = nullptr;
-		mConn->ReceiveMsg(mClientSockets.at(index), &msg);
+		char* msg = mConn->ReceiveMsg(mClientSockets.at(index));
 
-		if ( msg->msg )
+		if (msg)
 		{
-			HandleMsg(mClientSockets.at(index), msg->msg);
-			printf( "%d sent: %s\n", mClientSockets.at( index ), msg->msg );
-			//delete msg;
+			HandleMsg(mClientSockets.at(index), msg);
+			printf("%d sent: %s\n", mClientSockets.at(index), msg);
 		}
 	}
 	return true;
@@ -64,7 +62,7 @@ void Server::HandleMsg( SOCKET &socket, char* msg )
 		{
 			if ( s != INVALID_SOCKET )
 			{
-				mConn->SendMsg( s, "Quit" );
+				//mConn->SendMsg( s, "Quit" );
 			}
 		}
 
@@ -87,11 +85,11 @@ void Server::HandleMsg( SOCKET &socket, char* msg )
 				{
 					std::string sMsg = std::to_string( socket ) + " says: " + msg;
 					msg = (char*)sMsg.c_str();
-					mConn->SendMsg( s, msg );
+					//mConn->SendMsg( s, msg );
 				}
 				else
 				{
-					mConn->SendMsg( socket, "Message sent." );
+					//mConn->SendMsg( socket, "Message sent." );
 				}
 			}
 		}

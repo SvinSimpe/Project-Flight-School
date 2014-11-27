@@ -137,7 +137,7 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 	bufferDesc.ByteWidth		= sizeof( cubePlaceholder );
 
 	hr = device->CreateBuffer( &bufferDesc, &subData, &cube->mVertexBuffer );
-	if(FAILED((hr)))
+	if( FAILED( ( hr ) ) )
 	{
 		//Failed to create vertex buffer for cube placeholder
 		return hr;
@@ -218,7 +218,7 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, U
 		subData.pSysMem = meshData.vertices;
 	
 		hr = device->CreateBuffer( &bufferDesc, &subData, &temp->mVertexBuffer );
-		if(FAILED((hr)))
+		if( FAILED( ( hr ) ) )
 		{
 			//Failed to create vertex buffer
 			return hr;
@@ -237,6 +237,14 @@ HRESULT	AssetManager::Initialize( ID3D11Device* device )
 	mAssetIdCounter = 2;
 	mAssetContainer.resize( mAssetIdCounter );
 	PlaceholderAssets( device );
+
+	////////////////////////////////////////////////////////////////////////////////
+
+	ImporterAnim testAnimation;
+	testAnimation.ImportBinaryAnimData( "bajs" );
+
+	////////////////////////////////////////////////////////////////////////////////
+	
 	return S_OK;
 }
 

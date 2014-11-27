@@ -89,7 +89,6 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
-    
     <ClCompile Include="BaseState.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="PlayState.cpp" />
@@ -102,7 +101,6 @@
     <ClInclude Include="PlayState.h" />
     <ClInclude Include="StartMenuState.h" />
     <ClInclude Include="StateMachine.h" />
-    
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="Connection.cpp" />
     <ClCompile Include="EventManager.cpp" />
@@ -119,7 +117,6 @@
     <ClInclude Include="EventManager.h" />
     <ClInclude Include="Events.h" />
     <ClInclude Include="IEventManager.h" />
-    
     <ClInclude Include="System.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

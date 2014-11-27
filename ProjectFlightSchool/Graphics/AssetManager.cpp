@@ -237,6 +237,14 @@ HRESULT	AssetManager::Initialize( ID3D11Device* device )
 	mAssetIdCounter = 2;
 	mAssetContainer.resize( mAssetIdCounter );
 	PlaceholderAssets( device );
+
+	////////////////////////////////////////////////////////////////////////////////
+
+	ImporterAnim testAnimation;
+	testAnimation.ImportBinaryAnimData("bajs");
+
+	////////////////////////////////////////////////////////////////////////////////
+	
 	return S_OK;
 }
 

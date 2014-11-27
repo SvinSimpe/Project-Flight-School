@@ -88,6 +88,7 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\Moreus%27\Desktop\GitProjekt\ProjectFlightSchool\Graphics\ImporterAnim.h" />
     <ClInclude Include="AssetBase.h" />
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="CameraInfo.h" />
@@ -100,6 +101,7 @@
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\Moreus%27\Desktop\GitProjekt\ProjectFlightSchool\Graphics\ImporterAnim.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="AssetBase.cpp" />
     <ClCompile Include="AssetManager.cpp" />

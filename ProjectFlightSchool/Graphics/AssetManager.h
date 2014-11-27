@@ -4,6 +4,7 @@
 #include "AssetBase.h"
 #include "Static3dAsset.h"
 #include "Vertex.h"
+#include "ImporterAnim.h"
 #include <vector>
 #include <fstream>
 

@@ -22,10 +22,12 @@ bool Server::AcceptConnection()
 
 bool Server::ReceiveLoop( int index )
 {
+	std::string input = "fisk";
 	while ( mClientSockets.at( index ) != INVALID_SOCKET )
 	{
+		mConn->SendMsg(mClientSockets.at(index), "Fisk");
 		char* msg = mConn->ReceiveMsg(mClientSockets.at(index));
-
+		
 		if (msg)
 		{
 			HandleMsg(mClientSockets.at(index), msg);

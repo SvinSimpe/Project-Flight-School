@@ -195,16 +195,13 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 	const char* port = DEFAULT_PORT;
 	const char* ip = DEFAULT_IP;
 
-<<<<<<< HEAD
 	Input::GetInstance()->Initialize();
 
-=======
 	mNetworkThread	= std::thread( &System::NetworkInit, this );
 	
 	mGame			= new Game();
 	mGame->Initialize();
 	
->>>>>>> development
 	return S_OK;
 }
 

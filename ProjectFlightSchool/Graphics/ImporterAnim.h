@@ -41,7 +41,7 @@ protected:
 public:
 	ImporterAnim();
 	virtual			~ImporterAnim();
-	AnimationData	ImportBinaryAnimData( string path );
+	AnimationData	ImportBinaryAnimData( string directoryPath, string fileName );
 };
 
 #endif

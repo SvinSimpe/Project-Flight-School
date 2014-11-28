@@ -101,6 +101,7 @@
     <ClInclude Include="MapPathImportHandler.h" />
     <ClInclude Include="Static3dAsset.h" />
     <ClInclude Include="Vertex.h" />
+    <ClInclude Include="WICTextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
@@ -111,6 +112,7 @@
     <ClCompile Include="ImporterAnim.cpp" />
     <ClCompile Include="MapPathImportHandler.cpp" />
     <ClCompile Include="Static3dAsset.cpp" />
+    <ClCompile Include="WICTextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\Content\Effects\Placeholder.hlsl">

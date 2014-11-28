@@ -21,7 +21,12 @@ Graphics::~Graphics()
 {
 
 }
-
+HRESULT Graphics::LoadTextureFromFile ( char* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size )
+{
+	HRESULT hr = S_OK;
+	hr = CreateWICTextureFromFile(mDevice, mDeviceContext, (wchar_t*)fileName, texture, srv, size );
+	return hr;
+}
 //Map buffer
 HRESULT Graphics::MapBuffer( ID3D11Buffer* buffer, void* data, int size )
 {

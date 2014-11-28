@@ -19,6 +19,9 @@
     <ClCompile Include="Graphics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WICTextureLoader.cpp">
+      <Filter>TextureLoader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssetBase.h">
@@ -49,6 +52,9 @@
       <Filter>Camera\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CbufferPerFrame.h" />
+    <ClInclude Include="WICTextureLoader.h">
+      <Filter>TextureLoader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AssetClasses">
@@ -86,6 +92,9 @@
     </Filter>
     <Filter Include="Source Files">
       <UniqueIdentifier>{fb03c45c-b3a3-41da-841d-f94ae6a22b05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TextureLoader">
+      <UniqueIdentifier>{9491becd-8cbf-408b-80cf-0d8080b295cd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

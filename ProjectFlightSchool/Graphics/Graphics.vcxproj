@@ -98,6 +98,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="ImporterAnim.h" />
+    <ClInclude Include="MapPathImportHandler.h" />
     <ClInclude Include="Static3dAsset.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
@@ -108,6 +109,7 @@
     <ClCompile Include="Effect.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="ImporterAnim.cpp" />
+    <ClCompile Include="MapPathImportHandler.cpp" />
     <ClCompile Include="Static3dAsset.cpp" />
   </ItemGroup>
   <ItemGroup>

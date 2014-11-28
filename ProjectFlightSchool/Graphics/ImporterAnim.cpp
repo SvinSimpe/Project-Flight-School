@@ -8,17 +8,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
-ImporterAnim::ImporterAnim()
-{
 
-}
 
-ImporterAnim::~ImporterAnim()
-{
-
-}
-
-AnimationData ImporterAnim::ImportBinaryAnimData( string path )
+AnimationData ImporterAnim::ImportBinaryAnimData( string directoryPath,string fileName )
 {
 	streampos size;
 	char * memblock;
@@ -26,15 +18,15 @@ AnimationData ImporterAnim::ImportBinaryAnimData( string path )
 	ifstream file;
 
 	//this is how the final code should look!
-	//file.open( path, ios::in | ios::binary | ios::ate );
+	file.open( directoryPath + fileName, ios::in | ios::binary | ios::ate);
 
-	string fullPath = "myHeartIsInPieces.PaMan";
+	//string fullPath = "myHeartIsInPieces.PaMan";
 
-	file.open( fullPath, ios::in | ios::binary | ios::ate );
+	//file.open( fullPath, ios::in | ios::binary | ios::ate );
 	AnimationData tempAnim;
 
-	int lastindex = fullPath.find_last_of( "." );
-	string rawName = fullPath.substr( 0, lastindex );
+	int lastindex = fileName.find_last_of(".");
+	string rawName = fileName.substr(0, lastindex);
 
 	tempAnim.animationName = rawName;
 
@@ -119,4 +111,14 @@ AnimationData ImporterAnim::ImportBinaryAnimData( string path )
 	}
 	else cout << "Error opening file!" << endl;
 	return tempAnim;
+}
+
+ImporterAnim::ImporterAnim()
+{
+
+}
+
+ImporterAnim::~ImporterAnim()
+{
+
 }

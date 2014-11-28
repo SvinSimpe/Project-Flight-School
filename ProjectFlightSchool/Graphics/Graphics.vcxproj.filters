@@ -22,6 +22,9 @@
     <ClCompile Include="ImporterAnim.cpp">
       <Filter>AssetClasses\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MapPathImportHandler.cpp">
+      <Filter>AssetClasses\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssetBase.h">
@@ -56,6 +59,9 @@
       <Filter>AssetClasses\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CbufferPerObject.h" />
+    <ClInclude Include="MapPathImportHandler.h">
+      <Filter>AssetClasses\Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AssetClasses">

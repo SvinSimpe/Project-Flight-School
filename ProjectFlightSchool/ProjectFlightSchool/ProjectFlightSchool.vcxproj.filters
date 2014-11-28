@@ -43,6 +43,11 @@
     <ClCompile Include="System.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+<<<<<<< HEAD
+    <ClCompile Include="Input.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+=======
     
     <ClCompile Include="Game.cpp">
       <Filter>Source Files</Filter>
@@ -80,11 +85,17 @@
       <Filter>EventSystem\Source Files</Filter>
       
     </ClCompile>
+>>>>>>> development
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+<<<<<<< HEAD
+    <ClInclude Include="Input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+=======
     
     <ClInclude Include="Game.h">
       <Filter>Header Files</Filter>
@@ -122,5 +133,6 @@
       <Filter>EventSystem\Header Files</Filter>
       
     </ClInclude>
+>>>>>>> development
   </ItemGroup>
 </Project>

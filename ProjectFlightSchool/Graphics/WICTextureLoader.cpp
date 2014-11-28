@@ -207,7 +207,7 @@ static IWICImagingFactory* _GetWIC()
         return s_Factory;
 
     HRESULT hr = CoCreateInstance(
-        CLSID_WICImagingFactory,
+        CLSID_WICImagingFactory1,
         nullptr,
         CLSCTX_INPROC_SERVER,
         __uuidof(IWICImagingFactory),

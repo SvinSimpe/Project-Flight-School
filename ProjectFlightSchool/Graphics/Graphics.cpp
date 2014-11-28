@@ -78,14 +78,17 @@ void Graphics::RenderStatic3dAsset( UINT assetId, float x, float y, float z )
 	mDeviceContext->PSSetShader( mEffect->GetPixelShader(), nullptr, 0 );
 
 	//Map CbufferPerObject
-	DirectX::XMFLOAT4 temp;
-	temp.x = x;
-	temp.y = y;
-	temp.z = z;
-	temp.w = 0;		//Always 0 since it's not used currently.
+	DirectX::XMMATRIX world;
+	DirectX::XMFLOAT3 tempFloat;
+	DirectX::XMVECTOR tempVec;
+	tempFloat.x = x;
+	tempFloat.y = y;
+	tempFloat.z = z;
+
+	tempVec = DirectX::XMLoadFloat3( &tempFloat );
+	world = DirectX::XMMatrixTranslationFromVector( tempVec );
 	CbufferPerObject data;
-	data.worldMatrix	= mAssetManager->mAssetContainer[assetId]->mWorldMatrix;
-	data.strangeFloat	= temp;
+	data.worldMatrix = world;
 	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
 
 	mDeviceContext->VSSetConstantBuffers( 0, 1, &mCbufferPerObject );

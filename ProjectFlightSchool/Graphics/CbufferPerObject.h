@@ -6,6 +6,5 @@
 struct CbufferPerObject
 {
 	DirectX::XMMATRIX worldMatrix;
-	DirectX::XMFLOAT4 strangeFloat;		//Alpha channel not currently used.
 };
 #endif

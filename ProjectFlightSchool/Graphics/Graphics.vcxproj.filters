@@ -58,6 +58,7 @@
     <ClInclude Include="ImporterAnim.h">
       <Filter>AssetClasses\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CbufferPerObject.h" />
     <ClInclude Include="MapPathImportHandler.h">
       <Filter>AssetClasses\Header Files</Filter>
     </ClInclude>

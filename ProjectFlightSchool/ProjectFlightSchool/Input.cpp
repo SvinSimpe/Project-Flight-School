@@ -2,7 +2,7 @@
 #include <strsafe.h>
 #pragma region Public functions
 
-RAWINPUT* Input::ReadMessage(LPARAM lParam)
+RAWINPUT* Input::ReadMessage( LPARAM lParam )
 {
 	UINT dwSize;
 	GetRawInputData( (HRAWINPUT)lParam, RID_INPUT, nullptr, &dwSize, sizeof( RAWINPUTHEADER ) );

@@ -156,8 +156,8 @@ void System::Release()
 {
 	Graphics::GetInstance()->Release();
 	mNetworkThread.join();
-	Server::GetInstance()->Release();
 	mClient.Release();
+	Server::GetInstance()->Release();
 }
 
 System::System()

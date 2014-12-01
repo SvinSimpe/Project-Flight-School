@@ -98,18 +98,6 @@ void Server::HandleMsg( SOCKET &socket, char* msg )
 	}
 }
 
-template <typename T>
-void Server::StructToCharPtr( T* inStruct, char* result )
-{
-	memcpy( result, inStruct, sizeof(*inStruct) );
-}
-
-template <typename T>
-void Server::CharPtrToStruct( T* result, char* inChar )
-{
-	memcpy( result, inChar, sizeof(*result) );
-}
-
 Server* Server::GetInstance()
 {
 	if ( !mInstance )
@@ -205,10 +193,7 @@ void Server::Release()
 {
 	for ( auto& t : mListenThreads )
 	{
-		if ( t.joinable() )
-		{
-			t.join();
-		}
+		t.join();
 	}
 	mListenThreads.clear();
 

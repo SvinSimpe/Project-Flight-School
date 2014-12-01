@@ -2,11 +2,7 @@
 
 bool Connection::SendMsg( SOCKET &to, char* body )
 {
-	Package p;
-	p.head.index = 0;
-	p.head.contentType = ContentType::MESSAGE;
-	p.head.contentSize = sizeof(body);
-	p.body.content = (char*)body;
+	Package p = Pack(body, 0);
 
 	mResult = send( to, (char*)&p, sizeof(p), 0 );
 	if ( mResult == SOCKET_ERROR )
@@ -18,28 +14,18 @@ bool Connection::SendMsg( SOCKET &to, char* body )
 	return true;
 }
 
-Package Connection::Unpack(char* package)
+Package Connection::Pack(char* body, int index)
 {
 	Package p;
-	//CharPtrToStruct(&p, package);
+	p.head.index = index;
+	p.head.contentType = ContentType::MESSAGE;
+	p.head.contentSize = sizeof(body);
+	p.body.content = (char*) body;
+
 	return p;
 }
 
-char* Connection::Pack(char* body, int index)
-{
-	char* result = (char*)malloc(sizeof(Package));
-	Package p;
-
-	p.head.index = index;
-	p.head.contentType = ContentType::MESSAGE;
-	p.head.contentSize = sizeof(Message);
-	p.body.content = body;
-	//StructToCharPtr(&p, result);
-
-	return result;
-}
-
-char* Connection::ReceiveMsg(SOCKET from)
+char* Connection::ReceiveMsg(SOCKET &from)
 {
 	mResult = recv(from, mRecvBuf, mRecvBufLen, 0);
 	if (mResult < 0)
@@ -50,14 +36,10 @@ char* Connection::ReceiveMsg(SOCKET from)
 		return result;
 	}
 
-	Package* p = new Package();
-	CharPtrToStruct(p, mRecvBuf, mResult);
-	//memcpy(p, mRecvBuf, mResult);
+	Package p = Package();
+	CharPtrToStruct(&p, mRecvBuf, mResult);
+	StructToCharPtr(p.body.content, mRecvBuf, sizeof(p.body.content));
 
-	StructToCharPtr(p->body.content, mRecvBuf, sizeof(p->body.content));
-	//memcpy(mRecvBuf, p->body.content, sizeof(p->body.content));
-
-	delete p;
 	return mRecvBuf;
 }
 
@@ -77,8 +59,6 @@ bool Connection::Initialize()
 
 void Connection::Release()
 {
-	if (mRecvBuf)
-		delete[] mRecvBuf;
 }
 
 Connection::Connection()
@@ -90,4 +70,6 @@ Connection::Connection()
 
 Connection::~Connection()
 {
+	if (mRecvBuf)
+		delete[] mRecvBuf;
 }

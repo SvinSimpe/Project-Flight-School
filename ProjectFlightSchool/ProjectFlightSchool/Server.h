@@ -25,10 +25,6 @@ class Server
 		bool			AcceptConnection();
 		bool			ReceiveLoop( int index );
 		void			HandleMsg( SOCKET &socket, char* msg );
-		template <typename T>
-		void			StructToCharPtr( T* inStruct, char* result );
-		template <typename T>
-		void			CharPtrToStruct( T* result, char* inChar );
 
 	protected:
 

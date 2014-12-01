@@ -21,8 +21,7 @@ bool Client::ReceiveLoop()
 	{
 		char* msg = mConn->ReceiveMsg(mServerSocket);
 		
-			HandleMsg( msg );
-			//delete msg;
+		HandleMsg( msg );
 	} while ( mServerSocket != INVALID_SOCKET );
 	return true;
 }

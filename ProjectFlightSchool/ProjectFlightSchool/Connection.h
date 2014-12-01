@@ -45,8 +45,6 @@ class Connection
 	private:
 	protected:
 	public:
-		char*	Pack( char* body, int index );
-		char*	ReceiveMsg( SOCKET from);
 		template <typename T>
 		void	StructToCharPtr( T* inStruct, char* result, int size );
 		template <typename T>
@@ -54,20 +52,19 @@ class Connection
 
 		// Functions
 	private:
+		Package	Pack( char* body, int index );
 
 	protected:
 
 	public:
 		bool	SendMsg( SOCKET &to, char* body );
-		Package		Unpack(char* package);
-		//char*	ReceiveMsg( SOCKET &from );
+		char*	ReceiveMsg( SOCKET &from);
 		bool	DisconnectSocket( SOCKET &socket );
 		bool	Initialize();
 		void	Release();
 				Connection();
 		virtual	~Connection();
 };
-
 
 
 template <typename T>

@@ -4,18 +4,17 @@
 
 enum class ContentType
 {
-	NEW_EVENT,
 	OPERATION,
-	MESSAGE,
+	MESSAGE
 };
 
 struct Package
 {
 	struct Head
 	{
-		int index = 0;
+		int index				= 0;
 		ContentType contentType = ContentType::OPERATION;
-		int contentSize = 0;
+		int contentSize			= 0;
 	};
 
 	struct Body

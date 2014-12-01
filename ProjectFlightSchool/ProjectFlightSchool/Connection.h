@@ -62,7 +62,7 @@ class Connection
 
 	public:
 		char*	ReceiveMsg( SOCKET &from);
-		bool	DisconnectSocket( SOCKET &socket );
+		void	DisconnectSocket( SOCKET &socket );
 		bool	Initialize();
 		void	Release();
 				Connection();
@@ -70,40 +70,40 @@ class Connection
 };
 
 template <typename T>
-Package Connection::Pack(T body, int index)
+Package Connection::Pack( T body, int index )
 {
-	Package p = Package();
-	p.head.index = index;
-	p.head.contentType = ContentType::MESSAGE;
-	p.head.contentSize = DEFAULT_BUFLEN;
-	p.body.content = (char*)body;
+	Package p			= Package();
+	p.head.index		= index;
+	p.head.contentType	= ContentType::MESSAGE;
+	p.head.contentSize	= DEFAULT_BUFLEN;
+	p.body.content		= (char*)body;
 
 	return p;
 }
 
 template <typename T>
-bool Connection::SendMsg(SOCKET &to, T body)
+bool Connection::SendMsg( SOCKET &to, T body )
 {
-	Package p = Pack(body, 0);
-	mResult = send(to, (char*)&p, sizeof(p), 0);
-	if (mResult == SOCKET_ERROR)
+	Package p = Pack( body, 0 );
+	mResult = send( to, (char*)&p, sizeof( p ), 0 );
+	if ( mResult == SOCKET_ERROR )
 	{
-		printf("sendf failed when sending to %d with error: %d\n", to, WSAGetLastError());
-		DisconnectSocket(to);
+		printf( "sendf failed when sending to %d with error: %d\n", to, WSAGetLastError() );
+		DisconnectSocket( to );
 		return false;
 	}
 	return true;
 }
 
 template <typename T>
-void Connection::StructToCharPtr( T* inStruct, char* result, int size)
+void Connection::StructToCharPtr( T* inStruct, char* result, int size )
 {
-	memcpy(result, inStruct, size);
+	memcpy( result, inStruct, size );
 }
 
 template <typename T>
-void Connection::CharPtrToStruct( T* result, char* inChar, int size)
+void Connection::CharPtrToStruct( T* result, char* inChar, int size )
 {
-	memcpy(result, inChar, size);
+	memcpy( result, inChar, size );
 }
 #endif

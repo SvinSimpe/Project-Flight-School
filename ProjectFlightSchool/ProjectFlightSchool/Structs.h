@@ -3,6 +3,6 @@
 
 struct Message
 {
-	std::string msg = "";
+	char* msg = nullptr;
 };
 #endif

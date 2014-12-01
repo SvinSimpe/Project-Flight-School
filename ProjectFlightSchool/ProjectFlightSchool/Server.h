@@ -7,7 +7,6 @@
 class Server
 {
 	private:
-		static Server*				mInstance;
 		int							mResult;
 		addrinfo*					mAddrResult;
 		SOCKET						mListenSocket;

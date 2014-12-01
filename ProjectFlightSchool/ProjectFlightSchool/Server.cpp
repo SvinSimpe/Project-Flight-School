@@ -1,7 +1,5 @@
 #include "Server.h"
 
-Server* Server::mInstance = nullptr;
-
 bool Server::AcceptConnection()
 {
 	SOCKET s	= INVALID_SOCKET;
@@ -94,13 +92,6 @@ void Server::HandleMsg( SOCKET &socket, char* msg )
 			}
 		}
 	}
-}
-
-Server* Server::GetInstance()
-{
-	if ( !mInstance )
-		mInstance = new Server();
-	return mInstance;
 }
 
 bool Server::Connect()
@@ -201,9 +192,6 @@ void Server::Release()
 
 	if ( mConn )
 		delete mConn;
-
-	if ( mInstance )
-		delete mInstance;
 }
 
 Server::Server()

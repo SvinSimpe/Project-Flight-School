@@ -1,30 +1,5 @@
 #include "Connection.h"
 
-bool Connection::SendMsg( SOCKET &to, char* body )
-{
-	Package p = Pack(body, 0);
-
-	mResult = send( to, (char*)&p, sizeof(p), 0 );
-	if ( mResult == SOCKET_ERROR )
-	{
-		printf( "send failed when sending to %d with error: %d\n", to, WSAGetLastError() );
-		DisconnectSocket( to );
-		return false;
-	}
-	return true;
-}
-
-Package Connection::Pack(char* body, int index)
-{
-	Package p;
-	p.head.index = index;
-	p.head.contentType = ContentType::MESSAGE;
-	p.head.contentSize = sizeof(body);
-	p.body.content = (char*) body;
-
-	return p;
-}
-
 char* Connection::ReceiveMsg(SOCKET &from)
 {
 	mResult = recv(from, mRecvBuf, mRecvBufLen, 0);
@@ -38,7 +13,7 @@ char* Connection::ReceiveMsg(SOCKET &from)
 
 	Package p = Package();
 	CharPtrToStruct(&p, mRecvBuf, mResult);
-	StructToCharPtr(p.body.content, mRecvBuf, sizeof(p.body.content));
+	StructToCharPtr(p.body.content, mRecvBuf, p.head.contentSize);
 
 	return mRecvBuf;
 }
@@ -54,6 +29,10 @@ bool Connection::DisconnectSocket( SOCKET &socket )
 bool Connection::Initialize()
 {
 	mRecvBuf = new char[mRecvBufLen];
+	for (int i(0); i < mRecvBufLen; i++)
+	{
+		mRecvBuf[i] = '\0';
+	}
 	return true;
 }
 

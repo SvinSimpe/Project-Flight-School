@@ -19,7 +19,7 @@ struct Package
 
 	struct Body
 	{
-		char* content;
+		char* content = nullptr;
 	};
 
 	Head head = Head();

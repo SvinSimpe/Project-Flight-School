@@ -33,7 +33,7 @@ AnimationData ImporterAnim::ImportBinaryAnimData( string directoryPath,string fi
 	if ( file.is_open() )
 	{
 		size = file.tellg();
-		memblock = new char[size];
+		memblock = new char[(unsigned int)size];
 		file.seekg( 0, ios::beg );
 		file.read( memblock, size );
 		file.close();
@@ -90,9 +90,9 @@ AnimationData ImporterAnim::ImportBinaryAnimData( string directoryPath,string fi
 					{
 						int tempCounterValue = (int)memblock[padding];
 						string tempDouble;
-						for ( int n = 0; n < tempCounterValue; n++ )
+						for ( int w = 0; w < tempCounterValue; w++ )
 						{
-							if ( n == 0 )
+							if ( w == 0 )
 							{
 								padding++;
 							}

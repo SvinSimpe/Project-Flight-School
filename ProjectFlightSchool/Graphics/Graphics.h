@@ -7,6 +7,7 @@
 #include "AssetManager.h"
 #include "Effect.h"
 #include "CbufferPerFrame.h"
+#include "CbufferPerObject.h"
 #include "Camera.h"
 #include "WICTextureLoader.h"
 
@@ -32,6 +33,7 @@ class LIBRARY_EXPORT Graphics
 		ID3D11DepthStencilView*	mDepthStencilView;
 		D3D11_VIEWPORT			mStandardView;
 		ID3D11Buffer*			mCbufferPerFrame;
+		ID3D11Buffer*			mCbufferPerObject;
 
 		AssetManager*			mAssetManager;
 		Effect*					mEffect;
@@ -53,6 +55,7 @@ class LIBRARY_EXPORT Graphics
 		HRESULT LoadStatic3dAsset( char* fileName, UINT &assetId );
 
 		void RenderStatic3dAsset( UINT assetId );
+		void RenderStatic3dAsset( UINT assetId, float x, float y, float z );
 
 		void	BeginScene();
 		void	EndScene();

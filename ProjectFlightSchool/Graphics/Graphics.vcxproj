@@ -92,6 +92,7 @@
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="CameraInfo.h" />
     <ClInclude Include="CbufferPerFrame.h" />
+    <ClInclude Include="CbufferPerObject.h" />
     <ClInclude Include="Effect.h" />
     <ClInclude Include="EffectInfo.h" />
     <ClInclude Include="Camera.h" />

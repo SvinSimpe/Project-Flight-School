@@ -28,11 +28,7 @@ class Server
 	protected:
 
 	public:
-		static Server*	GetInstance()
-		{
-			static Server instance;
-			return &instance;
-		}
+		static Server*	GetInstance();
 		bool			Connect();
 		bool			Run();
 		bool			Initialize( const char* port );

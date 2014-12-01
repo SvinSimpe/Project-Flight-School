@@ -1,5 +1,11 @@
 #include "Server.h"
 
+Server* Server::GetInstance()
+{
+	static Server instance;
+	return &instance;
+}
+
 bool Server::AcceptConnection()
 {
 	SOCKET s	= INVALID_SOCKET;

@@ -240,14 +240,14 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	CameraInfo cameraInfo;
 	ZeroMemory( &cameraInfo, sizeof( cameraInfo ) );
-	cameraInfo.eyePos		= DirectX::XMFLOAT4( 50.0f, 50.0f, -50.0f, 1.0f );
+	cameraInfo.eyePos		= DirectX::XMFLOAT4( 30.0f, 30.0f, -30.0f, 1.0f );
 	cameraInfo.focusPoint	= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
 	cameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
 	cameraInfo.width		= (float)screenWidth;
 	cameraInfo.height		= (float)screenHeight;
 	cameraInfo.foVY			= 0.75f;
 	cameraInfo.nearZ		= 0.1f;
-	cameraInfo.farZ			= 100.0f;
+	cameraInfo.farZ			= 1000.0f;
 
 	hr = mCamera->Initialize( &cameraInfo );
 	

@@ -34,7 +34,7 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 	plane->mFileName	= "PLANE"; //ADD CORRECT FILENAME HERE
 	plane->mVertexCount	= 6;
 
-	float planeSize = 10.0f;
+	float planeSize = 100.0f;
 
 	Vertex planePlaceholder[6] = {
 			-0.5f * planeSize, 0.0f, -0.5f * planeSize	,	0.0f, 1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 1.0f,

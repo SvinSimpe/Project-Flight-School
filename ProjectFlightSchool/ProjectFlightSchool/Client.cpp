@@ -6,9 +6,7 @@ bool Client::MsgLoop()
 	while ( mServerSocket != INVALID_SOCKET )
 	{
 		system("pause");
-		char* msg = "Fisk!";
-
-		printf("Sending: '%s' to %d.\n", msg, mServerSocket);
+		char* msg = "Tja!";
 
 		if ( mServerSocket != INVALID_SOCKET )
 		{
@@ -39,7 +37,7 @@ bool Client::HandleMsg( char* msg )
 	}
 	else
 	{
-		printf("%d says: %s\n", mServerSocket, msg);
+		printf("%s\n", msg);
 	}
 	return true;
 }

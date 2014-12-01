@@ -4,8 +4,9 @@
 
 enum class ContentType
 {
+	NEW_EVENT,
 	OPERATION,
-	MESSAGE
+	MESSAGE,
 };
 
 struct Package

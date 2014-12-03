@@ -36,14 +36,14 @@ LRESULT CALLBACK System::WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM
 
 HRESULT	System::Update( float deltaTime )
 {
+	mGame->Update( deltaTime );
 	return S_OK;
 }
 
 HRESULT	System::Render()
 {
-	Graphics::GetInstance()->BeginScene();
-	Graphics::GetInstance()->RenderStatic3dAsset( mAssetId );
-	Graphics::GetInstance()->EndScene();
+	mGame->Render();
+
 	return S_OK;
 }
 
@@ -144,10 +144,14 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 
 	Graphics::GetInstance()->Initialize( mHWnd, mScreenWidth, mScreenHeight );
 
-	Graphics::GetInstance()->Graphics::LoadStatic3dAsset( "derpdufinnsinte", mAssetId );
-	
-	mNetworkThread = std::thread( &System::NetworkInit, this );
+	const char* port = DEFAULT_PORT;
+	const char* ip = DEFAULT_IP;
 
+	mNetworkThread	= std::thread( &System::NetworkInit, this );
+	
+	mGame			= new Game();
+	mGame->Initialize();
+	
 	return S_OK;
 }
 
@@ -158,6 +162,9 @@ void System::Release()
 	mNetworkThread.join();
 	mClient.Release();
 	Server::GetInstance()->Release();
+	mGame->Release();
+
+	SAFE_DELETE( mGame );
 }
 
 System::System()
@@ -166,6 +173,7 @@ System::System()
 	mHWnd			= 0;
 	mScreenWidth	= 0;
 	mScreenHeight	= 0;
+	mGame			= nullptr;
 }
 
 System::~System()

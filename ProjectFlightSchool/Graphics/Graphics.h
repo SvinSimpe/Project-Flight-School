@@ -6,7 +6,10 @@
 
 #include "AssetManager.h"
 #include "Effect.h"
-//#include <d3dcompiler.h>
+#include "CbufferPerFrame.h"
+#include "CbufferPerObject.h"
+#include "Camera.h"
+#include "WICTextureLoader.h"
 
 #ifdef COMPILE_LIBRARY
 	#define LIBRARY_EXPORT __declspec( dllexport )
@@ -29,10 +32,12 @@ class LIBRARY_EXPORT Graphics
 		ID3D11RenderTargetView*	mRenderTargetView;
 		ID3D11DepthStencilView*	mDepthStencilView;
 		D3D11_VIEWPORT			mStandardView;
+		ID3D11Buffer*			mCbufferPerFrame;
+		ID3D11Buffer*			mCbufferPerObject;
 
 		AssetManager*			mAssetManager;
-
 		Effect*					mEffect;
+		Camera*					mCamera;
 
 	protected:
 	public:
@@ -42,11 +47,15 @@ class LIBRARY_EXPORT Graphics
 		Graphics();
 		virtual	~Graphics();
 
+		HRESULT MapBuffer( ID3D11Buffer* buffer, void* data, int size );
+
 	protected:
 	public:
+		HRESULT LoadTextureFromFile ( char* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size );
 		HRESULT LoadStatic3dAsset( char* fileName, UINT &assetId );
 
 		void RenderStatic3dAsset( UINT assetId );
+		void RenderStatic3dAsset( UINT assetId, float x, float y, float z );
 
 		void	BeginScene();
 		void	EndScene();

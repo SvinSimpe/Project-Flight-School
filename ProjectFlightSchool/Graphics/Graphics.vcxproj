@@ -41,12 +41,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)ProjectFlightSchool\</OutDir>
+    <OutDir>$(SolutionDir)Debug\</OutDir>
     <IntDir>ProjectFlightSchool\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)ProjectFlightSchool\</OutDir>
+    <OutDir>$(SolutionDir)Release\</OutDir>
     <IntDir>Release\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -91,12 +91,17 @@
     <ClInclude Include="AssetBase.h" />
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="CameraInfo.h" />
+    <ClInclude Include="CbufferPerFrame.h" />
+    <ClInclude Include="CbufferPerObject.h" />
     <ClInclude Include="Effect.h" />
     <ClInclude Include="EffectInfo.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="ImporterAnim.h" />
+    <ClInclude Include="MapPathImportHandler.h" />
     <ClInclude Include="Static3dAsset.h" />
     <ClInclude Include="Vertex.h" />
+    <ClInclude Include="WICTextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
@@ -104,10 +109,13 @@
     <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="Effect.cpp" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="ImporterAnim.cpp" />
+    <ClCompile Include="MapPathImportHandler.cpp" />
     <ClCompile Include="Static3dAsset.cpp" />
+    <ClCompile Include="WICTextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\Content\Effects\TestShader.hlsl">
+    <Text Include="..\Content\Effects\Placeholder.hlsl">
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>

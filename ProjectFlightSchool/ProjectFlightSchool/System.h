@@ -5,6 +5,7 @@
 #include "Graphics.h"
 #include "Client.h"
 #include <iostream>
+#include "Game.h"
 
 
 class System
@@ -16,10 +17,10 @@ class System
 		UINT		mScreenWidth;
 		UINT		mScreenHeight;
 
-		UINT		mAssetId;
-
 		std::thread	mNetworkThread;
 		Client		mClient;
+
+		Game*		mGame;
 
 	protected:
 	public:

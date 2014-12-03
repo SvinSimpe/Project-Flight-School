@@ -8,12 +8,14 @@
 #define SAFE_RELEASE( x ) if( x ) { ( x )->Release(); ( x ) = nullptr; }
 #define SAFE_DELETE( x ) if( x ) { delete x; ( x ) = nullptr; }
 
+typedef UINT AssetID;
+
 struct AssetBase
 {
 	private:
 	protected:
 	public:
-		UINT				mAssetId;
+		AssetID				mAssetId;
 		std::string			mFileName;
 
 		UINT				mVertexCount;

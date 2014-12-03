@@ -56,16 +56,16 @@ void System::NetworkInit()
 	std::cin.ignore();
 	if ( choice == 0 )
 	{
-		Server::GetInstance()->Initialize( port );
-		if (Server::GetInstance()->Connect())
-			Server::GetInstance()->Run();
+		if( Server::GetInstance()->Initialize( port ) )
+			if ( Server::GetInstance()->Connect() )
+				Server::GetInstance()->Run();
 	}
 	else
 	{
 		const char* ip = DEFAULT_IP;
-		mClient.Initialize( ip, port );
-		if (mClient.Connect())
-			mClient.Run();
+		if( mClient.Initialize( ip, port ) )
+			if ( mClient.Connect() )
+				mClient.Run();
 	}
 }
 
@@ -144,12 +144,9 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 
 	Graphics::GetInstance()->Initialize( mHWnd, mScreenWidth, mScreenHeight );
 
-	const char* port = DEFAULT_PORT;
-	const char* ip = DEFAULT_IP;
-
-	mNetworkThread	= std::thread( &System::NetworkInit, this );
+	mNetworkThread		= std::thread( &System::NetworkInit, this );
 	
-	mGame			= new Game();
+	mGame				= new Game();
 	mGame->Initialize();
 	
 	return S_OK;

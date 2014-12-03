@@ -8,7 +8,7 @@
 #endif
 
 #include <Winsock2.h>
-#pragma comment(lib, "Ws2_32.lib")
+#pragma comment( lib, "Ws2_32.lib" )
 
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -19,9 +19,9 @@
 #include "Package.h"
 #include "Structs.h"
 
-#define DEFAULT_BUFLEN 512
-#define DEFAULT_PORT "1337"
-#define DEFAULT_IP "localhost"
+#define DEFAULT_BUFLEN	512
+#define DEFAULT_PORT	"1337"
+#define DEFAULT_IP		"localhost"
 
 struct Pack
 {
@@ -33,9 +33,9 @@ class Connection
 	{
 	// Members
 	private:
-		int mResult;
-		char* mRecvBuf;
-		int mRecvBufLen;
+		int		mResult;
+		char*	mRecvBuf;
+		int		mRecvBufLen;
 
 	protected:
 

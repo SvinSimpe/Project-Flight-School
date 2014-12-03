@@ -3,7 +3,6 @@
 
 #include "Connection.h"
 #include "Package.h"
-#include <iostream>
 
 class Client // The class used by clients to connect to the server
 {

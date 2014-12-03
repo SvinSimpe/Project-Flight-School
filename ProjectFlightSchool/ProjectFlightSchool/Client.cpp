@@ -44,8 +44,7 @@ bool Client::HandleMsg( char* msg )
 
 bool Client::Connect()
 {
-	addrinfo* ptr = nullptr;
-	for ( ptr = mAddrResult; ptr != nullptr; ptr = ptr->ai_next )
+	for ( addrinfo* ptr = mAddrResult; ptr != nullptr; ptr = ptr->ai_next )
 	{
 		mServerSocket = socket( ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol );
 		if ( mServerSocket == INVALID_SOCKET )
@@ -95,7 +94,7 @@ bool Client::Initialize( const char* ip, const char* port )
 	WSADATA WSAData;
 
 	mResult = WSAStartup( MAKEWORD( 2, 2 ), &WSAData );
-	if (mResult != 0)
+	if ( mResult != 0 )
 	{
 		printf( "WSAStartup failed with error: %d\n", mResult );
 		return false;

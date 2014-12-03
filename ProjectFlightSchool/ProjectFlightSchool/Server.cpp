@@ -170,7 +170,7 @@ bool Server::Initialize( const char* port )
 	hints.ai_protocol	= IPPROTO_TCP;
 	hints.ai_flags		= AI_PASSIVE;
 
-	mResult = getaddrinfo( nullptr, port, &hints, &mAddrResult );
+	mResult				= getaddrinfo( nullptr, port, &hints, &mAddrResult );
 	if ( mResult != 0 )
 	{
 		printf( "getaddrinfo failed with error: %d\n", mResult );

@@ -13,8 +13,8 @@ char* Connection::ReceiveMsg( SOCKET &from )
 
 	Package p = Package();
 
-	memcpy(&p, mRecvBuf, mResult);
-	memcpy(mRecvBuf, p.body.content, p.head.contentSize);
+	memcpy( &p, mRecvBuf, mResult );
+	memcpy( mRecvBuf, p.body.content, p.head.contentSize );
 
 	return mRecvBuf;
 }
@@ -49,7 +49,5 @@ Connection::Connection()
 Connection::~Connection()
 {
 	if ( mRecvBuf )
-	{
 		delete[] mRecvBuf;
-	}
 }

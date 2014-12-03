@@ -14,8 +14,8 @@ struct AnimationMatrix
 };
 struct JointAnimation
 {
-	string					jointName;
-	string					parentName;
+	string						jointName;
+	string						parentName;
 	vector<int>					keys;
 	vector<AnimationMatrix>		matricies;
 };
@@ -56,7 +56,7 @@ public:
 	ImporterAnim();
 	virtual			~ImporterAnim();
 	AnimationData	ImportBinaryAnimData( string directoryPath, string fileName );
-	Skeleton		ImportBinarySkelData(string directoryPath, string fileName);
+	Skeleton		ImportBinarySkelData( string directoryPath, string fileName );
 };
 
 #endif

@@ -121,11 +121,8 @@ Skeleton ImporterAnim::ImportBinarySkelData( string directoryPath,string fileNam
 	ifstream file;
 
 	//this is how the final code should look!
-	file.open( directoryPath + fileName, ios::in | ios::binary | ios::ate);
+	file.open( directoryPath + fileName, ios::in | ios::binary | ios::ate );
 
-	//string fullPath = "myHeartIsInPieces.PaMan";
-
-	//file.open( fullPath, ios::in | ios::binary | ios::ate );
 	Skeleton tempSkel;
 
 	int lastindex = fileName.find_last_of(".");
@@ -180,13 +177,6 @@ Skeleton ImporterAnim::ImportBinarySkelData( string directoryPath,string fileNam
 			}
 			tempJoint.parentName = tempParentName;
 
-			/*int keys = memblock[padding];
-			padding++;
-			for ( int k = 0; k < keys; k++ )
-			{
-				tempJoint.keys.push_back( memblock[padding] );
-				padding++;
-*/
 			AnimationMatrix tempMatrix;
 			for ( int m = 0; m < 4; m++ )
 			{
@@ -208,7 +198,6 @@ Skeleton ImporterAnim::ImportBinarySkelData( string directoryPath,string fileNam
 				}
 			}
 			tempJoint.originalMatrix = tempMatrix;
-			//}
 			tempSkel.joints.push_back( tempJoint );
 		}
 		delete[] memblock;

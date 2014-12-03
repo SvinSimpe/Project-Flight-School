@@ -2,7 +2,7 @@
 
 #pragma region Private functions
 
-bool AssetManager::AssetExist( char* fileName, UINT &assetId )
+bool AssetManager::AssetExist( char* fileName, AssetID &assetId )
 {
 	for( UINT i = 0; i < mAssetIdCounter; i++ )
 	{
@@ -15,7 +15,7 @@ bool AssetManager::AssetExist( char* fileName, UINT &assetId )
 	return false;
 }
 
-void AssetManager::AssignAssetId( UINT &assetId )
+void AssetManager::AssignAssetId( AssetID &assetId )
 {
 	assetId = mAssetIdCounter;
 	mAssetIdCounter++;
@@ -151,7 +151,7 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 #pragma endregion Helper functions for the class
 
 #pragma region Public functions
-HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, UINT &assetId )
+HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, AssetID &assetId )
 {
 	HRESULT hr = S_OK;
 

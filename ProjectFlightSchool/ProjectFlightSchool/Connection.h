@@ -20,7 +20,7 @@
 #include "Structs.h"
 
 #define DEFAULT_BUFLEN 512
-#define DEFAULT_PORT "27015"
+#define DEFAULT_PORT "1337"
 #define DEFAULT_IP "localhost"
 
 struct Pack
@@ -50,10 +50,6 @@ class Connection
 	public:
 		template <typename T>
 		bool	SendMsg( SOCKET &to, T body );
-		template <typename T>
-		void	StructToCharPtr( T* inStruct, char* result, int size );
-		template <typename T>
-		void	CharPtrToStruct( T* result, char* inChar, int size );
 
 		// Functions
 	private:
@@ -93,17 +89,5 @@ bool Connection::SendMsg( SOCKET &to, T body )
 		return false;
 	}
 	return true;
-}
-
-template <typename T>
-void Connection::StructToCharPtr( T* inStruct, char* result, int size )
-{
-	memcpy( result, inStruct, size );
-}
-
-template <typename T>
-void Connection::CharPtrToStruct( T* result, char* inChar, int size )
-{
-	memcpy( result, inChar, size );
 }
 #endif

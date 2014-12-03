@@ -54,18 +54,18 @@ void System::NetworkInit()
 	int choice = 0;
 	std::cin >> choice;
 	std::cin.ignore();
-	if (choice == 0)
+	if ( choice == 0 )
 	{
 		Server::GetInstance()->Initialize( port );
-		Server::GetInstance()->Connect();
-		Server::GetInstance()->Run();
+		if (Server::GetInstance()->Connect())
+			Server::GetInstance()->Run();
 	}
 	else
 	{
 		const char* ip = DEFAULT_IP;
-		mClient.Initialize(ip, port);
-		mClient.Connect();
-		mClient.Run();
+		mClient.Initialize( ip, port );
+		if (mClient.Connect())
+			mClient.Run();
 	}
 }
 

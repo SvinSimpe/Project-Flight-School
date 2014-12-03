@@ -12,8 +12,9 @@ char* Connection::ReceiveMsg( SOCKET &from )
 	}
 
 	Package p = Package();
-	CharPtrToStruct( &p, mRecvBuf, mResult );
-	StructToCharPtr( p.body.content, mRecvBuf, p.head.contentSize );
+
+	memcpy(&p, mRecvBuf, mResult);
+	memcpy(mRecvBuf, p.body.content, p.head.contentSize);
 
 	return mRecvBuf;
 }

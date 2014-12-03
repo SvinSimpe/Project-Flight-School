@@ -241,7 +241,8 @@ HRESULT	AssetManager::Initialize( ID3D11Device* device )
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	MapPathImportHandler testHandler;
-	testHandler.HandlePath("C:\\Users\\KungTrulls\\Desktop\\testMap\\");
+	testHandler.HandlePaManPath("C:\\Users\\KungTrulls\\Desktop\\testMap\\");
+	testHandler.HandleSkelPath("C:\\Users\\KungTrulls\\Desktop\\testMap\\");
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	

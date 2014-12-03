@@ -14,17 +14,31 @@ struct AnimationMatrix
 };
 struct JointAnimation
 {
-	string							jointName;
-	string							parentName;
-	std::vector<int>				keys;
-	std::vector<AnimationMatrix>	matricies;
+	string					jointName;
+	string					parentName;
+	vector<int>					keys;
+	vector<AnimationMatrix>		matricies;
 };
 struct AnimationData
 {
-	int								nrOfJoints;
-	string							animationName;
-	std::vector<JointAnimation>		joints;
+	int							nrOfJoints;
+	string						animationName;
+	vector<JointAnimation>		joints;
 };
+
+struct Joint
+{
+	string				jointName;
+	string				parentName;
+	AnimationMatrix		originalMatrix;
+};
+struct Skeleton
+{
+	int				nrOfJoints;
+	string			skeletonName;
+	vector<Joint>	joints;
+};
+
 
 
 
@@ -42,6 +56,7 @@ public:
 	ImporterAnim();
 	virtual			~ImporterAnim();
 	AnimationData	ImportBinaryAnimData( string directoryPath, string fileName );
+	Skeleton		ImportBinarySkelData(string directoryPath, string fileName);
 };
 
 #endif

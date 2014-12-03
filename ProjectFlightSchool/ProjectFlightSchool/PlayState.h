@@ -2,6 +2,7 @@
 #define PLAYSTATE_H
 
 #include "BaseState.h"
+#include "Player.h"
 
 class PlayState : public BaseState
 {
@@ -11,6 +12,9 @@ class PlayState : public BaseState
 		UINT		mPlaneAsset;
 		UINT		mCubeAsset;
 		UINT		mTestAsset;
+
+	// Debug
+		Player*		mPlayer;
 
 	protected:
 	public:

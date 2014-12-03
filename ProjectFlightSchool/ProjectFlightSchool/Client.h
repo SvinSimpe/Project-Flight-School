@@ -2,7 +2,7 @@
 #define CLIENT_H
 
 #include "Connection.h"
-#include <iostream>
+#include "Package.h"
 
 class Client // The class used by clients to connect to the server
 {

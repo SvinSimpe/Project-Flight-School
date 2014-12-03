@@ -1,54 +1,39 @@
 #include "Connection.h"
 
-bool Connection::SendMsg( SOCKET &to, char* msg )
-{
-	int msgLen	= (int)strlen( msg );
-	mResult		= send( to, msg, msgLen, 0 );
-	if ( mResult == SOCKET_ERROR )
-	{
-		printf( "send failed when sending to %d with error: %d\n", to, WSAGetLastError() );
-		DisconnectSocket( to );
-		return false;
-	}
-	return true;
-}
-
 char* Connection::ReceiveMsg( SOCKET &from )
 {
-	char* recvBuf = new char[DEFAULT_BUFLEN];
-
-	mResult = recv( from, recvBuf, mRecvBufLen, 0 );
+	mResult = recv( from, mRecvBuf, mRecvBufLen, 0 );
 	if ( mResult < 0 )
 	{
 		printf( "recv failed when receiving from %d with error: %d\n", from, WSAGetLastError() );
 		DisconnectSocket( from );
-		if (recvBuf)
-			delete[] recvBuf;
-		return nullptr;
+		char* result = "Failed!";
+		return result;
 	}
 
-	char* msg = new char[mResult + 1];
-	memset( msg, '\0', mResult + 1 );
-	memcpy( msg, recvBuf, mResult );
+	Package p = Package();
 
-	if ( recvBuf )
-		delete[] recvBuf;
-	return msg;
+	memcpy( &p, mRecvBuf, mResult );
+	memcpy( mRecvBuf, p.body.content, p.head.contentSize );
+
+	return mRecvBuf;
 }
 
-bool Connection::DisconnectSocket( SOCKET &socket )
+void Connection::DisconnectSocket( SOCKET &socket )
 {
-	bool xXxTinaReTurnerxXx = true;
 	closesocket( socket );
 	socket = INVALID_SOCKET;
-	return xXxTinaReTurnerxXx;
 }
 
 bool Connection::Initialize()
 {
+	mRecvBuf = new char[mRecvBufLen];
+	for ( int i = 0; i < mRecvBufLen; i++ )
+	{
+		mRecvBuf[i] = '\0';
+	}
 	return true;
 }
-
 
 void Connection::Release()
 {
@@ -57,9 +42,12 @@ void Connection::Release()
 Connection::Connection()
 {
 	mResult		= 0;
+	mRecvBuf	= nullptr;
 	mRecvBufLen = DEFAULT_BUFLEN;
 }
 
 Connection::~Connection()
 {
+	if ( mRecvBuf )
+		delete[] mRecvBuf;
 }

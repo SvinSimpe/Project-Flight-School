@@ -1,6 +1,10 @@
 #include "Server.h"
 
-Server* Server::mInstance = nullptr;
+Server* Server::GetInstance()
+{
+	static Server instance;
+	return &instance;
+}
 
 bool Server::AcceptConnection()
 {
@@ -24,13 +28,12 @@ bool Server::ReceiveLoop( int index )
 {
 	while ( mClientSockets.at( index ) != INVALID_SOCKET )
 	{
-		char* msg = mConn->ReceiveMsg( mClientSockets.at( index ) );
+		char* msg = mConn->ReceiveMsg( mClientSockets.at(index) );
 
 		if ( msg )
 		{
-			HandleMsg( mClientSockets.at( index ), msg );
-			printf( "%d sent: %s\n", mClientSockets.at( index ), msg );
-			delete msg;
+			HandleMsg( mClientSockets.at(index), msg );
+			printf( "%d sent: %s\n", mClientSockets.at(index), msg );
 		}
 	}
 	return true;
@@ -82,9 +85,9 @@ void Server::HandleMsg( SOCKET &socket, char* msg )
 		{
 			if ( s != INVALID_SOCKET )
 			{
-				if (s != socket)
+				if ( s != socket )
 				{
-					std::string sMsg = std::to_string( socket ) + "says: " + msg;
+					std::string sMsg = std::to_string( socket ) + " says: " + msg;
 					msg = (char*)sMsg.c_str();
 					mConn->SendMsg( s, msg );
 				}
@@ -95,13 +98,6 @@ void Server::HandleMsg( SOCKET &socket, char* msg )
 			}
 		}
 	}
-}
-
-Server* Server::GetInstance()
-{
-	if ( !mInstance )
-		mInstance = new Server();
-	return mInstance;
 }
 
 bool Server::Connect()
@@ -135,25 +131,23 @@ bool Server::Connect()
 		return false;
 	}
 
-	printf("Server up and running.\n");
+	printf( "Server up and running.\n" );
 
 	return true;
 }
 
 bool Server::Run()
 {
-	std::vector<std::thread> listenThreads = std::vector<std::thread>(0);
 	while ( true )
 	{
 		if ( AcceptConnection() )
-			listenThreads.push_back( std::thread( &Server::ReceiveLoop, this, mClientSockets.size() - 1) );
+		{
+			mListenThreads.push_back( std::thread( &Server::ReceiveLoop, this, mClientSockets.size() - 1) );
+		}
 		else
+		{
 			break;
-	}
-
-	for ( auto& t : listenThreads )
-	{
-		t.join();
+		}
 	}
 	return true;
 }
@@ -176,7 +170,7 @@ bool Server::Initialize( const char* port )
 	hints.ai_protocol	= IPPROTO_TCP;
 	hints.ai_flags		= AI_PASSIVE;
 
-	mResult = getaddrinfo( nullptr, port, &hints, &mAddrResult );
+	mResult				= getaddrinfo( nullptr, port, &hints, &mAddrResult );
 	if ( mResult != 0 )
 	{
 		printf( "getaddrinfo failed with error: %d\n", mResult );
@@ -192,14 +186,18 @@ bool Server::Initialize( const char* port )
 
 void Server::Release()
 {
+	for ( auto& t : mListenThreads )
+	{
+		t.join();
+	}
+	mListenThreads.clear();
+
 	mClientSockets.clear();
 	WSACleanup();
 	mConn->Release();
 
 	if ( mConn )
 		delete mConn;
-	if ( mInstance )
-		delete mInstance;
 }
 
 Server::Server()
@@ -209,6 +207,7 @@ Server::Server()
 	mListenSocket	= INVALID_SOCKET;
 	mClientSockets	= std::vector<SOCKET>( 0 );
 	mConn			= nullptr;
+	mListenThreads	= std::vector<std::thread>( 0 );
 }
 
 Server::~Server()

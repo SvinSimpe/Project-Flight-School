@@ -1,4 +1,6 @@
 #include "System.h"
+
+std::vector<bool> System::mPressedKeys;
 ///////////////////////////////////////////////////////////////////////////////
 //									PRIVATE
 ///////////////////////////////////////////////////////////////////////////////
@@ -7,7 +9,7 @@ LRESULT CALLBACK System::WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM
 {
 	PAINTSTRUCT paintStruct;
 	HDC			hdc;
-
+	
 	switch( message )
 	{
 		case WM_PAINT:
@@ -28,7 +30,7 @@ LRESULT CALLBACK System::WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			}
 			break;
 		case WM_INPUT:
-			InterpetrateRawInput( lParam );
+			mPressedKeys = Input::GetInstance()->Update( lParam ); //Returns a bool vector that represents all button presses
 			break;
 
 		default:
@@ -49,51 +51,6 @@ HRESULT	System::Render()
 	mGame->Render();
 
 	return S_OK;
-}
-
-void System::InterpetrateRawInput( LPARAM lParam )
-{
-	RAWINPUT* raw;
-	raw = Input::GetInstance()->ReadMessage( lParam );
-
-	if( raw == nullptr )
-	{
-		UINT errorMsg;
-		errorMsg = GetLastError();
-		OutputDebugStringA( "Error when reading message. \n" );
-		return;
-	}
-
-	switch( raw->header.dwType )
-	{
-		case RIM_TYPEMOUSE:
-			if( raw->data.mouse.ulButtons & RI_MOUSE_BUTTON_1_DOWN )
-			{
-				OutputDebugStringA( "Mouse1 down \n" );
-			}
-			break;
-		case RIM_TYPEKEYBOARD:
-			
-			switch( raw->data.keyboard.VKey )
-			{
-				case 0x57:		//W
-					OutputDebugStringA( "W pressed \n" );
-					break;
-				case 0x41:		//A
-					OutputDebugStringA( "A pressed \n" );
-					break;
-				case 0x53:		//S
-					OutputDebugStringA( "S pressed \n" );
-					break;
-				case 0x44:		//D
-					OutputDebugStringA( "D pressed \n" );
-					break;
-			}
-			break;
-		case RIM_TYPEHID:
-			//TBD for xbox controller
-			break;
-	}
 }
 
 void System::NetworkInit()

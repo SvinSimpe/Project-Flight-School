@@ -27,6 +27,7 @@ class System
 
 		Game*		mGame;
 
+		static std::vector<bool> mPressedKeys;
 		
 
 	protected:
@@ -37,7 +38,6 @@ class System
 		static LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
 		HRESULT					Update( float deltaTime );
 		HRESULT					Render();
-		static void				InterpetrateRawInput( LPARAM lParam );
 		void					NetworkInit();
 
 	protected:

@@ -89,6 +89,7 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="BaseState.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="PlayState.cpp" />
@@ -98,6 +99,7 @@
   <ItemGroup>
     <ClInclude Include="BaseState.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="KeyDefines.h" />
     <ClInclude Include="PlayState.h" />
     <ClInclude Include="StartMenuState.h" />
     <ClInclude Include="StateMachine.h" />
@@ -111,6 +113,7 @@
     <ClCompile Include="System.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Input.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="Connection.h" />
     <ClInclude Include="Package.h" />

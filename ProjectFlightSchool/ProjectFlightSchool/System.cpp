@@ -1,4 +1,6 @@
 #include "System.h"
+
+std::vector<bool> System::mPressedKeys;
 ///////////////////////////////////////////////////////////////////////////////
 //									PRIVATE
 ///////////////////////////////////////////////////////////////////////////////
@@ -7,7 +9,7 @@ LRESULT CALLBACK System::WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM
 {
 	PAINTSTRUCT paintStruct;
 	HDC			hdc;
-
+	
 	switch( message )
 	{
 		case WM_PAINT:
@@ -26,6 +28,10 @@ LRESULT CALLBACK System::WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM
 					PostQuitMessage( 0 );
 					break;
 			}
+			break;
+		case WM_INPUT:
+			mPressedKeys = Input::GetInstance()->Update( lParam ); //Returns a bool vector that represents all button presses
+			break;
 
 		default:
 			return DefWindowProc( hWnd, message, wParam, lParam );
@@ -144,7 +150,12 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 
 	Graphics::GetInstance()->Initialize( mHWnd, mScreenWidth, mScreenHeight );
 
-	mNetworkThread		= std::thread( &System::NetworkInit, this );
+	const char* port = DEFAULT_PORT;
+	const char* ip = DEFAULT_IP;
+
+	Input::GetInstance()->Initialize();
+
+	mNetworkThread	= std::thread( &System::NetworkInit, this );
 	
 	mGame				= new Game();
 	mGame->Initialize();

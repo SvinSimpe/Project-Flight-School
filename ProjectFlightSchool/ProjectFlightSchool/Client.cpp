@@ -5,12 +5,12 @@ bool Client::MsgLoop()
 	bool result = false;
 	while ( mServerSocket != INVALID_SOCKET )
 	{
-		std::string msg = "";
-		std::getline( std::cin, msg );
-		
+		system( "pause" );
+		char* msg = "Tja!";
+
 		if ( mServerSocket != INVALID_SOCKET )
 		{
-			result = mConn->SendMsg(mServerSocket, (char*)msg.c_str());
+			result = mConn->SendMsg( mServerSocket, msg );
 		}
 	};
 
@@ -21,12 +21,9 @@ bool Client::ReceiveLoop()
 {
 	do
 	{
-		char* msg = mConn->ReceiveMsg(mServerSocket);
-		if ( msg )
-		{
-			HandleMsg( msg );
-			delete msg;
-		}
+		char* msg = mConn->ReceiveMsg( mServerSocket );
+		
+		HandleMsg( msg );
 	} while ( mServerSocket != INVALID_SOCKET );
 	return true;
 }
@@ -36,19 +33,18 @@ bool Client::HandleMsg( char* msg )
 	if ( strcmp( msg, "Quit" ) == 0 )
 	{
 		mConn->DisconnectSocket( mServerSocket );
-		printf("Connection lost...");
+		printf( "Connection lost..." );
 	}
 	else
 	{
-		printf("%s\n", msg);
+		printf( "%s\n", msg );
 	}
 	return true;
 }
 
 bool Client::Connect()
 {
-	addrinfo* ptr = nullptr;
-	for (ptr = mAddrResult; ptr != nullptr; ptr = ptr->ai_next)
+	for ( addrinfo* ptr = mAddrResult; ptr != nullptr; ptr = ptr->ai_next )
 	{
 		mServerSocket = socket( ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol );
 		if ( mServerSocket == INVALID_SOCKET )
@@ -98,7 +94,7 @@ bool Client::Initialize( const char* ip, const char* port )
 	WSADATA WSAData;
 
 	mResult = WSAStartup( MAKEWORD( 2, 2 ), &WSAData );
-	if (mResult != 0)
+	if ( mResult != 0 )
 	{
 		printf( "WSAStartup failed with error: %d\n", mResult );
 		return false;
@@ -124,7 +120,6 @@ bool Client::Initialize( const char* ip, const char* port )
 	return true;
 }
 
-
 void Client::Release()
 {
 	WSACleanup();
@@ -141,7 +136,6 @@ Client::Client()
 	mServerSocket	= INVALID_SOCKET;
 	mConn			= nullptr;
 }
-
 
 Client::~Client()
 {

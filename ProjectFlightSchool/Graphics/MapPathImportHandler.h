@@ -15,6 +15,7 @@ class MapPathImportHandler
 	//Class members
 	private:
 		vector<AnimationData>	mAnimationList;
+		vector<Skeleton>		mSkeletonList;
 	protected:
 	public:
 
@@ -24,6 +25,7 @@ class MapPathImportHandler
 	public:
 					MapPathImportHandler();
 	virtual			~MapPathImportHandler();
-	HRESULT			HandlePath( string folderPath );
+	HRESULT			HandlePaManPath( string folderPath );
+	HRESULT			HandleSkelPath( string folderPath );
 };
 #endif

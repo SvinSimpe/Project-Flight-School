@@ -104,9 +104,35 @@
     <ClInclude Include="Connection.h">
       <Filter>Network\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Package.h">
+      <Filter>Network\Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Server.h">
       <Filter>Network\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="System.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Structs.h">
+      <Filter>Network\Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{97f40770-9d9a-4335-91c6-461c5e344ec9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{57fbcd93-4c2d-4752-87f4-08f0f8a8025b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network">
+      <UniqueIdentifier>{845a9bbe-15d8-4dba-a3df-db03466368a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\Header Files">
+      <UniqueIdentifier>{03987543-8049-4932-a515-52b9619405d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network\Source Files">
+      <UniqueIdentifier>{eb4981d5-2766-4182-9e27-e3444b03a7b9}</UniqueIdentifier>
+    </Filter>
     <ClInclude Include="EventManager.h">
       <Filter>EventSystem\Header Files</Filter>
     </ClInclude>

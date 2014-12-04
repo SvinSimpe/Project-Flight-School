@@ -3,6 +3,7 @@
 
 #include "Graphics.h"
 #include "EventManager.h"
+#include "Input.h"
 
 struct UpperBody
 {
@@ -25,7 +26,9 @@ class Player
 		LowerBody	mLowerBody;
 
 	private:
-		void HandleInput();
+		void HandleInput( float deltaTime );
+		void Move( float speed, XMFLOAT2 direction );
+		void LookAt( float rotation );
 
 	public:
 		HRESULT Update( float deltaTime );

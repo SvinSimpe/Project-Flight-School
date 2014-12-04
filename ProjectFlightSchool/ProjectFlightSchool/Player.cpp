@@ -1,10 +1,38 @@
 #include "Player.h"
 
-void Player::HandleInput()
-{}
+void Player::HandleInput( float deltaTime )
+{
+	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_W ) )
+		Move( 0.005, XMFLOAT2( -0.5f, 0.5f ) );
+	
+	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_A ) )
+		Move( -0.005, XMFLOAT2( 0.5f, 0.5f ) );
+
+	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_S ) )
+		Move( 0.005, XMFLOAT2( 0.5f, -0.5f ) );
+
+	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_D ) )
+		Move( -0.005, XMFLOAT2( -0.5f, -0.5f ) );
+}
+
+void Player::Move( float speed, XMFLOAT2 direction  )
+{
+	mUpperBody.position.x += direction.x * speed;
+	mUpperBody.position.z += direction.y * speed;
+
+	mLowerBody.position.x += direction.x * speed;
+	mLowerBody.position.z += direction.y * speed;
+}
+
+void Player::LookAt( float rotation )
+{
+	
+}
 
 HRESULT Player::Update( float deltaTime )
 {
+	HandleInput( deltaTime );
+	
 	return S_OK;
 }
 
@@ -23,6 +51,8 @@ HRESULT Player::Initialize()
 
 	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "CUBE", mLowerBody.playerModel ) ) )
 		OutputDebugString( L"\nERROR\n" );
+
+	mLowerBody.speed = 1.0f;
 
 	return S_OK;
 }
@@ -43,6 +73,7 @@ Player::Player()
 	mLowerBody.position.x	= 10.0f;
 	mLowerBody.position.y	= 1;
 	mLowerBody.position.z	= 10.0f;	
+	mLowerBody.speed		= 0.0f;
 }
 
 Player::~Player()

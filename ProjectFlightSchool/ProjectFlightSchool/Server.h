@@ -48,20 +48,20 @@ class Server
 template <typename T>
 void Server::HandlePkg( SOCKET &s, Package<T> p )
 {
-	switch (p.head.eventType)
+	switch ( p.head.eventType )
 	{
 		case Net_Event::QUIT:
 		{
 			Empty e;
-			printf("%d disconnected.\n", s);
-			mConn->SendPkg(s, e, Net_Event::QUIT);
-			mConn->DisconnectSocket(s);
+			printf( "%d disconnected.\n", s );
+			mConn->SendPkg( s, e, Net_Event::QUIT );
+			mConn->DisconnectSocket( s );
 		}
-			break;5
+			break;
 		case Net_Event::MESSAGE:
 		{
 			Message msg = (Message&)p.body.content;
-			printf("%d sent: %s\n", s, msg.msg);
+			printf( "%d sent: %s\n", s, msg.msg );
 		}
 			break;
 		default:

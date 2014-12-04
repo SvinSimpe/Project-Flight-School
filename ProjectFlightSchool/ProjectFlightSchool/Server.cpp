@@ -28,14 +28,28 @@ bool Server::ReceiveLoop( int index )
 {
 	while ( mClientSockets.at( index ) != INVALID_SOCKET )
 	{
-		Package<Position> p;
-
-		if ( mConn->ReceiveMsg( mClientSockets.at(index), p ) )
+		Package<void*> p;
+		if ( mConn->ReceiveMsg(mClientSockets.at(index), p) )
 		{
-			Position r = p.body.content;
-			printf("%d sent: %d, %d, %d\n", mClientSockets.at(index), r.x, r.y, r.z);
-			//HandleMsg( mClientSockets.at(index), m.msg );
-			//printf( "%d sent: %s\n", mClientSockets.at(index), m.msg );
+			switch (p.head.contentType)
+			{
+				case ContentType::MESSAGE:
+				{
+					Message msg = (Message&)p.body.content;
+					printf("%d sent: %s %s\n", mClientSockets.at(index), msg.msg, msg.msg2);
+				} break;
+
+				case ContentType::POSITION:
+				{
+					Position pos = (Position&)p.body.content;
+					printf("%d sent: %d, %d, %d\n", mClientSockets.at(index), pos.x, pos.y, pos.z);
+				} break;
+
+				default:
+				{
+					printf("How the fuck did this happen?\n");
+				} break;
+			}
 		}
 	}
 	return true;
@@ -46,7 +60,7 @@ void Server::HandleMsg( SOCKET &socket, char* msg )
 	if ( strcmp( msg, "Quit" ) == 0 )
 	{
 		printf("%d disconnected.\n", socket);
-		mConn->SendMsg( socket, msg );
+		//mConn->SendMsg( socket, msg );
 		mConn->DisconnectSocket( socket );
 
 		bool allClosed = true;
@@ -68,7 +82,7 @@ void Server::HandleMsg( SOCKET &socket, char* msg )
 		{
 			if ( s != INVALID_SOCKET )
 			{
-				mConn->SendMsg( s, "Quit" );
+				//mConn->SendMsg( s, "Quit" );
 			}
 		}
 
@@ -91,13 +105,13 @@ void Server::HandleMsg( SOCKET &socket, char* msg )
 				{
 					std::string sMsg = std::to_string( socket ) + " says: " + msg;
 					msg = (char*)sMsg.c_str();
-					mConn->SendMsg( s, msg );
+					//mConn->SendMsg( s, msg );
 				}
 				else
 				{
 					Message msg;
 					msg.msg = "Hello client!";
-					mConn->SendMsg( socket, msg );
+					//mConn->SendMsg( socket, msg );
 				}
 			}
 		}

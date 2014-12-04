@@ -5,22 +5,37 @@ bool Client::MsgLoop()
 	bool result = false;
 	while ( mServerSocket != INVALID_SOCKET )
 	{
-		Position p;
-		printf("Input the position you'd like to send.\n");
-		printf("x: ");
-		std::cin >> p.x;
+		std::string input = "";
+		printf("Would you like to send a Message or a Position?\nInput: ");
+		std::getline(std::cin, input);
 
-		printf("y: ");
-		std::cin >> p.y;
-		
-		printf("z: ");
-		std::cin >> p.z;
-		std::cin.ignore();
-
-		if ( mServerSocket != INVALID_SOCKET )
+		ContentType type;
+		if (input == "Message")
 		{
-			result = mConn->SendMsg( mServerSocket, p );
+			type = ContentType::MESSAGE;
+			Message m;
+			m.msg = "Hello";
+			m.msg2 = "world!";
+			result = mConn->SendMsg(mServerSocket, m, type);
 		}
+		else if (input == "Position")
+		{
+			type = ContentType::POSITION;
+			Position p;
+			p.x = 1;
+			p.y = 2;
+			p.z = 3;
+			result = mConn->SendMsg(mServerSocket, p, type);
+		}
+		else
+		{
+			printf("\nInvalid input\n");
+		}
+
+		//if ( mServerSocket != INVALID_SOCKET )
+		//{
+		//	result = mConn->SendMsg( mServerSocket, p );
+		//}
 	};
 
 	return true;
@@ -30,12 +45,12 @@ bool Client::ReceiveLoop()
 {
 	do
 	{
-		Package<Message> p;
-		if (mConn->ReceiveMsg(mServerSocket, p))
-		{
-			Message m = p.body.content;
-			HandleMsg( m.msg );
-		}
+		//Package<Message> p;
+		//if (mConn->ReceiveMsg(mServerSocket, p))
+		//{
+		//	Message m = p.body.content;
+		//	HandleMsg( m.msg );
+		//}
 	} while ( mServerSocket != INVALID_SOCKET );
 	return true;
 }

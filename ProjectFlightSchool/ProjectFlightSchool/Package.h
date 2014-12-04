@@ -5,7 +5,13 @@
 enum class ContentType
 {
 	OPERATION,
-	MESSAGE
+	MESSAGE,
+	POSITION
+};
+
+struct PackageType
+{
+	ContentType type = ContentType::OPERATION;
 };
 
 template <typename T>

@@ -49,7 +49,7 @@ class Connection
 	protected:
 	public:
 		template <typename T>
-		bool	SendMsg( SOCKET &to, T body );
+		bool	SendMsg( SOCKET &to, T body, ContentType type );
 		template <typename T>
 		bool	ReceiveMsg(SOCKET &from, Package<T> &p);
 
@@ -59,7 +59,7 @@ class Connection
 	protected:
 
 	public:
-		char*	ReceiveMsg( SOCKET &from);
+		//char*	ReceiveMsg( SOCKET &from);
 		void	DisconnectSocket( SOCKET &socket );
 		bool	Initialize();
 		void	Release();
@@ -80,13 +80,13 @@ void Connection::Pack( T body, int index )
 }
 
 template <typename T>
-bool Connection::SendMsg( SOCKET &to, T body )
+bool Connection::SendMsg( SOCKET &to, T body, ContentType type )
 {
 	Package<T> p;
 	p.head.index = 0;
-	p.head.contentType = ContentType::MESSAGE;
-	p.head.contentSize = sizeof(body) + 12;
-	p.body.content = (T)body;
+	p.head.contentType = type;
+	p.head.contentSize = sizeof(body);
+	p.body.content = body;
 
 	mResult = send( to, (char*)&p, sizeof(p), 0 );
 	if ( mResult == SOCKET_ERROR )
@@ -101,7 +101,7 @@ bool Connection::SendMsg( SOCKET &to, T body )
 template <typename T>
 bool Connection::ReceiveMsg(SOCKET &from, Package<T> &p)
 {
-	mResult = recv(from, (char*)&p, sizeof(p), 0);
+	mResult = recv(from, (char*)&p, mRecvBufLen, 0);
 	if ( mResult < 0 )
 	{
 		printf( "recv failed when receiving from %d with error: %d\n", from, WSAGetLastError() );

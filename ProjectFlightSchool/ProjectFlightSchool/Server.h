@@ -53,7 +53,7 @@ void Server::HandlePkg( SOCKET &s, Package<T> p )
 		case Net_Event::QUIT:
 		{
 			Empty e;
-			printf("%d disconnectd.\n", s);
+			printf("%d disconnected.\n", s);
 			mConn->SendPkg(s, e, Net_Event::QUIT);
 			mConn->DisconnectSocket(s);
 		}

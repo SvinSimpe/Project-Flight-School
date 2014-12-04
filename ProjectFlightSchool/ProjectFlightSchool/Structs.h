@@ -1,7 +1,7 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
-struct Empty
+struct Empty // Used for sends where no actual package needs to be sent
 {
 };
 

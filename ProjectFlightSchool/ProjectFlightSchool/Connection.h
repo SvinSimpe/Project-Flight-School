@@ -34,8 +34,6 @@ class Connection
 	// Members
 	private:
 		int		mResult;
-		char*	mRecvBuf;
-		int		mRecvBufLen;
 
 	protected:
 
@@ -50,7 +48,7 @@ class Connection
 		template <typename T>
 		bool	SendMsg( SOCKET &to, T body, EventType type );
 		template <typename T>
-		T		ReceiveMsg(SOCKET &from, Package<T> &p);
+		T		ReceiveMsg( SOCKET &from, Package<T> &p );
 
 	// Functions
 	private:
@@ -69,12 +67,12 @@ template <typename T>
 bool Connection::SendMsg( SOCKET &to, T body, EventType type )
 {
 	Package<T> p;
-	p.head.index = 0;
-	p.head.eventType = type;
-	p.head.contentSize = sizeof(body);
-	p.body.content = body;
+	p.head.index		= 0;
+	p.head.eventType	= type;
+	p.head.contentSize	= sizeof( body );
+	p.body.content		= body;
 
-	mResult = send( to, (char*)&p, sizeof(p), 0 );
+	mResult = send( to, (char*)&p, sizeof( p ), 0 );
 	if ( mResult == SOCKET_ERROR )
 	{
 		printf( "sendf failed when sending to %d with error: %d\n", to, WSAGetLastError() );
@@ -85,9 +83,9 @@ bool Connection::SendMsg( SOCKET &to, T body, EventType type )
 }
 
 template <typename T>
-T Connection::ReceiveMsg(SOCKET &from, Package<T> &p)
+T Connection::ReceiveMsg( SOCKET &from, Package<T> &p )
 {
-	mResult = recv(from, (char*)&p, DEFAULT_BUFLEN, 0);
+	mResult = recv( from, (char*)&p, DEFAULT_BUFLEN, 0 );
 	if ( mResult < 0 )
 	{
 		printf( "recv failed when receiving from %d with error: %d\n", from, WSAGetLastError() );

@@ -36,18 +36,18 @@ bool Server::ReceiveLoop( int index )
 				case EventType::MESSAGE:
 				{
 					Message msg = (Message&)p->body.content;
-					printf("%d sent: %s %s\n", mClientSockets.at(index), msg.msg, msg.msg2);
+					printf( "%d sent: %s %s\n", mClientSockets.at(index), msg.msg, msg.msg2 );
 				} 
 					break;
 				case EventType::POSITION:
 				{
 					Position pos = (Position&)p->body.content;
-					printf("%d sent: %d, %d, %d\n", mClientSockets.at(index), pos.x, pos.y, pos.z);
+					printf( "%d sent: %d, %d, %d\n", mClientSockets.at(index), pos.x, pos.y, pos.z );
 				} 
 					break;
 				default:
 				{
-					printf("How the fuck did this happen?\n");
+					printf( "How the fuck did this happen?\n" );
 				} 
 					break;
 			}
@@ -62,7 +62,7 @@ void Server::HandleMsg( SOCKET &socket, char* msg )
 {
 	if ( strcmp( msg, "Quit" ) == 0 )
 	{
-		printf("%d disconnected.\n", socket);
+		printf( "%d disconnected.\n", socket );
 		//mConn->SendMsg( socket, msg );
 		mConn->DisconnectSocket( socket );
 

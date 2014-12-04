@@ -4,16 +4,16 @@ void Player::HandleInput( float deltaTime )
 {
 	mLowerBody.direction = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_W ) )
+	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_W ) && !Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_S ) )
 		Move( XMFLOAT3( 0.0f, 0.0f, 1.0f ) );
 	
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_A ) )
+	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_A ) && !Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_D ) )
 		Move( XMFLOAT3( -1.0f, 0.0f, 0.0f ) );
 
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_S ) )
+	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_S ) && !Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_W ) )
 		Move( XMFLOAT3( 0.0f, 0.0f, -1.0f ) );
-
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_D ) )
+	
+	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_D ) && !Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_A ) )
 		Move( XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
 }
 
@@ -23,8 +23,11 @@ void Player::Move( XMFLOAT3 direction  )
 	mLowerBody.direction.z += direction.z;
 	
 	//Normalize direction vector
-	mLowerBody.direction.x /= pow( ( pow( mLowerBody.direction.x, 2) + pow( mLowerBody.direction.y, 2 ) + pow( mLowerBody.direction.z, 2 ) ), 0.5f );
-	mLowerBody.direction.z /= pow( ( pow( mLowerBody.direction.x, 2) + pow( mLowerBody.direction.y, 2 ) + pow( mLowerBody.direction.z, 2 ) ), 0.5f );
+	if ( direction.x < 0.00001f && direction.z < 0.00001f )
+	{
+		mLowerBody.direction.x /= pow((pow(mLowerBody.direction.x, 2) + pow(mLowerBody.direction.y, 2) + pow(mLowerBody.direction.z, 2)), 0.5f);
+		mLowerBody.direction.z /= pow((pow(mLowerBody.direction.x, 2) + pow(mLowerBody.direction.y, 2) + pow(mLowerBody.direction.z, 2)), 0.5f);
+	}
 }
 
 void Player::LookAt( float rotation )
@@ -41,8 +44,6 @@ HRESULT Player::Update( float deltaTime )
 
 	mLowerBody.position.x += mLowerBody.direction.x * mLowerBody.speed;
 	mLowerBody.position.z += mLowerBody.direction.z * mLowerBody.speed;
-
-
 
 	return S_OK;
 }

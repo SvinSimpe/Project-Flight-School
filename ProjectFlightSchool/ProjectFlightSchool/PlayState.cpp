@@ -11,7 +11,6 @@
 
 HRESULT PlayState::Update( float deltaTime )
 {
-	mPlayer->Update( deltaTime );
 	return S_OK;
 }
 
@@ -21,7 +20,6 @@ HRESULT PlayState::Render()
 	Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset );
 	Graphics::GetInstance()->RenderStatic3dAsset( mCubeAsset, 5.0f, 1.0f, 10.0f );
 	//Graphics::GetInstance()->RenderStatic3dAsset( mTestAsset );
-	mPlayer->Render( 0.0f );
 	Graphics::GetInstance()->EndScene();
 
 	return S_OK;
@@ -46,16 +44,12 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "CUBE", mCubeAsset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "PLANE", mPlaneAsset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/bin/cubeandsphere.peniz", mTestAsset );
-	
-	mPlayer = new Player();
-	mPlayer->Initialize();
 
 	return S_OK;
 }
 
 void PlayState::Release()
 {
-	mPlayer->Release();
 }
 
 PlayState::PlayState()

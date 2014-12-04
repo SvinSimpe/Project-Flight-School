@@ -39,11 +39,9 @@
     <ClCompile Include="System.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="Input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="Game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -76,22 +74,15 @@
     </ClCompile>
     <ClCompile Include="IEventManager.cpp">
       <Filter>EventSystem\Source Files</Filter>
-
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>Source Files</Filter>
-
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-
     <ClInclude Include="Input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-
     <ClInclude Include="Game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -125,9 +116,6 @@
     <ClInclude Include="Structs.h">
       <Filter>Network\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -153,12 +141,9 @@
     </ClInclude>
     <ClInclude Include="IEventManager.h">
       <Filter>EventSystem\Header Files</Filter>
-
-
     </ClInclude>
     <ClInclude Include="KeyDefines.h">
       <Filter>Header Files</Filter>
-
     </ClInclude>
   </ItemGroup>
 </Project>

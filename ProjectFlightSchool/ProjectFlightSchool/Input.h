@@ -34,7 +34,7 @@ class Input
 		//Do not call this, call Update( ... ).
 		RAWINPUT*	ReadMessage( LPARAM lParam );
 		void		Update( LPARAM lParam );
-		HRESULT		Initialize(UINT screenWidth, UINT screenHeight);
+		HRESULT		Initialize( UINT screenWidth, UINT screenHeight );
 		void		Release();
 
 		static Input* GetInstance()

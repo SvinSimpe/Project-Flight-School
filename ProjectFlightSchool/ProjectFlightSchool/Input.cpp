@@ -88,7 +88,7 @@ void Input::Update( LPARAM lParam )
 	}
 }
 
-HRESULT	Input::Initialize(UINT screenWidth, UINT screenHeight)
+HRESULT	Input::Initialize( UINT screenWidth, UINT screenHeight )
 {
 	UINT errorMsg;
 

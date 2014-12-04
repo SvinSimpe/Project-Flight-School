@@ -21,10 +21,12 @@ Graphics::~Graphics()
 {
 
 }
-HRESULT Graphics::LoadTextureFromFile ( char* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size )
+
+//Loads a texture from file, the filename can be expressed as a string put with L prefix e.g L"Hello World", texture and SRV are both optional, size = Maximum size of buffer.
+HRESULT Graphics::LoadTextureFromFile ( wchar_t* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size )
 {
 	HRESULT hr = S_OK;
-	hr = CreateWICTextureFromFile(mDevice, mDeviceContext, (wchar_t*)fileName, texture, srv, size );
+	hr = CreateWICTextureFromFile(mDevice, mDeviceContext, fileName, texture, srv, size );
 	return hr;
 }
 //Map buffer

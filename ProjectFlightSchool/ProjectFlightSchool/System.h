@@ -10,6 +10,7 @@
 #include "Client.h"
 #include <iostream>
 #include "Game.h"
+#include "Player.h"
 
 
 

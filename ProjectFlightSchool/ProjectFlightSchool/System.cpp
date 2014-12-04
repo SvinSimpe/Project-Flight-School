@@ -152,12 +152,11 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 
 	Graphics::GetInstance()->Initialize( mHWnd, mScreenWidth, mScreenHeight );
 
-	const char* port = DEFAULT_PORT;
-	const char* ip = DEFAULT_IP;
-
 	Input::GetInstance()->Initialize( mScreenWidth, mScreenHeight );
 
+#if defined(DEBUG) | defined(_DEBUG)
 	mNetworkThread	= std::thread( &System::NetworkInit, this );
+#endif
 	
 	mGame = new Game();
 	mGame->Initialize();

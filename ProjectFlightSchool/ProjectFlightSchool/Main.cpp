@@ -12,8 +12,6 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 	//_CrtSetBreakAlloc(408); // Break at specific memory allocation point
 
-	// Server leaks at: 425,415,414,413,412,411,408,188
-
 	// Below code is used to open a separate console window only used in debug
 	AllocConsole();
 	HANDLE handle_out = GetStdHandle( STD_OUTPUT_HANDLE );

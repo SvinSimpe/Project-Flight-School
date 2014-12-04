@@ -50,9 +50,12 @@ void Server::HandlePkg( SOCKET &s, Package<T> p )
 {
 	switch (p.head.eventType)
 	{
-		case Net_Event::MESSAGE:
+		case Net_Event::QUIT:
 		{
-			printf( "Received message from %d.\n", s );
+			Empty e;
+			printf("%d disconnectd.\n", s);
+			mConn->SendPkg(s, e, Net_Event::QUIT);
+			mConn->DisconnectSocket(s);
 		}
 			break;
 		default:

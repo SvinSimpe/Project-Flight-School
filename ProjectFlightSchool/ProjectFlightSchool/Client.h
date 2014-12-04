@@ -27,9 +27,8 @@ class Client // The class used by clients to connect to the server
 		
 		// Functions
 	private:
-		bool	MsgLoop();
+		bool	PkgLoop();
 		bool	ReceiveLoop();
-		bool	HandleMsg( char* msg );
 
 	protected:
 
@@ -45,6 +44,18 @@ class Client // The class used by clients to connect to the server
 template <typename T>
 void Client::HandlePkg( Package<T> p )
 {
-
+	switch (p.head.eventType)
+	{
+	case Net_Event::QUIT:
+	{
+		printf("Disconnected from server.\n");
+		mConn->DisconnectSocket(mServerSocket);
+	}
+		break;
+	default:
+	{
+	}
+		break;
+	}
 }
 #endif

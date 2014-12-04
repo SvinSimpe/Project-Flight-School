@@ -5,8 +5,7 @@
 enum class Net_Event
 {
 	ERROR_EVENT,
-	MESSAGE,
-	POSITION
+	QUIT
 };
 
 template <typename T>

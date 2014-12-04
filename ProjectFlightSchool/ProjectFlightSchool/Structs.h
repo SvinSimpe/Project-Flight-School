@@ -1,10 +1,13 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
+struct Empty
+{
+};
+
 struct Message
 {
 	char* msg = "";
-	char* msg2 = "";
 };
 
 struct Position

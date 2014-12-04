@@ -1,16 +1,14 @@
 #include "Client.h"
 
-bool Client::MsgLoop()
+bool Client::PkgLoop()
 {
 	bool result = false;
 	while ( mServerSocket != INVALID_SOCKET )
 	{
-		Message m;
-		m.msg = "Hello";
-		m.msg2 = "world!";
-
-		mConn->SendMsg( mServerSocket, m, Net_Event::MESSAGE );
+		Empty e;
 		system("pause");
+
+		mConn->SendPkg( mServerSocket, e, Net_Event::QUIT );
 	};
 
 	return true;
@@ -19,16 +17,16 @@ bool Client::MsgLoop()
 bool Client::ReceiveLoop()
 {
 	Package<void*>* p = new Package<void*>[DEFAULT_BUFLEN];
-	do
+	while ( mServerSocket != INVALID_SOCKET )
 	{
-		if ( mConn->ReceiveMsg( mServerSocket, *p ) )
+		if ( mConn->ReceivePkg( mServerSocket, *p ) )
 		{
 			if ( p->head.eventType != Net_Event::ERROR_EVENT )
 			{
 				HandlePkg( *p );
 			}
 		}
-	} while ( mServerSocket != INVALID_SOCKET );
+	}
 	if (p)
 		delete[] p;
 	return true;
@@ -72,7 +70,7 @@ bool Client::Connect()
 
 bool Client::Run()
 {
-	std::thread write( &Client::MsgLoop, this );
+	std::thread write( &Client::PkgLoop, this );
 	std::thread listen( &Client::ReceiveLoop, this );
 
 	write.join();

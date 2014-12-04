@@ -29,7 +29,7 @@ bool Server::ReceiveLoop( int index )
 	Package<void*>* p = new Package<void*>[DEFAULT_BUFLEN];
 	while ( mClientSockets.at( index ) != INVALID_SOCKET )
 	{
-		if ( mConn->ReceiveMsg( mClientSockets.at(index), *p ) )
+		if ( mConn->ReceivePkg( mClientSockets.at(index), *p ) )
 		{
 			if ( p->head.eventType != Net_Event::ERROR_EVENT )
 			{

@@ -2,16 +2,11 @@
 #define PACKAGE_H
 #include "Structs.h"
 
-enum class ContentType
+enum class EventType
 {
-	OPERATION,
+	ERROR_EVENT,
 	MESSAGE,
 	POSITION
-};
-
-struct PackageType
-{
-	ContentType type = ContentType::OPERATION;
 };
 
 template <typename T>
@@ -20,7 +15,7 @@ struct Package
 	struct Head
 	{
 		int			index		= 0;
-		ContentType contentType	= ContentType::OPERATION;
+		EventType	eventType	= EventType::ERROR_EVENT;
 		int			contentSize	= 0;
 	};
 	struct Body

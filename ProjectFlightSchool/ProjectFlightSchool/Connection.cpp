@@ -1,19 +1,4 @@
 #include "Connection.h"
-//
-//char* Connection::ReceiveMsg( SOCKET &from )
-//{
-//	Package<Message> p;
-//	mResult = recv( from, (char*)&p, sizeof(p), 0 );
-//	if ( mResult < 0 )
-//	{
-//		printf( "recv failed when receiving from %d with error: %d\n", from, WSAGetLastError() );
-//		DisconnectSocket( from );
-//		char* result = "Failed!";
-//		return result;
-//	}
-//
-//	return mRecvBuf;
-//}
 
 void Connection::DisconnectSocket( SOCKET &socket )
 {

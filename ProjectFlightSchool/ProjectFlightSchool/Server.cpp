@@ -26,32 +26,35 @@ bool Server::AcceptConnection()
 
 bool Server::ReceiveLoop( int index )
 {
+	Package<void*>* p = new Package<void*>[DEFAULT_BUFLEN];
 	while ( mClientSockets.at( index ) != INVALID_SOCKET )
 	{
-		Package<void*> p;
-		if ( mConn->ReceiveMsg(mClientSockets.at(index), p) )
+		if ( mConn->ReceiveMsg( mClientSockets.at(index), *p ) )
 		{
-			switch (p.head.contentType)
+			switch ( p->head.eventType )
 			{
-				case ContentType::MESSAGE:
+				case EventType::MESSAGE:
 				{
-					Message msg = (Message&)p.body.content;
+					Message msg = (Message&)p->body.content;
 					printf("%d sent: %s %s\n", mClientSockets.at(index), msg.msg, msg.msg2);
-				} break;
-
-				case ContentType::POSITION:
+				} 
+					break;
+				case EventType::POSITION:
 				{
-					Position pos = (Position&)p.body.content;
+					Position pos = (Position&)p->body.content;
 					printf("%d sent: %d, %d, %d\n", mClientSockets.at(index), pos.x, pos.y, pos.z);
-				} break;
-
+				} 
+					break;
 				default:
 				{
 					printf("How the fuck did this happen?\n");
-				} break;
+				} 
+					break;
 			}
 		}
 	}
+	if (p)
+		delete[] p;
 	return true;
 }
 

@@ -7,6 +7,7 @@
 
 class Client // The class used by clients to connect to the server
 {
+	// Members
 	private:
 		int				mResult;
 		addrinfo*		mAddrResult;
@@ -17,10 +18,17 @@ class Client // The class used by clients to connect to the server
 
 	public:
 
+		// Template functions
 	private:
-		bool	MsgLoop();
+		template <typename T>
+		void HandlePkg( Package<T> p );
+	protected:
+	public:
+		
+		// Functions
+	private:
+		bool	PkgLoop();
 		bool	ReceiveLoop();
-		bool	HandleMsg( char* msg );
 
 	protected:
 
@@ -32,4 +40,22 @@ class Client // The class used by clients to connect to the server
 				Client();
 		virtual	~Client();
 };
+
+template <typename T>
+void Client::HandlePkg( Package<T> p )
+{
+	switch ( p.head.eventType )
+	{
+		case Net_Event::QUIT:
+		{
+			printf( "Disconnected from server.\n" );
+			mConn->DisconnectSocket( mServerSocket );
+		}
+			break;
+		default:
+		{
+		}
+			break;
+	}
+}
 #endif

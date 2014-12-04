@@ -25,8 +25,8 @@ void Player::Move( XMFLOAT3 direction  )
 	//Normalize direction vector
 	if ( direction.x < 0.00001f && direction.z < 0.00001f )
 	{
-		mLowerBody.direction.x /= pow((pow(mLowerBody.direction.x, 2) + pow(mLowerBody.direction.y, 2) + pow(mLowerBody.direction.z, 2)), 0.5f);
-		mLowerBody.direction.z /= pow((pow(mLowerBody.direction.x, 2) + pow(mLowerBody.direction.y, 2) + pow(mLowerBody.direction.z, 2)), 0.5f);
+		mLowerBody.direction.x /= pow( ( pow(mLowerBody.direction.x, 2 ) + pow(mLowerBody.direction.y, 2 ) + pow(mLowerBody.direction.z, 2 ) ), 0.5f );
+		mLowerBody.direction.z /= pow( ( pow(mLowerBody.direction.x, 2 ) + pow(mLowerBody.direction.y, 2 ) + pow(mLowerBody.direction.z, 2 ) ), 0.5f );
 	}
 }
 

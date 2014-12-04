@@ -26,8 +26,6 @@ class System
 		Client		mClient;
 
 		Game*		mGame;
-
-		static std::vector<bool> mPressedKeys;
 		
 
 	protected:

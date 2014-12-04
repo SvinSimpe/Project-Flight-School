@@ -2,26 +2,29 @@
 
 void Player::HandleInput( float deltaTime )
 {
+	mLowerBody.direction = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+
 	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_W ) )
-		Move( 0.005, XMFLOAT2( -0.5f, 0.5f ) );
+		Move( XMFLOAT3( 0.0f, 0.0f, 1.0f ) );
 	
 	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_A ) )
-		Move( -0.005, XMFLOAT2( 0.5f, 0.5f ) );
+		Move( XMFLOAT3( -1.0f, 0.0f, 0.0f ) );
 
 	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_S ) )
-		Move( 0.005, XMFLOAT2( 0.5f, -0.5f ) );
+		Move( XMFLOAT3( 0.0f, 0.0f, -1.0f ) );
 
 	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_D ) )
-		Move( -0.005, XMFLOAT2( -0.5f, -0.5f ) );
+		Move( XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
 }
 
-void Player::Move( float speed, XMFLOAT2 direction  )
+void Player::Move( XMFLOAT3 direction  )
 {
-	mUpperBody.position.x += direction.x * speed;
-	mUpperBody.position.z += direction.y * speed;
-
-	mLowerBody.position.x += direction.x * speed;
-	mLowerBody.position.z += direction.y * speed;
+	mLowerBody.direction.x += direction.x;
+	mLowerBody.direction.z += direction.z;
+	
+	//Normalize direction vector
+	mLowerBody.direction.x /= pow( ( pow( mLowerBody.direction.x, 2) + pow( mLowerBody.direction.y, 2 ) + pow( mLowerBody.direction.z, 2 ) ), 0.5f );
+	mLowerBody.direction.z /= pow( ( pow( mLowerBody.direction.x, 2) + pow( mLowerBody.direction.y, 2 ) + pow( mLowerBody.direction.z, 2 ) ), 0.5f );
 }
 
 void Player::LookAt( float rotation )
@@ -33,6 +36,14 @@ HRESULT Player::Update( float deltaTime )
 {
 	HandleInput( deltaTime );
 	
+	mUpperBody.position.x += mLowerBody.direction.x * mLowerBody.speed;
+	mUpperBody.position.z += mLowerBody.direction.z * mLowerBody.speed;
+
+	mLowerBody.position.x += mLowerBody.direction.x * mLowerBody.speed;
+	mLowerBody.position.z += mLowerBody.direction.z * mLowerBody.speed;
+
+
+
 	return S_OK;
 }
 
@@ -52,7 +63,10 @@ HRESULT Player::Initialize()
 	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "CUBE", mLowerBody.playerModel ) ) )
 		OutputDebugString( L"\nERROR\n" );
 
-	mLowerBody.speed = 1.0f;
+
+	mUpperBody.position	= XMFLOAT3( 10.0f, 2.0f, 10.0f );
+	mLowerBody.position	= XMFLOAT3( 10.0f, 1.0f, 10.0f );
+	mLowerBody.speed	= 0.005f;
 
 	return S_OK;
 }
@@ -63,16 +77,12 @@ void Player::Release()
 Player::Player()
 {
 	mUpperBody.playerModel	= 0;
-	mUpperBody.direction.x	= 0.0f;
-	mUpperBody.direction.y	= 0.0f;
-	mUpperBody.position.x	= 10.0f;
-	mUpperBody.position.y	= 2.0f;
-	mUpperBody.position.z	= 10.0f;
+	mUpperBody.position		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mUpperBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
 	mLowerBody.playerModel	= 0;
-	mLowerBody.position.x	= 10.0f;
-	mLowerBody.position.y	= 1;
-	mLowerBody.position.z	= 10.0f;	
+	mLowerBody.position		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mLowerBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mLowerBody.speed		= 0.0f;
 }
 

@@ -10,6 +10,7 @@
 #include "Client.h"
 #include <iostream>
 #include "Game.h"
+#include "Player.h"
 
 
 
@@ -26,8 +27,6 @@ class System
 		Client		mClient;
 
 		Game*		mGame;
-
-		static std::vector<bool> mPressedKeys;
 		
 
 	protected:

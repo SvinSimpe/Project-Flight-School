@@ -15,13 +15,12 @@ class Input
 	private:
 	protected:
 	public:
-		RAWINPUTDEVICE mRid[NUMBER_OF_DEVICES];
-		LPBYTE mLpb[BUFFER_SIZE];
-		std::vector<bool> mCurrentFrame;
+		RAWINPUTDEVICE		mRid[NUMBER_OF_DEVICES];
+		LPBYTE				mLpb[BUFFER_SIZE];
+		std::vector<bool>	mCurrentFrame;
+		POINT				mCurrentMousePos;
 
 	private:
-		//Returns true if the key is currently being pressed down, otherwise false.
-		bool IsKeyDown( UINT flag );
 		//Stoping the compiler from generating methods for copying the object
 				Input( Input const& );		//Not implemented
 		void	operator=( Input const& );	//Not implemented
@@ -30,11 +29,13 @@ class Input
 
 	protected:
 	public:
-		RAWINPUT*			ReadMessage( LPARAM lParam );
-		void				InterpetrateRawInput( LPARAM lParam );
-		std::vector<bool>&	Update( LPARAM lParam );
-		HRESULT				Initialize();
-		void				Release();
+		//Returns true if the key is currently being pressed down, otherwise false. Do not call this, call Update( ... ).
+		bool		IsKeyDown( UINT flag );
+		//Do not call this, call Update( ... ).
+		RAWINPUT*	ReadMessage( LPARAM lParam );
+		void		Update( LPARAM lParam );
+		HRESULT		Initialize( UINT screenWidth, UINT screenHeight );
+		void		Release();
 
 		static Input* GetInstance()
 		{

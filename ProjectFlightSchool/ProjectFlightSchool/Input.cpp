@@ -1,8 +1,7 @@
 #include "Input.h"
 #include <strsafe.h>
-#pragma region Public functions
 
-#pragma region Private
+#pragma region Public functions
 
 bool Input::IsKeyDown( UINT flag )
 {
@@ -14,7 +13,6 @@ bool Input::IsKeyDown( UINT flag )
 	return true;
 }
 
-#pragma endregion 
 RAWINPUT* Input::ReadMessage( LPARAM lParam )
 {
 	UINT dwSize;
@@ -36,7 +34,8 @@ RAWINPUT* Input::ReadMessage( LPARAM lParam )
     return raw;
 }
 
-void Input::InterpetrateRawInput( LPARAM lParam )
+
+void Input::Update( LPARAM lParam )
 {
 	RAWINPUT* raw;
 	raw = ReadMessage( lParam );
@@ -54,8 +53,17 @@ void Input::InterpetrateRawInput( LPARAM lParam )
 		case RIM_TYPEMOUSE:
 			if( raw->data.mouse.ulButtons & RI_MOUSE_BUTTON_1_DOWN )
 			{
-				OutputDebugStringA( "Mouse1 down \n" );
+				//mCurrentFrame[KEYS::KEYS_MOUSE_LEFT] = true;
 			}
+
+			if(raw->data.mouse.usFlags == MOUSE_MOVE_RELATIVE)
+			{
+				static POINT pt;
+				GetCursorPos(&pt);
+				mCurrentMousePos.x = pt.x - raw->data.mouse.lLastX;
+				mCurrentMousePos.y = pt.y - raw->data.mouse.lLastY;
+			}
+
 			break;
 		case RIM_TYPEKEYBOARD:
 			switch( raw->data.keyboard.VKey )
@@ -78,18 +86,9 @@ void Input::InterpetrateRawInput( LPARAM lParam )
 			//TBD for xbox controller
 			break;
 	}
-	RI_KEY_E0;
 }
 
-std::vector<bool>& Input::Update( LPARAM lParam )
-{
-	InterpetrateRawInput( lParam );
-
-	//mCurrentFrame[KEYS_W] = false;
-	return mCurrentFrame;
-}
-
-HRESULT	Input::Initialize()
+HRESULT	Input::Initialize(UINT screenWidth, UINT screenHeight)
 {
 	UINT errorMsg;
 
@@ -117,6 +116,9 @@ HRESULT	Input::Initialize()
 	{
 		mCurrentFrame[i] = false;
 	}
+
+	mCurrentMousePos.x = (long)( screenWidth * 0.5 );
+	mCurrentMousePos.y	= (long)( screenHeight * 0.5 );
 
 	return S_OK;
 }

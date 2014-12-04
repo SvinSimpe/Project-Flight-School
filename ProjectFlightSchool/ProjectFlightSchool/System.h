@@ -1,11 +1,17 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
+
+#define WIN32_LEAN_AND_MEAN
+#define VC_EXTRALEAN
 #include "Server.h" // This include should always be first since it includes windows.h...... for now
+#include "Input.h"
 #include "Graphics.h"
 #include "Client.h"
 #include <iostream>
 #include "Game.h"
+#include "Player.h"
+
 
 
 class System
@@ -21,6 +27,9 @@ class System
 		Client		mClient;
 
 		Game*		mGame;
+
+		static std::vector<bool> mPressedKeys;
+		
 
 	protected:
 	public:

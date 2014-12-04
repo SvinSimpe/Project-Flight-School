@@ -2,15 +2,19 @@
 #define PLAYSTATE_H
 
 #include "BaseState.h"
+#include "Player.h"
 
 class PlayState : public BaseState
 {
 	// Class members
 	private:
 
-		UINT		mPlaneAsset;
-		UINT		mCubeAsset;
-		UINT		mTestAsset;
+		AssetID		mPlaneAsset;
+		AssetID		mCubeAsset;
+		AssetID		mTestAsset;
+
+	// Debug
+		Player*		mPlayer;
 
 	protected:
 	public:

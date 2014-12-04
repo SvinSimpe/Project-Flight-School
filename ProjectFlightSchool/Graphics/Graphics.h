@@ -56,6 +56,7 @@ class LIBRARY_EXPORT Graphics
 
 		void RenderStatic3dAsset( UINT assetId );
 		void RenderStatic3dAsset( UINT assetId, float x, float y, float z );
+		void RenderStatic3dAsset( UINT assetId, XMFLOAT4X4* world );
 
 		void	BeginScene();
 		void	EndScene();

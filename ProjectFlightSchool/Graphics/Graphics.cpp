@@ -103,6 +103,33 @@ void Graphics::RenderStatic3dAsset( UINT assetId, float x, float y, float z )
 	mDeviceContext->Draw( mAssetManager->mAssetContainer[assetId]->mVertexCount, 0 );
 }
 
+void Graphics::RenderStatic3dAsset( UINT assetId, XMFLOAT4X4* world )
+{
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+
+	UINT32 vertexSize				= sizeof( Vertex );
+	UINT32 offset					= 0;
+	ID3D11Buffer* buffersToSet[]	= { mAssetManager->mAssetContainer[assetId]->mVertexBuffer };
+	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+
+	mDeviceContext->IASetInputLayout( mEffect->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffect->GetPixelShader(), nullptr, 0 );
+
+	//Map CbufferPerObject
+	CbufferPerObject data;
+	data.worldMatrix = DirectX::XMLoadFloat4x4( world );
+	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
+
+	mDeviceContext->VSSetConstantBuffers( 0, 1, &mCbufferPerObject );
+
+	mDeviceContext->Draw( mAssetManager->mAssetContainer[assetId]->mVertexCount, 0 );
+}
+
 //Clear canvas and prepare for rendering.
 void Graphics::BeginScene()
 {
@@ -120,6 +147,9 @@ void Graphics::BeginScene()
 	MapBuffer( mCbufferPerFrame, &data, sizeof( CbufferPerFrame ) );
 
 	mDeviceContext->VSSetConstantBuffers( 0, 1, &mCbufferPerFrame );
+
+	for( int i = 0; i < 5; i++ )
+		RenderStatic3dAsset( 1, &mAssetManager->mTestAnim.mCurrentBoneTransforms[i] );
 }
 
 //Finalize rendering.

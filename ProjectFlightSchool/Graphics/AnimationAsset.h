@@ -1,24 +1,19 @@
-#ifndef IMPORTANIMATION_H
-#define IMPORTANIMATION_H
+#ifndef ANIMATIONASSET_H
+#define ANIMATIONASSET_H
 
 #include <vector>
-#include <iostream>
-#include <windows.h>
-#include <fstream>
 #include <string>
+#include <Windows.h>
+#include <DirectXMath.h>
 using namespace std;
 
-struct AnimationMatrix
-{
-	double matrixData[4][4];
-};
 struct JointAnimation
 {
 	string						jointName;
 	string						parentName;
 	int							parentIndex;
 	vector<int>					keys;
-	vector<AnimationMatrix>		matricies;
+	vector<DirectX::XMFLOAT4X4>	matricies;
 };
 struct AnimationData
 {
@@ -32,7 +27,7 @@ struct Joint
 	string				jointName;
 	string				parentName;
 	int					parentIndex;
-	AnimationMatrix		originalMatrix;
+	DirectX::XMFLOAT4X4	originalMatrix;
 };
 struct Skeleton
 {
@@ -41,24 +36,26 @@ struct Skeleton
 	vector<Joint>	joints;
 };
 
-
-
-
-class ImporterAnim
+struct AnimationAsset
 {
-	//Class members
 private:
 protected:
 public:
+	Skeleton			mSkeleton;
+	AnimationData		mAnimationData;
 
-	//Class functions
+	DirectX::XMFLOAT4X4	mCurrentBoneTransforms[8];
+
 private:
 protected:
 public:
-	ImporterAnim();
-	virtual			~ImporterAnim();
-	AnimationData	ImportBinaryAnimData( string directoryPath, string fileName );
-	Skeleton		ImportBinarySkelData( string directoryPath, string fileName );
+	void		ParentIndexer();
+	void		ResetAnimation();
+	void		UpdateAnimation( float deltaTime );
+
+	HRESULT		Initialize();
+	void		Release();
+				AnimationAsset();
+	virtual		~AnimationAsset();
 };
-
 #endif

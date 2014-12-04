@@ -34,30 +34,28 @@ class Connection
 	// Members
 	private:
 		int		mResult;
-		char*	mRecvBuf;
-		int		mRecvBufLen;
 
 	protected:
 
 	public:
 
-		// Template functions
-	private:
-		template <typename T>
-		Package	Pack( T body, int index );
-
-	protected:
-	public:
-		template <typename T>
-		bool	SendMsg( SOCKET &to, T body );
-
-		// Functions
+	// Template functions
 	private:
 
 	protected:
 
 	public:
-		char*	ReceiveMsg( SOCKET &from);
+		template <typename T>
+		bool	SendMsg( SOCKET &to, T body, EventType type );
+		template <typename T>
+		T		ReceiveMsg( SOCKET &from, Package<T> &p );
+
+	// Functions
+	private:
+
+	protected:
+
+	public:
 		void	DisconnectSocket( SOCKET &socket );
 		bool	Initialize();
 		void	Release();
@@ -66,21 +64,14 @@ class Connection
 };
 
 template <typename T>
-Package Connection::Pack( T body, int index )
+bool Connection::SendMsg( SOCKET &to, T body, EventType type )
 {
-	Package p			= Package();
-	p.head.index		= index;
-	p.head.contentType	= ContentType::MESSAGE;
-	p.head.contentSize	= DEFAULT_BUFLEN;
-	p.body.content		= (char*)body;
+	Package<T> p;
+	p.head.index		= 0;
+	p.head.eventType	= type;
+	p.head.contentSize	= sizeof( body );
+	p.body.content		= body;
 
-	return p;
-}
-
-template <typename T>
-bool Connection::SendMsg( SOCKET &to, T body )
-{
-	Package p = Pack( body, 0 );
 	mResult = send( to, (char*)&p, sizeof( p ), 0 );
 	if ( mResult == SOCKET_ERROR )
 	{
@@ -89,5 +80,18 @@ bool Connection::SendMsg( SOCKET &to, T body )
 		return false;
 	}
 	return true;
+}
+
+template <typename T>
+T Connection::ReceiveMsg( SOCKET &from, Package<T> &p )
+{
+	mResult = recv( from, (char*)&p, DEFAULT_BUFLEN, 0 );
+	if ( mResult < 0 )
+	{
+		printf( "recv failed when receiving from %d with error: %d\n", from, WSAGetLastError() );
+		DisconnectSocket( from );
+		return false;
+	}
+	return p.body.content;
 }
 #endif

@@ -1,6 +1,5 @@
 #include "System.h"
 
-std::vector<bool> System::mPressedKeys;
 ///////////////////////////////////////////////////////////////////////////////
 //									PRIVATE
 ///////////////////////////////////////////////////////////////////////////////
@@ -30,7 +29,7 @@ LRESULT CALLBACK System::WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			}
 			break;
 		case WM_INPUT:
-			mPressedKeys = Input::GetInstance()->Update( lParam ); //Returns a bool vector that represents all button presses
+			Input::GetInstance()->Update( lParam ); //Returns a bool vector that represents all button presses
 			break;
 
 		default:
@@ -92,6 +91,9 @@ int	System::Run()
 		}
 		else
 		{
+			RECT r;
+			GetWindowRect( mHWnd, &r );
+			ClipCursor( &r );
 			Update( 0.0f );
 			Render();
 		}
@@ -153,11 +155,11 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 	const char* port = DEFAULT_PORT;
 	const char* ip = DEFAULT_IP;
 
-	Input::GetInstance()->Initialize();
+	Input::GetInstance()->Initialize( mScreenWidth, mScreenHeight );
 
 	mNetworkThread	= std::thread( &System::NetworkInit, this );
 	
-	mGame				= new Game();
+	mGame = new Game();
 	mGame->Initialize();
 	
 	return S_OK;

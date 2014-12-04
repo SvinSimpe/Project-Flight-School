@@ -152,9 +152,6 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 
 	Graphics::GetInstance()->Initialize( mHWnd, mScreenWidth, mScreenHeight );
 
-	const char* port = DEFAULT_PORT;
-	const char* ip = DEFAULT_IP;
-
 	Input::GetInstance()->Initialize( mScreenWidth, mScreenHeight );
 
 	mNetworkThread	= std::thread( &System::NetworkInit, this );

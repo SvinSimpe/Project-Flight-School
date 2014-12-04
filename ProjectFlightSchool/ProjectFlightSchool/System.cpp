@@ -93,7 +93,7 @@ int	System::Run()
 		{
 			RECT r;
 			GetWindowRect( mHWnd, &r );
-			ClipCursor( &r );
+			//ClipCursor( &r );		Uncomment this to lock the cursor to the game window
 			Update( 0.0f );
 			Render();
 		}

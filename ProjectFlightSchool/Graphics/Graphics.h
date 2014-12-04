@@ -39,6 +39,8 @@ class LIBRARY_EXPORT Graphics
 		Effect*					mEffect;
 		Camera*					mCamera;
 
+		int						mSuperHappyTest;
+
 	protected:
 	public:
 

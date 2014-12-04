@@ -15,6 +15,8 @@ Graphics::Graphics()
 	mCbufferPerFrame	= nullptr;
 
 	mAssetManager		= nullptr;
+
+	mSuperHappyTest		= 0;
 }
 
 Graphics::~Graphics()
@@ -149,10 +151,10 @@ void Graphics::RenderStatic3dAsset( UINT assetId, XMFLOAT4X4* world )
 
 	//Map CbufferPerObject
 	CbufferPerObject data;
-	data.worldMatrix = DirectX::XMLoadFloat4x4( world );
+	data.worldMatrix = DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( world ) );
 	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
 
-	mDeviceContext->VSSetConstantBuffers( 0, 1, &mCbufferPerObject );
+	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
 
 	mDeviceContext->Draw( mAssetManager->mAssetContainer[assetId]->mVertexCount, 0 );
 }
@@ -175,6 +177,14 @@ void Graphics::BeginScene()
 
 	mDeviceContext->VSSetConstantBuffers( 0, 1, &mCbufferPerFrame );
 
+	if( mSuperHappyTest > 1 )
+	{
+		mAssetManager->mTestAnim.UpdateAnimation( 0.0f );
+		mSuperHappyTest = 0;
+	}
+	else
+		mSuperHappyTest++;
+
 	for( int i = 0; i < 5; i++ )
 		RenderStatic3dAsset( 1, &mAssetManager->mTestAnim.mCurrentBoneTransforms[i] );
 }
@@ -182,7 +192,7 @@ void Graphics::BeginScene()
 //Finalize rendering.
 void Graphics::EndScene()
 {
-	mSwapChain->Present( 0, 0 );
+	mSwapChain->Present( 1, 0 );
 }
 
 //Singleton for the Graphics dll.
@@ -342,9 +352,9 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	CameraInfo cameraInfo;
 	ZeroMemory( &cameraInfo, sizeof( cameraInfo ) );
-	cameraInfo.eyePos		= DirectX::XMFLOAT4( 30.0f, 30.0f, -30.0f, 1.0f );
+	cameraInfo.eyePos		= DirectX::XMFLOAT4( 0.0f, 30.0f, 0.0f, 1.0f );
 	cameraInfo.focusPoint	= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
-	cameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
+	cameraInfo.up			= DirectX::XMFLOAT4( -1.0f, 0.0f, 0.0f, 1.0f );
 	cameraInfo.width		= (float)screenWidth;
 	cameraInfo.height		= (float)screenHeight;
 	cameraInfo.foVY			= 0.75f;
@@ -352,7 +362,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	cameraInfo.farZ			= 1000.0f;
 
 	hr = mCamera->Initialize( &cameraInfo );
-	
+
 	return hr;
 }
 

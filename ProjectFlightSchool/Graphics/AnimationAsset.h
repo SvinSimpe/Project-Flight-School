@@ -5,6 +5,7 @@
 #include <string>
 #include <Windows.h>
 #include <DirectXMath.h>
+#include <iostream>
 using namespace std;
 
 struct JointAnimation
@@ -28,6 +29,7 @@ struct Joint
 	string				parentName;
 	int					parentIndex;
 	DirectX::XMFLOAT4X4	originalMatrix;
+	DirectX::XMFLOAT4X4 previousMatrix;
 };
 struct Skeleton
 {
@@ -45,6 +47,9 @@ public:
 	AnimationData		mAnimationData;
 
 	DirectX::XMFLOAT4X4	mCurrentBoneTransforms[8];
+
+	int					mLastFrame;
+	int					mCurrentFrame;
 
 private:
 protected:

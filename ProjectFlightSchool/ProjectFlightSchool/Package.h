@@ -2,7 +2,7 @@
 #define PACKAGE_H
 #include "Structs.h"
 
-enum class EventType
+enum class Net_Event
 {
 	ERROR_EVENT,
 	MESSAGE,
@@ -15,9 +15,10 @@ struct Package
 	struct Head
 	{
 		int			index		= 0;
-		EventType	eventType	= EventType::ERROR_EVENT;
+		Net_Event	eventType	= Net_Event::ERROR_EVENT;
 		int			contentSize	= 0;
 	};
+
 	struct Body
 	{
 		T content;

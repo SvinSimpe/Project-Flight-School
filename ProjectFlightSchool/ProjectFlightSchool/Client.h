@@ -7,6 +7,7 @@
 
 class Client // The class used by clients to connect to the server
 {
+	// Members
 	private:
 		int				mResult;
 		addrinfo*		mAddrResult;
@@ -17,6 +18,14 @@ class Client // The class used by clients to connect to the server
 
 	public:
 
+		// Template functions
+	private:
+		template <typename T>
+		void HandlePkg( Package<T> p );
+	protected:
+	public:
+		
+		// Functions
 	private:
 		bool	MsgLoop();
 		bool	ReceiveLoop();
@@ -32,4 +41,10 @@ class Client // The class used by clients to connect to the server
 				Client();
 		virtual	~Client();
 };
+
+template <typename T>
+void Client::HandlePkg( Package<T> p )
+{
+
+}
 #endif

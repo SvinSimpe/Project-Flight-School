@@ -3,9 +3,11 @@
 #include "Connection.h"
 #include "Package.h"
 #include <vector>
+#include "EventManager.h"
 
 class Server
 {
+	// Members
 	private:
 		int							mResult;
 		addrinfo*					mAddrResult;
@@ -18,6 +20,14 @@ class Server
 
 	public:
 
+	// Template functions
+	private:
+		template <typename T>
+		void HandlePkg( SOCKET &s, Package<T> p );
+	protected:
+	public:
+
+	// Functions
 	private:
 						Server();
 		virtual			~Server();
@@ -34,4 +44,21 @@ class Server
 		bool			Initialize( const char* port );
 		void			Release();
 };
+
+template <typename T>
+void Server::HandlePkg( SOCKET &s, Package<T> p )
+{
+	switch (p.head.eventType)
+	{
+		case Net_Event::MESSAGE:
+		{
+			printf( "Received message from %d.\n", s );
+		}
+			break;
+		default:
+		{
+			printf( "Error handling event from %d.\n", s );
+		}
+	}
+}
 #endif

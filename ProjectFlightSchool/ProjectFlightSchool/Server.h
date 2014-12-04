@@ -57,6 +57,12 @@ void Server::HandlePkg( SOCKET &s, Package<T> p )
 			mConn->SendPkg(s, e, Net_Event::QUIT);
 			mConn->DisconnectSocket(s);
 		}
+			break;5
+		case Net_Event::MESSAGE:
+		{
+			Message msg = (Message&)p.body.content;
+			printf("%d sent: %s\n", s, msg.msg);
+		}
 			break;
 		default:
 		{

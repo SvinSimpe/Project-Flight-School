@@ -23,27 +23,17 @@
 #define DEFAULT_PORT	"1337"
 #define DEFAULT_IP		"localhost"
 
-struct Pack
-{
-	int	x;
-	int	y;
-};
-
 class Connection
 	{
 	// Members
 	private:
 		int		mResult;
-
 	protected:
-
 	public:
 
 	// Template functions
 	private:
-
 	protected:
-
 	public:
 		template <typename T>
 		bool	SendPkg( SOCKET &to, T body, Net_Event type );
@@ -52,9 +42,7 @@ class Connection
 
 	// Functions
 	private:
-
 	protected:
-
 	public:
 		void	DisconnectSocket( SOCKET &socket );
 		bool	Initialize();

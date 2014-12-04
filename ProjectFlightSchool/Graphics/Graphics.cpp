@@ -64,6 +64,13 @@ void Graphics::RenderStatic3dAsset( UINT assetId )
 	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->PSSetShader( mEffect->GetPixelShader(), nullptr, 0 );
 
+	//Map CbufferPerObject
+	CbufferPerObject data;
+	data.worldMatrix = DirectX::XMMatrixIdentity();
+	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
+
+	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
+
 	mDeviceContext->Draw( mAssetManager->mAssetContainer[assetId]->mVertexCount, 0 );
 }
 
@@ -85,20 +92,11 @@ void Graphics::RenderStatic3dAsset( UINT assetId, float x, float y, float z )
 	mDeviceContext->PSSetShader( mEffect->GetPixelShader(), nullptr, 0 );
 
 	//Map CbufferPerObject
-	DirectX::XMMATRIX world;
-	DirectX::XMFLOAT3 tempFloat;
-	DirectX::XMVECTOR tempVec;
-	tempFloat.x = x;
-	tempFloat.y = y;
-	tempFloat.z = z;
-
-	tempVec = DirectX::XMLoadFloat3( &tempFloat );
-	world = DirectX::XMMatrixTranslationFromVector( tempVec );
 	CbufferPerObject data;
-	data.worldMatrix = world;
+	data.worldMatrix = DirectX::XMMatrixTranspose( DirectX::XMMatrixTranslation( x, y, z ) );
 	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
 
-	mDeviceContext->VSSetConstantBuffers( 0, 1, &mCbufferPerObject );
+	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
 
 	mDeviceContext->Draw( mAssetManager->mAssetContainer[assetId]->mVertexCount, 0 );
 }
@@ -261,16 +259,9 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	///////////////////////////////
 	// CREATE CBUFFERPEROBJECT
 	///////////////////////////////
-	D3D11_BUFFER_DESC bufferObjDesc;
-	ZeroMemory( &bufferDesc, sizeof( bufferObjDesc ) );
-	bufferObjDesc.BindFlags				= D3D11_BIND_CONSTANT_BUFFER;
-	bufferObjDesc.ByteWidth				= sizeof( CbufferPerObject );
-	bufferObjDesc.CPUAccessFlags		= D3D11_CPU_ACCESS_WRITE;
-	bufferObjDesc.Usage					= D3D11_USAGE_DYNAMIC;
-	bufferObjDesc.MiscFlags				= 0;
-	bufferObjDesc.StructureByteStride	= 0;
+	bufferDesc.ByteWidth				= sizeof( CbufferPerObject );
 
-	hr = mDevice->CreateBuffer( &bufferObjDesc, nullptr, &mCbufferPerObject );
+	hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mCbufferPerObject );
 
 	//AssetManager
 	mAssetManager = new AssetManager;

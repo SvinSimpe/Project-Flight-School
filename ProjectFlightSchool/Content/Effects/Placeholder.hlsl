@@ -5,6 +5,11 @@ cbuffer CbufferPerFrame	: register( b0 )
 	float4x4 projectionMatrix;
 }
 
+cbuffer CbufferPerObject : register( b1 )
+{
+	float4x4 worldMatrix;
+}
+
 struct VS_In
 {
 	float3 position : POSITION;
@@ -23,10 +28,11 @@ struct VS_Out
 VS_Out VS_main( VS_In input )
 {
 	VS_Out output	= (VS_Out)0;
-	output.position = mul( float4( input.position, 1.0f ), viewMatrix );
+	output.position = mul( float4( input.position, 1.0f ), worldMatrix );
+	output.position = mul( output.position, viewMatrix );
 	output.position = mul( output.position, projectionMatrix );
 
-	output.normal	= input.normal.xyz;
+	output.normal	= mul( input.normal.xyz, (float3x3)worldMatrix );
 
 	output.uv		= input.uv;
 
@@ -38,7 +44,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 {
 	// Derp light to notice anything
 	float lightIntensity	= dot( input.normal, normalize( float3( 0.5f, 1.0f, -0.3f ) ) ); 
-	float3 color			= ( 1.0f, 1.0f, 1.0f );
+	float3 color			= float3( 1.0f, 1.0f, 1.0f );
 
 	return float4( color * lightIntensity, 1.0f );
 	//return float4( input.normal, 1.0f );

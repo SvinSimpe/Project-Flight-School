@@ -8,6 +8,7 @@ enum class ContentType
 	MESSAGE
 };
 
+template <typename T>
 struct Package
 {
 	struct Head
@@ -16,10 +17,9 @@ struct Package
 		ContentType contentType	= ContentType::OPERATION;
 		int			contentSize	= 0;
 	};
-
 	struct Body
 	{
-		char*		content		= nullptr;
+		T content;
 	};
 
 	Head head = Head();

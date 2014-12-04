@@ -5,12 +5,21 @@ bool Client::MsgLoop()
 	bool result = false;
 	while ( mServerSocket != INVALID_SOCKET )
 	{
-		system( "pause" );
-		char* msg = "Tja!";
+		Position p;
+		printf("Input the position you'd like to send.\n");
+		printf("x: ");
+		std::cin >> p.x;
+
+		printf("y: ");
+		std::cin >> p.y;
+		
+		printf("z: ");
+		std::cin >> p.z;
+		std::cin.ignore();
 
 		if ( mServerSocket != INVALID_SOCKET )
 		{
-			result = mConn->SendMsg( mServerSocket, msg );
+			result = mConn->SendMsg( mServerSocket, p );
 		}
 	};
 
@@ -21,9 +30,12 @@ bool Client::ReceiveLoop()
 {
 	do
 	{
-		char* msg = mConn->ReceiveMsg( mServerSocket );
-		
-		HandleMsg( msg );
+		Package<Message> p;
+		if (mConn->ReceiveMsg(mServerSocket, p))
+		{
+			Message m = p.body.content;
+			HandleMsg( m.msg );
+		}
 	} while ( mServerSocket != INVALID_SOCKET );
 	return true;
 }

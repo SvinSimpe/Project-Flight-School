@@ -5,4 +5,11 @@ struct Message
 {
 	char* msg = nullptr;
 };
+
+struct Position
+{
+	int x;
+	int y;
+	int z;
+};
 #endif

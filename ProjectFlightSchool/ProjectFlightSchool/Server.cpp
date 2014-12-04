@@ -28,12 +28,14 @@ bool Server::ReceiveLoop( int index )
 {
 	while ( mClientSockets.at( index ) != INVALID_SOCKET )
 	{
-		char* msg = mConn->ReceiveMsg( mClientSockets.at(index) );
+		Package<Position> p;
 
-		if ( msg )
+		if ( mConn->ReceiveMsg( mClientSockets.at(index), p ) )
 		{
-			HandleMsg( mClientSockets.at(index), msg );
-			printf( "%d sent: %s\n", mClientSockets.at(index), msg );
+			Position r = p.body.content;
+			printf("%d sent: %d, %d, %d\n", mClientSockets.at(index), r.x, r.y, r.z);
+			//HandleMsg( mClientSockets.at(index), m.msg );
+			//printf( "%d sent: %s\n", mClientSockets.at(index), m.msg );
 		}
 	}
 	return true;
@@ -93,7 +95,9 @@ void Server::HandleMsg( SOCKET &socket, char* msg )
 				}
 				else
 				{
-					mConn->SendMsg( socket, "Message sent." );
+					Message msg;
+					msg.msg = "Hello client!";
+					mConn->SendMsg( socket, msg );
 				}
 			}
 		}

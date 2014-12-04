@@ -9,9 +9,9 @@ class PlayState : public BaseState
 	// Class members
 	private:
 
-		UINT		mPlaneAsset;
-		UINT		mCubeAsset;
-		UINT		mTestAsset;
+		AssetID		mPlaneAsset;
+		AssetID		mCubeAsset;
+		AssetID		mTestAsset;
 
 	// Debug
 		Player*		mPlayer;

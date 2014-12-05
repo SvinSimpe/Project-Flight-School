@@ -1,36 +1,14 @@
 #include "Client.h"
 
-bool Client::MsgLoop()
+bool Client::PkgLoop()
 {
 	bool result = false;
 	while ( mServerSocket != INVALID_SOCKET )
 	{
-		std::string input = "";
-		printf( "Would you like to send a Message or a Position?\nInput: " );
-		std::getline( std::cin, input );
+		Empty e;
+		system("pause");
 
-		EventType type;
-		if ( input == "Message" )
-		{
-			type = EventType::MESSAGE;
-			Message m;
-			m.msg = "Hello";
-			m.msg2 = "world!";
-			result = mConn->SendMsg( mServerSocket, m, type );
-		}
-		else if ( input == "Position" )
-		{
-			type = EventType::POSITION;
-			Position p;
-			p.x = 1;
-			p.y = 2;
-			p.z = 3;
-			result = mConn->SendMsg( mServerSocket, p, type );
-		}
-		else
-		{
-			printf( "\nInvalid input\n" );
-		}
+		mConn->SendPkg( mServerSocket, e, Net_Event::QUIT );
 	};
 
 	return true;
@@ -38,29 +16,19 @@ bool Client::MsgLoop()
 
 bool Client::ReceiveLoop()
 {
-	do
+	Package<void*>* p = new Package<void*>[DEFAULT_BUFLEN];
+	while ( mServerSocket != INVALID_SOCKET )
 	{
-		//Package<Message> p;
-		//if (mConn->ReceiveMsg(mServerSocket, p))
-		//{
-		//	Message m = p.body.content;
-		//	HandleMsg( m.msg );
-		//}
-	} while ( mServerSocket != INVALID_SOCKET );
-	return true;
-}
-
-bool Client::HandleMsg( char* msg )
-{
-	if ( strcmp( msg, "Quit" ) == 0 )
-	{
-		mConn->DisconnectSocket( mServerSocket );
-		printf( "Connection lost..." );
+		if ( mConn->ReceivePkg( mServerSocket, *p ) )
+		{
+			if ( p->head.eventType != Net_Event::ERROR_EVENT )
+			{
+				HandlePkg( *p );
+			}
+		}
 	}
-	else
-	{
-		printf( "%s\n", msg );
-	}
+	if (p)
+		delete[] p;
 	return true;
 }
 
@@ -102,7 +70,7 @@ bool Client::Connect()
 
 bool Client::Run()
 {
-	std::thread write( &Client::MsgLoop, this );
+	std::thread write( &Client::PkgLoop, this );
 	std::thread listen( &Client::ReceiveLoop, this );
 
 	write.join();

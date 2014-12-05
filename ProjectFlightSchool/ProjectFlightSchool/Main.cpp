@@ -11,10 +11,8 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
 #if defined(DEBUG) | defined(_DEBUG)
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 	//_CrtSetBreakAlloc(408); // Break at specific memory allocation point
-
-	// Server leaks at: 425,415,414,413,412,411,408,188
-
-	// Below code is used to open a separate console window only used in debug
+#endif
+	// Console window code
 	AllocConsole();
 	HANDLE handle_out = GetStdHandle( STD_OUTPUT_HANDLE );
 	int hCrt = _open_osfhandle( (long)handle_out, _O_TEXT );
@@ -27,7 +25,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
 	FILE* hf_int = _fdopen( hCrt, "r" );
 	setvbuf( hf_int, nullptr, _IONBF, 128 );
 	*stdin = *hf_int;
-#endif
+	// End of console window code
 
 	int localReturn = 0;
 

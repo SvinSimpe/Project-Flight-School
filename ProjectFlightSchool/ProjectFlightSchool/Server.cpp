@@ -29,96 +29,17 @@ bool Server::ReceiveLoop( int index )
 	Package<void*>* p = new Package<void*>[DEFAULT_BUFLEN];
 	while ( mClientSockets.at( index ) != INVALID_SOCKET )
 	{
-		if ( mConn->ReceiveMsg( mClientSockets.at(index), *p ) )
+		if ( mConn->ReceivePkg( mClientSockets.at(index), *p ) )
 		{
-			switch ( p->head.eventType )
+			if ( p->head.eventType != Net_Event::ERROR_EVENT )
 			{
-				case EventType::MESSAGE:
-				{
-					Message msg = (Message&)p->body.content;
-					printf( "%d sent: %s %s\n", mClientSockets.at(index), msg.msg, msg.msg2 );
-				} 
-					break;
-				case EventType::POSITION:
-				{
-					Position pos = (Position&)p->body.content;
-					printf( "%d sent: %d, %d, %d\n", mClientSockets.at(index), pos.x, pos.y, pos.z );
-				} 
-					break;
-				default:
-				{
-					printf( "How the fuck did this happen?\n" );
-				} 
-					break;
+				HandlePkg( mClientSockets.at(index), *p );
 			}
 		}
 	}
 	if (p)
 		delete[] p;
 	return true;
-}
-
-void Server::HandleMsg( SOCKET &socket, char* msg )
-{
-	if ( strcmp( msg, "Quit" ) == 0 )
-	{
-		printf( "%d disconnected.\n", socket );
-		//mConn->SendMsg( socket, msg );
-		mConn->DisconnectSocket( socket );
-
-		bool allClosed = true;
-		for ( auto& s : mClientSockets )
-		{
-			if ( s != INVALID_SOCKET )
-			{
-				allClosed = false;
-			}
-		}
-		if ( allClosed )
-		{
-			mConn->DisconnectSocket( mListenSocket );
-		}
-	}
-	else if ( strcmp( msg, "Shutdown" ) == 0 )
-	{
-		for ( auto& s : mClientSockets )
-		{
-			if ( s != INVALID_SOCKET )
-			{
-				//mConn->SendMsg( s, "Quit" );
-			}
-		}
-
-		for ( auto& s : mClientSockets )
-		{
-			if ( s != INVALID_SOCKET )
-			{
-				mConn->DisconnectSocket( s );
-			}
-		}
-		mConn->DisconnectSocket( mListenSocket );
-	}
-	else
-	{
-		for ( auto& s : mClientSockets )
-		{
-			if ( s != INVALID_SOCKET )
-			{
-				if ( s != socket )
-				{
-					std::string sMsg = std::to_string( socket ) + " says: " + msg;
-					msg = (char*)sMsg.c_str();
-					//mConn->SendMsg( s, msg );
-				}
-				else
-				{
-					Message msg;
-					msg.msg = "Hello client!";
-					//mConn->SendMsg( socket, msg );
-				}
-			}
-		}
-	}
 }
 
 bool Server::Connect()

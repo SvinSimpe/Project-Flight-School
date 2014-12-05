@@ -23,38 +23,26 @@
 #define DEFAULT_PORT	"1337"
 #define DEFAULT_IP		"localhost"
 
-struct Pack
-{
-	int	x;
-	int	y;
-};
-
 class Connection
 	{
 	// Members
 	private:
 		int		mResult;
-
 	protected:
-
 	public:
 
 	// Template functions
 	private:
-
 	protected:
-
 	public:
 		template <typename T>
-		bool	SendMsg( SOCKET &to, T body, EventType type );
+		bool	SendPkg( SOCKET &to, T body, Net_Event type );
 		template <typename T>
-		T		ReceiveMsg( SOCKET &from, Package<T> &p );
+		T		ReceivePkg( SOCKET &from, Package<T> &p );
 
 	// Functions
 	private:
-
 	protected:
-
 	public:
 		void	DisconnectSocket( SOCKET &socket );
 		bool	Initialize();
@@ -64,7 +52,7 @@ class Connection
 };
 
 template <typename T>
-bool Connection::SendMsg( SOCKET &to, T body, EventType type )
+bool Connection::SendPkg( SOCKET &to, T body, Net_Event type )
 {
 	Package<T> p;
 	p.head.index		= 0;
@@ -83,7 +71,7 @@ bool Connection::SendMsg( SOCKET &to, T body, EventType type )
 }
 
 template <typename T>
-T Connection::ReceiveMsg( SOCKET &from, Package<T> &p )
+T Connection::ReceivePkg( SOCKET &from, Package<T> &p )
 {
 	mResult = recv( from, (char*)&p, DEFAULT_BUFLEN, 0 );
 	if ( mResult < 0 )

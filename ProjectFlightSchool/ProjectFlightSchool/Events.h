@@ -37,16 +37,56 @@
 //
 //========================================================================
 #include "IEventManager.h"
+#include <DirectXMath.h>
+using namespace DirectX;
+
 class TestEvent : public IEvent
 {
+	private:
+	protected:
 	public:
 		static const EventType GUID;
+	
+
+	private:
 	public:
 		TestEvent()
 		{
 			//Event Data
 		}
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+};
+
+class Event_Player_Moved : public IEvent
+{
+	private:
+		XMFLOAT3 mLowerBodyPos;
+		XMFLOAT3 mUpperBodyPos;
+
+	protected:
 	public:
+		static const EventType GUID;
+	
+	private:
+	public:
+		Event_Player_Moved(XMFLOAT3 lowerBodyPos, XMFLOAT3 upperBodyPos)
+		{
+			mLowerBodyPos	= lowerBodyPos;
+			mUpperBodyPos	= upperBodyPos;
+		}
+		XMFLOAT3 LowerBodyPos()const
+		{
+			return mLowerBodyPos;
+		}
+		XMFLOAT3 UpperBodyPos()const
+		{
+			return mUpperBodyPos;
+		}
+	protected:
 		const EventType& GetEventType( void ) const
 		{
 			return GUID;

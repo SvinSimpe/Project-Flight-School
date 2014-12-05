@@ -8,8 +8,11 @@ bool Client::PkgLoop()
 		Empty e;
 		system("pause");
 
-		mConn->SendPkg( mServerSocket, e, Net_Event::QUIT );
-	};
+		if (mServerSocket != INVALID_SOCKET)
+		{
+			mConn->SendPkg( mServerSocket, e, Net_Event::QUIT );
+		}
+	}
 
 	return true;
 }

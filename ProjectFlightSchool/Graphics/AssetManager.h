@@ -11,18 +11,12 @@
 
 struct MeshInfo
 {
-	UINT vertexCount;
+	UINT nrOfVertices;
 
 	char meshName[50];
 	char diffuseMapName[50];
 	char normalMapName[50];
 	char specularMapName[50];
-};
-
-struct MeshData //MeshData_Export
-{
-	MeshInfo meshInfo;
-	Vertex* vertices;
 };
 
 class AssetManager
@@ -40,6 +34,7 @@ class AssetManager
 	protected:
 	public:
 		HRESULT		LoadStatic3dAsset( ID3D11Device* device, char* fileName, AssetID &assetId );
+		HRESULT		LoadAnimated3dAsset( ID3D11Device* device, char* fileName, AssetID &assetId );
 
 		HRESULT		Initialize( ID3D11Device* device );
 		void		Release();

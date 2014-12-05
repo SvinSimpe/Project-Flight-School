@@ -11,8 +11,7 @@
 #include <iostream>
 #include "Game.h"
 #include "Player.h"
-
-
+#include "Timer.h"
 
 class System
 {
@@ -27,6 +26,8 @@ class System
 		Client		mClient;
 
 		Game*		mGame;
+		
+		Timer*		mTimer;
 		
 
 	protected:

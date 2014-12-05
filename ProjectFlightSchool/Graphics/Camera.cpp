@@ -43,11 +43,49 @@ XMMATRIX Camera::GetProjMatrix() const
 	return XMMatrixTranspose( XMLoadFloat4x4( &mProjMatrix ) );
 }
 
-XMMATRIX Camera::GetInverseProjMatrix() const
+XMFLOAT4 Camera::GetPos() const
 {
-	XMVECTOR determinant = XMMatrixDeterminant( XMLoadFloat4x4( &mProjMatrix ) );
+	return mPos;
+}
 
-	return XMMatrixTranspose(  XMMatrixInverse( &determinant, XMLoadFloat4x4( &mProjMatrix ) ) );
+XMFLOAT4 Camera::GetUp()	const
+{
+	return mUp;
+}
+
+XMFLOAT4 Camera::GetFocusPoint() const
+{
+	return mFocusPoint;
+}
+
+float Camera::GetNearZ() const
+{
+	return mNearZ;
+}
+
+float Camera::GetFarZ()	const
+{
+	return mFarZ;
+}
+
+float Camera::GetFoV() const
+{
+	return mFoV;
+}
+
+float Camera::GetAspectRatio() const
+{
+	return mAspectRatio;
+}
+
+float Camera::GetWidth() const
+{
+	return mWidth;
+}
+
+float Camera::GetHeight() const
+{
+	return mHeight;
 }
 
 HRESULT Camera::Initialize( CameraInfo* cameraInfo )

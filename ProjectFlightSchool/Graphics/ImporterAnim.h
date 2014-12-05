@@ -39,9 +39,6 @@ struct Skeleton
 	vector<Joint>	joints;
 };
 
-
-
-
 class ImporterAnim
 {
 	//Class members

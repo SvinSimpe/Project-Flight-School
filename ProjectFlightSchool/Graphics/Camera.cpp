@@ -31,9 +31,23 @@ XMMATRIX Camera::GetViewMatrix() const
 	return XMMatrixTranspose( XMLoadFloat4x4( &mViewMatrix ) );
 }
 
+XMMATRIX Camera::GetInverseViewMatrix() const
+{
+	XMVECTOR determinant = XMMatrixDeterminant( XMLoadFloat4x4( &mViewMatrix ) );
+
+	return XMMatrixTranspose(  XMMatrixInverse( &determinant, XMLoadFloat4x4( &mViewMatrix ) ) );
+}
+
 XMMATRIX Camera::GetProjMatrix() const
 {
 	return XMMatrixTranspose( XMLoadFloat4x4( &mProjMatrix ) );
+}
+
+XMMATRIX Camera::GetInverseProjMatrix() const
+{
+	XMVECTOR determinant = XMMatrixDeterminant( XMLoadFloat4x4( &mProjMatrix ) );
+
+	return XMMatrixTranspose(  XMMatrixInverse( &determinant, XMLoadFloat4x4( &mProjMatrix ) ) );
 }
 
 HRESULT Camera::Initialize( CameraInfo* cameraInfo )

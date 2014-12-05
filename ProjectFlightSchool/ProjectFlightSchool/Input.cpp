@@ -62,6 +62,13 @@ void Input::Update( LPARAM lParam )
 				GetCursorPos(&pt);
 				mCurrentMousePos.x = pt.x - raw->data.mouse.lLastX;
 				mCurrentMousePos.y = pt.y - raw->data.mouse.lLastY;
+
+				//Calculate mouse position in NDC space
+				float viewSpaceX	= ( ( 2 * Input::GetInstance()->mCurrentMousePos.x ) / mScreenWidth  ) - 1.0f;
+				float viewSpaceY	= ( ( 2 * Input::GetInstance()->mCurrentMousePos.y ) / mScreenHeight ) - 1.0f;
+				float viewSpaceZ	= 1.0f;
+
+				mCurrentNDCMousePos = DirectX::XMVectorSet( viewSpaceX, viewSpaceY, viewSpaceZ, 1.0f ); 
 			}
 
 			break;
@@ -90,6 +97,9 @@ void Input::Update( LPARAM lParam )
 
 HRESULT	Input::Initialize( UINT screenWidth, UINT screenHeight )
 {
+	mScreenWidth	= screenWidth;
+	mScreenHeight	= screenHeight;
+
 	UINT errorMsg;
 
 	//Mouse

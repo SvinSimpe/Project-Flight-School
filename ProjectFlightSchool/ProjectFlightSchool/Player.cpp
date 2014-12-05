@@ -15,6 +15,12 @@ void Player::HandleInput( float deltaTime )
 	
 	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_D ) && !Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_A ) )
 		Move( XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
+
+	XMVECTOR objectSpacePosition = XMVector3Unproject( Input::GetInstance()->mCurrentNDCMousePos, 0.0f, 0.0f, Input::GetInstance()->mScreenWidth, Input::GetInstance()->mScreenHeight, 0.0f, 1.0f,
+													   Graphics::GetInstance()->GetCamera()->GetProjMatrix(), Graphics::GetInstance()->GetCamera()->GetProjMatrix(),
+													   XMMatrixTranspose( XMMatrixIdentity() ) );
+
+	
 }
 
 void Player::Move( XMFLOAT3 direction  )

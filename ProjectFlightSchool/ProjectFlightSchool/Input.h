@@ -6,6 +6,7 @@
 #include <Windows.h>
 #include <vector>
 #include "KeyDefines.h"
+#include <DirectXMath.h>
 
 const UINT NUMBER_OF_DEVICES	= 2;	//The amount of devices to be registered; mouse and keyboard currently, added to the array in written order.
 const UINT BUFFER_SIZE			= 40;	//Fixed buffer size for interpretating RAWINPUT messages, set to the size of the mouse input since it is the biggest of the 2 devices we're handling.
@@ -19,6 +20,10 @@ class Input
 		LPBYTE				mLpb[BUFFER_SIZE];
 		std::vector<bool>	mCurrentFrame;
 		POINT				mCurrentMousePos;
+
+		DirectX::XMVECTOR	mCurrentNDCMousePos;
+		UINT				mScreenWidth;
+		UINT				mScreenHeight;
 
 	private:
 		//Stoping the compiler from generating methods for copying the object

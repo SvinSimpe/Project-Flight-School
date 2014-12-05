@@ -35,7 +35,9 @@ class Camera
 		void SetPos( XMFLOAT4 pos );
 
 		XMMATRIX GetViewMatrix() const;
+		XMMATRIX GetInverseViewMatrix() const;
 		XMMATRIX GetProjMatrix() const;
+		XMMATRIX GetInverseProjMatrix() const;
 
 		//Must be called before GetViewMatrix, GetProjMatrix
 		HRESULT Initialize( CameraInfo* cameraInfo );

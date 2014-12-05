@@ -130,6 +130,11 @@ void Graphics::RenderStatic3dAsset( UINT assetId, DirectX::XMFLOAT3 position, Di
 	mDeviceContext->Draw( mAssetManager->mAssetContainer[assetId]->mVertexCount, 0 );
 }
 
+Camera* Graphics::GetCamera()
+{
+	return mCamera;
+}
+
 //Clear canvas and prepare for rendering.
 void Graphics::BeginScene()
 {

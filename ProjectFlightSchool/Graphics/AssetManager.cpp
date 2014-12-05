@@ -267,7 +267,7 @@ AnimationData AssetManager::ImportBinaryAnimData( string directoryPath,string fi
 		int padding = 0;
 		tempAnim.nrOfJoints = memblock[padding];
 		//memblock should contain nr of joints
-		for ( int j = 0; j < memblock[padding]; j++ )
+		for ( int j = 0; j < tempAnim.nrOfJoints; j++ )
 		{
 			JointAnimation tempJoint;
 
@@ -276,12 +276,14 @@ AnimationData AssetManager::ImportBinaryAnimData( string directoryPath,string fi
 
 			//following handles jointName
 			string tempName;
-			for ( int i = 0; i < memblock[padding]; i++ )
+			int childFor = memblock[padding];
+			padding++;
+			for ( int i = 0; i < childFor; i++ )
 			{
-				if ( i == 0 )
-				{
-					padding++;
-				}
+				//if ( i == 0 )
+				//{
+				//	padding++;
+				//}
 				tempName.push_back( memblock[padding] );
 				padding++;
 			}
@@ -289,12 +291,14 @@ AnimationData AssetManager::ImportBinaryAnimData( string directoryPath,string fi
 
 			//following handles parentName
 			string tempParentName;
-			for ( int i = 0; i < memblock[padding]; i++ )
+			int parentFor = memblock[padding];
+			padding++;
+			for ( int i = 0; i < parentFor; i++ )
 			{
-				if ( i == 0 )
+				/*if ( i == 0 )
 				{
 					padding++;
-				}
+				}*/
 				tempParentName.push_back( memblock[padding] );
 				padding++;
 			}
@@ -374,7 +378,7 @@ Skeleton AssetManager::ImportBinarySkelData( string directoryPath, string fileNa
 		int padding = 0;
 		tempSkel.nrOfJoints = memblock[padding];
 		//memblock should contain nr of joints
-		for ( int j = 0; j < memblock[padding]; j++ )
+		for ( int j = 0; j < tempSkel.nrOfJoints; j++ )
 		{
 			Joint tempJoint;
 
@@ -383,12 +387,14 @@ Skeleton AssetManager::ImportBinarySkelData( string directoryPath, string fileNa
 
 			//following handles jointName
 			string tempName;
-			for ( int i = 0; i < memblock[padding]; i++ )
+			int childFor = memblock[padding];
+			padding++;
+			for ( int i = 0; i < childFor; i++ )
 			{
-				if ( i == 0 )
-				{
-					padding++;
-				}
+				//if ( i == 0 )
+				//{
+				//	padding++;
+				//}
 				tempName.push_back( memblock[padding] );
 				padding++;
 			}
@@ -397,12 +403,13 @@ Skeleton AssetManager::ImportBinarySkelData( string directoryPath, string fileNa
 			//following handles parentName
 			string tempParentName;
 			int parentFor = memblock[padding];
+			padding++;
 			for ( int i = 0; i < parentFor; i++ )
 			{
-				if ( i == 0 )
+				/*if ( i == 0 )
 				{
 					padding++;
-				}
+				}*/
 				tempParentName.push_back( memblock[padding] );
 				padding++;
 			}
@@ -454,8 +461,8 @@ HRESULT	AssetManager::Initialize( ID3D11Device* device )
 	testHandler.HandlePaManPath("C:\\Users\\KungTrulls\\Desktop\\testMap\\");
 	testHandler.HandleSkelPath("C:\\Users\\KungTrulls\\Desktop\\testMap\\");*/
 
-	mTestAnim.mAnimationData	= ImportBinaryAnimData( "../Content/Assets/Animations/", "test.PaMan" );
-	mTestAnim.mSkeleton			= ImportBinarySkelData( "../Content/Assets/Animations/", "test.Skel" );
+	mTestAnim.mAnimationData	= ImportBinaryAnimData( "../Content/Assets/Animations/", "walk.PaMan" );
+	mTestAnim.mSkeleton			= ImportBinarySkelData( "../Content/Assets/Animations/", "walk.Skel" );
 
 	mTestAnim.ParentIndexer();
 	mTestAnim.ResetAnimation();

@@ -185,7 +185,7 @@ void Graphics::BeginScene()
 	else
 		mSuperHappyTest++;
 
-	for( int i = 0; i < 5; i++ )
+	for( int i = 0; i < 9; i++ )
 		RenderStatic3dAsset( 1, &mAssetManager->mTestAnim.mCurrentBoneTransforms[i] );
 }
 
@@ -352,9 +352,9 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	CameraInfo cameraInfo;
 	ZeroMemory( &cameraInfo, sizeof( cameraInfo ) );
-	cameraInfo.eyePos		= DirectX::XMFLOAT4( 0.0f, 30.0f, 0.0f, 1.0f );
+	cameraInfo.eyePos		= DirectX::XMFLOAT4( 20.0f, 20.0f, -30.0f, 1.0f );
 	cameraInfo.focusPoint	= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
-	cameraInfo.up			= DirectX::XMFLOAT4( -1.0f, 0.0f, 0.0f, 1.0f );
+	cameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
 	cameraInfo.width		= (float)screenWidth;
 	cameraInfo.height		= (float)screenHeight;
 	cameraInfo.foVY			= 0.75f;

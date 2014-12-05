@@ -28,6 +28,7 @@ struct Joint
 	string				jointName;
 	string				parentName;
 	int					parentIndex;
+	int					lastFrame;
 	DirectX::XMFLOAT4X4	originalMatrix;
 	DirectX::XMFLOAT4X4 previousMatrix;
 };
@@ -46,9 +47,8 @@ public:
 	Skeleton			mSkeleton;
 	AnimationData		mAnimationData;
 
-	DirectX::XMFLOAT4X4	mCurrentBoneTransforms[8];
-
-	int					mLastFrame;
+	DirectX::XMFLOAT4X4	mCurrentBoneTransforms[16];
+	
 	int					mCurrentFrame;
 
 private:

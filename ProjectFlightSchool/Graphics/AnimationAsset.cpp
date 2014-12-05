@@ -59,12 +59,13 @@ void AnimationAsset::ResetAnimation()
 			DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &mSkeleton.joints.at( i ).originalMatrix );
 			DirectX::XMMATRIX parent	= DirectX::XMLoadFloat4x4( &mCurrentBoneTransforms[mSkeleton.joints.at( i ).parentIndex] );
 
-			DirectX::XMStoreFloat4x4( &mCurrentBoneTransforms[i],  child * parent );
-			mSkeleton.joints.at( i ).previousMatrix = mCurrentBoneTransforms[i];
+			DirectX::XMStoreFloat4x4( &mCurrentBoneTransforms[i], child * parent );
+			DirectX::XMStoreFloat4x4( &mSkeleton.joints.at( i ).previousMatrix, child );
 		}
+		mSkeleton.joints.at( i ).lastFrame = 1;
 	}
 
-	mLastFrame = mCurrentFrame = 1;
+	mCurrentFrame = 1;
 }
 
 void AnimationAsset::UpdateAnimation( float deltaTime )
@@ -79,17 +80,14 @@ void AnimationAsset::UpdateAnimation( float deltaTime )
 			{
 				if( mSkeleton.joints.at( i ).parentIndex == -1 )
 				{
-					mCurrentBoneTransforms[i]					= mAnimationData.joints.at( i ).matricies.at( 0 );
-					mSkeleton.joints.at( i ).previousMatrix		= mAnimationData.joints.at( i ).matricies.at( 0 );
+					mCurrentBoneTransforms[i] = mAnimationData.joints.at( i ).matricies.at( 0 );
 				}
 				else
 				{
 					DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &mAnimationData.joints.at( i ).matricies.at( 0 ) );
-					DirectX::XMMATRIX parent	= mAnimationData.joints.at( i ).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
-													DirectX::XMLoadFloat4x4( &mCurrentBoneTransforms[mAnimationData.joints.at( i ).parentIndex] );
+					DirectX::XMMATRIX parent	= DirectX::XMLoadFloat4x4( &mCurrentBoneTransforms[mAnimationData.joints.at( i ).parentIndex] );
 
-					DirectX::XMStoreFloat4x4( &mCurrentBoneTransforms[i],  child * parent );
-					mSkeleton.joints.at( i ).previousMatrix = mCurrentBoneTransforms[i];
+					DirectX::XMStoreFloat4x4( &mCurrentBoneTransforms[i], child * parent );
 				}
 			}
 			//Find next keyframe and interpolate previousMatrix with next matrix in animation based on key.
@@ -98,36 +96,54 @@ void AnimationAsset::UpdateAnimation( float deltaTime )
 				if( mAnimationData.joints.at( i ).keys.at( j ) == mCurrentFrame )
 				{
 					mSkeleton.joints.at( i ).previousMatrix		= mAnimationData.joints.at( i ).matricies.at( j );
-					mLastFrame									= mCurrentFrame;
+					mSkeleton.joints.at( i ).lastFrame			= mCurrentFrame;
 
 					DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &mSkeleton.joints.at( i ).previousMatrix );
 					DirectX::XMMATRIX parent	= mAnimationData.joints.at( i ).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
 													DirectX::XMLoadFloat4x4( &mCurrentBoneTransforms[mAnimationData.joints.at( i ).parentIndex] );
 
-					DirectX::XMStoreFloat4x4( &mCurrentBoneTransforms[i],  child * parent );
+					DirectX::XMStoreFloat4x4( &mCurrentBoneTransforms[i], child * parent );
 					break;
 				}
 				else if( mAnimationData.joints.at( i ).keys.at( j ) > mCurrentFrame )
 				{
-					float interpolation					= (float)( mCurrentFrame - mLastFrame ) / (float)( mAnimationData.joints.at( i ).keys.at( j ) - mLastFrame );
-					DirectX::XMMATRIX targetMatrix		= DirectX::XMLoadFloat4x4( &mAnimationData.joints.at( i ).matricies.at( j ) );
+					int key = mAnimationData.joints.at( i ).keys.at( j );
 
-					DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &mSkeleton.joints.at( i ).previousMatrix );
-					child						= child * ( 1.0f - interpolation ) + targetMatrix * interpolation;
+					float interpolation					=	(float)( mCurrentFrame - mSkeleton.joints.at( i ).lastFrame ) /
+															(float)( mAnimationData.joints.at( i ).keys.at( j ) - mSkeleton.joints.at( i ).lastFrame );
+					DirectX::XMMATRIX targetMatrix		= DirectX::XMLoadFloat4x4( &mAnimationData.joints.at( i ).matricies.at( j ) );
+					DirectX::XMMATRIX child				= DirectX::XMLoadFloat4x4( &mSkeleton.joints.at( i ).previousMatrix );
+					
+					DirectX::XMVECTOR targetComp[3];
+					DirectX::XMVECTOR childComp[3];
+
+					DirectX::XMMatrixDecompose( &targetComp[0], &targetComp[1], &targetComp[2], targetMatrix );
+					DirectX::XMMatrixDecompose( &childComp[0], &childComp[1], &childComp[2], child );
+
+					child = DirectX::XMMatrixAffineTransformation(	DirectX::XMVectorLerp( childComp[0], targetComp[0], interpolation ),
+																	DirectX::XMVectorZero(),
+																	DirectX::XMQuaternionSlerp( childComp[1], targetComp[1], interpolation ),
+																	DirectX::XMVectorLerp( childComp[2], targetComp[2], interpolation ) );			
 
 					DirectX::XMMATRIX parent	= mAnimationData.joints.at( i ).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
 													DirectX::XMLoadFloat4x4( &mCurrentBoneTransforms[mAnimationData.joints.at( i ).parentIndex] );
 
-
-
-					DirectX::XMStoreFloat4x4( &mCurrentBoneTransforms[i],  child * parent );
-					cout << mCurrentBoneTransforms[i]._11 << endl;
+					DirectX::XMStoreFloat4x4( &mCurrentBoneTransforms[i], child * parent );
 					break;
+				}
+				else
+				{
+					DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &mSkeleton.joints.at( i ).previousMatrix );
+					DirectX::XMMATRIX parent	= mAnimationData.joints.at( i ).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
+													DirectX::XMLoadFloat4x4( &mCurrentBoneTransforms[mAnimationData.joints.at( i ).parentIndex] );
+
+					DirectX::XMStoreFloat4x4( &mCurrentBoneTransforms[i], child * parent );
 				}
 			}
 		}
 	}
-	if( mCurrentFrame > 90 )
+
+	if( mCurrentFrame > 60 )
 		ResetAnimation();
 }
 

@@ -73,7 +73,7 @@ class Event_Player_Moved : public IEvent
 	
 	private:
 	public:
-		Event_Player_Moved(XMFLOAT3 lowerBodyPos, XMFLOAT3 upperBodyPos)
+		Event_Player_Moved( XMFLOAT3 lowerBodyPos, XMFLOAT3 upperBodyPos )
 		{
 			mLowerBodyPos	= lowerBodyPos;
 			mUpperBodyPos	= upperBodyPos;

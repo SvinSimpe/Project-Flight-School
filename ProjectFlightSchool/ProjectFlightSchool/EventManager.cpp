@@ -230,8 +230,8 @@ bool EventManager::AbortEvent( const EventType& inType, bool allOfType )
 //---------------------------------------------------------------------------------------------------------------------
 // EventManager::EventManager
 //---------------------------------------------------------------------------------------------------------------------
-EventManager::EventManager( const char* pName )
-	: IEventManager( pName )
+EventManager::EventManager()
+	: IEventManager()
 {
     m_activeQueue = 0;
 	InitializeCriticalSection( &lock );

@@ -51,7 +51,7 @@ void Graphics::RenderStatic3dAsset( UINT assetId )
 {
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
-	UINT32 vertexSize				= sizeof( Vertex );
+	UINT32 vertexSize				= sizeof( StaticVertex );
 	UINT32 offset					= 0;
 	ID3D11Buffer* buffersToSet[]	= { mAssetManager->mAssetContainer[assetId]->mVertexBuffer };
 	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
@@ -78,7 +78,7 @@ void Graphics::RenderStatic3dAsset( UINT assetId, float x, float y, float z )
 {
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
-	UINT32 vertexSize				= sizeof( Vertex );
+	UINT32 vertexSize				= sizeof( StaticVertex );
 	UINT32 offset					= 0;
 	ID3D11Buffer* buffersToSet[]	= { mAssetManager->mAssetContainer[assetId]->mVertexBuffer };
 	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
@@ -105,7 +105,7 @@ void Graphics::RenderStatic3dAsset( UINT assetId, DirectX::XMFLOAT3 position, Di
 {
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
-	UINT32 vertexSize				= sizeof( Vertex );
+	UINT32 vertexSize				= sizeof( StaticVertex );
 	UINT32 offset					= 0;
 	ID3D11Buffer* buffersToSet[]	= { mAssetManager->mAssetContainer[assetId]->mVertexBuffer };
 	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );

@@ -1,10 +1,10 @@
-#include "AnimationAsset.h"
+#include "AnimationTestAsset.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
 
-void AnimationAsset::ParentIndexer()
+void AnimationTestAsset::ParentIndexer()
 {
 	for (int i = 0; i < (int)mAnimationData.joints.size(); i++)
 	{
@@ -45,7 +45,7 @@ void AnimationAsset::ParentIndexer()
 	}
 }
 
-void AnimationAsset::ResetAnimation()
+void AnimationTestAsset::ResetAnimation()
 {
 	for( int i = 0; i < (int)mSkeleton.joints.size(); i++ )
 	{
@@ -65,15 +65,23 @@ void AnimationAsset::ResetAnimation()
 		mSkeleton.joints.at( i ).lastFrame = 1;
 	}
 
-	realValue = 1.0;
-	//mCurrentFrame = 1;
+	mRealValue = 1.0;
+	mCurrentFrame = 1;
 }
 
-void AnimationAsset::UpdateAnimation( float deltaTime )
+void AnimationTestAsset::UpdateAnimation( float deltaTime )
 {
-	int modifier = 60;
-	realValue += deltaTime * modifier;
-	mCurrentFrame = (int)realValue;
+	mRealValue			+= deltaTime * 60;
+	int	framesJumped	= 0;
+
+	while( mRealValue > 1.0f )
+	{
+		mRealValue -= 1.0f;
+		framesJumped++;
+	}
+
+	int newCurrentFrame = mCurrentFrame + framesJumped;
+
 	cout << mCurrentFrame << endl;
 	for( int i = 0; i < (int)mSkeleton.joints.size(); i++ )
 	{
@@ -97,10 +105,19 @@ void AnimationAsset::UpdateAnimation( float deltaTime )
 			//Find next keyframe and interpolate previousMatrix with next matrix in animation based on key.
 			else
 			{
-				if( mAnimationData.joints.at( i ).keys.at( j ) == mCurrentFrame )
+				for( int frames = 0; frames < framesJumped; frames++ )
+				{
+					if( mAnimationData.joints.at( i ).keys.at( j ) == mCurrentFrame + frames )
+					{
+						mSkeleton.joints.at( i ).previousMatrix		= mAnimationData.joints.at( i ).matricies.at( j );
+						mSkeleton.joints.at( i ).lastFrame			= mCurrentFrame + frames;
+					}
+				}
+
+				if( mAnimationData.joints.at( i ).keys.at( j ) == newCurrentFrame )
 				{
 					mSkeleton.joints.at( i ).previousMatrix		= mAnimationData.joints.at( i ).matricies.at( j );
-					mSkeleton.joints.at( i ).lastFrame			= mCurrentFrame;
+					mSkeleton.joints.at( i ).lastFrame			= newCurrentFrame;
 
 					DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &mSkeleton.joints.at( i ).previousMatrix );
 					DirectX::XMMATRIX parent	= mAnimationData.joints.at( i ).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
@@ -109,11 +126,9 @@ void AnimationAsset::UpdateAnimation( float deltaTime )
 					DirectX::XMStoreFloat4x4( &mCurrentBoneTransforms[i], child * parent );
 					break;
 				}
-				else if( mAnimationData.joints.at( i ).keys.at( j ) > mCurrentFrame )
+				else if( mAnimationData.joints.at( i ).keys.at( j ) > newCurrentFrame )
 				{
-					int key = mAnimationData.joints.at( i ).keys.at( j );
-
-					float interpolation					=(float)( mCurrentFrame - mSkeleton.joints.at( i ).lastFrame ) /
+					float interpolation					=	(float)( newCurrentFrame - mSkeleton.joints.at( i ).lastFrame ) /
 															(float)( mAnimationData.joints.at( i ).keys.at( j ) - mSkeleton.joints.at( i ).lastFrame );
 
 					DirectX::XMMATRIX targetMatrix		= DirectX::XMLoadFloat4x4( &mAnimationData.joints.at( i ).matricies.at( j ) );
@@ -148,26 +163,29 @@ void AnimationAsset::UpdateAnimation( float deltaTime )
 		}
 	}
 
+	mCurrentFrame = newCurrentFrame;
+
 	if( mCurrentFrame > mAnimationData.AnimLength )
-		ResetAnimation();
+		mCurrentFrame = mCurrentFrame % mAnimationData.AnimLength;
+		//ResetAnimation();
 }
 
-HRESULT AnimationAsset::Initialize()
+HRESULT AnimationTestAsset::Initialize()
 {
 	return S_OK;
 }
 
-void AnimationAsset::Release()
+void AnimationTestAsset::Release()
 {
 
 }
 
-AnimationAsset::AnimationAsset()
+AnimationTestAsset::AnimationTestAsset()
 {
 
 }
 
-AnimationAsset::~AnimationAsset()
+AnimationTestAsset::~AnimationTestAsset()
 {
 
 }

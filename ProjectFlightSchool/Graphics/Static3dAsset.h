@@ -6,15 +6,18 @@
 struct Static3dAsset : public AssetBase
 {
 	private:
-
 	protected:
 	public:
+		UINT				mVertexCount;
+		ID3D11Buffer*		mVertexBuffer;
 
 	private:
 	protected:
 	public:
-				Static3dAsset();
-	virtual		~Static3dAsset();
+		HRESULT		Initialize();
+		void		Release();
+					Static3dAsset();
+		virtual		~Static3dAsset();
 };
 
 #endif

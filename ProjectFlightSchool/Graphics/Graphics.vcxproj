@@ -90,7 +90,8 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AnimationAsset.h" />
+    <ClInclude Include="Animated3dAsset.h" />
+    <ClInclude Include="AnimationTestAsset.h" />
     <ClInclude Include="AssetBase.h" />
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="CameraInfo.h" />
@@ -100,26 +101,30 @@
     <ClInclude Include="EffectInfo.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Graphics.h" />
-    <ClInclude Include="ImporterAnim.h" />
-    <ClInclude Include="MapPathImportHandler.h" />
+    <ClInclude Include="SkeletonAsset.h" />
     <ClInclude Include="Static3dAsset.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="WICTextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AnimationAsset.cpp" />
+    <ClCompile Include="Animated3dAsset.cpp" />
+    <ClCompile Include="AnimationTestAsset.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="AssetBase.cpp" />
     <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="Effect.cpp" />
     <ClCompile Include="Graphics.cpp" />
-    <ClCompile Include="ImporterAnim.cpp" />
-    <ClCompile Include="MapPathImportHandler.cpp" />
+    <ClCompile Include="SkeletonAsset.cpp" />
     <ClCompile Include="Static3dAsset.cpp" />
     <ClCompile Include="WICTextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\Content\Effects\Placeholder.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Content\Effects\PlaceholderAni.hlsl">
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>

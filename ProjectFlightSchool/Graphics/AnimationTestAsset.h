@@ -40,7 +40,7 @@ struct Skeleton
 	vector<Joint>	joints;
 };
 
-struct AnimationAsset
+struct AnimationTestAsset
 {
 private:
 protected:
@@ -51,7 +51,7 @@ public:
 	DirectX::XMFLOAT4X4	mCurrentBoneTransforms[16];
 	
 	int					mCurrentFrame;
-	float				realValue;
+	float				mRealValue;
 
 private:
 protected:
@@ -63,7 +63,7 @@ public:
 
 	HRESULT		Initialize();
 	void		Release();
-				AnimationAsset();
-	virtual		~AnimationAsset();
+				AnimationTestAsset();
+	virtual		~AnimationTestAsset();
 };
 #endif

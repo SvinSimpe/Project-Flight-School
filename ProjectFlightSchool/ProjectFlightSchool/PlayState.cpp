@@ -46,6 +46,8 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "CUBE", mCubeAsset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "PLANE", mPlaneAsset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/bin/cubeandsphere.peniz", mTestAsset );
+
+	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/bin/maya_testAsset_tree.pfs", mTestAnimation );
 	
 	mPlayer = new Player();
 	mPlayer->Initialize();

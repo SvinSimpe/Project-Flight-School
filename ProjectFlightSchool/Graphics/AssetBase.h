@@ -18,19 +18,14 @@ struct AssetBase
 		AssetID				mAssetId;
 		std::string			mFileName;
 
-		UINT				mVertexCount;
-		ID3D11Buffer*		mVertexBuffer;
-		ID3D11Buffer*		mIndexBUffer;
-
 	private:
 	protected:
 	public:
-		std::string		GetFileName();
-		UINT			GetVertexCount();
-		HRESULT			Initialize();
-		void			Release();
-						AssetBase();
-		virtual			~AssetBase();
+		std::string			GetFileName();
+		virtual	HRESULT		Initialize()	= 0;
+		virtual void		Release()		= 0;
+							AssetBase();
+		virtual				~AssetBase();
 
 };
 #endif

@@ -13,6 +13,8 @@ class PlayState : public BaseState
 		AssetID		mCubeAsset;
 		AssetID		mTestAsset;
 
+		AssetID		mTestAnimation;
+
 	// Debug
 		Player*		mPlayer;
 

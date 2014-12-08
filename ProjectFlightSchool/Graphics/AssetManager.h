@@ -3,7 +3,8 @@
 
 #include "AssetBase.h"
 #include "Static3dAsset.h"
-#include "AnimationAsset.h"
+#include "Animated3dAsset.h"
+#include "AnimationTestAsset.h"
 #include "Vertex.h"
 //#include "ImporterAnim.h"
 //#include "MapPathImportHandler.h"
@@ -28,7 +29,7 @@ class AssetManager
 	protected:
 	public:
 		std::vector<AssetBase*> mAssetContainer;
-		AnimationAsset			mTestAnim;
+		AnimationTestAsset		mTestAnim;
 
 	private:		
 		bool		AssetExist( char* fileName, AssetID &assetId );	//Returns true and assigns the correct id to assetId if the asset exist.	
@@ -38,6 +39,8 @@ class AssetManager
 	public:
 		HRESULT			LoadStatic3dAsset( ID3D11Device* device, char* fileName, AssetID &assetId );
 		HRESULT			LoadAnimated3dAsset( ID3D11Device* device, char* fileName, AssetID &assetId );
+		HRESULT			LoadSkeletonAsset( string filePath, string fileName, AssetID &assetId );
+		HRESULT			LoadAnimationAsset( string filePath, string fileName, AssetID &assetId );
 
 		AnimationData	ImportBinaryAnimData( string directoryPath, string fileName );
 		Skeleton		ImportBinarySkelData( string directoryPath, string fileName );

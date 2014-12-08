@@ -48,23 +48,28 @@ HRESULT Graphics::LoadStatic3dAsset( char* fileName, UINT &assetId )
 	return mAssetManager->LoadStatic3dAsset( mDevice, fileName, assetId );
 }
 
+HRESULT Graphics::LoadAnimated3dAsset( char* fileName, UINT &assetId )
+{
+	return mAssetManager->LoadAnimated3dAsset( mDevice, fileName, assetId );
+}
+
 //Render a static 3d asset given the assetId
-void Graphics::RenderStatic3dAsset( UINT assetId )
+void Graphics::RenderStatic3dAsset( AssetID assetId )
 {
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
 	UINT32 vertexSize				= sizeof( StaticVertex );
 	UINT32 offset					= 0;
-	ID3D11Buffer* buffersToSet[]	= { mAssetManager->mAssetContainer[assetId]->mVertexBuffer };
+	ID3D11Buffer* buffersToSet[]	= { ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexBuffer };
 	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
 
-	mDeviceContext->IASetInputLayout( mEffect->GetInputLayout() );
+	mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
 
-	mDeviceContext->VSSetShader( mEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->VSSetShader( mStaticEffect->GetVertexShader(), nullptr, 0 );
 	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->PSSetShader( mEffect->GetPixelShader(), nullptr, 0 );
+	mDeviceContext->PSSetShader( mStaticEffect->GetPixelShader(), nullptr, 0 );
 
 	//Map CbufferPerObject
 	CbufferPerObject data;
@@ -73,25 +78,25 @@ void Graphics::RenderStatic3dAsset( UINT assetId )
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
 
-	mDeviceContext->Draw( mAssetManager->mAssetContainer[assetId]->mVertexCount, 0 );
+	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
 }
 
-void Graphics::RenderStatic3dAsset( UINT assetId, float x, float y, float z )
+void Graphics::RenderStatic3dAsset( AssetID assetId, float x, float y, float z )
 {
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
 	UINT32 vertexSize				= sizeof( StaticVertex );
 	UINT32 offset					= 0;
-	ID3D11Buffer* buffersToSet[]	= { mAssetManager->mAssetContainer[assetId]->mVertexBuffer };
+	ID3D11Buffer* buffersToSet[]	= { ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexBuffer };
 	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
 
-	mDeviceContext->IASetInputLayout( mEffect->GetInputLayout() );
+	mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
 
-	mDeviceContext->VSSetShader( mEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->VSSetShader( mStaticEffect->GetVertexShader(), nullptr, 0 );
 	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->PSSetShader( mEffect->GetPixelShader(), nullptr, 0 );
+	mDeviceContext->PSSetShader( mStaticEffect->GetPixelShader(), nullptr, 0 );
 
 	//Map CbufferPerObject
 	CbufferPerObject data;
@@ -100,25 +105,25 @@ void Graphics::RenderStatic3dAsset( UINT assetId, float x, float y, float z )
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
 
-	mDeviceContext->Draw( mAssetManager->mAssetContainer[assetId]->mVertexCount, 0 );
+	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
 }
 
-void Graphics::RenderStatic3dAsset( UINT assetId, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation )
+void Graphics::RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation )
 {
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
 	UINT32 vertexSize				= sizeof( StaticVertex );
 	UINT32 offset					= 0;
-	ID3D11Buffer* buffersToSet[]	= { mAssetManager->mAssetContainer[assetId]->mVertexBuffer };
+	ID3D11Buffer* buffersToSet[]	= { ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexBuffer };
 	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
 
-	mDeviceContext->IASetInputLayout( mEffect->GetInputLayout() );
+	mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
 
-	mDeviceContext->VSSetShader( mEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->VSSetShader( mStaticEffect->GetVertexShader(), nullptr, 0 );
 	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->PSSetShader( mEffect->GetPixelShader(), nullptr, 0 );
+	mDeviceContext->PSSetShader( mStaticEffect->GetPixelShader(), nullptr, 0 );
 
 	//Map CbufferPerObject
 	CbufferPerObject data;
@@ -129,25 +134,25 @@ void Graphics::RenderStatic3dAsset( UINT assetId, DirectX::XMFLOAT3 position, Di
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
 
-	mDeviceContext->Draw( mAssetManager->mAssetContainer[assetId]->mVertexCount, 0 );
+	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
 }
 
-void Graphics::RenderStatic3dAsset( UINT assetId, XMFLOAT4X4* world )
+void Graphics::RenderStatic3dAsset( AssetID assetId, XMFLOAT4X4* world )
 {
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
 	UINT32 vertexSize				= sizeof( StaticVertex );
 	UINT32 offset					= 0;
-	ID3D11Buffer* buffersToSet[]	= { mAssetManager->mAssetContainer[assetId]->mVertexBuffer };
+	ID3D11Buffer* buffersToSet[]	= { ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexBuffer };
 	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
 
-	mDeviceContext->IASetInputLayout( mEffect->GetInputLayout() );
+	mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
 
-	mDeviceContext->VSSetShader( mEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->VSSetShader( mStaticEffect->GetVertexShader(), nullptr, 0 );
 	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->PSSetShader( mEffect->GetPixelShader(), nullptr, 0 );
+	mDeviceContext->PSSetShader( mStaticEffect->GetPixelShader(), nullptr, 0 );
 
 	//Map CbufferPerObject
 	CbufferPerObject data;
@@ -156,7 +161,34 @@ void Graphics::RenderStatic3dAsset( UINT assetId, XMFLOAT4X4* world )
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
 
-	mDeviceContext->Draw( mAssetManager->mAssetContainer[assetId]->mVertexCount, 0 );
+	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
+}
+
+void Graphics::RenderAnimated3dAsset( AssetID assetId )
+{
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+
+	UINT32 vertexSize				= sizeof( AnimateVertex );
+	UINT32 offset					= 0;
+	ID3D11Buffer* buffersToSet[]	= { ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexBuffer };
+	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+
+	mDeviceContext->IASetInputLayout( mAnimatedEffect->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mAnimatedEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mAnimatedEffect->GetPixelShader(), nullptr, 0 );
+
+	//Map CbufferPerObject
+	CbufferPerObject data;
+	data.worldMatrix = DirectX::XMMatrixIdentity();
+	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
+
+	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
+
+	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
 }
 
 //Clear canvas and prepare for rendering.
@@ -179,7 +211,7 @@ void Graphics::BeginScene()
 
 	if( mSuperHappyTest > 1 )
 	{
-		mAssetManager->mTestAnim.UpdateAnimation( 0.016 ); // borde vara deltaTime
+		mAssetManager->mTestAnim.UpdateAnimation( 0.05f ); // borde vara deltaTime
 		mSuperHappyTest = 0;
 	}
 	else
@@ -337,7 +369,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	mAssetManager->Initialize( mDevice );
 
 	//Effect
-	mEffect	= new Effect;
+	mStaticEffect	= new Effect;
 
 	EffectInfo effectInfo;
 	ZeroMemory( &effectInfo, sizeof( EffectInfo ) );
@@ -345,7 +377,12 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	effectInfo.isVertexShaderIncluded	= true;
 	effectInfo.isPixelShaderIncluded	= true;
 
-	hr = mEffect->Intialize( mDevice, &effectInfo );
+	hr = mStaticEffect->Intialize( mDevice, &effectInfo );
+
+	mAnimatedEffect	= new Effect;
+	effectInfo.fileName	= "../Content/Effects/PlaceholderAni.hlsl";
+
+	hr = mAnimatedEffect->Intialize( mDevice, &effectInfo );
 	
 	//Camera
 	mCamera = new Camera;
@@ -378,11 +415,13 @@ void Graphics::Release()
 	SAFE_RELEASE( mCbufferPerObject );
 
 	mAssetManager->Release();
-	mEffect->Release();
+	mStaticEffect->Release();
+	mAnimatedEffect->Release();
 	mCamera->Release();
 
 	SAFE_DELETE( mAssetManager );
-	SAFE_DELETE( mEffect );
+	SAFE_DELETE( mStaticEffect );
+	SAFE_DELETE( mAnimatedEffect );
 	SAFE_DELETE( mCamera );
 
 }

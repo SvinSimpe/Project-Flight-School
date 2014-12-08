@@ -30,7 +30,7 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 	//////////////////////////
 	// Plane placeholder
 	//////////////////////////
-	AssetBase* plane;
+	Static3dAsset* plane;
 	plane				= new Static3dAsset;
 	plane->mAssetId		= 0;
 	plane->mFileName	= "PLANE"; //ADD CORRECT FILENAME HERE
@@ -70,7 +70,7 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 	//////////////////////////
 	// Cube placeholder
 	//////////////////////////
-	AssetBase* cube;
+	Static3dAsset* cube;
 	cube = new Static3dAsset;
 	cube->mAssetId		= 1;
 	cube->mFileName		= "CUBE"; //ADD CORRECT FILENAME HERE
@@ -196,8 +196,8 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, A
 		myFile.close();
 
 		AssignAssetId( assetId );
-		AssetBase* temp;
-		temp				= new Static3dAsset;
+		Static3dAsset* temp;
+		temp				= new Static3dAsset();
 		temp->mAssetId		= assetId;
 		temp->mFileName		= fileName;
 		temp->mVertexCount	= meshInfo.nrOfVertices;
@@ -263,8 +263,8 @@ HRESULT	AssetManager::LoadAnimated3dAsset( ID3D11Device* device, char* fileName,
 		myFile.close();
 
 		AssignAssetId( assetId );
-		AssetBase* temp;
-		temp				= new Static3dAsset;
+		Animated3dAsset* temp;
+		temp				= new Animated3dAsset();
 		temp->mAssetId		= assetId;
 		temp->mFileName		= fileName;
 		temp->mVertexCount	= meshInfo.nrOfVertices;
@@ -301,19 +301,19 @@ AnimationData AssetManager::ImportBinaryAnimData( string directoryPath,string fi
 	ifstream file;
 
 	//this is how the final code should look!
-	file.open( directoryPath + fileName, ios::in | ios::binary | ios::ate);
+	file.open( directoryPath + fileName, ios::in | ios::binary | ios::ate );
 	AnimationData tempAnim;
 
-	int lastindex = fileName.find_last_of(".");
-	string rawName = fileName.substr(0, lastindex);
+	int lastindex	= fileName.find_last_of( "." );
+	string rawName	= fileName.substr(0, lastindex);
 
 	tempAnim.animationName = rawName;
 	int animLength = 0;
 
-	if ( file.is_open() )
+	if( file.is_open() )
 	{
-		size = file.tellg();
-		memblock = new char[(unsigned int)size];
+		size		= file.tellg();
+		memblock	= new char[(unsigned int)size];
 		file.seekg( 0, ios::beg );
 		file.read( memblock, size );
 		file.close();
@@ -324,18 +324,18 @@ AnimationData AssetManager::ImportBinaryAnimData( string directoryPath,string fi
 		tempAnim.nrOfJoints = memblock[padding];
 		
 		//memblock should contain nr of joints
-		for ( int j = 0; j < tempAnim.nrOfJoints; j++ )
+		for( int j = 0; j < tempAnim.nrOfJoints; j++ )
 		{
 			JointAnimation tempJoint;
 
-			if ( j == 0 )
+			if( j == 0 )
 				padding++;
 
 			//following handles jointName
 			string tempName;
 			int childFor = memblock[padding];
 			padding++;
-			for ( int i = 0; i < childFor; i++ )
+			for( int i = 0; i < childFor; i++ )
 			{
 				tempName.push_back( memblock[padding] );
 				padding++;
@@ -346,7 +346,7 @@ AnimationData AssetManager::ImportBinaryAnimData( string directoryPath,string fi
 			string tempParentName;
 			int parentFor = memblock[padding];
 			padding++;
-			for ( int i = 0; i < parentFor; i++ )
+			for( int i = 0; i < parentFor; i++ )
 			{
 				tempParentName.push_back( memblock[padding] );
 				padding++;
@@ -364,24 +364,21 @@ AnimationData AssetManager::ImportBinaryAnimData( string directoryPath,string fi
 				tempJoint.keys.push_back( memblock[padding] );
 				padding++;
 
-				for ( int m = 0; m < 4; m++ )
+				for ( int m = 0; m < 16; m++ )
 				{
-					for ( int n = 0; n < 4; n++ )
+					int tempCounterValue = (int)memblock[padding];
+					string tempDouble;
+					for ( int w = 0; w < tempCounterValue; w++ )
 					{
-						int tempCounterValue = (int)memblock[padding];
-						string tempDouble;
-						for ( int w = 0; w < tempCounterValue; w++ )
+						if ( w == 0 )
 						{
-							if ( w == 0 )
-							{
-								padding++;
-							}
-							tempDouble.push_back( memblock[padding] );
 							padding++;
-
 						}
-						values[m * 4 + n] = stof( tempDouble );
+						tempDouble.push_back( memblock[padding] );
+						padding++;
+
 					}
+					values[m] = stof( tempDouble );
 				}
 
 				tempJoint.matricies.push_back( DirectX::XMFLOAT4X4(	values[0], values[1], values[2], values[3],
@@ -412,12 +409,12 @@ Skeleton AssetManager::ImportBinarySkelData( string directoryPath, string fileNa
 
 	Skeleton tempSkel;
 
-	int lastindex = fileName.find_last_of(".");
-	string rawName = fileName.substr(0, lastindex);
+	int lastindex	= fileName.find_last_of(".");
+	string rawName	= fileName.substr(0, lastindex);
 
 	tempSkel.skeletonName = rawName;
 
-	if ( file.is_open() )
+	if( file.is_open() )
 	{
 		size = file.tellg();
 		memblock = new char[(unsigned int)size];
@@ -430,18 +427,18 @@ Skeleton AssetManager::ImportBinarySkelData( string directoryPath, string fileNa
 		int padding = 0;
 		tempSkel.nrOfJoints = memblock[padding];
 		//memblock should contain nr of joints
-		for ( int j = 0; j < tempSkel.nrOfJoints; j++ )
+		for( int j = 0; j < tempSkel.nrOfJoints; j++ )
 		{
 			Joint tempJoint;
 
-			if ( j == 0 )
+			if( j == 0 )
 				padding++;
 
 			//following handles jointName
 			string tempName;
 			int childFor = memblock[padding];
 			padding++;
-			for ( int i = 0; i < childFor; i++ )
+			for( int i = 0; i < childFor; i++ )
 			{
 				tempName.push_back( memblock[padding] );
 				padding++;
@@ -452,7 +449,7 @@ Skeleton AssetManager::ImportBinarySkelData( string directoryPath, string fileNa
 			string tempParentName;
 			int parentFor = memblock[padding];
 			padding++;
-			for ( int i = 0; i < parentFor; i++ )
+			for( int i = 0; i < parentFor; i++ )
 			{
 				tempParentName.push_back( memblock[padding] );
 				padding++;
@@ -462,24 +459,21 @@ Skeleton AssetManager::ImportBinarySkelData( string directoryPath, string fileNa
 
 			float values[16];
 
-			for ( int m = 0; m < 4; m++ )
+			for( int m = 0; m < 4; m++ )
 			{
-				for ( int n = 0; n < 4; n++ )
+				int tempCounterValue = (int)memblock[padding];
+				string tempDouble;
+				for( int w = 0; w < tempCounterValue; w++ )
 				{
-					int tempCounterValue = (int)memblock[padding];
-					string tempDouble;
-					for ( int w = 0; w < tempCounterValue; w++ )
+					if( w == 0 )
 					{
-						if ( w == 0 )
-						{
-							padding++;
-						}
-						tempDouble.push_back( memblock[padding] );
 						padding++;
-
 					}
-					values[m * 4 + n] = stof( tempDouble );
+					tempDouble.push_back( memblock[padding] );
+					padding++;
+
 				}
+				values[m] = stof( tempDouble );
 			}
 			tempJoint.originalMatrix =  DirectX::XMFLOAT4X4(	values[0], values[1], values[2], values[3],
 																values[4], values[5], values[6], values[7],
@@ -520,7 +514,10 @@ void AssetManager::Release()
 {
 	for( UINT i = 0; i < mAssetContainer.size(); i++ )
 	{
-		mAssetContainer[i]->Release();
+		if( typeid( mAssetContainer[i] ) == typeid( Static3dAsset ) )
+			( (Static3dAsset*)mAssetContainer[i] )->Release();
+		else if( typeid( mAssetContainer[i] ) == typeid( Animated3dAsset ) )
+			( (Animated3dAsset*)mAssetContainer[i] )->Release();
 		SAFE_DELETE( mAssetContainer[i] );
 	}
 	mAssetContainer.clear();

@@ -22,13 +22,13 @@
     <ClCompile Include="WICTextureLoader.cpp">
       <Filter>TextureLoader</Filter>
     </ClCompile>
-    <ClCompile Include="ImporterAnim.cpp">
+    <ClCompile Include="Animated3dAsset.cpp">
       <Filter>AssetClasses\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MapPathImportHandler.cpp">
+    <ClCompile Include="SkeletonAsset.cpp">
       <Filter>AssetClasses\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AnimationAsset.cpp">
+    <ClCompile Include="AnimationTestAsset.cpp">
       <Filter>AssetClasses\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -64,14 +64,14 @@
     <ClInclude Include="WICTextureLoader.h">
       <Filter>TextureLoader</Filter>
     </ClInclude>
-    <ClInclude Include="ImporterAnim.h">
-      <Filter>AssetClasses\Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CbufferPerObject.h" />
-    <ClInclude Include="MapPathImportHandler.h">
+    <ClInclude Include="Animated3dAsset.h">
       <Filter>AssetClasses\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AnimationAsset.h">
+    <ClInclude Include="SkeletonAsset.h">
+      <Filter>AssetClasses\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationTestAsset.h">
       <Filter>AssetClasses\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -120,5 +120,10 @@
     <Text Include="..\Content\Effects\Placeholder.hlsl">
       <Filter>Effects</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Content\Effects\PlaceholderAni.hlsl">
+      <Filter>Effects</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -36,7 +36,8 @@ class LIBRARY_EXPORT Graphics
 		ID3D11Buffer*			mCbufferPerObject;
 
 		AssetManager*			mAssetManager;
-		Effect*					mEffect;
+		Effect*					mStaticEffect;
+		Effect*					mAnimatedEffect;
 		Camera*					mCamera;
 
 		int						mSuperHappyTest;
@@ -55,11 +56,14 @@ class LIBRARY_EXPORT Graphics
 	public:
 		HRESULT LoadTextureFromFile ( wchar_t* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size = 0 );
 		HRESULT LoadStatic3dAsset( char* fileName, UINT &assetId );
+		HRESULT LoadAnimated3dAsset( char* fileName, UINT &assetId );
 
 		void RenderStatic3dAsset( UINT assetId );
 		void RenderStatic3dAsset( UINT assetId, float x, float y, float z );
 		void RenderStatic3dAsset( UINT assetId, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation );
 		void RenderStatic3dAsset( UINT assetId, DirectX::XMFLOAT4X4* world );
+
+		void RenderAnimated3dAsset( UINT assetId );
 
 		void	BeginScene();
 		void	EndScene();

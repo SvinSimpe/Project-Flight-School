@@ -16,6 +16,7 @@ struct JointAnimation
 {
 	string						jointName;
 	string						parentName;
+	int							parentIndex;
 	vector<int>					keys;
 	vector<AnimationMatrix>		matricies;
 };
@@ -30,6 +31,7 @@ struct Joint
 {
 	string				jointName;
 	string				parentName;
+	int					parentIndex;
 	AnimationMatrix		originalMatrix;
 };
 struct Skeleton

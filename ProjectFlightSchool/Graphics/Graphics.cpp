@@ -15,6 +15,8 @@ Graphics::Graphics()
 	mCbufferPerFrame	= nullptr;
 
 	mAssetManager		= nullptr;
+
+	mSuperHappyTest		= 0;
 }
 
 Graphics::~Graphics()
@@ -130,6 +132,33 @@ void Graphics::RenderStatic3dAsset( UINT assetId, DirectX::XMFLOAT3 position, Di
 	mDeviceContext->Draw( mAssetManager->mAssetContainer[assetId]->mVertexCount, 0 );
 }
 
+void Graphics::RenderStatic3dAsset( UINT assetId, XMFLOAT4X4* world )
+{
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+
+	UINT32 vertexSize				= sizeof( StaticVertex );
+	UINT32 offset					= 0;
+	ID3D11Buffer* buffersToSet[]	= { mAssetManager->mAssetContainer[assetId]->mVertexBuffer };
+	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+
+	mDeviceContext->IASetInputLayout( mEffect->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffect->GetPixelShader(), nullptr, 0 );
+
+	//Map CbufferPerObject
+	CbufferPerObject data;
+	data.worldMatrix = DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( world ) );
+	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
+
+	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
+
+	mDeviceContext->Draw( mAssetManager->mAssetContainer[assetId]->mVertexCount, 0 );
+}
+
 //Clear canvas and prepare for rendering.
 void Graphics::BeginScene()
 {
@@ -147,12 +176,23 @@ void Graphics::BeginScene()
 	MapBuffer( mCbufferPerFrame, &data, sizeof( CbufferPerFrame ) );
 
 	mDeviceContext->VSSetConstantBuffers( 0, 1, &mCbufferPerFrame );
+
+	if( mSuperHappyTest > 1 )
+	{
+		mAssetManager->mTestAnim.UpdateAnimation( 0.016 ); // borde vara deltaTime
+		mSuperHappyTest = 0;
+	}
+	else
+		mSuperHappyTest++;
+
+	for( int i = 0; i < 9; i++ )
+		RenderStatic3dAsset( 1, &mAssetManager->mTestAnim.mCurrentBoneTransforms[i] );
 }
 
 //Finalize rendering.
 void Graphics::EndScene()
 {
-	mSwapChain->Present( 0, 0 );
+	mSwapChain->Present( 1, 0 );
 }
 
 //Singleton for the Graphics dll.
@@ -312,7 +352,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	CameraInfo cameraInfo;
 	ZeroMemory( &cameraInfo, sizeof( cameraInfo ) );
-	cameraInfo.eyePos		= DirectX::XMFLOAT4( 0.0f, 50.0f, -50.0f, 1.0f );
+	cameraInfo.eyePos		= DirectX::XMFLOAT4( 20.0f, 20.0f, -30.0f, 1.0f );
 	cameraInfo.focusPoint	= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
 	cameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
 	cameraInfo.width		= (float)screenWidth;
@@ -322,7 +362,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	cameraInfo.farZ			= 1000.0f;
 
 	hr = mCamera->Initialize( &cameraInfo );
-	
+
 	return hr;
 }
 

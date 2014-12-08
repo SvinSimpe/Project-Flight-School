@@ -75,6 +75,7 @@ AnimationData ImporterAnim::ImportBinaryAnimData( string directoryPath,string fi
 				padding++;
 			}
 			tempJoint.parentName = tempParentName;
+			tempJoint.parentIndex = 0;
 
 			int keys = memblock[padding];
 			padding++;
@@ -176,6 +177,7 @@ Skeleton ImporterAnim::ImportBinarySkelData( string directoryPath,string fileNam
 				padding++;
 			}
 			tempJoint.parentName = tempParentName;
+			tempJoint.parentIndex = 0;
 
 			AnimationMatrix tempMatrix;
 			for ( int m = 0; m < 4; m++ )

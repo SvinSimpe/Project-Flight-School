@@ -39,6 +39,8 @@ class LIBRARY_EXPORT Graphics
 		Effect*					mEffect;
 		Camera*					mCamera;
 
+		int						mSuperHappyTest;
+
 	protected:
 	public:
 
@@ -57,6 +59,7 @@ class LIBRARY_EXPORT Graphics
 		void RenderStatic3dAsset( UINT assetId );
 		void RenderStatic3dAsset( UINT assetId, float x, float y, float z );
 		void RenderStatic3dAsset( UINT assetId, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation );
+		void RenderStatic3dAsset( UINT assetId, DirectX::XMFLOAT4X4* world );
 
 		void	BeginScene();
 		void	EndScene();

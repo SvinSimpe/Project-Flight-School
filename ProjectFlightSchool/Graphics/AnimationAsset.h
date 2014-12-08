@@ -19,6 +19,7 @@ struct JointAnimation
 struct AnimationData
 {
 	int							nrOfJoints;
+	int							AnimLength;
 	string						animationName;
 	vector<JointAnimation>		joints;
 };
@@ -50,11 +51,13 @@ public:
 	DirectX::XMFLOAT4X4	mCurrentBoneTransforms[16];
 	
 	int					mCurrentFrame;
+	float				realValue;
 
 private:
 protected:
 public:
 	void		ParentIndexer();
+
 	void		ResetAnimation();
 	void		UpdateAnimation( float deltaTime );
 

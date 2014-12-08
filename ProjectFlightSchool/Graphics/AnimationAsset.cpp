@@ -65,12 +65,16 @@ void AnimationAsset::ResetAnimation()
 		mSkeleton.joints.at( i ).lastFrame = 1;
 	}
 
-	mCurrentFrame = 1;
+	realValue = 1.0;
+	//mCurrentFrame = 1;
 }
 
 void AnimationAsset::UpdateAnimation( float deltaTime )
 {
-	mCurrentFrame++;
+	int modifier = 60;
+	realValue += deltaTime * modifier;
+	mCurrentFrame = (int)realValue;
+	cout << mCurrentFrame << endl;
 	for( int i = 0; i < (int)mSkeleton.joints.size(); i++ )
 	{
 		for( int j = 0; j < (int)mAnimationData.joints.at( i ).keys.size(); j++ )
@@ -109,8 +113,9 @@ void AnimationAsset::UpdateAnimation( float deltaTime )
 				{
 					int key = mAnimationData.joints.at( i ).keys.at( j );
 
-					float interpolation					=	(float)( mCurrentFrame - mSkeleton.joints.at( i ).lastFrame ) /
+					float interpolation					=(float)( mCurrentFrame - mSkeleton.joints.at( i ).lastFrame ) /
 															(float)( mAnimationData.joints.at( i ).keys.at( j ) - mSkeleton.joints.at( i ).lastFrame );
+
 					DirectX::XMMATRIX targetMatrix		= DirectX::XMLoadFloat4x4( &mAnimationData.joints.at( i ).matricies.at( j ) );
 					DirectX::XMMATRIX child				= DirectX::XMLoadFloat4x4( &mSkeleton.joints.at( i ).previousMatrix );
 					
@@ -143,7 +148,7 @@ void AnimationAsset::UpdateAnimation( float deltaTime )
 		}
 	}
 
-	if( mCurrentFrame > 60 )
+	if( mCurrentFrame > mAnimationData.AnimLength )
 		ResetAnimation();
 }
 

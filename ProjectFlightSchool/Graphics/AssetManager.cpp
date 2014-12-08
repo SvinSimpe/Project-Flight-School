@@ -38,7 +38,7 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 
 	float planeSize = 100.0f;
 
-	Vertex planePlaceholder[6] = {
+	StaticVertex planePlaceholder[6] = {
 			-0.5f * planeSize, 0.0f, -0.5f * planeSize	,	0.0f, 1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 1.0f,
 			-0.5f * planeSize, 0.0f,  0.5f * planeSize	,	0.0f, 1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
 			 0.5f * planeSize, 0.0f,  0.5f * planeSize	,	0.0f, 1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   1.0f, 0.0f,
@@ -78,7 +78,7 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 
 	float cubeSize = 1.0f;
 
-	Vertex cubePlaceholder[36] = {
+	StaticVertex cubePlaceholder[36] = {
 		// Bottom
 			-0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
 			 0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
@@ -163,10 +163,11 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, A
 		return hr;
 	}
 	else
-	{
-		MeshData	meshData;
-		UINT		meshCount	= 0;
-		UINT		vertexSize	= sizeof( Vertex );
+	{	 
+		MeshInfo		meshInfo;
+		StaticVertex*	vertices	= nullptr;
+		UINT			nrOfMeshes	= 0;
+		UINT			vertexSize	= sizeof( StaticVertex );
 
 		std::ifstream myFile( fileName, std::ios::binary );
 
@@ -176,29 +177,20 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, A
 			return S_FALSE;
 		}
 
-		//Read fileheader. Holds information about meshes in scene
-		myFile.read( (char*)&meshCount, sizeof( UINT ) );
+		//Read fileheader. Holds information about number of meshes in scene
+		myFile.read( (char*)&nrOfMeshes, sizeof( UINT ) );
 		
 		float* rawData = nullptr;
 
-		for( UINT i = 0; i < meshCount; i++ )
+		for( UINT i = 0; i < nrOfMeshes; i++ )
 		{
 			//Read actual data
-			myFile.read( (char*)&meshData.meshInfo, sizeof(meshData.meshInfo) );
+			myFile.read( (char*)&meshInfo, sizeof(meshInfo) );
 	
 			//Memory alloc + reading vertices
-			meshData.vertices	= new Vertex[meshData.meshInfo.vertexCount];
-			//rawData				= new float[11  * meshData.meshInfo.vertexCount];
+			vertices	= new StaticVertex[meshInfo.nrOfVertices];
 
-			myFile.read( (char*)meshData.vertices, vertexSize  * meshData.meshInfo.vertexCount );
-
-			for( UINT j = 0; j < meshData.meshInfo.vertexCount * 11; j += 11 )
-			{
-				//meshData.vertices[j / 11].position	= DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( rawData[j], rawData[j + 1], rawData[j + 2] ) );
-				//meshData.vertices[j / 11].normal	= DirectX::XMLoadFloat3( &DirectX::XMFLOAT3( rawData[j + 3], rawData[j + 4], rawData[j + 5] ) );
-			}
-			
-			//delete [] rawData;
+			myFile.read( (char*)vertices, vertexSize * meshInfo.nrOfVertices );
 		}
 
 		myFile.close();
@@ -208,16 +200,16 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, A
 		temp				= new Static3dAsset;
 		temp->mAssetId		= assetId;
 		temp->mFileName		= fileName;
-		temp->mVertexCount	= meshData.meshInfo.vertexCount;
+		temp->mVertexCount	= meshInfo.nrOfVertices;
 
 		D3D11_BUFFER_DESC bufferDesc;
 		ZeroMemory( &bufferDesc, sizeof( bufferDesc ) );
 		bufferDesc.BindFlags		= D3D11_BIND_VERTEX_BUFFER;
-		bufferDesc.ByteWidth		= sizeof( Vertex ) * meshData.meshInfo.vertexCount;
+		bufferDesc.ByteWidth		= sizeof( StaticVertex ) * meshInfo.nrOfVertices;
 		bufferDesc.Usage			= D3D11_USAGE_DEFAULT;
 	
 		D3D11_SUBRESOURCE_DATA subData;
-		subData.pSysMem = meshData.vertices;
+		subData.pSysMem = vertices;
 	
 		hr = device->CreateBuffer( &bufferDesc, &subData, &temp->mVertexBuffer );
 		if( FAILED( ( hr ) ) )
@@ -228,7 +220,74 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, A
 
 		mAssetContainer.push_back( temp );
 
-		delete [] meshData.vertices;
+		delete [] vertices;
+
+		return hr;
+	}
+}
+
+HRESULT	AssetManager::LoadAnimated3dAsset( ID3D11Device* device, char* fileName, AssetID &assetId )
+{
+	HRESULT hr = S_OK;
+
+	//If true return to caller because the asset already exist.
+	if( AssetExist( fileName, assetId ) )
+	{
+		return hr;
+	}
+	else
+	{
+		//MeshData	meshData;
+		MeshInfo		meshInfo;
+		AnimateVertex*	vertices	= nullptr;
+		UINT			vertexSize	= sizeof( AnimateVertex );
+
+		std::ifstream myFile( fileName, std::ios::binary );
+
+		if( !myFile )
+		{
+			assetId = 1;
+			return S_FALSE;
+		}
+
+		float* rawData = nullptr;
+
+		//Read actual data
+		myFile.read( (char*)&meshInfo, sizeof(MeshInfo) );
+	
+		//Memory alloc + reading vertices
+		vertices	= new AnimateVertex[meshInfo.nrOfVertices];
+
+		myFile.read( (char*)vertices, vertexSize * meshInfo.nrOfVertices );
+
+		myFile.close();
+
+		AssignAssetId( assetId );
+		AssetBase* temp;
+		temp				= new Static3dAsset;
+		temp->mAssetId		= assetId;
+		temp->mFileName		= fileName;
+		temp->mVertexCount	= meshInfo.nrOfVertices;
+
+		D3D11_BUFFER_DESC bufferDesc;
+		ZeroMemory( &bufferDesc, sizeof( bufferDesc ) );
+		bufferDesc.BindFlags	= D3D11_BIND_VERTEX_BUFFER;
+		bufferDesc.ByteWidth	= sizeof( AnimateVertex ) * meshInfo.nrOfVertices;
+		bufferDesc.Usage		= D3D11_USAGE_DEFAULT;
+	
+		D3D11_SUBRESOURCE_DATA subData;
+		subData.pSysMem = vertices;
+	
+		hr = device->CreateBuffer( &bufferDesc, &subData, &temp->mVertexBuffer );
+		if( FAILED( ( hr ) ) )
+		{
+			//Failed to create vertex buffer
+			return hr;
+		}
+
+		mAssetContainer.push_back( temp );
+
+		delete [] vertices;
 
 		return hr;
 	}
@@ -243,16 +302,13 @@ AnimationData AssetManager::ImportBinaryAnimData( string directoryPath,string fi
 
 	//this is how the final code should look!
 	file.open( directoryPath + fileName, ios::in | ios::binary | ios::ate);
-
-	//string fullPath = "myHeartIsInPieces.PaMan";
-
-	//file.open( fullPath, ios::in | ios::binary | ios::ate );
 	AnimationData tempAnim;
 
 	int lastindex = fileName.find_last_of(".");
 	string rawName = fileName.substr(0, lastindex);
 
 	tempAnim.animationName = rawName;
+	int animLength = 0;
 
 	if ( file.is_open() )
 	{
@@ -266,6 +322,7 @@ AnimationData AssetManager::ImportBinaryAnimData( string directoryPath,string fi
 
 		int padding = 0;
 		tempAnim.nrOfJoints = memblock[padding];
+		
 		//memblock should contain nr of joints
 		for ( int j = 0; j < tempAnim.nrOfJoints; j++ )
 		{
@@ -280,10 +337,6 @@ AnimationData AssetManager::ImportBinaryAnimData( string directoryPath,string fi
 			padding++;
 			for ( int i = 0; i < childFor; i++ )
 			{
-				//if ( i == 0 )
-				//{
-				//	padding++;
-				//}
 				tempName.push_back( memblock[padding] );
 				padding++;
 			}
@@ -295,10 +348,6 @@ AnimationData AssetManager::ImportBinaryAnimData( string directoryPath,string fi
 			padding++;
 			for ( int i = 0; i < parentFor; i++ )
 			{
-				/*if ( i == 0 )
-				{
-					padding++;
-				}*/
 				tempParentName.push_back( memblock[padding] );
 				padding++;
 			}
@@ -340,11 +389,14 @@ AnimationData AssetManager::ImportBinaryAnimData( string directoryPath,string fi
 																	values[8], values[9], values[10], values[11],
 																	values[12], values[13], values[14], values[15] ) );
 			}
+			if(tempJoint.keys.at(tempJoint.keys.size() - 1) > animLength)
+				animLength = tempJoint.keys.at(tempJoint.keys.size() - 1);
 			tempAnim.joints.push_back( tempJoint );
 		}
 		delete[] memblock;
 	}
 	else cout << "Error opening file!" << endl;
+	tempAnim.AnimLength = animLength;
 	return tempAnim;
 }
 
@@ -391,10 +443,6 @@ Skeleton AssetManager::ImportBinarySkelData( string directoryPath, string fileNa
 			padding++;
 			for ( int i = 0; i < childFor; i++ )
 			{
-				//if ( i == 0 )
-				//{
-				//	padding++;
-				//}
 				tempName.push_back( memblock[padding] );
 				padding++;
 			}
@@ -406,10 +454,6 @@ Skeleton AssetManager::ImportBinarySkelData( string directoryPath, string fileNa
 			padding++;
 			for ( int i = 0; i < parentFor; i++ )
 			{
-				/*if ( i == 0 )
-				{
-					padding++;
-				}*/
 				tempParentName.push_back( memblock[padding] );
 				padding++;
 			}

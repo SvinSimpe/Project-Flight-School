@@ -64,6 +64,18 @@ void Server::HandlePkg( SOCKET &s, Package<T> p )
 			Message msg = (Message&)p.body.content;
 			printf( "%d sent: %s\n", s, msg.msg );
 		}
+		case Net_Event::EV_PLAYER_MOVED:
+		{
+			for (auto& t : mClientSockets)
+			{
+				if (t != s)
+				{
+					EvPlayerMoved msg = (EvPlayerMoved&)p.body.content;
+					mConn->SendPkg(t, 0, Net_Event::EV_PLAYER_MOVED, msg);
+				}
+			}
+			
+		}
 			break;
 		default:
 		{

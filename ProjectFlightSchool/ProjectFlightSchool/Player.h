@@ -3,6 +3,7 @@
 
 #include "Graphics.h"
 #include "EventManager.h"
+#include "Events.h"
 #include "Input.h"
 
 struct BoundingBox

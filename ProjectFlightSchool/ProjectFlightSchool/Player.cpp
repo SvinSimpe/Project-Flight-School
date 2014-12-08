@@ -45,6 +45,9 @@ HRESULT Player::Update( float deltaTime )
 	mLowerBody.position.x += mLowerBody.direction.x * mLowerBody.speed;
 	mLowerBody.position.z += mLowerBody.direction.z * mLowerBody.speed;
 
+	IEventPtr E1( new Event_Player_Moved( mLowerBody.position, mUpperBody.position ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
+
 	return S_OK;
 }
 

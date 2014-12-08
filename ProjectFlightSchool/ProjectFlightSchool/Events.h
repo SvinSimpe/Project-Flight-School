@@ -92,3 +92,35 @@ class Event_Player_Moved : public IEvent
 			return GUID;
 		}
 };
+
+class Event_Remote_Player_Update : public IEvent
+{
+private:
+	XMFLOAT3 mLowerBodyPos;
+	XMFLOAT3 mUpperBodyPos;
+
+protected:
+public:
+	static const EventType GUID;
+
+private:
+public:
+	Event_Remote_Player_Update(XMFLOAT3 lowerBodyPos, XMFLOAT3 upperBodyPos)
+	{
+		mLowerBodyPos = lowerBodyPos;
+		mUpperBodyPos = upperBodyPos;
+	}
+	XMFLOAT3 LowerBodyPos()const
+	{
+		return mLowerBodyPos;
+	}
+	XMFLOAT3 UpperBodyPos()const
+	{
+		return mUpperBodyPos;
+	}
+protected:
+	const EventType& GetEventType(void) const
+	{
+		return GUID;
+	}
+};

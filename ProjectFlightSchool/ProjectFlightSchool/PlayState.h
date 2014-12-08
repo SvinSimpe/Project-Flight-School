@@ -3,18 +3,20 @@
 
 #include "BaseState.h"
 #include "Player.h"
+#include "RemotePlayer.h"
 
 class PlayState : public BaseState
 {
 	// Class members
 	private:
 
-		AssetID		mPlaneAsset;
-		AssetID		mCubeAsset;
-		AssetID		mTestAsset;
+		AssetID			mPlaneAsset;
+		AssetID			mCubeAsset;
+		AssetID			mTestAsset;
 
 	// Debug
-		Player*		mPlayer;
+		Player*			mPlayer;
+		RemotePlayer*	mRemotePlayer;
 
 	protected:
 	public:

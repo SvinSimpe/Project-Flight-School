@@ -6,12 +6,12 @@ bool Client::SendLoop()
 	while ( mServerSocket != INVALID_SOCKET )
 	{
 		Message msg;
-		msg.msg = "Goodbye!";
+		msg.msg = "Client::SendLoop";
 		system("pause");
 
 		if (mServerSocket != INVALID_SOCKET)
 		{
-			mConn->SendPkg( mServerSocket, 0, Net_Event::QUIT, msg );
+			mConn->SendPkg( mServerSocket, 0, Net_Event::MESSAGE, msg );
 		}
 	}
 
@@ -34,6 +34,25 @@ bool Client::ReceiveLoop()
 	if (p)
 		delete[] p;
 	return true;
+}
+
+void Client::PlayerMoved(IEventPtr newEvent)
+{
+	if ( newEvent->GetEventType() == Event_Player_Moved::GUID )
+	{
+		std::shared_ptr < Event_Player_Moved > data = std::static_pointer_cast<Event_Player_Moved>( newEvent );
+		if ( mServerSocket != INVALID_SOCKET )
+		{
+			EvPlayerMoved msg;
+			msg.lowerBody	= data->LowerBodyPos();
+			msg.upperBody	= data->UpperBodyPos();
+
+			if ( mServerSocket != INVALID_SOCKET )
+			{
+				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_MOVED, msg );
+			}
+		}
+	}
 }
 
 bool Client::Connect()
@@ -74,10 +93,10 @@ bool Client::Connect()
 
 bool Client::Run()
 {
-	std::thread write( &Client::SendLoop, this );
+	//std::thread write( &Client::SendLoop, this );
 	std::thread listen( &Client::ReceiveLoop, this );
 
-	write.join();
+	//write.join();
 	listen.join();
 
 	return true;
@@ -110,6 +129,8 @@ bool Client::Initialize( const char* ip, const char* port )
 
 	mConn = new Connection();
 	mConn->Initialize();
+
+	EventManager::GetInstance()->AddListener( &Client::PlayerMoved, this, Event_Player_Moved::GUID );
 
 	return true;
 }

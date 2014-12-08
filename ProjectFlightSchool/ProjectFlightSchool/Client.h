@@ -3,7 +3,8 @@
 
 #include "Connection.h"
 #include "Package.h"
-#include <iostream>
+#include "EventManager.h"
+#include "Events.h"
 
 class Client // The class used by clients to connect to the server
 {
@@ -29,6 +30,7 @@ class Client // The class used by clients to connect to the server
 	private:
 		bool	SendLoop();
 		bool	ReceiveLoop();
+		void	PlayerMoved( IEventPtr newEvent);
 
 	protected:
 
@@ -50,6 +52,14 @@ void Client::HandlePkg( Package<T> p )
 		{
 			printf( "Disconnected from server.\n" );
 			mConn->DisconnectSocket( mServerSocket );
+		}
+			break;
+		case Net_Event::EV_PLAYER_MOVED:
+		{
+			//printf("Eventet från servern var Event_Player_Moved och den innehöll positionerna:\n" ); // %f, %f, %f och %f, %f, %f
+			EvPlayerMoved msg = (EvPlayerMoved&)p.body.content;
+			IEventPtr E1(new Event_Remote_Player_Update(msg.lowerBody, msg.upperBody));
+			EventManager::GetInstance()->QueueEvent(E1);
 		}
 			break;
 		default:

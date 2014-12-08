@@ -22,6 +22,7 @@ HRESULT PlayState::Render()
 	Graphics::GetInstance()->RenderStatic3dAsset( mCubeAsset, 5.0f, 1.0f, 10.0f );
 	//Graphics::GetInstance()->RenderStatic3dAsset( mTestAsset );
 	mPlayer->Render( 0.0f );
+	mRemotePlayer->Render(0.0f);
 	Graphics::GetInstance()->EndScene();
 
 	return S_OK;
@@ -49,6 +50,9 @@ HRESULT PlayState::Initialize()
 	
 	mPlayer = new Player();
 	mPlayer->Initialize();
+
+	mRemotePlayer = new RemotePlayer();
+	mRemotePlayer->Initialize();
 
 	return S_OK;
 }

@@ -20,7 +20,7 @@
 #include "Structs.h"
 
 #define DEFAULT_BUFLEN	256
-#define DEFAULT_PORT	"1337"
+#define DEFAULT_PORT	"27015"
 #define DEFAULT_IP		"localhost"
 
 class Connection

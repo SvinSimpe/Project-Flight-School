@@ -1,12 +1,6 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#undef WIN32_LEAN_AND_MEAN
-#endif
-
 #include <Winsock2.h>
 #pragma comment( lib, "Ws2_32.lib" )
 
@@ -15,7 +9,6 @@
 #include <IPHlpApi.h>
 #include <stdio.h>
 #include <thread>
-#include <string>
 #include "Package.h"
 #include "Structs.h"
 

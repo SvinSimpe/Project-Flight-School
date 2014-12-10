@@ -22,7 +22,7 @@ HRESULT PlayState::Render()
 	Graphics::GetInstance()->RenderStatic3dAsset( mCubeAsset, 5.0f, 1.0f, 10.0f );
 	//Graphics::GetInstance()->RenderStatic3dAsset( mTestAsset );
 	mPlayer->Render( 0.0f );
-	mRemotePlayer->Render(0.0f);
+	mRemotePlayers.at(0)->Render(0.0f);
 	Graphics::GetInstance()->EndScene();
 
 	return S_OK;
@@ -51,8 +51,8 @@ HRESULT PlayState::Initialize()
 	mPlayer = new Player();
 	mPlayer->Initialize();
 
-	mRemotePlayer = new RemotePlayer();
-	mRemotePlayer->Initialize();
+	mRemotePlayers.push_back(new RemotePlayer());
+	mRemotePlayers.at(0)->Initialize();
 
 	return S_OK;
 }
@@ -60,10 +60,16 @@ HRESULT PlayState::Initialize()
 void PlayState::Release()
 {
 	mPlayer->Release();
+	for (auto& rp : mRemotePlayers)
+	{
+		rp->Release();
+	}
+	mRemotePlayers.clear();
 }
 
 PlayState::PlayState()
 {
+	mRemotePlayers = std::vector<RemotePlayer*>(0);
 }
 
 PlayState::~PlayState()

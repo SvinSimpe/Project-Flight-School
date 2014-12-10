@@ -32,7 +32,9 @@ bool Client::ReceiveLoop()
 		}
 	}
 	if (p)
+	{
 		delete[] p;
+	}
 	return true;
 }
 
@@ -102,7 +104,7 @@ bool Client::Run()
 	return true;
 }
 
-bool Client::Initialize( const char* ip, const char* port )
+bool Client::Initialize( const char* port, const char* ip )
 {
 	WSADATA WSAData = WSADATA();
 	mResult			= WSAStartup( MAKEWORD( 2, 2 ), &WSAData );

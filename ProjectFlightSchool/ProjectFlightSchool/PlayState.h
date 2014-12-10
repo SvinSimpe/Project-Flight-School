@@ -16,7 +16,7 @@ class PlayState : public BaseState
 
 	// Debug
 		Player*			mPlayer;
-		RemotePlayer*	mRemotePlayer;
+		std::vector<RemotePlayer*> mRemotePlayers;
 
 	protected:
 	public:

@@ -92,6 +92,7 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="BaseState.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="MapQuad.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="StartMenuState.cpp" />
@@ -101,6 +102,8 @@
   <ItemGroup>
     <ClInclude Include="BaseState.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="MapQuad.h" />
+    <ClInclude Include="MapSection.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="KeyDefines.h" />
     <ClInclude Include="PlayState.h" />

@@ -31,9 +31,10 @@ bool Server::ReceiveLoop( int index )
 	{
 		if ( mConn->ReceivePkg( mClientSockets.at(index), *p ) )
 		{
+
 			if ( p->head.eventType != Net_Event::ERROR_EVENT )
 			{
-				HandlePkg( mClientSockets.at(index), *p );
+				HandlePkg( mClientSockets.at(index), p );
 			}
 		}
 	}

@@ -27,7 +27,7 @@ bool Client::ReceiveLoop()
 		{
 			if ( p->head.eventType != Net_Event::ERROR_EVENT )
 			{
-				HandlePkg( *p );
+				HandlePkg( p );
 			}
 		}
 	}
@@ -93,6 +93,8 @@ bool Client::Connect()
 
 bool Client::Run()
 {
+	EventManager::GetInstance()->AddListener( &Client::PlayerMoved, this, Event_Player_Moved::GUID );
+
 	//std::thread write( &Client::SendLoop, this );
 	std::thread listen( &Client::ReceiveLoop, this );
 
@@ -129,8 +131,6 @@ bool Client::Initialize( const char* ip, const char* port )
 
 	mConn = new Connection();
 	mConn->Initialize();
-
-	EventManager::GetInstance()->AddListener( &Client::PlayerMoved, this, Event_Player_Moved::GUID );
 
 	return true;
 }

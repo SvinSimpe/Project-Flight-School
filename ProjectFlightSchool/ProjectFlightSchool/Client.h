@@ -22,7 +22,7 @@ class Client // The class used by clients to connect to the server
 		// Template functions
 	private:
 		template <typename T>
-		void HandlePkg( Package<T> p );
+		void HandlePkg( Package<T>* p );
 	protected:
 	public:
 		
@@ -44,9 +44,9 @@ class Client // The class used by clients to connect to the server
 };
 
 template <typename T>
-void Client::HandlePkg( Package<T> p )
+void Client::HandlePkg( Package<T>* p )
 {
-	switch ( p.head.eventType )
+	switch ( p->head.eventType )
 	{
 		case Net_Event::QUIT:
 		{
@@ -57,7 +57,7 @@ void Client::HandlePkg( Package<T> p )
 		case Net_Event::EV_PLAYER_MOVED:
 		{
 			//printf("Eventet från servern var Event_Player_Moved och den innehöll positionerna:\n" ); // %f, %f, %f och %f, %f, %f
-			EvPlayerMoved msg = (EvPlayerMoved&)p.body.content;
+			EvPlayerMoved msg = (EvPlayerMoved&)p->body.content;
 			IEventPtr E1(new Event_Remote_Player_Update(msg.lowerBody, msg.upperBody));
 			EventManager::GetInstance()->QueueEvent(E1);
 		}

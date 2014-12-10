@@ -38,7 +38,7 @@ void Player::LookAt( float rotation )
 HRESULT Player::Update( float deltaTime )
 {
 	HandleInput( deltaTime );
-	
+
 	mUpperBody.position.x += mLowerBody.direction.x * mLowerBody.speed;
 	mUpperBody.position.z += mLowerBody.direction.z * mLowerBody.speed;
 

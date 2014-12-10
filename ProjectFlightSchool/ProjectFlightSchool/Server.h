@@ -23,7 +23,7 @@ class Server
 	// Template functions
 	private:
 		template <typename T>
-		void HandlePkg( SOCKET &s, Package<T> p );
+		void HandlePkg( SOCKET &s, Package<T>* p );
 	protected:
 	public:
 
@@ -46,9 +46,9 @@ class Server
 };
 
 template <typename T>
-void Server::HandlePkg( SOCKET &s, Package<T> p )
+void Server::HandlePkg( SOCKET &s, Package<T>* p )
 {
-	switch ( p.head.eventType )
+	switch ( p->head.eventType )
 	{
 		case Net_Event::QUIT:
 		{
@@ -61,16 +61,16 @@ void Server::HandlePkg( SOCKET &s, Package<T> p )
 			break;
 		case Net_Event::MESSAGE:
 		{
-			Message msg = (Message&)p.body.content;
+			Message msg = (Message&)p->body.content;
 			printf( "%d sent: %s\n", s, msg.msg );
 		}
 		case Net_Event::EV_PLAYER_MOVED:
 		{
 			for (auto& t : mClientSockets)
 			{
+				EvPlayerMoved msg = (EvPlayerMoved&)p->body.content;
 				if (t != s)
 				{
-					EvPlayerMoved msg = (EvPlayerMoved&)p.body.content;
 					mConn->SendPkg(t, 0, Net_Event::EV_PLAYER_MOVED, msg);
 				}
 			}

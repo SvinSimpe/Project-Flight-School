@@ -1,22 +1,22 @@
 #include "Client.h"
 
-bool Client::SendLoop()
-{
-	bool result = false;
-	while ( mServerSocket != INVALID_SOCKET )
-	{
-		Message msg;
-		msg.msg = "Client::SendLoop";
-		system("pause");
-
-		if (mServerSocket != INVALID_SOCKET)
-		{
-			mConn->SendPkg( mServerSocket, 0, Net_Event::MESSAGE, msg );
-		}
-	}
-
-	return true;
-}
+//bool Client::SendLoop()
+//{
+//	bool result = false;
+//	while ( mServerSocket != INVALID_SOCKET )
+//	{
+//		Message msg;
+//		msg.msg = "Client::SendLoop";
+//		system("pause");
+//
+//		if ( !mConn->SendPkg( mServerSocket, 0, Net_Event::MESSAGE, msg ) )
+//		{
+//			mServerSocket = INVALID_SOCKET;
+//		}
+//	}
+//
+//	return true;
+//}
 
 bool Client::ReceiveLoop()
 {
@@ -36,7 +36,7 @@ bool Client::ReceiveLoop()
 	return true;
 }
 
-void Client::PlayerMoved(IEventPtr newEvent)
+void Client::PlayerMoved( IEventPtr newEvent )
 {
 	if ( newEvent->GetEventType() == Event_Player_Moved::GUID )
 	{
@@ -95,10 +95,8 @@ bool Client::Run()
 {
 	EventManager::GetInstance()->AddListener( &Client::PlayerMoved, this, Event_Player_Moved::GUID );
 
-	//std::thread write( &Client::SendLoop, this );
 	std::thread listen( &Client::ReceiveLoop, this );
 
-	//write.join();
 	listen.join();
 
 	return true;
@@ -106,9 +104,8 @@ bool Client::Run()
 
 bool Client::Initialize( const char* ip, const char* port )
 {
-	WSADATA WSAData;
-
-	mResult = WSAStartup( MAKEWORD( 2, 2 ), &WSAData );
+	WSADATA WSAData = WSADATA();
+	mResult			= WSAStartup( MAKEWORD( 2, 2 ), &WSAData );
 	if ( mResult != 0 )
 	{
 		printf( "WSAStartup failed with error: %d\n", mResult );

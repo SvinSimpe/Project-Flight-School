@@ -66,12 +66,12 @@ void Server::HandlePkg( SOCKET &s, Package<T>* p )
 		}
 		case Net_Event::EV_PLAYER_MOVED:
 		{
-			for (auto& t : mClientSockets)
+			for ( auto& socket : mClientSockets )
 			{
 				EvPlayerMoved msg = (EvPlayerMoved&)p->body.content;
-				if (t != s)
+				if ( socket != s )
 				{
-					mConn->SendPkg(t, 0, Net_Event::EV_PLAYER_MOVED, msg);
+					mConn->SendPkg( socket, 0, Net_Event::EV_PLAYER_MOVED, msg );
 				}
 			}
 			

@@ -28,9 +28,9 @@ class Client // The class used by clients to connect to the server
 		
 		// Functions
 	private:
-		bool	SendLoop();
+		//bool	SendLoop();
 		bool	ReceiveLoop();
-		void	PlayerMoved( IEventPtr newEvent);
+		void	PlayerMoved( IEventPtr newEvent );
 
 	protected:
 
@@ -58,8 +58,8 @@ void Client::HandlePkg( Package<T>* p )
 		{
 			//printf("Eventet från servern var Event_Player_Moved och den innehöll positionerna:\n" ); // %f, %f, %f och %f, %f, %f
 			EvPlayerMoved msg = (EvPlayerMoved&)p->body.content;
-			IEventPtr E1(new Event_Remote_Player_Update(msg.lowerBody, msg.upperBody));
-			EventManager::GetInstance()->QueueEvent(E1);
+			IEventPtr E1( new Event_Remote_Player_Update( msg.lowerBody, msg.upperBody ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
 		default:

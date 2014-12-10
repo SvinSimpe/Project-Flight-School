@@ -8,8 +8,7 @@ Server* Server::GetInstance()
 
 bool Server::AcceptConnection()
 {
-	SOCKET s	= INVALID_SOCKET;
-	s			= accept( mListenSocket, nullptr, nullptr );
+	SOCKET s	= accept( mListenSocket, nullptr, nullptr );
 	if ( s == INVALID_SOCKET )
 	{
 		printf( "accept failed with error: %d\n", WSAGetLastError() );
@@ -73,7 +72,6 @@ bool Server::Connect()
 		WSACleanup();
 		return false;
 	}
-	mAddrResult->ai_addr;
 	printf( "Server up and running.\n" );
 
 	return true;
@@ -97,9 +95,8 @@ bool Server::Run()
 
 bool Server::Initialize( const char* port )
 {
-	WSADATA WSAData;
-
-	mResult = WSAStartup( MAKEWORD( 2, 2 ), &WSAData );
+	WSADATA WSAData = WSADATA();
+	mResult			= WSAStartup( MAKEWORD( 2, 2 ), &WSAData );
 	if ( mResult != 0 )
 	{
 		printf( "WSAStartup failed with error: %d\n", mResult );

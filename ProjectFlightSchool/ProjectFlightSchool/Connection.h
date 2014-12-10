@@ -39,7 +39,7 @@ class Connection
 		template <typename T>
 		bool	SendPkg( SOCKET &to, int eventIndex, Net_Event type, T body );
 		template <typename T>
-		T		ReceivePkg( SOCKET &from, Package<T> &p );
+		bool	ReceivePkg( SOCKET &from, Package<T> &p );
 
 	// Functions
 	private:
@@ -55,6 +55,9 @@ class Connection
 template <typename T>
 bool Connection::SendPkg( SOCKET &to, int eventIndex, Net_Event type, T body )
 {
+	if ( to == INVALID_SOCKET )
+		return false;
+
 	Package<T> p;
 	p.head.index		= eventIndex;
 	p.head.eventType	= type;
@@ -72,8 +75,11 @@ bool Connection::SendPkg( SOCKET &to, int eventIndex, Net_Event type, T body )
 }
 
 template <typename T>
-T Connection::ReceivePkg( SOCKET &from, Package<T> &p )
+bool Connection::ReceivePkg( SOCKET &from, Package<T> &p )
 {
+	if ( from == INVALID_SOCKET )
+		return false;
+
 	mResult = recv( from, (char*)&p, DEFAULT_BUFLEN, 0 );
 	if ( mResult < 0 )
 	{
@@ -82,7 +88,6 @@ T Connection::ReceivePkg( SOCKET &from, Package<T> &p )
 		return false;
 	}
 
-
-	return p.body.content;
+	return true;
 }
 #endif

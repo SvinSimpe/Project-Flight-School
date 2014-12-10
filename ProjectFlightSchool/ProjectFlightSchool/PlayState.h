@@ -14,6 +14,10 @@ class PlayState : public BaseState
 		AssetID		mTestAsset;
 
 		AssetID		mTestAnimation;
+		AssetID		mTestSkeleton;
+		AssetID		mTestAnimationAnimation;
+
+		float		mAnimationTime;
 
 	// Debug
 		Player*		mPlayer;

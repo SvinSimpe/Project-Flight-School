@@ -16,8 +16,8 @@ struct VS_In
 	float3 normal		: NORMAL;
 	float3 tangent		: TANGENT;
 	float2 uv			: TEX;
-	float4 weights		: WEIGHTS;
-	float4 jointIndex	: JOINTINDEX;
+	//float4 weights		: WEIGHTS;
+	//float4 jointIndex	: JOINTINDEX;
 
 };
 

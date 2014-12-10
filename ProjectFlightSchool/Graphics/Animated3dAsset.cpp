@@ -33,7 +33,19 @@ void Animated3dAsset::Release()
 
 Animated3dAsset::Animated3dAsset()
 {
+	mVertexCount	= 0;
+	mVertexBuffer	= nullptr;
+	mSkeleton		= 0;
+	mAnimation		= 0;
 
+	for( int i = 0; i < NUM_SUPPORTED_JOINTS; i++ )
+		mCurrentBoneTransforms[i] = DirectX::XMFLOAT4X4(	0.0f, 0.0f, 0.0f, 0.0f,
+															0.0f, 0.0f, 0.0f, 0.0f,
+															0.0f, 0.0f, 0.0f, 0.0f,
+															0.0f, 0.0f, 0.0f, 0.0f );
+	
+	mCurrentFrame	= 0;
+	mRealValue		= 0.0f;
 }
 
 Animated3dAsset::~Animated3dAsset()

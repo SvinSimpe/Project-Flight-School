@@ -12,11 +12,10 @@ void Static3dAsset::Release()
 
 Static3dAsset::Static3dAsset() : AssetBase()
 {
-
+	mVertexCount	= 0;
+	mVertexBuffer	= nullptr;
 }
 
 Static3dAsset::~Static3dAsset()
 {
-	mVertexCount	= 0;
-	mVertexBuffer	= nullptr;
 }

@@ -28,7 +28,7 @@
     <ClCompile Include="SkeletonAsset.cpp">
       <Filter>AssetClasses\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AnimationTestAsset.cpp">
+    <ClCompile Include="AnimationAsset.cpp">
       <Filter>AssetClasses\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -71,7 +71,7 @@
     <ClInclude Include="SkeletonAsset.h">
       <Filter>AssetClasses\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AnimationTestAsset.h">
+    <ClInclude Include="AnimationAsset.h">
       <Filter>AssetClasses\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -120,10 +120,8 @@
     <Text Include="..\Content\Effects\Placeholder.hlsl">
       <Filter>Effects</Filter>
     </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="..\Content\Effects\PlaceholderAni.hlsl">
+    <Text Include="..\Content\Effects\PlaceholderAni.hlsl">
       <Filter>Effects</Filter>
-    </FxCompile>
+    </Text>
   </ItemGroup>
 </Project>

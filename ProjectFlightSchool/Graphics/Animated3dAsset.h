@@ -3,6 +3,8 @@
 
 #include "AssetBase.h"
 
+const int NUM_SUPPORTED_JOINTS = 16;
+
 struct Animated3dAsset : public AssetBase
 {
 	private:
@@ -10,13 +12,9 @@ struct Animated3dAsset : public AssetBase
 	public:
 		UINT				mVertexCount;
 		ID3D11Buffer*		mVertexBuffer;
-		AssetID				mSkeleton;
-		AssetID				mAnimation;
+		AssetID				mSkeletonId;
 
-		DirectX::XMFLOAT4X4	mCurrentBoneTransforms[16];
-	
-		int					mCurrentFrame;
-		float				mRealValue;
+		DirectX::XMFLOAT4X4	mCurrentBoneTransforms[NUM_SUPPORTED_JOINTS];
 
 	private:
 	protected:

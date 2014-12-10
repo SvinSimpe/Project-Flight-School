@@ -7,7 +7,7 @@ HRESULT	SkeletonAsset::Initialize()
 
 void SkeletonAsset::Release()
 {
-
+	mSkeleton.joints.clear();
 }
 
 SkeletonAsset::SkeletonAsset()
@@ -17,5 +17,4 @@ SkeletonAsset::SkeletonAsset()
 
 SkeletonAsset::~SkeletonAsset()
 {
-
 }

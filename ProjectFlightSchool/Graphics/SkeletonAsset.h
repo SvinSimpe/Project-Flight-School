@@ -8,6 +8,7 @@ struct SkeletonAsset : public AssetBase
 	private:
 	protected:
 	public:
+		Skeleton	mSkeleton;
 
 	private:
 	protected:

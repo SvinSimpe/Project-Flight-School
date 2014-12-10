@@ -43,14 +43,24 @@ HRESULT Graphics::MapBuffer( ID3D11Buffer* buffer, void* data, int size )
 }
 
 //Load a static 3d asset to the AssetManager.
-HRESULT Graphics::LoadStatic3dAsset( char* fileName, UINT &assetId )
+HRESULT Graphics::LoadStatic3dAsset( char* fileName, AssetID &assetId )
 {
 	return mAssetManager->LoadStatic3dAsset( mDevice, fileName, assetId );
 }
 
-HRESULT Graphics::LoadAnimated3dAsset( char* fileName, UINT &assetId )
+HRESULT Graphics::LoadAnimated3dAsset( char* fileName, AssetID skeletonId, AssetID &assetId )
 {
-	return mAssetManager->LoadAnimated3dAsset( mDevice, fileName, assetId );
+	return mAssetManager->LoadAnimated3dAsset( mDevice, fileName, skeletonId, assetId );
+}
+
+HRESULT Graphics::LoadSkeletonAsset( std::string filePath, std::string fileName, AssetID &assetId )
+{
+	return mAssetManager->LoadSkeletonAsset( filePath, fileName, assetId );
+}
+
+HRESULT Graphics::LoadAnimationAsset( std::string filePath, std::string fileName, AssetID &assetId )
+{
+	return mAssetManager->LoadAnimationAsset( filePath, fileName, assetId );
 }
 
 //Render a static 3d asset given the assetId
@@ -164,31 +174,126 @@ void Graphics::RenderStatic3dAsset( AssetID assetId, XMFLOAT4X4* world )
 	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
 }
 
-void Graphics::RenderAnimated3dAsset( AssetID assetId )
+void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime )
 {
-	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+	Animated3dAsset*	model		= (Animated3dAsset*)mAssetManager->mAssetContainer[modelAssetId];
+	Skeleton*			skeleton	= &( (SkeletonAsset*)mAssetManager->mAssetContainer[model->mSkeletonId] )->mSkeleton;
+	AnimationData*		animation	= &( (AnimationAsset*)mAssetManager->mAssetContainer[animationAssetId] )->mAnimationData;
 
-	UINT32 vertexSize				= sizeof( AnimateVertex );
-	UINT32 offset					= 0;
-	ID3D11Buffer* buffersToSet[]	= { ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexBuffer };
-	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+	int	framesJumped	 = 0;
+	bool animationLooped = false;
 
-	mDeviceContext->IASetInputLayout( mAnimatedEffect->GetInputLayout() );
+	if( animationTime > (float)animation->AnimLength / 60.0f )
+	{
+		animationTime	-= ( (float)animation->AnimLength / 60.0f - 1.0f / 60.0f );
+		animationLooped  = true;
+	}
 
-	mDeviceContext->VSSetShader( mAnimatedEffect->GetVertexShader(), nullptr, 0 );
-	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->PSSetShader( mAnimatedEffect->GetPixelShader(), nullptr, 0 );
+	float calcTime = animationTime * 60.0f;
 
-	//Map CbufferPerObject
-	CbufferPerObject data;
-	data.worldMatrix = DirectX::XMMatrixIdentity();
-	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
+	while( calcTime > 1.0f )
+	{
+		calcTime -= 1.0f;
+		framesJumped++;
+	}
 
-	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
+	std::cout << framesJumped << std::endl;
+	for( int i = 0; i < (int)skeleton->joints.size(); i++ )
+	{
+		int					lastFrame = 1;
+		DirectX::XMFLOAT4X4	previousMatrix = skeleton->joints.at( i ).originalMatrix;
 
-	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
+
+		for( int j = 0; j < (int)animation->joints.at( i ).keys.size(); j++ )
+		{
+			//If no keyframes exist apply static pose
+			if( animation->joints.at( i ).keys.size() == 1 && animation->joints.at( i ).keys.at( j ) == 0 )
+			{
+				if( skeleton->joints.at( i ).parentIndex == -1 )
+				{
+					model->mCurrentBoneTransforms[i] = animation->joints.at( i ).matricies.at( 0 );
+				}
+				else
+				{
+					DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &animation->joints.at( i ).matricies.at( 0 ) );
+					DirectX::XMMATRIX parent	= DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[animation->joints.at( i ).parentIndex] );
+
+					DirectX::XMStoreFloat4x4( &model->mCurrentBoneTransforms[i], child * parent );
+				}
+			}
+			//Find next keyframe and interpolate previousMatrix with next matrix in animation based on key.
+			else
+			{
+				if( animationLooped )
+					for( int frames = 0; frames < animation->AnimLength; frames++ )
+					{
+						if( animation->joints.at( i ).keys.at( j ) == frames )
+						{
+							previousMatrix	= animation->joints.at( i ).matricies.at( j );
+							//lastFrame		= frames;
+						}
+					}
+				else
+					for( int frames = 0; frames < framesJumped; frames++ )
+					{
+						if( animation->joints.at( i ).keys.at( j ) == frames )
+						{
+							previousMatrix	= animation->joints.at( i ).matricies.at( j );
+							lastFrame		= frames;
+						}
+					}
+
+				if( animation->joints.at( i ).keys.at( j ) == framesJumped )
+				{
+					previousMatrix	= animation->joints.at( i ).matricies.at( j );
+					lastFrame		= framesJumped;
+
+					DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &previousMatrix );
+					DirectX::XMMATRIX parent	= animation->joints.at( i ).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
+													DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[animation->joints.at( i ).parentIndex] );
+
+					DirectX::XMStoreFloat4x4( &model->mCurrentBoneTransforms[i], child * parent );
+					break;
+				}
+				else if( animation->joints.at( i ).keys.at( j ) > framesJumped )
+				{
+					float interpolation					=	(float)( animationTime * 60.0f - lastFrame ) /
+															(float)( animation->joints.at( i ).keys.at( j ) - lastFrame );
+
+					DirectX::XMMATRIX targetMatrix		= DirectX::XMLoadFloat4x4( &animation->joints.at( i ).matricies.at( j ) );
+					DirectX::XMMATRIX child				= DirectX::XMLoadFloat4x4( &previousMatrix );
+					
+					DirectX::XMVECTOR targetComp[3];
+					DirectX::XMVECTOR childComp[3];
+
+					DirectX::XMMatrixDecompose( &targetComp[0], &targetComp[1], &targetComp[2], targetMatrix );
+					DirectX::XMMatrixDecompose( &childComp[0], &childComp[1], &childComp[2], child );
+
+					child = DirectX::XMMatrixAffineTransformation(	DirectX::XMVectorLerp( childComp[0], targetComp[0], interpolation ),
+																	DirectX::XMVectorZero(),
+																	DirectX::XMQuaternionSlerp( childComp[1], targetComp[1], interpolation ),
+																	DirectX::XMVectorLerp( childComp[2], targetComp[2], interpolation ) );			
+
+					DirectX::XMMATRIX parent	= animation->joints.at( i ).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
+													DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[animation->joints.at( i ).parentIndex] );
+
+					DirectX::XMStoreFloat4x4( &model->mCurrentBoneTransforms[i], child * parent );
+					break;
+				}
+				else
+				{
+					DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &previousMatrix );
+					DirectX::XMMATRIX parent	= animation->joints.at( i ).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
+													DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[animation->joints.at( i ).parentIndex] );
+
+					DirectX::XMStoreFloat4x4( &model->mCurrentBoneTransforms[i], child * parent );
+				}
+			}
+		}
+	}
+
+	for( int i = 0; i < skeleton->nrOfJoints; i++ )
+		RenderStatic3dAsset( 1, &model->mCurrentBoneTransforms[i] );
 }
 
 //Clear canvas and prepare for rendering.
@@ -208,17 +313,6 @@ void Graphics::BeginScene()
 	MapBuffer( mCbufferPerFrame, &data, sizeof( CbufferPerFrame ) );
 
 	mDeviceContext->VSSetConstantBuffers( 0, 1, &mCbufferPerFrame );
-
-	if( mSuperHappyTest > 1 )
-	{
-		mAssetManager->mTestAnim.UpdateAnimation( 0.05f ); // borde vara deltaTime
-		mSuperHappyTest = 0;
-	}
-	else
-		mSuperHappyTest++;
-
-	for( int i = 0; i < 9; i++ )
-		RenderStatic3dAsset( 1, &mAssetManager->mTestAnim.mCurrentBoneTransforms[i] );
 }
 
 //Finalize rendering.
@@ -314,7 +408,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	textureDesc.MipLevels			= 1;
 	textureDesc.ArraySize			= 1;
 	textureDesc.Format				= DXGI_FORMAT_D32_FLOAT;
-	textureDesc.SampleDesc.Count		= 1;
+	textureDesc.SampleDesc.Count	= 1;
 	textureDesc.SampleDesc.Quality	= 0;
 	textureDesc.Usage				= D3D11_USAGE_DEFAULT;
 	textureDesc.BindFlags			= D3D11_BIND_DEPTH_STENCIL;

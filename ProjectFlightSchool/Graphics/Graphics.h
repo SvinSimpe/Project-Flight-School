@@ -55,15 +55,17 @@ class LIBRARY_EXPORT Graphics
 	protected:
 	public:
 		HRESULT LoadTextureFromFile ( wchar_t* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size = 0 );
-		HRESULT LoadStatic3dAsset( char* fileName, UINT &assetId );
-		HRESULT LoadAnimated3dAsset( char* fileName, UINT &assetId );
+		HRESULT LoadStatic3dAsset( char* fileName, AssetID &assetId );
+		HRESULT LoadAnimated3dAsset( char* fileName, AssetID skeletonId, AssetID &assetId );
+		HRESULT LoadSkeletonAsset( std::string filePath, std::string fileName, AssetID &assetId );
+		HRESULT LoadAnimationAsset( std::string filePath, std::string fileName, AssetID &assetId );
 
-		void RenderStatic3dAsset( UINT assetId );
-		void RenderStatic3dAsset( UINT assetId, float x, float y, float z );
-		void RenderStatic3dAsset( UINT assetId, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation );
-		void RenderStatic3dAsset( UINT assetId, DirectX::XMFLOAT4X4* world );
+		void RenderStatic3dAsset( AssetID assetId );
+		void RenderStatic3dAsset( AssetID assetId, float x, float y, float z );
+		void RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation );
+		void RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT4X4* world );
 
-		void RenderAnimated3dAsset( UINT assetId );
+		void RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime );
 
 		void	BeginScene();
 		void	EndScene();

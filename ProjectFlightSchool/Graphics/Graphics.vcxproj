@@ -91,7 +91,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Animated3dAsset.h" />
-    <ClInclude Include="AnimationTestAsset.h" />
+    <ClInclude Include="AnimationAsset.h" />
     <ClInclude Include="AssetBase.h" />
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="CameraInfo.h" />
@@ -108,7 +108,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Animated3dAsset.cpp" />
-    <ClCompile Include="AnimationTestAsset.cpp" />
+    <ClCompile Include="AnimationAsset.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="AssetBase.cpp" />
     <ClCompile Include="AssetManager.cpp" />

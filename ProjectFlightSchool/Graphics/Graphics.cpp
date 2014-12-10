@@ -201,22 +201,22 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 	for( int i = 0; i < (int)skeleton->joints.size(); i++ )
 	{
 		int					lastFrame = 1;
-		DirectX::XMFLOAT4X4	previousMatrix = skeleton->joints.at( i ).originalMatrix;
+		DirectX::XMFLOAT4X4	previousMatrix = skeleton->joints.at(i).originalMatrix;
 
 
-		for( int j = 0; j < (int)animation->joints.at( i ).keys.size(); j++ )
+		for( int j = 0; j < (int)animation->joints.at(i).keys.size(); j++ )
 		{
 			//If no keyframes exist apply static pose
-			if( animation->joints.at( i ).keys.size() == 1 && animation->joints.at( i ).keys.at( j ) == 0 )
+			if( animation->joints.at(i).keys.size() == 1 && animation->joints.at(i).keys.at(j) == 0 )
 			{
-				if( skeleton->joints.at( i ).parentIndex == -1 )
+				if( skeleton->joints.at(i).parentIndex == -1 )
 				{
-					model->mCurrentBoneTransforms[i] = animation->joints.at( i ).matricies.at( 0 );
+					model->mCurrentBoneTransforms[i] = animation->joints.at(i).matricies.at( 0 );
 				}
 				else
 				{
-					DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &animation->joints.at( i ).matricies.at( 0 ) );
-					DirectX::XMMATRIX parent	= DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[animation->joints.at( i ).parentIndex] );
+					DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &animation->joints.at(i).matricies.at( 0 ) );
+					DirectX::XMMATRIX parent	= DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[animation->joints.at(i).parentIndex] );
 
 					DirectX::XMStoreFloat4x4( &model->mCurrentBoneTransforms[i], child * parent );
 				}
@@ -227,40 +227,40 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 				if( animationLooped )
 					for( int frames = 0; frames < animation->AnimLength; frames++ )
 					{
-						if( animation->joints.at( i ).keys.at( j ) == frames )
+						if( animation->joints.at(i).keys.at(j) == frames )
 						{
-							previousMatrix	= animation->joints.at( i ).matricies.at( j );
+							previousMatrix	= animation->joints.at(i).matricies.at(j);
 							//lastFrame		= frames;
 						}
 					}
 				else
 					for( int frames = 0; frames < framesJumped; frames++ )
 					{
-						if( animation->joints.at( i ).keys.at( j ) == frames )
+						if( animation->joints.at(i).keys.at(j) == frames )
 						{
-							previousMatrix	= animation->joints.at( i ).matricies.at( j );
+							previousMatrix	= animation->joints.at(i).matricies.at(j);
 							lastFrame		= frames;
 						}
 					}
 
-				if( animation->joints.at( i ).keys.at( j ) == framesJumped )
+				if( animation->joints.at(i).keys.at(j) == framesJumped )
 				{
-					previousMatrix	= animation->joints.at( i ).matricies.at( j );
+					previousMatrix	= animation->joints.at(i).matricies.at(j);
 					lastFrame		= framesJumped;
 
 					DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &previousMatrix );
-					DirectX::XMMATRIX parent	= animation->joints.at( i ).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
-													DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[animation->joints.at( i ).parentIndex] );
+					DirectX::XMMATRIX parent	= animation->joints.at(i).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
+													DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[animation->joints.at(i).parentIndex] );
 
 					DirectX::XMStoreFloat4x4( &model->mCurrentBoneTransforms[i], child * parent );
 					break;
 				}
-				else if( animation->joints.at( i ).keys.at( j ) > framesJumped )
+				else if( animation->joints.at(i).keys.at(j) > framesJumped )
 				{
 					float interpolation					=	(float)( animationTime * 60.0f - lastFrame ) /
-															(float)( animation->joints.at( i ).keys.at( j ) - lastFrame );
+															(float)( animation->joints.at(i).keys.at(j) - lastFrame );
 
-					DirectX::XMMATRIX targetMatrix		= DirectX::XMLoadFloat4x4( &animation->joints.at( i ).matricies.at( j ) );
+					DirectX::XMMATRIX targetMatrix		= DirectX::XMLoadFloat4x4( &animation->joints.at(i).matricies.at(j) );
 					DirectX::XMMATRIX child				= DirectX::XMLoadFloat4x4( &previousMatrix );
 					
 					DirectX::XMVECTOR targetComp[3];
@@ -274,8 +274,8 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 																	DirectX::XMQuaternionSlerp( childComp[1], targetComp[1], interpolation ),
 																	DirectX::XMVectorLerp( childComp[2], targetComp[2], interpolation ) );			
 
-					DirectX::XMMATRIX parent	= animation->joints.at( i ).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
-													DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[animation->joints.at( i ).parentIndex] );
+					DirectX::XMMATRIX parent	= animation->joints.at(i).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
+													DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[animation->joints.at(i).parentIndex] );
 
 					DirectX::XMStoreFloat4x4( &model->mCurrentBoneTransforms[i], child * parent );
 					break;
@@ -283,8 +283,8 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 				else
 				{
 					DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &previousMatrix );
-					DirectX::XMMATRIX parent	= animation->joints.at( i ).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
-													DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[animation->joints.at( i ).parentIndex] );
+					DirectX::XMMATRIX parent	= animation->joints.at(i).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
+													DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[animation->joints.at(i).parentIndex] );
 
 					DirectX::XMStoreFloat4x4( &model->mCurrentBoneTransforms[i], child * parent );
 				}

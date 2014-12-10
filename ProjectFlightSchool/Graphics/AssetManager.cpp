@@ -395,17 +395,17 @@ HRESULT	AssetManager::LoadSkeletonAsset( string filePath, string fileName, Asset
 			// Fix index for parents
 			for (int i = 0; i < (int)tempSkel->mSkeleton.joints.size(); i++)
 			{
-				if( strcmp( (char*)tempSkel->mSkeleton.joints.at( i ).parentName.c_str() , "root" ) == 0 )
+				if( strcmp( (char*)tempSkel->mSkeleton.joints.at(i).parentName.c_str() , "root" ) == 0 )
 				{
-					tempSkel->mSkeleton.joints.at( i ).parentIndex = -1;
+					tempSkel->mSkeleton.joints.at(i).parentIndex = -1;
 				}
 				else
 				{
 					for( int j = 0; j < (int)tempSkel->mSkeleton.joints.size(); j++ )
 					{
-						if( strcmp( (char*)tempSkel->mSkeleton.joints.at( i ).parentName.c_str(), (char*)tempSkel->mSkeleton.joints.at( j ).jointName.c_str() ) == 0 )
+						if( strcmp( (char*)tempSkel->mSkeleton.joints.at(i).parentName.c_str(), (char*)tempSkel->mSkeleton.joints.at(j).jointName.c_str() ) == 0 )
 						{
-							tempSkel->mSkeleton.joints.at( i ).parentIndex = j;
+							tempSkel->mSkeleton.joints.at(i).parentIndex = j;
 							break;
 						}
 					}
@@ -538,17 +538,17 @@ HRESULT	AssetManager::LoadAnimationAsset( string filePath, string fileName, Asse
 		// Fix index for parents
 		for (int i = 0; i < (int)tempAnim->mAnimationData.joints.size(); i++)
 		{
-			if( strcmp( (char*)tempAnim->mAnimationData.joints.at( i ).parentName.c_str() , "root" ) == 0 )
+			if( strcmp( (char*)tempAnim->mAnimationData.joints.at(i).parentName.c_str() , "root" ) == 0 )
 			{
-				tempAnim->mAnimationData.joints.at( i ).parentIndex = -1;
+				tempAnim->mAnimationData.joints.at(i).parentIndex = -1;
 			}
 			else
 			{
 				for( int j = 0; j < (int)tempAnim->mAnimationData.joints.size(); j++ )
 				{
-					if( strcmp( (char*)tempAnim->mAnimationData.joints.at( i ).parentName.c_str(), (char*)tempAnim->mAnimationData.joints.at( j ).jointName.c_str() ) == 0 )
+					if( strcmp( (char*)tempAnim->mAnimationData.joints.at(i).parentName.c_str(), (char*)tempAnim->mAnimationData.joints.at(j).jointName.c_str() ) == 0 )
 					{
-						tempAnim->mAnimationData.joints.at( i ).parentIndex = j;
+						tempAnim->mAnimationData.joints.at(i).parentIndex = j;
 						break;
 					}
 				}

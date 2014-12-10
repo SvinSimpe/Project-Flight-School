@@ -1,13 +1,17 @@
 #ifndef ASSETMANAGER_H
 #define ASSETMANAGER_H
 
-#include "AssetBase.h"
 #include "Static3dAsset.h"
+#include "Animated3dAsset.h"
+#include "SkeletonAsset.h"
+#include "AnimationAsset.h"
 #include "Vertex.h"
-#include "ImporterAnim.h"
-#include "MapPathImportHandler.h"
+//#include "ImporterAnim.h"
+//#include "MapPathImportHandler.h"
 #include <vector>
 #include <fstream>
+#include <iostream>
+//#include <string>
 
 struct MeshInfo
 {
@@ -33,8 +37,13 @@ class AssetManager
 		HRESULT		PlaceholderAssets( ID3D11Device* device );
 	protected:
 	public:
-		HRESULT		LoadStatic3dAsset( ID3D11Device* device, char* fileName, AssetID &assetId );
-		HRESULT		LoadAnimated3dAsset( ID3D11Device* device, char* fileName, AssetID &assetId );
+		HRESULT			LoadStatic3dAsset( ID3D11Device* device, char* fileName, AssetID &assetId );
+		HRESULT			LoadAnimated3dAsset( ID3D11Device* device, char* fileName, AssetID skeletonId, AssetID &assetId );
+		HRESULT			LoadSkeletonAsset( std::string filePath, std::string fileName, AssetID &assetId );
+		HRESULT			LoadAnimationAsset( std::string filePath, std::string fileName, AssetID &assetId );
+
+		AnimationData	ImportBinaryAnimData( std::string directoryPath, std::string fileName );
+		Skeleton		ImportBinarySkelData( std::string directoryPath, std::string fileName );
 
 		HRESULT		Initialize( ID3D11Device* device );
 		void		Release();

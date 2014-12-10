@@ -27,7 +27,7 @@ class Client // The class used by clients to connect to the server
 		
 		// Functions
 	private:
-		bool	PkgLoop();
+		bool	SendLoop();
 		bool	ReceiveLoop();
 
 	protected:

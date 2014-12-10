@@ -19,7 +19,7 @@
 #include "Package.h"
 #include "Structs.h"
 
-#define DEFAULT_BUFLEN	512
+#define DEFAULT_BUFLEN	256
 #define DEFAULT_PORT	"1337"
 #define DEFAULT_IP		"localhost"
 
@@ -36,7 +36,7 @@ class Connection
 	protected:
 	public:
 		template <typename T>
-		bool	SendPkg( SOCKET &to, T body, Net_Event type );
+		bool	SendPkg( SOCKET &to, int eventIndex, Net_Event type, T body );
 		template <typename T>
 		T		ReceivePkg( SOCKET &from, Package<T> &p );
 
@@ -52,10 +52,10 @@ class Connection
 };
 
 template <typename T>
-bool Connection::SendPkg( SOCKET &to, T body, Net_Event type )
+bool Connection::SendPkg( SOCKET &to, int eventIndex, Net_Event type, T body )
 {
 	Package<T> p;
-	p.head.index		= 0;
+	p.head.index		= eventIndex;
 	p.head.eventType	= type;
 	p.head.contentSize	= sizeof( body );
 	p.body.content		= body;

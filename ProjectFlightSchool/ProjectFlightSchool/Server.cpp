@@ -72,7 +72,7 @@ bool Server::Connect()
 		WSACleanup();
 		return false;
 	}
-
+	mAddrResult->ai_addr;
 	printf( "Server up and running.\n" );
 
 	return true;

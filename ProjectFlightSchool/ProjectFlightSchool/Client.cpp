@@ -1,15 +1,19 @@
 #include "Client.h"
 
-bool Client::PkgLoop()
+bool Client::SendLoop()
 {
 	bool result = false;
 	while ( mServerSocket != INVALID_SOCKET )
 	{
-		Empty e;
+		Message msg;
+		msg.msg = "Goodbye!";
 		system("pause");
 
-		mConn->SendPkg( mServerSocket, e, Net_Event::QUIT );
-	};
+		if (mServerSocket != INVALID_SOCKET)
+		{
+			mConn->SendPkg( mServerSocket, 0, Net_Event::QUIT, msg );
+		}
+	}
 
 	return true;
 }
@@ -70,7 +74,7 @@ bool Client::Connect()
 
 bool Client::Run()
 {
-	std::thread write( &Client::PkgLoop, this );
+	std::thread write( &Client::SendLoop, this );
 	std::thread listen( &Client::ReceiveLoop, this );
 
 	write.join();

@@ -1,10 +1,6 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
-struct Empty // Used for sends where no actual package needs to be sent
-{
-};
-
 struct Message
 {
 	char* msg = "";

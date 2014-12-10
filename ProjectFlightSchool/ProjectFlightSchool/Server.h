@@ -52,9 +52,10 @@ void Server::HandlePkg( SOCKET &s, Package<T> p )
 	{
 		case Net_Event::QUIT:
 		{
-			Empty e;
+			Message msg;
+			msg.msg = "Goodbye!";
 			printf( "%d disconnected.\n", s );
-			mConn->SendPkg( s, e, Net_Event::QUIT );
+			mConn->SendPkg( s, 0, Net_Event::QUIT, msg );
 			mConn->DisconnectSocket( s );
 		}
 			break;

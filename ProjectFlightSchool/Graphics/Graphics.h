@@ -58,6 +58,12 @@ class LIBRARY_EXPORT Graphics
 		void RenderStatic3dAsset( UINT assetId, float x, float y, float z );
 		void RenderStatic3dAsset( UINT assetId, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation );
 
+		Camera* GetCamera();
+
+		void SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY );
+		void SetInverseViewMatrix( XMMATRIX &inverseViewMatrix );
+		void SetInverseProjectionMatrix( XMMATRIX &projectionViewMatrix );
+
 		void	BeginScene();
 		void	EndScene();
 		static	Graphics* GetInstance();

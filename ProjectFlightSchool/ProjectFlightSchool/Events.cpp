@@ -41,5 +41,6 @@
 // To define a new event - you need a 32-bit GUID. 
 // In Visual Studio, go to Tools->Create GUID and grab the first bit.
 const EventType TestEvent::GUID( 0 );
+const EventType Event_Player_Moved::GUID( 1 );
 
 

@@ -93,8 +93,16 @@ int	System::Run()
 		{
 			RECT r;
 			GetWindowRect( mHWnd, &r );
-			//ClipCursor( &r );		Uncomment this to lock the cursor to the game window
-			Update( 0.0f );
+
+			float deltaTime	= mTimer->GetDeltaTime();
+			float fps		= mTimer->GetFPS();
+
+			wchar_t title[100];
+			swprintf( title, sizeof(title), L"Project-Flight-School: Version 0.1 -  DeltaTime: %f  - FPS: %d  Now with extra pixels!", deltaTime, (int)fps );
+			SetWindowText( mHWnd, title );
+
+			//ClipCursor( &r );//		Uncomment this to lock the cursor to the game window
+			Update( deltaTime );
 			Render();
 		}
 	}
@@ -152,15 +160,15 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 
 	Graphics::GetInstance()->Initialize( mHWnd, mScreenWidth, mScreenHeight );
 
-	const char* port = DEFAULT_PORT;
-	const char* ip = DEFAULT_IP;
-
-	Input::GetInstance()->Initialize( mScreenWidth, mScreenHeight );
+	Input::GetInstance()->Initialize( mScreenWidth, mScreenHeight, mHWnd );
 
 	mNetworkThread	= std::thread( &System::NetworkInit, this );
 	
 	mGame = new Game();
 	mGame->Initialize();
+
+	mTimer = new Timer();
+	mTimer->Initialize();
 	
 	return S_OK;
 }
@@ -173,8 +181,9 @@ void System::Release()
 	mClient.Release();
 	Server::GetInstance()->Release();
 	mGame->Release();
-
 	SAFE_DELETE( mGame );
+	mTimer->Release();
+	SAFE_DELETE( mTimer );
 }
 
 System::System()
@@ -184,6 +193,7 @@ System::System()
 	mScreenWidth	= 0;
 	mScreenHeight	= 0;
 	mGame			= nullptr;
+	mTimer			= nullptr;
 }
 
 System::~System()

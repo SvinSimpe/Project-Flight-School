@@ -116,7 +116,7 @@ public:
     // may not in fact get processed.
 	//
 
-	explicit IEventManager( const char* pName );
+	explicit IEventManager();
 	virtual ~IEventManager( void );
 
 

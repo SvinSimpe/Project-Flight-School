@@ -51,7 +51,7 @@ void Graphics::RenderStatic3dAsset( UINT assetId )
 {
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
-	UINT32 vertexSize				= sizeof( Vertex );
+	UINT32 vertexSize				= sizeof( StaticVertex );
 	UINT32 offset					= 0;
 	ID3D11Buffer* buffersToSet[]	= { mAssetManager->mAssetContainer[assetId]->mVertexBuffer };
 	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
@@ -78,7 +78,7 @@ void Graphics::RenderStatic3dAsset( UINT assetId, float x, float y, float z )
 {
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
-	UINT32 vertexSize				= sizeof( Vertex );
+	UINT32 vertexSize				= sizeof( StaticVertex );
 	UINT32 offset					= 0;
 	ID3D11Buffer* buffersToSet[]	= { mAssetManager->mAssetContainer[assetId]->mVertexBuffer };
 	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
@@ -105,7 +105,7 @@ void Graphics::RenderStatic3dAsset( UINT assetId, DirectX::XMFLOAT3 position, Di
 {
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
-	UINT32 vertexSize				= sizeof( Vertex );
+	UINT32 vertexSize				= sizeof( StaticVertex );
 	UINT32 offset					= 0;
 	ID3D11Buffer* buffersToSet[]	= { mAssetManager->mAssetContainer[assetId]->mVertexBuffer };
 	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
@@ -128,6 +128,28 @@ void Graphics::RenderStatic3dAsset( UINT assetId, DirectX::XMFLOAT3 position, Di
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
 
 	mDeviceContext->Draw( mAssetManager->mAssetContainer[assetId]->mVertexCount, 0 );
+}
+
+Camera* Graphics::GetCamera()
+{
+	return mCamera;
+}
+
+void Graphics::SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY)
+{
+	//Calculate mouse position in NDC space
+	mousePositionX	= ( ( 2.0f *  mousePositionX ) / mScreenWidth  - 1.0f );
+	mousePositionY	= ( ( 2.0f * -mousePositionY ) / mScreenHeight + 1.0f );
+}
+
+void Graphics::SetInverseViewMatrix( XMMATRIX &inverseViewMatrix )
+{
+	inverseViewMatrix = mCamera->GetInverseViewMatrix();
+}
+
+void Graphics::SetInverseProjectionMatrix( XMMATRIX &projectionViewMatrix )
+{
+	projectionViewMatrix = mCamera->GetInverseProjectionMatrix();
 }
 
 //Clear canvas and prepare for rendering.

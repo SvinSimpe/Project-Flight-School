@@ -1,10 +1,9 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-
 #include "EventManager.h"
+#include "Events.h"
 #include "Input.h"
-#include "Graphics.h"
 
 struct BoundingBox
 {

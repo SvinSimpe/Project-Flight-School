@@ -64,8 +64,9 @@ class TestEvent : public IEvent
 class Event_Player_Moved : public IEvent
 {
 	private:
-		XMFLOAT3 mLowerBodyPos;
-		XMFLOAT3 mUpperBodyPos;
+		XMFLOAT3		mLowerBodyPos;
+		XMFLOAT3		mUpperBodyPos;
+		XMFLOAT3		mDirection;
 
 	protected:
 	public:
@@ -73,18 +74,95 @@ class Event_Player_Moved : public IEvent
 	
 	private:
 	public:
-		Event_Player_Moved( XMFLOAT3 lowerBodyPos, XMFLOAT3 upperBodyPos )
+		Event_Player_Moved( XMFLOAT3 lowerBodyPos, XMFLOAT3 upperBodyPos, XMFLOAT3 direction )
 		{
 			mLowerBodyPos	= lowerBodyPos;
 			mUpperBodyPos	= upperBodyPos;
+			mDirection		= direction;
 		}
-		XMFLOAT3 LowerBodyPos()const
+		XMFLOAT3 LowerBodyPos() const
 		{
 			return mLowerBodyPos;
 		}
-		XMFLOAT3 UpperBodyPos()const
+		XMFLOAT3 UpperBodyPos() const
 		{
 			return mUpperBodyPos;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
+		}
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+};
+
+class Event_Remote_Player_Update : public IEvent
+{
+private:
+	unsigned int	mID;
+	XMFLOAT3		mLowerBodyPos;
+	XMFLOAT3		mUpperBodyPos;
+	XMFLOAT3		mDirection;
+
+protected:
+public:
+	static const EventType GUID;
+
+private:
+public:
+	Event_Remote_Player_Update( unsigned int id, XMFLOAT3 lowerBodyPos, XMFLOAT3 upperBodyPos, XMFLOAT3 direction )
+	{
+		mID = id;
+		mLowerBodyPos = lowerBodyPos;
+		mUpperBodyPos = upperBodyPos;
+		mDirection = direction;
+	}
+	unsigned int ID() const
+	{
+		return mID;
+	}
+	XMFLOAT3 LowerBodyPos() const
+	{
+		return mLowerBodyPos;
+	}
+	XMFLOAT3 UpperBodyPos() const
+	{
+		return mUpperBodyPos;
+	}
+	XMFLOAT3 Direction() const
+	{
+		return mDirection;
+	}
+protected:
+	const EventType& GetEventType( void ) const
+	{
+		return GUID;
+	}
+};
+
+class Event_Remote_Player_Joined : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int mID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	public:
+		Event_Remote_Player_Joined( unsigned int id )
+		{
+			mID = id;
+		}
+		unsigned int ID() const
+		{
+			return mID;
 		}
 	protected:
 		const EventType& GetEventType( void ) const

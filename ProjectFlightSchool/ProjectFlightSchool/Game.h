@@ -1,10 +1,10 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include <Windows.h>
+#include "Client.h"
+#include "Server.h"
 #include "StateMachine.h"
-#include "EventManager.h"
-#include "Events.h"
+#include <iostream>
 
 class Game
 {
@@ -13,11 +13,17 @@ class Game
 		StateMachine*		mStateMachine;
 		EventManager*		mEventManager;
 
+		std::thread			mNetworkThread;
+		std::thread			mServerThread;
+		Client*				mClient;
+
 	protected:
 	public:
 
 		// Class functions
 	private:
+		void	NetworkInit();
+
 	protected:
 	public:
 		HRESULT Update( float deltaTime );

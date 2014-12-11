@@ -1,23 +1,5 @@
 #include "Client.h"
 
-bool Client::SendLoop()
-{
-	bool result = false;
-	while ( mServerSocket != INVALID_SOCKET )
-	{
-		Message msg;
-		msg.msg = "Goodbye!";
-		system("pause");
-
-		if (mServerSocket != INVALID_SOCKET)
-		{
-			mConn->SendPkg( mServerSocket, 0, Net_Event::QUIT, msg );
-		}
-	}
-
-	return true;
-}
-
 bool Client::ReceiveLoop()
 {
 	Package<void*>* p = new Package<void*>[DEFAULT_BUFLEN];
@@ -27,13 +9,35 @@ bool Client::ReceiveLoop()
 		{
 			if ( p->head.eventType != Net_Event::ERROR_EVENT )
 			{
-				HandlePkg( *p );
+				HandlePkg( p );
 			}
 		}
 	}
 	if (p)
+	{
 		delete[] p;
+	}
 	return true;
+}
+
+void Client::PlayerMoved( IEventPtr newEvent )
+{
+	if ( newEvent->GetEventType() == Event_Player_Moved::GUID )
+	{
+		std::shared_ptr<Event_Player_Moved> data = std::static_pointer_cast<Event_Player_Moved>( newEvent );
+		if ( mServerSocket != INVALID_SOCKET )
+		{
+			EvPlayerMoved msg;
+			msg.lowerBody	= data->LowerBodyPos();
+			msg.upperBody	= data->UpperBodyPos();
+			msg.direction	= data->Direction();
+
+			if ( mServerSocket != INVALID_SOCKET )
+			{
+				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_MOVED, msg );
+			}
+		}
+	}
 }
 
 bool Client::Connect()
@@ -68,26 +72,26 @@ bool Client::Connect()
 	}
 
 	printf( "Connected to: %d\n", mServerSocket );
+	mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_JOINED, 0 ); // The client "announces" itself to the server, and by extension, the other clients
 
 	return true;
 }
 
 bool Client::Run()
 {
-	std::thread write( &Client::SendLoop, this );
+	EventManager::GetInstance()->AddListener( &Client::PlayerMoved, this, Event_Player_Moved::GUID );
+
 	std::thread listen( &Client::ReceiveLoop, this );
 
-	write.join();
 	listen.join();
 
 	return true;
 }
 
-bool Client::Initialize( const char* ip, const char* port )
+bool Client::Initialize( const char* port, const char* ip )
 {
-	WSADATA WSAData;
-
-	mResult = WSAStartup( MAKEWORD( 2, 2 ), &WSAData );
+	WSADATA WSAData = WSADATA();
+	mResult			= WSAStartup( MAKEWORD( 2, 2 ), &WSAData );
 	if ( mResult != 0 )
 	{
 		printf( "WSAStartup failed with error: %d\n", mResult );

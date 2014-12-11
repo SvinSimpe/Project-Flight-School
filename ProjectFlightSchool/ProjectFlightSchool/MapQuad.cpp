@@ -8,7 +8,7 @@ void MapQuad::SetUpVertices( UINT dimX, UINT dimY )
 		mQuad[i].position[1] = y;
 		mQuad[i].position[2] = z;
 
-		mQuad[i].normal[0]= x;
+		mQuad[i].normal[0] = x;
 		mQuad[i].normal[1] = y;
 		mQuad[i].normal[2] = z;
 

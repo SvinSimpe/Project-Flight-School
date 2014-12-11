@@ -1,24 +1,28 @@
 #ifndef MAPSECTION_H
 #define MAPSECTION_H
-#include "MapQuad.h"
+#include <Graphics.h>
+//#include "MapQuad.h"
+
+static const UINT SECTION_DIMX = 10;
+static const UINT SECTION_DIMZ = 10;
 
 class MapSection
 {
 	private:
-		unsigned int mDimX = 10;
-		unsigned int mDimY = 10;
-		MapQuad mSection[10*10];
+
+		UINT mIndices[SECTION_DIMX * SECTION_DIMZ * 6];
+		UINT mSectionID;
 
 	protected:
 	public:
 
 	private:
-
+		void SetUpIndices();
 	protected:
-		StaticVertex& GetVertices();
 	public:
 		//HRESULT Update( float deltaTime );
-		HRESULT Initialize();
+		UINT* GetIndices();
+		HRESULT Initialize( UINT sectionID );
 		void Release();
 		MapSection();
 		~MapSection();

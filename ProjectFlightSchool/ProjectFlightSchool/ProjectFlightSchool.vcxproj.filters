@@ -90,7 +90,10 @@
     <ClCompile Include="Timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MapQuad.cpp">
+    <ClCompile Include="MapSection.cpp">
+      <Filter>Worldmap\SourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="Map.cpp">
       <Filter>Worldmap\SourceFiles</Filter>
     </ClCompile>
   </ItemGroup>
@@ -140,10 +143,13 @@
     <ClInclude Include="Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MapQuad.h">
+    <ClInclude Include="MapSection.h">
       <Filter>Worldmap\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MapSection.h">
+    <ClInclude Include="Map.h">
+      <Filter>Worldmap\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MapConstants.h">
       <Filter>Worldmap\Header Files</Filter>
     </ClInclude>
   </ItemGroup>

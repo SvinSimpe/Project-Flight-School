@@ -31,22 +31,32 @@ XMMATRIX Camera::GetViewMatrix() const
 	return XMMatrixTranspose( XMLoadFloat4x4( &mViewMatrix ) );
 }
 
+XMMATRIX Camera::GetInverseViewMatrix() const
+{
+	return XMMatrixInverse( nullptr, XMLoadFloat4x4( &mViewMatrix ) );
+}
+
+XMMATRIX Camera::GetInverseProjectionMatrix() const
+{
+	return  XMMatrixInverse( nullptr, XMLoadFloat4x4( &mProjMatrix ) );
+}
+
 XMMATRIX Camera::GetProjMatrix() const
 {
 	return XMMatrixTranspose( XMLoadFloat4x4( &mProjMatrix ) );
 }
 
-XMFLOAT4	Camera::GetPos() const
+XMFLOAT4 Camera::GetPos() const
 {
 	return mPos;
 }
 
-XMFLOAT4	Camera::GetUp()	const
+XMFLOAT4 Camera::GetUp()	const
 {
 	return mUp;
 }
 
-XMFLOAT4	Camera::GetFocusPoint() const
+XMFLOAT4 Camera::GetFocusPoint() const
 {
 	return mFocusPoint;
 }

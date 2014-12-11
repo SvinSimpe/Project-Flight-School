@@ -296,6 +296,28 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 		RenderStatic3dAsset( 1, &model->mCurrentBoneTransforms[i] );
 }
 
+Camera* Graphics::GetCamera()
+{
+	return mCamera;
+}
+
+void Graphics::SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY )
+{
+	//Calculate mouse position in NDC space
+	mousePositionX	= ( ( 2.0f *  mousePositionX ) / mScreenWidth  - 1.0f );
+	mousePositionY	= ( ( 2.0f * -mousePositionY ) / mScreenHeight + 1.0f );
+}
+
+void Graphics::SetInverseViewMatrix( XMMATRIX &inverseViewMatrix )
+{
+	inverseViewMatrix = mCamera->GetInverseViewMatrix();
+}
+
+void Graphics::SetInverseProjectionMatrix( XMMATRIX &projectionViewMatrix )
+{
+	projectionViewMatrix = mCamera->GetInverseProjectionMatrix();
+}
+
 //Clear canvas and prepare for rendering.
 void Graphics::BeginScene()
 {
@@ -483,7 +505,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	CameraInfo cameraInfo;
 	ZeroMemory( &cameraInfo, sizeof( cameraInfo ) );
-	cameraInfo.eyePos		= DirectX::XMFLOAT4( 20.0f, 20.0f, -30.0f, 1.0f );
+	cameraInfo.eyePos		= DirectX::XMFLOAT4( 0, 50.0f, -50.0f, 1.0f );
 	cameraInfo.focusPoint	= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
 	cameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
 	cameraInfo.width		= (float)screenWidth;

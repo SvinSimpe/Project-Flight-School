@@ -301,7 +301,7 @@ Camera* Graphics::GetCamera()
 	return mCamera;
 }
 
-void Graphics::SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY)
+void Graphics::SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY )
 {
 	//Calculate mouse position in NDC space
 	mousePositionX	= ( ( 2.0f *  mousePositionX ) / mScreenWidth  - 1.0f );

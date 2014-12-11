@@ -33,9 +33,12 @@ XMMATRIX Camera::GetViewMatrix() const
 
 XMMATRIX Camera::GetInverseViewMatrix() const
 {
-	XMVECTOR determinant = XMMatrixDeterminant( XMLoadFloat4x4( &mViewMatrix ) );
+	return XMMatrixInverse( nullptr, XMLoadFloat4x4( &mViewMatrix ) );
+}
 
-	return XMMatrixTranspose(  XMMatrixInverse( &determinant, XMLoadFloat4x4( &mViewMatrix ) ) );
+XMMATRIX Camera::GetInverseProjectionMatrix() const
+{
+	return  XMMatrixInverse( nullptr, XMLoadFloat4x4( &mProjMatrix ) );
 }
 
 XMMATRIX Camera::GetProjMatrix() const

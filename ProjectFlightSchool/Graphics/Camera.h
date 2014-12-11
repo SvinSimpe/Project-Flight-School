@@ -41,6 +41,7 @@ class Camera
 		XMMATRIX GetViewMatrix()		const;
 		XMMATRIX GetProjMatrix()		const;	
 		XMMATRIX GetInverseViewMatrix() const;
+		XMMATRIX GetInverseProjectionMatrix() const;
 
 		XMFLOAT4	GetPos()		const;
 		XMFLOAT4	GetUp()			const;

@@ -7,6 +7,7 @@
 #include <vector>
 #include "KeyDefines.h"
 #include <DirectXMath.h>
+#include "Graphics.h"
 
 const UINT NUMBER_OF_DEVICES	= 2;	//The amount of devices to be registered; mouse and keyboard currently, added to the array in written order.
 const UINT BUFFER_SIZE			= 40;	//Fixed buffer size for interpretating RAWINPUT messages, set to the size of the mouse input since it is the biggest of the 2 devices we're handling.
@@ -25,6 +26,8 @@ class Input
 		UINT				mScreenWidth;
 		UINT				mScreenHeight;
 
+		HWND				mHwnd;
+
 	private:
 		//Stoping the compiler from generating methods for copying the object
 				Input( Input const& );		//Not implemented
@@ -39,7 +42,7 @@ class Input
 		//Do not call this, call Update( ... ).
 		RAWINPUT*	ReadMessage( LPARAM lParam );
 		void		Update( LPARAM lParam );
-		HRESULT		Initialize( UINT screenWidth, UINT screenHeight );
+		HRESULT		Initialize( UINT screenWidth, UINT screenHeight, HWND hWnd );
 		void		Release();
 
 		static Input* GetInstance()

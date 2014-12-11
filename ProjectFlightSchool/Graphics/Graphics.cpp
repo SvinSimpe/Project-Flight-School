@@ -135,6 +135,23 @@ Camera* Graphics::GetCamera()
 	return mCamera;
 }
 
+void Graphics::SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY)
+{
+	//Calculate mouse position in NDC space
+	mousePositionX	= ( ( 2.0f *  mousePositionX ) / mScreenWidth  - 1.0f );
+	mousePositionY	= ( ( 2.0f * -mousePositionY ) / mScreenHeight + 1.0f );
+}
+
+void Graphics::SetInverseViewMatrix( XMMATRIX &inverseViewMatrix )
+{
+	inverseViewMatrix = mCamera->GetInverseViewMatrix();
+}
+
+void Graphics::SetInverseProjectionMatrix( XMMATRIX &projectionViewMatrix )
+{
+	projectionViewMatrix = mCamera->GetInverseProjectionMatrix();
+}
+
 //Clear canvas and prepare for rendering.
 void Graphics::BeginScene()
 {

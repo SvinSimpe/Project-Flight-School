@@ -61,7 +61,7 @@ void Player::HandleInput( float deltaTime )
 	mUpperBody.direction.z = 0.0f;
 }
 
-void Player::Move( XMFLOAT3 direction  )
+void Player::Move( XMFLOAT3 direction )
 {
 	mLowerBody.direction.x += direction.x;
 	mLowerBody.direction.z += direction.z;
@@ -111,7 +111,7 @@ HRESULT Player::Initialize()
 
 	mUpperBody.position	= XMFLOAT3( 10.0f, 2.0f, 10.0f );
 	mLowerBody.position	= XMFLOAT3( 10.0f, 1.0f, 10.0f );
-	mLowerBody.speed	= 0.005f;
+	mLowerBody.speed	= 0.2f;
 
 	return S_OK;
 }

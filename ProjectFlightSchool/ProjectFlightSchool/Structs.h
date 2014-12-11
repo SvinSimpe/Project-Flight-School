@@ -19,6 +19,7 @@ struct EvPlayerMoved
 {
 	DirectX::XMFLOAT3 lowerBody;
 	DirectX::XMFLOAT3 upperBody;
+	DirectX::XMFLOAT3 direction;
 };
 
 struct EvPlayerConnection

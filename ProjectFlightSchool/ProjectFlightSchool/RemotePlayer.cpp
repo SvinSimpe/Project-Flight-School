@@ -5,11 +5,9 @@ void RemotePlayer::RemoteUpdate( IEventPtr newEvent )
 	if ( newEvent->GetEventType() == Event_Remote_Player_Update::GUID )
 	{
 		std::shared_ptr<Event_Remote_Player_Update>data	= std::static_pointer_cast<Event_Remote_Player_Update>( newEvent );
-		if (mID != data->ID())
-		{
-			mLowerBody.position									= data->LowerBodyPos();
-			mUpperBody.position									= data->UpperBodyPos();
-		}
+		mLowerBody.position		= data->LowerBodyPos();
+		mUpperBody.position		= data->UpperBodyPos();
+		mUpperBody.direction	= data->Direction();
 	}
 }
 
@@ -20,7 +18,7 @@ void RemotePlayer::LookAt( float rotation )
 
 HRESULT RemotePlayer::Render( float deltaTime )
 {
-	Graphics::GetInstance()->RenderStatic3dAsset( mUpperBody.playerModel, mUpperBody.position.x, mUpperBody.position.y, mUpperBody.position.z );
+	Graphics::GetInstance()->RenderStatic3dAsset( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
 	Graphics::GetInstance()->RenderStatic3dAsset( mLowerBody.playerModel, mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z );
 
 	return S_OK;

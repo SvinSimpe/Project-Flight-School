@@ -58,14 +58,14 @@ void Client::HandlePkg( Package<T>* p )
 		{
 			//printf("Eventet från servern var Event_Player_Moved och den innehöll positionerna:\n" ); // %f, %f, %f och %f, %f, %f
 			EvPlayerMoved msg = (EvPlayerMoved&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Update( mID, msg.lowerBody, msg.upperBody ) );
+			IEventPtr E1( new Event_Remote_Player_Update( mID, msg.lowerBody, msg.upperBody, msg.direction ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
 		case Net_Event::EV_PLAYER_JOINED:
 		{
 			EvPlayerConnection msg = (EvPlayerConnection&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Connection( msg.ID ) );
+			IEventPtr E1( new Event_Remote_Player_Joined( msg.ID ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 			printf( "Remote player with ID: %d joined.\n", msg.ID );
 		}

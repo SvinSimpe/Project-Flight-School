@@ -30,6 +30,7 @@ void Client::PlayerMoved( IEventPtr newEvent )
 			EvPlayerMoved msg;
 			msg.lowerBody	= data->LowerBodyPos();
 			msg.upperBody	= data->UpperBodyPos();
+			msg.direction	= data->Direction();
 
 			if ( mServerSocket != INVALID_SOCKET )
 			{

@@ -67,14 +67,7 @@ void Client::HandlePkg( Package<T>* p )
 			EvPlayerConnection msg = (EvPlayerConnection&)p->body.content;
 			IEventPtr E1( new Event_Remote_Player_Connection( msg.ID ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
-			printf("Remote player with ID: %d joined.\n", msg.ID);
-		}
-			break;
-		case Net_Event::ACCEPT_ID:
-		{
-			Message msg = (Message&)p->body.content;
-			mID = (unsigned int)msg.msg;
-			printf("Your ID is: %d.\n", mID);
+			printf( "Remote player with ID: %d joined.\n", msg.ID );
 		}
 			break;
 		default:

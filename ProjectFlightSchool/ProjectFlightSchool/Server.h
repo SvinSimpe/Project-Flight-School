@@ -79,10 +79,6 @@ void Server::HandlePkg( SOCKET &s, Package<T>* p )
 			break;
 		case Net_Event::EV_PLAYER_JOINED:
 		{
-			Message msg;
-			msg.msg = (char*)s;
-			mConn->SendPkg(s, 0, Net_Event::ACCEPT_ID, msg);
-
 			EvPlayerConnection toAll; // Contains the ID of the joining client
 			toAll.ID = (unsigned int)s;
 			EvPlayerConnection toJoining; // Will contain the IDs of the already existing client

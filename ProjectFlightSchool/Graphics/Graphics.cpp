@@ -197,7 +197,7 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 		framesJumped++;
 	}
 
-	std::cout << framesJumped << std::endl;
+	//std::cout << framesJumped << std::endl;
 	for( int i = 0; i < (int)skeleton->joints.size(); i++ )
 	{
 		int					lastFrame = 1;

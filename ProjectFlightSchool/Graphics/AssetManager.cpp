@@ -321,7 +321,7 @@ HRESULT	AssetManager::LoadSkeletonAsset( string filePath, string fileName, Asset
 			file.read( memblock, size );
 			file.close();
 
-			std::cout << "File read" << std::endl;
+			//std::cout << "File read" << std::endl;
 
 			AssignAssetId( assetId );
 			tempSkel			= new SkeletonAsset();
@@ -448,7 +448,7 @@ HRESULT	AssetManager::LoadAnimationAsset( string filePath, string fileName, Asse
 			file.read( memblock, size );
 			file.close();
 
-			std::cout << "File read" << std::endl;
+			//std::cout << "File read" << std::endl;
 
 			AssignAssetId( assetId );
 			tempAnim			= new AnimationAsset();

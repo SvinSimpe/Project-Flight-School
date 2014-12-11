@@ -64,8 +64,8 @@ class TestEvent : public IEvent
 class Event_Player_Moved : public IEvent
 {
 	private:
-		XMFLOAT3 mLowerBodyPos;
-		XMFLOAT3 mUpperBodyPos;
+		XMFLOAT3		mLowerBodyPos;
+		XMFLOAT3		mUpperBodyPos;
 
 	protected:
 	public:
@@ -78,11 +78,11 @@ class Event_Player_Moved : public IEvent
 			mLowerBodyPos	= lowerBodyPos;
 			mUpperBodyPos	= upperBodyPos;
 		}
-		XMFLOAT3 LowerBodyPos()const
+		XMFLOAT3 LowerBodyPos() const
 		{
 			return mLowerBodyPos;
 		}
-		XMFLOAT3 UpperBodyPos()const
+		XMFLOAT3 UpperBodyPos() const
 		{
 			return mUpperBodyPos;
 		}
@@ -96,8 +96,9 @@ class Event_Player_Moved : public IEvent
 class Event_Remote_Player_Update : public IEvent
 {
 private:
-	XMFLOAT3 mLowerBodyPos;
-	XMFLOAT3 mUpperBodyPos;
+	unsigned int	mID;
+	XMFLOAT3		mLowerBodyPos;
+	XMFLOAT3		mUpperBodyPos;
 
 protected:
 public:
@@ -105,10 +106,15 @@ public:
 
 private:
 public:
-	Event_Remote_Player_Update( XMFLOAT3 lowerBodyPos, XMFLOAT3 upperBodyPos )
+	Event_Remote_Player_Update( unsigned int id, XMFLOAT3 lowerBodyPos, XMFLOAT3 upperBodyPos )
 	{
+		mID = id;
 		mLowerBodyPos = lowerBodyPos;
 		mUpperBodyPos = upperBodyPos;
+	}
+	unsigned int ID() const
+	{
+		return mID;
 	}
 	XMFLOAT3 LowerBodyPos() const
 	{
@@ -125,7 +131,7 @@ protected:
 	}
 };
 
-class Event_Remote_Player_Joined : public IEvent
+class Event_Remote_Player_Connection : public IEvent
 {
 	// Member variables
 	private:
@@ -138,7 +144,7 @@ class Event_Remote_Player_Joined : public IEvent
 	// Member functions
 	private:
 	public:
-		Event_Remote_Player_Joined( unsigned int id )
+		Event_Remote_Player_Connection( unsigned int id )
 		{
 			mID = id;
 		}

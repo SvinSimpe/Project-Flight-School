@@ -24,7 +24,7 @@ void Game::NetworkInit()
 		}
 	}
 
-	if ( mClient->Initialize( port, ip ) )
+	if ( mClient->Initialize(port, ip) )
 	{
 		if ( mClient->Connect() )
 		{
@@ -69,16 +69,17 @@ void Game::Release()
 
 	mServerThread.join();
 	mNetworkThread.join();
-	delete mClient;
 	Server::GetInstance()->Release();
+	mClient->Release();
+	SAFE_DELETE(mClient);
 }
 
 Game::Game()
 {
 	mStateMachine	= nullptr;
-	mClient			= nullptr;
 	mNetworkThread	= std::thread();
 	mServerThread	= std::thread();
+	mClient			= nullptr;
 }
 
 Game::~Game()

@@ -1,10 +1,9 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
-#include <Winsock2.h>
 #pragma comment( lib, "Ws2_32.lib" )
 
-#include <winsock2.h>
+#include <Winsock2.h>
 #include <ws2tcpip.h>
 #include <IPHlpApi.h>
 #include <stdio.h>

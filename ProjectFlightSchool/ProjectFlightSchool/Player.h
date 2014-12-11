@@ -2,9 +2,9 @@
 #define PLAYER_H
 
 #include "Graphics.h"
+#include "Input.h"
 #include "EventManager.h"
 #include "Events.h"
-#include "Input.h"
 
 struct BoundingBox
 {

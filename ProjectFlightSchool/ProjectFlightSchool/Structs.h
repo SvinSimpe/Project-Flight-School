@@ -21,7 +21,7 @@ struct EvPlayerMoved
 	DirectX::XMFLOAT3 upperBody;
 };
 
-struct EvPlayerJoined
+struct EvPlayerConnection
 {
 	unsigned int ID;
 };

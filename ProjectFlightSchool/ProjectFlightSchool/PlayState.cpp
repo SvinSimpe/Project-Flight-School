@@ -6,9 +6,9 @@
 
 void PlayState::RemoteUpdate(IEventPtr newEvent)
 {
-	if (newEvent->GetEventType() == Event_Remote_Player_Joined::GUID)
+	if (newEvent->GetEventType() == Event_Remote_Player_Connection::GUID)
 	{
-		std::shared_ptr <Event_Remote_Player_Joined> data	= std::static_pointer_cast<Event_Remote_Player_Joined>( newEvent );
+		std::shared_ptr <Event_Remote_Player_Connection> data	= std::static_pointer_cast<Event_Remote_Player_Connection>( newEvent );
 		RemotePlayer* rp = new RemotePlayer();
 		rp->Initialize( data->ID() );
 		mRemotePlayers.push_back(rp);
@@ -72,7 +72,7 @@ HRESULT PlayState::Initialize()
 	mPlayer = new Player();
 	mPlayer->Initialize();
 
-	EventManager::GetInstance()->AddListener(&PlayState::RemoteUpdate, this, Event_Remote_Player_Joined::GUID);
+	EventManager::GetInstance()->AddListener(&PlayState::RemoteUpdate, this, Event_Remote_Player_Connection::GUID);
 
 	return S_OK;
 }

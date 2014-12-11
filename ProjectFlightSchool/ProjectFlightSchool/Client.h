@@ -2,7 +2,6 @@
 #define CLIENT_H
 
 #include "Connection.h"
-#include "Package.h"
 #include "EventManager.h"
 #include "Events.h"
 
@@ -10,6 +9,7 @@ class Client // The class used by clients to connect to the server
 {
 	// Members
 	private:
+		unsigned int	mID;
 		int				mResult;
 		addrinfo*		mAddrResult;
 		SOCKET			mServerSocket;
@@ -58,21 +58,29 @@ void Client::HandlePkg( Package<T>* p )
 		{
 			//printf("Eventet från servern var Event_Player_Moved och den innehöll positionerna:\n" ); // %f, %f, %f och %f, %f, %f
 			EvPlayerMoved msg = (EvPlayerMoved&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Update( msg.lowerBody, msg.upperBody ) );
+			IEventPtr E1( new Event_Remote_Player_Update( mID, msg.lowerBody, msg.upperBody ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
 		case Net_Event::EV_PLAYER_JOINED:
 		{
-			EvPlayerJoined msg = (EvPlayerJoined&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Joined( msg.ID ) );
+			EvPlayerConnection msg = (EvPlayerConnection&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Connection( msg.ID ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
+			printf("Remote player with ID: %d joined.\n", msg.ID);
+		}
+			break;
+		case Net_Event::ACCEPT_ID:
+		{
+			Message msg = (Message&)p->body.content;
+			mID = (unsigned int)msg.msg;
+			printf("Your ID is: %d.\n", mID);
 		}
 			break;
 		default:
 		{
+			printf( "Error handling event from server.\n" );
 		}
-			break;
 	}
 }
 #endif

@@ -8,7 +8,8 @@ enum class Net_Event
 	MESSAGE,
 	QUIT,
 	EV_PLAYER_MOVED,
-	EV_PLAYER_JOINED
+	EV_PLAYER_JOINED,
+	ACCEPT_ID
 };
 
 template <typename T>

@@ -62,6 +62,18 @@ void Input::Update( LPARAM lParam )
 				GetCursorPos(&pt);
 				mCurrentMousePos.x = pt.x - raw->data.mouse.lLastX;
 				mCurrentMousePos.y = pt.y - raw->data.mouse.lLastY;
+
+				POINT position;
+				GetCursorPos( &position );
+				ScreenToClient( mHwnd, &position );
+
+				float mouseXCoord = (float)position.x;
+				float mouseYCoord = (float)position.y;
+
+				Graphics::GetInstance()->SetNDCSpaceCoordinates( mouseXCoord, mouseYCoord );
+				float viewSpaceZ	= 0.0f; 
+
+				mCurrentNDCMousePos = XMVectorSet( mouseXCoord, mouseYCoord, 0.0f, 1.0f );				
 			}
 
 			break;
@@ -88,8 +100,12 @@ void Input::Update( LPARAM lParam )
 	}
 }
 
-HRESULT	Input::Initialize( UINT screenWidth, UINT screenHeight )
+HRESULT	Input::Initialize( UINT screenWidth, UINT screenHeight, HWND hWnd )
 {
+	mScreenWidth	= screenWidth;
+	mScreenHeight	= screenHeight;
+	mHwnd			= hWnd;
+
 	UINT errorMsg;
 
 	//Mouse

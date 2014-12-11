@@ -1,10 +1,9 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "Graphics.h"
-#include "Input.h"
 #include "EventManager.h"
 #include "Events.h"
+#include "Input.h"
 
 struct BoundingBox
 {
@@ -29,7 +28,6 @@ struct BoundingCircle
 		return ( pow( center.x - inCircle.center.x, 2 ) + pow( center.y - inCircle.center.y, 2 ) ) < pow( radius + inCircle.radius, 2 );
 	}
 };
-
 
 struct UpperBody
 {

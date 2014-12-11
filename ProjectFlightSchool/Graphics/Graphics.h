@@ -67,6 +67,12 @@ class LIBRARY_EXPORT Graphics
 
 		void RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime );
 
+		Camera* GetCamera();
+
+		void SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY );
+		void SetInverseViewMatrix( XMMATRIX &inverseViewMatrix );
+		void SetInverseProjectionMatrix( XMMATRIX &projectionViewMatrix );
+
 		void	BeginScene();
 		void	EndScene();
 		static	Graphics* GetInstance();

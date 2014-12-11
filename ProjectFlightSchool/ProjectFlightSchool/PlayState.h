@@ -3,15 +3,16 @@
 
 #include "BaseState.h"
 #include "Player.h"
+#include "RemotePlayer.h"
 
 class PlayState : public BaseState
 {
 	// Class members
 	private:
 
-		AssetID		mPlaneAsset;
-		AssetID		mCubeAsset;
-		AssetID		mTestAsset;
+		AssetID			mPlaneAsset;
+		AssetID			mCubeAsset;
+		AssetID			mTestAsset;
 
 		AssetID		mTestAnimation;
 		AssetID		mTestSkeleton;
@@ -20,13 +21,15 @@ class PlayState : public BaseState
 		float		mAnimationTime;
 
 	// Debug
-		Player*		mPlayer;
+		Player*			mPlayer;
+		std::vector<RemotePlayer*> mRemotePlayers;
 
 	protected:
 	public:
 
 	// Class functions
 	private:
+		void			RemoteUpdate( IEventPtr newEvent );
 	protected:
 	public:
 		virtual HRESULT Update( float deltaTime );

@@ -1,12 +1,6 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#undef WIN32_LEAN_AND_MEAN
-#endif
-
 #include <Winsock2.h>
 #pragma comment( lib, "Ws2_32.lib" )
 
@@ -15,13 +9,13 @@
 #include <IPHlpApi.h>
 #include <stdio.h>
 #include <thread>
-#include <string>
 #include "Package.h"
 #include "Structs.h"
 
-#define DEFAULT_BUFLEN	256
-#define DEFAULT_PORT	"1337"
-#define DEFAULT_IP		"localhost"
+#define DEFAULT_BUFLEN	512
+#define DEFAULT_PORT	"27015"
+#define DEFAULT_IP		"192.168.1.61" // Gnidleif
+//#define DEFAULT_IP		"192.168.1.98" // Trassel
 
 class Connection
 	{
@@ -38,7 +32,7 @@ class Connection
 		template <typename T>
 		bool	SendPkg( SOCKET &to, int eventIndex, Net_Event type, T body );
 		template <typename T>
-		T		ReceivePkg( SOCKET &from, Package<T> &p );
+		bool	ReceivePkg( SOCKET &from, Package<T> &p );
 
 	// Functions
 	private:
@@ -54,6 +48,9 @@ class Connection
 template <typename T>
 bool Connection::SendPkg( SOCKET &to, int eventIndex, Net_Event type, T body )
 {
+	if ( to == INVALID_SOCKET )
+		return false;
+
 	Package<T> p;
 	p.head.index		= eventIndex;
 	p.head.eventType	= type;
@@ -71,8 +68,11 @@ bool Connection::SendPkg( SOCKET &to, int eventIndex, Net_Event type, T body )
 }
 
 template <typename T>
-T Connection::ReceivePkg( SOCKET &from, Package<T> &p )
+bool Connection::ReceivePkg( SOCKET &from, Package<T> &p )
 {
+	if ( from == INVALID_SOCKET )
+		return false;
+
 	mResult = recv( from, (char*)&p, DEFAULT_BUFLEN, 0 );
 	if ( mResult < 0 )
 	{
@@ -80,6 +80,7 @@ T Connection::ReceivePkg( SOCKET &from, Package<T> &p )
 		DisconnectSocket( from );
 		return false;
 	}
-	return p.body.content;
+
+	return true;
 }
 #endif

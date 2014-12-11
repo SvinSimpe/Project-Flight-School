@@ -11,19 +11,11 @@ bool Camera::Update()
 	return true;
 }
 
-void Camera::SetFocus(XMFLOAT4 focusPoint)
-{
-	mFocusPoint = focusPoint;
-}
+
 
 void Camera::SetUp(XMFLOAT4 up)
 {
 	mUp = up;
-}
-
-void Camera::SetPos(XMFLOAT4 pos)
-{
-	mPos = pos;
 }
 
 XMMATRIX Camera::GetViewMatrix() const
@@ -89,6 +81,16 @@ float Camera::GetWidth() const
 float Camera::GetHeight() const
 {
 	return mHeight;
+}
+
+void Camera::SetEyePosition( XMFLOAT3 &eyePosition )
+{
+	mPos = XMFLOAT4( eyePosition.x, eyePosition.y, eyePosition.z, 1.0f );
+}
+
+void Camera::SetFocus( XMFLOAT3 &focusPoint )
+{
+	mFocusPoint = XMFLOAT4( focusPoint.x, focusPoint.y, focusPoint.z, 1.0f );
 }
 
 HRESULT Camera::Initialize( CameraInfo* cameraInfo )

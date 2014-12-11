@@ -19,70 +19,61 @@
     <ClCompile Include="Graphics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    
     <ClCompile Include="WICTextureLoader.cpp">
       <Filter>TextureLoader</Filter>
     </ClCompile>
-    
-    <ClCompile Include="ImporterAnim.cpp">
+    <ClCompile Include="Animated3dAsset.cpp">
       <Filter>AssetClasses\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MapPathImportHandler.cpp">
+    <ClCompile Include="SkeletonAsset.cpp">
       <Filter>AssetClasses\Source Files</Filter>
     </ClCompile>
-    
+    <ClCompile Include="AnimationAsset.cpp">
+      <Filter>AssetClasses\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssetBase.h">
       <Filter>AssetClasses\Header Files</Filter>
     </ClInclude>
-    
     <ClInclude Include="AssetManager.h">
       <Filter>AssetClasses\Header Files</Filter>
     </ClInclude>
-    
     <ClInclude Include="Static3dAsset.h">
       <Filter>AssetClasses\Header Files</Filter>
     </ClInclude>
-    
     <ClInclude Include="Effect.h">
       <Filter>EffectClasses\Header Files</Filter>
     </ClInclude>
-    
     <ClInclude Include="Camera.h">
       <Filter>Camera\Header Files</Filter>
     </ClInclude>
-    
     <ClInclude Include="EffectInfo.h">
       <Filter>EffectClasses\Header Files</Filter>
     </ClInclude>
-    
     <ClInclude Include="Graphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    
     <ClInclude Include="Vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    
     <ClInclude Include="CameraInfo.h">
       <Filter>Camera\Header Files</Filter>
     </ClInclude>
-    
     <ClInclude Include="CbufferPerFrame.h" />
-    
     <ClInclude Include="WICTextureLoader.h">
       <Filter>TextureLoader</Filter>
     </ClInclude>
-
-    <ClInclude Include="ImporterAnim.h">
-      <Filter>AssetClasses\Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CbufferPerObject.h" />
-    <ClInclude Include="MapPathImportHandler.h">
+    <ClInclude Include="Animated3dAsset.h">
       <Filter>AssetClasses\Header Files</Filter>
     </ClInclude>
-      
+    <ClInclude Include="SkeletonAsset.h">
+      <Filter>AssetClasses\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationAsset.h">
+      <Filter>AssetClasses\Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AssetClasses">
@@ -127,6 +118,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\Content\Effects\Placeholder.hlsl">
+      <Filter>Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\PlaceholderAni.hlsl">
       <Filter>Effects</Filter>
     </Text>
   </ItemGroup>

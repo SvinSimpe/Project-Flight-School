@@ -29,6 +29,7 @@ class PlayState : public BaseState
 
 	// Class functions
 	private:
+		void			RemoteUpdate( IEventPtr newEvent );
 	protected:
 	public:
 		virtual HRESULT Update( float deltaTime );

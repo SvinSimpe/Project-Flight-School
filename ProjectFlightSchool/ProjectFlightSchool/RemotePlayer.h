@@ -50,17 +50,18 @@
 class RemotePlayer
 {
 private:
+	int			mID;
 	UpperBody	mUpperBody;
 	LowerBody	mLowerBody;
 
 private:
-	void RemoteUpdate(IEventPtr newEvent);
-	void LookAt(float rotation);
+	void RemoteUpdate( IEventPtr newEvent );
+	void LookAt( float rotation );
 
 public:
-	HRESULT Render(float deltaTime);
+	HRESULT Render( float deltaTime );
 
-	HRESULT Initialize();
+	HRESULT Initialize( unsigned int id );
 	void Release();
 	RemotePlayer();
 	~RemotePlayer();

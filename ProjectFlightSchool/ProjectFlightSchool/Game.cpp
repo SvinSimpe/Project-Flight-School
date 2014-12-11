@@ -12,7 +12,7 @@ void Game::NetworkInit()
 	int choice			= 0;
 
 	std::cin >> choice;
-	cin.ignore();
+	std::cin.ignore();
 	if ( choice == 0 )
 	{
 		if ( Server::GetInstance()->Initialize( port ) )

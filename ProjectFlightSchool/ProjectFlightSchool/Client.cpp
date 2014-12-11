@@ -1,23 +1,5 @@
 #include "Client.h"
 
-//bool Client::SendLoop()
-//{
-//	bool result = false;
-//	while ( mServerSocket != INVALID_SOCKET )
-//	{
-//		Message msg;
-//		msg.msg = "Client::SendLoop";
-//		system("pause");
-//
-//		if ( !mConn->SendPkg( mServerSocket, 0, Net_Event::MESSAGE, msg ) )
-//		{
-//			mServerSocket = INVALID_SOCKET;
-//		}
-//	}
-//
-//	return true;
-//}
-
 bool Client::ReceiveLoop()
 {
 	Package<void*>* p = new Package<void*>[DEFAULT_BUFLEN];
@@ -42,7 +24,7 @@ void Client::PlayerMoved( IEventPtr newEvent )
 {
 	if ( newEvent->GetEventType() == Event_Player_Moved::GUID )
 	{
-		std::shared_ptr < Event_Player_Moved > data = std::static_pointer_cast<Event_Player_Moved>( newEvent );
+		std::shared_ptr<Event_Player_Moved> data = std::static_pointer_cast<Event_Player_Moved>( newEvent );
 		if ( mServerSocket != INVALID_SOCKET )
 		{
 			EvPlayerMoved msg;
@@ -89,6 +71,7 @@ bool Client::Connect()
 	}
 
 	printf( "Connected to: %d\n", mServerSocket );
+	mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_JOINED, 0 ); // The client "announces" itself to the server, and by extension, the other clients
 
 	return true;
 }

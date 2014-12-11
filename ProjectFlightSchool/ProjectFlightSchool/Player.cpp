@@ -70,7 +70,7 @@ HRESULT Player::Initialize()
 
 	mUpperBody.position	= XMFLOAT3( 10.0f, 2.0f, 10.0f );
 	mLowerBody.position	= XMFLOAT3( 10.0f, 1.0f, 10.0f );
-	mLowerBody.speed	= 0.005f;
+	mLowerBody.speed	= 0.05f;
 
 	return S_OK;
 }

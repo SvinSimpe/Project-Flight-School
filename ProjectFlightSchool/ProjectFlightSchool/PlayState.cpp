@@ -4,6 +4,16 @@
 //									PRIVATE
 ///////////////////////////////////////////////////////////////////////////////
 
+void PlayState::RemoteUpdate(IEventPtr newEvent)
+{
+	if (newEvent->GetEventType() == Event_Remote_Player_Joined::GUID)
+	{
+		std::shared_ptr <Event_Remote_Player_Joined> data	= std::static_pointer_cast<Event_Remote_Player_Joined>( newEvent );
+		RemotePlayer* rp = new RemotePlayer();
+		rp->Initialize( data->ID() );
+		mRemotePlayers.push_back(rp);
+	}
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
@@ -24,7 +34,10 @@ HRESULT PlayState::Render()
 	//Graphics::GetInstance()->RenderStatic3dAsset( mTestAsset );
 	Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime );
 	mPlayer->Render( 0.0f );
-	mRemotePlayers.at(0)->Render(0.0f);
+	for (auto& rp : mRemotePlayers)
+	{
+		rp->Render(0.0f);
+	}
 	Graphics::GetInstance()->EndScene();
 
 	return S_OK;
@@ -59,8 +72,7 @@ HRESULT PlayState::Initialize()
 	mPlayer = new Player();
 	mPlayer->Initialize();
 
-	mRemotePlayers.push_back(new RemotePlayer());
-	mRemotePlayers.at(0)->Initialize();
+	EventManager::GetInstance()->AddListener(&PlayState::RemoteUpdate, this, Event_Remote_Player_Joined::GUID);
 
 	return S_OK;
 }
@@ -77,7 +89,6 @@ void PlayState::Release()
 
 PlayState::PlayState()
 {
-	mRemotePlayers = std::vector<RemotePlayer*>(0);
 }
 
 PlayState::~PlayState()

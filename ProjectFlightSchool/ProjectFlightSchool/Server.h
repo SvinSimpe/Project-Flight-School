@@ -66,15 +66,31 @@ void Server::HandlePkg( SOCKET &s, Package<T>* p )
 		}
 		case Net_Event::EV_PLAYER_MOVED:
 		{
+			EvPlayerMoved msg = (EvPlayerMoved&)p->body.content;
 			for ( auto& socket : mClientSockets )
 			{
-				EvPlayerMoved msg = (EvPlayerMoved&)p->body.content;
 				if ( socket != s )
 				{
 					mConn->SendPkg( socket, 0, Net_Event::EV_PLAYER_MOVED, msg );
 				}
 			}
 			
+		}
+			break;
+		case Net_Event::EV_PLAYER_JOINED:
+		{
+			EvPlayerJoined toAll; // Contains the ID of the joining client
+			toAll.ID = (unsigned int)s;
+			EvPlayerJoined toJoining; // Will contain the IDs of the already existing client
+			for (auto& socket : mClientSockets)
+			{
+				if (socket != s)
+				{
+					mConn->SendPkg(socket, 0, Net_Event::EV_PLAYER_JOINED, toAll); // Sends the ID of the joining client to each already existing client
+					toJoining.ID = (unsigned int)socket;
+					mConn->SendPkg(s, 0, Net_Event::EV_PLAYER_JOINED, toJoining); // Sends the ID of the already existing clients to the joining client
+				}
+			}
 		}
 			break;
 		default:

@@ -7,7 +7,8 @@ enum class Net_Event
 	ERROR_EVENT,
 	MESSAGE,
 	QUIT,
-	EV_PLAYER_MOVED
+	EV_PLAYER_MOVED,
+	EV_PLAYER_JOINED
 };
 
 template <typename T>

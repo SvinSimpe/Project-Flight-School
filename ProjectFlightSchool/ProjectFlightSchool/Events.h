@@ -105,22 +105,50 @@ public:
 
 private:
 public:
-	Event_Remote_Player_Update(XMFLOAT3 lowerBodyPos, XMFLOAT3 upperBodyPos)
+	Event_Remote_Player_Update( XMFLOAT3 lowerBodyPos, XMFLOAT3 upperBodyPos )
 	{
 		mLowerBodyPos = lowerBodyPos;
 		mUpperBodyPos = upperBodyPos;
 	}
-	XMFLOAT3 LowerBodyPos()const
+	XMFLOAT3 LowerBodyPos() const
 	{
 		return mLowerBodyPos;
 	}
-	XMFLOAT3 UpperBodyPos()const
+	XMFLOAT3 UpperBodyPos() const
 	{
 		return mUpperBodyPos;
 	}
 protected:
-	const EventType& GetEventType(void) const
+	const EventType& GetEventType( void ) const
 	{
 		return GUID;
 	}
+};
+
+class Event_Remote_Player_Joined : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int mID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	public:
+		Event_Remote_Player_Joined( unsigned int id )
+		{
+			mID = id;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
 };

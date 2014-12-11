@@ -14,6 +14,12 @@ class PlayState : public BaseState
 		AssetID			mCubeAsset;
 		AssetID			mTestAsset;
 
+		AssetID		mTestAnimation;
+		AssetID		mTestSkeleton;
+		AssetID		mTestAnimationAnimation;
+
+		float		mAnimationTime;
+
 	// Debug
 		Player*			mPlayer;
 		std::vector<RemotePlayer*> mRemotePlayers;

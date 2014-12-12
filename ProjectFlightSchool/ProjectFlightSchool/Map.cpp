@@ -37,7 +37,7 @@ HRESULT Map::Render( float deltaTime )
 HRESULT Map::Initialize( UINT vertexSpacing )
 {
 	mVertexSpacing = vertexSpacing;
-	//InitializeVertices();
+	MapSection::SetUpIndices();
 
 	for( UINT i = 0; i < MAP_DIMX * MAP_DIMZ; i++ )
 	{

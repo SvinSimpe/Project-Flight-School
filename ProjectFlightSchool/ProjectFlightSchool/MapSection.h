@@ -9,24 +9,21 @@
 class MapSection
 {
 	private:
-
-		UINT mIndices[INDEX_COUNT];
 		StaticVertex mVertices[VERTEX_COUNT];
 		UINT mSectionID;
 		UINT mAssetID;
 
 	protected:
 	public:
-
+		static UINT INDICES[INDEX_COUNT];
 	private:
 
 	protected:
 	public:
 		//HRESULT Update( float deltaTime );
 		void Render( float deltaTime );
-		void SetUpIndices();
+		static void SetUpIndices();
 		void SetUpVertices();
-		UINT& GetIndices();
 		HRESULT Initialize( UINT sectionID );
 		void Release();
 		MapSection();

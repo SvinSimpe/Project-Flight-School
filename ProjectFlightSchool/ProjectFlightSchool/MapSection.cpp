@@ -1,5 +1,7 @@
 #include "MapSection.h"
 
+UINT MapSection::INDICES[INDEX_COUNT] = {0};
+
 void MapSection::Render( float deltaTime )
 {
 	Graphics::GetInstance()->RenderStatic3dAssetIndexed( mAssetID, INDEX_COUNT, 0 );
@@ -11,13 +13,13 @@ void MapSection::SetUpIndices()
 	{
 		for( int j = 0; j < VERTICES_PER_Z - 1; j++)
 		{
-			mIndices[index++] = j + ( i + 1 ) * VERTICES_PER_Z;
-			mIndices[index++] = ( j + 1 ) + ( 1 + i ) * VERTICES_PER_Z;
-			mIndices[index++] = j + i * VERTICES_PER_Z;
+			MapSection::INDICES[index++] = j + ( i + 1 ) * VERTICES_PER_Z;
+			MapSection::INDICES[index++] = ( j + 1 ) + ( 1 + i ) * VERTICES_PER_Z;
+			MapSection::INDICES[index++] = j + i * VERTICES_PER_Z;
 
-			mIndices[index++] = ( j + 1 ) + ( 1 + i ) * VERTICES_PER_Z;
-			mIndices[index++] = ( j + 1 ) + ( i * VERTICES_PER_Z );
-			mIndices[index++] = j + ( i * VERTICES_PER_Z );
+			MapSection::INDICES[index++] = ( j + 1 ) + ( 1 + i ) * VERTICES_PER_Z;
+			MapSection::INDICES[index++] = ( j + 1 ) + ( i * VERTICES_PER_Z );
+			MapSection::INDICES[index++] = j + ( i * VERTICES_PER_Z );
 		}
 	}
 }
@@ -29,19 +31,17 @@ void MapSection::SetUpVertices()
 
 	float du=1.0f / ( SECTION_DIMX );
 	float dv=1.0f / ( SECTION_DIMZ );
-	int sectionZ = ( mSectionID / MAP_DIMZ ) - (float)( MAP_DIMZ * 0.5f );
-	int sectionX = ( mSectionID % MAP_DIMX ) - (float)( MAP_DIMX * 0.5f );
+	int sectionZ = (int)( ( mSectionID / MAP_DIMZ ) - (float)( MAP_DIMZ * 0.5f ) );
+	int sectionX = (int)( ( mSectionID % MAP_DIMX ) - (float)( MAP_DIMX * 0.5f ) );
 
 
 	for( int z = 0; z < (int)VERTICES_PER_X; z++ )
 	{
-		//posZ=z - ( (float)( SECTION_DIMZ * 0.5f ) + ( ( SECTION_DIMZ ) * 0.5f ) * mSectionID );
 		posZ = z - ( (float)( SECTION_DIMZ * 0.5f ) ) + ( sectionZ * SECTION_DIMZ );
 
 		for( int x = 0; x < (int)VERTICES_PER_Z; x++ )
 		{
-			//posX =x - ( ( (float)( ( SECTION_DIMZ ) * 0.5f ) +  + ( ( SECTION_DIMZ ) * 0.5f ) * mSectionID ) );
-			posX = x - ( (float)( SECTION_DIMZ * 0.5f ) ) + ( sectionX * SECTION_DIMX );//  * (int)( mSectionID - 5 );
+			posX = x - ( (float)( SECTION_DIMZ * 0.5f ) ) + ( sectionX * SECTION_DIMX );
 
 			mVertices[x + z * VERTICES_PER_Z].position[0]	= posX;
 			mVertices[x + z * VERTICES_PER_Z].position[1]	= posY;
@@ -57,10 +57,6 @@ void MapSection::SetUpVertices()
 		}
 	}
 }
-UINT& MapSection::GetIndices() 
-{
-	return mIndices[0];
-}
 HRESULT MapSection::Initialize( UINT sectionID )
 {
 	mSectionID = sectionID;
@@ -72,7 +68,7 @@ HRESULT MapSection::Initialize( UINT sectionID )
 	Indexed3DAssetInfo info;
 	info.assetName		= name;
 	info.indexCount		= INDEX_COUNT;
-	info.indices		= mIndices;
+	info.indices		= MapSection::INDICES;
 	info.vertexCount	= VERTEX_COUNT;
 	info.vertices		= mVertices;
 

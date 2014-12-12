@@ -24,6 +24,7 @@ HRESULT PlayState::Render()
 	//Graphics::GetInstance()->RenderStatic3dAsset( mTestAsset );
 	Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime );
 	mPlayer->Render( 0.0f );
+	mWorldMap->Render( 0.0f );
 	Graphics::GetInstance()->EndScene();
 
 	return S_OK;
@@ -58,12 +59,16 @@ HRESULT PlayState::Initialize()
 	mPlayer = new Player();
 	mPlayer->Initialize();
 
+	mWorldMap = new Map();
+	mWorldMap->Initialize( 1 );
+
 	return S_OK;
 }
 
 void PlayState::Release()
 {
 	mPlayer->Release();
+	mWorldMap->Release();
 }
 
 PlayState::PlayState()

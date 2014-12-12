@@ -48,6 +48,11 @@ HRESULT Graphics::LoadStatic3dAsset( char* fileName, AssetID &assetId )
 	return mAssetManager->LoadStatic3dAsset( mDevice, fileName, assetId );
 }
 
+HRESULT Graphics::LoadStatic3dAssetIndexed( char* assetName,  Indexed3DAssetInfo &info, AssetID &assetId )
+{
+	return mAssetManager->LoadStatic3dAssetIndexed( mDevice, info, assetId );
+}
+
 HRESULT Graphics::LoadAnimated3dAsset( char* fileName, AssetID skeletonId, AssetID &assetId )
 {
 	return mAssetManager->LoadAnimated3dAsset( mDevice, fileName, skeletonId, assetId );
@@ -173,7 +178,34 @@ void Graphics::RenderStatic3dAsset( AssetID assetId, XMFLOAT4X4* world )
 
 	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
 }
+void Graphics::RenderStatic3dAssetIndexed( AssetID assetId, UINT indexCount, UINT startIndex )
+{
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
+	UINT32 vertexSize				= sizeof( StaticVertex );
+	UINT32 offset					= 0;
+ 	ID3D11Buffer* buffersToSet[]	= { ( (Static3dAssetIndexed*)mAssetManager->mAssetContainer[assetId] )->mVertexBuffer };
+	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+	mDeviceContext->IASetIndexBuffer( ( (Static3dAssetIndexed*)mAssetManager->mAssetContainer[assetId] )->mIndexBuffer, DXGI_FORMAT_R32_UINT, 0 );
+
+	mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mStaticEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mStaticEffect->GetPixelShader(), nullptr, 0 );
+
+	//Map CbufferPerObject
+	CbufferPerObject data;
+	data.worldMatrix = DirectX::XMMatrixTranspose( XMMatrixIdentity() );
+	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
+
+	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
+
+	mDeviceContext->DrawIndexed( indexCount, 0, 0 );
+
+}
 void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime )
 {
 	Animated3dAsset*	model		= (Animated3dAsset*)mAssetManager->mAssetContainer[modelAssetId];

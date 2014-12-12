@@ -35,6 +35,7 @@ class LIBRARY_EXPORT Graphics
 		ID3D11Buffer*			mCbufferPerFrame;
 		ID3D11Buffer*			mCbufferPerObject;
 
+
 		AssetManager*			mAssetManager;
 		Effect*					mStaticEffect;
 		Effect*					mAnimatedEffect;
@@ -56,6 +57,7 @@ class LIBRARY_EXPORT Graphics
 	public:
 		HRESULT LoadTextureFromFile ( wchar_t* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size = 0 );
 		HRESULT LoadStatic3dAsset( char* fileName, AssetID &assetId );
+		HRESULT LoadStatic3dAssetIndexed( char* assetName,  Indexed3DAssetInfo &info, AssetID &assetId );
 		HRESULT LoadAnimated3dAsset( char* fileName, AssetID skeletonId, AssetID &assetId );
 		HRESULT LoadSkeletonAsset( std::string filePath, std::string fileName, AssetID &assetId );
 		HRESULT LoadAnimationAsset( std::string filePath, std::string fileName, AssetID &assetId );
@@ -64,6 +66,8 @@ class LIBRARY_EXPORT Graphics
 		void RenderStatic3dAsset( AssetID assetId, float x, float y, float z );
 		void RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation );
 		void RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT4X4* world );
+
+		void RenderStatic3dAssetIndexed( AssetID assetId, UINT indexCount, UINT startIndex );
 
 		void RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime );
 

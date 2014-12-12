@@ -59,6 +59,8 @@ class Player
 		HRESULT Update( float deltaTime );
 		HRESULT Render( float deltaTime );
 
+		XMFLOAT3 GetPlayerPosition() const;
+
 		HRESULT Initialize();
 		void Release();
 		Player();

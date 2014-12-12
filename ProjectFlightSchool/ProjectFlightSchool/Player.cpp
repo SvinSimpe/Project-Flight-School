@@ -91,6 +91,16 @@ HRESULT Player::Update( float deltaTime )
 	IEventPtr E1( new Event_Player_Moved( mLowerBody.position, mUpperBody.position, mUpperBody.direction ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
 
+	///Lock camera position to player
+
+	XMFLOAT3 cameraPosition;
+	cameraPosition.x = mLowerBody.position.x;
+	cameraPosition.y = mLowerBody.position.y + 21.0f;
+	cameraPosition.z = mLowerBody.position.z - 21.0f;
+
+	Graphics::GetInstance()->SetEyePosition( cameraPosition );
+	Graphics::GetInstance()->SetFocus( mLowerBody.position );
+
 	return S_OK;
 }
 

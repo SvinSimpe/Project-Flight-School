@@ -30,13 +30,7 @@ class Camera
 	public:
 		bool Update();
 	
-		void SetFocus( XMFLOAT4 focusPoint );
 		void SetUp( XMFLOAT4 up );
-		void SetPos( XMFLOAT4 pos );
-
-
-
-
 
 		XMMATRIX GetViewMatrix()		const;
 		XMMATRIX GetProjMatrix()		const;	
@@ -54,6 +48,8 @@ class Camera
 		float GetWidth()			const;
 		float GetHeight()			const;
 
+		void SetEyePosition( XMFLOAT3 &eyePosition );
+		void SetFocus( XMFLOAT3 &focusPoint );
 
 		//Must be called before GetViewMatrix, GetProjMatrix
 		HRESULT Initialize( CameraInfo* cameraInfo );

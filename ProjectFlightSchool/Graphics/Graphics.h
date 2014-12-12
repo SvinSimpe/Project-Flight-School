@@ -72,6 +72,8 @@ class LIBRARY_EXPORT Graphics
 		void SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY );
 		void SetInverseViewMatrix( XMMATRIX &inverseViewMatrix );
 		void SetInverseProjectionMatrix( XMMATRIX &projectionViewMatrix );
+		void SetEyePosition( XMFLOAT3 &eyePosition );
+		void SetFocus( XMFLOAT3 &focusPoint );
 
 		void	BeginScene();
 		void	EndScene();

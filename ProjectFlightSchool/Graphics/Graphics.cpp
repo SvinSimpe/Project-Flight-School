@@ -318,9 +318,21 @@ void Graphics::SetInverseProjectionMatrix( XMMATRIX &projectionViewMatrix )
 	projectionViewMatrix = mCamera->GetInverseProjectionMatrix();
 }
 
+void Graphics::SetEyePosition( XMFLOAT3 &eyePosition )
+{
+	mCamera->SetEyePosition( eyePosition );
+}
+
+void Graphics::SetFocus( XMFLOAT3 &focusPoint )
+{
+	mCamera->SetFocus( focusPoint );
+}
+
 //Clear canvas and prepare for rendering.
 void Graphics::BeginScene()
 {
+	mCamera->Update();
+
 	static float clearColor[4] = { 0.3f, 0.3f, 0.3f, 1.0f };
 	mDeviceContext->ClearRenderTargetView( mRenderTargetView, clearColor );
 	mDeviceContext->ClearDepthStencilView( mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
@@ -505,7 +517,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	CameraInfo cameraInfo;
 	ZeroMemory( &cameraInfo, sizeof( cameraInfo ) );
-	cameraInfo.eyePos		= DirectX::XMFLOAT4( 0, 50.0f, -50.0f, 1.0f );
+	cameraInfo.eyePos		= DirectX::XMFLOAT4( 0.0f, 27.0f, -22.25f, 0.0f );
 	cameraInfo.focusPoint	= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
 	cameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
 	cameraInfo.width		= (float)screenWidth;

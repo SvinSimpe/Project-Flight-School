@@ -42,5 +42,6 @@
 // In Visual Studio, go to Tools->Create GUID and grab the first bit.
 const EventType TestEvent::GUID( 0 );
 const EventType Event_Player_Moved::GUID( 1 );
-
+const EventType Event_Remote_Player_Update::GUID( 2 );
+const EventType Event_Remote_Player_Joined::GUID( 3 );
 

@@ -17,7 +17,6 @@ void Player::HandleInput( float deltaTime )
 		Move( XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
 
 
-
 	//== Calculate upper body rotation ==
 	XMVECTOR rayOrigin	= XMVECTOR( Input::GetInstance()->mCurrentNDCMousePos );
 	XMVECTOR rayDir		= rayOrigin;
@@ -82,14 +81,15 @@ void Player::LookAt( float rotation )
 HRESULT Player::Update( float deltaTime )
 {
 	HandleInput( deltaTime );
-	
+
 	mUpperBody.position.x += mLowerBody.direction.x * mLowerBody.speed;
 	mUpperBody.position.z += mLowerBody.direction.z * mLowerBody.speed;
 
 	mLowerBody.position.x += mLowerBody.direction.x * mLowerBody.speed;
 	mLowerBody.position.z += mLowerBody.direction.z * mLowerBody.speed;
 
-
+	IEventPtr E1( new Event_Player_Moved( mLowerBody.position, mUpperBody.position, mUpperBody.direction ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
 
 	///Lock camera position to player
 

@@ -11,19 +11,11 @@ bool Camera::Update()
 	return true;
 }
 
-void Camera::SetFocus(XMFLOAT4 focusPoint)
-{
-	mFocusPoint = focusPoint;
-}
+
 
 void Camera::SetUp(XMFLOAT4 up)
 {
 	mUp = up;
-}
-
-void Camera::SetPos(XMFLOAT4 pos)
-{
-	mPos = pos;
 }
 
 XMMATRIX Camera::GetViewMatrix() const
@@ -31,9 +23,74 @@ XMMATRIX Camera::GetViewMatrix() const
 	return XMMatrixTranspose( XMLoadFloat4x4( &mViewMatrix ) );
 }
 
+XMMATRIX Camera::GetInverseViewMatrix() const
+{
+	return XMMatrixInverse( nullptr, XMLoadFloat4x4( &mViewMatrix ) );
+}
+
+XMMATRIX Camera::GetInverseProjectionMatrix() const
+{
+	return  XMMatrixInverse( nullptr, XMLoadFloat4x4( &mProjMatrix ) );
+}
+
 XMMATRIX Camera::GetProjMatrix() const
 {
 	return XMMatrixTranspose( XMLoadFloat4x4( &mProjMatrix ) );
+}
+
+XMFLOAT4 Camera::GetPos() const
+{
+	return mPos;
+}
+
+XMFLOAT4 Camera::GetUp()	const
+{
+	return mUp;
+}
+
+XMFLOAT4 Camera::GetFocusPoint() const
+{
+	return mFocusPoint;
+}
+
+float Camera::GetNearZ() const
+{
+	return mNearZ;
+}
+
+float Camera::GetFarZ()	const
+{
+	return mFarZ;
+}
+
+float Camera::GetFoV() const
+{
+	return mFoV;
+}
+
+float Camera::GetAspectRatio() const
+{
+	return mAspectRatio;
+}
+
+float Camera::GetWidth() const
+{
+	return mWidth;
+}
+
+float Camera::GetHeight() const
+{
+	return mHeight;
+}
+
+void Camera::SetEyePosition( XMFLOAT3 &eyePosition )
+{
+	mPos = XMFLOAT4( eyePosition.x, eyePosition.y, eyePosition.z, 1.0f );
+}
+
+void Camera::SetFocus( XMFLOAT3 &focusPoint )
+{
+	mFocusPoint = XMFLOAT4( focusPoint.x, focusPoint.y, focusPoint.z, 1.0f );
 }
 
 HRESULT Camera::Initialize( CameraInfo* cameraInfo )

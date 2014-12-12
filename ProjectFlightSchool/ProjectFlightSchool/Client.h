@@ -2,13 +2,14 @@
 #define CLIENT_H
 
 #include "Connection.h"
-#include "Package.h"
-#include <iostream>
+#include "EventManager.h"
+#include "Events.h"
 
 class Client // The class used by clients to connect to the server
 {
 	// Members
 	private:
+		unsigned int	mID;
 		int				mResult;
 		addrinfo*		mAddrResult;
 		SOCKET			mServerSocket;
@@ -21,30 +22,31 @@ class Client // The class used by clients to connect to the server
 		// Template functions
 	private:
 		template <typename T>
-		void HandlePkg( Package<T> p );
+		void HandlePkg( Package<T>* p );
+
 	protected:
 	public:
 		
 		// Functions
 	private:
-		bool	PkgLoop();
 		bool	ReceiveLoop();
+		void	PlayerMoved( IEventPtr newEvent );
 
 	protected:
 
 	public:
 		bool	Connect();
 		bool	Run();
-		bool	Initialize( const char* ip, const char* port ); // Sets up and connects to the server
+		bool	Initialize( const char* port, const char* ip ); // Sets up and connects to the server
 		void	Release();
 				Client();
 		virtual	~Client();
 };
 
 template <typename T>
-void Client::HandlePkg( Package<T> p )
+void Client::HandlePkg( Package<T>* p )
 {
-	switch ( p.head.eventType )
+	switch ( p->head.eventType )
 	{
 		case Net_Event::QUIT:
 		{
@@ -52,10 +54,26 @@ void Client::HandlePkg( Package<T> p )
 			mConn->DisconnectSocket( mServerSocket );
 		}
 			break;
-		default:
+		case Net_Event::EV_PLAYER_MOVED:
 		{
+			//printf("Eventet från servern var Event_Player_Moved och den innehöll positionerna:\n" ); // %f, %f, %f och %f, %f, %f
+			EvPlayerMoved msg = (EvPlayerMoved&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Update( mID, msg.lowerBody, msg.upperBody, msg.direction ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
+		case Net_Event::EV_PLAYER_JOINED:
+		{
+			EvPlayerConnection msg = (EvPlayerConnection&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Joined( msg.ID ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+			printf( "Remote player with ID: %d joined.\n", msg.ID );
+		}
+			break;
+		default:
+		{
+			printf( "Error handling event from server.\n" );
+		}
 	}
 }
 #endif

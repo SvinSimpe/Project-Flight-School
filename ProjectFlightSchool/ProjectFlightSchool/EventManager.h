@@ -58,7 +58,7 @@ class EventManager : public IEventManager
 	int m_activeQueue;  // index of actively processing queue; events enque to the opposing queue
 
 	public:
-		explicit EventManager( const char* pName );
+		explicit EventManager();
 		virtual ~EventManager( void );
 
 		virtual bool TriggerEvent( const IEventPtr& pEvent ) const;
@@ -77,6 +77,11 @@ class EventManager : public IEventManager
 						);
 
 			return AddListener( eventDelegate, type );
+		}
+		static EventManager* GetInstance()
+		{
+			static EventManager instance;
+			return &instance;
 		}
 	private:
 		virtual bool AddListener( const EventListenerDelegate& eventDelegate, const EventType& type );

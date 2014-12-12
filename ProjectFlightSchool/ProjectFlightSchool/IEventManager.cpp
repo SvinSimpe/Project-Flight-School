@@ -41,7 +41,7 @@
 #include "IEventManager.h"
 
 
-IEventManager::IEventManager(const char* pName)
+IEventManager::IEventManager()
 {
 
 }

@@ -1,9 +1,7 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
-struct Empty // Used for sends where no actual package needs to be sent
-{
-};
+#include <DirectXMath.h>
 
 struct Message
 {
@@ -15,5 +13,17 @@ struct Position
 	int x = 0;
 	int y = 0;
 	int z = 0;
+};
+
+struct EvPlayerMoved
+{
+	DirectX::XMFLOAT3 lowerBody;
+	DirectX::XMFLOAT3 upperBody;
+	DirectX::XMFLOAT3 direction;
+};
+
+struct EvPlayerConnection
+{
+	unsigned int ID;
 };
 #endif

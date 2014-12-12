@@ -73,11 +73,6 @@ void Player::Move( XMFLOAT3 direction )
 	}
 }
 
-void Player::LookAt( float rotation )
-{
-	
-}
-
 HRESULT Player::Update( float deltaTime )
 {
 	HandleInput( deltaTime );
@@ -100,14 +95,6 @@ HRESULT Player::Update( float deltaTime )
 
 	Graphics::GetInstance()->SetEyePosition( cameraPosition );
 	Graphics::GetInstance()->SetFocus( mLowerBody.position );
-
-	return S_OK;
-}
-
-HRESULT Player::Render( float deltaTime )
-{
-	Graphics::GetInstance()->RenderStatic3dAsset( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
-	Graphics::GetInstance()->RenderStatic3dAsset( mLowerBody.playerModel, mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z );
 
 	return S_OK;
 }

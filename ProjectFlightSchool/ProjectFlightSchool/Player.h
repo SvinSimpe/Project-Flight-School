@@ -1,10 +1,10 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "EventManager.h"
-#include "Events.h"
 #include "Input.h"
 #include "Projectile.h"
+#include "RemotePlayer.h"
+
 
 struct BoundingBox
 {
@@ -30,26 +30,9 @@ struct BoundingCircle
 	}
 };
 
-struct UpperBody
-{
-	UINT		playerModel;
-	XMFLOAT3	direction;
-	XMFLOAT3	position;
-};
-
-struct LowerBody
-{
-	UINT		playerModel;
-	XMFLOAT3	direction;
-	XMFLOAT3	position;
-	float		speed;
-};
-
-class Player
+class Player: public RemotePlayer
 {
 	private:
-		UpperBody	mUpperBody;
-		LowerBody	mLowerBody;
 
 		std::vector<Projectile*>	mProjectiles;
 		int			mNrOfProjectilesFired;
@@ -62,6 +45,7 @@ class Player
 	public:
 		HRESULT		Update( float deltaTime );
 		HRESULT		Render( float deltaTime );
+
 
 		XMFLOAT3	GetPlayerPosition() const;
 		void		Fire();

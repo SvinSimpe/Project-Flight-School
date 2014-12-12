@@ -80,11 +80,6 @@ void Player::Move( XMFLOAT3 direction )
 	}
 }
 
-void Player::LookAt( float rotation )
-{
-	
-}
-
 HRESULT Player::Update( float deltaTime )
 {
 	HandleInput( deltaTime );
@@ -144,6 +139,8 @@ void Player::Fire()
 	mProjectiles.at( mNrOfProjectilesFired )->SetIsActive( true );
 	mNrOfProjectilesFired++;
 }
+
+
 
 HRESULT Player::Initialize()
 {

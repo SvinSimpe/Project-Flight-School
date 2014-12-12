@@ -4,6 +4,7 @@
 #include "EventManager.h"
 #include "Events.h"
 #include "Input.h"
+#include "Projectile.h"
 
 struct BoundingBox
 {
@@ -50,21 +51,25 @@ class Player
 		UpperBody	mUpperBody;
 		LowerBody	mLowerBody;
 
+		std::vector<Projectile*>	mProjectiles;
+		int			mNrOfProjectilesFired;
+
 	private:
-		void HandleInput( float deltaTime );
-		void Move( XMFLOAT3 direction );
-		void LookAt( float rotation );
+		void		HandleInput( float deltaTime );
+		void		Move( XMFLOAT3 direction );
+		void		LookAt( float rotation );
 
 	public:
-		HRESULT Update( float deltaTime );
-		HRESULT Render( float deltaTime );
+		HRESULT		Update( float deltaTime );
+		HRESULT		Render( float deltaTime );
 
-		XMFLOAT3 GetPlayerPosition() const;
+		XMFLOAT3	GetPlayerPosition() const;
+		void		Fire();
 
-		HRESULT Initialize();
-		void Release();
-		Player();
-		~Player();
+		HRESULT		Initialize();
+		void		Release();
+					Player();
+					~Player();
 };
 
 #endif

@@ -39,6 +39,8 @@ class LIBRARY_EXPORT Graphics
 		Effect*					mStaticEffect;
 		Effect*					mAnimatedEffect;
 		Camera*					mCamera;
+		Camera*					mDeveloperCamera;
+		bool					mIsDeveloperCameraActive;
 
 		int						mSuperHappyTest;
 
@@ -67,7 +69,11 @@ class LIBRARY_EXPORT Graphics
 
 		void RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime );
 
-		Camera* GetCamera();
+		Camera* GetCamera() const;
+		Camera* GetDeveloperCamera() const;
+		void	ChangeCamera();
+		void	ZoomInDeveloperCamera();
+		void	ZoomOutDeveloperCamera();
 
 		void SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY );
 		void SetInverseViewMatrix( XMMATRIX &inverseViewMatrix );

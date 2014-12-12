@@ -101,7 +101,7 @@ int	System::Run()
 			swprintf( title, sizeof(title), L"Project-Flight-School: Version 0.1 -  DeltaTime: %f  - FPS: %d  Now with extra pixels!", deltaTime, (int)fps );
 			SetWindowText( mHWnd, title );
 
-			//ClipCursor( &r );		Uncomment this to lock the cursor to the game window
+			//ClipCursor( &r );//		Uncomment this to lock the cursor to the game window
 			Update( deltaTime );
 			Render();
 		}
@@ -160,7 +160,7 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 
 	Graphics::GetInstance()->Initialize( mHWnd, mScreenWidth, mScreenHeight );
 
-	Input::GetInstance()->Initialize( mScreenWidth, mScreenHeight );
+	Input::GetInstance()->Initialize( mScreenWidth, mScreenHeight, mHWnd );
 
 	mNetworkThread	= std::thread( &System::NetworkInit, this );
 	

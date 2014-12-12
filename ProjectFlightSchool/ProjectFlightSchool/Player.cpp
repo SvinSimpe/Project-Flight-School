@@ -15,9 +15,53 @@ void Player::HandleInput( float deltaTime )
 	
 	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_D ) && !Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_A ) )
 		Move( XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
+
+
+
+	//== Calculate upper body rotation ==
+	XMVECTOR rayOrigin	= XMVECTOR( Input::GetInstance()->mCurrentNDCMousePos );
+	XMVECTOR rayDir		= rayOrigin;
+
+	XMFLOAT3 unPack;
+	XMStoreFloat3( &unPack, rayOrigin );
+	rayDir = XMVectorSet( unPack.x, unPack.y, 1.0f, 1.0f );
+
+	XMMATRIX viewInverse;
+	Graphics::GetInstance()->SetInverseViewMatrix( viewInverse );
+
+	XMMATRIX projectionInverse;
+	Graphics::GetInstance()->SetInverseProjectionMatrix( projectionInverse );
+
+	XMMATRIX combinedInverse = XMMatrixMultiply( projectionInverse, viewInverse );
+
+	XMVECTOR rayPosInWorld	= XMVector3TransformCoord( rayOrigin, combinedInverse );
+	XMVECTOR rayDirInWorld	= XMVector3TransformCoord( rayDir, combinedInverse );
+	rayDirInWorld			= XMVector3Normalize( rayDirInWorld - rayPosInWorld );
+
+
+
+	float t					= 0.0f;
+	XMVECTOR planeNormal	= XMVectorSet( 0.0f, 1.0f, 0.0f, 0.0f );
+	XMVECTOR result			= -( XMVector3Dot( rayPosInWorld, planeNormal ) ) / ( XMVector3Dot( rayDirInWorld, planeNormal ) );
+	XMStoreFloat( &t, result );
+	XMVECTOR intersection	= XMVectorAdd( rayPosInWorld, rayDirInWorld * t );
+
+
+	XMVECTOR playerToCursor = XMVectorSubtract( intersection, XMLoadFloat3( &mUpperBody.position ) );
+	XMStoreFloat3( &unPack, playerToCursor );
+	playerToCursor = XMVectorSet( unPack.x, 0.0f, unPack.z, 0.0f );
+
+
+	playerToCursor	= XMVector3Normalize( playerToCursor );
+	float radians	= atan2f( XMVectorGetZ( playerToCursor ), XMVectorGetX( playerToCursor ) );
+
+
+	mUpperBody.direction.x = 0.0f;
+	mUpperBody.direction.y = -radians;
+	mUpperBody.direction.z = 0.0f;
 }
 
-void Player::Move( XMFLOAT3 direction  )
+void Player::Move( XMFLOAT3 direction )
 {
 	mLowerBody.direction.x += direction.x;
 	mLowerBody.direction.z += direction.z;
@@ -45,12 +89,24 @@ HRESULT Player::Update( float deltaTime )
 	mLowerBody.position.x += mLowerBody.direction.x * mLowerBody.speed;
 	mLowerBody.position.z += mLowerBody.direction.z * mLowerBody.speed;
 
+
+
+	///Lock camera position to player
+
+	XMFLOAT3 cameraPosition;
+	cameraPosition.x = mLowerBody.position.x;
+	cameraPosition.y = mLowerBody.position.y + 21.0f;
+	cameraPosition.z = mLowerBody.position.z - 21.0f;
+
+	Graphics::GetInstance()->SetEyePosition( cameraPosition );
+	Graphics::GetInstance()->SetFocus( mLowerBody.position );
+
 	return S_OK;
 }
 
 HRESULT Player::Render( float deltaTime )
 {
-	Graphics::GetInstance()->RenderStatic3dAsset( mUpperBody.playerModel, mUpperBody.position.x, mUpperBody.position.y, mUpperBody.position.z );
+	Graphics::GetInstance()->RenderStatic3dAsset( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
 	Graphics::GetInstance()->RenderStatic3dAsset( mLowerBody.playerModel, mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z );
 
 	return S_OK;
@@ -67,7 +123,7 @@ HRESULT Player::Initialize()
 
 	mUpperBody.position	= XMFLOAT3( 10.0f, 2.0f, 10.0f );
 	mLowerBody.position	= XMFLOAT3( 10.0f, 1.0f, 10.0f );
-	mLowerBody.speed	= 0.005f;
+	mLowerBody.speed	= 0.2f;
 
 	return S_OK;
 }

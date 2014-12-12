@@ -12,6 +12,11 @@ struct vec3
 	float x, y, z;
 };
 
+struct vec4
+{
+	float x, y, z, w;
+};
+
 struct Vertex_Static
 {
 	vec3 position;
@@ -27,8 +32,8 @@ struct Vertex_Anim
 	vec3 tangent;
 	vec2 uv;
 
-	vec3 weights;
-	int jointIndex[3];
+	vec4 weights;
+	int jointIndex[4];
 };
 
 

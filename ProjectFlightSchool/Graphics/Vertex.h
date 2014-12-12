@@ -11,7 +11,7 @@ struct StaticVertex
 	float uv[2];
 };
 
-struct AnimateVertex
+struct AnimatedVertex
 {
 	float position[3];
 	float normal[3];
@@ -19,6 +19,6 @@ struct AnimateVertex
 	float uv[2];
 
 	float weights[4];
-	float jointIndex[4];
+	UINT jointIndex[4];
 };
 #endif

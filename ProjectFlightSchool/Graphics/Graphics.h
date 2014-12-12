@@ -34,13 +34,12 @@ class LIBRARY_EXPORT Graphics
 		D3D11_VIEWPORT			mStandardView;
 		ID3D11Buffer*			mCbufferPerFrame;
 		ID3D11Buffer*			mCbufferPerObject;
+		ID3D11Buffer*			mCbufferPerObjectAnimated;
 
 		AssetManager*			mAssetManager;
 		Effect*					mStaticEffect;
 		Effect*					mAnimatedEffect;
 		Camera*					mCamera;
-
-		int						mSuperHappyTest;
 
 	protected:
 	public:

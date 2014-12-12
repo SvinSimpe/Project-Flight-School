@@ -171,6 +171,8 @@ void ReadFiles()
 	vector<string> filenameList;
 	GetFilenamesInDirectory(filenameList);
 
+	ReadAnimMeshBinary("maya_testAsset_tree_animated.apfs");
+
 	for (int i = 0; i < filenameList.size(); i++)
 	{
 		if (CheckFileEnding(filenameList[i], ".pfs"))

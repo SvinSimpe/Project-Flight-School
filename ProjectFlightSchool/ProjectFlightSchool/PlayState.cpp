@@ -4,14 +4,13 @@
 //									PRIVATE
 ///////////////////////////////////////////////////////////////////////////////
 
-void PlayState::RemoteUpdate(IEventPtr newEvent)
+void PlayState::RemoteUpdate( IEventPtr newEvent )
 {
-	if (newEvent->GetEventType() == Event_Remote_Player_Joined::GUID)
+	if ( newEvent->GetEventType() == Event_Remote_Player_Joined::GUID )
 	{
-		std::shared_ptr <Event_Remote_Player_Joined> data	= std::static_pointer_cast<Event_Remote_Player_Joined>( newEvent );
-		RemotePlayer* rp = new RemotePlayer();
-		rp->Initialize( data->ID() );
-		mRemotePlayers.push_back(rp);
+		std::shared_ptr <Event_Remote_Player_Joined> data = std::static_pointer_cast<Event_Remote_Player_Joined>( newEvent );
+		mRemotePlayers.push_back( new RemotePlayer() );
+		mRemotePlayers.at( mRemotePlayers.size() - 1 )->Initialize( data->ID() );
 	}
 }
 
@@ -30,13 +29,11 @@ HRESULT PlayState::Render()
 {
 	Graphics::GetInstance()->BeginScene();
 	Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset );
-	//Graphics::GetInstance()->RenderStatic3dAsset( mCubeAsset, 5.0f, 1.0f, 10.0f );
-	//Graphics::GetInstance()->RenderStatic3dAsset( mTestAsset );
 	Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime );
 	mPlayer->Render( 0.0f );
-	for (auto& rp : mRemotePlayers)
+	for ( auto& rp : mRemotePlayers )
 	{
-		rp->Render(0.0f);
+		rp->Render( 0.0f );
 	}
 	Graphics::GetInstance()->EndScene();
 
@@ -57,7 +54,7 @@ void PlayState::Reset()
 
 HRESULT PlayState::Initialize()
 {
-	mStateType		= STATE_TYPE_PLAY;
+	mStateType = STATE_TYPE_PLAY;
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "CUBE", mCubeAsset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "PLANE", mPlaneAsset );
@@ -72,7 +69,7 @@ HRESULT PlayState::Initialize()
 	mPlayer = new Player();
 	mPlayer->Initialize();
 
-	EventManager::GetInstance()->AddListener(&PlayState::RemoteUpdate, this, Event_Remote_Player_Joined::GUID);
+	EventManager::GetInstance()->AddListener( &PlayState::RemoteUpdate, this, Event_Remote_Player_Joined::GUID );
 
 	return S_OK;
 }
@@ -80,7 +77,7 @@ HRESULT PlayState::Initialize()
 void PlayState::Release()
 {
 	mPlayer->Release();
-	for (auto& rp : mRemotePlayers)
+	for ( auto& rp : mRemotePlayers )
 	{
 		rp->Release();
 	}

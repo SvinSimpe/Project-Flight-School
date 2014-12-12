@@ -2,7 +2,7 @@
 
 bool Client::ReceiveLoop()
 {
-	Package<void*>* p = new Package<void*>[DEFAULT_BUFLEN];
+	Package<void*>* p = new Package<void*>[DEFAULT_BUFLEN]; // This will only be called once per Client instance
 	while ( mServerSocket != INVALID_SOCKET )
 	{
 		if ( mConn->ReceivePkg( mServerSocket, *p ) )

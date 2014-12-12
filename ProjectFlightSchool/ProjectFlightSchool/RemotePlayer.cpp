@@ -13,7 +13,6 @@ void RemotePlayer::RemoteUpdate( IEventPtr newEvent )
 
 void RemotePlayer::LookAt( float rotation )
 {
-
 }
 
 HRESULT RemotePlayer::Render( float deltaTime )

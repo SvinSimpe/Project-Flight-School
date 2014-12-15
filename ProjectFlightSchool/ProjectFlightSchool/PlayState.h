@@ -3,15 +3,18 @@
 
 #include "BaseState.h"
 #include "Player.h"
+#include "RemotePlayer.h"
+
+#define MAX_REMOTE_PLAYERS 10
 
 class PlayState : public BaseState
 {
 	// Class members
 	private:
 
-		AssetID		mPlaneAsset;
-		AssetID		mCubeAsset;
-		AssetID		mTestAsset;
+		AssetID			mPlaneAsset;
+		AssetID			mCubeAsset;
+		AssetID			mTestAsset;
 
 		AssetID		mTestAnimation;
 		AssetID		mTestSkeleton;
@@ -20,15 +23,22 @@ class PlayState : public BaseState
 		float		mAnimationTime;
 
 	// Debug
-		Player*		mPlayer;
+		Player*			mPlayer;
+		std::vector<RemotePlayer*> mRemotePlayers;
 
+		
+	
 	protected:
 	public:
 
 	// Class functions
 	private:
+		void			RemoteUpdate( IEventPtr newEvent );
+
 	protected:
 	public:
+		void HandleDeveloperCameraInput();
+
 		virtual HRESULT Update( float deltaTime );
 		virtual HRESULT Render();
 		virtual void	OnEnter();

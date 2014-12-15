@@ -14,7 +14,12 @@ Graphics::Graphics()
 	mDepthStencilView	= nullptr;
 	mCbufferPerFrame	= nullptr;
 
-	mAssetManager		= nullptr;
+	mAssetManager				= nullptr;
+	mStaticEffect				= nullptr;
+	mAnimatedEffect				= nullptr;
+	mCamera						= nullptr;
+	mDeveloperCamera			= nullptr;
+	mIsDeveloperCameraActive	= false;
 }
 
 Graphics::~Graphics()
@@ -329,9 +334,32 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 	//}
 }
 
-Camera* Graphics::GetCamera()
+Camera* Graphics::GetCamera() const
 {
 	return mCamera;
+}
+
+Camera* Graphics::GetDeveloperCamera() const
+{
+	return mDeveloperCamera;
+}
+
+void Graphics::ChangeCamera()
+{
+	if( mIsDeveloperCameraActive )
+		mIsDeveloperCameraActive = false;
+	else
+		mIsDeveloperCameraActive = true;
+}
+
+void Graphics::ZoomInDeveloperCamera()
+{
+	mDeveloperCamera->ZoomIn();
+}
+
+void Graphics::ZoomOutDeveloperCamera()
+{
+	mDeveloperCamera->ZoomOut();
 }
 
 void Graphics::SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY )
@@ -364,7 +392,10 @@ void Graphics::SetFocus( XMFLOAT3 &focusPoint )
 //Clear canvas and prepare for rendering.
 void Graphics::BeginScene()
 {
-	mCamera->Update();
+	if( mIsDeveloperCameraActive )
+		mDeveloperCamera->Update();
+	else
+		mCamera->Update();
 
 	static float clearColor[4] = { 0.3f, 0.3f, 0.3f, 1.0f };
 	mDeviceContext->ClearRenderTargetView( mRenderTargetView, clearColor );
@@ -375,8 +406,17 @@ void Graphics::BeginScene()
 
 	//Map CbufferPerFrame
 	CbufferPerFrame data;
-	data.viewMatrix			= mCamera->GetViewMatrix();
-	data.projectionMatrix	= mCamera->GetProjMatrix();
+
+	if( mIsDeveloperCameraActive )
+	{
+		data.viewMatrix			= mDeveloperCamera->GetViewMatrix();
+		data.projectionMatrix	= mDeveloperCamera->GetProjMatrix();
+	}
+	else
+	{
+		data.viewMatrix			= mCamera->GetViewMatrix();
+		data.projectionMatrix	= mCamera->GetProjMatrix();
+	}
 	MapBuffer( mCbufferPerFrame, &data, sizeof( CbufferPerFrame ) );
 
 	mDeviceContext->VSSetConstantBuffers( 0, 1, &mCbufferPerFrame );
@@ -570,6 +610,22 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	hr = mCamera->Initialize( &cameraInfo );
 
+	//Developer Camera
+	mDeveloperCamera = new Camera;
+
+	CameraInfo developerCameraInfo;
+	ZeroMemory( &cameraInfo, sizeof( developerCameraInfo ) );
+	developerCameraInfo.eyePos		= DirectX::XMFLOAT4( 0.0f, 50.0f, -50.0f, 0.0f );
+	developerCameraInfo.focusPoint	= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
+	developerCameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
+	developerCameraInfo.width		= (float)screenWidth;
+	developerCameraInfo.height		= (float)screenHeight;
+	developerCameraInfo.foVY		= 0.75f;
+	developerCameraInfo.nearZ		= 0.1f;
+	developerCameraInfo.farZ		= 1000.0f;
+
+	hr = mDeveloperCamera->Initialize( &developerCameraInfo );
+
 	return hr;
 }
 
@@ -593,5 +649,6 @@ void Graphics::Release()
 	SAFE_DELETE( mStaticEffect );
 	SAFE_DELETE( mAnimatedEffect );
 	SAFE_DELETE( mCamera );
+	SAFE_DELETE( mDeveloperCamera );
 
 }

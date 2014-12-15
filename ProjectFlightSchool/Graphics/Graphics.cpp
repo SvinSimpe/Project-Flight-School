@@ -290,7 +290,6 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 		}
 	}
 
-
 	//////////////////////////////////////////////////////////////////
 	//						RENDER CALL
 	//////////////////////////////////////////////////////////////////
@@ -315,13 +314,19 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 	data.worldMatrix = DirectX::XMMatrixIdentity();
 	for( int i = 0; i < NUM_SUPPORTED_JOINTS; i++ )
 		data.boneTransforms[i] = DirectX::XMMatrixIdentity();
-	for( int i = 1; i < skeleton->nrOfJoints; i++ )
+	for( int i = 0; i < skeleton->nrOfJoints; i++ )
 		data.boneTransforms[i] = DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[i] ) );
 	MapBuffer( mCbufferPerObjectAnimated, &data, sizeof( CbufferPerObjectAnimated ) );
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObjectAnimated );
 
 	mDeviceContext->Draw( model->mVertexCount, 0 );
+	//for( int i = 0; i < skeleton->nrOfJoints; i++ )
+	//{	
+		//DirectX::XMStoreFloat4x4( &model->mCurrentBoneTransforms[i], DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[i] ) ) );
+
+		//RenderStatic3dAsset( 0, &model->mCurrentBoneTransforms[i] );
+	//}
 }
 
 Camera* Graphics::GetCamera()

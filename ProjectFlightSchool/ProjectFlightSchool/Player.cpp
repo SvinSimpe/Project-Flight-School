@@ -121,8 +121,8 @@ HRESULT Player::Initialize()
 		OutputDebugString( L"\nERROR\n" );
 
 
-	mUpperBody.position	= XMFLOAT3( 10.0f, 2.0f, 10.0f );
-	mLowerBody.position	= XMFLOAT3( 10.0f, 1.0f, 10.0f );
+	mUpperBody.position	= XMFLOAT3( 3.0f, 1.0f, 0.0f );
+	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mLowerBody.speed	= 0.2f;
 
 	return S_OK;

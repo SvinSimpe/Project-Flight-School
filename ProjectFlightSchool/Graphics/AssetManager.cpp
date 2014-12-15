@@ -258,12 +258,6 @@ HRESULT	AssetManager::LoadAnimated3dAsset( ID3D11Device* device, char* fileName,
 
 		myFile.read( (char*)vertices, vertexSize * meshInfo.nrOfVertices );
 
-		AnimatedVertex vert[36];
-		for( int i = 0; i < 36; i++ )
-		{
-			vert[i] = vertices[i];
-		}
-
 		myFile.close();
 
 		AssignAssetId( assetId );
@@ -395,7 +389,7 @@ HRESULT	AssetManager::LoadSkeletonAsset( string filePath, string fileName, Asset
 				tempSkel->mSkeleton.joints.push_back( tempJoint );
 			}
 			delete[] memblock;
-
+				
 			// Fix index for parents
 			for (int i = 0; i < (int)tempSkel->mSkeleton.joints.size(); i++)
 			{
@@ -545,6 +539,7 @@ HRESULT	AssetManager::LoadAnimationAsset( string filePath, string fileName, Asse
 				tempAnim->mAnimationData.joints.push_back( tempJoint );
 			}
 			delete[] memblock;
+
 		}
 		else std::cout << "Error opening file!" << std::endl;
 		tempAnim->mAnimationData.AnimLength = animLength;

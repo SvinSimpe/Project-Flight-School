@@ -22,25 +22,28 @@ struct LowerBody
 
 class RemotePlayer
 {
-private:
+	// Member variables
+	private:
+	protected:
+		int			mID;
+		UpperBody	mUpperBody;
+		LowerBody	mLowerBody;
+	public:
 
-protected:
-	int			mID;
-	UpperBody	mUpperBody;
-	LowerBody	mLowerBody;
+	// Member functions
+	private:
+		void RemoteUpdate( IEventPtr newEvent );
 
-private:
-	void RemoteUpdate( IEventPtr newEvent );
+	protected:
+		void LookAt( float rotation );
 
-protected:
-	void LookAt(float rotation);
-
-public:
-	HRESULT Render( float deltaTime );
-	HRESULT Initialize( unsigned int id );
-	void Release();
-	RemotePlayer();
-	~RemotePlayer();
+	public:
+		int GetID() const;
+		HRESULT Render( float deltaTime );
+		HRESULT Initialize( unsigned int id );
+		void Release();
+		RemotePlayer();
+		~RemotePlayer();
 };
 
 #endif

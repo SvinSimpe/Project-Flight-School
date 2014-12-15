@@ -13,7 +13,7 @@ bool Client::ReceiveLoop()
 			}
 		}
 	}
-	if (p)
+	if ( p )
 	{
 		delete[] p;
 	}

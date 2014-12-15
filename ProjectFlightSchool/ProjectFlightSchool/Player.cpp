@@ -4,16 +4,16 @@ void Player::HandleInput( float deltaTime )
 {
 	mLowerBody.direction = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_W ) && !Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_S ) )
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_W) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_S) )
 		Move( XMFLOAT3( 0.0f, 0.0f, 1.0f ) );
 	
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_A ) && !Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_D ) )
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_A) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_D) )
 		Move( XMFLOAT3( -1.0f, 0.0f, 0.0f ) );
 
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_S ) && !Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_W ) )
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_S) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_W) )
 		Move( XMFLOAT3( 0.0f, 0.0f, -1.0f ) );
 	
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_D ) && !Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_A ) )
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_D) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_A) )
 		Move( XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
 
 

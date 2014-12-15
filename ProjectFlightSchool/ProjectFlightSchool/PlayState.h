@@ -5,6 +5,8 @@
 #include "Player.h"
 #include "RemotePlayer.h"
 
+#define MAX_REMOTE_PLAYERS 10
+
 class PlayState : public BaseState
 {
 	// Class members

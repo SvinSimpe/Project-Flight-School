@@ -6,9 +6,9 @@ enum class Net_Event
 {
 	ERROR_EVENT,
 	MESSAGE,
-	QUIT,
 	EV_PLAYER_MOVED,
-	EV_PLAYER_JOINED
+	EV_PLAYER_JOINED,
+	EV_PLAYER_LEFT
 };
 
 template <typename T>
@@ -16,9 +16,9 @@ struct Package
 {
 	struct Head
 	{
-		int			index		= 0;
+		int			index		= -1;
 		Net_Event	eventType	= Net_Event::ERROR_EVENT;
-		int			contentSize	= 0;
+		int			contentSize	= -1;
 	};
 
 	struct Body

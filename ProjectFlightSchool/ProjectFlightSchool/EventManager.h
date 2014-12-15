@@ -67,7 +67,6 @@ class EventManager : public IEventManager
 
 		virtual bool Update( unsigned long maxMillis = kINFINITE );
 
-		virtual bool RemoveListener( const EventListenerDelegate& eventDelegate, const EventType& type );
 		template<typename T, typename U> 
 		bool AddListener( T functionPtr, U instancePtr, const EventType& type ){
 			EventListenerDelegate eventDelegate = 
@@ -78,6 +77,15 @@ class EventManager : public IEventManager
 
 			return AddListener( eventDelegate, type );
 		}
+		template<typename T, typename U>
+		bool RemoveListener( T functionPtr, U instancePtr, const EventType& type ){
+			EventListenerDelegate eventDelegate =
+			std::bind	(	functionPtr,
+							instancePtr,
+							std::placeholders::_1
+						);
+			return RemoveListener( eventDelegate, type );
+		}
 		static EventManager* GetInstance()
 		{
 			static EventManager instance;
@@ -85,5 +93,6 @@ class EventManager : public IEventManager
 		}
 	private:
 		virtual bool AddListener( const EventListenerDelegate& eventDelegate, const EventType& type );
+		virtual bool RemoveListener( const EventListenerDelegate& eventDelegate, const EventType& type );
 };
 #endif

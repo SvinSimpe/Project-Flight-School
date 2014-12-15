@@ -6,12 +6,17 @@
 class Map
 {
 	private:
-		MapSection mMapSections[MAP_DIMX * MAP_DIMZ];
-		UINT mVertexSpacing;
+		MapSection *mMapSections;
+		float mVertexSpacing;
 		
 		UINT mMapId;
 	protected:
 	public:
+		UINT mVerticesPerAxis;
+
+		UINT mSectionDim;
+
+		UINT mMapDim;
 
 	private:
 		void InitializeVertices();
@@ -20,7 +25,7 @@ class Map
 		//HRESULT Update( float deltaTime );
 		HRESULT Render( float deltaTime );
 		void GenerateGrid();
-		HRESULT Initialize( UINT vertexSpacing );
+		HRESULT Initialize( float vertexSpacing, UINT mapDim );
 		void Release();
 		Map();
 		~Map();

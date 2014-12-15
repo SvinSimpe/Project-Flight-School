@@ -20,11 +20,9 @@ class MapSection
 
 	protected:
 	public:
-		//HRESULT Update( float deltaTime );
 		void Render( float deltaTime );
 		static void SetUpIndices();
-		void SetUpVertices();
-		HRESULT Initialize( UINT sectionID );
+		HRESULT Initialize( UINT sectionID,  float vertexSpacing, UINT mapDim );
 		void Release();
 		MapSection();
 		~MapSection();

@@ -19,7 +19,7 @@ HRESULT PlayState::Update( float deltaTime )
 HRESULT PlayState::Render()
 {
 	Graphics::GetInstance()->BeginScene();
-	Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset );
+	//Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset );
 	//Graphics::GetInstance()->RenderStatic3dAsset( mCubeAsset, 5.0f, 1.0f, 10.0f );
 	//Graphics::GetInstance()->RenderStatic3dAsset( mTestAsset );
 	Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime );
@@ -60,7 +60,7 @@ HRESULT PlayState::Initialize()
 	mPlayer->Initialize();
 
 	mWorldMap = new Map();
-	mWorldMap->Initialize( 1 );
+	mWorldMap->Initialize( 20.0f, 20 );
 
 	return S_OK;
 }

@@ -9,60 +9,66 @@ void MapSection::Render( float deltaTime )
 void MapSection::SetUpIndices()
 {
 	UINT index = 0;
-	for( int i = 0; i < VERTICES_PER_X - 1; i++ )
+	for( int i = 0; i < VERTICES_PER_AXIS - 1; i++ )
 	{
-		for( int j = 0; j < VERTICES_PER_Z - 1; j++)
+		for( int j = 0; j < VERTICES_PER_AXIS - 1; j++)
 		{
-			MapSection::INDICES[index++] = j + ( i + 1 ) * VERTICES_PER_Z;
-			MapSection::INDICES[index++] = ( j + 1 ) + ( 1 + i ) * VERTICES_PER_Z;
-			MapSection::INDICES[index++] = j + i * VERTICES_PER_Z;
+			MapSection::INDICES[index++] = j + ( i + 1 ) * VERTICES_PER_AXIS;
+			MapSection::INDICES[index++] = ( j + 1 ) + ( 1 + i ) * VERTICES_PER_AXIS;
+			MapSection::INDICES[index++] = j + i * VERTICES_PER_AXIS;
 
-			MapSection::INDICES[index++] = ( j + 1 ) + ( 1 + i ) * VERTICES_PER_Z;
-			MapSection::INDICES[index++] = ( j + 1 ) + ( i * VERTICES_PER_Z );
-			MapSection::INDICES[index++] = j + ( i * VERTICES_PER_Z );
+			MapSection::INDICES[index++] = ( j + 1 ) + ( 1 + i ) * VERTICES_PER_AXIS;
+			MapSection::INDICES[index++] = ( j + 1 ) + ( i * VERTICES_PER_AXIS );
+			MapSection::INDICES[index++] = j + ( i * VERTICES_PER_AXIS );
 		}
 	}
 }
-void MapSection::SetUpVertices()
-{
-	float posX, posY, posZ;
-
-	posY = 0.0f;
-
-	float du=1.0f / ( SECTION_DIMX );
-	float dv=1.0f / ( SECTION_DIMZ );
-	int sectionZ = (int)( ( mSectionID / MAP_DIMZ ) - (float)( MAP_DIMZ * 0.5f ) );
-	int sectionX = (int)( ( mSectionID % MAP_DIMX ) - (float)( MAP_DIMX * 0.5f ) );
-
-
-	for( int z = 0; z < (int)VERTICES_PER_X; z++ )
-	{
-		posZ = z - ( (float)( SECTION_DIMZ * 0.5f ) ) + ( sectionZ * SECTION_DIMZ );
-
-		for( int x = 0; x < (int)VERTICES_PER_Z; x++ )
-		{
-			posX = x - ( (float)( SECTION_DIMZ * 0.5f ) ) + ( sectionX * SECTION_DIMX );
-
-			mVertices[x + z * VERTICES_PER_Z].position[0]	= posX;
-			mVertices[x + z * VERTICES_PER_Z].position[1]	= posY;
-			mVertices[x + z * VERTICES_PER_Z].position[2]	= posZ;
-
-			mVertices[x + z * VERTICES_PER_Z].uv[0]			= x * du;
-			mVertices[x + z * VERTICES_PER_Z].uv[1]			= z * dv;
-
-			mVertices[x + z * VERTICES_PER_Z].normal[0]		= 0.0f;
-			mVertices[x + z * VERTICES_PER_Z].normal[1]		= 1.0f;
-			mVertices[x + z * VERTICES_PER_Z].normal[2]		= 0.0f;
-
-		}
-	}
-}
-HRESULT MapSection::Initialize( UINT sectionID )
+HRESULT MapSection::Initialize( UINT sectionID, float vertexSpacing, UINT mapDim )
 {
 	mSectionID = sectionID;
+
+	float posX, posY, posZ;
+
+	posX = 0.0f;
+	posY = 0.0f;
+	posZ = 0.0f;
+
+	float du=1.0f / ( SECTION_DIM );
+	float dv=1.0f / ( SECTION_DIM );
+
+	float halfX = (float)mapDim * 0.5f;
+	float halfZ = (float)mapDim * 0.5f;
+
+	int xID = mSectionID % mapDim;
+	int zID = mSectionID / mapDim;
+
 	
-	SetUpIndices();
-	SetUpVertices();
+
+	float dx = xID - halfX; //  = ( mSectionID - halfX ) * 2;
+	float dz = zID - halfZ; // = ( sectionZ - halfZ ) * 2;
+
+	
+	for( int z = 0; z < (int)VERTICES_PER_AXIS; z++ )
+	{
+		posZ = ( ( dz * SECTION_DIM ) * vertexSpacing ) + ( z * vertexSpacing ); 
+		for( int x = 0; x < (int)VERTICES_PER_AXIS; x++ )
+		{
+			posX = ( ( dx * SECTION_DIM ) * vertexSpacing ) + ( x * vertexSpacing ); 
+			mVertices[x + z * VERTICES_PER_AXIS].position[1]	= posY;
+			mVertices[x + z * VERTICES_PER_AXIS].position[0]	= posX;
+			mVertices[x + z * VERTICES_PER_AXIS].position[2]	= posZ;
+										   
+			mVertices[x + z * VERTICES_PER_AXIS].uv[0]			= x * du;
+			mVertices[x + z * VERTICES_PER_AXIS].uv[1]			= z * dv;
+										   
+			mVertices[x + z * VERTICES_PER_AXIS].normal[0]		= 0.0f;
+			mVertices[x + z * VERTICES_PER_AXIS].normal[1]		= 1.0f;
+			mVertices[x + z * VERTICES_PER_AXIS].normal[2]		= 0.0f;
+
+		}
+	}
+
+
 	char name[50];
 	sprintf_s( name, "mapSection%d", mSectionID );
 	Indexed3DAssetInfo info;

@@ -3,6 +3,7 @@ cbuffer CbufferPerFrame	: register( b0 )
 {
 	float4x4 viewMatrix;
 	float4x4 projectionMatrix;
+	float4	 cameraPosition;
 }
 
 cbuffer CbufferPerObject : register( b1 )

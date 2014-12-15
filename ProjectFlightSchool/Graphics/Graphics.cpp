@@ -457,11 +457,13 @@ void Graphics::BeginScene()
 	{
 		data.viewMatrix			= mDeveloperCamera->GetViewMatrix();
 		data.projectionMatrix	= mDeveloperCamera->GetProjMatrix();
+		data.cameraPosition		= mDeveloperCamera->GetPos();
 	}
 	else
 	{
 		data.viewMatrix			= mCamera->GetViewMatrix();
 		data.projectionMatrix	= mCamera->GetProjMatrix();
+		data.cameraPosition		= mCamera->GetPos();
 	}
 	MapBuffer( mCbufferPerFrame, &data, sizeof( CbufferPerFrame ) );
 

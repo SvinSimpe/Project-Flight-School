@@ -52,28 +52,6 @@ HRESULT	System::Render()
 	return S_OK;
 }
 
-void System::NetworkInit()
-{
-	const char* port = DEFAULT_PORT;
-
-	int choice = 0;
-	std::cin >> choice;
-	std::cin.ignore();
-	if ( choice == 0 )
-	{
-		if( Server::GetInstance()->Initialize( port ) )
-			if ( Server::GetInstance()->Connect() )
-				Server::GetInstance()->Run();
-	}
-	else
-	{
-		const char* ip = DEFAULT_IP;
-		if( mClient.Initialize( ip, port ) )
-			if ( mClient.Connect() )
-				mClient.Run();
-	}
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
@@ -162,8 +140,6 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 
 	Input::GetInstance()->Initialize( mScreenWidth, mScreenHeight, mHWnd );
 
-	mNetworkThread	= std::thread( &System::NetworkInit, this );
-	
 	mGame = new Game();
 	mGame->Initialize();
 
@@ -177,9 +153,6 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 void System::Release()
 {
 	Graphics::GetInstance()->Release();
-	mNetworkThread.join();
-	mClient.Release();
-	Server::GetInstance()->Release();
 	mGame->Release();
 	SAFE_DELETE( mGame );
 	mTimer->Release();

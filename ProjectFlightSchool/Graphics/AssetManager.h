@@ -1,6 +1,7 @@
 #ifndef ASSETMANAGER_H
 #define ASSETMANAGER_H
 
+#include "Static2dAsset.h"
 #include "Static3dAsset.h"
 #include "Static3dAssetIndexed.h"
 #include "Animated3dAsset.h"
@@ -18,10 +19,12 @@ struct MeshInfo
 {
 	UINT nrOfVertices;
 
-	char meshName[50];
-	char diffuseMapName[50];
-	char normalMapName[50];
-	char specularMapName[50];
+	char meshName[30];
+	char diffuseMapName[30];
+	char normalMapName[30];
+	char specularMapName[30];
+
+	char skeletonName[30];
 };
 struct Indexed3DAssetInfo
 {
@@ -46,6 +49,7 @@ class AssetManager
 		HRESULT		PlaceholderAssets( ID3D11Device* device );
 	protected:
 	public:
+		HRESULT			LoadStatic2dAsset( ID3D11ShaderResourceView* srv, char* fileName, AssetID &assetId );
 		HRESULT			LoadStatic3dAsset( ID3D11Device* device, char* fileName, AssetID &assetId );
 		HRESULT			LoadStatic3dAssetIndexed( ID3D11Device* device, Indexed3DAssetInfo &info, AssetID &assetId );
 		HRESULT			LoadAnimated3dAsset( ID3D11Device* device, char* fileName, AssetID skeletonId, AssetID &assetId );

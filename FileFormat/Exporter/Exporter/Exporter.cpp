@@ -199,6 +199,8 @@ void Exporter::GetWeightAndJointsPerSkinCluster()
 					MItGeometry gIter(skinPath);
 					for (; !gIter.isDone(); gIter.next())
 					{
+						int jointCounter = 0;
+
 						//Getting current vertex
 						MObject comp = gIter.currentItem(&stat);
 
@@ -215,7 +217,17 @@ void Exporter::GetWeightAndJointsPerSkinCluster()
 							{
 								g_meshInfoMaya[i].weights.append(wts[j]);	//Weight
 								g_meshInfoMaya[i].jointIndex.append(j);		//JointIndex
+
+								jointCounter++;
 							}
+						}
+
+						while(jointCounter != 4)
+						{
+							g_meshInfoMaya[i].weights.append(0);
+							g_meshInfoMaya[i].jointIndex.append(0);
+							
+							jointCounter++;
 						}
 					}
 				}
@@ -627,13 +639,15 @@ void Exporter::ConvertAndBuildAnimMesh(MeshInfo_Maya* meshIter)
 				tempMeshData.vertices[index + i].tangent.z = meshIter->tangents[tangent_index].z * -1;
 
 				//Weight and joint data is stored in single arrays. Weights for 1st vertex is at {0 1 2}, the second vertex at {3 4 5} and so on. The same goes for joints.
-				tempMeshData.vertices[index + i].weights.x = meshIter->weights[vertex_index * 3];
-				tempMeshData.vertices[index + i].weights.y = meshIter->weights[vertex_index * 3 + 1];
-				tempMeshData.vertices[index + i].weights.z = meshIter->weights[vertex_index * 3 + 2];
+				tempMeshData.vertices[index + i].weights.x = meshIter->weights[vertex_index * 4];
+				tempMeshData.vertices[index + i].weights.y = meshIter->weights[vertex_index * 4 + 1];
+				tempMeshData.vertices[index + i].weights.z = meshIter->weights[vertex_index * 4 + 2];
+				tempMeshData.vertices[index + i].weights.w = meshIter->weights[vertex_index * 4 + 3];
 
-				tempMeshData.vertices[index + i].jointIndex[0] = meshIter->jointIndex[vertex_index * 3];
-				tempMeshData.vertices[index + i].jointIndex[1] = meshIter->jointIndex[vertex_index * 3 + 1];
-				tempMeshData.vertices[index + i].jointIndex[2] = meshIter->jointIndex[vertex_index * 3 + 2];
+				tempMeshData.vertices[index + i].jointIndex[0] = meshIter->jointIndex[vertex_index * 4];
+				tempMeshData.vertices[index + i].jointIndex[1] = meshIter->jointIndex[vertex_index * 4 + 1];
+				tempMeshData.vertices[index + i].jointIndex[2] = meshIter->jointIndex[vertex_index * 4 + 2];
+				tempMeshData.vertices[index + i].jointIndex[3] = meshIter->jointIndex[vertex_index * 4 + 3];
 			}
 		}
 		else

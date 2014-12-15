@@ -153,6 +153,31 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 #pragma endregion Helper functions for the class
 
 #pragma region Public functions
+HRESULT AssetManager::LoadStatic2dAsset( ID3D11ShaderResourceView* srv, char* fileName, AssetID &assetId )
+{
+	HRESULT hr = S_OK;
+
+	//If true return to caller because the asset already exist.
+	if( AssetExist( fileName, assetId ) )
+	{
+		return hr;
+	}
+	else
+	{	 
+
+		AssignAssetId( assetId );
+		Static2dAsset* temp;
+		temp				= new Static2dAsset();
+		temp->mAssetId		= assetId;
+		temp->mSRV			= srv;
+		temp->mFileName		= fileName;
+
+		mAssetContainer.push_back( temp );
+
+		return hr;
+	}
+}
+
 HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, AssetID &assetId )
 {
 	HRESULT hr = S_OK;
@@ -297,8 +322,8 @@ HRESULT	AssetManager::LoadAnimated3dAsset( ID3D11Device* device, char* fileName,
 	{
 		//MeshData	meshData;
 		MeshInfo		meshInfo;
-		StaticVertex*	vertices	= nullptr;
-		UINT			vertexSize	= sizeof( StaticVertex );
+		AnimatedVertex*	vertices	= nullptr;
+		UINT			vertexSize	= sizeof( AnimatedVertex );
 
 		std::ifstream myFile( fileName, std::ios::binary );
 
@@ -308,13 +333,11 @@ HRESULT	AssetManager::LoadAnimated3dAsset( ID3D11Device* device, char* fileName,
 			return S_FALSE;
 		}
 
-		float* rawData = nullptr;
-
 		//Read actual data
-		myFile.read( (char*)&meshInfo, sizeof(MeshInfo) );
+		myFile.read( (char*)&meshInfo, sizeof(meshInfo) );
 	
 		//Memory alloc + reading vertices
-		vertices	= new StaticVertex[meshInfo.nrOfVertices];
+		vertices	= new AnimatedVertex[meshInfo.nrOfVertices];
 
 		myFile.read( (char*)vertices, vertexSize * meshInfo.nrOfVertices );
 
@@ -331,7 +354,7 @@ HRESULT	AssetManager::LoadAnimated3dAsset( ID3D11Device* device, char* fileName,
 		D3D11_BUFFER_DESC bufferDesc;
 		ZeroMemory( &bufferDesc, sizeof( bufferDesc ) );
 		bufferDesc.BindFlags	= D3D11_BIND_VERTEX_BUFFER;
-		bufferDesc.ByteWidth	= sizeof( StaticVertex ) * meshInfo.nrOfVertices;
+		bufferDesc.ByteWidth	= vertexSize * meshInfo.nrOfVertices;
 		bufferDesc.Usage		= D3D11_USAGE_DEFAULT;
 	
 		D3D11_SUBRESOURCE_DATA subData;
@@ -449,7 +472,7 @@ HRESULT	AssetManager::LoadSkeletonAsset( string filePath, string fileName, Asset
 				tempSkel->mSkeleton.joints.push_back( tempJoint );
 			}
 			delete[] memblock;
-
+				
 			// Fix index for parents
 			for (int i = 0; i < (int)tempSkel->mSkeleton.joints.size(); i++)
 			{
@@ -559,8 +582,18 @@ HRESULT	AssetManager::LoadAnimationAsset( string filePath, string fileName, Asse
 
 				for ( int k = 0; k < keys; k++ )
 				{
-					tempJoint.keys.push_back( memblock[padding] );
-					padding++;
+					int tempKeyCounterValue = (int)memblock[padding];
+					string tempKeyDouble;
+					for ( int w = 0; w < tempKeyCounterValue; w++ )
+					{
+						if ( w == 0 )
+						{
+							padding++;
+						}
+						tempKeyDouble.push_back( memblock[padding] );
+						padding++;
+					}
+					tempJoint.keys.push_back( (int)stof( tempKeyDouble ) );
 
 					for ( int m = 0; m < 16; m++ )
 					{
@@ -589,6 +622,7 @@ HRESULT	AssetManager::LoadAnimationAsset( string filePath, string fileName, Asse
 				tempAnim->mAnimationData.joints.push_back( tempJoint );
 			}
 			delete[] memblock;
+
 		}
 		else std::cout << "Error opening file!" << std::endl;
 		tempAnim->mAnimationData.AnimLength = animLength;
@@ -831,6 +865,8 @@ void AssetManager::Release()
 			( (Animated3dAsset*)mAssetContainer[i] )->Release();
 		else if( typeid( mAssetContainer[i] ) == typeid( SkeletonAsset ) )
 			( (SkeletonAsset*)mAssetContainer[i] )->Release();
+		else if( typeid( mAssetContainer[i] ) == typeid( Static2dAsset ) )
+			( (Static2dAsset*)mAssetContainer[i] )->Release();
 		SAFE_DELETE( mAssetContainer[i] );
 	}
 	mAssetContainer.clear();

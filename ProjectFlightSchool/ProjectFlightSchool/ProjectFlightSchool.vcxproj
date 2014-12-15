@@ -96,6 +96,8 @@
     <ClCompile Include="MapSection.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayState.cpp" />
+    <ClCompile Include="Projectile.cpp" />
+    <ClCompile Include="RemotePlayer.cpp" />
     <ClCompile Include="StartMenuState.cpp" />
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="Timer.cpp" />
@@ -109,6 +111,8 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="KeyDefines.h" />
     <ClInclude Include="PlayState.h" />
+    <ClInclude Include="Projectile.h" />
+    <ClInclude Include="RemotePlayer.h" />
     <ClInclude Include="StartMenuState.h" />
     <ClInclude Include="StateMachine.h" />
     <ClCompile Include="Client.cpp" />

@@ -20,6 +20,11 @@ struct vec3
 	float x, y, z;
 };
 
+struct vec4
+{
+	float x, y, z, w;
+};
+
 struct Vertex_Static
 {
 	vec3 position;
@@ -35,8 +40,8 @@ struct Vertex_Anim
 	vec3 tangent;
 	vec2 uv;
 
-	vec3 weights;
-	int jointIndex[3];
+	vec4 weights;
+	int jointIndex[4];
 };
 
 struct MeshInfo
@@ -164,12 +169,21 @@ void ReadAnimMeshBinary(string fileName)
 	myFile.read((char*)vertices, vertexSize);
 	
 	myFile.close();
+
+	for (int i = 0; i < 10; i++)
+	{
+		
+		cout << vertices[i].weights.x << " " << vertices[i].weights.y << " " << vertices[i].weights.z << " " << vertices[i].weights.w << endl;
+		cout << vertices[i].jointIndex[0] << " " << vertices[i].jointIndex[1] << " " << vertices[i].jointIndex[2] << " " << vertices[i].jointIndex[3] << endl << endl;
+	}
 }
 
 void ReadFiles()
 {
 	vector<string> filenameList;
 	GetFilenamesInDirectory(filenameList);
+
+	ReadAnimMeshBinary("maya_testAsset_tree_animated.apfs");
 
 	for (int i = 0; i < filenameList.size(); i++)
 	{

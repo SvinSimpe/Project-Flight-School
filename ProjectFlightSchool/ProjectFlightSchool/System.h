@@ -1,14 +1,15 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
-
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#undef WIN32_LEAN_AND_MEAN
+#endif
+
 #define VC_EXTRALEAN
-#include "Server.h" // This include should always be first since it includes windows.h...... for now
 #include "Input.h"
 #include "Graphics.h"
-#include "Client.h"
-#include <iostream>
 #include "Game.h"
 #include "Player.h"
 #include "Timer.h"
@@ -22,13 +23,9 @@ class System
 		UINT		mScreenWidth;
 		UINT		mScreenHeight;
 
-		std::thread	mNetworkThread;
-		Client		mClient;
-
 		Game*		mGame;
 		
 		Timer*		mTimer;
-		
 
 	protected:
 	public:
@@ -38,7 +35,6 @@ class System
 		static LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
 		HRESULT					Update( float deltaTime );
 		HRESULT					Render();
-		void					NetworkInit();
 
 	protected:
 	public:

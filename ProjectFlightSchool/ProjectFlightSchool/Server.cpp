@@ -1,15 +1,12 @@
 #include "Server.h"
 
-Server* Server::GetInstance()
-{
-	static Server instance;
-	return &instance;
-}
+///////////////////////////////////////////////////////////////////////////////
+//									PRIVATE
+///////////////////////////////////////////////////////////////////////////////
 
 bool Server::AcceptConnection()
 {
-	SOCKET s	= INVALID_SOCKET;
-	s			= accept( mListenSocket, nullptr, nullptr );
+	SOCKET s	= accept( mListenSocket, nullptr, nullptr );
 	if ( s == INVALID_SOCKET )
 	{
 		printf( "accept failed with error: %d\n", WSAGetLastError() );
@@ -27,19 +24,47 @@ bool Server::AcceptConnection()
 bool Server::ReceiveLoop( int index )
 {
 	Package<void*>* p = new Package<void*>[DEFAULT_BUFLEN];
-	while ( mClientSockets.at( index ) != INVALID_SOCKET )
+	while ( mClientSockets.at(index) != INVALID_SOCKET )
 	{
+		SOCKET savedSocket = mClientSockets.at(index); // Used in case of disconnect
 		if ( mConn->ReceivePkg( mClientSockets.at(index), *p ) )
 		{
 			if ( p->head.eventType != Net_Event::ERROR_EVENT )
 			{
-				HandlePkg( mClientSockets.at(index), *p );
+				HandlePkg( mClientSockets.at(index), p );
 			}
 		}
+		if( mClientSockets.at(index) == INVALID_SOCKET )
+		{
+			DisconnectClient( savedSocket );
+		}
 	}
-	if (p)
+
+	if ( p )
+	{
 		delete[] p;
+	}
 	return true;
+}
+
+void Server::DisconnectClient( SOCKET s )
+{
+	EvPlayerConnection msg;
+	msg.ID = s;
+	for( auto& to : mClientSockets )
+	{
+		mConn->SendPkg( to, 0, Net_Event::EV_PLAYER_LEFT, msg );
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//									PUBLIC
+///////////////////////////////////////////////////////////////////////////////
+
+Server* Server::GetInstance()
+{
+	static Server instance;
+	return &instance;
 }
 
 bool Server::Connect()
@@ -72,7 +97,6 @@ bool Server::Connect()
 		WSACleanup();
 		return false;
 	}
-	mAddrResult->ai_addr;
 	printf( "Server up and running.\n" );
 
 	return true;
@@ -84,7 +108,7 @@ bool Server::Run()
 	{
 		if ( AcceptConnection() )
 		{
-			mListenThreads.push_back( std::thread( &Server::ReceiveLoop, this, mClientSockets.size() - 1) );
+			mListenThreads.push_back( std::thread( &Server::ReceiveLoop, this, mClientSockets.size() - 1 ) );
 		}
 		else
 		{
@@ -96,9 +120,8 @@ bool Server::Run()
 
 bool Server::Initialize( const char* port )
 {
-	WSADATA WSAData;
-
-	mResult = WSAStartup( MAKEWORD( 2, 2 ), &WSAData );
+	WSADATA WSAData = WSADATA();
+	mResult			= WSAStartup( MAKEWORD( 2, 2 ), &WSAData );
 	if ( mResult != 0 )
 	{
 		printf( "WSAStartup failed with error: %d\n", mResult );
@@ -134,12 +157,18 @@ void Server::Release()
 	}
 	mListenThreads.clear();
 
+	for( auto& s : mClientSockets )
+	{
+		mConn->DisconnectSocket( s ); 
+	}
 	mClientSockets.clear();
 	WSACleanup();
 	mConn->Release();
 
 	if ( mConn )
+	{
 		delete mConn;
+	}
 }
 
 Server::Server()

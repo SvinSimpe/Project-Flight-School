@@ -74,17 +74,36 @@ HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo* effectInfo )
 				nullptr,
 				&mVertexShader) ) )
 			{
-				D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
-						{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-						{ "NORMAL"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-						{ "TANGENT"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-						{ "TEX"		, 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				};
-				hr = device->CreateInputLayout( inputDesc,
-					ARRAYSIZE( inputDesc ),
-					vertexShaderBlob->GetBufferPointer(),
-					vertexShaderBlob->GetBufferSize(),
-					&mInputLayout );
+				if( effectInfo->vertexType == STATIC_VERTEX_TYPE )
+				{
+					D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
+							{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+							{ "NORMAL"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+							{ "TANGENT"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+							{ "TEX"		, 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+					};
+					hr = device->CreateInputLayout( inputDesc,
+						ARRAYSIZE( inputDesc ),
+						vertexShaderBlob->GetBufferPointer(),
+						vertexShaderBlob->GetBufferSize(),
+						&mInputLayout );
+				}
+				else if( effectInfo->vertexType == ANIMATED_VERTEX_TYPE )
+				{
+					D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
+							{ "POSITION"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+							{ "NORMAL"		, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+							{ "TANGENT"		, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+							{ "TEX"			, 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+							{ "WEIGHTS"		, 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 44, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+							{ "JOINTINDEX"	, 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 60, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+					};
+					hr = device->CreateInputLayout( inputDesc,
+						ARRAYSIZE( inputDesc ),
+						vertexShaderBlob->GetBufferPointer(),
+						vertexShaderBlob->GetBufferSize(),
+						&mInputLayout );
+				}
 			}
 			SAFE_RELEASE( vertexShaderBlob );
 		}

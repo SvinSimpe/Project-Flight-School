@@ -48,12 +48,6 @@ void Client::HandlePkg( Package<T>* p )
 {
 	switch ( p->head.eventType )
 	{
-		case Net_Event::QUIT:
-		{
-			printf( "Disconnected from server.\n" );
-			mConn->DisconnectSocket( mServerSocket );
-		}
-			break;
 		case Net_Event::EV_PLAYER_MOVED:
 		{
 			//printf("Eventet från servern var Event_Player_Moved och den innehöll positionerna:\n" ); // %f, %f, %f och %f, %f, %f
@@ -66,8 +60,16 @@ void Client::HandlePkg( Package<T>* p )
 		{
 			EvPlayerConnection msg = (EvPlayerConnection&)p->body.content;
 			IEventPtr E1( new Event_Remote_Player_Joined( msg.ID ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
+			EventManager::GetInstance()->TriggerEvent( E1 );
 			printf( "Remote player with ID: %d joined.\n", msg.ID );
+		}
+			break;
+		case Net_Event::EV_PLAYER_LEFT:
+		{
+			EvPlayerConnection msg = (EvPlayerConnection&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Left( msg.ID ) );
+			EventManager::GetInstance()->TriggerEvent( E1 );
+			printf( "Remote player with ID: %d left.\n", msg.ID );
 		}
 			break;
 		default:

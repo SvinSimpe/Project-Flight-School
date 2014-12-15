@@ -4,7 +4,6 @@
 //									PRIVATE
 ///////////////////////////////////////////////////////////////////////////////
 
-
 void Game::NetworkInit()
 {
 	const char* port	= DEFAULT_PORT;
@@ -24,7 +23,7 @@ void Game::NetworkInit()
 		}
 	}
 
-	if ( mClient->Initialize(port, ip) )
+	if ( mClient->Initialize( port, ip ) )
 	{
 		if ( mClient->Connect() )
 		{
@@ -58,21 +57,20 @@ HRESULT Game::Initialize()
 	mStateMachine	= new StateMachine();
 	mStateMachine->Initialize();
 	
-	mClient = new Client();
-	mNetworkThread = std::thread( &Game::NetworkInit, this );
+	mClient			= new Client();
+	mNetworkThread	= std::thread( &Game::NetworkInit, this );
 
 	return S_OK;
 }
 
 void Game::Release()
 {
-	delete mStateMachine;
-
+	SAFE_DELETE( mStateMachine );
 	mServerThread.join();
 	mNetworkThread.join();
 	Server::GetInstance()->Release();
 	mClient->Release();
-	SAFE_DELETE(mClient);
+	SAFE_DELETE( mClient );
 }
 
 Game::Game()

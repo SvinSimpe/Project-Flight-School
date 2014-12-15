@@ -54,6 +54,5 @@ class Player: public RemotePlayer
 					Player();
 					~Player();
 };
-
 #endif
 

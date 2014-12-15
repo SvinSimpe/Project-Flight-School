@@ -8,16 +8,17 @@ cbuffer CbufferPerFrame	: register( b0 )
 cbuffer CbufferPerObject : register( b1 )
 {
 	float4x4 worldMatrix;
+	float4x4 boneTransforms[16];
 }
 
 struct VS_In
 {
-	float3 position		: POSITION;
-	float3 normal		: NORMAL;
-	float3 tangent		: TANGENT;
-	float2 uv			: TEX;
-	//float4 weights		: WEIGHTS;
-	//float4 jointIndex	: JOINTINDEX;
+	float3	position	: POSITION;
+	float3	normal		: NORMAL;
+	float3	tangent		: TANGENT;
+	float2	uv			: TEX;
+	float4	weights		: WEIGHTS;
+	uint4	jointIndex	: JOINTINDEX;
 
 };
 
@@ -31,7 +32,12 @@ struct VS_Out
 VS_Out VS_main( VS_In input )
 {
 	VS_Out output	= (VS_Out)0;
-	output.position = mul( float4( input.position, 1.0f ), worldMatrix );
+
+	float3 transformedPos = float3( 0.0f, 0.0f, 0.0f );
+	for( int i = 0; i < 4; i++ )
+		transformedPos += mul( float4( input.position, 1.0f ), boneTransforms[input.jointIndex[i]] ).xyz * input.weights[i];
+
+	output.position = mul( float4( transformedPos, 1.0f ), worldMatrix );
 	output.position = mul( output.position, viewMatrix );
 	output.position = mul( output.position, projectionMatrix );
 

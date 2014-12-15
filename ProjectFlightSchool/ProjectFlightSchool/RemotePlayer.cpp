@@ -15,6 +15,12 @@ void RemotePlayer::LookAt( float rotation )
 {
 }
 
+
+int RemotePlayer::GetID() const
+{
+	return mID;
+}
+
 HRESULT RemotePlayer::Render( float deltaTime )
 {
 	Graphics::GetInstance()->RenderStatic3dAsset( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
@@ -42,7 +48,9 @@ HRESULT RemotePlayer::Initialize( unsigned int id )
 }
 
 void RemotePlayer::Release()
-{}
+{
+	EventManager::GetInstance()->RemoveListener( &RemotePlayer::RemoteUpdate, this, Event_Remote_Player_Update::GUID );
+}
 
 RemotePlayer::RemotePlayer()
 {

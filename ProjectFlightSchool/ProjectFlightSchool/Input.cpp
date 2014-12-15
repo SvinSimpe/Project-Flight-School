@@ -92,8 +92,17 @@ void Input::Update( LPARAM lParam )
 				case 0x44:		//D
 					mCurrentFrame[KEYS::KEYS_D] = IsKeyDown( raw->data.keyboard.Flags );
 					break;
+
 				case VK_SPACE:	
 					mCurrentFrame[KEYS::KEYS_SPACE] = IsKeyDown( raw->data.keyboard.Flags );
+				case VK_CONTROL:
+					mCurrentFrame[KEYS::KEYS_RCTRL] = IsKeyDown( raw->data.keyboard.Flags );
+					break;
+				case VK_UP:
+					mCurrentFrame[KEYS::KEYS_UP] = IsKeyDown( raw->data.keyboard.Flags );
+					break;
+				case VK_DOWN:
+					mCurrentFrame[KEYS::KEYS_DOWN] = IsKeyDown( raw->data.keyboard.Flags );
 					break;
 			}
 			break;

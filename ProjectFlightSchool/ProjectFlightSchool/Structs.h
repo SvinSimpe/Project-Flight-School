@@ -8,13 +8,6 @@ struct Message
 	char* msg = "";
 };
 
-struct Position
-{
-	int x = 0;
-	int y = 0;
-	int z = 0;
-};
-
 struct EvPlayerMoved
 {
 	DirectX::XMFLOAT3 lowerBody;

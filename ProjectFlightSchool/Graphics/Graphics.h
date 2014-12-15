@@ -34,13 +34,17 @@ class LIBRARY_EXPORT Graphics
 		D3D11_VIEWPORT			mStandardView;
 		ID3D11Buffer*			mCbufferPerFrame;
 		ID3D11Buffer*			mCbufferPerObject;
+		ID3D11Buffer*			mCbufferPerObjectAnimated;
+
+		ID3D11SamplerState*		mPointSamplerState;
+
 
 		AssetManager*			mAssetManager;
 		Effect*					mStaticEffect;
 		Effect*					mAnimatedEffect;
 		Camera*					mCamera;
-
-		int						mSuperHappyTest;
+		Camera*					mDeveloperCamera;
+		bool					mIsDeveloperCameraActive;
 
 	protected:
 	public:
@@ -54,7 +58,8 @@ class LIBRARY_EXPORT Graphics
 
 	protected:
 	public:
-		HRESULT LoadTextureFromFile ( wchar_t* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size = 0 );
+		HRESULT LoadTextureFromFile ( const wchar_t* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size = 0 );
+		HRESULT LoadStatic2dAsset( char* fileName, AssetID &assetId );
 		HRESULT LoadStatic3dAsset( char* fileName, AssetID &assetId );
 		HRESULT LoadAnimated3dAsset( char* fileName, AssetID skeletonId, AssetID &assetId );
 		HRESULT LoadSkeletonAsset( std::string filePath, std::string fileName, AssetID &assetId );
@@ -64,10 +69,15 @@ class LIBRARY_EXPORT Graphics
 		void RenderStatic3dAsset( AssetID assetId, float x, float y, float z );
 		void RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation );
 		void RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT4X4* world );
+		void RenderStatic3dAsset( AssetID assetId, AssetID textureId );
 
 		void RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime );
 
-		Camera* GetCamera();
+		Camera* GetCamera() const;
+		Camera* GetDeveloperCamera() const;
+		void	ChangeCamera();
+		void	ZoomInDeveloperCamera();
+		void	ZoomOutDeveloperCamera();
 
 		void SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY );
 		void SetInverseViewMatrix( XMMATRIX &inverseViewMatrix );

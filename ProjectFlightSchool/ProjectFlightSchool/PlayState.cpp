@@ -28,7 +28,7 @@ HRESULT PlayState::Update( float deltaTime )
 HRESULT PlayState::Render()
 {
 	Graphics::GetInstance()->BeginScene();
-	Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset );
+	Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset, mTest2dTexture );
 	Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime );
 	mPlayer->Render( 0.0f );
 	for ( auto& rp : mRemotePlayers )
@@ -63,6 +63,7 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Animations/", "walk.Skel", mTestSkeleton );
 	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/bin/maya_testAsset_tree.pfs", mTestSkeleton, mTestAnimation );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Animations/", "walk.PaMan", mTestAnimationAnimation );
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dTexture );
 
 	mAnimationTime = 1.0f;
 

@@ -153,6 +153,31 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 #pragma endregion Helper functions for the class
 
 #pragma region Public functions
+HRESULT AssetManager::LoadStatic2dAsset( ID3D11ShaderResourceView* srv, char* fileName, AssetID &assetId )
+{
+	HRESULT hr = S_OK;
+
+	//If true return to caller because the asset already exist.
+	if( AssetExist( fileName, assetId ) )
+	{
+		return hr;
+	}
+	else
+	{	 
+
+		AssignAssetId( assetId );
+		Static2dAsset* temp;
+		temp				= new Static2dAsset();
+		temp->mAssetId		= assetId;
+		temp->mSRV			= srv;
+		temp->mFileName		= fileName;
+
+		mAssetContainer.push_back( temp );
+
+		return hr;
+	}
+}
+
 HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, AssetID &assetId )
 {
 	HRESULT hr = S_OK;
@@ -773,6 +798,8 @@ void AssetManager::Release()
 			( (Animated3dAsset*)mAssetContainer[i] )->Release();
 		else if( typeid( mAssetContainer[i] ) == typeid( SkeletonAsset ) )
 			( (SkeletonAsset*)mAssetContainer[i] )->Release();
+		else if( typeid( mAssetContainer[i] ) == typeid( Static2dAsset ) )
+			( (Static2dAsset*)mAssetContainer[i] )->Release();
 		SAFE_DELETE( mAssetContainer[i] );
 	}
 	mAssetContainer.clear();

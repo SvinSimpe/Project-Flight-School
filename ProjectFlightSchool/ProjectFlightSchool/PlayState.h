@@ -10,15 +10,17 @@ class PlayState : public BaseState
 	// Class members
 	private:
 
-		AssetID			mPlaneAsset;
-		AssetID			mCubeAsset;
-		AssetID			mTestAsset;
+		AssetID	mPlaneAsset;
+		AssetID	mCubeAsset;
+		AssetID	mTestAsset;
 
-		AssetID		mTestAnimation;
-		AssetID		mTestSkeleton;
-		AssetID		mTestAnimationAnimation;
+		AssetID	mTestAnimation;
+		AssetID	mTestSkeleton;
+		AssetID	mTestAnimationAnimation;
 
-		float		mAnimationTime;
+		AssetID	mTest2dTexture;
+
+		float	mAnimationTime;
 
 	// Debug
 		Player*			mPlayer;

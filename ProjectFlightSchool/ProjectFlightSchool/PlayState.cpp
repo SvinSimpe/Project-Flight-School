@@ -53,7 +53,7 @@ HRESULT PlayState::Update( float deltaTime )
 {
 	HandleDeveloperCameraInput();
 	mPlayer->Update( deltaTime );
-	mAnimationTime += deltaTime / 2.0f;
+	mAnimationTime += deltaTime;
 	return S_OK;
 }
 
@@ -91,11 +91,11 @@ HRESULT PlayState::Initialize()
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "CUBE", mCubeAsset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "PLANE", mPlaneAsset );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/bin/cubeandsphere.peniz", mTestAsset );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/bin/aggro_test_utan_Anim.pfs", mTestAsset );
 
-	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Animations/", "walk.Skel", mTestSkeleton );
-	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/bin/maya_testAsset_tree.pfs", mTestSkeleton, mTestAnimation );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Animations/", "walk.PaMan", mTestAnimationAnimation );
+	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Animations/testmapanim/", "no90.Skel", mTestSkeleton );
+	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Animations/testmapanim/test_stick.apfs", mTestSkeleton, mTestAnimation );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Animations/testmapanim/", "no90.PaMan", mTestAnimationAnimation );
 
 	mAnimationTime = 1.0f;
 

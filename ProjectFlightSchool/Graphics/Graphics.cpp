@@ -20,8 +20,6 @@ Graphics::Graphics()
 	mCamera						= nullptr;
 	mDeveloperCamera			= nullptr;
 	mIsDeveloperCameraActive	= false;
-
-	mSuperHappyTest		= 0;
 }
 
 Graphics::~Graphics()
@@ -297,8 +295,43 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 		}
 	}
 
+	//////////////////////////////////////////////////////////////////
+	//						RENDER CALL
+	//////////////////////////////////////////////////////////////////
+
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+
+	UINT32 vertexSize				= sizeof( AnimatedVertex );
+	UINT32 offset					= 0;
+	ID3D11Buffer* buffersToSet[]	= { model->mVertexBuffer };
+	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+
+	mDeviceContext->IASetInputLayout( mAnimatedEffect->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mAnimatedEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mAnimatedEffect->GetPixelShader(), nullptr, 0 );
+
+	//Map CbufferPerObject
+	CbufferPerObjectAnimated data;
+	data.worldMatrix = DirectX::XMMatrixIdentity();
+	for( int i = 0; i < NUM_SUPPORTED_JOINTS; i++ )
+		data.boneTransforms[i] = DirectX::XMMatrixIdentity();
 	for( int i = 0; i < skeleton->nrOfJoints; i++ )
-		RenderStatic3dAsset( 1, &model->mCurrentBoneTransforms[i] );
+		data.boneTransforms[i] = DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[i] ) );
+	MapBuffer( mCbufferPerObjectAnimated, &data, sizeof( CbufferPerObjectAnimated ) );
+
+	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObjectAnimated );
+
+	mDeviceContext->Draw( model->mVertexCount, 0 );
+	//for( int i = 0; i < skeleton->nrOfJoints; i++ )
+	//{	
+		//DirectX::XMStoreFloat4x4( &model->mCurrentBoneTransforms[i], DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[i] ) ) );
+
+		//RenderStatic3dAsset( 0, &model->mCurrentBoneTransforms[i] );
+	//}
 }
 
 Camera* Graphics::GetCamera() const
@@ -532,6 +565,13 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mCbufferPerObject );
 
+	///////////////////////////////////////
+	// CREATE CBUFFERPEROBJECTANIMATED
+	///////////////////////////////////////
+	bufferDesc.ByteWidth				= sizeof( CbufferPerObjectAnimated );
+
+	hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mCbufferPerObjectAnimated );
+
 	//AssetManager
 	mAssetManager = new AssetManager;
 	mAssetManager->Initialize( mDevice );
@@ -542,13 +582,15 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	EffectInfo effectInfo;
 	ZeroMemory( &effectInfo, sizeof( EffectInfo ) );
 	effectInfo.fileName					= "../Content/Effects/Placeholder.hlsl";
+	effectInfo.vertexType				= STATIC_VERTEX_TYPE;
 	effectInfo.isVertexShaderIncluded	= true;
 	effectInfo.isPixelShaderIncluded	= true;
 
 	hr = mStaticEffect->Intialize( mDevice, &effectInfo );
 
 	mAnimatedEffect	= new Effect;
-	effectInfo.fileName	= "../Content/Effects/PlaceholderAni.hlsl";
+	effectInfo.fileName		= "../Content/Effects/PlaceholderAni.hlsl";
+	effectInfo.vertexType	= ANIMATED_VERTEX_TYPE;
 
 	hr = mAnimatedEffect->Intialize( mDevice, &effectInfo );
 	

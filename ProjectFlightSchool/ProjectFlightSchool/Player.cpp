@@ -4,16 +4,16 @@ void Player::HandleInput( float deltaTime )
 {
 	mLowerBody.direction = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_W ) && !Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_S ) )
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_W) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_S) )
 		Move( XMFLOAT3( 0.0f, 0.0f, 1.0f ) );
 	
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_A ) && !Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_D ) )
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_A) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_D) )
 		Move( XMFLOAT3( -1.0f, 0.0f, 0.0f ) );
 
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_S ) && !Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_W ) )
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_S) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_W) )
 		Move( XMFLOAT3( 0.0f, 0.0f, -1.0f ) );
 	
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_D ) && !Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_A ) )
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_D) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_A) )
 		Move( XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
 
 
@@ -63,7 +63,7 @@ void Player::HandleInput( float deltaTime )
 	mUpperBody.direction.y = -radians;
 	mUpperBody.direction.z = 0.0f;
 
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_SPACE ) )
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_SPACE) )
 		Fire();
 }
 
@@ -105,7 +105,7 @@ HRESULT Player::Update( float deltaTime )
 	//Update Projectiles
 	if( mNrOfProjectilesFired != 0 )
 	{
-		for (size_t i = 0; i < mProjectiles.size(); i++)
+		for ( size_t i = 0; i < mProjectiles.size(); i++ )
 		{
 			if( mProjectiles.at(i)->IsActive() )
 				mProjectiles.at(i)->Update( deltaTime );
@@ -123,7 +123,7 @@ HRESULT Player::Render( float deltaTime )
 	//Update Projectiles
 	if( mNrOfProjectilesFired != 0 )
 	{
-		for (size_t i = 0; i < mProjectiles.size(); i++)
+		for ( size_t i = 0; i < mProjectiles.size(); i++ )
 		{
 			if( mProjectiles.at(i)->IsActive() )
 				mProjectiles.at(i)->Render( deltaTime );
@@ -156,7 +156,7 @@ HRESULT Player::Initialize()
 	mLowerBody.speed	= 0.2f;
 
 	//Fill up on Projectiles
-	for (size_t i = 0; i < 2000; i++)
+	for ( size_t i = 0; i < 2000; i++ )
 	{
 		Projectile*	projectile = new Projectile();
 		projectile->Initialize();
@@ -168,7 +168,7 @@ HRESULT Player::Initialize()
 
 void Player::Release()
 {
-	for (size_t i = 0; i < mProjectiles.size(); i++)
+	for ( size_t i = 0; i < mProjectiles.size(); i++ )
 		SAFE_DELETE( mProjectiles.at(i) );
 	
 

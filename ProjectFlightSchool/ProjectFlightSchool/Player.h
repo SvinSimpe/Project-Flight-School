@@ -40,7 +40,6 @@ class Player: public RemotePlayer
 	private:
 		void		HandleInput( float deltaTime );
 		void		Move( XMFLOAT3 direction );
-		void		LookAt( float rotation );
 
 	public:
 		HRESULT		Update( float deltaTime );

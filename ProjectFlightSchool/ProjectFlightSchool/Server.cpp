@@ -24,7 +24,7 @@ bool Server::AcceptConnection()
 bool Server::ReceiveLoop( int index )
 {
 	Package<void*>* p = new Package<void*>[DEFAULT_BUFLEN];
-	while ( mClientSockets.at( index ) != INVALID_SOCKET )
+	while ( mClientSockets.at(index) != INVALID_SOCKET )
 	{
 		SOCKET savedSocket = mClientSockets.at(index); // Used in case of disconnect
 		if ( mConn->ReceivePkg( mClientSockets.at(index), *p ) )
@@ -34,7 +34,7 @@ bool Server::ReceiveLoop( int index )
 				HandlePkg( mClientSockets.at(index), p );
 			}
 		}
-		if( mClientSockets.at( index ) == INVALID_SOCKET )
+		if( mClientSockets.at(index) == INVALID_SOCKET )
 		{
 			DisconnectClient( savedSocket );
 		}

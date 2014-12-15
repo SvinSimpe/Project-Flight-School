@@ -51,6 +51,10 @@ class Camera
 		void SetEyePosition( XMFLOAT3 &eyePosition );
 		void SetFocus( XMFLOAT3 &focusPoint );
 
+		void ZoomIn();
+		void ZoomOut();
+		
+
 		//Must be called before GetViewMatrix, GetProjMatrix
 		HRESULT Initialize( CameraInfo* cameraInfo );
 		void Release();

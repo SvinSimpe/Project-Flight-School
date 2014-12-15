@@ -5,6 +5,8 @@
 #include "Player.h"
 #include "RemotePlayer.h"
 
+#define MAX_REMOTE_PLAYERS 10
+
 class PlayState : public BaseState
 {
 	// Class members
@@ -26,14 +28,19 @@ class PlayState : public BaseState
 		Player*			mPlayer;
 		std::vector<RemotePlayer*> mRemotePlayers;
 
+		
+	
 	protected:
 	public:
 
 	// Class functions
 	private:
 		void			RemoteUpdate( IEventPtr newEvent );
+
 	protected:
 	public:
+		void HandleDeveloperCameraInput();
+
 		virtual HRESULT Update( float deltaTime );
 		virtual HRESULT Render();
 		virtual void	OnEnter();

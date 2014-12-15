@@ -14,9 +14,12 @@ Graphics::Graphics()
 	mDepthStencilView	= nullptr;
 	mCbufferPerFrame	= nullptr;
 
-	mAssetManager		= nullptr;
-
-	mSuperHappyTest		= 0;
+	mAssetManager				= nullptr;
+	mStaticEffect				= nullptr;
+	mAnimatedEffect				= nullptr;
+	mCamera						= nullptr;
+	mDeveloperCamera			= nullptr;
+	mIsDeveloperCameraActive	= false;
 }
 
 Graphics::~Graphics()
@@ -338,13 +341,71 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 		}
 	}
 
+	//////////////////////////////////////////////////////////////////
+	//						RENDER CALL
+	//////////////////////////////////////////////////////////////////
+
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+
+	UINT32 vertexSize				= sizeof( AnimatedVertex );
+	UINT32 offset					= 0;
+	ID3D11Buffer* buffersToSet[]	= { model->mVertexBuffer };
+	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+
+	mDeviceContext->IASetInputLayout( mAnimatedEffect->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mAnimatedEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mAnimatedEffect->GetPixelShader(), nullptr, 0 );
+
+	//Map CbufferPerObject
+	CbufferPerObjectAnimated data;
+	data.worldMatrix = DirectX::XMMatrixIdentity();
+	for( int i = 0; i < NUM_SUPPORTED_JOINTS; i++ )
+		data.boneTransforms[i] = DirectX::XMMatrixIdentity();
 	for( int i = 0; i < skeleton->nrOfJoints; i++ )
-		RenderStatic3dAsset( 1, &model->mCurrentBoneTransforms[i] );
+		data.boneTransforms[i] = DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[i] ) );
+	MapBuffer( mCbufferPerObjectAnimated, &data, sizeof( CbufferPerObjectAnimated ) );
+
+	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObjectAnimated );
+
+	mDeviceContext->Draw( model->mVertexCount, 0 );
+	//for( int i = 0; i < skeleton->nrOfJoints; i++ )
+	//{	
+		//DirectX::XMStoreFloat4x4( &model->mCurrentBoneTransforms[i], DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[i] ) ) );
+
+		//RenderStatic3dAsset( 0, &model->mCurrentBoneTransforms[i] );
+	//}
 }
 
-Camera* Graphics::GetCamera()
+Camera* Graphics::GetCamera() const
 {
 	return mCamera;
+}
+
+Camera* Graphics::GetDeveloperCamera() const
+{
+	return mDeveloperCamera;
+}
+
+void Graphics::ChangeCamera()
+{
+	if( mIsDeveloperCameraActive )
+		mIsDeveloperCameraActive = false;
+	else
+		mIsDeveloperCameraActive = true;
+}
+
+void Graphics::ZoomInDeveloperCamera()
+{
+	mDeveloperCamera->ZoomIn();
+}
+
+void Graphics::ZoomOutDeveloperCamera()
+{
+	mDeveloperCamera->ZoomOut();
 }
 
 void Graphics::SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY )
@@ -377,7 +438,10 @@ void Graphics::SetFocus( XMFLOAT3 &focusPoint )
 //Clear canvas and prepare for rendering.
 void Graphics::BeginScene()
 {
-	mCamera->Update();
+	if( mIsDeveloperCameraActive )
+		mDeveloperCamera->Update();
+	else
+		mCamera->Update();
 
 	static float clearColor[4] = { 0.3f, 0.3f, 0.3f, 1.0f };
 	mDeviceContext->ClearRenderTargetView( mRenderTargetView, clearColor );
@@ -388,8 +452,17 @@ void Graphics::BeginScene()
 
 	//Map CbufferPerFrame
 	CbufferPerFrame data;
-	data.viewMatrix			= mCamera->GetViewMatrix();
-	data.projectionMatrix	= mCamera->GetProjMatrix();
+
+	if( mIsDeveloperCameraActive )
+	{
+		data.viewMatrix			= mDeveloperCamera->GetViewMatrix();
+		data.projectionMatrix	= mDeveloperCamera->GetProjMatrix();
+	}
+	else
+	{
+		data.viewMatrix			= mCamera->GetViewMatrix();
+		data.projectionMatrix	= mCamera->GetProjMatrix();
+	}
 	MapBuffer( mCbufferPerFrame, &data, sizeof( CbufferPerFrame ) );
 
 	mDeviceContext->VSSetConstantBuffers( 0, 1, &mCbufferPerFrame );
@@ -558,6 +631,13 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	if( FAILED( hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mCbufferPerObject ) ) )
 		return hr;
 
+	///////////////////////////////////////
+	// CREATE CBUFFERPEROBJECTANIMATED
+	///////////////////////////////////////
+	bufferDesc.ByteWidth				= sizeof( CbufferPerObjectAnimated );
+
+	hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mCbufferPerObjectAnimated );
+
 	//AssetManager
 	mAssetManager = new AssetManager;
 	mAssetManager->Initialize( mDevice );
@@ -568,6 +648,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	EffectInfo effectInfo;
 	ZeroMemory( &effectInfo, sizeof( EffectInfo ) );
 	effectInfo.fileName					= "../Content/Effects/Placeholder.hlsl";
+	effectInfo.vertexType				= STATIC_VERTEX_TYPE;
 	effectInfo.isVertexShaderIncluded	= true;
 	effectInfo.isPixelShaderIncluded	= true;
 
@@ -575,7 +656,8 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 		return hr;
 
 	mAnimatedEffect	= new Effect;
-	effectInfo.fileName	= "../Content/Effects/PlaceholderAni.hlsl";
+	effectInfo.fileName		= "../Content/Effects/PlaceholderAni.hlsl";
+	effectInfo.vertexType	= ANIMATED_VERTEX_TYPE;
 
 	if( FAILED( hr = mAnimatedEffect->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
@@ -596,6 +678,22 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	if( FAILED( hr = mCamera->Initialize( &cameraInfo ) ) )
 		return hr;
+
+	//Developer Camera
+	mDeveloperCamera = new Camera;
+
+	CameraInfo developerCameraInfo;
+	ZeroMemory( &cameraInfo, sizeof( developerCameraInfo ) );
+	developerCameraInfo.eyePos		= DirectX::XMFLOAT4( 0.0f, 50.0f, -50.0f, 0.0f );
+	developerCameraInfo.focusPoint	= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
+	developerCameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
+	developerCameraInfo.width		= (float)screenWidth;
+	developerCameraInfo.height		= (float)screenHeight;
+	developerCameraInfo.foVY		= 0.75f;
+	developerCameraInfo.nearZ		= 0.1f;
+	developerCameraInfo.farZ		= 1000.0f;
+
+	hr = mDeveloperCamera->Initialize( &developerCameraInfo );
 
 	return hr;
 }
@@ -621,5 +719,6 @@ void Graphics::Release()
 	SAFE_DELETE( mStaticEffect );
 	SAFE_DELETE( mAnimatedEffect );
 	SAFE_DELETE( mCamera );
+	SAFE_DELETE( mDeveloperCamera );
 
 }

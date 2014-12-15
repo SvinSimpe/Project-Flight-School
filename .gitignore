@@ -37,6 +37,7 @@
 *.pdb
 *.cso
 *.orig
+*.pch
 
 #Dir
 #Bin/Content/

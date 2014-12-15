@@ -4,16 +4,16 @@ void Player::HandleInput( float deltaTime )
 {
 	mLowerBody.direction = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_W ) && !Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_S ) )
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_W) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_S) )
 		Move( XMFLOAT3( 0.0f, 0.0f, 1.0f ) );
 	
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_A ) && !Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_D ) )
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_A) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_D) )
 		Move( XMFLOAT3( -1.0f, 0.0f, 0.0f ) );
 
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_S ) && !Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_W ) )
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_S) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_W) )
 		Move( XMFLOAT3( 0.0f, 0.0f, -1.0f ) );
 	
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_D ) && !Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_A ) )
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_D) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_A) )
 		Move( XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
 
 
@@ -73,11 +73,6 @@ void Player::Move( XMFLOAT3 direction )
 	}
 }
 
-void Player::LookAt( float rotation )
-{
-	
-}
-
 HRESULT Player::Update( float deltaTime )
 {
 	HandleInput( deltaTime );
@@ -104,14 +99,6 @@ HRESULT Player::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT Player::Render( float deltaTime )
-{
-	Graphics::GetInstance()->RenderStatic3dAsset( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
-	Graphics::GetInstance()->RenderStatic3dAsset( mLowerBody.playerModel, mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z );
-
-	return S_OK;
-}
-
 HRESULT Player::Initialize()
 {
 	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "CUBE", mUpperBody.playerModel ) ) )
@@ -121,8 +108,8 @@ HRESULT Player::Initialize()
 		OutputDebugString( L"\nERROR\n" );
 
 
-	mUpperBody.position	= XMFLOAT3( 10.0f, 2.0f, 10.0f );
-	mLowerBody.position	= XMFLOAT3( 10.0f, 1.0f, 10.0f );
+	mUpperBody.position	= XMFLOAT3( 3.0f, 1.0f, 0.0f );
+	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mLowerBody.speed	= 0.2f;
 
 	return S_OK;

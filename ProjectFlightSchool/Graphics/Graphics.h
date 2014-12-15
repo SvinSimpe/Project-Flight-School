@@ -34,14 +34,17 @@ class LIBRARY_EXPORT Graphics
 		D3D11_VIEWPORT			mStandardView;
 		ID3D11Buffer*			mCbufferPerFrame;
 		ID3D11Buffer*			mCbufferPerObject;
+		ID3D11Buffer*			mCbufferPerObjectAnimated;
+
 		ID3D11SamplerState*		mPointSamplerState;
+
 
 		AssetManager*			mAssetManager;
 		Effect*					mStaticEffect;
 		Effect*					mAnimatedEffect;
 		Camera*					mCamera;
-
-		int						mSuperHappyTest;
+		Camera*					mDeveloperCamera;
+		bool					mIsDeveloperCameraActive;
 
 	protected:
 	public:
@@ -70,7 +73,11 @@ class LIBRARY_EXPORT Graphics
 
 		void RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime );
 
-		Camera* GetCamera();
+		Camera* GetCamera() const;
+		Camera* GetDeveloperCamera() const;
+		void	ChangeCamera();
+		void	ZoomInDeveloperCamera();
+		void	ZoomOutDeveloperCamera();
 
 		void SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY );
 		void SetInverseViewMatrix( XMMATRIX &inverseViewMatrix );

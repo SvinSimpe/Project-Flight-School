@@ -18,10 +18,12 @@ struct MeshInfo
 {
 	UINT nrOfVertices;
 
-	char meshName[50];
-	char diffuseMapName[50];
-	char normalMapName[50];
-	char specularMapName[50];
+	char meshName[30];
+	char diffuseMapName[30];
+	char normalMapName[30];
+	char specularMapName[30];
+
+	char skeletonName[30];
 };
 
 class AssetManager

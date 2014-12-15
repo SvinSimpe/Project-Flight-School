@@ -62,7 +62,7 @@ HRESULT PlayState::Render()
 	Graphics::GetInstance()->BeginScene();
 	Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime );
 	mPlayer->Render( 0.0f );
-	Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset, mTest2dTexture );
+	Graphics::GetInstance()->RenderStatic3dAsset( mCubeAsset, mTest2dTexture );
 	Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime );
 	mPlayer->Render( 0.0f );
 	mWorldMap->Render( 0.0f );
@@ -109,7 +109,7 @@ HRESULT PlayState::Initialize()
 	mPlayer->Initialize();
 
 	mWorldMap = new Map();
-	mWorldMap->Initialize( 20.0f, 20 );
+	mWorldMap->Initialize( 8.0f, 24 );
 
 	EventManager::GetInstance()->AddListener( &PlayState::RemoteUpdate, this, Event_Remote_Player_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::RemoteUpdate, this, Event_Remote_Player_Left::GUID );

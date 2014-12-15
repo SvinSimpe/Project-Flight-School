@@ -207,6 +207,8 @@ void Graphics::RenderStatic3dAssetIndexed( AssetID assetId, UINT indexCount, UIN
  	ID3D11Buffer* buffersToSet[]	= { ( (Static3dAssetIndexed*)mAssetManager->mAssetContainer[assetId] )->mVertexBuffer };
 	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
 	mDeviceContext->IASetIndexBuffer( ( (Static3dAssetIndexed*)mAssetManager->mAssetContainer[assetId] )->mIndexBuffer, DXGI_FORMAT_R32_UINT, 0 );
+
+	CbufferPerObject data;
 	data.worldMatrix = DirectX::XMMatrixTranspose( XMMatrixIdentity() );
 	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
 

@@ -1,4 +1,4 @@
-static const  int SECTION_DIM = 10;
+static const  int SECTION_DIM = 24;
 
 
 static const  int VERTICES_PER_AXIS = SECTION_DIM + 1;

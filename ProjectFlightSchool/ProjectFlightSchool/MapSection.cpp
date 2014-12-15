@@ -44,18 +44,18 @@ HRESULT MapSection::Initialize( UINT sectionID, float vertexSpacing, UINT mapDim
 
 	
 
-	float dx = xID - halfX; //  = ( mSectionID - halfX ) * 2;
-	float dz = zID - halfZ; // = ( sectionZ - halfZ ) * 2;
+	float dx = halfX - xID; //  = ( mSectionID - halfX ) * 2;
+	float dz = halfZ - zID; // = ( sectionZ - halfZ ) * 2;
 
 	
 	for( int z = 0; z < (int)VERTICES_PER_AXIS; z++ )
 	{
-		posZ = ( ( dz * SECTION_DIM ) * vertexSpacing ) + ( z * vertexSpacing ); 
+		posZ = ( ( dz * SECTION_DIM ) * vertexSpacing ) - ( z * vertexSpacing ); 
 		for( int x = 0; x < (int)VERTICES_PER_AXIS; x++ )
 		{
-			posX = ( ( dx * SECTION_DIM ) * vertexSpacing ) + ( x * vertexSpacing ); 
-			mVertices[x + z * VERTICES_PER_AXIS].position[1]	= posY;
+			posX = ( ( dx * SECTION_DIM ) * vertexSpacing ) - ( x * vertexSpacing ); 
 			mVertices[x + z * VERTICES_PER_AXIS].position[0]	= posX;
+			mVertices[x + z * VERTICES_PER_AXIS].position[1]	= posY;
 			mVertices[x + z * VERTICES_PER_AXIS].position[2]	= posZ;
 										   
 			mVertices[x + z * VERTICES_PER_AXIS].uv[0]			= x * du;

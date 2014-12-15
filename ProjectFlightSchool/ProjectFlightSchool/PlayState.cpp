@@ -8,9 +8,27 @@ void PlayState::RemoteUpdate( IEventPtr newEvent )
 {
 	if ( newEvent->GetEventType() == Event_Remote_Player_Joined::GUID )
 	{
-		std::shared_ptr <Event_Remote_Player_Joined> data = std::static_pointer_cast<Event_Remote_Player_Joined>( newEvent );
+		std::shared_ptr<Event_Remote_Player_Joined> data = std::static_pointer_cast<Event_Remote_Player_Joined>( newEvent );
 		mRemotePlayers.push_back( new RemotePlayer() );
-		mRemotePlayers.at( mRemotePlayers.size() - 1 )->Initialize( data->ID() );
+		mRemotePlayers.at(mRemotePlayers.size() - 1)->Initialize( data->ID() );
+	}
+	else if ( newEvent->GetEventType() == Event_Remote_Player_Left::GUID )
+	{
+		std::shared_ptr<Event_Remote_Player_Left> data = std::static_pointer_cast<Event_Remote_Player_Left>( newEvent );
+		for( unsigned int i = 0; i < mRemotePlayers.size(); i++ )
+		{
+			if( !mRemotePlayers.at(i) )
+			{
+				continue;
+			}
+			else if( data->ID() == mRemotePlayers.at(i)->GetID() )
+			{
+				mRemotePlayers.at(i)->Release();
+				std::swap( mRemotePlayers.at(i), mRemotePlayers.at(mRemotePlayers.size() - 1) );
+				mRemotePlayers.pop_back();
+				break;
+			}
+		}
 	}
 }
 
@@ -31,9 +49,10 @@ HRESULT PlayState::Render()
 	Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset );
 	Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime );
 	mPlayer->Render( 0.0f );
-	for ( auto& rp : mRemotePlayers )
+	for( auto& rp : mRemotePlayers )
 	{
-		rp->Render( 0.0f );
+		if( rp )
+			rp->Render( 0.0f );
 	}
 	Graphics::GetInstance()->EndScene();
 
@@ -70,6 +89,7 @@ HRESULT PlayState::Initialize()
 	mPlayer->Initialize();
 
 	EventManager::GetInstance()->AddListener( &PlayState::RemoteUpdate, this, Event_Remote_Player_Joined::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::RemoteUpdate, this, Event_Remote_Player_Left::GUID );
 
 	return S_OK;
 }
@@ -77,15 +97,18 @@ HRESULT PlayState::Initialize()
 void PlayState::Release()
 {
 	mPlayer->Release();
-	for ( auto& rp : mRemotePlayers )
+	for( auto& rp : mRemotePlayers )
 	{
 		rp->Release();
+		SAFE_DELETE( rp );
 	}
 	mRemotePlayers.clear();
 }
 
 PlayState::PlayState()
 {
+	mRemotePlayers = std::vector<RemotePlayer*>( 0 );
+	mRemotePlayers.reserve(MAX_REMOTE_PLAYERS);
 }
 
 PlayState::~PlayState()

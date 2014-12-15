@@ -9,22 +9,27 @@
 
 class RemotePlayer
 {
-private:
-	int			mID;
-	UpperBody	mUpperBody;
-	LowerBody	mLowerBody;
+	// Member variables
+	private:
+		int			mID;
+		UpperBody	mUpperBody;
+		LowerBody	mLowerBody;
+	protected:
+	public:
 
-private:
-	void RemoteUpdate( IEventPtr newEvent );
-	void LookAt( float rotation );
+	// Member functions
+	private:
+		void RemoteUpdate( IEventPtr newEvent );
+		void LookAt( float rotation );
 
-public:
-	HRESULT Render( float deltaTime );
-
-	HRESULT Initialize( unsigned int id );
-	void Release();
-	RemotePlayer();
-	~RemotePlayer();
+	protected:
+	public:
+		HRESULT Render( float deltaTime );
+		int GetID() const;
+		HRESULT Initialize( unsigned int id );
+		void Release();
+		RemotePlayer();
+		~RemotePlayer();
 };
 
 #endif

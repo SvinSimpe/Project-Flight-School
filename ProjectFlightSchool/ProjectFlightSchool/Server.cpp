@@ -1,10 +1,8 @@
 #include "Server.h"
 
-Server* Server::GetInstance()
-{
-	static Server instance;
-	return &instance;
-}
+///////////////////////////////////////////////////////////////////////////////
+//									PRIVATE
+///////////////////////////////////////////////////////////////////////////////
 
 bool Server::AcceptConnection()
 {
@@ -28,18 +26,45 @@ bool Server::ReceiveLoop( int index )
 	Package<void*>* p = new Package<void*>[DEFAULT_BUFLEN];
 	while ( mClientSockets.at( index ) != INVALID_SOCKET )
 	{
+		SOCKET savedSocket = mClientSockets.at(index); // Used in case of disconnect
 		if ( mConn->ReceivePkg( mClientSockets.at(index), *p ) )
 		{
-
 			if ( p->head.eventType != Net_Event::ERROR_EVENT )
 			{
 				HandlePkg( mClientSockets.at(index), p );
 			}
 		}
+		if( mClientSockets.at( index ) == INVALID_SOCKET )
+		{
+			DisconnectClient( savedSocket );
+		}
 	}
-	if (p)
+
+	if ( p )
+	{
 		delete[] p;
+	}
 	return true;
+}
+
+void Server::DisconnectClient( SOCKET s )
+{
+	EvPlayerConnection msg;
+	msg.ID = s;
+	for( auto& to : mClientSockets )
+	{
+		mConn->SendPkg( to, 0, Net_Event::EV_PLAYER_LEFT, msg );
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//									PUBLIC
+///////////////////////////////////////////////////////////////////////////////
+
+Server* Server::GetInstance()
+{
+	static Server instance;
+	return &instance;
 }
 
 bool Server::Connect()
@@ -83,7 +108,7 @@ bool Server::Run()
 	{
 		if ( AcceptConnection() )
 		{
-			mListenThreads.push_back( std::thread( &Server::ReceiveLoop, this, mClientSockets.size() - 1) );
+			mListenThreads.push_back( std::thread( &Server::ReceiveLoop, this, mClientSockets.size() - 1 ) );
 		}
 		else
 		{
@@ -132,12 +157,18 @@ void Server::Release()
 	}
 	mListenThreads.clear();
 
+	for( auto& s : mClientSockets )
+	{
+		mConn->DisconnectSocket( s ); 
+	}
 	mClientSockets.clear();
 	WSACleanup();
 	mConn->Release();
 
 	if ( mConn )
+	{
 		delete mConn;
+	}
 }
 
 Server::Server()

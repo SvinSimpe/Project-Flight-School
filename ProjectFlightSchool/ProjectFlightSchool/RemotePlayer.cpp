@@ -23,6 +23,11 @@ HRESULT RemotePlayer::Render( float deltaTime )
 	return S_OK;
 }
 
+int RemotePlayer::GetID() const
+{
+	return mID;
+}
+
 HRESULT RemotePlayer::Initialize( unsigned int id )
 {
 	if ( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "CUBE", mUpperBody.playerModel) ) )
@@ -42,7 +47,9 @@ HRESULT RemotePlayer::Initialize( unsigned int id )
 }
 
 void RemotePlayer::Release()
-{}
+{
+	EventManager::GetInstance()->RemoveListener( &RemotePlayer::RemoteUpdate, this, Event_Remote_Player_Update::GUID );
+}
 
 RemotePlayer::RemotePlayer()
 {

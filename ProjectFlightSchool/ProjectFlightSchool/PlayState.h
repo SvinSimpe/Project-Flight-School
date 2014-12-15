@@ -5,6 +5,8 @@
 #include "Player.h"
 #include "RemotePlayer.h"
 
+#define MAX_REMOTE_PLAYERS 10
+
 class PlayState : public BaseState
 {
 	// Class members
@@ -30,6 +32,7 @@ class PlayState : public BaseState
 	// Class functions
 	private:
 		void			RemoteUpdate( IEventPtr newEvent );
+
 	protected:
 	public:
 		virtual HRESULT Update( float deltaTime );

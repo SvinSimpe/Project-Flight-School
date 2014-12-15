@@ -40,27 +40,6 @@
 #include <DirectXMath.h>
 using namespace DirectX;
 
-class TestEvent : public IEvent
-{
-	private:
-	protected:
-	public:
-		static const EventType GUID;
-	
-
-	private:
-	public:
-		TestEvent()
-		{
-			//Event Data
-		}
-	protected:
-		const EventType& GetEventType( void ) const
-		{
-			return GUID;
-		}
-};
-
 class Event_Player_Moved : public IEvent
 {
 	private:
@@ -115,10 +94,10 @@ private:
 public:
 	Event_Remote_Player_Update( unsigned int id, XMFLOAT3 lowerBodyPos, XMFLOAT3 upperBodyPos, XMFLOAT3 direction )
 	{
-		mID = id;
-		mLowerBodyPos = lowerBodyPos;
-		mUpperBodyPos = upperBodyPos;
-		mDirection = direction;
+		mID				= id;
+		mLowerBodyPos	= lowerBodyPos;
+		mUpperBodyPos	= upperBodyPos;
+		mDirection		= direction;
 	}
 	unsigned int ID() const
 	{
@@ -157,6 +136,34 @@ class Event_Remote_Player_Joined : public IEvent
 	private:
 	public:
 		Event_Remote_Player_Joined( unsigned int id )
+		{
+			mID = id;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+};
+
+class Event_Remote_Player_Left : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int mID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	public:
+		Event_Remote_Player_Left( unsigned int id )
 		{
 			mID = id;
 		}

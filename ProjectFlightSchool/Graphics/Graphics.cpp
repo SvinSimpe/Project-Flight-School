@@ -1,5 +1,5 @@
 #include "Graphics.h"
-
+#include <sstream>
 Graphics::Graphics()
 {
 	mHWnd			= 0;
@@ -28,7 +28,7 @@ Graphics::~Graphics()
 }
 
 //Loads a texture from file, the filename can be expressed as a string put with L prefix e.g L"Hello World", texture and SRV are both optional, size = Maximum size of buffer.
-HRESULT Graphics::LoadTextureFromFile ( wchar_t* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size )
+HRESULT Graphics::LoadTextureFromFile ( const wchar_t* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size )
 {
 	HRESULT hr = S_OK;
 	hr = CreateWICTextureFromFile(mDevice, mDeviceContext, fileName, texture, srv, size );
@@ -43,6 +43,23 @@ HRESULT Graphics::MapBuffer( ID3D11Buffer* buffer, void* data, int size )
 	mDeviceContext->Unmap( buffer, 0 );
 
 	return S_OK;
+}
+
+HRESULT Graphics::LoadStatic2dAsset( char* fileName, AssetID &assetId )
+{
+	HRESULT hr;
+	ID3D11ShaderResourceView* srv = nullptr;
+	ID3D11Texture2D* texture = nullptr;
+
+	std::stringstream ss;
+	std::string str;
+	ss << fileName;
+	ss >> str;
+	std::wstring wstr = std::wstring( str.begin(), str.end() );
+	hr = CreateWICTextureFromFile( mDevice, mDeviceContext, wstr.c_str(), (ID3D11Resource**)texture, &srv, NULL );
+	if( FAILED( hr ) ) return hr;
+
+	return mAssetManager->LoadStatic2dAsset( srv, fileName, assetId ); 
 }
 
 //Load a static 3d asset to the AssetManager.
@@ -173,6 +190,35 @@ void Graphics::RenderStatic3dAsset( AssetID assetId, XMFLOAT4X4* world )
 	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
+
+	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
+}
+
+void Graphics::RenderStatic3dAsset( AssetID assetId, AssetID textureId )
+{
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+
+	UINT32 vertexSize				= sizeof( StaticVertex );
+	UINT32 offset					= 0;
+	ID3D11Buffer* buffersToSet[]	= { ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexBuffer };
+	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+
+	mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mStaticEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mStaticEffect->GetPixelShader(), nullptr, 0 );
+
+	//Map CbufferPerObject
+	CbufferPerObject data;
+	data.worldMatrix = DirectX::XMMatrixIdentity();
+	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
+
+	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
+	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[textureId] )->mSRV );
+	mDeviceContext->PSSetSamplers( 0, 1, &mPointSamplerState );
 
 	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
 }
@@ -546,6 +592,24 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	mStandardView.TopLeftX	= 0.0f;
 	mStandardView.TopLeftY	= 0.0f;
 
+	//////////////////////////////
+	// CREATE POINT SAMPLER
+	//////////////////////////////
+	D3D11_SAMPLER_DESC pointDesc;
+	ZeroMemory( &pointDesc, sizeof( pointDesc ) );
+	pointDesc.Filter			= D3D11_FILTER_MIN_MAG_MIP_POINT;
+	pointDesc.AddressU			= D3D11_TEXTURE_ADDRESS_WRAP;
+	pointDesc.AddressV			= D3D11_TEXTURE_ADDRESS_WRAP;
+	pointDesc.AddressW			= D3D11_TEXTURE_ADDRESS_WRAP;
+	pointDesc.ComparisonFunc	= D3D11_COMPARISON_NEVER;
+	pointDesc.MaxAnisotropy		= 1;
+	pointDesc.MaxLOD			= 1.0f;
+	pointDesc.MinLOD			= 0.0f;
+	pointDesc.MipLODBias		= 0.0f;
+
+	if( FAILED( hr = mDevice->CreateSamplerState( &pointDesc, &mPointSamplerState ) ) )
+		return hr;
+
 	///////////////////////////////
 	// CREATE CBUFFERPERFRAME
 	///////////////////////////////
@@ -556,14 +620,16 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	bufferDesc.CPUAccessFlags	= D3D11_CPU_ACCESS_WRITE;
 	bufferDesc.Usage			= D3D11_USAGE_DYNAMIC;
 
-	hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mCbufferPerFrame );
+	if( FAILED( hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mCbufferPerFrame ) ) )
+		return hr;
 
 	///////////////////////////////
 	// CREATE CBUFFERPEROBJECT
 	///////////////////////////////
-	bufferDesc.ByteWidth				= sizeof( CbufferPerObject );
+	bufferDesc.ByteWidth = sizeof( CbufferPerObject );
 
-	hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mCbufferPerObject );
+	if( FAILED( hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mCbufferPerObject ) ) )
+		return hr;
 
 	///////////////////////////////////////
 	// CREATE CBUFFERPEROBJECTANIMATED
@@ -586,13 +652,15 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	effectInfo.isVertexShaderIncluded	= true;
 	effectInfo.isPixelShaderIncluded	= true;
 
-	hr = mStaticEffect->Intialize( mDevice, &effectInfo );
+	if( FAILED( hr = mStaticEffect->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
 
 	mAnimatedEffect	= new Effect;
 	effectInfo.fileName		= "../Content/Effects/PlaceholderAni.hlsl";
 	effectInfo.vertexType	= ANIMATED_VERTEX_TYPE;
 
-	hr = mAnimatedEffect->Intialize( mDevice, &effectInfo );
+	if( FAILED( hr = mAnimatedEffect->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
 	
 	//Camera
 	mCamera = new Camera;
@@ -608,7 +676,8 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	cameraInfo.nearZ		= 0.1f;
 	cameraInfo.farZ			= 1000.0f;
 
-	hr = mCamera->Initialize( &cameraInfo );
+	if( FAILED( hr = mCamera->Initialize( &cameraInfo ) ) )
+		return hr;
 
 	//Developer Camera
 	mDeveloperCamera = new Camera;
@@ -639,6 +708,7 @@ void Graphics::Release()
 	SAFE_RELEASE( mDepthStencilView );
 	SAFE_RELEASE( mCbufferPerFrame );
 	SAFE_RELEASE( mCbufferPerObject );
+	SAFE_RELEASE( mPointSamplerState );
 
 	mAssetManager->Release();
 	mStaticEffect->Release();

@@ -95,6 +95,7 @@ void Input::Update( LPARAM lParam )
 
 				case VK_SPACE:	
 					mCurrentFrame[KEYS::KEYS_SPACE] = IsKeyDown( raw->data.keyboard.Flags );
+					break;
 				case VK_CONTROL:
 					mCurrentFrame[KEYS::KEYS_RCTRL] = IsKeyDown( raw->data.keyboard.Flags );
 					break;

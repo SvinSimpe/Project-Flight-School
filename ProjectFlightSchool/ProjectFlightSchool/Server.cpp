@@ -14,7 +14,17 @@ bool Server::AcceptConnection()
 	}
 	else
 	{
+		EvPlayerConnection toJoining;
+		for ( auto& socket : mClientSockets )
+		{
+			toJoining.ID = (unsigned int)socket;
+			mConn->SendPkg( s, 0, Net_Event::EV_PLAYER_JOINED, toJoining ); // Sends the ID of the already existing clients to the joining client
+			Sleep(3);
+		}
 		mClientSockets.push_back( s );
+		EvPlayerConnection msg;
+		msg.ID = (unsigned int)s;
+		mConn->SendPkg( s, -1, Net_Event::YOUR_ID, s );
 	}
 	printf( "%d connected.\n", s );
 

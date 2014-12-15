@@ -17,6 +17,10 @@ void Player::HandleInput( float deltaTime )
 		Move( XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
 
 
+
+	
+
+
 	//== Calculate upper body rotation ==
 	XMVECTOR rayOrigin	= XMVECTOR( Input::GetInstance()->mCurrentNDCMousePos );
 	XMVECTOR rayDir		= rayOrigin;
@@ -55,9 +59,12 @@ void Player::HandleInput( float deltaTime )
 	float radians	= atan2f( XMVectorGetZ( playerToCursor ), XMVectorGetX( playerToCursor ) );
 
 
-	mUpperBody.direction.x = 0.0f;
+ 	mUpperBody.direction.x = 0.0f;
 	mUpperBody.direction.y = -radians;
 	mUpperBody.direction.z = 0.0f;
+
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_SPACE) )
+		Fire();
 }
 
 void Player::Move( XMFLOAT3 direction )
@@ -87,7 +94,6 @@ HRESULT Player::Update( float deltaTime )
 	EventManager::GetInstance()->QueueEvent( E1 );
 
 	///Lock camera position to player
-
 	XMFLOAT3 cameraPosition;
 	cameraPosition.x = mLowerBody.position.x;
 	cameraPosition.y = mLowerBody.position.y + 21.0f;
@@ -96,8 +102,45 @@ HRESULT Player::Update( float deltaTime )
 	Graphics::GetInstance()->SetEyePosition( cameraPosition );
 	Graphics::GetInstance()->SetFocus( mLowerBody.position );
 
+	//Update Projectiles
+	if( mNrOfProjectilesFired != 0 )
+	{
+		for ( size_t i = 0; i < mProjectiles.size(); i++ )
+		{
+			if( mProjectiles.at(i)->IsActive() )
+				mProjectiles.at(i)->Update( deltaTime );
+		}
+	}
+
 	return S_OK;
 }
+
+HRESULT Player::Render( float deltaTime )
+{
+	Graphics::GetInstance()->RenderStatic3dAsset( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
+	Graphics::GetInstance()->RenderStatic3dAsset( mLowerBody.playerModel, mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z );
+
+	//Update Projectiles
+	if( mNrOfProjectilesFired != 0 )
+	{
+		for ( size_t i = 0; i < mProjectiles.size(); i++ )
+		{
+			if( mProjectiles.at(i)->IsActive() )
+				mProjectiles.at(i)->Render( deltaTime );
+		}
+	}
+
+	return S_OK;
+}
+
+void Player::Fire()
+{
+	mProjectiles.at( mNrOfProjectilesFired )->SetDirection( mUpperBody.position, mUpperBody.direction );
+	mProjectiles.at( mNrOfProjectilesFired )->SetIsActive( true );
+	mNrOfProjectilesFired++;
+}
+
+
 
 HRESULT Player::Initialize()
 {
@@ -112,11 +155,24 @@ HRESULT Player::Initialize()
 	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mLowerBody.speed	= 0.2f;
 
+	//Fill up on Projectiles
+	for ( size_t i = 0; i < 2000; i++ )
+	{
+		Projectile*	projectile = new Projectile();
+		projectile->Initialize();
+		mProjectiles.push_back( projectile );
+	}
+
 	return S_OK;
 }
 
 void Player::Release()
-{}
+{
+	for ( size_t i = 0; i < mProjectiles.size(); i++ )
+		SAFE_DELETE( mProjectiles.at(i) );
+	
+
+}
 
 Player::Player()
 {
@@ -128,6 +184,7 @@ Player::Player()
 	mLowerBody.position		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mLowerBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mLowerBody.speed		= 0.0f;
+
 }
 
 Player::~Player()

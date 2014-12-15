@@ -2,7 +2,9 @@
 #define PLAYER_H
 
 #include "Input.h"
+#include "Projectile.h"
 #include "RemotePlayer.h"
+
 
 struct BoundingBox
 {
@@ -32,19 +34,25 @@ class Player: public RemotePlayer
 {
 	private:
 
+		std::vector<Projectile*>	mProjectiles;
+		int			mNrOfProjectilesFired;
+
 	private:
-		void HandleInput( float deltaTime );
-		void Move( XMFLOAT3 direction );
+		void		HandleInput( float deltaTime );
+		void		Move( XMFLOAT3 direction );
 
 	public:
-		HRESULT Update( float deltaTime );
+		HRESULT		Update( float deltaTime );
+		HRESULT		Render( float deltaTime );
 
-		XMFLOAT3 GetPlayerPosition() const;
 
-		HRESULT Initialize();
-		void Release();
-		Player();
-		~Player();
+		XMFLOAT3	GetPlayerPosition() const;
+		void		Fire();
+
+		HRESULT		Initialize();
+		void		Release();
+					Player();
+					~Player();
 };
 #endif
 

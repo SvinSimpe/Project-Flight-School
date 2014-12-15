@@ -15,17 +15,18 @@ void RemotePlayer::LookAt( float rotation )
 {
 }
 
+
+int RemotePlayer::GetID() const
+{
+	return mID;
+}
+
 HRESULT RemotePlayer::Render( float deltaTime )
 {
 	Graphics::GetInstance()->RenderStatic3dAsset( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
 	Graphics::GetInstance()->RenderStatic3dAsset( mLowerBody.playerModel, mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z );
 
 	return S_OK;
-}
-
-int RemotePlayer::GetID() const
-{
-	return mID;
 }
 
 HRESULT RemotePlayer::Initialize( unsigned int id )

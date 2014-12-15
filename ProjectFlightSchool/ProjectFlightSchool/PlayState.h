@@ -26,6 +26,8 @@ class PlayState : public BaseState
 		Player*			mPlayer;
 		std::vector<RemotePlayer*> mRemotePlayers;
 
+		
+	
 	protected:
 	public:
 
@@ -35,6 +37,8 @@ class PlayState : public BaseState
 
 	protected:
 	public:
+		void HandleDeveloperCameraInput();
+
 		virtual HRESULT Update( float deltaTime );
 		virtual HRESULT Render();
 		virtual void	OnEnter();

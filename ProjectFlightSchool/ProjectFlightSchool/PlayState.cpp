@@ -32,12 +32,26 @@ void PlayState::RemoteUpdate( IEventPtr newEvent )
 	}
 }
 
+void PlayState::HandleDeveloperCameraInput()
+{
+	// TOGGLE CAM
+	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_RCTRL ) )
+		Graphics::GetInstance()->ChangeCamera();
+	// ZOOM IN
+	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_DOWN ) )
+		Graphics::GetInstance()->ZoomOutDeveloperCamera();
+	// ZOOM OUT
+	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_UP) )
+		Graphics::GetInstance()->ZoomInDeveloperCamera();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
 
 HRESULT PlayState::Update( float deltaTime )
 {
+	HandleDeveloperCameraInput();
 	mPlayer->Update( deltaTime );
 	mAnimationTime += deltaTime / 2.0f;
 	return S_OK;

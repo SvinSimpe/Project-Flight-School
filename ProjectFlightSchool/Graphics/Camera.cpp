@@ -11,8 +11,6 @@ bool Camera::Update()
 	return true;
 }
 
-
-
 void Camera::SetUp(XMFLOAT4 up)
 {
 	mUp = up;
@@ -91,6 +89,18 @@ void Camera::SetEyePosition( XMFLOAT3 &eyePosition )
 void Camera::SetFocus( XMFLOAT3 &focusPoint )
 {
 	mFocusPoint = XMFLOAT4( focusPoint.x, focusPoint.y, focusPoint.z, 1.0f );
+}
+
+void Camera::ZoomIn()
+{
+	mPos.y -= 0.5f;
+	mPos.z += 0.5f;
+}
+
+void Camera::ZoomOut()
+{
+	mPos.y += 0.5f;
+	mPos.z -= 0.5f;
 }
 
 HRESULT Camera::Initialize( CameraInfo* cameraInfo )

@@ -78,6 +78,9 @@ void Player::Move( XMFLOAT3 direction )
 		mLowerBody.direction.x /= pow((pow(mLowerBody.direction.x, 2) + pow(mLowerBody.direction.y, 2) + pow(mLowerBody.direction.z, 2)), 0.5f);
 		mLowerBody.direction.z /= pow((pow(mLowerBody.direction.x, 2) + pow(mLowerBody.direction.y, 2) + pow(mLowerBody.direction.z, 2)), 0.5f);
 	}
+
+	IEventPtr E1( new Event_Player_Moved( mLowerBody.position, mUpperBody.position, mUpperBody.direction ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 HRESULT Player::Update( float deltaTime )
@@ -89,9 +92,6 @@ HRESULT Player::Update( float deltaTime )
 
 	mLowerBody.position.x += mLowerBody.direction.x * mLowerBody.speed;
 	mLowerBody.position.z += mLowerBody.direction.z * mLowerBody.speed;
-
-	IEventPtr E1( new Event_Player_Moved( mLowerBody.position, mUpperBody.position, mUpperBody.direction ) );
-	EventManager::GetInstance()->QueueEvent( E1 );
 
 	///Lock camera position to player
 	XMFLOAT3 cameraPosition;

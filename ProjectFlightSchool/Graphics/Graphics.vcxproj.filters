@@ -31,6 +31,12 @@
     <ClCompile Include="AnimationAsset.cpp">
       <Filter>AssetClasses\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Static3dAssetIndexed.cpp">
+      <Filter>AssetClasses\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Static2dAsset.cpp">
+      <Filter>AssetClasses\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssetBase.h">
@@ -72,6 +78,12 @@
       <Filter>AssetClasses\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AnimationAsset.h">
+      <Filter>AssetClasses\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Static3dAssetIndexed.h">
+      <Filter>AssetClasses\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Static2dAsset.h">
       <Filter>AssetClasses\Header Files</Filter>
     </ClInclude>
   </ItemGroup>

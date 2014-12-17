@@ -153,6 +153,31 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 #pragma endregion Helper functions for the class
 
 #pragma region Public functions
+HRESULT AssetManager::LoadStatic2dAsset( ID3D11ShaderResourceView* srv, char* fileName, AssetID &assetId )
+{
+	HRESULT hr = S_OK;
+
+	//If true return to caller because the asset already exist.
+	if( AssetExist( fileName, assetId ) )
+	{
+		return hr;
+	}
+	else
+	{	 
+
+		AssignAssetId( assetId );
+		Static2dAsset* temp;
+		temp				= new Static2dAsset();
+		temp->mAssetId		= assetId;
+		temp->mSRV			= srv;
+		temp->mFileName		= fileName;
+
+		mAssetContainer.push_back( temp );
+
+		return hr;
+	}
+}
+
 HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, AssetID &assetId )
 {
 	HRESULT hr = S_OK;
@@ -221,6 +246,64 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, A
 		mAssetContainer.push_back( temp );
 
 		delete [] vertices;
+
+		return hr;
+	}
+}
+
+HRESULT	AssetManager::LoadStatic3dAssetIndexed( ID3D11Device* device, Indexed3DAssetInfo &info, AssetID &assetId )
+{
+	HRESULT hr = S_OK;
+	
+//If true return to caller because the asset already exist.
+	if( AssetExist( info.assetName, assetId ) )
+	{
+		return hr;
+	}
+	else
+	{
+		UINT vertexSize = sizeof( StaticVertex );
+
+		AssignAssetId( assetId );
+		
+		D3D11_BUFFER_DESC bufferDesc;
+		ZeroMemory( &bufferDesc, sizeof( bufferDesc ) );
+		bufferDesc.BindFlags	= D3D11_BIND_VERTEX_BUFFER;
+		bufferDesc.ByteWidth	= sizeof( StaticVertex ) * info.vertexCount;
+		bufferDesc.Usage		= D3D11_USAGE_DEFAULT;
+
+		D3D11_BUFFER_DESC iBufferDesc;
+		ZeroMemory( &iBufferDesc, sizeof( iBufferDesc ) );
+		iBufferDesc.BindFlags	= D3D11_BIND_INDEX_BUFFER;
+		iBufferDesc.ByteWidth	= sizeof( UINT ) * info.indexCount;
+		iBufferDesc.Usage		= D3D11_USAGE_DEFAULT;
+
+		Static3dAssetIndexed *temp = new Static3dAssetIndexed();
+		temp->mAssetId		= assetId;
+		temp->mFileName		= info.assetName;
+		temp->mVertexCount	= info.vertexCount;
+		temp->mIndexCount	= info.indexCount;
+
+		D3D11_SUBRESOURCE_DATA pData;
+		pData.pSysMem			= info.vertices;
+		
+		hr = device->CreateBuffer( &bufferDesc, &pData, &temp->mVertexBuffer );
+		if( FAILED( hr ) )
+		{
+			return hr;
+		}
+
+		pData.pSysMem			= info.indices;
+		
+		hr = device->CreateBuffer( &iBufferDesc, &pData, &temp->mIndexBuffer );
+		if( FAILED( hr ) )
+		{
+			return hr;
+		}
+
+		mAssetContainer.push_back( temp );
+
+		temp = nullptr;
 
 		return hr;
 	}
@@ -841,6 +924,8 @@ void AssetManager::Release()
 			( (Animated3dAsset*)mAssetContainer[i] )->Release();
 		else if( typeid( mAssetContainer[i] ) == typeid( SkeletonAsset ) )
 			( (SkeletonAsset*)mAssetContainer[i] )->Release();
+		else if( typeid( mAssetContainer[i] ) == typeid( Static2dAsset ) )
+			( (Static2dAsset*)mAssetContainer[i] )->Release();
 		SAFE_DELETE( mAssetContainer[i] );
 	}
 	mAssetContainer.clear();

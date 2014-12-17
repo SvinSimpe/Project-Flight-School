@@ -1,6 +1,7 @@
 #ifndef PLAYSTATE_H
 #define PLAYSTATE_H
 
+#include "Map.h"
 #include "BaseState.h"
 #include "Player.h"
 #include "RemotePlayer.h"
@@ -12,15 +13,19 @@ class PlayState : public BaseState
 	// Class members
 	private:
 
-		AssetID			mPlaneAsset;
-		AssetID			mCubeAsset;
-		AssetID			mTestAsset;
+		AssetID	mPlaneAsset;
+		AssetID	mCubeAsset;
+		AssetID	mTestAsset;
 
-		AssetID		mTestAnimation;
-		AssetID		mTestSkeleton;
-		AssetID		mTestAnimationAnimation;
+		AssetID	mTestAnimation;
+		AssetID	mTestSkeleton;
+		AssetID	mTestAnimationAnimation;
 
-		float		mAnimationTime;
+		AssetID	mTest2dTexture;
+
+		Map*		mWorldMap;
+
+		float	mAnimationTime;
 
 	// Debug
 		Player*			mPlayer;

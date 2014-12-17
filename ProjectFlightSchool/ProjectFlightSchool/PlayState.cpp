@@ -60,14 +60,20 @@ HRESULT PlayState::Update( float deltaTime )
 HRESULT PlayState::Render()
 {
 	Graphics::GetInstance()->BeginScene();
+
 	//Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset );
 	Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime );
 	mPlayer->Render( 0.0f );
+	Graphics::GetInstance()->RenderStatic3dAsset( mCubeAsset, mTest2dTexture );
+	Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime );
+	mPlayer->Render( 0.0f );
+	mWorldMap->Render( 0.0f );
 	for( auto& rp : mRemotePlayers )
 	{
 		if( rp )
 			rp->Render( 0.0f );
 	}
+
 	Graphics::GetInstance()->EndScene();
 
 	return S_OK;
@@ -93,6 +99,7 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "PLANE", mPlaneAsset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/bin/aggro_test_utan_Anim.pfs", mTestAsset );
 
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dTexture );
 	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Animations/testmapanim/", "manMode.Skel", mTestSkeleton );
 	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Animations/testmapanim/test4.apfs", mTestSkeleton, mTestAnimation );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Animations/testmapanim/", "manMode.PaMan", mTestAnimationAnimation );
@@ -101,6 +108,9 @@ HRESULT PlayState::Initialize()
 
 	mPlayer = new Player();
 	mPlayer->Initialize();
+
+	mWorldMap = new Map();
+	mWorldMap->Initialize( 8.0f, 24 );
 
 	EventManager::GetInstance()->AddListener( &PlayState::RemoteUpdate, this, Event_Remote_Player_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::RemoteUpdate, this, Event_Remote_Player_Left::GUID );
@@ -111,12 +121,16 @@ HRESULT PlayState::Initialize()
 void PlayState::Release()
 {
 	mPlayer->Release();
+	mWorldMap->Release();
+	SAFE_DELETE( mWorldMap );
+
 	for( auto& rp : mRemotePlayers )
 	{
 		rp->Release();
 		SAFE_DELETE( rp );
 	}
 	mRemotePlayers.clear();
+
 }
 
 PlayState::PlayState()

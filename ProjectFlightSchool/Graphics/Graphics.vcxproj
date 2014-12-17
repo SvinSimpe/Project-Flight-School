@@ -102,7 +102,9 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="SkeletonAsset.h" />
+    <ClInclude Include="Static2dAsset.h" />
     <ClInclude Include="Static3dAsset.h" />
+    <ClInclude Include="Static3dAssetIndexed.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="WICTextureLoader.h" />
   </ItemGroup>
@@ -115,7 +117,9 @@
     <ClCompile Include="Effect.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="SkeletonAsset.cpp" />
+    <ClCompile Include="Static2dAsset.cpp" />
     <ClCompile Include="Static3dAsset.cpp" />
+    <ClCompile Include="Static3dAssetIndexed.cpp" />
     <ClCompile Include="WICTextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>

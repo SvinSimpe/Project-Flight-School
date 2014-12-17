@@ -1,6 +1,7 @@
 #ifndef PLAYSTATE_H
 #define PLAYSTATE_H
 
+#include "Map.h"
 #include "BaseState.h"
 #include "Player.h"
 #include "RemotePlayer.h"
@@ -21,6 +22,8 @@ class PlayState : public BaseState
 		AssetID	mTestAnimationAnimation;
 
 		AssetID	mTest2dTexture;
+
+		Map*		mWorldMap;
 
 		float	mAnimationTime;
 

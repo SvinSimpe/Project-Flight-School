@@ -70,14 +70,11 @@ void Server::HandlePkg( SOCKET &s, Package<T>* p )
 		{
 			EvPlayerConnection toAll; // Contains the ID of the joining client
 			toAll.ID = (unsigned int)s;
-			EvPlayerConnection toJoining; // Will contain the IDs of the already existing clients
 			for ( auto& socket : mClientSockets )
 			{
 				if ( socket != s && socket != INVALID_SOCKET )
 				{
 					mConn->SendPkg( socket, 0, Net_Event::EV_PLAYER_JOINED, toAll ); // Sends the ID of the joining client to each already existing client
-					toJoining.ID = (unsigned int)socket;
-					mConn->SendPkg( s, 0, Net_Event::EV_PLAYER_JOINED, toJoining ); // Sends the ID of the already existing clients to the joining client
 				}
 			}
 		}

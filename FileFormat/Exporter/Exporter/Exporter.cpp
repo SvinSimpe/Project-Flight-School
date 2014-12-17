@@ -9,7 +9,7 @@ Exporter::Exporter()
 
 Exporter::~Exporter()
 {
-	//ReleaseMaya();
+	ReleaseMaya();
 }
 
 bool Exporter::InitializeMaya()

@@ -1,5 +1,5 @@
 #include "Graphics.h"
-#include <sstream>
+
 Graphics::Graphics()
 {
 	mHWnd			= 0;
@@ -27,13 +27,7 @@ Graphics::~Graphics()
 
 }
 
-//Loads a texture from file, the filename can be expressed as a string put with L prefix e.g L"Hello World", texture and SRV are both optional, size = Maximum size of buffer.
-HRESULT Graphics::LoadTextureFromFile ( const wchar_t* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size )
-{
-	HRESULT hr = S_OK;
-	hr = CreateWICTextureFromFile(mDevice, mDeviceContext, fileName, texture, srv, size );
-	return hr;
-}
+
 //Map buffer
 HRESULT Graphics::MapBuffer( ID3D11Buffer* buffer, void* data, int size )
 {
@@ -47,25 +41,13 @@ HRESULT Graphics::MapBuffer( ID3D11Buffer* buffer, void* data, int size )
 
 HRESULT Graphics::LoadStatic2dAsset( char* fileName, AssetID &assetId )
 {
-	HRESULT hr;
-	ID3D11ShaderResourceView* srv = nullptr;
-	ID3D11Texture2D* texture = nullptr;
-
-	std::stringstream ss;
-	std::string str;
-	ss << fileName;
-	ss >> str;
-	std::wstring wstr = std::wstring( str.begin(), str.end() );
-	hr = CreateWICTextureFromFile( mDevice, mDeviceContext, wstr.c_str(), (ID3D11Resource**)texture, &srv, NULL );
-	if( FAILED( hr ) ) return hr;
-
-	return mAssetManager->LoadStatic2dAsset( srv, fileName, assetId ); 
+	return mAssetManager->LoadStatic2dAsset( mDevice, mDeviceContext, fileName, assetId ); 
 }
 
 //Load a static 3d asset to the AssetManager.
 HRESULT Graphics::LoadStatic3dAsset( char* fileName, AssetID &assetId )
 {
-	return mAssetManager->LoadStatic3dAsset( mDevice, fileName, assetId );
+	return mAssetManager->LoadStatic3dAsset( mDevice, mDeviceContext, fileName, assetId );
 }
 
 HRESULT Graphics::LoadAnimated3dAsset( char* fileName, AssetID skeletonId, AssetID &assetId )

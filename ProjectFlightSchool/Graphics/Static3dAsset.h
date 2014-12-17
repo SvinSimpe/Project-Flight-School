@@ -3,13 +3,25 @@
 
 #include "AssetBase.h"
 
+enum TEXTURES
+{
+	TEXTURES_DIFFUSE,
+	TEXTURES_NORMAL,
+	TEXTURES_SPECULAR,
+
+
+	//Add new items above this comment
+	TEXTURES_AMOUNT
+};
+
 struct Static3dAsset : public AssetBase
 {
 	private:
 	protected:
 	public:
-		UINT				mVertexCount;
-		ID3D11Buffer*		mVertexBuffer;
+		UINT						mVertexCount;
+		ID3D11Buffer*				mVertexBuffer;
+		ID3D11ShaderResourceView*	mTextureBuffer[TEXTURES_AMOUNT];
 
 	private:
 	protected:

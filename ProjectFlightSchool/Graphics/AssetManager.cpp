@@ -1,4 +1,6 @@
 #include "AssetManager.h"
+#include "WICTextureLoader.h"
+#include <sstream>
 
 using namespace std;
 
@@ -150,10 +152,29 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 	return hr;
 }
 
+//Loads a texture from file, the filename can be expressed as a string put with L prefix e.g L"Hello World", texture and SRV are both optional, size = Maximum size of buffer.
+HRESULT AssetManager::LoadTextureFromFile ( ID3D11Device* device, ID3D11DeviceContext* dc, const wchar_t* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size )
+{
+	HRESULT hr = S_OK;
+	hr = CreateWICTextureFromFile( device, dc, fileName, texture, srv, size );
+	return hr;
+}
+
+std::wstring AssetManager::ConvertCharArrayToWstring( char fileName[] )
+{
+	std::stringstream ss;
+	std::string str;
+	ss << fileName;
+	ss >> str;
+	std::wstring wstr = std::wstring( str.begin(), str.end() );
+
+	return wstr;
+}
+
 #pragma endregion Helper functions for the class
 
 #pragma region Public functions
-HRESULT AssetManager::LoadStatic2dAsset( ID3D11ShaderResourceView* srv, char* fileName, AssetID &assetId )
+HRESULT AssetManager::LoadStatic2dAsset( ID3D11Device* device, ID3D11DeviceContext* dc, char* fileName, AssetID &assetId )
 {
 	HRESULT hr = S_OK;
 
@@ -164,8 +185,13 @@ HRESULT AssetManager::LoadStatic2dAsset( ID3D11ShaderResourceView* srv, char* fi
 	}
 	else
 	{	 
-
+		ID3D11ShaderResourceView* srv = nullptr;
+		ID3D11Texture2D* texture = nullptr;
 		AssignAssetId( assetId );
+
+		hr = LoadTextureFromFile( device, dc, ConvertCharArrayToWstring( fileName ).c_str(), (ID3D11Resource**)texture, &srv, NULL );
+		if(FAILED ( hr ) ) return hr;
+		
 		Static2dAsset* temp;
 		temp				= new Static2dAsset();
 		temp->mAssetId		= assetId;
@@ -178,7 +204,7 @@ HRESULT AssetManager::LoadStatic2dAsset( ID3D11ShaderResourceView* srv, char* fi
 	}
 }
 
-HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, AssetID &assetId )
+HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceContext* dc, char* fileName, AssetID &assetId )
 {
 	HRESULT hr = S_OK;
 
@@ -193,6 +219,9 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, A
 		StaticVertex*	vertices	= nullptr;
 		UINT			nrOfMeshes	= 0;
 		UINT			vertexSize	= sizeof( StaticVertex );
+		string*			diffuse;
+		string*			normal;
+		string*			specular;
 
 		std::ifstream myFile( fileName, std::ios::binary );
 
@@ -204,18 +233,27 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, A
 
 		//Read fileheader. Holds information about number of meshes in scene
 		myFile.read( (char*)&nrOfMeshes, sizeof( UINT ) );
+		diffuse = new string[nrOfMeshes];
+		normal = new string[nrOfMeshes];
+		specular = new string[nrOfMeshes];
 		
-		float* rawData = nullptr;
 
 		for( UINT i = 0; i < nrOfMeshes; i++ )
 		{
 			//Read actual data
-			myFile.read( (char*)&meshInfo, sizeof(meshInfo) );
+			myFile.read( (char*)&meshInfo, sizeof( meshInfo ) );
 	
 			//Memory alloc + reading vertices
 			vertices	= new StaticVertex[meshInfo.nrOfVertices];
 
 			myFile.read( (char*)vertices, vertexSize * meshInfo.nrOfVertices );
+
+			//Creating SRVs from the different texture maps in the mesh info.
+			diffuse[i]		= meshInfo.diffuseMapName;
+			normal[i]		= meshInfo.normalMapName;
+			specular[i]		= meshInfo.specularMapName;
+
+			
 		}
 
 		myFile.close();

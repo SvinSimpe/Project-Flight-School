@@ -91,7 +91,7 @@ HRESULT PlayState::Initialize()
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "CUBE", mCubeAsset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "PLANE", mPlaneAsset );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/bin/aggro_test_utan_Anim.pfs", mTestAsset );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/bin/TestTree/maya_testAsset_tree.pfs", mTestAsset );
 
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dTexture );
 	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Animations/testmapanim/", "no90.Skel", mTestSkeleton );

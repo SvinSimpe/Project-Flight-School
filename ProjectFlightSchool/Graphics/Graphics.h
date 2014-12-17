@@ -9,7 +9,6 @@
 #include "CbufferPerFrame.h"
 #include "CbufferPerObject.h"
 #include "Camera.h"
-#include "WICTextureLoader.h"
 
 #ifdef COMPILE_LIBRARY
 	#define LIBRARY_EXPORT __declspec( dllexport )
@@ -58,7 +57,6 @@ class LIBRARY_EXPORT Graphics
 
 	protected:
 	public:
-		HRESULT LoadTextureFromFile ( const wchar_t* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size = 0 );
 		HRESULT LoadStatic2dAsset( char* fileName, AssetID &assetId );
 		HRESULT LoadStatic3dAsset( char* fileName, AssetID &assetId );
 		HRESULT LoadAnimated3dAsset( char* fileName, AssetID skeletonId, AssetID &assetId );

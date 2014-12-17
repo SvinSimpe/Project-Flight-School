@@ -14,7 +14,7 @@ struct Animated3dAsset : public AssetBase
 		ID3D11Buffer*		mVertexBuffer;
 		AssetID				mSkeletonId;
 
-		DirectX::XMFLOAT4X4	mCurrentBoneTransforms[NUM_SUPPORTED_JOINTS];
+		DirectX::XMFLOAT4X4	mBoneOffsets[NUM_SUPPORTED_JOINTS];
 
 	private:
 	protected:

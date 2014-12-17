@@ -41,15 +41,13 @@ VS_Out VS_main( VS_In input )
 
 //Pixel
 
-Texture2D<float4> diffuse	: register( t0 );
-SamplerState pointSampler	: register( s0 );
+Texture2D<float4>	diffuseTexture	: register( t0 );
+SamplerState		pointSampler	: register( s0 );
 float4 PS_main( VS_Out input ) : SV_TARGET0
 {
 	// Derp light to notice anything
 	float lightIntensity	= dot( input.normal, normalize( float3( 0.5f, 1.0f, -0.3f ) ) ); 
 	float3 color			= float3( 1.0f, 1.0f, 1.0f );
-	float4 testTex			= diffuse.Sample( pointSampler, input.uv );
-	//return  float4( color * lightIntensity, 1.0f );
-	return testTex;
-	//return float4( input.normal, 1.0f );
+	float3 diffuseSamp		= diffuseTexture.Sample( pointSampler, input.uv ).xyz;
+	return float4( diffuseSamp * lightIntensity, 1.0f );
 }

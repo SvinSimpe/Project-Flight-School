@@ -36,7 +36,7 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 	plane->mFileName	= "PLANE"; //ADD CORRECT FILENAME HERE
 	plane->mVertexCount	= 6;
 
-	float planeSize = 100.0f;
+	float planeSize = 1.0f;
 
 	StaticVertex planePlaceholder[6] = {
 			-0.5f * planeSize, 0.0f, -0.5f * planeSize	,	0.0f, 1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 1.0f,
@@ -367,6 +367,30 @@ HRESULT	AssetManager::LoadAnimated3dAsset( ID3D11Device* device, char* fileName,
 			return hr;
 		}
 
+		//Skeleton boneOffsets
+		DirectX::XMMATRIX boneOffsets[NUM_SUPPORTED_JOINTS];
+		for( int i = 0; i < NUM_SUPPORTED_JOINTS; i++ )
+			boneOffsets[i] = DirectX::XMMatrixIdentity();
+
+		Skeleton* mySkeleton = &( (SkeletonAsset*)mAssetContainer[skeletonId] )->mSkeleton;
+
+		for( int i = 0; i < (int)mySkeleton->joints.size(); i++ )
+		{
+			if( mySkeleton->joints.at(i).parentIndex == -1 )
+			{
+				boneOffsets[i] = DirectX::XMLoadFloat4x4( &mySkeleton->joints.at(i).originalMatrix );
+			}
+			else
+			{
+				DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &mySkeleton->joints.at(i).originalMatrix );
+				DirectX::XMMATRIX parent	= boneOffsets[mySkeleton->joints.at(i).parentIndex];
+
+				boneOffsets[i] = child * parent;
+			}
+		}
+		for( int i = 0; i < NUM_SUPPORTED_JOINTS; i++ )
+			DirectX::XMStoreFloat4x4( &temp->mBoneOffsets[i], DirectX::XMMatrixInverse( nullptr, boneOffsets[i] ) );
+
 		mAssetContainer.push_back( temp );
 
 		delete [] vertices;
@@ -465,10 +489,28 @@ HRESULT	AssetManager::LoadSkeletonAsset( string filePath, string fileName, Asset
 					}
 					values[m] = stof( tempDouble );
 				}
-				tempJoint.originalMatrix =  DirectX::XMFLOAT4X4(	values[0], values[1], values[2], values[3],
-																	values[4], values[5], values[6], values[7],
-																	values[8], values[9], values[10], values[11],
-																	values[12], values[13], values[14], values[15] );
+
+				DirectX::XMFLOAT4X4 storeMatrix = DirectX::XMFLOAT4X4(	values[0], values[1], values[2], values[3],
+																			values[4], values[5], values[6], values[7],
+																			values[8], values[9], values[10], values[11],
+																			values[12], values[13], values[14], values[15] );
+
+				DirectX::XMVECTOR scale;
+				DirectX::XMVECTOR rotation;
+				DirectX::XMVECTOR translation;
+
+				DirectX::XMMatrixDecompose( &scale, &rotation, &translation, DirectX::XMLoadFloat4x4( &storeMatrix ) );
+
+				DirectX::XMFLOAT4 unpack;
+				DirectX::XMStoreFloat4( &unpack, rotation );
+				rotation = DirectX::XMVectorSet( unpack.x, -unpack.y, unpack.z, unpack.w );
+
+				DirectX::XMStoreFloat4( &unpack, translation );
+				translation = DirectX::XMVectorSet( unpack.x, unpack.y, -unpack.z, unpack.w );
+
+				DirectX::XMStoreFloat4x4( &storeMatrix, DirectX::XMMatrixAffineTransformation( scale, DirectX::XMVectorZero(), rotation, translation ) );
+
+				tempJoint.originalMatrix =  DirectX::XMFLOAT4X4( storeMatrix );
 				tempSkel->mSkeleton.joints.push_back( tempJoint );
 			}
 			delete[] memblock;
@@ -612,10 +654,27 @@ HRESULT	AssetManager::LoadAnimationAsset( string filePath, string fileName, Asse
 						values[m] = stof( tempDouble );
 					}
 
-					tempJoint.matricies.push_back( DirectX::XMFLOAT4X4(	values[0], values[1], values[2], values[3],
-																		values[4], values[5], values[6], values[7],
-																		values[8], values[9], values[10], values[11],
-																		values[12], values[13], values[14], values[15] ) );
+					DirectX::XMFLOAT4X4 storeMatrix = DirectX::XMFLOAT4X4(	values[0], values[1], values[2], values[3],
+																			values[4], values[5], values[6], values[7],
+																			values[8], values[9], values[10], values[11],
+																			values[12], values[13], values[14], values[15] );
+
+					DirectX::XMVECTOR scale;
+					DirectX::XMVECTOR rotation;
+					DirectX::XMVECTOR translation;
+
+					DirectX::XMMatrixDecompose( &scale, &rotation, &translation, DirectX::XMLoadFloat4x4( &storeMatrix ) );
+
+					DirectX::XMFLOAT4 unpack;
+					DirectX::XMStoreFloat4( &unpack, rotation );
+					rotation = DirectX::XMVectorSet( unpack.x, -unpack.y, unpack.z, unpack.w );
+
+					DirectX::XMStoreFloat4( &unpack, translation );
+					translation = DirectX::XMVectorSet( unpack.x, unpack.y, -unpack.z, unpack.w );
+
+					DirectX::XMStoreFloat4x4( &storeMatrix, DirectX::XMMatrixAffineTransformation( scale, DirectX::XMVectorZero(), rotation, translation ) );
+
+					tempJoint.matricies.push_back( storeMatrix );
 				}
 				if(tempJoint.keys.at(tempJoint.keys.size() - 1) > animLength)
 					animLength = tempJoint.keys.at(tempJoint.keys.size() - 1);

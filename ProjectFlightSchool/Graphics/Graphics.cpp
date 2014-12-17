@@ -270,7 +270,12 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 		framesJumped++;
 	}
 
-	//std::cout << framesJumped << std::endl;
+	DirectX::XMMATRIX currentBoneTransforms[NUM_SUPPORTED_JOINTS];
+	for( int i = 0; i < NUM_SUPPORTED_JOINTS; i++ )
+	{
+		currentBoneTransforms[i] = DirectX::XMMatrixIdentity();
+	}
+
 	for( int i = 0; i < (int)skeleton->joints.size(); i++ )
 	{
 		int					lastFrame = 1;
@@ -284,14 +289,14 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 			{
 				if( skeleton->joints.at(i).parentIndex == -1 )
 				{
-					model->mCurrentBoneTransforms[i] = animation->joints.at(i).matricies.at( 0 );
+					currentBoneTransforms[i] = DirectX::XMLoadFloat4x4( &animation->joints.at(i).matricies.at( 0 ) );
 				}
 				else
 				{
 					DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &animation->joints.at(i).matricies.at( 0 ) );
-					DirectX::XMMATRIX parent	= DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[animation->joints.at(i).parentIndex] );
+					DirectX::XMMATRIX parent	= currentBoneTransforms[animation->joints.at(i).parentIndex];
 
-					DirectX::XMStoreFloat4x4( &model->mCurrentBoneTransforms[i], child * parent );
+					currentBoneTransforms[i] = child * parent;
 				}
 			}
 			//Find next keyframe and interpolate previousMatrix with next matrix in animation based on key.
@@ -303,7 +308,6 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 						if( animation->joints.at(i).keys.at(j) == frames )
 						{
 							previousMatrix	= animation->joints.at(i).matricies.at(j);
-							//lastFrame		= frames;
 						}
 					}
 				else
@@ -323,9 +327,9 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 
 					DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &previousMatrix );
 					DirectX::XMMATRIX parent	= animation->joints.at(i).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
-													DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[animation->joints.at(i).parentIndex] );
+													currentBoneTransforms[animation->joints.at(i).parentIndex];
 
-					DirectX::XMStoreFloat4x4( &model->mCurrentBoneTransforms[i], child * parent );
+					currentBoneTransforms[i] = child * parent;
 					break;
 				}
 				else if( animation->joints.at(i).keys.at(j) > framesJumped )
@@ -348,18 +352,18 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 																	DirectX::XMVectorLerp( childComp[2], targetComp[2], interpolation ) );			
 
 					DirectX::XMMATRIX parent	= animation->joints.at(i).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
-													DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[animation->joints.at(i).parentIndex] );
+													currentBoneTransforms[animation->joints.at(i).parentIndex];
 
-					DirectX::XMStoreFloat4x4( &model->mCurrentBoneTransforms[i], child * parent );
+					currentBoneTransforms[i] = child * parent;
 					break;
 				}
 				else
 				{
 					DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &previousMatrix );
 					DirectX::XMMATRIX parent	= animation->joints.at(i).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
-													DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[animation->joints.at(i).parentIndex] );
+													currentBoneTransforms[animation->joints.at(i).parentIndex];
 
-					DirectX::XMStoreFloat4x4( &model->mCurrentBoneTransforms[i], child * parent );
+					currentBoneTransforms[i] = child * parent;
 				}
 			}
 		}
@@ -390,7 +394,7 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 	for( int i = 0; i < NUM_SUPPORTED_JOINTS; i++ )
 		data.boneTransforms[i] = DirectX::XMMatrixIdentity();
 	for( int i = 0; i < skeleton->nrOfJoints; i++ )
-		data.boneTransforms[i] = DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[i] ) );
+		data.boneTransforms[i] = DirectX::XMMatrixTranspose( DirectX::XMMatrixMultiply(  DirectX::XMLoadFloat4x4( &model->mBoneOffsets[i] ), currentBoneTransforms[i] ) );
 	MapBuffer( mCbufferPerObjectAnimated, &data, sizeof( CbufferPerObjectAnimated ) );
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObjectAnimated );

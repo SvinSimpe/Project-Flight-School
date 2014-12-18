@@ -158,12 +158,16 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device, ID3D11DeviceConte
 		return hr;
 	}
 
+	cube->mTextures[0] = 2;
+	cube->mTextures[1] = 2;
+	cube->mTextures[2] = 2;
+
 	mAssetContainer[1] = cube;
 
 	ID3D11ShaderResourceView* srv = nullptr;
 	ID3D10Texture2D* tex = nullptr;
 
-	hr = LoadTextureFromFile( device, dc, StringToWstring( "../Content/Assets/Textures/burger.png" ).c_str(), (ID3D11Resource**)tex, &srv, NULL );
+	hr = LoadTextureFromFile( device, dc, StringToWstring( "../Content/Assets/Textures/gladgubbe.png" ).c_str(), (ID3D11Resource**)tex, &srv, NULL );
 	if( FAILED( hr ) )
 	{	
 		//Failed to create the placeholder SRV

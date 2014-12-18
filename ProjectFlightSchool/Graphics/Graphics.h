@@ -36,7 +36,7 @@ class LIBRARY_EXPORT Graphics
 		ID3D11Buffer*			mCbufferPerObjectAnimated;
 
 		ID3D11SamplerState*		mPointSamplerState;
-
+		ID3D11SamplerState*		mLinearSamplerState;
 
 
 		AssetManager*			mAssetManager;

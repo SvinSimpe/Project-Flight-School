@@ -129,6 +129,13 @@ void Graphics::RenderStatic3dAsset( AssetID assetId, float x, float y, float z )
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
 
+	ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_DIFFUSE]] )->mSRV,
+													( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_NORMAL]] )->mSRV,
+													( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_SPECULAR]] )->mSRV,
+												};
+
+	mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+
 	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
 }
 
@@ -157,6 +164,13 @@ void Graphics::RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT3 position,
 	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
+
+	ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_DIFFUSE]] )->mSRV,
+													( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_NORMAL]] )->mSRV,
+													( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_SPECULAR]] )->mSRV,
+												};
+
+	mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
 
 	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
 }
@@ -351,7 +365,7 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 
 	//Map CbufferPerObject
 	CbufferPerObjectAnimated data;
-	data.worldMatrix = DirectX::XMMatrixRotationY( 1.5f );
+	data.worldMatrix = DirectX::XMMatrixIdentity();
 	for( int i = 0; i < NUM_SUPPORTED_JOINTS; i++ )
 		data.boneTransforms[i] = DirectX::XMMatrixIdentity();
 	for( int i = 0; i < skeleton->nrOfJoints; i++ )
@@ -462,6 +476,7 @@ void Graphics::BeginScene()
 
 	mDeviceContext->VSSetConstantBuffers( 0, 1, &mCbufferPerFrame );
 	mDeviceContext->PSSetSamplers( 0, 1, &mPointSamplerState );
+	mDeviceContext->PSSetSamplers( 1, 1, &mLinearSamplerState );
 }
 
 //Finalize rendering.
@@ -589,19 +604,26 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	//////////////////////////////
 	// CREATE POINT SAMPLER
 	//////////////////////////////
-	D3D11_SAMPLER_DESC pointDesc;
-	ZeroMemory( &pointDesc, sizeof( pointDesc ) );
-	pointDesc.Filter			= D3D11_FILTER_MIN_MAG_MIP_POINT;
-	pointDesc.AddressU			= D3D11_TEXTURE_ADDRESS_WRAP;
-	pointDesc.AddressV			= D3D11_TEXTURE_ADDRESS_WRAP;
-	pointDesc.AddressW			= D3D11_TEXTURE_ADDRESS_WRAP;
-	pointDesc.ComparisonFunc	= D3D11_COMPARISON_NEVER;
-	pointDesc.MaxAnisotropy		= 1;
-	pointDesc.MaxLOD			= 1.0f;
-	pointDesc.MinLOD			= 0.0f;
-	pointDesc.MipLODBias		= 0.0f;
+	D3D11_SAMPLER_DESC samplerDesc;
+	ZeroMemory( &samplerDesc, sizeof( samplerDesc ) );
+	samplerDesc.Filter			= D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplerDesc.AddressU		= D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV		= D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW		= D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.ComparisonFunc	= D3D11_COMPARISON_NEVER;
+	samplerDesc.MaxAnisotropy	= 1;
+	samplerDesc.MaxLOD			= 1.0f;
+	samplerDesc.MinLOD			= 0.0f;
+	samplerDesc.MipLODBias		= 0.0f;
 
-	if( FAILED( hr = mDevice->CreateSamplerState( &pointDesc, &mPointSamplerState ) ) )
+	if( FAILED( hr = mDevice->CreateSamplerState( &samplerDesc, &mPointSamplerState ) ) )
+		return hr;
+
+	//////////////////////////////
+	// CREATE LINEAR SAMPLER
+	//////////////////////////////
+	samplerDesc.Filter			= D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	if( FAILED( hr = mDevice->CreateSamplerState( &samplerDesc, &mLinearSamplerState ) ) )
 		return hr;
 
 	///////////////////////////////

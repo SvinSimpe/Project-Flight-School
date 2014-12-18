@@ -149,15 +149,15 @@ void Player::Fire()
 
 HRESULT Player::Initialize()
 {
-	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "NO PATH", "CUBE", mUpperBody.playerModel ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Robot/", "robotScenebody.pfs", mUpperBody.playerModel ) ) )
 		OutputDebugString( L"\nERROR\n" );
 
-	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "NO PATH", "CUBE", mLowerBody.playerModel ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Robot/", "robotScenelegs.pfs", mLowerBody.playerModel ) ) )
 		OutputDebugString( L"\nERROR\n" );
 
 
-	mUpperBody.position	= XMFLOAT3( 3.0f, 2.0f, 0.0f );
-	mLowerBody.position	= XMFLOAT3( 3.0f, 1.0f, 0.0f );
+	mUpperBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
+	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mLowerBody.speed	= 15.0f;
 
 	mWeaponCoolDown		= 0.5f;

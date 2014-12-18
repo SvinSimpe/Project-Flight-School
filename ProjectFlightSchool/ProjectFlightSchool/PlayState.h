@@ -12,16 +12,17 @@ class PlayState : public BaseState
 {
 	// Class members
 	private:
+		AssetID mPlaneAsset;
 
-		AssetID	mPlaneAsset;
-		AssetID	mCubeAsset;
 		AssetID	mTestAsset;
 
 		AssetID	mTestAnimation;
 		AssetID	mTestSkeleton;
 		AssetID	mTestAnimationAnimation;
 
-		AssetID	mTest2dTexture;
+		AssetID mNest1Asset;
+		AssetID mStoneAssets[6];
+		AssetID mTree1Asset;
 
 		Map*		mWorldMap;
 

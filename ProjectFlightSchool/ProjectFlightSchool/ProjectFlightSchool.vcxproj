@@ -89,10 +89,13 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="BaseState.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Map.cpp" />
+    <ClCompile Include="MapNode.cpp" />
+    <ClCompile Include="MapNodeManager.cpp" />
     <ClCompile Include="MapSection.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayState.cpp" />
@@ -105,8 +108,11 @@
   <ItemGroup>
     <ClInclude Include="BaseState.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MapConstants.h" />
+    <ClInclude Include="MapNode.h" />
+    <ClInclude Include="MapNodeManager.h" />
     <ClInclude Include="MapSection.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="KeyDefines.h" />

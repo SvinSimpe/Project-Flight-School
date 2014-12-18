@@ -13,6 +13,7 @@ class MapSection
 		UINT mSectionID;
 		UINT mAssetID;
 
+
 	protected:
 	public:
 		static UINT INDICES[INDEX_COUNT];

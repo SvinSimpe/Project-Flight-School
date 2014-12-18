@@ -3,7 +3,7 @@
 
 LevelExporter::LevelExporter()
 {
-	g_FilePath = "../../../Asset/";
+	g_FilePath = "../../Asset/";
 	g_AssetPath = "../../Asset/";
 	GRIDCOUNT = (15 * 15);
 }
@@ -176,13 +176,15 @@ bool LevelExporter::ExtractCurrentSceneRawData()
 			if (!dagNode.isIntermediateObject())
 			{
 				MFnMesh mesh(dagPath);
-				
-				if(mesh.name() != "gridShape")
+
+				if (mesh.name() != "gridShape")
 					ExtractAndConvertMatrix(mesh, 0);
-				
-				else if(mesh.name() == "gridShape")
-					if(!ExtractGridData(mesh))
+
+				else if (mesh.name() == "gridShape")
+				{
+					if (!ExtractGridData(mesh))
 						return false;
+				}
 			}
 		}
 		dagIter.next();
@@ -191,6 +193,19 @@ bool LevelExporter::ExtractCurrentSceneRawData()
 	return true;
 }
 
+void LevelExporter::GetDimensions(MFnMesh &mesh, UINT* dimensions)
+{
+	MItDependencyGraph dgIt(mesh.object(), MFn::kPolyMesh, MItDependencyGraph::kUpstream, MItDependencyGraph::kBreadthFirst, MItDependencyGraph::kNodeLevel);
+	MObject polyMeshNode = dgIt.currentItem();
+	MFnDependencyNode polyFn(polyMeshNode);
+
+	float tempDimension[2];
+	polyFn.findPlug("width").getValue(tempDimension[0]);
+	polyFn.findPlug("height").getValue(tempDimension[1]);
+
+	dimensions[0] = tempDimension[0];
+	dimensions[1] = tempDimension[1];
+}
 Matrix LevelExporter::ExtractAndConvertMatrix(MFnMesh &mesh, int fauling)
 {
 	Matrix matrix;
@@ -202,23 +217,30 @@ Matrix LevelExporter::ExtractAndConvertMatrix(MFnMesh &mesh, int fauling)
 	//Gets parent name and saves it to "name"
 	if(fauling == 0)
 		sprintf_s(matrix.name, sizeof(matrix.name), "%s%s%s%s", g_AssetPath.c_str(), "bin/", mayaTransform.name().asChar(), ".pfs");
-	
+
 	if(fauling == 1)
 		sprintf_s(matrix.name, sizeof(matrix.name), "%s", mayaTransform.name().asChar());
-
-	MMatrix tempMatrix;
-	tempMatrix = mayaTransform.transformation().asMatrix();
 	
-	for (int i = 0; i < 4; i++)
-	{
-		for (int j = 0; j < 4; j++)
-		{
-			if(j != 2)
-				matrix.transform[i][j] = tempMatrix[i][j];
-			else
-				matrix.transform[i][j] = tempMatrix[i][j] * - 1;
-		}
-	}
+	MVector translate;
+	MEulerRotation rotate;
+	double scale[3];
+
+	translate = mayaTransform.getTranslation(MSpace::kObject);
+	mayaTransform.getRotation(rotate);
+	mayaTransform.getScale(scale);
+
+	matrix.translate[0] = translate.x;
+	matrix.translate[1] = translate.y;
+	matrix.translate[2] = translate.z;
+
+	matrix.rotate[0] = rotate.x;
+	matrix.rotate[1] = rotate.y;
+	matrix.rotate[2] = rotate.z;
+
+	matrix.scale[0] = scale[0];
+	matrix.scale[1] = scale[2];
+	matrix.scale[2] = scale[1];
+
 
 	if(fauling == 0)
 		matrices.push_back(matrix);
@@ -233,10 +255,13 @@ bool LevelExporter::ExtractGridData(MFnMesh &mesh)
 	MFloatPointArray points;
 	MFloatVectorArray normals;
 
-	//Check if gridsize is correct
-
 	MString command = "polyTriangulate -ch 1 " + mesh.name();
-	MGlobal::executeCommand(command);
+	if(!MGlobal::executeCommand(command))
+	{
+		cout << "Couldn't triangulate mesh: " << mesh.name() << endl;
+		cin >> waitingForInput;
+		return false;
+	}
 
 	//Extractic mesh raw data
 	if (!mesh.getPoints(points))
@@ -257,18 +282,18 @@ bool LevelExporter::ExtractGridData(MFnMesh &mesh)
 
 }
 
-void LevelExporter::ConvertGridData(MFnMesh &mesh, MFloatPointArray points, MFloatVectorArray normals)
+void LevelExporter::ConvertGridData(MFnMesh &mesh, MFloatPointArray &points, MFloatVectorArray &normals)
 {
 	MDagPath meshPath = mesh.dagPath();
 	MItMeshPolygon polygon_iter(meshPath);
 
-	int index = 0;
-
+	GetDimensions(mesh, gridData.dimensions);
 	gridData.matrix = ExtractAndConvertMatrix(mesh, 1);
 
 	vertexCount = polygon_iter.count() * 3;
 	gridData.vertices = new Vertex[vertexCount];
 
+	int index = 0;
 	while(!polygon_iter.isDone())
 	{
 		MIntArray indexArray;
@@ -290,6 +315,7 @@ void LevelExporter::ConvertGridData(MFnMesh &mesh, MFloatPointArray points, MFlo
 				gridData.vertices[index + i].Normals[0] = normals[normal_index].x;
 				gridData.vertices[index + i].Normals[1] = normals[normal_index].y;
 				gridData.vertices[index + i].Normals[2] = normals[normal_index].z * -1;
+
 			}
 		}
 		index += 3;
@@ -301,7 +327,7 @@ void LevelExporter::WriteFileToBinary(const char* fileName)
 	string fullPath = CreateExportFile(fileName, ".lp");
 
 	//Open/Creates file
-	ofstream fileOut;
+ 	ofstream fileOut;
 	fileOut.open(fullPath, ios_base::binary);
 	
 	if (!fileOut)
@@ -309,6 +335,7 @@ void LevelExporter::WriteFileToBinary(const char* fileName)
 
 	cout << "Exporting level grid to " << fullPath.c_str() << endl << endl;
 
+	fileOut.write((char*)&gridData.dimensions, sizeof(gridData.dimensions));
 	fileOut.write((char*)&vertexCount, sizeof(UINT)); 
 	fileOut.write((char*)gridData.vertices, sizeof(Vertex) * vertexCount); 
 	fileOut.write((char*)&gridData.matrix, sizeof(Matrix));
@@ -316,7 +343,7 @@ void LevelExporter::WriteFileToBinary(const char* fileName)
 	for (int i = 0; i < matrices.size(); i++)
 	{
 		//Writing matrix info to file
-		fileOut.write((char*)&matrices, sizeof(Matrix));
+		fileOut.write((char*)&matrices[i], sizeof(Matrix));
 	}
 
 	fileOut.close();

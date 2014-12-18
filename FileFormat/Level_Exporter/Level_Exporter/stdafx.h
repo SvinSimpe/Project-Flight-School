@@ -35,6 +35,7 @@ using namespace std;
 #include <maya\MFnCamera.h>
 #include <maya\MFnDependencyNode.h>
 #include <maya\MItDependencyNodes.h>
+#include <maya\MItDependencyGraph.h>
 #include <maya\MPlug.h>
 
 #include <maya\MFnTransform.h>

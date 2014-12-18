@@ -3,7 +3,9 @@
 struct Matrix
 {
 	char name[50];
-	double transform[4][4];
+	float translate[3];
+	float rotate[3];
+	float scale[3];
 };
 
 struct Vertex
@@ -14,6 +16,7 @@ struct Vertex
 
 struct GridData
 {;
+	UINT dimensions[2];
 	Vertex* vertices;
 	Matrix matrix;
 };

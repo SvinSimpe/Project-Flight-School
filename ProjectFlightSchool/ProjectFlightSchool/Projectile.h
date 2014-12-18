@@ -13,6 +13,7 @@ class Projectile
 		float		mSpeed;
 		bool		mIsActive;
 		float		mRotation;
+		float		mLifeTime;
 
 	public:
 		HRESULT Update( float deltaTime );

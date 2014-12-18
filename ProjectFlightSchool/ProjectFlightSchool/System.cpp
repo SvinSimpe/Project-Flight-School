@@ -152,11 +152,11 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 //Release all data used.
 void System::Release()
 {
-	Graphics::GetInstance()->Release();
 	mGame->Release();
 	SAFE_DELETE( mGame );
 	mTimer->Release();
 	SAFE_DELETE( mTimer );
+	Graphics::GetInstance()->Release();
 }
 
 System::System()

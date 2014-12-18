@@ -45,6 +45,7 @@ VS_Out VS_main( VS_In input )
 	}
 
 	output.position = mul( float4( transformedPosition, 1.0f ), worldMatrix );
+	//output.position = mul( float4(input.position, 1.0f ), worldMatrix );
 	output.position = mul( output.position, viewMatrix );
 	output.position = mul( output.position, projectionMatrix );
 

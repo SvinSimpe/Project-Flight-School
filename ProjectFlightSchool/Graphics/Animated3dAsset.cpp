@@ -28,7 +28,7 @@ HRESULT Animated3dAsset::Initialize()
 
 void Animated3dAsset::Release()
 {
-
+	SAFE_RELEASE( mVertexBuffer );
 }
 
 Animated3dAsset::Animated3dAsset()

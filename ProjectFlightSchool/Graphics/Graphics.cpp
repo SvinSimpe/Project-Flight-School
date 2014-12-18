@@ -390,7 +390,7 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 
 	//Map CbufferPerObject
 	CbufferPerObjectAnimated data;
-	data.worldMatrix = DirectX::XMMatrixIdentity();
+	data.worldMatrix = DirectX::XMMatrixRotationY( 1.5f );
 	for( int i = 0; i < NUM_SUPPORTED_JOINTS; i++ )
 		data.boneTransforms[i] = DirectX::XMMatrixIdentity();
 	for( int i = 0; i < skeleton->nrOfJoints; i++ )
@@ -736,12 +736,14 @@ void Graphics::Release()
 	SAFE_RELEASE( mDepthStencilView );
 	SAFE_RELEASE( mCbufferPerFrame );
 	SAFE_RELEASE( mCbufferPerObject );
+	SAFE_RELEASE( mCbufferPerObjectAnimated );
 	SAFE_RELEASE( mPointSamplerState );
 
 	mAssetManager->Release();
 	mStaticEffect->Release();
 	mAnimatedEffect->Release();
 	mCamera->Release();
+	mDeveloperCamera->Release();
 
 	SAFE_DELETE( mAssetManager );
 	SAFE_DELETE( mStaticEffect );

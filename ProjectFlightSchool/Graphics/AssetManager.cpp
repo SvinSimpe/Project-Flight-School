@@ -341,6 +341,21 @@ HRESULT	AssetManager::LoadAnimated3dAsset( ID3D11Device* device, char* fileName,
 
 		myFile.read( (char*)vertices, vertexSize * meshInfo.nrOfVertices );
 
+		for( int i = 0; i < meshInfo.nrOfVertices; i++ )
+		{
+			float normalizer = vertices[i].weights[0] + vertices[i].weights[1] + vertices[i].weights[2] + vertices[i].weights[3];
+			for( int j = 0; j < 4; j++ )
+			{
+				vertices[i].weights[j] /= normalizer;
+			}
+		}
+
+		AnimatedVertex test[100];
+		for( int i = 0; i < 100; i++ )
+		{
+			test[i] = vertices[i];
+		}
+
 		myFile.close();
 
 		AssignAssetId( assetId );
@@ -503,7 +518,7 @@ HRESULT	AssetManager::LoadSkeletonAsset( string filePath, string fileName, Asset
 
 				DirectX::XMFLOAT4 unpack;
 				DirectX::XMStoreFloat4( &unpack, rotation );
-				rotation = DirectX::XMVectorSet( unpack.x, -unpack.y, unpack.z, unpack.w );
+				rotation = DirectX::XMVectorSet( -unpack.x, -unpack.y, unpack.z, unpack.w );
 
 				DirectX::XMStoreFloat4( &unpack, translation );
 				translation = DirectX::XMVectorSet( unpack.x, unpack.y, -unpack.z, unpack.w );
@@ -667,7 +682,7 @@ HRESULT	AssetManager::LoadAnimationAsset( string filePath, string fileName, Asse
 
 					DirectX::XMFLOAT4 unpack;
 					DirectX::XMStoreFloat4( &unpack, rotation );
-					rotation = DirectX::XMVectorSet( unpack.x, -unpack.y, unpack.z, unpack.w );
+					rotation = DirectX::XMVectorSet( -unpack.x, -unpack.y, unpack.z, unpack.w );
 
 					DirectX::XMStoreFloat4( &unpack, translation );
 					translation = DirectX::XMVectorSet( unpack.x, unpack.y, -unpack.z, unpack.w );
@@ -711,200 +726,6 @@ HRESULT	AssetManager::LoadAnimationAsset( string filePath, string fileName, Asse
 	return hr;
 }
 
-AnimationData AssetManager::ImportBinaryAnimData( string directoryPath,string fileName )
-{
-	streampos size;
-	char * memblock;
-
-	ifstream file;
-
-	//this is how the final code should look!
-	file.open( directoryPath + fileName, ios::in | ios::binary | ios::ate );
-	AnimationData tempAnim;
-
-	int lastindex	= fileName.find_last_of( "." );
-	string rawName	= fileName.substr(0, lastindex);
-
-	tempAnim.animationName = rawName;
-	int animLength = 0;
-
-	if( file.is_open() )
-	{
-		size		= file.tellg();
-		memblock	= new char[(unsigned int)size];
-		file.seekg( 0, ios::beg );
-		file.read( memblock, size );
-		file.close();
-
-		cout << "File read" << endl;
-
-		int padding = 0;
-		tempAnim.nrOfJoints = memblock[padding];
-		
-		//memblock should contain nr of joints
-		for( int j = 0; j < tempAnim.nrOfJoints; j++ )
-		{
-			JointAnimation tempJoint;
-
-			if( j == 0 )
-				padding++;
-
-			//following handles jointName
-			string tempName;
-			int childFor = memblock[padding];
-			padding++;
-			for( int i = 0; i < childFor; i++ )
-			{
-				tempName.push_back( memblock[padding] );
-				padding++;
-			}
-			tempJoint.jointName = tempName;
-
-			//following handles parentName
-			string tempParentName;
-			int parentFor = memblock[padding];
-			padding++;
-			for( int i = 0; i < parentFor; i++ )
-			{
-				tempParentName.push_back( memblock[padding] );
-				padding++;
-			}
-			tempJoint.parentName = tempParentName;
-			tempJoint.parentIndex = 0;
-
-			int keys = memblock[padding];
-			padding++;
-
-			float values[16];
-
-			for ( int k = 0; k < keys; k++ )
-			{
-				tempJoint.keys.push_back( memblock[padding] );
-				padding++;
-
-				for ( int m = 0; m < 16; m++ )
-				{
-					int tempCounterValue = (int)memblock[padding];
-					string tempDouble;
-					for ( int w = 0; w < tempCounterValue; w++ )
-					{
-						if ( w == 0 )
-						{
-							padding++;
-						}
-						tempDouble.push_back( memblock[padding] );
-						padding++;
-
-					}
-					values[m] = stof( tempDouble );
-				}
-
-				tempJoint.matricies.push_back( DirectX::XMFLOAT4X4(	values[0], values[1], values[2], values[3],
-																	values[4], values[5], values[6], values[7],
-																	values[8], values[9], values[10], values[11],
-																	values[12], values[13], values[14], values[15] ) );
-			}
-			if(tempJoint.keys.at(tempJoint.keys.size() - 1) > animLength)
-				animLength = tempJoint.keys.at(tempJoint.keys.size() - 1);
-			tempAnim.joints.push_back( tempJoint );
-		}
-		delete[] memblock;
-	}
-	else cout << "Error opening file!" << endl;
-	tempAnim.AnimLength = animLength;
-	return tempAnim;
-}
-
-Skeleton AssetManager::ImportBinarySkelData( string directoryPath, string fileName )
-{
-	streampos size;
-	char * memblock;
-
-	ifstream file;
-
-	//this is how the final code should look!
-	file.open( directoryPath + fileName, ios::in | ios::binary | ios::ate );
-
-	Skeleton tempSkel;
-
-	int lastindex	= fileName.find_last_of(".");
-	string rawName	= fileName.substr(0, lastindex);
-
-	tempSkel.skeletonName = rawName;
-
-	if( file.is_open() )
-	{
-		size = file.tellg();
-		memblock = new char[(unsigned int)size];
-		file.seekg( 0, ios::beg );
-		file.read( memblock, size );
-		file.close();
-
-		cout << "File read" << endl;
-
-		int padding = 0;
-		tempSkel.nrOfJoints = memblock[padding];
-		//memblock should contain nr of joints
-		for( int j = 0; j < tempSkel.nrOfJoints; j++ )
-		{
-			Joint tempJoint;
-
-			if( j == 0 )
-				padding++;
-
-			//following handles jointName
-			string tempName;
-			int childFor = memblock[padding];
-			padding++;
-			for( int i = 0; i < childFor; i++ )
-			{
-				tempName.push_back( memblock[padding] );
-				padding++;
-			}
-			tempJoint.jointName = tempName;
-
-			//following handles parentName
-			string tempParentName;
-			int parentFor = memblock[padding];
-			padding++;
-			for( int i = 0; i < parentFor; i++ )
-			{
-				tempParentName.push_back( memblock[padding] );
-				padding++;
-			}
-			tempJoint.parentName = tempParentName;
-			tempJoint.parentIndex = 0;
-
-			float values[16];
-
-			for( int m = 0; m < 16; m++ )
-			{
-				int tempCounterValue = (int)memblock[padding];
-				string tempDouble;
-				for( int w = 0; w < tempCounterValue; w++ )
-				{
-					if( w == 0 )
-					{
-						padding++;
-					}
-					tempDouble.push_back( memblock[padding] );
-					padding++;
-
-				}
-				values[m] = stof( tempDouble );
-			}
-			tempJoint.originalMatrix =  DirectX::XMFLOAT4X4(	values[0], values[1], values[2], values[3],
-																values[4], values[5], values[6], values[7],
-																values[8], values[9], values[10], values[11],
-																values[12], values[13], values[14], values[15] );
-			tempSkel.joints.push_back( tempJoint );
-		}
-		delete[] memblock;
-	}
-	else cout << "Error opening file!" << endl;
-	return tempSkel;
-}
-
 HRESULT	AssetManager::Initialize( ID3D11Device* device )
 {
 	mAssetIdCounter = 2;
@@ -920,10 +741,14 @@ void AssetManager::Release()
 	{
 		if( typeid( mAssetContainer[i] ) == typeid( Static3dAsset ) )
 			( (Static3dAsset*)mAssetContainer[i] )->Release();
+		else if( typeid( mAssetContainer[i] ) == typeid( Static3dAssetIndexed ) )
+			( (Static3dAssetIndexed*)mAssetContainer[i] )->Release();
 		else if( typeid( mAssetContainer[i] ) == typeid( Animated3dAsset ) )
 			( (Animated3dAsset*)mAssetContainer[i] )->Release();
 		else if( typeid( mAssetContainer[i] ) == typeid( SkeletonAsset ) )
 			( (SkeletonAsset*)mAssetContainer[i] )->Release();
+		else if( typeid( mAssetContainer[i] ) == typeid( AnimationAsset ) )
+			( (AnimationAsset*)mAssetContainer[i] )->Release();
 		else if( typeid( mAssetContainer[i] ) == typeid( Static2dAsset ) )
 			( (Static2dAsset*)mAssetContainer[i] )->Release();
 		SAFE_DELETE( mAssetContainer[i] );

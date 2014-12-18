@@ -37,13 +37,14 @@ class AssetManager
 	private:		
 		bool			AssetExist( char* fileName, AssetID &assetId );	//Returns true and assigns the correct id to assetId if the asset exist.	
 		void			AssignAssetId( AssetID &assetId );					//Assigns the asset an id and increase the mAssetIdCounter.
-		HRESULT			PlaceholderAssets( ID3D11Device* device );
+		HRESULT			PlaceholderAssets( ID3D11Device* device, ID3D11DeviceContext* dc );
 		HRESULT			LoadTextureFromFile ( ID3D11Device* device, ID3D11DeviceContext* dc, const wchar_t* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size = 0 );
-		std::wstring	ConvertCharArrayToWstring( char fileName[] );
+		std::wstring	CharArrayToWstring( char fileName[] );
+
 	protected:
 	public:
 		HRESULT			LoadStatic2dAsset( ID3D11Device* device, ID3D11DeviceContext* dc, char* fileName, AssetID &assetId );
-		HRESULT			LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceContext* dc, char* fileName, AssetID &assetId );
+		HRESULT			LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceContext* dc, std::string filePath, std::string fileName, AssetID &assetId );
 		HRESULT			LoadAnimated3dAsset( ID3D11Device* device, char* fileName, AssetID skeletonId, AssetID &assetId );
 		HRESULT			LoadSkeletonAsset( std::string filePath, std::string fileName, AssetID &assetId );
 		HRESULT			LoadAnimationAsset( std::string filePath, std::string fileName, AssetID &assetId );
@@ -51,7 +52,7 @@ class AssetManager
 		AnimationData	ImportBinaryAnimData( std::string directoryPath, std::string fileName );
 		Skeleton		ImportBinarySkelData( std::string directoryPath, std::string fileName );
 
-		HRESULT		Initialize( ID3D11Device* device );
+		HRESULT		Initialize( ID3D11Device* device, ID3D11DeviceContext* dc );
 		void		Release();
 					AssetManager();
 		virtual		~AssetManager();

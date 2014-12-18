@@ -45,9 +45,9 @@ HRESULT Graphics::LoadStatic2dAsset( char* fileName, AssetID &assetId )
 }
 
 //Load a static 3d asset to the AssetManager.
-HRESULT Graphics::LoadStatic3dAsset( char* fileName, AssetID &assetId )
+HRESULT Graphics::LoadStatic3dAsset( std::string filePath, std::string fileName, AssetID &assetId )
 {
-	return mAssetManager->LoadStatic3dAsset( mDevice, mDeviceContext, fileName, assetId );
+	return mAssetManager->LoadStatic3dAsset( mDevice, mDeviceContext, filePath, fileName, assetId );
 }
 
 HRESULT Graphics::LoadAnimated3dAsset( char* fileName, AssetID skeletonId, AssetID &assetId )
@@ -89,6 +89,14 @@ void Graphics::RenderStatic3dAsset( AssetID assetId )
 	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
+
+	ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_DIFFUSE]] )->mSRV,
+													( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_NORMAL]] )->mSRV,
+													( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_SPECULAR]] )->mSRV,
+												};
+
+	mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+	mDeviceContext->PSSetSamplers( 0, 1, &mPointSamplerState );
 
 	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
 }
@@ -172,35 +180,6 @@ void Graphics::RenderStatic3dAsset( AssetID assetId, XMFLOAT4X4* world )
 	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
-
-	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
-}
-
-void Graphics::RenderStatic3dAsset( AssetID assetId, AssetID textureId )
-{
-	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-
-	UINT32 vertexSize				= sizeof( StaticVertex );
-	UINT32 offset					= 0;
-	ID3D11Buffer* buffersToSet[]	= { ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexBuffer };
-	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
-
-	mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
-
-	mDeviceContext->VSSetShader( mStaticEffect->GetVertexShader(), nullptr, 0 );
-	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->PSSetShader( mStaticEffect->GetPixelShader(), nullptr, 0 );
-
-	//Map CbufferPerObject
-	CbufferPerObject data;
-	data.worldMatrix = DirectX::XMMatrixIdentity();
-	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
-
-	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
-	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[textureId] )->mSRV );
-	mDeviceContext->PSSetSamplers( 0, 1, &mPointSamplerState );
 
 	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
 }
@@ -426,11 +405,14 @@ void Graphics::BeginScene()
 		mCamera->Update();
 
 	static float clearColor[4] = { 0.3f, 0.3f, 0.3f, 1.0f };
+	ID3D11ShaderResourceView* nullSRV[TEXTURES_AMOUNT] = { nullptr, nullptr, nullptr };
 	mDeviceContext->ClearRenderTargetView( mRenderTargetView, clearColor );
 	mDeviceContext->ClearDepthStencilView( mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
 
 	mDeviceContext->OMSetRenderTargets( 1, &mRenderTargetView, mDepthStencilView );
 	mDeviceContext->RSSetViewports( 1, &mStandardView );
+	
+	mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, nullSRV );
 
 	//Map CbufferPerFrame
 	CbufferPerFrame data;
@@ -622,7 +604,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	//AssetManager
 	mAssetManager = new AssetManager;
-	mAssetManager->Initialize( mDevice );
+	mAssetManager->Initialize( mDevice, mDeviceContext );
 
 	//Effect
 	mStaticEffect	= new Effect;

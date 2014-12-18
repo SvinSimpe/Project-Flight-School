@@ -42,6 +42,8 @@ VS_Out VS_main( VS_In input )
 //Pixel
 
 Texture2D<float4> diffuse	: register( t0 );
+Texture2D<float4> normal	: register( t1 );
+Texture2D<float4> specular	: register( t2 );
 SamplerState pointSampler	: register( s0 );
 float4 PS_main( VS_Out input ) : SV_TARGET0
 {

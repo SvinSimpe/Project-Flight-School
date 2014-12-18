@@ -25,7 +25,7 @@ void AssetManager::AssignAssetId( AssetID &assetId )
 	mAssetIdCounter++;
 }
 
-HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
+HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device, ID3D11DeviceContext* dc )
 {
 	HRESULT hr = S_OK;
 
@@ -35,8 +35,13 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 	Static3dAsset* plane;
 	plane				= new Static3dAsset;
 	plane->mAssetId		= 0;
-	plane->mFileName	= "PLANE"; //ADD CORRECT FILENAME HERE
+	plane->mFileName	= "NO PATHPLANE"; //ADD CORRECT FILENAME HERE
 	plane->mVertexCount	= 6;
+
+	for( int i = 0; i < TEXTURES_AMOUNT; i++ )
+	{
+		plane->mTextures[i] = 2;
+	}
 
 	float planeSize = 100.0f;
 
@@ -75,8 +80,13 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 	Static3dAsset* cube;
 	cube = new Static3dAsset;
 	cube->mAssetId		= 1;
-	cube->mFileName		= "CUBE"; //ADD CORRECT FILENAME HERE
+	cube->mFileName		= "NO PATHCUBE"; //ADD CORRECT FILENAME HERE
 	cube->mVertexCount	= 36;
+
+	for( int i = 0; i < TEXTURES_AMOUNT; i++ )
+	{
+		cube->mTextures[i] = 2;
+	}
 
 	float cubeSize = 1.0f;
 
@@ -149,6 +159,24 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 
 	mAssetContainer[1] = cube;
 
+	ID3D11ShaderResourceView* srv = nullptr;
+	ID3D10Texture2D* tex = nullptr;
+
+	hr = LoadTextureFromFile( device, dc, CharArrayToWstring( "../Content/Assets/Textures/burger.png" ).c_str(), (ID3D11Resource**)tex, &srv, NULL );
+	if( FAILED( hr ) )
+	{	
+		//Failed to create the placeholder SRV
+		return hr;
+	}
+
+	Static2dAsset* texture;
+	texture				= new Static2dAsset;
+	texture->mAssetId	= 2;
+	texture->mFileName	= "PLACEHOLDER TEXTURE";
+	texture->mSRV		= srv;
+
+	mAssetContainer[2] = texture;
+
 	return hr;
 }
 
@@ -160,7 +188,7 @@ HRESULT AssetManager::LoadTextureFromFile ( ID3D11Device* device, ID3D11DeviceCo
 	return hr;
 }
 
-std::wstring AssetManager::ConvertCharArrayToWstring( char fileName[] )
+std::wstring AssetManager::CharArrayToWstring( char fileName[] )
 {
 	std::stringstream ss;
 	std::string str;
@@ -189,7 +217,7 @@ HRESULT AssetManager::LoadStatic2dAsset( ID3D11Device* device, ID3D11DeviceConte
 		ID3D11Texture2D* texture = nullptr;
 		AssignAssetId( assetId );
 
-		hr = LoadTextureFromFile( device, dc, ConvertCharArrayToWstring( fileName ).c_str(), (ID3D11Resource**)texture, &srv, NULL );
+		hr = LoadTextureFromFile( device, dc, CharArrayToWstring( fileName ).c_str(), (ID3D11Resource**)texture, &srv, NULL );
 		if(FAILED ( hr ) ) return hr;
 		
 		Static2dAsset* temp;
@@ -204,12 +232,12 @@ HRESULT AssetManager::LoadStatic2dAsset( ID3D11Device* device, ID3D11DeviceConte
 	}
 }
 
-HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceContext* dc, char* fileName, AssetID &assetId )
+HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceContext* dc, std::string filePath, std::string fileName, AssetID &assetId )
 {
 	HRESULT hr = S_OK;
 
 	//If true return to caller because the asset already exist.
-	if( AssetExist( fileName, assetId ) )
+	if( AssetExist( (char*)( filePath + fileName ).c_str(), assetId ) )
 	{
 		return hr;
 	}
@@ -219,11 +247,8 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceConte
 		StaticVertex*	vertices	= nullptr;
 		UINT			nrOfMeshes	= 0;
 		UINT			vertexSize	= sizeof( StaticVertex );
-		string*			diffuse;
-		string*			normal;
-		string*			specular;
 
-		std::ifstream myFile( fileName, std::ios::binary );
+		std::ifstream myFile( ( filePath + fileName ), std::ios::binary );
 
 		if( !myFile )
 		{
@@ -233,10 +258,6 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceConte
 
 		//Read fileheader. Holds information about number of meshes in scene
 		myFile.read( (char*)&nrOfMeshes, sizeof( UINT ) );
-		diffuse = new string[nrOfMeshes];
-		normal = new string[nrOfMeshes];
-		specular = new string[nrOfMeshes];
-		
 
 		for( UINT i = 0; i < nrOfMeshes; i++ )
 		{
@@ -247,12 +268,6 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceConte
 			vertices	= new StaticVertex[meshInfo.nrOfVertices];
 
 			myFile.read( (char*)vertices, vertexSize * meshInfo.nrOfVertices );
-
-			//Creating SRVs from the different texture maps in the mesh info.
-			diffuse[i]		= meshInfo.diffuseMapName;
-			normal[i]		= meshInfo.normalMapName;
-			specular[i]		= meshInfo.specularMapName;
-
 			
 		}
 
@@ -282,6 +297,44 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceConte
 		}
 
 		mAssetContainer.push_back( temp );
+		
+		//Creating SRVs from the different texture maps in the mesh info.
+		std::string tempStr;
+		//Diffuse map
+		if( string( meshInfo.diffuseMapName ) == "N/A" )
+		{
+			( (Static3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_DIFFUSE] = 2;
+		}
+		else
+		{
+			tempStr = filePath + string( meshInfo.diffuseMapName );
+			hr = LoadStatic2dAsset( device, dc, (char*)tempStr.c_str(), ( (Static3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_DIFFUSE] );
+			if( FAILED( hr ) ) return hr;
+		}
+
+		//Normal map
+		if( string( meshInfo.normalMapName ) == "N/A" )
+		{
+			( (Static3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_NORMAL] = 2;
+		}
+		else
+		{
+			tempStr = filePath + string( meshInfo.normalMapName );
+			hr = LoadStatic2dAsset( device, dc, (char*)tempStr.c_str(), ( (Static3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_NORMAL] );
+			if( FAILED( hr ) ) return hr;
+		}
+
+		//Specular map
+		if( string( meshInfo.specularMapName ) == "N/A" )
+		{
+			( (Static3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_SPECULAR] = 2;
+		}
+		else
+		{
+			tempStr = filePath + string( meshInfo.specularMapName );
+			hr = LoadStatic2dAsset( device, dc, (char*)tempStr.c_str(), ( (Static3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_SPECULAR] );
+			if( FAILED( hr ) ) return hr;
+		}
 
 		delete [] vertices;
 
@@ -826,11 +879,11 @@ Skeleton AssetManager::ImportBinarySkelData( string directoryPath, string fileNa
 	return tempSkel;
 }
 
-HRESULT	AssetManager::Initialize( ID3D11Device* device )
+HRESULT	AssetManager::Initialize( ID3D11Device* device, ID3D11DeviceContext* dc )
 {
-	mAssetIdCounter = 2;
+	mAssetIdCounter = 3;
 	mAssetContainer.resize( mAssetIdCounter );
-	PlaceholderAssets( device );
+	PlaceholderAssets( device, dc );
 	
 	return S_OK;
 }

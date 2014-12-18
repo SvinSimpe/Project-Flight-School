@@ -144,10 +144,10 @@ void Player::Fire()
 
 HRESULT Player::Initialize()
 {
-	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "CUBE", mUpperBody.playerModel ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "NO PATH", "CUBE", mUpperBody.playerModel ) ) )
 		OutputDebugString( L"\nERROR\n" );
 
-	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "CUBE", mLowerBody.playerModel ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "NO PATH", "CUBE", mLowerBody.playerModel ) ) )
 		OutputDebugString( L"\nERROR\n" );
 
 

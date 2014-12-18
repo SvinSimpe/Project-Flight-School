@@ -19,9 +19,9 @@ struct Static3dAsset : public AssetBase
 	private:
 	protected:
 	public:
-		UINT						mVertexCount;
-		ID3D11Buffer*				mVertexBuffer;
-		ID3D11ShaderResourceView*	mTextureBuffer[TEXTURES_AMOUNT];
+		UINT			mVertexCount;
+		ID3D11Buffer*	mVertexBuffer;
+		AssetID			mTextures[TEXTURES_AMOUNT];						
 
 	private:
 	protected:

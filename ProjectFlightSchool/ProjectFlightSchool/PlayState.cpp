@@ -60,8 +60,9 @@ HRESULT PlayState::Update( float deltaTime )
 HRESULT PlayState::Render()
 {
 	Graphics::GetInstance()->BeginScene();
-	Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset, mTest2dTexture );
-	Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime );
+	Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset );
+	Graphics::GetInstance()->RenderStatic3dAsset( mTestAsset );
+	//Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime );
 	mPlayer->Render( 0.0f );
 	for( auto& rp : mRemotePlayers )
 	{
@@ -89,9 +90,9 @@ HRESULT PlayState::Initialize()
 {
 	mStateType = STATE_TYPE_PLAY;
 
-	Graphics::GetInstance()->LoadStatic3dAsset( "CUBE", mCubeAsset );
-	Graphics::GetInstance()->LoadStatic3dAsset( "PLANE", mPlaneAsset );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/bin/TestTree/maya_testAsset_tree.pfs", mTestAsset );
+	Graphics::GetInstance()->LoadStatic3dAsset( "NO PATH", "CUBE", mCubeAsset );
+	Graphics::GetInstance()->LoadStatic3dAsset( "NO PATH", "PLANE", mPlaneAsset );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/bin/TestNew/", "1.pfs", mTestAsset );
 
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dTexture );
 	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Animations/testmapanim/", "no90.Skel", mTestSkeleton );

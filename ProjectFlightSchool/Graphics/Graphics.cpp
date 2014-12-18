@@ -172,7 +172,7 @@ void Graphics::RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT3 position,
 	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
 }
 
-void Graphics::RenderStatic3dAsset( AssetID assetId, XMFLOAT4X4* world )
+void Graphics::RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT4X4* world )
 {
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
@@ -198,6 +198,7 @@ void Graphics::RenderStatic3dAsset( AssetID assetId, XMFLOAT4X4* world )
 
 	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
 }
+
 void Graphics::RenderStatic3dAssetIndexed( AssetID assetId, UINT indexCount, UINT startIndex )
 {
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
@@ -209,7 +210,7 @@ void Graphics::RenderStatic3dAssetIndexed( AssetID assetId, UINT indexCount, UIN
 	mDeviceContext->IASetIndexBuffer( ( (Static3dAssetIndexed*)mAssetManager->mAssetContainer[assetId] )->mIndexBuffer, DXGI_FORMAT_R32_UINT, 0 );
 
 	CbufferPerObject data;
-	data.worldMatrix = DirectX::XMMatrixTranspose( XMMatrixIdentity() );
+	data.worldMatrix = DirectX::XMMatrixTranspose( DirectX::XMMatrixIdentity() );
 	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
@@ -217,6 +218,7 @@ void Graphics::RenderStatic3dAssetIndexed( AssetID assetId, UINT indexCount, UIN
 	mDeviceContext->DrawIndexed( indexCount, 0, 0 );
 
 }
+
 void Graphics::RenderStatic3dAsset( AssetID assetId, AssetID textureId )
 {
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
@@ -242,7 +244,6 @@ void Graphics::RenderStatic3dAsset( AssetID assetId, AssetID textureId )
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
 	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[textureId] )->mSRV );
-	mDeviceContext->PSSetSamplers( 0, 1, &mPointSamplerState );
 
 	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
 }
@@ -270,7 +271,12 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 		framesJumped++;
 	}
 
-	//std::cout << framesJumped << std::endl;
+	DirectX::XMMATRIX currentBoneTransforms[NUM_SUPPORTED_JOINTS];
+	for( int i = 0; i < NUM_SUPPORTED_JOINTS; i++ )
+	{
+		currentBoneTransforms[i] = DirectX::XMMatrixIdentity();
+	}
+
 	for( int i = 0; i < (int)skeleton->joints.size(); i++ )
 	{
 		int					lastFrame = 1;
@@ -284,14 +290,14 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 			{
 				if( skeleton->joints.at(i).parentIndex == -1 )
 				{
-					model->mCurrentBoneTransforms[i] = animation->joints.at(i).matricies.at( 0 );
+					currentBoneTransforms[i] = DirectX::XMLoadFloat4x4( &animation->joints.at(i).matricies.at( 0 ) );
 				}
 				else
 				{
 					DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &animation->joints.at(i).matricies.at( 0 ) );
-					DirectX::XMMATRIX parent	= DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[animation->joints.at(i).parentIndex] );
+					DirectX::XMMATRIX parent	= currentBoneTransforms[animation->joints.at(i).parentIndex];
 
-					DirectX::XMStoreFloat4x4( &model->mCurrentBoneTransforms[i], child * parent );
+					currentBoneTransforms[i] = child * parent;
 				}
 			}
 			//Find next keyframe and interpolate previousMatrix with next matrix in animation based on key.
@@ -303,7 +309,6 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 						if( animation->joints.at(i).keys.at(j) == frames )
 						{
 							previousMatrix	= animation->joints.at(i).matricies.at(j);
-							//lastFrame		= frames;
 						}
 					}
 				else
@@ -323,9 +328,9 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 
 					DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &previousMatrix );
 					DirectX::XMMATRIX parent	= animation->joints.at(i).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
-													DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[animation->joints.at(i).parentIndex] );
+													currentBoneTransforms[animation->joints.at(i).parentIndex];
 
-					DirectX::XMStoreFloat4x4( &model->mCurrentBoneTransforms[i], child * parent );
+					currentBoneTransforms[i] = child * parent;
 					break;
 				}
 				else if( animation->joints.at(i).keys.at(j) > framesJumped )
@@ -348,18 +353,18 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 																	DirectX::XMVectorLerp( childComp[2], targetComp[2], interpolation ) );			
 
 					DirectX::XMMATRIX parent	= animation->joints.at(i).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
-													DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[animation->joints.at(i).parentIndex] );
+													currentBoneTransforms[animation->joints.at(i).parentIndex];
 
-					DirectX::XMStoreFloat4x4( &model->mCurrentBoneTransforms[i], child * parent );
+					currentBoneTransforms[i] = child * parent;
 					break;
 				}
 				else
 				{
 					DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &previousMatrix );
 					DirectX::XMMATRIX parent	= animation->joints.at(i).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
-													DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[animation->joints.at(i).parentIndex] );
+													currentBoneTransforms[animation->joints.at(i).parentIndex];
 
-					DirectX::XMStoreFloat4x4( &model->mCurrentBoneTransforms[i], child * parent );
+					currentBoneTransforms[i] = child * parent;
 				}
 			}
 		}
@@ -386,11 +391,11 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 
 	//Map CbufferPerObject
 	CbufferPerObjectAnimated data;
-	data.worldMatrix = DirectX::XMMatrixIdentity();
+	data.worldMatrix = DirectX::XMMatrixRotationY( 1.5f );
 	for( int i = 0; i < NUM_SUPPORTED_JOINTS; i++ )
 		data.boneTransforms[i] = DirectX::XMMatrixIdentity();
 	for( int i = 0; i < skeleton->nrOfJoints; i++ )
-		data.boneTransforms[i] = DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[i] ) );
+		data.boneTransforms[i] = DirectX::XMMatrixTranspose( DirectX::XMMatrixMultiply(  DirectX::XMLoadFloat4x4( &model->mBoneOffsets[i] ), currentBoneTransforms[i] ) );
 	MapBuffer( mCbufferPerObjectAnimated, &data, sizeof( CbufferPerObjectAnimated ) );
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObjectAnimated );
@@ -439,22 +444,22 @@ void Graphics::SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositi
 	mousePositionY	= ( ( 2.0f * -mousePositionY ) / mScreenHeight + 1.0f );
 }
 
-void Graphics::SetInverseViewMatrix( XMMATRIX &inverseViewMatrix )
+void Graphics::SetInverseViewMatrix( DirectX::XMMATRIX &inverseViewMatrix )
 {
 	inverseViewMatrix = mCamera->GetInverseViewMatrix();
 }
 
-void Graphics::SetInverseProjectionMatrix( XMMATRIX &projectionViewMatrix )
+void Graphics::SetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatrix )
 {
 	projectionViewMatrix = mCamera->GetInverseProjectionMatrix();
 }
 
-void Graphics::SetEyePosition( XMFLOAT3 &eyePosition )
+void Graphics::SetEyePosition( DirectX::XMFLOAT3 &eyePosition )
 {
 	mCamera->SetEyePosition( eyePosition );
 }
 
-void Graphics::SetFocus( XMFLOAT3 &focusPoint )
+void Graphics::SetFocus( DirectX::XMFLOAT3 &focusPoint )
 {
 	mCamera->SetFocus( focusPoint );
 }
@@ -492,12 +497,13 @@ void Graphics::BeginScene()
 	MapBuffer( mCbufferPerFrame, &data, sizeof( CbufferPerFrame ) );
 
 	mDeviceContext->VSSetConstantBuffers( 0, 1, &mCbufferPerFrame );
+	mDeviceContext->PSSetSamplers( 0, 1, &mPointSamplerState );
 }
 
 //Finalize rendering.
 void Graphics::EndScene()
 {
-	mSwapChain->Present( 1, 0 );
+	mSwapChain->Present( 0, 0 );
 }
 
 //Singleton for the Graphics dll.
@@ -510,8 +516,6 @@ Graphics* Graphics::GetInstance()
 //Initialize graphics interfaces.
 HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 {
-	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
-
 	mHWnd			= hWnd;
 	mScreenWidth	= screenWidth;
 	mScreenHeight	= screenHeight;
@@ -734,12 +738,14 @@ void Graphics::Release()
 	SAFE_RELEASE( mDepthStencilView );
 	SAFE_RELEASE( mCbufferPerFrame );
 	SAFE_RELEASE( mCbufferPerObject );
+	SAFE_RELEASE( mCbufferPerObjectAnimated );
 	SAFE_RELEASE( mPointSamplerState );
 
 	mAssetManager->Release();
 	mStaticEffect->Release();
 	mAnimatedEffect->Release();
 	mCamera->Release();
+	mDeveloperCamera->Release();
 
 	SAFE_DELETE( mAssetManager );
 	SAFE_DELETE( mStaticEffect );

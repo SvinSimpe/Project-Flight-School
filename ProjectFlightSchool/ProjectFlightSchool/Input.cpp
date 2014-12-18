@@ -73,7 +73,7 @@ void Input::Update( LPARAM lParam )
 				Graphics::GetInstance()->SetNDCSpaceCoordinates( mouseXCoord, mouseYCoord );
 				float viewSpaceZ	= 0.0f; 
 
-				mCurrentNDCMousePos = XMVectorSet( mouseXCoord, mouseYCoord, 0.0f, 1.0f );				
+				mCurrentNDCMousePos = DirectX::XMVectorSet( mouseXCoord, mouseYCoord, 0.0f, 1.0f );				
 			}
 
 			break;

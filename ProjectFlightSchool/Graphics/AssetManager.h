@@ -56,9 +56,6 @@ class AssetManager
 		HRESULT			LoadSkeletonAsset( std::string filePath, std::string fileName, AssetID &assetId );
 		HRESULT			LoadAnimationAsset( std::string filePath, std::string fileName, AssetID &assetId );
 
-		AnimationData	ImportBinaryAnimData( std::string directoryPath, std::string fileName );
-		Skeleton		ImportBinarySkelData( std::string directoryPath, std::string fileName );
-
 		HRESULT		Initialize( ID3D11Device* device );
 		void		Release();
 					AssetManager();

@@ -296,7 +296,7 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 				}
 				else if( animation->joints.at(i).keys.at(j) > framesJumped )
 				{
-					float interpolation					=	(float)( animationTime * 60.0f - lastFrame ) /
+					float interpolation					=	(float)( framesJumped - lastFrame ) /
 															(float)( animation->joints.at(i).keys.at(j) - lastFrame );
 
 					DirectX::XMMATRIX targetMatrix		= DirectX::XMLoadFloat4x4( &animation->joints.at(i).matricies.at(j) );

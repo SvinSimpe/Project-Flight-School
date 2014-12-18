@@ -92,11 +92,11 @@ HRESULT Player::Update( float deltaTime )
 {
 	HandleInput( deltaTime );
 
-	mUpperBody.position.x += mLowerBody.direction.x * mLowerBody.speed;
-	mUpperBody.position.z += mLowerBody.direction.z * mLowerBody.speed;
+	mUpperBody.position.x += mLowerBody.direction.x * mLowerBody.speed * deltaTime;
+	mUpperBody.position.z += mLowerBody.direction.z * mLowerBody.speed * deltaTime;
 
-	mLowerBody.position.x += mLowerBody.direction.x * mLowerBody.speed;
-	mLowerBody.position.z += mLowerBody.direction.z * mLowerBody.speed;
+	mLowerBody.position.x += mLowerBody.direction.x * mLowerBody.speed * deltaTime;
+	mLowerBody.position.z += mLowerBody.direction.z * mLowerBody.speed * deltaTime;
 
 	///Lock camera position to player
 	XMFLOAT3 cameraPosition;
@@ -158,7 +158,7 @@ HRESULT Player::Initialize()
 
 	mUpperBody.position	= XMFLOAT3( 3.0f, 2.0f, 0.0f );
 	mLowerBody.position	= XMFLOAT3( 3.0f, 1.0f, 0.0f );
-	mLowerBody.speed	= 0.2f;
+	mLowerBody.speed	= 15.0f;
 
 	mWeaponCoolDown		= 0.5f;
 

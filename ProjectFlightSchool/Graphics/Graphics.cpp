@@ -101,7 +101,6 @@ void Graphics::RenderStatic3dAsset( AssetID assetId )
 												};
 
 	mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
-	mDeviceContext->PSSetSamplers( 0, 1, &mPointSamplerState );
 
 	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
 }
@@ -361,13 +360,14 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObjectAnimated );
 
-	mDeviceContext->Draw( model->mVertexCount, 0 );
-	//for( int i = 0; i < skeleton->nrOfJoints; i++ )
-	//{	
-		//DirectX::XMStoreFloat4x4( &model->mCurrentBoneTransforms[i], DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( &model->mCurrentBoneTransforms[i] ) ) );
+	ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[model->mTextures[TEXTURES_DIFFUSE]] )->mSRV,
+													( (Static2dAsset*)mAssetManager->mAssetContainer[model->mTextures[TEXTURES_NORMAL]] )->mSRV,
+													( (Static2dAsset*)mAssetManager->mAssetContainer[model->mTextures[TEXTURES_SPECULAR]] )->mSRV,
+												};
 
-		//RenderStatic3dAsset( 0, &model->mCurrentBoneTransforms[i] );
-	//}
+	mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+
+	mDeviceContext->Draw( model->mVertexCount, 0 );
 }
 
 Camera* Graphics::GetCamera() const
@@ -467,7 +467,7 @@ void Graphics::BeginScene()
 //Finalize rendering.
 void Graphics::EndScene()
 {
-	mSwapChain->Present( 0, 0 );
+	mSwapChain->Present( 1, 0 );
 }
 
 //Singleton for the Graphics dll.

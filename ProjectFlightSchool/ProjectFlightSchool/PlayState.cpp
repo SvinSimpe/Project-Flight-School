@@ -100,7 +100,7 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dTexture );
 	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Animations/skelTest/", "raptor.Skel", mTestSkeleton );
 	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Animations/skelTest/scaledScenetest.apfs", mTestSkeleton, mTestAnimation );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Animations/skelTest/", "raptor_run.PaMan", mTestAnimationAnimation );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Animations/skelTest/", "raptor_attack.PaMan", mTestAnimationAnimation );
 
 	mAnimationTime = 1.0f;
 

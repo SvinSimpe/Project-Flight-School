@@ -53,22 +53,27 @@ HRESULT PlayState::Update( float deltaTime )
 {
 	HandleDeveloperCameraInput();
 	mPlayer->Update( deltaTime );
-	mAnimationTime += deltaTime;
+	mAnimationTime += deltaTime * 0.2f;
 	return S_OK;
 }
 
 HRESULT PlayState::Render()
 {
 	Graphics::GetInstance()->BeginScene();
+
 	Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset );
 	Graphics::GetInstance()->RenderStatic3dAsset( mTestAsset );
+
 	//Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime );
+
 	mPlayer->Render( 0.0f );
+	//mWorldMap->Render( 0.0f );
 	for( auto& rp : mRemotePlayers )
 	{
 		if( rp )
 			rp->Render( 0.0f );
 	}
+
 	Graphics::GetInstance()->EndScene();
 
 	return S_OK;
@@ -90,20 +95,22 @@ HRESULT PlayState::Initialize()
 {
 	mStateType = STATE_TYPE_PLAY;
 
+
 	Graphics::GetInstance()->LoadStatic3dAsset( "NO PATH", "CUBE", mCubeAsset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "NO PATH", "PLANE", mPlaneAsset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/bin/TestNew/", "1.pfs", mTestAsset );
-
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dTexture );
-	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Animations/testmapanim/", "no90.Skel", mTestSkeleton );
-	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Animations/testmapanim/test_stick.apfs", mTestSkeleton, mTestAnimation );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Animations/testmapanim/", "no90.PaMan", mTestAnimationAnimation );
-
+	//Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Animations/skelTest/", "raptor.Skel", mTestSkeleton );
+	//Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Animations/skelTest/", "scaledScenetest.apfs", mTestSkeleton, mTestAnimation );
+	//Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Animations/skelTest/", "raptor_run.PaMan", mTestAnimationAnimation );
 
 	mAnimationTime = 1.0f;
 
 	mPlayer = new Player();
 	mPlayer->Initialize();
+
+	//mWorldMap = new Map();
+	//mWorldMap->Initialize( 8.0f, 24 );
 
 	EventManager::GetInstance()->AddListener( &PlayState::RemoteUpdate, this, Event_Remote_Player_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::RemoteUpdate, this, Event_Remote_Player_Left::GUID );
@@ -114,12 +121,16 @@ HRESULT PlayState::Initialize()
 void PlayState::Release()
 {
 	mPlayer->Release();
+	mWorldMap->Release();
+	SAFE_DELETE( mWorldMap );
+
 	for( auto& rp : mRemotePlayers )
 	{
 		rp->Release();
 		SAFE_DELETE( rp );
 	}
 	mRemotePlayers.clear();
+
 }
 
 PlayState::PlayState()

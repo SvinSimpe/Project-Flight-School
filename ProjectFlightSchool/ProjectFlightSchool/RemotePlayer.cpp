@@ -5,9 +5,12 @@ void RemotePlayer::RemoteUpdate( IEventPtr newEvent )
 	if ( newEvent->GetEventType() == Event_Remote_Player_Update::GUID )
 	{
 		std::shared_ptr<Event_Remote_Player_Update>data	= std::static_pointer_cast<Event_Remote_Player_Update>( newEvent );
-		mLowerBody.position		= data->LowerBodyPos();
-		mUpperBody.position		= data->UpperBodyPos();
-		mUpperBody.direction	= data->Direction();
+		if ( mID == data->ID() )
+		{
+			mLowerBody.position		= data->LowerBodyPos();
+			mUpperBody.position		= data->UpperBodyPos();
+			mUpperBody.direction	= data->Direction();
+		}
 	}
 }
 

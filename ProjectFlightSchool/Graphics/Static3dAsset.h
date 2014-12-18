@@ -3,16 +3,13 @@
 
 #include "AssetBase.h"
 
-enum TEXTURES
-{
-	TEXTURES_DIFFUSE,
-	TEXTURES_NORMAL,
-	TEXTURES_SPECULAR,
+#define	TEXTURES_DIFFUSE 0
+#define	TEXTURES_NORMAL 1
+#define	TEXTURES_SPECULAR 2
 
 
-	//Add new items above this comment
-	TEXTURES_AMOUNT
-};
+//Add new items above this comment
+#define	TEXTURES_AMOUNT 3
 
 struct Static3dAsset : public AssetBase
 {

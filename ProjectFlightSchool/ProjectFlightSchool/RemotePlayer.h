@@ -25,9 +25,9 @@ class RemotePlayer
 	// Member variables
 	private:
 	protected:
-		int			mID;
-		UpperBody	mUpperBody;
-		LowerBody	mLowerBody;
+		unsigned int	mID;
+		UpperBody		mUpperBody;
+		LowerBody		mLowerBody;
 	public:
 
 	// Member functions

@@ -31,6 +31,15 @@
     <Filter Include="EventSystem\Source Files">
       <UniqueIdentifier>{15ffd449-0730-495c-af4f-bfe1f37621a2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Worldmap">
+      <UniqueIdentifier>{aef1d3ec-85fc-4e14-91f6-82b35837bf98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Worldmap\Header Files">
+      <UniqueIdentifier>{344ffafb-971f-4e5a-a087-f331675a386f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Worldmap\SourceFiles">
+      <UniqueIdentifier>{e41cc565-030d-4602-8800-643361f5d6cc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -81,12 +90,19 @@
     <ClCompile Include="Timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MapSection.cpp">
+      <Filter>Worldmap\SourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="Map.cpp">
+      <Filter>Worldmap\SourceFiles</Filter>
+    </ClCompile>
     <ClCompile Include="RemotePlayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Projectile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
@@ -130,6 +146,15 @@
     </ClInclude>
     <ClInclude Include="Timer.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MapSection.h">
+      <Filter>Worldmap\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Map.h">
+      <Filter>Worldmap\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MapConstants.h">
+      <Filter>Worldmap\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RemotePlayer.h">
       <Filter>Header Files</Filter>

@@ -10,6 +10,7 @@ struct Message
 
 struct EvPlayerMoved
 {
+	unsigned int id;
 	DirectX::XMFLOAT3 lowerBody;
 	DirectX::XMFLOAT3 upperBody;
 	DirectX::XMFLOAT3 direction;

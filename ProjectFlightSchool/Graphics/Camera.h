@@ -4,16 +4,16 @@
 #include "CameraInfo.h"
 #include <d3d11.h>
 
-using namespace DirectX;
+
 
 class Camera
 {
 	private:
-		XMFLOAT4	mPos;
-		XMFLOAT4	mUp;
-		XMFLOAT4	mFocusPoint;
-		XMFLOAT4X4	mViewMatrix;
-		XMFLOAT4X4	mProjMatrix;
+		DirectX::XMFLOAT4	mPos;
+		DirectX::XMFLOAT4	mUp;
+		DirectX::XMFLOAT4	mFocusPoint;
+		DirectX::XMFLOAT4X4	mViewMatrix;
+		DirectX::XMFLOAT4X4	mProjMatrix;
 
 		float mNearZ;
 		float mFarZ;
@@ -30,16 +30,16 @@ class Camera
 	public:
 		bool Update();
 	
-		void SetUp( XMFLOAT4 up );
+		void SetUp( DirectX::XMFLOAT4 up );
 
-		XMMATRIX GetViewMatrix()		const;
-		XMMATRIX GetProjMatrix()		const;	
-		XMMATRIX GetInverseViewMatrix() const;
-		XMMATRIX GetInverseProjectionMatrix() const;
+		DirectX::XMMATRIX GetViewMatrix()		const;
+		DirectX::XMMATRIX GetProjMatrix()		const;	
+		DirectX::XMMATRIX GetInverseViewMatrix() const;
+		DirectX::XMMATRIX GetInverseProjectionMatrix() const;
 
-		XMFLOAT4	GetPos()		const;
-		XMFLOAT4	GetUp()			const;
-		XMFLOAT4	GetFocusPoint() const;
+		DirectX::XMFLOAT4	GetPos()		const;
+		DirectX::XMFLOAT4	GetUp()			const;
+		DirectX::XMFLOAT4	GetFocusPoint() const;
 
 		float GetNearZ()			const;
 		float GetFarZ()				const;
@@ -48,8 +48,8 @@ class Camera
 		float GetWidth()			const;
 		float GetHeight()			const;
 
-		void SetEyePosition( XMFLOAT3 &eyePosition );
-		void SetFocus( XMFLOAT3 &focusPoint );
+		void SetEyePosition( DirectX::XMFLOAT3 &eyePosition );
+		void SetFocus( DirectX::XMFLOAT3 &focusPoint );
 
 		void ZoomIn();
 		void ZoomOut();

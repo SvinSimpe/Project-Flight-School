@@ -28,6 +28,7 @@ void Client::PlayerMoved( IEventPtr newEvent )
 		if ( mServerSocket != INVALID_SOCKET )
 		{
 			EvPlayerMoved msg;
+			msg.id			= mID;
 			msg.lowerBody	= data->LowerBodyPos();
 			msg.upperBody	= data->UpperBodyPos();
 			msg.direction	= data->Direction();
@@ -72,7 +73,6 @@ bool Client::Connect()
 	}
 
 	printf( "Connected to: %d\n", mServerSocket );
-	mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_JOINED, 0 ); // The client "announces" itself to the server, and by extension, the other clients
 
 	return true;
 }
@@ -82,6 +82,8 @@ bool Client::Run()
 	EventManager::GetInstance()->AddListener( &Client::PlayerMoved, this, Event_Player_Moved::GUID );
 
 	std::thread listen( &Client::ReceiveLoop, this );
+
+	mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_JOINED, 0 ); // The client "announces" itself to the server, and by extension, the other clients
 
 	listen.join();
 

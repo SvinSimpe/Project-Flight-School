@@ -52,7 +52,7 @@ void Client::HandlePkg( Package<T>* p )
 		{
 			//printf("Eventet från servern var Event_Player_Moved och den innehöll positionerna:\n" ); // %f, %f, %f och %f, %f, %f
 			EvPlayerMoved msg = (EvPlayerMoved&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Update( mID, msg.lowerBody, msg.upperBody, msg.direction ) );
+			IEventPtr E1( new Event_Remote_Player_Update( msg.id, msg.lowerBody, msg.upperBody, msg.direction ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
@@ -70,6 +70,13 @@ void Client::HandlePkg( Package<T>* p )
 			IEventPtr E1( new Event_Remote_Player_Left( msg.ID ) );
 			EventManager::GetInstance()->TriggerEvent( E1 );
 			printf( "Remote player with ID: %d left.\n", msg.ID );
+		}
+			break;
+		case Net_Event::YOUR_ID:
+		{
+			EvPlayerConnection msg	= (EvPlayerConnection&)p->body.content;
+			mID						= msg.ID;
+			printf( "Your id is %d.\n", msg.ID );
 		}
 			break;
 		default:

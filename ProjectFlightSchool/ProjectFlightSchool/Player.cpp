@@ -63,8 +63,13 @@ void Player::HandleInput( float deltaTime )
 	mUpperBody.direction.y = -radians;
 	mUpperBody.direction.z = 0.0f;
 
-	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_SPACE) )
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_SPACE) && mWeaponCoolDown <= 0.0f )
+	{
 		Fire();
+		mWeaponCoolDown = 0.2f;
+	}
+	else
+		mWeaponCoolDown -= deltaTime;
 }
 
 void Player::Move( XMFLOAT3 direction )
@@ -151,9 +156,11 @@ HRESULT Player::Initialize()
 		OutputDebugString( L"\nERROR\n" );
 
 
-	mUpperBody.position	= XMFLOAT3( 3.0f, 1.0f, 0.0f );
-	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
+	mUpperBody.position	= XMFLOAT3( 3.0f, 2.0f, 0.0f );
+	mLowerBody.position	= XMFLOAT3( 3.0f, 1.0f, 0.0f );
 	mLowerBody.speed	= 0.2f;
+
+	mWeaponCoolDown		= 0.5f;
 
 	//Fill up on Projectiles
 	for ( size_t i = 0; i < 2000; i++ )
@@ -170,8 +177,6 @@ void Player::Release()
 {
 	for ( size_t i = 0; i < mProjectiles.size(); i++ )
 		SAFE_DELETE( mProjectiles.at(i) );
-	
-
 }
 
 Player::Player()
@@ -185,6 +190,7 @@ Player::Player()
 	mLowerBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mLowerBody.speed		= 0.0f;
 
+	mWeaponCoolDown			= 0.0f;
 }
 
 Player::~Player()

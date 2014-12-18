@@ -84,10 +84,10 @@ class LIBRARY_EXPORT Graphics
 		void	ZoomOutDeveloperCamera();
 
 		void SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY );
-		void SetInverseViewMatrix( XMMATRIX &inverseViewMatrix );
-		void SetInverseProjectionMatrix( XMMATRIX &projectionViewMatrix );
-		void SetEyePosition( XMFLOAT3 &eyePosition );
-		void SetFocus( XMFLOAT3 &focusPoint );
+		void SetInverseViewMatrix( DirectX::XMMATRIX &inverseViewMatrix );
+		void SetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatrix );
+		void SetEyePosition( DirectX::XMFLOAT3 &eyePosition );
+		void SetFocus( DirectX::XMFLOAT3 &focusPoint );
 
 		void	BeginScene();
 		void	EndScene();

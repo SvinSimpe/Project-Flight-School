@@ -172,7 +172,7 @@ void Graphics::RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT3 position,
 	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
 }
 
-void Graphics::RenderStatic3dAsset( AssetID assetId, XMFLOAT4X4* world )
+void Graphics::RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT4X4* world )
 {
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
@@ -198,6 +198,7 @@ void Graphics::RenderStatic3dAsset( AssetID assetId, XMFLOAT4X4* world )
 
 	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
 }
+
 void Graphics::RenderStatic3dAssetIndexed( AssetID assetId, UINT indexCount, UINT startIndex )
 {
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
@@ -209,7 +210,7 @@ void Graphics::RenderStatic3dAssetIndexed( AssetID assetId, UINT indexCount, UIN
 	mDeviceContext->IASetIndexBuffer( ( (Static3dAssetIndexed*)mAssetManager->mAssetContainer[assetId] )->mIndexBuffer, DXGI_FORMAT_R32_UINT, 0 );
 
 	CbufferPerObject data;
-	data.worldMatrix = DirectX::XMMatrixTranspose( XMMatrixIdentity() );
+	data.worldMatrix = DirectX::XMMatrixTranspose( DirectX::XMMatrixIdentity() );
 	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
@@ -217,6 +218,7 @@ void Graphics::RenderStatic3dAssetIndexed( AssetID assetId, UINT indexCount, UIN
 	mDeviceContext->DrawIndexed( indexCount, 0, 0 );
 
 }
+
 void Graphics::RenderStatic3dAsset( AssetID assetId, AssetID textureId )
 {
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
@@ -242,7 +244,6 @@ void Graphics::RenderStatic3dAsset( AssetID assetId, AssetID textureId )
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
 	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[textureId] )->mSRV );
-	mDeviceContext->PSSetSamplers( 0, 1, &mPointSamplerState );
 
 	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
 }
@@ -443,22 +444,22 @@ void Graphics::SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositi
 	mousePositionY	= ( ( 2.0f * -mousePositionY ) / mScreenHeight + 1.0f );
 }
 
-void Graphics::SetInverseViewMatrix( XMMATRIX &inverseViewMatrix )
+void Graphics::SetInverseViewMatrix( DirectX::XMMATRIX &inverseViewMatrix )
 {
 	inverseViewMatrix = mCamera->GetInverseViewMatrix();
 }
 
-void Graphics::SetInverseProjectionMatrix( XMMATRIX &projectionViewMatrix )
+void Graphics::SetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatrix )
 {
 	projectionViewMatrix = mCamera->GetInverseProjectionMatrix();
 }
 
-void Graphics::SetEyePosition( XMFLOAT3 &eyePosition )
+void Graphics::SetEyePosition( DirectX::XMFLOAT3 &eyePosition )
 {
 	mCamera->SetEyePosition( eyePosition );
 }
 
-void Graphics::SetFocus( XMFLOAT3 &focusPoint )
+void Graphics::SetFocus( DirectX::XMFLOAT3 &focusPoint )
 {
 	mCamera->SetFocus( focusPoint );
 }
@@ -485,21 +486,24 @@ void Graphics::BeginScene()
 	{
 		data.viewMatrix			= mDeveloperCamera->GetViewMatrix();
 		data.projectionMatrix	= mDeveloperCamera->GetProjMatrix();
+		data.cameraPosition		= mDeveloperCamera->GetPos();
 	}
 	else
 	{
 		data.viewMatrix			= mCamera->GetViewMatrix();
 		data.projectionMatrix	= mCamera->GetProjMatrix();
+		data.cameraPosition		= mCamera->GetPos();
 	}
 	MapBuffer( mCbufferPerFrame, &data, sizeof( CbufferPerFrame ) );
 
 	mDeviceContext->VSSetConstantBuffers( 0, 1, &mCbufferPerFrame );
+	mDeviceContext->PSSetSamplers( 0, 1, &mPointSamplerState );
 }
 
 //Finalize rendering.
 void Graphics::EndScene()
 {
-	mSwapChain->Present( 1, 0 );
+	mSwapChain->Present( 0, 0 );
 }
 
 //Singleton for the Graphics dll.
@@ -512,8 +516,6 @@ Graphics* Graphics::GetInstance()
 //Initialize graphics interfaces.
 HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 {
-	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
-
 	mHWnd			= hWnd;
 	mScreenWidth	= screenWidth;
 	mScreenHeight	= screenHeight;

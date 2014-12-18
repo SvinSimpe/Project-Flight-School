@@ -53,7 +53,7 @@ HRESULT PlayState::Update( float deltaTime )
 {
 	HandleDeveloperCameraInput();
 	mPlayer->Update( deltaTime );
-	mAnimationTime += deltaTime * 2.0f;
+	mAnimationTime += deltaTime * 0.2f;
 	return S_OK;
 }
 
@@ -62,11 +62,10 @@ HRESULT PlayState::Render()
 	Graphics::GetInstance()->BeginScene();
 
 	//Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset );
-	mPlayer->Render( 0.0f );
 	Graphics::GetInstance()->RenderStatic3dAsset( mCubeAsset, mTest2dTexture );
 	Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime );
 	mPlayer->Render( 0.0f );
-	mWorldMap->Render( 0.0f );
+	//mWorldMap->Render( 0.0f );
 	for( auto& rp : mRemotePlayers )
 	{
 		if( rp )
@@ -101,7 +100,7 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dTexture );
 	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Animations/skelTest/", "raptor.Skel", mTestSkeleton );
 	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Animations/skelTest/scaledScenetest.apfs", mTestSkeleton, mTestAnimation );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Animations/skelTest/", "raptor_idle.PaMan", mTestAnimationAnimation );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Animations/skelTest/", "raptor_run.PaMan", mTestAnimationAnimation );
 
 	mAnimationTime = 1.0f;
 

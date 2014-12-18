@@ -2,51 +2,51 @@
 
 bool Camera::Update()
 {
-	XMVECTOR vecPos		= XMLoadFloat4( &mPos );
-	XMVECTOR vecFocus	= XMLoadFloat4( &mFocusPoint );
-	XMVECTOR vecUp		= XMLoadFloat4( &mUp );
+	DirectX::XMVECTOR vecPos	= DirectX::XMLoadFloat4( &mPos );
+	DirectX::XMVECTOR vecFocus	= DirectX::XMLoadFloat4( &mFocusPoint );
+	DirectX::XMVECTOR vecUp		= DirectX::XMLoadFloat4( &mUp );
 
-	XMStoreFloat4x4( &mViewMatrix, XMMatrixLookAtLH( vecPos, vecFocus, vecUp ) );
+	DirectX::XMStoreFloat4x4( &mViewMatrix, DirectX::XMMatrixLookAtLH( vecPos, vecFocus, vecUp ) );
 
 	return true;
 }
 
-void Camera::SetUp(XMFLOAT4 up)
+void Camera::SetUp( DirectX::XMFLOAT4 up )
 {
 	mUp = up;
 }
 
-XMMATRIX Camera::GetViewMatrix() const
+DirectX::XMMATRIX Camera::GetViewMatrix() const
 {
-	return XMMatrixTranspose( XMLoadFloat4x4( &mViewMatrix ) );
+	return DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( &mViewMatrix ) );
 }
 
-XMMATRIX Camera::GetInverseViewMatrix() const
+DirectX::XMMATRIX Camera::GetInverseViewMatrix() const
 {
-	return XMMatrixInverse( nullptr, XMLoadFloat4x4( &mViewMatrix ) );
+	return DirectX::XMMatrixInverse( nullptr, DirectX::XMLoadFloat4x4( &mViewMatrix ) );
 }
 
-XMMATRIX Camera::GetInverseProjectionMatrix() const
+DirectX::XMMATRIX Camera::GetInverseProjectionMatrix() const
 {
-	return  XMMatrixInverse( nullptr, XMLoadFloat4x4( &mProjMatrix ) );
+	return  DirectX::XMMatrixInverse( nullptr, DirectX::XMLoadFloat4x4( &mProjMatrix ) );
 }
 
-XMMATRIX Camera::GetProjMatrix() const
+DirectX::XMMATRIX Camera::GetProjMatrix() const
 {
-	return XMMatrixTranspose( XMLoadFloat4x4( &mProjMatrix ) );
+	return DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( &mProjMatrix ) );
 }
 
-XMFLOAT4 Camera::GetPos() const
+DirectX::XMFLOAT4 Camera::GetPos() const
 {
 	return mPos;
 }
 
-XMFLOAT4 Camera::GetUp()	const
+DirectX::XMFLOAT4 Camera::GetUp()	const
 {
 	return mUp;
 }
 
-XMFLOAT4 Camera::GetFocusPoint() const
+DirectX::XMFLOAT4 Camera::GetFocusPoint() const
 {
 	return mFocusPoint;
 }
@@ -81,14 +81,14 @@ float Camera::GetHeight() const
 	return mHeight;
 }
 
-void Camera::SetEyePosition( XMFLOAT3 &eyePosition )
+void Camera::SetEyePosition( DirectX::XMFLOAT3 &eyePosition )
 {
-	mPos = XMFLOAT4( eyePosition.x, eyePosition.y, eyePosition.z, 1.0f );
+	mPos = DirectX::XMFLOAT4( eyePosition.x, eyePosition.y, eyePosition.z, 1.0f );
 }
 
-void Camera::SetFocus( XMFLOAT3 &focusPoint )
+void Camera::SetFocus( DirectX::XMFLOAT3 &focusPoint )
 {
-	mFocusPoint = XMFLOAT4( focusPoint.x, focusPoint.y, focusPoint.z, 1.0f );
+	mFocusPoint = DirectX::XMFLOAT4( focusPoint.x, focusPoint.y, focusPoint.z, 1.0f );
 }
 
 void Camera::ZoomIn()
@@ -116,12 +116,12 @@ HRESULT Camera::Initialize( CameraInfo* cameraInfo )
 	mHeight			= cameraInfo->height;
 	mAspectRatio	= mWidth/mHeight;
 
-	XMVECTOR vecPos		= XMLoadFloat4( &mPos );
-	XMVECTOR vecFocus	= XMLoadFloat4( &mFocusPoint );
-	XMVECTOR vecUp		= XMLoadFloat4( &mUp );
+	DirectX::XMVECTOR vecPos	= DirectX::XMLoadFloat4( &mPos );
+	DirectX::XMVECTOR vecFocus	= DirectX::XMLoadFloat4( &mFocusPoint );
+	DirectX::XMVECTOR vecUp		= DirectX::XMLoadFloat4( &mUp );
 
-	XMStoreFloat4x4( &mViewMatrix, XMMatrixLookAtLH( vecPos, vecFocus, vecUp ) );
-	XMStoreFloat4x4( &mProjMatrix, XMMatrixPerspectiveFovLH( mFoV, mAspectRatio, mNearZ, mFarZ ) );
+	DirectX::XMStoreFloat4x4( &mViewMatrix, DirectX::XMMatrixLookAtLH( vecPos, vecFocus, vecUp ) );
+	DirectX::XMStoreFloat4x4( &mProjMatrix, DirectX::XMMatrixPerspectiveFovLH( mFoV, mAspectRatio, mNearZ, mFarZ ) );
 
 	return S_OK;
 }
@@ -132,9 +132,9 @@ void Camera::Release()
 
 Camera::Camera()
 {
-	mPos		= XMFLOAT4(0,0,0,0);
-	mUp			= XMFLOAT4(0,0,0,0);
-	mFocusPoint	= XMFLOAT4(0,0,0,0);
+	mPos		= DirectX::XMFLOAT4(0,0,0,0);
+	mUp			= DirectX::XMFLOAT4(0,0,0,0);
+	mFocusPoint	= DirectX::XMFLOAT4(0,0,0,0);
 
 	mFoV			= 0;
 	mNearZ			= 0;

@@ -7,5 +7,6 @@ struct CbufferPerFrame
 {
 	DirectX::XMMATRIX viewMatrix;
 	DirectX::XMMATRIX projectionMatrix;
+	DirectX::XMFLOAT4 cameraPosition;
 };
 #endif

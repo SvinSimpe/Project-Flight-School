@@ -1,14 +1,16 @@
 #include "AssetManager.h"
+#include "WICTextureLoader.h"
+#include <sstream>
 
 using namespace std;
 
 #pragma region Private functions
 
-bool AssetManager::AssetExist( char* fileName, AssetID &assetId )
+bool AssetManager::AssetExist( std::string fileName, AssetID &assetId )
 {
 	for( UINT i = 0; i < mAssetIdCounter; i++ )
 	{
-		if( 0 == strcmp( mAssetContainer[i]->GetFileName().c_str(), fileName ) )
+		if( 0 == strcmp( mAssetContainer[i]->GetFileName().c_str(), fileName.c_str() ) )
 		{
 			assetId = i;
 			return true;
@@ -23,7 +25,7 @@ void AssetManager::AssignAssetId( AssetID &assetId )
 	mAssetIdCounter++;
 }
 
-HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
+HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device, ID3D11DeviceContext* dc )
 {
 	HRESULT hr = S_OK;
 
@@ -33,10 +35,16 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 	Static3dAsset* plane;
 	plane				= new Static3dAsset;
 	plane->mAssetId		= 0;
-	plane->mFileName	= "PLANE"; //ADD CORRECT FILENAME HERE
+	plane->mFileName	= "NO PATHPLANE"; //ADD CORRECT FILENAME HERE
 	plane->mVertexCount	= 6;
 
-	float planeSize = 1.0f;
+	for( int i = 0; i < TEXTURES_AMOUNT; i++ )
+	{
+		plane->mTextures[i] = 2;
+	}
+
+	float planeSize = 100.0f;
+
 
 	StaticVertex planePlaceholder[6] = {
 			-0.5f * planeSize, 0.0f, -0.5f * planeSize	,	0.0f, 1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 1.0f,
@@ -73,8 +81,13 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 	Static3dAsset* cube;
 	cube = new Static3dAsset;
 	cube->mAssetId		= 1;
-	cube->mFileName		= "CUBE"; //ADD CORRECT FILENAME HERE
+	cube->mFileName		= "NO PATHCUBE"; //ADD CORRECT FILENAME HERE
 	cube->mVertexCount	= 36;
+
+	for( int i = 0; i < TEXTURES_AMOUNT; i++ )
+	{
+		cube->mTextures[i] = 2;
+	}
 
 	float cubeSize = 1.0f;
 
@@ -147,13 +160,134 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device )
 
 	mAssetContainer[1] = cube;
 
+	ID3D11ShaderResourceView* srv = nullptr;
+	ID3D10Texture2D* tex = nullptr;
+
+	hr = LoadTextureFromFile( device, dc, StringToWstring( "../Content/Assets/Textures/burger.png" ).c_str(), (ID3D11Resource**)tex, &srv, NULL );
+	if( FAILED( hr ) )
+	{	
+		//Failed to create the placeholder SRV
+		return hr;
+	}
+
+	Static2dAsset* texture;
+	texture				= new Static2dAsset;
+	texture->mAssetId	= 2;
+	texture->mFileName	= "PLACEHOLDER TEXTURE";
+	texture->mSRV		= srv;
+
+	mAssetContainer[2] = texture;
+
+	return hr;
+}
+
+//Loads a texture from file, the filename can be expressed as a string put with L prefix e.g L"Hello World", texture and SRV are both optional, size = Maximum size of buffer.
+HRESULT AssetManager::LoadTextureFromFile ( ID3D11Device* device, ID3D11DeviceContext* dc, const wchar_t* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size )
+{
+	HRESULT hr = S_OK;
+	hr = CreateWICTextureFromFile( device, dc, fileName, texture, srv, size );
+	return hr;
+}
+
+std::wstring AssetManager::StringToWstring( std::string fileName )
+{
+	return std::wstring( fileName.begin(), fileName.end() );
+}
+
+HRESULT AssetManager::CreateSRVAssets( ID3D11Device* device, ID3D11DeviceContext* dc, std::string filePath, MeshInfo &meshInfo, AssetID &assetId )
+{
+	//Creating SRVs from the different texture maps in the mesh info.
+	std::string tempStr;
+	HRESULT hr = S_OK;
+	//Diffuse map
+	if( string( meshInfo.diffuseMapName ) == "N/A" )
+	{
+		if( typeid( *mAssetContainer[assetId] ) == typeid( Static3dAsset ) )
+		{
+			( (Static3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_DIFFUSE] = 2;
+		}
+		else if( typeid( *mAssetContainer[assetId] ) == typeid( Animated3dAsset ) )
+		{
+			( (Animated3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_DIFFUSE] = 2;
+		}
+	}
+	else
+	{
+		tempStr = filePath + string( meshInfo.diffuseMapName );
+		if( typeid( *mAssetContainer[assetId] ) == typeid( Static3dAsset ) )
+		{
+			hr = LoadStatic2dAsset( device, dc, (char*)tempStr.c_str(), ( (Static3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_DIFFUSE] );
+			if( FAILED( hr ) ) return hr;
+		}
+		else if( typeid( *mAssetContainer[assetId] ) == typeid( Animated3dAsset ) )
+		{
+			hr = LoadStatic2dAsset( device, dc, (char*)tempStr.c_str(), ( (Animated3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_DIFFUSE] );
+			if( FAILED( hr ) ) return hr;
+		}
+
+	}
+
+	//Normal map
+	if( string( meshInfo.normalMapName ) == "N/A" )
+	{
+		if( typeid( *mAssetContainer[assetId] ) == typeid( Static3dAsset ) )
+		{
+			( (Static3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_NORMAL] = 2;
+		}
+		else if( typeid( *mAssetContainer[assetId] ) == typeid( Animated3dAsset ) )
+		{
+			( (Animated3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_NORMAL] = 2;
+		}
+	}
+	else
+	{
+		tempStr = filePath + string( meshInfo.normalMapName );
+		if( typeid( *mAssetContainer[assetId] ) == typeid( Static3dAsset ) )
+		{
+			hr = LoadStatic2dAsset( device, dc, (char*)tempStr.c_str(), ( (Static3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_NORMAL] );
+			if( FAILED( hr ) ) return hr;
+		}
+		else if( typeid( *mAssetContainer[assetId] ) == typeid( Animated3dAsset ) )
+		{
+			hr = LoadStatic2dAsset( device, dc, (char*)tempStr.c_str(), ( (Animated3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_NORMAL] );
+			if( FAILED( hr ) ) return hr;
+		}
+	}
+
+	//Specular map
+	if( string( meshInfo.specularMapName ) == "N/A" )
+	{
+		if( typeid( *mAssetContainer[assetId] ) == typeid( Static3dAsset ) )
+		{
+			( (Static3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_SPECULAR] = 2;
+		}
+		else if( typeid( *mAssetContainer[assetId] ) == typeid( Animated3dAsset ) )
+		{
+			( (Animated3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_SPECULAR] = 2;
+		}
+	}
+	else
+	{
+		tempStr = filePath + string( meshInfo.specularMapName );
+		if( typeid( *mAssetContainer[assetId] ) == typeid( Static3dAsset ) )
+		{
+			hr = LoadStatic2dAsset( device, dc, (char*)tempStr.c_str(), ( (Static3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_SPECULAR] );
+			if( FAILED( hr ) ) return hr;
+		}
+		else if( typeid( *mAssetContainer[assetId] ) == typeid( Animated3dAsset ) )
+		{
+			hr = LoadStatic2dAsset( device, dc, (char*)tempStr.c_str(), ( (Animated3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_SPECULAR] );
+			if( FAILED( hr ) ) return hr;
+		}
+	}
+
 	return hr;
 }
 
 #pragma endregion Helper functions for the class
 
 #pragma region Public functions
-HRESULT AssetManager::LoadStatic2dAsset( ID3D11ShaderResourceView* srv, char* fileName, AssetID &assetId )
+HRESULT AssetManager::LoadStatic2dAsset( ID3D11Device* device, ID3D11DeviceContext* dc, std::string fileName, AssetID &assetId )
 {
 	HRESULT hr = S_OK;
 
@@ -164,8 +298,13 @@ HRESULT AssetManager::LoadStatic2dAsset( ID3D11ShaderResourceView* srv, char* fi
 	}
 	else
 	{	 
-
+		ID3D11ShaderResourceView* srv = nullptr;
+		ID3D11Texture2D* texture = nullptr;
 		AssignAssetId( assetId );
+
+		hr = LoadTextureFromFile( device, dc, StringToWstring( fileName ).c_str(), (ID3D11Resource**)texture, &srv, NULL );
+		if(FAILED ( hr ) ) return hr;
+		
 		Static2dAsset* temp;
 		temp				= new Static2dAsset();
 		temp->mAssetId		= assetId;
@@ -178,12 +317,12 @@ HRESULT AssetManager::LoadStatic2dAsset( ID3D11ShaderResourceView* srv, char* fi
 	}
 }
 
-HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, AssetID &assetId )
+HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceContext* dc, std::string filePath, std::string fileName, AssetID &assetId )
 {
 	HRESULT hr = S_OK;
 
 	//If true return to caller because the asset already exist.
-	if( AssetExist( fileName, assetId ) )
+	if( AssetExist( ( filePath + fileName ), assetId ) )
 	{
 		return hr;
 	}
@@ -194,7 +333,7 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, A
 		UINT			nrOfMeshes	= 0;
 		UINT			vertexSize	= sizeof( StaticVertex );
 
-		std::ifstream myFile( fileName, std::ios::binary );
+		std::ifstream myFile( ( filePath + fileName ), std::ios::binary );
 
 		if( !myFile )
 		{
@@ -204,18 +343,17 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, A
 
 		//Read fileheader. Holds information about number of meshes in scene
 		myFile.read( (char*)&nrOfMeshes, sizeof( UINT ) );
-		
-		float* rawData = nullptr;
 
 		for( UINT i = 0; i < nrOfMeshes; i++ )
 		{
 			//Read actual data
-			myFile.read( (char*)&meshInfo, sizeof(meshInfo) );
+			myFile.read( (char*)&meshInfo, sizeof( meshInfo ) );
 	
 			//Memory alloc + reading vertices
 			vertices	= new StaticVertex[meshInfo.nrOfVertices];
 
 			myFile.read( (char*)vertices, vertexSize * meshInfo.nrOfVertices );
+			
 		}
 
 		myFile.close();
@@ -244,6 +382,9 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, char* fileName, A
 		}
 
 		mAssetContainer.push_back( temp );
+		
+		hr = CreateSRVAssets( device, dc, filePath, meshInfo, assetId );
+		if( FAILED( hr ) ) return hr;
 
 		delete [] vertices;
 
@@ -309,12 +450,12 @@ HRESULT	AssetManager::LoadStatic3dAssetIndexed( ID3D11Device* device, Indexed3DA
 	}
 }
 
-HRESULT	AssetManager::LoadAnimated3dAsset( ID3D11Device* device, char* fileName, AssetID skeletonId, AssetID &assetId )
+HRESULT	AssetManager::LoadAnimated3dAsset( ID3D11Device* device, ID3D11DeviceContext* dc, std::string filePath, std::string fileName, AssetID skeletonId, AssetID &assetId )
 {
 	HRESULT hr = S_OK;
 
 	//If true return to caller because the asset already exist.
-	if( AssetExist( fileName, assetId ) )
+	if( AssetExist( ( filePath + fileName ), assetId ) )
 	{
 		return hr;
 	}
@@ -325,7 +466,7 @@ HRESULT	AssetManager::LoadAnimated3dAsset( ID3D11Device* device, char* fileName,
 		AnimatedVertex*	vertices	= nullptr;
 		UINT			vertexSize	= sizeof( AnimatedVertex );
 
-		std::ifstream myFile( fileName, std::ios::binary );
+		std::ifstream myFile( ( filePath + fileName ), std::ios::binary );
 
 		if( !myFile )
 		{
@@ -341,7 +482,7 @@ HRESULT	AssetManager::LoadAnimated3dAsset( ID3D11Device* device, char* fileName,
 
 		myFile.read( (char*)vertices, vertexSize * meshInfo.nrOfVertices );
 
-		for( int i = 0; i < meshInfo.nrOfVertices; i++ )
+		for( int i = 0; i < (int)meshInfo.nrOfVertices; i++ )
 		{
 			float normalizer = vertices[i].weights[0] + vertices[i].weights[1] + vertices[i].weights[2] + vertices[i].weights[3];
 			for( int j = 0; j < 4; j++ )
@@ -407,6 +548,9 @@ HRESULT	AssetManager::LoadAnimated3dAsset( ID3D11Device* device, char* fileName,
 			DirectX::XMStoreFloat4x4( &temp->mBoneOffsets[i], DirectX::XMMatrixInverse( nullptr, boneOffsets[i] ) );
 
 		mAssetContainer.push_back( temp );
+
+		hr = CreateSRVAssets( device, dc, filePath, meshInfo, assetId );
+		if( FAILED( hr ) ) return hr;
 
 		delete [] vertices;
 
@@ -561,7 +705,7 @@ HRESULT	AssetManager::LoadAnimationAsset( string filePath, string fileName, Asse
 {
 	HRESULT hr = S_OK;
 
-	if( AssetExist( (char*)(filePath + fileName).c_str(), assetId ) )
+	if( AssetExist( ( filePath + fileName ), assetId ) )
 	{
 		return hr;
 	}
@@ -726,11 +870,11 @@ HRESULT	AssetManager::LoadAnimationAsset( string filePath, string fileName, Asse
 	return hr;
 }
 
-HRESULT	AssetManager::Initialize( ID3D11Device* device )
+HRESULT	AssetManager::Initialize( ID3D11Device* device, ID3D11DeviceContext* dc )
 {
-	mAssetIdCounter = 2;
+	mAssetIdCounter = 3;
 	mAssetContainer.resize( mAssetIdCounter );
-	PlaceholderAssets( device );
+	PlaceholderAssets( device, dc );
 	
 	return S_OK;
 }
@@ -739,17 +883,17 @@ void AssetManager::Release()
 {
 	for( UINT i = 0; i < mAssetContainer.size(); i++ )
 	{
-		if( typeid( mAssetContainer[i] ) == typeid( Static3dAsset ) )
+		if( typeid( *mAssetContainer[i] ) == typeid( Static3dAsset ) )
 			( (Static3dAsset*)mAssetContainer[i] )->Release();
-		else if( typeid( mAssetContainer[i] ) == typeid( Static3dAssetIndexed ) )
+		else if( typeid( *mAssetContainer[i] ) == typeid( Static3dAssetIndexed ) )
 			( (Static3dAssetIndexed*)mAssetContainer[i] )->Release();
-		else if( typeid( mAssetContainer[i] ) == typeid( Animated3dAsset ) )
+		else if( typeid( *mAssetContainer[i] ) == typeid( Animated3dAsset ) )
 			( (Animated3dAsset*)mAssetContainer[i] )->Release();
-		else if( typeid( mAssetContainer[i] ) == typeid( SkeletonAsset ) )
+		else if( typeid( *mAssetContainer[i] ) == typeid( SkeletonAsset ) )
 			( (SkeletonAsset*)mAssetContainer[i] )->Release();
-		else if( typeid( mAssetContainer[i] ) == typeid( AnimationAsset ) )
+		else if( typeid( *mAssetContainer[i] ) == typeid( AnimationAsset ) )
 			( (AnimationAsset*)mAssetContainer[i] )->Release();
-		else if( typeid( mAssetContainer[i] ) == typeid( Static2dAsset ) )
+		else if( typeid( *mAssetContainer[i] ) == typeid( Static2dAsset ) )
 			( (Static2dAsset*)mAssetContainer[i] )->Release();
 		SAFE_DELETE( mAssetContainer[i] );
 	}

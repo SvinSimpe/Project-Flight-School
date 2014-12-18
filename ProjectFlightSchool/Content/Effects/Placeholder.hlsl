@@ -43,9 +43,11 @@ VS_Out VS_main( VS_In input )
 }
 
 //Pixel
+Texture2D<float4> diffuseTexture	: register( t0 );
+Texture2D<float4> normalTexture		: register( t1 );
+Texture2D<float4> specularTexture	: register( t2 );
+SamplerState pointSampler			: register( s0 );
 
-Texture2D<float4>	diffuseTexture	: register( t0 );
-SamplerState		pointSampler	: register( s0 );
 float4 PS_main( VS_Out input ) : SV_TARGET0
 {	
 	//======== PHONG SHADING ===========

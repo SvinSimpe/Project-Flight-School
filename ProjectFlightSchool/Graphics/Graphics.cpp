@@ -1,5 +1,5 @@
 #include "Graphics.h"
-#include <sstream>
+
 Graphics::Graphics()
 {
 	mHWnd			= 0;
@@ -27,13 +27,7 @@ Graphics::~Graphics()
 
 }
 
-//Loads a texture from file, the filename can be expressed as a string put with L prefix e.g L"Hello World", texture and SRV are both optional, size = Maximum size of buffer.
-HRESULT Graphics::LoadTextureFromFile ( const wchar_t* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size )
-{
-	HRESULT hr = S_OK;
-	hr = CreateWICTextureFromFile(mDevice, mDeviceContext, fileName, texture, srv, size );
-	return hr;
-}
+
 //Map buffer
 HRESULT Graphics::MapBuffer( ID3D11Buffer* buffer, void* data, int size )
 {
@@ -45,37 +39,25 @@ HRESULT Graphics::MapBuffer( ID3D11Buffer* buffer, void* data, int size )
 	return S_OK;
 }
 
-HRESULT Graphics::LoadStatic2dAsset( char* fileName, AssetID &assetId )
+HRESULT Graphics::LoadStatic2dAsset( std::string fileName, AssetID &assetId )
 {
-	HRESULT hr;
-	ID3D11ShaderResourceView* srv = nullptr;
-	ID3D11Texture2D* texture = nullptr;
-
-	std::stringstream ss;
-	std::string str;
-	ss << fileName;
-	ss >> str;
-	std::wstring wstr = std::wstring( str.begin(), str.end() );
-	hr = CreateWICTextureFromFile( mDevice, mDeviceContext, wstr.c_str(), (ID3D11Resource**)texture, &srv, NULL );
-	if( FAILED( hr ) ) return hr;
-
-	return mAssetManager->LoadStatic2dAsset( srv, fileName, assetId ); 
+	return mAssetManager->LoadStatic2dAsset( mDevice, mDeviceContext, fileName, assetId ); 
 }
 
 //Load a static 3d asset to the AssetManager.
-HRESULT Graphics::LoadStatic3dAsset( char* fileName, AssetID &assetId )
+HRESULT Graphics::LoadStatic3dAsset( std::string filePath, std::string fileName, AssetID &assetId )
 {
-	return mAssetManager->LoadStatic3dAsset( mDevice, fileName, assetId );
+	return mAssetManager->LoadStatic3dAsset( mDevice, mDeviceContext, filePath, fileName, assetId );
 }
 
-HRESULT Graphics::LoadStatic3dAssetIndexed( char* assetName,  Indexed3DAssetInfo &info, AssetID &assetId )
+HRESULT Graphics::LoadStatic3dAssetIndexed( Indexed3DAssetInfo &info, AssetID &assetId )
 {
 	return mAssetManager->LoadStatic3dAssetIndexed( mDevice, info, assetId );
 }
 
-HRESULT Graphics::LoadAnimated3dAsset( char* fileName, AssetID skeletonId, AssetID &assetId )
+HRESULT Graphics::LoadAnimated3dAsset( std::string filePath, std::string fileName, AssetID skeletonId, AssetID &assetId )
 {
-	return mAssetManager->LoadAnimated3dAsset( mDevice, fileName, skeletonId, assetId );
+	return mAssetManager->LoadAnimated3dAsset( mDevice, mDeviceContext, filePath, fileName, skeletonId, assetId );
 }
 
 HRESULT Graphics::LoadSkeletonAsset( std::string filePath, std::string fileName, AssetID &assetId )
@@ -112,6 +94,14 @@ void Graphics::RenderStatic3dAsset( AssetID assetId )
 	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
+
+	ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_DIFFUSE]] )->mSRV,
+													( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_NORMAL]] )->mSRV,
+													( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_SPECULAR]] )->mSRV,
+												};
+
+	mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+	mDeviceContext->PSSetSamplers( 0, 1, &mPointSamplerState );
 
 	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
 }
@@ -217,35 +207,6 @@ void Graphics::RenderStatic3dAssetIndexed( AssetID assetId, UINT indexCount, UIN
 
 	mDeviceContext->DrawIndexed( indexCount, 0, 0 );
 
-}
-
-void Graphics::RenderStatic3dAsset( AssetID assetId, AssetID textureId )
-{
-	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-
-	UINT32 vertexSize				= sizeof( StaticVertex );
-	UINT32 offset					= 0;
-	ID3D11Buffer* buffersToSet[]	= { ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexBuffer };
-	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
-
-	mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
-
-	mDeviceContext->VSSetShader( mStaticEffect->GetVertexShader(), nullptr, 0 );
-	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->PSSetShader( mStaticEffect->GetPixelShader(), nullptr, 0 );
-
-	//Map CbufferPerObject
-	CbufferPerObject data;
-
-	data.worldMatrix = DirectX::XMMatrixIdentity();
-	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
-
-	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
-	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[textureId] )->mSRV );
-
-	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
 }
 
 void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime )
@@ -473,11 +434,14 @@ void Graphics::BeginScene()
 		mCamera->Update();
 
 	static float clearColor[4] = { 0.3f, 0.3f, 0.3f, 1.0f };
+	ID3D11ShaderResourceView* nullSRV[TEXTURES_AMOUNT] = { nullptr, nullptr, nullptr };
 	mDeviceContext->ClearRenderTargetView( mRenderTargetView, clearColor );
 	mDeviceContext->ClearDepthStencilView( mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
 
 	mDeviceContext->OMSetRenderTargets( 1, &mRenderTargetView, mDepthStencilView );
 	mDeviceContext->RSSetViewports( 1, &mStandardView );
+	
+	mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, nullSRV );
 
 	//Map CbufferPerFrame
 	CbufferPerFrame data;
@@ -670,7 +634,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	//AssetManager
 	mAssetManager = new AssetManager;
-	mAssetManager->Initialize( mDevice );
+	mAssetManager->Initialize( mDevice, mDeviceContext );
 
 	//Effect
 	mStaticEffect	= new Effect;

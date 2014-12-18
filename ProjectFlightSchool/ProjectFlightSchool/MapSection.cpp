@@ -78,7 +78,7 @@ HRESULT MapSection::Initialize( UINT sectionID, float vertexSpacing, UINT mapDim
 	info.vertexCount	= VERTEX_COUNT;
 	info.vertices		= mVertices;
 
-	Graphics::GetInstance()->LoadStatic3dAssetIndexed( name, info, mAssetID );
+	Graphics::GetInstance()->LoadStatic3dAssetIndexed( info, mAssetID );
 	
 	return S_OK;
 }

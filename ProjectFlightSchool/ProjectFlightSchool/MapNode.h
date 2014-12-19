@@ -2,6 +2,7 @@
 #define MAPNODE_H
 #include <Graphics.h>
 #include "GameObject.h"
+using namespace DirectX;
 
 struct MapNodeInfo
 {

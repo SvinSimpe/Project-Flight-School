@@ -5,6 +5,7 @@ HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 	mNrOfNodes			= nrOfNodes;
 	UINT vertexSize		= sizeof( StaticVertex );
 	std::vector<GameObject> staticObjects;
+	std::vector<MapNode> mapNodes;
 
 	for( int i = 0; i < nrOfNodes; i++ )
 	{
@@ -51,7 +52,7 @@ HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 			obInfo.pos		= gridMat.pos;
 			obInfo.rotation = gridMat.rot;
 			obInfo.scale	= gridMat.scale;
-			assetID = Graphics::GetInstance()->LoadStatic3dAsset( gridMat.name, assetID );
+			assetID = Graphics::GetInstance()->LoadStatic3dAsset("", gridMat.name, assetID );
 			ob.Initialize( obInfo, assetID );
 			staticObjects.push_back( ob );
 		}
@@ -61,13 +62,17 @@ HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 
 		memcpy(initInfo.staticAssets, &staticObjects[0], sizeof(GameObject) * staticObjects.size() );
 
+		//mapNodes.push_back
+
 	}
 	
 	return S_OK;
 }
 HRESULT MapNodeManager::Render( float deltaTime )
 {
-	XMMATRIX world = XMMatrixTranslationFromVector(XMVectorSet( 0, 0, 0, 1 ) );
+	DirectX::XMMATRIX world = DirectX::XMMatrixTranslationFromVector(DirectX::XMVectorSet( 0, 0, 0, 1 ) );
+
+	
 
 	//XMVECTOR worldPos = XMVector3TransformCoord( XMLoadFloat3(mNodes[0].))
 	return S_OK;

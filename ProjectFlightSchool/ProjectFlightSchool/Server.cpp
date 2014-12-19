@@ -21,6 +21,15 @@ bool Server::AcceptConnection()
 			mConn->SendPkg( s, 0, Net_Event::EV_PLAYER_JOINED, toJoining ); // Sends the ID of the already existing clients to the joining client
 			Sleep(3);
 		}
+
+			int flag = 1;
+         int result = setsockopt(s,            /* socket affected */
+                                 IPPROTO_TCP,     /* set option at TCP level */
+                                 TCP_NODELAY,     /* name of option */
+                                 (char *) &flag,  /* the cast is historical
+                                                         cruft */
+                                 sizeof(int));    /* length of option value */
+
 		mClientSockets.push_back( s );
 		EvPlayerConnection msg;
 		msg.ID = (unsigned int)s;

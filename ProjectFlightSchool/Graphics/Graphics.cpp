@@ -485,6 +485,17 @@ void Graphics::EndScene()
 	mSwapChain->Present( 1, 0 );
 }
 
+UINT Graphics::QueryMemoryUsed()
+{
+	IDXGIDevice* dxgiDevice;
+	HRESULT hr = mDevice->QueryInterface( __uuidof( IDXGIDevice ), (void**)&dxgiDevice );
+	IDXGIAdapter* adapter;
+	dxgiDevice->GetAdapter( &adapter );
+	DXGI_ADAPTER_DESC adapterDesc;
+	adapter->GetDesc( &adapterDesc );
+	return (UINT)adapterDesc.DedicatedVideoMemory;
+}
+
 //Singleton for the Graphics dll.
 Graphics* Graphics::GetInstance()
 {

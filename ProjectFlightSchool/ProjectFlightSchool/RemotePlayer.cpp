@@ -34,15 +34,15 @@ HRESULT RemotePlayer::Render( float deltaTime )
 
 HRESULT RemotePlayer::Initialize( unsigned int id )
 {
-	if ( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "NO PATH", "CUBE", mUpperBody.playerModel) ) )
+	if ( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Robot/", "robotScenebody.pfs", mUpperBody.playerModel) ) )
 		OutputDebugString( L"\nERROR\n" );
 
-	if ( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "NO PATH", "CUBE", mLowerBody.playerModel ) ) )
+	if ( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Robot/", "robotScenelegs.pfs", mLowerBody.playerModel ) ) )
 		OutputDebugString( L"\nERROR\n" );
 
 	mID					= id;
-	mUpperBody.position = XMFLOAT3( 10.0f, 2.0f, 10.0f );
-	mLowerBody.position = XMFLOAT3( 10.0f, 1.0f, 10.0f );
+	mUpperBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f );
+	mLowerBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f );
 	mLowerBody.speed	= 0.005f;
 
 	EventManager::GetInstance()->AddListener( &RemotePlayer::RemoteUpdate, this, Event_Remote_Player_Update::GUID );

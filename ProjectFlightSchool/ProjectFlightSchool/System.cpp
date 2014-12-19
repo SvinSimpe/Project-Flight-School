@@ -75,8 +75,11 @@ int	System::Run()
 			float deltaTime	= mTimer->GetDeltaTime();
 			float fps		= mTimer->GetFPS();
 
+			int mem	= (int)Graphics::GetInstance()->QueryMemoryUsed();
+
 			wchar_t title[100];
-			swprintf( title, sizeof(title), L"Project-Flight-School: Version 0.1 -  DeltaTime: %f  - FPS: %d  Now with extra pixels!", deltaTime, (int)fps );
+			swprintf( title, sizeof(title), L"Project-Flight-School: Version 0.2 -  DeltaTime: %f  - FPS: %d\t vRam: %d Stop!... Hamburger time!",
+				deltaTime, (int)fps, mem );
 			SetWindowText( mHWnd, title );
 
 			//ClipCursor( &r );//		Uncomment this to lock the cursor to the game window

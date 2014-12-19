@@ -88,6 +88,9 @@ class LIBRARY_EXPORT Graphics
 
 		void	BeginScene();
 		void	EndScene();
+
+		UINT QueryMemoryUsed();
+
 		static	Graphics* GetInstance();
 		HRESULT Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight );
 		void	Release();

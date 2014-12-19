@@ -5,6 +5,11 @@ HRESULT Projectile::Update( float deltaTime )
 	mPosition.x += mDirection.x * mSpeed * deltaTime;
 	mPosition.z += mDirection.z * mSpeed * deltaTime;
 
+	if( mLifeTime <= 0.0f )
+		mIsActive = false;
+	else
+		mLifeTime -=deltaTime;
+
 	return S_OK;
 }
 
@@ -38,8 +43,8 @@ bool Projectile::IsActive() const
 
 HRESULT Projectile::Initialize()
 {
-	mSpeed = 5.0f;
-
+	mSpeed		= 5.0f;
+	mLifeTime	= 5.0f;
 	return S_OK;
 }
 
@@ -55,6 +60,7 @@ Projectile::Projectile()
 	mSpeed		= 0.0f;
 	mIsActive	= false;
 	mRotation	= 0.0f;
+	mLifeTime	= 0.0f;
 }
 
 Projectile::~Projectile()

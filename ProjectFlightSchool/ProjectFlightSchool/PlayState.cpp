@@ -60,12 +60,20 @@ HRESULT PlayState::Update( float deltaTime )
 HRESULT PlayState::Render()
 {
 	Graphics::GetInstance()->BeginScene();
+	Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset, 0.0f, 0.0f, 0.0f );
+	Graphics::GetInstance()->RenderStatic3dAsset( mTestAsset, 4.0f, 0.0f, 0.0f );
+	Graphics::GetInstance()->RenderStatic3dAsset( mNest1Asset, 8.0f, 0.0f, 0.0f );
+	Graphics::GetInstance()->RenderStatic3dAsset( mTree1Asset, 12.0f, 0.0f, 0.0f );
+
+	for( int i = 0; i < 6; i++ )
+	{
+		Graphics::GetInstance()->RenderStatic3dAsset( mStoneAssets[i], (float)i*4.0f, 0.0f, -4.0f );
+	}
+
 	Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime );
+
 	mPlayer->Render( 0.0f );
-	Graphics::GetInstance()->RenderStatic3dAsset( mCubeAsset, mTest2dTexture );
-	Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime );
-	mPlayer->Render( 0.0f );
-	mWorldMap->Render( 0.0f );
+	//mWorldMap->Render( 0.0f );
 	for( auto& rp : mRemotePlayers )
 	{
 		if( rp )
@@ -93,23 +101,30 @@ HRESULT PlayState::Initialize()
 {
 	mStateType = STATE_TYPE_PLAY;
 
-	Graphics::GetInstance()->LoadStatic3dAsset( "CUBE", mCubeAsset );
-	Graphics::GetInstance()->LoadStatic3dAsset( "PLANE", mPlaneAsset );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/bin/aggro_test_utan_Anim.pfs", mTestAsset );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Plane/", "plane.pfs", mPlaneAsset );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Log/", "log_1.pfs", mTestAsset );
 
-	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dTexture );
-	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Animations/testmapanim/", "no90.Skel", mTestSkeleton );
-	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Animations/testmapanim/test_stick.apfs", mTestSkeleton, mTestAnimation );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Animations/testmapanim/", "no90.PaMan", mTestAnimationAnimation );
+	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Animations/skelTest/", "raptor.Skel", mTestSkeleton );
+	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Animations/skelTest/", "scaledScenetest.apfs", mTestSkeleton, mTestAnimation );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Animations/skelTest/", "raptor_run.PaMan", mTestAnimationAnimation );
 
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_1.pfs", mNest1Asset );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_1.pfs", mStoneAssets[0] );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_2.pfs", mStoneAssets[1] );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_3.pfs", mStoneAssets[2] );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_4.pfs", mStoneAssets[3] );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_5.pfs", mStoneAssets[4] );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_6.pfs", mStoneAssets[5] );
+
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Tree/", "tree1.pfs", mTree1Asset );
 
 	mAnimationTime = 1.0f;
 
 	mPlayer = new Player();
 	mPlayer->Initialize();
 
-	mWorldMap = new Map();
-	mWorldMap->Initialize( 8.0f, 24 );
+	//mWorldMap = new Map();
+	//mWorldMap->Initialize( 8.0f, 24 );
 
 	EventManager::GetInstance()->AddListener( &PlayState::RemoteUpdate, this, Event_Remote_Player_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::RemoteUpdate, this, Event_Remote_Player_Left::GUID );

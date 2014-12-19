@@ -33,9 +33,9 @@ struct BoundingCircle
 class Player: public RemotePlayer
 {
 	private:
-
 		std::vector<Projectile*>	mProjectiles;
 		int			mNrOfProjectilesFired;
+		float		mWeaponCoolDown;
 
 	private:
 		void		HandleInput( float deltaTime );

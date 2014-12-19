@@ -9,7 +9,6 @@
 #include "CbufferPerFrame.h"
 #include "CbufferPerObject.h"
 #include "Camera.h"
-#include "WICTextureLoader.h"
 
 #ifdef COMPILE_LIBRARY
 	#define LIBRARY_EXPORT __declspec( dllexport )
@@ -37,7 +36,7 @@ class LIBRARY_EXPORT Graphics
 		ID3D11Buffer*			mCbufferPerObjectAnimated;
 
 		ID3D11SamplerState*		mPointSamplerState;
-
+		ID3D11SamplerState*		mLinearSamplerState;
 
 
 		AssetManager*			mAssetManager;
@@ -59,11 +58,10 @@ class LIBRARY_EXPORT Graphics
 
 	protected:
 	public:
-		HRESULT LoadTextureFromFile ( const wchar_t* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size = 0 );
-		HRESULT LoadStatic2dAsset( char* fileName, AssetID &assetId );
-		HRESULT LoadStatic3dAsset( char* fileName, AssetID &assetId );
-		HRESULT LoadStatic3dAssetIndexed( char* assetName,  Indexed3DAssetInfo &info, AssetID &assetId );
-		HRESULT LoadAnimated3dAsset( char* fileName, AssetID skeletonId, AssetID &assetId );
+		HRESULT LoadStatic2dAsset( std::string fileName, AssetID &assetId );
+		HRESULT LoadStatic3dAsset( std::string filePath, std::string fileName, AssetID &assetId );
+		HRESULT LoadStatic3dAssetIndexed( Indexed3DAssetInfo &info, AssetID &assetId );
+		HRESULT LoadAnimated3dAsset( std::string filePath, std::string fileName, AssetID skeletonId, AssetID &assetId ); 
 		HRESULT LoadSkeletonAsset( std::string filePath, std::string fileName, AssetID &assetId );
 		HRESULT LoadAnimationAsset( std::string filePath, std::string fileName, AssetID &assetId );
 
@@ -71,7 +69,6 @@ class LIBRARY_EXPORT Graphics
 		void RenderStatic3dAsset( AssetID assetId, float x, float y, float z );
 		void RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation );
 		void RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT4X4* world );
-		void RenderStatic3dAsset( AssetID assetId, AssetID textureId );
 
 		void RenderStatic3dAssetIndexed( AssetID assetId, UINT indexCount, UINT startIndex );
 
@@ -84,13 +81,16 @@ class LIBRARY_EXPORT Graphics
 		void	ZoomOutDeveloperCamera();
 
 		void SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY );
-		void SetInverseViewMatrix( XMMATRIX &inverseViewMatrix );
-		void SetInverseProjectionMatrix( XMMATRIX &projectionViewMatrix );
-		void SetEyePosition( XMFLOAT3 &eyePosition );
-		void SetFocus( XMFLOAT3 &focusPoint );
+		void SetInverseViewMatrix( DirectX::XMMATRIX &inverseViewMatrix );
+		void SetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatrix );
+		void SetEyePosition( DirectX::XMFLOAT3 &eyePosition );
+		void SetFocus( DirectX::XMFLOAT3 &focusPoint );
 
 		void	BeginScene();
 		void	EndScene();
+
+		UINT QueryMemoryUsed();
+
 		static	Graphics* GetInstance();
 		HRESULT Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight );
 		void	Release();

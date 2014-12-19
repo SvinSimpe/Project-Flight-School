@@ -63,8 +63,13 @@ void Player::HandleInput( float deltaTime )
 	mUpperBody.direction.y = -radians;
 	mUpperBody.direction.z = 0.0f;
 
-	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_SPACE) )
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_SPACE) && mWeaponCoolDown <= 0.0f )
+	{
 		Fire();
+		mWeaponCoolDown = 0.2f;
+	}
+	else
+		mWeaponCoolDown -= deltaTime;
 }
 
 void Player::Move( XMFLOAT3 direction )
@@ -87,11 +92,11 @@ HRESULT Player::Update( float deltaTime )
 {
 	HandleInput( deltaTime );
 
-	mUpperBody.position.x += mLowerBody.direction.x * mLowerBody.speed;
-	mUpperBody.position.z += mLowerBody.direction.z * mLowerBody.speed;
+	mUpperBody.position.x += mLowerBody.direction.x * mLowerBody.speed * deltaTime;
+	mUpperBody.position.z += mLowerBody.direction.z * mLowerBody.speed * deltaTime;
 
-	mLowerBody.position.x += mLowerBody.direction.x * mLowerBody.speed;
-	mLowerBody.position.z += mLowerBody.direction.z * mLowerBody.speed;
+	mLowerBody.position.x += mLowerBody.direction.x * mLowerBody.speed * deltaTime;
+	mLowerBody.position.z += mLowerBody.direction.z * mLowerBody.speed * deltaTime;
 
 	///Lock camera position to player
 	XMFLOAT3 cameraPosition;
@@ -144,16 +149,18 @@ void Player::Fire()
 
 HRESULT Player::Initialize()
 {
-	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "CUBE", mUpperBody.playerModel ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Robot/", "robotScenebody.pfs", mUpperBody.playerModel ) ) )
 		OutputDebugString( L"\nERROR\n" );
 
-	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "CUBE", mLowerBody.playerModel ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Robot/", "robotScenelegs.pfs", mLowerBody.playerModel ) ) )
 		OutputDebugString( L"\nERROR\n" );
 
 
-	mUpperBody.position	= XMFLOAT3( 3.0f, 1.0f, 0.0f );
+	mUpperBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
-	mLowerBody.speed	= 0.2f;
+	mLowerBody.speed	= 15.0f;
+
+	mWeaponCoolDown		= 0.5f;
 
 	//Fill up on Projectiles
 	for ( size_t i = 0; i < 2000; i++ )
@@ -170,8 +177,6 @@ void Player::Release()
 {
 	for ( size_t i = 0; i < mProjectiles.size(); i++ )
 		SAFE_DELETE( mProjectiles.at(i) );
-	
-
 }
 
 Player::Player()
@@ -185,6 +190,7 @@ Player::Player()
 	mLowerBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mLowerBody.speed		= 0.0f;
 
+	mWeaponCoolDown			= 0.0f;
 }
 
 Player::~Player()

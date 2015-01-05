@@ -83,7 +83,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	float3 ambient		= float3( 0.1f, 0.1f,  0.1f );
 	float3 diffuse		= float3( 0.0f, 0.0f,  0.0f );
 	float3 specular		= float3( 0.1f, 0.1f,  0.1f );
-	float3 color		= float3( 1.0f, 1.0f,  1.0f );
+	float3 color		= float3( 0.75f, 0.8f,  0.8f );
 
 	float3 lightDirection	= float3( -0.5f, -1.0f, 0.3f );
 
@@ -95,10 +95,11 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	float3 reflection		= normalize( reflect( -lightDirection, input.normal ) );
 	float3 viewVector		= normalize( cameraPosition.xyz - input.worldPosition );
 	float specularFactor	= saturate( dot( reflection, viewVector ) );
-	float specularPower		= 8.0f;
-	specular				= float3( color * pow( specularFactor, specularPower ) ) * specularTexture.Sample( linearSampler, input.uv ).x;
+	float specularPower		= 4.0f;
+	specular				= float3( float3( 1.0f, 1.0f, 1.0f ) * pow( specularFactor, specularPower ) );// * specularTexture.Sample( linearSampler, input.uv ).x;
 
 	float3 finalColor		= float3( ( ambient + diffuse + specular ) * color );
 
+	//return float4( specular, 1.0f );
 	return float4( finalColor *	diffuseTexture.Sample( linearSampler, input.uv ).xyz, 1.0f );
 }

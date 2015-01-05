@@ -104,9 +104,9 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Plane/", "plane.pfs", mPlaneAsset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Log/", "log_1.pfs", mTestAsset );
 
-	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Animations/skelTest/", "raptor.Skel", mTestSkeleton );
-	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Animations/skelTest/", "scaledScenetest.apfs", mTestSkeleton, mTestAnimation );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Animations/skelTest/", "raptor_run.PaMan", mTestAnimationAnimation );
+	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", mTestSkeleton );
+	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", mTestSkeleton, mTestAnimation );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptor_run.PaMan", mTestAnimationAnimation );
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_1.pfs", mNest1Asset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_1.pfs", mStoneAssets[0] );

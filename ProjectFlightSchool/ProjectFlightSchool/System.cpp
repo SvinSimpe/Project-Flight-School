@@ -89,6 +89,7 @@ int	System::Run()
 	}
 
 	return (int)message.wParam;
+
 }
 
 //Initializes the window and sub-applications. 

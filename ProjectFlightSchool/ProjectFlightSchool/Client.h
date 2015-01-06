@@ -60,7 +60,7 @@ void Client::HandlePkg( Package<T>* p )
 		{
 			EvPlayerConnection msg = (EvPlayerConnection&)p->body.content;
 			IEventPtr E1( new Event_Remote_Player_Joined( msg.ID ) );
-			EventManager::GetInstance()->TriggerEvent( E1 );
+			EventManager::GetInstance()->QueueEvent( E1 );
 			printf( "Remote player with ID: %d joined.\n", msg.ID );
 		}
 			break;
@@ -68,7 +68,7 @@ void Client::HandlePkg( Package<T>* p )
 		{
 			EvPlayerConnection msg = (EvPlayerConnection&)p->body.content;
 			IEventPtr E1( new Event_Remote_Player_Left( msg.ID ) );
-			EventManager::GetInstance()->TriggerEvent( E1 );
+			EventManager::GetInstance()->QueueEvent( E1 );
 			printf( "Remote player with ID: %d left.\n", msg.ID );
 		}
 			break;

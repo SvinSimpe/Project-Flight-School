@@ -6,7 +6,7 @@
 
 bool Server::AcceptConnection()
 {
-	SOCKET s	= accept( mListenSocket, nullptr, nullptr );
+	SOCKET s = accept( mListenSocket, nullptr, nullptr );
 	if ( s == INVALID_SOCKET )
 	{
 		printf( "accept failed with error: %d\n", WSAGetLastError() );
@@ -17,18 +17,29 @@ bool Server::AcceptConnection()
 		EvPlayerConnection toJoining;
 		for ( auto& socket : mClientSockets )
 		{
-			toJoining.ID = (unsigned int)socket;
-			mConn->SendPkg( s, 0, Net_Event::EV_PLAYER_JOINED, toJoining ); // Sends the ID of the already existing clients to the joining client
-			Sleep(3);
+			if(socket != INVALID_SOCKET)
+			{
+				toJoining.ID = (unsigned int)socket;
+				mConn->SendPkg( s, 0, Net_Event::EV_PLAYER_JOINED, toJoining ); // Sends the ID of the already existing clients to the joining client
+				Sleep(10);
+			}
 		}
+		Sleep(10);
 
-			int flag = 1;
-         int result = setsockopt(s,            /* socket affected */
-                                 IPPROTO_TCP,     /* set option at TCP level */
-                                 TCP_NODELAY,     /* name of option */
-                                 (char *) &flag,  /* the cast is historical
-                                                         cruft */
-                                 sizeof(int));    /* length of option value */
+		int flag	= 1;
+        mResult		= setsockopt( s,            /* socket affected */
+                                IPPROTO_TCP,     /* set option at TCP level */
+                                TCP_NODELAY,     /* name of option */
+                                (char*) &flag,  /* the cast is historical cruft */
+                                sizeof(int) );    /* length of option value */
+		if(mResult != 0)
+		{
+			printf( "setsockopt failed with error: %d\n", WSAGetLastError() );
+			shutdown( s, SD_SEND );
+			closesocket( s );
+			WSACleanup();
+			return false;
+		}
 
 		mClientSockets.push_back( s );
 		EvPlayerConnection msg;
@@ -74,6 +85,8 @@ void Server::DisconnectClient( SOCKET s )
 	{
 		mConn->SendPkg( to, 0, Net_Event::EV_PLAYER_LEFT, msg );
 	}
+	shutdown(s, SD_SEND);
+	closesocket(s);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -151,7 +164,7 @@ bool Server::Initialize( const char* port )
 	ZeroMemory( &hints, sizeof( hints ) );
 	hints.ai_family		= AF_INET;
 	hints.ai_socktype	= SOCK_STREAM;
-	hints.ai_protocol	= IPPROTO_TCP;
+	hints.ai_protocol	= 0;
 	hints.ai_flags		= AI_PASSIVE;
 
 	mResult				= getaddrinfo( nullptr, port, &hints, &mAddrResult );

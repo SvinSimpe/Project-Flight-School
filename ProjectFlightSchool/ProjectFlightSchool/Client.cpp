@@ -139,6 +139,8 @@ bool Client::Initialize( const char* port, const char* ip )
 
 void Client::Release()
 {
+	mConn->DisconnectSocket( mServerSocket );
+
 	WSACleanup();
 
 	mConn->Release();

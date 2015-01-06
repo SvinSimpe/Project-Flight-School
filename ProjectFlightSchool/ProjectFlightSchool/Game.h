@@ -16,6 +16,7 @@ class Game
 		std::thread			mNetworkThread;
 		std::thread			mServerThread;
 		Client*				mClient;
+		bool				mServerIsActive;
 
 	protected:
 	public:

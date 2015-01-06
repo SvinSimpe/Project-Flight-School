@@ -138,6 +138,7 @@ bool Server::Run()
 	{
 		if ( AcceptConnection() )
 		{
+			printf( "Number of connected clients: %d.\n", mClientSockets.size() );
 			mListenThreads.push_back( std::thread( &Server::ReceiveLoop, this, mClientSockets.size() - 1 ) );
 		}
 		else

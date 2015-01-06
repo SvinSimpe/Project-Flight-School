@@ -122,7 +122,6 @@ bool Client::Initialize( const char* port, const char* ip )
 	hints.ai_family		= AF_INET;
 	hints.ai_socktype	= SOCK_STREAM;
 	hints.ai_protocol	= IPPROTO_TCP;
-	hints.ai_flags		= AI_PASSIVE;
 
 	mResult = getaddrinfo( ip, port, &hints, &mAddrResult );
 	if ( mResult != 0 )

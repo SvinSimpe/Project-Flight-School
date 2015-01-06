@@ -73,12 +73,21 @@ bool Client::Connect()
 	}
 
 	int flag = 1;
-         int result = setsockopt(mServerSocket,            /* socket affected */
+    int mResult = setsockopt(mServerSocket,            /* socket affected */
                                  IPPROTO_TCP,     /* set option at TCP level */
                                  TCP_NODELAY,     /* name of option */
                                  (char *) &flag,  /* the cast is historical
                                                          cruft */
                                  sizeof(int));    /* length of option value */
+
+	if( mResult != 0 )
+	{
+		printf( "setsockopt failed with error %d.\n", WSAGetLastError() );
+		shutdown( mServerSocket, SD_SEND );
+		closesocket( mServerSocket );
+		WSACleanup();
+		return false;
+	}
 
 	printf( "Connected to: %d\n", mServerSocket );
 
@@ -113,6 +122,7 @@ bool Client::Initialize( const char* port, const char* ip )
 	hints.ai_family		= AF_INET;
 	hints.ai_socktype	= SOCK_STREAM;
 	hints.ai_protocol	= IPPROTO_TCP;
+	hints.ai_flags		= AI_PASSIVE;
 
 	mResult = getaddrinfo( ip, port, &hints, &mAddrResult );
 	if ( mResult != 0 )

@@ -133,6 +133,11 @@
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Content\Effects\Animated3dEffect.hlsl" />
+    <FxCompile Include="..\Content\Effects\DeferredPassEffect.hlsl" />
+    <FxCompile Include="..\Content\Effects\Static3dEffect.hlsl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

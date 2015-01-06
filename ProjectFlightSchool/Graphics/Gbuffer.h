@@ -7,7 +7,7 @@
 	if( x )									\
 		( x )->Release(), ( x ) = nullptr;
 
-struct RTPack
+struct Gbuffer
 {
 	private:
 	protected:

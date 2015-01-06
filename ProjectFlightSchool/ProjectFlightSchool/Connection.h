@@ -14,7 +14,7 @@
 #define DEFAULT_BUFLEN	512
 #define DEFAULT_PORT	"27015"
 #define DEFAULT_IP		"localhost"
-//#define DEFAULT_IP		"192.168.1.223" // Gnidleif
+//#define DEFAULT_IP		"192.168.1.61" // Gnidleif
 //#define DEFAULT_IP		"192.168.1.98" // Trassel
 
 class Connection

@@ -85,8 +85,6 @@ void Server::DisconnectClient( SOCKET s )
 	{
 		mConn->SendPkg( to, 0, Net_Event::EV_PLAYER_LEFT, msg );
 	}
-	shutdown(s, SD_SEND);
-	closesocket(s);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

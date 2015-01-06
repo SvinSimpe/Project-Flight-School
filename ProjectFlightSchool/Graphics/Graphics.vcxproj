@@ -100,6 +100,7 @@
     <ClInclude Include="Effect.h" />
     <ClInclude Include="EffectInfo.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Gbuffer.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="SkeletonAsset.h" />
     <ClInclude Include="Static2dAsset.h" />

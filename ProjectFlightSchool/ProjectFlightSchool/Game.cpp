@@ -66,8 +66,14 @@ HRESULT Game::Initialize()
 void Game::Release()
 {
 	SAFE_DELETE( mStateMachine );
-	mServerThread.join();
-	mNetworkThread.join();
+	if ( mServerThread.joinable() )
+	{
+		mServerThread.join();
+	}
+	if ( mNetworkThread.joinable() )
+	{
+		mNetworkThread.join();
+	}
 	Server::GetInstance()->Release();
 	mClient->Release();
 	SAFE_DELETE( mClient );

@@ -11,6 +11,7 @@ void PlayState::RemoteUpdate( IEventPtr newEvent )
 		std::shared_ptr<Event_Remote_Player_Joined> data = std::static_pointer_cast<Event_Remote_Player_Joined>( newEvent );
 		mRemotePlayers.push_back( new RemotePlayer() );
 		mRemotePlayers.at(mRemotePlayers.size() - 1)->Initialize( data->ID() );
+		printf( "Number of other players online: %d.\n", mRemotePlayers.size() );
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Player_Left::GUID )
 	{
@@ -29,6 +30,7 @@ void PlayState::RemoteUpdate( IEventPtr newEvent )
 				break;
 			}
 		}
+		printf( "Number of other players online: %d.\n", mRemotePlayers.size() );
 	}
 }
 

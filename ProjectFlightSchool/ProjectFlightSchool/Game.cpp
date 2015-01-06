@@ -18,7 +18,8 @@ void Game::NetworkInit()
 		{
 			if ( Server::GetInstance()->Connect() )
 			{
-				mServerThread = std::thread( &Server::Run, Server::GetInstance() );
+				mServerThread	= std::thread( &Server::Run, Server::GetInstance() );
+				mServerIsActive	= true;
 			}
 		}
 	}
@@ -59,6 +60,7 @@ HRESULT Game::Initialize()
 	
 	mClient			= new Client();
 	mNetworkThread	= std::thread( &Game::NetworkInit, this );
+	mServerIsActive = false;
 
 	return S_OK;
 }
@@ -66,11 +68,20 @@ HRESULT Game::Initialize()
 void Game::Release()
 {
 	SAFE_DELETE( mStateMachine );
-	mServerThread.join();
-	mNetworkThread.join();
-	Server::GetInstance()->Release();
 	mClient->Release();
-	SAFE_DELETE( mClient );
+	SAFE_DELETE(mClient);
+	if ( mServerThread.joinable() )
+	{
+		mServerThread.join();
+	}
+	if ( mNetworkThread.joinable() )
+	{
+		mNetworkThread.join();
+	}
+	if ( mServerIsActive )
+	{
+		Server::GetInstance()->Release();
+	}
 }
 
 Game::Game()

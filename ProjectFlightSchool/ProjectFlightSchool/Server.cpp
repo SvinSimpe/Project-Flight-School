@@ -85,8 +85,6 @@ void Server::DisconnectClient( SOCKET s )
 	{
 		mConn->SendPkg( to, 0, Net_Event::EV_PLAYER_LEFT, msg );
 	}
-	shutdown(s, SD_SEND);
-	closesocket(s);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -140,6 +138,7 @@ bool Server::Run()
 	{
 		if ( AcceptConnection() )
 		{
+			printf( "Number of connected clients: %d.\n", mClientSockets.size() );
 			mListenThreads.push_back( std::thread( &Server::ReceiveLoop, this, mClientSockets.size() - 1 ) );
 		}
 		else

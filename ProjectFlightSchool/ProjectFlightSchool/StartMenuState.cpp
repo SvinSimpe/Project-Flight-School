@@ -11,6 +11,11 @@
 
 HRESULT StartMenuState::Update( float deltaTime )
 {
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_SPACE) )
+	{
+		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
+	}
 	return S_OK;
 }
 
@@ -33,7 +38,7 @@ void StartMenuState::Reset()
 
 HRESULT StartMenuState::Initialize()
 {
-	mStateType		= STATE_TYPE_START_MENU;
+	mStateType		= START_MENU_STATE;
 	return S_OK;
 }
 

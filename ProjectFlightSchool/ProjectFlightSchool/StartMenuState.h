@@ -2,6 +2,9 @@
 #define STARTMENUSTATE_H
 
 #include "BaseState.h"
+#include "Input.h"
+#include "EventManager.h"
+#include "Events.h"
 
 class StartMenuState : public BaseState
 {

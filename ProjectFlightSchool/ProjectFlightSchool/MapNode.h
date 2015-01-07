@@ -12,6 +12,7 @@ struct MapNodeInfo
 		XMFLOAT3		anchor;
 		UINT			nodeDim;
 		GameObject*		staticAssets;
+		UINT			staticAssetCount;
 };
 
 class MapNode
@@ -23,6 +24,7 @@ class MapNode
 		XMFLOAT3		mAnchor;
 		UINT			mNodeDim;
 		GameObject*		mStaticAssets;
+		UINT			mStaticAssetCount;
 
 	protected:
 	public:

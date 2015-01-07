@@ -29,10 +29,39 @@ HRESULT	MapNode::Update(float deltaTime)
 }
 HRESULT	MapNode::Render(float deltaTime)
 {
+	for(int i = 0; i < mStaticAssetCount; i++ )
+	{
+		mStaticAssets[i].Render( deltaTime );
+	}
+
 	return S_OK;
 }
 HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 {
+	mGrid				= new StaticVertex[initInfo.vertexCount];
+	mAnchor				= initInfo.anchor;
+	mGridDim			= initInfo.gridDim;
+	mStaticAssets		= initInfo.staticAssets;
+	mStaticAssetCount	= initInfo.staticAssetCount;
+	mVertexCount		= initInfo.vertexCount;
+
+	for( int i = 0; i < mVertexCount; i++ )
+	{
+		mGrid[i].position[0]	= initInfo.grid[i].position[0];
+		mGrid[i].position[1]	= initInfo.grid[i].position[1];
+		mGrid[i].position[2]	= initInfo.grid[i].position[2];
+
+		mGrid[i].normal[0]	= initInfo.grid[i].normal[0];
+		mGrid[i].normal[1]	= initInfo.grid[i].normal[1];
+		mGrid[i].normal[2]	= initInfo.grid[i].normal[2];
+
+		mGrid[i].tangent[0]	= 1.0f;
+		mGrid[i].tangent[1]	= 1.0f;
+		mGrid[i].tangent[2]	= 1.0f;
+
+		mGrid[i].uv[0] = 1.0f;
+		mGrid[i].uv[1] = 1.0f;
+	}
 	return S_OK;
 }
 void MapNode::Release()

@@ -7,11 +7,12 @@ HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 	std::vector<GameObject> staticObjects;
 	std::vector<MapNode> mapNodes;
 
+
+	//For every node
 	for( int i = 0; i < nrOfNodes; i++ )
 	{
 		//char localFileName[50];
 		//sprintf_s( localFileName, "%s%d", fileName, i );
-		UINT dimX;
 		UINT dimZ;
 
 		std::ifstream inFile( fileName, std::ios::binary );
@@ -25,6 +26,8 @@ HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 		}
 		MapNodeInfo initInfo;
 
+
+		//First read dimension, TODO: remove dimZ, needed atm, read vertexCount
 		inFile.read( (char*)&initInfo.gridDim, sizeof( UINT ) );
 		inFile.read( (char*)&dimZ, sizeof( UINT ) );
 		inFile.read( (char*)&initInfo.vertexCount, sizeof( UINT ) );
@@ -32,7 +35,7 @@ HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 
 		inFile.read( (char*)initInfo.grid, sizeof( Vertex24 ) * initInfo.vertexCount ) ;
 
-		for(int i = 0; i < initInfo.vertexCount; i++ )
+		for(UINT i = 0; i < initInfo.vertexCount; i++ )
 		{
 			printf("Gridpos: %f | %f | %f \n", initInfo.grid[i].position[0],initInfo.grid[i].position[1],initInfo.grid[i].position[2] );
 		}
@@ -43,38 +46,60 @@ HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 
 		initInfo.anchor = gridMat.pos;
 
+		//Read all the objects associated with the node
 		while( !inFile.eof() )
 		{
 			GameObject ob;
 			GameObjectInfo obInfo;
-			UINT assetID;
+			AssetID assetID;
 			inFile.read( (char*)&gridMat, sizeof(JMatrix) );
 			obInfo.pos		= gridMat.pos;
 			obInfo.rotation = gridMat.rot;
 			obInfo.scale	= gridMat.scale;
-			assetID = Graphics::GetInstance()->LoadStatic3dAsset("", gridMat.name, assetID );
+			Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_1.pfs", assetID );
 			ob.Initialize( obInfo, assetID );
 			staticObjects.push_back( ob );
 		}
 		inFile.close();
 
-		initInfo.staticAssets = new GameObject[staticObjects.size()];
+		//Mapnode handles deallocation of this object
+		initInfo.staticAssetCount = staticObjects.size();
+		initInfo.staticAssets = new GameObject[initInfo.staticAssetCount];
 
-		memcpy(initInfo.staticAssets, &staticObjects[0], sizeof(GameObject) * staticObjects.size() );
+		//memcpy(initInfo.staticAssets, &staticObjects[0], sizeof(GameObject) * staticObjects.size() );
 
-		//mapNodes.push_back
+		for( int i = 0; i < initInfo.staticAssetCount; i++ )
+		{
+			initInfo.staticAssets[i] = staticObjects[i];
+			printf("GameObject allocated with:\nPos: (%f,%f,%f)\nRotation:  (%f,%f,%f)\nScale:  (%f,%f,%f)\nAssetID: %d\n",
+				initInfo.staticAssets[i].GetPos().x,initInfo.staticAssets[i].GetPos().y,initInfo.staticAssets[i].GetPos().z,
+				initInfo.staticAssets[i].GetRotation().x,initInfo.staticAssets[i].GetRotation().y,initInfo.staticAssets[i].GetRotation().z,
+				initInfo.staticAssets[i].GetScale().x,initInfo.staticAssets[i].GetScale().y,initInfo.staticAssets[i].GetScale().z,
+				initInfo.staticAssets[i].GetAssetID());
+		}
 
+		MapNode temp;
+		temp.Initialize( initInfo );
+		mapNodes.push_back( temp );
 	}
+
+	mNrOfNodes = mapNodes.size();
+	mNodes = new MapNode[mNrOfNodes];
 	
+
+	for( int i = 0; i < mNrOfNodes;i++ )
+	{
+		mNodes[i] = mapNodes[i];
+	}
+
 	return S_OK;
 }
 HRESULT MapNodeManager::Render( float deltaTime )
 {
-	DirectX::XMMATRIX world = DirectX::XMMatrixTranslationFromVector(DirectX::XMVectorSet( 0, 0, 0, 1 ) );
-
-	
-
-	//XMVECTOR worldPos = XMVector3TransformCoord( XMLoadFloat3(mNodes[0].))
+	for( int i = 0; i < mNrOfNodes; i++ )
+	{
+		mNodes[i].Render( 0.0f );
+	}
 	return S_OK;
 }
 HRESULT	MapNodeManager::Update( float deltaTime )
@@ -88,6 +113,11 @@ HRESULT MapNodeManager::Initialize( char* fileName )
 }
 void MapNodeManager::Release()
 {
+	for( int i = 0; i < mNrOfNodes; i++ )
+	{
+		mNodes[i].Release();
+	}
+	delete[] mNodes;
 }
 MapNodeManager::MapNodeManager()
 {

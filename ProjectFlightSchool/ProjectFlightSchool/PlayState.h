@@ -5,6 +5,7 @@
 #include "BaseState.h"
 #include "Player.h"
 #include "RemotePlayer.h"
+#include "MapNodeManager.h"
 
 #define MAX_REMOTE_PLAYERS 10
 
@@ -25,6 +26,7 @@ class PlayState : public BaseState
 		AssetID mTree1Asset;
 
 		Map*		mWorldMap;
+		MapNodeManager* mMapNodeMan;
 
 		float	mAnimationTime;
 

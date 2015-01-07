@@ -5,16 +5,16 @@
 
 struct GameObjectInfo
 {
-		XMFLOAT3 pos;
-		XMFLOAT3 rotation;
-		XMFLOAT3 scale;
+		DirectX::XMFLOAT3 pos;
+		DirectX::XMFLOAT3 rotation;
+		DirectX::XMFLOAT3 scale;
 };
 class GameObject
 {
 	private:
-		XMFLOAT3 mPos;
-		XMFLOAT3 mRotation;
-		XMFLOAT3 mScale;
+		DirectX::XMFLOAT3 mPos;
+		DirectX::XMFLOAT3 mRotation;
+		DirectX::XMFLOAT3 mScale;
 
 		AssetID mAssetID;
 
@@ -26,12 +26,17 @@ class GameObject
 	public:
 		HRESULT		Update( float deltaTime );
 		HRESULT		Render( float deltaTime );
-		
-		XMFLOAT3	GetPos() const;
-		void		SetPos( XMFLOAT3 pos );
 
-		XMFLOAT3	GetRotation() const;
-		void		SetRotation( XMFLOAT3 rotation );
+
+		
+		DirectX::XMFLOAT3	GetPos() const;
+		void		SetPos( DirectX::XMFLOAT3 pos );
+
+		DirectX::XMFLOAT3	GetRotation() const;
+		void		SetRotation( DirectX::XMFLOAT3 rotation );
+
+		DirectX::XMFLOAT3	GetScale() const;
+		void		SetScale( DirectX::XMFLOAT3 scale );
 
 		AssetID		GetAssetID() const;
 		void		SetAssetID( AssetID assetID );

@@ -4,29 +4,50 @@ HRESULT	GameObject::Update(float deltaTime)
 {
 	return S_OK;
 }
-HRESULT	GameObject::Render(float deltaTime)
+HRESULT	GameObject::Render(float deltaTime )
 {
 	//Temporarycode
-	Graphics::GetInstance()->RenderStatic3dAsset( mAssetID, mPos, mRotation );
+	DirectX::XMMATRIX scaling		= DirectX::XMMatrixScaling( mScale.x, mScale.y, mScale.z );
+	DirectX::XMMATRIX rotation		= DirectX::XMMatrixRotationRollPitchYaw( mRotation.x, mRotation.y, mRotation.z );
+	DirectX::XMMATRIX translation	= DirectX::XMMatrixTranslation( mPos.x, mPos.y, mPos.z );
+
+	DirectX::XMMATRIX world = scaling * rotation * translation;
+
+	DirectX::XMFLOAT4X4 worldFinished;
+	DirectX::XMStoreFloat4x4( &worldFinished, world );
+	
+
+	Graphics::GetInstance()->RenderStatic3dAsset( mAssetID, &worldFinished );
 	return S_OK;
 }
 
-XMFLOAT3 GameObject::GetPos() const
+DirectX::XMFLOAT3 GameObject::GetPos() const
 {
 	return mPos;
 }
-void GameObject::SetPos(XMFLOAT3 pos)
+void GameObject::SetPos(DirectX::XMFLOAT3 pos)
 {
 	mPos = pos;
 }
-XMFLOAT3 GameObject::GetRotation() const
+
+DirectX::XMFLOAT3 GameObject::GetRotation() const
 {
 	return mRotation;
 }
-void GameObject::SetRotation(XMFLOAT3 rotation)
+void GameObject::SetRotation(DirectX::XMFLOAT3 rotation)
 {
 	mRotation = rotation;
 }
+
+DirectX::XMFLOAT3 GameObject::GetScale() const
+{
+	return mScale;
+}
+void GameObject::SetScale(DirectX::XMFLOAT3 scale)
+{
+	mScale = scale;
+}
+
 AssetID	GameObject::GetAssetID() const
 {
 	return mAssetID;
@@ -49,9 +70,9 @@ void GameObject::Release()
 }
 GameObject::GameObject()
 {
-	mPos		= XMFLOAT3( 0, 0 ,0 );
-	mRotation	= XMFLOAT3( 0, 0 ,0 );
-	mScale		= XMFLOAT3( 0, 0 ,0 );
+	mPos		= DirectX::XMFLOAT3( 0, 0 ,0 );
+	mRotation	= DirectX::XMFLOAT3( 0, 0 ,0 );
+	mScale		= DirectX::XMFLOAT3( 0, 0 ,0 );
 
 	mAssetID	= 0;
 }

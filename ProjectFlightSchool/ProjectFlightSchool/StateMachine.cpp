@@ -4,6 +4,18 @@
 //									PRIVATE
 ///////////////////////////////////////////////////////////////////////////////
 
+void StateMachine::ChangeStateListener( IEventPtr newEvent )
+{
+	if ( newEvent->GetEventType() == Event_Change_State::GUID )
+	{
+		std::shared_ptr<Event_Change_State> data = std::static_pointer_cast<Event_Change_State>( newEvent );
+		int eventID = data->EventID();
+		if( eventID > 0 && eventID < NR_OF_STATES )
+		{
+			ChangeState( eventID );
+		}
+	}
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
@@ -51,10 +63,12 @@ HRESULT StateMachine::Initialize()
 	mStates							= new BaseState*[NR_OF_STATES];
 	mStates[START_MENU_STATE]		= new StartMenuState();
 	mStates[PLAY_STATE]				= new PlayState();
-	mCurrentState					= PLAY_STATE;
+	mCurrentState					= START_MENU_STATE;
 
 	mStates[START_MENU_STATE]->Initialize();
 	mStates[PLAY_STATE]->Initialize();
+
+	EventManager::GetInstance()->AddListener( &StateMachine::ChangeStateListener, this, Event_Change_State::GUID );
 
 	return S_OK;
 }

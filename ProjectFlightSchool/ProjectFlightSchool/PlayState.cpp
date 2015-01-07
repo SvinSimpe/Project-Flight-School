@@ -101,7 +101,7 @@ void PlayState::Reset()
 
 HRESULT PlayState::Initialize()
 {
-	mStateType = STATE_TYPE_PLAY;
+	mStateType = PLAY_STATE;
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Plane/", "plane.pfs", mPlaneAsset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Log/", "log_1.pfs", mTestAsset );

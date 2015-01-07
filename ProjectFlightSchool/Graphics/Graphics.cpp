@@ -442,20 +442,34 @@ void Graphics::SetFocus( DirectX::XMFLOAT3 &focusPoint )
 //Clear canvas and prepare for rendering.
 void Graphics::BeginScene()
 {
+	mDeviceContext->ClearState();
+
 	if( mIsDeveloperCameraActive )
 		mDeveloperCamera->Update();
 	else
 		mCamera->Update();
 
-	static float clearColor[4] = { 0.3f, 0.3f, 0.3f, 1.0f };
-	ID3D11ShaderResourceView* nullSRV[TEXTURES_AMOUNT] = { nullptr, nullptr, nullptr };
+	/////////////////////////////////
+	// Clear errything
+	/////////////////////////////////
+	static float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	//ID3D11ShaderResourceView* nullSRV[TEXTURES_AMOUNT] = { nullptr, nullptr, nullptr };
 	mDeviceContext->ClearRenderTargetView( mRenderTargetView, clearColor );
+	for( int i = 0; i < NUM_GBUFFERS; i++)
+		mDeviceContext->ClearRenderTargetView( mGbuffers[i]->mRenderTargetView, clearColor );
 	mDeviceContext->ClearDepthStencilView( mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
 
-	mDeviceContext->OMSetRenderTargets( 1, &mRenderTargetView, mDepthStencilView );
+	/////////////////////////////////
+	// Gbuffer generation pass
+	/////////////////////////////////
+
+	ID3D11RenderTargetView* rtvsToSet[NUM_GBUFFERS];
+	for( int i = 0; i < NUM_GBUFFERS; i++)
+		rtvsToSet[i] = mGbuffers[i]->mRenderTargetView;
+	mDeviceContext->OMSetRenderTargets( 3, rtvsToSet, mDepthStencilView );
 	mDeviceContext->RSSetViewports( 1, &mStandardView );
 	
-	mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, nullSRV );
+	//mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, nullSRV );
 
 	//Map CbufferPerFrame
 	CbufferPerFrame data;
@@ -482,6 +496,35 @@ void Graphics::BeginScene()
 //Finalize rendering.
 void Graphics::EndScene()
 {
+	/////////////////////////////////
+	// Deferred rendering pass
+	/////////////////////////////////
+	mDeviceContext->ClearState();
+
+	mDeviceContext->ClearDepthStencilView( mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
+
+	mDeviceContext->OMSetRenderTargets( 1, &mRenderTargetView, mDepthStencilView );
+	mDeviceContext->RSSetViewports( 1, &mStandardView );
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
+	
+	for( int i = 0; i < NUM_GBUFFERS; i++)
+		mDeviceContext->PSSetShaderResources( i, 1, &mGbuffers[i]->mShaderResourceView );
+
+		//mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mDeferredPassEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mDeferredPassEffect->GetPixelShader(), nullptr, 0 );
+
+	mDeviceContext->PSSetSamplers( 0, 1, &mPointSamplerState );
+	mDeviceContext->PSSetSamplers( 1, 1, &mLinearSamplerState );
+
+	mDeviceContext->PSSetConstantBuffers( 0, 1, &mCbufferPerFrame );
+
+	mDeviceContext->Draw( 4, 0 );
+
 	mSwapChain->Present( 1, 0 );
 }
 
@@ -621,9 +664,9 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	samplerDesc.AddressU		= D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressV		= D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressW		= D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.ComparisonFunc	= D3D11_COMPARISON_NEVER;
+	samplerDesc.ComparisonFunc	= D3D11_COMPARISON_ALWAYS;
 	samplerDesc.MaxAnisotropy	= 1;
-	samplerDesc.MaxLOD			= 1.0f;
+	samplerDesc.MaxLOD			= D3D11_FLOAT32_MAX;
 	samplerDesc.MinLOD			= 0.0f;
 	samplerDesc.MipLODBias		= 0.0f;
 
@@ -674,7 +717,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	EffectInfo effectInfo;
 	ZeroMemory( &effectInfo, sizeof( EffectInfo ) );
-	effectInfo.fileName					= "../Content/Effects/Placeholder.hlsl";
+	effectInfo.fileName					= "../Content/Effects/Static3dEffect.hlsl";
 	effectInfo.vertexType				= STATIC_VERTEX_TYPE;
 	effectInfo.isVertexShaderIncluded	= true;
 	effectInfo.isPixelShaderIncluded	= true;
@@ -683,12 +726,25 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 		return hr;
 
 	mAnimatedEffect	= new Effect;
-	effectInfo.fileName		= "../Content/Effects/PlaceholderAni.hlsl";
+	effectInfo.fileName		= "../Content/Effects/Animated3dEffect.hlsl";
 	effectInfo.vertexType	= ANIMATED_VERTEX_TYPE;
 
 	if( FAILED( hr = mAnimatedEffect->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 	
+	mDeferredPassEffect = new Effect;
+	effectInfo.fileName		= "../Content/Effects/DeferredPassEffect.hlsl";
+	effectInfo.vertexType	= STATIC_VERTEX_TYPE;
+
+	if( FAILED( hr = mDeferredPassEffect->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+
+	//Gbuffers
+	for( int i = 0; i < NUM_GBUFFERS; i++ )
+	{
+		mGbuffers[i] = new Gbuffer;
+		mGbuffers[i]->Initialize( mDevice, mScreenWidth, mScreenHeight );
+	}
 	//Camera
 	mCamera = new Camera;
 
@@ -741,12 +797,19 @@ void Graphics::Release()
 	mAssetManager->Release();
 	mStaticEffect->Release();
 	mAnimatedEffect->Release();
+	mDeferredPassEffect->Release();
 	mCamera->Release();
 	mDeveloperCamera->Release();
+	for( int i = 0; i < NUM_GBUFFERS; i++ )
+	{
+		mGbuffers[i]->Release();
+		SAFE_DELETE( mGbuffers[i] );
+	}
 
 	SAFE_DELETE( mAssetManager );
 	SAFE_DELETE( mStaticEffect );
 	SAFE_DELETE( mAnimatedEffect );
+	SAFE_DELETE( mDeferredPassEffect );
 	SAFE_DELETE( mCamera );
 	SAFE_DELETE( mDeveloperCamera );
 

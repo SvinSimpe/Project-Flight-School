@@ -51,15 +51,30 @@ void Input::Update( LPARAM lParam )
 	switch( raw->header.dwType )
 	{
 		case RIM_TYPEMOUSE:
-			if( raw->data.mouse.ulButtons & RI_MOUSE_BUTTON_1_DOWN )
+			if( raw->data.mouse.ulButtons & RI_MOUSE_LEFT_BUTTON_DOWN )
 			{
-				//mCurrentFrame[KEYS::KEYS_MOUSE_LEFT] = true;
+				mCurrentFrame[KEYS::KEYS_MOUSE_LEFT] = true;
+			}
+			else if( raw->data.mouse.ulButtons & RI_MOUSE_LEFT_BUTTON_UP )
+			{
+				mCurrentFrame[KEYS::KEYS_MOUSE_LEFT] = false;
+			}
+
+			if( raw->data.mouse.ulButtons & RI_MOUSE_RIGHT_BUTTON_DOWN )
+			{
+				mCurrentFrame[KEYS::KEYS_MOUSE_RIGHT] = true;
+			}
+			else if( raw->data.mouse.ulButtons & RI_MOUSE_RIGHT_BUTTON_UP )
+			{
+				mCurrentFrame[KEYS::KEYS_MOUSE_RIGHT] = false;
 			}
 
 			if(raw->data.mouse.usFlags == MOUSE_MOVE_RELATIVE)
 			{
 				static POINT pt;
-				GetCursorPos(&pt);
+				GetCursorPos( &pt );
+				ScreenToClient( mHwnd, &pt );
+
 				mCurrentMousePos.x = pt.x - raw->data.mouse.lLastX;
 				mCurrentMousePos.y = pt.y - raw->data.mouse.lLastY;
 

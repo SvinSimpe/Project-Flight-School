@@ -177,3 +177,115 @@ class Event_Remote_Player_Left : public IEvent
 			return GUID;
 		}
 };
+
+class Event_Player_Died : public IEvent
+{
+	// Member variables
+private:
+	unsigned int mID;
+
+protected:
+public:
+	static const EventType GUID;
+
+	// Member functions
+private:
+public:
+	Event_Player_Died( unsigned int id )
+	{
+		mID = id;
+	}
+	unsigned int ID() const
+	{
+		return mID;
+	}
+protected:
+	const EventType& GetEventType( void ) const
+	{
+		return GUID;
+	}
+};
+
+class Event_Remote_Player_Died : public IEvent
+{
+	// Member variables
+private:
+	unsigned int mID;
+
+protected:
+public:
+	static const EventType GUID;
+
+	// Member functions
+private:
+public:
+	Event_Remote_Player_Died( unsigned int id )
+	{
+		mID = id;
+	}
+	unsigned int ID() const
+	{
+		return mID;
+	}
+protected:
+	const EventType& GetEventType( void ) const
+	{
+		return GUID;
+	}
+};
+
+class Event_Player_Damaged : public IEvent
+{
+	// Member variables
+private:
+	unsigned int mID;
+
+protected:
+public:
+	static const EventType GUID;
+
+	// Member functions
+private:
+public:
+	Event_Player_Damaged(unsigned int id)
+	{
+		mID = id;
+	}
+	unsigned int ID() const
+	{
+		return mID;
+	}
+protected:
+	const EventType& GetEventType(void) const
+	{
+		return GUID;
+	}
+};
+
+class Event_Remote_Player_Damaged : public IEvent
+{
+	// Member variables
+private:
+	unsigned int mID;
+
+protected:
+public:
+	static const EventType GUID;
+
+	// Member functions
+private:
+public:
+	Event_Remote_Player_Damaged(unsigned int id)
+	{
+		mID = id;
+	}
+	unsigned int ID() const
+	{
+		return mID;
+	}
+protected:
+	const EventType& GetEventType(void) const
+	{
+		return GUID;
+	}
+};

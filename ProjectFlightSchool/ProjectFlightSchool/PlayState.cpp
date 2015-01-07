@@ -32,6 +32,65 @@ void PlayState::RemoteUpdate( IEventPtr newEvent )
 	}
 }
 
+// Info from server wich player has died
+void PlayState::KillRemotePlayer( IEventPtr newEvent )
+{
+	if( newEvent->GetEventType() == Event_Remote_Player_Died::GUID )
+	{
+		// Kill remote player
+		std::shared_ptr<Event_Remote_Player_Died> data = std::static_pointer_cast<Event_Remote_Player_Died>( newEvent );
+		for ( unsigned int i = 0; i < mRemotePlayers.size(); i++ )
+		{
+			if ( !mRemotePlayers.at(i) )
+			{
+				continue;
+			}
+			else if (data->ID() == mRemotePlayers.at(i)->GetID())
+			{
+				mRemotePlayers.at(i)->RemotePlayerDie();
+
+				// Debug
+				OutputDebugString(L"> A Remote player has died.");
+
+				break;
+			}
+		}
+	}
+}
+
+// Tell server that local  player has taken damage
+void PlayState::BrodcastDamage()
+{
+	IEventPtr dmgEv(new Event_Player_Damaged(mPlayer->GetID()));
+	EventManager::GetInstance()->QueueEvent( dmgEv );
+}
+
+// Tell client that remote player has taken damage
+void PlayState::HandleDamage( IEventPtr newEvent )
+{
+	if (newEvent->GetEventType() == Event_Remote_Player_Damaged::GUID)
+	{
+		// Damage remote player
+		std::shared_ptr<Event_Remote_Player_Died> data = std::static_pointer_cast<Event_Remote_Player_Died>(newEvent);
+		for (unsigned int i = 0; i < mRemotePlayers.size(); i++)
+		{
+			if (!mRemotePlayers.at(i))
+			{
+				continue;
+			}
+			else if (data->ID() == mRemotePlayers.at(i)->GetID())
+			{
+				// Damage player
+
+				// Debug
+				OutputDebugString(L"> A Remote player has taken damage.");
+
+				break;
+			}
+		}
+	}
+}
+
 void PlayState::HandleDeveloperCameraInput()
 {
 	// TOGGLE CAM
@@ -54,6 +113,7 @@ HRESULT PlayState::Update( float deltaTime )
 	HandleDeveloperCameraInput();
 	mPlayer->Update( deltaTime );
 	mAnimationTime += deltaTime;
+
 	return S_OK;
 }
 
@@ -128,6 +188,8 @@ HRESULT PlayState::Initialize()
 
 	EventManager::GetInstance()->AddListener( &PlayState::RemoteUpdate, this, Event_Remote_Player_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::RemoteUpdate, this, Event_Remote_Player_Left::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::KillRemotePlayer, this, Event_Remote_Player_Died::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::HandleDamage, this, Event_Remote_Player_Damaged::GUID );
 
 	return S_OK;
 }

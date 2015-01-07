@@ -31,6 +31,8 @@ class Client // The class used by clients to connect to the server
 	private:
 		bool	ReceiveLoop();
 		void	PlayerMoved( IEventPtr newEvent );
+		void	PlayerDied( IEventPtr newEvent );
+		void	PlayerDamaged( IEventPtr newEvent );
 
 	protected:
 
@@ -77,6 +79,20 @@ void Client::HandlePkg( Package<T>* p )
 			EvPlayerConnection msg	= (EvPlayerConnection&)p->body.content;
 			mID						= msg.ID;
 			printf( "Your id is %d.\n", msg.ID );
+		}
+			break;
+		case Net_Event::EV_PLAYER_DIED:
+		{
+			EvPlayerConnection deadPlayer = (EvPlayerConnection&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Died( deadPlayer.ID ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
+		case Net_Event::EV_PLAYER_DAMAGED:
+		{
+			EvPlayerConnection damagedPlayer = (EvPlayerConnection&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Damaged( damagedPlayer.ID ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
 		default:

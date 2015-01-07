@@ -11,6 +11,7 @@ void PlayState::RemoteUpdate( IEventPtr newEvent )
 		std::shared_ptr<Event_Remote_Player_Joined> data = std::static_pointer_cast<Event_Remote_Player_Joined>( newEvent );
 		mRemotePlayers.push_back( new RemotePlayer() );
 		mRemotePlayers.at(mRemotePlayers.size() - 1)->Initialize( data->ID() );
+		printf( "Number of other players online: %d.\n", mRemotePlayers.size() );
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Player_Left::GUID )
 	{
@@ -29,6 +30,7 @@ void PlayState::RemoteUpdate( IEventPtr newEvent )
 				break;
 			}
 		}
+		printf( "Number of other players online: %d.\n", mRemotePlayers.size() );
 	}
 }
 
@@ -159,7 +161,7 @@ void PlayState::Reset()
 
 HRESULT PlayState::Initialize()
 {
-	mStateType = STATE_TYPE_PLAY;
+	mStateType = PLAY_STATE;
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Plane/", "plane.pfs", mPlaneAsset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Log/", "log_1.pfs", mTestAsset );

@@ -70,6 +70,9 @@ void Player::HandleInput( float deltaTime )
 	}
 	else
 		mWeaponCoolDown -= deltaTime;
+
+	IEventPtr E1( new Event_Player_Moved( mLowerBody.position, mUpperBody.position, mUpperBody.direction ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 void Player::Move( XMFLOAT3 direction )
@@ -83,9 +86,6 @@ void Player::Move( XMFLOAT3 direction )
 		mLowerBody.direction.x /= pow((pow(mLowerBody.direction.x, 2) + pow(mLowerBody.direction.y, 2) + pow(mLowerBody.direction.z, 2)), 0.5f);
 		mLowerBody.direction.z /= pow((pow(mLowerBody.direction.x, 2) + pow(mLowerBody.direction.y, 2) + pow(mLowerBody.direction.z, 2)), 0.5f);
 	}
-
-	IEventPtr E1( new Event_Player_Moved( mLowerBody.position, mUpperBody.position, mUpperBody.direction ) );
-	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 // Set current hp to 0 to avoid negative values and send event that player has died

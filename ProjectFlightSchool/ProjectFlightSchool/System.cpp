@@ -77,7 +77,7 @@ int	System::Run()
 
 			int mem	= (int)Graphics::GetInstance()->QueryMemoryUsed();
 
-			wchar_t title[100];
+			wchar_t title[200];
 			swprintf( title, sizeof(title), L"Project-Flight-School: Version 0.2 -  DeltaTime: %f  - FPS: %d\t vRam: %d Stop!... Hamburger time!",
 				deltaTime, (int)fps, mem );
 			SetWindowText( mHWnd, title );
@@ -89,7 +89,6 @@ int	System::Run()
 	}
 
 	return (int)message.wParam;
-
 }
 
 //Initializes the window and sub-applications. 

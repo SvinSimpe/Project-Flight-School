@@ -13,6 +13,9 @@ enum KEYS
 	KEYS_UP,
 	KEYS_DOWN,
 
+	KEYS_MOUSE_LEFT,
+	KEYS_MOUSE_RIGHT,
+
 	//Number of keys that we can handle
 	KEYS_AMOUNT
 };

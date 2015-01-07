@@ -45,13 +45,20 @@ VS_Out VS_main( VS_In input )
 }
 
 //Pixel
-Texture2D<float4> diffuseTexture	: register( t0 );
-Texture2D<float4> normalTexture		: register( t1 );
-Texture2D<float4> specularTexture	: register( t2 );
+
+struct PS_Out
+{
+	float4 albedo	: SV_Target0;
+	float4 normal	: SV_Target1;
+	float4 worldPos	: SV_Target2;
+};
+
 SamplerState pointSampler			: register( s0 );
 SamplerState linearSampler			: register( s1 );
-float4 PS_main( VS_Out input ) : SV_TARGET0
+PS_Out PS_main( VS_Out input )
 {	
+	PS_Out output = (PS_Out)0;
+
 	clip ( diffuseTexture.Sample( linearSampler, input.uv ).w < 0.7f ? -1:1 );
 
 	//======== NORMAL MAPPING ==========
@@ -61,29 +68,9 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	float3 biTangent	= cross( input.normal.xyz, input.tangent.xyz );
 	float3x3 texSpace	= float3x3( input.tangent.xyz, biTangent, input.normal.xyz );
 	input.normal		+= mul( bumpNormal.xyz, texSpace );
-	input.normal		= normalize( input.normal );
-
-	//======== PHONG SHADING ===========
-	float3 ambient		= float3( 0.1f, 0.1f,  0.1f );
-	float3 diffuse		= float3( 0.0f, 0.0f,  0.0f );
-	float3 specular		= float3( 0.1f, 0.1f,  0.1f );
-	float3 color		= float3( 0.75f, 0.8f,  0.8f );
-
-	float3 lightDirection	= float3( -0.5f, -1.0f, 0.3f );
-
-	//Calculate diffuse factor
-	float diffuseFactor = max( 0, dot( input.normal, -lightDirection ) );
-	diffuse				= color * diffuseFactor;
-
-	//Calculate specular factor
-	float3 reflection		= normalize( reflect( -lightDirection, input.normal ) );
-	float3 viewVector		= normalize( cameraPosition.xyz - input.worldPosition );
-	float specularFactor	= saturate( dot( reflection, viewVector ) );
-	float specularPower		= 4.0f;
-	specular				= float3( float3( 1.0f, 1.0f, 1.0f ) * pow( specularFactor, specularPower ) );// * specularTexture.Sample( pointSampler, input.uv ).xyz;
-
-	float3 finalColor		= float3( ( ambient + diffuse + specular ) * color );
-
-	return float4( finalColor *	diffuseTexture.Sample( linearSampler, input.uv ).xyz, 1.0f );
-
+	
+	output.normal		= float4( normalize( input.normal ), 0.0f );
+	output.albedo		= float4( diffuseTexture.Sample( linearSampler, input.uv ).xyz, 1.0f );
+	output.worldPos		= float4( input.worldPos, 1.0f );
+	return output;
 }

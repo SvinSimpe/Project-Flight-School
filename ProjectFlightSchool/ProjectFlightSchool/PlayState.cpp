@@ -11,6 +11,7 @@ void PlayState::RemoteUpdate( IEventPtr newEvent )
 		std::shared_ptr<Event_Remote_Player_Joined> data = std::static_pointer_cast<Event_Remote_Player_Joined>( newEvent );
 		mRemotePlayers.push_back( new RemotePlayer() );
 		mRemotePlayers.at(mRemotePlayers.size() - 1)->Initialize( data->ID() );
+		printf( "Number of other players online: %d.\n", mRemotePlayers.size() );
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Player_Left::GUID )
 	{
@@ -29,6 +30,7 @@ void PlayState::RemoteUpdate( IEventPtr newEvent )
 				break;
 			}
 		}
+		printf( "Number of other players online: %d.\n", mRemotePlayers.size() );
 	}
 }
 
@@ -104,9 +106,9 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Plane/", "plane.pfs", mPlaneAsset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Log/", "log_1.pfs", mTestAsset );
 
-	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Animations/skelTest/", "raptor.Skel", mTestSkeleton );
-	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Animations/skelTest/", "scaledScenetest.apfs", mTestSkeleton, mTestAnimation );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Animations/skelTest/", "raptor_run.PaMan", mTestAnimationAnimation );
+	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", mTestSkeleton );
+	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", mTestSkeleton, mTestAnimation );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptor_run.PaMan", mTestAnimationAnimation );
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_1.pfs", mNest1Asset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_1.pfs", mStoneAssets[0] );
@@ -123,8 +125,8 @@ HRESULT PlayState::Initialize()
 	mPlayer = new Player();
 	mPlayer->Initialize();
 
-	//mWorldMap = new Map();
-	//mWorldMap->Initialize( 8.0f, 24 );
+	mWorldMap = new Map();
+	mWorldMap->Initialize( 8.0f, 24 );
 
 	EventManager::GetInstance()->AddListener( &PlayState::RemoteUpdate, this, Event_Remote_Player_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::RemoteUpdate, this, Event_Remote_Player_Left::GUID );

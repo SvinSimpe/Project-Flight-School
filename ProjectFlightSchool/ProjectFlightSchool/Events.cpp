@@ -44,3 +44,4 @@ const EventType Event_Player_Moved::GUID( 0);
 const EventType Event_Remote_Player_Update::GUID( 1 );
 const EventType Event_Remote_Player_Joined::GUID( 2 );
 const EventType Event_Remote_Player_Left::GUID( 3 );
+const EventType Event_Change_State::GUID( 4 );

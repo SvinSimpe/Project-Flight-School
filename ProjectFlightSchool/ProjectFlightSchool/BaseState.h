@@ -4,14 +4,17 @@
 #include <Windows.h>
 #include "Graphics.h"
 
-enum StateType{ STATE_TYPE_START_MENU, STATE_TYPE_PLAY };
+// State-tracking constants
+const int START_MENU_STATE	= 0;
+const int PLAY_STATE		= 1;
+const int NR_OF_STATES		= 2;
 
 class BaseState
 {
 	// Class members
 	private:
 	protected:
-		StateType		mStateType;
+		int				mStateType;
 	public:
 
 	// Class functions
@@ -23,7 +26,7 @@ class BaseState
 		virtual void	OnEnter()					= 0;
 		virtual void	OnExit()					= 0;
 		virtual void	Reset()						= 0;
-		StateType		GetStateType();	
+		int				GetStateType();	
 
 		virtual HRESULT Initialize()				= 0;
 		virtual void	Release()					= 0;

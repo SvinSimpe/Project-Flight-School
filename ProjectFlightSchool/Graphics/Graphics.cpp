@@ -73,12 +73,11 @@ HRESULT Graphics::LoadAnimationAsset( std::string filePath, std::string fileName
 //Render a static 3d asset given the assetId
 void Graphics::RenderStatic3dAsset( AssetID assetId )
 {
+	Static3dAsset* object = (Static3dAsset*)mAssetManager->mAssetContainer[assetId];
+
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
-	UINT32 vertexSize				= sizeof( StaticVertex );
-	UINT32 offset					= 0;
-	ID3D11Buffer* buffersToSet[]	= { ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexBuffer };
-	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+	UINT32 vertexSize = sizeof( StaticVertex );
 
 	mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
 
@@ -95,24 +94,30 @@ void Graphics::RenderStatic3dAsset( AssetID assetId )
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
 
-	ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_DIFFUSE]] )->mSRV,
-													( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_NORMAL]] )->mSRV,
-													( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_SPECULAR]] )->mSRV,
-												};
+	for( int i = 0; i < (int)object->mMeshes.size(); i++ )
+	{
+		UINT32 offset					= 0;
+		ID3D11Buffer* buffersToSet[]	= { object->mMeshes[i].mVertexBuffer };
+		mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
 
-	mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+		ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_DIFFUSE]] )->mSRV,
+														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_NORMAL]] )->mSRV,
+														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_SPECULAR]] )->mSRV,
+													};
 
-	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
+		mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+
+		mDeviceContext->Draw( object->mMeshes[i].mVertexCount, 0 );
+	}
 }
 
 void Graphics::RenderStatic3dAsset( AssetID assetId, float x, float y, float z )
 {
+	Static3dAsset* object = (Static3dAsset*)mAssetManager->mAssetContainer[assetId];
+
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
-	UINT32 vertexSize				= sizeof( StaticVertex );
-	UINT32 offset					= 0;
-	ID3D11Buffer* buffersToSet[]	= { ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexBuffer };
-	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+	UINT32 vertexSize = sizeof( StaticVertex );
 
 	mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
 
@@ -129,24 +134,30 @@ void Graphics::RenderStatic3dAsset( AssetID assetId, float x, float y, float z )
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
 
-	ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_DIFFUSE]] )->mSRV,
-													( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_NORMAL]] )->mSRV,
-													( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_SPECULAR]] )->mSRV,
-												};
+	for( int i = 0; i < (int)object->mMeshes.size(); i++ )
+	{
+		UINT32 offset					= 0;
+		ID3D11Buffer* buffersToSet[]	= { object->mMeshes[i].mVertexBuffer };
+		mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
 
-	mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+		ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_DIFFUSE]] )->mSRV,
+														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_NORMAL]] )->mSRV,
+														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_SPECULAR]] )->mSRV,
+													};
 
-	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
+		mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+
+		mDeviceContext->Draw( object->mMeshes[i].mVertexCount, 0 );
+	}
 }
 
 void Graphics::RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation )
 {
+	Static3dAsset* object = (Static3dAsset*)mAssetManager->mAssetContainer[assetId];
+
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
-	UINT32 vertexSize				= sizeof( StaticVertex );
-	UINT32 offset					= 0;
-	ID3D11Buffer* buffersToSet[]	= { ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexBuffer };
-	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+	UINT32 vertexSize = sizeof( StaticVertex );
 
 	mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
 
@@ -165,24 +176,30 @@ void Graphics::RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT3 position,
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
 
-	ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_DIFFUSE]] )->mSRV,
-													( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_NORMAL]] )->mSRV,
-													( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_SPECULAR]] )->mSRV,
-												};
+	for( int i = 0; i < (int)object->mMeshes.size(); i++ )
+	{
+		UINT32 offset					= 0;
+		ID3D11Buffer* buffersToSet[]	= { object->mMeshes[i].mVertexBuffer };
+		mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
 
-	mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+		ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_DIFFUSE]] )->mSRV,
+														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_NORMAL]] )->mSRV,
+														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_SPECULAR]] )->mSRV,
+													};
 
-	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
+		mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+
+		mDeviceContext->Draw( object->mMeshes[i].mVertexCount, 0 );
+	}
 }
 
 void Graphics::RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT4X4* world )
 {
+	Static3dAsset* object = (Static3dAsset*)mAssetManager->mAssetContainer[assetId];
+
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
-	UINT32 vertexSize				= sizeof( StaticVertex );
-	UINT32 offset					= 0;
-	ID3D11Buffer* buffersToSet[]	= { ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexBuffer };
-	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+	UINT32 vertexSize = sizeof( StaticVertex );
 
 	mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
 
@@ -199,18 +216,30 @@ void Graphics::RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT4X4* world 
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
 
-	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
+	for( int i = 0; i < (int)object->mMeshes.size(); i++ )
+	{
+		UINT32 offset					= 0;
+		ID3D11Buffer* buffersToSet[]	= { object->mMeshes[i].mVertexBuffer };
+		mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+
+		ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_DIFFUSE]] )->mSRV,
+														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_NORMAL]] )->mSRV,
+														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_SPECULAR]] )->mSRV,
+													};
+
+		mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+
+		mDeviceContext->Draw( object->mMeshes[i].mVertexCount, 0 );
+	}
 }
 
 void Graphics::RenderStatic3dAssetIndexed( AssetID assetId, UINT indexCount, UINT startIndex )
 {
+	Static3dAssetIndexed* object = (Static3dAssetIndexed*)mAssetManager->mAssetContainer[assetId];
+
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
-	UINT32 vertexSize				= sizeof( StaticVertex );
-	UINT32 offset					= 0;
- 	ID3D11Buffer* buffersToSet[]	= { ( (Static3dAssetIndexed*)mAssetManager->mAssetContainer[assetId] )->mVertexBuffer };
-	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
-	mDeviceContext->IASetIndexBuffer( ( (Static3dAssetIndexed*)mAssetManager->mAssetContainer[assetId] )->mIndexBuffer, DXGI_FORMAT_R32_UINT, 0 );
+	UINT32 vertexSize = sizeof( StaticVertex );
 
 	CbufferPerObject data;
 	data.worldMatrix = DirectX::XMMatrixTranspose( DirectX::XMMatrixIdentity() );
@@ -218,8 +247,22 @@ void Graphics::RenderStatic3dAssetIndexed( AssetID assetId, UINT indexCount, UIN
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
 
-	mDeviceContext->DrawIndexed( indexCount, 0, 0 );
+	for( int i = 0; i < (int)object->mMeshes.size(); i++ )
+	{
+		UINT32 offset					= 0;
+		ID3D11Buffer* buffersToSet[]	= { object->mMeshes[i].mVertexBuffer };
+		mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+		mDeviceContext->IASetIndexBuffer( object->mIndexBuffer, DXGI_FORMAT_R32_UINT, 0 );
 
+		ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_DIFFUSE]] )->mSRV,
+														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_NORMAL]] )->mSRV,
+														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_SPECULAR]] )->mSRV,
+													};
+
+		mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+
+		mDeviceContext->DrawIndexed( indexCount, 0, 0 );
+	}
 }
 
 void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime )

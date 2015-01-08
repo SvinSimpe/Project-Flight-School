@@ -68,7 +68,7 @@ void Server::HandlePkg( SOCKET &s, Package<T>* p )
 			break;
 		case Net_Event::EV_PLAYER_JOINED:
 		{
-			EvPlayerConnection toAll; // Contains the ID of the joining client
+			EvPlayerID toAll; // Contains the ID of the joining client
 			toAll.ID = (unsigned int)s;
 			for ( auto& socket : mClientSockets )
 			{
@@ -81,7 +81,7 @@ void Server::HandlePkg( SOCKET &s, Package<T>* p )
 			break;
 		case Net_Event::EV_PLAYER_DIED:
 		{
-			EvPlayerConnection toAll = (EvPlayerConnection&)p->body.content;
+			EvPlayerID toAll = (EvPlayerID&)p->body.content;
 			for( auto& socket : mClientSockets )
 			{
 				if( socket != s && socket != INVALID_SOCKET )
@@ -93,8 +93,8 @@ void Server::HandlePkg( SOCKET &s, Package<T>* p )
 			break;
 		case Net_Event::EV_PLAYER_DAMAGED:
 		{
-			EvPlayerConnection toAll = (EvPlayerConnection&)p->body.content;
-			for ( auto& socket : mClientSockets )
+			EvPlayerID toAll = (EvPlayerID&)p->body.content;
+			for (auto& socket : mClientSockets)
 			{
 				if ( socket != s && socket != INVALID_SOCKET )
 				{
@@ -105,7 +105,7 @@ void Server::HandlePkg( SOCKET &s, Package<T>* p )
 			break;
 		case Net_Event::EV_PLAYER_SPAWNED:
 		{
-			EvPlayerConnection toAll = (EvPlayerConnection&)p->body.content;
+			EvPlayerID toAll = (EvPlayerID&)p->body.content;
 			for ( auto& socket : mClientSockets )
 			{
 				if ( socket != s && socket != INVALID_SOCKET )

@@ -82,6 +82,8 @@ HRESULT PlayState::Render()
 			rp->Render( 0.0f );
 	}
 
+	Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 300, 300, 100, 100 );
+
 	Graphics::GetInstance()->EndScene();
 
 	return S_OK;
@@ -119,6 +121,8 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_6.pfs", mStoneAssets[5] );
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Tree/", "tree1.pfs", mTree1Asset );
+
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dAsset );
 
 	mAnimationTime = 1.0f;
 

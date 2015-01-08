@@ -7,18 +7,22 @@
 #define	TEXTURES_NORMAL 1
 #define	TEXTURES_SPECULAR 2
 
-
 //Add new items above this comment
 #define	TEXTURES_AMOUNT 3
+
+struct Mesh
+{
+	UINT			mVertexCount;
+	ID3D11Buffer*	mVertexBuffer;
+	AssetID			mTextures[TEXTURES_AMOUNT];		
+};
 
 struct Static3dAsset : public AssetBase
 {
 	private:
 	protected:
 	public:
-		UINT			mVertexCount;
-		ID3D11Buffer*	mVertexBuffer;
-		AssetID			mTextures[TEXTURES_AMOUNT];						
+		std::vector<Mesh> mMeshes;
 
 	private:
 	protected:

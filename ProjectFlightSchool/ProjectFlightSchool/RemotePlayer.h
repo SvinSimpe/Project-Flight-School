@@ -28,6 +28,10 @@ class RemotePlayer
 		unsigned int	mID;
 		UpperBody		mUpperBody;
 		LowerBody		mLowerBody;
+		float			mCurrentHp;
+		float			mMaxHp;
+		bool			mIsAlive;
+
 	public:
 
 	// Member functions
@@ -38,6 +42,7 @@ class RemotePlayer
 		void LookAt( float rotation );
 
 	public:
+		void RemotePlayerDie();
 		int GetID() const;
 		HRESULT Render( float deltaTime );
 		HRESULT Initialize( unsigned int id );

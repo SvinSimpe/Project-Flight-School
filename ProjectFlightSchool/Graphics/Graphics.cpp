@@ -4,7 +4,8 @@ Graphics::Graphics()
 {
 	mHWnd			= 0;
 	mScreenWidth	= 0;
-	mScreenHeight	= 0;				
+	mScreenHeight	= 0;	
+	mVertexBuffer2d = nullptr;
 
 	mSwapChain		= nullptr;
 	mDevice			= nullptr;
@@ -68,6 +69,45 @@ HRESULT Graphics::LoadSkeletonAsset( std::string filePath, std::string fileName,
 HRESULT Graphics::LoadAnimationAsset( std::string filePath, std::string fileName, AssetID &assetId )
 {
 	return mAssetManager->LoadAnimationAsset( filePath, fileName, assetId );
+}
+
+void Graphics::Render2dAsset( AssetID assetId, float x, float y, float width, float height )
+{
+	mDeviceContext->OMSetDepthStencilState( mDepthDisabledStencilState, 1 );
+
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
+
+	UINT32 vertexSize	= sizeof(StaticVertex);
+	UINT32 offset		= 0;
+
+	float widthVariabel		= width * 0.5f;
+	float heightVariabel	= height * 0.5f;
+
+	float left		= ( ( ( x - widthVariabel ) / (float)mScreenWidth ) * 2.0f ) - 1.0f;
+	float right		= ( ( ( x + widthVariabel ) / (float)mScreenWidth ) * 2.0f ) - 1.0f;
+	float bottom	= ( ( ( y + heightVariabel ) / (float)mScreenHeight ) * -2.0f ) + 1.0f;
+	float top		= ( ( ( y - heightVariabel ) / (float)mScreenHeight ) * -2.0f ) + 1.0f;
+
+	StaticVertex bottomleft		= { left, bottom, 0.0,		0, 0, 0,	0, 0, 0,	0, 1 };
+	StaticVertex topleft		= { left, top, 0.0,		0, 0, 0,	0, 0, 0,	0, 0 };
+	StaticVertex bottomright	= { right, bottom, 0.0,		0, 0, 0,	0, 0, 0,	1, 1 };
+	StaticVertex topright		= { right, top, 0.0,		0, 0, 0,	0, 0, 0,	1, 0 };
+
+	StaticVertex vertices[4] = { bottomleft, topleft, bottomright, topright };
+	MapBuffer( mVertexBuffer2d, &vertices, sizeof(StaticVertex) * 4 );
+	mDeviceContext->IASetVertexBuffers( 0, 1, &mVertexBuffer2d, &vertexSize, &offset );
+
+	mDeviceContext->IASetInputLayout( m2dEffect->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( m2dEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( m2dEffect->GetPixelShader(), nullptr, 0 );
+
+	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[assetId] )->mSRV );
+	mDeviceContext->Draw( 4, 0 );
+	mDeviceContext->OMSetDepthStencilState( mDepthEnabledStencilState, 1 );
 }
 
 //Render a static 3d asset given the assetId
@@ -553,6 +593,10 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	mScreenWidth	= screenWidth;
 	mScreenHeight	= screenHeight;
 
+	HRESULT hr		= E_FAIL;
+
+
+
 	/////////////////////////
 	// CREATE SWAPCHAIN
 	/////////////////////////
@@ -578,7 +622,6 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	D3D_FEATURE_LEVEL featureLevelsToTry[] = { D3D_FEATURE_LEVEL_11_0 };
 	D3D_FEATURE_LEVEL initiatedFeatureLevel;
 
-	HRESULT hr = E_FAIL;
 	for(	UINT driverTypeIndex = 0;
 			driverTypeIndex < ARRAYSIZE( driverTypes ) && FAILED( hr );
 			driverTypeIndex++ )
@@ -644,6 +687,54 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 		return hr;
 
 	SAFE_RELEASE( depthStencil );
+
+	//////////////////////////////
+	// CREATE DEPTHSTENCILSTATE DISABLE
+	//////////////////////////////
+	D3D11_DEPTH_STENCIL_DESC depthDisabledStencilDesc;
+	ZeroMemory( &depthDisabledStencilDesc, sizeof(depthDisabledStencilDesc) );
+
+	depthDisabledStencilDesc.DepthEnable					= false;
+	depthDisabledStencilDesc.DepthWriteMask					= D3D11_DEPTH_WRITE_MASK_ALL;
+	depthDisabledStencilDesc.DepthFunc						= D3D11_COMPARISON_LESS;
+	depthDisabledStencilDesc.StencilEnable					= false;
+	depthDisabledStencilDesc.StencilReadMask				= 0xFF;
+	depthDisabledStencilDesc.StencilWriteMask				= 0xFF;
+	depthDisabledStencilDesc.FrontFace.StencilFailOp		= D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.FrontFace.StencilDepthFailOp	= D3D11_STENCIL_OP_INCR;
+	depthDisabledStencilDesc.FrontFace.StencilPassOp		= D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.FrontFace.StencilFunc			= D3D11_COMPARISON_ALWAYS;
+	depthDisabledStencilDesc.BackFace.StencilFailOp			= D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.BackFace.StencilDepthFailOp	= D3D11_STENCIL_OP_DECR;
+	depthDisabledStencilDesc.BackFace.StencilPassOp			= D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.BackFace.StencilFunc			= D3D11_COMPARISON_ALWAYS;
+
+	if ( FAILED( hr = mDevice->CreateDepthStencilState( &depthDisabledStencilDesc, &mDepthDisabledStencilState ) ) )
+		return hr;
+
+	//////////////////////////////
+	// CREATE DEPTHSTENCILSTATE ENABLE
+	//////////////////////////////
+	D3D11_DEPTH_STENCIL_DESC depthEnabledStencilDesc;
+	ZeroMemory( &depthEnabledStencilDesc, sizeof(depthEnabledStencilDesc) );
+
+	depthDisabledStencilDesc.DepthEnable					= true;
+	depthDisabledStencilDesc.DepthWriteMask					= D3D11_DEPTH_WRITE_MASK_ALL;
+	depthDisabledStencilDesc.DepthFunc						= D3D11_COMPARISON_LESS;
+	depthDisabledStencilDesc.StencilEnable					= false;
+	depthDisabledStencilDesc.StencilReadMask				= 0xFF;
+	depthDisabledStencilDesc.StencilWriteMask				= 0xFF;
+	depthDisabledStencilDesc.FrontFace.StencilFailOp		= D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.FrontFace.StencilDepthFailOp	= D3D11_STENCIL_OP_INCR;
+	depthDisabledStencilDesc.FrontFace.StencilPassOp		= D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.FrontFace.StencilFunc			= D3D11_COMPARISON_ALWAYS;
+	depthDisabledStencilDesc.BackFace.StencilFailOp			= D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.BackFace.StencilDepthFailOp	= D3D11_STENCIL_OP_DECR;
+	depthDisabledStencilDesc.BackFace.StencilPassOp			= D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.BackFace.StencilFunc			= D3D11_COMPARISON_ALWAYS;
+
+	if ( FAILED( hr = mDevice->CreateDepthStencilState( &depthDisabledStencilDesc, &mDepthEnabledStencilState ) ) )
+		return hr;
 
 	//////////////////////////////
 	// CREATE VIEWPORT
@@ -725,8 +816,15 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	if( FAILED( hr = mStaticEffect->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 
-	mAnimatedEffect	= new Effect;
-	effectInfo.fileName		= "../Content/Effects/Animated3dEffect.hlsl";
+	m2dEffect			= new Effect;
+	effectInfo.fileName = "../Content/Effects/2dEffect.hlsl";
+
+	if( FAILED( hr = m2dEffect->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+
+
+	mAnimatedEffect			= new Effect;
+	effectInfo.fileName		= "../Content/Effects/PlaceholderAni.hlsl";
 	effectInfo.vertexType	= ANIMATED_VERTEX_TYPE;
 
 	if( FAILED( hr = mAnimatedEffect->Intialize( mDevice, &effectInfo ) ) )
@@ -778,6 +876,50 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	hr = mDeveloperCamera->Initialize( &developerCameraInfo );
 
+
+	/////////////////////////
+	// INITIATE VERTEXBUFFER FOR 2D
+	/////////////////////////
+	float position[3]	= { 1.0f, 1.0f, 0.0f };
+	float normal[3]		= { 0.0f, 0.0f, 0.0f };
+	float tangent[3]	= { 0.0f, 0.0f, 0.0f };
+	float uv[2]			= { 1.0f, 1.0f };
+
+	StaticVertex vert[4];
+
+	for ( int k = 0; k < 4; k++ )
+	{
+		for ( int i = 0; i < 3; i++ )
+		{
+			vert[k].position[i] = position[i];
+			vert[k].normal[i]	= normal[i];
+			vert[k].tangent[i]	= tangent[i];
+		}
+		for ( int i = 0; i < 2; i++ )
+		{
+			vert[k].uv[i] = uv[i];
+		}
+	}
+
+
+	StaticVertex vertices[4] = { vert[0], vert[1], vert[2], vert[3] }; //Kanske måste fyllas med data
+	D3D11_BUFFER_DESC bufferDesc2d;
+	ZeroMemory( &bufferDesc2d, sizeof(bufferDesc2d) );
+	bufferDesc2d.BindFlags		= D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc2d.ByteWidth		= sizeof(StaticVertex) * 4;
+	bufferDesc2d.Usage			= D3D11_USAGE_DYNAMIC;
+	bufferDesc2d.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+	D3D11_SUBRESOURCE_DATA subData;
+	subData.pSysMem = vertices;
+
+	hr = mDevice->CreateBuffer( &bufferDesc2d, &subData, &mVertexBuffer2d );
+	if ( FAILED( hr ) )
+	{
+		//Failed to create vertex buffer
+		return hr;
+	}
+
 	return hr;
 }
 
@@ -789,6 +931,8 @@ void Graphics::Release()
 	SAFE_RELEASE( mDeviceContext );
 	SAFE_RELEASE( mRenderTargetView );
 	SAFE_RELEASE( mDepthStencilView );
+	SAFE_RELEASE( mDepthDisabledStencilState );
+	SAFE_RELEASE( mDepthEnabledStencilState );
 	SAFE_RELEASE( mCbufferPerFrame );
 	SAFE_RELEASE( mCbufferPerObject );
 	SAFE_RELEASE( mCbufferPerObjectAnimated );
@@ -797,6 +941,7 @@ void Graphics::Release()
 	mAssetManager->Release();
 	mStaticEffect->Release();
 	mAnimatedEffect->Release();
+	m2dEffect->Release();
 	mDeferredPassEffect->Release();
 	mCamera->Release();
 	mDeveloperCamera->Release();
@@ -809,6 +954,7 @@ void Graphics::Release()
 	SAFE_DELETE( mAssetManager );
 	SAFE_DELETE( mStaticEffect );
 	SAFE_DELETE( mAnimatedEffect );
+	SAFE_DELETE( m2dEffect );
 	SAFE_DELETE( mDeferredPassEffect );
 	SAFE_DELETE( mCamera );
 	SAFE_DELETE( mDeveloperCamera );

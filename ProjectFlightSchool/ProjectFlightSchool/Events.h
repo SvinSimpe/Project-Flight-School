@@ -198,126 +198,167 @@ class Event_Change_State : public IEvent
 		{
 			return GUID;
 		}
+	public:
+		Event_Change_State( int eventID )
+		{
+			mEventID = eventID;
+		}
+		int EventID() const
+		{
+			return mEventID;
+		}
+};
 
-public:
-	Event_Change_State( int eventID )
-	{
-		mEventID = eventID;
-	}
-	int EventID() const
-	{
-		return mEventID;
-	}
+class Event_Start_Server : public IEvent
+{
+	// Member variables;
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Start_Server()
+		{
+		}
+};
+
+class Event_Start_Client : public IEvent
+{
+	// Member variables;
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Start_Client()
+		{
+		}
 };
 
 class Event_Player_Died : public IEvent
 {
 	// Member variables
-private:
-	unsigned int mID;
-
-protected:
-public:
-	static const EventType GUID;
+	private:
+		unsigned int mID;
+	protected:
+	public:
+		static const EventType GUID;
 
 	// Member functions
-private:
-public:
-	Event_Player_Died( unsigned int id )
-	{
-		mID = id;
-	}
-	unsigned int ID() const
-	{
-		return mID;
-	}
-protected:
-	const EventType& GetEventType( void ) const
-	{
-		return GUID;
-	}
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Player_Died( unsigned int id )
+		{
+			mID = id;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
 };
 
 class Event_Remote_Player_Died : public IEvent
 {
 	// Member variables
-private:
-	unsigned int mID;
+	private:
+		unsigned int mID;
 
-protected:
-public:
-	static const EventType GUID;
+	protected:
+	public:
+		static const EventType GUID;
 
 	// Member functions
-private:
-public:
-	Event_Remote_Player_Died( unsigned int id )
-	{
-		mID = id;
-	}
-	unsigned int ID() const
-	{
-		return mID;
-	}
-protected:
-	const EventType& GetEventType( void ) const
-	{
-		return GUID;
-	}
+	private:
+		protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Remote_Player_Died( unsigned int id )
+		{
+			mID = id;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
 };
 
 class Event_Player_Damaged : public IEvent
 {
 	// Member variables
-private:
-	unsigned int mID;
-
-protected:
-public:
-	static const EventType GUID;
+	private:
+		unsigned int mID;
+	protected:
+	public:
+		static const EventType GUID;
 
 	// Member functions
-private:
-public:
-	Event_Player_Damaged(unsigned int id)
-	{
-		mID = id;
-	}
-	unsigned int ID() const
-	{
-		return mID;
-	}
-protected:
-	const EventType& GetEventType(void) const
-	{
-		return GUID;
-	}
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Player_Damaged( unsigned int id )
+		{
+			mID = id;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
 };
 
 class Event_Remote_Player_Damaged : public IEvent
 {
 	// Member variables
-private:
-	unsigned int mID;
+	private:
+		unsigned int mID;
 
-protected:
-public:
-	static const EventType GUID;
+	protected:
+	public:
+		static const EventType GUID;
 
 	// Member functions
-private:
-public:
-	Event_Remote_Player_Damaged(unsigned int id)
-	{
-		mID = id;
-	}
-	unsigned int ID() const
-	{
-		return mID;
-	}
-protected:
-	const EventType& GetEventType(void) const
-	{
-		return GUID;
-	}
+	private:
+		protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Remote_Player_Damaged( unsigned int id )
+		{
+			mID = id;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
 };

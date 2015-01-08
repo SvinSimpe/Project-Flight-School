@@ -141,8 +141,7 @@ HRESULT Player::Update( float deltaTime )
 
 HRESULT Player::Render( float deltaTime )
 {
-	Graphics::GetInstance()->RenderStatic3dAsset( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
-	Graphics::GetInstance()->RenderStatic3dAsset( mLowerBody.playerModel, mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z );
+	RemotePlayer::Render( deltaTime );
 
 	//Update Projectiles
 	if( mNrOfProjectilesFired != 0 )
@@ -199,6 +198,7 @@ void Player::Release()
 }
 
 Player::Player()
+	: RemotePlayer()
 {
 	mUpperBody.playerModel	= 0;
 	mUpperBody.position		= XMFLOAT3( 0.0f, 0.0f, 0.0f );

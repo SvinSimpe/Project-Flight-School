@@ -4,7 +4,6 @@
 #include "Client.h"
 #include "Server.h"
 #include "StateMachine.h"
-#include <iostream>
 
 class Game
 {
@@ -23,7 +22,9 @@ class Game
 
 		// Class functions
 	private:
-		void	NetworkInit();
+		void ServerInit();
+		void ClientInit();
+		void EventListener( IEventPtr newEvent );
 
 	protected:
 	public:
@@ -35,5 +36,4 @@ class Game
 				Game();
 				~Game();
 };
-
 #endif

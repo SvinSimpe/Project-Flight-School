@@ -51,11 +51,6 @@ HRESULT RemotePlayer::Initialize( unsigned int id )
 	mLowerBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f );
 	mLowerBody.speed	= 0.005f;
 
-	mMaxHp				= 100.0f;
-	mCurrentHp			= mMaxHp;
-
-	mIsAlive			= true;
-
 	EventManager::GetInstance()->AddListener( &RemotePlayer::RemoteUpdate, this, Event_Remote_Player_Update::GUID );
 
 	return S_OK;
@@ -72,10 +67,9 @@ RemotePlayer::RemotePlayer()
 	mUpperBody.position		= XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mUpperBody.direction	= XMFLOAT3(0.0f, 0.0f, 0.0f);
 
-	mMaxHp					= 0.0f;
-	mCurrentHp				= 0.0f;
-
-	mIsAlive				= false;
+	mIsAlive				= true;
+	mMaxHp					= 100.0f;
+	mCurrentHp				= mMaxHp;
 
 	mLowerBody.playerModel	= 0;
 	mLowerBody.position		= XMFLOAT3(0.0f, 0.0f, 0.0f);

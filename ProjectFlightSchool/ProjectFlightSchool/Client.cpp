@@ -134,7 +134,7 @@ bool Client::Run()
 {
 	EventManager::GetInstance()->AddListener( &Client::PlayerMoved, this, Event_Player_Moved::GUID );
 	EventManager::GetInstance()->AddListener( &Client::PlayerDied, this, Event_Player_Died::GUID );
-	EventManager::GetInstance()->AddListener( &Client::PlayerDamaged, this, Event_Player_Died::GUID );
+	EventManager::GetInstance()->AddListener( &Client::PlayerDamaged, this, Event_Player_Damaged::GUID );
 
 	std::thread listen( &Client::ReceiveLoop, this );
 

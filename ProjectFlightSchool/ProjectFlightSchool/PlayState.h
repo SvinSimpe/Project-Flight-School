@@ -44,6 +44,7 @@ class PlayState : public BaseState
 		void			KillRemotePlayer( IEventPtr newEvent );
 		void			BroadcastDamage();						// Tell server that local  player has taken damage
 		void			HandleDamage( IEventPtr newEvent );		// Tell client that remote player has taken damage
+		void			RemotePlayerSpawned( IEventPtr newEvent );
 
 	protected:
 	public:

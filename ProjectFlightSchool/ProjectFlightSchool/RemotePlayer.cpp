@@ -29,6 +29,7 @@ void RemotePlayer::Die()
 {
 	mCurrentHp = 0.0f;
 	mIsAlive = false;
+	mTimeTillSpawn	= mSpawnTime;
 }
 
 int RemotePlayer::GetID() const
@@ -79,6 +80,14 @@ RemotePlayer::RemotePlayer()
 	mIsAlive				= true;
 	mMaxHp					= 100.0f;
 	mCurrentHp				= mMaxHp;
+	mSpawnTime				= 10.0f;
+	mTimeTillSpawn			= mSpawnTime;
+
+	mLowerBody.playerModel	= 0;
+	mLowerBody.position		= XMFLOAT3(0.0f, 0.0f, 0.0f);
+	mLowerBody.direction	= XMFLOAT3(0.0f, 0.0f, 0.0f);
+	mLowerBody.speed		= 0.0f;
+
 	mID						= 0;
 }
 

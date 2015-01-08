@@ -23,6 +23,7 @@ class PlayState : public BaseState
 		AssetID mNest1Asset;
 		AssetID mStoneAssets[6];
 		AssetID mTree1Asset;
+		AssetID mTest2dAsset;
 
 		Map*		mWorldMap;
 

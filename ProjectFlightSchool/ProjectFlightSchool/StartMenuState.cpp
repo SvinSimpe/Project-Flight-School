@@ -4,6 +4,26 @@
 //									PRIVATE
 ///////////////////////////////////////////////////////////////////////////////
 
+void StartMenuState::HandleInput()
+{
+	if( mStartServerClient.LeftMousePressed() )
+	{
+		IEventPtr E1( new Event_Start_Server() );
+		EventManager::GetInstance()->QueueEvent( E1 );
+
+		IEventPtr E2( new Event_Change_State( PLAY_STATE ) );
+		EventManager::GetInstance()->QueueEvent( E2 );
+	}
+	else if( mStartClient.LeftMousePressed() )
+	{
+		IEventPtr E1( new Event_Start_Client() );
+		EventManager::GetInstance()->QueueEvent( E1 );
+
+		IEventPtr E2( new Event_Change_State( PLAY_STATE ) );
+		EventManager::GetInstance()->QueueEvent( E2 );
+	}
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
@@ -11,11 +31,7 @@
 
 HRESULT StartMenuState::Update( float deltaTime )
 {
-	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_SPACE) )
-	{
-		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
-	}
+	HandleInput();
 	return S_OK;
 }
 
@@ -39,6 +55,8 @@ void StartMenuState::Reset()
 HRESULT StartMenuState::Initialize()
 {
 	mStateType		= START_MENU_STATE;
+	mStartServerClient.Initialize( 0, 0, Input::GetInstance()->mScreenWidth/2, Input::GetInstance()->mScreenHeight/2 );
+	mStartClient.Initialize( Input::GetInstance()->mScreenWidth/2, Input::GetInstance()->mScreenHeight/2, Input::GetInstance()->mScreenWidth/2, Input::GetInstance()->mScreenHeight/2 );
 	return S_OK;
 }
 

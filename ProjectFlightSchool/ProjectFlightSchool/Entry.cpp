@@ -1,13 +1,28 @@
 #include "Entry.h"
 
-bool Entry::IsPressed()
+bool Entry::LeftMousePressed()
 {
 	POINT mousePos = Input::GetInstance()->mCurrentMousePos;
 	bool leftDown = Input::GetInstance()->mCurrentFrame[KEYS::KEYS_MOUSE_LEFT];
 
-	if( leftDown && mousePos.x >= mUpperLeft.x && mousePos.y >= mUpperLeft.y && 
+	if( leftDown && mCurrentCD <= 0.0f && mousePos.x >= mUpperLeft.x && mousePos.y >= mUpperLeft.y && 
 		mousePos.x <= mLowerRight.x && mousePos.y <= mLowerRight.y )
 	{
+		mCurrentCD = CLICKCOOLDOWN;
+		return true;
+	}
+	return false;
+}
+
+bool Entry::RightMousePressed()
+{
+	POINT mousePos = Input::GetInstance()->mCurrentMousePos;
+	bool rightDown = Input::GetInstance()->mCurrentFrame[KEYS::KEYS_MOUSE_RIGHT];
+
+	if( rightDown && mCurrentCD <= 0.0f && mousePos.x >= mUpperLeft.x && mousePos.y >= mUpperLeft.y && 
+		mousePos.x <= mLowerRight.x && mousePos.y <= mLowerRight.y )
+	{
+		mCurrentCD = CLICKCOOLDOWN;
 		return true;
 	}
 	return false;
@@ -19,9 +34,9 @@ void Entry::Render()
 
 bool Entry::Update( float deltaTime )
 {
-	if(IsPressed())
+	if( mCurrentCD >= 0.0f )
 	{
-		printf("%f: Hit!\n", deltaTime);
+		mCurrentCD -= deltaTime;
 	}
 	return true;
 }
@@ -32,7 +47,6 @@ bool Entry::Initialize( UINT x, UINT y, UINT width, UINT height )
 	mUpperLeft.y	= y;
 	mLowerRight.x	= x + width;
 	mLowerRight.y	= y + height;
-	printf( "UpperLeft: %d, %d\nLowerRight: %d, %d\n", mUpperLeft.x, mUpperLeft.y, mLowerRight.x, mLowerRight.y );
 	return true;
 }
 
@@ -46,6 +60,7 @@ Entry::Entry()
 	mUpperLeft.y	= 0;
 	mLowerRight.x	= 0;
 	mLowerRight.y	= 0;
+	mCurrentCD		= 0.0f;
 }
 
 

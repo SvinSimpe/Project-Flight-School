@@ -45,3 +45,5 @@ const EventType Event_Remote_Player_Update::GUID( 1 );
 const EventType Event_Remote_Player_Joined::GUID( 2 );
 const EventType Event_Remote_Player_Left::GUID( 3 );
 const EventType Event_Change_State::GUID( 4 );
+const EventType Event_Start_Server::GUID( 5 );
+const EventType Event_Start_Client::GUID( 6 );

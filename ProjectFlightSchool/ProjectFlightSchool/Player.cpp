@@ -103,7 +103,7 @@ HRESULT Player::Update( float deltaTime )
 
 	if( mIsAlive )
 	{
-		if (mCurrentHp <= 0.0f)
+		if ( mCurrentHp <= 0.0f )
 		{
 			Die();
 		}

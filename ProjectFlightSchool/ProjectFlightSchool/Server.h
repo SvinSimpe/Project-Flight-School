@@ -86,7 +86,7 @@ void Server::HandlePkg( SOCKET &s, Package<T>* p )
 			{
 				if( socket != s && socket != INVALID_SOCKET )
 				{
-					mConn->SendPkg(socket, 0, Net_Event::EV_PLAYER_DIED, toAll);
+					mConn->SendPkg( socket, 0, Net_Event::EV_PLAYER_DIED, toAll );
 				}
 			}
 		}
@@ -98,7 +98,7 @@ void Server::HandlePkg( SOCKET &s, Package<T>* p )
 			{
 				if (socket != s && socket != INVALID_SOCKET)
 				{
-					mConn->SendPkg(socket, 0, Net_Event::EV_PLAYER_DAMAGED, toAll);
+					mConn->SendPkg( socket, 0, Net_Event::EV_PLAYER_DAMAGED, toAll );
 				}
 			}
 		}

@@ -41,19 +41,19 @@ void Client::PlayerMoved( IEventPtr newEvent )
 	}
 }
 
-void Client::PlayerDied(IEventPtr newEvent)
+void Client::PlayerDied( IEventPtr newEvent )
 {
-	if (newEvent->GetEventType() == Event_Player_Died::GUID)
+	if ( newEvent->GetEventType() == Event_Player_Died::GUID )
 	{
-		std::shared_ptr<Event_Player_Died> data = std::static_pointer_cast<Event_Player_Died>(newEvent);
-		if (mServerSocket != INVALID_SOCKET)
+		std::shared_ptr<Event_Player_Died> data = std::static_pointer_cast<Event_Player_Died>( newEvent );
+		if ( mServerSocket != INVALID_SOCKET )
 		{
 			EvPlayerConnection msg;
 			msg.ID = data->ID();
 
-			if (mServerSocket != INVALID_SOCKET)
+			if ( mServerSocket != INVALID_SOCKET )
 			{
-				mConn->SendPkg(mServerSocket, 0, Net_Event::EV_PLAYER_DIED, msg);
+				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_DIED, msg );
 			}
 		}
 	}
@@ -61,17 +61,17 @@ void Client::PlayerDied(IEventPtr newEvent)
 
 void Client::PlayerDamaged( IEventPtr newEvent )
 {
-	if (newEvent->GetEventType() == Event_Player_Damaged::GUID)
+	if ( newEvent->GetEventType() == Event_Player_Damaged::GUID )
 	{
-		std::shared_ptr<Event_Player_Damaged> data = std::static_pointer_cast<Event_Player_Damaged>(newEvent);
-		if (mServerSocket != INVALID_SOCKET)
+		std::shared_ptr<Event_Player_Damaged> data = std::static_pointer_cast<Event_Player_Damaged>( newEvent );
+		if ( mServerSocket != INVALID_SOCKET )
 		{
 			EvPlayerConnection msg;
 			msg.ID = data->ID();
 
-			if (mServerSocket != INVALID_SOCKET)
+			if ( mServerSocket != INVALID_SOCKET )
 			{
-				mConn->SendPkg(mServerSocket, 0, Net_Event::EV_PLAYER_DAMAGED, msg);
+				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_DAMAGED, msg );
 			}
 		}
 	}

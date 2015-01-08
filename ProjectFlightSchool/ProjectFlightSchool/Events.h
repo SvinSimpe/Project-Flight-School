@@ -200,7 +200,7 @@ class Event_Change_State : public IEvent
 		}
 
 public:
-	Event_Change_State(int eventID)
+	Event_Change_State( int eventID )
 	{
 		mEventID = eventID;
 	}

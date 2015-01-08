@@ -47,12 +47,12 @@ void PlayState::KillRemotePlayer( IEventPtr newEvent )
 			{
 				continue;
 			}
-			else if (data->ID() == mRemotePlayers.at(i)->GetID())
+			else if ( data->ID() == mRemotePlayers.at(i)->GetID() )
 			{
 				mRemotePlayers.at(i)->RemotePlayerDie();
 
 				// Debug
-				OutputDebugString(L"> A Remote player has died.");
+				OutputDebugString( L"> A Remote player has died." );
 
 				break;
 			}
@@ -61,31 +61,31 @@ void PlayState::KillRemotePlayer( IEventPtr newEvent )
 }
 
 // Tell server that local  player has taken damage
-void PlayState::BrodcastDamage()
+void PlayState::BroadcastDamage()
 {
-	IEventPtr dmgEv(new Event_Player_Damaged(mPlayer->GetID()));
+	IEventPtr dmgEv(new Event_Player_Damaged( mPlayer->GetID()) );
 	EventManager::GetInstance()->QueueEvent( dmgEv );
 }
 
 // Tell client that remote player has taken damage
 void PlayState::HandleDamage( IEventPtr newEvent )
 {
-	if (newEvent->GetEventType() == Event_Remote_Player_Damaged::GUID)
+	if ( newEvent->GetEventType() == Event_Remote_Player_Damaged::GUID )
 	{
 		// Damage remote player
 		std::shared_ptr<Event_Remote_Player_Died> data = std::static_pointer_cast<Event_Remote_Player_Died>(newEvent);
-		for (unsigned int i = 0; i < mRemotePlayers.size(); i++)
+		for ( unsigned int i = 0; i < mRemotePlayers.size(); i++ )
 		{
-			if (!mRemotePlayers.at(i))
+			if ( !mRemotePlayers.at(i) )
 			{
 				continue;
 			}
-			else if (data->ID() == mRemotePlayers.at(i)->GetID())
+			else if ( data->ID() == mRemotePlayers.at(i)->GetID() )
 			{
 				// Damage player
 
 				// Debug
-				OutputDebugString(L"> A Remote player has taken damage.");
+				OutputDebugString( L"> A Remote player has taken damage." );
 
 				break;
 			}

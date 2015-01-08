@@ -10,7 +10,8 @@ void PlayState::RemoteUpdate( IEventPtr newEvent )
 	{
 		std::shared_ptr<Event_Remote_Player_Joined> data = std::static_pointer_cast<Event_Remote_Player_Joined>( newEvent );
 		mRemotePlayers.push_back( new RemotePlayer() );
-		mRemotePlayers.at(mRemotePlayers.size() - 1)->Initialize( data->ID() );
+		mRemotePlayers.at(mRemotePlayers.size() - 1)->Initialize();
+		mRemotePlayers.at(mRemotePlayers.size() - 1)->RemoteInit( data->ID() );
 		printf( "Number of other players online: %d.\n", mRemotePlayers.size() );
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Player_Left::GUID )
@@ -49,7 +50,7 @@ void PlayState::KillRemotePlayer( IEventPtr newEvent )
 			}
 			else if ( data->ID() == mRemotePlayers.at(i)->GetID() )
 			{
-				mRemotePlayers.at(i)->RemotePlayerDie();
+				mRemotePlayers.at(i)->Die();
 
 				// Debug
 				OutputDebugString( L"> A Remote player has died." );

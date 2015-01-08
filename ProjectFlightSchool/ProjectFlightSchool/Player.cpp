@@ -91,9 +91,7 @@ void Player::Move( XMFLOAT3 direction )
 // Set current hp to 0 to avoid negative values and send event that player has died
 void Player::Die()
 {
-	mIsAlive		= false;
-	mCurrentHp		= 0.0f;
-	mTimeTillSpawn	= mSpawnTime;
+	RemotePlayer::Die();
 	IEventPtr dieEv( new Event_Player_Died( mID ) );
 	EventManager::GetInstance()->QueueEvent( dieEv );
 }
@@ -193,6 +191,7 @@ void Player::Fire()
 
 HRESULT Player::Initialize()
 {
+	RemotePlayer::Initialize();
 	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Robot/", "robotScenebody.pfs", mUpperBody.playerModel ) ) )
 		OutputDebugString( L"\nERROR\n" );
 
@@ -226,15 +225,6 @@ void Player::Release()
 Player::Player()
 	: RemotePlayer()
 {
-	mUpperBody.playerModel	= 0;
-	mUpperBody.position		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mUpperBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-
-	mLowerBody.playerModel	= 0;
-	mLowerBody.position		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mLowerBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mLowerBody.speed		= 0.0f;
-
 	mWeaponCoolDown			= 0.0f;
 }
 

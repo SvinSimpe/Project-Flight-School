@@ -31,6 +31,8 @@ class RemotePlayer
 		float			mCurrentHp;
 		float			mMaxHp;
 		bool			mIsAlive;
+		float			mSpawnTime;
+		float			mTimeTillSpawn;
 
 	public:
 

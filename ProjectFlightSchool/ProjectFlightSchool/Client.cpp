@@ -77,6 +77,24 @@ void Client::PlayerDamaged( IEventPtr newEvent )
 	}
 }
 
+void Client::PlayerSpawned( IEventPtr newEvent )
+{
+	if ( newEvent->GetEventType() == Event_Player_Spawned::GUID )
+	{
+		std::shared_ptr<Event_Player_Spawned> data = std::static_pointer_cast<Event_Player_Spawned>( newEvent );
+		if ( mServerSocket != INVALID_SOCKET )
+		{
+			EvPlayerConnection msg;
+			msg.ID = data->ID();
+
+			if ( mServerSocket != INVALID_SOCKET )
+			{
+				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_SPAWNED, msg );
+			}
+		}
+	}
+}
+
 bool Client::Connect()
 {
 	for ( addrinfo* ptr = mAddrResult; ptr != nullptr; ptr = ptr->ai_next )
@@ -135,6 +153,7 @@ bool Client::Run()
 	EventManager::GetInstance()->AddListener( &Client::PlayerMoved, this, Event_Player_Moved::GUID );
 	EventManager::GetInstance()->AddListener( &Client::PlayerDied, this, Event_Player_Died::GUID );
 	EventManager::GetInstance()->AddListener( &Client::PlayerDamaged, this, Event_Player_Damaged::GUID );
+	EventManager::GetInstance()->AddListener( &Client::PlayerSpawned, this, Event_Player_Spawned::GUID );
 
 	std::thread listen( &Client::ReceiveLoop, this );
 

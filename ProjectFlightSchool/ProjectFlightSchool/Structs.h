@@ -16,7 +16,7 @@ struct EvPlayerMoved
 	DirectX::XMFLOAT3 direction;
 };
 
-struct EvPlayerConnection
+struct EvPlayerID
 {
 	unsigned int ID;
 };

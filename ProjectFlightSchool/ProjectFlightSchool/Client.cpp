@@ -20,7 +20,7 @@ bool Client::ReceiveLoop()
 	return true;
 }
 
-void Client::PlayerMoved( IEventPtr newEvent )
+void Client::EventListener( IEventPtr newEvent )
 {
 	if ( newEvent->GetEventType() == Event_Player_Moved::GUID )
 	{
@@ -39,16 +39,12 @@ void Client::PlayerMoved( IEventPtr newEvent )
 			}
 		}
 	}
-}
-
-void Client::PlayerDied( IEventPtr newEvent )
-{
-	if ( newEvent->GetEventType() == Event_Player_Died::GUID )
+	else if ( newEvent->GetEventType() == Event_Player_Died::GUID )
 	{
 		std::shared_ptr<Event_Player_Died> data = std::static_pointer_cast<Event_Player_Died>( newEvent );
 		if ( mServerSocket != INVALID_SOCKET )
 		{
-			EvPlayerConnection msg;
+			EvPlayerID msg;
 			msg.ID = data->ID();
 
 			if ( mServerSocket != INVALID_SOCKET )
@@ -57,16 +53,12 @@ void Client::PlayerDied( IEventPtr newEvent )
 			}
 		}
 	}
-}
-
-void Client::PlayerDamaged( IEventPtr newEvent )
-{
-	if ( newEvent->GetEventType() == Event_Player_Damaged::GUID )
+	else if ( newEvent->GetEventType() == Event_Player_Damaged::GUID )
 	{
 		std::shared_ptr<Event_Player_Damaged> data = std::static_pointer_cast<Event_Player_Damaged>( newEvent );
 		if ( mServerSocket != INVALID_SOCKET )
 		{
-			EvPlayerConnection msg;
+			EvPlayerID msg;
 			msg.ID = data->ID();
 
 			if ( mServerSocket != INVALID_SOCKET )
@@ -132,9 +124,9 @@ bool Client::Connect()
 
 bool Client::Run()
 {
-	EventManager::GetInstance()->AddListener( &Client::PlayerMoved, this, Event_Player_Moved::GUID );
-	EventManager::GetInstance()->AddListener( &Client::PlayerDied, this, Event_Player_Died::GUID );
-	EventManager::GetInstance()->AddListener( &Client::PlayerDamaged, this, Event_Player_Damaged::GUID );
+	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Moved::GUID );
+	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Died::GUID );
+	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Damaged::GUID );
 
 	std::thread listen( &Client::ReceiveLoop, this );
 

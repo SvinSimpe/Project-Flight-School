@@ -9,12 +9,15 @@
 #include "CbufferPerFrame.h"
 #include "CbufferPerObject.h"
 #include "Camera.h"
+#include "Gbuffer.h"
 
 #ifdef COMPILE_LIBRARY
 	#define LIBRARY_EXPORT __declspec( dllexport )
 #else
 	#define LIBRARY_EXPORT __declspec( dllimport )
 #endif
+
+#define NUM_GBUFFERS 3
 
 class LIBRARY_EXPORT Graphics
 {
@@ -49,6 +52,8 @@ class LIBRARY_EXPORT Graphics
 		Camera*						mCamera;
 		Camera*						mDeveloperCamera;
 		bool						mIsDeveloperCameraActive;
+		Effect*						mDeferredPassEffect;
+		Gbuffer*					mGbuffers[NUM_GBUFFERS];				
 
 	protected:
 	public:

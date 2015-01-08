@@ -3,10 +3,6 @@
 
 #include <d3d11.h>
 
-#define SAFE_RELEASE( x )					\
-	if( x )									\
-		( x )->Release(), ( x ) = nullptr;
-
 struct Gbuffer
 {
 	private:
@@ -64,13 +60,13 @@ struct Gbuffer
 			SAFE_RELEASE( mShaderResourceView );
 		}
 
-		RTPack()
+		Gbuffer()
 		{	
 			mRenderTargetView	= nullptr;
 			mShaderResourceView = nullptr;
 		}
 
-		~RTPack()
+		~Gbuffer()
 		{
 		}
 };

@@ -42,6 +42,7 @@ using namespace DirectX;
 
 class Event_Player_Moved : public IEvent
 {
+	// Member variables
 	private:
 		XMFLOAT3		mLowerBodyPos;
 		XMFLOAT3		mUpperBodyPos;
@@ -51,7 +52,13 @@ class Event_Player_Moved : public IEvent
 	public:
 		static const EventType GUID;
 	
+	// Member functions
 	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
 	public:
 		Event_Player_Moved( XMFLOAT3 lowerBodyPos, XMFLOAT3 upperBodyPos, XMFLOAT3 direction )
 		{
@@ -71,55 +78,52 @@ class Event_Player_Moved : public IEvent
 		{
 			return mDirection;
 		}
+};
+
+class Event_Remote_Player_Update : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		XMFLOAT3		mLowerBodyPos;
+		XMFLOAT3		mUpperBodyPos;
+		XMFLOAT3		mDirection;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
 	protected:
 		const EventType& GetEventType( void ) const
 		{
 			return GUID;
 		}
-};
-
-class Event_Remote_Player_Update : public IEvent
-{
-private:
-	unsigned int	mID;
-	XMFLOAT3		mLowerBodyPos;
-	XMFLOAT3		mUpperBodyPos;
-	XMFLOAT3		mDirection;
-
-protected:
-public:
-	static const EventType GUID;
-
-private:
-public:
-	Event_Remote_Player_Update( unsigned int id, XMFLOAT3 lowerBodyPos, XMFLOAT3 upperBodyPos, XMFLOAT3 direction )
-	{
-		mID				= id;
-		mLowerBodyPos	= lowerBodyPos;
-		mUpperBodyPos	= upperBodyPos;
-		mDirection		= direction;
-	}
-	unsigned int ID() const
-	{
-		return mID;
-	}
-	XMFLOAT3 LowerBodyPos() const
-	{
-		return mLowerBodyPos;
-	}
-	XMFLOAT3 UpperBodyPos() const
-	{
-		return mUpperBodyPos;
-	}
-	XMFLOAT3 Direction() const
-	{
-		return mDirection;
-	}
-protected:
-	const EventType& GetEventType( void ) const
-	{
-		return GUID;
-	}
+	public:
+		Event_Remote_Player_Update( unsigned int id, XMFLOAT3 lowerBodyPos, XMFLOAT3 upperBodyPos, XMFLOAT3 direction )
+		{
+			mID				= id;
+			mLowerBodyPos	= lowerBodyPos;
+			mUpperBodyPos	= upperBodyPos;
+			mDirection		= direction;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+		XMFLOAT3 LowerBodyPos() const
+		{
+			return mLowerBodyPos;
+		}
+		XMFLOAT3 UpperBodyPos() const
+		{
+			return mUpperBodyPos;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
+		}
 };
 
 class Event_Remote_Player_Joined : public IEvent
@@ -134,6 +138,11 @@ class Event_Remote_Player_Joined : public IEvent
 
 	// Member functions
 	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
 	public:
 		Event_Remote_Player_Joined( unsigned int id )
 		{
@@ -142,11 +151,6 @@ class Event_Remote_Player_Joined : public IEvent
 		unsigned int ID() const
 		{
 			return mID;
-		}
-	protected:
-		const EventType& GetEventType( void ) const
-		{
-			return GUID;
 		}
 };
 
@@ -162,6 +166,11 @@ class Event_Remote_Player_Left : public IEvent
 
 	// Member functions
 	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
 	public:
 		Event_Remote_Player_Left( unsigned int id )
 		{
@@ -171,9 +180,185 @@ class Event_Remote_Player_Left : public IEvent
 		{
 			return mID;
 		}
+};
+
+class Event_Change_State : public IEvent
+{
+	// Member variables
+	private:
+		int mEventID; 
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
 	protected:
 		const EventType& GetEventType( void ) const
 		{
 			return GUID;
+		}
+	public:
+		Event_Change_State( int eventID )
+		{
+			mEventID = eventID;
+		}
+		int EventID() const
+		{
+			return mEventID;
+		}
+};
+
+class Event_Start_Server : public IEvent
+{
+	// Member variables;
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Start_Server()
+		{
+		}
+};
+
+class Event_Start_Client : public IEvent
+{
+	// Member variables;
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Start_Client()
+		{
+		}
+};
+
+class Event_Player_Died : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int mID;
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Player_Died( unsigned int id )
+		{
+			mID = id;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+};
+
+class Event_Remote_Player_Died : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int mID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+		protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Remote_Player_Died( unsigned int id )
+		{
+			mID = id;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+};
+
+class Event_Player_Damaged : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int mID;
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Player_Damaged( unsigned int id )
+		{
+			mID = id;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+};
+
+class Event_Remote_Player_Damaged : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int mID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+		protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Remote_Player_Damaged( unsigned int id )
+		{
+			mID = id;
+		}
+		unsigned int ID() const
+		{
+			return mID;
 		}
 };

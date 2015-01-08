@@ -18,6 +18,12 @@ void RemotePlayer::LookAt( float rotation )
 {
 }
 
+// Kill remote player
+void RemotePlayer::RemotePlayerDie()
+{
+	mCurrentHp = 0.0f;
+	mIsAlive = false;
+}
 
 int RemotePlayer::GetID() const
 {
@@ -60,6 +66,10 @@ RemotePlayer::RemotePlayer()
 	mUpperBody.playerModel	= 0;
 	mUpperBody.position		= XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mUpperBody.direction	= XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+	mIsAlive				= true;
+	mMaxHp					= 100.0f;
+	mCurrentHp				= mMaxHp;
 
 	mLowerBody.playerModel	= 0;
 	mLowerBody.position		= XMFLOAT3(0.0f, 0.0f, 0.0f);

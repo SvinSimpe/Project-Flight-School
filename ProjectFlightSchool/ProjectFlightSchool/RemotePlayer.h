@@ -36,19 +36,20 @@ class RemotePlayer
 
 	// Member functions
 	private:
-		void RemoteUpdate( IEventPtr newEvent );
+		void		RemoteUpdate( IEventPtr newEvent );
 
 	protected:
-		void LookAt( float rotation );
+		void		LookAt( float rotation );
 
 	public:
-		void RemotePlayerDie();
-		int GetID() const;
-		HRESULT Render( float deltaTime );
-		HRESULT Initialize( unsigned int id );
-		void Release();
-		RemotePlayer();
-		~RemotePlayer();
+		void			RemoteInit( unsigned int id );
+		virtual void	Die();
+		int				GetID() const;
+		virtual HRESULT	Render( float deltaTime );
+		virtual HRESULT	Initialize();
+		void			Release();
+						RemotePlayer();
+		virtual			~RemotePlayer();
 };
 
 #endif

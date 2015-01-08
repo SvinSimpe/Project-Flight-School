@@ -67,6 +67,20 @@ void Client::EventListener( IEventPtr newEvent )
 			}
 		}
 	}
+	else if ( newEvent->GetEventType() == Event_Player_Spawned::GUID )
+	{
+		std::shared_ptr<Event_Player_Spawned> data = std::static_pointer_cast<Event_Player_Spawned>( newEvent );
+		if ( mServerSocket != INVALID_SOCKET )
+		{
+			EvPlayerID msg;
+			msg.ID = data->ID();
+
+			if ( mServerSocket != INVALID_SOCKET )
+			{
+				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_SPAWNED, msg );
+			}
+		}
+	}
 }
 
 bool Client::Connect()
@@ -127,7 +141,7 @@ bool Client::Run()
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Moved::GUID );
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Died::GUID );
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Damaged::GUID );
-
+	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Spawned::GUID );
 	std::thread listen( &Client::ReceiveLoop, this );
 
 	mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_JOINED, 0 ); // The client "announces" itself to the server, and by extension, the other clients

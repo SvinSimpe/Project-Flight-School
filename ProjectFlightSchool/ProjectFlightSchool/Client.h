@@ -93,6 +93,13 @@ void Client::HandlePkg( Package<T>* p )
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
+		case Net_Event::EV_PLAYER_SPAWNED:
+		{
+			EvPlayerID spawnedPlayer = (EvPlayerID&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Spawned( spawnedPlayer.ID ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
 		default:
 		{
 			printf( "Error handling event from server.\n" );

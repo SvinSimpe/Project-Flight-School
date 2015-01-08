@@ -94,6 +94,11 @@ void PlayState::HandleDamage( IEventPtr newEvent )
 	}
 }
 
+void PlayState::RemotePlayerSpawned( IEventPtr newEvent )
+{
+	// Handle spawn logic
+}
+
 void PlayState::HandleDeveloperCameraInput()
 {
 	// TOGGLE CAM
@@ -193,6 +198,7 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::RemoteUpdate, this, Event_Remote_Player_Left::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::KillRemotePlayer, this, Event_Remote_Player_Died::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::HandleDamage, this, Event_Remote_Player_Damaged::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::RemotePlayerSpawned, this, Event_Remote_Player_Spawned::GUID );
 
 	return S_OK;
 }

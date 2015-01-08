@@ -96,9 +96,21 @@ void Server::HandlePkg( SOCKET &s, Package<T>* p )
 			EvPlayerID toAll = (EvPlayerID&)p->body.content;
 			for (auto& socket : mClientSockets)
 			{
-				if (socket != s && socket != INVALID_SOCKET)
+				if ( socket != s && socket != INVALID_SOCKET )
 				{
 					mConn->SendPkg( socket, 0, Net_Event::EV_PLAYER_DAMAGED, toAll );
+				}
+			}
+		}
+			break;
+		case Net_Event::EV_PLAYER_SPAWNED:
+		{
+			EvPlayerID toAll = (EvPlayerID&)p->body.content;
+			for ( auto& socket : mClientSockets )
+			{
+				if ( socket != s && socket != INVALID_SOCKET )
+				{
+					mConn->SendPkg( socket, 0, Net_Event::EV_PLAYER_SPAWNED, toAll );
 				}
 			}
 		}

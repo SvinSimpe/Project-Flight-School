@@ -79,6 +79,30 @@ void Server::HandlePkg( SOCKET &s, Package<T>* p )
 			}
 		}
 			break;
+		case Net_Event::EV_PLAYER_DIED:
+		{
+			EvPlayerConnection toAll = (EvPlayerConnection&)p->body.content;
+			for( auto& socket : mClientSockets )
+			{
+				if( socket != s && socket != INVALID_SOCKET )
+				{
+					mConn->SendPkg( socket, 0, Net_Event::EV_PLAYER_DIED, toAll );
+				}
+			}
+		}
+			break;
+		case Net_Event::EV_PLAYER_DAMAGED:
+		{
+			EvPlayerConnection toAll = (EvPlayerConnection&)p->body.content;
+			for (auto& socket : mClientSockets)
+			{
+				if (socket != s && socket != INVALID_SOCKET)
+				{
+					mConn->SendPkg( socket, 0, Net_Event::EV_PLAYER_DAMAGED, toAll );
+				}
+			}
+		}
+			break;
 		default:
 		{
 			printf( "Error handling event from %d.\n", s );

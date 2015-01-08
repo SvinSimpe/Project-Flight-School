@@ -14,7 +14,7 @@ bool Server::AcceptConnection()
 	}
 	else
 	{
-		EvPlayerConnection toJoining;
+		EvPlayerID toJoining;
 		for ( auto& socket : mClientSockets )
 		{
 			if(socket != INVALID_SOCKET)
@@ -42,7 +42,7 @@ bool Server::AcceptConnection()
 		}
 
 		mClientSockets.push_back( s );
-		EvPlayerConnection msg;
+		EvPlayerID msg;
 		msg.ID = (unsigned int)s;
 		mConn->SendPkg( s, -1, Net_Event::YOUR_ID, s );
 	}
@@ -79,7 +79,7 @@ bool Server::ReceiveLoop( int index )
 
 void Server::DisconnectClient( SOCKET s )
 {
-	EvPlayerConnection msg;
+	EvPlayerID msg;
 	msg.ID = s;
 	for( auto& to : mClientSockets )
 	{

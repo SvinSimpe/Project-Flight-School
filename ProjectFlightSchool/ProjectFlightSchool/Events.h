@@ -208,3 +208,45 @@ class Event_Change_State : public IEvent
 			return mEventID;
 		}
 };
+
+class Event_Start_Server : public IEvent
+{
+	// Member variables;
+private:
+protected:
+public:
+	static const EventType GUID;
+
+	// Member functions
+private:
+protected:
+	const EventType& GetEventType( void ) const
+	{
+		return GUID;
+	}
+public:
+	Event_Start_Server()
+	{
+	}
+};
+
+class Event_Start_Client : public IEvent
+{
+	// Member variables;
+private:
+protected:
+public:
+	static const EventType GUID;
+
+	// Member functions
+private:
+protected:
+	const EventType& GetEventType( void ) const
+	{
+		return GUID;
+	}
+public:
+	Event_Start_Client()
+	{
+	}
+};

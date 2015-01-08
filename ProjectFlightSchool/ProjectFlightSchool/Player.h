@@ -53,7 +53,7 @@ class Player: public RemotePlayer
 		HRESULT		Initialize();
 		void		Release();
 					Player();
-					~Player();
+		virtual		~Player();
 };
 #endif
 

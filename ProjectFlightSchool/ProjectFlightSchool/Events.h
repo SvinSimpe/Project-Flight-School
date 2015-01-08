@@ -362,3 +362,58 @@ class Event_Remote_Player_Damaged : public IEvent
 			return mID;
 		}
 };
+
+class Event_Player_Spawned : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int mID;
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Player_Spawned( unsigned int id )
+		{
+			mID = id;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+};
+
+class Event_Remote_Player_Spawned : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int mID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+		protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Remote_Player_Spawned( unsigned int id )
+		{
+			mID = id;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+};

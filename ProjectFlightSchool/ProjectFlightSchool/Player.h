@@ -41,6 +41,8 @@ class Player: public RemotePlayer
 		void		HandleInput( float deltaTime );
 		void		Move( XMFLOAT3 direction );
 		void		Die();
+		void		HandleSpawn( float deltaTime );
+		void		Spawn();
 
 	public:
 		HRESULT		Update( float deltaTime );

@@ -70,6 +70,8 @@ RemotePlayer::RemotePlayer()
 	mIsAlive				= true;
 	mMaxHp					= 100.0f;
 	mCurrentHp				= mMaxHp;
+	mSpawnTime				= 10.0f;
+	mTimeTillSpawn			= mSpawnTime;
 
 	mLowerBody.playerModel	= 0;
 	mLowerBody.position		= XMFLOAT3(0.0f, 0.0f, 0.0f);

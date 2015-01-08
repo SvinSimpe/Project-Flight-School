@@ -91,10 +91,32 @@ void Player::Move( XMFLOAT3 direction )
 // Set current hp to 0 to avoid negative values and send event that player has died
 void Player::Die()
 {
-	mIsAlive = false;
-	mCurrentHp = 0.0f;
+	mIsAlive		= false;
+	mCurrentHp		= 0.0f;
+	mTimeTillSpawn	= mSpawnTime;
 	IEventPtr dieEv( new Event_Player_Died( mID ) );
 	EventManager::GetInstance()->QueueEvent( dieEv );
+}
+
+void Player::HandleSpawn( float deltaTime )
+{
+	if( mTimeTillSpawn <= 0.0f )
+	{
+		Spawn();
+	}
+	else
+	{
+		mTimeTillSpawn -= deltaTime;
+	}
+}
+
+void Player::Spawn()
+{
+	mIsAlive = true;
+	mUpperBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
+	mLowerBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
+	IEventPtr spawnEv( new Event_Player_Spawned( mID ) );
+	EventManager::GetInstance()->QueueEvent( spawnEv );
 }
 
 HRESULT Player::Update( float deltaTime )
@@ -115,6 +137,10 @@ HRESULT Player::Update( float deltaTime )
 			mLowerBody.position.x += mLowerBody.direction.x * mLowerBody.speed * deltaTime;
 			mLowerBody.position.z += mLowerBody.direction.z * mLowerBody.speed * deltaTime;
 		}
+	}
+	else
+	{
+		HandleSpawn( deltaTime );
 	}
 
 	///Lock camera position to player

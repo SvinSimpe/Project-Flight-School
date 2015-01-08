@@ -88,15 +88,34 @@ void Player::Move( XMFLOAT3 direction )
 	}
 }
 
+// Set current hp to 0 to avoid negative values and send event that player has died
+void Player::Die()
+{
+	mIsAlive = false;
+	mCurrentHp = 0.0f;
+	IEventPtr dieEv( new Event_Player_Died( mID ) );
+	EventManager::GetInstance()->QueueEvent( dieEv );
+}
+
 HRESULT Player::Update( float deltaTime )
 {
 	HandleInput( deltaTime );
 
-	mUpperBody.position.x += mLowerBody.direction.x * mLowerBody.speed * deltaTime;
-	mUpperBody.position.z += mLowerBody.direction.z * mLowerBody.speed * deltaTime;
+	if( mIsAlive )
+	{
+		if ( mCurrentHp <= 0.0f )
+		{
+			Die();
+		}
+		else
+		{
+			mUpperBody.position.x += mLowerBody.direction.x * mLowerBody.speed * deltaTime;
+			mUpperBody.position.z += mLowerBody.direction.z * mLowerBody.speed * deltaTime;
 
-	mLowerBody.position.x += mLowerBody.direction.x * mLowerBody.speed * deltaTime;
-	mLowerBody.position.z += mLowerBody.direction.z * mLowerBody.speed * deltaTime;
+			mLowerBody.position.x += mLowerBody.direction.x * mLowerBody.speed * deltaTime;
+			mLowerBody.position.z += mLowerBody.direction.z * mLowerBody.speed * deltaTime;
+		}
+	}
 
 	///Lock camera position to player
 	XMFLOAT3 cameraPosition;

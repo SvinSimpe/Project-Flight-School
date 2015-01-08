@@ -45,3 +45,10 @@ const EventType Event_Remote_Player_Update::GUID( 1 );
 const EventType Event_Remote_Player_Joined::GUID( 2 );
 const EventType Event_Remote_Player_Left::GUID( 3 );
 const EventType Event_Change_State::GUID( 4 );
+const EventType Event_Player_Died::GUID( 5 );
+const EventType Event_Remote_Player_Died::GUID( 6 );
+const EventType Event_Player_Damaged::GUID( 7 );
+const EventType Event_Remote_Player_Damaged::GUID( 8 );
+
+
+

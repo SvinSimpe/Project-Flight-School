@@ -144,8 +144,8 @@ HRESULT Player::Update( float deltaTime )
 	///Lock camera position to player
 	XMFLOAT3 cameraPosition;
 	cameraPosition.x = mLowerBody.position.x;
-	cameraPosition.y = mLowerBody.position.y + 21.0f;
-	cameraPosition.z = mLowerBody.position.z - 21.0f;
+	cameraPosition.y = mLowerBody.position.y + 25.0f;
+	cameraPosition.z = mLowerBody.position.z - 15.0f;
 
 	Graphics::GetInstance()->SetEyePosition( cameraPosition );
 	Graphics::GetInstance()->SetFocus( mLowerBody.position );

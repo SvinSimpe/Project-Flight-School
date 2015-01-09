@@ -98,12 +98,56 @@ void PlayState::HandleDeveloperCameraInput()
 		Graphics::GetInstance()->ZoomInDeveloperCamera();
 }
 
+void PlayState::CheckCollision()
+{	
+	if( mRemotePlayers.size() > 0 )
+	{
+		if( mRemotePlayers.at(0)->GetID() != 0 )
+		{
+			for (size_t i = 0; i < mRemotePlayers.size(); i++)
+			{
+				//if( mPlayer->GetBoundingBox()->Intersect( mRemotePlayers.at(i)->GetBoundingBox() ) )		// BoundingBox
+				if( mPlayer->GetBoundingCircle()->Intersect( mRemotePlayers.at(i)->GetBoundingCircle() ) )	// BoundingCircle
+				{
+					//mPlayer->SetIsMovable( false );
+					OutputDebugStringA( "\nCOLLISION" );
+
+					//Direction
+					XMVECTOR remoteToPlayerVec	= ( XMLoadFloat3( &mPlayer->GetBoundingCircle()->center ) - 
+													XMLoadFloat3( &mRemotePlayers.at(i)->GetBoundingCircle()->center ) );
+
+					//Normalize direction
+					remoteToPlayerVec = XMVector4Normalize( remoteToPlayerVec );
+
+					//Length of new vector
+					float vectorLength = ( mRemotePlayers.at(i)->GetBoundingCircle()->radius + mPlayer->GetBoundingCircle()->radius ) + 0.0001f;
+					
+					//New position of player			 
+					XMVECTOR playerPosition = XMLoadFloat3( &mRemotePlayers.at(i)->GetBoundingCircle()->center ) + remoteToPlayerVec * vectorLength;
+					mPlayer->SetPosition( playerPosition );	
+				}
+			}	
+		}
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
 
 HRESULT PlayState::Update( float deltaTime )
 {
+	OutputDebugStringA( "\n-------------------" );
+
+
+	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
+	{
+		CheckCollision();
+		mFrameCounter = 0;
+	}
+	else
+		mFrameCounter++;
+
 	HandleDeveloperCameraInput();
 	mPlayer->Update( deltaTime );
 	mAnimationTime += deltaTime;
@@ -210,8 +254,9 @@ void PlayState::Release()
 
 PlayState::PlayState()
 {
-	mRemotePlayers = std::vector<RemotePlayer*>( 0 );
+	mRemotePlayers	= std::vector<RemotePlayer*>( 0 );
 	mRemotePlayers.reserve(MAX_REMOTE_PLAYERS);
+	mFrameCounter	= 0;
 }
 
 PlayState::~PlayState()

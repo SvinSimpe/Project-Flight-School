@@ -91,12 +91,6 @@ void Server::DisconnectClient( SOCKET s )
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
 
-Server* Server::GetInstance()
-{
-	static Server instance;
-	return &instance;
-}
-
 bool Server::Connect()
 {
 	mListenSocket = socket( mAddrResult->ai_family, mAddrResult->ai_socktype, mAddrResult->ai_protocol );
@@ -182,24 +176,22 @@ bool Server::Initialize( const char* port )
 
 void Server::Release()
 {
+	for( auto& s : mClientSockets )
+	{
+		mConn->DisconnectSocket( s ); 
+	}
+	mClientSockets.clear();
+
 	for ( auto& t : mListenThreads )
 	{
 		t.join();
 	}
 	mListenThreads.clear();
 
-	for( auto& s : mClientSockets )
-	{
-		mConn->DisconnectSocket( s ); 
-	}
-	mClientSockets.clear();
 	WSACleanup();
 	mConn->Release();
-
 	if ( mConn )
-	{
 		delete mConn;
-	}
 }
 
 Server::Server()

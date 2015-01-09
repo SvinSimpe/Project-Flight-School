@@ -2,7 +2,7 @@
 
 void Connection::DisconnectSocket( SOCKET &socket )
 {
-	shutdown( socket, SD_BOTH );
+	shutdown( socket, SD_SEND );
 	closesocket( socket );
 	socket = INVALID_SOCKET;
 }

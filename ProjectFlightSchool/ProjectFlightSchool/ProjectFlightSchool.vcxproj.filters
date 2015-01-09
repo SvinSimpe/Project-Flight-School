@@ -114,6 +114,9 @@
     <ClCompile Include="StateMachine.cpp">
       <Filter>GameStates\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
@@ -178,6 +181,9 @@
     </ClInclude>
     <ClInclude Include="StateMachine.h">
       <Filter>GameStates\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

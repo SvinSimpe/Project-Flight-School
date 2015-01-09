@@ -80,13 +80,10 @@ void Graphics::Render2dAsset( AssetID assetId, float x, float y, float width, fl
 	UINT32 vertexSize	= sizeof(StaticVertex);
 	UINT32 offset		= 0;
 
-	float widthVariabel		= width * 0.5f;
-	float heightVariabel	= height * 0.5f;
-
-	float left		= ( ( ( x - widthVariabel ) / (float)mScreenWidth ) * 2.0f ) - 1.0f;
-	float right		= ( ( ( x + widthVariabel ) / (float)mScreenWidth ) * 2.0f ) - 1.0f;
-	float bottom	= ( ( ( y + heightVariabel ) / (float)mScreenHeight ) * -2.0f ) + 1.0f;
-	float top		= ( ( ( y - heightVariabel ) / (float)mScreenHeight ) * -2.0f ) + 1.0f;
+	float left		= ( ( x / (float)mScreenWidth ) * 2.0f ) - 1.0f;
+	float right		= ( ( ( x + width ) / (float)mScreenWidth ) * 2.0f ) - 1.0f;
+	float bottom	= ( ( ( y + height ) / (float)mScreenHeight ) * -2.0f ) + 1.0f;
+	float top		= ( ( y / (float)mScreenHeight ) * -2.0f ) + 1.0f;
 
 	StaticVertex bottomleft		= { left, bottom, 0.0,		0, 0, 0,	0, 0, 0,	0, 1 };
 	StaticVertex topleft		= { left, top, 0.0,		0, 0, 0,	0, 0, 0,	0, 0 };

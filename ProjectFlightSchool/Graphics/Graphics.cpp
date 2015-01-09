@@ -867,7 +867,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 
 	mAnimatedEffect			= new Effect;
-	effectInfo.fileName		= "../Content/Effects/PlaceholderAni.hlsl";
+	effectInfo.fileName		= "../Content/Effects/Animated3dEffect.hlsl";
 	effectInfo.vertexType	= ANIMATED_VERTEX_TYPE;
 
 	if( FAILED( hr = mAnimatedEffect->Intialize( mDevice, &effectInfo ) ) )

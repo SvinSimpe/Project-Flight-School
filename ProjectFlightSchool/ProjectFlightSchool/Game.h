@@ -10,7 +10,6 @@ class Game
 	// Class members
 	private:
 		StateMachine*		mStateMachine;
-		EventManager*		mEventManager;
 
 		std::thread			mNetworkThread;
 		std::thread			mServerThread;

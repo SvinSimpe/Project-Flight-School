@@ -187,11 +187,11 @@ void Server::Release()
 	}
 	mListenThreads.clear();
 	mClientSockets.clear();
+	WSACleanup();
 	mConn->DisconnectSocket( mListenSocket );
 
-	//WSACleanup();
 	mConn->Release();
-	if ( mConn )
+	if( mConn )
 		delete mConn;
 }
 

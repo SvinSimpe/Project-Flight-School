@@ -221,7 +221,7 @@ void Player::Release()
 	for( auto& it : mProjectiles )
 	{
 		it->Release();
-		SAFE_DELETE(it);
+		SAFE_DELETE( it );
 	}
 }
 

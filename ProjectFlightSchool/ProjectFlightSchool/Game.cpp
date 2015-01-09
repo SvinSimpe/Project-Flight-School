@@ -71,7 +71,7 @@ HRESULT Game::Initialize()
 {
 	mStateMachine	= new StateMachine();
 	mStateMachine->Initialize();
-	
+
 	mClient			= new Client();
 	EventManager::GetInstance()->AddListener( &Game::EventListener, this, Event_Start_Server::GUID );
 	EventManager::GetInstance()->AddListener( &Game::EventListener, this, Event_Start_Client::GUID );
@@ -82,8 +82,7 @@ HRESULT Game::Initialize()
 
 void Game::Release()
 {
-	mStateMachine->Release();
-	SAFE_DELETE( mStateMachine );
+	EventManager::GetInstance()->Release();
 
 	mClient->Release();
 	SAFE_DELETE( mClient );
@@ -100,6 +99,9 @@ void Game::Release()
 	{
 		mNetworkThread.join();
 	}
+
+	mStateMachine->Release();
+	SAFE_DELETE( mStateMachine );
 }
 
 Game::Game()

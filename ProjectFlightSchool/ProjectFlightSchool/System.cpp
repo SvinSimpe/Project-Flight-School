@@ -157,9 +157,13 @@ void System::Release()
 {
 	mGame->Release();
 	SAFE_DELETE( mGame );
+
 	mTimer->Release();
 	SAFE_DELETE( mTimer );
+
 	Graphics::GetInstance()->Release();
+
+	Input::GetInstance()->Release();
 }
 
 System::System()

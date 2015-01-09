@@ -47,7 +47,7 @@ HRESULT	MapNode::Render(float deltaTime, XMFLOAT4X4 parentWorld)
 {
 	for(int i = 0; i < (int)mStaticAssetCount; i++ )
 	{
-		mStaticAssets[i].Render( deltaTime );
+		mStaticAssets[i].Render( deltaTime, parentWorld );
 	}
 
 	return S_OK;

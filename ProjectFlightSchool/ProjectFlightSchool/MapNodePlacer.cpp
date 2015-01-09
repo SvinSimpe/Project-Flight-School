@@ -14,35 +14,40 @@ MapNodePlacer* MapNodePlacer::GetInstance()
 }
 bool MapNodePlacer::canPlace( int left, int top, MapNode node )
 {
-	if ( (left % mMap->GetMapWidth() < node.GetGridWidth()) && (top % mMap->GetMapHeight() < node.GetGridHeight()) )
+	if ( ( node.GetGridWidth() <= ( mMap->GetMapWidth() - left ) ) && ( node.GetGridHeight() <= ( mMap->GetMapHeight() - top ) ) )
 	{
 		for ( int i = 0; i < 2; i++ )
 		{
-			for ( int x = left; x < (int)node.GetGridWidth(); x++ )
+			for ( int x = left; x < left + (int)node.GetGridWidth(); x++ )
 			{
-				int dX = x + ( i *  + node.GetGridWidth() );
-				if ( mBuildMap[x][top] != 0 )
+				int dY = top + ( i * ( node.GetGridWidth() - 1 ) );
+				if ( mBuildMap[x][dY] != 0 )
 				{
 					return false;
 				}
 			}
-			for ( int y = top; y < (int)node.GetGridHeight(); y++ )
+			for ( int y = top; y < top + (int)node.GetGridHeight(); y++ )
 			{
-				int dY = y + ( i * node.GetGridHeight() );
-				if ( mBuildMap[left][y] != 0 )
+				int dX = left + ( i * ( node.GetGridHeight() - 1 ) );
+				if ( mBuildMap[dX][y] != 0 )
 				{
 					return false;
 				}
 			}
 		}
-		for (int y = top; y < top + node.GetGridHeight(); y++)
+		for (int y = top; y < top + (int)node.GetGridHeight(); y++)
 		{
-			for (int x = left; x < left + node.GetGridWidth(); x++)
+			for (int x = left; x < left + (int)node.GetGridWidth(); x++)
 			{
 				mBuildMap[x][y] = 1;
 			}
 		}
 		return true;
+	}
+	else
+	{
+		int debug = mMap->GetMapWidth() - left;
+		int debug2 = mMap->GetMapHeight() - top;
 	}
 	return false;
 }
@@ -50,6 +55,22 @@ std::vector<MapNodeInstance> MapNodePlacer::PlaceNodes()
 {
 	MapNode* nodes = MapNodeManager::GetInstance()->GetNodes();
 	std::vector<MapNodeInstance> placedNodes;
+
+	mBuildMap = new char*[mMap->GetMapHeight()];
+	for (int y = 0; y < (int)mMap->GetMapHeight(); y++)
+	{
+		for (int x = 0; x < (int)mMap->GetMapWidth(); x++)
+		{
+			mBuildMap[x] = new char[mMap->GetMapHeight()];
+		}
+	}
+	for (int y = 0; y < (int)mMap->GetMapHeight(); y++)
+	{
+		for (int x = 0; x < (int)mMap->GetMapWidth(); x++)
+		{
+			mBuildMap[x][y] = 0;
+		}
+	}
 
 	for (int y = 0; y < (int)mMap->GetMapHeight(); y++)
 	{
@@ -64,41 +85,39 @@ std::vector<MapNodeInstance> MapNodePlacer::PlaceNodes()
 				pos.y = 0.0f;
 				pos.z = ((float)y - mMap->GetMapHalfHeight());
 				mapNodeInst.SetPos( pos );
-				placedNodes.push_back(nodes[0].GetMapNodeInstance());
+				placedNodes.push_back( mapNodeInst );
 			}
 		}
 	}
-	for (int y = 0; y < (int)mMap->GetMapHeight(); y++)
-	{
-		
-		for (int x = 0; x < (int)mMap->GetMapWidth(); x++)
-		{
-			printf("[%d]",mBuildMap[x][y]);
-		}
 
-		printf("\n");
-	}
+	//for (int y = 0; y < (int)mMap->GetMapHeight(); y++)
+	//{
+	//	for (int x = 0; x < (int)mMap->GetMapWidth(); x++)
+	//	{
+	//		printf("[%d]", mBuildMap[x][y]);
+	//	}
+	//	printf("\n");
+	//}
 	return placedNodes;
 }
 HRESULT	MapNodePlacer::Initialize( Map* map )
 {
 	mMap = map;
 	//mBuildMapSize = mMap->GetMapWidth() * mMap->GetMapHeight();
-	mBuildMap = new int*[mMap->GetMapHeight()];
-	for (int y = 0; y < (int)mMap->GetMapHeight(); y++)
-	{
-		for (int x = 0; x < (int)mMap->GetMapWidth(); x++)
-		{
-			mBuildMap[x] = new int[mMap->GetMapHeight()];
-		}
-	}
-	for (int y = 0; y < (int)mMap->GetMapHeight(); y++)
-	{
-		for (int x = 0; x < (int)mMap->GetMapWidth(); x++)
-		{
-			mBuildMap[x][y] = 0;
-		}
-	}
+	//for (int y = 0; y < (int)mMap->GetMapHeight(); y++)
+	//{
+	//	for (int x = 0; x < (int)mMap->GetMapWidth(); x++)
+	//	{
+	//		mBuildMap[x] = new int[mMap->GetMapHeight()];
+	//	}
+	//}
+	//for (int y = 0; y < (int)mMap->GetMapHeight(); y++)
+	//{
+	//	for (int x = 0; x < (int)mMap->GetMapWidth(); x++)
+	//	{
+	//		mBuildMap[x][y] = 0;
+	//	}
+	//}
 	return S_OK;
 }
 void MapNodePlacer::Release()

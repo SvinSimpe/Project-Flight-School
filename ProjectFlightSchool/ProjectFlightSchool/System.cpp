@@ -174,5 +174,4 @@ System::System()
 
 System::~System()
 {
-
 }

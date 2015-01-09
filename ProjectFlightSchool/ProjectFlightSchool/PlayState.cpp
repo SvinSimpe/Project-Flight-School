@@ -196,6 +196,8 @@ HRESULT PlayState::Initialize()
 void PlayState::Release()
 {
 	mPlayer->Release();
+	SAFE_DELETE(mPlayer);
+
 	mWorldMap->Release();
 	SAFE_DELETE( mWorldMap );
 
@@ -205,7 +207,6 @@ void PlayState::Release()
 		SAFE_DELETE( rp );
 	}
 	mRemotePlayers.clear();
-
 }
 
 PlayState::PlayState()

@@ -7,7 +7,8 @@
 void Game::ServerInit()
 {
 	const char* port	= DEFAULT_PORT;
-
+	
+	mServer = new Server();
 	if ( mServer->Initialize( port ) )
 	{
 		if ( mServer->Connect() )
@@ -72,7 +73,6 @@ HRESULT Game::Initialize()
 	mStateMachine->Initialize();
 	
 	mClient			= new Client();
-	mServer			= new Server();
 	EventManager::GetInstance()->AddListener( &Game::EventListener, this, Event_Start_Server::GUID );
 	EventManager::GetInstance()->AddListener( &Game::EventListener, this, Event_Start_Client::GUID );
 	mServerIsActive = false;
@@ -82,13 +82,16 @@ HRESULT Game::Initialize()
 
 void Game::Release()
 {
+	mStateMachine->Release();
 	SAFE_DELETE( mStateMachine );
+
 	mClient->Release();
 	SAFE_DELETE( mClient );
 
 	if ( mServerIsActive )
 		mServer->Release();
 	SAFE_DELETE( mServer );
+
 	if ( mServerThread.joinable() )
 	{
 		mServerThread.join();
@@ -105,6 +108,7 @@ Game::Game()
 	mNetworkThread	= std::thread();
 	mServerThread	= std::thread();
 	mClient			= nullptr;
+	mServer			= nullptr;
 }
 
 Game::~Game()

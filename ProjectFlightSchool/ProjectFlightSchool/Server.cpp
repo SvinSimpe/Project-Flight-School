@@ -117,7 +117,7 @@ bool Server::Connect()
 	if ( mResult == SOCKET_ERROR )
 	{
 		printf( "listen failed with error: %d\n", WSAGetLastError() );
-		closesocket( mListenSocket );
+		mConn->DisconnectSocket( mListenSocket );
 		WSACleanup();
 		return false;
 	}
@@ -180,15 +180,16 @@ void Server::Release()
 	{
 		mConn->DisconnectSocket( s ); 
 	}
-	mClientSockets.clear();
-
 	for ( auto& t : mListenThreads )
 	{
-		t.join();
+		if( t.joinable() )
+			t.join();
 	}
 	mListenThreads.clear();
+	mClientSockets.clear();
+	mConn->DisconnectSocket( mListenSocket );
 
-	WSACleanup();
+	//WSACleanup();
 	mConn->Release();
 	if ( mConn )
 		delete mConn;

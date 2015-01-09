@@ -419,6 +419,10 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceConte
 			temp->mMeshes.push_back( meshes[i] );
 		}
 
+		if( meshInfo )
+			delete [] meshInfo;
+		if( meshes )
+			delete [] meshes;
 		for( UINT i = 0; i < nrOfMeshes; i++ )
 			delete [] vertices[i];
 		delete [] vertices;

@@ -9,7 +9,7 @@ float Timer::GetDeltaTime()
 
 	mPrevTimeStamp = currTimeStamp;
 
-	mFps = mFps * 0.9f + 0.1f / dt;
+	mFps = mFps * 0.1f + 0.9f / dt;
 
 	return dt;
 }

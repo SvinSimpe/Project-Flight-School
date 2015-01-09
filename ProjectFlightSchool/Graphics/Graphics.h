@@ -84,6 +84,7 @@ class LIBRARY_EXPORT Graphics
 		void RenderStatic3dAssetIndexed( AssetID assetId, UINT indexCount, UINT startIndex );
 
 		void RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime );
+		void RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, float x, float y, float z );
 
 		Camera* GetCamera() const;
 		Camera* GetDeveloperCamera() const;

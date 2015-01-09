@@ -1,4 +1,5 @@
 #include "MapNode.h"
+
 StaticVertex* MapNode::GetGrid() const
 {
 	return mGrid;
@@ -10,6 +11,14 @@ UINT MapNode::GetVertexCount() const
 UINT MapNode::GetGridDim() const
 {
 	return mGridDim;
+}
+UINT MapNode::GetGridWidth() const
+{
+	return mGridWidth;
+}
+UINT MapNode::GetGridHeight() const
+{
+	return mGridHeight;
 }
 XMFLOAT3 MapNode::GetAnchor() const
 {
@@ -27,9 +36,25 @@ HRESULT	MapNode::Update(float deltaTime)
 {
 	return S_OK;
 }
+MapNodeInstance MapNode::GetMapNodeInstance()
+{
+	MapNodeInstance result;
+	result.Initialize( this );
+
+	return result;
+}
+HRESULT	MapNode::Render(float deltaTime, XMFLOAT4X4 parentWorld)
+{
+	for(int i = 0; i < (int)mStaticAssetCount; i++ )
+	{
+		mStaticAssets[i].Render( deltaTime );
+	}
+
+	return S_OK;
+}
 HRESULT	MapNode::Render(float deltaTime)
 {
-	for(int i = 0; i < mStaticAssetCount; i++ )
+	for(int i = 0; i < (int)mStaticAssetCount; i++ )
 	{
 		mStaticAssets[i].Render( deltaTime );
 	}
@@ -45,7 +70,10 @@ HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 	mStaticAssetCount	= initInfo.staticAssetCount;
 	mVertexCount		= initInfo.vertexCount;
 
-	for( int i = 0; i < mVertexCount; i++ )
+	mGridWidth			= initInfo.gridDim;
+	mGridHeight			= initInfo.gridDim;
+
+	for( int i = 0; i < (int)mVertexCount; i++ )
 	{
 		mGrid[i].position[0]	= initInfo.grid[i].position[0];
 		mGrid[i].position[1]	= initInfo.grid[i].position[1];

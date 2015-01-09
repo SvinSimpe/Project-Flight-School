@@ -1,4 +1,7 @@
 #include "MapNodeManager.h"
+
+MapNodeManager* MapNodeManager::instance = nullptr;
+
 HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 {
 	//char* contentDir	= "../Content/Assets/Nodes/";
@@ -25,6 +28,7 @@ HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 			return E_FAIL;
 		}
 		MapNodeInfo initInfo;
+		UINT nrOfObjects = 0;
 
 
 		//First read dimension, TODO: remove dimZ, needed atm, read vertexCount
@@ -34,10 +38,11 @@ HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 		initInfo.grid = new Vertex24[initInfo.vertexCount];
 
 		inFile.read( (char*)initInfo.grid, sizeof( Vertex24 ) * initInfo.vertexCount ) ;
+		
 
 		for(UINT i = 0; i < initInfo.vertexCount; i++ )
 		{
-			printf("Gridpos: %f | %f | %f \n", initInfo.grid[i].position[0],initInfo.grid[i].position[1],initInfo.grid[i].position[2] );
+			//printf("Gridpos: %f | %f | %f \n\n", initInfo.grid[i].position[0],initInfo.grid[i].position[1],initInfo.grid[i].position[2] );
 		}
 
 		JMatrix gridMat;
@@ -46,8 +51,9 @@ HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 
 		initInfo.anchor = gridMat.pos;
 
+		inFile.read( (char*)&nrOfObjects,sizeof(UINT));
 		//Read all the objects associated with the node
-		while( !inFile.eof() )
+		for( int i = 0; i < (int)nrOfObjects; i++ )
 		{
 			GameObject ob;
 			GameObjectInfo obInfo;
@@ -56,9 +62,14 @@ HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 			obInfo.pos		= gridMat.pos;
 			obInfo.rotation = gridMat.rot;
 			obInfo.scale	= gridMat.scale;
-			Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_1.pfs", assetID );
+			Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_lol.pfs", assetID );
 			ob.Initialize( obInfo, assetID );
 			staticObjects.push_back( ob );
+			printf("GameObject allocated with:\nPos: (%f,%f,%f)\nRotation:  (%f,%f,%f)\nScale:  (%f,%f,%f)\nAssetID: %d\n\n\n",
+				ob.GetPos().x,ob.GetPos().y, ob.GetPos().z,
+				ob.GetRotation().x,ob.GetRotation().y, ob.GetRotation().z,
+				ob.GetScale().x, ob.GetScale().y, ob.GetScale().z,
+				ob.GetAssetID());
 		}
 		inFile.close();
 
@@ -68,14 +79,15 @@ HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 
 		//memcpy(initInfo.staticAssets, &staticObjects[0], sizeof(GameObject) * staticObjects.size() );
 
-		for( int i = 0; i < initInfo.staticAssetCount; i++ )
+		printf("Nr of static objects: %d\n", staticObjects.size());
+		for( UINT i = 0; i < initInfo.staticAssetCount; i++ )
 		{
 			initInfo.staticAssets[i] = staticObjects[i];
-			printf("GameObject allocated with:\nPos: (%f,%f,%f)\nRotation:  (%f,%f,%f)\nScale:  (%f,%f,%f)\nAssetID: %d\n",
-				initInfo.staticAssets[i].GetPos().x,initInfo.staticAssets[i].GetPos().y,initInfo.staticAssets[i].GetPos().z,
-				initInfo.staticAssets[i].GetRotation().x,initInfo.staticAssets[i].GetRotation().y,initInfo.staticAssets[i].GetRotation().z,
-				initInfo.staticAssets[i].GetScale().x,initInfo.staticAssets[i].GetScale().y,initInfo.staticAssets[i].GetScale().z,
-				initInfo.staticAssets[i].GetAssetID());
+			//printf("GameObject allocated with:\nPos: (%f,%f,%f)\nRotation:  (%f,%f,%f)\nScale:  (%f,%f,%f)\nAssetID: %d\n\n\n",
+			//	initInfo.staticAssets[i].GetPos().x,initInfo.staticAssets[i].GetPos().y,initInfo.staticAssets[i].GetPos().z,
+			//	initInfo.staticAssets[i].GetRotation().x,initInfo.staticAssets[i].GetRotation().y,initInfo.staticAssets[i].GetRotation().z,
+			//	initInfo.staticAssets[i].GetScale().x,initInfo.staticAssets[i].GetScale().y,initInfo.staticAssets[i].GetScale().z,
+			//	initInfo.staticAssets[i].GetAssetID());
 		}
 
 		MapNode temp;
@@ -94,17 +106,29 @@ HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 
 	return S_OK;
 }
-HRESULT MapNodeManager::Render( float deltaTime )
+//HRESULT MapNodeManager::Render( float deltaTime )
+//{
+//	for( int i = 0; i < mNrOfNodes; i++ )
+//	{
+//		mNodes[i].Render( 0.0f );
+//	}
+//	return S_OK;
+//}
+//HRESULT	MapNodeManager::Update( float deltaTime )
+//{
+//	return S_OK;
+//}
+MapNode* MapNodeManager::GetNodes()
 {
-	for( int i = 0; i < mNrOfNodes; i++ )
-	{
-		mNodes[i].Render( 0.0f );
-	}
-	return S_OK;
+	return mNodes;
 }
-HRESULT	MapNodeManager::Update( float deltaTime )
+MapNodeManager* MapNodeManager::GetInstance()
 {
-	return S_OK;
+	if( instance == nullptr )
+	{
+		instance = new MapNodeManager();
+	}
+	return instance;
 }
 HRESULT MapNodeManager::Initialize( char* fileName )
 {

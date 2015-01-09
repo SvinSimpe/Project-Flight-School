@@ -62,26 +62,26 @@ HRESULT PlayState::Update( float deltaTime )
 HRESULT PlayState::Render()
 {
 	Graphics::GetInstance()->BeginScene();
-	//Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset, 0.0f, 0.0f, 0.0f );
-	Graphics::GetInstance()->RenderStatic3dAsset( mTestAsset, 4.0f, 0.0f, 0.0f );
-	Graphics::GetInstance()->RenderStatic3dAsset( mNest1Asset, 8.0f, 0.0f, 0.0f );
-	Graphics::GetInstance()->RenderStatic3dAsset( mTree1Asset, 12.0f, 0.0f, 0.0f );
+	////Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset, 0.0f, 0.0f, 0.0f );
+	//Graphics::GetInstance()->RenderStatic3dAsset( mTestAsset, 4.0f, 0.0f, 0.0f );
+	//Graphics::GetInstance()->RenderStatic3dAsset( mNest1Asset, 8.0f, 0.0f, 0.0f );
+	//Graphics::GetInstance()->RenderStatic3dAsset( mTree1Asset, 12.0f, 0.0f, 0.0f );
 
-	for( int i = 0; i < 6; i++ )
-	{
-		Graphics::GetInstance()->RenderStatic3dAsset( mStoneAssets[i], (float)i*4.0f, 0.0f, -4.0f );
-	}
+	//for( int i = 0; i < 6; i++ )
+	//{
+	//	Graphics::GetInstance()->RenderStatic3dAsset( mStoneAssets[i], (float)i*4.0f, 0.0f, -4.0f );
+	//}
 
-	Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime );
+	//Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime );
 
-	mPlayer->Render( 0.0f );
-	mMapNodeMan->Render( 0.0f );
-	//mWorldMap->Render( 0.0f );
-	for( auto& rp : mRemotePlayers )
-	{
-		if( rp )
-			rp->Render( 0.0f );
-	}
+	//mPlayer->Render( 0.0f );
+	//mMapNodeMan->Render( 0.0f );
+	mWorldMap->Render( 0.0f );
+	//for( auto& rp : mRemotePlayers )
+	//{
+	//	if( rp )
+	//		rp->Render( 0.0f );
+	//}
 
 	Graphics::GetInstance()->EndScene();
 
@@ -126,11 +126,11 @@ HRESULT PlayState::Initialize()
 	mPlayer = new Player();
 	mPlayer->Initialize();
 
-	//mWorldMap = new Map();
-	//mWorldMap->Initialize( 8.0f, 24 );
+	mWorldMap = new Map();
+	mWorldMap->Initialize( 1.0f, 24 );
 
-	mMapNodeMan = new MapNodeManager();
-	mMapNodeMan->Initialize( "../Content/Assets/Nodes/gridtestPlane.lp"  );
+	//mMapNodeMan = new MapNodeManager();
+	//mMapNodeMan->Initialize( "../Content/Assets/Nodes/gridtest2.lp"  );
 
 	EventManager::GetInstance()->AddListener( &PlayState::RemoteUpdate, this, Event_Remote_Player_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::RemoteUpdate, this, Event_Remote_Player_Left::GUID );

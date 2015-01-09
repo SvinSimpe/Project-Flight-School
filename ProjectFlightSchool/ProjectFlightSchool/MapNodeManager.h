@@ -21,8 +21,13 @@ class MapNodeManager
 		HRESULT createNodes( char* filePath,  int nrOfNodes );
 	protected:
 	public:
-		HRESULT		Render( float deltaTime );
-		HRESULT		Update( float deltaTime );
+		static		MapNodeManager* instance;
+
+		//HRESULT		Render( float deltaTime );
+		//HRESULT		Update( float deltaTime );
+		MapNode* GetNodes();
+
+		static MapNodeManager* GetInstance();
 		HRESULT		Initialize( char* fileName );
 		void		Release();
 					MapNodeManager();

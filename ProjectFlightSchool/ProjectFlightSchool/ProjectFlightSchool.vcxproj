@@ -95,7 +95,9 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="MapNode.cpp" />
+    <ClCompile Include="MapNodeInstance.cpp" />
     <ClCompile Include="MapNodeManager.cpp" />
+    <ClCompile Include="MapNodePlacer.cpp" />
     <ClCompile Include="MapSection.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayState.cpp" />
@@ -112,7 +114,9 @@
     <ClInclude Include="Map.h" />
     <ClInclude Include="MapConstants.h" />
     <ClInclude Include="MapNode.h" />
+    <ClInclude Include="MapNodeInstance.h" />
     <ClInclude Include="MapNodeManager.h" />
+    <ClInclude Include="MapNodePlacer.h" />
     <ClInclude Include="MapSection.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="KeyDefines.h" />

@@ -111,6 +111,12 @@
     <ClCompile Include="GameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MapNodeInstance.cpp">
+      <Filter>Worldmap\SourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MapNodePlacer.cpp">
+      <Filter>Worldmap\SourceFiles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
@@ -180,6 +186,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MapNodeManager.h">
+      <Filter>Worldmap\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MapNodeInstance.h">
+      <Filter>Worldmap\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MapNodePlacer.h">
       <Filter>Worldmap\Header Files</Filter>
     </ClInclude>
   </ItemGroup>

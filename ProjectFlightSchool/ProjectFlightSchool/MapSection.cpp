@@ -67,8 +67,6 @@ HRESULT MapSection::Initialize( UINT sectionID, float vertexSpacing, UINT mapDim
 
 		}
 	}
-
-
 	char name[50];
 	sprintf_s( name, "mapSection%d", mSectionID );
 	Indexed3DAssetInfo info;

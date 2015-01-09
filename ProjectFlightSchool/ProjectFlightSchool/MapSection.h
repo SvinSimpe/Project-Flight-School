@@ -2,6 +2,7 @@
 #define MAPSECTION_H
 #include <Graphics.h>
 #include "MapConstants.h"
+#include "MapNodeInstance.h"
 //#include "MapQuad.h"
 
 
@@ -12,6 +13,7 @@ class MapSection
 		StaticVertex mVertices[VERTEX_COUNT];
 		UINT mSectionID;
 		UINT mAssetID;
+		std::vector<MapNodeInstance*> mMapNodes;
 
 
 	protected:

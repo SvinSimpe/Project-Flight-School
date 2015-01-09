@@ -1,7 +1,8 @@
 #ifndef MAPNODE_H
 #define MAPNODE_H
-#include <Graphics.h>
 #include "GameObject.h"
+#include "MapNodeInstance.h"
+
 using namespace DirectX;
 
 struct MapNodeInfo
@@ -21,6 +22,10 @@ class MapNode
 		StaticVertex*	mGrid;
 		UINT			mVertexCount;
 		UINT			mGridDim;
+
+		UINT			mGridWidth;
+		UINT			mGridHeight;
+
 		XMFLOAT3		mAnchor;
 		UINT			mNodeDim;
 		GameObject*		mStaticAssets;
@@ -31,18 +36,30 @@ class MapNode
 
 	private:
 	protected:
-		StaticVertex*	GetGrid() const;
-		UINT			GetVertexCount() const;
-		UINT			GetGridDim() const;
-		XMFLOAT3		GetAnchor() const;
-		UINT			GetNodeDim() const;
-		GameObject*		GetStaticAssets() const;
 	public:
-		HRESULT		Update( float deltaTime );
-		HRESULT		Render( float deltaTime );
-		HRESULT		Initialize( MapNodeInfo initInfo );
-		void		Release();
-					MapNode();
-		virtual		~MapNode();
+		HRESULT			Update( float deltaTime );
+		HRESULT			Render( float deltaTime );
+		HRESULT			Render( float deltaTime, XMFLOAT4X4 parentWorld );
+
+		StaticVertex*	GetGrid() const;
+
+		UINT			GetVertexCount() const;
+
+		UINT			GetGridDim() const;
+
+		UINT			GetGridWidth() const;
+		UINT			GetGridHeight() const;
+
+		XMFLOAT3		GetAnchor() const;
+
+		UINT			GetNodeDim() const;
+
+		GameObject*		GetStaticAssets() const;
+
+		MapNodeInstance	GetMapNodeInstance();
+		HRESULT			Initialize( MapNodeInfo initInfo );
+		void			Release();
+						MapNode();
+		virtual			~MapNode();
 };
 #endif

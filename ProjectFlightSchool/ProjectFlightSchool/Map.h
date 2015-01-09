@@ -1,30 +1,35 @@
 #ifndef MAP_H
 #define MAP_H
 
+
 #include "MapSection.h"
+
 
 class Map
 {
 	private:
 		MapSection *mMapSections;
+		std::vector<MapNodeInstance> nodes;
 		float mVertexSpacing;
 		
 		UINT mMapId;
 	protected:
 	public:
-		UINT mVerticesPerAxis;
-
-		UINT mSectionDim;
-
 		UINT mMapDim;
-
 	private:
-		void InitializeVertices();
 	protected:
 	public:
 		//HRESULT Update( float deltaTime );
 		HRESULT Render( float deltaTime );
 		void GenerateGrid();
+
+		UINT GetMapDim() const;
+		UINT GetMapWidth() const;
+		UINT GetMapHeight() const;
+
+		float GetMapHalfWidth() const;
+		float GetMapHalfHeight() const;
+
 		HRESULT Initialize( float vertexSpacing, UINT mapDim );
 		void Release();
 		Map();

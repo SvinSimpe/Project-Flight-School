@@ -1,4 +1,5 @@
 #include "GameObject.h"
+#include "MapNode.h"
 
 HRESULT	GameObject::Update(float deltaTime)
 {
@@ -11,7 +12,23 @@ HRESULT	GameObject::Render(float deltaTime )
 	DirectX::XMMATRIX rotation		= DirectX::XMMatrixRotationRollPitchYaw( mRotation.x, mRotation.y, mRotation.z );
 	DirectX::XMMATRIX translation	= DirectX::XMMatrixTranslation( mPos.x, mPos.y, mPos.z );
 
-	DirectX::XMMATRIX world = scaling * rotation * translation;
+	DirectX::XMMATRIX world = translation * rotation * scaling;
+
+	DirectX::XMFLOAT4X4 worldFinished;
+	DirectX::XMStoreFloat4x4( &worldFinished, world );
+	
+
+	Graphics::GetInstance()->RenderStatic3dAsset( mAssetID, &worldFinished );
+	return S_OK;
+}
+HRESULT	GameObject::Render(float deltaTime, DirectX::XMFLOAT4X4 parentWorld )
+{
+	//Temporarycode
+	DirectX::XMMATRIX scaling		= DirectX::XMMatrixScaling( mScale.x, mScale.y, mScale.z );
+	DirectX::XMMATRIX rotation		= DirectX::XMMatrixRotationRollPitchYaw( mRotation.x, mRotation.y, mRotation.z );
+	DirectX::XMMATRIX translation	= DirectX::XMMatrixTranslation( mPos.x, mPos.y, mPos.z );
+
+	DirectX::XMMATRIX world = translation * rotation * scaling;
 
 	DirectX::XMFLOAT4X4 worldFinished;
 	DirectX::XMStoreFloat4x4( &worldFinished, world );
@@ -47,7 +64,6 @@ void GameObject::SetScale(DirectX::XMFLOAT3 scale)
 {
 	mScale = scale;
 }
-
 AssetID	GameObject::GetAssetID() const
 {
 	return mAssetID;

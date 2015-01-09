@@ -255,6 +255,7 @@ HRESULT AssetManager::CreateSRVAssets( ID3D11Device* device, ID3D11DeviceContext
 	}
 	else
 	{
+		tempStr = filePath + string( meshInfo.specularMapName );
 		if( typeid( *mAssetContainer[assetId] ) == typeid( Animated3dAsset ) )
 		{
 			hr = LoadStatic2dAsset( device, dc, (char*)tempStr.c_str(), ( (Animated3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_SPECULAR] );

@@ -218,8 +218,11 @@ HRESULT Player::Initialize()
 
 void Player::Release()
 {
-	for ( size_t i = 0; i < mProjectiles.size(); i++ )
-		SAFE_DELETE( mProjectiles.at(i) );
+	for( auto& it : mProjectiles )
+	{
+		it->Release();
+		SAFE_DELETE( it );
+	}
 }
 
 Player::Player()

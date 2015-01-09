@@ -138,16 +138,21 @@
     <Text Include="..\Content\Effects\PlaceholderAni.hlsl">
       <Filter>Effects</Filter>
     </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="..\Content\Effects\Static3dEffect.hlsl">
+
+    
+    
+    <Text Include="..\Content\Effects\Animated3dEffect.hlsl">
       <Filter>Effects</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Content\Effects\Animated3dEffect.hlsl">
+    </Text>
+    <Text Include="..\Content\Effects\DeferredPassEffect.hlsl">
       <Filter>Effects</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Content\Effects\DeferredPassEffect.hlsl">
+    </Text>
+    <Text Include="..\Content\Effects\Static3dEffect.hlsl">
       <Filter>Effects</Filter>
-    </FxCompile>
+    </Text>
+    <Text Include="..\Content\Effects\2dEffect.hlsl">
+      <Filter>Effects</Filter>
+    </Text>
+
   </ItemGroup>
 </Project>

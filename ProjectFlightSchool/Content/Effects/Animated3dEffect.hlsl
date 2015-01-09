@@ -63,11 +63,14 @@ VS_Out VS_main( VS_In input )
 
 struct PS_Out
 {
-	float4 albedo	: SV_Target0;
-	float4 normal	: SV_Target1;
-	float4 worldPos	: SV_Target2;
+	float4 albedoSpec		: SV_Target0;
+	float4 normal			: SV_Target1;
+	float4 worldPosition	: SV_Target2;
 };
 
+Texture2D<float4> diffuseTexture	: register( t0 );
+Texture2D<float4> normalTexture		: register( t1 );
+Texture2D<float4> specularTexture	: register( t2 );
 SamplerState pointSampler			: register( s0 );
 SamplerState linearSampler			: register( s1 );
 PS_Out PS_main( VS_Out input )
@@ -84,8 +87,8 @@ PS_Out PS_main( VS_Out input )
 	float3x3 texSpace	= float3x3( input.tangent.xyz, biTangent, input.normal.xyz );
 	input.normal		+= mul( bumpNormal.xyz, texSpace );
 	
-	output.normal		= float4( normalize( input.normal ), 0.0f );
-	output.albedo		= float4( diffuseTexture.Sample( linearSampler, input.uv ).xyz, 1.0f );
-	output.worldPos		= float4( input.worldPos, 1.0f );
+	output.normal			= float4( normalize( input.normal ), 0.0f );
+	output.albedoSpec		= float4( diffuseTexture.Sample( linearSampler, input.uv ).xyz, specularTexture.Sample( linearSampler, input.uv ).x );
+	output.worldPosition	= float4( input.worldPosition, 1.0f );
 	return output;
 }

@@ -40,6 +40,15 @@
     <Filter Include="Worldmap\SourceFiles">
       <UniqueIdentifier>{e41cc565-030d-4602-8800-643361f5d6cc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameStates">
+      <UniqueIdentifier>{e1a89ae1-46a4-4194-8310-0d47ed4b5028}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameStates\Header Files">
+      <UniqueIdentifier>{230b0576-84c3-4e6a-b9f8-5407aba8b96c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameStates\Source Files">
+      <UniqueIdentifier>{d9974e49-2255-4e54-a24e-2331ef2a125e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -52,18 +61,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Game.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BaseState.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="StartMenuState.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PlayState.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="StateMachine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Client.cpp">
@@ -102,7 +99,21 @@
     <ClCompile Include="Projectile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    
+    <ClCompile Include="Entry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseState.cpp">
+      <Filter>GameStates\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayState.cpp">
+      <Filter>GameStates\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StartMenuState.cpp">
+      <Filter>GameStates\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StateMachine.cpp">
+      <Filter>GameStates\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
@@ -112,18 +123,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Game.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseState.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StartMenuState.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayState.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StateMachine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Client.h">
@@ -164,6 +163,21 @@
     </ClInclude>
     <ClInclude Include="Projectile.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseState.h">
+      <Filter>GameStates\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayState.h">
+      <Filter>GameStates\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StartMenuState.h">
+      <Filter>GameStates\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StateMachine.h">
+      <Filter>GameStates\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

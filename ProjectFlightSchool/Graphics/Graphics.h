@@ -9,6 +9,7 @@
 #include "CbufferPerFrame.h"
 #include "CbufferPerObject.h"
 #include "Camera.h"
+#include "Gbuffer.h"
 
 #ifdef COMPILE_LIBRARY
 	#define LIBRARY_EXPORT __declspec( dllexport )
@@ -16,35 +17,43 @@
 	#define LIBRARY_EXPORT __declspec( dllimport )
 #endif
 
+#define NUM_GBUFFERS 3
+
 class LIBRARY_EXPORT Graphics
 {
 	//Class members
 	private:
-		HWND		mHWnd;
-		UINT		mScreenWidth;
-		UINT		mScreenHeight;			
+		HWND						mHWnd;
+		UINT						mScreenWidth;
+		UINT						mScreenHeight;	
+		ID3D11Buffer*				mVertexBuffer2d;
 
-		IDXGISwapChain*			mSwapChain;
-		ID3D11Device*			mDevice;
-		ID3D11DeviceContext*	mDeviceContext;
+		IDXGISwapChain*				mSwapChain;
+		ID3D11Device*				mDevice;
+		ID3D11DeviceContext*		mDeviceContext;
 
-		ID3D11RenderTargetView*	mRenderTargetView;
-		ID3D11DepthStencilView*	mDepthStencilView;
-		D3D11_VIEWPORT			mStandardView;
-		ID3D11Buffer*			mCbufferPerFrame;
-		ID3D11Buffer*			mCbufferPerObject;
-		ID3D11Buffer*			mCbufferPerObjectAnimated;
+		ID3D11RenderTargetView*		mRenderTargetView;
+		ID3D11DepthStencilView*		mDepthStencilView;
+		ID3D11DepthStencilState*	mDepthDisabledStencilState;
+		ID3D11DepthStencilState*	mDepthEnabledStencilState;
+		D3D11_VIEWPORT				mStandardView;
+		ID3D11Buffer*				mCbufferPerFrame;
+		ID3D11Buffer*				mCbufferPerObject;
+		ID3D11Buffer*				mCbufferPerObjectAnimated;
 
-		ID3D11SamplerState*		mPointSamplerState;
-		ID3D11SamplerState*		mLinearSamplerState;
+		ID3D11SamplerState*			mPointSamplerState;
+		ID3D11SamplerState*			mLinearSamplerState;
 
 
-		AssetManager*			mAssetManager;
-		Effect*					mStaticEffect;
-		Effect*					mAnimatedEffect;
-		Camera*					mCamera;
-		Camera*					mDeveloperCamera;
-		bool					mIsDeveloperCameraActive;
+		AssetManager*				mAssetManager;
+		Effect*						mStaticEffect;
+		Effect*						m2dEffect;
+		Effect*						mAnimatedEffect;
+		Camera*						mCamera;
+		Camera*						mDeveloperCamera;
+		bool						mIsDeveloperCameraActive;
+		Effect*						mDeferredPassEffect;
+		Gbuffer*					mGbuffers[NUM_GBUFFERS];				
 
 	protected:
 	public:
@@ -64,6 +73,8 @@ class LIBRARY_EXPORT Graphics
 		HRESULT LoadAnimated3dAsset( std::string filePath, std::string fileName, AssetID skeletonId, AssetID &assetId ); 
 		HRESULT LoadSkeletonAsset( std::string filePath, std::string fileName, AssetID &assetId );
 		HRESULT LoadAnimationAsset( std::string filePath, std::string fileName, AssetID &assetId );
+
+		void Render2dAsset( AssetID assetId, float x, float y, float width, float height );
 
 		void RenderStatic3dAsset( AssetID assetId );
 		void RenderStatic3dAsset( AssetID assetId, float x, float y, float z );

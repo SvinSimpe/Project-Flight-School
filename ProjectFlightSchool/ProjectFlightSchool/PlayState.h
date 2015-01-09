@@ -24,6 +24,7 @@ class PlayState : public BaseState
 		AssetID mNest1Asset;
 		AssetID mStoneAssets[6];
 		AssetID mTree1Asset;
+		AssetID mTest2dAsset;
 
 		Map*		mWorldMap;
 
@@ -44,6 +45,8 @@ class PlayState : public BaseState
 		void			RemoteUpdate( IEventPtr newEvent );
 		void			HandleDeveloperCameraInput();
 		void			CheckCollision();
+		void			EventListener( IEventPtr newEvent );
+		void			BroadcastDamage();						// Tell server that local  player has taken damage
 
 	protected:
 	public:

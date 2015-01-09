@@ -8,7 +8,9 @@ HRESULT Static3dAssetIndexed::Initialize()
 void Static3dAssetIndexed::Release()
 {
 	SAFE_RELEASE( mIndexBuffer );
-	SAFE_RELEASE( mVertexBuffer );
+	for( int i = 0; i < (int)mMeshes.size(); i++ )
+		SAFE_RELEASE( mMeshes[i].mVertexBuffer );
+	mMeshes.clear();
 }
 
 Static3dAssetIndexed::Static3dAssetIndexed() : Static3dAsset()

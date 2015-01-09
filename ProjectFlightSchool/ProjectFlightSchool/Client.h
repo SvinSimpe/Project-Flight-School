@@ -30,7 +30,7 @@ class Client // The class used by clients to connect to the server
 		// Functions
 	private:
 		bool	ReceiveLoop();
-		void	PlayerMoved( IEventPtr newEvent );
+		void	EventListener( IEventPtr newEvent );
 
 	protected:
 
@@ -58,25 +58,46 @@ void Client::HandlePkg( Package<T>* p )
 			break;
 		case Net_Event::EV_PLAYER_JOINED:
 		{
-			EvPlayerConnection msg = (EvPlayerConnection&)p->body.content;
+			EvPlayerID msg = (EvPlayerID&)p->body.content;
 			IEventPtr E1( new Event_Remote_Player_Joined( msg.ID ) );
-			EventManager::GetInstance()->TriggerEvent( E1 );
+			EventManager::GetInstance()->QueueEvent( E1 );
 			printf( "Remote player with ID: %d joined.\n", msg.ID );
 		}
 			break;
 		case Net_Event::EV_PLAYER_LEFT:
 		{
-			EvPlayerConnection msg = (EvPlayerConnection&)p->body.content;
+			EvPlayerID msg = (EvPlayerID&)p->body.content;
 			IEventPtr E1( new Event_Remote_Player_Left( msg.ID ) );
-			EventManager::GetInstance()->TriggerEvent( E1 );
+			EventManager::GetInstance()->QueueEvent( E1 );
 			printf( "Remote player with ID: %d left.\n", msg.ID );
 		}
 			break;
 		case Net_Event::YOUR_ID:
 		{
-			EvPlayerConnection msg	= (EvPlayerConnection&)p->body.content;
+			EvPlayerID msg	= (EvPlayerID&)p->body.content;
 			mID						= msg.ID;
 			printf( "Your id is %d.\n", msg.ID );
+		}
+			break;
+		case Net_Event::EV_PLAYER_DIED:
+		{
+			EvPlayerID deadPlayer = (EvPlayerID&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Died( deadPlayer.ID ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
+		case Net_Event::EV_PLAYER_DAMAGED:
+		{
+			EvPlayerID damagedPlayer = (EvPlayerID&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Damaged( damagedPlayer.ID ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
+		case Net_Event::EV_PLAYER_SPAWNED:
+		{
+			EvPlayerID spawnedPlayer = (EvPlayerID&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Spawned( spawnedPlayer.ID ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
 		default:

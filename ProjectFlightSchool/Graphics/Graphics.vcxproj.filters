@@ -86,6 +86,9 @@
     <ClInclude Include="Static2dAsset.h">
       <Filter>AssetClasses\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Gbuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AssetClasses">
@@ -135,5 +138,21 @@
     <Text Include="..\Content\Effects\PlaceholderAni.hlsl">
       <Filter>Effects</Filter>
     </Text>
+
+    
+    
+    <Text Include="..\Content\Effects\Animated3dEffect.hlsl">
+      <Filter>Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\DeferredPassEffect.hlsl">
+      <Filter>Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\Static3dEffect.hlsl">
+      <Filter>Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\2dEffect.hlsl">
+      <Filter>Effects</Filter>
+    </Text>
+
   </ItemGroup>
 </Project>

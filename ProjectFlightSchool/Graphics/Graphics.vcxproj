@@ -100,6 +100,7 @@
     <ClInclude Include="Effect.h" />
     <ClInclude Include="EffectInfo.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Gbuffer.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="SkeletonAsset.h" />
     <ClInclude Include="Static2dAsset.h" />
@@ -132,6 +133,24 @@
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Content\Effects\Animated3dEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="..\Content\Effects\DeferredPassEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="..\Content\Effects\Static3dEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+
+
+
+    <Text Include="..\Content\Effects\2dEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

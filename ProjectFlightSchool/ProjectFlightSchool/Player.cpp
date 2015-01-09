@@ -70,6 +70,9 @@ void Player::HandleInput( float deltaTime )
 	}
 	else
 		mWeaponCoolDown -= deltaTime;
+
+	IEventPtr E1( new Event_Player_Moved( mLowerBody.position, mUpperBody.position, mUpperBody.direction ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 void Player::Move( XMFLOAT3 direction )
@@ -83,20 +86,60 @@ void Player::Move( XMFLOAT3 direction )
 		mLowerBody.direction.x /= pow((pow(mLowerBody.direction.x, 2) + pow(mLowerBody.direction.y, 2) + pow(mLowerBody.direction.z, 2)), 0.5f);
 		mLowerBody.direction.z /= pow((pow(mLowerBody.direction.x, 2) + pow(mLowerBody.direction.y, 2) + pow(mLowerBody.direction.z, 2)), 0.5f);
 	}
+}
 
-	IEventPtr E1( new Event_Player_Moved( mLowerBody.position, mUpperBody.position, mUpperBody.direction ) );
-	EventManager::GetInstance()->QueueEvent( E1 );
+// Set current hp to 0 to avoid negative values and send event that player has died
+void Player::Die()
+{
+	RemotePlayer::Die();
+	IEventPtr dieEv( new Event_Player_Died( mID ) );
+	EventManager::GetInstance()->QueueEvent( dieEv );
+}
+
+void Player::HandleSpawn( float deltaTime )
+{
+	if( mTimeTillSpawn <= 0.0f )
+	{
+		Spawn();
+	}
+	else
+	{
+		mTimeTillSpawn -= deltaTime;
+	}
+}
+
+void Player::Spawn()
+{
+	mIsAlive = true;
+	mUpperBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
+	mLowerBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
+	IEventPtr spawnEv( new Event_Player_Spawned( mID ) );
+	EventManager::GetInstance()->QueueEvent( spawnEv );
 }
 
 HRESULT Player::Update( float deltaTime )
 {
 	HandleInput( deltaTime );
 
-	mUpperBody.position.x += mLowerBody.direction.x * mLowerBody.speed * deltaTime;
-	mUpperBody.position.z += mLowerBody.direction.z * mLowerBody.speed * deltaTime;
+	if( mIsAlive )
+	{
+		if ( mCurrentHp <= 0.0f )
+		{
+			Die();
+		}
+		else
+		{
+			mUpperBody.position.x += mLowerBody.direction.x * mLowerBody.speed * deltaTime;
+			mUpperBody.position.z += mLowerBody.direction.z * mLowerBody.speed * deltaTime;
 
-	mLowerBody.position.x += mLowerBody.direction.x * mLowerBody.speed * deltaTime;
-	mLowerBody.position.z += mLowerBody.direction.z * mLowerBody.speed * deltaTime;
+			mLowerBody.position.x += mLowerBody.direction.x * mLowerBody.speed * deltaTime;
+			mLowerBody.position.z += mLowerBody.direction.z * mLowerBody.speed * deltaTime;
+		}
+	}
+	else
+	{
+		HandleSpawn( deltaTime );
+	}
 
 
 	///Lock camera position to player
@@ -127,8 +170,7 @@ HRESULT Player::Update( float deltaTime )
 
 HRESULT Player::Render( float deltaTime )
 {
-	Graphics::GetInstance()->RenderStatic3dAsset( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
-	Graphics::GetInstance()->RenderStatic3dAsset( mLowerBody.playerModel, mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z );
+	RemotePlayer::Render( deltaTime );
 
 	//Update Projectiles
 	if( mNrOfProjectilesFired != 0 )
@@ -158,6 +200,7 @@ void Player::SetPosition( XMVECTOR position )
 
 HRESULT Player::Initialize()
 {
+	RemotePlayer::Initialize();
 	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Robot/", "robotScenebody.pfs", mUpperBody.playerModel ) ) )
 		OutputDebugString( L"\nERROR\n" );
 

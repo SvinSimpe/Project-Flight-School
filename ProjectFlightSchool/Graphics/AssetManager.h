@@ -50,6 +50,7 @@ class AssetManager
 		HRESULT			LoadTextureFromFile ( ID3D11Device* device, ID3D11DeviceContext* dc, const wchar_t* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size = 0 );
 		std::wstring	StringToWstring( std::string fileName );
 		HRESULT			CreateSRVAssets( ID3D11Device* device, ID3D11DeviceContext* dc, std::string filePath, MeshInfo &meshInfo, AssetID &assetId );
+		HRESULT			CreateSRVAssetsMesh( ID3D11Device* device, ID3D11DeviceContext* dc, std::string filePath, MeshInfo &meshInfo, Mesh &mesh );
 
 	protected:
 	public:

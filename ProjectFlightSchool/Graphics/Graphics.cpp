@@ -4,7 +4,8 @@ Graphics::Graphics()
 {
 	mHWnd			= 0;
 	mScreenWidth	= 0;
-	mScreenHeight	= 0;				
+	mScreenHeight	= 0;	
+	mVertexBuffer2d = nullptr;
 
 	mSwapChain		= nullptr;
 	mDevice			= nullptr;
@@ -70,15 +71,53 @@ HRESULT Graphics::LoadAnimationAsset( std::string filePath, std::string fileName
 	return mAssetManager->LoadAnimationAsset( filePath, fileName, assetId );
 }
 
+void Graphics::Render2dAsset( AssetID assetId, float x, float y, float width, float height )
+{
+	mDeviceContext->OMSetDepthStencilState( mDepthDisabledStencilState, 1 );
+
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
+
+	UINT32 vertexSize	= sizeof(StaticVertex);
+	UINT32 offset		= 0;
+
+	float widthVariabel		= width * 0.5f;
+	float heightVariabel	= height * 0.5f;
+
+	float left		= ( ( ( x - widthVariabel ) / (float)mScreenWidth ) * 2.0f ) - 1.0f;
+	float right		= ( ( ( x + widthVariabel ) / (float)mScreenWidth ) * 2.0f ) - 1.0f;
+	float bottom	= ( ( ( y + heightVariabel ) / (float)mScreenHeight ) * -2.0f ) + 1.0f;
+	float top		= ( ( ( y - heightVariabel ) / (float)mScreenHeight ) * -2.0f ) + 1.0f;
+
+	StaticVertex bottomleft		= { left, bottom, 0.0,		0, 0, 0,	0, 0, 0,	0, 1 };
+	StaticVertex topleft		= { left, top, 0.0,		0, 0, 0,	0, 0, 0,	0, 0 };
+	StaticVertex bottomright	= { right, bottom, 0.0,		0, 0, 0,	0, 0, 0,	1, 1 };
+	StaticVertex topright		= { right, top, 0.0,		0, 0, 0,	0, 0, 0,	1, 0 };
+
+	StaticVertex vertices[4] = { bottomleft, topleft, bottomright, topright };
+	MapBuffer( mVertexBuffer2d, &vertices, sizeof(StaticVertex) * 4 );
+	mDeviceContext->IASetVertexBuffers( 0, 1, &mVertexBuffer2d, &vertexSize, &offset );
+
+	mDeviceContext->IASetInputLayout( m2dEffect->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( m2dEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( m2dEffect->GetPixelShader(), nullptr, 0 );
+
+	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[assetId] )->mSRV );
+	mDeviceContext->Draw( 4, 0 );
+	mDeviceContext->OMSetDepthStencilState( mDepthEnabledStencilState, 1 );
+}
+
 //Render a static 3d asset given the assetId
 void Graphics::RenderStatic3dAsset( AssetID assetId )
 {
+	Static3dAsset* object = (Static3dAsset*)mAssetManager->mAssetContainer[assetId];
+
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
-	UINT32 vertexSize				= sizeof( StaticVertex );
-	UINT32 offset					= 0;
-	ID3D11Buffer* buffersToSet[]	= { ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexBuffer };
-	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+	UINT32 vertexSize = sizeof( StaticVertex );
 
 	mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
 
@@ -95,24 +134,30 @@ void Graphics::RenderStatic3dAsset( AssetID assetId )
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
 
-	ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_DIFFUSE]] )->mSRV,
-													( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_NORMAL]] )->mSRV,
-													( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_SPECULAR]] )->mSRV,
-												};
+	for( int i = 0; i < (int)object->mMeshes.size(); i++ )
+	{
+		UINT32 offset					= 0;
+		ID3D11Buffer* buffersToSet[]	= { object->mMeshes[i].mVertexBuffer };
+		mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
 
-	mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+		ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_DIFFUSE]] )->mSRV,
+														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_NORMAL]] )->mSRV,
+														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_SPECULAR]] )->mSRV,
+													};
 
-	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
+		mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+
+		mDeviceContext->Draw( object->mMeshes[i].mVertexCount, 0 );
+	}
 }
 
 void Graphics::RenderStatic3dAsset( AssetID assetId, float x, float y, float z )
 {
+	Static3dAsset* object = (Static3dAsset*)mAssetManager->mAssetContainer[assetId];
+
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
-	UINT32 vertexSize				= sizeof( StaticVertex );
-	UINT32 offset					= 0;
-	ID3D11Buffer* buffersToSet[]	= { ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexBuffer };
-	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+	UINT32 vertexSize = sizeof( StaticVertex );
 
 	mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
 
@@ -129,24 +174,30 @@ void Graphics::RenderStatic3dAsset( AssetID assetId, float x, float y, float z )
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
 
-	ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_DIFFUSE]] )->mSRV,
-													( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_NORMAL]] )->mSRV,
-													( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_SPECULAR]] )->mSRV,
-												};
+	for( int i = 0; i < (int)object->mMeshes.size(); i++ )
+	{
+		UINT32 offset					= 0;
+		ID3D11Buffer* buffersToSet[]	= { object->mMeshes[i].mVertexBuffer };
+		mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
 
-	mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+		ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_DIFFUSE]] )->mSRV,
+														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_NORMAL]] )->mSRV,
+														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_SPECULAR]] )->mSRV,
+													};
 
-	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
+		mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+
+		mDeviceContext->Draw( object->mMeshes[i].mVertexCount, 0 );
+	}
 }
 
 void Graphics::RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation )
 {
+	Static3dAsset* object = (Static3dAsset*)mAssetManager->mAssetContainer[assetId];
+
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
-	UINT32 vertexSize				= sizeof( StaticVertex );
-	UINT32 offset					= 0;
-	ID3D11Buffer* buffersToSet[]	= { ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexBuffer };
-	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+	UINT32 vertexSize = sizeof( StaticVertex );
 
 	mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
 
@@ -165,24 +216,30 @@ void Graphics::RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT3 position,
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
 
-	ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_DIFFUSE]] )->mSRV,
-													( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_NORMAL]] )->mSRV,
-													( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_SPECULAR]] )->mSRV,
-												};
+	for( int i = 0; i < (int)object->mMeshes.size(); i++ )
+	{
+		UINT32 offset					= 0;
+		ID3D11Buffer* buffersToSet[]	= { object->mMeshes[i].mVertexBuffer };
+		mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
 
-	mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+		ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_DIFFUSE]] )->mSRV,
+														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_NORMAL]] )->mSRV,
+														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_SPECULAR]] )->mSRV,
+													};
 
-	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
+		mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+
+		mDeviceContext->Draw( object->mMeshes[i].mVertexCount, 0 );
+	}
 }
 
 void Graphics::RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT4X4* world )
 {
+	Static3dAsset* object = (Static3dAsset*)mAssetManager->mAssetContainer[assetId];
+
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
-	UINT32 vertexSize				= sizeof( StaticVertex );
-	UINT32 offset					= 0;
-	ID3D11Buffer* buffersToSet[]	= { ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexBuffer };
-	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+	UINT32 vertexSize = sizeof( StaticVertex );
 
 	mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
 
@@ -199,18 +256,30 @@ void Graphics::RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT4X4* world 
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
 
-	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
+	for( int i = 0; i < (int)object->mMeshes.size(); i++ )
+	{
+		UINT32 offset					= 0;
+		ID3D11Buffer* buffersToSet[]	= { object->mMeshes[i].mVertexBuffer };
+		mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+
+		ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_DIFFUSE]] )->mSRV,
+														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_NORMAL]] )->mSRV,
+														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_SPECULAR]] )->mSRV,
+													};
+
+		mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+
+		mDeviceContext->Draw( object->mMeshes[i].mVertexCount, 0 );
+	}
 }
 
 void Graphics::RenderStatic3dAssetIndexed( AssetID assetId, UINT indexCount, UINT startIndex )
 {
+	Static3dAssetIndexed* object = (Static3dAssetIndexed*)mAssetManager->mAssetContainer[assetId];
+
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
-	UINT32 vertexSize				= sizeof( StaticVertex );
-	UINT32 offset					= 0;
- 	ID3D11Buffer* buffersToSet[]	= { ( (Static3dAssetIndexed*)mAssetManager->mAssetContainer[assetId] )->mVertexBuffer };
-	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
-	mDeviceContext->IASetIndexBuffer( ( (Static3dAssetIndexed*)mAssetManager->mAssetContainer[assetId] )->mIndexBuffer, DXGI_FORMAT_R32_UINT, 0 );
+	UINT32 vertexSize = sizeof( StaticVertex );
 
 	CbufferPerObject data;
 	data.worldMatrix = DirectX::XMMatrixTranspose( DirectX::XMMatrixIdentity() );
@@ -218,8 +287,22 @@ void Graphics::RenderStatic3dAssetIndexed( AssetID assetId, UINT indexCount, UIN
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
 
-	mDeviceContext->DrawIndexed( indexCount, 0, 0 );
+	for( int i = 0; i < (int)object->mMeshes.size(); i++ )
+	{
+		UINT32 offset					= 0;
+		ID3D11Buffer* buffersToSet[]	= { object->mMeshes[i].mVertexBuffer };
+		mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+		mDeviceContext->IASetIndexBuffer( object->mIndexBuffer, DXGI_FORMAT_R32_UINT, 0 );
 
+		ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_DIFFUSE]] )->mSRV,
+														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_NORMAL]] )->mSRV,
+														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_SPECULAR]] )->mSRV,
+													};
+
+		mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+
+		mDeviceContext->DrawIndexed( indexCount, 0, 0 );
+	}
 }
 
 void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime )
@@ -442,20 +525,34 @@ void Graphics::SetFocus( DirectX::XMFLOAT3 &focusPoint )
 //Clear canvas and prepare for rendering.
 void Graphics::BeginScene()
 {
+	mDeviceContext->ClearState();
+
 	if( mIsDeveloperCameraActive )
 		mDeveloperCamera->Update();
 	else
 		mCamera->Update();
 
-	static float clearColor[4] = { 0.3f, 0.3f, 0.3f, 1.0f };
-	ID3D11ShaderResourceView* nullSRV[TEXTURES_AMOUNT] = { nullptr, nullptr, nullptr };
+	/////////////////////////////////
+	// Clear errything
+	/////////////////////////////////
+	static float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	//ID3D11ShaderResourceView* nullSRV[TEXTURES_AMOUNT] = { nullptr, nullptr, nullptr };
 	mDeviceContext->ClearRenderTargetView( mRenderTargetView, clearColor );
+	for( int i = 0; i < NUM_GBUFFERS; i++)
+		mDeviceContext->ClearRenderTargetView( mGbuffers[i]->mRenderTargetView, clearColor );
 	mDeviceContext->ClearDepthStencilView( mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
 
-	mDeviceContext->OMSetRenderTargets( 1, &mRenderTargetView, mDepthStencilView );
+	/////////////////////////////////
+	// Gbuffer generation pass
+	/////////////////////////////////
+
+	ID3D11RenderTargetView* rtvsToSet[NUM_GBUFFERS];
+	for( int i = 0; i < NUM_GBUFFERS; i++)
+		rtvsToSet[i] = mGbuffers[i]->mRenderTargetView;
+	mDeviceContext->OMSetRenderTargets( 3, rtvsToSet, mDepthStencilView );
 	mDeviceContext->RSSetViewports( 1, &mStandardView );
 	
-	mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, nullSRV );
+	//mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, nullSRV );
 
 	//Map CbufferPerFrame
 	CbufferPerFrame data;
@@ -482,6 +579,35 @@ void Graphics::BeginScene()
 //Finalize rendering.
 void Graphics::EndScene()
 {
+	/////////////////////////////////
+	// Deferred rendering pass
+	/////////////////////////////////
+	mDeviceContext->ClearState();
+
+	mDeviceContext->ClearDepthStencilView( mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
+
+	mDeviceContext->OMSetRenderTargets( 1, &mRenderTargetView, mDepthStencilView );
+	mDeviceContext->RSSetViewports( 1, &mStandardView );
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
+	
+	for( int i = 0; i < NUM_GBUFFERS; i++)
+		mDeviceContext->PSSetShaderResources( i, 1, &mGbuffers[i]->mShaderResourceView );
+
+		//mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mDeferredPassEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mDeferredPassEffect->GetPixelShader(), nullptr, 0 );
+
+	mDeviceContext->PSSetSamplers( 0, 1, &mPointSamplerState );
+	mDeviceContext->PSSetSamplers( 1, 1, &mLinearSamplerState );
+
+	mDeviceContext->PSSetConstantBuffers( 0, 1, &mCbufferPerFrame );
+
+	mDeviceContext->Draw( 4, 0 );
+
 	mSwapChain->Present( 1, 0 );
 }
 
@@ -510,6 +636,10 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	mScreenWidth	= screenWidth;
 	mScreenHeight	= screenHeight;
 
+	HRESULT hr		= E_FAIL;
+
+
+
 	/////////////////////////
 	// CREATE SWAPCHAIN
 	/////////////////////////
@@ -535,7 +665,6 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	D3D_FEATURE_LEVEL featureLevelsToTry[] = { D3D_FEATURE_LEVEL_11_0 };
 	D3D_FEATURE_LEVEL initiatedFeatureLevel;
 
-	HRESULT hr = E_FAIL;
 	for(	UINT driverTypeIndex = 0;
 			driverTypeIndex < ARRAYSIZE( driverTypes ) && FAILED( hr );
 			driverTypeIndex++ )
@@ -603,6 +732,54 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	SAFE_RELEASE( depthStencil );
 
 	//////////////////////////////
+	// CREATE DEPTHSTENCILSTATE DISABLE
+	//////////////////////////////
+	D3D11_DEPTH_STENCIL_DESC depthDisabledStencilDesc;
+	ZeroMemory( &depthDisabledStencilDesc, sizeof(depthDisabledStencilDesc) );
+
+	depthDisabledStencilDesc.DepthEnable					= false;
+	depthDisabledStencilDesc.DepthWriteMask					= D3D11_DEPTH_WRITE_MASK_ALL;
+	depthDisabledStencilDesc.DepthFunc						= D3D11_COMPARISON_LESS;
+	depthDisabledStencilDesc.StencilEnable					= false;
+	depthDisabledStencilDesc.StencilReadMask				= 0xFF;
+	depthDisabledStencilDesc.StencilWriteMask				= 0xFF;
+	depthDisabledStencilDesc.FrontFace.StencilFailOp		= D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.FrontFace.StencilDepthFailOp	= D3D11_STENCIL_OP_INCR;
+	depthDisabledStencilDesc.FrontFace.StencilPassOp		= D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.FrontFace.StencilFunc			= D3D11_COMPARISON_ALWAYS;
+	depthDisabledStencilDesc.BackFace.StencilFailOp			= D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.BackFace.StencilDepthFailOp	= D3D11_STENCIL_OP_DECR;
+	depthDisabledStencilDesc.BackFace.StencilPassOp			= D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.BackFace.StencilFunc			= D3D11_COMPARISON_ALWAYS;
+
+	if ( FAILED( hr = mDevice->CreateDepthStencilState( &depthDisabledStencilDesc, &mDepthDisabledStencilState ) ) )
+		return hr;
+
+	//////////////////////////////
+	// CREATE DEPTHSTENCILSTATE ENABLE
+	//////////////////////////////
+	D3D11_DEPTH_STENCIL_DESC depthEnabledStencilDesc;
+	ZeroMemory( &depthEnabledStencilDesc, sizeof(depthEnabledStencilDesc) );
+
+	depthDisabledStencilDesc.DepthEnable					= true;
+	depthDisabledStencilDesc.DepthWriteMask					= D3D11_DEPTH_WRITE_MASK_ALL;
+	depthDisabledStencilDesc.DepthFunc						= D3D11_COMPARISON_LESS;
+	depthDisabledStencilDesc.StencilEnable					= false;
+	depthDisabledStencilDesc.StencilReadMask				= 0xFF;
+	depthDisabledStencilDesc.StencilWriteMask				= 0xFF;
+	depthDisabledStencilDesc.FrontFace.StencilFailOp		= D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.FrontFace.StencilDepthFailOp	= D3D11_STENCIL_OP_INCR;
+	depthDisabledStencilDesc.FrontFace.StencilPassOp		= D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.FrontFace.StencilFunc			= D3D11_COMPARISON_ALWAYS;
+	depthDisabledStencilDesc.BackFace.StencilFailOp			= D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.BackFace.StencilDepthFailOp	= D3D11_STENCIL_OP_DECR;
+	depthDisabledStencilDesc.BackFace.StencilPassOp			= D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.BackFace.StencilFunc			= D3D11_COMPARISON_ALWAYS;
+
+	if ( FAILED( hr = mDevice->CreateDepthStencilState( &depthDisabledStencilDesc, &mDepthEnabledStencilState ) ) )
+		return hr;
+
+	//////////////////////////////
 	// CREATE VIEWPORT
 	//////////////////////////////
 	mStandardView.Height	= (float)screenHeight;
@@ -621,9 +798,9 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	samplerDesc.AddressU		= D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressV		= D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressW		= D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.ComparisonFunc	= D3D11_COMPARISON_NEVER;
+	samplerDesc.ComparisonFunc	= D3D11_COMPARISON_ALWAYS;
 	samplerDesc.MaxAnisotropy	= 1;
-	samplerDesc.MaxLOD			= 1.0f;
+	samplerDesc.MaxLOD			= D3D11_FLOAT32_MAX;
 	samplerDesc.MinLOD			= 0.0f;
 	samplerDesc.MipLODBias		= 0.0f;
 
@@ -674,7 +851,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	EffectInfo effectInfo;
 	ZeroMemory( &effectInfo, sizeof( EffectInfo ) );
-	effectInfo.fileName					= "../Content/Effects/Placeholder.hlsl";
+	effectInfo.fileName					= "../Content/Effects/Static3dEffect.hlsl";
 	effectInfo.vertexType				= STATIC_VERTEX_TYPE;
 	effectInfo.isVertexShaderIncluded	= true;
 	effectInfo.isPixelShaderIncluded	= true;
@@ -682,13 +859,33 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	if( FAILED( hr = mStaticEffect->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 
-	mAnimatedEffect	= new Effect;
-	effectInfo.fileName		= "../Content/Effects/PlaceholderAni.hlsl";
+	m2dEffect			= new Effect;
+	effectInfo.fileName = "../Content/Effects/2dEffect.hlsl";
+
+	if( FAILED( hr = m2dEffect->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+
+
+	mAnimatedEffect			= new Effect;
+	effectInfo.fileName		= "../Content/Effects/Animated3dEffect.hlsl";
 	effectInfo.vertexType	= ANIMATED_VERTEX_TYPE;
 
 	if( FAILED( hr = mAnimatedEffect->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 	
+	mDeferredPassEffect = new Effect;
+	effectInfo.fileName		= "../Content/Effects/DeferredPassEffect.hlsl";
+	effectInfo.vertexType	= STATIC_VERTEX_TYPE;
+
+	if( FAILED( hr = mDeferredPassEffect->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+
+	//Gbuffers
+	for( int i = 0; i < NUM_GBUFFERS; i++ )
+	{
+		mGbuffers[i] = new Gbuffer;
+		mGbuffers[i]->Initialize( mDevice, mScreenWidth, mScreenHeight );
+	}
 	//Camera
 	mCamera = new Camera;
 
@@ -722,6 +919,50 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	hr = mDeveloperCamera->Initialize( &developerCameraInfo );
 
+
+	/////////////////////////
+	// INITIATE VERTEXBUFFER FOR 2D
+	/////////////////////////
+	float position[3]	= { 1.0f, 1.0f, 0.0f };
+	float normal[3]		= { 0.0f, 0.0f, 0.0f };
+	float tangent[3]	= { 0.0f, 0.0f, 0.0f };
+	float uv[2]			= { 1.0f, 1.0f };
+
+	StaticVertex vert[4];
+
+	for ( int k = 0; k < 4; k++ )
+	{
+		for ( int i = 0; i < 3; i++ )
+		{
+			vert[k].position[i] = position[i];
+			vert[k].normal[i]	= normal[i];
+			vert[k].tangent[i]	= tangent[i];
+		}
+		for ( int i = 0; i < 2; i++ )
+		{
+			vert[k].uv[i] = uv[i];
+		}
+	}
+
+
+	StaticVertex vertices[4] = { vert[0], vert[1], vert[2], vert[3] }; //Kanske måste fyllas med data
+	D3D11_BUFFER_DESC bufferDesc2d;
+	ZeroMemory( &bufferDesc2d, sizeof(bufferDesc2d) );
+	bufferDesc2d.BindFlags		= D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc2d.ByteWidth		= sizeof(StaticVertex) * 4;
+	bufferDesc2d.Usage			= D3D11_USAGE_DYNAMIC;
+	bufferDesc2d.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+	D3D11_SUBRESOURCE_DATA subData;
+	subData.pSysMem = vertices;
+
+	hr = mDevice->CreateBuffer( &bufferDesc2d, &subData, &mVertexBuffer2d );
+	if ( FAILED( hr ) )
+	{
+		//Failed to create vertex buffer
+		return hr;
+	}
+
 	return hr;
 }
 
@@ -733,6 +974,8 @@ void Graphics::Release()
 	SAFE_RELEASE( mDeviceContext );
 	SAFE_RELEASE( mRenderTargetView );
 	SAFE_RELEASE( mDepthStencilView );
+	SAFE_RELEASE( mDepthDisabledStencilState );
+	SAFE_RELEASE( mDepthEnabledStencilState );
 	SAFE_RELEASE( mCbufferPerFrame );
 	SAFE_RELEASE( mCbufferPerObject );
 	SAFE_RELEASE( mCbufferPerObjectAnimated );
@@ -741,12 +984,21 @@ void Graphics::Release()
 	mAssetManager->Release();
 	mStaticEffect->Release();
 	mAnimatedEffect->Release();
+	m2dEffect->Release();
+	mDeferredPassEffect->Release();
 	mCamera->Release();
 	mDeveloperCamera->Release();
+	for( int i = 0; i < NUM_GBUFFERS; i++ )
+	{
+		mGbuffers[i]->Release();
+		SAFE_DELETE( mGbuffers[i] );
+	}
 
 	SAFE_DELETE( mAssetManager );
 	SAFE_DELETE( mStaticEffect );
 	SAFE_DELETE( mAnimatedEffect );
+	SAFE_DELETE( m2dEffect );
+	SAFE_DELETE( mDeferredPassEffect );
 	SAFE_DELETE( mCamera );
 	SAFE_DELETE( mDeveloperCamera );
 

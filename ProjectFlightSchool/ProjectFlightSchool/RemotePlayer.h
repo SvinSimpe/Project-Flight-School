@@ -79,26 +79,34 @@ class RemotePlayer
 		LowerBody		mLowerBody;
 		BoundingBox*	mBoundingBox;
 		BoundingCircle*	mBoundingCircle;
+		float			mCurrentHp;
+		float			mMaxHp;
+		bool			mIsAlive;
+		float			mSpawnTime;
+		float			mTimeTillSpawn;
+
 
 	public:
 
 	// Member functions
 	private:
-		void			RemoteUpdate( IEventPtr newEvent );
+		void		RemoteUpdate( IEventPtr newEvent );
 
 	protected:
-		void			LookAt( float rotation );
+		void		LookAt( float rotation );
 
 	public:
+		void			RemoteInit( unsigned int id );
+		virtual void	Die();
 		int				GetID() const;
-		HRESULT			Render( float deltaTime );
-		HRESULT			Initialize( unsigned int id );
-		void			Release();
 		BoundingBox*	GetBoundingBox() const;
 		BoundingCircle*	GetBoundingCircle() const;
 		XMFLOAT3		GetPosition() const;
+		virtual HRESULT	Render( float deltaTime );
+		virtual HRESULT	Initialize();
+		void			Release();
 						RemotePlayer();
-						~RemotePlayer();
+		virtual			~RemotePlayer();
 };
 
 #endif

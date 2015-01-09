@@ -4,15 +4,17 @@
 //									PRIVATE
 ///////////////////////////////////////////////////////////////////////////////
 
-void PlayState::RemoteUpdate( IEventPtr newEvent )
+void PlayState::EventListener( IEventPtr newEvent )
 {
-	if ( newEvent->GetEventType() == Event_Remote_Player_Joined::GUID )
+	if ( newEvent->GetEventType() == Event_Remote_Player_Joined::GUID ) // Add a remote player to the list when they connect
 	{
 		std::shared_ptr<Event_Remote_Player_Joined> data = std::static_pointer_cast<Event_Remote_Player_Joined>( newEvent );
 		mRemotePlayers.push_back( new RemotePlayer() );
-		mRemotePlayers.at(mRemotePlayers.size() - 1)->Initialize( data->ID() );
+		mRemotePlayers.at(mRemotePlayers.size() - 1)->Initialize();
+		mRemotePlayers.at(mRemotePlayers.size() - 1)->RemoteInit( data->ID() );
+		printf( "Number of other players online: %d.\n", mRemotePlayers.size() );
 	}
-	else if ( newEvent->GetEventType() == Event_Remote_Player_Left::GUID )
+	else if ( newEvent->GetEventType() == Event_Remote_Player_Left::GUID ) // Remove a remote player from the list when they disconnect
 	{
 		std::shared_ptr<Event_Remote_Player_Left> data = std::static_pointer_cast<Event_Remote_Player_Left>( newEvent );
 		for( unsigned int i = 0; i < mRemotePlayers.size(); i++ )
@@ -29,7 +31,58 @@ void PlayState::RemoteUpdate( IEventPtr newEvent )
 				break;
 			}
 		}
+		printf( "Number of other players online: %d.\n", mRemotePlayers.size() );
 	}
+	else if( newEvent->GetEventType() == Event_Remote_Player_Died::GUID )
+	{
+		// Kill remote player
+		std::shared_ptr<Event_Remote_Player_Died> data = std::static_pointer_cast<Event_Remote_Player_Died>( newEvent );
+		for ( unsigned int i = 0; i < mRemotePlayers.size(); i++ )
+		{
+			if ( !mRemotePlayers.at(i) )
+			{
+				continue;
+			}
+			else if ( data->ID() == mRemotePlayers.at(i)->GetID() )
+			{
+				mRemotePlayers.at(i)->Die();
+
+				// Debug
+				OutputDebugString( L"> A Remote player has died." );
+
+				break;
+			}
+		}
+	}
+	else if ( newEvent->GetEventType() == Event_Remote_Player_Damaged::GUID )
+	{
+		// Damage remote player
+		std::shared_ptr<Event_Remote_Player_Died> data = std::static_pointer_cast<Event_Remote_Player_Died>(newEvent);
+		for ( unsigned int i = 0; i < mRemotePlayers.size(); i++ )
+		{
+			if ( !mRemotePlayers.at(i) )
+			{
+				continue;
+			}
+			else if ( data->ID() == mRemotePlayers.at(i)->GetID() )
+			{
+				// Damage player
+
+				// Debug
+				OutputDebugString( L"> A Remote player has taken damage." );
+
+				break;
+			}
+		}
+	}
+	// Handle spawn logic here
+}
+
+// Tell server that local  player has taken damage
+void PlayState::BroadcastDamage()
+{
+	IEventPtr dmgEv(new Event_Player_Damaged( mPlayer->GetID()) );
+	EventManager::GetInstance()->QueueEvent( dmgEv );
 }
 
 void PlayState::HandleDeveloperCameraInput()
@@ -125,6 +178,8 @@ HRESULT PlayState::Render()
 			rp->Render( 0.0f );
 	}
 
+	Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 300, 300, 100, 100 );
+
 	Graphics::GetInstance()->EndScene();
 
 	return S_OK;
@@ -144,7 +199,7 @@ void PlayState::Reset()
 
 HRESULT PlayState::Initialize()
 {
-	mStateType = STATE_TYPE_PLAY;
+	mStateType = PLAY_STATE;
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Plane/", "plane.pfs", mPlaneAsset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Log/", "log_1.pfs", mTestAsset );
@@ -163,6 +218,8 @@ HRESULT PlayState::Initialize()
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Tree/", "tree1.pfs", mTree1Asset );
 
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dAsset );
+
 	mAnimationTime = 1.0f;
 
 	mPlayer = new Player();
@@ -171,8 +228,11 @@ HRESULT PlayState::Initialize()
 	mWorldMap = new Map();
 	mWorldMap->Initialize( 8.0f, 24 );
 
-	EventManager::GetInstance()->AddListener( &PlayState::RemoteUpdate, this, Event_Remote_Player_Joined::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::RemoteUpdate, this, Event_Remote_Player_Left::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Joined::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Left::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Died::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Damaged::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Spawned::GUID );
 
 	return S_OK;
 }

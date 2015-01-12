@@ -185,6 +185,10 @@ HRESULT PlayState::Render()
 
 	Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 300, 300, 100, 100 );
 
+	mFont.WriteText("HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!", 100, 100, 1);
+	mFont.WriteText("SCALING IS ALSO COOL!!!!!", 0, 400, 3);
+	mFont.WriteText("SYMBOLS ARE THE BEST !#@?", 0, 0, 1);
+
 	Graphics::GetInstance()->EndScene();
 
 	return S_OK;
@@ -238,6 +242,8 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Died::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Damaged::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Spawned::GUID );
+
+	mFont.Initialize("../Content/Assets/Fonts/mv_boli_26_red/");
 
 	return S_OK;
 }

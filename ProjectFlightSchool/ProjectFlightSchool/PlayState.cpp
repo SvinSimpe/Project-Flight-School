@@ -183,8 +183,11 @@ HRESULT PlayState::Render()
 			rp->Render( 0.0f );
 	}
 
-	Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 300, 300, 100, 100 );
-
+	float x[3] = { 0, 0.1, 3 };
+	float y[3] = { 3, 0.1, 0 };
+	Graphics::GetInstance()->RenderPlane2dAsset( mTest2dAsset,  x, y );
+	Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 500, 500, 50, 50 );
+	
 	Graphics::GetInstance()->EndScene();
 
 	return S_OK;

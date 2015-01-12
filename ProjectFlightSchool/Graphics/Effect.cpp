@@ -148,11 +148,11 @@ HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo* effectInfo )
 void Effect::Release()
 {
 	SAFE_RELEASE( mInputLayout );
-	SAFE_RELEASE(mVertexShader);
-	SAFE_RELEASE(mHullShader);
-	SAFE_RELEASE(mDomainShader);
-	SAFE_RELEASE(mGeometryShader);
-	SAFE_RELEASE(mPixelShader); 
+	SAFE_RELEASE( mVertexShader );
+	SAFE_RELEASE( mHullShader );
+	SAFE_RELEASE( mDomainShader );
+	SAFE_RELEASE( mGeometryShader );
+	SAFE_RELEASE( mPixelShader ); 
 }
 
 Effect::Effect()

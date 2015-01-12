@@ -230,8 +230,8 @@ HRESULT PlayState::Initialize()
 	mPlayer = new Player();
 	mPlayer->Initialize();
 
-	mWorldMap = new Map();
-	mWorldMap->Initialize( 8.0f, 24 );
+	//mWorldMap = new Map();
+	//mWorldMap->Initialize( 8.0f, 24 );
 
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Left::GUID );
@@ -245,6 +245,8 @@ HRESULT PlayState::Initialize()
 void PlayState::Release()
 {
 	mPlayer->Release();
+	SAFE_DELETE(mPlayer);
+
 	mWorldMap->Release();
 	SAFE_DELETE( mWorldMap );
 
@@ -254,7 +256,6 @@ void PlayState::Release()
 		SAFE_DELETE( rp );
 	}
 	mRemotePlayers.clear();
-
 }
 
 PlayState::PlayState()

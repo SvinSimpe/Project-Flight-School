@@ -1065,9 +1065,11 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 //Release all the stuff.
 void Graphics::Release()
 {
+	SAFE_RELEASE( mVertexBuffer2d );
 	SAFE_RELEASE( mSwapChain );
 	SAFE_RELEASE( mDevice );
 	SAFE_RELEASE( mDeviceContext );
+
 	SAFE_RELEASE( mRenderTargetView );
 	SAFE_RELEASE( mDepthStencilView );
 	SAFE_RELEASE( mDepthDisabledStencilState );
@@ -1075,7 +1077,9 @@ void Graphics::Release()
 	SAFE_RELEASE( mCbufferPerFrame );
 	SAFE_RELEASE( mCbufferPerObject );
 	SAFE_RELEASE( mCbufferPerObjectAnimated );
+
 	SAFE_RELEASE( mPointSamplerState );
+	SAFE_RELEASE( mLinearSamplerState );
 
 	mAssetManager->Release();
 	mStaticEffect->Release();
@@ -1097,5 +1101,4 @@ void Graphics::Release()
 	SAFE_DELETE( mDeferredPassEffect );
 	SAFE_DELETE( mCamera );
 	SAFE_DELETE( mDeveloperCamera );
-
 }

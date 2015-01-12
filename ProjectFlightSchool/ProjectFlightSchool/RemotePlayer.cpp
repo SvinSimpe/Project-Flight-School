@@ -72,7 +72,6 @@ HRESULT RemotePlayer::Initialize()
 
 void RemotePlayer::Release()
 {
-	EventManager::GetInstance()->RemoveListener( &RemotePlayer::RemoteUpdate, this, Event_Remote_Player_Update::GUID );
 	SAFE_DELETE( mBoundingBox );
 }
 

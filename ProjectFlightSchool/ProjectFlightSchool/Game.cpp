@@ -7,12 +7,13 @@
 void Game::ServerInit()
 {
 	const char* port	= DEFAULT_PORT;
-
-	if ( Server::GetInstance()->Initialize( port ) )
+	
+	mServer = new Server();
+	if ( mServer->Initialize( port ) )
 	{
-		if ( Server::GetInstance()->Connect() )
+		if ( mServer->Connect() )
 		{
-			mServerThread	= std::thread( &Server::Run, Server::GetInstance() );
+			mServerThread	= std::thread( &Server::Run, mServer );
 			mServerIsActive	= true;
 		}
 	}
@@ -70,7 +71,7 @@ HRESULT Game::Initialize()
 {
 	mStateMachine	= new StateMachine();
 	mStateMachine->Initialize();
-	
+
 	mClient			= new Client();
 	EventManager::GetInstance()->AddListener( &Game::EventListener, this, Event_Start_Server::GUID );
 	EventManager::GetInstance()->AddListener( &Game::EventListener, this, Event_Start_Client::GUID );
@@ -81,9 +82,15 @@ HRESULT Game::Initialize()
 
 void Game::Release()
 {
-	SAFE_DELETE( mStateMachine );
+	EventManager::GetInstance()->Release();
+
 	mClient->Release();
-	SAFE_DELETE(mClient);
+	SAFE_DELETE( mClient );
+
+	if ( mServerIsActive )
+		mServer->Release();
+	SAFE_DELETE( mServer );
+
 	if ( mServerThread.joinable() )
 	{
 		mServerThread.join();
@@ -92,10 +99,9 @@ void Game::Release()
 	{
 		mNetworkThread.join();
 	}
-	if ( mServerIsActive )
-	{
-		Server::GetInstance()->Release();
-	}
+
+	mStateMachine->Release();
+	SAFE_DELETE( mStateMachine );
 }
 
 Game::Game()
@@ -104,6 +110,7 @@ Game::Game()
 	mNetworkThread	= std::thread();
 	mServerThread	= std::thread();
 	mClient			= nullptr;
+	mServer			= nullptr;
 }
 
 Game::~Game()

@@ -76,8 +76,10 @@ HRESULT StateMachine::Initialize()
 void StateMachine::Release()
 {
 	mCurrentState	= 0;
-	delete mStates[START_MENU_STATE];
-	delete mStates[PLAY_STATE];
+	mStates[START_MENU_STATE]->Release();
+	SAFE_DELETE( mStates[START_MENU_STATE] );
+	mStates[PLAY_STATE]->Release();
+	SAFE_DELETE( mStates[PLAY_STATE] );
 	delete [] mStates;
 }
 

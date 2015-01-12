@@ -183,8 +183,8 @@ HRESULT PlayState::Render()
 			rp->Render( 0.0f );
 	}
 
-	float x[3] = { 0, 0.1, 3 };
-	float y[3] = { 3, 0.1, 0 };
+	DirectX::XMFLOAT3 x = { 0.0f, 0.1f, 3.0f };
+	DirectX::XMFLOAT3 y = { 3.0f, 0.1f, 0.0f };
 	Graphics::GetInstance()->RenderPlane2dAsset( mTest2dAsset,  x, y );
 	Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 500, 500, 50, 50 );
 	

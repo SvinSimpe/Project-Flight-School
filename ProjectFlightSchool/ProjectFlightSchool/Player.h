@@ -34,6 +34,7 @@ class Player: public RemotePlayer
 {
 	private:
 		std::vector<Projectile*>	mProjectiles;
+		int			mNrOfProjectiles;
 		int			mNrOfProjectilesFired;
 		float		mWeaponCoolDown;
 
@@ -49,8 +50,10 @@ class Player: public RemotePlayer
 		HRESULT		Render( float deltaTime );
 
 
+		float		WeaponCoolDown();
+		int			NrOfProjectiles();
 		XMFLOAT3	GetPlayerPosition() const;
-		void		Fire();
+		XMFLOAT3	Fire();
 
 		HRESULT		Initialize();
 		void		Release();

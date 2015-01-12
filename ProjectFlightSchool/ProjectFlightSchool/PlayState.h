@@ -30,11 +30,20 @@ class PlayState : public BaseState
 		float	mAnimationTime;
 
 	// Debug
-		Player*			mPlayer;
-		std::vector<RemotePlayer*> mRemotePlayers;
+		Player*						mPlayer;
+		std::vector<RemotePlayer*>	mRemotePlayers;
 
+	// Game Data
+		std::vector<Projectile*>	mPlayerProjectiles;			// Fired from local player
+		std::vector<Projectile*>	mRemoteProjectiles;			// Information on projectiles fired from remote player
+		int							mNrOfPlayerProjectiles;
+		int							mNrOfRemoteProjectiles;
 		
-	
+		Projectile*					mProjectiles;				// A collection
+
+		int							mNrOfPlayerProjectilesFired;
+		int							mNrOfRemoteProjectilesFired;
+
 	protected:
 	public:
 
@@ -42,6 +51,9 @@ class PlayState : public BaseState
 	private:
 		void			EventListener( IEventPtr newEvent );
 		void			BroadcastDamage();						// Tell server that local  player has taken damage
+
+		void			UpdateProjectiles( float deltaTime );
+		void			RenderProjectiles();
 
 	protected:
 	public:

@@ -17,11 +17,12 @@ class Projectile
 
 	public:
 		HRESULT Update( float deltaTime );
-		HRESULT Render( float deltaTime );
+		HRESULT Render();
 
 		void	SetDirection( XMFLOAT3 startPosition, XMFLOAT3 direction );
 		void	SetIsActive( bool isActive );
 		bool	IsActive() const;
+		void	Reset();
 
 		HRESULT Initialize();
 		void	Release();

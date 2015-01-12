@@ -85,6 +85,52 @@ void PlayState::BroadcastDamage()
 	EventManager::GetInstance()->QueueEvent( dmgEv );
 }
 
+void PlayState::UpdateProjectiles( float deltaTime )
+{
+	//Update Player Projectiles
+	if( mNrOfPlayerProjectilesFired != 0 )
+	{
+		for ( size_t i = 0; i < mPlayerProjectiles.size(); i++ )
+		{
+			if( mPlayerProjectiles.at(i)->IsActive() )
+				mPlayerProjectiles.at(i)->Update( deltaTime );
+		}
+	}
+
+	//Update Remote Projectiles
+	if( mNrOfRemoteProjectilesFired != 0 )
+	{
+		for ( size_t i = 0; i < mRemoteProjectiles.size(); i++ )
+		{
+			if( mRemoteProjectiles.at(i)->IsActive() )
+				mRemoteProjectiles.at(i)->Update( deltaTime );
+		}
+	}
+}
+
+void PlayState::RenderProjectiles()
+{
+	// Render Player Projectiles
+	if( mNrOfPlayerProjectilesFired != 0 )
+	{
+		for ( size_t i = 0; i < mPlayerProjectiles.size(); i++ )
+		{
+			if( mPlayerProjectiles.at(i)->IsActive() )
+				mPlayerProjectiles.at(i)->Render();
+		}
+	}
+
+	// Render Remote Projectiles
+	if( mNrOfRemoteProjectilesFired != 0 )
+	{
+		for ( size_t i = 0; i < mRemoteProjectiles.size(); i++ )
+		{
+			if( mRemoteProjectiles.at(i)->IsActive() )
+				mRemoteProjectiles.at(i)->Render();
+		}
+	}
+}
+
 void PlayState::HandleDeveloperCameraInput()
 {
 	// TOGGLE CAM
@@ -106,6 +152,7 @@ HRESULT PlayState::Update( float deltaTime )
 {
 	HandleDeveloperCameraInput();
 	mPlayer->Update( deltaTime );
+	UpdateProjectiles( deltaTime );
 	mAnimationTime += deltaTime;
 
 	return S_OK;
@@ -134,7 +181,9 @@ HRESULT PlayState::Render()
 			rp->Render( 0.0f );
 	}
 
-	Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 300, 300, 100, 100 );
+	//RenderProjectiles();
+
+	//Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 300, 300, 100, 100 );
 
 	Graphics::GetInstance()->EndScene();
 
@@ -184,6 +233,28 @@ HRESULT PlayState::Initialize()
 	mWorldMap = new Map();
 	mWorldMap->Initialize( 8.0f, 24 );
 
+	//Fill up on Player Projectiles, test values
+	for ( size_t i = 0; i < 100; i++ )
+	{
+		Projectile*	projectile = new Projectile();
+		projectile->Initialize();
+		mPlayerProjectiles.push_back( projectile );
+	}
+
+	//Fill up on Remote Projectiles, test values
+	for ( size_t i = 0; i < 2000; i++ )
+	{
+		Projectile*	projectile = new Projectile();
+		projectile->Initialize();
+		mRemoteProjectiles.push_back( projectile );
+	}
+
+	mNrOfPlayerProjectilesFired = 0;
+	mNrOfRemoteProjectilesFired = 0;
+
+	mNrOfPlayerProjectiles		= 100;
+	mNrOfRemoteProjectiles		= 2000;
+
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Left::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Died::GUID );
@@ -206,6 +277,11 @@ void PlayState::Release()
 	}
 	mRemotePlayers.clear();
 
+	for ( size_t i = 0; i < mPlayerProjectiles.size(); i++ )
+		SAFE_DELETE( mPlayerProjectiles.at(i) );
+
+	for ( size_t i = 0; i < mRemoteProjectiles.size(); i++ )
+		SAFE_DELETE( mRemoteProjectiles.at(i) );
 }
 
 PlayState::PlayState()

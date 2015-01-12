@@ -141,11 +141,12 @@ HRESULT Player::Update( float deltaTime )
 		HandleSpawn( deltaTime );
 	}
 
+
 	///Lock camera position to player
 	XMFLOAT3 cameraPosition;
 	cameraPosition.x = mLowerBody.position.x;
-	cameraPosition.y = mLowerBody.position.y + 21.0f;
-	cameraPosition.z = mLowerBody.position.z - 21.0f;
+	cameraPosition.y = mLowerBody.position.y + 25.0f;
+	cameraPosition.z = mLowerBody.position.z - 15.0f;
 
 	Graphics::GetInstance()->SetEyePosition( cameraPosition );
 	Graphics::GetInstance()->SetFocus( mLowerBody.position );
@@ -159,6 +160,10 @@ HRESULT Player::Update( float deltaTime )
 				mProjectiles.at(i)->Update( deltaTime );
 		}
 	}
+
+	//Update Bounding Primitives
+	mBoundingBox->position	= mLowerBody.position;
+	mBoundingCircle->center	= mLowerBody.position;
 
 	return S_OK;
 }
@@ -187,7 +192,11 @@ void Player::Fire()
 	mNrOfProjectilesFired++;
 }
 
-
+void Player::SetPosition( XMVECTOR position )
+{
+	XMStoreFloat3( &mLowerBody.position, position );
+	XMStoreFloat3( &mUpperBody.position, position );
+}
 
 HRESULT Player::Initialize()
 {
@@ -202,6 +211,9 @@ HRESULT Player::Initialize()
 	mUpperBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mLowerBody.speed	= 15.0f;
+
+	mBoundingBox			= new BoundingBox( 1.5f, 1.5f );
+	mBoundingCircle			= new BoundingCircle( 0.5f );
 
 	mWeaponCoolDown		= 0.5f;
 
@@ -223,10 +235,11 @@ void Player::Release()
 		it->Release();
 		SAFE_DELETE( it );
 	}
+	RemotePlayer::Release();
 }
 
 Player::Player()
-	: RemotePlayer()
+	:RemotePlayer()
 {
 	mWeaponCoolDown			= 0.0f;
 }

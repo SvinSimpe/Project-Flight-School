@@ -80,13 +80,10 @@ void Graphics::Render2dAsset( AssetID assetId, float x, float y, float width, fl
 	UINT32 vertexSize	= sizeof(StaticVertex);
 	UINT32 offset		= 0;
 
-	float widthVariabel		= width * 0.5f;
-	float heightVariabel	= height * 0.5f;
-
-	float left		= ( ( ( x - widthVariabel ) / (float)mScreenWidth ) * 2.0f ) - 1.0f;
-	float right		= ( ( ( x + widthVariabel ) / (float)mScreenWidth ) * 2.0f ) - 1.0f;
-	float bottom	= ( ( ( y + heightVariabel ) / (float)mScreenHeight ) * -2.0f ) + 1.0f;
-	float top		= ( ( ( y - heightVariabel ) / (float)mScreenHeight ) * -2.0f ) + 1.0f;
+	float left		= ( ( x / (float)mScreenWidth ) * 2.0f ) - 1.0f;
+	float right		= ( ( ( x + width ) / (float)mScreenWidth ) * 2.0f ) - 1.0f;
+	float bottom	= ( ( ( y + height ) / (float)mScreenHeight ) * -2.0f ) + 1.0f;
+	float top		= ( ( y / (float)mScreenHeight ) * -2.0f ) + 1.0f;
 
 	StaticVertex bottomleft		= { left, bottom, 0.0,		0, 0, 0,	0, 0, 0,	0, 1 };
 	StaticVertex topleft		= { left, top, 0.0,		0, 0, 0,	0, 0, 0,	0, 0 };
@@ -467,6 +464,105 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 	mDeviceContext->Draw( model->mVertexCount, 0 );
 }
 
+void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, float x, float y, float z )
+{
+	Animated3dAsset*	model		= (Animated3dAsset*)mAssetManager->mAssetContainer[modelAssetId];
+	Skeleton*			skeleton	= &( (SkeletonAsset*)mAssetManager->mAssetContainer[model->mSkeletonId] )->mSkeleton;
+	AnimationData*		animation	= &( (AnimationAsset*)mAssetManager->mAssetContainer[animationAssetId] )->mAnimationData;
+
+	if( animationTime > (float)animation->AnimLength / 60.0f )
+	{
+		animationTime	-= ( (float)animation->AnimLength / 60.0f - 1.0f / 60.0f );
+	}
+
+	float calcTime = animationTime * 60.0f;
+
+	DirectX::XMMATRIX currentBoneTransforms[NUM_SUPPORTED_JOINTS];
+	for( int i = 0; i < NUM_SUPPORTED_JOINTS; i++ )
+	{
+		currentBoneTransforms[i] = DirectX::XMMatrixIdentity();
+	}
+
+	for( int i = 0; i < (int)skeleton->joints.size(); i++ )
+	{
+		float prevTime		= 1.0f;
+		float targetTime	= 1.0f;
+
+		DirectX::XMFLOAT4X4	previousMatrix;
+		DirectX::XMFLOAT4X4 targetMatrix = animation->joints.at(i).matricies.at(0);
+
+		for( int j = 0; j < (int)animation->joints.at(i).keys.size() - 1; j++ )
+		{
+			if( (float)animation->joints.at(i).keys.at(j) <= calcTime )
+			{
+				prevTime		= targetTime;
+				previousMatrix	= targetMatrix;
+				targetTime		= (float)animation->joints.at(i).keys.at(j+1);
+				targetMatrix	= animation->joints.at(i).matricies.at(j+1);
+			}
+		}
+
+		float interpolation = ( calcTime - prevTime ) / ( targetTime - prevTime );
+
+		DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &previousMatrix );
+
+		DirectX::XMVECTOR targetComp[3];
+		DirectX::XMVECTOR childComp[3];
+
+		DirectX::XMMatrixDecompose( &targetComp[0], &targetComp[1], &targetComp[2], DirectX::XMLoadFloat4x4( &targetMatrix ) );
+		DirectX::XMMatrixDecompose( &childComp[0], &childComp[1], &childComp[2], child );
+
+		child = DirectX::XMMatrixAffineTransformation(	DirectX::XMVectorLerp( childComp[0], targetComp[0], interpolation ),
+															DirectX::XMVectorZero(),
+															DirectX::XMQuaternionSlerp( childComp[1], targetComp[1], interpolation ),
+															DirectX::XMVectorLerp( childComp[2], targetComp[2], interpolation ) );		
+
+		DirectX::XMMATRIX parent	= animation->joints.at(i).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
+											currentBoneTransforms[animation->joints.at(i).parentIndex];
+
+		currentBoneTransforms[i] = child * parent;
+	}
+
+	//////////////////////////////////////////////////////////////////
+	//						RENDER CALL
+	//////////////////////////////////////////////////////////////////
+
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+
+	UINT32 vertexSize				= sizeof( AnimatedVertex );
+	UINT32 offset					= 0;
+	ID3D11Buffer* buffersToSet[]	= { model->mVertexBuffer };
+	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+
+	mDeviceContext->IASetInputLayout( mAnimatedEffect->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mAnimatedEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mAnimatedEffect->GetPixelShader(), nullptr, 0 );
+
+	//Map CbufferPerObject
+	CbufferPerObjectAnimated data;
+	data.worldMatrix = DirectX::XMMatrixTranspose( DirectX::XMMatrixTranslation( x, y, z ) );
+	for( int i = 0; i < NUM_SUPPORTED_JOINTS; i++ )
+		data.boneTransforms[i] = DirectX::XMMatrixIdentity();
+	for( int i = 0; i < skeleton->nrOfJoints; i++ )
+		data.boneTransforms[i] = DirectX::XMMatrixTranspose( DirectX::XMMatrixMultiply(  DirectX::XMLoadFloat4x4( &model->mBoneOffsets[i] ), currentBoneTransforms[i] ) );
+	MapBuffer( mCbufferPerObjectAnimated, &data, sizeof( CbufferPerObjectAnimated ) );
+
+	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObjectAnimated );
+
+	ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[model->mTextures[TEXTURES_DIFFUSE]] )->mSRV,
+													( (Static2dAsset*)mAssetManager->mAssetContainer[model->mTextures[TEXTURES_NORMAL]] )->mSRV,
+													( (Static2dAsset*)mAssetManager->mAssetContainer[model->mTextures[TEXTURES_SPECULAR]] )->mSRV,
+												};
+
+	mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+
+	mDeviceContext->Draw( model->mVertexCount, 0 );
+}
+
 Camera* Graphics::GetCamera() const
 {
 	return mCamera;
@@ -608,7 +704,7 @@ void Graphics::EndScene()
 
 	mDeviceContext->Draw( 4, 0 );
 
-	mSwapChain->Present( 1, 0 );
+	mSwapChain->Present( 0, 0 );
 }
 
 UINT Graphics::QueryMemoryUsed()

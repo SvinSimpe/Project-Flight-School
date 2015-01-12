@@ -5,14 +5,14 @@
 #include "Input.h"
 #include "EventManager.h"
 #include "Events.h"
-#include "Entry.h"
+#include "Button.h"
 
 class StartMenuState : public BaseState
 {
 	// Class members
 	private:
-		Entry			mStartServerClient;	// The square used to start a server and client connection, upper left part of the screen
-		Entry			mStartClient;		// The square used to start a client connection, lower right part of the screen
+		Button			mServerClientButton;
+		Button			mClientButton;
 	protected:
 	public:
 

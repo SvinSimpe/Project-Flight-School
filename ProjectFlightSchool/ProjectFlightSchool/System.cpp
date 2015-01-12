@@ -75,7 +75,7 @@ int	System::Run()
 			float deltaTime	= mTimer->GetDeltaTime();
 			float fps		= mTimer->GetFPS();
 
-			int mem	= (int)Graphics::GetInstance()->QueryMemoryUsed();
+			int mem	= 0;//(int)Graphics::GetInstance()->QueryMemoryUsed();
 
 			wchar_t title[200];
 			swprintf( title, sizeof(title), L"Project-Flight-School: Version 0.2 -  DeltaTime: %f  - FPS: %d\t vRam: %d Stop!... Hamburger time!",
@@ -159,9 +159,13 @@ void System::Release()
 {
 	mGame->Release();
 	SAFE_DELETE( mGame );
+
 	mTimer->Release();
 	SAFE_DELETE( mTimer );
+
 	Graphics::GetInstance()->Release();
+
+	Input::GetInstance()->Release();
 }
 
 System::System()
@@ -176,5 +180,4 @@ System::System()
 
 System::~System()
 {
-
 }

@@ -1,29 +1,15 @@
 #include "Entry.h"
 
-bool Entry::IsPressed()
+bool Entry::MouseInbounds()
 {
 	POINT mousePos = Input::GetInstance()->mCurrentMousePos;
-	bool leftDown = Input::GetInstance()->mCurrentFrame[KEYS::KEYS_MOUSE_LEFT];
 
-	if( leftDown && mousePos.x >= mUpperLeft.x && mousePos.y >= mUpperLeft.y && 
+	if( mousePos.x >= mUpperLeft.x && mousePos.y >= mUpperLeft.y && 
 		mousePos.x <= mLowerRight.x && mousePos.y <= mLowerRight.y )
 	{
 		return true;
 	}
 	return false;
-}
-
-void Entry::Render()
-{
-}
-
-bool Entry::Update( float deltaTime )
-{
-	if(IsPressed())
-	{
-		printf("%f: Hit!\n", deltaTime);
-	}
-	return true;
 }
 
 bool Entry::Initialize( UINT x, UINT y, UINT width, UINT height )
@@ -32,7 +18,8 @@ bool Entry::Initialize( UINT x, UINT y, UINT width, UINT height )
 	mUpperLeft.y	= y;
 	mLowerRight.x	= x + width;
 	mLowerRight.y	= y + height;
-	printf( "UpperLeft: %d, %d\nLowerRight: %d, %d\n", mUpperLeft.x, mUpperLeft.y, mLowerRight.x, mLowerRight.y );
+	mWidth			= (float)width;
+	mHeight			= (float)height;
 	return true;
 }
 

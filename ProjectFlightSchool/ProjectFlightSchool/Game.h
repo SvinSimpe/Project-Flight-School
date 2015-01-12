@@ -12,11 +12,11 @@ class Game
 	// Class members
 	private:
 		StateMachine*		mStateMachine;
-		EventManager*		mEventManager;
 
 		std::thread			mNetworkThread;
 		std::thread			mServerThread;
 		Client*				mClient;
+		Server*				mServer;
 		bool				mServerIsActive;
 
 	protected:
@@ -24,7 +24,9 @@ class Game
 
 		// Class functions
 	private:
-		void	NetworkInit();
+		void ServerInit();
+		void ClientInit();
+		void EventListener( IEventPtr newEvent );
 
 	protected:
 	public:
@@ -36,5 +38,4 @@ class Game
 				Game();
 				~Game();
 };
-
 #endif

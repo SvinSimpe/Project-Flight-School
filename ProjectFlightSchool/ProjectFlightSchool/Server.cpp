@@ -14,7 +14,7 @@ bool Server::AcceptConnection()
 	}
 	else
 	{
-		EvPlayerConnection toJoining;
+		EvPlayerID toJoining;
 		for ( auto& socket : mClientSockets )
 		{
 			if(socket != INVALID_SOCKET)
@@ -42,7 +42,7 @@ bool Server::AcceptConnection()
 		}
 
 		mClientSockets.push_back( s );
-		EvPlayerConnection msg;
+		EvPlayerID msg;
 		msg.ID = (unsigned int)s;
 		mConn->SendPkg( s, -1, Net_Event::YOUR_ID, s );
 	}
@@ -79,7 +79,7 @@ bool Server::ReceiveLoop( int index )
 
 void Server::DisconnectClient( SOCKET s )
 {
-	EvPlayerConnection msg;
+	EvPlayerID msg;
 	msg.ID = s;
 	for( auto& to : mClientSockets )
 	{
@@ -90,12 +90,6 @@ void Server::DisconnectClient( SOCKET s )
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
-
-Server* Server::GetInstance()
-{
-	static Server instance;
-	return &instance;
-}
 
 bool Server::Connect()
 {
@@ -123,7 +117,7 @@ bool Server::Connect()
 	if ( mResult == SOCKET_ERROR )
 	{
 		printf( "listen failed with error: %d\n", WSAGetLastError() );
-		closesocket( mListenSocket );
+		mConn->DisconnectSocket( mListenSocket );
 		WSACleanup();
 		return false;
 	}
@@ -182,24 +176,23 @@ bool Server::Initialize( const char* port )
 
 void Server::Release()
 {
-	for ( auto& t : mListenThreads )
-	{
-		t.join();
-	}
-	mListenThreads.clear();
-
 	for( auto& s : mClientSockets )
 	{
 		mConn->DisconnectSocket( s ); 
 	}
+	for ( auto& t : mListenThreads )
+	{
+		if( t.joinable() )
+			t.join();
+	}
+	mListenThreads.clear();
 	mClientSockets.clear();
 	WSACleanup();
-	mConn->Release();
+	mConn->DisconnectSocket( mListenSocket );
 
-	if ( mConn )
-	{
+	mConn->Release();
+	if( mConn )
 		delete mConn;
-	}
 }
 
 Server::Server()

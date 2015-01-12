@@ -3,7 +3,6 @@
 #include "Connection.h"
 #include "Package.h"
 #include <vector>
-#include "EventManager.h"
 
 class Server
 {
@@ -28,19 +27,18 @@ class Server
 
 	// Functions
 	private:
-						Server();
-		virtual			~Server();
 		bool			AcceptConnection();
 		bool			ReceiveLoop( int index );
 		void			DisconnectClient( SOCKET s );
 
 	protected:
 	public:
-		static Server*	GetInstance();
 		bool			Connect();
 		bool			Run();
 		bool			Initialize( const char* port );
 		void			Release();
+						Server();
+		virtual			~Server();
 };
 
 template <typename T>
@@ -68,13 +66,49 @@ void Server::HandlePkg( SOCKET &s, Package<T>* p )
 			break;
 		case Net_Event::EV_PLAYER_JOINED:
 		{
-			EvPlayerConnection toAll; // Contains the ID of the joining client
+			EvPlayerID toAll; // Contains the ID of the joining client
 			toAll.ID = (unsigned int)s;
 			for ( auto& socket : mClientSockets )
 			{
 				if ( socket != s && socket != INVALID_SOCKET )
 				{
 					mConn->SendPkg( socket, 0, Net_Event::EV_PLAYER_JOINED, toAll ); // Sends the ID of the joining client to each already existing client
+				}
+			}
+		}
+			break;
+		case Net_Event::EV_PLAYER_DIED:
+		{
+			EvPlayerID toAll = (EvPlayerID&)p->body.content;
+			for( auto& socket : mClientSockets )
+			{
+				if( socket != s && socket != INVALID_SOCKET )
+				{
+					mConn->SendPkg( socket, 0, Net_Event::EV_PLAYER_DIED, toAll );
+				}
+			}
+		}
+			break;
+		case Net_Event::EV_PLAYER_DAMAGED:
+		{
+			EvPlayerID toAll = (EvPlayerID&)p->body.content;
+			for (auto& socket : mClientSockets)
+			{
+				if ( socket != s && socket != INVALID_SOCKET )
+				{
+					mConn->SendPkg( socket, 0, Net_Event::EV_PLAYER_DAMAGED, toAll );
+				}
+			}
+		}
+			break;
+		case Net_Event::EV_PLAYER_SPAWNED:
+		{
+			EvPlayerID toAll = (EvPlayerID&)p->body.content;
+			for ( auto& socket : mClientSockets )
+			{
+				if ( socket != s && socket != INVALID_SOCKET )
+				{
+					mConn->SendPkg( socket, 0, Net_Event::EV_PLAYER_SPAWNED, toAll );
 				}
 			}
 		}

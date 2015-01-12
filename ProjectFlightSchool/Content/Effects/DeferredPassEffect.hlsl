@@ -111,5 +111,6 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 
 	//return float4( ambient * ssao, 1.0f );
 	//return float4( specular, 1.0f );
+	//return float4( normalSample, 1.0f );
 	return float4( finalColor *	albedoSample, 1.0f );
 }

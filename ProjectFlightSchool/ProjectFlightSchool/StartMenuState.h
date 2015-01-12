@@ -5,16 +5,20 @@
 #include "Input.h"
 #include "EventManager.h"
 #include "Events.h"
+#include "Button.h"
 
 class StartMenuState : public BaseState
 {
 	// Class members
 	private:
+		Button			mServerClientButton;
+		Button			mClientButton;
 	protected:
 	public:
 
 	// Class functions
 	private:
+		void			HandleInput();
 	protected:
 	public:
 		virtual HRESULT Update( float deltaTime );

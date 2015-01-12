@@ -23,35 +23,37 @@ class LIBRARY_EXPORT Graphics
 {
 	//Class members
 	private:
-		HWND		mHWnd;
-		UINT		mScreenWidth;
-		UINT		mScreenHeight;			
+		HWND						mHWnd;
+		UINT						mScreenWidth;
+		UINT						mScreenHeight;	
+		ID3D11Buffer*				mVertexBuffer2d;
 
-		IDXGISwapChain*			mSwapChain;
-		ID3D11Device*			mDevice;
-		ID3D11DeviceContext*	mDeviceContext;
+		IDXGISwapChain*				mSwapChain;
+		ID3D11Device*				mDevice;
+		ID3D11DeviceContext*		mDeviceContext;
 
-		ID3D11RenderTargetView*	mRenderTargetView;
-		ID3D11DepthStencilView*	mDepthStencilView;
-		D3D11_VIEWPORT			mStandardView;
-		ID3D11Buffer*			mCbufferPerFrame;
-		ID3D11Buffer*			mCbufferPerObject;
-		ID3D11Buffer*			mCbufferPerObjectAnimated;
+		ID3D11RenderTargetView*		mRenderTargetView;
+		ID3D11DepthStencilView*		mDepthStencilView;
+		ID3D11DepthStencilState*	mDepthDisabledStencilState;
+		ID3D11DepthStencilState*	mDepthEnabledStencilState;
+		D3D11_VIEWPORT				mStandardView;
+		ID3D11Buffer*				mCbufferPerFrame;
+		ID3D11Buffer*				mCbufferPerObject;
+		ID3D11Buffer*				mCbufferPerObjectAnimated;
 
-		ID3D11SamplerState*		mPointSamplerState;
-		ID3D11SamplerState*		mLinearSamplerState;
+		ID3D11SamplerState*			mPointSamplerState;
+		ID3D11SamplerState*			mLinearSamplerState;
 
 
-		AssetManager*			mAssetManager;
-		Effect*					mStaticEffect;
-		Effect*					mAnimatedEffect;
-		Effect*					mDeferredPassEffect;
-
-		Gbuffer*				mGbuffers[NUM_GBUFFERS];				
-
-		Camera*					mCamera;
-		Camera*					mDeveloperCamera;
-		bool					mIsDeveloperCameraActive;
+		AssetManager*				mAssetManager;
+		Effect*						mStaticEffect;
+		Effect*						m2dEffect;
+		Effect*						mAnimatedEffect;
+		Camera*						mCamera;
+		Camera*						mDeveloperCamera;
+		bool						mIsDeveloperCameraActive;
+		Effect*						mDeferredPassEffect;
+		Gbuffer*					mGbuffers[NUM_GBUFFERS];				
 
 	protected:
 	public:
@@ -72,6 +74,9 @@ class LIBRARY_EXPORT Graphics
 		HRESULT LoadSkeletonAsset( std::string filePath, std::string fileName, AssetID &assetId );
 		HRESULT LoadAnimationAsset( std::string filePath, std::string fileName, AssetID &assetId );
 
+		void Render2dAsset( AssetID assetId, float x, float y, float width, float height );
+		void RenderPlane2dAsset( AssetID assetId, float x[3], float y[3] );
+
 		void RenderStatic3dAsset( AssetID assetId );
 		void RenderStatic3dAsset( AssetID assetId, float x, float y, float z );
 		void RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation );
@@ -80,6 +85,7 @@ class LIBRARY_EXPORT Graphics
 		void RenderStatic3dAssetIndexed( AssetID assetId, UINT indexCount, UINT startIndex );
 
 		void RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime );
+		void RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, float x, float y, float z );
 
 		Camera* GetCamera() const;
 		Camera* GetDeveloperCamera() const;

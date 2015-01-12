@@ -7,6 +7,7 @@
 #include "RemotePlayer.h"
 
 #define MAX_REMOTE_PLAYERS 10
+#define COLLISION_CHECK_OFFSET 1	// 0 == Every frame
 
 class PlayState : public BaseState
 {
@@ -23,16 +24,18 @@ class PlayState : public BaseState
 		AssetID mNest1Asset;
 		AssetID mStoneAssets[6];
 		AssetID mTree1Asset;
+		AssetID mTest2dAsset;
 
 		Map*		mWorldMap;
 
 		float	mAnimationTime;
 
-	// Debug
+		// Debug
 		Player*			mPlayer;
 		std::vector<RemotePlayer*> mRemotePlayers;
 
-		
+		//Collision
+		unsigned int	mFrameCounter;
 	
 	protected:
 	public:
@@ -40,10 +43,14 @@ class PlayState : public BaseState
 	// Class functions
 	private:
 		void			RemoteUpdate( IEventPtr newEvent );
+		void			HandleDeveloperCameraInput();
+		void			CheckCollision();
+		void			EventListener( IEventPtr newEvent );
+		void			BroadcastDamage();						// Tell server that local  player has taken damage
 
 	protected:
 	public:
-		void HandleDeveloperCameraInput();
+		
 
 		virtual HRESULT Update( float deltaTime );
 		virtual HRESULT Render();

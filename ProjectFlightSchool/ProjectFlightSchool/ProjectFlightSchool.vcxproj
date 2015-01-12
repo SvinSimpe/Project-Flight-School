@@ -100,6 +100,7 @@
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="RemotePlayer.cpp" />
+    <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="StartMenuState.cpp" />
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="Timer.cpp" />
@@ -117,6 +118,8 @@
     <ClInclude Include="PlayState.h" />
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="RemotePlayer.h" />
+    <ClInclude Include="RenderManager.h" />
+    <ClInclude Include="RenderStructs.h" />
     <ClInclude Include="StartMenuState.h" />
     <ClInclude Include="StateMachine.h" />
     <ClCompile Include="Client.cpp" />

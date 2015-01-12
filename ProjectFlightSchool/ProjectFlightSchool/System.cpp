@@ -143,6 +143,8 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 
 	Input::GetInstance()->Initialize( mScreenWidth, mScreenHeight, mHWnd );
 
+	RenderManager::GetInstance()->Initialize();
+
 	mGame = new Game();
 	mGame->Initialize();
 

@@ -5,6 +5,13 @@
 
 using namespace DirectX;
 
+struct ExitPoints
+{
+	int x;
+	int y;
+	MapNodeInstance* neighbour;
+};
+
 struct MapNodeInfo
 {
 		Vertex24*		grid;
@@ -15,7 +22,6 @@ struct MapNodeInfo
 		GameObject*		staticAssets;
 		UINT			staticAssetCount;
 };
-
 class MapNode
 {
 	private:
@@ -30,6 +36,12 @@ class MapNode
 		UINT			mNodeDim;
 		GameObject*		mStaticAssets;
 		UINT			mStaticAssetCount;
+
+
+
+		//////////////////////////////////////////////////////
+		ExitPoints exits[4];
+		//////////////////////////////////////////////////////
 
 	protected:
 	public:
@@ -55,6 +67,8 @@ class MapNode
 		UINT			GetNodeDim() const;
 
 		GameObject*		GetStaticAssets() const;
+		HRESULT			SetUpExits();
+		ExitPoints*		GetExits();
 
 		MapNodeInstance	GetMapNodeInstance();
 		HRESULT			Initialize( MapNodeInfo initInfo );

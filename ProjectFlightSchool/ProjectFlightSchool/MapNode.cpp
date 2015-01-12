@@ -1,5 +1,23 @@
 #include "MapNode.h"
 
+HRESULT	MapNode::Render(float deltaTime, XMFLOAT4X4 parentWorld)
+{
+	for(int i = 0; i < (int)mStaticAssetCount; i++ )
+	{
+		mStaticAssets[i].Render( deltaTime, parentWorld );
+	}
+
+	return S_OK;
+}
+HRESULT	MapNode::Render(float deltaTime)
+{
+	for(int i = 0; i < (int)mStaticAssetCount; i++ )
+	{
+		mStaticAssets[i].Render( deltaTime );
+	}
+
+	return S_OK;
+}
 StaticVertex* MapNode::GetGrid() const
 {
 	return mGrid;
@@ -43,24 +61,6 @@ MapNodeInstance MapNode::GetMapNodeInstance()
 
 	return result;
 }
-HRESULT	MapNode::Render(float deltaTime, XMFLOAT4X4 parentWorld)
-{
-	for(int i = 0; i < (int)mStaticAssetCount; i++ )
-	{
-		mStaticAssets[i].Render( deltaTime, parentWorld );
-	}
-
-	return S_OK;
-}
-HRESULT	MapNode::Render(float deltaTime)
-{
-	for(int i = 0; i < (int)mStaticAssetCount; i++ )
-	{
-		mStaticAssets[i].Render( deltaTime );
-	}
-
-	return S_OK;
-}
 HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 {
 	mGrid				= new StaticVertex[initInfo.vertexCount];
@@ -90,7 +90,34 @@ HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 		mGrid[i].uv[0] = 1.0f;
 		mGrid[i].uv[1] = 1.0f;
 	}
+////////////////////////////////////////////////////
+	SetUpExits();
+////////////////////////////////////////////////////
 	return S_OK;
+}
+HRESULT MapNode::SetUpExits()
+{
+	exits[0].x = 11;
+	exits[0].y = 0;
+	exits[0].neighbour = nullptr;
+
+	exits[1].x = 0;
+	exits[1].y = 11;
+	exits[2].neighbour = nullptr;
+
+	exits[2].x = 11;
+	exits[2].y = 11;
+	exits[2].neighbour = nullptr;
+
+	exits[3].x = 11;
+	exits[3].y = 11;
+	exits[3].neighbour = nullptr;
+
+	return S_OK;
+}
+ExitPoints* MapNode::GetExits()
+{
+	return exits;
 }
 void MapNode::Release()
 {

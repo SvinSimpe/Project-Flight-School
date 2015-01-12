@@ -4,6 +4,14 @@
 #include <Windows.h>
 
 
+static enum Rotation
+{
+	D0		= 0,
+	D90		= 1,
+	D180	= 2,
+	D270	= 3
+};
+
 struct Corners
 {
 	int left;
@@ -26,6 +34,7 @@ struct Corners
 		bottom	= pBottom;
 	};
 };
+
 //Forward declaration for the compiler
 class MapNode;
 
@@ -35,13 +44,19 @@ class MapNodeInstance
 		MapNode* mNode;
 
 		DirectX::XMFLOAT3 mPos;
-		int mRotation;
-		Corners mCorners;
+		DirectX::XMFLOAT3 mOrigin;
 		DirectX::XMFLOAT4X4 mWorld;
+
+		Rotation mNodeRotation;
+		int mRotation;
+
+		Corners mCorners;
+		ExitPoints* mExits;
 
 	protected:
 	public:
 	private:
+		void				GetExits();
 	protected:
 	public:
 		HRESULT				Update( float deltaTime );
@@ -49,6 +64,9 @@ class MapNodeInstance
 
 		DirectX::XMFLOAT3	GetPos()const;
 		void				SetPos( DirectX::XMFLOAT3 pos );
+
+		DirectX::XMFLOAT3	GetOrigin()const;
+		void				SetOrigin( DirectX::XMFLOAT3 orign );
 		
 		MapNode*			GetMapNode()const;
 		void				SetMapNode( MapNode* mapNode );
@@ -58,6 +76,8 @@ class MapNodeInstance
 
 		HRESULT				Initialize( MapNode* mapNode );
 		void				Release();
+
+		bool				AddNeighbour( MapNodeInstance* mapNodeInstance );
 							MapNodeInstance();
 		virtual				~MapNodeInstance();
 };

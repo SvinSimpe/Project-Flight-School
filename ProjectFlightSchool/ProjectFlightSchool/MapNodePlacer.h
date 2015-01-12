@@ -6,7 +6,7 @@ class MapNodePlacer
 {
 	private:
 		Map* mMap;
-		char** mBuildMap;
+		int** mBuildMap;
 		int mBuildMapSize;
 
 	protected:

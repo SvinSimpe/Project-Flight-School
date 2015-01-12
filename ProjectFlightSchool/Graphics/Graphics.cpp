@@ -253,16 +253,6 @@ void Graphics::RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT4X4* world 
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
 
-<<<<<<< HEAD
-		ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_DIFFUSE]] )->mSRV,
-														( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_NORMAL]] )->mSRV,
-														( (Static2dAsset*)mAssetManager->mAssetContainer[( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mTextures[TEXTURES_SPECULAR]] )->mSRV,
-												};
-
-	mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
-
-	mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[assetId] )->mVertexCount, 0 );
-=======
 	for( int i = 0; i < (int)object->mMeshes.size(); i++ )
 	{
 		UINT32 offset					= 0;
@@ -278,7 +268,6 @@ void Graphics::RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT4X4* world 
 
 		mDeviceContext->Draw( object->mMeshes[i].mVertexCount, 0 );
 	}
->>>>>>> development
 }
 
 void Graphics::RenderStatic3dAssetIndexed( AssetID assetId, UINT indexCount, UINT startIndex )

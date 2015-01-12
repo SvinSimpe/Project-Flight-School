@@ -23,7 +23,7 @@ void Font::WriteText(std::string toWrite, float x, float y, float scale)
 			xOffset += TAB_WIDTH * scale;
 			continue;
 		}
-		else if(l == '?')
+		else if(l == '?' || mCharacters.find(l) == mCharacters.end())
 		{
 			l = '~';
 		}

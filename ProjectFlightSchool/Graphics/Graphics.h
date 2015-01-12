@@ -75,7 +75,7 @@ class LIBRARY_EXPORT Graphics
 		HRESULT LoadAnimationAsset( std::string filePath, std::string fileName, AssetID &assetId );
 
 		void Render2dAsset( AssetID assetId, float x, float y, float width, float height );
-		void RenderPlane2dAsset( AssetID assetId, float x[3], float y[3] );
+		void RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX::XMFLOAT3 y );
 
 		void RenderStatic3dAsset( AssetID assetId );
 		void RenderStatic3dAsset( AssetID assetId, float x, float y, float z );

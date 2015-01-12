@@ -41,6 +41,7 @@ HRESULT Game::Update( float deltaTime )
 {
 	mStateMachine->Update( deltaTime );
 	EventManager::GetInstance()->Update();
+	RenderManager::GetInstance()->Update( deltaTime );
 	
 
 	return S_OK;

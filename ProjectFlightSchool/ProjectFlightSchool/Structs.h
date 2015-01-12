@@ -21,10 +21,10 @@ struct EvPlayerID
 	unsigned int ID;
 };
 
-struct EvFireProjectile
+struct EvProjectileFired
 {
-	unsigned int id;
-	DirectX::XMFLOAT3 upperBody;
+	unsigned int ID;
+	DirectX::XMFLOAT3 position;
 	DirectX::XMFLOAT3 direction;
 };
 #endif

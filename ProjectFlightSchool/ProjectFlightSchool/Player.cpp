@@ -66,7 +66,7 @@ void Player::HandleInput( float deltaTime )
 	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_SPACE) && mWeaponCoolDown <= 0.0f )
 	{
 		Fire();
-		mWeaponCoolDown = 0.2f;
+		mWeaponCoolDown = 0.1f;
 	}
 	else
 		mWeaponCoolDown -= deltaTime;
@@ -151,16 +151,6 @@ HRESULT Player::Update( float deltaTime )
 	Graphics::GetInstance()->SetEyePosition( cameraPosition );
 	Graphics::GetInstance()->SetFocus( mLowerBody.position );
 
-	//Update Projectiles
-	if( mNrOfProjectilesFired != 0 )
-	{
-		for ( size_t i = 0; i < mProjectiles.size(); i++ )
-		{
-			if( mProjectiles.at(i)->IsActive() )
-				mProjectiles.at(i)->Update( deltaTime );
-		}
-	}
-
 	return S_OK;
 }
 
@@ -168,26 +158,13 @@ HRESULT Player::Render( float deltaTime )
 {
 	RemotePlayer::Render( deltaTime );
 
-	//Update Projectiles
-	if( mNrOfProjectilesFired != 0 )
-	{
-		for ( size_t i = 0; i < mProjectiles.size(); i++ )
-		{
-			if( mProjectiles.at(i)->IsActive() )
-				mProjectiles.at(i)->Render();
-		}
-	}
-
 	return S_OK;
 }
 
-XMFLOAT3 Player::Fire()
+void Player::Fire()
 {
-	mProjectiles.at( mNrOfProjectilesFired % mNrOfProjectiles )->SetDirection( mUpperBody.position, mUpperBody.direction );
-	mProjectiles.at( mNrOfProjectilesFired % mNrOfProjectiles )->SetIsActive( true );
-	mNrOfProjectilesFired++;
-	
-	return mUpperBody.direction;
+	IEventPtr E1( new Event_Projectile_Fired( mID, mUpperBody.position, mUpperBody.direction ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 
@@ -206,24 +183,13 @@ HRESULT Player::Initialize()
 	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mLowerBody.speed	= 15.0f;
 
-	mWeaponCoolDown		= 0.5f;
-	mNrOfProjectiles	= 20;
-
-	//Fill up on Projectiles
-	for ( size_t i = 0; i < mNrOfProjectiles; i++ )
-	{
-		Projectile*	projectile = new Projectile();
-		projectile->Initialize();
-		mProjectiles.push_back( projectile );
-	}
+	mWeaponCoolDown		= 0.1f;
 
 	return S_OK;
 }
 
 void Player::Release()
 {
-	for ( size_t i = 0; i < mProjectiles.size(); i++ )
-		SAFE_DELETE( mProjectiles.at(i) );
 }
 
 Player::Player()

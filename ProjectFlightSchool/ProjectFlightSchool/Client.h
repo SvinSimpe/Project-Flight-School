@@ -100,6 +100,13 @@ void Client::HandlePkg( Package<T>* p )
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
+		case Net_Event::EV_PROJECTILE_FIRED:
+		{
+			EvProjectileFired projectileFired = (EvProjectileFired&)p->body.content;
+			IEventPtr E1( new Event_Remote_Projectile_Fired( projectileFired.ID, projectileFired.position, projectileFired.direction  ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
 		default:
 		{
 			printf( "Error handling event from server.\n" );

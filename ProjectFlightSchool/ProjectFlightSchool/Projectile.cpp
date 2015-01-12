@@ -48,13 +48,13 @@ void Projectile::Reset()
 {
 	mIsActive = false;
 	mSpeed		= 20.0f;
-	mLifeTime	= 5.0f;
+	mLifeTime	= 4.0f;
 }
 
 HRESULT Projectile::Initialize()
 {
 	mSpeed		= 20.0f;
-	mLifeTime	= 5.0f;
+	mLifeTime	= 4.0f;
 	return S_OK;
 }
 

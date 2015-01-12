@@ -33,9 +33,6 @@ struct BoundingCircle
 class Player: public RemotePlayer
 {
 	private:
-		std::vector<Projectile*>	mProjectiles;
-		int			mNrOfProjectiles;
-		int			mNrOfProjectilesFired;
 		float		mWeaponCoolDown;
 
 	private:
@@ -53,7 +50,7 @@ class Player: public RemotePlayer
 		float		WeaponCoolDown();
 		int			NrOfProjectiles();
 		XMFLOAT3	GetPlayerPosition() const;
-		XMFLOAT3	Fire();
+		void		Fire();
 
 		HRESULT		Initialize();
 		void		Release();

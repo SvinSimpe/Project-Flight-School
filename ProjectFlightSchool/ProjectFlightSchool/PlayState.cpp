@@ -75,7 +75,12 @@ void PlayState::EventListener( IEventPtr newEvent )
 			}
 		}
 	}
-	// Handle spawn logic here
+	else if ( newEvent->GetEventType() == Event_Remote_Projectile_Fired::GUID )
+	{
+		// Fire projectile
+		std::shared_ptr<Event_Remote_Projectile_Fired> data = std::static_pointer_cast<Event_Remote_Projectile_Fired>(newEvent);
+		FireProjectile( data->BodyPos(), data->Direction() );
+	}
 }
 
 // Tell server that local  player has taken damage
@@ -83,6 +88,13 @@ void PlayState::BroadcastDamage()
 {
 	IEventPtr dmgEv(new Event_Player_Damaged( mPlayer->GetID()) );
 	EventManager::GetInstance()->QueueEvent( dmgEv );
+}
+
+void PlayState::FireProjectile( XMFLOAT3 position, XMFLOAT3 direction )
+{
+	mProjectiles[mNrOfProjectilesFired % MAX_PROJECTILES]->SetDirection( position, direction );
+	mProjectiles[mNrOfProjectilesFired % MAX_PROJECTILES]->SetIsActive( true );
+	mNrOfProjectilesFired++;
 }
 
 void PlayState::UpdateProjectiles( float deltaTime )
@@ -159,7 +171,7 @@ HRESULT PlayState::Render()
 			rp->Render( 0.0f );
 	}
 
-	//RenderProjectiles();
+	RenderProjectiles();
 
 	//Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 300, 300, 100, 100 );
 
@@ -224,6 +236,7 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Died::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Damaged::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Spawned::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Projectile_Fired::GUID );
 
 	return S_OK;
 }

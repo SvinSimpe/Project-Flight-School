@@ -87,46 +87,24 @@ void PlayState::BroadcastDamage()
 
 void PlayState::UpdateProjectiles( float deltaTime )
 {
-	//Update Player Projectiles
-	if( mNrOfPlayerProjectilesFired != 0 )
+	if( mNrOfProjectilesFired != 0 )
 	{
-		for ( size_t i = 0; i < mPlayerProjectiles.size(); i++ )
+		for (size_t i = 0; i < MAX_PROJECTILES; i++)
 		{
-			if( mPlayerProjectiles.at(i)->IsActive() )
-				mPlayerProjectiles.at(i)->Update( deltaTime );
-		}
-	}
-
-	//Update Remote Projectiles
-	if( mNrOfRemoteProjectilesFired != 0 )
-	{
-		for ( size_t i = 0; i < mRemoteProjectiles.size(); i++ )
-		{
-			if( mRemoteProjectiles.at(i)->IsActive() )
-				mRemoteProjectiles.at(i)->Update( deltaTime );
+			if(mProjectiles[i]->IsActive() )
+				mProjectiles[i]->Update( deltaTime );
 		}
 	}
 }
 
 void PlayState::RenderProjectiles()
 {
-	// Render Player Projectiles
-	if( mNrOfPlayerProjectilesFired != 0 )
+	if( mNrOfProjectilesFired != 0 )
 	{
-		for ( size_t i = 0; i < mPlayerProjectiles.size(); i++ )
+		for (size_t i = 0; i < MAX_PROJECTILES; i++)
 		{
-			if( mPlayerProjectiles.at(i)->IsActive() )
-				mPlayerProjectiles.at(i)->Render();
-		}
-	}
-
-	// Render Remote Projectiles
-	if( mNrOfRemoteProjectilesFired != 0 )
-	{
-		for ( size_t i = 0; i < mRemoteProjectiles.size(); i++ )
-		{
-			if( mRemoteProjectiles.at(i)->IsActive() )
-				mRemoteProjectiles.at(i)->Render();
+			if(mProjectiles[i]->IsActive() )
+				mProjectiles[i]->Render();
 		}
 	}
 }
@@ -233,27 +211,13 @@ HRESULT PlayState::Initialize()
 	mWorldMap = new Map();
 	mWorldMap->Initialize( 8.0f, 24 );
 
-	//Fill up on Player Projectiles, test values
-	for ( size_t i = 0; i < 100; i++ )
+	//Fill up on Projectiles, test values
+	mProjectiles	= new Projectile*[MAX_PROJECTILES];
+	for (size_t i = 0; i < MAX_PROJECTILES; i++)
 	{
-		Projectile*	projectile = new Projectile();
-		projectile->Initialize();
-		mPlayerProjectiles.push_back( projectile );
+		mProjectiles[i] = new Projectile();
+		mProjectiles[i]->Initialize();
 	}
-
-	//Fill up on Remote Projectiles, test values
-	for ( size_t i = 0; i < 2000; i++ )
-	{
-		Projectile*	projectile = new Projectile();
-		projectile->Initialize();
-		mRemoteProjectiles.push_back( projectile );
-	}
-
-	mNrOfPlayerProjectilesFired = 0;
-	mNrOfRemoteProjectilesFired = 0;
-
-	mNrOfPlayerProjectiles		= 100;
-	mNrOfRemoteProjectiles		= 2000;
 
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Left::GUID );
@@ -277,17 +241,17 @@ void PlayState::Release()
 	}
 	mRemotePlayers.clear();
 
-	for ( size_t i = 0; i < mPlayerProjectiles.size(); i++ )
-		SAFE_DELETE( mPlayerProjectiles.at(i) );
+	for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
+		SAFE_DELETE( mProjectiles[i] );
 
-	for ( size_t i = 0; i < mRemoteProjectiles.size(); i++ )
-		SAFE_DELETE( mRemoteProjectiles.at(i) );
+	delete [] mProjectiles;
 }
 
 PlayState::PlayState()
 {
 	mRemotePlayers = std::vector<RemotePlayer*>( 0 );
 	mRemotePlayers.reserve(MAX_REMOTE_PLAYERS);
+	mProjectiles	= nullptr;
 }
 
 PlayState::~PlayState()

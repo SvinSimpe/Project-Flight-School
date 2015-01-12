@@ -6,7 +6,8 @@
 #include "Player.h"
 #include "RemotePlayer.h"
 
-#define MAX_REMOTE_PLAYERS 10
+#define MAX_REMOTE_PLAYERS	10
+#define MAX_PROJECTILES		1000
 
 class PlayState : public BaseState
 {
@@ -34,14 +35,14 @@ class PlayState : public BaseState
 		std::vector<RemotePlayer*>	mRemotePlayers;
 
 	// Game Data
-		std::vector<Projectile*>	mPlayerProjectiles;			// Fired from local player
-		std::vector<Projectile*>	mRemoteProjectiles;			// Information on projectiles fired from remote player
-		int							mNrOfPlayerProjectiles;
-		int							mNrOfRemoteProjectiles;
+		//std::vector<Projectile*>	mPlayerProjectiles;			// Fired from local player
+		//std::vector<Projectile*>	mRemoteProjectiles;			// Information on projectiles fired from remote player
+		//int							mNrOfPlayerProjectiles;
+		//int							mNrOfRemoteProjectiles;
 		
-		Projectile*					mProjectiles;				// A collection
+		Projectile**				mProjectiles;				// A collection
 
-		int							mNrOfPlayerProjectilesFired;
+		int							mNrOfProjectilesFired;
 		int							mNrOfRemoteProjectilesFired;
 
 	protected:

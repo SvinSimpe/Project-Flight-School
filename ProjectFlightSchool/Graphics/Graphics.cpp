@@ -89,7 +89,7 @@ void Graphics::Render2dAsset( AssetID assetId, float x, float y, float width, fl
 	float top		= ( ( ( y - heightVariabel ) / (float)mScreenHeight ) * -2.0f ) + 1.0f;
 
 	StaticVertex bottomleft		= { left, bottom, 0.0,		0, 0, 0,	0, 0, 0,	0, 1 };
-	StaticVertex topleft		= { left, top, 0.0,		0, 0, 0,	0, 0, 0,	0, 0 };
+	StaticVertex topleft		= { left, top, 0.0,			0, 0, 0,	0, 0, 0,	0, 0 };
 	StaticVertex bottomright	= { right, bottom, 0.0,		0, 0, 0,	0, 0, 0,	1, 1 };
 	StaticVertex topright		= { right, top, 0.0,		0, 0, 0,	0, 0, 0,	1, 0 };
 
@@ -108,6 +108,39 @@ void Graphics::Render2dAsset( AssetID assetId, float x, float y, float width, fl
 	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[assetId] )->mSRV );
 	mDeviceContext->Draw( 4, 0 );
 	mDeviceContext->OMSetDepthStencilState( mDepthEnabledStencilState, 1 );
+}
+
+void Graphics::RenderPlane2dAsset( AssetID assetId, float x[3], float y[3] )
+{
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
+
+	UINT32 vertexSize	= sizeof(StaticVertex);
+	UINT32 offset		= 0;
+
+	StaticVertex bottomleft		= { x[0], x[1], y[2],		0, 1, 0,	0, 1, 0,	0, 1 };
+	StaticVertex topleft		= { x[0], x[1], x[2],		0, 1, 0,	0, 1, 0,	0, 0 };
+	StaticVertex bottomright	= { y[0], x[1], y[2],		0, 1, 0,	0, 1, 0,	1, 1 };
+	StaticVertex topright		= { y[0], x[1], x[2],		0, 1, 0,	0, 1, 0,	1, 0 };
+
+	StaticVertex vertices[4]	= { bottomleft, topleft, bottomright, topright };
+	MapBuffer( mVertexBuffer2d, &vertices, sizeof(StaticVertex) * 4 );
+	mDeviceContext->IASetVertexBuffers( 0, 1, &mVertexBuffer2d, &vertexSize, &offset );
+
+	mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mStaticEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mStaticEffect->GetPixelShader(), nullptr, 0 );
+
+		//Map CbufferPerObject
+	CbufferPerObject data;
+	data.worldMatrix = DirectX::XMMatrixIdentity();
+	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
+
+	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[assetId] )->mSRV );
+	mDeviceContext->Draw( 4, 0 );
 }
 
 //Render a static 3d asset given the assetId

@@ -185,10 +185,15 @@ HRESULT PlayState::Render()
 
 	Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 300, 300, 100, 100 );
 
-	mFont.WriteText("HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 0.5f);
+	mFont.WriteText("HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f);
 	//mFont.WriteText("SCALING IS ALSO COOL!!!!!", 0, 400, 3.0f);
 	//mFont.WriteText("SYMBOLS ARE THE BEST !#@?", 0, 0, 0.5f);
 
+	DirectX::XMFLOAT3 x = { 0.0f, 0.1f, 3.0f };
+	DirectX::XMFLOAT3 y = { 3.0f, 0.1f, 0.0f };
+	Graphics::GetInstance()->RenderPlane2dAsset( mTest2dAsset,  x, y );
+	Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 500, 500, 50, 50 );
+	
 	Graphics::GetInstance()->EndScene();
 
 	return S_OK;

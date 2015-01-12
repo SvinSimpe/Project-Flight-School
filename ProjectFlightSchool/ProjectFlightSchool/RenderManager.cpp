@@ -60,7 +60,7 @@ HRESULT RenderManager::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT RenderManager::Render( float deltaTime )
+HRESULT RenderManager::Render()
 {
 	for( UINT i = 0; i < mNrOfObject3d; i++ )
 	{

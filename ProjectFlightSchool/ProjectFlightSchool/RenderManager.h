@@ -25,8 +25,8 @@ class RenderManager
 	public:
 		void AddObject3dToList( AssetID assetId, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 		void AddAnim3dToList( AssetID modelAssetId, AssetID animationAssetId, float* animationTime );
-		HRESULT Update( float deltaTime );
-		HRESULT Render( float deltaTime );	//Currently clearing the arrays to standard values and reseting number of active objects variable for them in update
+		HRESULT Update( float deltaTime );	//Currently clearing the arrays to standard values and reseting number of active objects variable for them in update
+		HRESULT Render();	
 		HRESULT Initialize();
 		void Release();
 		static RenderManager* GetInstance();

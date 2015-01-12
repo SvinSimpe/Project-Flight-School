@@ -4,6 +4,7 @@
 #include "EventManager.h"
 #include "Events.h"
 #include <Graphics.h>
+#include "RenderManager.h"
 
 class Projectile
 {

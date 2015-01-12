@@ -122,8 +122,8 @@ HRESULT Player::Update( float deltaTime )
 
 HRESULT Player::Render( float deltaTime )
 {
-	Graphics::GetInstance()->RenderStatic3dAsset( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
-	Graphics::GetInstance()->RenderStatic3dAsset( mLowerBody.playerModel, mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z );
+	RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
+	RenderManager::GetInstance()->AddObject3dToList( mLowerBody.playerModel, mLowerBody.position );
 
 	//Update Projectiles
 	if( mNrOfProjectilesFired != 0 )

@@ -58,8 +58,11 @@ class EventManager : public IEventManager
 	int m_activeQueue;  // index of actively processing queue; events enque to the opposing queue
 
 	public:
+		static EventManager* instance;
+
 		explicit EventManager();
-		virtual ~EventManager( void );
+		virtual void Release();
+		virtual ~EventManager();
 
 		virtual bool TriggerEvent( const IEventPtr& pEvent ) const;
 		virtual bool QueueEvent( const IEventPtr& pEvent );
@@ -86,11 +89,8 @@ class EventManager : public IEventManager
 						);
 			return RemoveListener( eventDelegate, type );
 		}
-		static EventManager* GetInstance()
-		{
-			static EventManager instance;
-			return &instance;
-		}
+		static EventManager* GetInstance();
+
 	private:
 		virtual bool AddListener( const EventListenerDelegate& eventDelegate, const EventType& type );
 		virtual bool RemoveListener( const EventListenerDelegate& eventDelegate, const EventType& type );

@@ -6,8 +6,11 @@
 #include "Player.h"
 #include "RemotePlayer.h"
 
-#define MAX_REMOTE_PLAYERS	10
-#define MAX_PROJECTILES		30
+
+#define MAX_REMOTE_PLAYERS		10
+#define MAX_PROJECTILES			30	
+#define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
+
 
 class PlayState : public BaseState
 {
@@ -38,11 +41,17 @@ class PlayState : public BaseState
 		Projectile**				mProjectiles;				// A collection of the games projectiles
 		int							mNrOfProjectilesFired;
 
+		//Collision
+		unsigned int	mFrameCounter;
+	
 	protected:
 	public:
 
 	// Class functions
 	private:
+		void			RemoteUpdate( IEventPtr newEvent );
+		void			HandleDeveloperCameraInput();
+		void			CheckCollision();
 		void			EventListener( IEventPtr newEvent );
 		void			BroadcastDamage();						// Tell server that local  player has taken damage
 
@@ -52,7 +61,7 @@ class PlayState : public BaseState
 
 	protected:
 	public:
-		void HandleDeveloperCameraInput();
+		
 
 		virtual HRESULT Update( float deltaTime );
 		virtual HRESULT Render();

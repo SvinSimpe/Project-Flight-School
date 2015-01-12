@@ -419,6 +419,10 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceConte
 			temp->mMeshes.push_back( meshes[i] );
 		}
 
+		if( meshInfo )
+			delete [] meshInfo;
+		if( meshes )
+			delete [] meshes;
 		for( UINT i = 0; i < nrOfMeshes; i++ )
 			delete [] vertices[i];
 		delete [] vertices;
@@ -922,18 +926,19 @@ void AssetManager::Release()
 {
 	for( UINT i = 0; i < mAssetContainer.size(); i++ )
 	{
-		if( typeid( *mAssetContainer[i] ) == typeid( Static3dAsset ) )
-			( (Static3dAsset*)mAssetContainer[i] )->Release();
-		else if( typeid( *mAssetContainer[i] ) == typeid( Static3dAssetIndexed ) )
-			( (Static3dAssetIndexed*)mAssetContainer[i] )->Release();
-		else if( typeid( *mAssetContainer[i] ) == typeid( Animated3dAsset ) )
-			( (Animated3dAsset*)mAssetContainer[i] )->Release();
-		else if( typeid( *mAssetContainer[i] ) == typeid( SkeletonAsset ) )
-			( (SkeletonAsset*)mAssetContainer[i] )->Release();
-		else if( typeid( *mAssetContainer[i] ) == typeid( AnimationAsset ) )
-			( (AnimationAsset*)mAssetContainer[i] )->Release();
-		else if( typeid( *mAssetContainer[i] ) == typeid( Static2dAsset ) )
-			( (Static2dAsset*)mAssetContainer[i] )->Release();
+		mAssetContainer[i]->Release();
+		//if( typeid( *mAssetContainer[i] ) == typeid( Static3dAsset ) )
+		//	( (Static3dAsset*)mAssetContainer[i] )->Release();
+		//else if( typeid( *mAssetContainer[i] ) == typeid( Static3dAssetIndexed ) )
+		//	( (Static3dAssetIndexed*)mAssetContainer[i] )->Release();
+		//else if( typeid( *mAssetContainer[i] ) == typeid( Animated3dAsset ) )
+		//	( (Animated3dAsset*)mAssetContainer[i] )->Release();
+		//else if( typeid( *mAssetContainer[i] ) == typeid( SkeletonAsset ) )
+		//	( (SkeletonAsset*)mAssetContainer[i] )->Release();
+		//else if( typeid( *mAssetContainer[i] ) == typeid( AnimationAsset ) )
+		//	( (AnimationAsset*)mAssetContainer[i] )->Release();
+		//else if( typeid( *mAssetContainer[i] ) == typeid( Static2dAsset ) )
+		//	( (Static2dAsset*)mAssetContainer[i] )->Release();
 		SAFE_DELETE( mAssetContainer[i] );
 	}
 	mAssetContainer.clear();

@@ -3,29 +3,28 @@
 
 #include "Input.h"
 
-#define CLICKCOOLDOWN 1.0f
+// Abstract base class for any square object in the game, such as buttons
 
 class Entry
 {
 	// Member variables
 	private:
+	protected:
 		POINT		mUpperLeft;
 		POINT		mLowerRight;
-		float		mCurrentCD;
-	protected:
+		float		mWidth;
+		float		mHeight;
 	public:
 
 	// Member functions
 	private:
 	protected:
+		bool			MouseInbounds(); // Function used to check if the mouse is within the bounds of the box
 	public:
-		bool		LeftMousePressed();
-		bool		RightMousePressed();
-		void		Render();
-		bool		Update( float deltaTime );
-		bool		Initialize( UINT x, UINT y, UINT width, UINT height );
-		void		Release();
-					Entry();
-		virtual		~Entry();
+		virtual bool	Update( float deltaTime ) = 0;
+		virtual bool	Initialize( UINT x, UINT y, UINT width, UINT height );
+		void			Release();
+						Entry();
+		virtual			~Entry();
 };
 #endif

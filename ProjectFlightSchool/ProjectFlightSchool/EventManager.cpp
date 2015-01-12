@@ -40,6 +40,8 @@
 #include "EventManager.h"
 #include <windows.h>
 #include <windowsx.h>
+
+EventManager* EventManager::instance = nullptr;
 //---------------------------------------------------------------------------------------------------------------------
 // EventManager::VTick
 //---------------------------------------------------------------------------------------------------------------------
@@ -197,8 +199,6 @@ bool EventManager::QueueEvent( const IEventPtr& pEvent )
 //---------------------------------------------------------------------------------------------------------------------
 bool EventManager::AbortEvent( const EventType& inType, bool allOfType )
 {
-
-
     bool success = false;
 	EventListenerMap::iterator findIt = m_eventListeners.find( inType );
 	
@@ -227,6 +227,15 @@ bool EventManager::AbortEvent( const EventType& inType, bool allOfType )
 	LeaveCriticalSection( &lock );
 	return success;
 }
+
+EventManager* EventManager::GetInstance()
+{
+	if( instance == nullptr )
+	{
+		instance = new EventManager();
+	}
+	return instance;
+}
 //---------------------------------------------------------------------------------------------------------------------
 // EventManager::EventManager
 //---------------------------------------------------------------------------------------------------------------------
@@ -237,11 +246,17 @@ EventManager::EventManager()
 	InitializeCriticalSection( &lock );
 }
 
-
+void EventManager::Release()
+{
+	DeleteCriticalSection( &lock );
+	if(instance != nullptr)
+	{
+		delete instance;
+	}
+}
 //---------------------------------------------------------------------------------------------------------------------
 // EventManager::~EventManager
 //---------------------------------------------------------------------------------------------------------------------
 EventManager::~EventManager()
 {
-	DeleteCriticalSection( &lock );
 }

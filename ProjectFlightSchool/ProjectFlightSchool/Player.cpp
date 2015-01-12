@@ -142,14 +142,19 @@ HRESULT Player::Update( float deltaTime )
 		HandleSpawn( deltaTime );
 	}
 
+
 	///Lock camera position to player
 	XMFLOAT3 cameraPosition;
 	cameraPosition.x = mLowerBody.position.x;
-	cameraPosition.y = mLowerBody.position.y + 21.0f;
-	cameraPosition.z = mLowerBody.position.z - 21.0f;
+	cameraPosition.y = mLowerBody.position.y + 25.0f;
+	cameraPosition.z = mLowerBody.position.z - 15.0f;
 
 	Graphics::GetInstance()->SetEyePosition( cameraPosition );
 	Graphics::GetInstance()->SetFocus( mLowerBody.position );
+
+	//Update Bounding Primitives
+	mBoundingBox->position	= mLowerBody.position;
+	mBoundingCircle->center	= mLowerBody.position;
 
 	return S_OK;
 }
@@ -167,7 +172,11 @@ void Player::Fire()
 	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
-
+void Player::SetPosition( XMVECTOR position )
+{
+	XMStoreFloat3( &mLowerBody.position, position );
+	XMStoreFloat3( &mUpperBody.position, position );
+}
 
 HRESULT Player::Initialize()
 {
@@ -185,15 +194,21 @@ HRESULT Player::Initialize()
 
 	mWeaponCoolDown		= 0.1f;
 
+	mBoundingBox			= new BoundingBox( 1.5f, 1.5f );
+	mBoundingCircle			= new BoundingCircle( 0.5f );
+
+	mWeaponCoolDown		= 0.1f;
+
 	return S_OK;
 }
 
 void Player::Release()
 {
+
 }
 
 Player::Player()
-	: RemotePlayer()
+	:RemotePlayer()
 {
 	mWeaponCoolDown			= 0.0f;
 }

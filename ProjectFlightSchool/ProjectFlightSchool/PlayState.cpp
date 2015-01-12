@@ -185,9 +185,7 @@ HRESULT PlayState::Render()
 
 	Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 300, 300, 100, 100 );
 
-	mFont.WriteText("HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f);
-	//mFont.WriteText("SCALING IS ALSO COOL!!!!!", 0, 400, 3.0f);
-	//mFont.WriteText("SYMBOLS ARE THE BEST !#@?", 0, 0, 0.5f);
+	mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
 
 	DirectX::XMFLOAT3 x = { 0.0f, 0.1f, 3.0f };
 	DirectX::XMFLOAT3 y = { 3.0f, 0.1f, 0.0f };
@@ -248,7 +246,7 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Damaged::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Spawned::GUID );
 
-	mFont.Initialize("../Content/Assets/Fonts/mv_boli_26_red/");
+	mFont.Initialize( "../Content/Assets/Fonts/mv_boli_26_red/" );
 
 	return S_OK;
 }

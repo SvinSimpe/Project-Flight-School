@@ -475,6 +475,18 @@ bool Exporter::ExtractMeshData(MFnMesh &mesh)
 		return false;
 	}
 
+	MStatus res = MS::kSuccess;
+	MFnTransform transformation(mesh.parent(0), &res);
+
+	if(res)
+		if(!transformation.getScale(meshInfo.scale))
+		{
+			cout << "Couldn't get scale for mesh: " << meshInfo.meshName << endl;
+			cin >> waitingForInput;
+			return false;
+		}
+
+
 	GetNodePath(mesh, meshInfo);
 
 	//Pushes mesh to the global meshInfo
@@ -545,20 +557,20 @@ void Exporter::ConvertAndBuildStaticMesh(MeshInfo_Maya* meshIter)
 				polygon_iter.getUVIndex(2 - i, uv_index);
 				tangent_index = polygon_iter.tangentIndex(2 - i);
 
-				tempMeshData.vertices[index + i].position.x = meshIter->points[vertex_index].x;
-				tempMeshData.vertices[index + i].position.y = meshIter->points[vertex_index].y;
-				tempMeshData.vertices[index + i].position.z = meshIter->points[vertex_index].z * -1;
+				tempMeshData.vertices[index + i].position.x = meshIter->points[vertex_index].x * meshIter->scale[0];
+				tempMeshData.vertices[index + i].position.y = meshIter->points[vertex_index].y * meshIter->scale[1];
+				tempMeshData.vertices[index + i].position.z = -meshIter->points[vertex_index].z * meshIter->scale[2];
 
 				tempMeshData.vertices[index + i].normal.x = meshIter->normals[normal_index].x;
 				tempMeshData.vertices[index + i].normal.y = meshIter->normals[normal_index].y;
-				tempMeshData.vertices[index + i].normal.z = meshIter->normals[normal_index].z * -1;
+				tempMeshData.vertices[index + i].normal.z = -meshIter->normals[normal_index].z;
 
 				tempMeshData.vertices[index + i].uv.x = meshIter->uvs_x[uv_index];
 				tempMeshData.vertices[index + i].uv.y = 1 - meshIter->uvs_y[uv_index];
 
 				tempMeshData.vertices[index + i].tangent.x = meshIter->tangents[tangent_index].x;
 				tempMeshData.vertices[index + i].tangent.y = meshIter->tangents[tangent_index].y;
-				tempMeshData.vertices[index + i].tangent.z = meshIter->tangents[tangent_index].z * -1;
+				tempMeshData.vertices[index + i].tangent.z = -meshIter->tangents[tangent_index].z;
 			}
 		}
 		else
@@ -623,20 +635,20 @@ void Exporter::ConvertAndBuildAnimMesh(MeshInfo_Maya* meshIter)
 				polygon_iter.getUVIndex(2 - i, uv_index);
 				tangent_index = polygon_iter.tangentIndex(2 - i);
 
-				tempMeshData.vertices[index + i].position.x = meshIter->points[vertex_index].x;
-				tempMeshData.vertices[index + i].position.y = meshIter->points[vertex_index].y;
-				tempMeshData.vertices[index + i].position.z = meshIter->points[vertex_index].z * -1;
+				tempMeshData.vertices[index + i].position.x = meshIter->points[vertex_index].x * meshIter->scale[0];
+				tempMeshData.vertices[index + i].position.y = meshIter->points[vertex_index].y * meshIter->scale[1];
+				tempMeshData.vertices[index + i].position.z = -meshIter->points[vertex_index].z * meshIter->scale[2];
 
 				tempMeshData.vertices[index + i].normal.x = meshIter->normals[normal_index].x;
 				tempMeshData.vertices[index + i].normal.y = meshIter->normals[normal_index].y;
-				tempMeshData.vertices[index + i].normal.z = meshIter->normals[normal_index].z * -1;
+				tempMeshData.vertices[index + i].normal.z = -meshIter->normals[normal_index].z;
 
 				tempMeshData.vertices[index + i].uv.x = meshIter->uvs_x[uv_index];
 				tempMeshData.vertices[index + i].uv.y = 1 - meshIter->uvs_y[uv_index];
 
 				tempMeshData.vertices[index + i].tangent.x = meshIter->tangents[tangent_index].x;
 				tempMeshData.vertices[index + i].tangent.y = meshIter->tangents[tangent_index].y;
-				tempMeshData.vertices[index + i].tangent.z = meshIter->tangents[tangent_index].z * -1;
+				tempMeshData.vertices[index + i].tangent.z = -meshIter->tangents[tangent_index].z;
 
 				//Weight and joint data is stored in single arrays. Weights for 1st vertex is at {0 1 2}, the second vertex at {3 4 5} and so on. The same goes for joints.
 				tempMeshData.vertices[index + i].weights.x = meshIter->weights[vertex_index * 4];

@@ -228,10 +228,10 @@ Matrix LevelExporter::ExtractAndConvertMatrix(MFnMesh &mesh, int fauling)
 	translate = mayaTransform.getTranslation(MSpace::kObject);
 	mayaTransform.getRotation(rotate);
 	mayaTransform.getScale(scale);
-
+	cout << translate.x << " " << " " << translate.y << " " << translate.z << endl;
 	matrix.translate[0] = translate.x;
 	matrix.translate[1] = translate.y;
-	matrix.translate[2] = translate.z;
+	matrix.translate[2] = translate.z * -1.0f;
 
 	matrix.rotate[0] = rotate.x;
 	matrix.rotate[1] = rotate.y;
@@ -334,12 +334,13 @@ void LevelExporter::WriteFileToBinary(const char* fileName)
 		return;
 
 	cout << "Exporting level grid to " << fullPath.c_str() << endl << endl;
+	UINT nrOfObjects = matrices.size();
 
 	fileOut.write((char*)&gridData.dimensions, sizeof(gridData.dimensions));
 	fileOut.write((char*)&vertexCount, sizeof(UINT)); 
 	fileOut.write((char*)gridData.vertices, sizeof(Vertex) * vertexCount); 
 	fileOut.write((char*)&gridData.matrix, sizeof(Matrix));
-
+	fileOut.write((char*)&nrOfObjects, sizeof(nrOfObjects));
 	for (int i = 0; i < matrices.size(); i++)
 	{
 		//Writing matrix info to file

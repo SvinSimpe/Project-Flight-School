@@ -19,8 +19,12 @@ class PlayState : public BaseState
 		AssetID	mTestAsset;
 
 		AssetID	mTestAnimation;
-		AssetID	mTestSkeleton;
 		AssetID	mTestAnimationAnimation;
+
+		AssetID mTestRobot;
+		AssetID mTestRobotAni;
+
+		float mRobotTime;
 
 		AssetID mNest1Asset;
 		AssetID mStoneAssets[6];

@@ -17,5 +17,20 @@ struct Anim3dInfo
 	float*				mAnimTime;
 };
 
+struct Object2dInfo
+{
+	UINT				mAssetId;
+	DirectX::XMFLOAT2	mTopLeftCorner;
+	DirectX::XMFLOAT2	mWidthHeight;
+
+};
+
+struct PlaneInfo
+{
+	UINT mAssetId;
+	DirectX::XMFLOAT3 mTopTriangle;
+	DirectX::XMFLOAT3 mBottomTriangle;
+};
+
 
 #endif

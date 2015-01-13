@@ -5,6 +5,7 @@
 #include "BaseState.h"
 #include "Player.h"
 #include "RemotePlayer.h"
+#include "Font.h"
 
 
 #define MAX_REMOTE_PLAYERS		10
@@ -43,6 +44,8 @@ class PlayState : public BaseState
 
 		//Collision
 		unsigned int	mFrameCounter;
+
+		Font			mFont;
 	
 	protected:
 	public:

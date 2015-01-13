@@ -4,6 +4,8 @@
 #include "Client.h"
 #include "Server.h"
 #include "StateMachine.h"
+#include <iostream>
+#include "RenderManager.h"
 
 class Game
 {

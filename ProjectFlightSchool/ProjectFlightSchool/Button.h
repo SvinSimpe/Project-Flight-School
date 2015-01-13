@@ -3,8 +3,6 @@
 
 #include "Entry.h"
 
-// Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_RCTRL )
-
 #define CLICKCOOLDOWN 1.0f
 
 class Button : public Entry

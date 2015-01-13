@@ -161,6 +161,10 @@ HRESULT Player::Update( float deltaTime )
 
 HRESULT Player::Render( float deltaTime )
 {
+
+	RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
+	RenderManager::GetInstance()->AddObject3dToList( mLowerBody.playerModel, mLowerBody.position );
+
 	RemotePlayer::Render( deltaTime );
 
 	return S_OK;

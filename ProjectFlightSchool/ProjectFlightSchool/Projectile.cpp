@@ -20,7 +20,7 @@ HRESULT Projectile::Render( )
 
 	mRotation += 0.10f;
 	//Graphics::GetInstance()->RenderStatic3dAsset( 1, mPosition.x, mPosition.y, mPosition.z );
-	Graphics::GetInstance()->RenderStatic3dAsset( 1, mPosition, XMFLOAT3( 0.0f, mRotation, 0.0f ) );
+	RenderManager::GetInstance()->AddObject3dToList( 1, mPosition, XMFLOAT3( 0.0f, mRotation, 0.0f ) );
 
 	return S_OK;
 }

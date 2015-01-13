@@ -417,3 +417,83 @@ class Event_Remote_Player_Spawned : public IEvent
 			return mID;
 		}
 };
+
+class Event_Projectile_Fired : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		XMFLOAT3		mBodyPos;
+		XMFLOAT3		mDirection;
+
+	protected:
+	public:
+		static const EventType GUID;
+	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Projectile_Fired( unsigned int id, XMFLOAT3 bodyPos, XMFLOAT3 direction )
+		{
+			mID				= id;
+			mBodyPos		= bodyPos;
+			mDirection		= direction;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+		XMFLOAT3 BodyPos() const
+		{
+			return mBodyPos;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
+		}
+};
+
+class Event_Remote_Projectile_Fired : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		XMFLOAT3		mBodyPos;
+		XMFLOAT3		mDirection;
+
+	protected:
+	public:
+		static const EventType GUID;
+	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Remote_Projectile_Fired( unsigned int id, XMFLOAT3 bodyPos, XMFLOAT3 direction )
+		{
+			mID				= id;
+			mBodyPos		= bodyPos;
+			mDirection		= direction;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+		XMFLOAT3 BodyPos() const
+		{
+			return mBodyPos;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
+		}
+};

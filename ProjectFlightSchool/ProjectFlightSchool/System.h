@@ -13,6 +13,7 @@
 #include "Game.h"
 #include "Player.h"
 #include "Timer.h"
+#include "RenderManager.h"
 
 class System
 {

@@ -75,7 +75,12 @@ void PlayState::EventListener( IEventPtr newEvent )
 			}
 		}
 	}
-	// Handle spawn logic here
+	else if ( newEvent->GetEventType() == Event_Remote_Projectile_Fired::GUID )
+	{
+		// Fire projectile
+		std::shared_ptr<Event_Remote_Projectile_Fired> data = std::static_pointer_cast<Event_Remote_Projectile_Fired>(newEvent);
+		FireProjectile( data->BodyPos(), data->Direction() );
+	}
 }
 
 // Tell server that local  player has taken damage
@@ -83,6 +88,37 @@ void PlayState::BroadcastDamage()
 {
 	IEventPtr dmgEv(new Event_Player_Damaged( mPlayer->GetID()) );
 	EventManager::GetInstance()->QueueEvent( dmgEv );
+}
+
+void PlayState::FireProjectile( XMFLOAT3 position, XMFLOAT3 direction )
+{
+	mProjectiles[mNrOfProjectilesFired % MAX_PROJECTILES]->SetDirection( position, direction );
+	mProjectiles[mNrOfProjectilesFired % MAX_PROJECTILES]->SetIsActive( true );
+	mNrOfProjectilesFired++;
+}
+
+void PlayState::UpdateProjectiles( float deltaTime )
+{
+	if( mNrOfProjectilesFired != 0 )
+	{
+		for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
+		{
+			if( mProjectiles[i]->IsActive() )
+				mProjectiles[i]->Update( deltaTime );
+		}
+	}
+}
+
+void PlayState::RenderProjectiles()
+{
+	if( mNrOfProjectilesFired != 0 )
+	{
+		for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
+		{
+			if( mProjectiles[i]->IsActive() )
+				mProjectiles[i]->Render();
+		}
+	}
 }
 
 void PlayState::HandleDeveloperCameraInput()
@@ -150,6 +186,7 @@ HRESULT PlayState::Update( float deltaTime )
 
 	HandleDeveloperCameraInput();
 	mPlayer->Update( deltaTime );
+	UpdateProjectiles( deltaTime );
 	mAnimationTime += deltaTime;
 
 	return S_OK;
@@ -179,6 +216,10 @@ HRESULT PlayState::Render()
 			rp->Render( 0.0f );
 	}
 
+	RenderProjectiles();
+
+	Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 300, 300, 100, 100 );
+
 	float x[3] = { 0, 0.1, 3 };
 	float y[3] = { 3, 0.1, 0 };
 
@@ -186,11 +227,11 @@ HRESULT PlayState::Render()
 
 	mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
 
-	DirectX::XMFLOAT3 x = { 0.0f, 0.1f, 3.0f };
-	DirectX::XMFLOAT3 y = { 3.0f, 0.1f, 0.0f };
+	//DirectX::XMFLOAT3 x = { 0.0f, 0.1f, 3.0f };
+	//DirectX::XMFLOAT3 y = { 3.0f, 0.1f, 0.0f };
 
-	Graphics::GetInstance()->RenderPlane2dAsset( mTest2dAsset,  x, y );
-	Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 500, 500, 50, 50 );
+	//Graphics::GetInstance()->RenderPlane2dAsset( mTest2dAsset,  x, y );
+	//Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 500, 500, 50, 50 );
 	
 	RenderManager::GetInstance()->Render();
 	Graphics::GetInstance()->EndScene();
@@ -241,11 +282,20 @@ HRESULT PlayState::Initialize()
 	//mWorldMap = new Map();
 	//mWorldMap->Initialize( 8.0f, 24 );
 
+	//Fill up on Projectiles, test values
+	mProjectiles	= new Projectile*[MAX_PROJECTILES];
+	for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
+	{
+		mProjectiles[i] = new Projectile();
+		mProjectiles[i]->Initialize();
+	}
+
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Left::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Died::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Damaged::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Spawned::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Projectile_Fired::GUID );
 
 	mFont.Initialize( "../Content/Assets/Fonts/mv_boli_26_red/" );
 
@@ -265,13 +315,20 @@ void PlayState::Release()
 		rp->Release();
 		SAFE_DELETE( rp );
 	}
+
 	mRemotePlayers.clear();
+
+	for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
+		SAFE_DELETE( mProjectiles[i] );
+
+	delete [] mProjectiles;
 }
 
 PlayState::PlayState()
 {
 	mRemotePlayers	= std::vector<RemotePlayer*>( 0 );
 	mRemotePlayers.reserve(MAX_REMOTE_PLAYERS);
+	mProjectiles	= nullptr;
 	mFrameCounter	= 0;
 }
 

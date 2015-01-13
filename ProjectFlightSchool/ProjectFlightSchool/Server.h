@@ -113,6 +113,18 @@ void Server::HandlePkg( SOCKET &s, Package<T>* p )
 			}
 		}
 			break;
+		case Net_Event::EV_PROJECTILE_FIRED:
+		{
+			EvProjectileFired toAll = (EvProjectileFired&)p->body.content;
+			for ( auto& socket : mClientSockets )
+			{
+				if ( socket != INVALID_SOCKET )
+				{
+					mConn->SendPkg( socket, 0, Net_Event::EV_PROJECTILE_FIRED, toAll );
+				}
+			}
+		}
+			break;
 		default:
 		{
 			printf( "Error handling event from %d.\n", s );

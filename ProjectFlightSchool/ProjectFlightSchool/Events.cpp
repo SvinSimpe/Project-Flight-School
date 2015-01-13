@@ -53,4 +53,5 @@ const EventType Event_Player_Damaged::GUID( 9 );
 const EventType Event_Remote_Player_Damaged::GUID( 10 );
 const EventType Event_Player_Spawned::GUID( 11 );
 const EventType Event_Remote_Player_Spawned::GUID( 12 );
-
+const EventType Event_Projectile_Fired::GUID( 13 );
+const EventType Event_Remote_Projectile_Fired::GUID( 14 );

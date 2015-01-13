@@ -29,9 +29,9 @@ void Map::Release()
 {
 	for( int i = 0; i < SECTION_DIM * SECTION_DIM; i++ )
 	{
-		mMapSections[i].Release();
+		//mMapSections[i].Release();
 	}
-	delete[] mMapSections;
+	//delete[] mMapSections;
 }
 Map::Map()
 {

@@ -220,24 +220,17 @@ HRESULT PlayState::Render()
 			rp->Render( 0.0f );
 	}
 
+	RenderManager::GetInstance()->AddObject2dToList( mTest2dAsset, DirectX::XMFLOAT2( 300.0f, 300.0f ), DirectX::XMFLOAT2( 100.0f, 100.0f ) );
 	RenderProjectiles();
 
-	Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 300, 300, 100, 100 );
+	DirectX::XMFLOAT3 x = { 0.0f, 0.1f, 3.0f };
+	DirectX::XMFLOAT3 y = { 3.0f, 0.1f, 0.0f };
 
-	float x[3] = { 0, 0.1, 3 };
-	float y[3] = { 3, 0.1, 0 };
+	RenderManager::GetInstance()->AddPlaneToList( mTest2dAsset, x, y );
+	RenderManager::GetInstance()->AddObject2dToList( mTest2dAsset, DirectX::XMFLOAT2( 500.0f, 500.0f ), DirectX::XMFLOAT2( 50.0f, 50.0f ) );
 
-	Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 300, 300, 100, 100 );
-
-	mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
-
-	//DirectX::XMFLOAT3 x = { 0.0f, 0.1f, 3.0f };
-	//DirectX::XMFLOAT3 y = { 3.0f, 0.1f, 0.0f };
-
-	//Graphics::GetInstance()->RenderPlane2dAsset( mTest2dAsset,  x, y );
-	//Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 500, 500, 50, 50 );
-	
 	RenderManager::GetInstance()->Render();
+	mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
 	Graphics::GetInstance()->EndScene();
 
 	return S_OK;

@@ -107,17 +107,17 @@ void Graphics::Render2dAsset( AssetID assetId, float x, float y, float width, fl
 	mDeviceContext->OMSetDepthStencilState( mDepthEnabledStencilState, 1 );
 }
 
-void Graphics::RenderPlane2dAsset( AssetID assetId, float x[3], float y[3] )
+void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX::XMFLOAT3 y )
 {
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
 
 	UINT32 vertexSize	= sizeof(StaticVertex);
 	UINT32 offset		= 0;
 
-	StaticVertex bottomleft		= { x[0], x[1], y[2],		0, 1, 0,	0, 1, 0,	0, 1 };
-	StaticVertex topleft		= { x[0], x[1], x[2],		0, 1, 0,	0, 1, 0,	0, 0 };
-	StaticVertex bottomright	= { y[0], x[1], y[2],		0, 1, 0,	0, 1, 0,	1, 1 };
-	StaticVertex topright		= { y[0], x[1], x[2],		0, 1, 0,	0, 1, 0,	1, 0 };
+	StaticVertex bottomleft		= { x.x, x.y, y.z,		0, 1, 0,	0, 1, 0,	0, 1 };
+	StaticVertex topleft		= { x.x, x.y, x.z,		0, 1, 0,	0, 1, 0,	0, 0 };
+	StaticVertex bottomright	= { y.x, x.y, y.z,		0, 1, 0,	0, 1, 0,	1, 1 };
+	StaticVertex topright		= { y.x, x.y, x.z,		0, 1, 0,	0, 1, 0,	1, 0 };
 
 	StaticVertex vertices[4]	= { bottomleft, topleft, bottomright, topright };
 	MapBuffer( mVertexBuffer2d, &vertices, sizeof(StaticVertex) * 4 );

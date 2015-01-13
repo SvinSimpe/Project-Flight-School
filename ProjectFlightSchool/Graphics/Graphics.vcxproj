@@ -143,14 +143,10 @@
     <Text Include="..\Content\Effects\Static3dEffect.hlsl">
       <FileType>Document</FileType>
     </Text>
-
-
-
     <Text Include="..\Content\Effects\2dEffect.hlsl">
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>
-  
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -179,9 +179,16 @@ HRESULT PlayState::Render()
 			rp->Render( 0.0f );
 	}
 
-	
 	float x[3] = { 0, 0.1, 3 };
 	float y[3] = { 3, 0.1, 0 };
+
+	Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 300, 300, 100, 100 );
+
+	mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
+
+	DirectX::XMFLOAT3 x = { 0.0f, 0.1f, 3.0f };
+	DirectX::XMFLOAT3 y = { 3.0f, 0.1f, 0.0f };
+
 	Graphics::GetInstance()->RenderPlane2dAsset( mTest2dAsset,  x, y );
 	Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 500, 500, 50, 50 );
 	
@@ -239,6 +246,8 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Died::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Damaged::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Spawned::GUID );
+
+	mFont.Initialize( "../Content/Assets/Fonts/mv_boli_26_red/" );
 
 	return S_OK;
 }

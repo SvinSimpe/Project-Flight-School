@@ -6,14 +6,18 @@ HRESULT Projectile::Update( float deltaTime )
 	mPosition.z += mDirection.z * mSpeed * deltaTime;
 
 	if( mLifeTime <= 0.0f )
-		mIsActive = false;
+	{
+		Reset();
+	}
 	else
 		mLifeTime -=deltaTime;
+
+	mBoundingCircle->center = mPosition;
 
 	return S_OK;
 }
 
-HRESULT Projectile::Render( float deltaTime )
+HRESULT Projectile::Render( )
 {
 
 	mRotation += 0.10f;
@@ -25,6 +29,7 @@ HRESULT Projectile::Render( float deltaTime )
 
 void Projectile::SetDirection( XMFLOAT3 startPosition, XMFLOAT3 direction )
 {
+	Reset();
 	mPosition		= startPosition;
 	mDirection.x	= cosf( direction.y );
 	mDirection.y	= 0.0f;
@@ -33,6 +38,7 @@ void Projectile::SetDirection( XMFLOAT3 startPosition, XMFLOAT3 direction )
 
 void Projectile::SetIsActive( bool isActive )
 {
+	Reset();
 	mIsActive = isActive;
 }
 
@@ -41,10 +47,23 @@ bool Projectile::IsActive() const
 	return mIsActive;
 }
 
+void Projectile::Reset()
+{
+	mIsActive = false;
+	mSpeed		= 20.0f;
+	mLifeTime	= 5.0f;
+}
+
+BoundingCircle* Projectile::GetBoundingCircle() const
+{
+	return mBoundingCircle;
+}
+
 HRESULT Projectile::Initialize()
 {
-	mSpeed		= 5.0f;
+	mSpeed		= 20.0f;
 	mLifeTime	= 5.0f;
+	mBoundingCircle = new BoundingCircle( 0.5f );
 	return S_OK;
 }
 
@@ -55,12 +74,13 @@ void Projectile::Release()
 
 Projectile::Projectile()
 {
-	mPosition	= XMFLOAT3();
-	mDirection	= XMFLOAT3();
-	mSpeed		= 0.0f;
-	mIsActive	= false;
-	mRotation	= 0.0f;
-	mLifeTime	= 0.0f;
+	mPosition		= XMFLOAT3();
+	mDirection		= XMFLOAT3();
+	mSpeed			= 0.0f;
+	mIsActive		= false;
+	mRotation		= 0.0f;
+	mLifeTime		= 0.0f;
+	mBoundingCircle	= nullptr;	
 }
 
 Projectile::~Projectile()

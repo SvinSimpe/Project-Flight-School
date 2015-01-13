@@ -121,6 +121,7 @@ HRESULT Player::Update( float deltaTime )
 {
 	HandleInput( deltaTime );
 
+	// If player is alive, update position. If hp <= 0 kill player
 	if( mIsAlive )
 	{
 		if ( mCurrentHp <= 0.0f )
@@ -178,18 +179,30 @@ HRESULT Player::Render( float deltaTime )
 		for ( size_t i = 0; i < mProjectiles.size(); i++ )
 		{
 			if( mProjectiles.at(i)->IsActive() )
-				mProjectiles.at(i)->Render( deltaTime );
+				mProjectiles.at(i)->Render();
 		}
 	}
 
 	return S_OK;
 }
 
-void Player::Fire()
+XMFLOAT3 Player::Fire()
 {
-	mProjectiles.at( mNrOfProjectilesFired )->SetDirection( mUpperBody.position, mUpperBody.direction );
-	mProjectiles.at( mNrOfProjectilesFired )->SetIsActive( true );
+	mProjectiles.at( mNrOfProjectilesFired % mNrOfProjectiles )->SetDirection( mUpperBody.position, mUpperBody.direction );
+	mProjectiles.at( mNrOfProjectilesFired % mNrOfProjectiles )->SetIsActive( true );
 	mNrOfProjectilesFired++;
+	
+	return mUpperBody.direction;
+}
+
+XMFLOAT3 Player::GetUpperBodyDirection() const
+{
+	return mUpperBody.direction;
+}
+
+std::vector<Projectile*> Player::GetProjectiles()
+{
+	return mProjectiles;
 }
 
 void Player::SetPosition( XMVECTOR position )
@@ -216,14 +229,20 @@ HRESULT Player::Initialize()
 	mBoundingCircle			= new BoundingCircle( 0.5f );
 
 	mWeaponCoolDown		= 0.5f;
+	mNrOfProjectiles	= 20;
 
 	//Fill up on Projectiles
-	for ( size_t i = 0; i < 2000; i++ )
+	for ( size_t i = 0; i < mNrOfProjectiles; i++ )
 	{
 		Projectile*	projectile = new Projectile();
 		projectile->Initialize();
 		mProjectiles.push_back( projectile );
 	}
+
+
+	//Weapon Initialization
+	mLoadOut->rangedWeapon	= new RangedInfo( "Machine Gun", 5.0f, 1, 5.0f, 2, 0 );
+	mLoadOut->meleeWeapon	= new MeleeInfo( "Sword", 4.0f, 3, 7, 2.0f );
 
 	return S_OK;
 }
@@ -233,13 +252,17 @@ void Player::Release()
 	for ( size_t i = 0; i < mProjectiles.size(); i++ )
 		SAFE_DELETE( mProjectiles.at(i) );
 
+	mLoadOut->Release();
+	SAFE_DELETE( mLoadOut );
+	
 	RemotePlayer::Release();
 }
 
 Player::Player()
 	:RemotePlayer()
 {
-	mWeaponCoolDown			= 0.0f;
+	mWeaponCoolDown	= 0.0f;
+	mLoadOut		= nullptr;
 }
 
 Player::~Player()

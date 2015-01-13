@@ -6,8 +6,12 @@
 #include "Player.h"
 #include "RemotePlayer.h"
 
-#define MAX_REMOTE_PLAYERS 10
-#define COLLISION_CHECK_OFFSET 1	// 0 == Every frame
+
+#define MAX_REMOTE_PLAYERS		10
+#define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
+#define MAX_REMOTE_PLAYERS		10
+#define MAX_PROJECTILES			1000
+
 
 class PlayState : public BaseState
 {
@@ -30,13 +34,24 @@ class PlayState : public BaseState
 
 		float	mAnimationTime;
 
-		// Debug
-		Player*			mPlayer;
-		std::vector<RemotePlayer*> mRemotePlayers;
-
 		//Collision
 		unsigned int	mFrameCounter;
 	
+	// Debug
+		Player*						mPlayer;
+		std::vector<RemotePlayer*>	mRemotePlayers;
+
+	// Game Data
+		//std::vector<Projectile*>	mPlayerProjectiles;			// Fired from local player
+		//std::vector<Projectile*>	mRemoteProjectiles;			// Information on projectiles fired from remote player
+		//int							mNrOfPlayerProjectiles;
+		//int							mNrOfRemoteProjectiles;
+		
+		Projectile**				mProjectiles;				// A collection
+
+		int							mNrOfProjectilesFired;
+		int							mNrOfRemoteProjectilesFired;
+
 	protected:
 	public:
 
@@ -44,9 +59,14 @@ class PlayState : public BaseState
 	private:
 		void			RemoteUpdate( IEventPtr newEvent );
 		void			HandleDeveloperCameraInput();
-		void			CheckCollision();
+		void			CheckPlayerCollision();
+		void			CheckProjectileCollision();
+		void			CheckMeeleCollision();
 		void			EventListener( IEventPtr newEvent );
 		void			BroadcastDamage();						// Tell server that local  player has taken damage
+
+		void			UpdateProjectiles( float deltaTime );
+		void			RenderProjectiles();
 
 	protected:
 	public:

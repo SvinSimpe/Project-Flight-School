@@ -85,6 +85,30 @@ void PlayState::BroadcastDamage()
 	EventManager::GetInstance()->QueueEvent( dmgEv );
 }
 
+void PlayState::UpdateProjectiles( float deltaTime )
+{
+	if( mNrOfProjectilesFired != 0 )
+	{
+		for (size_t i = 0; i < MAX_PROJECTILES; i++)
+		{
+			if(mProjectiles[i]->IsActive() )
+				mProjectiles[i]->Update( deltaTime );
+		}
+	}
+}
+
+void PlayState::RenderProjectiles()
+{
+	if( mNrOfProjectilesFired != 0 )
+	{
+		for (size_t i = 0; i < MAX_PROJECTILES; i++)
+		{
+			if(mProjectiles[i]->IsActive() )
+				mProjectiles[i]->Render();
+		}
+	}
+}
+
 void PlayState::HandleDeveloperCameraInput()
 {
 	// TOGGLE CAM
@@ -98,7 +122,7 @@ void PlayState::HandleDeveloperCameraInput()
 		Graphics::GetInstance()->ZoomInDeveloperCamera();
 }
 
-void PlayState::CheckCollision()
+void PlayState::CheckPlayerCollision()
 {	
 	if( mRemotePlayers.size() > 0 )
 	{
@@ -131,6 +155,36 @@ void PlayState::CheckCollision()
 	}
 }
 
+void PlayState::CheckProjectileCollision()
+{
+	if( mRemotePlayers.size() > 0 )
+	{
+		for (size_t i = 0; i < mRemotePlayers.size(); i++)
+		{
+			for (size_t j = 0; j < mPlayer->GetProjectiles().size(); j++)
+			{
+				if( mPlayer->GetProjectiles().at(j)->IsActive() )
+				{
+					Projectile* tempProjectile = mPlayer->GetProjectiles().at(j);
+					
+					//Intersect test
+					if( mRemotePlayers.at(i)->GetBoundingCircle()->Intersect( tempProjectile->GetBoundingCircle() ) )
+					{
+						mPlayer->GetProjectiles().at(i)->SetIsActive( false );
+					}
+				}
+			}
+		}
+	}
+}
+
+void PlayState::CheckMeeleCollision()
+{
+	XMVECTOR aimingDirection = XMLoadFloat3( &mPlayer->GetUpperBodyDirection() );
+	aimingDirection = XMVector4Normalize( aimingDirection );
+
+	XMVECTOR meeleLengthVector = ( XMLoadFloat3( &mPlayer->GetPosition() ) -  ( aimingDirection * 2 ) );
+}
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
@@ -142,7 +196,8 @@ HRESULT PlayState::Update( float deltaTime )
 
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{
-		CheckCollision();
+		CheckPlayerCollision();
+		CheckProjectileCollision();
 		mFrameCounter = 0;
 	}
 	else
@@ -150,6 +205,7 @@ HRESULT PlayState::Update( float deltaTime )
 
 	HandleDeveloperCameraInput();
 	mPlayer->Update( deltaTime );
+	UpdateProjectiles( deltaTime );
 	mAnimationTime += deltaTime;
 
 	return S_OK;
@@ -183,7 +239,9 @@ HRESULT PlayState::Render()
 			rp->Render( 0.0f );
 	}
 
-	Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 300, 300, 100, 100 );
+	//RenderProjectiles();
+
+	//Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 300, 300, 100, 100 );
 
 	Graphics::GetInstance()->EndScene();
 
@@ -233,6 +291,14 @@ HRESULT PlayState::Initialize()
 	mWorldMap = new Map();
 	mWorldMap->Initialize( 8.0f, 24 );
 
+	//Fill up on Projectiles, test values
+	mProjectiles	= new Projectile*[MAX_PROJECTILES];
+	for (size_t i = 0; i < MAX_PROJECTILES; i++)
+	{
+		mProjectiles[i] = new Projectile();
+		mProjectiles[i]->Initialize();
+	}
+
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Left::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Died::GUID );
@@ -255,6 +321,10 @@ void PlayState::Release()
 	}
 	mRemotePlayers.clear();
 
+	for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
+		SAFE_DELETE( mProjectiles[i] );
+
+	delete [] mProjectiles;
 }
 
 PlayState::PlayState()
@@ -262,6 +332,7 @@ PlayState::PlayState()
 	mRemotePlayers	= std::vector<RemotePlayer*>( 0 );
 	mRemotePlayers.reserve(MAX_REMOTE_PLAYERS);
 	mFrameCounter	= 0;
+	mProjectiles	= nullptr;
 }
 
 PlayState::~PlayState()

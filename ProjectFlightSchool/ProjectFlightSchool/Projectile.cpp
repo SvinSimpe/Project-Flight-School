@@ -5,21 +5,29 @@ HRESULT Projectile::Update( float deltaTime )
 	mPosition.x += mDirection.x * mSpeed * deltaTime;
 	mPosition.z += mDirection.z * mSpeed * deltaTime;
 
+	if( mLifeTime <= 0.0f )
+	{
+		Reset();
+	}
+	else
+		mLifeTime -=deltaTime;
+
 	return S_OK;
 }
 
-HRESULT Projectile::Render( float deltaTime )
+HRESULT Projectile::Render( )
 {
 
 	mRotation += 0.10f;
 	//Graphics::GetInstance()->RenderStatic3dAsset( 1, mPosition.x, mPosition.y, mPosition.z );
-	Graphics::GetInstance()->RenderStatic3dAsset( 1, mPosition, XMFLOAT3( 0.0f, mRotation, 0.0f ) );
+	RenderManager::GetInstance()->AddObject3dToList( 1, mPosition, XMFLOAT3( 0.0f, mRotation, 0.0f ) );
 
 	return S_OK;
 }
 
 void Projectile::SetDirection( XMFLOAT3 startPosition, XMFLOAT3 direction )
 {
+	Reset();
 	mPosition		= startPosition;
 	mDirection.x	= cosf( direction.y );
 	mDirection.y	= 0.0f;
@@ -36,10 +44,17 @@ bool Projectile::IsActive() const
 	return mIsActive;
 }
 
+void Projectile::Reset()
+{
+	mIsActive = false;
+	mSpeed		= 20.0f;
+	mLifeTime	= 4.0f;
+}
+
 HRESULT Projectile::Initialize()
 {
-	mSpeed = 5.0f;
-
+	mSpeed		= 20.0f;
+	mLifeTime	= 4.0f;
 	return S_OK;
 }
 
@@ -55,6 +70,7 @@ Projectile::Projectile()
 	mSpeed		= 0.0f;
 	mIsActive	= false;
 	mRotation	= 0.0f;
+	mLifeTime	= 0.0f;
 }
 
 Projectile::~Projectile()

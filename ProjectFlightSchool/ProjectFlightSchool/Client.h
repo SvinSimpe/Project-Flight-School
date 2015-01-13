@@ -30,7 +30,7 @@ class Client // The class used by clients to connect to the server
 		// Functions
 	private:
 		bool	ReceiveLoop();
-		void	PlayerMoved( IEventPtr newEvent );
+		void	EventListener( IEventPtr newEvent );
 
 	protected:
 
@@ -50,26 +50,61 @@ void Client::HandlePkg( Package<T>* p )
 	{
 		case Net_Event::EV_PLAYER_MOVED:
 		{
-			//printf("Eventet från servern var Event_Player_Moved och den innehöll positionerna:\n" ); // %f, %f, %f och %f, %f, %f
+			printf("Eventet från servern var Event_Player_Moved och den innehöll positionerna:\n" ); // %f, %f, %f och %f, %f, %f
 			EvPlayerMoved msg = (EvPlayerMoved&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Update( mID, msg.lowerBody, msg.upperBody, msg.direction ) );
+			IEventPtr E1( new Event_Remote_Player_Update( msg.id, msg.lowerBody, msg.upperBody, msg.direction ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
 		case Net_Event::EV_PLAYER_JOINED:
 		{
-			EvPlayerConnection msg = (EvPlayerConnection&)p->body.content;
+			EvPlayerID msg = (EvPlayerID&)p->body.content;
 			IEventPtr E1( new Event_Remote_Player_Joined( msg.ID ) );
-			EventManager::GetInstance()->TriggerEvent( E1 );
+			EventManager::GetInstance()->QueueEvent( E1 );
 			printf( "Remote player with ID: %d joined.\n", msg.ID );
 		}
 			break;
 		case Net_Event::EV_PLAYER_LEFT:
 		{
-			EvPlayerConnection msg = (EvPlayerConnection&)p->body.content;
+			EvPlayerID msg = (EvPlayerID&)p->body.content;
 			IEventPtr E1( new Event_Remote_Player_Left( msg.ID ) );
-			EventManager::GetInstance()->TriggerEvent( E1 );
+			EventManager::GetInstance()->QueueEvent( E1 );
 			printf( "Remote player with ID: %d left.\n", msg.ID );
+		}
+			break;
+		case Net_Event::YOUR_ID:
+		{
+			EvPlayerID msg	= (EvPlayerID&)p->body.content;
+			mID						= msg.ID;
+			printf( "Your id is %d.\n", msg.ID );
+		}
+			break;
+		case Net_Event::EV_PLAYER_DIED:
+		{
+			EvPlayerID deadPlayer = (EvPlayerID&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Died( deadPlayer.ID ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
+		case Net_Event::EV_PLAYER_DAMAGED:
+		{
+			EvPlayerID damagedPlayer = (EvPlayerID&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Damaged( damagedPlayer.ID ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
+		case Net_Event::EV_PLAYER_SPAWNED:
+		{
+			EvPlayerID spawnedPlayer = (EvPlayerID&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Spawned( spawnedPlayer.ID ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
+		case Net_Event::EV_PROJECTILE_FIRED:
+		{
+			EvProjectileFired projectileFired = (EvProjectileFired&)p->body.content;
+			IEventPtr E1( new Event_Remote_Projectile_Fired( projectileFired.ID, projectileFired.position, projectileFired.direction  ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
 		default:

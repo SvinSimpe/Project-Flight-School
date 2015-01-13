@@ -75,8 +75,11 @@ int	System::Run()
 			float deltaTime	= mTimer->GetDeltaTime();
 			float fps		= mTimer->GetFPS();
 
-			wchar_t title[100];
-			swprintf( title, sizeof(title), L"Project-Flight-School: Version 0.1 -  DeltaTime: %f  - FPS: %d  Now with extra pixels!", deltaTime, (int)fps );
+			int mem	= 0;//(int)Graphics::GetInstance()->QueryMemoryUsed();
+
+			wchar_t title[200];
+			swprintf( title, sizeof(title), L"Project-Flight-School: Version 0.2 -  DeltaTime: %f  - FPS: %d\t vRam: %d Stop!... Hamburger time!",
+				deltaTime, (int)fps, mem );
 			SetWindowText( mHWnd, title );
 
 			//ClipCursor( &r );//		Uncomment this to lock the cursor to the game window
@@ -140,6 +143,8 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 
 	Input::GetInstance()->Initialize( mScreenWidth, mScreenHeight, mHWnd );
 
+	RenderManager::GetInstance()->Initialize();
+
 	mGame = new Game();
 	mGame->Initialize();
 
@@ -152,11 +157,15 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 //Release all data used.
 void System::Release()
 {
-	Graphics::GetInstance()->Release();
 	mGame->Release();
 	SAFE_DELETE( mGame );
+
 	mTimer->Release();
 	SAFE_DELETE( mTimer );
+
+	Graphics::GetInstance()->Release();
+
+	Input::GetInstance()->Release();
 }
 
 System::System()
@@ -171,5 +180,4 @@ System::System()
 
 System::~System()
 {
-
 }

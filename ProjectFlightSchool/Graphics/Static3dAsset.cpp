@@ -7,13 +7,13 @@ HRESULT Static3dAsset::Initialize()
 
 void Static3dAsset::Release()
 {
-	SAFE_RELEASE( mVertexBuffer );
+	for( int i = 0; i < (int)mMeshes.size(); i++ )
+		SAFE_RELEASE( mMeshes[i].mVertexBuffer );
+	mMeshes.clear();
 }
 
 Static3dAsset::Static3dAsset() : AssetBase()
 {
-	mVertexCount	= 0;
-	mVertexBuffer	= nullptr;
 }
 
 Static3dAsset::~Static3dAsset()

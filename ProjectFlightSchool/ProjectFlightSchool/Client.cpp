@@ -20,7 +20,7 @@ bool Client::ReceiveLoop()
 	return true;
 }
 
-void Client::PlayerMoved( IEventPtr newEvent )
+void Client::EventListener( IEventPtr newEvent )
 {
 	if ( newEvent->GetEventType() == Event_Player_Moved::GUID )
 	{
@@ -28,6 +28,7 @@ void Client::PlayerMoved( IEventPtr newEvent )
 		if ( mServerSocket != INVALID_SOCKET )
 		{
 			EvPlayerMoved msg;
+			msg.id			= mID;
 			msg.lowerBody	= data->LowerBodyPos();
 			msg.upperBody	= data->UpperBodyPos();
 			msg.direction	= data->Direction();
@@ -35,6 +36,64 @@ void Client::PlayerMoved( IEventPtr newEvent )
 			if ( mServerSocket != INVALID_SOCKET )
 			{
 				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_MOVED, msg );
+			}
+		}
+	}
+	else if ( newEvent->GetEventType() == Event_Player_Died::GUID )
+	{
+		std::shared_ptr<Event_Player_Died> data = std::static_pointer_cast<Event_Player_Died>( newEvent );
+		if ( mServerSocket != INVALID_SOCKET )
+		{
+			EvPlayerID msg;
+			msg.ID = data->ID();
+
+			if ( mServerSocket != INVALID_SOCKET )
+			{
+				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_DIED, msg );
+			}
+		}
+	}
+	else if ( newEvent->GetEventType() == Event_Player_Damaged::GUID )
+	{
+		std::shared_ptr<Event_Player_Damaged> data = std::static_pointer_cast<Event_Player_Damaged>( newEvent );
+		if ( mServerSocket != INVALID_SOCKET )
+		{
+			EvPlayerID msg;
+			msg.ID = data->ID();
+
+			if ( mServerSocket != INVALID_SOCKET )
+			{
+				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_DAMAGED, msg );
+			}
+		}
+	}
+	else if ( newEvent->GetEventType() == Event_Player_Spawned::GUID )
+	{
+		std::shared_ptr<Event_Player_Spawned> data = std::static_pointer_cast<Event_Player_Spawned>( newEvent );
+		if ( mServerSocket != INVALID_SOCKET )
+		{
+			EvPlayerID msg;
+			msg.ID = data->ID();
+
+			if ( mServerSocket != INVALID_SOCKET )
+			{
+				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_SPAWNED, msg );
+			}
+		}
+	}
+	else if ( newEvent->GetEventType() == Event_Projectile_Fired::GUID )
+	{
+		std::shared_ptr<Event_Projectile_Fired> data = std::static_pointer_cast<Event_Projectile_Fired>( newEvent );
+		if ( mServerSocket != INVALID_SOCKET )
+		{
+			EvProjectileFired msg;
+			msg.ID			= mID;
+			msg.position	= data->BodyPos();
+			msg.direction	= data->Direction();
+
+			if ( mServerSocket != INVALID_SOCKET )
+			{
+				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PROJECTILE_FIRED, msg );
 			}
 		}
 	}
@@ -71,17 +130,37 @@ bool Client::Connect()
 		return false;
 	}
 
+	int flag = 1;
+    int mResult = setsockopt( mServerSocket,            /* socket affected */
+                                 IPPROTO_TCP,     /* set option at TCP level */
+                                 TCP_NODELAY,     /* name of option */
+                                 (char *) &flag,  /* the cast is historical
+                                                         cruft */
+                                 sizeof(int) );    /* length of option value */
+
+	if( mResult != 0 )
+	{
+		printf( "setsockopt failed with error %d.\n", WSAGetLastError() );
+		mConn->DisconnectSocket( mServerSocket );
+		WSACleanup();
+		return false;
+	}
+
 	printf( "Connected to: %d\n", mServerSocket );
-	mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_JOINED, 0 ); // The client "announces" itself to the server, and by extension, the other clients
 
 	return true;
 }
 
 bool Client::Run()
 {
-	EventManager::GetInstance()->AddListener( &Client::PlayerMoved, this, Event_Player_Moved::GUID );
-
+	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Moved::GUID );
+	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Died::GUID );
+	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Damaged::GUID );
+	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Spawned::GUID );
+	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Projectile_Fired::GUID );
 	std::thread listen( &Client::ReceiveLoop, this );
+
+	mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_JOINED, 0 ); // The client "announces" itself to the server, and by extension, the other clients
 
 	listen.join();
 
@@ -120,6 +199,8 @@ bool Client::Initialize( const char* port, const char* ip )
 
 void Client::Release()
 {
+	mConn->DisconnectSocket( mServerSocket );
+
 	WSACleanup();
 
 	mConn->Release();

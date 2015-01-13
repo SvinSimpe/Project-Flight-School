@@ -31,6 +31,9 @@
     <ClCompile Include="AnimationAsset.cpp">
       <Filter>AssetClasses\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Static3dAssetIndexed.cpp">
+      <Filter>AssetClasses\Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Static2dAsset.cpp">
       <Filter>AssetClasses\Source Files</Filter>
     </ClCompile>
@@ -77,8 +80,14 @@
     <ClInclude Include="AnimationAsset.h">
       <Filter>AssetClasses\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Static3dAssetIndexed.h">
+      <Filter>AssetClasses\Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Static2dAsset.h">
       <Filter>AssetClasses\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Gbuffer.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -127,6 +136,18 @@
       <Filter>Effects</Filter>
     </Text>
     <Text Include="..\Content\Effects\PlaceholderAni.hlsl">
+      <Filter>Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\Animated3dEffect.hlsl">
+      <Filter>Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\DeferredPassEffect.hlsl">
+      <Filter>Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\Static3dEffect.hlsl">
+      <Filter>Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\2dEffect.hlsl">
       <Filter>Effects</Filter>
     </Text>
   </ItemGroup>

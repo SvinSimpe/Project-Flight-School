@@ -101,9 +101,9 @@ void PlayState::UpdateProjectiles( float deltaTime )
 {
 	if( mNrOfProjectilesFired != 0 )
 	{
-		for (size_t i = 0; i < MAX_PROJECTILES; i++)
+		for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
 		{
-			if(mProjectiles[i]->IsActive() )
+			if( mProjectiles[i]->IsActive() )
 				mProjectiles[i]->Update( deltaTime );
 		}
 	}
@@ -113,9 +113,9 @@ void PlayState::RenderProjectiles()
 {
 	if( mNrOfProjectilesFired != 0 )
 	{
-		for (size_t i = 0; i < MAX_PROJECTILES; i++)
+		for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
 		{
-			if(mProjectiles[i]->IsActive() )
+			if( mProjectiles[i]->IsActive() )
 				mProjectiles[i]->Render();
 		}
 	}
@@ -279,7 +279,7 @@ HRESULT PlayState::Initialize()
 
 	//Fill up on Projectiles, test values
 	mProjectiles	= new Projectile*[MAX_PROJECTILES];
-	for (size_t i = 0; i < MAX_PROJECTILES; i++)
+	for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
 	{
 		mProjectiles[i] = new Projectile();
 		mProjectiles[i]->Initialize();

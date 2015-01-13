@@ -4,6 +4,7 @@
 #include "Input.h"
 #include "Projectile.h"
 #include "RemotePlayer.h"
+#include "RenderManager.h"
 
 class Player: public RemotePlayer
 {

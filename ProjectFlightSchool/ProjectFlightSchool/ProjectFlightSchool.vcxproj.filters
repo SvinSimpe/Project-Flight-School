@@ -102,6 +102,7 @@
     <ClCompile Include="Entry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RenderManager.cpp">
     <ClCompile Include="BaseState.cpp">
       <Filter>GameStates\Source Files</Filter>
     </ClCompile>
@@ -173,6 +174,10 @@
     <ClInclude Include="Entry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RenderManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderStructs.h">
     <ClInclude Include="BaseState.h">
       <Filter>GameStates\Header Files</Filter>
     </ClInclude>

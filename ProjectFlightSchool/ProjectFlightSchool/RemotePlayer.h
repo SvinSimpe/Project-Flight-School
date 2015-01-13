@@ -85,6 +85,9 @@ class RemotePlayer
 		bool			mIsAlive;
 		float			mSpawnTime;
 		float			mTimeTillSpawn;
+		AssetID			mGreenHPAsset;
+		AssetID			mRedHPAsset;
+		AssetID			mOrangeHPAsset;
 
 
 	public:

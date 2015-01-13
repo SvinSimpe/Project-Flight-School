@@ -103,6 +103,8 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RenderManager.cpp">
+	  <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="BaseState.cpp">
       <Filter>GameStates\Source Files</Filter>
     </ClCompile>
@@ -178,6 +180,8 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RenderStructs.h">
+	  <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="BaseState.h">
       <Filter>GameStates\Header Files</Filter>
     </ClInclude>

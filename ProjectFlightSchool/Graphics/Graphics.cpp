@@ -85,10 +85,10 @@ void Graphics::Render2dAsset( AssetID assetId, float x, float y, float width, fl
 	float bottom	= ( ( ( y + height ) / (float)mScreenHeight ) * -2.0f ) + 1.0f;
 	float top		= ( ( y / (float)mScreenHeight ) * -2.0f ) + 1.0f;
 
-	StaticVertex bottomleft		= { left, bottom, 0.0,		0, 0, 0,	0, 0, 0,	0, 1 };
-	StaticVertex topleft		= { left, top, 0.0,			0, 0, 0,	0, 0, 0,	0, 0 };
-	StaticVertex bottomright	= { right, bottom, 0.0,		0, 0, 0,	0, 0, 0,	1, 1 };
-	StaticVertex topright		= { right, top, 0.0,		0, 0, 0,	0, 0, 0,	1, 0 };
+	StaticVertex bottomleft		= { left, bottom, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f };
+	StaticVertex topleft		= { left, top, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 0.0f };
+	StaticVertex bottomright	= { right, bottom, 0.0f,	0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	1.0f, 1.0f };
+	StaticVertex topright		= { right, top, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	1.0f, 0.0f };
 
 	StaticVertex vertices[4] = { bottomleft, topleft, bottomright, topright };
 	MapBuffer( mVertexBuffer2d, &vertices, sizeof(StaticVertex) * 4 );
@@ -114,10 +114,10 @@ void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX
 	UINT32 vertexSize	= sizeof(StaticVertex);
 	UINT32 offset		= 0;
 
-	StaticVertex bottomleft		= { x.x, x.y, y.z,		0, 1, 0,	0, 1, 0,	0, 1 };
-	StaticVertex topleft		= { x.x, x.y, x.z,		0, 1, 0,	0, 1, 0,	0, 0 };
-	StaticVertex bottomright	= { y.x, x.y, y.z,		0, 1, 0,	0, 1, 0,	1, 1 };
-	StaticVertex topright		= { y.x, x.y, x.z,		0, 1, 0,	0, 1, 0,	1, 0 };
+	StaticVertex bottomleft		= { x.x, x.y, y.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 1.0f };
+	StaticVertex topleft		= { x.x, x.y, x.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 0.0f };
+	StaticVertex bottomright	= { y.x, x.y, y.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	1.0f, 1.0f };
+	StaticVertex topright		= { y.x, x.y, x.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	1.0f, 0.0f };
 
 	StaticVertex vertices[4]	= { bottomleft, topleft, bottomright, topright };
 	MapBuffer( mVertexBuffer2d, &vertices, sizeof(StaticVertex) * 4 );
@@ -137,6 +137,8 @@ void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX
 	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
 
 	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[assetId] )->mSRV );
+	mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
+	mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[NORMAL_PLACEHOLDER] )->mSRV );
 	mDeviceContext->Draw( 4, 0 );
 }
 

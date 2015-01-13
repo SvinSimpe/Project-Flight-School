@@ -40,13 +40,11 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device, ID3D11DeviceConte
 	Mesh planeMesh;
 	planeMesh.mVertexCount	= 6;
 
-	for( int i = 0; i < TEXTURES_AMOUNT; i++ )
-	{
-		planeMesh.mTextures[i] = 2;
-	}
+	planeMesh.mTextures[0] = DIFFUSE_PLACEHOLDER;
+	planeMesh.mTextures[1] = SPECULAR_PLACEHOLDER;
+	planeMesh.mTextures[2] = NORMAL_PLACEHOLDER;
 
 	float planeSize = 100.0f;
-
 
 	StaticVertex planePlaceholder[6] = {
 			-0.5f * planeSize, 0.0f, -0.5f * planeSize	,	0.0f, 1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 1.0f,
@@ -90,67 +88,66 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device, ID3D11DeviceConte
 	Mesh cubeMesh;
 	cubeMesh.mVertexCount	= 36;
 
-	for( int i = 0; i < TEXTURES_AMOUNT; i++ )
-	{
-		cubeMesh.mTextures[i] = 2;
-	}
+	cubeMesh.mTextures[0] = DIFFUSE_PLACEHOLDER;
+	cubeMesh.mTextures[1] = SPECULAR_PLACEHOLDER;
+	cubeMesh.mTextures[2] = NORMAL_PLACEHOLDER;
 
 	float cubeSize = 1.0f;
 
 	StaticVertex cubePlaceholder[36] = {
 		// Bottom
-			-0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			 0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			-0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-
-			-0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			 0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			 0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			-0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+			 0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+			-0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+																								
+			-0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+			 0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+			 0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	0.0f, -1.0f, 0.0f,      0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
 		
 		// Left
-			-0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	-1.0f, 0.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			-0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	-1.0f, 0.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			-0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	-1.0f, 0.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-
-			-0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	-1.0f, 0.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			-0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	-1.0f, 0.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			-0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	-1.0f, 0.0f, 0.0f,      0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			-0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	-1.0f, 0.0f, 0.0f,      0.0f, 1.0f, 0.0f,   0.0f, 1.0f,
+			-0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	-1.0f, 0.0f, 0.0f,      0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+			-0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	-1.0f, 0.0f, 0.0f,      0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+																					
+			-0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	-1.0f, 0.0f, 0.0f,      0.0f, 1.0f, 0.0f,   0.0f, 1.0f,
+			-0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	-1.0f, 0.0f, 0.0f,      0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+			-0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	-1.0f, 0.0f, 0.0f,      0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
 		
 		// Back
-			-0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	0.0f, 0.0f, 1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			 0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	0.0f, 0.0f, 1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			-0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	0.0f, 0.0f, 1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-
-			-0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	0.0f, 0.0f, 1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			 0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	0.0f, 0.0f, 1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			 0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	0.0f, 0.0f, 1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			-0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	0.0f, 0.0f, 1.0f,     0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+			 0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	0.0f, 0.0f, 1.0f,     0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
+			-0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	0.0f, 0.0f, 1.0f,     0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+																					
+			-0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	0.0f, 0.0f, 1.0f,     0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+			 0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	0.0f, 0.0f, 1.0f,     0.0f, 1.0f, 0.0f,   0.0f, 1.0f,
+			 0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	0.0f, 0.0f, 1.0f,     0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
 
 		// Right
-			 0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	1.0f, 0.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			 0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	1.0f, 0.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			 0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	1.0f, 0.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-
-			 0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	1.0f, 0.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			 0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	1.0f, 0.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			 0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	1.0f, 0.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	1.0f, 0.0f, 0.0f,     0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+			 0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	1.0f, 0.0f, 0.0f,     0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	1.0f, 0.0f, 0.0f,     0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+																						
+			 0.5f * cubeSize, 0.0f,  0.5f * cubeSize	,	1.0f, 0.0f, 0.0f,     0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+			 0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	1.0f, 0.0f, 0.0f,     0.0f, 1.0f, 0.0f,   0.0f, 1.0f,
+			 0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	1.0f, 0.0f, 0.0f,     0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
 
 		 // front
-			-0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	0.0f, 0.0f, -1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			-0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	0.0f, 0.0f, -1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			 0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	0.0f, 0.0f, -1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-
-			 0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	0.0f, 0.0f, -1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			-0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	0.0f, 0.0f, -1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			 0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	0.0f, 0.0f, -1.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+			-0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	0.0f, 0.0f, -1.0f,     0.0f, 1.0f, 0.0f,   0.0f, 1.0f,
+			-0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	0.0f, 0.0f, -1.0f,     0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	0.0f, 0.0f, -1.0f,     0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+																				   		 
+			 0.5f * cubeSize, 0.0f, -0.5f * cubeSize	,	0.0f, 0.0f, -1.0f,     0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+			-0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	0.0f, 0.0f, -1.0f,     0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	0.0f, 0.0f, -1.0f,     0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
 
 		 // top
-			-0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	0.0f, 1.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			-0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	0.0f, 1.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			 0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	0.0f, 1.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-
-			-0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	0.0f, 1.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			 0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	0.0f, 1.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
-			 0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	0.0f, 1.0f, 0.0f,     0.0f, 0.0f, 0.0f,   0.0f, 0.0f
+			-0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	0.0f, 1.0f, 0.0f,     0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+			-0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	0.0f, 1.0f, 0.0f,     0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+			 0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	0.0f, 1.0f, 0.0f,     0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+																	
+			-0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	0.0f, 1.0f, 0.0f,     0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+			 0.5f * cubeSize, 1.0f,  0.5f * cubeSize	,	0.0f, 1.0f, 0.0f,     0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+			 0.5f * cubeSize, 1.0f, -0.5f * cubeSize	,	0.0f, 1.0f, 0.0f,     0.0f, 0.0f, 1.0f,   0.0f, 0.0f
 	};
 
 	subData.pSysMem = cubePlaceholder;
@@ -169,23 +166,58 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device, ID3D11DeviceConte
 
 
 
-	ID3D11ShaderResourceView* srv = nullptr;
-	ID3D10Texture2D* tex = nullptr;
+	ID3D11ShaderResourceView* srv[3];
+	ID3D10Texture2D* tex[3];
+	for( int i = 0; i < 3; i++ )
+	{
+		srv[i] = nullptr;
+		tex[i] = nullptr;
+	}
 
-	hr = LoadTextureFromFile( device, dc, StringToWstring( "../Content/Assets/Textures/gladgubbe.png" ).c_str(), (ID3D11Resource**)tex, &srv, NULL );
+	hr = LoadTextureFromFile( device, dc, StringToWstring( "../Content/Assets/PlaceHolderTextures/diffuse.png" ).c_str(), (ID3D11Resource**)tex[0], &srv[0], NULL );
 	if( FAILED( hr ) )
 	{	
-		//Failed to create the placeholder SRV
+		//Failed to create the diffuse placeholder SRV
 		return hr;
 	}
 
-	Static2dAsset* texture;
-	texture				= new Static2dAsset;
-	texture->mAssetId	= 2;
-	texture->mFileName	= "PLACEHOLDER TEXTURE";
-	texture->mSRV		= srv;
+	hr = LoadTextureFromFile( device, dc, StringToWstring( "../Content/Assets/PlaceHolderTextures/specular.png" ).c_str(), (ID3D11Resource**)tex[1], &srv[1], NULL );
+	if( FAILED( hr ) )
+	{	
+		//Failed to create the specular placeholder SRV
+		return hr;
+	}
 
-	mAssetContainer[2] = texture;
+	hr = LoadTextureFromFile( device, dc, StringToWstring( "../Content/Assets/PlaceHolderTextures/normal.png" ).c_str(), (ID3D11Resource**)tex[2], &srv[2], NULL );
+	if( FAILED( hr ) )
+	{	
+		//Failed to create the normal placeholder SRV
+		return hr;
+	}
+
+	Static2dAsset* diffuseTexture;
+	diffuseTexture				= new Static2dAsset;
+	diffuseTexture->mAssetId	= 2;
+	diffuseTexture->mFileName	= "PLACEHOLDER DIFFUSE";
+	diffuseTexture->mSRV		= srv[0];
+
+	mAssetContainer[2] = diffuseTexture;
+
+	Static2dAsset* specularTexture;
+	specularTexture				= new Static2dAsset;
+	specularTexture->mAssetId	= 3;
+	specularTexture->mFileName	= "PLACEHOLDER SPECULAR";
+	specularTexture->mSRV		= srv[1];
+
+	mAssetContainer[3] = specularTexture;
+
+	Static2dAsset* normalTexture;
+	normalTexture				= new Static2dAsset;
+	normalTexture->mAssetId		= 4;
+	normalTexture->mFileName	= "PLACEHOLDER NORMAL";
+	normalTexture->mSRV			= srv[2];
+
+	mAssetContainer[4] = normalTexture;
 
 	return hr;
 }
@@ -213,7 +245,7 @@ HRESULT AssetManager::CreateSRVAssets( ID3D11Device* device, ID3D11DeviceContext
 	{
 		if( typeid( *mAssetContainer[assetId] ) == typeid( Animated3dAsset ) )
 		{
-			( (Animated3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_DIFFUSE] = 2;
+			( (Animated3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_DIFFUSE] = DIFFUSE_PLACEHOLDER;
 		}
 	}
 	else
@@ -232,7 +264,7 @@ HRESULT AssetManager::CreateSRVAssets( ID3D11Device* device, ID3D11DeviceContext
 	{
 		if( typeid( *mAssetContainer[assetId] ) == typeid( Animated3dAsset ) )
 		{
-			( (Animated3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_NORMAL] = 2;
+			( (Animated3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_NORMAL] = NORMAL_PLACEHOLDER;
 		}
 	}
 	else
@@ -250,7 +282,7 @@ HRESULT AssetManager::CreateSRVAssets( ID3D11Device* device, ID3D11DeviceContext
 	{
 		if( typeid( *mAssetContainer[assetId] ) == typeid( Animated3dAsset ) )
 		{
-			( (Animated3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_SPECULAR] = 2;
+			( (Animated3dAsset*)mAssetContainer[assetId] )->mTextures[TEXTURES_SPECULAR] = SPECULAR_PLACEHOLDER;
 		}
 	}
 	else
@@ -273,7 +305,7 @@ HRESULT AssetManager::CreateSRVAssetsMesh( ID3D11Device* device, ID3D11DeviceCon
 	HRESULT hr = S_OK;
 	//Diffuse map
 	if( string( meshInfo.diffuseMapName ) == "N/A" )
-		mesh.mTextures[TEXTURES_DIFFUSE] = 2;
+		mesh.mTextures[TEXTURES_DIFFUSE] = DIFFUSE_PLACEHOLDER;
 	else
 	{
 		tempStr = filePath + string( meshInfo.diffuseMapName );
@@ -284,7 +316,7 @@ HRESULT AssetManager::CreateSRVAssetsMesh( ID3D11Device* device, ID3D11DeviceCon
 
 	//Normal map
 	if( string( meshInfo.normalMapName ) == "N/A" )
-			mesh.mTextures[TEXTURES_NORMAL] = 2;
+			mesh.mTextures[TEXTURES_NORMAL] = NORMAL_PLACEHOLDER;
 	else
 	{
 		tempStr = filePath + string( meshInfo.normalMapName );
@@ -295,7 +327,7 @@ HRESULT AssetManager::CreateSRVAssetsMesh( ID3D11Device* device, ID3D11DeviceCon
 
 	//Specular map
 	if( string( meshInfo.specularMapName ) == "N/A" )
-		mesh.mTextures[TEXTURES_SPECULAR] = 2;
+		mesh.mTextures[TEXTURES_SPECULAR] = SPECULAR_PLACEHOLDER;
 	else
 	{
 		tempStr = filePath + string( meshInfo.specularMapName );
@@ -915,7 +947,7 @@ HRESULT	AssetManager::LoadAnimationAsset( string filePath, string fileName, Asse
 
 HRESULT	AssetManager::Initialize( ID3D11Device* device, ID3D11DeviceContext* dc )
 {
-	mAssetIdCounter = 3;
+	mAssetIdCounter = NUM_PLACEHOLDER_ASSETS;
 	mAssetContainer.resize( mAssetIdCounter );
 	PlaceholderAssets( device, dc );
 	

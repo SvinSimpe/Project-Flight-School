@@ -3,6 +3,7 @@
 
 #include <Windows.h>
 #include "Graphics.h"
+#include "RenderManager.h"
 
 // State-tracking constants
 const int START_MENU_STATE	= 0;

@@ -169,7 +169,7 @@ HRESULT	Input::Initialize( UINT screenWidth, UINT screenHeight, HWND hWnd )
 
 void Input::Release()
 {
-	
+	mCurrentFrame.clear();
 }
 
 #pragma endregion

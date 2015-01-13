@@ -5,8 +5,7 @@
 #include "EventManager.h"
 #include "Events.h"
 #include "BoundingGeometry.h"
-
-
+#include "RenderManager.h"
 
 struct UpperBody
 {

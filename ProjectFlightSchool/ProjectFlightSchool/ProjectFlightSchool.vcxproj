@@ -89,6 +89,7 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Graphics\Font.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Entry.cpp" />
     <ClCompile Include="Input.cpp" />
@@ -100,11 +101,13 @@
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="RemotePlayer.cpp" />
+    <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="StartMenuState.cpp" />
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Graphics\Font.h" />
     <ClInclude Include="BaseState.h" />
     <ClInclude Include="BoundingGeometry.h" />
     <ClInclude Include="Button.h" />
@@ -118,6 +121,8 @@
     <ClInclude Include="PlayState.h" />
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="RemotePlayer.h" />
+    <ClInclude Include="RenderManager.h" />
+    <ClInclude Include="RenderStructs.h" />
     <ClInclude Include="StartMenuState.h" />
     <ClInclude Include="StateMachine.h" />
     <ClCompile Include="Client.cpp" />

@@ -5,13 +5,11 @@
 #include "BaseState.h"
 #include "Player.h"
 #include "RemotePlayer.h"
-
+#include "Font.h"
 
 #define MAX_REMOTE_PLAYERS		10
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
-#define MAX_REMOTE_PLAYERS		10
 #define MAX_PROJECTILES			1000
-
 
 class PlayState : public BaseState
 {
@@ -22,8 +20,12 @@ class PlayState : public BaseState
 		AssetID	mTestAsset;
 
 		AssetID	mTestAnimation;
-		AssetID	mTestSkeleton;
 		AssetID	mTestAnimationAnimation;
+
+		AssetID mTestRobot;
+		AssetID mTestRobotAni;
+
+		float mRobotTime;
 
 		AssetID mNest1Asset;
 		AssetID mStoneAssets[6];
@@ -37,21 +39,14 @@ class PlayState : public BaseState
 		//Collision
 		unsigned int	mFrameCounter;
 	
-	// Debug
+		//Game Data
 		Player*						mPlayer;
 		std::vector<RemotePlayer*>	mRemotePlayers;
-
-	// Game Data
-		//std::vector<Projectile*>	mPlayerProjectiles;			// Fired from local player
-		//std::vector<Projectile*>	mRemoteProjectiles;			// Information on projectiles fired from remote player
-		//int							mNrOfPlayerProjectiles;
-		//int							mNrOfRemoteProjectiles;
-		
-		Projectile**				mProjectiles;				// A collection
-
+		Projectile**				mProjectiles;				// A collection of the games projectiles
 		int							mNrOfProjectilesFired;
-		int							mNrOfRemoteProjectilesFired;
 
+		Font			mFont;
+	
 	protected:
 	public:
 
@@ -65,6 +60,7 @@ class PlayState : public BaseState
 		void			EventListener( IEventPtr newEvent );
 		void			BroadcastDamage();						// Tell server that local  player has taken damage
 
+		void			FireProjectile( XMFLOAT3 position, XMFLOAT3 direction );
 		void			UpdateProjectiles( float deltaTime );
 		void			RenderProjectiles();
 

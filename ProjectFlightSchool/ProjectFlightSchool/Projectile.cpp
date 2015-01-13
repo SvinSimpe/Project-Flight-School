@@ -22,7 +22,7 @@ HRESULT Projectile::Render( )
 
 	mRotation += 0.10f;
 	//Graphics::GetInstance()->RenderStatic3dAsset( 1, mPosition.x, mPosition.y, mPosition.z );
-	Graphics::GetInstance()->RenderStatic3dAsset( 1, mPosition, XMFLOAT3( 0.0f, mRotation, 0.0f ) );
+	RenderManager::GetInstance()->AddObject3dToList( 1, mPosition, XMFLOAT3( 0.0f, mRotation, 0.0f ) );
 
 	return S_OK;
 }
@@ -51,7 +51,7 @@ void Projectile::Reset()
 {
 	mIsActive = false;
 	mSpeed		= 20.0f;
-	mLifeTime	= 5.0f;
+	mLifeTime	= 4.0f;
 }
 
 BoundingCircle* Projectile::GetBoundingCircle() const
@@ -62,8 +62,9 @@ BoundingCircle* Projectile::GetBoundingCircle() const
 HRESULT Projectile::Initialize()
 {
 	mSpeed		= 20.0f;
-	mLifeTime	= 5.0f;
+	mLifeTime	= 4.0f;
 	mBoundingCircle = new BoundingCircle( 0.5f );
+
 	return S_OK;
 }
 

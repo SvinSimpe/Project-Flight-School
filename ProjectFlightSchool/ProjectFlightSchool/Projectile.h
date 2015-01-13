@@ -5,17 +5,17 @@
 #include "Events.h"
 #include <Graphics.h>
 #include "BoundingGeometry.h"
+#include "RenderManager.h"
 
 class Projectile
 {
 	private:
-		XMFLOAT3	mPosition;
-		XMFLOAT3	mDirection;
-		float		mSpeed;
-		bool		mIsActive;
-		float		mRotation;
-		float		mLifeTime;
-
+		XMFLOAT3		mPosition;
+		XMFLOAT3		mDirection;
+		float			mSpeed;
+		bool			mIsActive;
+		float			mRotation;
+		float			mLifeTime;
 		BoundingCircle*	mBoundingCircle;
 
 	public:

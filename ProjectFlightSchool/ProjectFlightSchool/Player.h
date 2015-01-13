@@ -5,6 +5,7 @@
 #include "Projectile.h"
 #include "RemotePlayer.h"
 #include "WeaponInfo.h"
+#include "RenderManager.h"
 
 struct LoadOut
 {
@@ -27,10 +28,6 @@ struct LoadOut
 class Player: public RemotePlayer
 {
 	private:
-		std::vector<Projectile*>	mProjectiles;
-
-		int			mNrOfProjectiles;
-		int			mNrOfProjectilesFired;
 		float		mWeaponCoolDown;
 		LoadOut*	mLoadOut;
 
@@ -45,18 +42,14 @@ class Player: public RemotePlayer
 		HRESULT		Update( float deltaTime );
 		HRESULT		Render( float deltaTime );
 
-		void		SetPosition( XMVECTOR position );
-		float		WeaponCoolDown();
-		int			NrOfProjectiles();
 		XMFLOAT3	GetPlayerPosition() const;
-		XMFLOAT3	Fire();
+		void		SetPosition( XMVECTOR position );
+		void		Fire();
 		XMFLOAT3	GetUpperBodyDirection() const;
-
-		//TEMPORARY
-		std::vector<Projectile*>	GetProjectiles();
-
+		
 		HRESULT		Initialize();
 		void		Release();
+
 					Player();
 		virtual		~Player();
 };

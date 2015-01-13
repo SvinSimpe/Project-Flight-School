@@ -85,10 +85,10 @@ void Graphics::Render2dAsset( AssetID assetId, float x, float y, float width, fl
 	float bottom	= ( ( ( y + height ) / (float)mScreenHeight ) * -2.0f ) + 1.0f;
 	float top		= ( ( y / (float)mScreenHeight ) * -2.0f ) + 1.0f;
 
-	StaticVertex bottomleft		= { left, bottom, 0.0,		0, 0, 0,	0, 0, 0,	0, 1 };
-	StaticVertex topleft		= { left, top, 0.0,		0, 0, 0,	0, 0, 0,	0, 0 };
-	StaticVertex bottomright	= { right, bottom, 0.0,		0, 0, 0,	0, 0, 0,	1, 1 };
-	StaticVertex topright		= { right, top, 0.0,		0, 0, 0,	0, 0, 0,	1, 0 };
+	StaticVertex bottomleft		= { left, bottom, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f };
+	StaticVertex topleft		= { left, top, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 0.0f };
+	StaticVertex bottomright	= { right, bottom, 0.0f,	0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	1.0f, 1.0f };
+	StaticVertex topright		= { right, top, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	1.0f, 0.0f };
 
 	StaticVertex vertices[4] = { bottomleft, topleft, bottomright, topright };
 	MapBuffer( mVertexBuffer2d, &vertices, sizeof(StaticVertex) * 4 );
@@ -105,6 +105,41 @@ void Graphics::Render2dAsset( AssetID assetId, float x, float y, float width, fl
 	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[assetId] )->mSRV );
 	mDeviceContext->Draw( 4, 0 );
 	mDeviceContext->OMSetDepthStencilState( mDepthEnabledStencilState, 1 );
+}
+
+void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX::XMFLOAT3 y )
+{
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
+
+	UINT32 vertexSize	= sizeof(StaticVertex);
+	UINT32 offset		= 0;
+
+	StaticVertex bottomleft		= { x.x, x.y, y.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 1.0f };
+	StaticVertex topleft		= { x.x, x.y, x.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 0.0f };
+	StaticVertex bottomright	= { y.x, x.y, y.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	1.0f, 1.0f };
+	StaticVertex topright		= { y.x, x.y, x.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	1.0f, 0.0f };
+
+	StaticVertex vertices[4]	= { bottomleft, topleft, bottomright, topright };
+	MapBuffer( mVertexBuffer2d, &vertices, sizeof(StaticVertex) * 4 );
+	mDeviceContext->IASetVertexBuffers( 0, 1, &mVertexBuffer2d, &vertexSize, &offset );
+
+	mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mStaticEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mStaticEffect->GetPixelShader(), nullptr, 0 );
+
+		//Map CbufferPerObject
+	CbufferPerObject data;
+	data.worldMatrix = DirectX::XMMatrixIdentity();
+	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
+
+	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[assetId] )->mSRV );
+	mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
+	mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[NORMAL_PLACEHOLDER] )->mSRV );
+	mDeviceContext->Draw( 4, 0 );
 }
 
 //Render a static 3d asset given the assetId
@@ -1065,9 +1100,11 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 //Release all the stuff.
 void Graphics::Release()
 {
+	SAFE_RELEASE( mVertexBuffer2d );
 	SAFE_RELEASE( mSwapChain );
 	SAFE_RELEASE( mDevice );
 	SAFE_RELEASE( mDeviceContext );
+
 	SAFE_RELEASE( mRenderTargetView );
 	SAFE_RELEASE( mDepthStencilView );
 	SAFE_RELEASE( mDepthDisabledStencilState );
@@ -1075,7 +1112,9 @@ void Graphics::Release()
 	SAFE_RELEASE( mCbufferPerFrame );
 	SAFE_RELEASE( mCbufferPerObject );
 	SAFE_RELEASE( mCbufferPerObjectAnimated );
+
 	SAFE_RELEASE( mPointSamplerState );
+	SAFE_RELEASE( mLinearSamplerState );
 
 	mAssetManager->Release();
 	mStaticEffect->Release();
@@ -1097,5 +1136,4 @@ void Graphics::Release()
 	SAFE_DELETE( mDeferredPassEffect );
 	SAFE_DELETE( mCamera );
 	SAFE_DELETE( mDeveloperCamera );
-
 }

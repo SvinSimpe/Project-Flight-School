@@ -3,7 +3,6 @@
 #include "Connection.h"
 #include "Package.h"
 #include <vector>
-#include "EventManager.h"
 
 class Server
 {
@@ -28,19 +27,18 @@ class Server
 
 	// Functions
 	private:
-						Server();
-		virtual			~Server();
 		bool			AcceptConnection();
 		bool			ReceiveLoop( int index );
 		void			DisconnectClient( SOCKET s );
 
 	protected:
 	public:
-		static Server*	GetInstance();
 		bool			Connect();
 		bool			Run();
 		bool			Initialize( const char* port );
 		void			Release();
+						Server();
+		virtual			~Server();
 };
 
 template <typename T>
@@ -111,6 +109,18 @@ void Server::HandlePkg( SOCKET &s, Package<T>* p )
 				if ( socket != s && socket != INVALID_SOCKET )
 				{
 					mConn->SendPkg( socket, 0, Net_Event::EV_PLAYER_SPAWNED, toAll );
+				}
+			}
+		}
+			break;
+		case Net_Event::EV_PROJECTILE_FIRED:
+		{
+			EvProjectileFired toAll = (EvProjectileFired&)p->body.content;
+			for ( auto& socket : mClientSockets )
+			{
+				if ( socket != INVALID_SOCKET )
+				{
+					mConn->SendPkg( socket, 0, Net_Event::EV_PROJECTILE_FIRED, toAll );
 				}
 			}
 		}

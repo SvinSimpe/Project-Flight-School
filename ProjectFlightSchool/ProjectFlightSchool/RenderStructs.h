@@ -15,6 +15,7 @@ struct Anim3dInfo
 	UINT				mModelId;
 	UINT				mAnimId;
 	float*				mAnimTime;
+	DirectX::XMFLOAT3	mPosition;
 };
 
 struct Object2dInfo
@@ -27,9 +28,9 @@ struct Object2dInfo
 
 struct PlaneInfo
 {
-	UINT mAssetId;
-	DirectX::XMFLOAT3 mTopTriangle;
-	DirectX::XMFLOAT3 mBottomTriangle;
+	UINT				mAssetId;
+	DirectX::XMFLOAT3	mTopTriangle;
+	DirectX::XMFLOAT3	mBottomTriangle;
 };
 
 

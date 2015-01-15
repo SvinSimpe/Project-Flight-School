@@ -59,7 +59,7 @@ SamplerState linearSampler			: register( s1 );
 float4 PS_main( VS_Out input ) : SV_TARGET0
 {
 	float3	albedoSample	= albedoSpecBuffer.Sample( pointSampler, input.uv ).xyz;
-	float	specularSample	= albedoSpecBuffer.Sample( pointSampler, input.uv ).x;
+	float	specularSample	= albedoSpecBuffer.Sample( pointSampler, input.uv ).w;
 	float3	normalSample	= normalBuffer.Sample( pointSampler, input.uv ).xyz;
 	float3	worldSample		= worldPositionBuffer.Sample( pointSampler, input.uv).xyz;
 

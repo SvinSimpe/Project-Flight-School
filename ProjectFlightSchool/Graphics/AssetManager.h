@@ -15,6 +15,14 @@
 #include <iostream>
 //#include <string>
 
+#define PLANE_PLACEHOLDER		0
+#define CUBE_PLACEHOLDER		1
+#define DIFFUSE_PLACEHOLDER		2
+#define SPECULAR_PLACEHOLDER	3
+#define NORMAL_PLACEHOLDER		4
+
+#define NUM_PLACEHOLDER_ASSETS	5
+
 struct MeshInfo
 {
 	UINT nrOfVertices;

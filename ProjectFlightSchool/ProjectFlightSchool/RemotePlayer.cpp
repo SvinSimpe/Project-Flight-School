@@ -41,10 +41,26 @@ int RemotePlayer::GetID() const
 	return mID;
 }
 
-HRESULT RemotePlayer::Render( float deltaTime )
+HRESULT RemotePlayer::Render(float deltaTime)
 {
-	RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
-	RenderManager::GetInstance()->AddObject3dToList( mLowerBody.playerModel, mLowerBody.position );
+	RenderManager::GetInstance()->AddObject3dToList(mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction);
+	RenderManager::GetInstance()->AddObject3dToList(mLowerBody.playerModel, mLowerBody.position);
+
+	if ( mIsAlive )
+	{
+		mCurrentHp -= 0.07;
+		float renderHpSize = ( mCurrentHp * 1.5f / mMaxHp ) + 1; //*1.5 and +1 to make it an appropriate size.
+
+		DirectX::XMFLOAT3 x = { mLowerBody.position.x - renderHpSize / 2.0f, 0.01f, mLowerBody.position.z + renderHpSize / 2.0f };
+		DirectX::XMFLOAT3 y = { mLowerBody.position.x + renderHpSize / 2.0f, 0.01f, mLowerBody.position.z - renderHpSize / 2.0f };
+
+		if ( mCurrentHp > mMaxHp / 2 )
+			RenderManager::GetInstance()->AddPlaneToList( mGreenHPAsset, x, y );
+		else if ( mCurrentHp < mMaxHp / 4 )
+			RenderManager::GetInstance()->AddPlaneToList( mRedHPAsset, x, y );
+		else
+			RenderManager::GetInstance()->AddPlaneToList( mOrangeHPAsset, x, y );
+	}
 
 	return S_OK;
 }
@@ -57,6 +73,14 @@ HRESULT RemotePlayer::Initialize()
 	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Robot/", "robotScenelegs.pfs", mLowerBody.playerModel ) ) )
 		OutputDebugString( L"\nERROR\n" );
 
+	if( FAILED( Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/GreenHP.png", mGreenHPAsset ) ) )
+		OutputDebugString( L"\nERROR\n" );
+
+	if( FAILED( Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/RedHP.png", mRedHPAsset ) ) )
+		OutputDebugString( L"\nERROR\n" );
+
+	if( FAILED( Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/OrangeHP.png", mOrangeHPAsset ) ) )
+		OutputDebugString( L"\nERROR\n" );
 
 	EventManager::GetInstance()->AddListener( &RemotePlayer::RemoteUpdate, this, Event_Remote_Player_Update::GUID );
 

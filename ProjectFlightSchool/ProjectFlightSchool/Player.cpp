@@ -110,7 +110,8 @@ void Player::HandleSpawn( float deltaTime )
 
 void Player::Spawn()
 {
-	mIsAlive = true;
+	mIsAlive			= true;
+	mCurrentHp			= mMaxHp;
 	mUpperBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
 	mLowerBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
 	IEventPtr spawnEv( new Event_Player_Spawned( mID ) );

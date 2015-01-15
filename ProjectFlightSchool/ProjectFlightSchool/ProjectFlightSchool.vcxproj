@@ -109,6 +109,7 @@
   <ItemGroup>
     <ClInclude Include="..\Graphics\Font.h" />
     <ClInclude Include="BaseState.h" />
+    <ClInclude Include="BoundingGeometry.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="Entry.h" />
     <ClInclude Include="Game.h" />
@@ -133,6 +134,7 @@
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="System.cpp" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="WeaponInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input.h" />

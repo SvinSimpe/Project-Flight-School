@@ -126,6 +126,34 @@ class Event_Remote_Player_Update : public IEvent
 		}
 };
 
+class Event_Local_Player_Joined : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int mID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Local_Player_Joined( unsigned int id )
+		{
+			mID = id;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+};
+
 class Event_Remote_Player_Joined : public IEvent
 {
 	// Member variables
@@ -313,6 +341,7 @@ class Event_Player_Damaged : public IEvent
 	// Member variables
 	private:
 		unsigned int mID;
+		unsigned int mProjectileID;
 	protected:
 	public:
 		static const EventType GUID;
@@ -325,13 +354,18 @@ class Event_Player_Damaged : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Player_Damaged( unsigned int id )
+		Event_Player_Damaged( unsigned int id, unsigned int projectileID )
 		{
-			mID = id;
+			mID				= id;
+			mProjectileID	= projectileID;
 		}
 		unsigned int ID() const
 		{
 			return mID;
+		}
+		unsigned int ProjectileID() const
+		{
+			return mProjectileID;
 		}
 };
 
@@ -340,6 +374,7 @@ class Event_Remote_Player_Damaged : public IEvent
 	// Member variables
 	private:
 		unsigned int mID;
+		unsigned int mProjectileID;
 
 	protected:
 	public:
@@ -353,13 +388,18 @@ class Event_Remote_Player_Damaged : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Remote_Player_Damaged( unsigned int id )
+		Event_Remote_Player_Damaged( unsigned int id, unsigned int projectileID )
 		{
 			mID = id;
+			mProjectileID	= projectileID;
 		}
 		unsigned int ID() const
 		{
 			return mID;
+		}
+		unsigned int ProjectileID() const
+		{
+			return mProjectileID;
 		}
 };
 
@@ -463,6 +503,7 @@ class Event_Remote_Projectile_Fired : public IEvent
 	// Member variables
 	private:
 		unsigned int	mID;
+		unsigned int	mProjectileID;
 		XMFLOAT3		mBodyPos;
 		XMFLOAT3		mDirection;
 
@@ -478,15 +519,20 @@ class Event_Remote_Projectile_Fired : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Remote_Projectile_Fired( unsigned int id, XMFLOAT3 bodyPos, XMFLOAT3 direction )
+		Event_Remote_Projectile_Fired( unsigned int id, unsigned int projectileID, XMFLOAT3 bodyPos, XMFLOAT3 direction )
 		{
 			mID				= id;
+			mProjectileID	= projectileID;
 			mBodyPos		= bodyPos;
 			mDirection		= direction;
 		}
 		unsigned int ID() const
 		{
 			return mID;
+		}
+		unsigned int ProjectileID() const
+		{
+			return mProjectileID;
 		}
 		XMFLOAT3 BodyPos() const
 		{

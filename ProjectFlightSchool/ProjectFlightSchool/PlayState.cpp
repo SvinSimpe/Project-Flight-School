@@ -80,16 +80,19 @@ void PlayState::EventListener( IEventPtr newEvent )
 			{
 				continue;
 			}
-			else if ( data->ID() == mRemotePlayers.at(i)->GetID() )
-			{
-				// Damage player
-				HandleRemoteProjectileHit( data->ID(), data->ProjectileID() );
 
-				// Debug
-				OutputDebugString( L"> A Remote player has taken damage." );
+			HandleRemoteProjectileHit( data->ID(), data->ProjectileID() );
 
-				break;
-			}
+			//else if ( data->ID() == mRemotePlayers.at(i)->GetID() )
+			//{
+			//	// Damage player
+			//	HandleRemoteProjectileHit( data->ID(), data->ProjectileID() );
+
+			//	// Debug
+			//	OutputDebugString( L"> A Remote player has taken damage." );
+
+			//	break;
+			//}
 		}
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Projectile_Fired::GUID )

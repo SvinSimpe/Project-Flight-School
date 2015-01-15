@@ -58,8 +58,8 @@ void Client::HandlePkg( Package<T>* p )
 			break;
 		case Net_Event::EV_PLAYER_JOINED:
 		{
-			EvPlayerID msg = (EvPlayerID&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Joined( msg.ID ) );
+			EvInitialize msg = (EvInitialize&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Joined( msg.ID, msg.team ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 			printf( "Remote player with ID: %d joined.\n", msg.ID );
 		}
@@ -74,10 +74,10 @@ void Client::HandlePkg( Package<T>* p )
 			break;
 		case Net_Event::YOUR_ID:
 		{
-			EvPlayerID msg	= (EvPlayerID&)p->body.content;
+			EvInitialize msg		= (EvInitialize&)p->body.content;
 			mID						= msg.ID;
 
-			IEventPtr E1( new Event_Local_Player_Joined( msg.ID ) );
+			IEventPtr E1( new Event_Local_Player_Joined( msg.ID, msg.team ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 
 			printf( "Your id is %d.\n", msg.ID );

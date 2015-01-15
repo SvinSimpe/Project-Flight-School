@@ -17,10 +17,19 @@ struct BoundingBox
 		height		= 1.0f;
 	}
 
+	//Use for moving objects, update position frame by frame
 	BoundingBox( float width, float height )
 	{
 		this->width		= width;
 		this->height	= height;
+	}
+
+	//Use for static objects
+	BoundingBox( XMFLOAT3 position, float width, float height )
+	{
+		this->position	= position;
+		this->width		= width;
+		this->height	= height;	
 	}
 
 	bool Intersect( BoundingBox* inBox ) 
@@ -65,9 +74,17 @@ struct BoundingCircle
 		radius	= 0.0f;
 	}
 
+	//Use for moving objects, update position frame by frame
 	BoundingCircle( float radius )
 	{
 		this->radius	= radius;
+	}
+
+	//Use for static objects
+	BoundingCircle( XMFLOAT3 center, float radius )
+	{
+		this->center = center;
+		this->radius = radius;
 	}
 
 	bool Intersect( BoundingCircle* inCircle ) const
@@ -75,5 +92,5 @@ struct BoundingCircle
 		return ( pow( center.x - inCircle->center.x, 2 ) + pow( center.z - inCircle->center.z, 2 ) ) < pow( radius + inCircle->radius, 2 );
 	}
 };
-
 #endif
+

@@ -15,9 +15,6 @@ void PlayState::EventListener( IEventPtr newEvent )
 		}
 	}
 
-
-
-
 	else if ( newEvent->GetEventType() == Event_Remote_Player_Joined::GUID ) // Add a remote player to the list when they connect
 	{
 		std::shared_ptr<Event_Remote_Player_Joined> data = std::static_pointer_cast<Event_Remote_Player_Joined>( newEvent );

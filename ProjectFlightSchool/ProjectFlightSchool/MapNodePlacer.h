@@ -13,15 +13,16 @@ class MapNodePlacer
 	public:
 		static MapNodePlacer* instance;
 	private:
-		bool canPlace(int left, int top, MapNode node);
+		//bool canPlace(int left, int top, MapNode node);
+		int CanPlace(MapNodeInstance* currentNode, MapNodeInstance* newNode);
 	protected:
 	public:
 
-		static MapNodePlacer* GetInstance();
-		std::vector<MapNodeInstance> PlaceNodes();
-		HRESULT			Initialize( Map* map );
-		void			Release();
-						MapNodePlacer();
-		virtual			~MapNodePlacer();
+		static MapNodePlacer*	GetInstance();
+		MapNodeInstance**		PlaceNodes();
+		HRESULT					Initialize( Map* map );
+		void					Release();
+								MapNodePlacer();
+		virtual					~MapNodePlacer();
 };
 #endif

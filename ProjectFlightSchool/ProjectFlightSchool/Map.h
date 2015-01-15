@@ -9,7 +9,7 @@ class Map
 {
 	private:
 		MapSection *mMapSections;
-		std::vector<MapNodeInstance> nodes;
+		MapNodeInstance** nodes;
 		float mVertexSpacing;
 		
 		UINT mMapId;

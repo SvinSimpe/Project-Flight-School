@@ -14,26 +14,40 @@ HRESULT	MapNodeInstance::Render(float deltaTime)
 
 	return S_OK;
 }
-DirectX::XMFLOAT3	MapNodeInstance::GetPos()const
+DirectX::XMFLOAT3 MapNodeInstance::GetPos()const
 {
 	return mPos;
 }
-void MapNodeInstance::SetPos(DirectX::XMFLOAT3 pos)
+void MapNodeInstance::SetPos( DirectX::XMFLOAT3 pos )
 {
 	mPos = pos;
-	mOrigin = DirectX::XMFLOAT3( mPos.x + (float)( mCorners.right * 0.5f ), 0, mPos.z + (float)( mCorners.bottom * 0.5f ) );
+	mOrigin = DirectX::XMFLOAT3( mPos.x + ( mNode->GetGridWidth() * 0.5f ), 0, mPos.z + ( mNode->GetGridHeight() * 0.5f ) );
 	DirectX::XMStoreFloat4x4( &mWorld, DirectX::XMMatrixTranslationFromVector( XMLoadFloat3( &mPos ) ) );
+	//SetUpExits();
+	SetCorners();
+}
+
+void MapNodeInstance::SetInstanceID( int ID )
+{
+	mInstanceID = ID;
+}
+int MapNodeInstance::GetInstanceID()
+{
+	return mInstanceID;
+}
+void MapNodeInstance::ReleaseInstance()
+{
+	mNode->ReleaseInstance( mInstanceID );
 }
 DirectX::XMFLOAT3 MapNodeInstance::GetOrigin()const
 {
-	return mOrigin;
+	return mNode->GetOrigin();
 }
 void MapNodeInstance::SetOrigin( DirectX::XMFLOAT3 origin )
 {
-	mOrigin = origin;
-	mPos	= DirectX::XMFLOAT3( mOrigin.x - (float)( mCorners.right * 0.5f ), 0, mOrigin.z - (float)( mCorners.bottom * 0.5f ) );
+	mOrigin	= origin;
+	mPos	= DirectX::XMFLOAT3( origin.x - ( mNode->GetOrigin().x * 0.5f ), origin.y - ( mNode->GetOrigin().y * 0.5f ), origin.z - ( mNode->GetOrigin().z * 0.5f ) );
 	DirectX::XMStoreFloat4x4( &mWorld, DirectX::XMMatrixTranslationFromVector( XMLoadFloat3( &mPos ) ) );
-
 }
 MapNode* MapNodeInstance::GetMapNode()const
 {
@@ -47,25 +61,22 @@ Corners	MapNodeInstance::GetCorners()const
 {
 	return mCorners;
 }
-void MapNodeInstance::SetCorners(int left, int top)
+void MapNodeInstance::SetCorners()
 {
-	mCorners = Corners( left, top, left + mNode->GetGridWidth(), top + mNode->GetGridHeight() );
-}
-HRESULT	MapNodeInstance::Initialize( MapNode* mapNode )
-{
-	mNode = mapNode;
-	if( mNode != nullptr )
-	{
-		mCorners = Corners( 0 , 0, mNode->GetGridDim(), mNode->GetGridDim() );
-	}
-	mOrigin			= DirectX::XMFLOAT3( 0, 0, 0 );
-	mRotation		= 0;
-	mPos			= DirectX::XMFLOAT3( 0, 0, 0 );
-	mNodeRotation	= D0;
-	//mNrOfNeighbours = 0;
-	GetExits();
+	float halfWidth		= mNode->GetGridWidth() * 0.5f;
+	float halfHeight	= mNode->GetGridHeight() * 0.5f;
 
-	DirectX::XMStoreFloat4x4( &mWorld, DirectX::XMMatrixTranslationFromVector( XMLoadFloat3( &mPos ) ) );
+	//mCorners = Corners( mPos.x - halfWidth, mPos.z - halfHeight, mPos.x + halfWidth, mPos.z + halfHeight );
+}
+HRESULT	MapNodeInstance::Initialize()
+{
+	mRotation = 0;
+	SetCorners();
+	SetUpExits();
+	//mNodeRotation	= D0;
+	//mNrOfNeighbours = 0;
+
+	//DirectX::XMStoreFloat4x4( &mWorld, DirectX::XMMatrixTranslationFromVector( XMLoadFloat3( &mPos ) ) );
 
 	return S_OK;
 }
@@ -79,19 +90,50 @@ HRESULT	MapNodeInstance::Initialize( MapNode* mapNode )
 //	}
 //	return result;
 //}
-void MapNodeInstance::GetExits()
+ExitPoint* MapNodeInstance::GetExits()
 {
-	ExitPoints* exits = mNode->GetExits();
+	return mExits;
+}
+void MapNodeInstance::SetUpExits()
+{
+	ExitPoint* exits = mNode->GetExits();
 	for( int i = 0; i < 4; i++ )
 	{
-		mExits[i] = exits[i];
+		mExits[i].exit		= XMFLOAT3( exits[i].exit.x, exits[i].exit.y, exits[i].exit.z );
+		mExits[i].valid		= exits[i].valid;
+		mExits[i].neighbour	= nullptr;
 	}
+}
+int MapNodeInstance::HasExit()
+{
+	int result = -1;
+	bool exitFound = false;
+
+	for( int i = 0; i < 4 && !exitFound; i++ )
+	{
+		if( mExits[i].valid && mExits[i].neighbour == nullptr )
+		{
+			result = i;
+			exitFound = true;
+		}
+	}
+
+	return result;
+}
+void MapNodeInstance::AddNeighbour( int exitSlot, MapNodeInstance* neighbour )
+{
+	mExits[exitSlot].neighbour = neighbour;
 }
 void MapNodeInstance::Release()
 {
 }
 MapNodeInstance::MapNodeInstance()
 {
+	mNode		= nullptr;
+	mPos		= XMFLOAT3( 0, 0, 0 );
+	mOrigin		= XMFLOAT3( 0, 0, 0 );
+	mInstanceID	= -1;
+	mRotation	= 0;
 }
 MapNodeInstance::~MapNodeInstance()
 {

@@ -12,64 +12,177 @@ MapNodePlacer* MapNodePlacer::GetInstance()
 	}
 	return instance;
 }
-bool MapNodePlacer::canPlace( int left, int top, MapNode current )
+//bool MapNodePlacer::canPlace( int left, int top, MapNode current )
+//{
+//	//if ( ( node.GetGridWidth() <= ( mMap->GetMapWidth() - left ) ) && ( node.GetGridHeight() <= ( mMap->GetMapHeight() - top ) ) )
+//	//{
+//	//	for ( int i = 0; i < 2; i++ )
+//	//	{
+//	//		for ( int x = left; x < left + (int)node.GetGridWidth(); x++ )
+//	//		{
+//	//			int dY = top + ( i * ( node.GetGridWidth() - 1 ) );
+//	//			if ( mBuildMap[x][dY] != 0 )
+//	//			{
+//	//				return false;
+//	//			}
+//	//		}
+//	//		for ( int y = top; y < top + (int)node.GetGridHeight(); y++ )
+//	//		{
+//	//			int dX = left + ( i * ( node.GetGridHeight() - 1 ) );
+//	//			if ( mBuildMap[dX][y] != 0 )
+//	//			{
+//	//				return false;
+//	//			}
+//	//		}
+//	//	}
+//	//	for (int y = top; y < top + (int)node.GetGridHeight(); y++)
+//	//	{
+//	//		for (int x = left; x < left + (int)node.GetGridWidth(); x++)
+//	//		{
+//	//			mBuildMap[x][y] = 1;
+//	//		}
+//	//	}
+//	//	return true;
+//	//}
+//	//else
+//	//{
+//	//	int debug = mMap->GetMapWidth() - left;
+//	//	int debug2 = mMap->GetMapHeight() - top;
+//	//}
+//	//return false;
+//
+//
+//
+//	return false;
+//}
+
+//Return codes: -1 no exit found; 0 exit found and match was made; 1 exit found but no match
+int MapNodePlacer::CanPlace(MapNodeInstance* currentNode, MapNodeInstance* newNode)
 {
-	//if ( ( node.GetGridWidth() <= ( mMap->GetMapWidth() - left ) ) && ( node.GetGridHeight() <= ( mMap->GetMapHeight() - top ) ) )
+	ExitPoint*	currExits	= currentNode->GetExits();
+	ExitPoint*	newExits	= newNode->GetExits();
+
+	//Corners currCorners		= currentNode->GetCorners();
+
+
+
+	////Check for match, if match place, else rotate
+	int exit = currentNode->HasExit();
+
+	int result = -1;
+
+	//Check if exit exists
+	if( exit != -1 )
+	{
+		//check for opposite side exit on the new node
+		int oppositeSide = ( exit + 2 ) % 4;
+
+		//Match found
+		if( newExits[oppositeSide].valid )
+		{
+			//Place node!
+
+			currentNode->AddNeighbour( exit, newNode );
+			newNode->AddNeighbour( oppositeSide, currentNode );
+
+			XMFLOAT3 newPos = XMFLOAT3( ( currentNode->GetPos().x + ( currExits[exit].exit.x - newExits[oppositeSide].exit.x ) ), 
+										( currentNode->GetPos().y + ( currExits[exit].exit.y - newExits[oppositeSide].exit.y ) ),
+										( newNode->GetPos().z + ( currExits[exit].exit.z - newExits[oppositeSide].exit.z ) ) );
+			newNode->SetPos( newPos );
+
+			result = 0;
+		}
+		else
+		{
+			result = 1;
+		}
+	}
+	//for( int i = 0; i < newNode.GetMapNode()->GetNrOfExits(); i++ )
 	//{
-	//	for ( int i = 0; i < 2; i++ )
+	//	Corners newCorners = newNode.GetCorners();
+	//	for( int j = 0; j < currentNode->GetMapNode()->GetNrOfExits; j++ )
 	//	{
-	//		for ( int x = left; x < left + (int)node.GetGridWidth(); x++ )
+	//		//no neighbour
+	//		if( currExits[j].neighbour == nullptr )
 	//		{
-	//			int dY = top + ( i * ( node.GetGridWidth() - 1 ) );
-	//			if ( mBuildMap[x][dY] != 0 )
+	//			//Check to place node on any exitpoint
+	//			//Lefthand exit or righthand exit
+	//			if( currCorners.top < currExits[j].exit.z && currExits[j].exit.z < currCorners.bottom )
 	//			{
-	//				return false;
+	//				//Righthand exit
+	//				if( currentNode->GetPos().x < currExits[j].exit.x )
+	//				{
+	//				}
+	//				//Lefthand exit
+	//				else
+	//				{
+	//				}
 	//			}
-	//		}
-	//		for ( int y = top; y < top + (int)node.GetGridHeight(); y++ )
-	//		{
-	//			int dX = left + ( i * ( node.GetGridHeight() - 1 ) );
-	//			if ( mBuildMap[dX][y] != 0 )
+	//			//Top exit or bottom exit
+	//			else if( currCorners.left < currExits[j].exit.x && currExits[j].exit.x < currCorners.right )
 	//			{
-	//				return false;
+	//				//Bottom exit
+	//				if( currentNode->GetPos().z < currExits[j].exit.z )
+	//				{
+	//				}
+	//				//Top exit
+	//				else
+	//				{
+	//				}
 	//			}
 	//		}
 	//	}
-	//	for (int y = top; y < top + (int)node.GetGridHeight(); y++)
-	//	{
-	//		for (int x = left; x < left + (int)node.GetGridWidth(); x++)
-	//		{
-	//			mBuildMap[x][y] = 1;
-	//		}
-	//	}
-	//	return true;
 	//}
-	//else
-	//{
-	//	int debug = mMap->GetMapWidth() - left;
-	//	int debug2 = mMap->GetMapHeight() - top;
-	//}
-	//return false;
-
-
-
-	return false;
+	return result;
 }
-std::vector<MapNodeInstance> MapNodePlacer::PlaceNodes()
+MapNodeInstance** MapNodePlacer::PlaceNodes()
 {
 	int maxNodes	= 100;
 	int nrOfNodes	= 0;
+	bool nodeFull	= false;
 	MapNode* nodes = MapNodeManager::GetInstance()->GetNodes();
-	std::vector<MapNodeInstance> placedNodes;
 
-	MapNodeInstance startNode = nodes[0].GetMapNodeInstance();
-	MapNodeInstance currentNode = startNode;
+	MapNodeInstance** placedNodes = new MapNodeInstance*[100];
 
-	startNode.SetOrigin( XMFLOAT3(0, 0 ,0) );
+	MapNodeInstance* startNode = nodes[0].GetMapNodeInstance();
+	int currentNode = 0;
+	startNode->SetPos( XMFLOAT3( 0, 0, 0 ) );
 
-	placedNodes.push_back( startNode );
+	placedNodes[0] = startNode;
 	nrOfNodes++;
 
+	while( nrOfNodes < maxNodes )
+	{
+		nodeFull	= false;
+		printf("Loop counter: %d\n", nrOfNodes);
+		while( !nodeFull )
+		{
+			//Idea: Inject currentNode-Type into NodeManager, nodeManager returns potential nodes according to rules
+			MapNodeInstance* newNode = nodes[0].GetMapNodeInstance();
+
+			switch( CanPlace( placedNodes[currentNode], newNode ) )
+			{
+			case -1:
+				//Go to next node in the placednodes array
+				newNode->ReleaseInstance();
+				currentNode++;
+				nodeFull = true;
+				break;
+			case 0:
+				//newNode got placed
+
+				placedNodes[nrOfNodes++] = newNode;
+				break;
+			case 1:
+				//newNode didnt fit currentnode, either rotate or newnode
+				//No nodes atm, so this is bork.
+				//break the loop
+				newNode->ReleaseInstance();
+				nrOfNodes = 100;
+				break;
+			}
+		}
+	}
 	//mBuildMap = new int*[mMap->GetMapHeight()];
 	//for (int y = 0; y < (int)mMap->GetMapHeight(); y++)
 	//{
@@ -113,14 +226,21 @@ std::vector<MapNodeInstance> MapNodePlacer::PlaceNodes()
 	//	printf("\n");
 	//}
 
-	while( nrOfNodes < maxNodes )
+	//while( nrOfNodes < maxNodes )
+	//{
+	//	for (int i = 0; i < 4; i++)
+	//	{
+
+	//	}
+	//}
+	//for (int i = 0; i < 4; i++)
+	//{
+	//	currentNode;
+	//}
+	for( int i = 0; i < 100; i++ )
 	{
-		for(int i = 0; i < 4; i++)
-		{
-
-		}
+		printf(" Node position is: %f | %f | %f \n", placedNodes[i]->GetPos().x, placedNodes[i]->GetPos().y, placedNodes[i]->GetPos().z );
 	}
-
 	return placedNodes;
 }
 HRESULT	MapNodePlacer::Initialize( Map* map )

@@ -5,12 +5,8 @@
 
 using namespace DirectX;
 
-struct ExitPoints
-{
-	int x;
-	int y;
-	MapNodeInstance* neighbour;
-};
+
+
 
 struct MapNodeInfo
 {
@@ -22,6 +18,9 @@ struct MapNodeInfo
 		GameObject*		staticAssets;
 		UINT			staticAssetCount;
 };
+
+//Forward declaration for the compiler
+
 class MapNode
 {
 	private:
@@ -32,15 +31,16 @@ class MapNode
 		UINT			mGridWidth;
 		UINT			mGridHeight;
 
-		XMFLOAT3		mAnchor;
+		XMFLOAT3		mOrigin;
 		UINT			mNodeDim;
 		GameObject*		mStaticAssets;
 		UINT			mStaticAssetCount;
 
-
+		MapNodeInstance mInstances[150];
+		UINT			mInstanceCount;
 
 		//////////////////////////////////////////////////////
-		ExitPoints exits[4];
+		ExitPoint exits[4];
 		//////////////////////////////////////////////////////
 
 	protected:
@@ -49,31 +49,33 @@ class MapNode
 	private:
 	protected:
 	public:
-		HRESULT			Update( float deltaTime );
-		HRESULT			Render( float deltaTime );
-		HRESULT			Render( float deltaTime, XMFLOAT4X4 parentWorld );
+		HRESULT				Update( float deltaTime );
+		HRESULT				Render( float deltaTime );
+		HRESULT				Render( float deltaTime, XMFLOAT4X4 parentWorld );
 
-		StaticVertex*	GetGrid() const;
+		StaticVertex*		GetGrid() const;
 
-		UINT			GetVertexCount() const;
+		UINT				GetVertexCount() const;
 
-		UINT			GetGridDim() const;
+		UINT				GetGridDim() const;
 
-		UINT			GetGridWidth() const;
-		UINT			GetGridHeight() const;
+		UINT				GetGridWidth() const;
+		UINT				GetGridHeight() const;
 
-		XMFLOAT3		GetAnchor() const;
+		XMFLOAT3			GetOrigin() const;
 
-		UINT			GetNodeDim() const;
+		UINT				GetNodeDim() const;
 
-		GameObject*		GetStaticAssets() const;
-		HRESULT			SetUpExits();
-		ExitPoints*		GetExits();
+		GameObject*			GetStaticAssets() const;
+		HRESULT				SetUpExits();
+		int					GetNrOfExits();
+		ExitPoint*			GetExits();
 
-		MapNodeInstance	GetMapNodeInstance();
-		HRESULT			Initialize( MapNodeInfo initInfo );
-		void			Release();
-						MapNode();
-		virtual			~MapNode();
+		MapNodeInstance*	GetMapNodeInstance();
+		void				ReleaseInstance( int InstanceID );
+		HRESULT				Initialize( MapNodeInfo initInfo );
+		void				Release();
+							MapNode();
+		virtual				~MapNode();
 };
 #endif

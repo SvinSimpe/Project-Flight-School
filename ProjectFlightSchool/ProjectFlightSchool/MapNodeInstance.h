@@ -2,16 +2,13 @@
 #define MAPNODEINSTANCE_H
 #include <DirectXMath.h>
 #include <Windows.h>
-
-
-static enum Rotation
+static enum ExitDir
 {
-	D0		= 0,
-	D90		= 1,
-	D180	= 2,
-	D270	= 3
+	WEST,
+	NORTH,
+	EAST,
+	SOUTH
 };
-
 struct Corners
 {
 	int left;
@@ -35,49 +32,75 @@ struct Corners
 	};
 };
 
-//Forward declaration for the compiler
+
+
+//forward declaration
+
 class MapNode;
+class MapNodeInstance;
+
+struct ExitPoint
+{
+	DirectX::XMFLOAT3 exit;
+	bool valid;
+	MapNodeInstance* neighbour;
+};
 
 class MapNodeInstance
 {
+public:
+
 	private:
+		int mInstanceID;
 		MapNode* mNode;
 
 		DirectX::XMFLOAT3 mPos;
 		DirectX::XMFLOAT3 mOrigin;
 		DirectX::XMFLOAT4X4 mWorld;
 
-		Rotation mNodeRotation;
-		int mRotation;
 
-		Corners mCorners;
-		ExitPoints* mExits;
+		int mRotation;
+		ExitPoint	mExits[4];
+		Corners		mCorners;
 
 	protected:
 	public:
 	private:
-		void				GetExits();
+		void				SetUpExits();
+		void				SetCorners();
 	protected:
 	public:
+
+
 		HRESULT				Update( float deltaTime );
 		HRESULT				Render( float deltaTime );
 
 		DirectX::XMFLOAT3	GetPos()const;
 		void				SetPos( DirectX::XMFLOAT3 pos );
 
+		void				SetInstanceID( int ID );
+		int					GetInstanceID();
+
+		void				ReleaseInstance();
+		//				MoveInPlace()
+
 		DirectX::XMFLOAT3	GetOrigin()const;
-		void				SetOrigin( DirectX::XMFLOAT3 orign );
+		void				SetOrigin( DirectX::XMFLOAT3 origin );
 		
 		MapNode*			GetMapNode()const;
 		void				SetMapNode( MapNode* mapNode );
 
+		ExitPoint*			GetExits();
+
 		Corners				GetCorners()const;
-		void				SetCorners( int left, int top );
+		int					HasExit();
+		void				AddNeighbour( int exitSlot, MapNodeInstance* neighbour );
 
-		HRESULT				Initialize( MapNode* mapNode );
+		HRESULT				Initialize();
 		void				Release();
+		
+		
 
-		bool				AddNeighbour( MapNodeInstance* mapNodeInstance );
 							MapNodeInstance();
 		virtual				~MapNodeInstance();
 };

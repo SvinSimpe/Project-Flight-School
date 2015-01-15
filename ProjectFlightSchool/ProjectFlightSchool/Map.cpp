@@ -4,9 +4,9 @@
 
 HRESULT Map::Render( float deltaTime )
 {
-	for(int i = 0; i < (int)nodes.size(); i++)
+	for(int i = 0; i < 100; i++)
 	{
-		nodes[i].Render( deltaTime );
+		nodes[i]->Render( deltaTime );
 	}
 	return S_OK;
 }
@@ -48,7 +48,6 @@ HRESULT Map::Initialize( float vertexSpacing, UINT mapDim )
 	//	
 	//	mMapSections[i].Initialize( i, mVertexSpacing, mMapDim );
 	//}
-	
 
 	return S_OK;
 }

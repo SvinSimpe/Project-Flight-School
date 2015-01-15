@@ -91,12 +91,6 @@ void Server::DisconnectClient( SOCKET s )
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
 
-Server* Server::GetInstance()
-{
-	static Server instance;
-	return &instance;
-}
-
 bool Server::Connect()
 {
 	mListenSocket = socket( mAddrResult->ai_family, mAddrResult->ai_socktype, mAddrResult->ai_protocol );
@@ -123,7 +117,7 @@ bool Server::Connect()
 	if ( mResult == SOCKET_ERROR )
 	{
 		printf( "listen failed with error: %d\n", WSAGetLastError() );
-		closesocket( mListenSocket );
+		mConn->DisconnectSocket( mListenSocket );
 		WSACleanup();
 		return false;
 	}
@@ -182,24 +176,23 @@ bool Server::Initialize( const char* port )
 
 void Server::Release()
 {
-	for ( auto& t : mListenThreads )
-	{
-		t.join();
-	}
-	mListenThreads.clear();
-
 	for( auto& s : mClientSockets )
 	{
 		mConn->DisconnectSocket( s ); 
 	}
+	for ( auto& t : mListenThreads )
+	{
+		if( t.joinable() )
+			t.join();
+	}
+	mListenThreads.clear();
 	mClientSockets.clear();
 	WSACleanup();
-	mConn->Release();
+	mConn->DisconnectSocket( mListenSocket );
 
-	if ( mConn )
-	{
+	mConn->Release();
+	if( mConn )
 		delete mConn;
-	}
 }
 
 Server::Server()
@@ -210,6 +203,8 @@ Server::Server()
 	mClientSockets	= std::vector<SOCKET>( 0 );
 	mConn			= nullptr;
 	mListenThreads	= std::vector<std::thread>( 0 );
+
+	mNrOfProjectilesFired	= 1;
 }
 
 Server::~Server()

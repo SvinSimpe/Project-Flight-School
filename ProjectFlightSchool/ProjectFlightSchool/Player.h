@@ -4,13 +4,32 @@
 #include "Input.h"
 #include "Projectile.h"
 #include "RemotePlayer.h"
+#include "WeaponInfo.h"
+#include "RenderManager.h"
+
+struct LoadOut
+{
+	RangedInfo*	rangedWeapon;
+	MeleeInfo*	meleeWeapon;
+
+	LoadOut()
+	{
+		rangedWeapon	= nullptr;
+		meleeWeapon		= nullptr;
+	}
+
+	void Release()
+	{
+		SAFE_DELETE( rangedWeapon );
+		SAFE_DELETE( meleeWeapon );
+	}
+};
 
 class Player: public RemotePlayer
 {
 	private:
-		std::vector<Projectile*>	mProjectiles;
-		int							mNrOfProjectilesFired;
-		float						mWeaponCoolDown;
+		float		mWeaponCoolDown;
+		LoadOut*	mLoadOut;
 
 	private:
 		void		HandleInput( float deltaTime );
@@ -23,11 +42,15 @@ class Player: public RemotePlayer
 		HRESULT		Update( float deltaTime );
 		HRESULT		Render( float deltaTime );
 
-		void		Fire();
+		void		SetID( unsigned int id );
+		XMFLOAT3	GetPlayerPosition() const;
 		void		SetPosition( XMVECTOR position );
-
+		void		Fire();
+		XMFLOAT3	GetUpperBodyDirection() const;
+			
 		HRESULT		Initialize();
 		void		Release();
+
 					Player();
 		virtual		~Player();
 };

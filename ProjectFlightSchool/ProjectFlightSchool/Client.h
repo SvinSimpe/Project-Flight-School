@@ -50,7 +50,7 @@ void Client::HandlePkg( Package<T>* p )
 	{
 		case Net_Event::EV_PLAYER_MOVED:
 		{
-			//printf("Eventet från servern var Event_Player_Moved och den innehöll positionerna:\n" ); // %f, %f, %f och %f, %f, %f
+			printf("Eventet från servern var Event_Player_Moved och den innehöll positionerna:\n" ); // %f, %f, %f och %f, %f, %f
 			EvPlayerMoved msg = (EvPlayerMoved&)p->body.content;
 			IEventPtr E1( new Event_Remote_Player_Update( msg.id, msg.lowerBody, msg.upperBody, msg.direction ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
@@ -76,6 +76,10 @@ void Client::HandlePkg( Package<T>* p )
 		{
 			EvPlayerID msg	= (EvPlayerID&)p->body.content;
 			mID						= msg.ID;
+
+			IEventPtr E1( new Event_Local_Player_Joined( msg.ID ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+
 			printf( "Your id is %d.\n", msg.ID );
 		}
 			break;
@@ -89,7 +93,7 @@ void Client::HandlePkg( Package<T>* p )
 		case Net_Event::EV_PLAYER_DAMAGED:
 		{
 			EvPlayerID damagedPlayer = (EvPlayerID&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Damaged( damagedPlayer.ID ) );
+			IEventPtr E1( new Event_Remote_Player_Damaged( damagedPlayer.ID, damagedPlayer.projectileID ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
@@ -97,6 +101,13 @@ void Client::HandlePkg( Package<T>* p )
 		{
 			EvPlayerID spawnedPlayer = (EvPlayerID&)p->body.content;
 			IEventPtr E1( new Event_Remote_Player_Spawned( spawnedPlayer.ID ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
+		case Net_Event::EV_PROJECTILE_FIRED:
+		{
+			EvProjectileFired projectileFired = (EvProjectileFired&)p->body.content;
+			IEventPtr E1( new Event_Remote_Projectile_Fired( projectileFired.ID, projectileFired.projectileID, projectileFired.position, projectileFired.direction  ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;

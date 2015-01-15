@@ -7,6 +7,7 @@ HRESULT	AnimationAsset::Initialize()
 
 void AnimationAsset::Release()
 {
+
 	mAnimationData.joints.clear();
 }
 

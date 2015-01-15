@@ -60,6 +60,7 @@ void Client::EventListener( IEventPtr newEvent )
 		{
 			EvPlayerID msg;
 			msg.ID = data->ID();
+			msg.projectileID = data->ProjectileID();
 
 			if ( mServerSocket != INVALID_SOCKET )
 			{
@@ -78,6 +79,22 @@ void Client::EventListener( IEventPtr newEvent )
 			if ( mServerSocket != INVALID_SOCKET )
 			{
 				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_SPAWNED, msg );
+			}
+		}
+	}
+	else if ( newEvent->GetEventType() == Event_Projectile_Fired::GUID )
+	{
+		std::shared_ptr<Event_Projectile_Fired> data = std::static_pointer_cast<Event_Projectile_Fired>( newEvent );
+		if ( mServerSocket != INVALID_SOCKET )
+		{
+			EvProjectileFired msg;
+			msg.ID			= mID;
+			msg.position	= data->BodyPos();
+			msg.direction	= data->Direction();
+
+			if ( mServerSocket != INVALID_SOCKET )
+			{
+				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PROJECTILE_FIRED, msg );
 			}
 		}
 	}
@@ -115,18 +132,17 @@ bool Client::Connect()
 	}
 
 	int flag = 1;
-    int mResult = setsockopt(mServerSocket,            /* socket affected */
+    int mResult = setsockopt( mServerSocket,            /* socket affected */
                                  IPPROTO_TCP,     /* set option at TCP level */
                                  TCP_NODELAY,     /* name of option */
                                  (char *) &flag,  /* the cast is historical
                                                          cruft */
-                                 sizeof(int));    /* length of option value */
+                                 sizeof(int) );    /* length of option value */
 
 	if( mResult != 0 )
 	{
 		printf( "setsockopt failed with error %d.\n", WSAGetLastError() );
-		shutdown( mServerSocket, SD_SEND );
-		closesocket( mServerSocket );
+		mConn->DisconnectSocket( mServerSocket );
 		WSACleanup();
 		return false;
 	}
@@ -142,6 +158,7 @@ bool Client::Run()
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Died::GUID );
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Damaged::GUID );
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Spawned::GUID );
+	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Projectile_Fired::GUID );
 	std::thread listen( &Client::ReceiveLoop, this );
 
 	mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_JOINED, 0 ); // The client "announces" itself to the server, and by extension, the other clients

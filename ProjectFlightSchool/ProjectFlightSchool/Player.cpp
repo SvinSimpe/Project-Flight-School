@@ -66,7 +66,7 @@ void Player::HandleInput( float deltaTime )
 	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_SPACE) && mWeaponCoolDown <= 0.0f )
 	{
 		Fire();
-		mWeaponCoolDown = 0.2f;
+		mWeaponCoolDown = 0.1f;
 	}
 	else
 		mWeaponCoolDown -= deltaTime;
@@ -110,7 +110,8 @@ void Player::HandleSpawn( float deltaTime )
 
 void Player::Spawn()
 {
-	mIsAlive = true;
+	mIsAlive			= true;
+	mCurrentHp			= mMaxHp;
 	mUpperBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
 	mLowerBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
 	IEventPtr spawnEv( new Event_Player_Spawned( mID ) );
@@ -121,6 +122,7 @@ HRESULT Player::Update( float deltaTime )
 {
 	HandleInput( deltaTime );
 
+	// If player is alive, update position. If hp <= 0 kill player
 	if( mIsAlive )
 	{
 		if ( mCurrentHp <= 0.0f )
@@ -151,16 +153,6 @@ HRESULT Player::Update( float deltaTime )
 	Graphics::GetInstance()->SetEyePosition( cameraPosition );
 	Graphics::GetInstance()->SetFocus( mLowerBody.position );
 
-	//Update Projectiles
-	if( mNrOfProjectilesFired != 0 )
-	{
-		for ( size_t i = 0; i < mProjectiles.size(); i++ )
-		{
-			if( mProjectiles.at(i)->IsActive() )
-				mProjectiles.at(i)->Update( deltaTime );
-		}
-	}
-
 	//Update Bounding Primitives
 	mBoundingBox->position	= mLowerBody.position;
 	mBoundingCircle->center	= mLowerBody.position;
@@ -170,32 +162,40 @@ HRESULT Player::Update( float deltaTime )
 
 HRESULT Player::Render( float deltaTime )
 {
-	RemotePlayer::Render( deltaTime );
 
-	//Update Projectiles
-	if( mNrOfProjectilesFired != 0 )
-	{
-		for ( size_t i = 0; i < mProjectiles.size(); i++ )
-		{
-			if( mProjectiles.at(i)->IsActive() )
-				mProjectiles.at(i)->Render( deltaTime );
-		}
-	}
+	RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
+	RenderManager::GetInstance()->AddObject3dToList( mLowerBody.playerModel, mLowerBody.position );
+
+	RemotePlayer::Render( deltaTime );
 
 	return S_OK;
 }
 
-void Player::Fire()
+void Player::SetID( unsigned int id )
 {
-	mProjectiles.at( mNrOfProjectilesFired )->SetDirection( mUpperBody.position, mUpperBody.direction );
-	mProjectiles.at( mNrOfProjectilesFired )->SetIsActive( true );
-	mNrOfProjectilesFired++;
+	mID = id;
+}
+
+XMFLOAT3 Player::GetPlayerPosition() const
+{
+	return mLowerBody.position;
 }
 
 void Player::SetPosition( XMVECTOR position )
 {
 	XMStoreFloat3( &mLowerBody.position, position );
 	XMStoreFloat3( &mUpperBody.position, position );
+}
+
+XMFLOAT3 Player::GetUpperBodyDirection() const
+{
+	return mUpperBody.direction;
+}
+
+void Player::Fire()
+{
+	IEventPtr E1( new Event_Projectile_Fired( mID, mUpperBody.position, mUpperBody.direction ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 HRESULT Player::Initialize()
@@ -212,34 +212,35 @@ HRESULT Player::Initialize()
 	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mLowerBody.speed	= 15.0f;
 
+	mWeaponCoolDown		= 0.1f;
+
 	mBoundingBox			= new BoundingBox( 1.5f, 1.5f );
 	mBoundingCircle			= new BoundingCircle( 0.5f );
 
-	mWeaponCoolDown		= 0.5f;
+	mWeaponCoolDown		= 0.1f;
 
-	//Fill up on Projectiles
-	for ( size_t i = 0; i < 2000; i++ )
-	{
-		Projectile*	projectile = new Projectile();
-		projectile->Initialize();
-		mProjectiles.push_back( projectile );
-	}
+
+	//Weapon Initialization
+	mLoadOut				= new LoadOut();
+	mLoadOut->rangedWeapon	= new RangedInfo( "Machine Gun", 5.0f, 1, 5.0f, 2, 0 );
+	mLoadOut->meleeWeapon	= new MeleeInfo( "Sword", 4.0f, 3, 7, 2.0f );
 
 	return S_OK;
 }
 
 void Player::Release()
 {
-	for ( size_t i = 0; i < mProjectiles.size(); i++ )
-		SAFE_DELETE( mProjectiles.at(i) );
-
+	mLoadOut->Release();
+	SAFE_DELETE( mLoadOut );
+	
 	RemotePlayer::Release();
 }
 
 Player::Player()
 	:RemotePlayer()
 {
-	mWeaponCoolDown			= 0.0f;
+	mWeaponCoolDown	= 0.0f;
+	mLoadOut		= nullptr;
 }
 
 Player::~Player()

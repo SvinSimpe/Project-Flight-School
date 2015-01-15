@@ -117,6 +117,9 @@
     <ClCompile Include="Entry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RenderManager.cpp">
+	  <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="BaseState.cpp">
       <Filter>GameStates\Source Files</Filter>
     </ClCompile>
@@ -130,6 +133,9 @@
       <Filter>GameStates\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Button.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Font.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -200,6 +206,12 @@
     <ClInclude Include="Entry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RenderManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderStructs.h">
+	  <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="BaseState.h">
       <Filter>GameStates\Header Files</Filter>
     </ClInclude>
@@ -212,9 +224,24 @@
     <ClInclude Include="StateMachine.h">
       <Filter>GameStates\Header Files</Filter>
     </ClInclude>
+    
     <ClInclude Include="Button.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+
+    
+    <ClInclude Include="BoundingGeometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    
+    <ClInclude Include="WeaponInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+      
+    <ClInclude Include="..\Graphics\Font.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+      
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

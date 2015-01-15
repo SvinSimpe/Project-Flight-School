@@ -5,10 +5,15 @@
 #include "BaseState.h"
 #include "Player.h"
 #include "RemotePlayer.h"
+<<<<<<< HEAD
 #include "MapNodeManager.h"
+=======
+#include "Font.h"
+>>>>>>> development
 
-#define MAX_REMOTE_PLAYERS 10
-#define COLLISION_CHECK_OFFSET 1	// 0 == Every frame
+#define MAX_REMOTE_PLAYERS		10
+#define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
+#define MAX_PROJECTILES			1000
 
 class PlayState : public BaseState
 {
@@ -19,8 +24,12 @@ class PlayState : public BaseState
 		AssetID	mTestAsset;
 
 		AssetID	mTestAnimation;
-		AssetID	mTestSkeleton;
 		AssetID	mTestAnimationAnimation;
+
+		AssetID mTestRobot;
+		AssetID mTestRobotAni;
+
+		float mRobotTime;
 
 		AssetID mNest1Asset;
 		AssetID mStoneAssets[6];
@@ -32,12 +41,19 @@ class PlayState : public BaseState
 
 		float	mAnimationTime;
 
-		// Debug
-		Player*			mPlayer;
-		std::vector<RemotePlayer*> mRemotePlayers;
-
 		//Collision
 		unsigned int	mFrameCounter;
+
+		//TEST
+		std::vector<RemotePlayer*> mAllPlayers;
+	
+		//Game Data
+		Player*						mPlayer;
+		std::vector<RemotePlayer*>	mRemotePlayers;
+		Projectile**				mProjectiles;				// A collection of the games projectiles
+		int							mNrOfProjectilesFired;
+
+		Font						mFont;
 	
 	protected:
 	public:
@@ -46,9 +62,16 @@ class PlayState : public BaseState
 	private:
 		void			RemoteUpdate( IEventPtr newEvent );
 		void			HandleDeveloperCameraInput();
-		void			CheckCollision();
+		void			CheckPlayerCollision();
+		void			CheckProjectileCollision();
+		void			CheckMeeleCollision();
 		void			EventListener( IEventPtr newEvent );
-		void			BroadcastDamage();						// Tell server that local  player has taken damage
+		void			BroadcastDamage( unsigned int playerID, unsigned int projectileID );						// Tell server that local  player has taken damage
+
+		void			FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction );
+		void			UpdateProjectiles( float deltaTime );
+		void			RenderProjectiles();
+		void			HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID );
 
 	protected:
 	public:

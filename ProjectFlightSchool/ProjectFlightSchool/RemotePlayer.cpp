@@ -41,6 +41,8 @@ int RemotePlayer::GetID() const
 	return mID;
 }
 
+
+
 HRESULT RemotePlayer::Render( float deltaTime )
 {
 	RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );

@@ -27,13 +27,16 @@ HRESULT Projectile::Render( )
 	return S_OK;
 }
 
-void Projectile::SetDirection( XMFLOAT3 startPosition, XMFLOAT3 direction )
+void Projectile::SetDirection( unsigned int playerID, unsigned int id, XMFLOAT3 startPosition, XMFLOAT3 direction )
 {
 	Reset();
+	mID				= id;
+	mPlayerID		= playerID;
 	mPosition		= startPosition;
 	mDirection.x	= cosf( direction.y );
 	mDirection.y	= 0.0f;
 	mDirection.z	= -sinf( direction.y );
+	mIsActive		= true;
 }
 
 void Projectile::SetIsActive( bool isActive )
@@ -49,7 +52,9 @@ bool Projectile::IsActive() const
 
 void Projectile::Reset()
 {
-	mIsActive = false;
+	mID			= 0;
+	mPlayerID	= 0;
+	mIsActive	= false;
 	mSpeed		= 20.0f;
 	mLifeTime	= 4.0f;
 }
@@ -57,6 +62,16 @@ void Projectile::Reset()
 BoundingCircle* Projectile::GetBoundingCircle() const
 {
 	return mBoundingCircle;
+}
+
+unsigned int Projectile::GetPlayerID() const
+{
+	return mPlayerID;
+}
+
+unsigned int Projectile::GetID() const
+{
+	return mID;
 }
 
 HRESULT Projectile::Initialize()
@@ -75,8 +90,10 @@ void Projectile::Release()
 
 Projectile::Projectile()
 {
-	mPosition		= XMFLOAT3();
-	mDirection		= XMFLOAT3();
+	mID				= 0;
+	mPlayerID		= 0;
+	mPosition		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mSpeed			= 0.0f;
 	mIsActive		= false;
 	mRotation		= 0.0f;

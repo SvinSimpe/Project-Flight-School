@@ -60,6 +60,7 @@ void Client::EventListener( IEventPtr newEvent )
 		{
 			EvPlayerID msg;
 			msg.ID = data->ID();
+			msg.projectileID = data->ProjectileID();
 
 			if ( mServerSocket != INVALID_SOCKET )
 			{

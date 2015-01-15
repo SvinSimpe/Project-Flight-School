@@ -38,6 +38,9 @@ class PlayState : public BaseState
 
 		//Collision
 		unsigned int	mFrameCounter;
+
+		//TEST
+		std::vector<RemotePlayer*> mAllPlayers;
 	
 		//Game Data
 		Player*						mPlayer;
@@ -45,7 +48,7 @@ class PlayState : public BaseState
 		Projectile**				mProjectiles;				// A collection of the games projectiles
 		int							mNrOfProjectilesFired;
 
-		Font			mFont;
+		Font						mFont;
 	
 	protected:
 	public:
@@ -58,11 +61,12 @@ class PlayState : public BaseState
 		void			CheckProjectileCollision();
 		void			CheckMeeleCollision();
 		void			EventListener( IEventPtr newEvent );
-		void			BroadcastDamage();						// Tell server that local  player has taken damage
+		void			BroadcastDamage( unsigned int playerID, unsigned int projectileID );						// Tell server that local  player has taken damage
 
-		void			FireProjectile( XMFLOAT3 position, XMFLOAT3 direction );
+		void			FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction );
 		void			UpdateProjectiles( float deltaTime );
 		void			RenderProjectiles();
+		void			HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID );
 
 	protected:
 	public:

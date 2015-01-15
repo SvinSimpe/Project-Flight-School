@@ -10,6 +10,8 @@
 class Projectile
 {
 	private:
+		unsigned int	mID;
+		unsigned int	mPlayerID;
 		XMFLOAT3		mPosition;
 		XMFLOAT3		mDirection;
 		float			mSpeed;
@@ -19,19 +21,21 @@ class Projectile
 		BoundingCircle*	mBoundingCircle;
 
 	public:
-		HRESULT Update( float deltaTime );
-		HRESULT Render();
+		HRESULT			Update( float deltaTime );
+		HRESULT			Render();
 
-		void	SetDirection( XMFLOAT3 startPosition, XMFLOAT3 direction );
-		void	SetIsActive( bool isActive );
-		bool	IsActive() const;
-		void	Reset();
+		void			SetDirection( unsigned int playerID, unsigned int id, XMFLOAT3 startPosition, XMFLOAT3 direction );
+		void			SetIsActive( bool isActive );
+		bool			IsActive() const;
+		void			Reset();
 		BoundingCircle*	GetBoundingCircle() const;
+		unsigned int	GetPlayerID() const;
+		unsigned int	GetID() const;
 
-		HRESULT Initialize();
-		void	Release();
+		HRESULT			Initialize();
+		void			Release();
 
-				Projectile();
-				~Projectile();
+						Projectile();
+						~Projectile();
 };
 #endif

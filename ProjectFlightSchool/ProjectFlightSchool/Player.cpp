@@ -170,6 +170,11 @@ HRESULT Player::Render( float deltaTime )
 	return S_OK;
 }
 
+void Player::SetID( unsigned int id )
+{
+	mID = id;
+}
+
 XMFLOAT3 Player::GetPlayerPosition() const
 {
 	return mLowerBody.position;

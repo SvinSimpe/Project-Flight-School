@@ -15,6 +15,8 @@ class Server
 		Connection*					mConn;
 		std::vector<std::thread>	mListenThreads;
 
+		unsigned int				mNrOfProjectilesFired;
+
 	protected:
 	public:
 
@@ -94,7 +96,7 @@ void Server::HandlePkg( SOCKET &s, Package<T>* p )
 			EvPlayerID toAll = (EvPlayerID&)p->body.content;
 			for (auto& socket : mClientSockets)
 			{
-				if ( socket != s && socket != INVALID_SOCKET )
+				if ( socket != INVALID_SOCKET )
 				{
 					mConn->SendPkg( socket, 0, Net_Event::EV_PLAYER_DAMAGED, toAll );
 				}
@@ -116,6 +118,7 @@ void Server::HandlePkg( SOCKET &s, Package<T>* p )
 		case Net_Event::EV_PROJECTILE_FIRED:
 		{
 			EvProjectileFired toAll = (EvProjectileFired&)p->body.content;
+			toAll.projectileID = mNrOfProjectilesFired++;
 			for ( auto& socket : mClientSockets )
 			{
 				if ( socket != INVALID_SOCKET )

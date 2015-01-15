@@ -42,11 +42,12 @@ class Player: public RemotePlayer
 		HRESULT		Update( float deltaTime );
 		HRESULT		Render( float deltaTime );
 
+		void		SetID( unsigned int id );
 		XMFLOAT3	GetPlayerPosition() const;
 		void		SetPosition( XMVECTOR position );
 		void		Fire();
 		XMFLOAT3	GetUpperBodyDirection() const;
-		
+			
 		HRESULT		Initialize();
 		void		Release();
 

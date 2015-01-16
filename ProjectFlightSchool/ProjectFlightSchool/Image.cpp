@@ -1,4 +1,4 @@
-#include "Button.h"
+#include "Image.h"
 
 void Image::Render()
 {
@@ -12,7 +12,7 @@ bool Image::Update( float deltaTime )
 
 void Image::Initialize( std::string assetPath, UINT x, UINT y, UINT width, UINT height )
 {
-	Entry::Initialize(x, y, width, height);
+	Entry::Initialize( x, y, width, height );
 	Graphics::GetInstance()->LoadStatic2dAsset( assetPath, m2DTexture );
 }
 

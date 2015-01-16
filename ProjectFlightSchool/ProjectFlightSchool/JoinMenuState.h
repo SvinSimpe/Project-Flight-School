@@ -6,6 +6,12 @@
 class JoinMenuState : public BaseMenuState
 {
 	private:
+		static const int
+			BACK = 0,
+			BUTTON_AMOUNT = 1;
+
+		MenuButton		mButtons[BUTTON_AMOUNT];
+		Image			mTexts[BUTTON_AMOUNT];
 	protected:
 	public:
 

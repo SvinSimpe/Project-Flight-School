@@ -117,9 +117,6 @@
     <ClCompile Include="StateMachine.cpp">
       <Filter>GameStates\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Button.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Graphics\Font.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -146,6 +143,9 @@
     </ClCompile>
     <ClCompile Include="SingleplayerMenuState.cpp">
       <Filter>GameStates\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Image.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -218,20 +218,12 @@
     <ClInclude Include="StateMachine.h">
       <Filter>GameStates\Header Files</Filter>
     </ClInclude>
-    
-    <ClInclude Include="Button.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-
-    
     <ClInclude Include="BoundingGeometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    
     <ClInclude Include="WeaponInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-      
     <ClInclude Include="..\Graphics\Font.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -258,6 +250,9 @@
     </ClInclude>
     <ClInclude Include="SingleplayerMenuState.h">
       <Filter>GameStates\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

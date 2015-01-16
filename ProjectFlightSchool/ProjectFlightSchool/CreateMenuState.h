@@ -6,6 +6,15 @@
 class CreateMenuState : public BaseMenuState
 {
 	private:
+		static const int
+			SINGLEPLAYER	= 0,
+			MULTIPLAYER		= 1,
+			BACK			= 2,
+			BUTTON_AMOUNT	= 3;
+
+		MenuButton	mButtons[BUTTON_AMOUNT];
+		Image		mTexts[BUTTON_AMOUNT];
+
 	protected:
 	public:
 

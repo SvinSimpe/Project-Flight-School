@@ -6,6 +6,15 @@
 class MultiplayerMenuState : public BaseMenuState
 {
 	private:
+		static const int
+			TWO_VS_TWO = 0,
+			THREE_VS_THREE = 1,
+			FOUR_VS_FOUR = 2,
+			BACK = 3,
+			BUTTON_AMOUNT = 4;
+
+		MenuButton		mButtons[BUTTON_AMOUNT];
+		Image			mTexts[BUTTON_AMOUNT];
 	protected:
 	public:
 

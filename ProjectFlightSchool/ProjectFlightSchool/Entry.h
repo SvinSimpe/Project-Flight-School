@@ -25,6 +25,7 @@ class Entry
 	public:
 		bool			LeftMousePressed();
 		bool			RightMousePressed();
+		void			SetExitCooldown();
 		virtual void	Render() = 0;
 		virtual bool	Update( float deltaTime );
 		virtual bool	Initialize( UINT x, UINT y, UINT width, UINT height );

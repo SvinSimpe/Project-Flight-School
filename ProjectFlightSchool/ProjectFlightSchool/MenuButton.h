@@ -1,8 +1,7 @@
 #ifndef MENUBUTTON_H
 #define MENUBUTTON_H
 
-#include "Button.h"
-#include "Text.h"
+#include "Entry.h"
 
 // Hard coded button used by the menus
 class MenuButton : public Entry

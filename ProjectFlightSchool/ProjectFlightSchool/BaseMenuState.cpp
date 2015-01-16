@@ -14,7 +14,7 @@ HRESULT BaseMenuState::Render()
 
 HRESULT BaseMenuState::Initialize()
 {
-	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/Menu_Background.png", mBackground );
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/Menu_Background.jpg", mBackground );
 	return S_OK;
 }
 

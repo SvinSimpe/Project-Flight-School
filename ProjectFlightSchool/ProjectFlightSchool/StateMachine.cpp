@@ -10,7 +10,7 @@ void StateMachine::ChangeStateListener( IEventPtr newEvent )
 	{
 		std::shared_ptr<Event_Change_State> data = std::static_pointer_cast<Event_Change_State>( newEvent );
 		int eventID = data->EventID();
-		if( eventID > 0 && eventID < NR_OF_STATES )
+		if( eventID >= 0 && eventID < NR_OF_STATES )
 		{
 			ChangeState( eventID );
 		}

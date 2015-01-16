@@ -38,6 +38,11 @@ bool Entry::RightMousePressed()
 	return false;
 }
 
+void Entry::SetExitCooldown()
+{
+	mCurrentCD = 0.1f;
+}
+
 bool Entry::Update( float deltaTime )
 {
 	if( mCurrentCD >= 0.0f )

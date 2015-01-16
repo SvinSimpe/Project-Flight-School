@@ -22,10 +22,12 @@ void RemotePlayer::LookAt( float rotation )
 {
 }
 
-void RemotePlayer::RemoteInit( unsigned int id, int team )
+void RemotePlayer::RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID )
 {
-	mID		= id;
-	mTeam	= team;
+	mID				= id;
+	mTeam			= team;
+	mTeamAsset		= teamColor;
+	mColorIDAsset	= colorID;
 	EventManager::GetInstance()->AddListener( &RemotePlayer::RemoteUpdate, this, Event_Remote_Player_Update::GUID );
 }
 
@@ -48,13 +50,15 @@ HRESULT RemotePlayer::Render( float deltaTime )
 	RenderManager::GetInstance()->AddObject3dToList(mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction);
 	RenderManager::GetInstance()->AddObject3dToList(mLowerBody.playerModel, mLowerBody.position);
 
+	DirectX::XMFLOAT3 x;
+	DirectX::XMFLOAT3 y;
+
 	if ( mIsAlive )
 	{
-		mCurrentHp -= 0.07;
 		float renderHpSize = ( mCurrentHp * 1.5f / mMaxHp ) + 1; //*1.5 and +1 to make it an appropriate size.
 
-		DirectX::XMFLOAT3 x = { mLowerBody.position.x - renderHpSize / 2.0f, 0.01f, mLowerBody.position.z + renderHpSize / 2.0f };
-		DirectX::XMFLOAT3 y = { mLowerBody.position.x + renderHpSize / 2.0f, 0.01f, mLowerBody.position.z - renderHpSize / 2.0f };
+		x = { mLowerBody.position.x - renderHpSize / 2.0f, 0.01f, mLowerBody.position.z + renderHpSize / 2.0f };
+		y = { mLowerBody.position.x + renderHpSize / 2.0f, 0.01f, mLowerBody.position.z - renderHpSize / 2.0f };
 
 		if ( mCurrentHp > mMaxHp / 2 )
 			RenderManager::GetInstance()->AddPlaneToList( mGreenHPAsset, x, y );
@@ -62,6 +66,23 @@ HRESULT RemotePlayer::Render( float deltaTime )
 			RenderManager::GetInstance()->AddPlaneToList( mRedHPAsset, x, y );
 		else
 			RenderManager::GetInstance()->AddPlaneToList( mOrangeHPAsset, x, y );
+	}
+
+	float renderSize;
+	if ( mColorIDAsset )
+	{
+		renderSize = 1.7f + 1;
+		x = { mLowerBody.position.x - renderSize / 2.0f, 0.005f, mLowerBody.position.z + renderSize / 2.0f };
+		y = { mLowerBody.position.x + renderSize / 2.0f, 0.005f, mLowerBody.position.z - renderSize / 2.0f };
+		RenderManager::GetInstance()->AddPlaneToList(mColorIDAsset, x, y);
+	}
+	
+	if ( mTeamAsset )
+	{
+		renderSize = 2.0f + 1;
+		x = { mLowerBody.position.x - renderSize / 2.0f, 0.004f, mLowerBody.position.z + renderSize / 2.0f };
+		y = { mLowerBody.position.x + renderSize / 2.0f, 0.004f, mLowerBody.position.z - renderSize / 2.0f };
+		RenderManager::GetInstance()->AddPlaneToList( mTeamAsset, x, y );
 	}
 
 	return S_OK;

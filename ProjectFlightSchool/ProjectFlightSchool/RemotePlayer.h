@@ -41,6 +41,8 @@ class RemotePlayer
 		AssetID			mGreenHPAsset;
 		AssetID			mRedHPAsset;
 		AssetID			mOrangeHPAsset;
+		AssetID			mTeamAsset;
+		AssetID			mColorIDAsset;
 
 
 	public:
@@ -53,7 +55,7 @@ class RemotePlayer
 		void		LookAt( float rotation );
 
 	public:
-		void			RemoteInit( unsigned int id, int team );
+		void			RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID );
 		virtual void	Die();
 		int				GetID() const;
 		BoundingBox*	GetBoundingBox() const;

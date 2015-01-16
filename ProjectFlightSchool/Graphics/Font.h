@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include "Graphics.h"
+#include "..\ProjectFlightSchool\RenderManager.h"
 
 #define SPACE_WIDTH		15.0f
 #define TAB_WIDTH		(SPACE_WIDTH * 8)

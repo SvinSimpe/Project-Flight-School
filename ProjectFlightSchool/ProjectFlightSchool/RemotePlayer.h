@@ -43,7 +43,8 @@ class RemotePlayer
 		AssetID			mOrangeHPAsset;
 		AssetID			mTeamAsset;
 		AssetID			mColorIDAsset;
-
+		int				mNrOfDeaths;
+		int				mNrOfKills;
 
 	public:
 
@@ -56,14 +57,16 @@ class RemotePlayer
 
 	public:
 		void			RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID );
-		void			BroadcastDeath();
+		void			BroadcastDeath( unsigned int shooter );
 
 		virtual void	Die();
 		void			HandleSpawn( float deltaTime );
 		void			Spawn();
-		void			TakeDamage( unsigned int damage );
+		void			TakeDamage( unsigned int damage, unsigned int shooter );
 		void			SetHP( float hp );
+		void			CountUpKills();
 		int				GetID() const;
+		int				GetTeam() const;
 		BoundingBox*	GetBoundingBox() const;
 		BoundingCircle*	GetBoundingCircle() const;
 		XMFLOAT3		GetPosition() const;

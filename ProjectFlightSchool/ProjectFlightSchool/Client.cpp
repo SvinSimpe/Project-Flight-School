@@ -44,8 +44,9 @@ void Client::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Player_Died> data = std::static_pointer_cast<Event_Player_Died>( newEvent );
 		if ( mServerSocket != INVALID_SOCKET )
 		{
-			EvPlayerID msg;
-			msg.ID = data->ID();
+			EvKilled msg;
+			msg.ID			= data->ID();
+			msg.killerID	= data->KillerID();
 
 			if ( mServerSocket != INVALID_SOCKET )
 			{

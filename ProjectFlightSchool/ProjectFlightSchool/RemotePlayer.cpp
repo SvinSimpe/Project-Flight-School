@@ -31,9 +31,9 @@ void RemotePlayer::RemoteInit( unsigned int id, int team, AssetID teamColor, Ass
 	EventManager::GetInstance()->AddListener( &RemotePlayer::RemoteUpdate, this, Event_Remote_Player_Update::GUID );
 }
 
-void RemotePlayer::BroadcastDeath()
+void RemotePlayer::BroadcastDeath( unsigned int shooter )
 {
-	IEventPtr dieEv( new Event_Player_Died( mID ) );
+	IEventPtr dieEv( new Event_Player_Died( mID, shooter ) );
 	EventManager::GetInstance()->QueueEvent( dieEv );
 }
 
@@ -41,6 +41,7 @@ void RemotePlayer::BroadcastDeath()
 // Set current hp to 0 to avoid negative values and send event that player has died
 void RemotePlayer::Die()
 {
+	mNrOfDeaths++;
 	mIsAlive = false;
 	mCurrentHp = 0.0f;
 	mTimeTillSpawn	= mSpawnTime;
@@ -68,7 +69,7 @@ void RemotePlayer::Spawn()
 	EventManager::GetInstance()->QueueEvent( spawnEv );
 }
 
-void RemotePlayer::TakeDamage( unsigned int damage )
+void RemotePlayer::TakeDamage( unsigned int damage, unsigned int shooter )
 {
 	mCurrentHp -= damage;
 	IEventPtr player( new Event_Player_Update_HP( mID, mCurrentHp ) );
@@ -76,7 +77,7 @@ void RemotePlayer::TakeDamage( unsigned int damage )
 	if ( mIsAlive && mCurrentHp <= 0.0f )
 	{
 		Die();
-		BroadcastDeath();
+		BroadcastDeath( shooter );
 	}
 }
 
@@ -85,9 +86,19 @@ void RemotePlayer::SetHP( float hp )
 	mCurrentHp = hp;
 }
 
+void RemotePlayer::CountUpKills()
+{
+	mNrOfKills++;
+}
+
 int RemotePlayer::GetID() const
 {
 	return mID;
+}
+
+int RemotePlayer::GetTeam() const
+{
+	return mTeam;
 }
 
 HRESULT RemotePlayer::Render( float deltaTime )
@@ -119,7 +130,7 @@ HRESULT RemotePlayer::Render( float deltaTime )
 	float renderSize;
 	if ( mColorIDAsset )
 	{
-		renderSize = 1.7f + 1;
+		renderSize = 2.0f + 1;
 		x = { mLowerBody.position.x - renderSize / 2.0f, 0.005f, mLowerBody.position.z + renderSize / 2.0f };
 		y = { mLowerBody.position.x + renderSize / 2.0f, 0.005f, mLowerBody.position.z - renderSize / 2.0f };
 		RenderManager::GetInstance()->AddPlaneToList(mColorIDAsset, x, y);
@@ -127,7 +138,7 @@ HRESULT RemotePlayer::Render( float deltaTime )
 	
 	if ( mTeamAsset )
 	{
-		renderSize = 2.0f + 1;
+		renderSize = 2.2f + 1;
 		x = { mLowerBody.position.x - renderSize / 2.0f, 0.004f, mLowerBody.position.z + renderSize / 2.0f };
 		y = { mLowerBody.position.x + renderSize / 2.0f, 0.004f, mLowerBody.position.z - renderSize / 2.0f };
 		RenderManager::GetInstance()->AddPlaneToList( mTeamAsset, x, y );
@@ -158,6 +169,8 @@ HRESULT RemotePlayer::Initialize()
 	mUpperBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mLowerBody.speed	= 15.0f;
+	mNrOfDeaths			= 0;
+	mNrOfKills			= 0;
 
 	mBoundingBox			= new BoundingBox( 1.5f, 1.5f );
 	mBoundingCircle			= new BoundingCircle( 0.5f );

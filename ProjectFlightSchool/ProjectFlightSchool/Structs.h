@@ -29,6 +29,12 @@ struct EvInitialize
 	unsigned int team;
 };
 
+struct EvKilled
+{
+	unsigned int ID;
+	unsigned int killerID;
+};
+
 struct EvProjectileFired
 {
 	unsigned int ID;

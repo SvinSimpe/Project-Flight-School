@@ -139,6 +139,11 @@ void Player::SetID( unsigned int id )
 	mID = id;
 }
 
+void Player::SetTeam( int team )
+{
+	mTeam = team;
+}
+
 XMFLOAT3 Player::GetPlayerPosition() const
 {
 	return mLowerBody.position;

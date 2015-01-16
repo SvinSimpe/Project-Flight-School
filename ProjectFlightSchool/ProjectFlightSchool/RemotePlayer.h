@@ -28,6 +28,7 @@ class RemotePlayer
 	private:
 	protected:
 		unsigned int	mID;
+		int				mTeam;
 		UpperBody		mUpperBody;
 		LowerBody		mLowerBody;
 		BoundingBox*	mBoundingBox;
@@ -52,8 +53,8 @@ class RemotePlayer
 		void		LookAt( float rotation );
 
 	public:
-		void			RemoteInit( unsigned int id );
 		void			BroadcastDeath();
+		void			RemoteInit( unsigned int id, int team );
 		virtual void	Die();
 		void			HandleSpawn( float deltaTime );
 		void			Spawn();

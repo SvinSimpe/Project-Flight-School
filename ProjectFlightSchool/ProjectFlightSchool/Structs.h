@@ -23,6 +23,12 @@ struct EvPlayerID
 	unsigned int projectileID;
 };
 
+struct EvInitialize
+{
+	unsigned int ID;
+	unsigned int team;
+};
+
 struct EvProjectileFired
 {
 	unsigned int ID;

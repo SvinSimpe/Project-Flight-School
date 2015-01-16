@@ -151,4 +151,9 @@
       <Filter>Effects</Filter>
     </Text>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="AnimatedInstanced3dEffect.hlsl">
+      <Filter>Effects</Filter>
+    </FxCompile>
+  </ItemGroup>
 </Project>

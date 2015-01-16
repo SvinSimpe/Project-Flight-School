@@ -22,9 +22,10 @@ void RemotePlayer::LookAt( float rotation )
 {
 }
 
-void RemotePlayer::RemoteInit( unsigned int id )
+void RemotePlayer::RemoteInit( unsigned int id, int team )
 {
-	mID = id;
+	mID		= id;
+	mTeam	= team;
 	EventManager::GetInstance()->AddListener( &RemotePlayer::RemoteUpdate, this, Event_Remote_Player_Update::GUID );
 }
 
@@ -177,7 +178,7 @@ RemotePlayer::RemotePlayer()
 	mIsAlive				= true;
 	mMaxHp					= 100.0f;
 	mCurrentHp				= mMaxHp;
-	mSpawnTime				= 6.0f;
+	mSpawnTime				= 4.0f;
 	mTimeTillSpawn			= mSpawnTime;
 
 	mBoundingBox			= nullptr;

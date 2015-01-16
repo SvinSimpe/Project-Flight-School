@@ -12,6 +12,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		if ( mPlayer != nullptr )
 		{
 			mPlayer->SetID( data->ID() );
+			mPlayer->SetTeam( data->Team() );
 		}
 	}
 
@@ -20,7 +21,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Remote_Player_Joined> data = std::static_pointer_cast<Event_Remote_Player_Joined>( newEvent );
 		mRemotePlayers.push_back( new RemotePlayer() );
 		mRemotePlayers.at(mRemotePlayers.size() - 1)->Initialize();
-		mRemotePlayers.at(mRemotePlayers.size() - 1)->RemoteInit( data->ID() );
+		mRemotePlayers.at(mRemotePlayers.size() - 1)->RemoteInit( data->ID(), data->Team() );
 		printf( "Number of other players online: %d.\n", mRemotePlayers.size() );
 
 
@@ -141,7 +142,7 @@ void PlayState::UpdateProjectiles( float deltaTime )
 
 void PlayState::RenderProjectiles()
 {
-	if( mNrOfProjectilesFired != 0 )
+  	if( mNrOfProjectilesFired != 0 )
 	{
 		for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
 		{
@@ -274,7 +275,6 @@ HRESULT PlayState::Update( float deltaTime )
 
 HRESULT PlayState::Render()
 {
-	Graphics::GetInstance()->BeginScene();
 
 	RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 	RenderManager::GetInstance()->AddObject3dToList( mTestAsset, DirectX::XMFLOAT3( 4.0f, 0.0f, 0.0f ) );
@@ -285,10 +285,10 @@ HRESULT PlayState::Render()
 	{
 		RenderManager::GetInstance()->AddObject3dToList( mStoneAssets[i], DirectX::XMFLOAT3( (float)i*4.0f, 0.0f, -4.0f ) );
 	}
+	
+	RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation, mTestAnimationAnimation, &mAnimationTime, DirectX::XMFLOAT3( -5.0f, 0.0f, 0.0f ) );
 
-	RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation, mTestAnimationAnimation, &mAnimationTime );
-
-	Graphics::GetInstance()->RenderAnimated3dAsset( mTestRobot, mTestRobotAni, mRobotTime, 4.0f, 0.0f, 4.0f );
+	RenderManager::GetInstance()->AddAnim3dToList( mTestRobot, mTestRobotAni, &mRobotTime, DirectX::XMFLOAT3( 4.0f, 0.0f, 4.0f ) );
 
 	mPlayer->Render( 0.0f );
 	//mWorldMap->Render( 0.0f );
@@ -307,9 +307,9 @@ HRESULT PlayState::Render()
 	RenderManager::GetInstance()->AddPlaneToList( mTest2dAsset, x, y );
 	RenderManager::GetInstance()->AddObject2dToList( mTest2dAsset, DirectX::XMFLOAT2( 500.0f, 500.0f ), DirectX::XMFLOAT2( 50.0f, 50.0f ) );
 
-	RenderManager::GetInstance()->Render();
 	mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
-	Graphics::GetInstance()->EndScene();
+
+	RenderManager::GetInstance()->Render();
 
 	return S_OK;
 }

@@ -27,7 +27,9 @@ void Font::WriteText( std::string toWrite, float x, float y, float scale )
 		{
 			l = '~';
 		}
-		Graphics::GetInstance()->Render2dAsset( mCharacters[l].asset, x + xOffset, y + yOffset, mCharacters[l].w * scale, mCharacters[l].h * scale );
+		
+		RenderManager::GetInstance()->AddObject2dToList( mCharacters[l].asset, DirectX::XMFLOAT2( (x + xOffset), (y + yOffset) ), DirectX::XMFLOAT2( (mCharacters[l].w * scale), (mCharacters[l].h * scale) ) );
+	
 		xOffset += mCharacters[l].w * scale;
 	}
 }

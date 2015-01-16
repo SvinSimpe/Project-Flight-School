@@ -5,7 +5,7 @@ void MenuButton::SpinCircle()
 	mFrames[mCurrentIndex].active = false;
 
 	mCurrentIndex++;
-	if(mCurrentIndex >= 3)
+	if(mCurrentIndex >= FRAME_AMOUNT)
 		mCurrentIndex = 0;
 
 	mFrames[mCurrentIndex].active = true;

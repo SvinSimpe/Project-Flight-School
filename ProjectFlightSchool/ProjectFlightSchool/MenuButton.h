@@ -17,7 +17,7 @@ class MenuButton : public Entry
 			AssetID asset;
 		};
 
-		const float SPIN_COOLDOWN = 0.1f;
+		const float SPIN_COOLDOWN = 0.04f;
 		ActiveAsset mFrames[FRAME_AMOUNT];
 
 		float		mSpinTimer;

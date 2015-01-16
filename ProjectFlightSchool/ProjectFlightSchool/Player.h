@@ -40,7 +40,8 @@ class Player: public RemotePlayer
 		HRESULT		Render( float deltaTime );
 
 		void		SetID( unsigned int id );
-		void		SetTeam( int team );
+		void		SetTeam( int team, AssetID teamColor );
+		void		SetColor( AssetID color );
 		XMFLOAT3	GetPlayerPosition() const;
 		void		SetPosition( XMVECTOR position );
 		void		Fire();

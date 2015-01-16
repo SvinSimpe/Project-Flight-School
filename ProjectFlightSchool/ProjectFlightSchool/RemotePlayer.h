@@ -41,6 +41,8 @@ class RemotePlayer
 		AssetID			mGreenHPAsset;
 		AssetID			mRedHPAsset;
 		AssetID			mOrangeHPAsset;
+		AssetID			mTeamAsset;
+		AssetID			mColorIDAsset;
 
 
 	public:
@@ -53,8 +55,9 @@ class RemotePlayer
 		void		LookAt( float rotation );
 
 	public:
+		void			RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID );
 		void			BroadcastDeath();
-		void			RemoteInit( unsigned int id, int team );
+
 		virtual void	Die();
 		void			HandleSpawn( float deltaTime );
 		void			Spawn();

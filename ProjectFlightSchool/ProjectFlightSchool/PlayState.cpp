@@ -12,7 +12,9 @@ void PlayState::EventListener( IEventPtr newEvent )
 		if ( mPlayer != nullptr )
 		{
 			mPlayer->SetID( data->ID() );
-			mPlayer->SetTeam( data->Team() );
+			mPlayer->SetTeam( data->Team(), mTeams[data->Team()] );
+			mPlayer->SetColor( mColorIDs[mCurrentColor] );
+			mCurrentColor++;
 		}
 	}
 
@@ -21,7 +23,8 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Remote_Player_Joined> data = std::static_pointer_cast<Event_Remote_Player_Joined>( newEvent );
 		mRemotePlayers.push_back( new RemotePlayer() );
 		mRemotePlayers.at(mRemotePlayers.size() - 1)->Initialize();
-		mRemotePlayers.at(mRemotePlayers.size() - 1)->RemoteInit( data->ID(), data->Team() );
+		mRemotePlayers.at(mRemotePlayers.size() - 1)->RemoteInit( data->ID(), data->Team(), mTeams[data->Team()], mColorIDs[mCurrentColor] );
+		mCurrentColor++;
 		printf( "Number of other players online: %d.\n", mRemotePlayers.size() );
 
 
@@ -298,14 +301,7 @@ HRESULT PlayState::Render()
 			rp->Render( 0.0f );
 	}
 
-	RenderManager::GetInstance()->AddObject2dToList( mTest2dAsset, DirectX::XMFLOAT2( 300.0f, 300.0f ), DirectX::XMFLOAT2( 100.0f, 100.0f ) );
 	RenderProjectiles();
-
-	DirectX::XMFLOAT3 x = { 0.0f, 0.1f, 3.0f };
-	DirectX::XMFLOAT3 y = { 3.0f, 0.1f, 0.0f };
-
-	RenderManager::GetInstance()->AddPlaneToList( mTest2dAsset, x, y );
-	RenderManager::GetInstance()->AddObject2dToList( mTest2dAsset, DirectX::XMFLOAT2( 500.0f, 500.0f ), DirectX::XMFLOAT2( 50.0f, 50.0f ) );
 
 	mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
 
@@ -354,6 +350,16 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Tree/", "tree1.pfs", mTree1Asset );
 
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dAsset );
+
+	std::string colorIDFileNames[MAX_REMOTE_PLAYERS] = { "../Content/Assets/Textures/FunnyCircles/BlueID.png", "../Content/Assets/Textures/FunnyCircles/CoralID.png", "../Content/Assets/Textures/FunnyCircles/DarkBlueID.png", "../Content/Assets/Textures/FunnyCircles/DarkGreenID.png", "../Content/Assets/Textures/FunnyCircles/DarkPurpleID.png", "../Content/Assets/Textures/FunnyCircles/GreenID.png", "../Content/Assets/Textures/FunnyCircles/GreyID.png", "../Content/Assets/Textures/FunnyCircles/LightBlueID.png", "../Content/Assets/Textures/FunnyCircles/LightGreenID.png", "../Content/Assets/Textures/FunnyCircles/LightPurpleID.png","../Content/Assets/Textures/FunnyCircles/OrangeID.png", "../Content/Assets/Textures/FunnyCircles/PinkID.png", "../Content/Assets/Textures/FunnyCircles/ScreamBlueID.png", "../Content/Assets/Textures/FunnyCircles/YellowID.png" };
+
+	for( int i=0; i<MAX_REMOTE_PLAYERS; i++ )
+	{
+		Graphics::GetInstance()->LoadStatic2dAsset( colorIDFileNames[i], mColorIDs[i] );
+	}
+
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/FunnyCircles/WhiteTeam.png", mTeams[0] );
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/FunnyCircles/BlackTeam.png", mTeams[1] );
 
 	mAnimationTime	= 1.0f;
 	mRobotTime		= 1.0f;

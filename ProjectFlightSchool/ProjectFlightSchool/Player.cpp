@@ -139,9 +139,15 @@ void Player::SetID( unsigned int id )
 	mID = id;
 }
 
-void Player::SetTeam( int team )
+void Player::SetTeam( int team, AssetID teamColor )
 {
-	mTeam = team;
+	mTeam		= team;
+	mTeamAsset	= teamColor;
+}
+
+void Player::SetColor( AssetID color )
+{
+	mColorIDAsset = color;
 }
 
 XMFLOAT3 Player::GetPlayerPosition() const

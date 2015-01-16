@@ -1,18 +1,16 @@
-#ifndef STARTMENUSTATE_H
-#define STARTMENUSTATE_H
+#ifndef OPTIONSMENUSTATE_H
+#define OPTIONSMENUSTATE_H
 
 #include "BaseMenuState.h"
 
-class StartMenuState : public BaseMenuState
+class OptionsMenuState : public BaseMenuState
 {
-	// Class members
 	private:
 		static const int
-			CREATE			= 0,
-			JOIN			= 1,
-			OPTIONS			= 2,
-			EXIT			= 3,
-			BUTTON_AMOUNT	= 4;
+			FULLSCREEN		= 0,
+			SOUND			= 1,
+			BACK			= 2,
+			BUTTON_AMOUNT	= 3;
 
 		MenuButton		mButtons[BUTTON_AMOUNT];
 		Image			mTexts[BUTTON_AMOUNT];
@@ -20,7 +18,6 @@ class StartMenuState : public BaseMenuState
 	protected:
 	public:
 
-	// Class functions
 	private:
 		void	HandleInput();
 	protected:
@@ -30,11 +27,9 @@ class StartMenuState : public BaseMenuState
 		void	OnEnter();
 		void	OnExit();
 		void	Reset();
-
 		HRESULT Initialize();
 		void	Release();
-				StartMenuState();
-		virtual	~StartMenuState();
+		OptionsMenuState();
+		~OptionsMenuState();
 };
-
 #endif

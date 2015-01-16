@@ -1,26 +1,20 @@
-#ifndef STARTMENUSTATE_H
-#define STARTMENUSTATE_H
+#ifndef JOINMENUSTATE_H
+#define JOINMENUSTATE_H
 
 #include "BaseMenuState.h"
 
-class StartMenuState : public BaseMenuState
+class JoinMenuState : public BaseMenuState
 {
-	// Class members
 	private:
 		static const int
-			CREATE			= 0,
-			JOIN			= 1,
-			OPTIONS			= 2,
-			EXIT			= 3,
-			BUTTON_AMOUNT	= 4;
+			BACK = 0,
+			BUTTON_AMOUNT = 1;
 
 		MenuButton		mButtons[BUTTON_AMOUNT];
 		Image			mTexts[BUTTON_AMOUNT];
-
 	protected:
 	public:
 
-	// Class functions
 	private:
 		void	HandleInput();
 	protected:
@@ -30,11 +24,9 @@ class StartMenuState : public BaseMenuState
 		void	OnEnter();
 		void	OnExit();
 		void	Reset();
-
 		HRESULT Initialize();
 		void	Release();
-				StartMenuState();
-		virtual	~StartMenuState();
+		JoinMenuState();
+		~JoinMenuState();
 };
-
 #endif

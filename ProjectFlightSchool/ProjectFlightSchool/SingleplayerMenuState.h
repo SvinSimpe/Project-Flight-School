@@ -1,17 +1,18 @@
-#ifndef STARTMENUSTATE_H
-#define STARTMENUSTATE_H
+#ifndef SINGLEPLAYERMENUSTATE_H
+#define SINGLEPLAYERMENUSTATE_H
 
 #include "BaseMenuState.h"
+#include "MenuButton.h"
+#include "Image.h"
 
-class StartMenuState : public BaseMenuState
+class SingleplayerMenuState : public BaseMenuState
 {
-	// Class members
 	private:
 		static const int
-			CREATE			= 0,
-			JOIN			= 1,
-			OPTIONS			= 2,
-			EXIT			= 3,
+			EASY			= 0,
+			MEDIUM			= 1,
+			HARD			= 2,
+			BACK			= 3,
 			BUTTON_AMOUNT	= 4;
 
 		MenuButton		mButtons[BUTTON_AMOUNT];
@@ -20,7 +21,6 @@ class StartMenuState : public BaseMenuState
 	protected:
 	public:
 
-	// Class functions
 	private:
 		void	HandleInput();
 	protected:
@@ -30,11 +30,9 @@ class StartMenuState : public BaseMenuState
 		void	OnEnter();
 		void	OnExit();
 		void	Reset();
-
 		HRESULT Initialize();
 		void	Release();
-				StartMenuState();
-		virtual	~StartMenuState();
+		SingleplayerMenuState();
+		~SingleplayerMenuState();
 };
-
 #endif

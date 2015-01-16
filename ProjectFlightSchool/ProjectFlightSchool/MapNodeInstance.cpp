@@ -24,8 +24,6 @@ void MapNodeInstance::SetPos( DirectX::XMFLOAT3 pos )
 	mPos = pos;
 	mOrigin = DirectX::XMFLOAT3( mPos.x + ( mNode->GetGridWidth() * 0.5f ), 0, mPos.z + ( mNode->GetGridHeight() * 0.5f ) );
 	DirectX::XMStoreFloat4x4( &mWorld, DirectX::XMMatrixTranslationFromVector( XMLoadFloat3( &mPos ) ) );
-	//SetUpExits();
-	SetCorners();
 }
 
 void MapNodeInstance::SetInstanceID( int ID )
@@ -40,17 +38,6 @@ void MapNodeInstance::ReleaseInstance()
 {
 	mNode->ReleaseInstance( mInstanceID );
 }
-DirectX::XMFLOAT3 MapNodeInstance::GetOrigin() const
-{
-	return mNode->GetOrigin();
-}
-void MapNodeInstance::SetOrigin( DirectX::XMFLOAT3 origin )
-{
-	//obsolete?
-	mOrigin	= origin;
-	mPos	= DirectX::XMFLOAT3( origin.x - ( mNode->GetOrigin().x * 0.5f ), origin.y - ( mNode->GetOrigin().y * 0.5f ), origin.z - ( mNode->GetOrigin().z * 0.5f ) );
-	DirectX::XMStoreFloat4x4( &mWorld, DirectX::XMMatrixTranslationFromVector( XMLoadFloat3( &mPos ) ) );
-}
 MapNode* MapNodeInstance::GetMapNode() const
 {
 	return mNode;
@@ -62,55 +49,27 @@ void MapNodeInstance::SetMapNode( MapNode* mapNode )
 BoundingBox MapNodeInstance::GetBoundingBox()
 {
 	BoundingBox b;
-	b.position	= mPos;
-	b.width		= mNode->GetGridWidth();
-	b.height	= mNode->GetGridHeight();
+	b.position	= XMFLOAT3( mPos.x - ( mNode->GetGridWidth() * 0.5f ), 0, mPos.z - ( mNode->GetGridWidth() * 0.5f ) );
+	b.width		= (float)mNode->GetGridWidth();
+	b.height	= (float)mNode->GetGridHeight();
 
 	return b;
-}
-Corners	MapNodeInstance::GetCorners() const
-{
-	return mCorners;
-}
-void MapNodeInstance::SetCorners()
-{
-	float halfWidth		= mNode->GetGridWidth() * 0.5f;
-	float halfHeight	= mNode->GetGridHeight() * 0.5f;
-
-	//mCorners = Corners( mPos.x - halfWidth, mPos.z - halfHeight, mPos.x + halfWidth, mPos.z + halfHeight );
 }
 HRESULT	MapNodeInstance::Initialize()
 {
 	mRotation = 0;
-	SetCorners();
-	SetUpExits();
-	//mNodeRotation	= D0;
-	//mNrOfNeighbours = 0;
-
-	//DirectX::XMStoreFloat4x4( &mWorld, DirectX::XMMatrixTranslationFromVector( XMLoadFloat3( &mPos ) ) );
-
 	return S_OK;
 }
-//bool MapNodeInstance::AddNeighbour( MapNodeInstance* mapNodeInstance )
-//{
-//	bool result = false;
-//	if( mNrOfNeighbours < 4 )
-//	{
-//		mNeighbours[mNrOfNeighbours++] = mapNodeInstance;
-//		result = true;
-//	}
-//	return result;
-//}
-ExitPoint* MapNodeInstance::GetExits()
+ExitPoint MapNodeInstance::GetExit( int exitSlot )
 {
-	return mExits;
+	return mExits[exitSlot];
 }
 void MapNodeInstance::SetUpExits()
 {
 	ExitPoint* exits = mNode->GetExits();
 	for( int i = 0; i < 4; i++ )
 	{
-		mExits[i].exit		= XMFLOAT3( exits[i].exit.x, exits[i].exit.y, exits[i].exit.z );
+		mExits[i].exit		= XMFLOAT3( mPos.x + exits[i].exit.x, mPos.y + exits[i].exit.y, mPos.z + exits[i].exit.z );
 		mExits[i].valid		= exits[i].valid;
 		mExits[i].neighbour	= nullptr;
 	}

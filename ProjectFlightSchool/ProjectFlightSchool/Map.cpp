@@ -2,47 +2,63 @@
 #include "MapNodeManager.h"
 #include "MapNodePlacer.h"
 
-HRESULT Map::Render( float deltaTime )
+HRESULT Map::Render( float deltaTime, Player* player )
 {
-	for( int i = 0; i < 100; i++ )
+	
+	MapSection* mapNodes[10];
+	int count = 0;
+	mMapSection->GetSectionContainingUnit( mapNodes, count, player->GetBoundingCircle() );
+
+	for( int i = 0; i < count; i++ )
 	{
-		nodes[i]->Render( deltaTime );
+		mapNodes[i]->Render( deltaTime );
 	}
 	return S_OK;
 }
 UINT Map::GetMapDim() const
 {
-	return mMapDim * SECTION_DIM;
+	return mMapDim ;//* SECTION_DIM;
 }
 UINT Map::GetMapWidth() const
 {
-	return mMapDim * SECTION_DIM;
+	return mMapDim ;//* SECTION_DIM;
 }
 UINT Map::GetMapHeight() const
 {
-	return mMapDim * SECTION_DIM;
+	return mMapDim ;//* SECTION_DIM;
 }
-float Map::GetMapHalfWidth() const
+UINT Map::GetMapHalfWidth() const
 {
-	return ( (float)mMapDim * SECTION_DIM) * 0.5f;
+	return mMapDim / 2;
 }
-float Map::GetMapHalfHeight() const
+UINT Map::GetMapHalfHeight() const
 {
-	return ( (float)mMapDim * SECTION_DIM) * 0.5f;
+	return mMapDim / 2;
 }
-HRESULT Map::Initialize( float vertexSpacing, UINT mapDim )
+UINT Map::GetNrOfNodes() const
 {
-	mVertexSpacing = vertexSpacing;
+	return mNrOfNodes;
+}
+HRESULT Map::Initialize( UINT mapDim )
+{
+	//Map size is mapDim* mapDim
 	mMapDim = mapDim;
 	MapNodeManager::GetInstance()->Initialize( "../Content/Assets/Nodes/gridtest2.lp"  );
 
 	MapNodePlacer::GetInstance()->Initialize( this );
-	nodes = MapNodePlacer::GetInstance()->PlaceNodes();
+	nodes = MapNodePlacer::GetInstance()->BuildMap();
+	mNrOfNodes = MapNodePlacer::GetInstance()->GetNrOfNodes();
 	
 	//MapSection::SetUpIndices();
 
-	//mMapSections = new MapSection[mMapDim * mMapDim];
+	mMapSection = new MapSection();
 
+	mMapSection->Initialize( this, nullptr, nodes, 0 );
+
+	for( int i = 0; i < mNrOfNodes; i++ )
+	{
+		mMapSection->AddNodeToSection( nodes[i] );
+	}
 	//for( UINT i = 0; i < mMapDim * mMapDim; i++ )
 	//{
 	//	

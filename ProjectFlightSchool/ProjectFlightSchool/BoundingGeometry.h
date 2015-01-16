@@ -41,16 +41,16 @@ struct BoundingBox
 	bool Intersect( XMFLOAT3 point )
 	{
 		/* Triangle A */ XMVECTOR triAreaA = XMVector4Length( XMVector3Cross( XMLoadFloat3( &point ) - XMLoadFloat3( &position ), 
-											 XMLoadFloat3( &point ) - ( XMLoadFloat3( &XMFLOAT3( position.x, position.y, position.z - height ) ) ) ) ) / 2;
+											 XMLoadFloat3( &point ) - ( XMLoadFloat3( &XMFLOAT3( position.x, position.y, position.z + height ) ) ) ) ) / 2;
 
 		/* Triangle B */ XMVECTOR triAreaB = XMVector4Length( XMVector3Cross( XMLoadFloat3( &point ) - XMLoadFloat3( &position ), 
 											 XMLoadFloat3( &point ) - ( XMLoadFloat3( &XMFLOAT3( position.x + width, position.y, position.z ) ) ) ) ) / 2;
 
 		/* Triangle	C */ XMVECTOR triAreaC = XMVector4Length( XMVector3Cross( XMLoadFloat3( &point ) - XMLoadFloat3 ( &XMFLOAT3( position.x + width, position.y, position.z ) ), 
-											 XMLoadFloat3( &point ) - ( XMLoadFloat3( &XMFLOAT3( position.x + width, position.y, position.z - height ) ) ) ) ) / 2;
+											 XMLoadFloat3( &point ) - ( XMLoadFloat3( &XMFLOAT3( position.x + width, position.y, position.z + height ) ) ) ) ) / 2;
 
-		/* Triangle D */ XMVECTOR triAreaD = XMVector4Length( XMVector3Cross( XMLoadFloat3( &point ) - XMLoadFloat3 ( &XMFLOAT3( position.x, position.y, position.z - height ) ), 
-											 XMLoadFloat3( &point ) - ( XMLoadFloat3( &XMFLOAT3( position.x + width, position.y, position.z - height ) ) ) ) ) / 2;
+		/* Triangle D */ XMVECTOR triAreaD = XMVector4Length( XMVector3Cross( XMLoadFloat3( &point ) - XMLoadFloat3 ( &XMFLOAT3( position.x, position.y, position.z + height ) ), 
+											 XMLoadFloat3( &point ) - ( XMLoadFloat3( &XMFLOAT3( position.x + width, position.y, position.z + height ) ) ) ) ) / 2;
 
 		float areaSum = 0.0f;
 		XMStoreFloat( &areaSum, ( triAreaA + triAreaB + triAreaC + triAreaD ) );

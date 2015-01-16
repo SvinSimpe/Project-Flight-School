@@ -1,17 +1,15 @@
 #ifndef MAP_H
 #define MAP_H
-
-
 #include "MapSection.h"
-
+#include "BoundingGeometry.h"
 
 class Map
 {
 	private:
-		MapSection *mMapSections;
+		MapSection *mMapSection;
 		MapNodeInstance** nodes;
 		float mVertexSpacing;
-		
+		UINT mNrOfNodes;
 		UINT mMapId;
 	protected:
 	public:
@@ -19,17 +17,19 @@ class Map
 	private:
 	protected:
 	public:
-		HRESULT Render( float deltaTime );
+		HRESULT Render( float deltaTime, Player* player );
 		void GenerateGrid();
 
 		UINT GetMapDim() const;
 		UINT GetMapWidth() const;
 		UINT GetMapHeight() const;
 
-		float GetMapHalfWidth() const;
-		float GetMapHalfHeight() const;
+		UINT GetMapHalfWidth() const;
+		UINT GetMapHalfHeight() const;
 
-		HRESULT Initialize( float vertexSpacing, UINT mapDim );
+		UINT GetNrOfNodes() const;
+
+		HRESULT Initialize( UINT mapDim );
 		void Release();
 		Map();
 		~Map();

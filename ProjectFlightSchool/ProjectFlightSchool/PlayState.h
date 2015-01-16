@@ -5,11 +5,8 @@
 #include "BaseState.h"
 #include "Player.h"
 #include "RemotePlayer.h"
-<<<<<<< HEAD
 #include "MapNodeManager.h"
-=======
 #include "Font.h"
->>>>>>> development
 
 #define MAX_REMOTE_PLAYERS		10
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame

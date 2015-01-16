@@ -259,35 +259,6 @@ HRESULT PlayState::Update( float deltaTime )
 HRESULT PlayState::Render()
 {
 	Graphics::GetInstance()->BeginScene();
-<<<<<<< HEAD
-	//Graphics::GetInstance()->RenderStatic3dAsset( mPlaneAsset, 0.0f, 0.0f, 0.0f );
-	//Graphics::GetInstance()->RenderStatic3dAsset( mTestAsset, DirectX::XMFLOAT3( 15.0f, 1.0f, 15.0f ), DirectX::XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
-	//Graphics::GetInstance()->RenderStatic3dAsset( mNest1Asset, 8.0f, 0.0f, 0.0f );
-	//Graphics::GetInstance()->RenderStatic3dAsset( mTree1Asset, 12.0f, 0.0f, 0.0f );
-
-	//for( int i = 0; i < 6; i++ )
-	//{
-	//	Graphics::GetInstance()->RenderStatic3dAsset( mStoneAssets[i], (float)i*4.0f, 0.0f, -4.0f );
-	//}
-
-	////Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime );
-
-	//int w = 10;
-	//int h = 10;
-	//for( int i = 0; i < w * h; i++ )
-	//	Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime, (float)-(i%w)  * 4.0f, 0.0f, (float)(i/h) * 4.0f );
-
-	//mPlayer->Render( 0.0f );
-	//mMapNodeMan->Render( 0.0f );
-	mWorldMap->Render( 0.0f );
-	//for( auto& rp : mRemotePlayers )
-	//{
-	//	if( rp )
-	//		rp->Render( 0.0f );
-	//}
-
-	//Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 300, 300, 100, 100 );
-=======
 
 	RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 	RenderManager::GetInstance()->AddObject3dToList( mTestAsset, DirectX::XMFLOAT3( 4.0f, 0.0f, 0.0f ) );
@@ -304,7 +275,7 @@ HRESULT PlayState::Render()
 	Graphics::GetInstance()->RenderAnimated3dAsset( mTestRobot, mTestRobotAni, mRobotTime, 4.0f, 0.0f, 4.0f );
 
 	mPlayer->Render( 0.0f );
-	//mWorldMap->Render( 0.0f );
+	mWorldMap->Render( 0.0f, mPlayer );
 	for( auto& rp : mRemotePlayers )
 	{
 		if( rp )
@@ -319,7 +290,6 @@ HRESULT PlayState::Render()
 
 	RenderManager::GetInstance()->AddPlaneToList( mTest2dAsset, x, y );
 	RenderManager::GetInstance()->AddObject2dToList( mTest2dAsset, DirectX::XMFLOAT2( 500.0f, 500.0f ), DirectX::XMFLOAT2( 50.0f, 50.0f ) );
->>>>>>> development
 
 	RenderManager::GetInstance()->Render();
 	mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
@@ -376,7 +346,7 @@ HRESULT PlayState::Initialize()
 	mPlayer->Initialize();
 
 	mWorldMap = new Map();
-	mWorldMap->Initialize( 1.0f, 12 );
+	mWorldMap->Initialize( 10 );
 
 	//mMapNodeMan = new MapNodeManager();
 	//mMapNodeMan->Initialize( "../Content/Assets/Nodes/gridtest2.lp"  );

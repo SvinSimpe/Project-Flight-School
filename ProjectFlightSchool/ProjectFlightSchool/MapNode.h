@@ -32,6 +32,7 @@ class MapNode
 		UINT			mGridHeight;
 
 		XMFLOAT3		mOrigin;
+		XMFLOAT3		mPos;
 		UINT			mNodeDim;
 		GameObject*		mStaticAssets;
 		UINT			mStaticAssetCount;

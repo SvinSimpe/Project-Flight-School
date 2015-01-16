@@ -2,6 +2,7 @@
 #define MAPNODEINSTANCE_H
 #include <DirectXMath.h>
 #include <Windows.h>
+#include "BoundingGeometry.h"
 static enum ExitDir
 {
 	WEST,
@@ -89,11 +90,13 @@ public:
 		MapNode*			GetMapNode() const;
 		void				SetMapNode( MapNode* mapNode );
 
-		ExitPoint*			GetExits();
-
-		Corners				GetCorners()const;
-		BoundingBox			GetBoundingBox();
+		ExitPoint			GetExit( int exitSlot );
+		void				SetExit( ExitPoint exit );
+		XMFLOAT3			GetExitPos( int exitSlot );
 		int					HasExit();
+
+		BoundingBox			GetBoundingBox();
+		
 		void				AddNeighbour( int exitSlot, MapNodeInstance* neighbour );
 
 		HRESULT				Initialize();

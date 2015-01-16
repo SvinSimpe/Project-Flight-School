@@ -3,7 +3,7 @@
 struct PerInstanceData
 {
 	float4x4 worldMatrix;
-	float4x4 boneTransforms[16];
+	float4x4 boneTransforms[32];
 };
 
 cbuffer CbufferPerFrame	: register( b0 )

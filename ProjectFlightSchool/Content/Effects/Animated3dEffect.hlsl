@@ -9,7 +9,7 @@ cbuffer CbufferPerFrame	: register( b0 )
 cbuffer CbufferPerObject : register( b1 )
 {
 	float4x4 worldMatrix;
-	float4x4 boneTransforms[16];
+	float4x4 boneTransforms[32];
 }
 
 struct VS_In

@@ -285,8 +285,7 @@ HRESULT PlayState::Update( float deltaTime )
 	mPlayer->Update( deltaTime );
 
 	UpdateProjectiles( deltaTime );
-	mAnimationTime	+= deltaTime;
-	mRobotTime		+= deltaTime;
+	mAnimationTime	+= deltaTime * 0.2f;
 
 	return S_OK;
 }
@@ -295,7 +294,7 @@ HRESULT PlayState::Render()
 {
 
 	RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
-	RenderManager::GetInstance()->AddObject3dToList( mTestAsset, DirectX::XMFLOAT3( 4.0f, 0.0f, 0.0f ) );
+	RenderManager::GetInstance()->AddObject3dToList( mTestAsset, DirectX::XMFLOAT3( 10.0f, 0.0f, 10.0f ) );
 	RenderManager::GetInstance()->AddObject3dToList( mNest1Asset, DirectX::XMFLOAT3( 8.0f, 0.0f, 0.0f ) );
 	RenderManager::GetInstance()->AddObject3dToList( mTree1Asset, DirectX::XMFLOAT3( 12.0f, 0.0f, 0.0f ) );
 
@@ -304,11 +303,16 @@ HRESULT PlayState::Render()
 		RenderManager::GetInstance()->AddObject3dToList( mStoneAssets[i], DirectX::XMFLOAT3( (float)i*4.0f, 0.0f, -4.0f ) );
 	}
 	
-	RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation, mTestAnimationAnimation, &mAnimationTime, DirectX::XMFLOAT3( -5.0f, 0.0f, 0.0f ) );
+	//RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation, mTestAnimationAnimation, &mAnimationTime, DirectX::XMFLOAT3( -5.0f, 0.0f, 0.0f ) );
 
-	RenderManager::GetInstance()->AddAnim3dToList( mTestRobot, mTestRobotAni, &mRobotTime, DirectX::XMFLOAT3( 4.0f, 0.0f, 4.0f ) );
+	DirectX::XMFLOAT4X4 derpface;
+	XMStoreFloat4x4( &derpface, XMMatrixIdentity() );
+	//Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime, &derpface );
+
+	//RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation, mTestAnimationAnimation, &mAnimationTime );
 
 	mPlayer->Render( 0.0f, 1 );
+
 	//mWorldMap->Render( 0.0f );
 	//for( auto& rp : mRemotePlayers )
 	//{
@@ -317,9 +321,9 @@ HRESULT PlayState::Render()
 	//}
 	for (size_t i = 0; i < mRemotePlayers.size(); i++)
 	{
-		if( mRemotePlayers.at(i) )
+		if (mRemotePlayers.at(i))
 		{
-			mRemotePlayers.at(i)->Render( 0.0f, i+2 );
+			mRemotePlayers.at(i)->Render(0.0f, i + 2);
 		}
 	}
 
@@ -355,11 +359,7 @@ HRESULT PlayState::Initialize()
 
 	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", skeleton );
 	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, mTestAnimation );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptor_death.PaMan", mTestAnimationAnimation );
-
-	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Robot/Animations/", "robot_legs.Skel", skeleton );
-	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Robot/", "walkanimationTest5_1.apfs", skeleton, mTestRobot );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Robot/Animations/", "testLegs.PaMan", mTestRobotAni );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "IHaveNoHeadMaybe.PaMan", mTestAnimationAnimation );
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_1.pfs", mNest1Asset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_1.pfs", mStoneAssets[0] );
@@ -384,7 +384,6 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/FunnyCircles/BlackTeam.png", mTeams[1] );
 
 	mAnimationTime	= 1.0f;
-	mRobotTime		= 1.0f;
 
 	mPlayer = new Player();
 	mPlayer->Initialize();

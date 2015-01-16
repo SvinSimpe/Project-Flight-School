@@ -70,14 +70,14 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 			Message msg = (Message&)p->body.content;
 			printf( "%d sent: %s\n", s.s, msg.msg );
 		}
-		case Net_Event::EV_PLAYER_MOVED:
+		case Net_Event::EV_PLAYER_UPDATE:
 		{
-			EvPlayerMoved msg = (EvPlayerMoved&)p->body.content;
+			EvPlayerUpdate msg = (EvPlayerUpdate&)p->body.content;
 			for ( auto& socket : mClientSockets )
 			{
 				if ( socket.s != s.s )
 				{
-					mConn->SendPkg( socket.s, 0, Net_Event::EV_PLAYER_MOVED, msg );
+					mConn->SendPkg( socket.s, 0, Net_Event::EV_PLAYER_UPDATE, msg );
 				}
 			}
 			
@@ -102,7 +102,7 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 			EvPlayerID toAll = (EvPlayerID&)p->body.content;
 			for( auto& socket : mClientSockets )
 			{
-				if( socket.s != s.s && socket.s != INVALID_SOCKET )
+				if( socket.s != INVALID_SOCKET )
 				{
 					mConn->SendPkg( socket.s, 0, Net_Event::EV_PLAYER_DIED, toAll );
 				}
@@ -142,6 +142,19 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 				if ( socket.s != INVALID_SOCKET )
 				{
 					mConn->SendPkg( socket.s, 0, Net_Event::EV_PROJECTILE_FIRED, toAll );
+				}
+			}
+		}
+			break;
+		case Net_Event::EV_UPDATE_HP:
+		{
+			EvPlayerID toAll = (EvPlayerID&)p->body.content;
+			toAll.projectileID = mNrOfProjectilesFired++;
+			for ( auto& socket : mClientSockets )
+			{
+				if ( socket.s != s.s && socket.s != INVALID_SOCKET )
+				{
+					mConn->SendPkg( socket.s, 0, Net_Event::EV_UPDATE_HP, toAll );
 				}
 			}
 		}

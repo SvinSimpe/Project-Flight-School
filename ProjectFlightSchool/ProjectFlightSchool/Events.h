@@ -40,13 +40,17 @@
 #include <DirectXMath.h>
 using namespace DirectX;
 
-class Event_Player_Moved : public IEvent
+class Event_Player_Update : public IEvent
 {
 	// Member variables
 	private:
 		XMFLOAT3		mLowerBodyPos;
+		XMFLOAT3		mLowerBodyDirection;
+		unsigned int	mLowerBodyAnimation;
+		float			mLowerBodyAnimationTime;
+
 		XMFLOAT3		mUpperBodyPos;
-		XMFLOAT3		mDirection;
+		XMFLOAT3		mUpperBodyDirection;
 
 	protected:
 	public:
@@ -60,23 +64,38 @@ class Event_Player_Moved : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Player_Moved( XMFLOAT3 lowerBodyPos, XMFLOAT3 upperBodyPos, XMFLOAT3 direction )
+		Event_Player_Update( XMFLOAT3 lowerBodyPos, XMFLOAT3 lowerBodyDirection, unsigned int lowerBodyAnimation, float lowerBodyAnimationTime, XMFLOAT3 upperBodyPos, XMFLOAT3 upperBodyDirection )
 		{
-			mLowerBodyPos	= lowerBodyPos;
-			mUpperBodyPos	= upperBodyPos;
-			mDirection		= direction;
+			mLowerBodyPos			= lowerBodyPos;
+			mLowerBodyDirection		= lowerBodyDirection;
+			mLowerBodyAnimation		= lowerBodyAnimation;
+			mLowerBodyAnimationTime	= lowerBodyAnimationTime;
+			mUpperBodyPos			= upperBodyPos;
+			mUpperBodyDirection		= upperBodyDirection;
 		}
 		XMFLOAT3 LowerBodyPos() const
 		{
 			return mLowerBodyPos;
 		}
+		XMFLOAT3 LowerBodyDirection() const
+		{
+			return mLowerBodyDirection;
+		}
+		unsigned int LowerBodyAnimation() const
+		{
+			return mLowerBodyAnimation;
+		}
+		float LowerBodyAnimationTime() const
+		{
+			return mLowerBodyAnimationTime;
+		}
 		XMFLOAT3 UpperBodyPos() const
 		{
 			return mUpperBodyPos;
 		}
-		XMFLOAT3 Direction() const
+		XMFLOAT3 UpperBodyDirection() const
 		{
-			return mDirection;
+			return mUpperBodyDirection;
 		}
 };
 
@@ -86,8 +105,12 @@ class Event_Remote_Player_Update : public IEvent
 	private:
 		unsigned int	mID;
 		XMFLOAT3		mLowerBodyPos;
+		XMFLOAT3		mLowerBodyDirection;
+		unsigned int	mLowerBodyAnimation;
+		float			mLowerBodyAnimationTime;
+
 		XMFLOAT3		mUpperBodyPos;
-		XMFLOAT3		mDirection;
+		XMFLOAT3		mUpperBodyDirection;
 
 	protected:
 	public:
@@ -101,12 +124,15 @@ class Event_Remote_Player_Update : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Remote_Player_Update( unsigned int id, XMFLOAT3 lowerBodyPos, XMFLOAT3 upperBodyPos, XMFLOAT3 direction )
+		Event_Remote_Player_Update( unsigned int id, XMFLOAT3 lowerBodyPos, XMFLOAT3 lowerBodyDirection, unsigned int lowerBodyAnimation, float lowerBodyAnimationTime, XMFLOAT3 upperBodyPos, XMFLOAT3 upperBodyDirection )
 		{
-			mID				= id;
-			mLowerBodyPos	= lowerBodyPos;
-			mUpperBodyPos	= upperBodyPos;
-			mDirection		= direction;
+			mID						= id;
+			mLowerBodyPos			= lowerBodyPos;
+			mLowerBodyDirection		= lowerBodyDirection;
+			mLowerBodyAnimation		= lowerBodyAnimation;
+			mLowerBodyAnimationTime	= lowerBodyAnimationTime;
+			mUpperBodyPos			= upperBodyPos;
+			mUpperBodyDirection		= upperBodyDirection;
 		}
 		unsigned int ID() const
 		{
@@ -116,13 +142,25 @@ class Event_Remote_Player_Update : public IEvent
 		{
 			return mLowerBodyPos;
 		}
+		XMFLOAT3 LowerBodyDirection() const
+		{
+			return mLowerBodyDirection;
+		}
+		unsigned int LowerBodyAnimation() const
+		{
+			return mLowerBodyAnimation;
+		}
+		float LowerBodyAnimationTime() const
+		{
+			return mLowerBodyAnimationTime;
+		}
 		XMFLOAT3 UpperBodyPos() const
 		{
 			return mUpperBodyPos;
 		}
-		XMFLOAT3 Direction() const
+		XMFLOAT3 UpperBodyDirection() const
 		{
-			return mDirection;
+			return mUpperBodyDirection;
 		}
 };
 
@@ -553,5 +591,71 @@ class Event_Remote_Projectile_Fired : public IEvent
 		XMFLOAT3 Direction() const
 		{
 			return mDirection;
+		}
+};
+
+class Event_Player_Update_HP : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		float			mHP;
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Player_Update_HP( unsigned int id, float hp )
+		{
+			mID = id;
+			mHP	= hp;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+		float HP()
+		{
+			return mHP;
+		}
+};
+
+class Event_Remote_Player_Update_HP : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		float			mHP;
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Remote_Player_Update_HP( unsigned int id, float hp )
+		{
+			mID = id;
+			mHP	= hp;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+		float HP()
+		{
+			return mHP;
 		}
 };

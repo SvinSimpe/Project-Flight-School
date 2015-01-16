@@ -3,6 +3,7 @@
 
 #define STATIC_VERTEX_TYPE 0
 #define ANIMATED_VERTEX_TYPE 1
+#define ANIMATED_INSTANCED_VERTEX_TYPE 2
 
 struct EffectInfo
 {

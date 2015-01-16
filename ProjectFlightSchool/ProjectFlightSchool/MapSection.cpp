@@ -4,7 +4,7 @@ UINT MapSection::INDICES[INDEX_COUNT] = {0};
 
 void MapSection::Render( float deltaTime )
 {
-	Graphics::GetInstance()->RenderStatic3dAssetIndexed( mAssetID, INDEX_COUNT, 0 );
+	//Graphics::GetInstance()->RenderStatic3dAssetIndexed( mAssetID, INDEX_COUNT, 0 );
 }
 void MapSection::SetUpIndices()
 {

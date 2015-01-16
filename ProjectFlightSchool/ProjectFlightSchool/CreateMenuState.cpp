@@ -51,7 +51,7 @@ void CreateMenuState::OnEnter()
 
 void CreateMenuState::OnExit()
 {
-	for(int i = 0; i < BUTTON_AMOUNT; i++)
+	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
 		mButtons[i].SetExitCooldown();
 	}

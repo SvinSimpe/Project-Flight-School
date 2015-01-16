@@ -10,6 +10,7 @@
 #include "CbufferPerObject.h"
 #include "Camera.h"
 #include "Gbuffer.h"
+#include "..\ProjectFlightSchool\RenderStructs.h"
 
 #ifdef COMPILE_LIBRARY
 	#define LIBRARY_EXPORT __declspec( dllexport )
@@ -18,6 +19,8 @@
 #endif
 
 #define NUM_GBUFFERS 3
+
+#define MAX_NUM_INSTANCED (UINT)( MAX_AMOUNT_OF_ANIM3D * 0.1f )
 
 class LIBRARY_EXPORT Graphics
 {
@@ -49,11 +52,14 @@ class LIBRARY_EXPORT Graphics
 		Effect*						mStaticEffect;
 		Effect*						m2dEffect;
 		Effect*						mAnimatedEffect;
+		Effect*						mAnimInstancedEffect;
 		Camera*						mCamera;
 		Camera*						mDeveloperCamera;
 		bool						mIsDeveloperCameraActive;
 		Effect*						mDeferredPassEffect;
-		Gbuffer*					mGbuffers[NUM_GBUFFERS];				
+		Gbuffer*					mGbuffers[NUM_GBUFFERS];
+
+		ID3D11Buffer*				mInstancedDataAnimated;
 
 	protected:
 	public:
@@ -74,10 +80,12 @@ class LIBRARY_EXPORT Graphics
 		HRESULT LoadSkeletonAsset( std::string filePath, std::string fileName, AssetID &assetId );
 		HRESULT LoadAnimationAsset( std::string filePath, std::string fileName, AssetID &assetId );
 
+		void Render( RenderLists& renderLists );
 		void Render2dAsset( AssetID assetId, float x, float y, float width, float height );
 		void RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX::XMFLOAT3 y );
 		void RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT4X4* world );
 		void RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, float x, float y, float z );
+		void RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList );
 
 		Camera* GetCamera() const;
 		Camera* GetDeveloperCamera() const;
@@ -93,6 +101,8 @@ class LIBRARY_EXPORT Graphics
 
 		void	BeginScene();
 		void	EndScene();
+
+		void GetAnimationMatrices( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo& info );
 
 		UINT QueryMemoryUsed();
 

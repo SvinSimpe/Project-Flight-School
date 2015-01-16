@@ -94,13 +94,15 @@ void RenderManager::AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLef
 	mObject2dArray[mNrOfObject2d++] = info;
 }
 
-void RenderManager::AddAnim3dToList( AssetID modelAssetId, AssetID animationAssetId, float* animationTime, DirectX::XMFLOAT3 position )
+void RenderManager::AddAnim3dToList( AssetID modelAssetId, AssetID animationAssetId, float* animationTime, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation )
 {
-	Anim3dInfo info;
+    static Anim3dInfo info;
 	info.mModelId	= modelAssetId;
 	info.mAnimId	= animationAssetId;
 	info.mAnimTime	= animationTime;
 	info.mPosition	= position;
+
+	Graphics::GetInstance()->GetAnimationMatrices( modelAssetId, animationAssetId, *animationTime, position, rotation, info ); 
 
 	mAnim3dArray[mNrOfAnim3d++] = info;
 }
@@ -131,14 +133,14 @@ HRESULT RenderManager::Render()
 		Graphics::GetInstance()->RenderStatic3dAsset( mObject3dArray[i].mAssetId, &mObject3dArray[i].mWorld );
 	}
 
-	for( UINT i = 0; i < mNrOfAnim3d; i++ )
-	{
-		Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray[i].mModelId, mAnim3dArray[i].mAnimId, *mAnim3dArray[i].mAnimTime, mAnim3dArray[i].mPosition.x, mAnim3dArray[i].mPosition.y, mAnim3dArray[i].mPosition.z );
-	}
-
 	for( UINT i = 0; i < mNrOfPlane; i++ )
 	{
 		Graphics::GetInstance()->RenderPlane2dAsset( mPlaneArray[i].mAssetId, mPlaneArray[i].mTopTriangle, mPlaneArray[i].mBottomTriangle );
+	}
+
+	for( UINT i = 0; i < mNrOfAnim3d; i++ )
+	{
+		Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray[i].mModelId, mAnim3dArray[i].mAnimId, *mAnim3dArray[i].mAnimTime, mAnim3dArray[i].mPosition.x, mAnim3dArray[i].mPosition.y, mAnim3dArray[i].mPosition.z );
 	}
 
 	for( UINT i = 0; i < mNrOfObject2d; i++ )

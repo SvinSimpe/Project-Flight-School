@@ -48,7 +48,7 @@ HRESULT RemotePlayer::Render(float deltaTime)
 
 	if ( mIsAlive )
 	{
-		mCurrentHp -= 0.07;
+		//mCurrentHp -= 0.07f;
 		float renderHpSize = ( mCurrentHp * 1.5f / mMaxHp ) + 1; //*1.5 and +1 to make it an appropriate size.
 
 		DirectX::XMFLOAT3 x = { mLowerBody.position.x - renderHpSize / 2.0f, 0.01f, mLowerBody.position.z + renderHpSize / 2.0f };

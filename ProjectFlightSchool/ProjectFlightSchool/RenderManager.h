@@ -4,12 +4,6 @@
 #include <Graphics.h>
 #include "RenderStructs.h"
 
-static const UINT MAX_AMOUNT_OF_OBJECT3D	= 500;
-static const UINT MAX_AMOUNT_OF_OBJECT2D	= 50;
-static const UINT MAX_AMOUNT_OF_ANIM3D		= 100;
-static const UINT MAX_AMOUNT_OF_PLANES		= 10;
-
-
 class RenderManager
 {
 	private:
@@ -33,7 +27,7 @@ class RenderManager
 	public:
 		void AddObject3dToList( AssetID assetId, DirectX::XMFLOAT3 position = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), DirectX::XMFLOAT3 rotation = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 		void AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLeftCorner, DirectX::XMFLOAT2 widthHeight );
-		void AddAnim3dToList( AssetID modelAssetId, AssetID animationAssetId, float* animationTime, DirectX::XMFLOAT3 position = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
+		void AddAnim3dToList( AssetID modelAssetId, AssetID animationAssetId, float* animationTime, DirectX::XMFLOAT3 position = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), DirectX::XMFLOAT3 rotation = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 		void AddPlaneToList( AssetID assetId, DirectX::XMFLOAT3 topTriangle, DirectX::XMFLOAT3 bottomTriangle );
 		HRESULT Update( float deltaTime );	//Currently clearing the arrays to standard values and reseting number of active objects variable for them in update
 		HRESULT Render();	

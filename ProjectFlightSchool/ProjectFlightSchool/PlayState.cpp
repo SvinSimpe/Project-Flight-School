@@ -111,7 +111,7 @@ void PlayState::UpdateProjectiles( float deltaTime )
 
 void PlayState::RenderProjectiles()
 {
-	if( mNrOfProjectilesFired != 0 )
+  	if( mNrOfProjectilesFired != 0 )
 	{
 		for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
 		{
@@ -206,10 +206,10 @@ HRESULT PlayState::Render()
 	{
 		RenderManager::GetInstance()->AddObject3dToList( mStoneAssets[i], DirectX::XMFLOAT3( (float)i*4.0f, 0.0f, -4.0f ) );
 	}
-
+	
 	RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation, mTestAnimationAnimation, &mAnimationTime, DirectX::XMFLOAT3( -5.0f, 0.0f, 0.0f ) );
 
-	Graphics::GetInstance()->RenderAnimated3dAsset( mTestRobot, mTestRobotAni, mRobotTime, 4.0f, 0.0f, 4.0f );
+	RenderManager::GetInstance()->AddAnim3dToList( mTestRobot, mTestRobotAni, &mRobotTime, DirectX::XMFLOAT3( 4.0f, 0.0f, 4.0f ) );
 
 	mPlayer->Render( 0.0f );
 	//mWorldMap->Render( 0.0f );
@@ -228,9 +228,9 @@ HRESULT PlayState::Render()
 	RenderManager::GetInstance()->AddPlaneToList( mTest2dAsset, x, y );
 	RenderManager::GetInstance()->AddObject2dToList( mTest2dAsset, DirectX::XMFLOAT2( 500.0f, 500.0f ), DirectX::XMFLOAT2( 50.0f, 50.0f ) );
 
-	RenderManager::GetInstance()->Render();
-	
 	mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
+
+	RenderManager::GetInstance()->Render();
 
 	return S_OK;
 }

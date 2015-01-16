@@ -152,63 +152,63 @@ HRESULT RemotePlayer::Render( float deltaTime, int position )
 
 	if( mColorIDAsset )
 	{
-		DirectX::XMFLOAT2 topLeft	= {10.0f, 20.0f*(float)position};
-		DirectX::XMFLOAT2 size		= {10, 10};
+		DirectX::XMFLOAT2 topLeft	= { 10.0f, 20.0f*(float)position };
+		DirectX::XMFLOAT2 size		= { 10, 10 };
 		RenderManager::GetInstance()->AddObject2dToList( mColorIDAsset, topLeft, size );
 
-		int currentKills = mNrOfKills;
+		int currentKills		= mNrOfKills;
 		std::string textToWrite = "K ";
-		while(currentKills > 100)
+		while( currentKills > 100 )
 		{
-			textToWrite += "C";
-			currentKills -= 100;
+			textToWrite		+= "C";
+			currentKills	-= 100;
 		}
-		while(currentKills > 50)
+		while( currentKills > 50 )
 		{
-			textToWrite += "L";
-			currentKills -= 50;
+			textToWrite		+= "L";
+			currentKills	-= 50;
 		}
-		while(currentKills > 10)
+		while( currentKills > 10 )
 		{
-			textToWrite += "X";
-			currentKills -= 10;
+			textToWrite		+= "X";
+			currentKills	-= 10;
 		}
-		while(currentKills > 5)
+		while( currentKills > 5 )
 		{
-			textToWrite += "V";
-			currentKills -= 5;
+			textToWrite		+= "V";
+			currentKills	-= 5;
 		}
-		while(currentKills > 0)
+		while( currentKills > 0 )
 		{
-			textToWrite += "I";
+			textToWrite	+= "I";
 			currentKills--;
 		}
 
 		int currentDeaths = mNrOfDeaths;
 		textToWrite += " D ";
-		while(currentDeaths > 100)
+		while( currentDeaths > 100 )
 		{
-			textToWrite += "C";
-			currentDeaths -= 100;
+			textToWrite		+= "C";
+			currentDeaths	-= 100;
 		}
-		while(currentDeaths > 50)
+		while( currentDeaths > 50 )
 		{
-			textToWrite += "L";
-			currentDeaths -= 50;
+			textToWrite		+= "L";
+			currentDeaths	-= 50;
 		}
-		while(currentDeaths > 10)
+		while( currentDeaths > 10 )
 		{
-			textToWrite += "X";
-			currentDeaths -= 10;
+			textToWrite		+= "X";
+			currentDeaths	-= 10;
 		}
-		while(currentDeaths > 5)
+		while( currentDeaths > 5 )
 		{
-			textToWrite += "V";
-			currentDeaths -= 5;
+			textToWrite		+= "V";
+			currentDeaths	-= 5;
 		}
-		while(currentDeaths > 0)
+		while( currentDeaths > 0 )
 		{
-			textToWrite += "I";
+			textToWrite	+= "I";
 			currentDeaths--;
 		}
 		mFont.WriteText( textToWrite, 20.0f, ((20.0f*(float)position)-7), 0.5f );

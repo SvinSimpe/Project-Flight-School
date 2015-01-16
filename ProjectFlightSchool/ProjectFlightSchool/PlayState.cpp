@@ -237,7 +237,7 @@ void PlayState::CheckMeeleCollision()
 void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID )
 {
 	unsigned int shooter = 0;
-	for ( size_t i = 0; i<MAX_PROJECTILES; i++)
+	for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
 	{
 		if( mProjectiles[i]->GetID() == projectileID )
 		{
@@ -319,7 +319,7 @@ HRESULT PlayState::Render()
 	//	if( rp )
 	//		rp->Render( 0.0f );
 	//}
-	for (size_t i = 0; i < mRemotePlayers.size(); i++)
+	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
 	{
 		if (mRemotePlayers.at(i))
 		{

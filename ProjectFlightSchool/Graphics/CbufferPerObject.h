@@ -3,7 +3,7 @@
 
 #include <DirectXMath.h>
 
-#define NUM_SUPPORTED_JOINTS 16
+#define NUM_SUPPORTED_JOINTS 32
 
 struct CbufferPerObject
 {

@@ -40,7 +40,7 @@
 
 // To define a new event - you need a 32-bit GUID. 
 // In Visual Studio, go to Tools->Create GUID and grab the first bit.
-const EventType Event_Player_Moved::GUID( 0 );
+const EventType Event_Player_Update::GUID( 0 );
 const EventType Event_Remote_Player_Update::GUID( 1 );
 const EventType Event_Local_Player_Joined::GUID( 2 );
 const EventType Event_Remote_Player_Joined::GUID( 3 );

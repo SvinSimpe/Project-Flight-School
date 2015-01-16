@@ -22,20 +22,23 @@ bool Client::ReceiveLoop()
 
 void Client::EventListener( IEventPtr newEvent )
 {
-	if ( newEvent->GetEventType() == Event_Player_Moved::GUID )
+	if ( newEvent->GetEventType() == Event_Player_Update::GUID )
 	{
-		std::shared_ptr<Event_Player_Moved> data = std::static_pointer_cast<Event_Player_Moved>( newEvent );
+		std::shared_ptr<Event_Player_Update> data = std::static_pointer_cast<Event_Player_Update>( newEvent );
 		if ( mServerSocket != INVALID_SOCKET )
 		{
-			EvPlayerMoved msg;
-			msg.id			= mID;
-			msg.lowerBody	= data->LowerBodyPos();
-			msg.upperBody	= data->UpperBodyPos();
-			msg.direction	= data->Direction();
+			EvPlayerUpdate msg;
+			msg.id						= mID;
+			msg.lowerBodyPosition		= data->LowerBodyPos();
+			msg.lowerBodyDirection		= data->LowerBodyDirection();
+			msg.lowerBodyAnimation		= data->LowerBodyAnimation();
+			msg.lowerBodyAnimationTime	= data->LowerBodyAnimationTime();
+			msg.upperBodyPosition		= data->UpperBodyPos();
+			msg.upperBodyDirection		= data->UpperBodyDirection();
 
 			if ( mServerSocket != INVALID_SOCKET )
 			{
-				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_MOVED, msg );
+				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_UPDATE, msg );
 			}
 		}
 	}
@@ -169,7 +172,7 @@ bool Client::Connect()
 
 bool Client::Run()
 {
-	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Moved::GUID );
+	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Update::GUID );
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Died::GUID );
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Damaged::GUID );
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Spawned::GUID );

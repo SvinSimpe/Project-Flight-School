@@ -140,7 +140,7 @@ HRESULT RenderManager::Render()
 
 	for( UINT i = 0; i < mNrOfAnim3d; i++ )
 	{
-		Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray[i].mModelId, mAnim3dArray[i].mAnimId, *mAnim3dArray[i].mAnimTime, mAnim3dArray[i].mPosition.x, mAnim3dArray[i].mPosition.y, mAnim3dArray[i].mPosition.z );
+		Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray[i].mModelId, mAnim3dArray[i].mAnimId, *mAnim3dArray[i].mAnimTime, &mAnim3dArray[i].mWorld );
 	}
 
 	for( UINT i = 0; i < mNrOfObject2d; i++ )

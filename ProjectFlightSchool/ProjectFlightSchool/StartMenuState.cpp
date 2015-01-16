@@ -11,7 +11,7 @@ void StartMenuState::HandleInput()
 		IEventPtr E1( new Event_Start_Server() );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
-		IEventPtr E2( new Event_Change_State( PLAY_STATE ) );
+		IEventPtr E2( new Event_Change_State( CREATE_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
 	}
 	else if( mButtons[JOIN].LeftMousePressed() )

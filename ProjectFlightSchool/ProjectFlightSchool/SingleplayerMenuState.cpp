@@ -12,6 +12,9 @@ HRESULT SingleplayerMenuState::Update( float deltaTime )
 
 HRESULT SingleplayerMenuState::Render()
 {
+	Graphics::GetInstance()->BeginScene();
+	BaseMenuState::Render();
+	Graphics::GetInstance()->EndScene();
 	return S_OK;
 }
 
@@ -29,6 +32,8 @@ void SingleplayerMenuState::Reset()
 
 HRESULT SingleplayerMenuState::Initialize()
 {
+	BaseMenuState::Initialize();
+	mStateType = SINGLE_MENU_STATE;
 	return S_OK;
 }
 

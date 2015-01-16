@@ -12,6 +12,9 @@ HRESULT JoinMenuState::Update( float deltaTime )
 
 HRESULT JoinMenuState::Render()
 {
+	Graphics::GetInstance()->BeginScene();
+	BaseMenuState::Render();
+	Graphics::GetInstance()->EndScene();
 	return S_OK;
 }
 
@@ -29,6 +32,8 @@ void JoinMenuState::Reset()
 
 HRESULT JoinMenuState::Initialize()
 {
+	BaseMenuState::Initialize();
+	mStateType = JOIN_MENU_STATE;
 	return S_OK;
 }
 

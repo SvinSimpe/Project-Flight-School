@@ -19,37 +19,33 @@ void MenuButton::SpinCircle()
 
 void MenuButton::Render()
 {
-	for(auto& it : mInner)
+	for( auto& it : mInner )
 	{
 		if(it.active)
 			Graphics::GetInstance()->Render2dAsset( it.asset, (float)mUpperLeft.x, (float)mUpperLeft.y, mWidth, mHeight );
 	}
 
-	for(auto& it : mMiddle)
+	for( auto& it : mMiddle )
 	{
-		if(it.active)
+		if( it.active )
 			Graphics::GetInstance()->Render2dAsset( it.asset, (float)mUpperLeft.x, (float)mUpperLeft.y, mWidth, mHeight );
 	}
 
-	for(auto& it : mOuter)
+	for( auto& it : mOuter )
 	{
-		if(it.active)
+		if( it.active )
 			Graphics::GetInstance()->Render2dAsset( it.asset, (float)mUpperLeft.x, (float)mUpperLeft.y, mWidth, mHeight );
 	}
 }
 
 bool MenuButton::Update( float deltaTime )
 {
+	Entry::Update( deltaTime );
 	mSpinTimer += deltaTime;
 
-	if(mSpinTimer >= SPIN_COOLDOWN)
+	if( mSpinTimer >= SPIN_COOLDOWN )
 	{
 		SpinCircle();
-	}
-
-	if( mCurrentCD >= 0.0f )
-	{
-		mCurrentCD -= deltaTime;
 	}
 
 	return true;
@@ -57,21 +53,21 @@ bool MenuButton::Update( float deltaTime )
 
 bool MenuButton::Initialize( UINT x, UINT y, UINT width, UINT height )
 {
-	Entry::Initialize(x, y, width, height);
+	Entry::Initialize( x, y, width, height );
 
 	std::string path = "../Content/Assets/Textures/Menu/Menu_Button/";
 
-	Graphics::GetInstance()->LoadStatic2dAsset(path + "Inner/inner.png", mInner[0].asset);
-	Graphics::GetInstance()->LoadStatic2dAsset(path + "Inner/innerRot120.png", mInner[1].asset);
-	Graphics::GetInstance()->LoadStatic2dAsset(path + "Inner/innerRot240.png", mInner[2].asset);
+	Graphics::GetInstance()->LoadStatic2dAsset( path + "Inner/inner.png", mInner[0].asset );
+	Graphics::GetInstance()->LoadStatic2dAsset( path + "Inner/innerRot120.png", mInner[1].asset );
+	Graphics::GetInstance()->LoadStatic2dAsset( path + "Inner/innerRot240.png", mInner[2].asset );
 
-	Graphics::GetInstance()->LoadStatic2dAsset(path + "Middle/middle.png", mMiddle[0].asset);
-	Graphics::GetInstance()->LoadStatic2dAsset(path + "Middle/middleRot120.png", mMiddle[1].asset);
-	Graphics::GetInstance()->LoadStatic2dAsset(path + "Middle/middleRot240.png", mMiddle[2].asset);
+	Graphics::GetInstance()->LoadStatic2dAsset( path + "Middle/middle.png", mMiddle[0].asset );
+	Graphics::GetInstance()->LoadStatic2dAsset( path + "Middle/middleRot120.png", mMiddle[1].asset );
+	Graphics::GetInstance()->LoadStatic2dAsset( path + "Middle/middleRot240.png", mMiddle[2].asset );
 
-	Graphics::GetInstance()->LoadStatic2dAsset(path + "Outer/outer.png", mOuter[0].asset);
-	Graphics::GetInstance()->LoadStatic2dAsset(path + "Outer/outerRot120.png", mOuter[1].asset);
-	Graphics::GetInstance()->LoadStatic2dAsset(path + "Outer/outerRot240.png", mOuter[2].asset);
+	Graphics::GetInstance()->LoadStatic2dAsset( path + "Outer/outer.png", mOuter[0].asset );
+	Graphics::GetInstance()->LoadStatic2dAsset( path + "Outer/outerRot120.png", mOuter[1].asset );
+	Graphics::GetInstance()->LoadStatic2dAsset( path + "Outer/outerRot240.png", mOuter[2].asset );
 
 	return true;
 }

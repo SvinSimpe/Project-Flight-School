@@ -2,7 +2,7 @@
 
 void Text::Render()
 {
-	Font::WriteText(mText, mX, mY, mScale);
+	Font::WriteText( mText, mX, mY, mScale );
 }
 
 void Text::SetText(std::string text)
@@ -12,7 +12,7 @@ void Text::SetText(std::string text)
 
 void Text::Initialize( std::string fontPath, std::string text, float x, float y, float scale )
 {
-	Font::Initialize(fontPath);
+	Font::Initialize( fontPath );
 	mX		= x;
 	mY		= y;
 	mScale	= scale;
@@ -23,7 +23,7 @@ void Text::Release()
 {
 }
 
-Text::Text()
+Text::Text() : Font()
 {
 }
 

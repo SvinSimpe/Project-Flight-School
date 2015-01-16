@@ -12,6 +12,10 @@ HRESULT CreateMenuState::Update( float deltaTime )
 
 HRESULT CreateMenuState::Render()
 {
+	Graphics::GetInstance()->BeginScene();
+	BaseMenuState::Render();
+	Graphics::GetInstance()->EndScene();
+
 	return S_OK;
 }
 
@@ -29,6 +33,8 @@ void CreateMenuState::Reset()
 
 HRESULT CreateMenuState::Initialize()
 {
+	BaseMenuState::Initialize();
+	mStateType = CREATE_MENU_STATE;
 	return S_OK;
 }
 

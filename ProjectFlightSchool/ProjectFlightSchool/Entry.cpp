@@ -38,6 +38,14 @@ bool Entry::RightMousePressed()
 	return false;
 }
 
+bool Entry::Update( float deltaTime )
+{
+	if( mCurrentCD >= 0.0f )
+	{
+		mCurrentCD -= deltaTime;
+	}
+	return true;
+}
 
 bool Entry::Initialize( UINT x, UINT y, UINT width, UINT height )
 {
@@ -60,7 +68,7 @@ Entry::Entry()
 	mUpperLeft.y	= 0;
 	mLowerRight.x	= 0;
 	mLowerRight.y	= 0;
-	mCurrentCD		= 0.0f;
+	mCurrentCD		= 0.1f;
 }
 
 

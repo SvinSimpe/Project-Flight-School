@@ -22,7 +22,6 @@ void Image::Release()
 
 Image::Image() : Entry()
 {
-	mCurrentCD = 0.0f;
 }
 
 Image::~Image()

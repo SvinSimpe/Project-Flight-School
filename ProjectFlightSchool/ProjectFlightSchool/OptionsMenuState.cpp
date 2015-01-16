@@ -12,6 +12,9 @@ HRESULT OptionsMenuState::Update( float deltaTime )
 
 HRESULT OptionsMenuState::Render()
 {
+	Graphics::GetInstance()->BeginScene();
+	BaseMenuState::Render();
+	Graphics::GetInstance()->EndScene();
 	return S_OK;
 }
 
@@ -29,6 +32,8 @@ void OptionsMenuState::Reset()
 
 HRESULT OptionsMenuState::Initialize()
 {
+	BaseMenuState::Initialize();
+	mStateType = OPTIONS_MENU_STATE;
 	return S_OK;
 }
 

@@ -31,12 +31,58 @@ void RemotePlayer::RemoteInit( unsigned int id, int team, AssetID teamColor, Ass
 	EventManager::GetInstance()->AddListener( &RemotePlayer::RemoteUpdate, this, Event_Remote_Player_Update::GUID );
 }
 
+void RemotePlayer::BroadcastDeath()
+{
+	IEventPtr dieEv( new Event_Player_Died( mID ) );
+	EventManager::GetInstance()->QueueEvent( dieEv );
+}
+
 // Kill remote player
+// Set current hp to 0 to avoid negative values and send event that player has died
 void RemotePlayer::Die()
 {
-	mCurrentHp = 0.0f;
 	mIsAlive = false;
+	mCurrentHp = 0.0f;
 	mTimeTillSpawn	= mSpawnTime;
+}
+
+void RemotePlayer::HandleSpawn( float deltaTime )
+{
+	if( mTimeTillSpawn <= 0.0f )
+	{
+		Spawn();
+	}
+	else
+	{
+		mTimeTillSpawn -= deltaTime;
+	}
+}
+
+void RemotePlayer::Spawn()
+{
+	mIsAlive			= true;
+	mCurrentHp			= mMaxHp;
+	mUpperBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
+	mLowerBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
+	IEventPtr spawnEv( new Event_Player_Spawned( mID ) );
+	EventManager::GetInstance()->QueueEvent( spawnEv );
+}
+
+void RemotePlayer::TakeDamage( unsigned int damage )
+{
+	mCurrentHp -= damage;
+	IEventPtr player( new Event_Player_Update_HP( mID, mCurrentHp ) );
+	EventManager::GetInstance()->QueueEvent( player );
+	if ( mIsAlive && mCurrentHp <= 0.0f )
+	{
+		Die();
+		BroadcastDeath();
+	}
+}
+
+void RemotePlayer::SetHP( float hp )
+{
+	mCurrentHp = hp;
 }
 
 int RemotePlayer::GetID() const
@@ -47,7 +93,7 @@ int RemotePlayer::GetID() const
 HRESULT RemotePlayer::Render( float deltaTime )
 
 {
-	RenderManager::GetInstance()->AddObject3dToList(mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction);
+	//RenderManager::GetInstance()->AddObject3dToList(mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction);
 	RenderManager::GetInstance()->AddObject3dToList(mLowerBody.playerModel, mLowerBody.position);
 
 	DirectX::XMFLOAT3 x;
@@ -55,6 +101,8 @@ HRESULT RemotePlayer::Render( float deltaTime )
 
 	if ( mIsAlive )
 	{
+		RenderManager::GetInstance()->AddObject3dToList(mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction);
+
 		float renderHpSize = ( mCurrentHp * 1.5f / mMaxHp ) + 1; //*1.5 and +1 to make it an appropriate size.
 
 		x = { mLowerBody.position.x - renderHpSize / 2.0f, 0.01f, mLowerBody.position.z + renderHpSize / 2.0f };
@@ -152,7 +200,7 @@ RemotePlayer::RemotePlayer()
 	mIsAlive				= true;
 	mMaxHp					= 100.0f;
 	mCurrentHp				= mMaxHp;
-	mSpawnTime				= 10.0f;
+	mSpawnTime				= 4.0f;
 	mTimeTillSpawn			= mSpawnTime;
 
 	mBoundingBox			= nullptr;

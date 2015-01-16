@@ -56,3 +56,5 @@ const EventType Event_Player_Spawned::GUID( 12 );
 const EventType Event_Remote_Player_Spawned::GUID( 13 );
 const EventType Event_Projectile_Fired::GUID( 14 );
 const EventType Event_Remote_Projectile_Fired::GUID( 15 );
+const EventType Event_Player_Update_HP::GUID( 16 );
+const EventType Event_Remote_Player_Update_HP::GUID( 17 );

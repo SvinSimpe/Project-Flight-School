@@ -19,6 +19,7 @@ struct EvPlayerMoved
 struct EvPlayerID
 {
 	unsigned int ID;
+	unsigned int HP;
 	unsigned int projectileID;
 };
 

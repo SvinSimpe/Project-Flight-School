@@ -8,17 +8,21 @@ struct Message
 	char* msg = "";
 };
 
-struct EvPlayerMoved
+struct EvPlayerUpdate
 {
-	unsigned int id;
-	DirectX::XMFLOAT3 lowerBody;
-	DirectX::XMFLOAT3 upperBody;
-	DirectX::XMFLOAT3 direction;
+	unsigned int		id;
+	DirectX::XMFLOAT3	lowerBodyPosition;
+	DirectX::XMFLOAT3	lowerBodyDirection;
+	unsigned int		lowerBodyAnimation;
+	float				lowerBodyAnimationTime;
+	DirectX::XMFLOAT3	upperBodyPosition;
+	DirectX::XMFLOAT3	upperBodyDirection;
 };
 
 struct EvPlayerID
 {
 	unsigned int ID;
+	unsigned int HP;
 	unsigned int projectileID;
 };
 

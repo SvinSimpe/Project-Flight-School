@@ -118,7 +118,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RenderManager.cpp">
-	  <Filter>Source Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BaseState.cpp">
       <Filter>GameStates\Source Files</Filter>
@@ -132,10 +132,34 @@
     <ClCompile Include="StateMachine.cpp">
       <Filter>GameStates\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Button.cpp">
+    <ClCompile Include="..\Graphics\Font.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Graphics\Font.cpp">
+    <ClCompile Include="BaseMenuState.cpp">
+      <Filter>GameStates\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuButton.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Text.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateMenuState.cpp">
+      <Filter>GameStates\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="JoinMenuState.cpp">
+      <Filter>GameStates\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MultiplayerMenuState.cpp">
+      <Filter>GameStates\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OptionsMenuState.cpp">
+      <Filter>GameStates\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SingleplayerMenuState.cpp">
+      <Filter>GameStates\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Image.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -210,7 +234,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RenderStructs.h">
-	  <Filter>Header Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BaseState.h">
       <Filter>GameStates\Header Files</Filter>
@@ -224,24 +248,42 @@
     <ClInclude Include="StateMachine.h">
       <Filter>GameStates\Header Files</Filter>
     </ClInclude>
-    
-    <ClInclude Include="Button.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-
-    
     <ClInclude Include="BoundingGeometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    
     <ClInclude Include="WeaponInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-      
     <ClInclude Include="..\Graphics\Font.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-      
+    <ClInclude Include="BaseMenuState.h">
+      <Filter>GameStates\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuButton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Text.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateMenuState.h">
+      <Filter>GameStates\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="JoinMenuState.h">
+      <Filter>GameStates\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MultiplayerMenuState.h">
+      <Filter>GameStates\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OptionsMenuState.h">
+      <Filter>GameStates\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SingleplayerMenuState.h">
+      <Filter>GameStates\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

@@ -37,7 +37,7 @@ class Player: public RemotePlayer
 
 	public:
 		HRESULT		Update( float deltaTime );
-		HRESULT		Render( float deltaTime );
+		//HRESULT		Render( float deltaTime );
 
 		void		SetID( unsigned int id );
 		void		SetTeam( int team, AssetID teamColor );

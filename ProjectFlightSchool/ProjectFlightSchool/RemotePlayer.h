@@ -6,6 +6,7 @@
 #include "Events.h"
 #include "BoundingGeometry.h"
 #include "RenderManager.h"
+#include "Font.h"
 
 struct UpperBody
 {
@@ -45,6 +46,7 @@ class RemotePlayer
 		AssetID			mColorIDAsset;
 		int				mNrOfDeaths;
 		int				mNrOfKills;
+		Font			mFont;
 
 	public:
 
@@ -70,7 +72,7 @@ class RemotePlayer
 		BoundingBox*	GetBoundingBox() const;
 		BoundingCircle*	GetBoundingCircle() const;
 		XMFLOAT3		GetPosition() const;
-		virtual HRESULT	Render( float deltaTime );
+		virtual HRESULT	Render( float deltaTime, int position );
 		virtual HRESULT	Initialize();
 		void			Release();
 						RemotePlayer();

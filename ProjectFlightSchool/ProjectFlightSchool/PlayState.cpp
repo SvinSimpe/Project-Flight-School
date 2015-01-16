@@ -308,17 +308,24 @@ HRESULT PlayState::Render()
 
 	RenderManager::GetInstance()->AddAnim3dToList( mTestRobot, mTestRobotAni, &mRobotTime, DirectX::XMFLOAT3( 4.0f, 0.0f, 4.0f ) );
 
-	mPlayer->Render( 0.0f );
+	mPlayer->Render( 0.0f, 1 );
 	//mWorldMap->Render( 0.0f );
-	for( auto& rp : mRemotePlayers )
+	//for( auto& rp : mRemotePlayers )
+	//{
+	//	if( rp )
+	//		rp->Render( 0.0f );
+	//}
+	for (size_t i = 0; i < mRemotePlayers.size(); i++)
 	{
-		if( rp )
-			rp->Render( 0.0f );
+		if( mRemotePlayers.at(i) )
+		{
+			mRemotePlayers.at(i)->Render( 0.0f, i+2 );
+		}
 	}
 
 	RenderProjectiles();
 
-	mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
+	//mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
 
 	RenderManager::GetInstance()->Render();
 

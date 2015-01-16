@@ -26,7 +26,7 @@ class MapSection
 		HRESULT Initialize( UINT sectionID,  float vertexSpacing, UINT mapDim );
 		HRESULT Initialize( Map* map, MapSection* parent, MapNodeInstance** mMapNodes, int childID );
 		bool	AddNodeToSection( MapNodeInstance* node );
-		bool	GetSectionContainingUnit( MapSection** container, int& sectionCount, BoundingCircle* unit );
+		bool	GetSectionContainingUnit( MapSection** container, int& sectionCount, BoundingBox* unit );
 		int		GetSections();
 
 		void Release();

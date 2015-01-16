@@ -1,5 +1,6 @@
 #include "GameObject.h"
 #include "MapNode.h"
+#include "RenderManager.h"
 
 HRESULT	GameObject::Update(float deltaTime)
 {
@@ -35,7 +36,7 @@ HRESULT	GameObject::Render(float deltaTime, DirectX::XMFLOAT4X4 parentWorld )
 	DirectX::XMStoreFloat4x4( &worldFinished, world );
 	
 
-	Graphics::GetInstance()->RenderStatic3dAsset( mAssetID, &worldFinished );
+	RenderManager::GetInstance()->AddObject3dToList( mAssetID, worldFinished );
 	return S_OK;
 }
 

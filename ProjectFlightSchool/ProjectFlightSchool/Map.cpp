@@ -7,12 +7,15 @@ HRESULT Map::Render( float deltaTime, Player* player )
 	
 	MapSection* mapNodes[10];
 	int count = 0;
-	mMapSection->GetSectionContainingUnit( mapNodes, count, player->GetBoundingCircle() );
+	BoundingCircle* c = player->GetBoundingCircle();
+	printf( "Center point is: %f | %f | %f\n", c->center.x, c->center.y, c->center.z );
+	mMapSection->GetSectionContainingUnit( mapNodes, count, player->GetBoundingBox() );
 
 	for( int i = 0; i < count; i++ )
 	{
 		mapNodes[i]->Render( deltaTime );
 	}
+
 	return S_OK;
 }
 UINT Map::GetMapDim() const

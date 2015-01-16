@@ -7,13 +7,13 @@ HRESULT MapSection::Render( float deltaTime )
 	{
 		mInstances[i]->Render( deltaTime );
 	}
-	for( int i = 0; i < 4; i++ )
-	{
-		if( mChildren[i] != nullptr )
-		{
-			mChildren[i]->Render( deltaTime );
-		}
-	}
+	//for( int i = 0; i < 4; i++ )
+	//{
+	//	if( mChildren[i] != nullptr )
+	//	{
+	//		mChildren[i]->Render( deltaTime );
+	//	}
+	//}
 	return S_OK;
 }
 HRESULT MapSection::Initialize( Map* map, MapSection* parent, MapNodeInstance** mapNodes, int childID )
@@ -77,7 +77,7 @@ bool MapSection::AddNodeToSection( MapNodeInstance* node )
 	}
 	return result;
 }
-bool MapSection::GetSectionContainingUnit( MapSection** container, int& sectionCount, BoundingCircle* unit )
+bool MapSection::GetSectionContainingUnit( MapSection** container, int& sectionCount, BoundingBox* unit )
 {
 	if( mBoundingBox.Intersect( unit->center ) )
 	{

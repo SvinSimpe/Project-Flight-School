@@ -336,6 +336,8 @@ class Event_Player_Died : public IEvent
 	// Member variables
 	private:
 		unsigned int mID;
+		unsigned int mKillerID;
+
 	protected:
 	public:
 		static const EventType GUID;
@@ -348,13 +350,18 @@ class Event_Player_Died : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Player_Died( unsigned int id )
+		Event_Player_Died( unsigned int id, unsigned int killer )
 		{
-			mID = id;
+			mID			= id;
+			mKillerID	= killer;
 		}
 		unsigned int ID() const
 		{
 			return mID;
+		}
+		unsigned int KillerID() const
+		{
+			return mKillerID;
 		}
 };
 
@@ -363,6 +370,7 @@ class Event_Remote_Player_Died : public IEvent
 	// Member variables
 	private:
 		unsigned int mID;
+		unsigned int mKillerID;
 
 	protected:
 	public:
@@ -376,13 +384,18 @@ class Event_Remote_Player_Died : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Remote_Player_Died( unsigned int id )
+		Event_Remote_Player_Died( unsigned int id, unsigned int killer )
 		{
-			mID = id;
+			mID			= id;
+			mKillerID	= killer;
 		}
 		unsigned int ID() const
 		{
 			return mID;
+		}
+		unsigned int KillerID() const
+		{
+			return mKillerID;
 		}
 };
 

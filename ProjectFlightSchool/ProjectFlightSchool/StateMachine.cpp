@@ -62,11 +62,19 @@ HRESULT StateMachine::Initialize()
 {
 	mStates							= new BaseState*[NR_OF_STATES];
 	mStates[START_MENU_STATE]		= new StartMenuState();
-	mStates[PLAY_STATE]				= new PlayState();
+	mStates[CREATE_MENU_STATE]		= new CreateMenuState();
+	mStates[JOIN_MENU_STATE]		= new JoinMenuState();
+	mStates[MULTI_MENU_STATE]		= new MultiplayerMenuState();
+	mStates[OPTIONS_MENU_STATE]		= new OptionsMenuState();
+	mStates[SINGLE_MENU_STATE]		= new SingleplayerMenuState();
+	mStates[PLAY_STATE]				= new StartMenuState();
 	mCurrentState					= START_MENU_STATE;
 
-	mStates[START_MENU_STATE]->Initialize();
-	mStates[PLAY_STATE]->Initialize();
+
+	for(int i = 0; i < NR_OF_STATES; i++)
+	{
+		mStates[i]->Initialize();
+	}
 
 	EventManager::GetInstance()->AddListener( &StateMachine::ChangeStateListener, this, Event_Change_State::GUID );
 

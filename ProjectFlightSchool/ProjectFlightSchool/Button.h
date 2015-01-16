@@ -1,15 +1,13 @@
-#ifndef BUTTON_H
-#define BUTTON_H
+#ifndef IMAGE_H
+#define IMAGE_H
 
 #include "Entry.h"
 
-#define CLICKCOOLDOWN 1.0f
 
-class Button : public Entry
+class Image : public Entry
 {
 	// Member variables
 	private:
-		float		mCurrentCD;
 		AssetID		m2DTexture;
 	protected:
 	public:
@@ -18,13 +16,11 @@ class Button : public Entry
 	private:
 	protected:
 	public:
-		bool		LeftMousePressed();
-		bool		RightMousePressed();
-		void		Render();
-		bool		Update( float deltaTime );
-		void		Initialize(const char* assetPath, UINT x, UINT y, UINT width, UINT height );
-		void		Release();
-					Button();
-		virtual		~Button();
+		virtual void	Render();
+		virtual bool	Update( float deltaTime );
+		virtual void	Initialize( std::string, UINT x, UINT y, UINT width, UINT height );
+		void			Release();
+						Image();
+		virtual			~Image();
 };
 #endif

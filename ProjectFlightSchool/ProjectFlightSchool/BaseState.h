@@ -6,9 +6,14 @@
 #include "RenderManager.h"
 
 // State-tracking constants
-const int START_MENU_STATE	= 0;
-const int PLAY_STATE		= 1;
-const int NR_OF_STATES		= 2;
+const int START_MENU_STATE		= 0;
+const int CREATE_MENU_STATE		= 1;
+const int JOIN_MENU_STATE		= 2;
+const int MULTI_MENU_STATE		= 3;
+const int OPTIONS_MENU_STATE	= 4;
+const int SINGLE_MENU_STATE		= 5;
+const int PLAY_STATE			= 6;
+const int NR_OF_STATES			= 7;
 
 class BaseState
 {

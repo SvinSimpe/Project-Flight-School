@@ -12,6 +12,33 @@ bool Entry::MouseInbounds()
 	return false;
 }
 
+bool Entry::LeftMousePressed()
+{
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_MOUSE_LEFT) && mCurrentCD <= 0.0f ) // Checks if left button is clicked and if the cooldown has run out
+	{
+		if( MouseInbounds() ) // Checks if the mouse is within bounds of the button
+		{
+			mCurrentCD = CLICKCOOLDOWN; // Sets cooldown to given value
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Entry::RightMousePressed()
+{
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_MOUSE_RIGHT) && mCurrentCD <= 0.0f )
+	{
+		if( MouseInbounds() )
+		{
+			mCurrentCD = CLICKCOOLDOWN;
+			return true;
+		}
+	}
+	return false;
+}
+
+
 bool Entry::Initialize( UINT x, UINT y, UINT width, UINT height )
 {
 	mUpperLeft.x	= x;
@@ -33,6 +60,7 @@ Entry::Entry()
 	mUpperLeft.y	= 0;
 	mLowerRight.x	= 0;
 	mLowerRight.y	= 0;
+	mCurrentCD		= 0.0f;
 }
 
 

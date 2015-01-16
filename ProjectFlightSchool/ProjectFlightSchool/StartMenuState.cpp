@@ -6,7 +6,7 @@
 
 void StartMenuState::HandleInput()
 {
-	if( mServerClientButton.LeftMousePressed() )
+	if( mButtons[CREATE].LeftMousePressed() )
 	{
 		IEventPtr E1( new Event_Start_Server() );
 		EventManager::GetInstance()->QueueEvent( E1 );
@@ -14,7 +14,7 @@ void StartMenuState::HandleInput()
 		IEventPtr E2( new Event_Change_State( PLAY_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
 	}
-	else if( mClientButton.LeftMousePressed() )
+	else if( mButtons[JOIN].LeftMousePressed() )
 	{
 		IEventPtr E1( new Event_Start_Client() );
 		EventManager::GetInstance()->QueueEvent( E1 );
@@ -31,18 +31,27 @@ void StartMenuState::HandleInput()
 
 HRESULT StartMenuState::Update( float deltaTime )
 {
-	HandleInput();
-	mServerClientButton.Update( deltaTime );
-	mClientButton.Update( deltaTime );
+	BaseMenuState::Update( deltaTime );
+	for(auto& it : mButtons)
+	{
+		it.Update( deltaTime );
+	}
 	return S_OK;
 }
 
 HRESULT StartMenuState::Render()
 {
 	Graphics::GetInstance()->BeginScene();
+	BaseMenuState::Render();
 
-	mServerClientButton.Render();
-	mClientButton.Render();
+	for(auto& it : mButtons)
+	{
+		it.Render();
+	}
+	for(auto& it : mTexts)
+	{
+		it.Render();
+	}
 
 	Graphics::GetInstance()->EndScene();
 	return S_OK;
@@ -62,17 +71,31 @@ void StartMenuState::Reset()
 
 HRESULT StartMenuState::Initialize()
 {
+	BaseMenuState::Initialize();
 	mStateType		= START_MENU_STATE;
-	mServerClientButton.Initialize( "../Content/Assets/Textures/ServerButton.png", 0, 0, Input::GetInstance()->mScreenWidth/2, Input::GetInstance()->mScreenHeight/2 );
-	mClientButton.Initialize( "../Content/Assets/Textures/ClientButton.png", Input::GetInstance()->mScreenWidth/2, Input::GetInstance()->mScreenHeight/2, Input::GetInstance()->mScreenWidth/2, Input::GetInstance()->mScreenHeight/2 );
+
+	std::string texts[] = { "Create", "Join", "Options", "Exit" };
+
+	UINT x	= (UINT)Input::GetInstance()->mScreenWidth  * 0.20;
+	UINT y	= (UINT)Input::GetInstance()->mScreenHeight * 0.75;
+	UINT w	= 200;
+	UINT h	= 200;
+	for(int i = 0; i < 4; i++)
+	{
+		mButtons[i].Initialize(x, y, w, h);
+		mTexts[i].Initialize("../Content/Assets/Textures/Menu/Start_Menu_Text/" + texts[i] + ".png", x, y, w, h);
+		x += 200;
+	}
+
 	return S_OK;
 }
 
 void StartMenuState::Release()
 {
+	BaseMenuState::Release();
 }
 
-StartMenuState::StartMenuState()
+StartMenuState::StartMenuState() : BaseMenuState()
 {
 }
 

@@ -1,36 +1,42 @@
 #ifndef STARTMENUSTATE_H
 #define STARTMENUSTATE_H
 
-#include "BaseState.h"
-#include "Input.h"
+#include "BaseMenuState.h"
 #include "EventManager.h"
 #include "Events.h"
-#include "Button.h"
+#include "MenuButton.h"
 
-class StartMenuState : public BaseState
+class StartMenuState : public BaseMenuState
 {
 	// Class members
 	private:
-		Button			mServerClientButton;
-		Button			mClientButton;
+		const int
+			CREATE	= 0,
+			JOIN	= 1,
+			OPTIONS	= 2,
+			EXIT	= 3;
+
+		MenuButton		mButtons[4];
+		Image			mTexts[4];
+
 	protected:
 	public:
 
 	// Class functions
 	private:
-		void			HandleInput();
+		void	HandleInput();
 	protected:
 	public:
-		virtual HRESULT Update( float deltaTime );
-		virtual HRESULT Render();
-		virtual void	OnEnter();
-		virtual void	OnExit();
-		virtual void	Reset();
+		HRESULT Update( float deltaTime );
+		HRESULT Render();
+		void	OnEnter();
+		void	OnExit();
+		void	Reset();
 
-		virtual HRESULT Initialize();
-		virtual void	Release();
-						StartMenuState();
-		virtual			~StartMenuState();
+		HRESULT Initialize();
+		void	Release();
+				StartMenuState();
+		virtual	~StartMenuState();
 };
 
 #endif

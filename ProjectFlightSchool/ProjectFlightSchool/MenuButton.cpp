@@ -2,38 +2,22 @@
 
 void MenuButton::SpinCircle()
 {
-	mInner[mCurrentIndex].active = false;
-	mMiddle[mCurrentIndex].active = false;
-	mOuter[mCurrentIndex].active = false;
+	mFrames[mCurrentIndex].active = false;
 
 	mCurrentIndex++;
 	if(mCurrentIndex >= 3)
 		mCurrentIndex = 0;
 
-	mInner[mCurrentIndex].active = true;
-	mMiddle[mCurrentIndex].active = true;
-	mOuter[mCurrentIndex].active = true;
+	mFrames[mCurrentIndex].active = true;
 
 	mSpinTimer = 0.0f;
 }
 
 void MenuButton::Render()
 {
-	for( auto& it : mInner )
+	for( auto& it : mFrames )
 	{
 		if(it.active)
-			RenderManager::GetInstance()->AddObject2dToList( it.asset, DirectX::XMFLOAT2( (float)mUpperLeft.x, (float)mUpperLeft.y ), DirectX::XMFLOAT2( mWidth, mHeight ) );
-	}
-
-	for( auto& it : mMiddle )
-	{
-		if( it.active )
-			RenderManager::GetInstance()->AddObject2dToList( it.asset, DirectX::XMFLOAT2( (float)mUpperLeft.x, (float)mUpperLeft.y ), DirectX::XMFLOAT2( mWidth, mHeight ) );
-	}
-
-	for( auto& it : mOuter )
-	{
-		if( it.active )
 			RenderManager::GetInstance()->AddObject2dToList( it.asset, DirectX::XMFLOAT2( (float)mUpperLeft.x, (float)mUpperLeft.y ), DirectX::XMFLOAT2( mWidth, mHeight ) );
 	}
 }
@@ -57,19 +41,18 @@ bool MenuButton::Initialize( UINT x, UINT y, UINT width, UINT height )
 
 	std::string path = "../Content/Assets/Textures/Menu/Menu_Button/";
 
-	Graphics::GetInstance()->LoadStatic2dAsset( path + "Inner/inner.png", mInner[0].asset );
-	Graphics::GetInstance()->LoadStatic2dAsset( path + "Inner/innerRot120.png", mInner[1].asset );
-	Graphics::GetInstance()->LoadStatic2dAsset( path + "Inner/innerRot240.png", mInner[2].asset );
-
-	Graphics::GetInstance()->LoadStatic2dAsset( path + "Middle/middle.png", mMiddle[0].asset );
-	Graphics::GetInstance()->LoadStatic2dAsset( path + "Middle/middleRot120.png", mMiddle[1].asset );
-	Graphics::GetInstance()->LoadStatic2dAsset( path + "Middle/middleRot240.png", mMiddle[2].asset );
-
-	Graphics::GetInstance()->LoadStatic2dAsset( path + "Outer/outer.png", mOuter[0].asset );
-	Graphics::GetInstance()->LoadStatic2dAsset( path + "Outer/outerRot120.png", mOuter[1].asset );
-	Graphics::GetInstance()->LoadStatic2dAsset( path + "Outer/outerRot240.png", mOuter[2].asset );
+	for( int i = 0; i < FRAME_AMOUNT; i++ )
+	{
+		int index = i + 1;
+		std::string itostring = std::to_string(index);
+		Graphics::GetInstance()->LoadStatic2dAsset( path + "menuRing." + itostring + ".png", mFrames[i].asset );
+	}
 
 	return true;
+}
+
+void MenuButton::Release()
+{
 }
 
 MenuButton::MenuButton()

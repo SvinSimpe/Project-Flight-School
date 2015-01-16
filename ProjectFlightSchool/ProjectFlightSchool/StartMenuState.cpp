@@ -13,7 +13,7 @@ void StartMenuState::HandleInput()
 	}
 	else if( mButtons[JOIN].LeftMousePressed() ) // Since join state relies on user text input and that isn't implemented yet, this will just start a client on a server
 	{
-		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
+		IEventPtr E1( new Event_Change_State( JOIN_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );\
 
 		IEventPtr E2( new Event_Start_Client() );
@@ -23,10 +23,6 @@ void StartMenuState::HandleInput()
 	{
 		IEventPtr E1( new Event_Change_State( OPTIONS_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
-	}
-	else if( mInputSquare.LeftMousePressed() )
-	{
-		mInputSquare.SwitchActive();
 	}
 }
 

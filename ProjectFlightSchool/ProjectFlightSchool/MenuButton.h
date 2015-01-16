@@ -3,6 +3,9 @@
 
 #include "Entry.h"
 #include "RenderManager.h"
+#include <sstream>
+
+#define FRAME_AMOUNT 45
 
 // Hard coded button used by the menus
 class MenuButton : public Entry
@@ -14,10 +17,8 @@ class MenuButton : public Entry
 			AssetID asset;
 		};
 
-		const float SPIN_COOLDOWN = 0.09f;
-		ActiveAsset mInner[3];
-		ActiveAsset mMiddle[3];
-		ActiveAsset mOuter[3];
+		const float SPIN_COOLDOWN = 0.1f;
+		ActiveAsset mFrames[FRAME_AMOUNT];
 
 		float		mSpinTimer;
 		int			mCurrentIndex;
@@ -31,6 +32,7 @@ class MenuButton : public Entry
 		void		Render();
 		bool		Update( float deltaTime );
 		bool		Initialize( UINT x, UINT y, UINT width, UINT height );
+		void		Release();
 					MenuButton();
 		virtual		~MenuButton();
 };

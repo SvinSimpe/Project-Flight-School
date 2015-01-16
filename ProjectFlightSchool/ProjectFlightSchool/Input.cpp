@@ -214,8 +214,14 @@ void Input::Update( LPARAM lParam )
 				case VK_OEM_PERIOD:
 					mCurrentFrame[KEYS::KEYS_PERIOD] = IsKeyDown( raw->data.keyboard.Flags );
 					break;
+				case VK_RETURN:
+					mCurrentFrame[KEYS::KEYS_ENTER] = IsKeyDown( raw->data.keyboard.Flags );
+					break;
 				case VK_CONTROL:
 					mCurrentFrame[KEYS::KEYS_RCTRL] = IsKeyDown( raw->data.keyboard.Flags );
+					break;
+				case VK_LSHIFT:
+					mCurrentFrame[KEYS::KEYS_LSHIFT] = IsKeyDown( raw->data.keyboard.Flags );
 					break;
 				case VK_UP:
 					mCurrentFrame[KEYS::KEYS_UP] = IsKeyDown( raw->data.keyboard.Flags );

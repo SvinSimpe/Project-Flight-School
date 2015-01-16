@@ -5,9 +5,10 @@
 #include "Graphics.h"
 #include "..\ProjectFlightSchool\RenderManager.h"
 
+#define X_OFFSET		3.0f
 #define SPACE_WIDTH		15.0f
 #define TAB_WIDTH		(SPACE_WIDTH * 8)
-#define LETTER_HEIGHT	55.0f
+#define LETTER_HEIGHT	78.0f
 
 class Font
 {

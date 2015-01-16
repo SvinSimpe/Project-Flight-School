@@ -2,6 +2,7 @@
 #define JOINMENUSTATE_H
 
 #include "BaseMenuState.h"
+#include "InputSquare.h"
 
 class JoinMenuState : public BaseMenuState
 {
@@ -11,7 +12,9 @@ class JoinMenuState : public BaseMenuState
 			BUTTON_AMOUNT = 1;
 
 		MenuButton		mButtons[BUTTON_AMOUNT];
-		Image			mTexts[BUTTON_AMOUNT];
+		InputSquare		mIPBox;
+		InputSquare		mPortBox;
+		Image			mTexts[3];
 	protected:
 	public:
 

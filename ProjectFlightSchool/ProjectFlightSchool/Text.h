@@ -19,7 +19,7 @@ class Text : public Font
 	protected:
 	public:
 		void	Render();
-		void	SetText(std::string text);
+		void	SetText( std::string text );
 		void	Initialize( std::string fontPath, std::string text, float x, float y, float scale );
 		void	Release();
 				Text();

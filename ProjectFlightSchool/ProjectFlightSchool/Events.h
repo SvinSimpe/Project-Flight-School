@@ -543,3 +543,69 @@ class Event_Remote_Projectile_Fired : public IEvent
 			return mDirection;
 		}
 };
+
+class Event_Player_Update_HP : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		float			mHP;
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Player_Update_HP( unsigned int id, float hp )
+		{
+			mID = id;
+			mHP	= hp;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+		float HP()
+		{
+			return mHP;
+		}
+};
+
+class Event_Remote_Player_Update_HP : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		float			mHP;
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Remote_Player_Update_HP( unsigned int id, float hp )
+		{
+			mID = id;
+			mHP	= hp;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+		float HP()
+		{
+			return mHP;
+		}
+};

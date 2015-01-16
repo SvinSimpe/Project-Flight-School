@@ -111,6 +111,13 @@ void Client::HandlePkg( Package<T>* p )
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
+		case Net_Event::EV_UPDATE_HP:
+		{
+			EvPlayerID player = (EvPlayerID&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Update_HP( player.ID, player.HP  ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
 		default:
 		{
 			printf( "Error handling event from server.\n" );

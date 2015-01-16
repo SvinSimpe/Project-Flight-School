@@ -5,7 +5,7 @@ void Text::Render()
 	Font::WriteText( mText, mX, mY, mScale );
 }
 
-void Text::SetText(std::string text)
+void Text::SetText( std::string text )
 {
 	mText = text;
 }

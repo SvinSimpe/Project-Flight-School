@@ -48,11 +48,10 @@ void Client::HandlePkg( Package<T>* p )
 {
 	switch ( p->head.eventType )
 	{
-		case Net_Event::EV_PLAYER_MOVED:
+		case Net_Event::EV_PLAYER_UPDATE:
 		{
-			printf("Eventet från servern var Event_Player_Moved och den innehöll positionerna:\n" ); // %f, %f, %f och %f, %f, %f
-			EvPlayerMoved msg = (EvPlayerMoved&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Update( msg.id, msg.lowerBody, msg.upperBody, msg.direction ) );
+			EvPlayerUpdate msg = (EvPlayerUpdate&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Update( msg.id, msg.lowerBodyPosition, msg.lowerBodyDirection, msg.lowerBodyAnimation, msg.lowerBodyAnimationTime, msg.upperBodyPosition, msg.upperBodyDirection ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;

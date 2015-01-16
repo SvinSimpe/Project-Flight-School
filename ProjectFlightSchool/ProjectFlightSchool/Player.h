@@ -6,22 +6,27 @@
 #include "RemotePlayer.h"
 #include "RenderManager.h"
 
+#define VELOCITY_FALLOFF 2.0f
+
 class Player: public RemotePlayer
 {
 	private:
 		float		mWeaponCoolDown;
+		float		mMaxVelocity;
+		float		mCurrentVelocity;
+		float		mMaxAcceleration;
+		XMFLOAT3	mAcceleration;
+		XMFLOAT3	mVelocity;
 
 	private:
 		void		HandleInput( float deltaTime );
-		void		Move( XMFLOAT3 direction );
+		void		Move( float deltaTime );
 		void		Die();
 		void		HandleSpawn( float deltaTime );
 		void		Spawn();
 
 	public:
 		HRESULT		Update( float deltaTime );
-		HRESULT		Render( float deltaTime );
-
 
 		float		WeaponCoolDown();
 		XMFLOAT3	GetPlayerPosition() const;

@@ -6,6 +6,11 @@
 #include "Events.h"
 #include "RenderManager.h"
 
+#define	PLAYER_ANIMATION_LEGS_WALK	0
+#define PLAYER_ANIMATION_LEGS_IDLE	1
+
+#define PLAYER_ANIMATION_COUNT 2
+
 struct BoundingBox
 {
 	XMFLOAT3	position;
@@ -57,17 +62,19 @@ struct BoundingCircle
 
 struct UpperBody
 {
-	UINT		playerModel;
+	AssetID		playerModel;
 	XMFLOAT3	direction;
 	XMFLOAT3	position;
 };
 
 struct LowerBody
 {
-	UINT		playerModel;
+	AssetID		playerModel;
 	XMFLOAT3	direction;
 	XMFLOAT3	position;
-	float		speed;
+
+	AssetID		currentLowerAnimation;
+	float		currentLowerAnimationTime;
 };
 
 class RemotePlayer
@@ -78,6 +85,8 @@ class RemotePlayer
 		unsigned int	mID;
 		UpperBody		mUpperBody;
 		LowerBody		mLowerBody;
+		AssetID			mAnimations[PLAYER_ANIMATION_COUNT];	
+
 		BoundingBox*	mBoundingBox;
 		BoundingCircle*	mBoundingCircle;
 		float			mCurrentHp;
@@ -103,7 +112,7 @@ class RemotePlayer
 		BoundingBox*	GetBoundingBox() const;
 		BoundingCircle*	GetBoundingCircle() const;
 		XMFLOAT3		GetPosition() const;
-		virtual HRESULT	Render( float deltaTime );
+		HRESULT			Render();
 		virtual HRESULT	Initialize();
 		void			Release();
 						RemotePlayer();

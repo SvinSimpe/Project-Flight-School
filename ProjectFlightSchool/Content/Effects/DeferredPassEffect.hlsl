@@ -82,7 +82,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 			float l		= length( dif ) * 2.0f;
 			dif			= normalize( dif );
 		
-			ssao +=	max( 0.0f, dot( normalSample, dif ) - 0.01f ) * 1.0f / ( 1.0f + l ) * 10.0f;
+			ssao +=	max( 0.0f, dot( normalSample, dif ) - 0.01f ) * 1.0f / ( 1.0f + l ) * 5.0f;
 		}
 	}
 
@@ -92,7 +92,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	float3 ambient		= float3( 0.2f, 0.2f,  0.2f );
 	float3 diffuse		= float3( 0.0f, 0.0f,  0.0f );
 	float3 specular		= float3( 0.1f, 0.1f,  0.1f );
-	float3 color		= float3( 0.75f, 0.8f,  0.8f );
+	float3 color		= float3( 0.1f, 0.1f,  0.1f );
 
 	float3 lightDirection	= float3( -0.5f, -1.0f, 0.3f );
 
@@ -107,7 +107,33 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	float specularPower		= 4.0f;
 	specular				= float3( float3( 1.0f, 1.0f, 1.0f ) * pow( specularFactor, specularPower ) ) * specularSample;
 
-	float3 finalColor		= float3( ( ambient * ssao + diffuse + specular ) * color );
+	float3 finalColor		= ( ambient * ssao + diffuse + specular ) * color;
+
+
+	//-------------------------------------------------------------------------------------------------
+	//	TEMP POINT LIGHT FUCK YOU MAX
+	//-------------------------------------------------------------------------------------------------
+
+	float3 lPos[3] = { float3( 0.0f, 5.0f, 0.0f ), float3( 20.0f, 5.0f, 0.0f ), float3( 5.0f, 5.0f, 15.0f ) };
+	float3 lCol[3] = { float3( 0.2f, 0.2f, 0.5f ), float3( 0.6f, 0.2f, 0.2f ), float3( 0.2f, 0.6f, 0.6f ) };
+	
+	for( int i = 0; i < 3; i++ )
+	{
+		float3 lightDir = worldSample - lPos[i];
+		float d = length( lightDir );
+		lightDir /= d;
+		
+		float3 N = normalSample;
+		float3 V = cameraPosition.xyz;
+		float3 R = reflect( lightDir, N );
+
+		float diff	= saturate( dot( -lightDir, N ) );
+		float3 spec	= float3( float3( 1.0f, 1.0f, 1.0f ) * pow( dot( R, V ), specularPower ) ) * specularSample;
+
+		finalColor += ( ambient * ssao + diffuse + specular ) * lCol[i] / ( d * 0.01f + d * d * 0.002f );
+	}
+
+	saturate( finalColor );
 
 	//return float4( ambient * ssao, 1.0f );
 	//return float4( specular, 1.0f );

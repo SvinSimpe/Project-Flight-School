@@ -53,8 +53,13 @@ class RemotePlayer
 		void		LookAt( float rotation );
 
 	public:
+		void			BroadcastDeath();
 		void			RemoteInit( unsigned int id, int team );
 		virtual void	Die();
+		void			HandleSpawn( float deltaTime );
+		void			Spawn();
+		void			TakeDamage( unsigned int damage );
+		void			SetHP( float hp );
 		int				GetID() const;
 		BoundingBox*	GetBoundingBox() const;
 		BoundingCircle*	GetBoundingCircle() const;

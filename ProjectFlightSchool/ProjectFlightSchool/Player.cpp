@@ -88,36 +88,6 @@ void Player::Move( XMFLOAT3 direction )
 	}
 }
 
-// Set current hp to 0 to avoid negative values and send event that player has died
-void Player::Die()
-{
-	RemotePlayer::Die();
-	IEventPtr dieEv( new Event_Player_Died( mID ) );
-	EventManager::GetInstance()->QueueEvent( dieEv );
-}
-
-void Player::HandleSpawn( float deltaTime )
-{
-	if( mTimeTillSpawn <= 0.0f )
-	{
-		Spawn();
-	}
-	else
-	{
-		mTimeTillSpawn -= deltaTime;
-	}
-}
-
-void Player::Spawn()
-{
-	mIsAlive			= true;
-	mCurrentHp			= mMaxHp;
-	mUpperBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
-	mLowerBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
-	IEventPtr spawnEv( new Event_Player_Spawned( mID ) );
-	EventManager::GetInstance()->QueueEvent( spawnEv );
-}
-
 HRESULT Player::Update( float deltaTime )
 {
 	HandleInput( deltaTime );
@@ -125,22 +95,15 @@ HRESULT Player::Update( float deltaTime )
 	// If player is alive, update position. If hp <= 0 kill player
 	if( mIsAlive )
 	{
-		if ( mCurrentHp <= 0.0f )
-		{
-			Die();
-		}
-		else
-		{
 			mUpperBody.position.x += mLowerBody.direction.x * mLowerBody.speed * deltaTime;
 			mUpperBody.position.z += mLowerBody.direction.z * mLowerBody.speed * deltaTime;
 
 			mLowerBody.position.x += mLowerBody.direction.x * mLowerBody.speed * deltaTime;
 			mLowerBody.position.z += mLowerBody.direction.z * mLowerBody.speed * deltaTime;
-		}
 	}
 	else
 	{
-		HandleSpawn( deltaTime );
+		RemotePlayer::HandleSpawn( deltaTime );
 	}
 
 
@@ -163,8 +126,8 @@ HRESULT Player::Update( float deltaTime )
 HRESULT Player::Render( float deltaTime )
 {
 
-	RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
-	RenderManager::GetInstance()->AddObject3dToList( mLowerBody.playerModel, mLowerBody.position );
+	//RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
+	//RenderManager::GetInstance()->AddObject3dToList( mLowerBody.playerModel, mLowerBody.position );
 
 	RemotePlayer::Render( deltaTime );
 

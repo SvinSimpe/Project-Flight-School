@@ -1,6 +1,6 @@
 #include "BaseMenuState.h"
 
-HRESULT BaseMenuState::Update(float deltaTime)
+HRESULT BaseMenuState::Update( float deltaTime )
 {
 	HandleInput();
 	return S_OK;

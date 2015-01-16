@@ -55,9 +55,9 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 {
 	Clientinfo s;
 	s.s = fromSocket;
-	for (auto& socket : mClientSockets)
+	for ( auto& socket : mClientSockets )
 	{
-		if (socket.s == s.s)
+		if ( socket.s == s.s )
 		{
 			s.team = socket.team;
 		}
@@ -112,7 +112,7 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 		case Net_Event::EV_PLAYER_DAMAGED:
 		{
 			EvPlayerID toAll = (EvPlayerID&)p->body.content;
-			for (auto& socket : mClientSockets)
+			for ( auto& socket : mClientSockets )
 			{
 				if ( socket.s != INVALID_SOCKET )
 				{

@@ -15,16 +15,16 @@ bool Server::AcceptConnection()
 	else
 	{
 		int flag = 1;
-		mResult = setsockopt(s,            /* socket affected */
+		mResult = setsockopt( s,            /* socket affected */
 			IPPROTO_TCP,     /* set option at TCP level */
 			TCP_NODELAY,     /* name of option */
 			(char*)&flag,  /* the cast is historical cruft */
-			sizeof(int));    /* length of option value */
-		if (mResult != 0)
+			sizeof(int)) ;    /* length of option value */
+		if ( mResult != 0 )
 		{
-			printf("setsockopt failed with error: %d\n", WSAGetLastError());
-			shutdown(s, SD_SEND);
-			closesocket(s);
+			printf( "setsockopt failed with error: %d\n", WSAGetLastError() );
+			shutdown( s, SD_SEND );
+			closesocket( s );
 			WSACleanup();
 			return false;
 		}
@@ -35,21 +35,21 @@ bool Server::AcceptConnection()
 		EvInitialize toJoining;
 		for ( auto& socket : mClientSockets )
 		{
-			if(socket.s != INVALID_SOCKET)
+			if( socket.s != INVALID_SOCKET )
 			{
 				toJoining.ID	= socket.s;
 				toJoining.team	= socket.team;
 				mConn->SendPkg( s, 0, Net_Event::EV_PLAYER_JOINED, toJoining ); // Sends the ID of the already existing clients to the joining client
-				Sleep(10);
+				Sleep( 10 );
 			}
 		}
-		Sleep(10);
+		Sleep( 10 );
 
-		mClientSockets.push_back(newClient);
+		mClientSockets.push_back( newClient );
 		EvInitialize msg;
 		msg.ID		= (unsigned int)s;
 		msg.team	= newClient.team;
-		mConn->SendPkg(s, -1, Net_Event::YOUR_ID, msg);
+		mConn->SendPkg( s, -1, Net_Event::YOUR_ID, msg );
 	}
 	printf( "%d connected.\n", s );
 

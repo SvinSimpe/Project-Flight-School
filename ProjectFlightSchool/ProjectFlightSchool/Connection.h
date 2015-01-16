@@ -16,6 +16,7 @@
 #define DEFAULT_IP		"localhost"
 //#define DEFAULT_IP		"192.168.1.61" // Gnidleif
 //#define DEFAULT_IP		"192.168.1.98" // Trassel
+//#define DEFAULT_IP		"192.168.1.21" //Simpe		
 
 class Connection
 	{

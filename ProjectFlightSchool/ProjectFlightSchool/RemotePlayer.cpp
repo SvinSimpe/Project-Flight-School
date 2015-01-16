@@ -26,13 +26,21 @@ void RemotePlayer::LookAt( float rotation )
 {
 }
 
-void RemotePlayer::RemoteInit( unsigned int id )
+void RemotePlayer::RemoteInit( unsigned int id, int team )
 {
-	mID										= id;
+	mID		= id;
+	mTeam	= team;
 	EventManager::GetInstance()->AddListener( &RemotePlayer::RemoteUpdate, this, Event_Remote_Player_Update::GUID );
 }
 
+void RemotePlayer::BroadcastDeath()
+{
+	IEventPtr dieEv( new Event_Player_Died( mID ) );
+	EventManager::GetInstance()->QueueEvent( dieEv );
+}
+
 // Kill remote player
+// Set current hp to 0 to avoid negative values and send event that player has died
 void RemotePlayer::Die()
 {
 	mCurrentHp		= 0.0f;
@@ -40,26 +48,84 @@ void RemotePlayer::Die()
 	mTimeTillSpawn	= mSpawnTime;
 }
 
+void RemotePlayer::HandleSpawn( float deltaTime )
+{
+	if( mTimeTillSpawn <= 0.0f )
+	{
+		Spawn();
+	}
+	else
+	{
+		mTimeTillSpawn -= deltaTime;
+	}
+}
+
+void RemotePlayer::Spawn()
+{
+	mIsAlive			= true;
+	mCurrentHp			= mMaxHp;
+	mUpperBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
+	mLowerBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
+	IEventPtr spawnEv( new Event_Player_Spawned( mID ) );
+	EventManager::GetInstance()->QueueEvent( spawnEv );
+}
+
+void RemotePlayer::TakeDamage( unsigned int damage )
+{
+	mCurrentHp -= damage;
+	IEventPtr player( new Event_Player_Update_HP( mID, mCurrentHp ) );
+	EventManager::GetInstance()->QueueEvent( player );
+	if ( mIsAlive && mCurrentHp <= 0.0f )
+	{
+		Die();
+		BroadcastDeath();
+	}
+}
+
+void RemotePlayer::SetHP( float hp )
+{
+	mCurrentHp = hp;
+}
+
 int RemotePlayer::GetID() const
 {
 	return mID;
 }
 
+
 HRESULT RemotePlayer::Render()
 {
 	RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
 
-	float radians				= atan2f( mLowerBody.direction.z, mLowerBody.direction.x );
-	DirectX::XMFLOAT3 rotation	= DirectX::XMFLOAT3( 0.0f, -radians, 0.0f );
-	Graphics::GetInstance()->RenderAnimated3dAsset( mLowerBody.playerModel, mAnimations[mLowerBody.currentLowerAnimation], mLowerBody.currentLowerAnimationTime, mLowerBody.position, rotation ); // NOT OKAY, NEED RENDERMAN
+	float radians = atan2f( mLowerBody.direction.z, mLowerBody.direction.x );
+	RenderManager::GetInstance()->AddAnim3dToList( mLowerBody.playerModel, mAnimations[mLowerBody.currentLowerAnimation], &mLowerBody.currentLowerAnimationTime, mLowerBody.position, XMFLOAT3( 0.0f, -radians, 0.0f ) );
+
+	if ( mIsAlive )
+	{
+		RenderManager::GetInstance()->AddObject3dToList(mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction);
+
+		float renderHpSize = ( mCurrentHp * 1.5f / mMaxHp ) + 1; //*1.5 and +1 to make it an appropriate size.
+
+		DirectX::XMFLOAT3 x = { mLowerBody.position.x - renderHpSize / 2.0f, 0.01f, mLowerBody.position.z + renderHpSize / 2.0f };
+		DirectX::XMFLOAT3 y = { mLowerBody.position.x + renderHpSize / 2.0f, 0.01f, mLowerBody.position.z - renderHpSize / 2.0f };
+
+		if ( mCurrentHp > mMaxHp / 2 )
+			RenderManager::GetInstance()->AddPlaneToList( mGreenHPAsset, x, y );
+		else if ( mCurrentHp < mMaxHp / 4 )
+			RenderManager::GetInstance()->AddPlaneToList( mRedHPAsset, x, y );
+		else
+			RenderManager::GetInstance()->AddPlaneToList( mOrangeHPAsset, x, y );
+	}
 
 	return S_OK;
 }
 
 HRESULT RemotePlayer::Initialize()
 {
+	//////////////////////////////////////
+	//			ROBOT PARTS
+	/////////////////////////////////////
 	AssetID skeleton = 0;
-
 	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Robot/", "robotUpperbody.pfs", mUpperBody.playerModel ) ) )
 		OutputDebugString( L"\nERROR\n" );
 
@@ -70,6 +136,19 @@ HRESULT RemotePlayer::Initialize()
 	
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Robot/Animations/", "robotLegsWalk.PaMan", mAnimations[PLAYER_ANIMATION_LEGS_WALK] );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Robot/Animations/", "robotLegsIdle.PaMan", mAnimations[PLAYER_ANIMATION_LEGS_IDLE] );
+
+	//////////////////////////////////////
+	//			HUD ELEMENTS
+	/////////////////////////////////////
+
+	if( FAILED( Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/GreenHP.png", mGreenHPAsset ) ) )
+		OutputDebugString( L"\nERROR\n" );
+
+	if( FAILED( Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/RedHP.png", mRedHPAsset ) ) )
+		OutputDebugString( L"\nERROR\n" );
+
+	if( FAILED( Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/OrangeHP.png", mOrangeHPAsset ) ) )
+		OutputDebugString( L"\nERROR\n" );
 
 	EventManager::GetInstance()->AddListener( &RemotePlayer::RemoteUpdate, this, Event_Remote_Player_Update::GUID );
 

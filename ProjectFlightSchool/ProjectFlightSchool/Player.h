@@ -4,9 +4,28 @@
 #include "Input.h"
 #include "Projectile.h"
 #include "RemotePlayer.h"
+#include "WeaponInfo.h"
 #include "RenderManager.h"
 
 #define VELOCITY_FALLOFF 2.0f
+
+struct LoadOut
+{
+	RangedInfo*	rangedWeapon;
+	MeleeInfo*	meleeWeapon;
+
+	LoadOut()
+	{
+		rangedWeapon	= nullptr;
+		meleeWeapon		= nullptr;
+	}
+
+	void Release()
+	{
+		SAFE_DELETE( rangedWeapon );
+		SAFE_DELETE( meleeWeapon );
+	}
+};
 
 class Player: public RemotePlayer
 {
@@ -18,24 +37,26 @@ class Player: public RemotePlayer
 		XMFLOAT3	mAcceleration;
 		XMFLOAT3	mVelocity;
 
+		LoadOut*	mLoadOut;
+		
 	private:
 		void		HandleInput( float deltaTime );
 		void		Move( float deltaTime );
-		void		Die();
-		void		HandleSpawn( float deltaTime );
-		void		Spawn();
 
 	public:
 		HRESULT		Update( float deltaTime );
+		HRESULT		Render();
 
-		float		WeaponCoolDown();
+		void		SetID( unsigned int id );
+		void		SetTeam( int team );
 		XMFLOAT3	GetPlayerPosition() const;
-
-		void		Fire();
 		void		SetPosition( XMVECTOR position );
-
+		void		Fire();
+		XMFLOAT3	GetUpperBodyDirection() const;
+			
 		HRESULT		Initialize();
 		void		Release();
+
 					Player();
 		virtual		~Player();
 };

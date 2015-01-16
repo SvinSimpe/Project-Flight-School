@@ -103,35 +103,6 @@ void Player::Move( float deltaTime )
 	mLowerBody.position.z += mVelocity.z * deltaTime;
 }
 
-// Set current hp to 0 to avoid negative values and send event that player has died
-void Player::Die()
-{
-	RemotePlayer::Die();
-	IEventPtr dieEv( new Event_Player_Died( mID ) );
-	EventManager::GetInstance()->QueueEvent( dieEv );
-}
-
-void Player::HandleSpawn( float deltaTime )
-{
-	if( mTimeTillSpawn <= 0.0f )
-	{
-		Spawn();
-	}
-	else
-	{
-		mTimeTillSpawn -= deltaTime;
-	}
-}
-
-void Player::Spawn()
-{
-	mIsAlive = true;
-	mUpperBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
-	mLowerBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
-	IEventPtr spawnEv( new Event_Player_Spawned( mID ) );
-	EventManager::GetInstance()->QueueEvent( spawnEv );
-}
-
 HRESULT Player::Update( float deltaTime )
 {
 	HandleInput( deltaTime );
@@ -154,7 +125,8 @@ HRESULT Player::Update( float deltaTime )
 			//if( mLowerBody.currentLowerAnimationTime > 0.9f )
 			if( mCurrentVelocity < 0.1f )
 			{
-				mLowerBody.currentLowerAnimation		= PLAYER_ANIMATION_LEGS_IDLE;
+				mLowerBody.currentLowerAnimation = PLAYER_ANIMATION_LEGS_IDLE;
+
 				if( mLowerBody.currentLowerAnimation != PLAYER_ANIMATION_LEGS_IDLE )
 					mLowerBody.currentLowerAnimationTime	= 1.0f;
 			}
@@ -173,7 +145,7 @@ HRESULT Player::Update( float deltaTime )
 	}
 	else
 	{
-		HandleSpawn( deltaTime );
+		RemotePlayer::HandleSpawn( deltaTime );
 	}
 
 	///Lock camera position to player
@@ -192,15 +164,42 @@ HRESULT Player::Update( float deltaTime )
 	return S_OK;
 }
 
-void Player::Fire()
+HRESULT Player::Render()
 {
-	IEventPtr E1( new Event_Projectile_Fired( mID, mUpperBody.position, mUpperBody.direction ) );
-	EventManager::GetInstance()->QueueEvent( E1 );
+	RemotePlayer::Render();
+
+	return S_OK;
+}
+
+void Player::SetID( unsigned int id )
+{
+	mID = id;
+}
+
+void Player::SetTeam( int team )
+{
+	mTeam = team;
+}
+
+XMFLOAT3 Player::GetPlayerPosition() const
+{
+	return mLowerBody.position;
 }
 
 void Player::SetPosition( XMVECTOR position )
 {
 	XMStoreFloat3( &mLowerBody.position, position );
+}
+
+XMFLOAT3 Player::GetUpperBodyDirection() const
+{
+	return mUpperBody.direction;
+}
+
+void Player::Fire()
+{
+	IEventPtr E1( new Event_Projectile_Fired( mID, mUpperBody.position, mUpperBody.direction ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 HRESULT Player::Initialize()
@@ -216,18 +215,28 @@ HRESULT Player::Initialize()
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
+
+	//Weapon Initialization
+	mLoadOut				= new LoadOut();
+	mLoadOut->rangedWeapon	= new RangedInfo( "Machine Gun", 5.0f, 1, 5.0f, 2, 0 );
+	mLoadOut->meleeWeapon	= new MeleeInfo( "Sword", 4.0f, 3, 7, 2.0f );
+
 	return S_OK;
 }
 
 void Player::Release()
 {
-
+	mLoadOut->Release();
+	SAFE_DELETE( mLoadOut );
+	
+	RemotePlayer::Release();
 }
 
 Player::Player()
 	:RemotePlayer()
 {
-	mWeaponCoolDown			= 0.0f;
+	mWeaponCoolDown	= 0.0f;
+	mLoadOut		= nullptr;
 }
 
 Player::~Player()

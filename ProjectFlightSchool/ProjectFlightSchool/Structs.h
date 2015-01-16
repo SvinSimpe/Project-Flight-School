@@ -22,11 +22,20 @@ struct EvPlayerUpdate
 struct EvPlayerID
 {
 	unsigned int ID;
+	unsigned int HP;
+	unsigned int projectileID;
+};
+
+struct EvInitialize
+{
+	unsigned int ID;
+	unsigned int team;
 };
 
 struct EvProjectileFired
 {
 	unsigned int ID;
+	unsigned int projectileID;
 	DirectX::XMFLOAT3 position;
 	DirectX::XMFLOAT3 direction;
 };

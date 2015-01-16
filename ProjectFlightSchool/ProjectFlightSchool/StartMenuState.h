@@ -2,6 +2,7 @@
 #define STARTMENUSTATE_H
 
 #include "BaseMenuState.h"
+#include "InputSquare.h"
 
 class StartMenuState : public BaseMenuState
 {
@@ -16,6 +17,7 @@ class StartMenuState : public BaseMenuState
 
 		MenuButton		mButtons[BUTTON_AMOUNT];
 		Image			mTexts[BUTTON_AMOUNT];
+		InputSquare		mInputSquare;
 
 	protected:
 	public:

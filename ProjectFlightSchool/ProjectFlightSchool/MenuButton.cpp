@@ -22,19 +22,19 @@ void MenuButton::Render()
 	for( auto& it : mInner )
 	{
 		if(it.active)
-			Graphics::GetInstance()->Render2dAsset( it.asset, (float)mUpperLeft.x, (float)mUpperLeft.y, mWidth, mHeight );
+			RenderManager::GetInstance()->AddObject2dToList( it.asset, DirectX::XMFLOAT2( (float)mUpperLeft.x, (float)mUpperLeft.y ), DirectX::XMFLOAT2( mWidth, mHeight ) );
 	}
 
 	for( auto& it : mMiddle )
 	{
 		if( it.active )
-			Graphics::GetInstance()->Render2dAsset( it.asset, (float)mUpperLeft.x, (float)mUpperLeft.y, mWidth, mHeight );
+			RenderManager::GetInstance()->AddObject2dToList( it.asset, DirectX::XMFLOAT2( (float)mUpperLeft.x, (float)mUpperLeft.y ), DirectX::XMFLOAT2( mWidth, mHeight ) );
 	}
 
 	for( auto& it : mOuter )
 	{
 		if( it.active )
-			Graphics::GetInstance()->Render2dAsset( it.asset, (float)mUpperLeft.x, (float)mUpperLeft.y, mWidth, mHeight );
+			RenderManager::GetInstance()->AddObject2dToList( it.asset, DirectX::XMFLOAT2( (float)mUpperLeft.x, (float)mUpperLeft.y ), DirectX::XMFLOAT2( mWidth, mHeight ) );
 	}
 }
 

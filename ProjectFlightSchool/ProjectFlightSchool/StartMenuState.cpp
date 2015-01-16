@@ -24,6 +24,10 @@ void StartMenuState::HandleInput()
 		IEventPtr E1( new Event_Change_State( OPTIONS_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
+	else if( mInputSquare.LeftMousePressed() )
+	{
+		mInputSquare.SwitchActive();
+	}
 }
 
 
@@ -38,12 +42,12 @@ HRESULT StartMenuState::Update( float deltaTime )
 	{
 		mButtons[i].Update( deltaTime );
 	}
+	mInputSquare.Update( deltaTime );
 	return S_OK;
 }
 
 HRESULT StartMenuState::Render()
 {
-	Graphics::GetInstance()->BeginScene();
 	BaseMenuState::Render();
 
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
@@ -51,8 +55,9 @@ HRESULT StartMenuState::Render()
 		mButtons[i].Render();
 		mTexts[i].Render();
 	}
+	mInputSquare.Render();
 
-	Graphics::GetInstance()->EndScene();
+	RenderManager::GetInstance()->Render();
 	return S_OK;
 }
 
@@ -89,6 +94,8 @@ HRESULT StartMenuState::Initialize()
 		mTexts[i].Initialize("../Content/Assets/Textures/Menu/Start_Menu_Text/" + texts[i] + ".png", (UINT)x, (UINT)y, (UINT)w, (UINT)h);
 		x += 200;
 	}
+
+	mInputSquare.Initialize(0, 0, 600, 200);
 
 	return S_OK;
 }

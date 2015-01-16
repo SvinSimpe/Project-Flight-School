@@ -2,7 +2,7 @@
 
 void Image::Render()
 {
-	Graphics::GetInstance()->Render2dAsset( m2DTexture, (float)mUpperLeft.x, (float)mUpperLeft.y, mWidth, mHeight );
+	RenderManager::GetInstance()->AddObject2dToList( m2DTexture, DirectX::XMFLOAT2( (float)mUpperLeft.x, (float)mUpperLeft.y ), DirectX::XMFLOAT2( mWidth, mHeight ) );
 }
 
 bool Image::Update( float deltaTime )

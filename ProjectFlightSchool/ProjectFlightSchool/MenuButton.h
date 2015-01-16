@@ -2,6 +2,7 @@
 #define MENUBUTTON_H
 
 #include "Entry.h"
+#include "RenderManager.h"
 
 // Hard coded button used by the menus
 class MenuButton : public Entry

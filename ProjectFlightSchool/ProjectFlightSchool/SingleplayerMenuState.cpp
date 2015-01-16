@@ -45,7 +45,6 @@ HRESULT SingleplayerMenuState::Update( float deltaTime )
 
 HRESULT SingleplayerMenuState::Render()
 {
-	Graphics::GetInstance()->BeginScene();
 	BaseMenuState::Render();
 
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
@@ -54,7 +53,7 @@ HRESULT SingleplayerMenuState::Render()
 		mTexts[i].Render();
 	}
 
-	Graphics::GetInstance()->EndScene();
+	RenderManager::GetInstance()->Render();
 	return S_OK;
 }
 

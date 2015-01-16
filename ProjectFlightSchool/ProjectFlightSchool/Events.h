@@ -130,7 +130,8 @@ class Event_Local_Player_Joined : public IEvent
 {
 	// Member variables
 	private:
-		unsigned int mID;
+		unsigned int	mID;
+		int				mTeam;
 
 	protected:
 	public:
@@ -144,13 +145,18 @@ class Event_Local_Player_Joined : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Local_Player_Joined( unsigned int id )
+		Event_Local_Player_Joined( unsigned int id, int team )
 		{
-			mID = id;
+			mID		= id;
+			mTeam	= team;
 		}
 		unsigned int ID() const
 		{
 			return mID;
+		}
+		int Team() const
+		{
+			return mTeam;
 		}
 };
 
@@ -158,7 +164,8 @@ class Event_Remote_Player_Joined : public IEvent
 {
 	// Member variables
 	private:
-		unsigned int mID;
+		unsigned int	mID;
+		int				mTeam;
 
 	protected:
 	public:
@@ -172,13 +179,18 @@ class Event_Remote_Player_Joined : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Remote_Player_Joined( unsigned int id )
+		Event_Remote_Player_Joined( unsigned int id, int team )
 		{
-			mID = id;
+			mID		= id;
+			mTeam	= team;
 		}
 		unsigned int ID() const
 		{
 			return mID;
+		}
+		int Team() const
+		{
+			return mTeam;
 		}
 };
 

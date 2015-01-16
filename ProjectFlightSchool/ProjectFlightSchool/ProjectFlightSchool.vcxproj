@@ -118,6 +118,7 @@
     <ClInclude Include="..\Graphics\Font.h" />
     <ClInclude Include="BaseMenuState.h" />
     <ClInclude Include="BaseState.h" />
+    <ClInclude Include="BoundingGeometry.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="CreateMenuState.h" />
     <ClInclude Include="Entry.h" />
@@ -149,6 +150,7 @@
     <ClCompile Include="System.cpp" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="WeaponInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input.h" />

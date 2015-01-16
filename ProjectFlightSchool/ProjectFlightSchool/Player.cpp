@@ -110,7 +110,8 @@ void Player::HandleSpawn( float deltaTime )
 
 void Player::Spawn()
 {
-	mIsAlive = true;
+	mIsAlive			= true;
+	mCurrentHp			= mMaxHp;
 	mUpperBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
 	mLowerBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
 	IEventPtr spawnEv( new Event_Player_Spawned( mID ) );
@@ -170,16 +171,31 @@ HRESULT Player::Render( float deltaTime )
 	return S_OK;
 }
 
-void Player::Fire()
+void Player::SetID( unsigned int id )
 {
-	IEventPtr E1( new Event_Projectile_Fired( mID, mUpperBody.position, mUpperBody.direction ) );
-	EventManager::GetInstance()->QueueEvent( E1 );
+	mID = id;
+}
+
+XMFLOAT3 Player::GetPlayerPosition() const
+{
+	return mLowerBody.position;
 }
 
 void Player::SetPosition( XMVECTOR position )
 {
 	XMStoreFloat3( &mLowerBody.position, position );
 	XMStoreFloat3( &mUpperBody.position, position );
+}
+
+XMFLOAT3 Player::GetUpperBodyDirection() const
+{
+	return mUpperBody.direction;
+}
+
+void Player::Fire()
+{
+	IEventPtr E1( new Event_Projectile_Fired( mID, mUpperBody.position, mUpperBody.direction ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 HRESULT Player::Initialize()
@@ -203,18 +219,28 @@ HRESULT Player::Initialize()
 
 	mWeaponCoolDown		= 0.1f;
 
+
+	//Weapon Initialization
+	mLoadOut				= new LoadOut();
+	mLoadOut->rangedWeapon	= new RangedInfo( "Machine Gun", 5.0f, 1, 5.0f, 2, 0 );
+	mLoadOut->meleeWeapon	= new MeleeInfo( "Sword", 4.0f, 3, 7, 2.0f );
+
 	return S_OK;
 }
 
 void Player::Release()
 {
-
+	mLoadOut->Release();
+	SAFE_DELETE( mLoadOut );
+	
+	RemotePlayer::Release();
 }
 
 Player::Player()
 	:RemotePlayer()
 {
-	mWeaponCoolDown			= 0.0f;
+	mWeaponCoolDown	= 0.0f;
+	mLoadOut		= nullptr;
 }
 
 Player::~Player()

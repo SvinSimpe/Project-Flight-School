@@ -203,6 +203,8 @@ Server::Server()
 	mClientSockets	= std::vector<SOCKET>( 0 );
 	mConn			= nullptr;
 	mListenThreads	= std::vector<std::thread>( 0 );
+
+	mNrOfProjectilesFired	= 1;
 }
 
 Server::~Server()

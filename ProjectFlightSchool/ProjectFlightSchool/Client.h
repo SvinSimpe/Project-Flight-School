@@ -76,6 +76,10 @@ void Client::HandlePkg( Package<T>* p )
 		{
 			EvPlayerID msg	= (EvPlayerID&)p->body.content;
 			mID						= msg.ID;
+
+			IEventPtr E1( new Event_Local_Player_Joined( msg.ID ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+
 			printf( "Your id is %d.\n", msg.ID );
 		}
 			break;
@@ -89,7 +93,7 @@ void Client::HandlePkg( Package<T>* p )
 		case Net_Event::EV_PLAYER_DAMAGED:
 		{
 			EvPlayerID damagedPlayer = (EvPlayerID&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Damaged( damagedPlayer.ID ) );
+			IEventPtr E1( new Event_Remote_Player_Damaged( damagedPlayer.ID, damagedPlayer.projectileID ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
@@ -103,7 +107,7 @@ void Client::HandlePkg( Package<T>* p )
 		case Net_Event::EV_PROJECTILE_FIRED:
 		{
 			EvProjectileFired projectileFired = (EvProjectileFired&)p->body.content;
-			IEventPtr E1( new Event_Remote_Projectile_Fired( projectileFired.ID, projectileFired.position, projectileFired.direction  ) );
+			IEventPtr E1( new Event_Remote_Projectile_Fired( projectileFired.ID, projectileFired.projectileID, projectileFired.position, projectileFired.direction  ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;

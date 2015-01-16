@@ -6,13 +6,26 @@
 
 void PlayState::EventListener( IEventPtr newEvent )
 {
-	if ( newEvent->GetEventType() == Event_Remote_Player_Joined::GUID ) // Add a remote player to the list when they connect
+	if ( newEvent->GetEventType() == Event_Local_Player_Joined::GUID ) // Add a remote player to the list when they connect
+	{
+		std::shared_ptr<Event_Local_Player_Joined> data = std::static_pointer_cast<Event_Local_Player_Joined>( newEvent );
+		if ( mPlayer != nullptr )
+		{
+			mPlayer->SetID( data->ID() );
+		}
+	}
+
+	else if ( newEvent->GetEventType() == Event_Remote_Player_Joined::GUID ) // Add a remote player to the list when they connect
 	{
 		std::shared_ptr<Event_Remote_Player_Joined> data = std::static_pointer_cast<Event_Remote_Player_Joined>( newEvent );
 		mRemotePlayers.push_back( new RemotePlayer() );
 		mRemotePlayers.at(mRemotePlayers.size() - 1)->Initialize();
 		mRemotePlayers.at(mRemotePlayers.size() - 1)->RemoteInit( data->ID() );
 		printf( "Number of other players online: %d.\n", mRemotePlayers.size() );
+
+
+		///TEST
+		mAllPlayers.push_back( ( mRemotePlayers.at( mRemotePlayers.size()-1 ) ) );
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Player_Left::GUID ) // Remove a remote player from the list when they disconnect
 	{
@@ -57,43 +70,47 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if ( newEvent->GetEventType() == Event_Remote_Player_Damaged::GUID )
 	{
 		// Damage remote player
-		std::shared_ptr<Event_Remote_Player_Died> data = std::static_pointer_cast<Event_Remote_Player_Died>(newEvent);
+		std::shared_ptr<Event_Remote_Player_Damaged> data = std::static_pointer_cast<Event_Remote_Player_Damaged>(newEvent);
 		for ( unsigned int i = 0; i < mRemotePlayers.size(); i++ )
 		{
 			if ( !mRemotePlayers.at(i) )
 			{
 				continue;
 			}
-			else if ( data->ID() == mRemotePlayers.at(i)->GetID() )
-			{
-				// Damage player
 
-				// Debug
-				OutputDebugString( L"> A Remote player has taken damage." );
+			HandleRemoteProjectileHit( data->ID(), data->ProjectileID() );
 
-				break;
-			}
+			//else if ( data->ID() == mRemotePlayers.at(i)->GetID() )
+			//{
+			//	// Damage player
+			//	HandleRemoteProjectileHit( data->ID(), data->ProjectileID() );
+
+			//	// Debug
+			//	OutputDebugString( L"> A Remote player has taken damage." );
+
+			//	break;
+			//}
 		}
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Projectile_Fired::GUID )
 	{
 		// Fire projectile
 		std::shared_ptr<Event_Remote_Projectile_Fired> data = std::static_pointer_cast<Event_Remote_Projectile_Fired>(newEvent);
-		FireProjectile( data->BodyPos(), data->Direction() );
+		FireProjectile( data->ID(), data->ProjectileID(), data->BodyPos(), data->Direction() );
 	}
 }
 
 // Tell server that local  player has taken damage
-void PlayState::BroadcastDamage()
+void PlayState::BroadcastDamage( unsigned int playerID, unsigned int projectileID )
 {
-	IEventPtr dmgEv(new Event_Player_Damaged( mPlayer->GetID()) );
+	IEventPtr dmgEv(new Event_Player_Damaged( playerID, projectileID ) );
 	EventManager::GetInstance()->QueueEvent( dmgEv );
 }
 
-void PlayState::FireProjectile( XMFLOAT3 position, XMFLOAT3 direction )
+void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction )
 {
-	mProjectiles[mNrOfProjectilesFired % MAX_PROJECTILES]->SetDirection( position, direction );
-	mProjectiles[mNrOfProjectilesFired % MAX_PROJECTILES]->SetIsActive( true );
+	mProjectiles[mNrOfProjectilesFired % MAX_PROJECTILES]->SetDirection( id, projectileID, position, direction );
+	//mProjectiles[mNrOfProjectilesFired % MAX_PROJECTILES]->SetIsActive( true );
 	mNrOfProjectilesFired++;
 }
 
@@ -134,7 +151,7 @@ void PlayState::HandleDeveloperCameraInput()
 		Graphics::GetInstance()->ZoomInDeveloperCamera();
 }
 
-void PlayState::CheckCollision()
+void PlayState::CheckPlayerCollision()
 {	
 	if( mRemotePlayers.size() > 0 )
 	{
@@ -146,7 +163,7 @@ void PlayState::CheckCollision()
 				if( mPlayer->GetBoundingCircle()->Intersect( mRemotePlayers.at(i)->GetBoundingCircle() ) )	// BoundingCircle
 				{
 					//mPlayer->SetIsMovable( false );
-					OutputDebugStringA( "\nCOLLISION" );
+					OutputDebugStringA( "\nPLAYER COLLISION" );
 
 					//Direction
 					XMVECTOR remoteToPlayerVec	= ( XMLoadFloat3( &mPlayer->GetBoundingCircle()->center ) - 
@@ -167,6 +184,49 @@ void PlayState::CheckCollision()
 	}
 }
 
+void PlayState::CheckProjectileCollision()
+{
+	if( mRemotePlayers.size() > 0 )
+	{
+		for (size_t i = 0; i < mRemotePlayers.size(); i++)
+		{
+			for (size_t j = 0; j < MAX_PROJECTILES; j++)
+			{
+				if ( mProjectiles[j]->IsActive() )
+				{
+					if( mProjectiles[j]->GetPlayerID() == mPlayer->GetID() )
+					{
+						if( mProjectiles[j]->GetBoundingCircle()->Intersect( mRemotePlayers[i]->GetBoundingCircle() ) ) //Player hit remote
+						{
+							BroadcastDamage( mRemotePlayers[i]->GetID(), mProjectiles[j]->GetID() );
+							//Add broadcast
+							
+						}			
+					}
+				}	
+			}
+		}
+	}
+}
+
+void PlayState::CheckMeeleCollision()
+{
+	XMVECTOR aimingDirection = XMLoadFloat3( &mPlayer->GetUpperBodyDirection() );
+	aimingDirection = XMVector4Normalize( aimingDirection );
+
+	XMVECTOR meeleLengthVector = ( XMLoadFloat3( &mPlayer->GetPosition() ) -  ( aimingDirection * 2 ) );
+}
+
+void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID )
+{
+	for (size_t i = 0; i < MAX_PROJECTILES; i++)
+	{
+		if( mProjectiles[i]->GetID() == projectileID )
+			mProjectiles[i]->Reset();
+
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
@@ -178,7 +238,8 @@ HRESULT PlayState::Update( float deltaTime )
 
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{
-		CheckCollision();
+		CheckPlayerCollision();
+		CheckProjectileCollision();
 		mFrameCounter = 0;
 	}
 	else
@@ -186,8 +247,10 @@ HRESULT PlayState::Update( float deltaTime )
 
 	HandleDeveloperCameraInput();
 	mPlayer->Update( deltaTime );
+
 	UpdateProjectiles( deltaTime );
-	mAnimationTime += deltaTime;
+	mAnimationTime	+= deltaTime;
+	mRobotTime		+= deltaTime;
 
 	return S_OK;
 }
@@ -208,6 +271,8 @@ HRESULT PlayState::Render()
 
 	RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation, mTestAnimationAnimation, &mAnimationTime );
 
+	Graphics::GetInstance()->RenderAnimated3dAsset( mTestRobot, mTestRobotAni, mRobotTime, 4.0f, 0.0f, 4.0f );
+
 	mPlayer->Render( 0.0f );
 	//mWorldMap->Render( 0.0f );
 	for( auto& rp : mRemotePlayers )
@@ -216,24 +281,17 @@ HRESULT PlayState::Render()
 			rp->Render( 0.0f );
 	}
 
+	RenderManager::GetInstance()->AddObject2dToList( mTest2dAsset, DirectX::XMFLOAT2( 300.0f, 300.0f ), DirectX::XMFLOAT2( 100.0f, 100.0f ) );
 	RenderProjectiles();
 
-	Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 300, 300, 100, 100 );
+	DirectX::XMFLOAT3 x = { 0.0f, 0.1f, 3.0f };
+	DirectX::XMFLOAT3 y = { 3.0f, 0.1f, 0.0f };
 
-	float x[3] = { 0, 0.1, 3 };
-	float y[3] = { 3, 0.1, 0 };
+	RenderManager::GetInstance()->AddPlaneToList( mTest2dAsset, x, y );
+	RenderManager::GetInstance()->AddObject2dToList( mTest2dAsset, DirectX::XMFLOAT2( 500.0f, 500.0f ), DirectX::XMFLOAT2( 50.0f, 50.0f ) );
 
-	Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 300, 300, 100, 100 );
-
-	mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
-
-	//DirectX::XMFLOAT3 x = { 0.0f, 0.1f, 3.0f };
-	//DirectX::XMFLOAT3 y = { 3.0f, 0.1f, 0.0f };
-
-	//Graphics::GetInstance()->RenderPlane2dAsset( mTest2dAsset,  x, y );
-	//Graphics::GetInstance()->Render2dAsset( mTest2dAsset, 500, 500, 50, 50 );
-	
 	RenderManager::GetInstance()->Render();
+	mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
 	Graphics::GetInstance()->EndScene();
 
 	return S_OK;
@@ -258,9 +316,15 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Plane/", "plane.pfs", mPlaneAsset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Ship/", "crashed_ship.pfs", mTestAsset );
 
-	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", mTestSkeleton );
-	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", mTestSkeleton, mTestAnimation );
+	AssetID skeleton = 0;
+
+	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", skeleton );
+	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, mTestAnimation );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptor_death.PaMan", mTestAnimationAnimation );
+
+	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Robot/Animations/", "robot_legs.Skel", skeleton );
+	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Robot/", "walkanimationTest5_1.apfs", skeleton, mTestRobot );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Robot/Animations/", "testLegs.PaMan", mTestRobotAni );
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_1.pfs", mNest1Asset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_1.pfs", mStoneAssets[0] );
@@ -274,7 +338,8 @@ HRESULT PlayState::Initialize()
 
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dAsset );
 
-	mAnimationTime = 1.0f;
+	mAnimationTime	= 1.0f;
+	mRobotTime		= 1.0f;
 
 	mPlayer = new Player();
 	mPlayer->Initialize();
@@ -290,6 +355,7 @@ HRESULT PlayState::Initialize()
 		mProjectiles[i]->Initialize();
 	}
 
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Local_Player_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Left::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Died::GUID );
@@ -298,6 +364,11 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Projectile_Fired::GUID );
 
 	mFont.Initialize( "../Content/Assets/Fonts/mv_boli_26_red/" );
+
+
+
+	//TEST
+	mAllPlayers.push_back( mPlayer );
 
 	return S_OK;
 }
@@ -326,10 +397,11 @@ void PlayState::Release()
 
 PlayState::PlayState()
 {
+	mPlayer			= nullptr;
 	mRemotePlayers	= std::vector<RemotePlayer*>( 0 );
 	mRemotePlayers.reserve(MAX_REMOTE_PLAYERS);
-	mProjectiles	= nullptr;
 	mFrameCounter	= 0;
+	mProjectiles	= nullptr;
 }
 
 PlayState::~PlayState()

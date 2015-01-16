@@ -84,8 +84,8 @@ void Client::HandlePkg( Package<T>* p )
 			break;
 		case Net_Event::EV_PLAYER_DIED:
 		{
-			EvPlayerID deadPlayer = (EvPlayerID&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Died( deadPlayer.ID ) );
+			EvKilled deadPlayer = (EvKilled&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Died( deadPlayer.ID, deadPlayer.killerID ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;

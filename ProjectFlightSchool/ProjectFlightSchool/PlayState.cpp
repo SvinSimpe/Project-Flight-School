@@ -63,27 +63,29 @@ void PlayState::EventListener( IEventPtr newEvent )
 			else if ( data->ID() == mRemotePlayers.at(i)->GetID() )
 			{
 				mRemotePlayers.at(i)->Die();
-
+				printf( "Killed by: %d\n", data->KillerID() );
 				// Debug
 				OutputDebugString( L"> A Remote player has died." );
 
-				break;
+				//break;
 			}
+			else if( data->KillerID() == mRemotePlayers.at(i)->GetID() )
+			{
+				printf( "Murderer is: %d\n", data->KillerID() );
+				mRemotePlayers.at(i)->CountUpKills();
+			}
+		}
+		if( data->KillerID() == mPlayer->GetID() )
+		{
+			printf( "The murderer is you player: %d\n", data->KillerID() );
+			mPlayer->CountUpKills();
 		}
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Player_Damaged::GUID )
 	{
 		// Damage remote player
 		std::shared_ptr<Event_Remote_Player_Damaged> data = std::static_pointer_cast<Event_Remote_Player_Damaged>(newEvent);
-		for ( unsigned int i = 0; i < mRemotePlayers.size(); i++ )
-		{
-			if ( !mRemotePlayers.at(i) )
-			{
-				continue;
-			}
-
-			HandleRemoteProjectileHit( data->ID(), data->ProjectileID() );
-		}
+		HandleRemoteProjectileHit( data->ID(), data->ProjectileID() );
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Player_Spawned::GUID )
 	{
@@ -234,17 +236,30 @@ void PlayState::CheckMeeleCollision()
 
 void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID )
 {
-	for (size_t i = 0; i < MAX_PROJECTILES; i++)
+	unsigned int shooter = 0;
+	for ( size_t i = 0; i<MAX_PROJECTILES; i++)
 	{
 		if( mProjectiles[i]->GetID() == projectileID )
 		{
-			mProjectiles[i]->Reset();
+				shooter = mProjectiles[i]->GetPlayerID();
+				mProjectiles[i]->Reset();
 		}
 	}
+	
+
 	if( mPlayer->GetID() == id )
 	{
 		// Projectile damage
-		mPlayer->TakeDamage( (unsigned int)10.0f );
+		for ( size_t i = 0; i < mRemotePlayers.size(); i++ )
+		{
+			if( mRemotePlayers.at(i)->GetID() == shooter )
+			{
+				if( mRemotePlayers.at(i)->GetTeam() != mPlayer->GetTeam() )
+				{
+					mPlayer->TakeDamage( 10.0f, shooter );
+				}
+			}
+		}
 	}
 }
 
@@ -296,18 +311,25 @@ HRESULT PlayState::Render()
 
 	//RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation, mTestAnimationAnimation, &mAnimationTime );
 
-	mPlayer->Render();
+	mPlayer->Render( 0.0f, 1 );
 
 	//mWorldMap->Render( 0.0f );
-	for( auto& rp : mRemotePlayers )
+	//for( auto& rp : mRemotePlayers )
+	//{
+	//	if( rp )
+	//		rp->Render( 0.0f );
+	//}
+	for (size_t i = 0; i < mRemotePlayers.size(); i++)
 	{
-		if( rp )
-			rp->Render();
+		if (mRemotePlayers.at(i))
+		{
+			mRemotePlayers.at(i)->Render(0.0f, i + 2);
+		}
 	}
 
 	RenderProjectiles();
 
-	mFont.WriteText( "HELLO WORLD!\nMIKAEL IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
+	//mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
 
 	RenderManager::GetInstance()->Render();
 

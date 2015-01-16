@@ -1,11 +1,12 @@
 #include "MapNodeInstance.h"
 #include "MapNode.h"
+#include "BoundingGeometry.h"
 
-HRESULT MapNodeInstance::Update(float deltaTime)
+HRESULT MapNodeInstance::Update( float deltaTime )
 {
 	return S_OK;
 }
-HRESULT	MapNodeInstance::Render(float deltaTime)
+HRESULT	MapNodeInstance::Render( float deltaTime )
 {
 	if( mNode != nullptr )
 	{
@@ -31,7 +32,7 @@ void MapNodeInstance::SetInstanceID( int ID )
 {
 	mInstanceID = ID;
 }
-int MapNodeInstance::GetInstanceID()
+int MapNodeInstance::GetInstanceID() const
 {
 	return mInstanceID;
 }
@@ -39,25 +40,35 @@ void MapNodeInstance::ReleaseInstance()
 {
 	mNode->ReleaseInstance( mInstanceID );
 }
-DirectX::XMFLOAT3 MapNodeInstance::GetOrigin()const
+DirectX::XMFLOAT3 MapNodeInstance::GetOrigin() const
 {
 	return mNode->GetOrigin();
 }
 void MapNodeInstance::SetOrigin( DirectX::XMFLOAT3 origin )
 {
+	//obsolete?
 	mOrigin	= origin;
 	mPos	= DirectX::XMFLOAT3( origin.x - ( mNode->GetOrigin().x * 0.5f ), origin.y - ( mNode->GetOrigin().y * 0.5f ), origin.z - ( mNode->GetOrigin().z * 0.5f ) );
 	DirectX::XMStoreFloat4x4( &mWorld, DirectX::XMMatrixTranslationFromVector( XMLoadFloat3( &mPos ) ) );
 }
-MapNode* MapNodeInstance::GetMapNode()const
+MapNode* MapNodeInstance::GetMapNode() const
 {
 	return mNode;
 }
-void MapNodeInstance::SetMapNode(MapNode* mapNode)
+void MapNodeInstance::SetMapNode( MapNode* mapNode )
 {
 	mNode = mapNode;
 }
-Corners	MapNodeInstance::GetCorners()const
+BoundingBox MapNodeInstance::GetBoundingBox()
+{
+	BoundingBox b;
+	b.position	= mPos;
+	b.width		= mNode->GetGridWidth();
+	b.height	= mNode->GetGridHeight();
+
+	return b;
+}
+Corners	MapNodeInstance::GetCorners() const
 {
 	return mCorners;
 }

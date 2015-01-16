@@ -75,24 +75,24 @@ public:
 		HRESULT				Update( float deltaTime );
 		HRESULT				Render( float deltaTime );
 
-		DirectX::XMFLOAT3	GetPos()const;
+		DirectX::XMFLOAT3	GetPos() const;
 		void				SetPos( DirectX::XMFLOAT3 pos );
 
 		void				SetInstanceID( int ID );
-		int					GetInstanceID();
+		int					GetInstanceID() const;
 
 		void				ReleaseInstance();
-		//				MoveInPlace()
 
-		DirectX::XMFLOAT3	GetOrigin()const;
+		DirectX::XMFLOAT3	GetOrigin() const;
 		void				SetOrigin( DirectX::XMFLOAT3 origin );
 		
-		MapNode*			GetMapNode()const;
+		MapNode*			GetMapNode() const;
 		void				SetMapNode( MapNode* mapNode );
 
 		ExitPoint*			GetExits();
 
 		Corners				GetCorners()const;
+		BoundingBox			GetBoundingBox();
 		int					HasExit();
 		void				AddNeighbour( int exitSlot, MapNodeInstance* neighbour );
 

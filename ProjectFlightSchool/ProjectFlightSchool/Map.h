@@ -19,7 +19,6 @@ class Map
 	private:
 	protected:
 	public:
-		//HRESULT Update( float deltaTime );
 		HRESULT Render( float deltaTime );
 		void GenerateGrid();
 

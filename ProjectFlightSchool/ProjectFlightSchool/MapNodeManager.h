@@ -23,8 +23,6 @@ class MapNodeManager
 	public:
 		static		MapNodeManager* instance;
 
-		//HRESULT		Render( float deltaTime );
-		//HRESULT		Update( float deltaTime );
 		MapNode* GetNodes();
 
 		static MapNodeManager* GetInstance();

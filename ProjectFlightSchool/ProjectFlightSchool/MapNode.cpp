@@ -1,18 +1,18 @@
 #include "MapNode.h"
 #include "MapNodeInstance.h"
 
-HRESULT	MapNode::Render(float deltaTime, XMFLOAT4X4 parentWorld)
+HRESULT	MapNode::Render( float deltaTime, XMFLOAT4X4 parentWorld )
 {
-	for(int i = 0; i < (int)mStaticAssetCount; i++ )
+	for( int i = 0; i < (int)mStaticAssetCount; i++ )
 	{
 		mStaticAssets[i].Render( deltaTime, parentWorld );
 	}
 
 	return S_OK;
 }
-HRESULT	MapNode::Render(float deltaTime)
+HRESULT	MapNode::Render( float deltaTime )
 {
-	for(int i = 0; i < (int)mStaticAssetCount; i++ )
+	for( int i = 0; i < (int)mStaticAssetCount; i++ )
 	{
 		mStaticAssets[i].Render( deltaTime );
 	}
@@ -51,7 +51,7 @@ GameObject* MapNode::GetStaticAssets() const
 {
 	return mStaticAssets;
 }
-HRESULT	MapNode::Update(float deltaTime)
+HRESULT	MapNode::Update( float deltaTime )
 {
 	return S_OK;
 }
@@ -67,7 +67,7 @@ MapNodeInstance* MapNode::GetMapNodeInstance()
 			result->SetMapNode( this );
 			result->SetInstanceID( i );
 			result->Initialize();
-			printf("Instance number: %d\n", i);
+			printf( "Instance number: %d\n", i);
 			instanceFound = true;
 		}
 	}
@@ -145,13 +145,9 @@ HRESULT MapNode::SetUpExits()
 
 	return S_OK;
 }
-ExitPoint* MapNode::GetExits()
+ExitPoint* MapNode::GetExits() 
 {
 	return exits;
-}
-int MapNode::GetNrOfExits()
-{
-	return (int)(sizeof(exits) / sizeof(XMFLOAT3));
 }
 void MapNode::Release()
 {

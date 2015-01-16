@@ -4,31 +4,31 @@
 
 HRESULT Map::Render( float deltaTime )
 {
-	for(int i = 0; i < 100; i++)
+	for( int i = 0; i < 100; i++ )
 	{
 		nodes[i]->Render( deltaTime );
 	}
 	return S_OK;
 }
-UINT Map::GetMapDim()const
+UINT Map::GetMapDim() const
 {
 	return mMapDim * SECTION_DIM;
 }
-UINT Map::GetMapWidth()const
+UINT Map::GetMapWidth() const
 {
 	return mMapDim * SECTION_DIM;
 }
-UINT Map::GetMapHeight()const
+UINT Map::GetMapHeight() const
 {
 	return mMapDim * SECTION_DIM;
 }
 float Map::GetMapHalfWidth() const
 {
-	return ((float)mMapDim * SECTION_DIM) * 0.5f;
+	return ( (float)mMapDim * SECTION_DIM) * 0.5f;
 }
 float Map::GetMapHalfHeight() const
 {
-	return ((float)mMapDim * SECTION_DIM) * 0.5f;
+	return ( (float)mMapDim * SECTION_DIM) * 0.5f;
 }
 HRESULT Map::Initialize( float vertexSpacing, UINT mapDim )
 {

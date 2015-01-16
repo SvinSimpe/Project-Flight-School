@@ -82,13 +82,15 @@ int MapNodePlacer::CanPlace(MapNodeInstance* currentNode, MapNodeInstance* newNo
 		{
 			//Place node!
 
-			currentNode->AddNeighbour( exit, newNode );
-			newNode->AddNeighbour( oppositeSide, currentNode );
+			//currentNode->AddNeighbour( exit, newNode );
+			//newNode->AddNeighbour( oppositeSide, currentNode );
 
 			XMFLOAT3 newPos = XMFLOAT3( ( currentNode->GetPos().x + ( currExits[exit].exit.x - newExits[oppositeSide].exit.x ) ), 
 										( currentNode->GetPos().y + ( currExits[exit].exit.y - newExits[oppositeSide].exit.y ) ),
 										( newNode->GetPos().z + ( currExits[exit].exit.z - newExits[oppositeSide].exit.z ) ) );
 			newNode->SetPos( newPos );
+
+			for( int i = 0; i < mNrOfNodes )
 
 			result = 0;
 		}
@@ -138,29 +140,29 @@ int MapNodePlacer::CanPlace(MapNodeInstance* currentNode, MapNodeInstance* newNo
 MapNodeInstance** MapNodePlacer::PlaceNodes()
 {
 	int maxNodes	= 100;
-	int nrOfNodes	= 0;
+	mNrOfNodes	= 0;
 	bool nodeFull	= false;
 	MapNode* nodes = MapNodeManager::GetInstance()->GetNodes();
-
-	MapNodeInstance** placedNodes = new MapNodeInstance*[100];
-
 	MapNodeInstance* startNode = nodes[0].GetMapNodeInstance();
 	int currentNode = 0;
 	startNode->SetPos( XMFLOAT3( 0, 0, 0 ) );
 
-	placedNodes[0] = startNode;
-	nrOfNodes++;
+	mPlacedNodes[0] = startNode;
+	mNrOfNodes++;
 
-	while( nrOfNodes < maxNodes )
+	while( mNrOfNodes < maxNodes )
 	{
 		nodeFull	= false;
-		printf("Loop counter: %d\n", nrOfNodes);
+		printf("Loop counter: %d\n", mNrOfNodes);
 		while( !nodeFull )
 		{
 			//Idea: Inject currentNode-Type into NodeManager, nodeManager returns potential nodes according to rules
+
+
+			//Aquire instance
 			MapNodeInstance* newNode = nodes[0].GetMapNodeInstance();
 
-			switch( CanPlace( placedNodes[currentNode], newNode ) )
+			switch( CanPlace( mPlacedNodes[currentNode], newNode ) )
 			{
 			case -1:
 				//Go to next node in the placednodes array
@@ -171,14 +173,17 @@ MapNodeInstance** MapNodePlacer::PlaceNodes()
 			case 0:
 				//newNode got placed
 
-				placedNodes[nrOfNodes++] = newNode;
+				mPlacedNodes[mNrOfNodes++] = newNode;
 				break;
 			case 1:
 				//newNode didnt fit currentnode, either rotate or newnode
 				//No nodes atm, so this is bork.
 				//break the loop
 				newNode->ReleaseInstance();
-				nrOfNodes = 100;
+				mNrOfNodes = 100;
+				break;
+			case 2:
+				//Node couldnt get placed, neighbour existed
 				break;
 			}
 		}
@@ -246,6 +251,7 @@ MapNodeInstance** MapNodePlacer::PlaceNodes()
 HRESULT	MapNodePlacer::Initialize( Map* map )
 {
 	mMap = map;
+	mPlacedNodes = new MapNodeInstance*[100];
 	//mBuildMapSize = mMap->GetMapWidth() * mMap->GetMapHeight();
 	//for (int y = 0; y < (int)mMap->GetMapHeight(); y++)
 	//{

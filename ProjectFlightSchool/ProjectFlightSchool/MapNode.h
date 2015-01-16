@@ -68,7 +68,7 @@ class MapNode
 
 		GameObject*			GetStaticAssets() const;
 		HRESULT				SetUpExits();
-		int					GetNrOfExits();
+		/*int					GetNrOfExits() const;*/
 		ExitPoint*			GetExits();
 
 		MapNodeInstance*	GetMapNodeInstance();

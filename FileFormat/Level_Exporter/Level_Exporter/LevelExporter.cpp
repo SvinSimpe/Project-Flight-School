@@ -177,14 +177,21 @@ bool LevelExporter::ExtractCurrentSceneRawData()
 			{
 				MFnMesh mesh(dagPath);
 
-				if (mesh.name() != "gridShape")
-					ExtractAndConvertMatrix(mesh, 0);
-
-				else if (mesh.name() == "gridShape")
+				if (mesh.name() == "gridShape")
 				{
 					if (!ExtractGridData(mesh))
 						return false;
 				}
+
+				if (mesh.name() == "exitcube")
+					return;
+
+				if (mesh.name() == "navmesh")
+					return;
+				
+
+				if (mesh.name() != "gridShape" || mesh.name() != "exitcube" || mesh.name() != "navmesh")
+					ExtractAndConvertMatrix(mesh, 0);
 			}
 		}
 		dagIter.next();
@@ -279,6 +286,21 @@ bool LevelExporter::ExtractGridData(MFnMesh &mesh)
 	}
 
 	ConvertGridData(mesh, points, normals);
+
+}
+
+bool LevelExporter::ExtractNavMesh(MFnMesh &mesh)
+{
+	MFloatPointArray points;
+
+	MString command = "polyTriangulate -ch 1 " + mesh.name();
+	if (!MGlobal::executeCommand(command))
+	{
+		cout << "Couldn't triangulate navmesh: " << mesh.name() << endl;
+		cin >> waitingForInput;
+		return false;
+	}
+
 
 }
 

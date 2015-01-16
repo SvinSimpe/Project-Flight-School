@@ -33,6 +33,7 @@ private:
 	Matrix ExtractAndConvertMatrix(MFnMesh &mesh, int fauling);
 	void ExtractAndConvertGridData(MFnMesh &mesh);
 	bool ExtractGridData(MFnMesh &mesh);
+	bool ExtractNavMesh(MFnMesh &mesh);
 	void ConvertGridData(MFnMesh &mesh, MFloatPointArray &points, MFloatVectorArray &normals);
 	void GetDimensions(MFnMesh &mesh, UINT* dimensions);
 

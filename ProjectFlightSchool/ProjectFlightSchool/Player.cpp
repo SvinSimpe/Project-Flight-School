@@ -164,9 +164,61 @@ HRESULT Player::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT Player::Render()
+
+HRESULT Player::Render( float deltaTime, int position )
 {
-	RemotePlayer::Render();
+
+	//RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
+	//RenderManager::GetInstance()->AddObject3dToList( mLowerBody.playerModel, mLowerBody.position );
+
+	if( !mIsAlive )
+	{
+		
+        std::string textToWrite = "TEN";
+		
+		if( mTimeTillSpawn < 1.0f )
+		{
+			textToWrite = "ONE";
+		}
+		else if( mTimeTillSpawn < 2.0f )
+		{
+			textToWrite = "TWO";
+		}
+		else if( mTimeTillSpawn < 3.0f )
+		{
+			textToWrite = "THREE";
+		}
+		else if( mTimeTillSpawn < 4.0f )
+		{
+			textToWrite = "FOUR";
+		}
+		else if( mTimeTillSpawn < 5.0f )
+		{
+			textToWrite = "FIVE";
+		}
+		else if( mTimeTillSpawn < 6.0f )
+		{
+			textToWrite = "SIX";
+		}
+		else if( mTimeTillSpawn < 7.0f )
+		{
+			textToWrite = "SEVEN";
+		}
+		else if( mTimeTillSpawn < 8.0f )
+		{
+			textToWrite = "EIGHT";
+		}
+		else if( mTimeTillSpawn < 9.0f )
+		{
+			textToWrite = "NINE";
+		}
+		
+
+
+		mFont.WriteText( textToWrite, 500.0f, 500.0f, 3.0f );
+	}
+
+	RemotePlayer::Render( deltaTime, position );
 
 	return S_OK;
 }

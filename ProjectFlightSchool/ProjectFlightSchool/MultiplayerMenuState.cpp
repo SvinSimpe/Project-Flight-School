@@ -2,7 +2,11 @@
 
 void MultiplayerMenuState::HandleInput()
 {
-	if( mButtons[TWO_VS_TWO].LeftMousePressed() )
+	if( mPortBox.LeftMousePressed() )
+	{
+		mPortBox.SwitchActive(true);
+	}
+	else if( mButtons[TWO_VS_TWO].LeftMousePressed() )
 	{
 		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );

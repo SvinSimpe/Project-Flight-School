@@ -17,7 +17,6 @@ class StartMenuState : public BaseMenuState
 
 		MenuButton		mButtons[BUTTON_AMOUNT];
 		Image			mTexts[BUTTON_AMOUNT];
-		InputSquare		mInputSquare;
 
 	protected:
 	public:

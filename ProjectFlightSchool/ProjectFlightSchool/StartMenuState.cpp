@@ -11,13 +11,10 @@ void StartMenuState::HandleInput()
 		IEventPtr E1( new Event_Change_State( CREATE_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
-	else if( mButtons[JOIN].LeftMousePressed() ) // Since join state relies on user text input and that isn't implemented yet, this will just start a client on a server
+	else if( mButtons[JOIN].LeftMousePressed() )
 	{
 		IEventPtr E1( new Event_Change_State( JOIN_MENU_STATE ) );
-		EventManager::GetInstance()->QueueEvent( E1 );\
-
-		IEventPtr E2( new Event_Start_Client() );
-		EventManager::GetInstance()->QueueEvent( E2 );
+		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 	else if( mButtons[OPTIONS].LeftMousePressed() )
 	{
@@ -38,7 +35,6 @@ HRESULT StartMenuState::Update( float deltaTime )
 	{
 		mButtons[i].Update( deltaTime );
 	}
-	mInputSquare.Update( deltaTime );
 	return S_OK;
 }
 
@@ -51,7 +47,6 @@ HRESULT StartMenuState::Render()
 		mButtons[i].Render();
 		mTexts[i].Render();
 	}
-	mInputSquare.Render();
 
 	RenderManager::GetInstance()->Render();
 	return S_OK;
@@ -90,8 +85,6 @@ HRESULT StartMenuState::Initialize()
 		mTexts[i].Initialize("../Content/Assets/Textures/Menu/Start_Menu_Text/" + texts[i] + ".png", (UINT)x, (UINT)y, (UINT)w, (UINT)h);
 		x += 200;
 	}
-
-	mInputSquare.Initialize(0, 0, 600, 200);
 
 	return S_OK;
 }

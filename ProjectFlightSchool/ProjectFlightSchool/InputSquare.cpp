@@ -38,120 +38,120 @@ void InputSquare::HandleInput()
 			switch(i)
 			{
 			case KEYS::KEYS_A:
-				Add("a");
+				Add( "a" );
 				break;
 			case KEYS::KEYS_B:
-				Add("b");
+				Add( "b" );
 				break;
 			case KEYS::KEYS_C:
-				Add("c");
+				Add( "c" );
 				break;
 			case KEYS::KEYS_D:
-				Add("d");
+				Add( "d" );
 				break;
 			case KEYS::KEYS_E:
-				Add("e");
+				Add( "e" );
 				break;
 			case KEYS::KEYS_F:
-				Add("f");
+				Add( "f" );
 				break;
 			case KEYS::KEYS_G:
-				Add("g");
+				Add( "g" );
 				break;
 			case KEYS::KEYS_H:
-				Add("h");
+				Add( "h" );
 				break;
 			case KEYS::KEYS_I:
-				Add("i");
+				Add( "i" );
 				break;
 			case KEYS::KEYS_J:
-				Add("j");
+				Add( "j" );
 				break;
 			case KEYS::KEYS_K:
-				Add("k");
+				Add( "k" );
 				break;
 			case KEYS::KEYS_L:
-				Add("l");
+				Add( "l" );
 				break;
 			case KEYS::KEYS_M:
-				Add("m");
+				Add( "m" );
 				break;
 			case KEYS::KEYS_N:
-				Add("n");
+				Add( "n" );
 				break;
 			case KEYS::KEYS_O:
-				Add("o");
+				Add( "o" );
 				break;
 			case KEYS::KEYS_P:
-				Add("p");
+				Add( "p" );
 				break;
 			case KEYS::KEYS_Q:
-				Add("q");
+				Add( "q" );
 				break;
 			case KEYS::KEYS_R:
-				Add("r");
+				Add( "r" );
 				break;
 			case KEYS::KEYS_S:
-				Add("s");
+				Add( "s" );
 				break;
 			case KEYS::KEYS_T:
-				Add("t");
+				Add( "t" );
 				break;
 			case KEYS::KEYS_U:
-				Add("u");
+				Add( "u" );
 				break;
 			case KEYS::KEYS_V:
-				Add("v");
+				Add( "v" );
 				break;
 			case KEYS::KEYS_W:
-				Add("w");
+				Add( "w" );
 				break;
 			case KEYS::KEYS_X:
-				Add("x");
+				Add( "x" );
 				break;
 			case KEYS::KEYS_Y:
-				Add("y");
+				Add( "y" );
 				break;
 			case KEYS::KEYS_Z:
-				Add("z");
+				Add( "z" );
 				break;
 
 			case KEYS::KEYS_0:
-				Add("0");
+				Add( "0" );
 				break;
 			case KEYS::KEYS_1:
-				Add("1");
+				Add( "1" );
 				break;
 			case KEYS::KEYS_2:
-				Add("2");
+				Add( "2" );
 				break;
 			case KEYS::KEYS_3:
-				Add("3");
+				Add( "3" );
 				break;
 			case KEYS::KEYS_4:
-				Add("4");
+				Add( "4" );
 				break;
 			case KEYS::KEYS_5:
-				Add("5");
+				Add( "5" );
 				break;
 			case KEYS::KEYS_6:
-				Add("6");
+				Add( "6" );
 				break;
 			case KEYS::KEYS_7:
-				Add("7");
+				Add( "7" );
 				break;
 			case KEYS::KEYS_8:
-				Add("8");
+				Add( "8" );
 				break;
 			case KEYS::KEYS_9:
-				Add("9");
+				Add( "9" );
 				break;
 
 			case KEYS::KEYS_SPACE:
-				Add(" ");
+				Add( " " );
 				break;
 			case KEYS::KEYS_PERIOD:
-				Add(".");
+				Add( "." );
 				break;
 			case KEYS::KEYS_BACKSPACE:
 				Pop();

@@ -184,7 +184,7 @@ void Graphics::RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT4X4* world 
 	}
 }
 
-void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, float x, float y, float z )
+void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, DirectX::XMFLOAT4X4* world )
 {
 	Animated3dAsset*	model		= (Animated3dAsset*)mAssetManager->mAssetContainer[modelAssetId];
 	Skeleton*			skeleton	= &( (SkeletonAsset*)mAssetManager->mAssetContainer[model->mSkeletonId] )->mSkeleton;
@@ -193,6 +193,7 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 	if( animationTime > (float)animation->AnimLength / 60.0f )
 	{
 		animationTime	-= ( (float)animation->AnimLength / 60.0f - 1.0f / 60.0f );
+		//animationTime = 0.0f;
 	}
 
 	float calcTime = animationTime * 60.0f;
@@ -264,7 +265,7 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 
 	//Map CbufferPerObject
 	CbufferPerObjectAnimated data;
-	data.worldMatrix = DirectX::XMMatrixTranspose( DirectX::XMMatrixTranslation( x, y, z ) );
+	data.worldMatrix = DirectX::XMLoadFloat4x4( world );
 	for( int i = 0; i < NUM_SUPPORTED_JOINTS; i++ )
 		data.boneTransforms[i] = DirectX::XMMatrixIdentity();
 	for( int i = 0; i < skeleton->nrOfJoints; i++ )
@@ -285,13 +286,11 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 
 void Graphics::RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList )
 {
-
 	//////////////////////////////////////////////////////////////////
 	//						RENDER CALL
 	//////////////////////////////////////////////////////////////////
 	
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-
 	UINT32 vertexSize[1]			= { sizeof( AnimatedVertex ) };
 	UINT32 offset[1]				= { 0 };
 	
@@ -313,6 +312,7 @@ void Graphics::RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList )
 	{
 		loopBreaker = 0;
 		currAssetID = (UINT)-1;
+		objectToRender = 0;
 		for( UINT i = 0; i < sizeOfList; i++ )
 		{
 			if( info[i].mModelId != (UINT)-1 )
@@ -361,6 +361,54 @@ void Graphics::RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList )
 
 	}while( loopBreaker != sizeOfList );
 }
+
+
+
+DirectX::XMFLOAT4X4 Graphics::GetRootMatrix( AssetID modelAssetId, AssetID animationAssetId, float animationTime )
+{
+	Animated3dAsset*	model		= (Animated3dAsset*)mAssetManager->mAssetContainer[modelAssetId];
+	Skeleton*			skeleton	= &( (SkeletonAsset*)mAssetManager->mAssetContainer[model->mSkeletonId] )->mSkeleton;
+	AnimationData*		animation	= &( (AnimationAsset*)mAssetManager->mAssetContainer[animationAssetId] )->mAnimationData;
+
+	float calcTime = animationTime * 60.0f;
+
+	float prevTime		= 1.0f;
+	float targetTime	= 1.0f;
+
+	DirectX::XMFLOAT4X4	previousMatrix;
+	DirectX::XMFLOAT4X4 targetMatrix = animation->joints.at(0).matricies.at(0);
+
+	for( int j = 0; j < (int)animation->joints.at(0).keys.size() - 1; j++ )
+	{
+		if( (float)animation->joints.at(0).keys.at(j) <= calcTime )
+		{
+			prevTime		= targetTime;
+			previousMatrix	= targetMatrix;
+			targetTime		= (float)animation->joints.at(0).keys.at(j+1);
+			targetMatrix	= animation->joints.at(0).matricies.at(j+1);
+		}
+	}
+
+	float interpolation = ( calcTime - prevTime ) / ( targetTime - prevTime );
+
+	DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &previousMatrix );
+
+	DirectX::XMVECTOR targetComp[3];
+	DirectX::XMVECTOR childComp[3];
+
+	DirectX::XMMatrixDecompose( &targetComp[0], &targetComp[1], &targetComp[2], DirectX::XMLoadFloat4x4( &targetMatrix ) );
+	DirectX::XMMatrixDecompose( &childComp[0], &childComp[1], &childComp[2], child );
+
+	child = DirectX::XMMatrixAffineTransformation(	DirectX::XMVectorLerp( childComp[0], targetComp[0], interpolation ),
+														DirectX::XMVectorZero(),
+														DirectX::XMQuaternionSlerp( childComp[1], targetComp[1], interpolation ),
+														DirectX::XMVectorLerp( childComp[2], targetComp[2], interpolation ) );		
+
+	DirectX::XMFLOAT4X4 output;
+	DirectX::XMStoreFloat4x4( &output, child );
+	return output;
+}
+
 
 Camera* Graphics::GetCamera() const
 {

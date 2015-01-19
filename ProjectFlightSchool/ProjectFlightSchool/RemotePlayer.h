@@ -4,70 +4,30 @@
 #include "Graphics.h"
 #include "EventManager.h"
 #include "Events.h"
+#include "BoundingGeometry.h"
 #include "RenderManager.h"
+#include "Font.h"
 
-struct BoundingBox
-{
-	XMFLOAT3	position;
-	float		width;
-	float		height;
+#define	PLAYER_ANIMATION_LEGS_WALK	0
+#define PLAYER_ANIMATION_LEGS_IDLE	1
 
-	BoundingBox()
-	{
-		position	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-		width		= 1.0f;
-		height		= 1.0f;
-	}
-
-	BoundingBox( float width, float height )
-	{
-		this->width		= width;
-		this->height	= height;
-	}
-
-	bool Intersect( BoundingBox* inBox ) 
-	{
-		return ( ( position.x < inBox->position.x + inBox->width  ) && ( position.x + width  > inBox->position.x ) &&
-				 ( position.z < inBox->position.z + inBox->height ) && ( position.z + height > inBox->position.z ) );		
-	}
-};
-
-struct BoundingCircle
-{
-	XMFLOAT3	center;
-	float		radius;
-
-	BoundingCircle()
-	{
-		center	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-		radius	= 0.0f;
-	}
-
-	BoundingCircle( float radius )
-	{
-		this->radius	= radius;
-	}
-
-	bool Intersect( BoundingCircle* inCircle ) const
-	{
-		return ( pow( center.x - inCircle->center.x, 2 ) + pow( center.z - inCircle->center.z, 2 ) ) < pow( radius + inCircle->radius, 2 );
-	}
-};
-
+#define PLAYER_ANIMATION_COUNT 2
 
 struct UpperBody
 {
-	UINT		playerModel;
+	AssetID		playerModel;
 	XMFLOAT3	direction;
 	XMFLOAT3	position;
 };
 
 struct LowerBody
 {
-	UINT		playerModel;
+	AssetID		playerModel;
 	XMFLOAT3	direction;
 	XMFLOAT3	position;
-	float		speed;
+
+	AssetID		currentLowerAnimation;
+	float		currentLowerAnimationTime;
 };
 
 class RemotePlayer
@@ -76,8 +36,11 @@ class RemotePlayer
 	private:
 	protected:
 		unsigned int	mID;
+		int				mTeam;
 		UpperBody		mUpperBody;
 		LowerBody		mLowerBody;
+		AssetID			mAnimations[PLAYER_ANIMATION_COUNT];	
+
 		BoundingBox*	mBoundingBox;
 		BoundingCircle*	mBoundingCircle;
 		float			mCurrentHp;
@@ -88,7 +51,11 @@ class RemotePlayer
 		AssetID			mGreenHPAsset;
 		AssetID			mRedHPAsset;
 		AssetID			mOrangeHPAsset;
-
+		AssetID			mTeamAsset;
+		AssetID			mColorIDAsset;
+		int				mNrOfDeaths;
+		int				mNrOfKills;
+		Font			mFont;
 
 	public:
 
@@ -100,13 +67,21 @@ class RemotePlayer
 		void		LookAt( float rotation );
 
 	public:
-		void			RemoteInit( unsigned int id );
+		void			RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID );
+		void			BroadcastDeath( unsigned int shooter );
+
 		virtual void	Die();
+		void			HandleSpawn( float deltaTime );
+		void			Spawn();
+		void			TakeDamage( unsigned int damage, unsigned int shooter );
+		void			SetHP( float hp );
+		void			CountUpKills();
 		int				GetID() const;
+		int				GetTeam() const;
 		BoundingBox*	GetBoundingBox() const;
 		BoundingCircle*	GetBoundingCircle() const;
 		XMFLOAT3		GetPosition() const;
-		virtual HRESULT	Render( float deltaTime );
+		virtual HRESULT	Render( float deltaTime, int position );
 		virtual HRESULT	Initialize();
 		void			Release();
 						RemotePlayer();

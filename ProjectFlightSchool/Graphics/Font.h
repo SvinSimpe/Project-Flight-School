@@ -5,9 +5,10 @@
 #include "Graphics.h"
 #include "..\ProjectFlightSchool\RenderManager.h"
 
+#define X_OFFSET		3.0f
 #define SPACE_WIDTH		15.0f
 #define TAB_WIDTH		(SPACE_WIDTH * 8)
-#define LETTER_HEIGHT	55.0f
+#define LETTER_HEIGHT	78.0f
 
 class Font
 {
@@ -35,10 +36,10 @@ public:
 private:
 protected:
 public:
-	void		WriteText( std::string toWrite, float x, float y, float scale );
-	void		Initialize( std::string path );
-	void		Release();
-				Font();
-	virtual		~Font();
+	void			WriteText( std::string toWrite, float x, float y, float scale );
+	virtual void	Initialize( std::string path );
+	virtual void	Release();
+					Font();
+	virtual			~Font();
 };
 #endif

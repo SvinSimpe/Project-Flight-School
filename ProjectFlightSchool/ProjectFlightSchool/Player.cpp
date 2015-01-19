@@ -2,24 +2,27 @@
 
 void Player::HandleInput( float deltaTime )
 {
-	mLowerBody.direction = XMFLOAT3( 0.0f, 0.0f, 0.0f );
-
+	mAcceleration = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_W) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_S) )
-		Move( XMFLOAT3( 0.0f, 0.0f, 1.0f ) );
+		mAcceleration.z = mMaxAcceleration;
 	
 	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_A) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_D) )
-		Move( XMFLOAT3( -1.0f, 0.0f, 0.0f ) );
+		mAcceleration.x = -mMaxAcceleration;
 
 	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_S) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_W) )
-		Move( XMFLOAT3( 0.0f, 0.0f, -1.0f ) );
+		mAcceleration.z = -mMaxAcceleration;
 	
 	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_D) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_A) )
-		Move( XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
+		mAcceleration.x = mMaxAcceleration;
 
-
-
-	
-
+	//Normalize acceleration 
+	XMVECTOR normalizer = XMVector3Length( XMLoadFloat3( &mAcceleration ) );
+	if( XMVectorGetX( normalizer ) > mMaxAcceleration )
+	{
+		normalizer	 = XMVector3Normalize( XMLoadFloat3( &mAcceleration ) );
+		normalizer	*= mMaxAcceleration;
+		XMStoreFloat3( &mAcceleration, normalizer );
+	}
 
 	//== Calculate upper body rotation ==
 	XMVECTOR rayOrigin	= XMVECTOR( Input::GetInstance()->mCurrentNDCMousePos );
@@ -41,8 +44,6 @@ void Player::HandleInput( float deltaTime )
 	XMVECTOR rayDirInWorld	= XMVector3TransformCoord( rayDir, combinedInverse );
 	rayDirInWorld			= XMVector3Normalize( rayDirInWorld - rayPosInWorld );
 
-
-
 	float t					= 0.0f;
 	XMVECTOR planeNormal	= XMVectorSet( 0.0f, 1.0f, 0.0f, 0.0f );
 	XMVECTOR result			= -( XMVector3Dot( rayPosInWorld, planeNormal ) ) / ( XMVector3Dot( rayDirInWorld, planeNormal ) );
@@ -63,6 +64,7 @@ void Player::HandleInput( float deltaTime )
 	mUpperBody.direction.y = -radians;
 	mUpperBody.direction.z = 0.0f;
 
+	//== Weapon handling ==
 	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_SPACE) && mWeaponCoolDown <= 0.0f )
 	{
 		Fire();
@@ -71,51 +73,34 @@ void Player::HandleInput( float deltaTime )
 	else
 		mWeaponCoolDown -= deltaTime;
 
-	IEventPtr E1( new Event_Player_Moved( mLowerBody.position, mUpperBody.position, mUpperBody.direction ) );
+	//== Event to sync player with server ==
+	IEventPtr E1( new Event_Player_Update( mLowerBody.position, mLowerBody.direction, mLowerBody.currentLowerAnimation, mLowerBody.currentLowerAnimationTime, mUpperBody.position, mUpperBody.direction ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
-void Player::Move( XMFLOAT3 direction )
+void Player::Move( float deltaTime )
 {
-	mLowerBody.direction.x += direction.x;
-	mLowerBody.direction.z += direction.z;
-	
-	//Normalize direction vector
-	if ( direction.x < 0.00001f && direction.z < 0.00001f )
-	{
-		mLowerBody.direction.x /= pow((pow(mLowerBody.direction.x, 2) + pow(mLowerBody.direction.y, 2) + pow(mLowerBody.direction.z, 2)), 0.5f);
-		mLowerBody.direction.z /= pow((pow(mLowerBody.direction.x, 2) + pow(mLowerBody.direction.y, 2) + pow(mLowerBody.direction.z, 2)), 0.5f);
-	}
-}
+	mVelocity.x += mAcceleration.x * deltaTime - mVelocity.x * VELOCITY_FALLOFF * deltaTime;
+	mVelocity.y = 0.0f;
+	mVelocity.z += mAcceleration.z * deltaTime - mVelocity.z * VELOCITY_FALLOFF * deltaTime;
 
-// Set current hp to 0 to avoid negative values and send event that player has died
-void Player::Die()
-{
-	RemotePlayer::Die();
-	IEventPtr dieEv( new Event_Player_Died( mID ) );
-	EventManager::GetInstance()->QueueEvent( dieEv );
-}
-
-void Player::HandleSpawn( float deltaTime )
-{
-	if( mTimeTillSpawn <= 0.0f )
+	XMVECTOR normalizer = XMVector3Length( XMLoadFloat3( &mVelocity ) );
+	mCurrentVelocity = XMVectorGetX( normalizer );
+	if(  mCurrentVelocity > mMaxVelocity )
 	{
-		Spawn();
+		normalizer	 = XMVector3Normalize( XMLoadFloat3( &mVelocity ) );
+		normalizer	*= mMaxVelocity;
+		XMStoreFloat3( &mVelocity, normalizer );
 	}
-	else
-	{
-		mTimeTillSpawn -= deltaTime;
-	}
-}
 
-void Player::Spawn()
-{
-	mIsAlive			= true;
-	mCurrentHp			= mMaxHp;
-	mUpperBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
-	mLowerBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
-	IEventPtr spawnEv( new Event_Player_Spawned( mID ) );
-	EventManager::GetInstance()->QueueEvent( spawnEv );
+	mLowerBody.direction.x	= mVelocity.x;
+	mLowerBody.direction.y	= 0.0f;
+	mLowerBody.direction.z	= mVelocity.z;
+	normalizer				= XMVector3Normalize( XMLoadFloat3( &mLowerBody.direction ) );
+	XMStoreFloat3( &mLowerBody.direction, normalizer );
+
+	mLowerBody.position.x += mVelocity.x * deltaTime;
+	mLowerBody.position.z += mVelocity.z * deltaTime;
 }
 
 HRESULT Player::Update( float deltaTime )
@@ -131,24 +116,43 @@ HRESULT Player::Update( float deltaTime )
 		}
 		else
 		{
-			mUpperBody.position.x += mLowerBody.direction.x * mLowerBody.speed * deltaTime;
-			mUpperBody.position.z += mLowerBody.direction.z * mLowerBody.speed * deltaTime;
+			Move( deltaTime );
 
-			mLowerBody.position.x += mLowerBody.direction.x * mLowerBody.speed * deltaTime;
-			mLowerBody.position.z += mLowerBody.direction.z * mLowerBody.speed * deltaTime;
+			// Update Animation
+			XMFLOAT4X4 upperMatrix	= Graphics::GetInstance()->GetRootMatrix( mLowerBody.playerModel, mAnimations[mLowerBody.currentLowerAnimation], mLowerBody.currentLowerAnimationTime );
+			mUpperBody.position		= XMFLOAT3( upperMatrix._41 + mLowerBody.position.x, upperMatrix._42, upperMatrix._43 + mLowerBody.position.z );
+
+			//if( mLowerBody.currentLowerAnimationTime > 0.9f )
+			if( mCurrentVelocity < 0.1f )
+			{
+				mLowerBody.currentLowerAnimation = PLAYER_ANIMATION_LEGS_IDLE;
+
+				if( mLowerBody.currentLowerAnimation != PLAYER_ANIMATION_LEGS_IDLE )
+					mLowerBody.currentLowerAnimationTime	= 1.0f;
+			}
+			else if( mLowerBody.currentLowerAnimation == PLAYER_ANIMATION_LEGS_IDLE )
+			{
+				mLowerBody.currentLowerAnimation		= PLAYER_ANIMATION_LEGS_WALK;
+				mLowerBody.currentLowerAnimationTime	= 1.0f;
+			}
+
+
+			if( mLowerBody.currentLowerAnimation == PLAYER_ANIMATION_LEGS_WALK )
+				mLowerBody.currentLowerAnimationTime += deltaTime * mCurrentVelocity / 1.1f;
+			else
+				mLowerBody.currentLowerAnimationTime += deltaTime;
 		}
 	}
 	else
 	{
-		HandleSpawn( deltaTime );
+		RemotePlayer::HandleSpawn( deltaTime );
 	}
-
 
 	///Lock camera position to player
 	XMFLOAT3 cameraPosition;
 	cameraPosition.x = mLowerBody.position.x;
-	cameraPosition.y = mLowerBody.position.y + 25.0f;
-	cameraPosition.z = mLowerBody.position.z - 15.0f;
+	cameraPosition.y = mLowerBody.position.y + 20.0f;
+	cameraPosition.z = mLowerBody.position.z - 12.0f;
 
 	Graphics::GetInstance()->SetEyePosition( cameraPosition );
 	Graphics::GetInstance()->SetFocus( mLowerBody.position );
@@ -160,15 +164,94 @@ HRESULT Player::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT Player::Render( float deltaTime )
+
+HRESULT Player::Render( float deltaTime, int position )
 {
 
-	RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
-	RenderManager::GetInstance()->AddObject3dToList( mLowerBody.playerModel, mLowerBody.position );
+	//RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
+	//RenderManager::GetInstance()->AddObject3dToList( mLowerBody.playerModel, mLowerBody.position );
 
-	RemotePlayer::Render( deltaTime );
+	if( !mIsAlive )
+	{
+		
+        std::string textToWrite = "TEN";
+		
+		if( mTimeTillSpawn < 1.0f )
+		{
+			textToWrite = "ONE";
+		}
+		else if( mTimeTillSpawn < 2.0f )
+		{
+			textToWrite = "TWO";
+		}
+		else if( mTimeTillSpawn < 3.0f )
+		{
+			textToWrite = "THREE";
+		}
+		else if( mTimeTillSpawn < 4.0f )
+		{
+			textToWrite = "FOUR";
+		}
+		else if( mTimeTillSpawn < 5.0f )
+		{
+			textToWrite = "FIVE";
+		}
+		else if( mTimeTillSpawn < 6.0f )
+		{
+			textToWrite = "SIX";
+		}
+		else if( mTimeTillSpawn < 7.0f )
+		{
+			textToWrite = "SEVEN";
+		}
+		else if( mTimeTillSpawn < 8.0f )
+		{
+			textToWrite = "EIGHT";
+		}
+		else if( mTimeTillSpawn < 9.0f )
+		{
+			textToWrite = "NINE";
+		}
+		
+
+
+		mFont.WriteText( textToWrite, 500.0f, 500.0f, 3.0f );
+	}
+
+	RemotePlayer::Render( deltaTime, position );
 
 	return S_OK;
+}
+
+void Player::SetID( unsigned int id )
+{
+	mID = id;
+}
+
+void Player::SetTeam( int team, AssetID teamColor )
+{
+	mTeam		= team;
+	mTeamAsset	= teamColor;
+}
+
+void Player::SetColor( AssetID color )
+{
+	mColorIDAsset = color;
+}
+
+XMFLOAT3 Player::GetPlayerPosition() const
+{
+	return mLowerBody.position;
+}
+
+void Player::SetPosition( XMVECTOR position )
+{
+	XMStoreFloat3( &mLowerBody.position, position );
+}
+
+XMFLOAT3 Player::GetUpperBodyDirection() const
+{
+	return mUpperBody.direction;
 }
 
 void Player::Fire()
@@ -177,45 +260,41 @@ void Player::Fire()
 	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
-void Player::SetPosition( XMVECTOR position )
-{
-	XMStoreFloat3( &mLowerBody.position, position );
-	XMStoreFloat3( &mUpperBody.position, position );
-}
-
 HRESULT Player::Initialize()
 {
 	RemotePlayer::Initialize();
-	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Robot/", "robotScenebody.pfs", mUpperBody.playerModel ) ) )
-		OutputDebugString( L"\nERROR\n" );
-
-	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Robot/", "robotScenelegs.pfs", mLowerBody.playerModel ) ) )
-		OutputDebugString( L"\nERROR\n" );
-
 
 	mUpperBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
-	mLowerBody.speed	= 15.0f;
 
-	mWeaponCoolDown		= 0.1f;
+	mMaxVelocity		= 7.7f;
+	mCurrentVelocity	= 0.0f;
+	mMaxAcceleration	= 20.0f;
+	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mVelocity			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
-	mBoundingBox			= new BoundingBox( 1.5f, 1.5f );
-	mBoundingCircle			= new BoundingCircle( 0.5f );
 
-	mWeaponCoolDown		= 0.1f;
+	//Weapon Initialization
+	mLoadOut				= new LoadOut();
+	mLoadOut->rangedWeapon	= new RangedInfo( "Machine Gun", 5.0f, 1, 5.0f, 2, 0 );
+	mLoadOut->meleeWeapon	= new MeleeInfo( "Sword", 4.0f, 3, 7, 2.0f );
 
 	return S_OK;
 }
 
 void Player::Release()
 {
-
+	mLoadOut->Release();
+	SAFE_DELETE( mLoadOut );
+	
+	RemotePlayer::Release();
 }
 
 Player::Player()
 	:RemotePlayer()
 {
-	mWeaponCoolDown			= 0.0f;
+	mWeaponCoolDown	= 0.0f;
+	mLoadOut		= nullptr;
 }
 
 Player::~Player()

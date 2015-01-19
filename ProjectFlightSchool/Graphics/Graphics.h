@@ -85,8 +85,11 @@ class LIBRARY_EXPORT Graphics
 		void Render2dAsset( AssetID assetId, float x, float y, float width, float height );
 		void RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX::XMFLOAT3 y );
 		void RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT4X4* world );
-		void RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, float x, float y, float z );
+		void RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, DirectX::XMFLOAT4X4* world );
+
 		void RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList );
+
+		DirectX::XMFLOAT4X4 GetRootMatrix( AssetID modelAssetId, AssetID animationAssetId, float animationTime );
 
 		Camera* GetCamera() const;
 		Camera* GetDeveloperCamera() const;

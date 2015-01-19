@@ -7,7 +7,7 @@ void MultiplayerMenuState::HandleInput()
 		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
-		IEventPtr E2( new Event_Start_Server() );
+		IEventPtr E2( new Event_Start_Server( "27015" ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
 	}
 	else if( mButtons[THREE_VS_THREE].LeftMousePressed() )
@@ -15,7 +15,7 @@ void MultiplayerMenuState::HandleInput()
 		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
-		IEventPtr E2( new Event_Start_Server() );
+		IEventPtr E2( new Event_Start_Server( "27015" ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
 	}
 	else if( mButtons[FOUR_VS_FOUR].LeftMousePressed() )
@@ -23,7 +23,7 @@ void MultiplayerMenuState::HandleInput()
 		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
-		IEventPtr E2( new Event_Start_Server() );
+		IEventPtr E2( new Event_Start_Server( "27015" ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
 	}
 	else if( mButtons[BACK].LeftMousePressed() )

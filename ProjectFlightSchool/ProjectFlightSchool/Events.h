@@ -291,6 +291,7 @@ class Event_Start_Server : public IEvent
 {
 	// Member variables;
 	private:
+		std::string mPort;
 	protected:
 	public:
 		static const EventType GUID;
@@ -304,8 +305,13 @@ class Event_Start_Server : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Start_Server()
+		Event_Start_Server( std::string port )
 		{
+			mPort = port;
+		}
+		std::string Port()
+		{
+			return mPort;
 		}
 };
 
@@ -313,6 +319,8 @@ class Event_Start_Client : public IEvent
 {
 	// Member variables;
 	private:
+		std::string mIP;
+		std::string mPort;
 	protected:
 	public:
 		static const EventType GUID;
@@ -326,8 +334,18 @@ class Event_Start_Client : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Start_Client()
+		Event_Start_Client( std::string ip, std::string port )
 		{
+			mIP		= ip;
+			mPort	= port;
+		}
+		std::string IP()
+		{
+			return mIP;
+		}
+		std::string Port()
+		{
+			return mPort;
 		}
 };
 

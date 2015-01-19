@@ -7,11 +7,7 @@
 class JoinMenuState : public BaseMenuState
 {
 	private:
-		static const int
-			BACK = 0,
-			BUTTON_AMOUNT = 1;
-
-		MenuButton		mButtons[BUTTON_AMOUNT];
+		MenuButton		mBackButton;
 		InputSquare		mIPBox;
 		InputSquare		mPortBox;
 		Image			mTexts[3];

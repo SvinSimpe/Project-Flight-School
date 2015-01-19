@@ -5,7 +5,7 @@
 #include "Font.h"
 #include "Image.h"
 
-#define KEYCOOLDOWN 0.1f;
+#define KEYCOOLDOWN 0.12f;
 
 class InputSquare : public Entry
 {
@@ -25,11 +25,12 @@ class InputSquare : public Entry
 	protected:
 	public:
 		bool		IsActive();
-		void		SwitchActive();
+		void		SwitchActive( bool b );
+		std::string GetText();
 		void		HandleInput();
 		void		Render();
 		bool		Update( float deltaTime );
-		bool		Initialize( UINT x, UINT y, UINT width, UINT height );
+		bool		Initialize( std::string text, UINT x, UINT y, UINT width, UINT height );
 		void		Release();
 					InputSquare();
 		virtual		~InputSquare();

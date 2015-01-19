@@ -18,12 +18,14 @@ bool InputSquare::IsActive()
 	return mActive;
 }
 
-void InputSquare::SwitchActive()
+void InputSquare::SwitchActive( bool b )
 {
-	if( mActive )
-		mActive = false;
-	else
-		mActive = true;
+	mActive = b;
+}
+
+std::string InputSquare::GetText()
+{
+	return mCurrentText;
 }
 
 void InputSquare::HandleInput()
@@ -163,8 +165,7 @@ void InputSquare::HandleInput()
 void InputSquare::Render()
 {
 	mInputImage.Render();
-	mText.WriteText( mCurrentText, (float)mUpperLeft.x + 91.0f, (float)mUpperLeft.y + 71.0f, 0.8f );
-	RenderManager::GetInstance()->Render();
+	mText.WriteText( mCurrentText, (float)mUpperLeft.x + 40, (float)mUpperLeft.y + 40, 0.25f );
 }
 
 bool InputSquare::Update( float deltaTime )
@@ -181,10 +182,10 @@ bool InputSquare::Update( float deltaTime )
 	return true;
 }
 
-bool InputSquare::Initialize( UINT x, UINT y, UINT width, UINT height )
+bool InputSquare::Initialize( std::string text, UINT x, UINT y, UINT width, UINT height )
 {
 	Entry::Initialize( x, y, width, height );
-
+	mCurrentText = text;
 	mInputImage.Initialize( "../Content/Assets/Textures/Menu/Input.png", x, y, width, height );
 	mText.Initialize( "../Content/Assets/Fonts/final_font/" );
 

@@ -2,24 +2,46 @@
 
 void JoinMenuState::HandleInput()
 {
-	if( mButtons[BACK].LeftMousePressed() )
+	if( mBackButton.LeftMousePressed() )
 	{
 		IEventPtr E1( new Event_Change_State( START_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
-	else if(Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_ENTER))
+	else if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_ENTER) )
 	{
-		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
+		std::string s_ip	= mIPBox.GetText();
+		std::string s_port	= mPortBox.GetText();
+
+		const char* c_ip = s_ip.c_str();
+		const char* c_port = s_port.c_str();
+
+		IEventPtr E1( new Event_Start_Client( s_ip, s_port ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
+
+		IEventPtr E2( new Event_Change_State( PLAY_STATE ) );
+		EventManager::GetInstance()->QueueEvent( E2 );
+	}
+	else if( mIPBox.LeftMousePressed() )
+	{
+		mIPBox.SwitchActive( true );
+		mPortBox.SwitchActive( false );
+	}
+	else if( mPortBox.LeftMousePressed() )
+	{
+		mIPBox.SwitchActive( false );
+		mPortBox.SwitchActive( true );
 	}
 }
 
 HRESULT JoinMenuState::Update( float deltaTime )
 {
 	BaseMenuState::Update( deltaTime );
-	for( int i = 0; i < BUTTON_AMOUNT; i++ )
+	mBackButton.Update( deltaTime );
+	mIPBox.Update( deltaTime );
+	mPortBox.Update( deltaTime );
+	for( int i = 0; i < 3; i++ )
 	{
-		mButtons[i].Update( deltaTime );
+		mTexts[i].Update( deltaTime );
 	}
 	return S_OK;
 }
@@ -27,10 +49,11 @@ HRESULT JoinMenuState::Update( float deltaTime )
 HRESULT JoinMenuState::Render()
 {
 	BaseMenuState::Render();
-
-	for( int i = 0; i < BUTTON_AMOUNT; i++ )
+	mBackButton.Render();
+	mIPBox.Render();
+	mPortBox.Render();
+	for( int i = 0; i < 3; i++ )
 	{
-		mButtons[i].Render();
 		mTexts[i].Render();
 	}
 
@@ -44,10 +67,7 @@ void JoinMenuState::OnEnter()
 
 void JoinMenuState::OnExit()
 {
-	for( int i = 0; i < BUTTON_AMOUNT; i++ )
-	{
-		mButtons[i].SetExitCooldown();
-	}
+	mBackButton.SetExitCooldown();
 }
 
 void JoinMenuState::Reset()
@@ -63,21 +83,21 @@ HRESULT JoinMenuState::Initialize()
 	float y	= (float)Input::GetInstance()->mScreenHeight * 0.75f;
 	float w	= 200.0f;
 	float h	= 200.0f;
-	mButtons[BACK].Initialize( (UINT)x, (UINT)y, (UINT)w, (UINT)h );
-	mTexts[BACK].Initialize( "../Content/Assets/Textures/Menu/Back.png", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
+	mBackButton.Initialize( (UINT)x, (UINT)y, (UINT)w, (UINT)h );
+	mTexts[0].Initialize( "../Content/Assets/Textures/Menu/Back.png", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
 
-	x = (float)Input::GetInstance()->mScreenWidth  * 0.75f;
-	y = (float)Input::GetInstance()->mScreenHeight * 0.75f;
-	w = 640.0f;
-	h = 177.0f;
+	x = (float)Input::GetInstance()->mScreenWidth  * 0.10f;
+	y = (float)Input::GetInstance()->mScreenHeight * 0.80f;
+	w = 640.0f/2;
+	h = 177.0f/2;
 
-	mIPBox.Initialize((UINT)x, (UINT)y, (UINT)w, (UINT)h);
-	mTexts[1].Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/IP.png", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
+	mIPBox.Initialize( "localhost", (UINT)x, (UINT)y, (UINT)w, (UINT)h);
+	mTexts[1].Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/IP.png", (UINT)x + 15, (UINT)y - 10, (UINT)w, (UINT)h );
 
-	x += w + 20.0f;
+	x += w + 20;
 
-	mPortBox.Initialize((UINT)x + w + 20, (UINT)y, (UINT)w, (UINT)h);
-	mTexts[2].Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/Port.png", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
+	mPortBox.Initialize( "27015", (UINT)x, (UINT)y, (UINT)w, (UINT)h);
+	mTexts[2].Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/Port.png", (UINT)x + 15, (UINT)y - 10, (UINT)w, (UINT)h );
 
 	return S_OK;
 }
@@ -85,10 +105,7 @@ HRESULT JoinMenuState::Initialize()
 void JoinMenuState::Release()
 {
 	BaseMenuState::Release();
-	for( int i = 0; i < BUTTON_AMOUNT; i++ )
-	{
-		mButtons[i].Release();
-	}
+	mBackButton.Release();
 	mIPBox.Release();
 	mPortBox.Release();
 

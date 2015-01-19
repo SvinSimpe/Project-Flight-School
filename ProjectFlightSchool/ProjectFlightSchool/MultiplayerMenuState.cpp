@@ -4,37 +4,28 @@ void MultiplayerMenuState::HandleInput()
 {
 	if( mPortBox.LeftMousePressed() )
 	{
-		mPortBox.SwitchActive(true);
+		mPortBox.SwitchActive( true );
 	}
 	else if( mButtons[TWO_VS_TWO].LeftMousePressed() )
-	{
-		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
-
+	{	
 		std::string port = mPortBox.GetText();
 
-		IEventPtr E2( new Event_Start_Server( port ) );
-		EventManager::GetInstance()->QueueEvent( E2 );
+		IEventPtr E1( new Event_Start_Server( port ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 	else if( mButtons[THREE_VS_THREE].LeftMousePressed() )
 	{
-		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
-
 		std::string port = mPortBox.GetText();
 
-		IEventPtr E2( new Event_Start_Server( port ) );
-		EventManager::GetInstance()->QueueEvent( E2 );
+		IEventPtr E1( new Event_Start_Server( port ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 	else if( mButtons[FOUR_VS_FOUR].LeftMousePressed() )
 	{
-		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
-
 		std::string port = mPortBox.GetText();
 
-		IEventPtr E2( new Event_Start_Server( port ) );
-		EventManager::GetInstance()->QueueEvent( E2 );
+		IEventPtr E1( new Event_Start_Server( port ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 	else if( mButtons[BACK].LeftMousePressed() )
 	{
@@ -82,6 +73,14 @@ void MultiplayerMenuState::OnExit()
 
 void MultiplayerMenuState::Reset()
 {
+	mPortBox.Release();
+
+	float x = (float)Input::GetInstance()->mScreenWidth  * 0.10f;
+	float y = (float)Input::GetInstance()->mScreenHeight * 0.80f;
+	float w = 640.0f/2;
+	float h = 177.0f/2;
+
+	mPortBox.Initialize( "27015", "Port", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
 }
 
 HRESULT MultiplayerMenuState::Initialize()
@@ -99,7 +98,6 @@ HRESULT MultiplayerMenuState::Initialize()
 	mPortBox.Initialize( "27015", "Port", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
 	x += w;
 
-	//x	= (float)Input::GetInstance()->mScreenWidth  * 0.20f;
 	y	= (float)Input::GetInstance()->mScreenHeight * 0.75f;
 	w	= 200.0f;
 	h	= 200.0f;

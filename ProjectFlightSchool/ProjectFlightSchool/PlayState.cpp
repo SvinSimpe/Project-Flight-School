@@ -408,9 +408,7 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Projectile_Fired::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Update_HP::GUID );
 
-	mFont.Initialize( "../Content/Assets/Fonts/mv_boli_26_red/" );
-
-
+	mFont.Initialize( "../Content/Assets/Fonts/final_font/" );
 
 	//TEST
 	mAllPlayers.push_back( mPlayer );

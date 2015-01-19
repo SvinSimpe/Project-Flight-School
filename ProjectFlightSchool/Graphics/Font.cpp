@@ -23,7 +23,7 @@ void Font::WriteText( std::string toWrite, float x, float y, float scale )
 			xOffset += TAB_WIDTH * scale;
 			continue;
 		}
-		else if(l == '.')
+		else if( l == '.' )
 		{
 			l = '_';
 		}
@@ -34,7 +34,7 @@ void Font::WriteText( std::string toWrite, float x, float y, float scale )
 		
 		RenderManager::GetInstance()->AddObject2dToList( mCharacters[l].asset, DirectX::XMFLOAT2( (x + xOffset), (y + yOffset) ), DirectX::XMFLOAT2( (mCharacters[l].w * scale), (mCharacters[l].h * scale) ) );
 	
-		xOffset += (mCharacters[l].w + X_OFFSET) * scale;
+		xOffset += ( mCharacters[l].w + X_OFFSET ) * scale;
 	}
 }
 

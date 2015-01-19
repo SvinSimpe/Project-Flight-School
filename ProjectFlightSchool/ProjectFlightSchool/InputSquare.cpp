@@ -7,7 +7,7 @@ void InputSquare::Add(std::string letter)
 
 void InputSquare::Pop()
 {
-	if(mCurrentText.size() > 0)
+	if( mCurrentText.size() > 0 )
 	{
 		mCurrentText.pop_back();
 	}
@@ -30,9 +30,9 @@ std::string InputSquare::GetText()
 
 void InputSquare::HandleInput()
 {
-	for(int i = 0; i < KEYS::KEYS_AMOUNT; i++)
+	for( int i = 0; i < KEYS::KEYS_AMOUNT; i++ )
 	{
-		if(Input::GetInstance()->mCurrentFrame.at(i))
+		if( Input::GetInstance()->mCurrentFrame.at(i) )
 		{
 			mKeyCD = KEYCOOLDOWN;
 			switch(i)

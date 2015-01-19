@@ -3,7 +3,6 @@
 
 #include "Entry.h"
 #include "RenderManager.h"
-#include <sstream>
 
 #define FRAME_AMOUNT 45
 

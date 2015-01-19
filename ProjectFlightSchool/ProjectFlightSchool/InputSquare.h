@@ -20,7 +20,7 @@ class InputSquare : public Entry
 	public:
 	
 	private:
-		void		Add(std::string letter);
+		void		Add( std::string letter );
 		void		Pop();
 	protected:
 	public:

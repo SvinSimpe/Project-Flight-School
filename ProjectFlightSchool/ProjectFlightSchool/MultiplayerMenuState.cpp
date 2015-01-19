@@ -107,7 +107,7 @@ HRESULT MultiplayerMenuState::Initialize()
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
 		mButtons[i].Initialize( (UINT)x, (UINT)y, (UINT)w, (UINT)h );
-		if(texts[i] == "Back")
+		if( texts[i] == "Back" )
 		{
 			mTexts[i].Initialize( "../Content/Assets/Textures/Menu/Back.png", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
 		}

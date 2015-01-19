@@ -207,9 +207,10 @@ HRESULT PlayState::Render()
 		RenderManager::GetInstance()->AddObject3dToList( mStoneAssets[i], DirectX::XMFLOAT3( (float)i*4.0f, 0.0f, -4.0f ) );
 	}
 	
-	RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation, mTestAnimationAnimation, &mAnimationTime, DirectX::XMFLOAT3( -5.0f, 0.0f, 0.0f ) );
+	for(int i = 0; i < animTestNr; i++)
+		RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation[i], mTestAnimationAnimation[i], &mAnimationTime, DirectX::XMFLOAT3( -5.0f, ((i * 1) + 0.0f), 0.0f ) );
 
-	RenderManager::GetInstance()->AddAnim3dToList( mTestRobot, mTestRobotAni, &mRobotTime, DirectX::XMFLOAT3( 4.0f, 0.0f, 4.0f ) );
+	//RenderManager::GetInstance()->AddAnim3dToList( mTestRobot, mTestRobotAni, &mRobotTime, DirectX::XMFLOAT3( -7.0f, 0.0f, 0.0f ) );
 
 	mPlayer->Render( 0.0f );
 	//mWorldMap->Render( 0.0f );
@@ -255,14 +256,14 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Ship/", "crashed_ship.pfs", mTestAsset );
 
 	AssetID skeleton = 0;
+	AssetID skel  =0;
 
-	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", skeleton );
-	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, mTestAnimation );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptor_death.PaMan", mTestAnimationAnimation );
-
-	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Robot/Animations/", "robot_legs.Skel", skeleton );
-	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Robot/", "walkanimationTest5_1.apfs", skeleton, mTestRobot );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Robot/Animations/", "testLegs.PaMan", mTestRobotAni );
+	for(int i = 0; i < animTestNr; i++)
+	{
+		Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", skeleton );
+		Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, mTestAnimation[i] );
+		Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptor_death.PaMan", mTestAnimationAnimation[i] );
+	}
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_1.pfs", mNest1Asset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_1.pfs", mStoneAssets[0] );

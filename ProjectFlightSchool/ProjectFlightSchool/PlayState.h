@@ -11,7 +11,7 @@
 #define MAX_REMOTE_PLAYERS		10
 #define MAX_PROJECTILES			30	
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
-
+#define animTestNr 10
 
 class PlayState : public BaseState
 {
@@ -21,8 +21,8 @@ class PlayState : public BaseState
 
 		AssetID	mTestAsset;
 
-		AssetID	mTestAnimation;
-		AssetID	mTestAnimationAnimation;
+		AssetID	mTestAnimation[animTestNr];
+		AssetID	mTestAnimationAnimation[animTestNr];
 
 		AssetID mTestRobot;
 		AssetID mTestRobotAni;

@@ -1,6 +1,6 @@
 #include "InputSquare.h"
 
-void InputSquare::Add(std::string letter)
+void InputSquare::Add( std::string letter )
 {
 	mCurrentText += letter;
 }

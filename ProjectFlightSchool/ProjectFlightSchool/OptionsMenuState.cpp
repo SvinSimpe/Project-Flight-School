@@ -22,7 +22,6 @@ HRESULT OptionsMenuState::Update( float deltaTime )
 
 HRESULT OptionsMenuState::Render()
 {
-	Graphics::GetInstance()->BeginScene();
 	BaseMenuState::Render();
 
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
@@ -31,7 +30,7 @@ HRESULT OptionsMenuState::Render()
 		mTexts[i].Render();
 	}
 
-	Graphics::GetInstance()->EndScene();
+	RenderManager::GetInstance()->Render();
 	return S_OK;
 }
 

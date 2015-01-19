@@ -31,17 +31,14 @@ HRESULT CreateMenuState::Update( float deltaTime )
 
 HRESULT CreateMenuState::Render()
 {
-	Graphics::GetInstance()->BeginScene();
 	BaseMenuState::Render();
-
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
 		mButtons[i].Render();
 		mTexts[i].Render();
 	}
 
-	Graphics::GetInstance()->EndScene();
-
+	RenderManager::GetInstance()->Render();
 	return S_OK;
 }
 

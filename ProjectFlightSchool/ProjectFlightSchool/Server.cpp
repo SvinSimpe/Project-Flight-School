@@ -148,7 +148,7 @@ bool Server::Run()
 	return true;
 }
 
-bool Server::Initialize( const char* port )
+bool Server::Initialize( std::string port )
 {
 	mNextTeamDelegation = 0;
 	mNrOfTeams			= 2;
@@ -168,7 +168,7 @@ bool Server::Initialize( const char* port )
 	hints.ai_protocol	= 0;
 	hints.ai_flags		= AI_PASSIVE;
 
-	mResult				= getaddrinfo( nullptr, port, &hints, &mAddrResult );
+	mResult				= getaddrinfo( nullptr, port.c_str(), &hints, &mAddrResult );
 	if ( mResult != 0 )
 	{
 		printf( "getaddrinfo failed with error: %d\n", mResult );

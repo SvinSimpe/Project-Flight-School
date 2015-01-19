@@ -37,7 +37,7 @@ class Client // The class used by clients to connect to the server
 	public:
 		bool	Connect();
 		bool	Run();
-		bool	Initialize( const char* port, const char* ip ); // Sets up and connects to the server
+		bool	Initialize( std::string ip, std::string port ); // Sets up and connects to the server
 		void	Release();
 				Client();
 		virtual	~Client();

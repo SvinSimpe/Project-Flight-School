@@ -44,7 +44,7 @@ class Server
 	public:
 		bool			Connect();
 		bool			Run();
-		bool			Initialize( const char* port );
+		bool			Initialize( std::string port );
 		void			Release();
 						Server();
 		virtual			~Server();

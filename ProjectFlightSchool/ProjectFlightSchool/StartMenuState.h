@@ -2,6 +2,7 @@
 #define STARTMENUSTATE_H
 
 #include "BaseMenuState.h"
+#include "InputSquare.h"
 
 class StartMenuState : public BaseMenuState
 {

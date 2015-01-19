@@ -10,7 +10,7 @@ class JoinMenuState : public BaseMenuState
 		MenuButton		mBackButton;
 		InputSquare		mIPBox;
 		InputSquare		mPortBox;
-		Image			mTexts[3];
+		Image			mText;
 	protected:
 	public:
 

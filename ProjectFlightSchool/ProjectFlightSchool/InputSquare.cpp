@@ -164,7 +164,10 @@ void InputSquare::HandleInput()
 
 void InputSquare::Render()
 {
-	mInputImage.Render();
+	for(int i = 0; i < 2; i++)
+	{
+		mInputImage[i].Render();
+	}
 	mText.WriteText( mCurrentText, (float)mUpperLeft.x + 40, (float)mUpperLeft.y + 40, 0.25f );
 }
 
@@ -182,19 +185,23 @@ bool InputSquare::Update( float deltaTime )
 	return true;
 }
 
-bool InputSquare::Initialize( std::string text, UINT x, UINT y, UINT width, UINT height )
+bool InputSquare::Initialize( std::string text, std::string imgName, UINT x, UINT y, UINT width, UINT height )
 {
 	Entry::Initialize( x, y, width, height );
 	mCurrentText = text;
-	mInputImage.Initialize( "../Content/Assets/Textures/Menu/Input.png", x, y, width, height );
-	mText.Initialize( "../Content/Assets/Fonts/final_font/" );
+	mInputImage[0].Initialize( "../Content/Assets/Textures/Menu/Input.png", x, y, width, height );
+	mInputImage[1].Initialize( "../Content/Assets/Textures/Menu/" + imgName + ".png", x, y, width, height );
+	mText.Initialize( "../Content/Assets/Fonts/final_fonmt/" );
 
 	return true;
 }
 
 void InputSquare::Release()
 {
-	mInputImage.Release();
+	for( int i = 0; i < 2; i++ )
+	{
+		mInputImage[i].Release();
+	}
 	mText.Release();
 }
 

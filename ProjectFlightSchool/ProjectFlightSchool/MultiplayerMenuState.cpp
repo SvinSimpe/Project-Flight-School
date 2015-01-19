@@ -7,7 +7,9 @@ void MultiplayerMenuState::HandleInput()
 		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
-		IEventPtr E2( new Event_Start_Server( "27015" ) );
+		std::string port = mPortBox.GetText();
+
+		IEventPtr E2( new Event_Start_Server( port ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
 	}
 	else if( mButtons[THREE_VS_THREE].LeftMousePressed() )
@@ -15,7 +17,9 @@ void MultiplayerMenuState::HandleInput()
 		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
-		IEventPtr E2( new Event_Start_Server( "27015" ) );
+		std::string port = mPortBox.GetText();
+
+		IEventPtr E2( new Event_Start_Server( port ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
 	}
 	else if( mButtons[FOUR_VS_FOUR].LeftMousePressed() )
@@ -23,7 +27,9 @@ void MultiplayerMenuState::HandleInput()
 		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
-		IEventPtr E2( new Event_Start_Server( "27015" ) );
+		std::string port = mPortBox.GetText();
+
+		IEventPtr E2( new Event_Start_Server( port ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
 	}
 	else if( mButtons[BACK].LeftMousePressed() )
@@ -40,6 +46,7 @@ HRESULT MultiplayerMenuState::Update( float deltaTime )
 	{
 		mButtons[i].Update( deltaTime );
 	}
+	mPortBox.Update( deltaTime );
 	return S_OK;
 }
 
@@ -52,7 +59,7 @@ HRESULT MultiplayerMenuState::Render()
 		mButtons[i].Render();
 		mTexts[i].Render();
 	}
-
+	mPortBox.Render();
 	RenderManager::GetInstance()->Render();
 	return S_OK;
 }
@@ -80,10 +87,19 @@ HRESULT MultiplayerMenuState::Initialize()
 
 	std::string texts[] = { "2vs2", "3vs3", "4vs4", "Back" };
 
-	float x	= (float)Input::GetInstance()->mScreenWidth  * 0.20f;
-	float y	= (float)Input::GetInstance()->mScreenHeight * 0.75f;
-	float w	= 200.0f;
-	float h	= 200.0f;
+	float x = (float)Input::GetInstance()->mScreenWidth  * 0.10f;
+	float y = (float)Input::GetInstance()->mScreenHeight * 0.80f;
+	float w = 640.0f/2;
+	float h = 177.0f/2;
+
+	mPortBox.Initialize( "27015", "Port", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
+	x += w;
+
+	//x	= (float)Input::GetInstance()->mScreenWidth  * 0.20f;
+	y	= (float)Input::GetInstance()->mScreenHeight * 0.75f;
+	w	= 200.0f;
+	h	= 200.0f;
+
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
 		mButtons[i].Initialize( (UINT)x, (UINT)y, (UINT)w, (UINT)h );
@@ -95,7 +111,7 @@ HRESULT MultiplayerMenuState::Initialize()
 		{
 			mTexts[i].Initialize( "../Content/Assets/Textures/Menu/Multi_Menu_Text/" + texts[i] + ".png", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
 		}
-		x += 200;
+		x += w;
 	}
 
 	return S_OK;

@@ -2,6 +2,7 @@
 #define MULTIPLAYERMENUSTATE_H
 
 #include "BaseMenuState.h"
+#include "InputSquare.h"
 
 class MultiplayerMenuState : public BaseMenuState
 {
@@ -15,6 +16,8 @@ class MultiplayerMenuState : public BaseMenuState
 
 		MenuButton		mButtons[BUTTON_AMOUNT];
 		Image			mTexts[BUTTON_AMOUNT];
+		InputSquare		mPortBox;
+
 	protected:
 	public:
 

@@ -10,7 +10,7 @@
 class InputSquare : public Entry
 {
 	private:
-		Image		mInputImage;
+		Image		mInputImage[2];
 		Font		mText;
 		std::string mCurrentText;
 		bool		mActive;
@@ -30,7 +30,7 @@ class InputSquare : public Entry
 		void		HandleInput();
 		void		Render();
 		bool		Update( float deltaTime );
-		bool		Initialize( std::string text, UINT x, UINT y, UINT width, UINT height );
+		bool		Initialize( std::string text, std::string imgName, UINT x, UINT y, UINT width, UINT height );
 		void		Release();
 					InputSquare();
 		virtual		~InputSquare();

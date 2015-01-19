@@ -30,7 +30,7 @@ class MenuButton : public Entry
 	public:
 		void		Render();
 		bool		Update( float deltaTime );
-		bool		Initialize( UINT x, UINT y, UINT width, UINT height );
+		bool		Initialize( float x, float y, float width, float height );
 		void		Release();
 					MenuButton();
 		virtual		~MenuButton();

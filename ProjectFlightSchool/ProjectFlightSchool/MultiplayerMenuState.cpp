@@ -80,7 +80,7 @@ void MultiplayerMenuState::Reset()
 	float w = 640.0f/2;
 	float h = 177.0f/2;
 
-	mPortBox.Initialize( "27015", "Port", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
+	mPortBox.Initialize( "27015", "Port", x, y, w, h );
 }
 
 HRESULT MultiplayerMenuState::Initialize()
@@ -95,7 +95,7 @@ HRESULT MultiplayerMenuState::Initialize()
 	float w = 640.0f/2;
 	float h = 177.0f/2;
 
-	mPortBox.Initialize( "27015", "Port", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
+	mPortBox.Initialize( "27015", "Port", x, y, w, h );
 	x += w;
 
 	y	= (float)Input::GetInstance()->mScreenHeight * 0.75f;
@@ -104,14 +104,14 @@ HRESULT MultiplayerMenuState::Initialize()
 
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
-		mButtons[i].Initialize( (UINT)x, (UINT)y, (UINT)w, (UINT)h );
+		mButtons[i].Initialize( x, y, w, h );
 		if( texts[i] == "Back" )
 		{
-			mTexts[i].Initialize( "../Content/Assets/Textures/Menu/Back.png", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
+			mTexts[i].Initialize( "../Content/Assets/Textures/Menu/Back.png", x, y, w, h );
 		}
 		else
 		{
-			mTexts[i].Initialize( "../Content/Assets/Textures/Menu/Multi_Menu_Text/" + texts[i] + ".png", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
+			mTexts[i].Initialize( "../Content/Assets/Textures/Menu/Multi_Menu_Text/" + texts[i] + ".png", x, y, w, h );
 		}
 		x += w;
 	}

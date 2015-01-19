@@ -10,7 +10,7 @@ bool Image::Update( float deltaTime )
 	return true;
 }
 
-void Image::Initialize( std::string assetPath, UINT x, UINT y, UINT width, UINT height )
+void Image::Initialize( std::string assetPath, float x, float y, float width, float height )
 {
 	Entry::Initialize( x, y, width, height );
 	Graphics::GetInstance()->LoadStatic2dAsset( assetPath, m2DTexture );

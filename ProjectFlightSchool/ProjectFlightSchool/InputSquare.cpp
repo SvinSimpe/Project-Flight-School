@@ -185,7 +185,7 @@ bool InputSquare::Update( float deltaTime )
 	return true;
 }
 
-bool InputSquare::Initialize( std::string text, std::string imgName, UINT x, UINT y, UINT width, UINT height )
+bool InputSquare::Initialize( std::string text, std::string imgName, float x, float y, float width, float height )
 {
 	Entry::Initialize( x, y, width, height );
 	mCurrentText = text;

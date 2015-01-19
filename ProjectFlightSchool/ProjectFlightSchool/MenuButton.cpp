@@ -35,7 +35,7 @@ bool MenuButton::Update( float deltaTime )
 	return true;
 }
 
-bool MenuButton::Initialize( UINT x, UINT y, UINT width, UINT height )
+bool MenuButton::Initialize( float x, float y, float width, float height )
 {
 	Entry::Initialize( x, y, width, height );
 

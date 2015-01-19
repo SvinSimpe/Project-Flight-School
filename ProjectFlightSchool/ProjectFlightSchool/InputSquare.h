@@ -30,7 +30,7 @@ class InputSquare : public Entry
 		void		HandleInput();
 		void		Render();
 		bool		Update( float deltaTime );
-		bool		Initialize( std::string text, std::string imgName, UINT x, UINT y, UINT width, UINT height );
+		bool		Initialize( std::string text, std::string imgName, float x, float y, float width, float height );
 		void		Release();
 					InputSquare();
 		virtual		~InputSquare();

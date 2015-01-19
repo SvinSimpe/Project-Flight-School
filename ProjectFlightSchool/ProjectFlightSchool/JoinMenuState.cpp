@@ -78,11 +78,11 @@ void JoinMenuState::Reset()
 	float w = 640.0f/2;
 	float h = 177.0f/2;
 
-	mIPBox.Initialize( "localhost", "IP", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
+	mIPBox.Initialize( "localhost", "IP", x, y, w, h );
 
 	x += w + 20;
 
-	mPortBox.Initialize( "27015", "Port", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
+	mPortBox.Initialize( "27015", "Port", x, y, w, h );
 }
 
 HRESULT JoinMenuState::Initialize()
@@ -94,24 +94,24 @@ HRESULT JoinMenuState::Initialize()
 	float y	= (float)Input::GetInstance()->mScreenHeight * 0.75f;
 	float w	= 200.0f;
 	float h	= 200.0f;
-	mButtons[JOIN].Initialize( (UINT)x, (UINT)y, (UINT)w, (UINT)h );
-	mText[JOIN].Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/Join.png", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
+	mButtons[JOIN].Initialize( x, y, w, h );
+	mText[JOIN].Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/Join.png", x, y, w, h );
 
 	x += w + 20;
 
-	mButtons[BACK].Initialize( (UINT)x, (UINT)y, (UINT)w, (UINT)h );
-	mText[BACK].Initialize( "../Content/Assets/Textures/Menu/Back.png", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
+	mButtons[BACK].Initialize( x, y, w, h );
+	mText[BACK].Initialize( "../Content/Assets/Textures/Menu/Back.png", x, y, w, h );
 
 	x = (float)Input::GetInstance()->mScreenWidth  * 0.10f;
 	y = (float)Input::GetInstance()->mScreenHeight * 0.80f;
 	w = 640.0f/2;
 	h = 177.0f/2;
 
-	mIPBox.Initialize( "localhost", "IP", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
+	mIPBox.Initialize( "localhost", "IP", x, y, w, h );
 
 	x += w + 20;
 
-	mPortBox.Initialize( "27015", "Port", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
+	mPortBox.Initialize( "27015", "Port", x, y, w, h );
 
 	return S_OK;
 }

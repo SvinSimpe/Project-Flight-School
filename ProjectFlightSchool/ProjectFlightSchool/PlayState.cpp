@@ -293,16 +293,16 @@ HRESULT PlayState::Update( float deltaTime )
 HRESULT PlayState::Render()
 {
 
-	RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
-	RenderManager::GetInstance()->AddObject3dToList( mTestAsset, DirectX::XMFLOAT3( 10.0f, 0.0f, 10.0f ) );
-	RenderManager::GetInstance()->AddObject3dToList( mNest1Asset, DirectX::XMFLOAT3( 8.0f, 0.0f, 0.0f ) );
-	RenderManager::GetInstance()->AddObject3dToList( mTree1Asset, DirectX::XMFLOAT3( 12.0f, 0.0f, 0.0f ) );
+	//RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
+	//RenderManager::GetInstance()->AddObject3dToList( mTestAsset, DirectX::XMFLOAT3( 10.0f, 0.0f, 10.0f ) );
+	//RenderManager::GetInstance()->AddObject3dToList( mNest1Asset, DirectX::XMFLOAT3( 8.0f, 0.0f, 0.0f ) );
+	//RenderManager::GetInstance()->AddObject3dToList( mTree1Asset, DirectX::XMFLOAT3( 12.0f, 0.0f, 0.0f ) );
 
-	for( int i = 0; i < 6; i++ )
-	{
-		RenderManager::GetInstance()->AddObject3dToList( mStoneAssets[i], DirectX::XMFLOAT3( (float)i*4.0f, 0.0f, -4.0f ) );
-	}
-	
+	//for( int i = 0; i < 6; i++ )
+	//{
+	//	RenderManager::GetInstance()->AddObject3dToList( mStoneAssets[i], DirectX::XMFLOAT3( (float)i*4.0f, 0.0f, -4.0f ) );
+	//}
+	//
 	for(int i = 0; i < animTestNr; i++)
 		RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation[i], mTestAnimationAnimation[i], &mAnimationTime, DirectX::XMFLOAT3( -5.0f, ((i * 1) + 0.0f), 0.0f ) );
 
@@ -310,7 +310,7 @@ HRESULT PlayState::Render()
 
 
 	mPlayer->Render( 0.0f, 1 );
-	mWorldMap->Render( 0.0f );
+	mWorldMap->Render( 0.0f , mPlayer );
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
 	{
 		if ( mRemotePlayers.at(i) )
@@ -365,10 +365,25 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_5.pfs", mStoneAssets[4] );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_6.pfs", mStoneAssets[5] );
 
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Tree/", "tree1.pfs", mTree1Asset );
-
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dAsset );
-
+	for( int i = 1; i < 8; i++ )
+	{
+		char buffer[50];
+		sprintf_s(buffer,"tree%d.pfs",i);
+		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Tree/", buffer, mTree1Asset );
+	}
+	for( int i = 1; i < 6; i++ )
+	{
+		char buffer[50];
+		sprintf_s(buffer,"greaystone%d.pfs",i);
+		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", buffer, mTree1Asset );
+	}
+	for( int i = 1; i < 7; i++ )
+	{
+		char buffer[50];
+		sprintf_s(buffer,"sandstone%d.pfs",i);
+		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", buffer, mTree1Asset );
+	}
 	std::string colorIDFileNames[MAX_REMOTE_PLAYERS] = { "../Content/Assets/Textures/FunnyCircles/BlueID.png", "../Content/Assets/Textures/FunnyCircles/CoralID.png", "../Content/Assets/Textures/FunnyCircles/DarkBlueID.png", "../Content/Assets/Textures/FunnyCircles/DarkGreenID.png", "../Content/Assets/Textures/FunnyCircles/DarkPurpleID.png", "../Content/Assets/Textures/FunnyCircles/GreenID.png", "../Content/Assets/Textures/FunnyCircles/GreyID.png", "../Content/Assets/Textures/FunnyCircles/LightBlueID.png", "../Content/Assets/Textures/FunnyCircles/LightGreenID.png", "../Content/Assets/Textures/FunnyCircles/LightPurpleID.png","../Content/Assets/Textures/FunnyCircles/OrangeID.png", "../Content/Assets/Textures/FunnyCircles/PinkID.png", "../Content/Assets/Textures/FunnyCircles/ScreamBlueID.png", "../Content/Assets/Textures/FunnyCircles/YellowID.png" };
 
 	for( int i=0; i<MAX_REMOTE_PLAYERS; i++ )
@@ -385,7 +400,7 @@ HRESULT PlayState::Initialize()
 	mPlayer->Initialize();
 
 	mWorldMap = new Map();
-	mWorldMap->Initialize( 10 );
+	mWorldMap->Initialize( 1 );
 
 	//mMapNodeMan = new MapNodeManager();
 	//mMapNodeMan->Initialize( "../Content/Assets/Nodes/gridtest2.lp"  );

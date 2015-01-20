@@ -86,14 +86,17 @@ void MapNode::ReleaseInstance( int InstanceID )
 HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 {
 	mGrid				= new StaticVertex[initInfo.vertexCount];
-	mOrigin				= initInfo.anchor;
-	mGridDim			= initInfo.gridDim;
+	mOrigin				= XMFLOAT3(initInfo.anchor.x + 12, 0, initInfo.anchor.z + 12 );
+	//BUGHAXX
+	//mGridDim			= initInfo.gridDim;
+	mGridDim			= 24;
+	//Handles releaseing assets
 	mStaticAssets		= initInfo.staticAssets;
 	mStaticAssetCount	= initInfo.staticAssetCount;
 	mVertexCount		= initInfo.vertexCount;
 
-	mGridWidth			= initInfo.gridDim;
-	mGridHeight			= initInfo.gridDim;
+	mGridWidth			= mGridDim;
+	mGridHeight			= mGridDim;
 
 	for( int i = 0; i < (int)mVertexCount; i++ )
 	{

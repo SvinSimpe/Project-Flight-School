@@ -2,12 +2,20 @@
 #define MAP_H
 #include "MapSection.h"
 #include "BoundingGeometry.h"
+#define MAX_NODES 1000
+
+static enum MapSize
+{
+	LARGE = 1200,
+	MEDIUM = 600,
+	SMALL = 300
+};
 
 class Map
 {
 	private:
 		MapSection *mMapSection;
-		MapNodeInstance** nodes;
+		MapNodeInstance* mNodes[MAX_NODES];
 		float mVertexSpacing;
 		UINT mNrOfNodes;
 		UINT mMapId;

@@ -79,21 +79,21 @@ bool MapSection::AddNodeToSection( MapNodeInstance* node )
 }
 bool MapSection::GetSectionContainingUnit( MapSection** container, int& sectionCount, BoundingBox* unit )
 {
-	//if( mBoundingBox.Intersect( unit->center ) )
-	//{
-	//	for( int i = 0; i < 4; i++ )
-	//	{
-	//		if( mChildren[i] != nullptr )
-	//		{
-	//			if( mChildren[i]->GetSectionContainingUnit( container, sectionCount, unit ) )
-	//			{
-	//				return true;
-	//			}
-	//		}
-	//	}
-	//	container[sectionCount++] = this;
-	//	return true;
-	//}
+	if( mBoundingBox.Intersect( unit ) )
+	{
+		for( int i = 0; i < 4; i++ )
+		{
+			if( mChildren[i] != nullptr )
+			{
+				if( mChildren[i]->GetSectionContainingUnit( container, sectionCount, unit ) )
+				{
+					return true;
+				}
+			}
+		}
+		container[sectionCount++] = this;
+		return true;
+	}
 	return false;
 }
 int MapSection::GetSections()

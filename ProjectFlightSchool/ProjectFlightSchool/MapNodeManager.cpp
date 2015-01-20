@@ -58,7 +58,7 @@ HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 			obInfo.pos		= gridMat.pos;
 			obInfo.rotation = gridMat.rot;
 			obInfo.scale	= gridMat.scale;
-			Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_lol.pfs", assetID );
+			Graphics::GetInstance()->LoadStatic3dAsset( "", gridMat.name, assetID );
 			ob.Initialize( obInfo, assetID );
 			staticObjects.push_back( ob );
 			printf("GameObject allocated with:\nPos: (%f,%f,%f)\nRotation:  (%f,%f,%f)\nScale:  (%f,%f,%f)\nAssetID: %d\n\n\n",

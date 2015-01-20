@@ -5,13 +5,17 @@
 HRESULT Map::Render( float deltaTime, Player* player )
 {
 	
-	MapSection* mapNodes[10];
-	int count = 0;
-	mMapSection->GetSectionContainingUnit( mapNodes, count, player->GetBoundingBox() );
+	//MapSection* mapNodes[20];
+	//int count = 0;
+	//mMapSection->GetSectionContainingUnit( mapNodes, count, player->GetBoundingBox() );
 
-	for( int i = 0; i < count; i++ )
+	//for( int i = 0; i < count; i++ )
+	//{
+	//	mapNodes[i]->Render( deltaTime );
+	//}
+	for( int i = 0; i < MapNodePlacer::GetInstance()->GetNrOfNodes(); i++ )
 	{
-		mapNodes[i]->Render( deltaTime );
+		mNodes[i]->Render( deltaTime );
 	}
 
 	return S_OK;
@@ -44,21 +48,21 @@ HRESULT Map::Initialize( UINT mapDim )
 {
 	//Map size is mapDim* mapDim
 	mMapDim = mapDim;
-	MapNodeManager::GetInstance()->Initialize( "../Content/Assets/Nodes/gridtest2.lp"  );
+	MapNodeManager::GetInstance()->Initialize( "../Content/Assets/Nodes/test4.lp"  );
 
 	MapNodePlacer::GetInstance()->Initialize( this );
-	nodes = MapNodePlacer::GetInstance()->BuildMap();
+	MapNodePlacer::GetInstance()->BuildMap( mNodes );
 	mNrOfNodes = MapNodePlacer::GetInstance()->GetNrOfNodes();
 	
 	//MapSection::SetUpIndices();
 
 	mMapSection = new MapSection();
 
-	mMapSection->Initialize( this, nullptr, nodes, 0 );
+	mMapSection->Initialize( this, nullptr, mNodes, 0 );
 
 	for( int i = 0; i < mNrOfNodes; i++ )
 	{
-		mMapSection->AddNodeToSection( nodes[i] );
+		mMapSection->AddNodeToSection( mNodes[i] );
 	}
 	//for( UINT i = 0; i < mMapDim * mMapDim; i++ )
 	//{

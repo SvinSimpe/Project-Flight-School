@@ -144,10 +144,10 @@ MapNodePlacer* MapNodePlacer::GetInstance()
 
 bool MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNode )
 {
-	int debug = (int)( ( newNode->GetMapNode()->GetGridDim() / ( NODE_DIM ) ) + 1 );
-	for( int x = pX; x < (int)( pX + ( newNode->GetMapNode()->GetGridDim() + 1 ) / ( NODE_DIM ) ); x++ )
+	int debug = (int)( ( newNode->GetMapNode()->GetGridDim() / ( NODE_DIM ) ) );
+	for( int x = pX; x < (int)( pX + ( newNode->GetMapNode()->GetGridDim() ) / ( NODE_DIM ) ); x++ )
 	{
-		for( int y = pY; y < (int)( pY +  ( newNode->GetMapNode()->GetGridDim() + 1 ) / ( NODE_DIM ) ); y++ )
+		for( int y = pY; y < (int)( pY +  ( newNode->GetMapNode()->GetGridDim() ) / ( NODE_DIM ) ); y++ )
 		{
 			if( mBuildMap[x][y] != nullptr )
 			{
@@ -156,9 +156,9 @@ bool MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNode )
 		}
 	}
 
-	for( int x = pX; x < (int)( pX + ( newNode->GetMapNode()->GetGridDim() + 1 ) / ( NODE_DIM ) ); x++ )
+	for( int x = pX; x < (int)( pX + ( newNode->GetMapNode()->GetGridDim() ) / ( NODE_DIM ) ); x++ )
 	{
-		for( int y = pY; y < (int)( pY + ( newNode->GetMapNode()->GetGridDim() + 1 ) / ( NODE_DIM ) ); y++ )
+		for( int y = pY; y < (int)( pY + ( newNode->GetMapNode()->GetGridDim() ) / ( NODE_DIM ) ); y++ )
 		{
 			mBuildMap[x][y] = newNode;
 		}
@@ -169,7 +169,7 @@ bool MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNode )
 
 	return true;
 }
-MapNodeInstance** MapNodePlacer::BuildMap()
+void MapNodePlacer::BuildMap( MapNodeInstance** map )
 {
 	//int maxNodes	= 100;
 	//mNrOfNodes	= 0;
@@ -304,9 +304,13 @@ MapNodeInstance** MapNodePlacer::BuildMap()
 		{
 			//Check "Tier", lastNode, chances of boss arena and/or energy position.
 			MapNodeInstance* newNode = MapNodeManager::GetInstance()->GetNodes()[0].GetMapNodeInstance();
+			if(MAX_NODES < mNrOfNodes)
+			{
+				return;
+			}
 			if( CanPlace( x, y, newNode ) )
 			{
-				mPlacedNodes[mNrOfNodes++] = newNode;
+				map[mNrOfNodes++] = newNode;
 			}
 			else
 			{
@@ -329,7 +333,7 @@ MapNodeInstance** MapNodePlacer::BuildMap()
 		}
 		printf("\n");
 	}
-	return mPlacedNodes;
+	return;
 }
 UINT MapNodePlacer::GetNrOfNodes() const
 {

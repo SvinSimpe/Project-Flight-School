@@ -1,14 +1,13 @@
 #ifndef MAPNODEPLACER_H
 #define MAPNODEPLACER_H
 #include "Map.h"
-#define MAX_NODES 1000
+
 class MapNodePlacer
 {
 	private:
 		Map* mMap;
 		//MapNodeInstance** mPlacedNodes;
 		MapNodeInstance*** mBuildMap;
-		MapNodeInstance* mPlacedNodes[MAX_NODES];
 		int mNrOfNodes;
 
 	protected:
@@ -21,7 +20,7 @@ class MapNodePlacer
 	public:
 
 		static MapNodePlacer*	GetInstance();
-		MapNodeInstance**		BuildMap();
+		void					BuildMap( MapNodeInstance** map );
 		UINT					GetNrOfNodes() const;
 		HRESULT					Initialize( Map* map );
 		void					Release();

@@ -4,8 +4,8 @@ bool Entry::Initialize( float x, float y, float width, float height )
 {
 	mUpperLeft.x	= (UINT)x;
 	mUpperLeft.y	= (UINT)y;
-	mLowerRight.x	= (UINT)x + width;
-	mLowerRight.y	= (UINT)y + height;
+	mLowerRight.x	= (UINT)x + (UINT)width;
+	mLowerRight.y	= (UINT)y + (UINT)height;
 	mWidth			= width;
 	mHeight			= height;
 	return true;
@@ -21,6 +21,8 @@ Entry::Entry()
 	mUpperLeft.y	= 0;
 	mLowerRight.x	= 0;
 	mLowerRight.y	= 0;
+	mWidth			= 0.0f;
+	mHeight			= 0.0f;
 }
 
 

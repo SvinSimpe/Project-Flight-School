@@ -120,7 +120,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 // Tell server that local  player has taken damage
 void PlayState::BroadcastDamage( unsigned int playerID, unsigned int projectileID )
 {
-	IEventPtr dmgEv(new Event_Player_Damaged( playerID, projectileID ) );
+	IEventPtr dmgEv((new Event_Player_Damaged( playerID, projectileID ) ));
 	EventManager::GetInstance()->QueueEvent( dmgEv );
 }
 
@@ -402,14 +402,11 @@ HRESULT PlayState::Initialize()
 
 void PlayState::Release()
 {
+	mWorldMap->Release();
+	SAFE_DELETE( mWorldMap );
+
 	mPlayer->Release();
 	SAFE_DELETE(mPlayer);
-
-	mWorldMap->Release();
-	mMapNodeMan->Release();
-
-	SAFE_DELETE( mWorldMap );
-	SAFE_DELETE( mMapNodeMan );
 
 	for( auto& rp : mRemotePlayers )
 	{
@@ -436,4 +433,5 @@ PlayState::PlayState()
 
 PlayState::~PlayState()
 {
+	printf("Destructor for %s\n", __FILE__);
 }

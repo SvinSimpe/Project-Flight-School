@@ -40,10 +40,6 @@ HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 		inFile.read( (char*)initInfo.grid, sizeof( Vertex24 ) * initInfo.vertexCount ) ;
 		
 
-		for(UINT i = 0; i < initInfo.vertexCount; i++ )
-		{
-			//printf("Gridpos: %f | %f | %f \n\n", initInfo.grid[i].position[0],initInfo.grid[i].position[1],initInfo.grid[i].position[2] );
-		}
 
 		JMatrix gridMat;
 

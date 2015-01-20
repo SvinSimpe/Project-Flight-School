@@ -233,7 +233,7 @@ HRESULT RemotePlayer::Initialize()
 	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Robot/", "robotUpperbody.pfs", mUpperBody.playerModel ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
-	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Robot/Animations/", "robotLegs.Skel", skeleton ) ); //Skeleton for legs
+	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Robot/Animations/", "robotLegs.Skel", skeleton ) ) //Skeleton for legs
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Robot/", "robotLegs.apfs", skeleton, mLowerBody.playerModel ) ) )

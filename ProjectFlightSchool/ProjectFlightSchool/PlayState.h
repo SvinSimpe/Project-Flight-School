@@ -6,6 +6,7 @@
 #include "Player.h"
 #include "RemotePlayer.h"
 #include "Font.h"
+#include "Turret.h"
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
@@ -39,6 +40,8 @@ class PlayState : public BaseState
 
 		//TEST
 		std::vector<RemotePlayer*> mAllPlayers;
+
+		Turret			mTurret;
 	
 		//Game Data
 		Player*						mPlayer;

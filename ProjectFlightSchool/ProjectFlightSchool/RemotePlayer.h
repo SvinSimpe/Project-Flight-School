@@ -63,10 +63,10 @@ class RemotePlayer
 
 	// Member functions
 	private:
-		void		RemoteUpdate( IEventPtr newEvent );
+		void			RemoteUpdate( IEventPtr newEvent );
 
 	protected:
-		void		LookAt( float rotation );
+		void			LookAt( float rotation );
 
 	public:
 		void			RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID );

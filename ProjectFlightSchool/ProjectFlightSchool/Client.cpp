@@ -108,8 +108,8 @@ void Client::EventListener( IEventPtr newEvent )
 		if ( mServerSocket != INVALID_SOCKET )
 		{
 			EvPlayerID msg;
-			msg.ID			= mID;
-			msg.HP	= data->HP();
+			msg.ID	= mID;
+			msg.HP	= (unsigned int)data->HP();
 
 			if ( mServerSocket != INVALID_SOCKET )
 			{

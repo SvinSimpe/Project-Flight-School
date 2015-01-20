@@ -5,6 +5,13 @@ HRESULT Effect::CompileShader( char* shaderFile, char* pEntrypoint, char* pTarge
 	HRESULT hr = S_OK;
 	DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS |
 		D3DCOMPILE_IEEE_STRICTNESS;
+
+#ifdef _DEBUG
+	dwShaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG;
+#else
+	dwShaderFlags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
+#endif
+
 	std::string shader_code;
 	std::ifstream in( shaderFile, std::ios::in | std::ios::binary );
 	if ( in )

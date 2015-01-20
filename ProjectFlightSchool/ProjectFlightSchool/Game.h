@@ -13,7 +13,7 @@ class Game
 	private:
 		StateMachine*		mStateMachine;
 
-		std::thread			mNetworkThread;
+		std::thread			mClientThread;
 		std::thread			mServerThread;
 		Client*				mClient;
 		Server*				mServer;

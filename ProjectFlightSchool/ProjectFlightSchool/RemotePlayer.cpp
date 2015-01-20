@@ -44,12 +44,13 @@ int RemotePlayer::GetID() const
 HRESULT RemotePlayer::Render( float deltaTime )
 
 {
-	RenderManager::GetInstance()->AddObject3dToList(mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction);
+	float radians	= atan2f( mUpperBody.direction.z, mUpperBody.direction.x );
+	RenderManager::GetInstance()->AddObject3dToList(mUpperBody.playerModel, mUpperBody.position, XMFLOAT3( 0.0f, -radians, 0.0f ) );
 	RenderManager::GetInstance()->AddObject3dToList(mLowerBody.playerModel, mLowerBody.position);
 
 	if ( mIsAlive )
 	{
-		mCurrentHp -= 0.07;
+		mCurrentHp -= 0.000107;
 		float renderHpSize = ( mCurrentHp * 1.5f / mMaxHp ) + 1; //*1.5 and +1 to make it an appropriate size.
 
 		DirectX::XMFLOAT3 x = { mLowerBody.position.x - renderHpSize / 2.0f, 0.01f, mLowerBody.position.z + renderHpSize / 2.0f };
@@ -139,3 +140,8 @@ RemotePlayer::RemotePlayer()
 
 RemotePlayer::~RemotePlayer()
 {}
+
+void RemotePlayer::TakeDamage( float damage )
+{
+	mCurrentHp -= damage;
+}

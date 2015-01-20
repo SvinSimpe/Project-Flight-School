@@ -63,6 +63,15 @@ class RemotePlayer
 		void			Release();
 						RemotePlayer();
 		virtual			~RemotePlayer();
+
+
+
+
+
+
+
+		////TEST
+		void TakeDamage( float damage );
 };
 
 #endif

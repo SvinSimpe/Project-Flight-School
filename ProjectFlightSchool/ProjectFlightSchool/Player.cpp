@@ -4,20 +4,22 @@ void Player::HandleInput( float deltaTime )
 {
 	mLowerBody.direction = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
-	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_W) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_S) )
+	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_W ) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_S) )
 		Move( XMFLOAT3( 0.0f, 0.0f, 1.0f ) );
 	
-	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_A) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_D) )
+	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_A ) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_D) )
 		Move( XMFLOAT3( -1.0f, 0.0f, 0.0f ) );
 
-	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_S) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_W) )
+	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_S ) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_W) )
 		Move( XMFLOAT3( 0.0f, 0.0f, -1.0f ) );
 	
-	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_D) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_A) )
+	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_D ) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_A) )
 		Move( XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
 
 
 
+	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_E ) )
+		mIsMeleeing = true;
 	
 
 
@@ -52,16 +54,8 @@ void Player::HandleInput( float deltaTime )
 
 	XMVECTOR playerToCursor = XMVectorSubtract( intersection, XMLoadFloat3( &mUpperBody.position ) );
 	XMStoreFloat3( &unPack, playerToCursor );
-	playerToCursor = XMVectorSet( unPack.x, 0.0f, unPack.z, 0.0f );
-
-
-	playerToCursor	= XMVector3Normalize( playerToCursor );
-	float radians	= atan2f( XMVectorGetZ( playerToCursor ), XMVectorGetX( playerToCursor ) );
-
-
- 	mUpperBody.direction.x = 0.0f;
-	mUpperBody.direction.y = -radians;
-	mUpperBody.direction.z = 0.0f;
+	playerToCursor = XMVector3Normalize( XMVectorSet( unPack.x, 0.0f, unPack.z, 0.0f ) );
+	XMStoreFloat3( &mUpperBody.direction, playerToCursor );
 
 	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_SPACE) && mWeaponCoolDown <= 0.0f )
 	{
@@ -154,21 +148,23 @@ HRESULT Player::Update( float deltaTime )
 	Graphics::GetInstance()->SetFocus( mLowerBody.position );
 
 	//Update Bounding Primitives
-	mBoundingBox->position	= mLowerBody.position;
-	mBoundingCircle->center	= mLowerBody.position;
+	mBoundingBox->position							= mLowerBody.position;
+	mBoundingCircle->center							= mLowerBody.position;
+	mLoadOut->meleeWeapon->boundingCircle->center	= mLowerBody.position;
 
 	return S_OK;
 }
 
 HRESULT Player::Render( float deltaTime )
 {
-
-	RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
-	RenderManager::GetInstance()->AddObject3dToList( mLowerBody.playerModel, mLowerBody.position );
-
 	RemotePlayer::Render( deltaTime );
 
 	return S_OK;
+}
+
+LoadOut* Player::GetLoadOut() const
+{
+	return mLoadOut;
 }
 
 void Player::SetID( unsigned int id )
@@ -190,6 +186,16 @@ void Player::SetPosition( XMVECTOR position )
 XMFLOAT3 Player::GetUpperBodyDirection() const
 {
 	return mUpperBody.direction;
+}
+
+bool Player::GetIsMeleeing() const
+{
+	return mIsMeleeing;
+}
+
+void Player::SetIsMeleeing( bool isMeleeing )
+{
+	mIsMeleeing = isMeleeing;
 }
 
 void Player::Fire()
@@ -223,7 +229,7 @@ HRESULT Player::Initialize()
 	//Weapon Initialization
 	mLoadOut				= new LoadOut();
 	mLoadOut->rangedWeapon	= new RangedInfo( "Machine Gun", 5.0f, 1, 5.0f, 2, 0 );
-	mLoadOut->meleeWeapon	= new MeleeInfo( "Sword", 4.0f, 3, 7, 2.0f );
+	mLoadOut->meleeWeapon	= new MeleeInfo( "Sword", 4.0f, 3, 2.0f, 7, 2.0f, new BoundingCircle( 2.0f ) );
 
 	return S_OK;
 }
@@ -241,6 +247,7 @@ Player::Player()
 {
 	mWeaponCoolDown	= 0.0f;
 	mLoadOut		= nullptr;
+	mIsMeleeing		= false;
 }
 
 Player::~Player()

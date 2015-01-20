@@ -211,10 +211,26 @@ void PlayState::CheckProjectileCollision()
 
 void PlayState::CheckMeeleCollision()
 {
-	XMVECTOR aimingDirection = XMLoadFloat3( &mPlayer->GetUpperBodyDirection() );
-	aimingDirection = XMVector4Normalize( aimingDirection );
+	for ( size_t i = 0; i < mRemotePlayers.size(); i++ )
+	{
+		//Check intersection with melee circle & remotePlayer
+		if( mPlayer->GetLoadOut()->meleeWeapon->boundingCircle->Intersect( mRemotePlayers.at(i)->GetBoundingCircle() ) )
+		{
+			XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) * mPlayer->GetLoadOut()->meleeWeapon->radius );
 
-	XMVECTOR meeleLengthVector = ( XMLoadFloat3( &mPlayer->GetPosition() ) -  ( aimingDirection * 2 ) );
+			//Spread to Radians
+			float halfRadian = XMConvertToRadians( mPlayer->GetLoadOut()->meleeWeapon->spread * 18 ) / 2.0f;
+
+			XMVECTOR playerToRemote = XMLoadFloat3( &mRemotePlayers.at(i)->GetPosition() ) - XMLoadFloat3( &mPlayer->GetPosition() );
+
+			float angleRemoteToAim = 0.0f;
+			XMVECTOR playerToCenter = XMLoadFloat3( &mRemotePlayers.at(i)->GetBoundingCircle()->center ) - XMLoadFloat3( &mPlayer->GetPlayerPosition() );
+			XMStoreFloat( &angleRemoteToAim, XMVector4AngleBetweenVectors( playerToCenter, meeleRadiusVector ) );
+
+			if( angleRemoteToAim <= halfRadian )
+				mRemotePlayers.at(i)->TakeDamage( 1.0f );//HIT, broadcast damage with ID of remotePlayer
+		}
+	}
 }
 
 void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID )
@@ -240,6 +256,13 @@ HRESULT PlayState::Update( float deltaTime )
 	{
 		CheckPlayerCollision();
 		CheckProjectileCollision();
+
+		if( mPlayer->GetIsMeleeing() )
+		{
+			CheckMeeleCollision();
+			mPlayer->SetIsMeleeing( false );
+		}
+
 		mFrameCounter = 0;
 	}
 	else

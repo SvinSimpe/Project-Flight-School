@@ -30,6 +30,7 @@ class Player: public RemotePlayer
 	private:
 		float		mWeaponCoolDown;
 		LoadOut*	mLoadOut;
+		bool		mIsMeleeing;
 
 	private:
 		void		HandleInput( float deltaTime );
@@ -42,11 +43,14 @@ class Player: public RemotePlayer
 		HRESULT		Update( float deltaTime );
 		HRESULT		Render( float deltaTime );
 
+		LoadOut*	GetLoadOut() const;
 		void		SetID( unsigned int id );
 		XMFLOAT3	GetPlayerPosition() const;
 		void		SetPosition( XMVECTOR position );
 		void		Fire();
 		XMFLOAT3	GetUpperBodyDirection() const;
+		bool		GetIsMeleeing()	const;
+		void		SetIsMeleeing( bool isMeleeing );
 			
 		HRESULT		Initialize();
 		void		Release();

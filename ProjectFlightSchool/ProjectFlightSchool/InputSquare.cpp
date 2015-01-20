@@ -34,7 +34,7 @@ void InputSquare::HandleInput()
 	{
 		if( Input::GetInstance()->mCurrentFrame.at(i) )
 		{
-			mKeyCD = KEYCOOLDOWN;
+			mKeyTimer = KEYCOOLDOWN;
 			switch(i)
 			{
 			case KEYS::KEYS_A:
@@ -164,52 +164,56 @@ void InputSquare::HandleInput()
 
 void InputSquare::Render()
 {
+	Image::Render();
 	for(int i = 0; i < 2; i++)
 	{
-		mInputImage[i].Render();
+		mTitle->Render();
 	}
-	mText.WriteText( mCurrentText, (float)mUpperLeft.x + 40, (float)mUpperLeft.y + 40, 0.25f );
+	mText->WriteText( mCurrentText, (float)mUpperLeft.x + 40, (float)mUpperLeft.y + 40, 0.25f );
 }
 
 bool InputSquare::Update( float deltaTime )
 {
-	Entry::Update( deltaTime );
-	if( mActive && mKeyCD <= 0.0f )
+	if( mClickTimer >= 0.0f )
+	{
+		mClickTimer -= deltaTime;
+	}
+
+	if( mActive && mKeyTimer <= 0.0f )
 	{
 		HandleInput();
 	}
 	else
 	{
-		mKeyCD -= deltaTime;
+		mKeyTimer -= deltaTime;
 	}
 	return true;
 }
 
-bool InputSquare::Initialize( std::string text, std::string imgName, UINT x, UINT y, UINT width, UINT height )
+void InputSquare::Initialize( std::string text, std::string imgName, float x, float y, float width, float height )
 {
-	Entry::Initialize( x, y, width, height );
+	Image::Initialize( "../Content/Assets/Textures/Menu/Input.png", x, y, width, height );
 	mCurrentText = text;
-	mInputImage[0].Initialize( "../Content/Assets/Textures/Menu/Input.png", x, y, width, height );
-	mInputImage[1].Initialize( "../Content/Assets/Textures/Menu/" + imgName + ".png", x, y, width, height );
-	mText.Initialize( "../Content/Assets/Fonts/final_fonmt/" );
-
-	return true;
+	mTitle = new Image();
+	mTitle->Initialize( "../Content/Assets/Textures/Menu/" + imgName + ".png", x, y, width, height );
+	mText = new Font();
+	mText->Initialize( "../Content/Assets/Fonts/final_font/" );
 }
 
 void InputSquare::Release()
 {
-	for( int i = 0; i < 2; i++ )
-	{
-		mInputImage[i].Release();
-	}
-	mText.Release();
+	Button::Release();
+	mTitle->Release();
+	SAFE_DELETE( mTitle );
+	mText->Release();
+	SAFE_DELETE( mText );
 }
 
 InputSquare::InputSquare()
 {
 	mCurrentText	= "";
 	mActive			= false;
-	mKeyCD			= KEYCOOLDOWN;
+	mKeyTimer		= KEYCOOLDOWN;
 }
 
 

@@ -690,3 +690,30 @@ class Event_Remote_Player_Update_HP : public IEvent
 			return mHP;
 		}
 };
+
+class Event_Connection_Failed : public IEvent
+{
+	// Member variables
+	private:
+		std::string mFailMessage;
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Connection_Failed( std::string failMessage )
+		{
+			mFailMessage = failMessage;
+		}
+		std::string FailMessage()
+		{
+			return mFailMessage;
+		}
+};

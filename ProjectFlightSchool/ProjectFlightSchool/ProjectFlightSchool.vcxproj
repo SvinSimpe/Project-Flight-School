@@ -101,7 +101,7 @@
     <ClCompile Include="JoinMenuState.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="MapSection.cpp" />
-    <ClCompile Include="MenuButton.cpp" />
+    <ClCompile Include="Button.cpp" />
     <ClCompile Include="MultiplayerMenuState.cpp" />
     <ClCompile Include="OptionsMenuState.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -129,7 +129,7 @@
     <ClInclude Include="Map.h" />
     <ClInclude Include="MapConstants.h" />
     <ClInclude Include="MapSection.h" />
-    <ClInclude Include="MenuButton.h" />
+    <ClInclude Include="Button.h" />
     <ClInclude Include="MultiplayerMenuState.h" />
     <ClInclude Include="OptionsMenuState.h" />
     <ClInclude Include="Player.h" />

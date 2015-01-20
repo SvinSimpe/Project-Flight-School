@@ -21,7 +21,7 @@ class StateMachine
 
 	// Class functions
 	private:
-		void ChangeStateListener( IEventPtr newEvent );
+		void	EventListener( IEventPtr newEvent );
 	protected:
 	public:
 		HRESULT Update( float deltaTime );

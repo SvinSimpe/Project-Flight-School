@@ -2,7 +2,7 @@
 
 void OptionsMenuState::HandleInput()
 {
-	if( mButtons[BACK].LeftMousePressed() )
+	if( mButtons.at(BACK)->LeftMousePressed() )
 	{
 		IEventPtr E1( new Event_Change_State( START_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
@@ -15,7 +15,7 @@ HRESULT OptionsMenuState::Update( float deltaTime )
 
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
-		mButtons[i].Update( deltaTime );
+		mButtons.at(i)->Update( deltaTime );
 	}
 	return S_OK;
 }
@@ -26,8 +26,7 @@ HRESULT OptionsMenuState::Render()
 
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
-		mButtons[i].Render();
-		mTexts[i].Render();
+		mButtons.at(i)->Render();
 	}
 
 	RenderManager::GetInstance()->Render();
@@ -40,10 +39,7 @@ void OptionsMenuState::OnEnter()
 
 void OptionsMenuState::OnExit()
 {
-	for( int i = 0; i < BUTTON_AMOUNT; i++ )
-	{
-		mButtons[i].SetExitCooldown();
-	}
+	BaseMenuState::OnExit();
 }
 
 void OptionsMenuState::Reset()
@@ -54,6 +50,7 @@ HRESULT OptionsMenuState::Initialize()
 {
 	BaseMenuState::Initialize();
 	mStateType = OPTIONS_MENU_STATE;
+	mButtons.reserve( BUTTON_AMOUNT );
 
 	std::string texts[] = { "Fullscreen", "Sound", "Back" };
 
@@ -63,14 +60,14 @@ HRESULT OptionsMenuState::Initialize()
 	float h	= 200.0f;
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
-		mButtons[i].Initialize( (UINT)x, (UINT)y, (UINT)w, (UINT)h );
+		mButtons.push_back( new Button() );
 		if( texts[i] == "Back" )
 		{
-			mTexts[i].Initialize( "../Content/Assets/Textures/Menu/Back.png", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
+			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Back.png", x, y, w, h );
 		}
 		else
 		{
-			mTexts[i].Initialize( "../Content/Assets/Textures/Menu/Options_Menu_Text/" + texts[i] + ".png", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
+			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Options_Menu_Text/" + texts[i] + ".png", x, y, w, h );
 		}
 		x += 200;
 	}
@@ -80,11 +77,6 @@ HRESULT OptionsMenuState::Initialize()
 void OptionsMenuState::Release()
 {
 	BaseMenuState::Release();
-	for( int i = 0; i < BUTTON_AMOUNT; i++ )
-	{
-		mButtons[i].Release();
-		mTexts[i].Release();
-	}
 }
 
 OptionsMenuState::OptionsMenuState() : BaseMenuState()

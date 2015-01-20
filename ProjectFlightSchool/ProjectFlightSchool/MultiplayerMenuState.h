@@ -14,9 +14,7 @@ class MultiplayerMenuState : public BaseMenuState
 			BACK = 3,
 			BUTTON_AMOUNT = 4;
 
-		MenuButton		mButtons[BUTTON_AMOUNT];
-		Image			mTexts[BUTTON_AMOUNT];
-		InputSquare		mPortBox;
+		InputSquare	mPortBox;
 
 	protected:
 	public:
@@ -32,7 +30,7 @@ class MultiplayerMenuState : public BaseMenuState
 		void	Reset();
 		HRESULT Initialize();
 		void	Release();
-		MultiplayerMenuState();
-		~MultiplayerMenuState();
+				MultiplayerMenuState();
+		virtual	~MultiplayerMenuState();
 };
 #endif

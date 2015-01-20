@@ -217,7 +217,7 @@ HRESULT RemotePlayer::Render( float deltaTime, int position )
 			textToWrite	+= "I";
 			currentDeaths--;
 		}
-		mFont.WriteText( textToWrite, 20.0f, ((20.0f*(float)position)-7), 0.5f );
+		mFont.WriteText( textToWrite, 25.0f, ((20.0f*(float)position)-7), 0.25f );
 		
 	}
 

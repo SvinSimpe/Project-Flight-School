@@ -8,8 +8,8 @@ class Image : public Entry
 {
 	// Member variables
 	private:
-		AssetID		m2DTexture;
 	protected:
+		AssetID			m2DTexture;
 	public:
 
 	// Member functions
@@ -18,7 +18,7 @@ class Image : public Entry
 	public:
 		virtual void	Render();
 		virtual bool	Update( float deltaTime );
-		virtual void	Initialize( std::string, UINT x, UINT y, UINT width, UINT height );
+		virtual void	Initialize( std::string assetPath, float x, float y, float width, float height );
 		void			Release();
 						Image();
 		virtual			~Image();

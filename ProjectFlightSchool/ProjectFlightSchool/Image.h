@@ -2,7 +2,7 @@
 #define IMAGE_H
 
 #include "Entry.h"
-
+#include "RenderManager.h"
 
 class Image : public Entry
 {

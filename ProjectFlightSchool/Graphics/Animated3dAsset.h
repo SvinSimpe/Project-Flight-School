@@ -3,7 +3,7 @@
 
 #include "AssetBase.h"
 
-#define NUM_SUPPORTED_JOINTS 32
+#define NUM_SUPPORTED_JOINTS 16
 
 
 #define	TEXTURES_DIFFUSE 0

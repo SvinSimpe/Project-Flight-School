@@ -256,7 +256,7 @@ void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int project
 			{
 				if( mRemotePlayers.at(i)->GetTeam() != mPlayer->GetTeam() )
 				{
-					mPlayer->TakeDamage( 10.0f, shooter );
+					mPlayer->TakeDamage( 10, shooter );
 				}
 			}
 		}
@@ -303,27 +303,18 @@ HRESULT PlayState::Render()
 		RenderManager::GetInstance()->AddObject3dToList( mStoneAssets[i], DirectX::XMFLOAT3( (float)i*4.0f, 0.0f, -4.0f ) );
 	}
 	
-	//RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation, mTestAnimationAnimation, &mAnimationTime, DirectX::XMFLOAT3( -5.0f, 0.0f, 0.0f ) );
+	for(int i = 0; i < animTestNr; i++)
+		RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation[i], mTestAnimationAnimation[i], &mAnimationTime, DirectX::XMFLOAT3( -5.0f, ((i * 1) + 0.0f), 0.0f ) );
 
-	DirectX::XMFLOAT4X4 derpface;
-	XMStoreFloat4x4( &derpface, XMMatrixIdentity() );
-	//Graphics::GetInstance()->RenderAnimated3dAsset( mTestAnimation, mTestAnimationAnimation, mAnimationTime, &derpface );
 
-	//RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation, mTestAnimationAnimation, &mAnimationTime );
 
 	mPlayer->Render( 0.0f, 1 );
-
 	//mWorldMap->Render( 0.0f );
-	//for( auto& rp : mRemotePlayers )
-	//{
-	//	if( rp )
-	//		rp->Render( 0.0f );
-	//}
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
 	{
-		if (mRemotePlayers.at(i))
+		if ( mRemotePlayers.at(i) )
 		{
-			mRemotePlayers.at(i)->Render(0.0f, i + 2);
+			mRemotePlayers.at(i)->Render( 0.0f, i + 2 );
 		}
 	}
 
@@ -356,10 +347,14 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Ship/", "crashed_ship.pfs", mTestAsset );
 
 	AssetID skeleton = 0;
+	AssetID skel  =0;
 
-	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", skeleton );
-	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, mTestAnimation );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "IHaveNoHeadMaybe.PaMan", mTestAnimationAnimation );
+	for(int i = 0; i < animTestNr; i++)
+	{
+		Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", skeleton );
+		Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, mTestAnimation[i] );
+		Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptor_death.PaMan", mTestAnimationAnimation[i] );
+	}
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_1.pfs", mNest1Asset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_1.pfs", mStoneAssets[0] );
@@ -408,9 +403,7 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Projectile_Fired::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Update_HP::GUID );
 
-	mFont.Initialize( "../Content/Assets/Fonts/mv_boli_26_red/" );
-
-
+	mFont.Initialize( "../Content/Assets/Fonts/final_font/" );
 
 	//TEST
 	mAllPlayers.push_back( mPlayer );

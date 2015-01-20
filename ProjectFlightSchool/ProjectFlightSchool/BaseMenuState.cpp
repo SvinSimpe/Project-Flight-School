@@ -8,7 +8,7 @@ HRESULT BaseMenuState::Update( float deltaTime )
 
 HRESULT BaseMenuState::Render()
 {
-	Graphics::GetInstance()->Render2dAsset( mBackground, 0.0f, 0.0f, (float)Input::GetInstance()->mScreenWidth, (float)Input::GetInstance()->mScreenHeight );
+	RenderManager::GetInstance()->AddObject2dToList( mBackground, DirectX::XMFLOAT2( 0.0f, 0.0f ), DirectX::XMFLOAT2( (float)Input::GetInstance()->mScreenWidth, (float)Input::GetInstance()->mScreenHeight ));
 	return S_OK;
 }
 

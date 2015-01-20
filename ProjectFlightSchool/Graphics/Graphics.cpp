@@ -289,7 +289,7 @@ void Graphics::RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList )
 	//////////////////////////////////////////////////////////////////
 	//						RENDER CALL
 	//////////////////////////////////////////////////////////////////
-
+	
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 	UINT32 vertexSize[1]			= { sizeof( AnimatedVertex ) };
 	UINT32 offset[1]				= { 0 };
@@ -305,13 +305,14 @@ void Graphics::RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList )
 
 	UINT objectToRender = 0;
 	UINT currAssetID = (UINT)-1;
-	UINT loopBreaker = 1;
+	UINT loopBreaker = 0;
 	CbufferPerObjectAnimated temp[MAX_NUM_INSTANCED];
 
 	do
 	{
-		loopBreaker = 1;
-
+		loopBreaker = 0;
+		currAssetID = (UINT)-1;
+		objectToRender = 0;
 		for( UINT i = 0; i < sizeOfList; i++ )
 		{
 			if( info[i].mModelId != (UINT)-1 )
@@ -323,6 +324,7 @@ void Graphics::RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList )
 
 				if( currAssetID == info[i].mModelId )
 				{
+					
 					temp[objectToRender].worldMatrix = DirectX::XMLoadFloat4x4( &info[i].mWorld );
 					for( int j = 0; j < NUM_SUPPORTED_JOINTS; j++ )
 						temp[objectToRender].boneTransforms[j] = DirectX::XMLoadFloat4x4( &info[i].mBoneTransforms[j] );
@@ -337,22 +339,25 @@ void Graphics::RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList )
 			}
 		}
 
-		Animated3dAsset* model = (Animated3dAsset*)mAssetManager->mAssetContainer[currAssetID];
-		ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[model->mTextures[TEXTURES_DIFFUSE]] )->mSRV,
-														( (Static2dAsset*)mAssetManager->mAssetContainer[model->mTextures[TEXTURES_NORMAL]] )->mSRV,
-														( (Static2dAsset*)mAssetManager->mAssetContainer[model->mTextures[TEXTURES_SPECULAR]] )->mSRV,
-													};
+		if( loopBreaker != sizeOfList )
+		{
+			Animated3dAsset* model = (Animated3dAsset*)mAssetManager->mAssetContainer[currAssetID];
+			ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[model->mTextures[TEXTURES_DIFFUSE]] )->mSRV,
+															( (Static2dAsset*)mAssetManager->mAssetContainer[model->mTextures[TEXTURES_NORMAL]] )->mSRV,
+															( (Static2dAsset*)mAssetManager->mAssetContainer[model->mTextures[TEXTURES_SPECULAR]] )->mSRV,
+														};
 
-		mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+			mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+			mDeviceContext->UpdateSubresource( mCbufferPerInstancedAnimated, 0, nullptr, &temp, 0, 0 );
+			//MapBuffer( mCbufferPerInstancedAnimated, temp, sizeof( CbufferPerObjectAnimated ) );
+			ID3D11Buffer* buffersToSet[1] = { model->mVertexBuffer };
 
-		MapBuffer( mInstancedDataAnimated, temp, sizeof( CbufferPerObjectAnimated ) );
-		ID3D11Buffer* buffersToSet[1] = { model->mVertexBuffer };
+			mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, vertexSize, offset );
 
-		mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, vertexSize, offset );
+			mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerInstancedAnimated );
 
-		mDeviceContext->VSSetConstantBuffers( 1, 1, &mInstancedDataAnimated );
-
-		mDeviceContext->DrawInstanced(model->mVertexCount, objectToRender, 0, 0);
+			mDeviceContext->DrawInstanced( model->mVertexCount, objectToRender, 0, 0 );
+		}
 
 	}while( loopBreaker != sizeOfList );
 }
@@ -850,10 +855,21 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mCbufferPerObjectAnimated );
 
-	//InstancedAnimatedData buffer NOT WORKING, KEEP IT UNCOMMENTED
-	/*bufferDesc.ByteWidth = sizeof( CbufferPerObjectAnimated ) * MAX_NUM_INSTANCED;
-	if( FAILED( hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mInstancedDataAnimated ) ) )
-		return hr;*/
+	//InstancedAnimatedData buffer 
+	D3D11_BUFFER_DESC bufferInstancedDesc;
+	ZeroMemory( &bufferDesc, sizeof( bufferInstancedDesc ) );
+	bufferInstancedDesc.BindFlags		= D3D11_BIND_CONSTANT_BUFFER;
+	bufferInstancedDesc.CPUAccessFlags	= 0;
+	bufferInstancedDesc.Usage			= D3D11_USAGE_DEFAULT;
+	bufferInstancedDesc.ByteWidth		= sizeof( CbufferPerInstancedAnimated );
+	bufferInstancedDesc.MiscFlags		= 0;
+	if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, nullptr, &mCbufferPerInstancedAnimated ) ) )
+		return hr;
+
+	//InstancedObject buffer
+	bufferInstancedDesc.ByteWidth		= sizeof( CbufferPerObject );
+	if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, nullptr, &mCbufferPerInstanceObject ) ) )
+		return hr;
 
 	//AssetManager
 	mAssetManager = new AssetManager;
@@ -886,12 +902,12 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	if( FAILED( hr = mAnimatedEffect->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 
-	/*mAnimInstancedEffect	= new Effect;
+	mAnimInstancedEffect	= new Effect;
 	effectInfo.fileName		= "../Content/Effects/AnimatedInstanced3dEffect.hlsl";
-	effectInfo.vertexType	= ANIMATED_VERTEX_TYPE;
+	effectInfo.vertexType	= ANIMATED_VERTEX_INSTANCED_TYPE;
 
 	if( FAILED( hr = mAnimInstancedEffect->Intialize( mDevice, &effectInfo ) ) )
-		return hr;*/
+		return hr;
 	
 	mDeferredPassEffect = new Effect;
 	effectInfo.fileName		= "../Content/Effects/DeferredPassEffect.hlsl";
@@ -1002,6 +1018,7 @@ void Graphics::Release()
 	SAFE_RELEASE( mCbufferPerFrame );
 	SAFE_RELEASE( mCbufferPerObject );
 	SAFE_RELEASE( mCbufferPerObjectAnimated );
+	SAFE_RELEASE( mCbufferPerInstancedAnimated );
 
 	SAFE_RELEASE( mPointSamplerState );
 	SAFE_RELEASE( mLinearSamplerState );

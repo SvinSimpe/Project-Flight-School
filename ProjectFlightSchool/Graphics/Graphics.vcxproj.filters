@@ -150,10 +150,8 @@
     <Text Include="..\Content\Effects\2dEffect.hlsl">
       <Filter>Effects</Filter>
     </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="AnimatedInstanced3dEffect.hlsl">
+    <Text Include="..\Content\Effects\AnimatedInstanced3dEffect.hlsl">
       <Filter>Effects</Filter>
-    </FxCompile>
+    </Text>
   </ItemGroup>
 </Project>

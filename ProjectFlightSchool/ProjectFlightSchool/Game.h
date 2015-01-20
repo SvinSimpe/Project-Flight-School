@@ -24,8 +24,8 @@ class Game
 
 		// Class functions
 	private:
-		void ServerInit();
-		void ClientInit();
+		void ServerInit( std::string port );
+		void ClientInit( std::string ip, std::string port );
 		void EventListener( IEventPtr newEvent );
 
 	protected:

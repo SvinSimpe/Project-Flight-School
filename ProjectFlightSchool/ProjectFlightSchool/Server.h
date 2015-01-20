@@ -44,7 +44,7 @@ class Server
 	public:
 		bool			Connect();
 		bool			Run();
-		bool			Initialize( const char* port );
+		bool			Initialize( std::string port );
 		void			Release();
 						Server();
 		virtual			~Server();
@@ -99,7 +99,7 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 			break;
 		case Net_Event::EV_PLAYER_DIED:
 		{
-			EvPlayerID toAll = (EvPlayerID&)p->body.content;
+			EvKilled toAll = (EvKilled&)p->body.content;
 			for( auto& socket : mClientSockets )
 			{
 				if( socket.s != INVALID_SOCKET )

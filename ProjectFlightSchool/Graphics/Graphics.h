@@ -20,7 +20,7 @@
 
 #define NUM_GBUFFERS 3
 
-#define MAX_NUM_INSTANCED (UINT)( MAX_AMOUNT_OF_ANIM3D * 0.1f )
+#define MAX_NUM_INSTANCED 60//(UINT)( MAX_AMOUNT_OF_ANIM3D * 0.06f )
 
 class LIBRARY_EXPORT Graphics
 {
@@ -42,7 +42,9 @@ class LIBRARY_EXPORT Graphics
 		D3D11_VIEWPORT				mStandardView;
 		ID3D11Buffer*				mCbufferPerFrame;
 		ID3D11Buffer*				mCbufferPerObject;
+		ID3D11Buffer*				mCbufferPerInstanceObject;
 		ID3D11Buffer*				mCbufferPerObjectAnimated;
+		ID3D11Buffer*				mCbufferPerInstancedAnimated;
 
 		ID3D11SamplerState*			mPointSamplerState;
 		ID3D11SamplerState*			mLinearSamplerState;
@@ -59,7 +61,6 @@ class LIBRARY_EXPORT Graphics
 		Effect*						mDeferredPassEffect;
 		Gbuffer*					mGbuffers[NUM_GBUFFERS];
 
-		ID3D11Buffer*				mInstancedDataAnimated;
 
 	protected:
 	public:

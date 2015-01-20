@@ -291,6 +291,7 @@ class Event_Start_Server : public IEvent
 {
 	// Member variables;
 	private:
+		std::string mPort;
 	protected:
 	public:
 		static const EventType GUID;
@@ -304,8 +305,13 @@ class Event_Start_Server : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Start_Server()
+		Event_Start_Server( std::string port )
 		{
+			mPort = port;
+		}
+		std::string Port()
+		{
+			return mPort;
 		}
 };
 
@@ -313,6 +319,8 @@ class Event_Start_Client : public IEvent
 {
 	// Member variables;
 	private:
+		std::string mIP;
+		std::string mPort;
 	protected:
 	public:
 		static const EventType GUID;
@@ -326,8 +334,18 @@ class Event_Start_Client : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Start_Client()
+		Event_Start_Client( std::string ip, std::string port )
 		{
+			mIP		= ip;
+			mPort	= port;
+		}
+		std::string IP()
+		{
+			return mIP;
+		}
+		std::string Port()
+		{
+			return mPort;
 		}
 };
 
@@ -336,6 +354,8 @@ class Event_Player_Died : public IEvent
 	// Member variables
 	private:
 		unsigned int mID;
+		unsigned int mKillerID;
+
 	protected:
 	public:
 		static const EventType GUID;
@@ -348,13 +368,18 @@ class Event_Player_Died : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Player_Died( unsigned int id )
+		Event_Player_Died( unsigned int id, unsigned int killer )
 		{
-			mID = id;
+			mID			= id;
+			mKillerID	= killer;
 		}
 		unsigned int ID() const
 		{
 			return mID;
+		}
+		unsigned int KillerID() const
+		{
+			return mKillerID;
 		}
 };
 
@@ -363,6 +388,7 @@ class Event_Remote_Player_Died : public IEvent
 	// Member variables
 	private:
 		unsigned int mID;
+		unsigned int mKillerID;
 
 	protected:
 	public:
@@ -376,13 +402,18 @@ class Event_Remote_Player_Died : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Remote_Player_Died( unsigned int id )
+		Event_Remote_Player_Died( unsigned int id, unsigned int killer )
 		{
-			mID = id;
+			mID			= id;
+			mKillerID	= killer;
 		}
 		unsigned int ID() const
 		{
 			return mID;
+		}
+		unsigned int KillerID() const
+		{
+			return mKillerID;
 		}
 };
 

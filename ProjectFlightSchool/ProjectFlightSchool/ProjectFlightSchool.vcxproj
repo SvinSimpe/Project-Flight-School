@@ -98,6 +98,7 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="BaseState.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="InputSquare.cpp" />
     <ClCompile Include="JoinMenuState.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="MapNode.cpp" />
@@ -129,6 +130,7 @@
     <ClInclude Include="Entry.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="InputSquare.h" />
     <ClInclude Include="JoinMenuState.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MapConstants.h" />

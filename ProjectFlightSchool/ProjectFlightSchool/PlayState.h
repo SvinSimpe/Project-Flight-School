@@ -10,6 +10,7 @@
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
+#define animTestNr 10
 #define MAX_PROJECTILES			1000
 
 class PlayState : public BaseState
@@ -20,8 +21,8 @@ class PlayState : public BaseState
 
 		AssetID	mTestAsset;
 
-		AssetID	mTestAnimation;
-		AssetID	mTestAnimationAnimation;
+		AssetID	mTestAnimation[animTestNr];
+		AssetID	mTestAnimationAnimation[animTestNr];
 
 		AssetID mNest1Asset;
 		AssetID mStoneAssets[6];

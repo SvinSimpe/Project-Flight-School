@@ -2,16 +2,15 @@
 #define JOINMENUSTATE_H
 
 #include "BaseMenuState.h"
+#include "InputSquare.h"
 
 class JoinMenuState : public BaseMenuState
 {
 	private:
-		static const int
-			BACK = 0,
-			BUTTON_AMOUNT = 1;
-
-		MenuButton		mButtons[BUTTON_AMOUNT];
-		Image			mTexts[BUTTON_AMOUNT];
+		MenuButton		mBackButton;
+		InputSquare		mIPBox;
+		InputSquare		mPortBox;
+		Image			mText;
 	protected:
 	public:
 

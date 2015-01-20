@@ -34,9 +34,10 @@ void RenderManager::Clear()
 	//Anim3d
 	Anim3dInfo clearAnim3d;
 	clearAnim3d.mModelId	= (UINT)-1;
-	clearAnim3d.mAnimId		= (UINT)-1;
-	clearAnim3d.mAnimTime	= 0;
-	clearAnim3d.mPosition	= DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	DirectX::XMStoreFloat4x4( &clearAnim3d.mWorld, DirectX::XMMatrixIdentity() );
+
+	for( UINT i = 0; i < NUM_SUPPORTED_JOINTS; i++ )
+		DirectX::XMStoreFloat4x4( &clearAnim3d.mBoneTransforms[i], DirectX::XMMatrixIdentity() );
 
 	for( UINT i = 0; i < mNrOfAnim3d; i++ )
 	{
@@ -104,9 +105,6 @@ void RenderManager::AddAnim3dToList( AssetID modelAssetId, AssetID animationAsse
 {
     static Anim3dInfo info;
 	info.mModelId	= modelAssetId;
-	info.mAnimId	= animationAssetId;
-	info.mAnimTime	= animationTime;
-	info.mPosition	= position;
 
 	Graphics::GetInstance()->GetAnimationMatrices( modelAssetId, animationAssetId, *animationTime, position, rotation, info ); 
 
@@ -144,10 +142,7 @@ HRESULT RenderManager::Render()
 		Graphics::GetInstance()->RenderPlane2dAsset( mPlaneArray[i].mAssetId, mPlaneArray[i].mTopTriangle, mPlaneArray[i].mBottomTriangle );
 	}
 
-	for( UINT i = 0; i < mNrOfAnim3d; i++ )
-	{
-		Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray[i].mModelId, mAnim3dArray[i].mAnimId, *mAnim3dArray[i].mAnimTime, &mAnim3dArray[i].mWorld );
-	}
+	Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray, mNrOfAnim3d );
 
 	for( UINT i = 0; i < mNrOfObject2d; i++ )
 	{

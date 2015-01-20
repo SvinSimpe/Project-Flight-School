@@ -5,6 +5,13 @@ HRESULT Effect::CompileShader( char* shaderFile, char* pEntrypoint, char* pTarge
 	HRESULT hr = S_OK;
 	DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS |
 		D3DCOMPILE_IEEE_STRICTNESS;
+
+#ifdef _DEBUG
+	dwShaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG;
+#else
+	dwShaderFlags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
+#endif
+
 	std::string shader_code;
 	std::ifstream in( shaderFile, std::ios::in | std::ios::binary );
 	if ( in )
@@ -88,7 +95,52 @@ HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo* effectInfo )
 						vertexShaderBlob->GetBufferSize(),
 						&mInputLayout );
 				}
+				else if( effectInfo->vertexType == STATIC_INSTANCED_VERTEX_TYPE )
+				{
+					D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
+							{ "POSITION"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+							{ "NORMAL"		, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+							{ "TANGENT"		, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+							{ "TEX"			, 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+							{ "INSTANCEID"	, 0, DXGI_FORMAT_R32_UINT, 1, 44, D3D11_INPUT_PER_VERTEX_DATA, 1 },
+					};
+					hr = device->CreateInputLayout( inputDesc,
+						ARRAYSIZE( inputDesc ),
+						vertexShaderBlob->GetBufferPointer(),
+						vertexShaderBlob->GetBufferSize(),
+						&mInputLayout );
+				}
+				else if( effectInfo->vertexType == STATIC_INSTANCED_INSTANCE_TYPE )
+				{
+					D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
+							{ "WORLD"		, 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+							{ "WORLD"		, 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 16, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+							{ "WORLD"		, 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 32, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+							{ "WORLD"		, 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 48, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+					};
+					hr = device->CreateInputLayout( inputDesc,
+						ARRAYSIZE( inputDesc ),
+						vertexShaderBlob->GetBufferPointer(),
+						vertexShaderBlob->GetBufferSize(),
+						&mInputLayout );
+				}
 				else if( effectInfo->vertexType == ANIMATED_VERTEX_TYPE )
+				{
+					D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
+							{ "POSITION"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_INSTANCE_DATA, 0 },
+							{ "NORMAL"		, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_INSTANCE_DATA, 0 },
+							{ "TANGENT"		, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_INSTANCE_DATA, 0 },
+							{ "TEX"			, 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D11_INPUT_PER_INSTANCE_DATA, 0 },
+							{ "WEIGHTS"		, 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 44, D3D11_INPUT_PER_INSTANCE_DATA, 0 },
+							{ "JOINTINDEX"	, 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 60, D3D11_INPUT_PER_INSTANCE_DATA, 0 },
+					};
+					hr = device->CreateInputLayout( inputDesc,
+						ARRAYSIZE( inputDesc ),
+						vertexShaderBlob->GetBufferPointer(),
+						vertexShaderBlob->GetBufferSize(),
+						&mInputLayout );
+				}
+				else if( effectInfo->vertexType == ANIMATED_VERTEX_INSTANCED_TYPE )
 				{
 					D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
 							{ "POSITION"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -97,6 +149,7 @@ HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo* effectInfo )
 							{ "TEX"			, 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 							{ "WEIGHTS"		, 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 44, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 							{ "JOINTINDEX"	, 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 60, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+							{ "INSTANCEID"	, 0, DXGI_FORMAT_R32_UINT, 1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 					};
 					hr = device->CreateInputLayout( inputDesc,
 						ARRAYSIZE( inputDesc ),

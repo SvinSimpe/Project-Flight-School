@@ -7,7 +7,7 @@ void SingleplayerMenuState::HandleInput()
 		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
-		IEventPtr E2( new Event_Start_Server() );
+		IEventPtr E2( new Event_Start_Server( "27015" ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
 	}
 	else if( mButtons[MEDIUM].LeftMousePressed() )
@@ -15,7 +15,7 @@ void SingleplayerMenuState::HandleInput()
 		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
-		IEventPtr E2( new Event_Start_Server() );
+		IEventPtr E2( new Event_Start_Server( "27015" ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
 	}
 	else if( mButtons[HARD].LeftMousePressed() )
@@ -23,7 +23,7 @@ void SingleplayerMenuState::HandleInput()
 		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
-		IEventPtr E2( new Event_Start_Server() );
+		IEventPtr E2( new Event_Start_Server( "27015" ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
 	}
 	else if( mButtons[BACK].LeftMousePressed() )
@@ -45,7 +45,6 @@ HRESULT SingleplayerMenuState::Update( float deltaTime )
 
 HRESULT SingleplayerMenuState::Render()
 {
-	Graphics::GetInstance()->BeginScene();
 	BaseMenuState::Render();
 
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
@@ -54,7 +53,7 @@ HRESULT SingleplayerMenuState::Render()
 		mTexts[i].Render();
 	}
 
-	Graphics::GetInstance()->EndScene();
+	RenderManager::GetInstance()->Render();
 	return S_OK;
 }
 

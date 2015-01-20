@@ -47,8 +47,9 @@ void Client::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Player_Died> data = std::static_pointer_cast<Event_Player_Died>( newEvent );
 		if ( mServerSocket != INVALID_SOCKET )
 		{
-			EvPlayerID msg;
-			msg.ID = data->ID();
+			EvKilled msg;
+			msg.ID			= data->ID();
+			msg.killerID	= data->KillerID();
 
 			if ( mServerSocket != INVALID_SOCKET )
 			{
@@ -107,8 +108,8 @@ void Client::EventListener( IEventPtr newEvent )
 		if ( mServerSocket != INVALID_SOCKET )
 		{
 			EvPlayerID msg;
-			msg.ID			= mID;
-			msg.HP	= data->HP();
+			msg.ID	= mID;
+			msg.HP	= (unsigned int)data->HP();
 
 			if ( mServerSocket != INVALID_SOCKET )
 			{
@@ -187,7 +188,7 @@ bool Client::Run()
 	return true;
 }
 
-bool Client::Initialize( const char* port, const char* ip )
+bool Client::Initialize( std::string ip, std::string port )
 {
 	WSADATA WSAData = WSADATA();
 	mResult			= WSAStartup( MAKEWORD( 2, 2 ), &WSAData );
@@ -203,7 +204,7 @@ bool Client::Initialize( const char* port, const char* ip )
 	hints.ai_socktype	= SOCK_STREAM;
 	hints.ai_protocol	= IPPROTO_TCP;
 
-	mResult = getaddrinfo( ip, port, &hints, &mAddrResult );
+	mResult = getaddrinfo( ip.c_str(), port.c_str(), &hints, &mAddrResult );
 	if ( mResult != 0 )
 	{
 		printf( "getaddrinfo failed with error: %d\n", mResult );

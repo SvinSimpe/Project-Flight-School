@@ -35,9 +35,9 @@ void RemotePlayer::RemoteInit( unsigned int id, int team, AssetID teamColor, Ass
 	EventManager::GetInstance()->AddListener( &RemotePlayer::RemoteUpdate, this, Event_Remote_Player_Update::GUID );
 }
 
-void RemotePlayer::BroadcastDeath()
+void RemotePlayer::BroadcastDeath( unsigned int shooter )
 {
-	IEventPtr dieEv( new Event_Player_Died( mID ) );
+	IEventPtr dieEv( new Event_Player_Died( mID, shooter ) );
 	EventManager::GetInstance()->QueueEvent( dieEv );
 }
 
@@ -45,8 +45,9 @@ void RemotePlayer::BroadcastDeath()
 // Set current hp to 0 to avoid negative values and send event that player has died
 void RemotePlayer::Die()
 {
-	mCurrentHp		= 0.0f;
-	mIsAlive		= false;
+	mNrOfDeaths++;
+	mIsAlive = false;
+	mCurrentHp = 0.0f;
 	mTimeTillSpawn	= mSpawnTime;
 }
 
@@ -72,7 +73,7 @@ void RemotePlayer::Spawn()
 	EventManager::GetInstance()->QueueEvent( spawnEv );
 }
 
-void RemotePlayer::TakeDamage( unsigned int damage )
+void RemotePlayer::TakeDamage( unsigned int damage, unsigned int shooter )
 {
 	mCurrentHp -= damage;
 	IEventPtr player( new Event_Player_Update_HP( mID, mCurrentHp ) );
@@ -80,7 +81,7 @@ void RemotePlayer::TakeDamage( unsigned int damage )
 	if ( mIsAlive && mCurrentHp <= 0.0f )
 	{
 		Die();
-		BroadcastDeath();
+		BroadcastDeath( shooter );
 	}
 }
 
@@ -89,13 +90,23 @@ void RemotePlayer::SetHP( float hp )
 	mCurrentHp = hp;
 }
 
+void RemotePlayer::CountUpKills()
+{
+	mNrOfKills++;
+}
+
 int RemotePlayer::GetID() const
 {
 	return mID;
 }
 
+int RemotePlayer::GetTeam() const
+{
+	return mTeam;
+}
 
-HRESULT RemotePlayer::Render()
+HRESULT RemotePlayer::Render( float deltaTime, int position )
+
 {
 	RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
 
@@ -125,7 +136,7 @@ HRESULT RemotePlayer::Render()
 	float renderSize;
 	if ( mColorIDAsset )
 	{
-		renderSize = 1.7f + 1;
+		renderSize = 2.0f + 1;
 		x = { mLowerBody.position.x - renderSize / 2.0f, 0.005f, mLowerBody.position.z + renderSize / 2.0f };
 		y = { mLowerBody.position.x + renderSize / 2.0f, 0.005f, mLowerBody.position.z - renderSize / 2.0f };
 		RenderManager::GetInstance()->AddPlaneToList(mColorIDAsset, x, y);
@@ -133,10 +144,75 @@ HRESULT RemotePlayer::Render()
 	
 	if ( mTeamAsset )
 	{
-		renderSize = 2.0f + 1;
+		renderSize = 2.2f + 1;
 		x = { mLowerBody.position.x - renderSize / 2.0f, 0.004f, mLowerBody.position.z + renderSize / 2.0f };
 		y = { mLowerBody.position.x + renderSize / 2.0f, 0.004f, mLowerBody.position.z - renderSize / 2.0f };
 		RenderManager::GetInstance()->AddPlaneToList( mTeamAsset, x, y );
+	}
+
+	if( mColorIDAsset )
+	{
+		DirectX::XMFLOAT2 topLeft	= { 10.0f, 20.0f*(float)position };
+		DirectX::XMFLOAT2 size		= { 10, 10 };
+		RenderManager::GetInstance()->AddObject2dToList( mColorIDAsset, topLeft, size );
+
+		int currentKills		= mNrOfKills;
+		std::string textToWrite = "K ";
+		while( currentKills > 100 )
+		{
+			textToWrite		+= "C";
+			currentKills	-= 100;
+		}
+		while( currentKills > 50 )
+		{
+			textToWrite		+= "L";
+			currentKills	-= 50;
+		}
+		while( currentKills > 10 )
+		{
+			textToWrite		+= "X";
+			currentKills	-= 10;
+		}
+		while( currentKills > 5 )
+		{
+			textToWrite		+= "V";
+			currentKills	-= 5;
+		}
+		while( currentKills > 0 )
+		{
+			textToWrite	+= "I";
+			currentKills--;
+		}
+
+		int currentDeaths = mNrOfDeaths;
+		textToWrite += " D ";
+		while( currentDeaths > 100 )
+		{
+			textToWrite		+= "C";
+			currentDeaths	-= 100;
+		}
+		while( currentDeaths > 50 )
+		{
+			textToWrite		+= "L";
+			currentDeaths	-= 50;
+		}
+		while( currentDeaths > 10 )
+		{
+			textToWrite		+= "X";
+			currentDeaths	-= 10;
+		}
+		while( currentDeaths > 5 )
+		{
+			textToWrite		+= "V";
+			currentDeaths	-= 5;
+		}
+		while( currentDeaths > 0 )
+		{
+			textToWrite	+= "I";
+			currentDeaths--;
+		}
+		mFont.WriteText( textToWrite, 20.0f, ((20.0f*(float)position)-7), 0.5f );
+		
 	}
 
 	return S_OK;
@@ -172,16 +248,17 @@ HRESULT RemotePlayer::Initialize()
 	if( FAILED( Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/OrangeHP.png", mOrangeHPAsset ) ) )
 		OutputDebugString( L"\nERROR\n" );
 
-	//EventManager::GetInstance()->AddListener( &RemotePlayer::RemoteUpdate, this, Event_Remote_Player_Update::GUID );
-
-	mUpperBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
-	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
-
+	mUpperBody.position						= XMFLOAT3( 3.0f, 0.0f, 0.0f );
+	mLowerBody.position						= XMFLOAT3( 3.0f, 0.0f, 0.0f );
+	mNrOfDeaths								= 0;
+	mNrOfKills								= 0;
 	mLowerBody.currentLowerAnimation		= PLAYER_ANIMATION_LEGS_IDLE;
 	mLowerBody.currentLowerAnimationTime	= 1.0f;
 
 	mBoundingBox			= new BoundingBox( 1.5f, 1.5f );
 	mBoundingCircle			= new BoundingCircle( 0.5f );
+	
+	mFont.Initialize( "../Content/Assets/Fonts/mv_boli_26_red/" );
 
 	mIsAlive				= true;
 	mMaxHp					= 100.0f;
@@ -195,6 +272,7 @@ HRESULT RemotePlayer::Initialize()
 void RemotePlayer::Release()
 {
 	SAFE_DELETE( mBoundingBox );
+	mFont.Release();
 }
 
 BoundingBox* RemotePlayer::GetBoundingBox() const

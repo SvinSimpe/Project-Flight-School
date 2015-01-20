@@ -37,7 +37,7 @@ class Client // The class used by clients to connect to the server
 	public:
 		bool	Connect();
 		bool	Run();
-		bool	Initialize( const char* port, const char* ip ); // Sets up and connects to the server
+		bool	Initialize( std::string ip, std::string port ); // Sets up and connects to the server
 		void	Release();
 				Client();
 		virtual	~Client();
@@ -84,8 +84,8 @@ void Client::HandlePkg( Package<T>* p )
 			break;
 		case Net_Event::EV_PLAYER_DIED:
 		{
-			EvPlayerID deadPlayer = (EvPlayerID&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Died( deadPlayer.ID ) );
+			EvKilled deadPlayer = (EvKilled&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Died( deadPlayer.ID, deadPlayer.killerID ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
@@ -113,7 +113,7 @@ void Client::HandlePkg( Package<T>* p )
 		case Net_Event::EV_UPDATE_HP:
 		{
 			EvPlayerID player = (EvPlayerID&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Update_HP( player.ID, player.HP  ) );
+			IEventPtr E1( new Event_Remote_Player_Update_HP( player.ID, (float)player.HP  ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;

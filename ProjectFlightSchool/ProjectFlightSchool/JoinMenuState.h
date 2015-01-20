@@ -12,10 +12,9 @@ class JoinMenuState : public BaseMenuState
 			BACK			= 1,
 			BUTTON_AMOUNT	= 2;
 
-		MenuButton		mButtons[BUTTON_AMOUNT];
-		InputSquare		mIPBox;
-		InputSquare		mPortBox;
-		Image			mText[BUTTON_AMOUNT];
+		InputSquare	mIPBox;
+		InputSquare	mPortBox;
+
 	protected:
 	public:
 
@@ -30,7 +29,7 @@ class JoinMenuState : public BaseMenuState
 		void	Reset();
 		HRESULT Initialize();
 		void	Release();
-		JoinMenuState();
-		~JoinMenuState();
+				JoinMenuState();
+		virtual ~JoinMenuState();
 };
 #endif

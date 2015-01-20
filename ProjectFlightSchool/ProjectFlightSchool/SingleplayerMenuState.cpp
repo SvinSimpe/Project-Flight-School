@@ -2,7 +2,7 @@
 
 void SingleplayerMenuState::HandleInput()
 {
-	if( mButtons[EASY].LeftMousePressed() )
+	if( mButtons.at(EASY)->LeftMousePressed() )
 	{
 		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
@@ -10,7 +10,7 @@ void SingleplayerMenuState::HandleInput()
 		IEventPtr E2( new Event_Start_Server( "27015" ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
 	}
-	else if( mButtons[MEDIUM].LeftMousePressed() )
+	else if( mButtons.at(MEDIUM)->LeftMousePressed() )
 	{
 		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
@@ -18,7 +18,7 @@ void SingleplayerMenuState::HandleInput()
 		IEventPtr E2( new Event_Start_Server( "27015" ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
 	}
-	else if( mButtons[HARD].LeftMousePressed() )
+	else if( mButtons.at(HARD)->LeftMousePressed() )
 	{
 		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
@@ -26,7 +26,7 @@ void SingleplayerMenuState::HandleInput()
 		IEventPtr E2( new Event_Start_Server( "27015" ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
 	}
-	else if( mButtons[BACK].LeftMousePressed() )
+	else if( mButtons.at(BACK)->LeftMousePressed() )
 	{
 		IEventPtr E1( new Event_Change_State( CREATE_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
@@ -38,7 +38,7 @@ HRESULT SingleplayerMenuState::Update( float deltaTime )
 	BaseMenuState::Update( deltaTime );
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
-		mButtons[i].Update( deltaTime );
+		mButtons.at(i)->Update( deltaTime );
 	}
 	return S_OK;
 }
@@ -49,8 +49,7 @@ HRESULT SingleplayerMenuState::Render()
 
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
-		mButtons[i].Render();
-		mTexts[i].Render();
+		mButtons.at(i)->Render();
 	}
 
 	RenderManager::GetInstance()->Render();
@@ -63,10 +62,7 @@ void SingleplayerMenuState::OnEnter()
 
 void SingleplayerMenuState::OnExit()
 {
-	for( int i = 0; i < BUTTON_AMOUNT; i++ )
-	{
-		mButtons[i].SetExitCooldown();
-	}
+	BaseMenuState::OnExit();
 }
 
 void SingleplayerMenuState::Reset()
@@ -77,6 +73,7 @@ HRESULT SingleplayerMenuState::Initialize()
 {
 	BaseMenuState::Initialize();
 	mStateType = SINGLE_MENU_STATE;
+	mButtons.reserve( BUTTON_AMOUNT );
 
 	std::string texts[] = { "Easy", "Medium", "Hard", "Back" };
 
@@ -86,14 +83,14 @@ HRESULT SingleplayerMenuState::Initialize()
 	float h	= 200.0f;
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
-		mButtons[i].Initialize( x, y, w, h );
+		mButtons.push_back( new Button() );
 		if( texts[i] == "Back" )
 		{
-			mTexts[i].Initialize( "../Content/Assets/Textures/Menu/Back.png", x, y, w, h );
+			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Back.png", x, y, w, h );
 		}
 		else
 		{
-			mTexts[i].Initialize( "../Content/Assets/Textures/Menu/Single_Menu_Text/" + texts[i] + ".png", x, y, w, h );
+			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Single_Menu_Text/" + texts[i] + ".png", x, y, w, h );
 		}
 		x += 200;
 	}
@@ -103,11 +100,6 @@ HRESULT SingleplayerMenuState::Initialize()
 void SingleplayerMenuState::Release()
 {
 	BaseMenuState::Release();
-	for( int i = 0; i < BUTTON_AMOUNT; i++ )
-	{
-		mButtons[i].Release();
-		mTexts[i].Release();
-	}
 }
 
 SingleplayerMenuState::SingleplayerMenuState() : BaseMenuState()

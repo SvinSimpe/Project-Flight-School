@@ -8,8 +8,8 @@ class Image : public Entry
 {
 	// Member variables
 	private:
-		AssetID		m2DTexture;
 	protected:
+		AssetID			m2DTexture;
 	public:
 
 	// Member functions

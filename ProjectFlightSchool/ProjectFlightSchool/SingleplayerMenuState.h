@@ -2,7 +2,7 @@
 #define SINGLEPLAYERMENUSTATE_H
 
 #include "BaseMenuState.h"
-#include "MenuButton.h"
+#include "Button.h"
 #include "Image.h"
 
 class SingleplayerMenuState : public BaseMenuState
@@ -14,9 +14,6 @@ class SingleplayerMenuState : public BaseMenuState
 			HARD			= 2,
 			BACK			= 3,
 			BUTTON_AMOUNT	= 4;
-
-		MenuButton		mButtons[BUTTON_AMOUNT];
-		Image			mTexts[BUTTON_AMOUNT];
 
 	protected:
 	public:
@@ -32,7 +29,7 @@ class SingleplayerMenuState : public BaseMenuState
 		void	Reset();
 		HRESULT Initialize();
 		void	Release();
-		SingleplayerMenuState();
-		~SingleplayerMenuState();
+				SingleplayerMenuState();
+		virtual ~SingleplayerMenuState();
 };
 #endif

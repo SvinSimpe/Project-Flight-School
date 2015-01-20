@@ -2,12 +2,12 @@
 
 void JoinMenuState::HandleInput()
 {
-	if( mButtons[BACK].LeftMousePressed() )
+	if( mButtons.at(BACK)->LeftMousePressed() )
 	{
 		IEventPtr E1( new Event_Change_State( START_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
-	else if( mButtons[JOIN].LeftMousePressed() )
+	else if( mButtons.at(JOIN)->LeftMousePressed() )
 	{
 		std::string ip		= mIPBox.GetText();
 		std::string port	= mPortBox.GetText();
@@ -32,8 +32,7 @@ HRESULT JoinMenuState::Update( float deltaTime )
 	BaseMenuState::Update( deltaTime );
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
-		mButtons[i].Update( deltaTime );
-		mText[i].Update( deltaTime );
+		mButtons.at(i)->Update( deltaTime );
 	}
 	mIPBox.Update( deltaTime );
 	mPortBox.Update( deltaTime );
@@ -46,8 +45,7 @@ HRESULT JoinMenuState::Render()
 	BaseMenuState::Render();
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
-		mButtons[i].Render();
-		mText[i].Render();
+		mButtons.at(i)->Render();
 	}
 	mIPBox.Render();
 	mPortBox.Render();
@@ -62,10 +60,7 @@ void JoinMenuState::OnEnter()
 
 void JoinMenuState::OnExit()
 {
-	for( int i = 0; i < BUTTON_AMOUNT; i++ )
-	{
-		mButtons[i].SetExitCooldown();
-	}
+	BaseMenuState::OnExit();
 }
 
 void JoinMenuState::Reset()
@@ -89,18 +84,20 @@ HRESULT JoinMenuState::Initialize()
 {
 	BaseMenuState::Initialize();
 	mStateType = JOIN_MENU_STATE;
+	mButtons.reserve( BUTTON_AMOUNT );
 
 	float x	= (float)Input::GetInstance()->mScreenWidth  * 0.65f;
 	float y	= (float)Input::GetInstance()->mScreenHeight * 0.75f;
 	float w	= 200.0f;
 	float h	= 200.0f;
-	mButtons[JOIN].Initialize( x, y, w, h );
-	mText[JOIN].Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/Join.png", x, y, w, h );
+
+	mButtons.push_back( new Button() );
+	mButtons.at(JOIN)->Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/Join.png", x, y, w, h );
 
 	x += w + 20;
 
-	mButtons[BACK].Initialize( x, y, w, h );
-	mText[BACK].Initialize( "../Content/Assets/Textures/Menu/Back.png", x, y, w, h );
+	mButtons.push_back( new Button() );
+	mButtons.at(BACK)->Initialize( "../Content/Assets/Textures/Menu/Back.png", x, y, w, h );
 
 	x = (float)Input::GetInstance()->mScreenWidth  * 0.10f;
 	y = (float)Input::GetInstance()->mScreenHeight * 0.80f;
@@ -119,11 +116,6 @@ HRESULT JoinMenuState::Initialize()
 void JoinMenuState::Release()
 {
 	BaseMenuState::Release();
-	for( int i = 0; i < BUTTON_AMOUNT; i++ )
-	{
-		mButtons[i].Release();
-		mText[i].Release();
-	}
 	mIPBox.Release();
 	mPortBox.Release();
 }

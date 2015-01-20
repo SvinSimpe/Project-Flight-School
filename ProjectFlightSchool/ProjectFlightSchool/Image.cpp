@@ -18,6 +18,7 @@ void Image::Initialize( std::string assetPath, float x, float y, float width, fl
 
 void Image::Release()
 {
+	Entry::Release();
 }
 
 Image::Image() : Entry()

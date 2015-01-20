@@ -6,21 +6,20 @@
 
 void StartMenuState::HandleInput()
 {
-	if( mServerClientButton.LeftMousePressed() )
+	if( mButtons.at(CREATE)->LeftMousePressed() )
 	{
-		IEventPtr E1( new Event_Start_Server() );
+		IEventPtr E1( new Event_Change_State( CREATE_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
-
-		IEventPtr E2( new Event_Change_State( PLAY_STATE ) );
-		EventManager::GetInstance()->QueueEvent( E2 );
 	}
-	else if( mClientButton.LeftMousePressed() )
+	else if( mButtons.at(JOIN)->LeftMousePressed() )
 	{
-		IEventPtr E1( new Event_Start_Client() );
+		IEventPtr E1( new Event_Change_State( JOIN_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
-
-		IEventPtr E2( new Event_Change_State( PLAY_STATE ) );
-		EventManager::GetInstance()->QueueEvent( E2 );
+	}
+	else if( mButtons.at(OPTIONS)->LeftMousePressed() )
+	{
+		IEventPtr E1( new Event_Change_State( OPTIONS_MENU_STATE ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 }
 
@@ -31,20 +30,24 @@ void StartMenuState::HandleInput()
 
 HRESULT StartMenuState::Update( float deltaTime )
 {
-	HandleInput();
-	mServerClientButton.Update( deltaTime );
-	mClientButton.Update( deltaTime );
+	BaseMenuState::Update( deltaTime );
+	for( int i = 0; i < BUTTON_AMOUNT; i++ )
+	{
+		mButtons.at(i)->Update( deltaTime );
+	}
 	return S_OK;
 }
 
 HRESULT StartMenuState::Render()
 {
-	Graphics::GetInstance()->BeginScene();
+	BaseMenuState::Render();
 
-	mServerClientButton.Render();
-	mClientButton.Render();
+	for( int i = 0; i < BUTTON_AMOUNT; i++ )
+	{
+		mButtons.at(i)->Render();
+	}
 
-	Graphics::GetInstance()->EndScene();
+	RenderManager::GetInstance()->Render();
 	return S_OK;
 }
 
@@ -54,6 +57,7 @@ void StartMenuState::OnEnter()
 
 void StartMenuState::OnExit()
 {
+	BaseMenuState::OnExit();
 }
 
 void StartMenuState::Reset()
@@ -62,17 +66,32 @@ void StartMenuState::Reset()
 
 HRESULT StartMenuState::Initialize()
 {
+	BaseMenuState::Initialize();
 	mStateType		= START_MENU_STATE;
-	mServerClientButton.Initialize( "../Content/Assets/Textures/ServerButton.png", 0, 0, Input::GetInstance()->mScreenWidth/2, Input::GetInstance()->mScreenHeight/2 );
-	mClientButton.Initialize( "../Content/Assets/Textures/ClientButton.png", Input::GetInstance()->mScreenWidth/2, Input::GetInstance()->mScreenHeight/2, Input::GetInstance()->mScreenWidth/2, Input::GetInstance()->mScreenHeight/2 );
+	mButtons.reserve( BUTTON_AMOUNT );
+
+	std::string texts[] = { "Create", "Join", "Options", "Exit" };
+
+	float x	= (float)Input::GetInstance()->mScreenWidth  * 0.20f;
+	float y	= (float)Input::GetInstance()->mScreenHeight * 0.75f;
+	float w	= 200.0f;
+	float h	= 200.0f;
+	for(int i = 0; i < BUTTON_AMOUNT; i++)
+	{
+		mButtons.push_back( new Button() );
+		mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Start_Menu_Text/" + texts[i] + ".png", x, y, w, h );
+		x += 200;
+	}
+
 	return S_OK;
 }
 
 void StartMenuState::Release()
 {
+	BaseMenuState::Release();
 }
 
-StartMenuState::StartMenuState()
+StartMenuState::StartMenuState() : BaseMenuState()
 {
 }
 

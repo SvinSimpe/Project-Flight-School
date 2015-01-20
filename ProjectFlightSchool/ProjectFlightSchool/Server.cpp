@@ -14,25 +14,13 @@ bool Server::AcceptConnection()
 	}
 	else
 	{
-		EvPlayerID toJoining;
-		for ( auto& socket : mClientSockets )
-		{
-			if(socket != INVALID_SOCKET)
-			{
-				toJoining.ID = (unsigned int)socket;
-				mConn->SendPkg( s, 0, Net_Event::EV_PLAYER_JOINED, toJoining ); // Sends the ID of the already existing clients to the joining client
-				Sleep(10);
-			}
-		}
-		Sleep(10);
-
-		int flag	= 1;
-        mResult		= setsockopt( s,            /* socket affected */
-                                IPPROTO_TCP,     /* set option at TCP level */
-                                TCP_NODELAY,     /* name of option */
-                                (char*) &flag,  /* the cast is historical cruft */
-                                sizeof(int) );    /* length of option value */
-		if(mResult != 0)
+		int flag = 1;
+		mResult = setsockopt( s,            /* socket affected */
+			IPPROTO_TCP,     /* set option at TCP level */
+			TCP_NODELAY,     /* name of option */
+			(char*)&flag,  /* the cast is historical cruft */
+			sizeof(int)) ;    /* length of option value */
+		if ( mResult != 0 )
 		{
 			printf( "setsockopt failed with error: %d\n", WSAGetLastError() );
 			shutdown( s, SD_SEND );
@@ -41,10 +29,27 @@ bool Server::AcceptConnection()
 			return false;
 		}
 
-		mClientSockets.push_back( s );
-		EvPlayerID msg;
-		msg.ID = (unsigned int)s;
-		mConn->SendPkg( s, -1, Net_Event::YOUR_ID, s );
+		Clientinfo newClient	= { s, mNextTeamDelegation };
+		mNextTeamDelegation		= ( mNrOfTeams - 1 ) - ( mNextTeamDelegation / ( mNrOfTeams - 1 ) );
+
+		EvInitialize toJoining;
+		for ( auto& socket : mClientSockets )
+		{
+			if( socket.s != INVALID_SOCKET )
+			{
+				toJoining.ID	= socket.s;
+				toJoining.team	= socket.team;
+				mConn->SendPkg( s, 0, Net_Event::EV_PLAYER_JOINED, toJoining ); // Sends the ID of the already existing clients to the joining client
+				Sleep( 10 );
+			}
+		}
+		Sleep( 10 );
+
+		mClientSockets.push_back( newClient );
+		EvInitialize msg;
+		msg.ID		= (unsigned int)s;
+		msg.team	= newClient.team;
+		mConn->SendPkg( s, -1, Net_Event::YOUR_ID, msg );
 	}
 	printf( "%d connected.\n", s );
 
@@ -54,17 +59,17 @@ bool Server::AcceptConnection()
 bool Server::ReceiveLoop( int index )
 {
 	Package<void*>* p = new Package<void*>[DEFAULT_BUFLEN];
-	while ( mClientSockets.at(index) != INVALID_SOCKET )
+	while ( mClientSockets.at(index).s != INVALID_SOCKET )
 	{
-		SOCKET savedSocket = mClientSockets.at(index); // Used in case of disconnect
-		if ( mConn->ReceivePkg( mClientSockets.at(index), *p ) )
+		SOCKET savedSocket = mClientSockets.at(index).s; // Used in case of disconnect
+		if ( mConn->ReceivePkg( mClientSockets.at(index).s, *p ) )
 		{
 			if ( p->head.eventType != Net_Event::ERROR_EVENT )
 			{
-				HandlePkg( mClientSockets.at(index), p );
+				HandlePkg( mClientSockets.at(index).s, p );
 			}
 		}
-		if( mClientSockets.at(index) == INVALID_SOCKET )
+		if( mClientSockets.at(index).s == INVALID_SOCKET )
 		{
 			DisconnectClient( savedSocket );
 		}
@@ -83,7 +88,7 @@ void Server::DisconnectClient( SOCKET s )
 	msg.ID = s;
 	for( auto& to : mClientSockets )
 	{
-		mConn->SendPkg( to, 0, Net_Event::EV_PLAYER_LEFT, msg );
+		mConn->SendPkg( to.s, 0, Net_Event::EV_PLAYER_LEFT, msg );
 	}
 }
 
@@ -143,8 +148,11 @@ bool Server::Run()
 	return true;
 }
 
-bool Server::Initialize( const char* port )
+bool Server::Initialize( std::string port )
 {
+	mNextTeamDelegation = 0;
+	mNrOfTeams			= 2;
+
 	WSADATA WSAData = WSADATA();
 	mResult			= WSAStartup( MAKEWORD( 2, 2 ), &WSAData );
 	if ( mResult != 0 )
@@ -160,7 +168,7 @@ bool Server::Initialize( const char* port )
 	hints.ai_protocol	= 0;
 	hints.ai_flags		= AI_PASSIVE;
 
-	mResult				= getaddrinfo( nullptr, port, &hints, &mAddrResult );
+	mResult				= getaddrinfo( nullptr, port.c_str(), &hints, &mAddrResult );
 	if ( mResult != 0 )
 	{
 		printf( "getaddrinfo failed with error: %d\n", mResult );
@@ -178,7 +186,7 @@ void Server::Release()
 {
 	for( auto& s : mClientSockets )
 	{
-		mConn->DisconnectSocket( s ); 
+		mConn->DisconnectSocket( s.s ); 
 	}
 	for ( auto& t : mListenThreads )
 	{
@@ -200,7 +208,7 @@ Server::Server()
 	mResult			= 0;
 	mAddrResult		= nullptr;
 	mListenSocket	= INVALID_SOCKET;
-	mClientSockets	= std::vector<SOCKET>( 0 );
+	mClientSockets	= std::vector<Clientinfo>( 0 );
 	mConn			= nullptr;
 	mListenThreads	= std::vector<std::thread>( 0 );
 

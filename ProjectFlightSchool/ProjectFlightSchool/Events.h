@@ -40,13 +40,17 @@
 #include <DirectXMath.h>
 using namespace DirectX;
 
-class Event_Player_Moved : public IEvent
+class Event_Player_Update : public IEvent
 {
 	// Member variables
 	private:
 		XMFLOAT3		mLowerBodyPos;
+		XMFLOAT3		mLowerBodyDirection;
+		unsigned int	mLowerBodyAnimation;
+		float			mLowerBodyAnimationTime;
+
 		XMFLOAT3		mUpperBodyPos;
-		XMFLOAT3		mDirection;
+		XMFLOAT3		mUpperBodyDirection;
 
 	protected:
 	public:
@@ -60,23 +64,38 @@ class Event_Player_Moved : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Player_Moved( XMFLOAT3 lowerBodyPos, XMFLOAT3 upperBodyPos, XMFLOAT3 direction )
+		Event_Player_Update( XMFLOAT3 lowerBodyPos, XMFLOAT3 lowerBodyDirection, unsigned int lowerBodyAnimation, float lowerBodyAnimationTime, XMFLOAT3 upperBodyPos, XMFLOAT3 upperBodyDirection )
 		{
-			mLowerBodyPos	= lowerBodyPos;
-			mUpperBodyPos	= upperBodyPos;
-			mDirection		= direction;
+			mLowerBodyPos			= lowerBodyPos;
+			mLowerBodyDirection		= lowerBodyDirection;
+			mLowerBodyAnimation		= lowerBodyAnimation;
+			mLowerBodyAnimationTime	= lowerBodyAnimationTime;
+			mUpperBodyPos			= upperBodyPos;
+			mUpperBodyDirection		= upperBodyDirection;
 		}
 		XMFLOAT3 LowerBodyPos() const
 		{
 			return mLowerBodyPos;
 		}
+		XMFLOAT3 LowerBodyDirection() const
+		{
+			return mLowerBodyDirection;
+		}
+		unsigned int LowerBodyAnimation() const
+		{
+			return mLowerBodyAnimation;
+		}
+		float LowerBodyAnimationTime() const
+		{
+			return mLowerBodyAnimationTime;
+		}
 		XMFLOAT3 UpperBodyPos() const
 		{
 			return mUpperBodyPos;
 		}
-		XMFLOAT3 Direction() const
+		XMFLOAT3 UpperBodyDirection() const
 		{
-			return mDirection;
+			return mUpperBodyDirection;
 		}
 };
 
@@ -86,8 +105,12 @@ class Event_Remote_Player_Update : public IEvent
 	private:
 		unsigned int	mID;
 		XMFLOAT3		mLowerBodyPos;
+		XMFLOAT3		mLowerBodyDirection;
+		unsigned int	mLowerBodyAnimation;
+		float			mLowerBodyAnimationTime;
+
 		XMFLOAT3		mUpperBodyPos;
-		XMFLOAT3		mDirection;
+		XMFLOAT3		mUpperBodyDirection;
 
 	protected:
 	public:
@@ -101,12 +124,15 @@ class Event_Remote_Player_Update : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Remote_Player_Update( unsigned int id, XMFLOAT3 lowerBodyPos, XMFLOAT3 upperBodyPos, XMFLOAT3 direction )
+		Event_Remote_Player_Update( unsigned int id, XMFLOAT3 lowerBodyPos, XMFLOAT3 lowerBodyDirection, unsigned int lowerBodyAnimation, float lowerBodyAnimationTime, XMFLOAT3 upperBodyPos, XMFLOAT3 upperBodyDirection )
 		{
-			mID				= id;
-			mLowerBodyPos	= lowerBodyPos;
-			mUpperBodyPos	= upperBodyPos;
-			mDirection		= direction;
+			mID						= id;
+			mLowerBodyPos			= lowerBodyPos;
+			mLowerBodyDirection		= lowerBodyDirection;
+			mLowerBodyAnimation		= lowerBodyAnimation;
+			mLowerBodyAnimationTime	= lowerBodyAnimationTime;
+			mUpperBodyPos			= upperBodyPos;
+			mUpperBodyDirection		= upperBodyDirection;
 		}
 		unsigned int ID() const
 		{
@@ -116,13 +142,25 @@ class Event_Remote_Player_Update : public IEvent
 		{
 			return mLowerBodyPos;
 		}
+		XMFLOAT3 LowerBodyDirection() const
+		{
+			return mLowerBodyDirection;
+		}
+		unsigned int LowerBodyAnimation() const
+		{
+			return mLowerBodyAnimation;
+		}
+		float LowerBodyAnimationTime() const
+		{
+			return mLowerBodyAnimationTime;
+		}
 		XMFLOAT3 UpperBodyPos() const
 		{
 			return mUpperBodyPos;
 		}
-		XMFLOAT3 Direction() const
+		XMFLOAT3 UpperBodyDirection() const
 		{
-			return mDirection;
+			return mUpperBodyDirection;
 		}
 };
 
@@ -130,7 +168,8 @@ class Event_Local_Player_Joined : public IEvent
 {
 	// Member variables
 	private:
-		unsigned int mID;
+		unsigned int	mID;
+		int				mTeam;
 
 	protected:
 	public:
@@ -144,13 +183,18 @@ class Event_Local_Player_Joined : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Local_Player_Joined( unsigned int id )
+		Event_Local_Player_Joined( unsigned int id, int team )
 		{
-			mID = id;
+			mID		= id;
+			mTeam	= team;
 		}
 		unsigned int ID() const
 		{
 			return mID;
+		}
+		int Team() const
+		{
+			return mTeam;
 		}
 };
 
@@ -158,7 +202,8 @@ class Event_Remote_Player_Joined : public IEvent
 {
 	// Member variables
 	private:
-		unsigned int mID;
+		unsigned int	mID;
+		int				mTeam;
 
 	protected:
 	public:
@@ -172,13 +217,18 @@ class Event_Remote_Player_Joined : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Remote_Player_Joined( unsigned int id )
+		Event_Remote_Player_Joined( unsigned int id, int team )
 		{
-			mID = id;
+			mID		= id;
+			mTeam	= team;
 		}
 		unsigned int ID() const
 		{
 			return mID;
+		}
+		int Team() const
+		{
+			return mTeam;
 		}
 };
 
@@ -241,6 +291,7 @@ class Event_Start_Server : public IEvent
 {
 	// Member variables;
 	private:
+		std::string mPort;
 	protected:
 	public:
 		static const EventType GUID;
@@ -254,8 +305,13 @@ class Event_Start_Server : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Start_Server()
+		Event_Start_Server( std::string port )
 		{
+			mPort = port;
+		}
+		std::string Port()
+		{
+			return mPort;
 		}
 };
 
@@ -263,6 +319,8 @@ class Event_Start_Client : public IEvent
 {
 	// Member variables;
 	private:
+		std::string mIP;
+		std::string mPort;
 	protected:
 	public:
 		static const EventType GUID;
@@ -276,8 +334,18 @@ class Event_Start_Client : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Start_Client()
+		Event_Start_Client( std::string ip, std::string port )
 		{
+			mIP		= ip;
+			mPort	= port;
+		}
+		std::string IP()
+		{
+			return mIP;
+		}
+		std::string Port()
+		{
+			return mPort;
 		}
 };
 
@@ -286,6 +354,8 @@ class Event_Player_Died : public IEvent
 	// Member variables
 	private:
 		unsigned int mID;
+		unsigned int mKillerID;
+
 	protected:
 	public:
 		static const EventType GUID;
@@ -298,13 +368,18 @@ class Event_Player_Died : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Player_Died( unsigned int id )
+		Event_Player_Died( unsigned int id, unsigned int killer )
 		{
-			mID = id;
+			mID			= id;
+			mKillerID	= killer;
 		}
 		unsigned int ID() const
 		{
 			return mID;
+		}
+		unsigned int KillerID() const
+		{
+			return mKillerID;
 		}
 };
 
@@ -313,6 +388,7 @@ class Event_Remote_Player_Died : public IEvent
 	// Member variables
 	private:
 		unsigned int mID;
+		unsigned int mKillerID;
 
 	protected:
 	public:
@@ -326,13 +402,18 @@ class Event_Remote_Player_Died : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Remote_Player_Died( unsigned int id )
+		Event_Remote_Player_Died( unsigned int id, unsigned int killer )
 		{
-			mID = id;
+			mID			= id;
+			mKillerID	= killer;
 		}
 		unsigned int ID() const
 		{
 			return mID;
+		}
+		unsigned int KillerID() const
+		{
+			return mKillerID;
 		}
 };
 
@@ -544,6 +625,98 @@ class Event_Remote_Projectile_Fired : public IEvent
 		}
 };
 
+class Event_Player_Update_HP : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		float			mHP;
+	protected:
+	public:
+		static const EventType GUID;
+
+	//Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Player_Update_HP( unsigned int id, float hp )
+		{
+			mID = id;
+			mHP	= hp;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		} 
+		float HP()
+		{
+			return mHP;
+		}
+};
+
+class Event_Remote_Player_Update_HP : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		float			mHP;
+	protected:
+	public:
+		static const EventType GUID;
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Remote_Player_Update_HP( unsigned int id, float hp )
+		{
+			mID = id;
+			mHP	= hp;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+		float HP()
+		{
+			return mHP;
+		}
+};
+
+class Event_Connection_Failed : public IEvent
+{
+	// Member variables
+	private:
+		std::string mFailMessage;
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Connection_Failed( std::string failMessage )
+		{
+			mFailMessage = failMessage;
+		}
+		std::string FailMessage()
+		{
+			return mFailMessage;
+		}
+};
+
 class Event_Player_Melee_Hit : public IEvent
 {
 	// Member variables
@@ -634,5 +807,4 @@ class Event_Remote_Player_Melee_Hit : public IEvent
 		{
 			return mDirection;
 		}
-
 };

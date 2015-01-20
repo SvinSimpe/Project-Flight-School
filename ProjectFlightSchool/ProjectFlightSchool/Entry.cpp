@@ -1,25 +1,13 @@
 #include "Entry.h"
 
-bool Entry::MouseInbounds()
+bool Entry::Initialize( float x, float y, float width, float height )
 {
-	POINT mousePos = Input::GetInstance()->mCurrentMousePos;
-
-	if( mousePos.x >= mUpperLeft.x && mousePos.y >= mUpperLeft.y && 
-		mousePos.x <= mLowerRight.x && mousePos.y <= mLowerRight.y )
-	{
-		return true;
-	}
-	return false;
-}
-
-bool Entry::Initialize( UINT x, UINT y, UINT width, UINT height )
-{
-	mUpperLeft.x	= x;
-	mUpperLeft.y	= y;
-	mLowerRight.x	= x + width;
-	mLowerRight.y	= y + height;
-	mWidth			= (float)width;
-	mHeight			= (float)height;
+	mUpperLeft.x	= (UINT)x;
+	mUpperLeft.y	= (UINT)y;
+	mLowerRight.x	= (UINT)x + width;
+	mLowerRight.y	= (UINT)y + height;
+	mWidth			= width;
+	mHeight			= height;
 	return true;
 }
 

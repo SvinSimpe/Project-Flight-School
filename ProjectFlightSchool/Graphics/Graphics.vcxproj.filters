@@ -150,5 +150,8 @@
     <Text Include="..\Content\Effects\2dEffect.hlsl">
       <Filter>Effects</Filter>
     </Text>
+    <Text Include="..\Content\Effects\AnimatedInstanced3dEffect.hlsl">
+      <Filter>Effects</Filter>
+    </Text>
   </ItemGroup>
 </Project>

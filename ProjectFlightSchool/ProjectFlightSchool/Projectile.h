@@ -10,6 +10,7 @@
 class Projectile
 {
 	private:
+		AssetID			mProjectileAsset;
 		unsigned int	mID;
 		unsigned int	mPlayerID;
 		XMFLOAT3		mPosition;

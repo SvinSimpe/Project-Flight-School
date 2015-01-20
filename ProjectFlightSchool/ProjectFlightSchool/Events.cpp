@@ -40,7 +40,7 @@
 
 // To define a new event - you need a 32-bit GUID. 
 // In Visual Studio, go to Tools->Create GUID and grab the first bit.
-const EventType Event_Player_Moved::GUID( 0 );
+const EventType Event_Player_Update::GUID( 0 );
 const EventType Event_Remote_Player_Update::GUID( 1 );
 const EventType Event_Local_Player_Joined::GUID( 2 );
 const EventType Event_Remote_Player_Joined::GUID( 3 );
@@ -56,5 +56,9 @@ const EventType Event_Player_Spawned::GUID( 12 );
 const EventType Event_Remote_Player_Spawned::GUID( 13 );
 const EventType Event_Projectile_Fired::GUID( 14 );
 const EventType Event_Remote_Projectile_Fired::GUID( 15 );
-const EventType Event_Player_Melee_Hit::GUID( 16 );
-const EventType Event_Remote_Player_Melee_Hit::GUID( 17 );
+const EventType Event_Player_Update_HP::GUID( 16 );
+const EventType Event_Remote_Player_Update_HP::GUID( 17 );
+const EventType Event_Connection_Failed::GUID( 18 );
+const EventType Event_Player_Melee_Hit::GUID( 19 );
+const EventType Event_Remote_Player_Melee_Hit::GUID( 20 ); 
+

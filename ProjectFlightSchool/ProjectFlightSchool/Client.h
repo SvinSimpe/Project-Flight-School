@@ -37,7 +37,7 @@ class Client // The class used by clients to connect to the server
 	public:
 		bool	Connect();
 		bool	Run();
-		bool	Initialize( const char* port, const char* ip ); // Sets up and connects to the server
+		bool	Initialize( std::string ip, std::string port ); // Sets up and connects to the server
 		void	Release();
 				Client();
 		virtual	~Client();
@@ -48,18 +48,17 @@ void Client::HandlePkg( Package<T>* p )
 {
 	switch ( p->head.eventType )
 	{
-		case Net_Event::EV_PLAYER_MOVED:
+		case Net_Event::EV_PLAYER_UPDATE:
 		{
-			printf("Eventet från servern var Event_Player_Moved och den innehöll positionerna:\n" ); // %f, %f, %f och %f, %f, %f
-			EvPlayerMoved msg = (EvPlayerMoved&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Update( msg.id, msg.lowerBody, msg.upperBody, msg.direction ) );
+			EvPlayerUpdate msg = (EvPlayerUpdate&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Update( msg.id, msg.lowerBodyPosition, msg.lowerBodyDirection, msg.lowerBodyAnimation, msg.lowerBodyAnimationTime, msg.upperBodyPosition, msg.upperBodyDirection ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
 		case Net_Event::EV_PLAYER_JOINED:
 		{
-			EvPlayerID msg = (EvPlayerID&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Joined( msg.ID ) );
+			EvInitialize msg = (EvInitialize&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Joined( msg.ID, msg.team ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 			printf( "Remote player with ID: %d joined.\n", msg.ID );
 		}
@@ -74,10 +73,10 @@ void Client::HandlePkg( Package<T>* p )
 			break;
 		case Net_Event::YOUR_ID:
 		{
-			EvPlayerID msg	= (EvPlayerID&)p->body.content;
+			EvInitialize msg		= (EvInitialize&)p->body.content;
 			mID						= msg.ID;
 
-			IEventPtr E1( new Event_Local_Player_Joined( msg.ID ) );
+			IEventPtr E1( new Event_Local_Player_Joined( msg.ID, msg.team ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 
 			printf( "Your id is %d.\n", msg.ID );
@@ -85,8 +84,8 @@ void Client::HandlePkg( Package<T>* p )
 			break;
 		case Net_Event::EV_PLAYER_DIED:
 		{
-			EvPlayerID deadPlayer = (EvPlayerID&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Died( deadPlayer.ID ) );
+			EvKilled deadPlayer = (EvKilled&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Died( deadPlayer.ID, deadPlayer.killerID ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
@@ -111,7 +110,13 @@ void Client::HandlePkg( Package<T>* p )
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
-
+		case Net_Event::EV_UPDATE_HP:
+		{
+			EvPlayerID player = (EvPlayerID&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Update_HP( player.ID, (float)player.HP  ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
 		case Net_Event::EV_MELEE_HIT:
 		{
 			EvMeleeHit meleeHit = (EvMeleeHit&)p->body.content;

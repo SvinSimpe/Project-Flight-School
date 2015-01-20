@@ -13,7 +13,7 @@ class Game
 	private:
 		StateMachine*		mStateMachine;
 
-		std::thread			mNetworkThread;
+		std::thread			mClientThread;
 		std::thread			mServerThread;
 		Client*				mClient;
 		Server*				mServer;
@@ -24,8 +24,8 @@ class Game
 
 		// Class functions
 	private:
-		void ServerInit();
-		void ClientInit();
+		void ServerInit( std::string port );
+		void ClientInit( std::string ip, std::string port );
 		void EventListener( IEventPtr newEvent );
 
 	protected:

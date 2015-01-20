@@ -7,6 +7,8 @@
 #include "WeaponInfo.h"
 #include "RenderManager.h"
 
+#define VELOCITY_FALLOFF 2.0f
+
 struct LoadOut
 {
 	RangedInfo*	rangedWeapon;
@@ -29,22 +31,23 @@ class Player: public RemotePlayer
 {
 	private:
 		float		mWeaponCoolDown;
+		float		mMeleeCoolDown;
 		LoadOut*	mLoadOut;
 		bool		mIsMeleeing;
 
+		
 	private:
 		void		HandleInput( float deltaTime );
-		void		Move( XMFLOAT3 direction );
-		void		Die();
-		void		HandleSpawn( float deltaTime );
-		void		Spawn();
+		void		Move( float deltaTime );
 
 	public:
 		HRESULT		Update( float deltaTime );
-		HRESULT		Render( float deltaTime );
+		HRESULT		Render( float deltaTime, int position );
 
 		LoadOut*	GetLoadOut() const;
 		void		SetID( unsigned int id );
+		void		SetTeam( int team, AssetID teamColor );
+		void		SetColor( AssetID color );
 		XMFLOAT3	GetPlayerPosition() const;
 		void		SetPosition( XMVECTOR position );
 		void		Fire();

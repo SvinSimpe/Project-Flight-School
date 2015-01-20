@@ -19,10 +19,9 @@ class Entry
 	// Member functions
 	private:
 	protected:
-		bool			MouseInbounds(); // Function used to check if the mouse is within the bounds of the box
 	public:
 		virtual bool	Update( float deltaTime ) = 0;
-		virtual bool	Initialize( UINT x, UINT y, UINT width, UINT height );
+		virtual bool	Initialize( float x, float y, float width, float height );
 		void			Release();
 						Entry();
 		virtual			~Entry();

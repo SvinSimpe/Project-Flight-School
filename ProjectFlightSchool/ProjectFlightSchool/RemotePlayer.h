@@ -6,20 +6,28 @@
 #include "Events.h"
 #include "BoundingGeometry.h"
 #include "RenderManager.h"
+#include "Font.h"
+
+#define	PLAYER_ANIMATION_LEGS_WALK	0
+#define PLAYER_ANIMATION_LEGS_IDLE	1
+
+#define PLAYER_ANIMATION_COUNT 2
 
 struct UpperBody
 {
-	UINT		playerModel;
+	AssetID		playerModel;
 	XMFLOAT3	direction;
 	XMFLOAT3	position;
 };
 
 struct LowerBody
 {
-	UINT		playerModel;
+	AssetID		playerModel;
 	XMFLOAT3	direction;
 	XMFLOAT3	position;
-	float		speed;
+
+	AssetID		currentLowerAnimation;
+	float		currentLowerAnimationTime;
 };
 
 class RemotePlayer
@@ -28,8 +36,13 @@ class RemotePlayer
 	private:
 	protected:
 		unsigned int	mID;
+		int				mTeam;
 		UpperBody		mUpperBody;
 		LowerBody		mLowerBody;
+		AssetID			mRightArm;
+		AssetID			mLeftArm;
+		AssetID			mAnimations[PLAYER_ANIMATION_COUNT];	
+
 		BoundingBox*	mBoundingBox;
 		BoundingCircle*	mBoundingCircle;
 		float			mCurrentHp;
@@ -40,7 +53,17 @@ class RemotePlayer
 		AssetID			mGreenHPAsset;
 		AssetID			mRedHPAsset;
 		AssetID			mOrangeHPAsset;
+		AssetID			mTeamAsset;
+		AssetID			mColorIDAsset;
+		int				mNrOfDeaths;
+		int				mNrOfKills;
+		Font			mFont;
 
+		float		mMaxVelocity;
+		float		mCurrentVelocity;
+		float		mMaxAcceleration;
+		XMFLOAT3	mAcceleration;
+		XMFLOAT3	mVelocity;
 
 	public:
 
@@ -52,15 +75,24 @@ class RemotePlayer
 		void		LookAt( float rotation );
 
 	public:
-		void			RemoteInit( unsigned int id );
+		void			RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID );
+		void			BroadcastDeath( unsigned int shooter );
+
 		virtual void	Die();
+		void			HandleSpawn( float deltaTime );
+		void			Spawn();
+		void			TakeDamage( unsigned int damage, unsigned int shooter );
+		void			SetHP( float hp );
+		void			CountUpKills();
 		int				GetID() const;
+		int				GetTeam() const;
 		BoundingBox*	GetBoundingBox() const;
 		BoundingCircle*	GetBoundingCircle() const;
 		XMFLOAT3		GetPosition() const;
 		XMFLOAT3		GetDirection() const;
 		void			SetDirection( XMFLOAT3 direction );
-		virtual HRESULT	Render( float deltaTime );
+		void			AddImpuls( XMFLOAT3 impuls );
+		virtual HRESULT	Render( float deltaTime, int position );
 		virtual HRESULT	Initialize();
 		void			Release();
 						RemotePlayer();

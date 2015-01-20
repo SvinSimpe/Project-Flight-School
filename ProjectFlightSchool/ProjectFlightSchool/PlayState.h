@@ -7,8 +7,9 @@
 #include "RemotePlayer.h"
 #include "Font.h"
 
-#define MAX_REMOTE_PLAYERS		10
+#define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
+#define animTestNr 10
 #define MAX_PROJECTILES			1000
 
 class PlayState : public BaseState
@@ -19,18 +20,15 @@ class PlayState : public BaseState
 
 		AssetID	mTestAsset;
 
-		AssetID	mTestAnimation;
-		AssetID	mTestAnimationAnimation;
-
-		AssetID mTestRobot;
-		AssetID mTestRobotAni;
-
-		float mRobotTime;
+		AssetID	mTestAnimation[animTestNr];
+		AssetID	mTestAnimationAnimation[animTestNr];
 
 		AssetID mNest1Asset;
 		AssetID mStoneAssets[6];
 		AssetID mTree1Asset;
 		AssetID mTest2dAsset;
+		AssetID mTeams[2];
+		AssetID	mColorIDs[MAX_REMOTE_PLAYERS];
 
 		Map*		mWorldMap;
 
@@ -47,7 +45,7 @@ class PlayState : public BaseState
 		std::vector<RemotePlayer*>	mRemotePlayers;
 		Projectile**				mProjectiles;				// A collection of the games projectiles
 		int							mNrOfProjectilesFired;
-
+		int							mCurrentColor;
 		Font						mFont;
 	
 	protected:

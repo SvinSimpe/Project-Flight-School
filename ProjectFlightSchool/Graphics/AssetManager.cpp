@@ -579,7 +579,7 @@ HRESULT	AssetManager::LoadAnimated3dAsset( ID3D11Device* device, ID3D11DeviceCon
 		temp				= new Animated3dAsset();
 		temp->mAssetId		= assetId;
 		temp->mSkeletonId	= skeletonId;
-		temp->mFileName		= fileName;
+		temp->mFileName		= filePath + fileName;
 		temp->mVertexCount	= meshInfo.nrOfVertices;
 
 		D3D11_BUFFER_DESC bufferDesc;

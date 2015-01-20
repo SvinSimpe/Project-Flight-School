@@ -39,6 +39,8 @@ class RemotePlayer
 		int				mTeam;
 		UpperBody		mUpperBody;
 		LowerBody		mLowerBody;
+		AssetID			mRightArm;
+		AssetID			mLeftArm;
 		AssetID			mAnimations[PLAYER_ANIMATION_COUNT];	
 
 		BoundingBox*	mBoundingBox;

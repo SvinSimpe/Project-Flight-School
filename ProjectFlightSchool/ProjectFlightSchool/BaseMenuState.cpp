@@ -12,6 +12,14 @@ HRESULT BaseMenuState::Render()
 	return S_OK;
 }
 
+void BaseMenuState::OnExit()
+{
+	for( auto& it : mButtons )
+	{
+		it->SetExitCooldown();
+	}
+}
+
 HRESULT BaseMenuState::Initialize()
 {
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/Menu_Background.jpg", mBackground );
@@ -20,6 +28,12 @@ HRESULT BaseMenuState::Initialize()
 
 void BaseMenuState::Release()
 {
+	for( auto& it : mButtons )
+	{
+		it->Release();
+		SAFE_DELETE( it );
+	}
+	mButtons.clear();
 }
 
 BaseMenuState::BaseMenuState()

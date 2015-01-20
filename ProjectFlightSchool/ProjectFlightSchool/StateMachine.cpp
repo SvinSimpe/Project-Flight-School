@@ -4,7 +4,7 @@
 //									PRIVATE
 ///////////////////////////////////////////////////////////////////////////////
 
-void StateMachine::ChangeStateListener( IEventPtr newEvent )
+void StateMachine::EventListener( IEventPtr newEvent )
 {
 	if ( newEvent->GetEventType() == Event_Change_State::GUID )
 	{
@@ -14,6 +14,14 @@ void StateMachine::ChangeStateListener( IEventPtr newEvent )
 		{
 			ChangeState( eventID );
 		}
+	}
+	else if( newEvent->GetEventType() == Event_Connection_Failed::GUID )
+	{
+		std::shared_ptr<Event_Connection_Failed> data = std::static_pointer_cast<Event_Connection_Failed>( newEvent );
+		std::string msg = data->FailMessage();
+
+		std::cout << msg << std::endl;
+		mStates[mCurrentState]->Reset();
 	}
 }
 
@@ -81,7 +89,8 @@ HRESULT StateMachine::Initialize()
 		mStates[i]->Initialize();
 	}
 
-	EventManager::GetInstance()->AddListener( &StateMachine::ChangeStateListener, this, Event_Change_State::GUID );
+	EventManager::GetInstance()->AddListener( &StateMachine::EventListener, this, Event_Change_State::GUID );
+	EventManager::GetInstance()->AddListener( &StateMachine::EventListener, this, Event_Connection_Failed::GUID );
 
 	return S_OK;
 }

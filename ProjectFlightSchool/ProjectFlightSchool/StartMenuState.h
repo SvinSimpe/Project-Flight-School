@@ -15,9 +15,6 @@ class StartMenuState : public BaseMenuState
 			EXIT			= 3,
 			BUTTON_AMOUNT	= 4;
 
-		MenuButton		mButtons[BUTTON_AMOUNT];
-		Image			mTexts[BUTTON_AMOUNT];
-
 	protected:
 	public:
 

@@ -2,17 +2,17 @@
 
 void CreateMenuState::HandleInput()
 {
-	if( mButtons[SINGLEPLAYER].LeftMousePressed() )
+	if( mButtons.at(SINGLEPLAYER)->LeftMousePressed() )
 	{
 		IEventPtr E1( new Event_Change_State( SINGLE_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
-	else if( mButtons[MULTIPLAYER].LeftMousePressed() )
+	else if( mButtons.at(MULTIPLAYER)->LeftMousePressed() )
 	{
 		IEventPtr E1( new Event_Change_State( MULTI_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
-	else if( mButtons[BACK].LeftMousePressed() )
+	else if( mButtons.at(BACK)->LeftMousePressed() )
 	{
 		IEventPtr E1( new Event_Change_State( START_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
@@ -24,7 +24,7 @@ HRESULT CreateMenuState::Update( float deltaTime )
 	BaseMenuState::Update( deltaTime );
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
-		mButtons[i].Update( deltaTime );
+		mButtons.at(i)->Update( deltaTime );
 	}
 	return S_OK;
 }
@@ -34,8 +34,7 @@ HRESULT CreateMenuState::Render()
 	BaseMenuState::Render();
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
-		mButtons[i].Render();
-		mTexts[i].Render();
+		mButtons.at(i)->Render();
 	}
 
 	RenderManager::GetInstance()->Render();
@@ -48,10 +47,7 @@ void CreateMenuState::OnEnter()
 
 void CreateMenuState::OnExit()
 {
-	for( int i = 0; i < BUTTON_AMOUNT; i++ )
-	{
-		mButtons[i].SetExitCooldown();
-	}
+	BaseMenuState::OnExit();
 }
 
 void CreateMenuState::Reset()
@@ -62,6 +58,7 @@ HRESULT CreateMenuState::Initialize()
 {
 	BaseMenuState::Initialize();
 	mStateType = CREATE_MENU_STATE;
+	mButtons.reserve( BUTTON_AMOUNT );
 
 	std::string texts[] = { "SinglePlayer", "MultiPlayer", "Back" };
 
@@ -71,15 +68,14 @@ HRESULT CreateMenuState::Initialize()
 	float h	= 200.0f;
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
-		mButtons[i].Initialize( (UINT)x, (UINT)y, (UINT)w, (UINT)h );
-
+		mButtons.push_back( new Button() );
 		if( texts[i] == "Back" )
 		{
-			mTexts[i].Initialize( "../Content/Assets/Textures/Menu/Back.png", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
+			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Back.png", x, y, w, h );
 		}
 		else
 		{
-			mTexts[i].Initialize( "../Content/Assets/Textures/Menu/Create_Menu_Text/" + texts[i] + ".png", (UINT)x, (UINT)y, (UINT)w, (UINT)h );
+			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Create_Menu_Text/" + texts[i] + ".png", x, y, w, h );
 		}
 		x += 200;
 	}
@@ -89,10 +85,6 @@ HRESULT CreateMenuState::Initialize()
 void CreateMenuState::Release()
 {
 	BaseMenuState::Release();
-	for( int i = 0; i < BUTTON_AMOUNT; i++ )
-	{
-		mButtons[i].SetExitCooldown();
-	}
 }
 
 CreateMenuState::CreateMenuState() : BaseMenuState()

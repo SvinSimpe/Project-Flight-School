@@ -98,6 +98,25 @@ void Client::EventListener( IEventPtr newEvent )
 			}
 		}
 	}
+
+	else if ( newEvent->GetEventType() == Event_Player_Melee_Hit::GUID )
+	{
+		std::shared_ptr<Event_Player_Melee_Hit> data = std::static_pointer_cast<Event_Player_Melee_Hit>( newEvent );
+		if ( mServerSocket != INVALID_SOCKET )
+		{
+			EvMeleeHit msg;
+			msg.ID			= data->ID();
+			msg.damage		= data->Damage();
+			msg.knockBack	= data->KnockBack();
+			msg.direction	= data->Direction();
+			
+
+			if ( mServerSocket != INVALID_SOCKET )
+			{
+				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_MELEE_HIT, msg );
+			}
+		}
+	}
 }
 
 bool Client::Connect()
@@ -159,6 +178,7 @@ bool Client::Run()
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Damaged::GUID );
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Spawned::GUID );
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Projectile_Fired::GUID );
+	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Melee_Hit::GUID );
 	std::thread listen( &Client::ReceiveLoop, this );
 
 	mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_JOINED, 0 ); // The client "announces" itself to the server, and by extension, the other clients

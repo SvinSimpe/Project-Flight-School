@@ -543,3 +543,96 @@ class Event_Remote_Projectile_Fired : public IEvent
 			return mDirection;
 		}
 };
+
+class Event_Player_Melee_Hit : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		unsigned int	mDamage;
+		float			mKnockBack;
+		XMFLOAT3		mDirection;
+
+	protected:
+	public:
+		static const EventType GUID;
+	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Player_Melee_Hit( unsigned int id, unsigned int damage, float knockBack, XMFLOAT3 direction )
+		{
+			mID				= id;
+			mDamage			= damage;
+			mKnockBack		= knockBack;
+			mDirection		= direction;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		} 
+		unsigned int Damage() const
+		{
+			return mDamage;
+		}
+		float KnockBack() const
+		{
+			return mKnockBack;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
+		}
+};
+
+class Event_Remote_Player_Melee_Hit : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		unsigned int	mDamage;
+		float			mKnockBack;
+		XMFLOAT3		mDirection;
+
+	protected:
+	public:
+		static const EventType GUID;
+	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Remote_Player_Melee_Hit( unsigned int id, unsigned int damage, float knockBack, XMFLOAT3 direction )
+		{
+			mID				= id;
+			mDamage			= damage;
+			mKnockBack		= knockBack;
+			mDirection		= direction;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+		unsigned int Damage() const
+		{
+			return mDamage;
+		}
+		float KnockBack() const
+		{
+			return mKnockBack;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
+		}
+
+};

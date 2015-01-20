@@ -58,6 +58,8 @@ class RemotePlayer
 		BoundingBox*	GetBoundingBox() const;
 		BoundingCircle*	GetBoundingCircle() const;
 		XMFLOAT3		GetPosition() const;
+		XMFLOAT3		GetDirection() const;
+		void			SetDirection( XMFLOAT3 direction );
 		virtual HRESULT	Render( float deltaTime );
 		virtual HRESULT	Initialize();
 		void			Release();

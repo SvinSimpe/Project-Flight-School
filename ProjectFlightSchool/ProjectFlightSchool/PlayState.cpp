@@ -98,12 +98,25 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Remote_Projectile_Fired> data = std::static_pointer_cast<Event_Remote_Projectile_Fired>(newEvent);
 		FireProjectile( data->ID(), data->ProjectileID(), data->BodyPos(), data->Direction() );
 	}
+
+	else if ( newEvent->GetEventType() == Event_Remote_Player_Melee_Hit::GUID )
+	{
+		// Fire projectile
+		std::shared_ptr<Event_Remote_Player_Melee_Hit> data = std::static_pointer_cast<Event_Remote_Player_Melee_Hit>(newEvent);
+		HandleRemoteMeleeHit( data->ID(), data->Damage(), data->KnockBack(), data->Direction() );
+	}
 }
 
 // Tell server that local  player has taken damage
 void PlayState::BroadcastDamage( unsigned int playerID, unsigned int projectileID )
 {
-	IEventPtr dmgEv(new Event_Player_Damaged( playerID, projectileID ) );
+	IEventPtr dmgEv( new Event_Player_Damaged( playerID, projectileID ) );
+	EventManager::GetInstance()->QueueEvent( dmgEv );
+}
+
+void PlayState::BroadcastMeleeDamage( unsigned playerID, unsigned int damage, float knockBack, XMFLOAT3 direction )
+{
+	IEventPtr dmgEv( new Event_Player_Melee_Hit( playerID, damage, knockBack, direction ) );
 	EventManager::GetInstance()->QueueEvent( dmgEv );
 }
 
@@ -228,7 +241,11 @@ void PlayState::CheckMeeleCollision()
 			XMStoreFloat( &angleRemoteToAim, XMVector4AngleBetweenVectors( playerToCenter, meeleRadiusVector ) );
 
 			if( angleRemoteToAim <= halfRadian )
-				mRemotePlayers.at(i)->TakeDamage( 1.0f );//HIT, broadcast damage with ID of remotePlayer
+			{
+				XMFLOAT3 direction = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+				XMStoreFloat3( &direction, playerToRemote );
+				BroadcastMeleeDamage( mRemotePlayers.at(i)->GetID(), mPlayer->GetLoadOut()->meleeWeapon->damage, mPlayer->GetLoadOut()->meleeWeapon->knockBack, direction );
+			}
 		}
 	}
 }
@@ -240,6 +257,24 @@ void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int project
 		if( mProjectiles[i]->GetID() == projectileID )
 			mProjectiles[i]->Reset();
 
+	}
+}
+
+void PlayState::HandleRemoteMeleeHit( unsigned int id, unsigned int damage, float knockBack, XMFLOAT3 direction )
+{
+	if( id == mPlayer->GetID() )
+	{
+		mPlayer->TakeDamage( damage );
+		mPlayer->SetDirection( direction );
+	}
+
+	for ( size_t i = 0; i < mRemotePlayers.size(); i++ )
+	{
+		if( mRemotePlayers.at(i)->GetID() == id )
+		{
+			mRemotePlayers.at(i)->TakeDamage( damage );
+			mRemotePlayers.at(i)->SetDirection( direction );
+		}
 	}
 }
 
@@ -385,6 +420,7 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Damaged::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Spawned::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Projectile_Fired::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Melee_Hit::GUID );
 
 	mFont.Initialize( "../Content/Assets/Fonts/mv_boli_26_red/" );
 

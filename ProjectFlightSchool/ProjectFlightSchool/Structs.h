@@ -29,4 +29,12 @@ struct EvProjectileFired
 	DirectX::XMFLOAT3 position;
 	DirectX::XMFLOAT3 direction;
 };
+
+struct EvMeleeHit
+{
+	unsigned int			ID;
+	unsigned int			damage;
+	float					knockBack;
+	DirectX::XMFLOAT3		direction;
+};
 #endif

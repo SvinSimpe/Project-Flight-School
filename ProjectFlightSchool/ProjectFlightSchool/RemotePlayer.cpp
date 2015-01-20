@@ -116,6 +116,17 @@ XMFLOAT3 RemotePlayer::GetPosition() const
 	return mLowerBody.position;
 }
 
+XMFLOAT3 RemotePlayer::GetDirection() const
+{
+	return mLowerBody.direction;
+}
+
+void RemotePlayer::SetDirection( XMFLOAT3 direction )
+{
+	XMStoreFloat3( &mLowerBody.direction, ( XMLoadFloat3( &mLowerBody.direction ) += XMLoadFloat3( &direction ) ) );
+	XMStoreFloat3( &mLowerBody.position, XMLoadFloat3( &mLowerBody.direction ) );
+}
+
 RemotePlayer::RemotePlayer()
 {
 	mID						= 0;

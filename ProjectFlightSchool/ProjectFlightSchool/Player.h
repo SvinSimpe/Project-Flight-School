@@ -31,13 +31,10 @@ class Player: public RemotePlayer
 {
 	private:
 		float		mWeaponCoolDown;
-		float		mMaxVelocity;
-		float		mCurrentVelocity;
-		float		mMaxAcceleration;
-		XMFLOAT3	mAcceleration;
-		XMFLOAT3	mVelocity;
-
+		float		mMeleeCoolDown;
 		LoadOut*	mLoadOut;
+		bool		mIsMeleeing;
+
 		
 	private:
 		void		HandleInput( float deltaTime );
@@ -47,6 +44,7 @@ class Player: public RemotePlayer
 		HRESULT		Update( float deltaTime );
 		HRESULT		Render( float deltaTime, int position );
 
+		LoadOut*	GetLoadOut() const;
 		void		SetID( unsigned int id );
 		void		SetTeam( int team, AssetID teamColor );
 		void		SetColor( AssetID color );
@@ -54,6 +52,8 @@ class Player: public RemotePlayer
 		void		SetPosition( XMVECTOR position );
 		void		Fire();
 		XMFLOAT3	GetUpperBodyDirection() const;
+		bool		GetIsMeleeing()	const;
+		void		SetIsMeleeing( bool isMeleeing );
 			
 		HRESULT		Initialize();
 		void		Release();

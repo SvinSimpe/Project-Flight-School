@@ -287,6 +287,16 @@ HRESULT PlayState::Update( float deltaTime )
 	UpdateProjectiles( deltaTime );
 	mAnimationTime	+= deltaTime * 0.2f;
 
+	mTurret.Update( deltaTime );
+	if( mTurret.GetBoundingCircle()->Intersect( mPlayer->GetBoundingCircle() ) )
+	{
+		mTurret.SetTarget( mPlayer );
+	}
+	else
+	{
+		mTurret.SetTarget( nullptr );
+	}
+
 	return S_OK;
 }
 
@@ -321,6 +331,8 @@ HRESULT PlayState::Render()
 	RenderProjectiles();
 
 	//mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
+
+	mTurret.Render();
 
 	RenderManager::GetInstance()->Render();
 
@@ -407,6 +419,7 @@ HRESULT PlayState::Initialize()
 
 	//TEST
 	mAllPlayers.push_back( mPlayer );
+	mTurret.Initialize();
 
 	return S_OK;
 }
@@ -426,6 +439,7 @@ void PlayState::Release()
 	}
 
 	mRemotePlayers.clear();
+	mTurret.Release();
 
 	for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
 		SAFE_DELETE( mProjectiles[i] );

@@ -14,6 +14,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 			mPlayer->SetID( data->ID() );
 			mPlayer->SetTeam( data->Team(), mTeams[data->Team()] );
 			mPlayer->SetColor( mColorIDs[mCurrentColor] );
+			mTurret.SetTeamID( data->Team() );
 			mCurrentColor++;
 		}
 	}
@@ -234,6 +235,11 @@ void PlayState::CheckMeeleCollision()
 	XMVECTOR meeleLengthVector = ( XMLoadFloat3( &mPlayer->GetPosition() ) -  ( aimingDirection * 2 ) );
 }
 
+void PlayState::CheckTurretTarget()
+{
+	mTurret.PickTarget( mAllPlayers );
+}
+
 void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID )
 {
 	unsigned int shooter = 0;
@@ -276,6 +282,7 @@ HRESULT PlayState::Update( float deltaTime )
 	{
 		CheckPlayerCollision();
 		CheckProjectileCollision();
+		CheckTurretTarget();
 		mFrameCounter = 0;
 	}
 	else
@@ -288,14 +295,6 @@ HRESULT PlayState::Update( float deltaTime )
 	mAnimationTime	+= deltaTime * 0.2f;
 
 	mTurret.Update( deltaTime );
-	if( mTurret.GetBoundingCircle()->Intersect( mPlayer->GetBoundingCircle() ) )
-	{
-		mTurret.SetTarget( mPlayer );
-	}
-	else
-	{
-		mTurret.SetTarget( nullptr );
-	}
 
 	return S_OK;
 }

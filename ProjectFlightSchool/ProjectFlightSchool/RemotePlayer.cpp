@@ -95,6 +95,11 @@ void RemotePlayer::CountUpKills()
 	mNrOfKills++;
 }
 
+float RemotePlayer::GetHP() const
+{
+	return mCurrentHp;
+}
+
 int RemotePlayer::GetID() const
 {
 	return mID;

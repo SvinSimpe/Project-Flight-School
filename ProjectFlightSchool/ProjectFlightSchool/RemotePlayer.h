@@ -78,6 +78,7 @@ class RemotePlayer
 		void			TakeDamage( unsigned int damage, unsigned int shooter );
 		void			SetHP( float hp );
 		void			CountUpKills();
+		float			GetHP() const;
 		int				GetID() const;
 		int				GetTeam() const;
 		BoundingBox*	GetBoundingBox() const;

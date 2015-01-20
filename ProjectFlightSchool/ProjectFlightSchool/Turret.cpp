@@ -2,16 +2,16 @@
 
 void Turret::Fire()
 {
-	IEventPtr E1( new Event_Projectile_Fired( mID, mUpperBody->pos, mUpperBody->dir ));
+	IEventPtr E1( new Event_Projectile_Fired( -1, mUpperBody->pos, mUpperBody->dir ));
 	EventManager::GetInstance()->QueueEvent( E1 );
 	mShootTimer = SHOOTCOOLDOWN;
 }
 
 void Turret::TrackTarget()
 {
-	if( mTarget )
+	if( mTarget && mTeamID != -1 )
 	{
-		mRotating = false;
+		mTracking = true;
 
 		XMVECTOR turretToTargetVec	= ( XMLoadFloat3( &mTarget->GetBoundingCircle()->center ) - XMLoadFloat3( &mBoundingCircle->center ) );
 		turretToTargetVec			= XMVector3Normalize( turretToTargetVec );
@@ -28,7 +28,7 @@ void Turret::TrackTarget()
 	}
 	else
 	{
-		mRotating = true;
+		mTracking = false;
 
 		mUpperBody->dir.x = 0.0f;
 		mUpperBody->dir.z = 0.0f;
@@ -36,21 +36,40 @@ void Turret::TrackTarget()
 	mLowerBody->dir = mUpperBody->dir;
 }
 
-BoundingCircle* Turret::GetBoundingCircle() const
+void Turret::SetTeamID( int team )
 {
-	return mBoundingCircle;
+	mTeamID = team;
 }
 
-void Turret::SetTarget( RemotePlayer* obj )
+void Turret::PickTarget( std::vector<RemotePlayer*> targets )
 {
-	mTarget = obj;
+	RemotePlayer* target = nullptr;
+	if( !mTarget )
+	{
+		target = targets.at(0);
+		for( UINT i = 1; i < targets.size() - 1; i++ )
+		{
+			if( mBoundingCircle->Intersect( targets.at(i)->GetBoundingCircle() ) )
+			{
+				if( targets.at(i)->GetHP() < targets.at(i-1)->GetHP() )
+				{
+					target = targets.at(i);
+				}
+			}
+		}
+		if( target == targets.at(0) && !mBoundingCircle->Intersect( targets.at(0)->GetBoundingCircle() ) )
+		{
+			target = nullptr;
+		}
+	}
+	mTarget = target;
 }
 
 HRESULT Turret::Update( float deltaTime )
 {
 	mShootTimer -= deltaTime;
 
-	if( mRotating  )
+	if( !mTracking  )
 	{
 		mUpperBody->dir.y += sin( deltaTime );
 	}
@@ -71,7 +90,7 @@ void Turret::Render()
 
 void Turret::Initialize()
 {
-	mID						= -1;
+	mTeamID					= -1;
 	mUpperBody				= new Upper();
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Turret/", "turret.pfs", mUpperBody->model );
 	mUpperBody->pos			= XMFLOAT3( 0.0f, 1.0f, 0.0f );
@@ -101,14 +120,14 @@ void Turret::Release()
 
 Turret::Turret()
 {
-	mID				= 0;
+	mTeamID			= -1;
 	mUpperBody		= nullptr;
 	mLowerBody		= nullptr;
 
 	mRange			= 0.0f;
 	mLoadOut		= nullptr;
 	mShootTimer		= 0.0f;
-	mRotating		= true;
+	mTracking		= false;
 
 	mBoundingCircle	= nullptr;
 	mTarget			= nullptr; // Is never initialized

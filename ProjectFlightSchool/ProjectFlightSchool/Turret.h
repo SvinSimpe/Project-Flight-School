@@ -24,13 +24,13 @@ class Turret
 {
 	// Variables
 	private:
-		int					mID;
+		int					mTeamID;
 		Upper*				mUpperBody;
 		Lower*				mLowerBody;
 		float				mRange;
 		LoadOut*			mLoadOut;
 		float				mShootTimer;
-		bool				mRotating;
+		bool				mTracking;
 		BoundingCircle*		mBoundingCircle;
 		RemotePlayer*		mTarget;
 	protected:
@@ -42,8 +42,8 @@ class Turret
 		void				TrackTarget();
 	protected:
 	public:
-		BoundingCircle*		GetBoundingCircle() const;
-		void				SetTarget( RemotePlayer* obj );
+		void				SetTeamID( int team );
+		void				PickTarget( std::vector<RemotePlayer*> targets );
 		HRESULT				Update( float deltaTime );
 		void				Render();
 		void				Initialize();

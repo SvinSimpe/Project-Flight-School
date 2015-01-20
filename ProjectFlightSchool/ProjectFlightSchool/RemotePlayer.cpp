@@ -113,6 +113,12 @@ HRESULT RemotePlayer::Render( float deltaTime, int position )
 	float radians = atan2f( mLowerBody.direction.z, mLowerBody.direction.x );
 	RenderManager::GetInstance()->AddAnim3dToList( mLowerBody.playerModel, mAnimations[mLowerBody.currentLowerAnimation], &mLowerBody.currentLowerAnimationTime, mLowerBody.position, XMFLOAT3( 0.0f, -radians, 0.0f ) );
 
+	XMFLOAT4X4 upperMatrix	= Graphics::GetInstance()->GetRootMatrix( mLowerBody.playerModel, mAnimations[mLowerBody.currentLowerAnimation], mLowerBody.currentLowerAnimationTime );
+	XMFLOAT3 offsetPos		= XMFLOAT3( upperMatrix._41 + mLowerBody.position.x, upperMatrix._42, upperMatrix._43 + mLowerBody.position.z );
+
+	RenderManager::GetInstance()->AddObject3dToList( mLeftArm, offsetPos, mUpperBody.direction );
+	RenderManager::GetInstance()->AddObject3dToList( mRightArm, offsetPos, mUpperBody.direction );
+
 	DirectX::XMFLOAT3 x;
 	DirectX::XMFLOAT3 y;
 
@@ -225,15 +231,27 @@ HRESULT RemotePlayer::Initialize()
 	/////////////////////////////////////
 	AssetID skeleton = 0;
 	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Robot/", "robotUpperbody.pfs", mUpperBody.playerModel ) ) )
-		OutputDebugString( L"\nERROR\n" );
+		OutputDebugString( L"\nERROR loading player model\n" );
 
-	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Robot/Animations/", "robotLegs.Skel", skeleton ); //Skeleton for legs
+	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Robot/Animations/", "robotLegs.Skel", skeleton ) ); //Skeleton for legs
+		OutputDebugString( L"\nERROR loading player model\n" );
 
 	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Robot/", "robotLegs.apfs", skeleton, mLowerBody.playerModel ) ) )
-		OutputDebugString( L"\nERROR\n" );
-	
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Robot/Animations/", "robotLegsWalk.PaMan", mAnimations[PLAYER_ANIMATION_LEGS_WALK] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Robot/Animations/", "robotLegsIdle.PaMan", mAnimations[PLAYER_ANIMATION_LEGS_IDLE] );
+		OutputDebugString( L"\nERROR loading player model\n" );
+
+	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Robot/Weapons/", "Claymore.pfs", mLeftArm ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+
+	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Robot/Weapons/", "minigunStatic.pfs", mRightArm ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+
+	////////////////
+	//Animations
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Robot/Animations/", "robotLegsWalk.PaMan", mAnimations[PLAYER_ANIMATION_LEGS_WALK] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Robot/Animations/", "robotLegsIdle.PaMan", mAnimations[PLAYER_ANIMATION_LEGS_IDLE] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
 
 	//////////////////////////////////////
 	//			HUD ELEMENTS

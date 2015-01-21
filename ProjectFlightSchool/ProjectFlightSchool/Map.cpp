@@ -48,7 +48,7 @@ HRESULT Map::Initialize( UINT mapDim )
 {
 	//Map size is mapDim* mapDim
 	mMapDim = mapDim;
-	MapNodeManager::GetInstance()->Initialize( "../Content/Assets/Nodes/test4.lp"  );
+	MapNodeManager::GetInstance()->Initialize( "../Content/Assets/Nodes/test7.lp"  );
 
 	MapNodePlacer::GetInstance()->Initialize( this );
 	MapNodePlacer::GetInstance()->BuildMap( mNodes );
@@ -74,11 +74,8 @@ HRESULT Map::Initialize( UINT mapDim )
 }
 void Map::Release()
 {
-	for( int i = 0; i < SECTION_DIM * SECTION_DIM; i++ )
-	{
-		//mMapSections[i].Release();
-	}
-	//delete[] mMapSections;
+	SAFE_DELETE( mMapSection );
+	MapNodePlacer::GetInstance()->Release();
 }
 Map::Map()
 {

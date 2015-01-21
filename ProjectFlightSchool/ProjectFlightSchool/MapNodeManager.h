@@ -19,6 +19,7 @@ class MapNodeManager
 
 	private:
 		HRESULT createNodes( char* filePath,  int nrOfNodes );
+		void writeToLog( const std::string &test );
 	protected:
 	public:
 		static		MapNodeManager* instance;

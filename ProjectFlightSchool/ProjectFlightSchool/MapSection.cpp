@@ -102,6 +102,14 @@ int MapSection::GetSections()
 }
 void MapSection::Release()
 {
+	for( int i = 0;i < 4; i++ )
+	{
+		if( mChildren[i]!= nullptr )
+		{
+			mChildren[i]->Release();
+			delete mChildren[i];
+		}
+	}
 }
 MapSection::MapSection()
 {

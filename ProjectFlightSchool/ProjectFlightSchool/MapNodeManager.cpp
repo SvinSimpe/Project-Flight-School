@@ -1,7 +1,15 @@
 #include "MapNodeManager.h"
+#include <fstream>
 
 MapNodeManager* MapNodeManager::instance = nullptr;
 
+ 
+void MapNodeManager::writeToLog( const std::string &text )
+{
+    std::ofstream log_file(
+        "mapNodeLog.txt", std::ios_base::out | std::ios_base::app );
+    log_file << text << std::endl;
+}
 HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 {
 	//char* contentDir	= "../Content/Assets/Nodes/";
@@ -61,11 +69,13 @@ HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 			Graphics::GetInstance()->LoadStatic3dAsset( "", gridMat.name, assetID );
 			ob.Initialize( obInfo, assetID );
 			staticObjects.push_back( ob );
-			printf("GameObject allocated with:\nPos: (%f,%f,%f)\nRotation:  (%f,%f,%f)\nScale:  (%f,%f,%f)\nAssetID: %d\n\n\n",
+			char log[200];
+			sprintf_s(log,"GameObject allocated with:\nPos: (%f,%f,%f)\nRotation:  (%f,%f,%f)\nScale:  (%f,%f,%f)\nAssetID: %d\n Name: %s\n\n\n",
 				ob.GetPos().x,ob.GetPos().y, ob.GetPos().z,
 				ob.GetRotation().x,ob.GetRotation().y, ob.GetRotation().z,
 				ob.GetScale().x, ob.GetScale().y, ob.GetScale().z,
-				ob.GetAssetID());
+				ob.GetAssetID(), gridMat.name);
+			writeToLog(log);
 		}
 		inFile.close();
 

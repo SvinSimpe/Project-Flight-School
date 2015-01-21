@@ -101,7 +101,7 @@
     <ClCompile Include="JoinMenuState.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="MapSection.cpp" />
-    <ClCompile Include="MenuButton.cpp" />
+    <ClCompile Include="Button.cpp" />
     <ClCompile Include="MultiplayerMenuState.cpp" />
     <ClCompile Include="OptionsMenuState.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -114,6 +114,7 @@
     <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="Turret.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Graphics\Font.h" />
@@ -129,7 +130,7 @@
     <ClInclude Include="Map.h" />
     <ClInclude Include="MapConstants.h" />
     <ClInclude Include="MapSection.h" />
-    <ClInclude Include="MenuButton.h" />
+    <ClInclude Include="Button.h" />
     <ClInclude Include="MultiplayerMenuState.h" />
     <ClInclude Include="OptionsMenuState.h" />
     <ClInclude Include="Player.h" />
@@ -152,6 +153,7 @@
     <ClCompile Include="System.cpp" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="Turret.h" />
     <ClInclude Include="WeaponInfo.h" />
   </ItemGroup>
   <ItemGroup>

@@ -4,6 +4,7 @@ void Font::WriteText( std::string toWrite, float x, float y, float scale )
 {
 	float xOffset = 0.0f;
 	float yOffset = 0.0f;
+	float yLower  = 20.0f * scale;
 	for( unsigned int i = 0; i < toWrite.size(); i++ )
 	{
 		char l = toWrite[i];
@@ -31,8 +32,15 @@ void Font::WriteText( std::string toWrite, float x, float y, float scale )
 		{
 			l = '~';
 		}
-		
-		RenderManager::GetInstance()->AddObject2dToList( mCharacters[l].asset, DirectX::XMFLOAT2( (x + xOffset), (y + yOffset) ), DirectX::XMFLOAT2( (mCharacters[l].w * scale), (mCharacters[l].h * scale) ) );
+
+		if( l == 'g' || l == 'j' || l == 'y' || l == 'q' || l == 'p')
+		{
+			RenderManager::GetInstance()->AddObject2dToList( mCharacters[l].asset, DirectX::XMFLOAT2( (x + xOffset), (y + yLower + yOffset) ), DirectX::XMFLOAT2( (mCharacters[l].w * scale), (mCharacters[l].h * scale) ) );
+		}
+		else
+		{
+			RenderManager::GetInstance()->AddObject2dToList( mCharacters[l].asset, DirectX::XMFLOAT2( (x + xOffset), (y + yOffset) ), DirectX::XMFLOAT2( (mCharacters[l].w * scale), (mCharacters[l].h * scale) ) );
+		}
 	
 		xOffset += ( mCharacters[l].w + X_OFFSET ) * scale;
 	}

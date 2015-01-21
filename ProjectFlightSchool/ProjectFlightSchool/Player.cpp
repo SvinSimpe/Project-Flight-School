@@ -224,11 +224,6 @@ HRESULT Player::Render( float deltaTime, int position )
 	return S_OK;
 }
 
-LoadOut* Player::GetLoadOut() const
-{
-	return mLoadOut;
-}
-
 void Player::SetID( unsigned int id )
 {
 	mID = id;
@@ -289,20 +284,11 @@ HRESULT Player::Initialize()
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
-
-	//Weapon Initialization
-	mLoadOut				= new LoadOut();
-	mLoadOut->rangedWeapon	= new RangedInfo( "Machine Gun", 5.0f, 1, 5.0f, 2, 0 );
-	mLoadOut->meleeWeapon	= new MeleeInfo( "Sword", 4.0f, 3, 2.0f, 7, 2.0f, new BoundingCircle( 2.0f ) );
-
 	return S_OK;
 }
 
 void Player::Release()
 {
-	mLoadOut->Release();
-	SAFE_DELETE( mLoadOut );
-	
 	RemotePlayer::Release();
 }
 
@@ -311,7 +297,6 @@ Player::Player()
 {
 	mWeaponCoolDown	= 0.0f;
 	mMeleeCoolDown	= 0.0f;
-	mLoadOut		= nullptr;
 	mIsMeleeing		= false;
 }
 

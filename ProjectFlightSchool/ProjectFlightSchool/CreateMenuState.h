@@ -12,9 +12,6 @@ class CreateMenuState : public BaseMenuState
 			BACK			= 2,
 			BUTTON_AMOUNT	= 3;
 
-		MenuButton	mButtons[BUTTON_AMOUNT];
-		Image		mTexts[BUTTON_AMOUNT];
-
 	protected:
 	public:
 
@@ -29,7 +26,7 @@ class CreateMenuState : public BaseMenuState
 		void	Reset();
 		HRESULT Initialize();
 		void	Release();
-		CreateMenuState();
-		~CreateMenuState();
+				CreateMenuState();
+		virtual ~CreateMenuState();
 };
 #endif

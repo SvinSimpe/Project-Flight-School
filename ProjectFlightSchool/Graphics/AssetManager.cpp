@@ -971,7 +971,8 @@ void AssetManager::Release()
 		//	( (AnimationAsset*)mAssetContainer[i] )->Release();
 		//else if( typeid( *mAssetContainer[i] ) == typeid( Static2dAsset ) )
 		//	( (Static2dAsset*)mAssetContainer[i] )->Release();
-		SAFE_DELETE( mAssetContainer[i] );
+
+		//SAFE_DELETE( mAssetContainer[i] );
 	}
 	mAssetContainer.clear();
 }

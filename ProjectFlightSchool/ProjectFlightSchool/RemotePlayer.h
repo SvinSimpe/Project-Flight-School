@@ -39,6 +39,8 @@ class RemotePlayer
 		int				mTeam;
 		UpperBody		mUpperBody;
 		LowerBody		mLowerBody;
+		AssetID			mRightArm;
+		AssetID			mLeftArm;
 		AssetID			mAnimations[PLAYER_ANIMATION_COUNT];	
 
 		BoundingBox*	mBoundingBox;
@@ -57,14 +59,20 @@ class RemotePlayer
 		int				mNrOfKills;
 		Font			mFont;
 
+		float		mMaxVelocity;
+		float		mCurrentVelocity;
+		float		mMaxAcceleration;
+		XMFLOAT3	mAcceleration;
+		XMFLOAT3	mVelocity;
+
 	public:
 
 	// Member functions
 	private:
-		void		RemoteUpdate( IEventPtr newEvent );
+		void			RemoteUpdate( IEventPtr newEvent );
 
 	protected:
-		void		LookAt( float rotation );
+		void			LookAt( float rotation );
 
 	public:
 		void			RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID );
@@ -81,11 +89,23 @@ class RemotePlayer
 		BoundingBox*	GetBoundingBox() const;
 		BoundingCircle*	GetBoundingCircle() const;
 		XMFLOAT3		GetPosition() const;
+		XMFLOAT3		GetDirection() const;
+		void			SetDirection( XMFLOAT3 direction );
+		void			AddImpuls( XMFLOAT3 impuls );
 		virtual HRESULT	Render( float deltaTime, int position );
 		virtual HRESULT	Initialize();
 		void			Release();
 						RemotePlayer();
 		virtual			~RemotePlayer();
+
+
+
+
+
+
+
+		////TEST
+		void TakeDamage( float damage );
 };
 
 #endif

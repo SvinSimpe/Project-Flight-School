@@ -19,10 +19,8 @@ HRESULT Projectile::Update( float deltaTime )
 
 HRESULT Projectile::Render( )
 {
-
-	mRotation += 0.10f;
 	//Graphics::GetInstance()->RenderStatic3dAsset( 1, mPosition.x, mPosition.y, mPosition.z );
-	RenderManager::GetInstance()->AddObject3dToList( 1, mPosition, XMFLOAT3( 0.0f, mRotation, 0.0f ) );
+	RenderManager::GetInstance()->AddObject3dToList( mProjectileAsset, mPosition, XMFLOAT3( 0.0f, mRotation, 0.0f ) );
 
 	return S_OK;
 }
@@ -33,9 +31,13 @@ void Projectile::SetDirection( unsigned int playerID, unsigned int id, XMFLOAT3 
 	mID				= id;
 	mPlayerID		= playerID;
 	mPosition		= startPosition;
-	mDirection.x	= cosf( direction.y );
+
+	float radians = atan2f( direction.z, direction.x );
+
+	mDirection.x	= cosf( -radians );
 	mDirection.y	= 0.0f;
-	mDirection.z	= -sinf( direction.y );
+	mDirection.z	= -sinf( -radians );
+	mRotation		= -atan2f( mDirection.z, mDirection.x );
 	mIsActive		= true;
 }
 
@@ -79,6 +81,7 @@ HRESULT Projectile::Initialize()
 	mSpeed		= 20.0f;
 	mLifeTime	= 4.0f;
 	mBoundingCircle = new BoundingCircle( 0.5f );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bullet/", "bullet.pfs", mProjectileAsset );
 
 	return S_OK;
 }

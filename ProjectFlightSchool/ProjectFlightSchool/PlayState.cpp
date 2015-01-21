@@ -309,7 +309,7 @@ void PlayState::HandleRemoteMeleeHit( unsigned int id, float damage, float knock
 		direction.x *= knockBack;
 		direction.z *= knockBack;
 		mPlayer->AddImpuls( direction );
-		mPlayer->TakeDamage( damage );
+		mPlayer->TakeDamage( (float)damage );
 	}
 
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++ )
@@ -319,7 +319,7 @@ void PlayState::HandleRemoteMeleeHit( unsigned int id, float damage, float knock
 			direction.x *= ( knockBack * 5.0f ); // 1 knock back == 5
 			direction.z *= ( knockBack * 5.0f );
 			mRemotePlayers.at(i)->AddImpuls( direction );
-			mRemotePlayers.at(i)->TakeDamage( damage );
+			mRemotePlayers.at(i)->TakeDamage( (float)damage );
 		}
 	}
 }
@@ -370,8 +370,8 @@ HRESULT PlayState::Render()
 		RenderManager::GetInstance()->AddObject3dToList( mStoneAssets[i], DirectX::XMFLOAT3( (float)i*4.0f, 0.0f, -4.0f ) );
 	}
 	
-	//for(int i = 0; i < animTestNr; i++)
-		//RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation[i], mTestAnimationAnimation[i], &mAnimationTime, DirectX::XMFLOAT3( (float)i * -5.0f, 0.0f, 0.0f ) );
+	for(int i = 0; i < animTestNr; i++)
+		RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation[i], mTestAnimationAnimation[i], &mAnimationTime, DirectX::XMFLOAT3( (float)i * -5.0f, 0.0f, 0.0f ) );
 
 	mPlayer->Render( 0.0f, 1 );
 	//mWorldMap->Render( 0.0f );

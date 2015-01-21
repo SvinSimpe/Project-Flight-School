@@ -64,11 +64,13 @@ class PlayState : public BaseState
 		void			CheckTurretTarget();
 		void			EventListener( IEventPtr newEvent );
 		void			BroadcastDamage( unsigned int playerID, unsigned int projectileID );						// Tell server that local  player has taken damage
+		void			BroadcastMeleeDamage( unsigned playerID, unsigned int damage, float knockBack, XMFLOAT3 direction );
 
 		void			FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction );
 		void			UpdateProjectiles( float deltaTime );
 		void			RenderProjectiles();
 		void			HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID );
+		void			HandleRemoteMeleeHit( unsigned int id, unsigned int damage, float knockBack, XMFLOAT3 direction );
 
 	protected:
 	public:

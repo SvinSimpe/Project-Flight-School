@@ -111,18 +111,23 @@ int RemotePlayer::GetTeam() const
 }
 
 HRESULT RemotePlayer::Render( float deltaTime, int position )
-
 {
-	RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
+	//Render upper body
+	float radians = atan2f( mUpperBody.direction.z, mUpperBody.direction.x );
+	RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, mUpperBody.position, XMFLOAT3( 0.0f, -radians, 0.0f ) );
 
-	float radians = atan2f( mLowerBody.direction.z, mLowerBody.direction.x );
-	RenderManager::GetInstance()->AddAnim3dToList( mLowerBody.playerModel, mAnimations[mLowerBody.currentLowerAnimation], &mLowerBody.currentLowerAnimationTime, mLowerBody.position, XMFLOAT3( 0.0f, -radians, 0.0f ) );
-
+	//Render Arms
 	XMFLOAT4X4 upperMatrix	= Graphics::GetInstance()->GetRootMatrix( mLowerBody.playerModel, mAnimations[mLowerBody.currentLowerAnimation], mLowerBody.currentLowerAnimationTime );
 	XMFLOAT3 offsetPos		= XMFLOAT3( upperMatrix._41 + mLowerBody.position.x, upperMatrix._42, upperMatrix._43 + mLowerBody.position.z );
 
-	RenderManager::GetInstance()->AddObject3dToList( mLeftArm, offsetPos, mUpperBody.direction );
-	RenderManager::GetInstance()->AddObject3dToList( mRightArm, offsetPos, mUpperBody.direction );
+	RenderManager::GetInstance()->AddObject3dToList( mLeftArm, offsetPos, XMFLOAT3( 0.0f, -radians, 0.0f ) );
+	RenderManager::GetInstance()->AddObject3dToList( mRightArm, offsetPos, XMFLOAT3( 0.0f, -radians, 0.0f ) );
+
+	//Render lower body
+	radians = atan2f( mLowerBody.direction.z, mLowerBody.direction.x );
+	RenderManager::GetInstance()->AddAnim3dToList( mLowerBody.playerModel, mAnimations[mLowerBody.currentLowerAnimation], &mLowerBody.currentLowerAnimationTime, mLowerBody.position, XMFLOAT3( 0.0f, -radians, 0.0f ) );
+
+
 
 	DirectX::XMFLOAT3 x;
 	DirectX::XMFLOAT3 y;
@@ -313,6 +318,23 @@ XMFLOAT3 RemotePlayer::GetPosition() const
 	return mLowerBody.position;
 }
 
+XMFLOAT3 RemotePlayer::GetDirection() const
+{
+	return mLowerBody.direction;
+}
+
+void RemotePlayer::SetDirection( XMFLOAT3 direction )
+{
+	XMStoreFloat3( &mLowerBody.direction, ( XMLoadFloat3( &mLowerBody.direction ) += XMLoadFloat3( &direction ) ) );
+	XMStoreFloat3( &mLowerBody.position, XMLoadFloat3( &mLowerBody.direction ) );
+}
+
+void RemotePlayer::AddImpuls( XMFLOAT3 impuls )
+{
+	mVelocity.x += impuls.x;
+	mVelocity.z += impuls.z;
+}
+
 RemotePlayer::RemotePlayer()
 {
 	mID						= 0;
@@ -336,3 +358,8 @@ RemotePlayer::RemotePlayer()
 
 RemotePlayer::~RemotePlayer()
 {}
+
+void RemotePlayer::TakeDamage( float damage )
+{
+	mCurrentHp -= damage;
+}

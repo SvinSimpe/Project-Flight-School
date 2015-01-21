@@ -104,7 +104,6 @@ void Turret::Initialize()
 	mRange					= 10.0f;
 	mLoadOut				= new LoadOut();
 	mLoadOut->rangedWeapon	= new RangedInfo( "Machine Gun", 5.0f, 1, 5.0f, 2, 0 );
-	mLoadOut->meleeWeapon	= new MeleeInfo( "Sword", 4.0f, 3, 7, 2.0f );
 
 	mBoundingCircle			= new BoundingCircle( mLowerBody->pos, mRange );
 }

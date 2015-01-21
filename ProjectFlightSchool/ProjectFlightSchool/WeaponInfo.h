@@ -7,7 +7,7 @@ struct RangedInfo
 {
 	char*	weaponName;
 	float	attackRate;
-	int		damage;
+	float	damage;
 	float	range;
 	int		spread;
 	float	areaOfEffect;
@@ -16,13 +16,13 @@ struct RangedInfo
 	{
 		weaponName		= "";
 		attackRate		= 0.0f;
-		damage			= 0;
+		damage			= 0.0f;
 		range			= 0.0f;
 		spread			= 0;
 		areaOfEffect	= 0.0f;
 	}
 
-	RangedInfo( char* weaponName, float attackRate, int damage,
+	RangedInfo( char* weaponName, float attackRate, float damage,
 				float range, int spread, float areaOfEffect )
 	{
 		this->weaponName	= weaponName;
@@ -37,7 +37,7 @@ struct MeleeInfo
 {
 	char*			weaponName;
 	float			attackRate;
-	int				damage;
+	float			damage;
 	float			radius;
 	int				spread;
 	float			knockBack;
@@ -47,14 +47,14 @@ struct MeleeInfo
 	{
 		weaponName		= "";
 		attackRate		= 0.0f;
-		damage			= 0;
+		damage			= 0.0f;
 		radius			= 0.0f;
 		spread			= 0;
 		knockBack		= 0.0f;
 		boundingCircle	= nullptr;
 	}
 
-	MeleeInfo( char* weaponName, float attackRate, int damage,
+	MeleeInfo( char* weaponName, float attackRate, float damage,
 			   float radius, int spread, float knockBack, BoundingCircle* boundingCircle )
 	{
 		this->weaponName		= weaponName;

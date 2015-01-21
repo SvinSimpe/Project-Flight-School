@@ -45,4 +45,21 @@ struct EvProjectileFired
 	DirectX::XMFLOAT3 position;
 	DirectX::XMFLOAT3 direction;
 };
+
+struct EvEnemyCreated
+{
+	unsigned int ID;
+	unsigned int maxNrOfEnemies;
+	DirectX::XMFLOAT3 position;
+};
+
+struct EvSyncEnemy
+{
+	unsigned int		ID;
+	float				hp;
+	bool				isAlive;
+	DirectX::XMFLOAT3	position;
+	DirectX::XMFLOAT3	direction;
+};
+
 #endif

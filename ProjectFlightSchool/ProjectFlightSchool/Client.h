@@ -117,6 +117,19 @@ void Client::HandlePkg( Package<T>* p )
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
+		case Net_Event::EV_SYNC_ENEMY:
+		{
+			EvSyncEnemy enemy = (EvSyncEnemy&)p->body.content;
+			IEventPtr E1( new Event_Sync_Enemy( enemy.ID, enemy.hp, enemy.isAlive, enemy.position, enemy.direction  ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
+		case Net_Event::EV_ENEMY_LIST_SYNCED:
+		{
+			IEventPtr E1( new Event_Enemy_List_Synced() );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
 		default:
 		{
 			printf( "Error handling event from server.\n" );

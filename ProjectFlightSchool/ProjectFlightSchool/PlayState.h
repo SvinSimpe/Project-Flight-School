@@ -6,6 +6,7 @@
 #include "Player.h"
 #include "RemotePlayer.h"
 #include "Font.h"
+#include "Enemy.h"
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
@@ -47,12 +48,17 @@ class PlayState : public BaseState
 		int							mNrOfProjectilesFired;
 		int							mCurrentColor;
 		Font						mFont;
+		Enemy**						mEnemies;
+		unsigned int				mNrOfEnemies;
+		unsigned int				mMaxNrOfEnemies;
+		bool						mEnemyListSynced;
 	
 	protected:
 	public:
 
 	// Class functions
 	private:
+		void			SyncEnemy( unsigned int id, float hp, bool alive, XMFLOAT3 position, XMFLOAT3 direction );
 		void			RemoteUpdate( IEventPtr newEvent );
 		void			HandleDeveloperCameraInput();
 		void			CheckPlayerCollision();

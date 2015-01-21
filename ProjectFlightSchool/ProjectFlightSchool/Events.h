@@ -315,6 +315,50 @@ class Event_Start_Server : public IEvent
 		}
 };
 
+class Event_Game_Started : public IEvent
+{
+	// Member variables;
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Game_Started(  )
+		{
+		}
+};
+
+class Event_Game_Ended : public IEvent
+{
+	// Member variables;
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Game_Ended(  )
+		{
+		}
+};
+
 class Event_Start_Client : public IEvent
 {
 	// Member variables;
@@ -689,4 +733,78 @@ class Event_Remote_Player_Update_HP : public IEvent
 		{
 			return mHP;
 		}
+};
+
+class Event_Sync_Enemy : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		float			mHp;
+		bool			mIsAlive;
+		XMFLOAT3		mPosition;
+		XMFLOAT3		mDirection;
+
+	protected:
+	public:
+		static const EventType GUID;
+	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Sync_Enemy( unsigned int id, float hp, bool alive, XMFLOAT3 position, XMFLOAT3 direction )
+		{
+			mID				= id;
+			mHp				= hp;
+			mIsAlive		= alive;
+			mPosition		= position;
+			mDirection		= direction;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+		float HP()
+		{
+			return mHp;
+		}
+		bool IsAlive()
+		{
+			return mIsAlive;
+		}
+		XMFLOAT3 Position() const
+		{
+			return mPosition;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
+		}
+};
+
+class Event_Enemy_List_Synced : public IEvent
+{
+	// Member variables
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Enemy_List_Synced( )
+		{
+		}
+	
 };

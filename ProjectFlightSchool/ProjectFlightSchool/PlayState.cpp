@@ -27,7 +27,6 @@ void PlayState::EventListener( IEventPtr newEvent )
 		mCurrentColor++;
 		printf( "Number of other players online: %d.\n", mRemotePlayers.size() );
 
-
 		///TEST
 		mAllPlayers.push_back( ( mRemotePlayers.at( mRemotePlayers.size()-1 ) ) );
 	}
@@ -117,6 +116,25 @@ void PlayState::EventListener( IEventPtr newEvent )
 			}
 		}
 	}
+	else if ( newEvent->GetEventType() == Event_Sync_Enemy::GUID )
+	{
+		std::shared_ptr<Event_Sync_Enemy> data = std::static_pointer_cast<Event_Sync_Enemy>( newEvent );
+		SyncEnemy( data->ID(), data->HP(), data->IsAlive(), data->Position(), data->Direction() );
+	}
+	else if ( newEvent->GetEventType() == Event_Enemy_List_Synced::GUID )
+	{
+		mEnemyListSynced = true;
+	}
+}
+
+void PlayState::SyncEnemy( unsigned int id, float hp, bool alive, XMFLOAT3 position, XMFLOAT3 direction )
+{
+	mEnemyListSynced = false;
+	mEnemies[id]->SetID( id );
+	mEnemies[id]->SetHP( hp );
+	mEnemies[id]->SetIsAlive( alive );
+	mEnemies[id]->SetPosition( position );
+	mEnemies[id]->SetDirection( direction );
 }
 
 // Tell server that local  player has taken damage
@@ -322,6 +340,16 @@ HRESULT PlayState::Render()
 
 	//mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
 
+	// Enemies
+  	if( mEnemyListSynced )
+	{
+		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+		{
+			if( mEnemies[i]->IsAlive() )
+				mEnemies[i]->Render();
+		}
+	}
+
 	RenderManager::GetInstance()->Render();
 
 	return S_OK;
@@ -329,10 +357,16 @@ HRESULT PlayState::Render()
 
 void PlayState::OnEnter()
 {
+	// Send Game Started event to server
+	IEventPtr E1( new Event_Game_Started() );
+	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 void PlayState::OnExit()
 {
+	// Send Game Started event to server
+	IEventPtr E1( new Event_Game_Ended() );
+	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 void PlayState::Reset()
@@ -402,11 +436,20 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Spawned::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Projectile_Fired::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Update_HP::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Sync_Enemy::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Enemy_List_Synced::GUID );
 
 	mFont.Initialize( "../Content/Assets/Fonts/final_font/" );
 
 	//TEST
 	mAllPlayers.push_back( mPlayer );
+
+	// Enemies
+	mEnemies	= new Enemy*[MAX_NR_OF_ENEMIES];
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	{
+		mEnemies[i] = new Enemy();
+	}
 
 	return S_OK;
 }
@@ -431,15 +474,24 @@ void PlayState::Release()
 		SAFE_DELETE( mProjectiles[i] );
 
 	delete [] mProjectiles;
+
+	// Enemies
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+		SAFE_DELETE( mEnemies[i] );
+
+	delete [] mEnemies;
 }
 
 PlayState::PlayState()
 {
-	mPlayer			= nullptr;
-	mRemotePlayers	= std::vector<RemotePlayer*>( 0 );
+	mPlayer				= nullptr;
+	mRemotePlayers		= std::vector<RemotePlayer*>( 0 );
 	mRemotePlayers.reserve(MAX_REMOTE_PLAYERS);
-	mFrameCounter	= 0;
-	mProjectiles	= nullptr;
+	mFrameCounter		= 0;
+	mProjectiles		= nullptr;
+	mNrOfEnemies		= 0;
+	mMaxNrOfEnemies		= 0;
+	mEnemyListSynced	= false;
 }
 
 PlayState::~PlayState()

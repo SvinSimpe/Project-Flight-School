@@ -91,6 +91,7 @@
   <ItemGroup>
     <ClCompile Include="..\Graphics\Font.cpp" />
     <ClCompile Include="BaseMenuState.cpp" />
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="CreateMenuState.cpp" />
     <ClCompile Include="Entry.cpp" />
@@ -120,6 +121,7 @@
     <ClInclude Include="BaseMenuState.h" />
     <ClInclude Include="BaseState.h" />
     <ClInclude Include="BoundingGeometry.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="CreateMenuState.h" />
     <ClInclude Include="Entry.h" />

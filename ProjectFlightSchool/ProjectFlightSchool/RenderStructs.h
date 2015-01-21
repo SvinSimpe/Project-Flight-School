@@ -17,9 +17,6 @@ struct Object3dInfo
 struct Anim3dInfo
 {
 	UINT				mModelId;
-	/*UINT				mAnimId;
-	float*				mAnimTime;
-	DirectX::XMFLOAT3	mPosition;*/
 	DirectX::XMFLOAT4X4	mWorld;
 	DirectX::XMFLOAT4X4	mBoneTransforms[NUM_SUPPORTED_JOINTS];
 };

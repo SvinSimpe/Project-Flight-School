@@ -87,7 +87,7 @@ int	System::Run()
 			Render();
 		}
 	}
-
+	Release();
 	return (int)message.wParam;
 }
 

@@ -222,46 +222,6 @@ void Graphics::RenderPlane2dAsset( PlaneInfo* info, UINT sizeOfList )
 	//}while( loopBreaker != sizeOfList );
 }
 
-void Graphics::RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT4X4* world )
-{
-	Static3dAsset* object = (Static3dAsset*)mAssetManager->mAssetContainer[assetId];
-
-	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-
-	UINT32 vertexSize = sizeof( StaticVertex );
-
-	mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
-
-	mDeviceContext->VSSetShader( mStaticEffect->GetVertexShader(), nullptr, 0 );
-	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->PSSetShader( mStaticEffect->GetPixelShader(), nullptr, 0 );
-
-	//Map CbufferPerObject
-	CbufferPerObject data;
-	data.worldMatrix = DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( world ) );
-	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
-
-	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
-
-	for( int i = 0; i < (int)object->mMeshes.size(); i++ )
-	{
-		UINT32 offset					= 0;
-		ID3D11Buffer* buffersToSet[]	= { object->mMeshes[i].mVertexBuffer };
-		mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
-
-		ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_DIFFUSE]] )->mSRV,
-														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_NORMAL]] )->mSRV,
-														( (Static2dAsset*)mAssetManager->mAssetContainer[object->mMeshes[i].mTextures[TEXTURES_SPECULAR]] )->mSRV,
-													};
-
-		mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
-
-		mDeviceContext->Draw( object->mMeshes[i].mVertexCount, 0 );
-	}
-}
-
 void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 {
 	//////////////////////////////////////////////////////////////////

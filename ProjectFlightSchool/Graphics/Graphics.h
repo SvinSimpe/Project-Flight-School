@@ -89,7 +89,6 @@ class LIBRARY_EXPORT Graphics
 		void Render2dAsset( AssetID assetId, float x, float y, float width, float height );
 		void RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX::XMFLOAT3 y );
 		void RenderPlane2dAsset( PlaneInfo* info, UINT sizeOfList );
-		void RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT4X4* world );
 		void RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList );
 		void RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList );
 

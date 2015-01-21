@@ -13,12 +13,11 @@ struct CbufferPerObject
 
 struct CbufferPerObjectAnimated
 {
-	DirectX::XMMATRIX worldMatrix;
 	DirectX::XMMATRIX boneTransforms[NUM_SUPPORTED_JOINTS];
 };
 
 struct CbufferPerInstancedAnimated
 {
-	CbufferPerObjectAnimated perInstance[NUM_SUPPORTED_ANIM_INSTANCES];
+	CbufferPerObject perInstance[NUM_SUPPORTED_ANIM_INSTANCES];
 };
 #endif

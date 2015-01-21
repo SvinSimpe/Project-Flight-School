@@ -126,10 +126,7 @@ HRESULT RenderManager::Render()
 {
 	Graphics::GetInstance()->BeginScene();
 
-	for( UINT i = 0; i < mNrOfObject3d; i++ )
-	{
-		Graphics::GetInstance()->RenderStatic3dAsset( mObject3dArray[i].mAssetId, &mObject3dArray[i].mWorld );
-	}
+	Graphics::GetInstance()->RenderStatic3dAsset( mObject3dArray, mNrOfObject3d );
 
 	for( UINT i = 0; i < mNrOfPlane; i++ )
 	{

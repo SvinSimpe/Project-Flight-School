@@ -460,7 +460,10 @@ void PlayState::Release()
 	mRemotePlayers.clear();
 
 	for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
+	{
+		mProjectiles[i]->Release();
 		SAFE_DELETE( mProjectiles[i] );
+	}
 
 	delete [] mProjectiles;
 }

@@ -99,6 +99,7 @@ HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 		MapNode temp;
 		temp.Initialize( initInfo );
 		mapNodes.push_back( temp );
+		delete initInfo.grid;
 	}
 
 	mNrOfNodes = mapNodes.size();
@@ -148,6 +149,7 @@ void MapNodeManager::Release()
 		mNodes[i].Release();
 	}
 	delete[] mNodes;
+	SAFE_DELETE( instance );
 }
 MapNodeManager::MapNodeManager()
 {

@@ -22,7 +22,7 @@ HRESULT MapSection::Initialize( Map* map, MapSection* parent, MapNodeInstance** 
 	mParent = parent;
 	if( mParent == nullptr )
 	{
-		mBoundingBox.position = XMFLOAT3( -( (float)map->GetMapHalfWidth() * NODE_DIM ), 0, -( (float)map->GetMapHalfHeight() * NODE_DIM ) );
+		mBoundingBox.position	= XMFLOAT3( -( (float)map->GetMapHalfWidth() * NODE_DIM ), 0, -( (float)map->GetMapHalfHeight() * NODE_DIM ) );
 		mBoundingBox.width		= (float)map->GetMapWidth() * NODE_DIM;
 		mBoundingBox.height		= (float)map->GetMapHeight() * NODE_DIM;
 	}

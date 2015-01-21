@@ -74,8 +74,12 @@ HRESULT Map::Initialize( UINT mapDim )
 }
 void Map::Release()
 {
+	mMapSection->Release();
 	SAFE_DELETE( mMapSection );
+
 	MapNodePlacer::GetInstance()->Release();
+	MapNodeManager::GetInstance()->Release();
+
 }
 Map::Map()
 {

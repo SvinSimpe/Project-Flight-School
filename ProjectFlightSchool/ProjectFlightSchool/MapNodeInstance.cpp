@@ -21,8 +21,7 @@ DirectX::XMFLOAT3 MapNodeInstance::GetPos()const
 }
 void MapNodeInstance::SetPos( DirectX::XMFLOAT3 pos )
 {
-	mPos = pos;
-	mOrigin = DirectX::XMFLOAT3( mPos.x + ( mNode->GetGridWidth() * 0.5f ), 0, mPos.z + ( mNode->GetGridHeight() * 0.5f ) );
+	mPos = XMFLOAT3( pos.x + ( mNode->GetGridWidth() * 0.5f ), 0, pos.z + ( mNode->GetGridHeight() * 0.5f ) );
 	DirectX::XMStoreFloat4x4( &mWorld, DirectX::XMMatrixTranslationFromVector( XMLoadFloat3( &mPos ) ) );
 }
 
@@ -49,7 +48,7 @@ void MapNodeInstance::SetMapNode( MapNode* mapNode )
 BoundingBox MapNodeInstance::GetBoundingBox()
 {
 	BoundingBox b;
-	b.position	= XMFLOAT3( mPos.x - ( mNode->GetGridWidth() * 0.5f ), 0, mPos.z - ( mNode->GetGridWidth() * 0.5f ) );
+	b.position	= mPos;
 	b.width		= (float)mNode->GetGridWidth();
 	b.height	= (float)mNode->GetGridHeight();
 

@@ -86,7 +86,7 @@ void MapNode::ReleaseInstance( int InstanceID )
 HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 {
 	mGrid				= new StaticVertex[initInfo.vertexCount];
-	mOrigin				= XMFLOAT3(initInfo.anchor.x + 12, 0, initInfo.anchor.z + 12 );
+	mOrigin				= XMFLOAT3(initInfo.anchor.x, 0, initInfo.anchor.z);
 	//BUGHAXX
 	//mGridDim			= initInfo.gridDim;
 	mGridDim			= 24;

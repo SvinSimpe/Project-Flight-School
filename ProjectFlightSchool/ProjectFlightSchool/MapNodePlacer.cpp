@@ -163,7 +163,7 @@ bool MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNode )
 			mBuildMap[x][y] = newNode;
 		}
 	}
-	XMFLOAT3 newPos = XMFLOAT3( ( mMap->GetMapHalfWidth() * NODE_DIM ) - ( (float)pX * NODE_DIM ), 0, ( mMap->GetMapHalfHeight() * NODE_DIM ) - ( (float)pY * NODE_DIM ) );
+	XMFLOAT3 newPos = XMFLOAT3( ((float)pX * NODE_DIM ) - ( mMap->GetMapHalfWidth() * NODE_DIM ), 0, ( (float)pY * NODE_DIM ) - ( mMap->GetMapHalfHeight() * NODE_DIM ) );
 
 	newNode->SetPos( newPos );
 
@@ -372,13 +372,14 @@ void MapNodePlacer::Release()
 {
 	if ( instance != nullptr )
 	{
+		for( int i = 0; i < (int)mMap->GetMapDim(); i++ )
+		{
+			delete[] mBuildMap[i];
+		}
+		delete[] mBuildMap;
+
 		delete instance;
 	}
-	for( int i = 0; i < (int)mMap->GetMapDim(); i++ )
-	{
-		delete[] mBuildMap[i];
-	}
-	delete[] mBuildMap;
 }
 MapNodePlacer::MapNodePlacer()
 {

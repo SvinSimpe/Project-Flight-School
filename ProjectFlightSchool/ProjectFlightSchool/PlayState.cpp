@@ -14,7 +14,6 @@ void PlayState::EventListener( IEventPtr newEvent )
 			mPlayer->SetID( data->ID() );
 			mPlayer->SetTeam( data->Team(), mTeams[data->Team()] );
 			mPlayer->SetColor( mColorIDs[mCurrentColor] );
-			mTurret.SetTeamID( data->Team() );
 			mCurrentColor++;
 		}
 	}
@@ -133,7 +132,7 @@ void PlayState::BroadcastDamage( unsigned int playerID, unsigned int projectileI
 	EventManager::GetInstance()->QueueEvent( dmgEv );
 }
 
-void PlayState::BroadcastMeleeDamage( unsigned playerID, unsigned int damage, float knockBack, XMFLOAT3 direction )
+void PlayState::BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction )
 {
 	IEventPtr dmgEv( new Event_Player_Melee_Hit( playerID, damage, knockBack, direction ) );
 	EventManager::GetInstance()->QueueEvent( dmgEv );
@@ -298,14 +297,14 @@ void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int project
 	}
 }
 
-void PlayState::HandleRemoteMeleeHit( unsigned int id, unsigned int damage, float knockBack, XMFLOAT3 direction )
+void PlayState::HandleRemoteMeleeHit( unsigned int id, float damage, float knockBack, XMFLOAT3 direction )
 {
 	if( id == mPlayer->GetID() )
 	{
 		direction.x *= knockBack;
 		direction.z *= knockBack;
 		mPlayer->AddImpuls( direction );
-		mPlayer->TakeDamage( (float)damage );
+		mPlayer->TakeDamage( damage );
 	}
 
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++ )
@@ -315,7 +314,7 @@ void PlayState::HandleRemoteMeleeHit( unsigned int id, unsigned int damage, floa
 			direction.x *= ( knockBack * 5.0f ); // 1 knock back == 5
 			direction.z *= ( knockBack * 5.0f );
 			mRemotePlayers.at(i)->AddImpuls( direction );
-			mRemotePlayers.at(i)->TakeDamage( (float)damage );
+			mRemotePlayers.at(i)->TakeDamage( damage );
 		}
 	}
 }
@@ -331,6 +330,7 @@ HRESULT PlayState::Update( float deltaTime )
 		CheckPlayerCollision();
 		CheckProjectileCollision();
 		CheckTurretTarget();
+
 		if( mPlayer->GetIsMeleeing() )
 		{
 			CheckMeeleCollision();
@@ -473,7 +473,7 @@ HRESULT PlayState::Initialize()
 
 	//TEST
 	mAllPlayers.push_back( mPlayer );
-	mTurret.Initialize();
+	mTurret.Initialize( 0 );
 
 	return S_OK;
 }

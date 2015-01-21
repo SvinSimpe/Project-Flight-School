@@ -722,7 +722,7 @@ class Event_Player_Melee_Hit : public IEvent
 	// Member variables
 	private:
 		unsigned int	mID;
-		unsigned int	mDamage;
+		float			mDamage;
 		float			mKnockBack;
 		XMFLOAT3		mDirection;
 
@@ -738,7 +738,7 @@ class Event_Player_Melee_Hit : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Player_Melee_Hit( unsigned int id, unsigned int damage, float knockBack, XMFLOAT3 direction )
+		Event_Player_Melee_Hit( unsigned int id, float damage, float knockBack, XMFLOAT3 direction )
 		{
 			mID				= id;
 			mDamage			= damage;
@@ -749,7 +749,7 @@ class Event_Player_Melee_Hit : public IEvent
 		{
 			return mID;
 		} 
-		unsigned int Damage() const
+		float Damage() const
 		{
 			return mDamage;
 		}
@@ -768,7 +768,7 @@ class Event_Remote_Player_Melee_Hit : public IEvent
 	// Member variables
 	private:
 		unsigned int	mID;
-		unsigned int	mDamage;
+		float			mDamage;
 		float			mKnockBack;
 		XMFLOAT3		mDirection;
 
@@ -795,7 +795,7 @@ class Event_Remote_Player_Melee_Hit : public IEvent
 		{
 			return mID;
 		}
-		unsigned int Damage() const
+		float Damage() const
 		{
 			return mDamage;
 		}

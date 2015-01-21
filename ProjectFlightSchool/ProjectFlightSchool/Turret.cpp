@@ -1,5 +1,28 @@
 #include "Turret.h"
 
+void Turret::IdleTurret::Action( Turret* t )
+{
+	XMStoreFloat3( &t->mUpperBody->dir, XMVector3TransformCoord( XMLoadFloat3( &t->mUpperBody->dir ), XMMatrixRotationY( t->mDT ) ) );
+	t->mLowerBody->dir = t->mUpperBody->dir;
+}
+
+void Turret::AttackingTurret::Action( Turret* t )
+{
+	if( t->mTeamID != -1 )
+	{
+		XMVECTOR turretToTargetVec	= ( XMLoadFloat3( &t->mTarget->GetBoundingCircle()->center ) - XMLoadFloat3( &t->mBoundingCircle->center ) );
+		turretToTargetVec			= XMVector3Normalize( turretToTargetVec );
+		
+		XMStoreFloat3( &t->mUpperBody->dir, turretToTargetVec );
+		t->mLowerBody->dir = t->mUpperBody->dir;
+
+		if( t->mShootTimer <= 0.0f )
+		{
+			t->Fire();
+		}
+	}
+}
+
 void Turret::Fire()
 {
 	IEventPtr E1( new Event_Projectile_Fired( -1, mUpperBody->pos, mUpperBody->dir ));
@@ -7,105 +30,104 @@ void Turret::Fire()
 	mShootTimer = SHOOTCOOLDOWN;
 }
 
-void Turret::TrackTarget()
+void Turret::SwitchMode( ITurretMode* mode )
 {
-	if( mTarget && mTeamID != -1 )
-	{
-		mTracking = true;
-
-		XMVECTOR turretToTargetVec	= ( XMLoadFloat3( &mTarget->GetBoundingCircle()->center ) - XMLoadFloat3( &mBoundingCircle->center ) );
-		turretToTargetVec			= XMVector3Normalize( turretToTargetVec );
-
-		float radians				= atan2f( XMVectorGetZ( turretToTargetVec ), XMVectorGetX( turretToTargetVec ) );
-		mUpperBody->dir.y			= -radians;
-
-		//XMStoreFloat3( &mUpperBody->dir, turretToTargetVec );
-
-		if( mShootTimer <= 0.0f )
-		{
-			Fire();
-		}
-	}
-	else
-	{
-		mTracking = false;
-
-		mUpperBody->dir.x = 0.0f;
-		mUpperBody->dir.z = 0.0f;
-	}
-	mLowerBody->dir = mUpperBody->dir;
+	mCurrentMode = mode;
 }
 
-void Turret::SetTeamID( int team )
+void Turret::CheckTarget( std::vector<RemotePlayer*> targets )
 {
-	mTeamID = team;
+	// Update it here
+	bool targetInGame = false;
+	for( auto& it : targets )
+	{
+		if( it == mTarget )
+		{
+			targetInGame = true;
+			mTarget = it;
+			break;
+		}
+	}
+	if( !targetInGame || !mBoundingCircle->Intersect( mTarget->GetBoundingCircle() ) || !mTarget->IsAlive() || mTarget->GetTeam() == mTeamID )
+	{
+		mTarget = nullptr;
+		SwitchMode( mIdle );
+	}
 }
 
 void Turret::PickTarget( std::vector<RemotePlayer*> targets )
 {
-	RemotePlayer* target = nullptr;
 	if( !mTarget )
 	{
-		target = targets.at(0);
-		for( UINT i = 1; i < targets.size() - 1; i++ )
+		SwitchMode( mIdle );
+		std::vector<RemotePlayer*> temps;
+		for( auto& it : targets )
 		{
-			if( mBoundingCircle->Intersect( targets.at(i)->GetBoundingCircle() ) )
+			if( it->GetTeam() == mTeamID )
 			{
-				if( targets.at(i)->GetHP() < targets.at(i-1)->GetHP() )
-				{
-					target = targets.at(i);
-				}
+				continue;
+			}
+			else if( it->IsAlive() && mBoundingCircle->Intersect( it->GetBoundingCircle() ) )
+			{
+				temps.push_back( it );
 			}
 		}
-		if( target == targets.at(0) && !mBoundingCircle->Intersect( targets.at(0)->GetBoundingCircle() ) )
+		if( temps.size() > 0 )
 		{
-			target = nullptr;
+			mTarget = temps.at(0);
+			for( auto& it : temps )
+			{
+				if( mTarget->GetHP() > it->GetHP() )
+				{
+					mTarget = it;
+				}
+			}
+			SwitchMode( mAttacking );
 		}
 	}
-	mTarget = target;
+	else // If it has a target
+	{
+		CheckTarget( targets );
+	}
 }
 
 HRESULT Turret::Update( float deltaTime )
 {
-	mShootTimer -= deltaTime;
+	mDT = deltaTime;
+	mShootTimer -= mDT;
 
-	if( !mTracking  )
-	{
-		mUpperBody->dir.y += sin( deltaTime );
-	}
-	TrackTarget();
+	mCurrentMode->Action( this );
 
 	return S_OK;
 }
 
 void Turret::Render()
 {
-	//float radians = atan2f( mUpperBody->dir.z, mUpperBody->dir.x );
-	//RenderManager::GetInstance()->AddObject3dToList( mUpperBody->model, mUpperBody->pos, XMFLOAT3( 0.0f, -radians, 0.0f ) );
-	//RenderManager::GetInstance()->AddObject3dToList( mLowerBody->model, mLowerBody->pos, XMFLOAT3( 0.0f, -radians, 0.0f ) );
-	
-	RenderManager::GetInstance()->AddObject3dToList( mUpperBody->model, mUpperBody->pos, mUpperBody->dir );
-	RenderManager::GetInstance()->AddObject3dToList( mLowerBody->model, mLowerBody->pos, mLowerBody->dir );
+	float radians = atan2f( mUpperBody->dir.z, mUpperBody->dir.x );
+	RenderManager::GetInstance()->AddObject3dToList( mUpperBody->model, mUpperBody->pos, XMFLOAT3( 0.0f, -radians, 0.0f ) );
+	RenderManager::GetInstance()->AddObject3dToList( mLowerBody->model, mLowerBody->pos, XMFLOAT3( 0.0f, -radians, 0.0f ) );
 }
 
-void Turret::Initialize()
+void Turret::Initialize( int team )
 {
-	mTeamID					= -1;
+	mTeamID					= team;
 	mUpperBody				= new Upper();
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Turret/", "turret.pfs", mUpperBody->model );
 	mUpperBody->pos			= XMFLOAT3( 0.0f, 1.0f, 0.0f );
-	mUpperBody->dir			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mUpperBody->dir			= XMFLOAT3( 1.0f, 0.0f, 0.0f );
 
 	mLowerBody				= new Lower();
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Turret/", "base2.pfs", mLowerBody->model );
 	mLowerBody->pos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mLowerBody->dir			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mLowerBody->dir			= XMFLOAT3( 1.0f, 0.0f, 0.0f );
 
-	mRange					= 10.0f;
 	mLoadOut				= new LoadOut();
 	mLoadOut->rangedWeapon	= new RangedInfo( "Machine Gun", 5.0f, 1, 5.0f, 2, 0 );
 
-	mBoundingCircle			= new BoundingCircle( mLowerBody->pos, mRange );
+	mBoundingCircle			= new BoundingCircle( mLowerBody->pos, 10.0f ); // Range of the turret is set here
+	mIdle					= new IdleTurret();
+	mAttacking				= new AttackingTurret();
+	mCurrentMode			= mIdle;
 }
 
 void Turret::Release()
@@ -115,6 +137,8 @@ void Turret::Release()
 	SAFE_DELETE( mUpperBody );
 	SAFE_DELETE( mLowerBody );
 	SAFE_DELETE( mBoundingCircle );
+	SAFE_DELETE( mIdle );
+	SAFE_DELETE( mAttacking );
 }
 
 Turret::Turret()
@@ -126,10 +150,13 @@ Turret::Turret()
 	mRange			= 0.0f;
 	mLoadOut		= nullptr;
 	mShootTimer		= 0.0f;
-	mTracking		= false;
 
 	mBoundingCircle	= nullptr;
 	mTarget			= nullptr; // Is never initialized
+	mCurrentMode	= nullptr;
+	mIdle			= nullptr;
+	mAttacking		= nullptr;
+	mDT				= 0.0f;
 }
 
 Turret::~Turret()

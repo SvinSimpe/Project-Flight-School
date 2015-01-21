@@ -22,6 +22,34 @@ struct Lower
 
 class Turret
 {
+	// classes
+	private:
+		class ITurretMode
+		{
+		public:
+			virtual void Action( Turret* t ) = 0;
+			ITurretMode() {}
+			virtual ~ITurretMode() {}
+		};
+
+		class IdleTurret : public ITurretMode
+		{
+		public:
+			void Action( Turret* t );
+			IdleTurret() : ITurretMode() {}
+			~IdleTurret() {}
+		};
+
+		class AttackingTurret : public ITurretMode
+		{
+		public:
+			void Action( Turret* t);
+			AttackingTurret() : ITurretMode() {}
+			~AttackingTurret() {}
+		};
+	protected:
+	public:
+
 	// Variables
 	private:
 		int					mTeamID;
@@ -30,23 +58,27 @@ class Turret
 		float				mRange;
 		LoadOut*			mLoadOut;
 		float				mShootTimer;
-		bool				mTracking;
 		BoundingCircle*		mBoundingCircle;
 		RemotePlayer*		mTarget;
+		ITurretMode*		mCurrentMode;
+		float				mDT;
+		IdleTurret*			mIdle;
+		AttackingTurret*	mAttacking;
+
 	protected:
 	public:
 
 	// Functions
 	private:
 		void				Fire();
-		void				TrackTarget();
+		void				SwitchMode( ITurretMode* mode );
+		void				CheckTarget( std::vector<RemotePlayer*> targets );
 	protected:
 	public:
-		void				SetTeamID( int team );
 		void				PickTarget( std::vector<RemotePlayer*> targets );
 		HRESULT				Update( float deltaTime );
 		void				Render();
-		void				Initialize();
+		void				Initialize( int team );
 		void				Release();
 							Turret();
 		virtual				~Turret();

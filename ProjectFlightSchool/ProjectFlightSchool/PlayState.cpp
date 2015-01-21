@@ -409,7 +409,7 @@ HRESULT PlayState::Initialize()
 	mStateType = PLAY_STATE;
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Plane/", "plane.pfs", mPlaneAsset );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Ship/", "crashed_ship.pfs", mTestAsset );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Ship/", "ship.pfs", mTestAsset );
 
 	AssetID skeleton = 0;
 	AssetID skel  =0;

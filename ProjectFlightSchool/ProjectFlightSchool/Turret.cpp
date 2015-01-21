@@ -3,23 +3,20 @@
 void Turret::IdleTurret::Action( Turret* t )
 {
 	XMStoreFloat3( &t->mUpperBody->dir, XMVector3TransformCoord( XMLoadFloat3( &t->mUpperBody->dir ), XMMatrixRotationY( t->mDT ) ) );
-	t->mLowerBody->dir = t->mUpperBody->dir;
+	t->mMiddleBody->dir = t->mUpperBody->dir;
 }
 
 void Turret::AttackingTurret::Action( Turret* t )
 {
-	if( t->mTeamID != -1 )
-	{
-		XMVECTOR turretToTargetVec	= ( XMLoadFloat3( &t->mTarget->GetBoundingCircle()->center ) - XMLoadFloat3( &t->mBoundingCircle->center ) );
-		turretToTargetVec			= XMVector3Normalize( turretToTargetVec );
+	XMVECTOR turretToTargetVec	= ( XMLoadFloat3( &t->mTarget->GetBoundingCircle()->center ) - XMLoadFloat3( &t->mBoundingCircle->center ) );
+	turretToTargetVec			= XMVector3Normalize( turretToTargetVec );
 		
-		XMStoreFloat3( &t->mUpperBody->dir, turretToTargetVec );
-		t->mLowerBody->dir = t->mUpperBody->dir;
+	XMStoreFloat3( &t->mUpperBody->dir, turretToTargetVec );
+	t->mMiddleBody->dir = t->mUpperBody->dir;
 
-		if( t->mShootTimer <= 0.0f )
-		{
-			t->Fire();
-		}
+	if( t->mShootTimer <= 0.0f )
+	{
+		t->Fire();
 	}
 }
 
@@ -105,26 +102,32 @@ void Turret::Render()
 {
 	float radians = atan2f( mUpperBody->dir.z, mUpperBody->dir.x );
 	RenderManager::GetInstance()->AddObject3dToList( mUpperBody->model, mUpperBody->pos, XMFLOAT3( 0.0f, -radians, 0.0f ) );
-	RenderManager::GetInstance()->AddObject3dToList( mLowerBody->model, mLowerBody->pos, XMFLOAT3( 0.0f, -radians, 0.0f ) );
+	RenderManager::GetInstance()->AddObject3dToList( mMiddleBody->model, mMiddleBody->pos, XMFLOAT3( 0.0f, -radians, 0.0f ) );
+	RenderManager::GetInstance()->AddObject3dToList( mLowerBody->model, mLowerBody->pos);
 }
 
 void Turret::Initialize( int team )
 {
 	mTeamID					= team;
-	mUpperBody				= new Upper();
+	mUpperBody				= new BodyPart();
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Turret/", "turret.pfs", mUpperBody->model );
-	mUpperBody->pos			= XMFLOAT3( 0.0f, 1.0f, 0.0f );
+	mUpperBody->pos			= XMFLOAT3( 0.0f, 1.6f, 0.0f );
 	mUpperBody->dir			= XMFLOAT3( 1.0f, 0.0f, 0.0f );
 
-	mLowerBody				= new Lower();
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Turret/", "base2.pfs", mLowerBody->model );
+	mMiddleBody				= new BodyPart();
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Turret/", "base2.pfs", mMiddleBody->model );
+	mMiddleBody->pos		= XMFLOAT3( 0.0f, 0.6f, 0.0f );
+	mMiddleBody->dir		= XMFLOAT3( 1.0f, 0.0f, 0.0f );
+
+	mLowerBody				= new BodyPart();
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Ship/", "tripod.pfs", mLowerBody->model );
 	mLowerBody->pos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mLowerBody->dir			= XMFLOAT3( 1.0f, 0.0f, 0.0f );
 
 	mLoadOut				= new LoadOut();
 	mLoadOut->rangedWeapon	= new RangedInfo( "Machine Gun", 5.0f, 1, 5.0f, 2, 0 );
 
-	mBoundingCircle			= new BoundingCircle( mLowerBody->pos, 10.0f ); // Range of the turret is set here
+	mBoundingCircle			= new BoundingCircle( mMiddleBody->pos, 10.0f ); // Range of the turret is set here
 	mIdle					= new IdleTurret();
 	mAttacking				= new AttackingTurret();
 	mCurrentMode			= mIdle;
@@ -135,6 +138,7 @@ void Turret::Release()
 	mLoadOut->Release();
 	SAFE_DELETE( mLoadOut );
 	SAFE_DELETE( mUpperBody );
+	SAFE_DELETE( mMiddleBody );
 	SAFE_DELETE( mLowerBody );
 	SAFE_DELETE( mBoundingCircle );
 	SAFE_DELETE( mIdle );
@@ -145,6 +149,7 @@ Turret::Turret()
 {
 	mTeamID			= -1;
 	mUpperBody		= nullptr;
+	mMiddleBody		= nullptr;
 	mLowerBody		= nullptr;
 
 	mRange			= 0.0f;

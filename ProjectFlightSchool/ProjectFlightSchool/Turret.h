@@ -6,14 +6,8 @@
 
 #define SHOOTCOOLDOWN 0.1f
 #define PI 3.14159265f
-struct Upper
-{
-	AssetID		model	= CUBE_PLACEHOLDER;
-	XMFLOAT3	pos		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	XMFLOAT3	dir		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-};
 
-struct Lower
+struct BodyPart
 {
 	AssetID		model	= CUBE_PLACEHOLDER;
 	XMFLOAT3	pos		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
@@ -53,8 +47,9 @@ class Turret
 	// Variables
 	private:
 		int					mTeamID;
-		Upper*				mUpperBody;
-		Lower*				mLowerBody;
+		BodyPart*			mUpperBody;
+		BodyPart*			mMiddleBody;
+		BodyPart*			mLowerBody;
 		float				mRange;
 		LoadOut*			mLoadOut;
 		float				mShootTimer;

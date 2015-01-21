@@ -340,7 +340,7 @@ HRESULT PlayState::Update( float deltaTime )
 	mPlayer->Update( deltaTime );
 
 	UpdateProjectiles( deltaTime );
-	mAnimationTime	+= deltaTime * 0.2f;
+	mAnimationTime	+= deltaTime;
 
 	mShip.PickTurretTarget( mAllPlayers );
 	mShip.Update( deltaTime );
@@ -360,10 +360,8 @@ HRESULT PlayState::Render()
 		RenderManager::GetInstance()->AddObject3dToList( mStoneAssets[i], DirectX::XMFLOAT3( (float)i*4.0f, 0.0f, -4.0f ) );
 	}
 	
-	for(int i = 0; i < animTestNr; i++)
-		RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation[i], mTestAnimationAnimation[i], &mAnimationTime, DirectX::XMFLOAT3( -5.0f, ((i * 1) + 0.0f), 0.0f ) );
-
-
+	//for(int i = 0; i < animTestNr; i++)
+		//RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation[i], mTestAnimationAnimation[i], &mAnimationTime, DirectX::XMFLOAT3( (float)i * -5.0f, 0.0f, 0.0f ) );
 
 	mPlayer->Render( 0.0f, 1 );
 	//mWorldMap->Render( 0.0f );
@@ -411,7 +409,7 @@ HRESULT PlayState::Initialize()
 	{
 		Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", skeleton );
 		Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, mTestAnimation[i] );
-		Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptor_death.PaMan", mTestAnimationAnimation[i] );
+		Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptorDeath2.PaMan", mTestAnimationAnimation[i] );
 	}
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_1.pfs", mNest1Asset );

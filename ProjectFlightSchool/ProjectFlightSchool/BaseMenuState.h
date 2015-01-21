@@ -5,8 +5,8 @@
 #include "Input.h"
 #include "EventManager.h"
 #include "Events.h"
-#include "Image.h"
 #include "Button.h"
+#include "Font.h"
 
 class BaseMenuState : public BaseState
 {
@@ -14,6 +14,8 @@ class BaseMenuState : public BaseState
 	protected:
 		AssetID					mBackground;
 		std::vector<Button*>	mButtons;
+		Font					mText;
+
 	public:
 
 	private:

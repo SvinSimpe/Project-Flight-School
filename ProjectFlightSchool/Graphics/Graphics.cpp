@@ -914,8 +914,8 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	if( FAILED( hr = mAnimInstancedEffect->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
-	
-	mDeferredPassEffect = new Effect;
+
+	mDeferredPassEffect		= new Effect;
 	effectInfo.fileName		= "../Content/Effects/DeferredPassEffect.hlsl";
 	effectInfo.vertexType	= STATIC_VERTEX_TYPE;
 

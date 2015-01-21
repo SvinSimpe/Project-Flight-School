@@ -31,9 +31,12 @@ void Projectile::SetDirection( unsigned int playerID, unsigned int id, XMFLOAT3 
 	mID				= id;
 	mPlayerID		= playerID;
 	mPosition		= startPosition;
-	mDirection.x	= cosf( direction.y );
+
+	float radians = atan2f( direction.z, direction.x );
+
+	mDirection.x	= cosf( -radians );
 	mDirection.y	= 0.0f;
-	mDirection.z	= -sinf( direction.y );
+	mDirection.z	= -sinf( -radians );
 	mRotation		= -atan2f( mDirection.z, mDirection.x );
 	mIsActive		= true;
 }

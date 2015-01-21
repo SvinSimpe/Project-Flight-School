@@ -6,6 +6,7 @@
 #include "Player.h"
 #include "RemotePlayer.h"
 #include "Font.h"
+#include "Turret.h"
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
@@ -39,6 +40,8 @@ class PlayState : public BaseState
 
 		//TEST
 		std::vector<RemotePlayer*> mAllPlayers;
+
+		Turret			mTurret;
 	
 		//Game Data
 		Player*						mPlayer;
@@ -60,11 +63,13 @@ class PlayState : public BaseState
 		void			CheckMeeleCollision();
 		void			EventListener( IEventPtr newEvent );
 		void			BroadcastDamage( unsigned int playerID, unsigned int projectileID );						// Tell server that local  player has taken damage
+		void			BroadcastMeleeDamage( unsigned playerID, unsigned int damage, float knockBack, XMFLOAT3 direction );
 
 		void			FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction );
 		void			UpdateProjectiles( float deltaTime );
 		void			RenderProjectiles();
 		void			HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID );
+		void			HandleRemoteMeleeHit( unsigned int id, unsigned int damage, float knockBack, XMFLOAT3 direction );
 
 	protected:
 	public:

@@ -128,9 +128,6 @@ void PlayState::EventListener( IEventPtr newEvent )
 // Tell server that local  player has taken damage
 void PlayState::BroadcastDamage( unsigned int playerID, unsigned int projectileID )
 {
-<<<<<<< HEAD
-	IEventPtr dmgEv((new Event_Player_Damaged( playerID, projectileID ) ));
-=======
 	IEventPtr dmgEv( new Event_Player_Damaged( playerID, projectileID ) );
 	EventManager::GetInstance()->QueueEvent( dmgEv );
 }
@@ -138,7 +135,6 @@ void PlayState::BroadcastDamage( unsigned int playerID, unsigned int projectileI
 void PlayState::BroadcastMeleeDamage( unsigned playerID, unsigned int damage, float knockBack, XMFLOAT3 direction )
 {
 	IEventPtr dmgEv( new Event_Player_Melee_Hit( playerID, damage, knockBack, direction ) );
->>>>>>> development
 	EventManager::GetInstance()->QueueEvent( dmgEv );
 }
 

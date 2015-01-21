@@ -106,23 +106,27 @@ void Turret::Render()
 	RenderManager::GetInstance()->AddObject3dToList( mLowerBody->model, mLowerBody->pos);
 }
 
-void Turret::Initialize( int team )
+void Turret::Initialize( int team, XMFLOAT3 pos, XMFLOAT3 dir )
 {
 	mTeamID					= team;
+
+	pos.y					+= 1.6f;
 	mUpperBody				= new BodyPart();
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Turret/", "turret.pfs", mUpperBody->model );
-	mUpperBody->pos			= XMFLOAT3( 0.0f, 1.6f, 0.0f );
-	mUpperBody->dir			= XMFLOAT3( 1.0f, 0.0f, 0.0f );
+	mUpperBody->pos			= pos;
+	mUpperBody->dir			= dir;
 
+	pos.y					-= 1.0f;
 	mMiddleBody				= new BodyPart();
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Turret/", "base2.pfs", mMiddleBody->model );
-	mMiddleBody->pos		= XMFLOAT3( 0.0f, 0.6f, 0.0f );
-	mMiddleBody->dir		= XMFLOAT3( 1.0f, 0.0f, 0.0f );
+	mMiddleBody->pos		= pos;
+	mMiddleBody->dir		= dir;
 
+	pos.y					-= 0.6f;
 	mLowerBody				= new BodyPart();
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Ship/", "tripod.pfs", mLowerBody->model );
-	mLowerBody->pos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mLowerBody->dir			= XMFLOAT3( 1.0f, 0.0f, 0.0f );
+	mLowerBody->pos			= pos;
+	mLowerBody->dir			= dir;
 
 	mLoadOut				= new LoadOut();
 	mLoadOut->rangedWeapon	= new RangedInfo( "Machine Gun", 5.0f, 1, 5.0f, 2, 0 );

@@ -263,11 +263,6 @@ void PlayState::CheckMeeleCollision()
 	}
 }
 
-void PlayState::CheckTurretTarget()
-{
-	mTurret.PickTarget( mAllPlayers );
-}
-
 void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID )
 {
 	unsigned int shooter = 0;
@@ -290,7 +285,7 @@ void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int project
 			{
 				if( mRemotePlayers.at(i)->GetTeam() != mPlayer->GetTeam() )
 				{
-					mPlayer->TakeDamage( 10, shooter );
+					mPlayer->TakeDamage( mRemotePlayers.at(i)->GetLoadOut()->rangedWeapon->damage, shooter );
 				}
 			}
 		}
@@ -329,7 +324,6 @@ HRESULT PlayState::Update( float deltaTime )
 	{
 		CheckPlayerCollision();
 		CheckProjectileCollision();
-		CheckTurretTarget();
 
 		if( mPlayer->GetIsMeleeing() )
 		{
@@ -348,7 +342,8 @@ HRESULT PlayState::Update( float deltaTime )
 	UpdateProjectiles( deltaTime );
 	mAnimationTime	+= deltaTime * 0.2f;
 
-	mTurret.Update( deltaTime );
+	mShip.PickTurretTarget( mAllPlayers );
+	mShip.Update( deltaTime );
 
 	return S_OK;
 }
@@ -357,7 +352,6 @@ HRESULT PlayState::Render()
 {
 
 	RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
-	RenderManager::GetInstance()->AddObject3dToList( mTestAsset, DirectX::XMFLOAT3( 10.0f, 0.0f, 10.0f ) );
 	RenderManager::GetInstance()->AddObject3dToList( mNest1Asset, DirectX::XMFLOAT3( 8.0f, 0.0f, 0.0f ) );
 	RenderManager::GetInstance()->AddObject3dToList( mTree1Asset, DirectX::XMFLOAT3( 12.0f, 0.0f, 0.0f ) );
 
@@ -385,7 +379,7 @@ HRESULT PlayState::Render()
 
 	//mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
 
-	mTurret.Render();
+	mShip.Render();
 
 	RenderManager::GetInstance()->Render();
 
@@ -409,7 +403,6 @@ HRESULT PlayState::Initialize()
 	mStateType = PLAY_STATE;
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Plane/", "plane.pfs", mPlaneAsset );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Ship/", "ship.pfs", mTestAsset );
 
 	AssetID skeleton = 0;
 	AssetID skel  =0;
@@ -473,7 +466,7 @@ HRESULT PlayState::Initialize()
 
 	//TEST
 	mAllPlayers.push_back( mPlayer );
-	mTurret.Initialize( 0 );
+	mShip.Initialize( 0, XMFLOAT3( 10.0f, 0.0f, 10.0f ), XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
 
 	return S_OK;
 }
@@ -493,7 +486,7 @@ void PlayState::Release()
 	}
 
 	mRemotePlayers.clear();
-	mTurret.Release();
+	mShip.Release();
 
 	for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
 		SAFE_DELETE( mProjectiles[i] );

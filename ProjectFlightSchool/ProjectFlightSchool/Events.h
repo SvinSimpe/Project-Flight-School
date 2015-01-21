@@ -784,7 +784,7 @@ class Event_Remote_Player_Melee_Hit : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Remote_Player_Melee_Hit( unsigned int id, unsigned int damage, float knockBack, XMFLOAT3 direction )
+		Event_Remote_Player_Melee_Hit( unsigned int id, float damage, float knockBack, XMFLOAT3 direction )
 		{
 			mID				= id;
 			mDamage			= damage;

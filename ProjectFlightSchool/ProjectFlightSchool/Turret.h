@@ -73,7 +73,7 @@ class Turret
 		void				PickTarget( std::vector<RemotePlayer*> targets );
 		HRESULT				Update( float deltaTime );
 		void				Render();
-		void				Initialize( int team );
+		void				Initialize( int team, XMFLOAT3 pos, XMFLOAT3 dir );
 		void				Release();
 							Turret();
 		virtual				~Turret();

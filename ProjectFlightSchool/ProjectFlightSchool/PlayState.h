@@ -6,7 +6,8 @@
 #include "Player.h"
 #include "RemotePlayer.h"
 #include "Font.h"
-#include "Turret.h"
+#include "Ship.h"
+#include "Image.h"
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
@@ -18,8 +19,6 @@ class PlayState : public BaseState
 	// Class members
 	private:
 		AssetID mPlaneAsset;
-
-		AssetID	mTestAsset;
 
 		AssetID	mTestAnimation[animTestNr];
 		AssetID	mTestAnimationAnimation[animTestNr];
@@ -41,7 +40,7 @@ class PlayState : public BaseState
 		//TEST
 		std::vector<RemotePlayer*> mAllPlayers;
 
-		Turret						mTurret;
+		Ship						mShip;
 	
 		//Game Data
 		Player*						mPlayer;
@@ -50,7 +49,7 @@ class PlayState : public BaseState
 		int							mNrOfProjectilesFired;
 		int							mCurrentColor;
 		Font						mFont;
-	
+
 	protected:
 	public:
 
@@ -61,7 +60,6 @@ class PlayState : public BaseState
 		void			CheckPlayerCollision();
 		void			CheckProjectileCollision();
 		void			CheckMeeleCollision();
-		void			CheckTurretTarget();
 		void			EventListener( IEventPtr newEvent );
 		void			BroadcastDamage( unsigned int playerID, unsigned int projectileID );						// Tell server that local  player has taken damage
 		void			BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction );
@@ -74,8 +72,6 @@ class PlayState : public BaseState
 
 	protected:
 	public:
-		
-
 		virtual HRESULT Update( float deltaTime );
 		virtual HRESULT Render();
 		virtual void	OnEnter();

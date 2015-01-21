@@ -214,7 +214,7 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 
 		for( int j = 0; j < (int)animation->joints.at(i).keys.size() - 1; j++ )
 		{
-			if( (float)animation->joints.at(i).keys.at(j) <= calcTime )
+			if( (float)animation->joints.at(i).keys.at(j) < calcTime )
 			{
 				prevTime		= targetTime;
 				previousMatrix	= targetMatrix;
@@ -223,7 +223,9 @@ void Graphics::RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAss
 			}
 		}
 
-		float interpolation = ( calcTime - prevTime ) / ( targetTime - prevTime );
+		float interpolation = 1.0f;
+		if( targetTime - prevTime > 0.0f )
+			interpolation = ( calcTime - prevTime ) / ( targetTime - prevTime );
 
 		DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &previousMatrix );
 
@@ -380,7 +382,7 @@ DirectX::XMFLOAT4X4 Graphics::GetRootMatrix( AssetID modelAssetId, AssetID anima
 
 	for( int j = 0; j < (int)animation->joints.at(0).keys.size() - 1; j++ )
 	{
-		if( (float)animation->joints.at(0).keys.at(j) <= calcTime )
+		if( (float)animation->joints.at(0).keys.at(j) < calcTime )
 		{
 			prevTime		= targetTime;
 			previousMatrix	= targetMatrix;
@@ -389,7 +391,9 @@ DirectX::XMFLOAT4X4 Graphics::GetRootMatrix( AssetID modelAssetId, AssetID anima
 		}
 	}
 
-	float interpolation = ( calcTime - prevTime ) / ( targetTime - prevTime );
+	float interpolation = 1.0f;
+	if( targetTime - prevTime > 0.0f )
+		interpolation = ( calcTime - prevTime ) / ( targetTime - prevTime );
 
 	DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &previousMatrix );
 
@@ -583,7 +587,7 @@ void Graphics::GetAnimationMatrices( AssetID modelAssetId, AssetID animationAsse
 
 		for( int j = 0; j < (int)animation->joints.at(i).keys.size() - 1; j++ )
 		{
-			if( (float)animation->joints.at(i).keys.at(j) <= calcTime )
+			if( (float)animation->joints.at(i).keys.at(j) < calcTime )
 			{
 				prevTime		= targetTime;
 				previousMatrix	= targetMatrix;
@@ -592,7 +596,9 @@ void Graphics::GetAnimationMatrices( AssetID modelAssetId, AssetID animationAsse
 			}
 		}
 
-		float interpolation = ( calcTime - prevTime ) / ( targetTime - prevTime );
+		float interpolation = 1.0f;
+		if( targetTime - prevTime > 0.0f )
+			interpolation = ( calcTime - prevTime ) / ( targetTime - prevTime );
 
 		DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &previousMatrix );
 

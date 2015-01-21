@@ -6,22 +6,28 @@
 class Ship
 {
 private:
-	BodyPart*	mModel;
-	int			mTeamID;
-	Turret*		mTurret;
+	BodyPart*		mModel;
+	BoundingCircle* mHitBox;
+	int				mTeamID;
+	Turret*			mTurret;
+	float			mMaxHull;
+	float			mCurrentHull;
+
 protected:
 public:
 
 private:
 protected:
 public:
-	void	PickTurretTarget( std::vector<RemotePlayer*> targets );
-	void	Update( float deltaTime );
-	void	Render();
-	int		GetTeamID() const;
-	void	Initialize( int team, XMFLOAT3 pos, XMFLOAT3 dir );
-	void	Release();
-			Ship();
-	virtual	~Ship();
+	BoundingCircle* GetHitBox() const;
+	void			TakeDamage( float damage );
+	void			PickTurretTarget( std::vector<RemotePlayer*> targets );
+	void			Update( float deltaTime );
+	void			Render();
+	int				GetTeamID() const;
+	void			Initialize( int team, XMFLOAT3 pos, XMFLOAT3 dir );
+	void			Release();
+					Ship();
+	virtual			~Ship();
 };
 #endif

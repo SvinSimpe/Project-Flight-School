@@ -233,6 +233,17 @@ void PlayState::CheckProjectileCollision()
 			}
 		}
 	}
+
+	for( size_t i = 0; i < MAX_PROJECTILES; i++ )
+	{
+		if( mProjectiles[i]->IsActive() )
+		{
+			if( mProjectiles[i]->GetBoundingCircle()->Intersect( mShip.GetHitBox() ))
+			{
+				mShip.TakeDamage( 1.0f );
+			}
+		}
+	}
 }
 
 void PlayState::CheckMeeleCollision()
@@ -274,7 +285,6 @@ void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int project
 				mProjectiles[i]->Reset();
 		}
 	}
-	
 
 	if( mPlayer->GetID() == id )
 	{

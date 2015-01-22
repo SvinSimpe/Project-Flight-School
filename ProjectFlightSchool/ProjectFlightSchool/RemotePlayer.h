@@ -7,6 +7,7 @@
 #include "BoundingGeometry.h"
 #include "RenderManager.h"
 #include "Font.h"
+#include "WeaponInfo.h"
 
 #define	PLAYER_ANIMATION_LEGS_WALK	0
 #define PLAYER_ANIMATION_LEGS_IDLE	1
@@ -30,6 +31,24 @@ struct LowerBody
 	float		currentLowerAnimationTime;
 };
 
+struct LoadOut
+{
+	RangedInfo*	rangedWeapon;
+	MeleeInfo*	meleeWeapon;
+
+	LoadOut()
+	{
+		rangedWeapon	= nullptr;
+		meleeWeapon		= nullptr;
+	}
+
+	void Release()
+	{
+		SAFE_DELETE( rangedWeapon );
+		SAFE_DELETE( meleeWeapon );
+	}
+};
+
 class RemotePlayer
 {
 	// Member variables
@@ -39,6 +58,8 @@ class RemotePlayer
 		int				mTeam;
 		UpperBody		mUpperBody;
 		LowerBody		mLowerBody;
+		AssetID			mRightArm;
+		AssetID			mLeftArm;
 		AssetID			mAnimations[PLAYER_ANIMATION_COUNT];	
 
 		BoundingBox*	mBoundingBox;
@@ -57,14 +78,21 @@ class RemotePlayer
 		int				mNrOfKills;
 		Font			mFont;
 
+		float		mMaxVelocity;
+		float		mCurrentVelocity;
+		float		mMaxAcceleration;
+		XMFLOAT3	mAcceleration;
+		XMFLOAT3	mVelocity;
+		LoadOut*	mLoadOut;
+
 	public:
 
 	// Member functions
 	private:
-		void		RemoteUpdate( IEventPtr newEvent );
+		void			RemoteUpdate( IEventPtr newEvent );
 
 	protected:
-		void		LookAt( float rotation );
+		void			LookAt( float rotation );
 
 	public:
 		void			RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID );
@@ -73,19 +101,34 @@ class RemotePlayer
 		virtual void	Die();
 		void			HandleSpawn( float deltaTime );
 		void			Spawn();
-		void			TakeDamage( unsigned int damage, unsigned int shooter );
+		void			TakeDamage( float damage, unsigned int shooter );
 		void			SetHP( float hp );
 		void			CountUpKills();
+		bool			IsAlive() const;
+		LoadOut*		GetLoadOut() const;
+		float			GetHP() const;
 		int				GetID() const;
 		int				GetTeam() const;
 		BoundingBox*	GetBoundingBox() const;
 		BoundingCircle*	GetBoundingCircle() const;
 		XMFLOAT3		GetPosition() const;
+		XMFLOAT3		GetDirection() const;
+		void			SetDirection( XMFLOAT3 direction );
+		void			AddImpuls( XMFLOAT3 impuls );
 		virtual HRESULT	Render( float deltaTime, int position );
 		virtual HRESULT	Initialize();
 		void			Release();
 						RemotePlayer();
 		virtual			~RemotePlayer();
+
+
+
+
+
+
+
+		////TEST
+		void TakeDamage( float damage );
 };
 
 #endif

@@ -45,7 +45,6 @@ struct EvProjectileFired
 	DirectX::XMFLOAT3 position;
 	DirectX::XMFLOAT3 direction;
 };
-
 struct EvEnemyCreated
 {
 	unsigned int ID;
@@ -56,10 +55,19 @@ struct EvEnemyCreated
 struct EvSyncEnemy
 {
 	unsigned int		ID;
+	unsigned int		model;
+	unsigned int		animation;
 	float				hp;
 	bool				isAlive;
 	DirectX::XMFLOAT3	position;
 	DirectX::XMFLOAT3	direction;
+};
+struct EvMeleeHit
+{
+	unsigned int			ID;
+	unsigned int			damage;
+	float					knockBack;
+	DirectX::XMFLOAT3		direction;
 };
 
 #endif

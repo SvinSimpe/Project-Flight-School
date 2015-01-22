@@ -15,6 +15,7 @@ void Player::HandleInput( float deltaTime )
 	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_D) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_A) )
 		mAcceleration.x = mMaxAcceleration;
 
+
 	//Normalize acceleration 
 	XMVECTOR normalizer = XMVector3Length( XMLoadFloat3( &mAcceleration ) );
 	if( XMVectorGetX( normalizer ) > mMaxAcceleration )
@@ -53,16 +54,8 @@ void Player::HandleInput( float deltaTime )
 
 	XMVECTOR playerToCursor = XMVectorSubtract( intersection, XMLoadFloat3( &mUpperBody.position ) );
 	XMStoreFloat3( &unPack, playerToCursor );
-	playerToCursor = XMVectorSet( unPack.x, 0.0f, unPack.z, 0.0f );
-
-
-	playerToCursor	= XMVector3Normalize( playerToCursor );
-	float radians	= atan2f( XMVectorGetZ( playerToCursor ), XMVectorGetX( playerToCursor ) );
-
-
- 	mUpperBody.direction.x = 0.0f;
-	mUpperBody.direction.y = -radians;
-	mUpperBody.direction.z = 0.0f;
+	playerToCursor = XMVector3Normalize( XMVectorSet( unPack.x, 0.0f, unPack.z, 0.0f ) );
+	XMStoreFloat3( &mUpperBody.direction, playerToCursor );
 
 	//== Weapon handling ==
 	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_SPACE) && mWeaponCoolDown <= 0.0f )
@@ -72,6 +65,14 @@ void Player::HandleInput( float deltaTime )
 	}
 	else
 		mWeaponCoolDown -= deltaTime;
+
+	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_E ) && mMeleeCoolDown <= 0.0f )
+	{
+		mIsMeleeing = true;
+		mMeleeCoolDown = 2.0f;
+	}
+	else
+		mMeleeCoolDown -= deltaTime;
 
 	//== Event to sync player with server ==
 	IEventPtr E1( new Event_Player_Update( mLowerBody.position, mLowerBody.direction, mLowerBody.currentLowerAnimation, mLowerBody.currentLowerAnimationTime, mUpperBody.position, mUpperBody.direction ) );
@@ -158,16 +159,15 @@ HRESULT Player::Update( float deltaTime )
 	Graphics::GetInstance()->SetFocus( mLowerBody.position );
 
 	//Update Bounding Primitives
-	mBoundingBox->position	= mLowerBody.position;
-	mBoundingCircle->center	= mLowerBody.position;
+	mBoundingBox->position							= mLowerBody.position;
+	mBoundingCircle->center							= mLowerBody.position;
+	mLoadOut->meleeWeapon->boundingCircle->center	= mLowerBody.position;
 
 	return S_OK;
 }
 
-
 HRESULT Player::Render( float deltaTime, int position )
 {
-
 	//RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
 	//RenderManager::GetInstance()->AddObject3dToList( mLowerBody.playerModel, mLowerBody.position );
 
@@ -215,10 +215,11 @@ HRESULT Player::Render( float deltaTime, int position )
 		
 
 
-		mFont.WriteText( textToWrite, 500.0f, 500.0f, 3.0f );
+		mFont.WriteText( textToWrite, 500.0f, 500.0f, 1.0f );
 	}
 
 	RemotePlayer::Render( deltaTime, position );
+
 
 	return S_OK;
 }
@@ -254,6 +255,16 @@ XMFLOAT3 Player::GetUpperBodyDirection() const
 	return mUpperBody.direction;
 }
 
+bool Player::GetIsMeleeing() const
+{
+	return mIsMeleeing;
+}
+
+void Player::SetIsMeleeing( bool isMeleeing )
+{
+	mIsMeleeing = isMeleeing;
+}
+
 void Player::Fire()
 {
 	IEventPtr E1( new Event_Projectile_Fired( mID, mUpperBody.position, mUpperBody.direction ) );
@@ -273,20 +284,11 @@ HRESULT Player::Initialize()
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
-
-	//Weapon Initialization
-	mLoadOut				= new LoadOut();
-	mLoadOut->rangedWeapon	= new RangedInfo( "Machine Gun", 5.0f, 1, 5.0f, 2, 0 );
-	mLoadOut->meleeWeapon	= new MeleeInfo( "Sword", 4.0f, 3, 7, 2.0f );
-
 	return S_OK;
 }
 
 void Player::Release()
 {
-	mLoadOut->Release();
-	SAFE_DELETE( mLoadOut );
-	
 	RemotePlayer::Release();
 }
 
@@ -294,7 +296,8 @@ Player::Player()
 	:RemotePlayer()
 {
 	mWeaponCoolDown	= 0.0f;
-	mLoadOut		= nullptr;
+	mMeleeCoolDown	= 0.0f;
+	mIsMeleeing		= false;
 }
 
 Player::~Player()

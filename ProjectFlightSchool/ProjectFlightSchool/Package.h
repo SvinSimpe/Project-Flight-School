@@ -17,6 +17,7 @@ enum class Net_Event
 	EV_ENEMY_CREATED,
 	EV_SYNC_ENEMY,
 	EV_ENEMY_LIST_SYNCED,
+	EV_MELEE_HIT,
 	YOUR_ID
 };
 

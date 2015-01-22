@@ -32,8 +32,8 @@ void Enemy::Spawn( XMFLOAT3 spawnPos )
 	// Send spawnEv
 
 	// Debug
-	mPosition.x = rand() % 400;
-	mPosition.z = rand() % 400;
+	mPosition.x = rand() % 200;
+	mPosition.z = rand() % 200;
 }
 
 void Enemy::Die()
@@ -52,6 +52,28 @@ unsigned int Enemy::GetID() const
 void Enemy::SetID( unsigned int id )
 {
 	mID = id;
+}
+
+AssetID Enemy::GetModelID() const
+{
+	return mModel;
+}
+
+void Enemy::SetModelID( AssetID model )
+{
+	mModel = model;
+}
+
+AssetID Enemy::GetAnimation() const
+{
+	// Change to current animation
+	return mAnimations[ENEMY_ANIMATION_IDLE];
+}
+
+void Enemy::SetAnimation( AssetID animation )
+{
+	// Change to current animation
+	mAnimations[ENEMY_ANIMATION_IDLE] = animation;
 }
 
 float Enemy::GetHP() const
@@ -102,7 +124,7 @@ HRESULT Enemy::Initialize( int id )
 	// Load animated 3d asset
 	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, mModel );
 	// Load animation asset
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptor_run.PaMan", mAnimations[ENEMY_ANIMATION_IDLE] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptor_idle.PaMan", mAnimations[ENEMY_ANIMATION_IDLE] );
 
 	mID				= id;
 	mMaxHp			= 100.0f;

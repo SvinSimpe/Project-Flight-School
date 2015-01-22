@@ -7,10 +7,14 @@
 class JoinMenuState : public BaseMenuState
 {
 	private:
-		MenuButton		mBackButton;
-		InputSquare		mIPBox;
-		InputSquare		mPortBox;
-		Image			mText;
+		static const int
+			JOIN			= 0,
+			BACK			= 1,
+			BUTTON_AMOUNT	= 2;
+
+		InputSquare	mIPBox;
+		InputSquare	mPortBox;
+
 	protected:
 	public:
 
@@ -25,7 +29,7 @@ class JoinMenuState : public BaseMenuState
 		void	Reset();
 		HRESULT Initialize();
 		void	Release();
-		JoinMenuState();
-		~JoinMenuState();
+				JoinMenuState();
+		virtual ~JoinMenuState();
 };
 #endif

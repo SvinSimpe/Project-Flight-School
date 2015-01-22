@@ -104,6 +104,12 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Remote_Projectile_Fired> data = std::static_pointer_cast<Event_Remote_Projectile_Fired>(newEvent);
 		FireProjectile( data->ID(), data->ProjectileID(), data->BodyPos(), data->Direction() );
 	}
+	else if ( newEvent->GetEventType() == Event_Remote_Player_Melee_Hit::GUID )
+	{
+		// Melee Hit
+		std::shared_ptr<Event_Remote_Player_Melee_Hit> data = std::static_pointer_cast<Event_Remote_Player_Melee_Hit>(newEvent);
+		HandleRemoteMeleeHit( data->ID(), data->Damage(), data->KnockBack(), data->Direction() );
+	}
 	else if ( newEvent->GetEventType() == Event_Remote_Player_Update_HP::GUID )
 	{
 		std::shared_ptr<Event_Remote_Player_Update_HP> data = std::static_pointer_cast<Event_Remote_Player_Update_HP>( newEvent );
@@ -119,7 +125,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if ( newEvent->GetEventType() == Event_Sync_Enemy::GUID )
 	{
 		std::shared_ptr<Event_Sync_Enemy> data = std::static_pointer_cast<Event_Sync_Enemy>( newEvent );
-		SyncEnemy( data->ID(), data->HP(), data->IsAlive(), data->Position(), data->Direction() );
+		SyncEnemy( data->ID(), data->Model(), data->Animation(), data->HP(), data->IsAlive(), data->Position(), data->Direction() );
 	}
 	else if ( newEvent->GetEventType() == Event_Enemy_List_Synced::GUID )
 	{
@@ -131,20 +137,31 @@ void PlayState::EventListener( IEventPtr newEvent )
 	}
 }
 
-void PlayState::SyncEnemy( unsigned int id, float hp, bool alive, XMFLOAT3 position, XMFLOAT3 direction )
+void PlayState::SyncEnemy( unsigned int id, unsigned int model, unsigned int animation, float hp, bool alive, XMFLOAT3 position, XMFLOAT3 direction )
 {
 	mEnemyListSynced = false;
 	mEnemies[id]->SetID( id );
+	mEnemies[id]->SetModelID( model );
+	mEnemies[id]->SetAnimation( animation );
 	mEnemies[id]->SetHP( hp );
 	mEnemies[id]->SetIsAlive( alive );
 	mEnemies[id]->SetPosition( position );
 	mEnemies[id]->SetDirection( direction );
+
+	if( id == (MAX_NR_OF_ENEMIES-1) )
+		mEnemyListSynced = true;
 }
 
 // Tell server that local  player has taken damage
 void PlayState::BroadcastDamage( unsigned int playerID, unsigned int projectileID )
 {
-	IEventPtr dmgEv(new Event_Player_Damaged( playerID, projectileID ) );
+	IEventPtr dmgEv( new Event_Player_Damaged( playerID, projectileID ) );
+	EventManager::GetInstance()->QueueEvent( dmgEv );
+}
+
+void PlayState::BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction )
+{
+	IEventPtr dmgEv( new Event_Player_Melee_Hit( playerID, damage, knockBack, direction ) );
 	EventManager::GetInstance()->QueueEvent( dmgEv );
 }
 
@@ -203,9 +220,6 @@ void PlayState::CheckPlayerCollision()
 				//if( mPlayer->GetBoundingBox()->Intersect( mRemotePlayers.at(i)->GetBoundingBox() ) )		// BoundingBox
 				if( mPlayer->GetBoundingCircle()->Intersect( mRemotePlayers.at(i)->GetBoundingCircle() ) )	// BoundingCircle
 				{
-					//mPlayer->SetIsMovable( false );
-					OutputDebugStringA( "\nPLAYER COLLISION" );
-
 					//Direction
 					XMVECTOR remoteToPlayerVec	= ( XMLoadFloat3( &mPlayer->GetBoundingCircle()->center ) - 
 													XMLoadFloat3( &mRemotePlayers.at(i)->GetBoundingCircle()->center ) );
@@ -246,14 +260,45 @@ void PlayState::CheckProjectileCollision()
 			}
 		}
 	}
+
+	for( size_t i = 0; i < MAX_PROJECTILES; i++ )
+	{
+		if( mProjectiles[i]->IsActive() )
+		{
+			if( mProjectiles[i]->GetBoundingCircle()->Intersect( mShip.GetHitBox() ))
+			{
+				mShip.TakeDamage( 1.0f );
+			}
+		}
+	}
 }
 
 void PlayState::CheckMeeleCollision()
 {
-	XMVECTOR aimingDirection = XMLoadFloat3( &mPlayer->GetUpperBodyDirection() );
-	aimingDirection = XMVector4Normalize( aimingDirection );
+	for ( size_t i = 0; i < mRemotePlayers.size(); i++ )
+	{
+		//Check intersection with melee circle & remotePlayer
+		if( mPlayer->GetLoadOut()->meleeWeapon->boundingCircle->Intersect( mRemotePlayers.at(i)->GetBoundingCircle() ) )
+		{
+			XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) * mPlayer->GetLoadOut()->meleeWeapon->radius );
 
-	XMVECTOR meeleLengthVector = ( XMLoadFloat3( &mPlayer->GetPosition() ) -  ( aimingDirection * 2 ) );
+			//Spread to Radians
+			float halfRadian = XMConvertToRadians( mPlayer->GetLoadOut()->meleeWeapon->spread * 18.0f ) * 0.5f;
+
+			XMVECTOR playerToRemote = XMLoadFloat3( &mRemotePlayers.at(i)->GetPosition() ) - XMLoadFloat3( &mPlayer->GetPosition() );
+
+			float angleRemoteToAim = 0.0f;
+			XMVECTOR playerToCenter = XMLoadFloat3( &mRemotePlayers.at(i)->GetBoundingCircle()->center ) - XMLoadFloat3( &mPlayer->GetPlayerPosition() );
+			XMStoreFloat( &angleRemoteToAim, XMVector4AngleBetweenVectors( playerToCenter, meeleRadiusVector ) );
+
+			if( angleRemoteToAim <= halfRadian )
+			{
+				XMFLOAT3 direction = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+				XMStoreFloat3( &direction, XMVector4Normalize( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) ) );
+				BroadcastMeleeDamage( mRemotePlayers.at(i)->GetID(), mPlayer->GetLoadOut()->meleeWeapon->damage, mPlayer->GetLoadOut()->meleeWeapon->knockBack, direction );
+			}
+		}
+	}
 }
 
 void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID )
@@ -267,7 +312,6 @@ void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int project
 				mProjectiles[i]->Reset();
 		}
 	}
-	
 
 	if( mPlayer->GetID() == id )
 	{
@@ -278,9 +322,31 @@ void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int project
 			{
 				if( mRemotePlayers.at(i)->GetTeam() != mPlayer->GetTeam() )
 				{
-					mPlayer->TakeDamage( 10, shooter );
+					mPlayer->TakeDamage( mRemotePlayers.at(i)->GetLoadOut()->rangedWeapon->damage, shooter );
 				}
 			}
+		}
+	}
+}
+
+void PlayState::HandleRemoteMeleeHit( unsigned int id, float damage, float knockBack, XMFLOAT3 direction )
+{
+	if( id == mPlayer->GetID() )
+	{
+		direction.x *= knockBack;
+		direction.z *= knockBack;
+		mPlayer->AddImpuls( direction );
+		mPlayer->TakeDamage( (float)damage );
+	}
+
+	for ( size_t i = 0; i < mRemotePlayers.size(); i++ )
+	{
+		if( mRemotePlayers.at(i)->GetID() == id )
+		{
+			direction.x *= ( knockBack * 5.0f ); // 1 knock back == 5
+			direction.z *= ( knockBack * 5.0f );
+			mRemotePlayers.at(i)->AddImpuls( direction );
+			mRemotePlayers.at(i)->TakeDamage( (float)damage );
 		}
 	}
 }
@@ -291,13 +357,17 @@ void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int project
 
 HRESULT PlayState::Update( float deltaTime )
 {
-	OutputDebugStringA( "\n-------------------" );
-
-
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{
 		CheckPlayerCollision();
 		CheckProjectileCollision();
+
+		if( mPlayer->GetIsMeleeing() )
+		{
+			CheckMeeleCollision();
+			mPlayer->SetIsMeleeing( false );
+		}
+
 		mFrameCounter = 0;
 	}
 	else
@@ -307,7 +377,19 @@ HRESULT PlayState::Update( float deltaTime )
 	mPlayer->Update( deltaTime );
 
 	UpdateProjectiles( deltaTime );
-	mAnimationTime	+= deltaTime * 0.2f;
+	mAnimationTime	+= deltaTime;
+
+	mShip.PickTurretTarget( mAllPlayers );
+	mShip.Update( deltaTime );
+	if( mEnemyListSynced )
+	{
+		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+		{
+			if( mEnemies[i]->IsAlive() )
+				mEnemies[i]->Update( deltaTime );
+		}
+	}
+
 
 	return S_OK;
 }
@@ -316,7 +398,6 @@ HRESULT PlayState::Render()
 {
 
 	RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
-	RenderManager::GetInstance()->AddObject3dToList( mTestAsset, DirectX::XMFLOAT3( 10.0f, 0.0f, 10.0f ) );
 	RenderManager::GetInstance()->AddObject3dToList( mNest1Asset, DirectX::XMFLOAT3( 8.0f, 0.0f, 0.0f ) );
 	RenderManager::GetInstance()->AddObject3dToList( mTree1Asset, DirectX::XMFLOAT3( 12.0f, 0.0f, 0.0f ) );
 
@@ -325,10 +406,8 @@ HRESULT PlayState::Render()
 		RenderManager::GetInstance()->AddObject3dToList( mStoneAssets[i], DirectX::XMFLOAT3( (float)i*4.0f, 0.0f, -4.0f ) );
 	}
 	
-	for(int i = 0; i < animTestNr; i++)
-		RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation[i], mTestAnimationAnimation[i], &mAnimationTime, DirectX::XMFLOAT3( -5.0f, ((i * 1) + 0.0f), 0.0f ) );
-
-
+	//for(int i = 0; i < animTestNr; i++)
+	//	RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation[i], mTestAnimationAnimation[i], &mAnimationTime, DirectX::XMFLOAT3( (float)i * -5.0f, 0.0f, 0.0f ) );
 
 	mPlayer->Render( 0.0f, 1 );
 	//mWorldMap->Render( 0.0f );
@@ -344,6 +423,7 @@ HRESULT PlayState::Render()
 
 	//mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
 
+
 	// Enemies
   	if( mEnemyListSynced )
 	{
@@ -353,6 +433,11 @@ HRESULT PlayState::Render()
 				mEnemies[i]->Render();
 		}
 	}
+
+	//enemy->Render();
+	//mEnemies[0]->Render();
+	mShip.Render();
+
 
 	RenderManager::GetInstance()->Render();
 
@@ -385,7 +470,6 @@ HRESULT PlayState::Initialize()
 	mStateType = PLAY_STATE;
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Plane/", "plane.pfs", mPlaneAsset );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Ship/", "crashed_ship.pfs", mTestAsset );
 
 	AssetID skeleton = 0;
 	AssetID skel  =0;
@@ -394,7 +478,7 @@ HRESULT PlayState::Initialize()
 	{
 		Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", skeleton );
 		Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, mTestAnimation[i] );
-		Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptor_death.PaMan", mTestAnimationAnimation[i] );
+		Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptorDeath2.PaMan", mTestAnimationAnimation[i] );
 	}
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_1.pfs", mNest1Asset );
@@ -442,6 +526,7 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Damaged::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Spawned::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Projectile_Fired::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Melee_Hit::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Update_HP::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Sync_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Enemy_List_Synced::GUID );
@@ -451,12 +536,17 @@ HRESULT PlayState::Initialize()
 
 	//TEST
 	mAllPlayers.push_back( mPlayer );
+	mShip.Initialize( 0, XMFLOAT3( 10.0f, 0.0f, 10.0f ), XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
+
+	enemy = new Enemy();
+	enemy->Initialize( 2 );
 
 	// Enemies
 	mEnemies	= new Enemy*[MAX_NR_OF_ENEMIES];
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 	{
 		mEnemies[i] = new Enemy();
+		mEnemies[i]->Initialize( i );
 	}
 
 	return S_OK;
@@ -477,6 +567,7 @@ void PlayState::Release()
 	}
 
 	mRemotePlayers.clear();
+	mShip.Release();
 
 	for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
 		SAFE_DELETE( mProjectiles[i] );
@@ -497,6 +588,7 @@ PlayState::PlayState()
 	mRemotePlayers.reserve(MAX_REMOTE_PLAYERS);
 	mFrameCounter		= 0;
 	mProjectiles		= nullptr;
+	mEnemies			= nullptr;
 	mNrOfEnemies		= 0;
 	mMaxNrOfEnemies		= 0;
 	mEnemyListSynced	= false;

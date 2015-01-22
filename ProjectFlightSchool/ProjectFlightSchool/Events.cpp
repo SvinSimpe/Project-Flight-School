@@ -63,3 +63,7 @@ const EventType Event_Remote_Player_Update_HP::GUID( 19 );
 const EventType Event_Sync_Enemy::GUID( 20 );
 const EventType Event_Enemy_List_Synced::GUID( 21 );
 const EventType Event_Server_Initialized::GUID( 22 );
+const EventType Event_Connection_Failed::GUID( 23 );
+const EventType Event_Player_Melee_Hit::GUID( 24 );
+const EventType Event_Remote_Player_Melee_Hit::GUID( 25 ); 
+

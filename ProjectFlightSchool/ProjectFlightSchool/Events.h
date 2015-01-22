@@ -679,7 +679,7 @@ class Event_Player_Update_HP : public IEvent
 	public:
 		static const EventType GUID;
 
-	// Member functions
+	//Member functions
 	private:
 	protected:
 		const EventType& GetEventType( void ) const
@@ -695,7 +695,7 @@ class Event_Player_Update_HP : public IEvent
 		unsigned int ID() const
 		{
 			return mID;
-		}
+		} 
 		float HP()
 		{
 			return mHP;
@@ -711,7 +711,6 @@ class Event_Remote_Player_Update_HP : public IEvent
 	protected:
 	public:
 		static const EventType GUID;
-
 	// Member functions
 	private:
 	protected:
@@ -740,6 +739,8 @@ class Event_Sync_Enemy : public IEvent
 	// Member variables
 	private:
 		unsigned int	mID;
+		unsigned int	mModel;
+		unsigned int	mAnimation;
 		float			mHp;
 		bool			mIsAlive;
 		XMFLOAT3		mPosition;
@@ -748,8 +749,7 @@ class Event_Sync_Enemy : public IEvent
 	protected:
 	public:
 		static const EventType GUID;
-	
-	// Member functions
+		// Member functions
 	private:
 	protected:
 		const EventType& GetEventType( void ) const
@@ -757,9 +757,11 @@ class Event_Sync_Enemy : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Sync_Enemy( unsigned int id, float hp, bool alive, XMFLOAT3 position, XMFLOAT3 direction )
+	Event_Sync_Enemy( unsigned int id, unsigned int model, unsigned int animation, float hp, bool alive, XMFLOAT3 position, XMFLOAT3 direction )
 		{
 			mID				= id;
+			mModel			= model;	
+			mAnimation		= animation;
 			mHp				= hp;
 			mIsAlive		= alive;
 			mPosition		= position;
@@ -768,6 +770,14 @@ class Event_Sync_Enemy : public IEvent
 		unsigned int ID() const
 		{
 			return mID;
+		}
+		unsigned int Model() const
+		{
+			return mModel;
+		}
+		unsigned int Animation() const
+		{
+			return mAnimation;
 		}
 		float HP()
 		{
@@ -784,6 +794,32 @@ class Event_Sync_Enemy : public IEvent
 		XMFLOAT3 Direction() const
 		{
 			return mDirection;
+		}
+};
+
+class Event_Connection_Failed : public IEvent
+{
+	// Member variables
+	private:
+		std::string mFailMessage;
+	protected:
+	public:
+		static const EventType GUID;
+		// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Connection_Failed( std::string failMessage )
+		{
+			mFailMessage = failMessage;
+		}
+		std::string FailMessage()
+		{
+			return mFailMessage;
 		}
 };
 
@@ -806,14 +842,59 @@ class Event_Enemy_List_Synced : public IEvent
 		Event_Enemy_List_Synced( )
 		{
 		}
+};
+		
+class Event_Player_Melee_Hit : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		float			mDamage;
+		float			mKnockBack;
+		XMFLOAT3		mDirection;
+
+	protected:
+	public:
+		static const EventType GUID;
 	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Player_Melee_Hit( unsigned int id, float damage, float knockBack, XMFLOAT3 direction )
+		{
+			mID				= id;
+			mDamage			= damage;
+			mKnockBack		= knockBack;
+			mDirection		= direction;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		} 
+		float Damage() const
+		{
+			return mDamage;
+		}
+		float KnockBack() const
+		{
+			return mKnockBack;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
+		}
 };
 
 class Event_Server_Initialized : public IEvent
 {
 	// Member variables
 	private:
-	protected:
+		protected:
 	public:
 		static const EventType GUID;
 	
@@ -828,5 +909,50 @@ class Event_Server_Initialized : public IEvent
 		Event_Server_Initialized( )
 		{
 		}
+};
+
+class Event_Remote_Player_Melee_Hit : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		float			mDamage;
+		float			mKnockBack;
+		XMFLOAT3		mDirection;
+
+	protected:
+	public:
+		static const EventType GUID;
 	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Remote_Player_Melee_Hit( unsigned int id, float damage, float knockBack, XMFLOAT3 direction )
+		{
+			mID				= id;
+			mDamage			= damage;
+			mKnockBack		= knockBack;
+			mDirection		= direction;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+		float Damage() const
+		{
+			return mDamage;
+		}
+		float KnockBack() const
+		{
+			return mKnockBack;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
+		}
 };

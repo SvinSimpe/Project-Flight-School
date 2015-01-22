@@ -46,6 +46,10 @@ class Enemy
 		virtual void		Die();
 		unsigned int		GetID() const;
 		void				SetID( unsigned int id );
+		AssetID				GetModelID() const;
+		void				SetModelID( AssetID model );
+		AssetID				GetAnimation() const;
+		void				SetAnimation( AssetID animation );
 		float				GetHP() const;
 		void				SetHP( float hp );
 		bool				IsAlive() const;

@@ -107,18 +107,19 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 			EvSyncEnemy enemy;
 			for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 			{
-				enemy.ID = mEnemies[i]->GetID();
-				enemy.hp = mEnemies[i]->GetHP();
-				enemy.isAlive = mEnemies[i]->IsAlive();
-				enemy.position = mEnemies[i]->GetPosition();
-				enemy.direction = mEnemies[i]->GetDirection();
+				enemy.ID			= mEnemies[i]->GetID();
+				enemy.model			= mEnemies[i]->GetModelID();
+				enemy.animation		= mEnemies[i]->GetAnimation();
+				enemy.hp			= mEnemies[i]->GetHP();
+				enemy.isAlive		= mEnemies[i]->IsAlive();
+				enemy.position		= mEnemies[i]->GetPosition();
+				enemy.direction		= mEnemies[i]->GetDirection();
 
 				mConn->SendPkg( s.s, 0, Net_Event::EV_SYNC_ENEMY, enemy );
 			}
 			
 			// List synchronized
-			Message msg;
-			mConn->SendPkg( s.s, 0, Net_Event::EV_ENEMY_LIST_SYNCED, msg );
+			//mConn->SendPkg( s.s, 0, Net_Event::EV_ENEMY_LIST_SYNCED, 0 );
 		}
 			break;
 		case Net_Event::EV_PLAYER_DIED:
@@ -179,6 +180,18 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 				if ( socket.s != s.s && socket.s != INVALID_SOCKET )
 				{
 					mConn->SendPkg( socket.s, 0, Net_Event::EV_UPDATE_HP, toAll );
+				}
+			}
+		}
+			break;
+		case Net_Event::EV_MELEE_HIT:
+		{
+			EvMeleeHit toAll = (EvMeleeHit&)p->body.content;
+			for ( auto& socket : mClientSockets )
+			{
+				if ( socket.s != INVALID_SOCKET )
+				{
+					mConn->SendPkg( socket.s, 0, Net_Event::EV_MELEE_HIT, toAll );
 				}
 			}
 		}

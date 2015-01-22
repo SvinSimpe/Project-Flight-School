@@ -7,6 +7,8 @@
 #include "RemotePlayer.h"
 #include "Font.h"
 #include "Enemy.h"
+#include "Ship.h"
+#include "Image.h"
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
@@ -18,8 +20,6 @@ class PlayState : public BaseState
 	// Class members
 	private:
 		AssetID mPlaneAsset;
-
-		AssetID	mTestAsset;
 
 		AssetID	mTestAnimation[animTestNr];
 		AssetID	mTestAnimationAnimation[animTestNr];
@@ -40,7 +40,11 @@ class PlayState : public BaseState
 
 		//TEST
 		std::vector<RemotePlayer*> mAllPlayers;
+
+		Ship						mShip;
 	
+		Enemy*						enemy;
+
 		//Game Data
 		Player*						mPlayer;
 		std::vector<RemotePlayer*>	mRemotePlayers;
@@ -54,12 +58,13 @@ class PlayState : public BaseState
 		bool						mEnemyListSynced;
 		bool						mServerInitialized;
 	
+
 	protected:
 	public:
 
 	// Class functions
 	private:
-		void			SyncEnemy( unsigned int id, float hp, bool alive, XMFLOAT3 position, XMFLOAT3 direction );
+		void			SyncEnemy( unsigned int id, unsigned int model, unsigned int animation, float hp, bool alive, XMFLOAT3 position, XMFLOAT3 direction );
 		void			RemoteUpdate( IEventPtr newEvent );
 		void			HandleDeveloperCameraInput();
 		void			CheckPlayerCollision();
@@ -67,16 +72,16 @@ class PlayState : public BaseState
 		void			CheckMeeleCollision();
 		void			EventListener( IEventPtr newEvent );
 		void			BroadcastDamage( unsigned int playerID, unsigned int projectileID );						// Tell server that local  player has taken damage
+		void			BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction );
 
 		void			FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction );
 		void			UpdateProjectiles( float deltaTime );
 		void			RenderProjectiles();
 		void			HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID );
+		void			HandleRemoteMeleeHit( unsigned int id, float damage, float knockBack, XMFLOAT3 direction );
 
 	protected:
 	public:
-		
-
 		virtual HRESULT Update( float deltaTime );
 		virtual HRESULT Render();
 		virtual void	OnEnter();

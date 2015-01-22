@@ -4,40 +4,17 @@
 #include "Input.h"
 #include "Projectile.h"
 #include "RemotePlayer.h"
-#include "WeaponInfo.h"
 #include "RenderManager.h"
 
 #define VELOCITY_FALLOFF 2.0f
-
-struct LoadOut
-{
-	RangedInfo*	rangedWeapon;
-	MeleeInfo*	meleeWeapon;
-
-	LoadOut()
-	{
-		rangedWeapon	= nullptr;
-		meleeWeapon		= nullptr;
-	}
-
-	void Release()
-	{
-		SAFE_DELETE( rangedWeapon );
-		SAFE_DELETE( meleeWeapon );
-	}
-};
 
 class Player: public RemotePlayer
 {
 	private:
 		float		mWeaponCoolDown;
-		float		mMaxVelocity;
-		float		mCurrentVelocity;
-		float		mMaxAcceleration;
-		XMFLOAT3	mAcceleration;
-		XMFLOAT3	mVelocity;
+		float		mMeleeCoolDown;
+		bool		mIsMeleeing;
 
-		LoadOut*	mLoadOut;
 		
 	private:
 		void		HandleInput( float deltaTime );
@@ -54,6 +31,8 @@ class Player: public RemotePlayer
 		void		SetPosition( XMVECTOR position );
 		void		Fire();
 		XMFLOAT3	GetUpperBodyDirection() const;
+		bool		GetIsMeleeing()	const;
+		void		SetIsMeleeing( bool isMeleeing );
 			
 		HRESULT		Initialize();
 		void		Release();

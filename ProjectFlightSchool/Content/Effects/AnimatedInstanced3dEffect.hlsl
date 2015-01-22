@@ -2,7 +2,6 @@
 static const int MAX_INSTANCE = 60;
 struct PerInstanceData
 {
-	float4x4 worldMatrix;
 	float4x4 boneTransforms[16];
 };
 
@@ -26,6 +25,7 @@ struct VS_In
 	float2			uv			: TEX;
 	float4			weights		: WEIGHTS;
 	uint4			jointIndex	: JOINTINDEX;
+	float4x4		worldMatrix	: WORLD;
 	unsigned int	instanceID	: SV_InstanceID;
 
 };
@@ -46,20 +46,21 @@ VS_Out VS_main( VS_In input )
 	float3 transformedPosition	= float3( 0.0f, 0.0f, 0.0f );
 	float3 transformedNormal	= float3( 0.0f, 0.0f, 0.0f );
 	float3 transformedTangent	= float3( 0.0f, 0.0f, 0.0f );
+	[unroll]
 	for( int i = 0; i < 4; i++ )
 	{
 		transformedPosition += mul( float4( input.position, 1.0f ), perInstance[input.instanceID].boneTransforms[input.jointIndex[i]] ).xyz * input.weights[i];
 		transformedNormal	+= mul( input.normal, (float3x3)perInstance[input.instanceID].boneTransforms[input.jointIndex[i]] ) * input.weights[i];
 		transformedTangent	+= mul( input.tangent, (float3x3)perInstance[input.instanceID].boneTransforms[input.jointIndex[i]] ) * input.weights[i];
 	}
-
-	output.position			= mul( float4( transformedPosition, 1.0f ), perInstance[input.instanceID].worldMatrix );
+	
+	output.position			= mul( float4( transformedPosition, 1.0f ), input.worldMatrix );
 	output.worldPosition	= output.position.xyz;
 	output.position			= mul( output.position, viewMatrix );
 	output.position			= mul( output.position, projectionMatrix );
 
-	output.normal	= mul( transformedNormal, (float3x3)perInstance[input.instanceID].worldMatrix );
-	output.tangent	= mul( transformedTangent, (float3x3)perInstance[input.instanceID].worldMatrix );
+	output.normal	= mul( transformedNormal, (float3x3)input.worldMatrix );
+	output.tangent	= mul( transformedTangent, (float3x3)input.worldMatrix );
 
 	output.uv		= input.uv;
 

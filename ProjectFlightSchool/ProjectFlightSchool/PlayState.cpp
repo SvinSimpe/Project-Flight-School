@@ -447,9 +447,6 @@ HRESULT PlayState::Render()
 
 void PlayState::OnEnter()
 {
-	while( !mServerInitialized )
-	{
-	}
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Started() );
 	EventManager::GetInstance()->QueueEvent( E1 );

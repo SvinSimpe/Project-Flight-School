@@ -4,6 +4,8 @@
 #include "Package.h"
 #include <vector>
 #include "Enemy.h"
+#include <stdlib.h>
+#include <time.h>
 
 struct Clientinfo
 {
@@ -116,6 +118,7 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 				enemy.direction		= mEnemies[i]->GetDirection();
 
 				mConn->SendPkg( s.s, 0, Net_Event::EV_SYNC_ENEMY, enemy );
+				Sleep( 10 );
 			}
 			
 			// List synchronized

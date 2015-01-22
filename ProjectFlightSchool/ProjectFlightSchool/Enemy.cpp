@@ -32,8 +32,8 @@ void Enemy::Spawn( XMFLOAT3 spawnPos )
 	// Send spawnEv
 
 	// Debug
-	mPosition.x = rand() % 200;
-	mPosition.z = rand() % 200;
+	/*mPosition.x = rand() % 20;
+	mPosition.z = rand() % 20;*/
 }
 
 void Enemy::Die()
@@ -150,8 +150,6 @@ Enemy::Enemy()
 	mPosition		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity		= 0.0f;
-
-	srand( time( NULL ) );
 }
 
 Enemy::~Enemy()

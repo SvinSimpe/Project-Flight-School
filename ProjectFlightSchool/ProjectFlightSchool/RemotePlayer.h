@@ -78,10 +78,6 @@ class RemotePlayer
 		int				mNrOfKills;
 		Font			mFont;
 
-		float		mMaxVelocity;
-		float		mCurrentVelocity;
-		float		mMaxAcceleration;
-		XMFLOAT3	mAcceleration;
 		XMFLOAT3	mVelocity;
 		LoadOut*	mLoadOut;
 
@@ -92,7 +88,6 @@ class RemotePlayer
 		void			RemoteUpdate( IEventPtr newEvent );
 
 	protected:
-		void			LookAt( float rotation );
 
 	public:
 		void			RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID );
@@ -101,7 +96,7 @@ class RemotePlayer
 		virtual void	Die();
 		void			HandleSpawn( float deltaTime );
 		void			Spawn();
-		void			TakeDamage( float damage, unsigned int shooter );
+		virtual void	TakeDamage( float damage, unsigned int shooter );
 		void			SetHP( float hp );
 		void			CountUpKills();
 		bool			IsAlive() const;

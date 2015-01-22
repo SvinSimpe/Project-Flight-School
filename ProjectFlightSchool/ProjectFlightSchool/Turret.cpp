@@ -8,13 +8,20 @@ void Turret::IdleTurret::Action( Turret* t )
 
 void Turret::AttackingTurret::Action( Turret* t )
 {
-	XMVECTOR turretToTargetVec	= ( XMLoadFloat3( &t->mTarget->GetBoundingCircle()->center ) - XMLoadFloat3( &t->mBoundingCircle->center ) );
-	turretToTargetVec			= XMVector3Normalize( turretToTargetVec );
-		
-	XMStoreFloat3( &t->mUpperBody->dir, turretToTargetVec );
+	XMVECTOR homingVec	= ( XMLoadFloat3( &t->mTarget->GetBoundingCircle()->center ) - XMLoadFloat3( &t->mBoundingCircle->center ) );
+	homingVec			= XMVector3Normalize( homingVec );
+
+	XMVECTOR turretVec		= XMLoadFloat3( &t->mUpperBody->dir );
+	
+	float x = 0.98f;
+	float y = 1.0f - x;
+
+	XMStoreFloat3( &t->mUpperBody->dir, XMVectorAdd( turretVec * x, homingVec * y) );
 	t->mMiddleBody->dir = t->mUpperBody->dir;
 
-	if( t->mShootTimer <= 0.0f )
+	float dot = XMVectorGetY( XMVector3Dot( XMLoadFloat3( &t->mUpperBody->dir ), homingVec ) );
+
+	if( t->mShootTimer <= 0.0f && dot > 0.85f )
 	{
 		t->Fire();
 	}
@@ -22,7 +29,7 @@ void Turret::AttackingTurret::Action( Turret* t )
 
 void Turret::Fire()
 {
-	IEventPtr E1( new Event_Projectile_Fired( -1, mUpperBody->pos, mUpperBody->dir ));
+	IEventPtr E1( new Event_Projectile_Fired( mTeamID, mUpperBody->pos, mUpperBody->dir ));
 	EventManager::GetInstance()->QueueEvent( E1 );
 	mShootTimer = SHOOTCOOLDOWN;
 }
@@ -100,9 +107,16 @@ HRESULT Turret::Update( float deltaTime )
 
 void Turret::Render()
 {
-	float radians = atan2f( mUpperBody->dir.z, mUpperBody->dir.x );
-	RenderManager::GetInstance()->AddObject3dToList( mUpperBody->model, mUpperBody->pos, XMFLOAT3( 0.0f, -radians, 0.0f ) );
-	RenderManager::GetInstance()->AddObject3dToList( mMiddleBody->model, mMiddleBody->pos, XMFLOAT3( 0.0f, -radians, 0.0f ) );
+	float yaw = atan2f( mUpperBody->dir.z, mUpperBody->dir.x );
+	XMVECTOR straightVec = XMLoadFloat3( &XMFLOAT3( mUpperBody->dir.x, 0.0f, mUpperBody->dir.z ) );
+	XMVECTOR upperVec = XMLoadFloat3( &mUpperBody->dir );
+
+	XMVECTOR angle = XMVector3AngleBetweenVectors( straightVec, upperVec );
+	XMFLOAT3 result;
+	XMStoreFloat3( &result, angle );
+
+	RenderManager::GetInstance()->AddObject3dToList( mUpperBody->model, mUpperBody->pos, XMFLOAT3( 0.0f, -yaw, -result.z ) );
+	RenderManager::GetInstance()->AddObject3dToList( mMiddleBody->model, mMiddleBody->pos, XMFLOAT3( 0.0f, -yaw, 0.0f ) );
 	RenderManager::GetInstance()->AddObject3dToList( mLowerBody->model, mLowerBody->pos);
 }
 

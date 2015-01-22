@@ -90,7 +90,7 @@ HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo* effectInfo )
 		ID3DBlob* vertexShaderBlob = nullptr;
 		std::ifstream fileReader;
 		std::string file( effectInfo->fileName );
-		std::string checkFileExist = "../Content/Effects/Compiled shaders/" + file + "_VS.cso";
+		std::string checkFileExist = "../Content/Effects/CompiledShaders/" + file + "_VS.cso";
 		fileReader.open( checkFileExist.c_str() );
 		
 		if( fileReader.is_open() )
@@ -109,6 +109,14 @@ HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo* effectInfo )
 					nullptr,
 					&mVertexShader) ) )
 				{
+					CreateDirectory( L"../Content/Effects/CompiledShaders/", NULL );
+					std::ofstream fileWriter( checkFileExist.c_str() );
+					if( fileWriter.is_open() )
+					{
+						fileWriter << "";
+						fileWriter.close();
+					}
+					
 					D3DWriteBlobToFile( vertexShaderBlob, stringToWstring( checkFileExist ).c_str(), true );
 				}
 				
@@ -212,7 +220,7 @@ HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo* effectInfo )
 		ID3DBlob* pixelShaderBlob = nullptr;
 		std::ifstream fileReader;
 		std::string file( effectInfo->fileName );
-		std::string checkFileExist = "../Content/Effects/Compiled shaders/" + file + "_PS.cso";
+		std::string checkFileExist = "../Content/Effects/CompiledShaders/" + file + "_PS.cso";
 		fileReader.open( checkFileExist.c_str() );
 		
 		if( fileReader.is_open() )
@@ -238,6 +246,13 @@ HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo* effectInfo )
 		}
 		else
 		{
+			CreateDirectory( L"../Content/Effects/CompiledShaders/", NULL );
+			std::ofstream fileWriter( checkFileExist.c_str() );
+			if( fileWriter.is_open() )
+			{
+				fileWriter << "";
+				fileWriter.close();
+			}
 			D3DWriteBlobToFile( pixelShaderBlob, stringToWstring( checkFileExist ).c_str(), true );
 		}
 

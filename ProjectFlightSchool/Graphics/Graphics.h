@@ -62,8 +62,9 @@ class LIBRARY_EXPORT Graphics
 		Gbuffer*					mGbuffers[NUM_GBUFFERS];
 		ID3D11Buffer*				mBufferPerInstanceObject;
 
-		StaticInstance mStatic3dInstanced[MAX_STATIC3D_INSTANCE_BATCH];
-		CbufferPerObjectAnimated mAnim3dInstanced[MAX_ANIM_INSTANCE_BATCH];
+		StaticInstance				mStatic3dInstanced[MAX_STATIC3D_INSTANCE_BATCH];
+		AnimatedInstance			mAnimInstanced[MAX_ANIM_INSTANCE_BATCH];
+		CbufferPerObjectAnimated	mAnimCbufferInstanced[MAX_ANIM_INSTANCE_BATCH];
 
 
 	protected:

@@ -8,6 +8,7 @@
 
 struct EffectInfo
 {
+	char*	filePath					= "";
 	char*	fileName					= "";
 	UINT	vertexType					= 0;
 	bool	isVertexShaderIncluded		= false;
@@ -19,6 +20,7 @@ struct EffectInfo
 	//Reset ALL struct variables
 	void Reset()
 	{
+		filePath					= "";
 		fileName					= "";
 		vertexType					= 0;
 		isVertexShaderIncluded		= false;

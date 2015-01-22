@@ -20,6 +20,7 @@ class Effect
 
 	private:
 		HRESULT CompileShader( char* shaderFile, char* pEntrypoint, char* pTarget, D3D10_SHADER_MACRO* pDefines, ID3DBlob** pCompiledShader );
+		std::wstring stringToWstring( const std::string &s );
 
 	public:
 		ID3D11InputLayout*	GetInputLayout() const;

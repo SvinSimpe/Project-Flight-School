@@ -2,10 +2,10 @@
 
 struct VS_In
 {
-	float3 position : POSITION;
-	float3 normal	: NORMAL;
-	float3 tangent	: TANGENT;
-	float2 uv		: TEX;
+	float3 position			: POSITION;
+	float3 normal			: NORMAL;
+	float3 tangent			: TANGENT;
+	float2 uv				: TEX;
 };
 
 struct VS_Out

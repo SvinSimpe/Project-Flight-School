@@ -305,7 +305,7 @@ void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 void Graphics::RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList )
 {
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-	UINT32 vertexSize[2]	= { sizeof( AnimatedVertex ), sizeof( StaticInstance ) };
+	UINT32 vertexSize[2]	= { sizeof( AnimatedVertex ), sizeof( AnimatedInstance ) };
 	UINT32 offset[2]		= { 0, 0 };
 	
 	mDeviceContext->IASetInputLayout( mAnimInstancedEffect->GetInputLayout() );
@@ -337,9 +337,9 @@ void Graphics::RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList )
 				if( currAssetID == info[i].mModelId )
 				{
 					
-					mStatic3dInstanced[objectToRender].world = info[i].mWorld;
+					mAnimInstanced[objectToRender].world = info[i].mWorld;
 					for( int j = 0; j < NUM_SUPPORTED_JOINTS; j++ )
-						mAnim3dInstanced[objectToRender].boneTransforms[j] = DirectX::XMLoadFloat4x4( &info[i].mBoneTransforms[j] );
+						mAnimCbufferInstanced[objectToRender].boneTransforms[j] = DirectX::XMLoadFloat4x4( &info[i].mBoneTransforms[j] );
 
 					info[i].mModelId = (UINT)-1;
 					objectToRender++;
@@ -366,8 +366,8 @@ void Graphics::RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList )
 														};
 
 			mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
-			MapBuffer( mCbufferPerInstancedAnimated, mAnim3dInstanced, ( sizeof( CbufferPerObjectAnimated ) * objectToRender ) );
-			MapBuffer( mBufferPerInstanceObject, mStatic3dInstanced, ( sizeof( StaticInstance ) * objectToRender ) );
+			MapBuffer( mCbufferPerInstancedAnimated, mAnimCbufferInstanced, ( sizeof( CbufferPerObjectAnimated ) * objectToRender ) );
+			MapBuffer( mBufferPerInstanceObject, mAnimInstanced, ( sizeof( AnimatedInstance ) * objectToRender ) );
 			ID3D11Buffer* buffersToSet[2] = { model->mVertexBuffer, mBufferPerInstanceObject };
 
 			mDeviceContext->IASetVertexBuffers( 0, 2, buffersToSet, vertexSize, offset );
@@ -377,8 +377,6 @@ void Graphics::RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList )
 		else break;
 	}
 }
-
-
 
 DirectX::XMFLOAT4X4 Graphics::GetRootMatrix( AssetID modelAssetId, AssetID animationAssetId, float animationTime )
 {
@@ -426,7 +424,6 @@ DirectX::XMFLOAT4X4 Graphics::GetRootMatrix( AssetID modelAssetId, AssetID anima
 	DirectX::XMStoreFloat4x4( &output, child );
 	return output;
 }
-
 
 Camera* Graphics::GetCamera() const
 {
@@ -875,7 +872,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mCbufferPerObjectAnimated );
 
-	//InstancedAnimatedData buffer 
+	//InstancedAnimatedData cbuffer 
 	D3D11_BUFFER_DESC bufferInstancedDesc;
 	ZeroMemory( &bufferDesc, sizeof( bufferInstancedDesc ) );
 	bufferInstancedDesc.BindFlags			= D3D11_BIND_CONSTANT_BUFFER;
@@ -908,7 +905,8 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	EffectInfo effectInfo;
 	ZeroMemory( &effectInfo, sizeof( EffectInfo ) );
-	effectInfo.fileName					= "../Content/Effects/Static3dEffect.hlsl";
+	effectInfo.filePath					= "../Content/Effects/Static3dEffect.hlsl";
+	effectInfo.fileName					= "Static3dEffect";
 	effectInfo.vertexType				= STATIC_VERTEX_TYPE;
 	effectInfo.isVertexShaderIncluded	= true;
 	effectInfo.isPixelShaderIncluded	= true;
@@ -918,7 +916,8 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	//Statice instanced effect
 	mStaticInstancedEffect	= new Effect;
-	effectInfo.fileName		= "../Content/Effects/Static3dInstancedEffect.hlsl";
+	effectInfo.filePath		= "../Content/Effects/Static3dInstancedEffect.hlsl";
+	effectInfo.fileName		= "Static3dInstancedEffect";
 	effectInfo.vertexType	= STATIC_INSTANCED_VERTEX_TYPE;
 
 	if( FAILED( hr = mStaticInstancedEffect->Intialize( mDevice, &effectInfo ) ) )
@@ -926,7 +925,8 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	//--------------------------
 
 	m2dEffect				= new Effect;
-	effectInfo.fileName		= "../Content/Effects/2dEffect.hlsl";
+	effectInfo.filePath		= "../Content/Effects/2dEffect.hlsl";
+	effectInfo.fileName		= "2dEffect";
 	effectInfo.vertexType	= STATIC_VERTEX_TYPE;
 
 	if( FAILED( hr = m2dEffect->Intialize( mDevice, &effectInfo ) ) )
@@ -934,21 +934,24 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 
 	mAnimatedEffect			= new Effect;
-	effectInfo.fileName		= "../Content/Effects/Animated3dEffect.hlsl";
+	effectInfo.filePath		= "../Content/Effects/Animated3dEffect.hlsl";
+	effectInfo.fileName		= "Animated3dEffect";
 	effectInfo.vertexType	= ANIMATED_VERTEX_TYPE;
 
 	if( FAILED( hr = mAnimatedEffect->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 	//Animated instanced effect
 	mAnimInstancedEffect	= new Effect;
-	effectInfo.fileName		= "../Content/Effects/AnimatedInstanced3dEffect.hlsl";
+	effectInfo.filePath		= "../Content/Effects/AnimatedInstanced3dEffect.hlsl";
+	effectInfo.fileName		= "AnimatedInstanced3dEffect";
 	effectInfo.vertexType	= ANIMATED_VERTEX_INSTANCED_TYPE;
 
 	if( FAILED( hr = mAnimInstancedEffect->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 	//--------------------------
 	mDeferredPassEffect = new Effect;
-	effectInfo.fileName		= "../Content/Effects/DeferredPassEffect.hlsl";
+	effectInfo.filePath		= "../Content/Effects/DeferredPassEffect.hlsl";
+	effectInfo.fileName		= "DeferredPassEffect";
 	effectInfo.vertexType	= STATIC_VERTEX_TYPE;
 
 	if( FAILED( hr = mDeferredPassEffect->Intialize( mDevice, &effectInfo ) ) )

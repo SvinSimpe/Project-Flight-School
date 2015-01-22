@@ -5,6 +5,7 @@
 #include "BaseState.h"
 #include "Player.h"
 #include "RemotePlayer.h"
+#include "MapNodeManager.h"
 #include "Font.h"
 #include "Enemy.h"
 #include "Ship.h"
@@ -32,6 +33,7 @@ class PlayState : public BaseState
 		AssetID	mColorIDs[MAX_REMOTE_PLAYERS];
 
 		Map*		mWorldMap;
+		MapNodeManager* mMapNodeMan;
 
 		float	mAnimationTime;
 

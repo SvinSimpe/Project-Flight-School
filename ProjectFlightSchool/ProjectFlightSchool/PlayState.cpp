@@ -410,8 +410,9 @@ HRESULT PlayState::Render()
 	//for(int i = 0; i < animTestNr; i++)
 	//	RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation[i], mTestAnimationAnimation[i], &mAnimationTime, DirectX::XMFLOAT3( (float)i * -5.0f, 0.0f, 0.0f ) );
 
+
 	mPlayer->Render( 0.0f, 1 );
-	//mWorldMap->Render( 0.0f );
+	mWorldMap->Render( 0.0f , mPlayer );
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
 	{
 		if ( mRemotePlayers.at(i) )
@@ -479,7 +480,7 @@ HRESULT PlayState::Initialize()
 		Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptorDeath2.PaMan", mTestAnimationAnimation[i] );
 	}
 
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_1.pfs", mNest1Asset );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest2.pfs", mNest1Asset );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_1.pfs", mStoneAssets[0] );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_2.pfs", mStoneAssets[1] );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_3.pfs", mStoneAssets[2] );
@@ -487,10 +488,38 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_5.pfs", mStoneAssets[4] );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_6.pfs", mStoneAssets[5] );
 
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Tree/", "tree1.pfs", mTree1Asset );
-
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dAsset );
-
+	for( int i = 1; i < 8; i++ )
+	{
+		char buffer[50];
+		sprintf_s(buffer,"tree%d.pfs",i);
+		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Tree/", buffer, mTree1Asset );
+	}
+	for( int i = 1; i < 6; i++ )
+	{
+		char buffer[50];
+		sprintf_s(buffer,"greaystone%d.pfs",i);
+		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", buffer, mTree1Asset );
+	}
+	for( int i = 1; i < 7; i++ )
+	{
+		char buffer[50];
+		sprintf_s(buffer,"sandstone%d.pfs",i);
+		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", buffer, mTree1Asset );
+	}
+	//for( int i = 1; i < 5; i++ )
+	//{
+	//	char buffer[50];
+	//	sprintf_s(buffer,"bush%d.pfs",i);
+	//	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bushes/", buffer, mTree1Asset );
+	//}
+	//for( int i = 1; i < 3; i++ )
+	//{
+	//	char buffer[50];
+	//	sprintf_s(buffer,"plant%d.pfs",i);
+	//	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bushes/", buffer, mTree1Asset );
+	//}
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bushes/", "plant1.pfs", mTree1Asset );
 	std::string colorIDFileNames[MAX_REMOTE_PLAYERS] = { "../Content/Assets/Textures/FunnyCircles/BlueID.png", "../Content/Assets/Textures/FunnyCircles/CoralID.png", "../Content/Assets/Textures/FunnyCircles/DarkBlueID.png", "../Content/Assets/Textures/FunnyCircles/DarkGreenID.png", "../Content/Assets/Textures/FunnyCircles/DarkPurpleID.png", "../Content/Assets/Textures/FunnyCircles/GreenID.png", "../Content/Assets/Textures/FunnyCircles/GreyID.png", "../Content/Assets/Textures/FunnyCircles/LightBlueID.png", "../Content/Assets/Textures/FunnyCircles/LightGreenID.png", "../Content/Assets/Textures/FunnyCircles/LightPurpleID.png","../Content/Assets/Textures/FunnyCircles/OrangeID.png", "../Content/Assets/Textures/FunnyCircles/PinkID.png", "../Content/Assets/Textures/FunnyCircles/ScreamBlueID.png", "../Content/Assets/Textures/FunnyCircles/YellowID.png" };
 
 	for( int i=0; i<MAX_REMOTE_PLAYERS; i++ )
@@ -506,8 +535,11 @@ HRESULT PlayState::Initialize()
 	mPlayer = new Player();
 	mPlayer->Initialize();
 
-	//mWorldMap = new Map();
-	//mWorldMap->Initialize( 8.0f, 24 );
+	mWorldMap = new Map();
+	mWorldMap->Initialize( 4 );
+
+	//mMapNodeMan = new MapNodeManager();
+	//mMapNodeMan->Initialize( "../Content/Assets/Nodes/gridtest2.lp"  );
 
 	//Fill up on Projectiles, test values
 	mProjectiles	= new Projectile*[MAX_PROJECTILES];
@@ -552,11 +584,11 @@ HRESULT PlayState::Initialize()
 
 void PlayState::Release()
 {
-	mPlayer->Release();
-	SAFE_DELETE(mPlayer);
-
 	mWorldMap->Release();
 	SAFE_DELETE( mWorldMap );
+
+	mPlayer->Release();
+	SAFE_DELETE(mPlayer);
 
 	for( auto& rp : mRemotePlayers )
 	{
@@ -568,7 +600,10 @@ void PlayState::Release()
 	mShip.Release();
 
 	for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
+	{
+		mProjectiles[i]->Release();
 		SAFE_DELETE( mProjectiles[i] );
+	}
 
 	delete [] mProjectiles;
 
@@ -595,4 +630,5 @@ PlayState::PlayState()
 
 PlayState::~PlayState()
 {
+	printf("Destructor for %s\n", __FILE__);
 }

@@ -228,15 +228,19 @@ HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo* effectInfo )
 			D3DReadFileToBlob( stringToWstring( checkFileExist ).c_str(), &pixelShaderBlob );
 			hr = device->CreatePixelShader( pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize(), 0, &mPixelShader );
 		}
-		if ( SUCCEEDED( hr = CompileShader( effectInfo->filePath, "PS_main", "ps_5_0", nullptr, &pixelShaderBlob ) ) )
+		else 
 		{
-			hr = device->CreatePixelShader( pixelShaderBlob->GetBufferPointer(),
-				pixelShaderBlob->GetBufferSize(),
-				nullptr,
-				&mPixelShader );
+			if( SUCCEEDED( hr = CompileShader( effectInfo->filePath, "PS_main", "ps_5_0", nullptr, &pixelShaderBlob ) ) )
+			{
+				hr = device->CreatePixelShader( pixelShaderBlob->GetBufferPointer(),
+					pixelShaderBlob->GetBufferSize(),
+					nullptr,
+					&mPixelShader );
 
 			
+			}
 		}
+
 
 		if ( FAILED( hr ) )
 		{

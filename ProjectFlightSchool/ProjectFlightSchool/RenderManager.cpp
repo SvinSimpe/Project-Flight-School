@@ -84,7 +84,13 @@ void RenderManager::AddObject3dToList( AssetID assetId, DirectX::XMFLOAT3 positi
 	
 	mObject3dArray[mNrOfObject3d++] = info;
 }
-
+void RenderManager::AddObject3dToList( AssetID assetId, DirectX::XMFLOAT4X4 world )
+{
+	Object3dInfo info;
+	info.mAssetId = assetId;
+	info.mWorld = world;
+	mObject3dArray[mNrOfObject3d++] = info;
+}
 void RenderManager::AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLeftCorner, DirectX::XMFLOAT2 widthHeight )
 {
 	Object2dInfo info;

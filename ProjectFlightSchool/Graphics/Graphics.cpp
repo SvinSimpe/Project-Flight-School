@@ -1069,9 +1069,11 @@ void Graphics::Release()
 	mStaticEffect->Release();
 	mAnimatedEffect->Release();
 	m2dEffect->Release();
+	mAnimInstancedEffect->Release();
 	mDeferredPassEffect->Release();
 	mCamera->Release();
 	mDeveloperCamera->Release();
+	
 	for( int i = 0; i < NUM_GBUFFERS; i++ )
 	{
 		mGbuffers[i]->Release();
@@ -1083,6 +1085,7 @@ void Graphics::Release()
 	SAFE_DELETE( mAnimatedEffect );
 	SAFE_DELETE( m2dEffect );
 	SAFE_DELETE( mDeferredPassEffect );
+	SAFE_DELETE( mAnimInstancedEffect );
 	SAFE_DELETE( mCamera );
 	SAFE_DELETE( mDeveloperCamera );
 }

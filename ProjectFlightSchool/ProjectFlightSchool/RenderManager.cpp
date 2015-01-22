@@ -88,7 +88,7 @@ void RenderManager::AddObject3dToList( AssetID assetId, DirectX::XMFLOAT4X4 worl
 {
 	Object3dInfo info;
 	info.mAssetId = assetId;
-	info.mWorld = world;
+	DirectX::XMStoreFloat4x4( &info.mWorld, DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( &world ) ) );
 	mObject3dArray[mNrOfObject3d++] = info;
 }
 void RenderManager::AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLeftCorner, DirectX::XMFLOAT2 widthHeight )

@@ -255,6 +255,7 @@ void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 				if( currAssetID == (UINT)-1 )
 				{
 					currAssetID = info[i].mAssetId;
+					strider		= i;
 				}
 
 				if( currAssetID == info[i].mAssetId )
@@ -278,7 +279,7 @@ void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 			//////////////////////////////////////////////////////////////////
 			//						RENDER CALL
 			//////////////////////////////////////////////////////////////////
-			strider += ( objectToRender - 1 );
+			
 			mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 			Static3dAsset* model = (Static3dAsset*)mAssetManager->mAssetContainer[currAssetID];
 			
@@ -332,6 +333,7 @@ void Graphics::RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList )
 				if( currAssetID == (UINT)-1 )
 				{
 					currAssetID = info[i].mModelId;
+					strider		= i;
 				}
 
 				if( currAssetID == info[i].mModelId )
@@ -357,7 +359,7 @@ void Graphics::RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList )
 			//////////////////////////////////////////////////////////////////
 			//						RENDER CALL
 			//////////////////////////////////////////////////////////////////
-			strider += ( objectToRender - 1 );
+			
 			Animated3dAsset* model = (Animated3dAsset*)mAssetManager->mAssetContainer[currAssetID];
 
 			ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[model->mTextures[TEXTURES_DIFFUSE]] )->mSRV,

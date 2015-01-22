@@ -6,7 +6,7 @@
 
 void Game::ServerInit( std::string port )
 {
-	/*if( !mServerIsActive )
+	if( !mServerIsActive )
 	{
 		mServer = new Server();
 		if ( mServer->Initialize( port ) && mServer->Connect() )
@@ -22,12 +22,12 @@ void Game::ServerInit( std::string port )
 			SAFE_DELETE( mServer );
 		}
 	}
-	ClientInit( "localhost", port );*/
+	ClientInit( "localhost", port );
 }
 
 void Game::ClientInit( std::string ip, std::string port )
 {
-	/*mClient = new Client();
+	mClient = new Client();
 	if ( mClient->Initialize( ip, port ) &&  mClient->Connect() )
 	{
 		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
@@ -55,7 +55,7 @@ void Game::ClientInit( std::string ip, std::string port )
 		SAFE_DELETE( mClient );
 		if( mClientThread.joinable() )
 			mClientThread.join();
-	}*/
+	}
 }
 
 void Game::EventListener( IEventPtr newEvent )
@@ -113,20 +113,20 @@ HRESULT Game::Initialize()
 
 void Game::Release()
 {
-	//mClient->Release();
-	//SAFE_DELETE( mClient );
+	mClient->Release();
+	SAFE_DELETE( mClient );
 
-	//if ( mServerIsActive )
-	//	mServer->Release();
-	//SAFE_DELETE( mServer );
-	//if ( mClientThread.joinable() )
-	//{
-	//	mClientThread.join();
-	//}
-	//if ( mServerThread.joinable() )
-	//{
-	//	mServerThread.join();
-	//}
+	if ( mServerIsActive )
+		mServer->Release();
+	SAFE_DELETE( mServer );
+	if ( mClientThread.joinable() )
+	{
+		mClientThread.join();
+	}
+	if ( mServerThread.joinable() )
+	{
+		mServerThread.join();
+	}
 
 	mStateMachine->Release();
 	SAFE_DELETE( mStateMachine );
@@ -135,8 +135,8 @@ void Game::Release()
 Game::Game()
 {
 	mStateMachine	= nullptr;
-	//mClientThread	= std::thread();
-	//mServerThread	= std::thread();
+	mClientThread	= std::thread();
+	mServerThread	= std::thread();
 	mClient			= nullptr;
 	mServer			= nullptr;
 }

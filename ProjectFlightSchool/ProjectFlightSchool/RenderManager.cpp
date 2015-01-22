@@ -133,7 +133,7 @@ HRESULT RenderManager::Render()
 		Graphics::GetInstance()->RenderPlane2dAsset( mPlaneArray[i].mAssetId, mPlaneArray[i].mTopTriangle, mPlaneArray[i].mBottomTriangle );
 	}
 
-	//Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray, mNrOfAnim3d );
+	Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray, mNrOfAnim3d );
 
 	for( UINT i = 0; i < mNrOfObject2d; i++ )
 	{

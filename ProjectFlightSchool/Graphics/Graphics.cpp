@@ -954,13 +954,13 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 		return hr;
 
 	//Animated instanced effect
-	//mAnimInstancedEffect	= new Effect;
-	//effectInfo.filePath		= "../Content/Effects/AnimatedInstanced3dEffect.hlsl";
-	//effectInfo.fileName		= "AnimatedInstanced3dEffect";
-	//effectInfo.vertexType	= ANIMATED_VERTEX_INSTANCED_TYPE;
+	mAnimInstancedEffect	= new Effect;
+	effectInfo.filePath		= "../Content/Effects/AnimatedInstanced3dEffect.hlsl";
+	effectInfo.fileName		= "AnimatedInstanced3dEffect";
+	effectInfo.vertexType	= ANIMATED_VERTEX_INSTANCED_TYPE;
 
-	//if( FAILED( hr = mAnimInstancedEffect->Intialize( mDevice, &effectInfo ) ) )
-	//	return hr;
+	if( FAILED( hr = mAnimInstancedEffect->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
 
 	//--------------------------
 	mDeferredPassEffect = new Effect;

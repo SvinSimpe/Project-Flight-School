@@ -36,6 +36,7 @@ void BaseMenuState::Release()
 		SAFE_DELETE( it );
 	}
 	mButtons.clear();
+	mText.Release();
 }
 
 BaseMenuState::BaseMenuState()

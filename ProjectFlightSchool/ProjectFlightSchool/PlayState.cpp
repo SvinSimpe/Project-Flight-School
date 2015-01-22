@@ -309,7 +309,7 @@ void PlayState::HandleRemoteMeleeHit( unsigned int id, float damage, float knock
 		direction.x *= knockBack;
 		direction.z *= knockBack;
 		mPlayer->AddImpuls( direction );
-		mPlayer->TakeDamage( (float)damage );
+		mPlayer->TakeDamage( damage, 0 );
 	}
 
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++ )
@@ -319,7 +319,7 @@ void PlayState::HandleRemoteMeleeHit( unsigned int id, float damage, float knock
 			direction.x *= ( knockBack * 5.0f ); // 1 knock back == 5
 			direction.z *= ( knockBack * 5.0f );
 			mRemotePlayers.at(i)->AddImpuls( direction );
-			mRemotePlayers.at(i)->TakeDamage( (float)damage );
+			mRemotePlayers.at(i)->TakeDamage( damage );
 		}
 	}
 }
@@ -352,6 +352,7 @@ HRESULT PlayState::Update( float deltaTime )
 	UpdateProjectiles( deltaTime );
 	mAnimationTime	+= deltaTime;
 
+	mShip.BuffPlayer( mPlayer );
 	mShip.PickTurretTarget( mAllPlayers );
 	mShip.Update( deltaTime );
 
@@ -495,9 +496,13 @@ void PlayState::Release()
 	mShip.Release();
 
 	for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
+	{
+		mProjectiles[i]->Release();
 		SAFE_DELETE( mProjectiles[i] );
-
+	}
 	delete [] mProjectiles;
+
+	mFont.Release();
 }
 
 PlayState::PlayState()

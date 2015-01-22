@@ -1,8 +1,8 @@
 //Vertex
-static const int MAX_INSTANCE = 60;
+static const int MAX_INSTANCE = 32;
 struct PerInstanceData
 {
-	float4x4 boneTransforms[16];
+	float4x4 boneTransforms[32];
 };
 
 cbuffer CbufferPerFrame	: register( b0 )

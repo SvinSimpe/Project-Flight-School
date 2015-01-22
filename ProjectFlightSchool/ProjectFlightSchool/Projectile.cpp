@@ -88,7 +88,7 @@ HRESULT Projectile::Initialize()
 
 void Projectile::Release()
 {
-
+	SAFE_DELETE( mBoundingCircle );
 }
 
 Projectile::Projectile()

@@ -22,10 +22,6 @@ void RemotePlayer::RemoteUpdate( IEventPtr newEvent )
 	}
 }
 
-void RemotePlayer::LookAt( float rotation )
-{
-}
-
 void RemotePlayer::RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID )
 {
 	mID				= id;
@@ -144,8 +140,6 @@ HRESULT RemotePlayer::Render( float deltaTime, int position )
 
 	if ( mIsAlive )
 	{
-		RenderManager::GetInstance()->AddObject3dToList(mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction);
-
 		float renderHpSize = ( mCurrentHp * 1.5f / mMaxHp ) + 1; //*1.5 and +1 to make it an appropriate size.
 
 		x = { mLowerBody.position.x - renderHpSize / 2.0f, 0.01f, mLowerBody.position.z + renderHpSize / 2.0f };
@@ -318,6 +312,7 @@ void RemotePlayer::Release()
 	SAFE_DELETE( mLoadOut );
 
 	SAFE_DELETE( mBoundingBox );
+	SAFE_DELETE( mBoundingCircle );
 	mFont.Release();
 }
 

@@ -224,9 +224,20 @@ HRESULT Player::Render( float deltaTime, int position )
 	return S_OK;
 }
 
-LoadOut* Player::GetLoadOut() const
+void Player::TakeDamage( float damage, unsigned int shooter )
 {
-	return mLoadOut;
+	if( mIsBuffed )
+	{
+		float moddedDmg = damage * mBuffMod;
+		damage -= moddedDmg;
+
+	}
+	RemotePlayer::TakeDamage( damage, shooter );
+}
+
+void Player::SetBuffed( bool buffed )
+{
+	mIsBuffed = buffed;
 }
 
 void Player::SetID( unsigned int id )
@@ -289,30 +300,29 @@ HRESULT Player::Initialize()
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
-
-	//Weapon Initialization
-	mLoadOut				= new LoadOut();
-	mLoadOut->rangedWeapon	= new RangedInfo( "Machine Gun", 5.0f, 1, 5.0f, 2, 0 );
-	mLoadOut->meleeWeapon	= new MeleeInfo( "Sword", 4.0f, 3, 2.0f, 7, 2.0f, new BoundingCircle( 2.0f ) );
+	mBuffMod			= 0.5f;
 
 	return S_OK;
 }
 
 void Player::Release()
 {
-	mLoadOut->Release();
-	SAFE_DELETE( mLoadOut );
-	
 	RemotePlayer::Release();
 }
 
 Player::Player()
 	:RemotePlayer()
 {
-	mWeaponCoolDown	= 0.0f;
-	mMeleeCoolDown	= 0.0f;
-	mLoadOut		= nullptr;
-	mIsMeleeing		= false;
+	mWeaponCoolDown		= 0.0f;
+	mMeleeCoolDown		= 0.0f;
+	mIsMeleeing			= false;
+
+	mMaxVelocity		= 0.0f;
+	mCurrentVelocity	= 0.0f;
+	mMaxAcceleration	= 0.0f;
+	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mIsBuffed			= false;
+	mBuffMod			= 0.0f;
 }
 
 Player::~Player()

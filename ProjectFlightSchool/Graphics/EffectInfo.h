@@ -5,10 +5,10 @@
 #define ANIMATED_VERTEX_TYPE 1
 #define ANIMATED_VERTEX_INSTANCED_TYPE 2
 #define STATIC_INSTANCED_VERTEX_TYPE 3
-#define STATIC_INSTANCED_INSTANCE_TYPE 4
 
 struct EffectInfo
 {
+	char*	filePath					= "";
 	char*	fileName					= "";
 	UINT	vertexType					= 0;
 	bool	isVertexShaderIncluded		= false;
@@ -20,6 +20,7 @@ struct EffectInfo
 	//Reset ALL struct variables
 	void Reset()
 	{
+		filePath					= "";
 		fileName					= "";
 		vertexType					= 0;
 		isVertexShaderIncluded		= false;

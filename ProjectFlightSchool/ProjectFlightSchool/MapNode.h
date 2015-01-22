@@ -51,7 +51,6 @@ class MapNode
 	protected:
 	public:
 		HRESULT				Update( float deltaTime );
-		HRESULT				Render( float deltaTime );
 		HRESULT				Render( float deltaTime, XMFLOAT4X4 parentWorld );
 
 		StaticVertex*		GetGrid() const;

@@ -25,7 +25,6 @@ class GameObject
 	protected:
 	public:
 		HRESULT		Update( float deltaTime );
-		HRESULT		Render( float deltaTime );
 		HRESULT		Render( float deltaTime, DirectX::XMFLOAT4X4 parentWorld );
 		
 		DirectX::XMFLOAT3	GetPos() const;

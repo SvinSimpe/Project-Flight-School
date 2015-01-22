@@ -19,8 +19,9 @@
 #endif
 
 #define NUM_GBUFFERS 3
+#define MAX_ANIM_INSTANCE_BATCH 32
 
-#define MAX_NUM_INSTANCED 60//(UINT)( MAX_AMOUNT_OF_ANIM3D * 0.06f )
+#define MAX_STATIC3D_INSTANCE_BATCH 512
 
 class LIBRARY_EXPORT Graphics
 {
@@ -42,16 +43,15 @@ class LIBRARY_EXPORT Graphics
 		D3D11_VIEWPORT				mStandardView;
 		ID3D11Buffer*				mCbufferPerFrame;
 		ID3D11Buffer*				mCbufferPerObject;
-		ID3D11Buffer*				mCbufferPerInstanceObject;
 		ID3D11Buffer*				mCbufferPerObjectAnimated;
 		ID3D11Buffer*				mCbufferPerInstancedAnimated;
-
 		ID3D11SamplerState*			mPointSamplerState;
 		ID3D11SamplerState*			mLinearSamplerState;
 
 
 		AssetManager*				mAssetManager;
 		Effect*						mStaticEffect;
+		Effect*						mStaticInstancedEffect;
 		Effect*						m2dEffect;
 		Effect*						mAnimatedEffect;
 		Effect*						mAnimInstancedEffect;
@@ -60,6 +60,11 @@ class LIBRARY_EXPORT Graphics
 		bool						mIsDeveloperCameraActive;
 		Effect*						mDeferredPassEffect;
 		Gbuffer*					mGbuffers[NUM_GBUFFERS];
+		ID3D11Buffer*				mBufferPerInstanceObject;
+
+		StaticInstance				mStatic3dInstanced[MAX_STATIC3D_INSTANCE_BATCH];
+		AnimatedInstance			mAnimInstanced[MAX_ANIM_INSTANCE_BATCH];
+		CbufferPerObjectAnimated	mAnimCbufferInstanced[MAX_ANIM_INSTANCE_BATCH];
 
 
 	protected:
@@ -84,9 +89,8 @@ class LIBRARY_EXPORT Graphics
 		void Render( RenderLists& renderLists );
 		void Render2dAsset( AssetID assetId, float x, float y, float width, float height );
 		void RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX::XMFLOAT3 y );
-		void RenderStatic3dAsset( AssetID assetId, DirectX::XMFLOAT4X4* world );
-		void RenderAnimated3dAsset( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, DirectX::XMFLOAT4X4* world );
-
+		void RenderPlane2dAsset( PlaneInfo* info, UINT sizeOfList );
+		void RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList );
 		void RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList );
 
 		DirectX::XMFLOAT4X4 GetRootMatrix( AssetID modelAssetId, AssetID animationAssetId, float animationTime );

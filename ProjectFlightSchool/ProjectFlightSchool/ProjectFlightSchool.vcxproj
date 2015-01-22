@@ -114,6 +114,7 @@
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="RemotePlayer.cpp" />
     <ClCompile Include="RenderManager.cpp" />
+    <ClCompile Include="Ship.cpp" />
     <ClCompile Include="SingleplayerMenuState.cpp" />
     <ClCompile Include="StartMenuState.cpp" />
     <ClCompile Include="StateMachine.cpp" />
@@ -150,6 +151,7 @@
     <ClInclude Include="RemotePlayer.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="RenderStructs.h" />
+    <ClInclude Include="Ship.h" />
     <ClInclude Include="SingleplayerMenuState.h" />
     <ClInclude Include="StartMenuState.h" />
     <ClInclude Include="StateMachine.h" />

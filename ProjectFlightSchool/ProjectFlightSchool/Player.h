@@ -4,47 +4,37 @@
 #include "Input.h"
 #include "Projectile.h"
 #include "RemotePlayer.h"
-#include "WeaponInfo.h"
 #include "RenderManager.h"
 
 #define VELOCITY_FALLOFF 2.0f
-
-struct LoadOut
-{
-	RangedInfo*	rangedWeapon;
-	MeleeInfo*	meleeWeapon;
-
-	LoadOut()
-	{
-		rangedWeapon	= nullptr;
-		meleeWeapon		= nullptr;
-	}
-
-	void Release()
-	{
-		SAFE_DELETE( rangedWeapon );
-		SAFE_DELETE( meleeWeapon );
-	}
-};
 
 class Player: public RemotePlayer
 {
 	private:
 		float		mWeaponCoolDown;
 		float		mMeleeCoolDown;
-		LoadOut*	mLoadOut;
 		bool		mIsMeleeing;
+		float		mMaxVelocity;
+		float		mCurrentVelocity;
+		float		mMaxAcceleration;
+		XMFLOAT3	mAcceleration;
+		bool		mIsBuffed;
+		float		mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
 
+	protected:
+	public:
 		
 	private:
 		void		HandleInput( float deltaTime );
 		void		Move( float deltaTime );
 
+	protected:
 	public:
 		HRESULT		Update( float deltaTime );
 		HRESULT		Render( float deltaTime, int position );
 
-		LoadOut*	GetLoadOut() const;
+		void		TakeDamage( float damage, unsigned int shooter );
+		void		SetBuffed( bool buffed );
 		void		SetID( unsigned int id );
 		void		SetTeam( int team, AssetID teamColor );
 		void		SetColor( AssetID color );

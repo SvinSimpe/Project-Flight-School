@@ -10,15 +10,6 @@ HRESULT	MapNode::Render( float deltaTime, XMFLOAT4X4 parentWorld )
 
 	return S_OK;
 }
-HRESULT	MapNode::Render( float deltaTime )
-{
-	for( int i = 0; i < (int)mStaticAssetCount; i++ )
-	{
-		mStaticAssets[i].Render( deltaTime );
-	}
-
-	return S_OK;
-}
 StaticVertex* MapNode::GetGrid() const
 {
 	return mGrid;

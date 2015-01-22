@@ -7,6 +7,7 @@
 #include "BoundingGeometry.h"
 #include "RenderManager.h"
 #include "Font.h"
+#include "WeaponInfo.h"
 
 #define	PLAYER_ANIMATION_LEGS_WALK	0
 #define PLAYER_ANIMATION_LEGS_IDLE	1
@@ -28,6 +29,24 @@ struct LowerBody
 
 	AssetID		currentLowerAnimation;
 	float		currentLowerAnimationTime;
+};
+
+struct LoadOut
+{
+	RangedInfo*	rangedWeapon;
+	MeleeInfo*	meleeWeapon;
+
+	LoadOut()
+	{
+		rangedWeapon	= nullptr;
+		meleeWeapon		= nullptr;
+	}
+
+	void Release()
+	{
+		SAFE_DELETE( rangedWeapon );
+		SAFE_DELETE( meleeWeapon );
+	}
 };
 
 class RemotePlayer
@@ -59,11 +78,8 @@ class RemotePlayer
 		int				mNrOfKills;
 		Font			mFont;
 
-		float		mMaxVelocity;
-		float		mCurrentVelocity;
-		float		mMaxAcceleration;
-		XMFLOAT3	mAcceleration;
 		XMFLOAT3	mVelocity;
+		LoadOut*	mLoadOut;
 
 	public:
 
@@ -72,7 +88,6 @@ class RemotePlayer
 		void			RemoteUpdate( IEventPtr newEvent );
 
 	protected:
-		void			LookAt( float rotation );
 
 	public:
 		void			RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID );
@@ -81,9 +96,12 @@ class RemotePlayer
 		virtual void	Die();
 		void			HandleSpawn( float deltaTime );
 		void			Spawn();
-		void			TakeDamage( unsigned int damage, unsigned int shooter );
+		virtual void	TakeDamage( float damage, unsigned int shooter );
 		void			SetHP( float hp );
 		void			CountUpKills();
+		bool			IsAlive() const;
+		LoadOut*		GetLoadOut() const;
+		float			GetHP() const;
 		int				GetID() const;
 		int				GetTeam() const;
 		BoundingBox*	GetBoundingBox() const;

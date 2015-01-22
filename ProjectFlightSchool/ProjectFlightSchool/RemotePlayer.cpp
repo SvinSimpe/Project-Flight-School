@@ -22,10 +22,6 @@ void RemotePlayer::RemoteUpdate( IEventPtr newEvent )
 	}
 }
 
-void RemotePlayer::LookAt( float rotation )
-{
-}
-
 void RemotePlayer::RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID )
 {
 	mID				= id;
@@ -73,7 +69,7 @@ void RemotePlayer::Spawn()
 	EventManager::GetInstance()->QueueEvent( spawnEv );
 }
 
-void RemotePlayer::TakeDamage( unsigned int damage, unsigned int shooter )
+void RemotePlayer::TakeDamage( float damage, unsigned int shooter )
 {
 	mCurrentHp -= damage;
 	IEventPtr player( new Event_Player_Update_HP( mID, mCurrentHp ) );
@@ -93,6 +89,21 @@ void RemotePlayer::SetHP( float hp )
 void RemotePlayer::CountUpKills()
 {
 	mNrOfKills++;
+}
+
+bool RemotePlayer::IsAlive() const
+{
+	return mIsAlive;
+}
+
+LoadOut* RemotePlayer::GetLoadOut() const
+{
+	return mLoadOut;
+}
+
+float RemotePlayer::GetHP() const
+{
+	return mCurrentHp;
 }
 
 int RemotePlayer::GetID() const
@@ -129,8 +140,6 @@ HRESULT RemotePlayer::Render( float deltaTime, int position )
 
 	if ( mIsAlive )
 	{
-		RenderManager::GetInstance()->AddObject3dToList(mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction);
-
 		float renderHpSize = ( mCurrentHp * 1.5f / mMaxHp ) + 1; //*1.5 and +1 to make it an appropriate size.
 
 		x = { mLowerBody.position.x - renderHpSize / 2.0f, 0.01f, mLowerBody.position.z + renderHpSize / 2.0f };
@@ -289,11 +298,19 @@ HRESULT RemotePlayer::Initialize()
 	mSpawnTime				= 10.0f;
 	mTimeTillSpawn			= mSpawnTime;
 
+	//Weapon Initialization
+	mLoadOut				= new LoadOut();
+	mLoadOut->rangedWeapon	= new RangedInfo( "Machine Gun", 5.0f, 1, 5.0f, 2, 0 );
+	mLoadOut->meleeWeapon	= new MeleeInfo( "Sword", 4.0f, 3, 2.0f, 7, 2.0f, new BoundingCircle( 2.0f ) );
+
 	return S_OK;
 }
 
 void RemotePlayer::Release()
 {
+	mLoadOut->Release();
+	SAFE_DELETE( mLoadOut );
+
 	SAFE_DELETE( mBoundingBox );
 	SAFE_DELETE( mBoundingCircle );
 	mFont.Release();
@@ -350,6 +367,7 @@ RemotePlayer::RemotePlayer()
 
 	mBoundingBox			= nullptr;
 	mBoundingCircle			= nullptr;
+	mLoadOut				= nullptr;
 }
 
 RemotePlayer::~RemotePlayer()

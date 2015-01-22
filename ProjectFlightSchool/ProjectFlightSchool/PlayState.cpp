@@ -374,7 +374,7 @@ HRESULT PlayState::Render()
 		RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation[i], mTestAnimationAnimation[i], &mAnimationTime, DirectX::XMFLOAT3( (float)i * -5.0f, 0.0f, 0.0f ) );
 
 	mPlayer->Render( 0.0f, 1 );
-	//mWorldMap->Render( 0.0f );
+
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
 	{
 		if ( mRemotePlayers.at(i) )
@@ -384,8 +384,6 @@ HRESULT PlayState::Render()
 	}
 
 	RenderProjectiles();
-
-	//mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
 
 	mShip.Render();
 

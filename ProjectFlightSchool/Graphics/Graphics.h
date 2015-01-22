@@ -22,6 +22,8 @@
 
 #define MAX_NUM_INSTANCED 60//(UINT)( MAX_AMOUNT_OF_ANIM3D * 0.06f )
 
+#define SAFE_RELEASE_DELETE( x ) if( x ) { ( x )->Release(); delete x; ( x ) = nullptr; }
+
 class LIBRARY_EXPORT Graphics
 {
 	//Class members
@@ -44,6 +46,7 @@ class LIBRARY_EXPORT Graphics
 		ID3D11Buffer*				mCbufferPerObject;
 		ID3D11Buffer*				mCbufferPerObjectAnimated;
 		ID3D11Buffer*				mCbufferPerInstancedAnimated;
+		ID3D11Buffer*				mBufferPerInstanceObject;
 		ID3D11SamplerState*			mPointSamplerState;
 		ID3D11SamplerState*			mLinearSamplerState;
 
@@ -54,12 +57,11 @@ class LIBRARY_EXPORT Graphics
 		Effect*						m2dEffect;
 		Effect*						mAnimatedEffect;
 		Effect*						mAnimInstancedEffect;
+		Effect*						mDeferredPassEffect;
 		Camera*						mCamera;
 		Camera*						mDeveloperCamera;
 		bool						mIsDeveloperCameraActive;
-		Effect*						mDeferredPassEffect;
 		Gbuffer*					mGbuffers[NUM_GBUFFERS];
-		ID3D11Buffer*				mBufferPerInstanceObject;
 
 		StaticInstance mStatic3dInstanced[MAX_AMOUNT_OF_OBJECT3D];
 		CbufferPerObjectAnimated mAnim3dInstanced[MAX_NUM_INSTANCED];

@@ -13,7 +13,6 @@ struct VS_In
 	float3 tangent			: TANGENT;
 	float2 uv				: TEX;
 	float4x4 worldMatrix	: WORLD;
-	unsigned int instanceID : SV_InstanceID;
 };
 
 struct VS_Out

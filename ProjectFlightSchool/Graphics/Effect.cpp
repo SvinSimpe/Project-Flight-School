@@ -42,6 +42,20 @@ HRESULT Effect::CompileShader( char* shaderFile, char* pEntrypoint, char* pTarge
 	return hr;
 }
 
+std::wstring Effect::stringToWstring( const std::string &s )
+{
+	int stringLength = (int)s.length() + 1;
+	int bufferLength = MultiByteToWideChar( CP_ACP, 0, s.c_str(), stringLength, 0, 0 );
+
+	wchar_t* buffer = new wchar_t[bufferLength];
+	MultiByteToWideChar( CP_ACP, 0, s.c_str(), stringLength, buffer, bufferLength );
+	std::wstring wString( buffer );
+
+	delete[] buffer;
+
+	return wString;
+}
+
 ID3D11InputLayout*	Effect::GetInputLayout() const
 {
 	return mInputLayout;
@@ -74,97 +88,118 @@ HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo* effectInfo )
 		// Compile Vertex Shader |
 		//------------------------
 		ID3DBlob* vertexShaderBlob = nullptr;
-		if ( SUCCEEDED( hr = CompileShader( effectInfo->fileName, "VS_main", "vs_5_0", nullptr, &vertexShaderBlob ) ) )
+		std::ifstream fileReader;
+		std::string file( effectInfo->fileName );
+		std::string checkFileExist = "../Content/Effects/Compiled shaders/" + file + "_VS.cso";
+		fileReader.open( checkFileExist.c_str() );
+		
+		if( fileReader.is_open() )
 		{
-			if ( SUCCEEDED( hr = device->CreateVertexShader(vertexShaderBlob->GetBufferPointer(),
-				vertexShaderBlob->GetBufferSize(),
-				nullptr,
-				&mVertexShader) ) )
+			D3DReadFileToBlob( stringToWstring( checkFileExist ).c_str(), &vertexShaderBlob );
+			hr = device->CreateVertexShader( vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), 0, &mVertexShader );
+		}
+		else
+		{
+			
+
+			if ( SUCCEEDED( hr = CompileShader( effectInfo->filePath, "VS_main", "vs_5_0", nullptr, &vertexShaderBlob ) ) )
 			{
-				if( effectInfo->vertexType == STATIC_VERTEX_TYPE )
+				if ( SUCCEEDED( hr = device->CreateVertexShader(vertexShaderBlob->GetBufferPointer(),
+					vertexShaderBlob->GetBufferSize(),
+					nullptr,
+					&mVertexShader) ) )
 				{
-					D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
-							{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-							{ "NORMAL"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-							{ "TANGENT"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-							{ "TEX"		, 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-					};
-					hr = device->CreateInputLayout( inputDesc,
-						ARRAYSIZE( inputDesc ),
-						vertexShaderBlob->GetBufferPointer(),
-						vertexShaderBlob->GetBufferSize(),
-						&mInputLayout );
+					D3DWriteBlobToFile( vertexShaderBlob, stringToWstring( checkFileExist ).c_str(), true );
 				}
-				else if( effectInfo->vertexType == STATIC_INSTANCED_VERTEX_TYPE )
-				{
-					D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
-							//Vertex buffer data
-							{ "POSITION"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-							{ "NORMAL"		, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-							{ "TANGENT"		, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-							{ "TEX"			, 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-							//Instance buffer data
-							{ "WORLD"		, 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-							{ "WORLD"		, 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 16, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-							{ "WORLD"		, 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 32, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-							{ "WORLD"		, 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 48, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-							
-					};
-					hr = device->CreateInputLayout( inputDesc,
-						ARRAYSIZE( inputDesc ),
-						vertexShaderBlob->GetBufferPointer(),
-						vertexShaderBlob->GetBufferSize(),
-						&mInputLayout );
-				}
-				else if( effectInfo->vertexType == ANIMATED_VERTEX_TYPE )
-				{
-					D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
-							{ "POSITION"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_INSTANCE_DATA, 0 },
-							{ "NORMAL"		, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_INSTANCE_DATA, 0 },
-							{ "TANGENT"		, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_INSTANCE_DATA, 0 },
-							{ "TEX"			, 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D11_INPUT_PER_INSTANCE_DATA, 0 },
-							{ "WEIGHTS"		, 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 44, D3D11_INPUT_PER_INSTANCE_DATA, 0 },
-							{ "JOINTINDEX"	, 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 60, D3D11_INPUT_PER_INSTANCE_DATA, 0 },
-					};
-					hr = device->CreateInputLayout( inputDesc,
-						ARRAYSIZE( inputDesc ),
-						vertexShaderBlob->GetBufferPointer(),
-						vertexShaderBlob->GetBufferSize(),
-						&mInputLayout );
-				}
-				else if( effectInfo->vertexType == ANIMATED_VERTEX_INSTANCED_TYPE )
-				{
-					D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
-							//Vertex buffer data
-							{ "POSITION"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-							{ "NORMAL"		, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-							{ "TANGENT"		, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-							{ "TEX"			, 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-							{ "WEIGHTS"		, 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 44, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-							{ "JOINTINDEX"	, 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 60, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-							//Instance buffer data
-							{ "WORLD"		, 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-							{ "WORLD"		, 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 16, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-							{ "WORLD"		, 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 32, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-							{ "WORLD"		, 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 48, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-							{ "INSTANCEID"	, 0, DXGI_FORMAT_R32_UINT, 1, 64, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
-					};
-					hr = device->CreateInputLayout( inputDesc,
-						ARRAYSIZE( inputDesc ),
-						vertexShaderBlob->GetBufferPointer(),
-						vertexShaderBlob->GetBufferSize(),
-						&mInputLayout );
-				}
+				
 			}
-			SAFE_RELEASE( vertexShaderBlob );
 		}
 
 		if ( FAILED( hr ) )
 		{
 			OutputDebugStringA( "Failed to compile  " );
-			OutputDebugStringA( (LPCSTR)effectInfo->fileName );
+			OutputDebugStringA( (LPCSTR)effectInfo->filePath );
 			OutputDebugStringA( " at VertexShader stage" );
 		}
+		else
+		{
+			if( effectInfo->vertexType == STATIC_VERTEX_TYPE )
+			{
+				D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
+						{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+						{ "NORMAL"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+						{ "TANGENT"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+						{ "TEX"		, 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+				};
+				hr = device->CreateInputLayout( inputDesc,
+					ARRAYSIZE( inputDesc ),
+					vertexShaderBlob->GetBufferPointer(),
+					vertexShaderBlob->GetBufferSize(),
+					&mInputLayout );
+			}
+			else if( effectInfo->vertexType == STATIC_INSTANCED_VERTEX_TYPE )
+			{
+				D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
+						//Vertex buffer data
+						{ "POSITION"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+						{ "NORMAL"		, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+						{ "TANGENT"		, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+						{ "TEX"			, 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+						//Instance buffer data
+						{ "WORLD"		, 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+						{ "WORLD"		, 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 16, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+						{ "WORLD"		, 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 32, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+						{ "WORLD"		, 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 48, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+							
+				};
+				hr = device->CreateInputLayout( inputDesc,
+					ARRAYSIZE( inputDesc ),
+					vertexShaderBlob->GetBufferPointer(),
+					vertexShaderBlob->GetBufferSize(),
+					&mInputLayout );
+			}
+			else if( effectInfo->vertexType == ANIMATED_VERTEX_TYPE )
+			{
+				D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
+						{ "POSITION"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_INSTANCE_DATA, 0 },
+						{ "NORMAL"		, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_INSTANCE_DATA, 0 },
+						{ "TANGENT"		, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_INSTANCE_DATA, 0 },
+						{ "TEX"			, 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D11_INPUT_PER_INSTANCE_DATA, 0 },
+						{ "WEIGHTS"		, 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 44, D3D11_INPUT_PER_INSTANCE_DATA, 0 },
+						{ "JOINTINDEX"	, 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 60, D3D11_INPUT_PER_INSTANCE_DATA, 0 },
+				};
+				hr = device->CreateInputLayout( inputDesc,
+					ARRAYSIZE( inputDesc ),
+					vertexShaderBlob->GetBufferPointer(),
+					vertexShaderBlob->GetBufferSize(),
+					&mInputLayout );
+			}
+			else if( effectInfo->vertexType == ANIMATED_VERTEX_INSTANCED_TYPE )
+			{
+				D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
+						//Vertex buffer data
+						{ "POSITION"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+						{ "NORMAL"		, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+						{ "TANGENT"		, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+						{ "TEX"			, 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+						{ "WEIGHTS"		, 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 44, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+						{ "JOINTINDEX"	, 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, 60, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+						//Instance buffer data
+						{ "WORLD"		, 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+						{ "WORLD"		, 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 16, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+						{ "WORLD"		, 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 32, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+						{ "WORLD"		, 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 48, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+						{ "INSTANCEID"	, 0, DXGI_FORMAT_R32_UINT, 1, 64, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+				};
+				hr = device->CreateInputLayout( inputDesc,
+					ARRAYSIZE( inputDesc ),
+					vertexShaderBlob->GetBufferPointer(),
+					vertexShaderBlob->GetBufferSize(),
+					&mInputLayout );
+			}
+		}
+		SAFE_RELEASE( vertexShaderBlob );
+		fileReader.close();
 	}
 
 
@@ -175,22 +210,39 @@ HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo* effectInfo )
 		// Compile Pixel Shader | 
 		//-----------------------
 		ID3DBlob* pixelShaderBlob = nullptr;
-		if ( SUCCEEDED( hr = CompileShader(effectInfo->fileName, "PS_main", "ps_5_0", nullptr, &pixelShaderBlob ) ) )
+		std::ifstream fileReader;
+		std::string file( effectInfo->fileName );
+		std::string checkFileExist = "../Content/Effects/Compiled shaders/" + file + "_PS.cso";
+		fileReader.open( checkFileExist.c_str() );
+		
+		if( fileReader.is_open() )
+		{
+			D3DReadFileToBlob( stringToWstring( checkFileExist ).c_str(), &pixelShaderBlob );
+			hr = device->CreatePixelShader( pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize(), 0, &mPixelShader );
+		}
+		if ( SUCCEEDED( hr = CompileShader( effectInfo->filePath, "PS_main", "ps_5_0", nullptr, &pixelShaderBlob ) ) )
 		{
 			hr = device->CreatePixelShader( pixelShaderBlob->GetBufferPointer(),
 				pixelShaderBlob->GetBufferSize(),
 				nullptr,
 				&mPixelShader );
 
-			SAFE_RELEASE( pixelShaderBlob );
+			
 		}
 
 		if ( FAILED( hr ) )
 		{
 			OutputDebugStringA( "Failed to compile " );
-			OutputDebugStringA( (LPCSTR)effectInfo->fileName );
+			OutputDebugStringA( (LPCSTR)effectInfo->filePath );
 			OutputDebugStringA( " at PixelShader stage" );
 		}
+		else
+		{
+			D3DWriteBlobToFile( pixelShaderBlob, stringToWstring( checkFileExist ).c_str(), true );
+		}
+
+		SAFE_RELEASE( pixelShaderBlob );
+		fileReader.close();
 	}
 
 	return hr;

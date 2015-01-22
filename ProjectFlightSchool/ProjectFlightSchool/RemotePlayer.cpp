@@ -148,12 +148,12 @@ HRESULT RemotePlayer::Render( float deltaTime, int position )
 
 		float renderHpSize = ( mCurrentHp * 1.5f / mMaxHp ) + 1; //*1.5 and +1 to make it an appropriate size.
 
-		x = { mLowerBody.position.x - renderHpSize / 2.0f, 0.01f, mLowerBody.position.z + renderHpSize / 2.0f };
-		y = { mLowerBody.position.x + renderHpSize / 2.0f, 0.01f, mLowerBody.position.z - renderHpSize / 2.0f };
+		x = { mLowerBody.position.x - renderHpSize * 0.5f, 0.01f, mLowerBody.position.z + renderHpSize * 0.5f };
+		y = { mLowerBody.position.x + renderHpSize * 0.5f, 0.01f, mLowerBody.position.z - renderHpSize * 0.5f };
 
-		if ( mCurrentHp > mMaxHp / 2 )
+		if ( mCurrentHp > ( mMaxHp * 0.5f ) )
 			RenderManager::GetInstance()->AddPlaneToList( mGreenHPAsset, x, y );
-		else if ( mCurrentHp < mMaxHp / 4 )
+		else if ( mCurrentHp < ( mMaxHp * 0.25f ) )
 			RenderManager::GetInstance()->AddPlaneToList( mRedHPAsset, x, y );
 		else
 			RenderManager::GetInstance()->AddPlaneToList( mOrangeHPAsset, x, y );
@@ -163,16 +163,16 @@ HRESULT RemotePlayer::Render( float deltaTime, int position )
 	if ( mColorIDAsset )
 	{
 		renderSize = 2.0f + 1;
-		x = { mLowerBody.position.x - renderSize / 2.0f, 0.005f, mLowerBody.position.z + renderSize / 2.0f };
-		y = { mLowerBody.position.x + renderSize / 2.0f, 0.005f, mLowerBody.position.z - renderSize / 2.0f };
+		x = { mLowerBody.position.x - renderSize * 0.5f, 0.005f, mLowerBody.position.z + renderSize * 0.5f };
+		y = { mLowerBody.position.x + renderSize * 0.5f, 0.005f, mLowerBody.position.z - renderSize * 0.5f };
 		RenderManager::GetInstance()->AddPlaneToList(mColorIDAsset, x, y);
 	}
 	
 	if ( mTeamAsset )
 	{
 		renderSize = 2.2f + 1;
-		x = { mLowerBody.position.x - renderSize / 2.0f, 0.004f, mLowerBody.position.z + renderSize / 2.0f };
-		y = { mLowerBody.position.x + renderSize / 2.0f, 0.004f, mLowerBody.position.z - renderSize / 2.0f };
+		x = { mLowerBody.position.x - renderSize * 0.5f, 0.004f, mLowerBody.position.z + renderSize * 0.5f };
+		y = { mLowerBody.position.x + renderSize * 0.5f, 0.004f, mLowerBody.position.z - renderSize * 0.5f };
 		RenderManager::GetInstance()->AddPlaneToList( mTeamAsset, x, y );
 	}
 

@@ -3,8 +3,8 @@
 
 #include <DirectXMath.h>
 
-#define NUM_SUPPORTED_JOINTS 16
-#define NUM_SUPPORTED_ANIM_INSTANCES 60
+#define NUM_SUPPORTED_JOINTS 32
+#define NUM_SUPPORTED_ANIM_INSTANCES 32
 
 struct CbufferPerObject
 {

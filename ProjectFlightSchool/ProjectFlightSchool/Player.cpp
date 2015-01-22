@@ -224,6 +224,22 @@ HRESULT Player::Render( float deltaTime, int position )
 	return S_OK;
 }
 
+void Player::TakeDamage( float damage, unsigned int shooter )
+{
+	if( mIsBuffed )
+	{
+		float moddedDmg = damage * mBuffMod;
+		damage -= moddedDmg;
+
+	}
+	RemotePlayer::TakeDamage( damage, shooter );
+}
+
+void Player::SetBuffed( bool buffed )
+{
+	mIsBuffed = buffed;
+}
+
 void Player::SetID( unsigned int id )
 {
 	mID = id;
@@ -284,6 +300,8 @@ HRESULT Player::Initialize()
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
+	mBuffMod			= 0.5f;
+
 	return S_OK;
 }
 
@@ -295,9 +313,16 @@ void Player::Release()
 Player::Player()
 	:RemotePlayer()
 {
-	mWeaponCoolDown	= 0.0f;
-	mMeleeCoolDown	= 0.0f;
-	mIsMeleeing		= false;
+	mWeaponCoolDown		= 0.0f;
+	mMeleeCoolDown		= 0.0f;
+	mIsMeleeing			= false;
+
+	mMaxVelocity		= 0.0f;
+	mCurrentVelocity	= 0.0f;
+	mMaxAcceleration	= 0.0f;
+	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mIsBuffed			= false;
+	mBuffMod			= 0.0f;
 }
 
 Player::~Player()

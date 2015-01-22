@@ -79,8 +79,8 @@ void RenderManager::AddObject3dToList( AssetID assetId, DirectX::XMFLOAT3 positi
 {
 	Object3dInfo info;
 	info.mAssetId = assetId;
-	DirectX::XMStoreFloat4x4( &info.mWorld, ( DirectX::XMMatrixRotationRollPitchYaw( rotation.x, rotation.y, rotation.z ) *										
-											  DirectX::XMMatrixTranslation( position.x, position.y, position.z ) ) );
+	DirectX::XMStoreFloat4x4( &info.mWorld, ( DirectX::XMMatrixTranspose( DirectX::XMMatrixRotationRollPitchYaw( rotation.x, rotation.y, rotation.z ) *										
+											  DirectX::XMMatrixTranslation( position.x, position.y, position.z ) ) ) );
 	
 	mObject3dArray[mNrOfObject3d++] = info;
 }

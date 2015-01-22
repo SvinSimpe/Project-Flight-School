@@ -14,7 +14,6 @@ struct StaticVertex
 struct StaticInstance
 {
 	DirectX::XMFLOAT4X4 world;
-	UINT instanceId;
 };
 
 struct AnimatedVertex
@@ -26,5 +25,11 @@ struct AnimatedVertex
 
 	float weights[4];
 	UINT jointIndex[4];
+};
+
+struct AnimatedInstance
+{
+	DirectX::XMFLOAT4X4 world;
+	UINT instanceId;
 };
 #endif

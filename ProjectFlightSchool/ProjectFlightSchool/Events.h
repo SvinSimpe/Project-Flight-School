@@ -808,3 +808,25 @@ class Event_Enemy_List_Synced : public IEvent
 		}
 	
 };
+
+class Event_Server_Initialized : public IEvent
+{
+	// Member variables
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Server_Initialized( )
+		{
+		}
+	
+};

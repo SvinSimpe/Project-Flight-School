@@ -217,6 +217,10 @@ bool Server::Initialize( std::string port )
 	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Game_Started::GUID );
 	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Game_Ended::GUID );
 
+
+	IEventPtr E1( new Event_Server_Initialized() );
+	EventManager::GetInstance()->QueueEvent( E1 );
+
 	return true;
 }
 

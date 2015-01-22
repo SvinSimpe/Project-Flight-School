@@ -8,33 +8,33 @@ void MultiplayerMenuState::HandleInput()
 	}
 	else if( mButtons[TWO_VS_TWO].LeftMousePressed() )
 	{
-		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
-
 		std::string port = mPortBox.GetText();
 
 		IEventPtr E2( new Event_Start_Server( port ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
+
+		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 	else if( mButtons[THREE_VS_THREE].LeftMousePressed() )
 	{
-		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
-
 		std::string port = mPortBox.GetText();
 
 		IEventPtr E2( new Event_Start_Server( port ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
+
+		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 	else if( mButtons[FOUR_VS_FOUR].LeftMousePressed() )
 	{
-		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
-
 		std::string port = mPortBox.GetText();
 
 		IEventPtr E2( new Event_Start_Server( port ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
+
+		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 	else if( mButtons[BACK].LeftMousePressed() )
 	{

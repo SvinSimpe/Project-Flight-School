@@ -52,6 +52,7 @@ class PlayState : public BaseState
 		unsigned int				mNrOfEnemies;
 		unsigned int				mMaxNrOfEnemies;
 		bool						mEnemyListSynced;
+		bool						mServerInitialized;
 	
 	protected:
 	public:

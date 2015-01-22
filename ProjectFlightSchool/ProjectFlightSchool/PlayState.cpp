@@ -125,6 +125,10 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		mEnemyListSynced = true;
 	}
+	else if ( newEvent->GetEventType() == Event_Server_Initialized::GUID )
+	{
+		mServerInitialized = true;
+	}
 }
 
 void PlayState::SyncEnemy( unsigned int id, float hp, bool alive, XMFLOAT3 position, XMFLOAT3 direction )
@@ -357,6 +361,9 @@ HRESULT PlayState::Render()
 
 void PlayState::OnEnter()
 {
+	while( !mServerInitialized )
+	{
+	}
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Started() );
 	EventManager::GetInstance()->QueueEvent( E1 );
@@ -438,6 +445,7 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Update_HP::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Sync_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Enemy_List_Synced::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Initialized::GUID );
 
 	mFont.Initialize( "../Content/Assets/Fonts/final_font/" );
 
@@ -492,6 +500,7 @@ PlayState::PlayState()
 	mNrOfEnemies		= 0;
 	mMaxNrOfEnemies		= 0;
 	mEnemyListSynced	= false;
+	mServerInitialized  = false;
 }
 
 PlayState::~PlayState()

@@ -62,3 +62,4 @@ const EventType Event_Player_Update_HP::GUID( 18 );
 const EventType Event_Remote_Player_Update_HP::GUID( 19 );
 const EventType Event_Sync_Enemy::GUID( 20 );
 const EventType Event_Enemy_List_Synced::GUID( 21 );
+const EventType Event_Server_Initialized::GUID( 22 );

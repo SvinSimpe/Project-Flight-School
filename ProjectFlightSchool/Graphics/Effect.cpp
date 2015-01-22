@@ -97,6 +97,13 @@ HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo* effectInfo )
 		{
 			D3DReadFileToBlob( stringToWstring( checkFileExist ).c_str(), &vertexShaderBlob );
 			hr = device->CreateVertexShader( vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), 0, &mVertexShader );
+
+			if ( FAILED( hr ) )
+			{
+				OutputDebugStringA( "Failed to load from file " );
+				OutputDebugStringA( (LPCSTR)effectInfo->filePath );
+				OutputDebugStringA( " at VertexShader stage" );
+			}
 		}
 		else
 		{
@@ -227,6 +234,13 @@ HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo* effectInfo )
 		{
 			D3DReadFileToBlob( stringToWstring( checkFileExist ).c_str(), &pixelShaderBlob );
 			hr = device->CreatePixelShader( pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize(), 0, &mPixelShader );
+
+			if ( FAILED( hr ) )
+			{
+				OutputDebugStringA( "Failed to load from file " );
+				OutputDebugStringA( (LPCSTR)effectInfo->filePath );
+				OutputDebugStringA( " at PixelShader stage" );
+			}
 		}
 		else 
 		{
@@ -239,25 +253,24 @@ HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo* effectInfo )
 
 			
 			}
-		}
 
-
-		if ( FAILED( hr ) )
-		{
-			OutputDebugStringA( "Failed to compile " );
-			OutputDebugStringA( (LPCSTR)effectInfo->filePath );
-			OutputDebugStringA( " at PixelShader stage" );
-		}
-		else
-		{
-			CreateDirectory( L"../Content/Effects/CompiledShaders/", NULL );
-			std::ofstream fileWriter( checkFileExist.c_str() );
-			if( fileWriter.is_open() )
+			if ( FAILED( hr ) )
 			{
-				fileWriter << "";
-				fileWriter.close();
+				OutputDebugStringA( "Failed to compile " );
+				OutputDebugStringA( (LPCSTR)effectInfo->filePath );
+				OutputDebugStringA( " at PixelShader stage" );
 			}
-			D3DWriteBlobToFile( pixelShaderBlob, stringToWstring( checkFileExist ).c_str(), true );
+			else
+			{
+				CreateDirectory( L"../Content/Effects/CompiledShaders/", NULL );
+				std::ofstream fileWriter( checkFileExist.c_str() );
+				if( fileWriter.is_open() )
+				{
+					fileWriter << "";
+					fileWriter.close();
+				}
+				D3DWriteBlobToFile( pixelShaderBlob, stringToWstring( checkFileExist ).c_str(), true );
+			}
 		}
 
 		SAFE_RELEASE( pixelShaderBlob );

@@ -3,6 +3,11 @@
 
 #include <DirectXMath.h>
 
+struct Vertex24
+{
+	float position[3];
+	float normal[3];
+};
 struct StaticVertex
 {
 	float position[3];

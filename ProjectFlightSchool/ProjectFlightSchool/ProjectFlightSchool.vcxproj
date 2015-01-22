@@ -89,6 +89,7 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="..\Graphics\Font.cpp" />
     <ClCompile Include="BaseMenuState.cpp" />
     <ClCompile Include="Image.cpp" />
@@ -100,6 +101,10 @@
     <ClCompile Include="InputSquare.cpp" />
     <ClCompile Include="JoinMenuState.cpp" />
     <ClCompile Include="Map.cpp" />
+    <ClCompile Include="MapNode.cpp" />
+    <ClCompile Include="MapNodeInstance.cpp" />
+    <ClCompile Include="MapNodeManager.cpp" />
+    <ClCompile Include="MapNodePlacer.cpp" />
     <ClCompile Include="MapSection.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="MultiplayerMenuState.cpp" />
@@ -126,10 +131,15 @@
     <ClInclude Include="CreateMenuState.h" />
     <ClInclude Include="Entry.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="InputSquare.h" />
     <ClInclude Include="JoinMenuState.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MapConstants.h" />
+    <ClInclude Include="MapNode.h" />
+    <ClInclude Include="MapNodeInstance.h" />
+    <ClInclude Include="MapNodeManager.h" />
+    <ClInclude Include="MapNodePlacer.h" />
     <ClInclude Include="MapSection.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="MultiplayerMenuState.h" />

@@ -312,6 +312,7 @@ void RemotePlayer::Release()
 	SAFE_DELETE( mLoadOut );
 
 	SAFE_DELETE( mBoundingBox );
+	SAFE_DELETE( mBoundingCircle );
 	mFont.Release();
 }
 

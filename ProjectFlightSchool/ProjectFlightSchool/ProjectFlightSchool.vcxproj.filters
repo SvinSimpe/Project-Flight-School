@@ -99,6 +99,21 @@
     <ClCompile Include="Projectile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MapNode.cpp">
+      <Filter>Worldmap\SourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MapNodeManager.cpp">
+      <Filter>Worldmap\SourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MapNodeInstance.cpp">
+      <Filter>Worldmap\SourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MapNodePlacer.cpp">
+      <Filter>Worldmap\SourceFiles</Filter>
+	 </ClCompile>
     <ClCompile Include="Entry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -206,6 +221,21 @@
     <ClInclude Include="Projectile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MapNode.h">
+      <Filter>Worldmap\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MapNodeManager.h">
+      <Filter>Worldmap\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MapNodeInstance.h">
+      <Filter>Worldmap\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MapNodePlacer.h">
+      <Filter>Worldmap\Header Files</Filter>
+	</ClInclude>
     <ClInclude Include="Entry.h">
       <Filter>Header Files</Filter>
     </ClInclude>

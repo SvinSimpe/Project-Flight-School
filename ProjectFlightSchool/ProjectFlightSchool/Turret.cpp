@@ -129,7 +129,7 @@ void Turret::Initialize( int team, XMFLOAT3 pos, XMFLOAT3 dir )
 	mLowerBody->dir			= dir;
 
 	mLoadOut				= new LoadOut();
-	mLoadOut->rangedWeapon	= new RangedInfo( "Machine Gun", 5.0f, 1, 5.0f, 2, 0 );
+	mLoadOut->rangedWeapon	= new RangedInfo( "Machine Gun", 5.0f, 1.0f, 5.0f, 2, 0 );
 
 	mBoundingCircle			= new BoundingCircle( mMiddleBody->pos, 10.0f ); // Range of the turret is set here
 	mIdle					= new IdleTurret();

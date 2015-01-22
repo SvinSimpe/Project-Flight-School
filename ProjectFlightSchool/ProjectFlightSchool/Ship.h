@@ -8,6 +8,7 @@ class Ship
 private:
 	BodyPart*		mModel;
 	BoundingCircle* mHitBox;
+	BoundingCircle* mBuff;
 	int				mTeamID;
 	Turret*			mTurret;
 	float			mMaxHull;
@@ -19,6 +20,7 @@ public:
 private:
 protected:
 public:
+	void			BuffPlayer( Player* player );
 	BoundingCircle* GetHitBox() const;
 	void			TakeDamage( float damage );
 	void			PickTurretTarget( std::vector<RemotePlayer*> targets );

@@ -22,10 +22,6 @@ void RemotePlayer::RemoteUpdate( IEventPtr newEvent )
 	}
 }
 
-void RemotePlayer::LookAt( float rotation )
-{
-}
-
 void RemotePlayer::RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID )
 {
 	mID				= id;

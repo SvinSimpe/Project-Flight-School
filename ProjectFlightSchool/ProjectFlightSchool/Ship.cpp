@@ -1,5 +1,17 @@
 #include "Ship.h"
 
+void Ship::BuffPlayer( Player* player )
+{
+	if( mBuff->Intersect( player->GetBoundingCircle() ) && player->GetTeam() == mTeamID )
+	{
+		player->SetBuffed( true );
+	}
+	else
+	{
+		player->SetBuffed( false );
+	}
+}
+
 BoundingCircle* Ship::GetHitBox() const
 {
 	return mHitBox;
@@ -34,6 +46,7 @@ void Ship::Initialize( int team, XMFLOAT3 pos, XMFLOAT3 dir )
 	mModel->dir = dir;
 
 	mHitBox = new BoundingCircle( pos, 5.0f );
+	mBuff	= new BoundingCircle( pos, 20.0f );
 	mTeamID = team;
 	mTurret = new Turret();
 
@@ -52,6 +65,7 @@ void Ship::Release()
 {
 	SAFE_DELETE( mModel );
 	SAFE_DELETE( mHitBox );
+	SAFE_DELETE( mBuff );
 	mTurret->Release();
 	SAFE_DELETE( mTurret );
 }

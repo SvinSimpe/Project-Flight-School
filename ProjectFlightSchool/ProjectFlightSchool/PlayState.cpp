@@ -356,6 +356,12 @@ HRESULT PlayState::Update( float deltaTime )
 	mShip.PickTurretTarget( mAllPlayers );
 	mShip.Update( deltaTime );
 
+
+	//TEST
+	ParticleSystem* p = new ParticleSystem();
+	p->Initialize( 2.0f );
+	p->UpdatePosition( deltaTime );
+
 	return S_OK;
 }
 

@@ -45,6 +45,8 @@ struct LoadOut
 	void Release()
 	{
 		SAFE_DELETE( rangedWeapon );
+		if( meleeWeapon )
+			SAFE_DELETE( meleeWeapon->boundingCircle );
 		SAFE_DELETE( meleeWeapon );
 	}
 };

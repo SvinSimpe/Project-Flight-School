@@ -11,13 +11,25 @@ Graphics::Graphics()
 	mDevice			= nullptr;
 	mDeviceContext	= nullptr;
 
-	mRenderTargetView	= nullptr;
-	mDepthStencilView	= nullptr;
-	mCbufferPerFrame	= nullptr;
+	mRenderTargetView				= nullptr;
+	mDepthStencilView				= nullptr;
+	mDepthDisabledStencilState		= nullptr;
+	mDepthEnabledStencilState		= nullptr;
+	mCbufferPerFrame				= nullptr;
+	mCbufferPerObject				= nullptr;
+	mCbufferPerObjectAnimated		= nullptr;
+	mCbufferPerInstancedAnimated	= nullptr;
+	mBufferPerInstanceObject		= nullptr;
+	mPointSamplerState				= nullptr;
+	mLinearSamplerState				= nullptr;
 
 	mAssetManager				= nullptr;
 	mStaticEffect				= nullptr;
+	mStaticInstancedEffect		= nullptr;
+	m2dEffect					= nullptr;
 	mAnimatedEffect				= nullptr;
+	mAnimInstancedEffect		= nullptr;
+	mDeferredPassEffect			= nullptr;
 	mCamera						= nullptr;
 	mDeveloperCamera			= nullptr;
 	mIsDeveloperCameraActive	= false;
@@ -942,6 +954,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	if( FAILED( hr = mAnimatedEffect->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
+
 	//Animated instanced effect
 	mAnimInstancedEffect	= new Effect;
 	effectInfo.filePath		= "../Content/Effects/AnimatedInstanced3dEffect.hlsl";
@@ -950,6 +963,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	if( FAILED( hr = mAnimInstancedEffect->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
+
 	//--------------------------
 	mDeferredPassEffect = new Effect;
 	effectInfo.filePath		= "../Content/Effects/DeferredPassEffect.hlsl";
@@ -1043,6 +1057,8 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 		return hr;
 	}
 
+	OutputDebugString( L"----- Graphics Initialization Complete. -----" );
+
 	return hr;
 }
 
@@ -1067,27 +1083,19 @@ void Graphics::Release()
 	SAFE_RELEASE( mPointSamplerState );
 	SAFE_RELEASE( mLinearSamplerState );
 
-	mAssetManager->Release();
-	mStaticEffect->Release();
-	mAnimatedEffect->Release();
-	m2dEffect->Release();
-	mAnimInstancedEffect->Release();
-	mDeferredPassEffect->Release();
-	mCamera->Release();
-	mDeveloperCamera->Release();
-	
+	SAFE_RELEASE_DELETE( mAssetManager );
+	SAFE_RELEASE_DELETE( mStaticEffect );
+	SAFE_RELEASE_DELETE( mStaticInstancedEffect );
+	SAFE_RELEASE_DELETE( m2dEffect );
+	SAFE_RELEASE_DELETE( mAnimatedEffect );
+	SAFE_RELEASE_DELETE( mAnimInstancedEffect );
+	SAFE_RELEASE_DELETE( mDeferredPassEffect );
+	SAFE_RELEASE_DELETE( mCamera );
+	SAFE_RELEASE_DELETE( mDeveloperCamera );
+
 	for( int i = 0; i < NUM_GBUFFERS; i++ )
 	{
 		mGbuffers[i]->Release();
 		SAFE_DELETE( mGbuffers[i] );
 	}
-
-	SAFE_DELETE( mAssetManager );
-	SAFE_DELETE( mStaticEffect );
-	SAFE_DELETE( mAnimatedEffect );
-	SAFE_DELETE( m2dEffect );
-	SAFE_DELETE( mDeferredPassEffect );
-	SAFE_DELETE( mAnimInstancedEffect );
-	SAFE_DELETE( mCamera );
-	SAFE_DELETE( mDeveloperCamera );
 }

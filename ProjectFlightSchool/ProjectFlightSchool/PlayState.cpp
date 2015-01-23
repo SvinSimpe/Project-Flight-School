@@ -376,7 +376,9 @@ HRESULT PlayState::Render()
 
 
 	mPlayer->Render( 0.0f, 1 );
+
 	mWorldMap->Render( 0.0f , mPlayer );
+
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
 	{
 		if ( mRemotePlayers.at(i) )
@@ -386,8 +388,6 @@ HRESULT PlayState::Render()
 	}
 
 	RenderProjectiles();
-
-	//mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
 
 	mShip.Render();
 
@@ -534,8 +534,9 @@ void PlayState::Release()
 		mProjectiles[i]->Release();
 		SAFE_DELETE( mProjectiles[i] );
 	}
-
 	delete [] mProjectiles;
+
+	mFont.Release();
 }
 
 PlayState::PlayState()

@@ -106,13 +106,13 @@ HRESULT Game::Initialize()
 	EventManager::GetInstance()->AddListener( &Game::EventListener, this, Event_Start_Client::GUID );
 	mServerIsActive = false;
 
+	OutputDebugString( L"----- Game Initialization Complete. -----" );
+
 	return S_OK;
 }
 
 void Game::Release()
 {
-	EventManager::GetInstance()->Release();
-
 	mClient->Release();
 	SAFE_DELETE( mClient );
 

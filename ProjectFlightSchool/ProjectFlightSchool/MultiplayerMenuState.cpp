@@ -119,6 +119,7 @@ HRESULT MultiplayerMenuState::Initialize()
 void MultiplayerMenuState::Release()
 {
 	BaseMenuState::Release();
+	mPortBox.Release();
 }
 
 MultiplayerMenuState::MultiplayerMenuState() : BaseMenuState()

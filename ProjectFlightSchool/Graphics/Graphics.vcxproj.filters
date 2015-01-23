@@ -89,6 +89,7 @@
     <ClInclude Include="Gbuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LightStructure.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AssetClasses">

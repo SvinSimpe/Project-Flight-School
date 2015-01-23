@@ -8,6 +8,7 @@
 #include "Effect.h"
 #include "CbufferPerFrame.h"
 #include "CbufferPerObject.h"
+#include "LightStructure.h"
 #include "Camera.h"
 #include "Gbuffer.h"
 #include "..\ProjectFlightSchool\RenderStructs.h"
@@ -48,6 +49,8 @@ class LIBRARY_EXPORT Graphics
 		ID3D11Buffer*				mCbufferPerObjectAnimated;
 		ID3D11Buffer*				mCbufferPerInstancedAnimated;
 		ID3D11Buffer*				mBufferPerInstanceObject;
+		ID3D11Buffer*				mLightBuffer;
+		ID3D11ShaderResourceView*	mLightStructuredBuffer;
 		ID3D11SamplerState*			mPointSamplerState;
 		ID3D11SamplerState*			mLinearSamplerState;
 
@@ -95,7 +98,7 @@ class LIBRARY_EXPORT Graphics
 		void RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList );
 		void RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList );
 
-		DirectX::XMFLOAT4X4 GetRootMatrix( AssetID modelAssetId, AssetID animationAssetId, float animationTime );
+		DirectX::XMFLOAT4X4	GetRootMatrix( AssetID modelAssetId, AssetID animationAssetId, float animationTime );
 
 		Camera* GetCamera() const;
 		Camera* GetDeveloperCamera() const;
@@ -103,6 +106,7 @@ class LIBRARY_EXPORT Graphics
 		void	ZoomInDeveloperCamera();
 		void	ZoomOutDeveloperCamera();
 
+		void MapLightStructuredBuffer( LightStructure* lightStructure );
 		void SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY );
 		void SetInverseViewMatrix( DirectX::XMMATRIX &inverseViewMatrix );
 		void SetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatrix );

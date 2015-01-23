@@ -2,6 +2,11 @@
 #include <Graphics.h>
 
 #pragma region Private functions
+void RenderManager::SetLightStructuredBuffer()
+{
+	Graphics::GetInstance()->MapLightStructuredBuffer( mLightManager->GetLightStructure() );
+}
+
 void RenderManager::Clear()
 {
 	//Object3d
@@ -130,6 +135,8 @@ HRESULT RenderManager::Update( float deltaTime )
 
 HRESULT RenderManager::Render()
 {
+	SetLightStructuredBuffer();
+
 	Graphics::GetInstance()->BeginScene();
 
 	Graphics::GetInstance()->RenderStatic3dAsset( mObject3dArray, mNrOfObject3d );
@@ -154,13 +161,14 @@ HRESULT RenderManager::Render()
 HRESULT RenderManager::Initialize()
 {
 	Clear();
-
+	mLightManager = new LightManager;
+	mLightManager->Initialize();
 	return S_OK;
 }
 
 void RenderManager::Release()
 {
-
+	SAFE_RELEASE_DELETE( mLightManager );
 }
 
 RenderManager* RenderManager::GetInstance()

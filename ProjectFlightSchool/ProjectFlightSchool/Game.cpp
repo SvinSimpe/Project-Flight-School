@@ -113,19 +113,20 @@ HRESULT Game::Initialize()
 
 void Game::Release()
 {
-	mClient->Release();
-	SAFE_DELETE( mClient );
-
-	if ( mServerIsActive )
+	if ( mServerIsActive && mServer )
 		mServer->Release();
 	SAFE_DELETE( mServer );
-	if ( mClientThread.joinable() )
-	{
-		mClientThread.join();
-	}
 	if ( mServerThread.joinable() )
 	{
 		mServerThread.join();
+	}
+
+	if( mClient )
+		mClient->Release();
+	SAFE_DELETE( mClient );
+	if ( mClientThread.joinable() )
+	{
+		mClientThread.join();
 	}
 
 	mStateMachine->Release();

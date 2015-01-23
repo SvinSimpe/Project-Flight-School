@@ -10,7 +10,7 @@
 #include "Image.h"
 
 //Test
-#include "ParticleSystem.h"
+#include "ParticleManager.h"
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
@@ -52,6 +52,9 @@ class PlayState : public BaseState
 		int							mNrOfProjectilesFired;
 		int							mCurrentColor;
 		Font						mFont;
+
+		//Test particle
+		ParticleManager* p;
 
 	protected:
 	public:

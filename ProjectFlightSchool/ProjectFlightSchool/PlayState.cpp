@@ -358,9 +358,8 @@ HRESULT PlayState::Update( float deltaTime )
 
 
 	//TEST
-	ParticleSystem* p = new ParticleSystem();
-	p->Initialize( 2.0f, 100 );
-	p->UpdatePosition( deltaTime );
+
+	p->Update( deltaTime );
 
 	return S_OK;
 }
@@ -482,6 +481,12 @@ HRESULT PlayState::Initialize()
 	//TEST
 	mAllPlayers.push_back( mPlayer );
 	mShip.Initialize( 0, XMFLOAT3( 10.0f, 0.0f, 10.0f ), XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
+
+
+
+	//TEST
+	p = new ParticleManager();
+	p->Initialize();
 
 	return S_OK;
 }

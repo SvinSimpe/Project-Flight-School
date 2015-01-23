@@ -113,7 +113,7 @@
     </ClCompile>
     <ClCompile Include="MapNodePlacer.cpp">
       <Filter>Worldmap\SourceFiles</Filter>
-	 </ClCompile>
+    </ClCompile>
     <ClCompile Include="Entry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -169,6 +169,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Ship.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LightManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -235,7 +238,7 @@
     </ClInclude>
     <ClInclude Include="MapNodePlacer.h">
       <Filter>Worldmap\Header Files</Filter>
-	</ClInclude>
+    </ClInclude>
     <ClInclude Include="Entry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -300,6 +303,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Ship.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LightManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

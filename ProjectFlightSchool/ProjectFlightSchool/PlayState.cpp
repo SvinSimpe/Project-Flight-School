@@ -363,13 +363,6 @@ HRESULT PlayState::Render()
 {
 
 	RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
-	RenderManager::GetInstance()->AddObject3dToList( mNest1Asset, DirectX::XMFLOAT3( 8.0f, 0.0f, 0.0f ) );
-	RenderManager::GetInstance()->AddObject3dToList( mTree1Asset, DirectX::XMFLOAT3( 12.0f, 0.0f, 0.0f ) );
-
-	for( int i = 0; i < 6; i++ )
-	{
-		RenderManager::GetInstance()->AddObject3dToList( mStoneAssets[i], DirectX::XMFLOAT3( (float)i*4.0f, 0.0f, -4.0f ) );
-	}
 	
 	for(int i = 0; i < animTestNr; i++)
 		RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation[i], mTestAnimationAnimation[i], &mAnimationTime, DirectX::XMFLOAT3( (float)i * -5.0f, 0.0f, 0.0f ) );
@@ -424,32 +417,26 @@ HRESULT PlayState::Initialize()
 		Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptorDeath2.PaMan", mTestAnimationAnimation[i] );
 	}
 
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest2.pfs", mNest1Asset );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_1.pfs", mStoneAssets[0] );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_2.pfs", mStoneAssets[1] );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_3.pfs", mStoneAssets[2] );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_4.pfs", mStoneAssets[3] );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_5.pfs", mStoneAssets[4] );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_6.pfs", mStoneAssets[5] );
+	AssetID loader;
 
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dAsset );
 	for( int i = 1; i < 8; i++ )
 	{
 		char buffer[50];
 		sprintf_s(buffer,"tree%d.pfs",i);
-		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Tree/", buffer, mTree1Asset );
+		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Tree/", buffer, loader );
 	}
 	for( int i = 1; i < 6; i++ )
 	{
 		char buffer[50];
 		sprintf_s(buffer,"greaystone%d.pfs",i);
-		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", buffer, mTree1Asset );
+		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", buffer, loader );
 	}
 	for( int i = 1; i < 7; i++ )
 	{
 		char buffer[50];
 		sprintf_s(buffer,"sandstone%d.pfs",i);
-		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", buffer, mTree1Asset );
+		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", buffer, loader );
 	}
 	//for( int i = 1; i < 5; i++ )
 	//{
@@ -463,7 +450,7 @@ HRESULT PlayState::Initialize()
 	//	sprintf_s(buffer,"plant%d.pfs",i);
 	//	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bushes/", buffer, mTree1Asset );
 	//}
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bushes/", "plant1.pfs", mTree1Asset );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bushes/", "plant1.pfs", loader );
 	std::string colorIDFileNames[MAX_REMOTE_PLAYERS] = { "../Content/Assets/Textures/FunnyCircles/BlueID.png", "../Content/Assets/Textures/FunnyCircles/CoralID.png", "../Content/Assets/Textures/FunnyCircles/DarkBlueID.png", "../Content/Assets/Textures/FunnyCircles/DarkGreenID.png", "../Content/Assets/Textures/FunnyCircles/DarkPurpleID.png", "../Content/Assets/Textures/FunnyCircles/GreenID.png", "../Content/Assets/Textures/FunnyCircles/GreyID.png", "../Content/Assets/Textures/FunnyCircles/LightBlueID.png", "../Content/Assets/Textures/FunnyCircles/LightGreenID.png", "../Content/Assets/Textures/FunnyCircles/LightPurpleID.png","../Content/Assets/Textures/FunnyCircles/OrangeID.png", "../Content/Assets/Textures/FunnyCircles/PinkID.png", "../Content/Assets/Textures/FunnyCircles/ScreamBlueID.png", "../Content/Assets/Textures/FunnyCircles/YellowID.png" };
 
 	for( int i=0; i<MAX_REMOTE_PLAYERS; i++ )

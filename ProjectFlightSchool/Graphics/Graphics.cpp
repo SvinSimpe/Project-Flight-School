@@ -20,6 +20,8 @@ Graphics::Graphics()
 	mCbufferPerObjectAnimated		= nullptr;
 	mCbufferPerInstancedAnimated	= nullptr;
 	mBufferPerInstanceObject		= nullptr;
+	mLightBuffer					= nullptr;
+	mLightStructuredBuffer			= nullptr;
 	mPointSamplerState				= nullptr;
 	mLinearSamplerState				= nullptr;
 
@@ -467,6 +469,11 @@ void Graphics::ZoomOutDeveloperCamera()
 	mDeveloperCamera->ZoomOut();
 }
 
+void Graphics::MapLightStructuredBuffer( LightStructure* lightStructure )
+{
+	MapBuffer( mLightBuffer, (void*)lightStructure, sizeof( LightStructure ) );
+}
+
 void Graphics::SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY )
 {
 	//Calculate mouse position in NDC space
@@ -565,6 +572,7 @@ void Graphics::EndScene()
 	for( int i = 0; i < NUM_GBUFFERS; i++)
 		mDeviceContext->PSSetShaderResources( i, 1, &mGbuffers[i]->mShaderResourceView );
 
+	mDeviceContext->PSSetShaderResources( 5, 1, &mLightStructuredBuffer );
 		//mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
 
 	mDeviceContext->VSSetShader( mDeferredPassEffect->GetVertexShader(), nullptr, 0 );
@@ -910,6 +918,22 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, nullptr, &mBufferPerInstanceObject ) ) )
 		return hr;
 
+	//Light buffer for structured buffer
+	D3D11_BUFFER_DESC lightBufferDesc;
+	ZeroMemory( &lightBufferDesc, sizeof( lightBufferDesc ) );
+	lightBufferDesc.BindFlags			= D3D11_BIND_SHADER_RESOURCE;
+	lightBufferDesc.Usage				= D3D11_USAGE_DYNAMIC;
+	lightBufferDesc.CPUAccessFlags		= D3D11_CPU_ACCESS_WRITE;
+	lightBufferDesc.MiscFlags			= D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+	lightBufferDesc.ByteWidth			= sizeof( LightStructure );
+	lightBufferDesc.StructureByteStride	= sizeof( PointLight );
+
+	if( FAILED( hr = mDevice->CreateBuffer( &lightBufferDesc, nullptr, &mLightBuffer ) ) )
+		return hr;
+
+	if( FAILED( hr = mDevice->CreateShaderResourceView( mLightBuffer, nullptr, &mLightStructuredBuffer ) ) )
+		return hr;
+
 	//AssetManager
 	mAssetManager = new AssetManager;
 	mAssetManager->Initialize( mDevice, mDeviceContext );
@@ -1079,6 +1103,8 @@ void Graphics::Release()
 	SAFE_RELEASE( mCbufferPerObjectAnimated );
 	SAFE_RELEASE( mCbufferPerInstancedAnimated );
 	SAFE_RELEASE( mBufferPerInstanceObject );
+	SAFE_RELEASE( mLightBuffer );
+	SAFE_RELEASE( mLightStructuredBuffer );
 
 	SAFE_RELEASE( mPointSamplerState );
 	SAFE_RELEASE( mLinearSamplerState );

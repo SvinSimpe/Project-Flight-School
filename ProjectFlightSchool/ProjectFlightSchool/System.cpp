@@ -156,6 +156,7 @@ void System::Release()
 	Graphics::GetInstance()->Release();
 	EventManager::GetInstance()->Release();
 	Input::GetInstance()->Release();
+	RenderManager::GetInstance()->Release();
 }
 
 System::System()

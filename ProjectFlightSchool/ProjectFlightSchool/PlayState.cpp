@@ -359,7 +359,7 @@ HRESULT PlayState::Update( float deltaTime )
 
 	//TEST
 	ParticleSystem* p = new ParticleSystem();
-	p->Initialize( 2.0f );
+	p->Initialize( 2.0f, 100 );
 	p->UpdatePosition( deltaTime );
 
 	return S_OK;

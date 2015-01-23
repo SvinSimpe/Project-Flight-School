@@ -18,6 +18,14 @@
 	#define LIBRARY_EXPORT __declspec( dllimport )
 #endif
 
+enum BlendStates
+{
+	BLEND_2D,
+
+	//New states added above this comment
+	BLEND_STATES_AMOUNT
+};
+
 #define NUM_GBUFFERS 3
 #define MAX_ANIM_INSTANCE_BATCH 32
 
@@ -50,6 +58,7 @@ class LIBRARY_EXPORT Graphics
 		ID3D11Buffer*				mBufferPerInstanceObject;
 		ID3D11SamplerState*			mPointSamplerState;
 		ID3D11SamplerState*			mLinearSamplerState;
+		ID3D11BlendState*			mBlendState[BLEND_STATES_AMOUNT];
 
 
 		AssetManager*				mAssetManager;
@@ -110,6 +119,9 @@ class LIBRARY_EXPORT Graphics
 		void SetFocus( DirectX::XMFLOAT3 &focusPoint );
 
 		void	BeginScene();
+		void	GbufferPass();
+		void	DeferredPass();
+		void	ScreenSpacePass();
 		void	EndScene();
 
 		void GetAnimationMatrices( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo& info );

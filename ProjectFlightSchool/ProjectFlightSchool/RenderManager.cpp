@@ -130,8 +130,13 @@ HRESULT RenderManager::Update( float deltaTime )
 
 HRESULT RenderManager::Render()
 {
+	//Reset the scene to default values
 	Graphics::GetInstance()->BeginScene();
 
+	//Prepare the scene to be rendered with Gbuffers
+	Graphics::GetInstance()->GbufferPass();
+
+	//------------------------Fill the Gbuffers with data----------------------
 	Graphics::GetInstance()->RenderStatic3dAsset( mObject3dArray, mNrOfObject3d );
 
 	for( UINT i = 0; i < mNrOfPlane; i++ )
@@ -140,12 +145,21 @@ HRESULT RenderManager::Render()
 	}
 
 	Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray, mNrOfAnim3d );
+	//------------------------Finished filling the Gbuffers----------------------
 
+	//Render the scene with deferred
+	Graphics::GetInstance()->DeferredPass();
+
+	//Prepare the scene to render Screen space located assets
+	Graphics::GetInstance()->ScreenSpacePass();
+
+	//Render screen space located assets
 	for( UINT i = 0; i < mNrOfObject2d; i++ )
 	{
 		Graphics::GetInstance()->Render2dAsset( mObject2dArray[i].mAssetId, mObject2dArray[i].mTopLeftCorner.x, mObject2dArray[i].mTopLeftCorner.y, mObject2dArray[i].mWidthHeight.x, mObject2dArray[i].mWidthHeight.y );
 	}
 
+	//Present the scene onto the screen
 	Graphics::GetInstance()->EndScene();
 
 	return S_OK;

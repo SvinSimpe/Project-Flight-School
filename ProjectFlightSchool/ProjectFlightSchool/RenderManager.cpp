@@ -69,7 +69,6 @@ void RenderManager::Clear()
 
 RenderManager::RenderManager()
 {
-	
 }
 
 RenderManager::~RenderManager()

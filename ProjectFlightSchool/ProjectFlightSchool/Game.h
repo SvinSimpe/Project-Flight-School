@@ -6,6 +6,7 @@
 #include "StateMachine.h"
 #include <iostream>
 #include "RenderManager.h"
+#include "ParticleManager.h"
 
 class Game
 {
@@ -18,6 +19,8 @@ class Game
 		Client*				mClient;
 		Server*				mServer;
 		bool				mServerIsActive;
+
+		ParticleManager*	mParticleManager;
 
 	protected:
 	public:

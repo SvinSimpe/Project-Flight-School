@@ -779,11 +779,11 @@ class Event_Sync_Enemy : public IEvent
 		{
 			return mAnimation;
 		}
-		float HP()
+		float HP() const
 		{
 			return mHp;
 		}
-		bool IsAlive()
+		bool IsAlive() const
 		{
 			return mIsAlive;
 		}

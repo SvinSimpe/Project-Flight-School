@@ -207,7 +207,7 @@ bool Server::Initialize( std::string port )
 	{
 		mEnemies[i] = new Enemy();
 		mEnemies[i]->Initialize( i );
-		mEnemies[i]->Spawn( XMFLOAT3( rand()%50, 0.0f, rand()%50 ) );
+		mEnemies[i]->Spawn( XMFLOAT3( rand() % 50, 0.0f, rand() % 50 ) );
 		
 		//mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_UPDATE, msg );
 

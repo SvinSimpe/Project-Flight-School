@@ -30,10 +30,6 @@ void Enemy::Spawn( XMFLOAT3 spawnPos )
 	mCurrentHp	= mMaxHp;
 
 	// Send spawnEv
-
-	// Debug
-	/*mPosition.x = rand() % 20;
-	mPosition.z = rand() % 20;*/
 }
 
 void Enemy::Die()

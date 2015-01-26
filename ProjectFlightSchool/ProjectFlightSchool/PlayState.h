@@ -11,6 +11,9 @@
 #include "Ship.h"
 #include "Image.h"
 
+//Test
+#include "ParticleManager.h"
+
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
 #define animTestNr 4

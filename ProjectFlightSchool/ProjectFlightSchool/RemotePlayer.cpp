@@ -131,9 +131,12 @@ HRESULT RemotePlayer::Render( float deltaTime, int position )
 
 	//Render lower body
 	radians = atan2f( mLowerBody.direction.z, mLowerBody.direction.x );
-	RenderManager::GetInstance()->AddAnim3dToList( mLowerBody.playerModel, mAnimations[mLowerBody.currentLowerAnimation], &mLowerBody.currentLowerAnimationTime, mLowerBody.position, XMFLOAT3( 0.0f, -radians, 0.0f ) );
-
-
+	RenderManager::GetInstance()->AddAnim3dToList(	mLowerBody.playerModel,
+													mAnimations[mLowerBody.currentLowerAnimation],
+													&mLowerBody.currentLowerAnimationTime,
+													ANIMATION_PLAY_LOOPED,
+													mLowerBody.position,
+													XMFLOAT3( 0.0f, -radians, 0.0f ) );
 
 	DirectX::XMFLOAT3 x;
 	DirectX::XMFLOAT3 y;

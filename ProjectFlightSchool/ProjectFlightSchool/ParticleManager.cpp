@@ -12,10 +12,9 @@ void ParticleManager::Update( float deltaTime )
 	{
 		for (size_t j = 0; j < mNrOfActiveParticleSystemsPerType[i]; j++)
 		{
-
+			mParticleSystems[i][mNrOfActiveParticleSystemsPerType[j]]->Update( deltaTime );
 		}
 	}
-
 }
 
 void ParticleManager::Render( float deltaTime )
@@ -31,17 +30,22 @@ void ParticleManager::Initialize()
 	mNrOfParticleSystemsPerType			= new size_t[NR_OF_PARTICLE_TYPES];
 	mNrOfActiveParticleSystemsPerType	= new size_t[NR_OF_PARTICLE_TYPES];
 	
-	mNrOfParticleSystemsPerType[Smoke] = 10;
-	mNrOfParticleSystemsPerType[Fire]  = 10;
-	mNrOfParticleSystemsPerType[Spark] = 10;
-	mNrOfParticleSystemsPerType[Blood] = 10;
+	mNrOfParticleSystemsPerType[Smoke] = 0;
+	mNrOfParticleSystemsPerType[Fire]  = 0;
+	mNrOfParticleSystemsPerType[Spark] = 0;
+	mNrOfParticleSystemsPerType[Blood] = 0;
+
+	mNrOfActiveParticleSystemsPerType[Smoke] = 0;
+	mNrOfActiveParticleSystemsPerType[Fire]  = 0;
+	mNrOfActiveParticleSystemsPerType[Spark] = 0;
+	mNrOfActiveParticleSystemsPerType[Blood] = 0;
 
 	//======= Allocate memory for Particle Systems =======
 	mParticleSystems = new ParticleSystem**[NR_OF_PARTICLE_TYPES];
 	for (size_t i = 0; i < NR_OF_PARTICLE_TYPES; i++)
 	{
-		mParticleSystems[i] = new ParticleSystem*[10];
-		for (size_t j = 0; j < 10; j++)
+		mParticleSystems[i] = new ParticleSystem*[mNrOfParticleSystemsPerType[i]];
+		for (size_t j = 0; j < mNrOfParticleSystemsPerType[i]; j++)
 			mParticleSystems[i][j] = nullptr;
 	}
 
@@ -52,8 +56,7 @@ void ParticleManager::Initialize()
 	//
 	//	2. Initialize it with( ParticleType, EmitRate, ParticleCount )
 	//		mParticleSystems[Smoke][0]->Initialize( Smoke, 2.0f, 100 );
-
-
+	//		mNrOfParticleSystems++;
 
 }
 
@@ -65,17 +68,19 @@ void ParticleManager::Release()
 		{
 			SAFE_RELEASE_DELETE( mParticleSystems[i][mNrOfParticleSystemsPerType[j]] );
 		}
+		delete [] mParticleSystems[i];
 	}
-
+	SAFE_DELETE( mNrOfParticleSystemsPerType );
 	SAFE_DELETE( mNrOfActiveParticleSystemsPerType );
 }
 
 ParticleManager::ParticleManager()
 {
-	//mNrOfParticleSystems				= 0;
-	//mNrOfActiveParticleSystems		= 0;
-	mNrOfActiveParticleSystemsPerType	= nullptr;
 	mParticleSystems					= nullptr;
+	mNrOfParticleSystems				= 0;
+	mNrOfActiveParticleSystems			= 0;
+	mNrOfParticleSystemsPerType			= nullptr;
+	mNrOfActiveParticleSystemsPerType	= nullptr;
 }
 
 ParticleManager::~ParticleManager()

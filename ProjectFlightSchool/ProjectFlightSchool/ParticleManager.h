@@ -12,13 +12,11 @@
 class ParticleManager
 {
 	private:
-		//size_t				mNrOfParticleSystems;
-		//size_t				mNrOfActiveParticleSystems;
 		ParticleSystem***	mParticleSystems;
+		size_t				mNrOfParticleSystems;
+		size_t				mNrOfActiveParticleSystems;
 		size_t*				mNrOfParticleSystemsPerType;
 		size_t*				mNrOfActiveParticleSystemsPerType;
-		
-		
 
 	public:
 		void Update( float deltaTime );

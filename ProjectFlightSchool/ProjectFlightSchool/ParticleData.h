@@ -11,19 +11,19 @@ struct ParticleData
 {
 	size_t	nrOfParticlesAlive;
 
-	float*	xPosition;
-	float*	yPosition;
-	float*	zPosition;
+	float*	xPosition = nullptr;
+	float*	yPosition = nullptr;
+	float*	zPosition = nullptr;
 
-	float*	xVelocity;
-	float*	yVelocity;
-	float*	zVelocity;
+	float*	xVelocity = nullptr;
+	float*	yVelocity = nullptr;
+	float*	zVelocity = nullptr;
 
-	float*	lifeTime;
-	DWORD*	color;
-	bool*	isAlive;
+	float*	lifeTime	= nullptr;
+	DWORD*	color		= nullptr;
+	bool*	isAlive		= nullptr;
 
-	float	emitRate;
+	float	emitRate	= 0.0f;
 
 	void Initialize( float emitRate, size_t nrOfParticles ) //NrOfParticles must be a multiple of 4
 	{

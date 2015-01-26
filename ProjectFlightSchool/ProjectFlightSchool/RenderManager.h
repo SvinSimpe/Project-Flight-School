@@ -7,10 +7,10 @@
 class RenderManager
 {
 	private:
-		Object3dInfo	mObject3dArray[MAX_AMOUNT_OF_OBJECT3D];
-		Object2dInfo	mObject2dArray[MAX_AMOUNT_OF_OBJECT2D];
-		Anim3dInfo		mAnim3dArray[MAX_AMOUNT_OF_ANIM3D];
-		PlaneInfo		mPlaneArray[MAX_AMOUNT_OF_PLANES];	
+		Object3dInfo		mObject3dArray[MAX_AMOUNT_OF_OBJECT3D];
+		Object2dInfo		mObject2dArray[MAX_AMOUNT_OF_OBJECT2D];
+		Anim3dInfo			mAnim3dArray[MAX_AMOUNT_OF_ANIM3D];
+		PlaneInfo			mPlaneArray[MAX_AMOUNT_OF_PLANES];
 
 	protected:
 	public:

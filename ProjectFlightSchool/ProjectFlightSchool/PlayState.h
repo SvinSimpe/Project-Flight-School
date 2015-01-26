@@ -53,9 +53,6 @@ class PlayState : public BaseState
 		int							mCurrentColor;
 		Font						mFont;
 
-		//Test particle
-		ParticleManager* p;
-
 	protected:
 	public:
 

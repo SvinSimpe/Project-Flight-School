@@ -86,7 +86,13 @@ HRESULT Game::Update( float deltaTime )
 	mStateMachine->Update( deltaTime );
 	EventManager::GetInstance()->Update();
 	RenderManager::GetInstance()->Update( deltaTime );
-	
+
+	// Update enemies on server
+	if( mServerIsActive )
+	{
+		mServer->Update( deltaTime );
+	}
+
 	return S_OK;
 }
 
@@ -106,6 +112,9 @@ HRESULT Game::Initialize()
 	EventManager::GetInstance()->AddListener( &Game::EventListener, this, Event_Start_Client::GUID );
 	mServerIsActive = false;
 
+	mParticleManager = new ParticleManager();
+	mParticleManager->Initialize();
+
 	OutputDebugString( L"----- Game Initialization Complete. -----" );
 
 	return S_OK;
@@ -113,32 +122,36 @@ HRESULT Game::Initialize()
 
 void Game::Release()
 {
-	mClient->Release();
-	SAFE_DELETE( mClient );
-
-	if ( mServerIsActive )
+	if ( mServerIsActive && mServer )
 		mServer->Release();
 	SAFE_DELETE( mServer );
-	if ( mClientThread.joinable() )
-	{
-		mClientThread.join();
-	}
 	if ( mServerThread.joinable() )
 	{
 		mServerThread.join();
 	}
 
+	if( mClient )
+		mClient->Release();
+	SAFE_DELETE( mClient );
+	if ( mClientThread.joinable() )
+	{
+		mClientThread.join();
+	}
+
 	mStateMachine->Release();
 	SAFE_DELETE( mStateMachine );
+
+	SAFE_RELEASE_DELETE( mParticleManager );
 }
 
 Game::Game()
 {
-	mStateMachine	= nullptr;
-	mClientThread	= std::thread();
-	mServerThread	= std::thread();
-	mClient			= nullptr;
-	mServer			= nullptr;
+	mStateMachine		= nullptr;
+	mClientThread		= std::thread();
+	mServerThread		= std::thread();
+	mClient				= nullptr;
+	mServer				= nullptr;
+	mParticleManager	= nullptr;
 }
 
 Game::~Game()

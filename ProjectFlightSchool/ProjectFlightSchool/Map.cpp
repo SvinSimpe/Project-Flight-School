@@ -13,7 +13,7 @@ HRESULT Map::Render( float deltaTime, Player* player )
 	//{
 	//	mapNodes[i]->Render( deltaTime );
 	//}
-	for( int i = 0; i < MapNodePlacer::GetInstance()->GetNrOfNodes(); i++ )
+	for( int i = 0; i < (int)MapNodePlacer::GetInstance()->GetNrOfNodes(); i++ )
 	{
 		mNodes[i]->Render( deltaTime );
 	}
@@ -60,7 +60,7 @@ HRESULT Map::Initialize( UINT mapDim )
 
 	mMapSection->Initialize( this, nullptr, mNodes, 0 );
 
-	for( int i = 0; i < mNrOfNodes; i++ )
+	for( int i = 0; i < (int)mNrOfNodes; i++ )
 	{
 		mMapSection->AddNodeToSection( mNodes[i] );
 	}

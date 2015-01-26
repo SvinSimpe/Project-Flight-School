@@ -92,6 +92,7 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="..\Graphics\Font.cpp" />
     <ClCompile Include="BaseMenuState.cpp" />
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="CreateMenuState.cpp" />
     <ClCompile Include="Entry.cpp" />
@@ -100,6 +101,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="InputSquare.cpp" />
     <ClCompile Include="JoinMenuState.cpp" />
+    <ClCompile Include="LightManager.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="MapNode.cpp" />
     <ClCompile Include="MapNodeInstance.cpp" />
@@ -109,6 +111,7 @@
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="MultiplayerMenuState.cpp" />
     <ClCompile Include="OptionsMenuState.cpp" />
+    <ClCompile Include="ParticleManager.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="Projectile.cpp" />
@@ -127,6 +130,7 @@
     <ClInclude Include="BaseMenuState.h" />
     <ClInclude Include="BaseState.h" />
     <ClInclude Include="BoundingGeometry.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="CreateMenuState.h" />
     <ClInclude Include="Entry.h" />
@@ -134,6 +138,7 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="InputSquare.h" />
     <ClInclude Include="JoinMenuState.h" />
+    <ClInclude Include="LightManager.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MapConstants.h" />
     <ClInclude Include="MapNode.h" />
@@ -144,6 +149,9 @@
     <ClInclude Include="Button.h" />
     <ClInclude Include="MultiplayerMenuState.h" />
     <ClInclude Include="OptionsMenuState.h" />
+    <ClInclude Include="ParticleData.h" />
+    <ClInclude Include="ParticleManager.h" />
+    <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="KeyDefines.h" />
     <ClInclude Include="PlayState.h" />

@@ -1,7 +1,7 @@
 #ifndef RENDERMANAGER_H
 #define RENDERMANAGER_H
 
-#include <Graphics.h>
+#include "LightManager.h"
 #include "RenderStructs.h"
 
 class RenderManager
@@ -12,6 +12,7 @@ class RenderManager
 		Anim3dInfo		mAnim3dArray[MAX_AMOUNT_OF_ANIM3D];
 		PlaneInfo		mPlaneArray[MAX_AMOUNT_OF_PLANES];
 		BoxInfo			mBoxArray[MAX_AMOUNT_OF_BOXES];
+		LightManager*	mLightManager;
 
 	protected:
 	public:
@@ -22,6 +23,7 @@ class RenderManager
 		UINT mNrOfBoxes;
 
 	private:
+		void SetLightStructuredBuffer();
 		void Clear();
 		RenderManager();
 		virtual~RenderManager();

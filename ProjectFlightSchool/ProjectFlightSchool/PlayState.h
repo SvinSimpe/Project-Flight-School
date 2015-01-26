@@ -7,8 +7,12 @@
 #include "RemotePlayer.h"
 #include "MapNodeManager.h"
 #include "Font.h"
+#include "Enemy.h"
 #include "Ship.h"
 #include "Image.h"
+
+//Test
+#include "ParticleManager.h"
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
@@ -24,9 +28,6 @@ class PlayState : public BaseState
 		AssetID	mTestAnimation[animTestNr];
 		AssetID	mTestAnimationAnimation[animTestNr];
 
-		AssetID mNest1Asset;
-		AssetID mStoneAssets[6];
-		AssetID mTree1Asset;
 		AssetID mTest2dAsset;
 		AssetID mTeams[2];
 		AssetID	mColorIDs[MAX_REMOTE_PLAYERS];
@@ -44,6 +45,8 @@ class PlayState : public BaseState
 
 		Ship						mShip;
 	
+		Enemy*						enemy;
+
 		//Game Data
 		Player*						mPlayer;
 		std::vector<RemotePlayer*>	mRemotePlayers;
@@ -51,12 +54,19 @@ class PlayState : public BaseState
 		int							mNrOfProjectilesFired;
 		int							mCurrentColor;
 		Font						mFont;
+		Enemy**						mEnemies;
+		unsigned int				mNrOfEnemies;
+		unsigned int				mMaxNrOfEnemies;
+		bool						mEnemyListSynced;
+		bool						mServerInitialized;
+	
 
 	protected:
 	public:
 
 	// Class functions
 	private:
+		void			SyncEnemy( unsigned int id, unsigned int model, unsigned int animation, float hp, bool alive, XMFLOAT3 position, XMFLOAT3 direction );
 		void			RemoteUpdate( IEventPtr newEvent );
 		void			HandleDeveloperCameraInput();
 		void			CheckPlayerCollision();

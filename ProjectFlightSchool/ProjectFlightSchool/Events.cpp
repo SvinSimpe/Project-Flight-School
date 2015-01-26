@@ -60,4 +60,6 @@ const EventType Event_Player_Update_HP::GUID( 16 );
 const EventType Event_Remote_Player_Update_HP::GUID( 17 );
 const EventType Event_Connection_Failed::GUID( 18 );
 const EventType Event_Player_Melee_Hit::GUID( 19 );
-const EventType Event_Remote_Player_Melee_Hit::GUID( 20 ); 
+const EventType Event_Remote_Player_Melee_Hit::GUID( 20 );
+const EventType	Event_Add_Point_Light::GUID( 21 );
+const EventType	Event_Remove_Point_Light::GUID( 22 );

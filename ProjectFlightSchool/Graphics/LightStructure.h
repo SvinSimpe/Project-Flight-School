@@ -3,7 +3,7 @@
 
 #include <DirectXMath.h>
 
-#define NUM_POINTLIGHTS 8
+#define MAX_NUM_POINTLIGHTS 100
 
 struct PointLight
 {
@@ -13,6 +13,6 @@ struct PointLight
 
 struct LightStructure
 {
-	PointLight pointLights[NUM_POINTLIGHTS];
+	PointLight pointLights[MAX_NUM_POINTLIGHTS];
 };
 #endif

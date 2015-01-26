@@ -97,6 +97,13 @@ HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo* effectInfo )
 		{
 			D3DReadFileToBlob( stringToWstring( checkFileExist ).c_str(), &vertexShaderBlob );
 			hr = device->CreateVertexShader( vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), 0, &mVertexShader );
+
+			if ( FAILED( hr ) )
+			{
+				OutputDebugStringA( "Failed to load from file " );
+				OutputDebugStringA( (LPCSTR)effectInfo->filePath );
+				OutputDebugStringA( " at VertexShader stage" );
+			}
 		}
 		else
 		{
@@ -227,33 +234,43 @@ HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo* effectInfo )
 		{
 			D3DReadFileToBlob( stringToWstring( checkFileExist ).c_str(), &pixelShaderBlob );
 			hr = device->CreatePixelShader( pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize(), 0, &mPixelShader );
+
+			if ( FAILED( hr ) )
+			{
+				OutputDebugStringA( "Failed to load from file " );
+				OutputDebugStringA( (LPCSTR)effectInfo->filePath );
+				OutputDebugStringA( " at PixelShader stage" );
+			}
 		}
-		if ( SUCCEEDED( hr = CompileShader( effectInfo->filePath, "PS_main", "ps_5_0", nullptr, &pixelShaderBlob ) ) )
+		else 
 		{
-			hr = device->CreatePixelShader( pixelShaderBlob->GetBufferPointer(),
-				pixelShaderBlob->GetBufferSize(),
-				nullptr,
-				&mPixelShader );
+			if( SUCCEEDED( hr = CompileShader( effectInfo->filePath, "PS_main", "ps_5_0", nullptr, &pixelShaderBlob ) ) )
+			{
+				hr = device->CreatePixelShader( pixelShaderBlob->GetBufferPointer(),
+					pixelShaderBlob->GetBufferSize(),
+					nullptr,
+					&mPixelShader );
 
 			
-		}
-
-		if ( FAILED( hr ) )
-		{
-			OutputDebugStringA( "Failed to compile " );
-			OutputDebugStringA( (LPCSTR)effectInfo->filePath );
-			OutputDebugStringA( " at PixelShader stage" );
-		}
-		else
-		{
-			CreateDirectory( L"../Content/Effects/CompiledShaders/", NULL );
-			std::ofstream fileWriter( checkFileExist.c_str() );
-			if( fileWriter.is_open() )
-			{
-				fileWriter << "";
-				fileWriter.close();
 			}
-			D3DWriteBlobToFile( pixelShaderBlob, stringToWstring( checkFileExist ).c_str(), true );
+
+			if ( FAILED( hr ) )
+			{
+				OutputDebugStringA( "Failed to compile " );
+				OutputDebugStringA( (LPCSTR)effectInfo->filePath );
+				OutputDebugStringA( " at PixelShader stage" );
+			}
+			else
+			{
+				CreateDirectory( L"../Content/Effects/CompiledShaders/", NULL );
+				std::ofstream fileWriter( checkFileExist.c_str() );
+				if( fileWriter.is_open() )
+				{
+					fileWriter << "";
+					fileWriter.close();
+				}
+				D3DWriteBlobToFile( pixelShaderBlob, stringToWstring( checkFileExist ).c_str(), true );
+			}
 		}
 
 		SAFE_RELEASE( pixelShaderBlob );

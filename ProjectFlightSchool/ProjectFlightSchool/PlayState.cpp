@@ -27,7 +27,6 @@ void PlayState::EventListener( IEventPtr newEvent )
 		mCurrentColor++;
 		printf( "Number of other players online: %d.\n", mRemotePlayers.size() );
 
-
 		///TEST
 		mAllPlayers.push_back( ( mRemotePlayers.at( mRemotePlayers.size()-1 ) ) );
 	}
@@ -123,6 +122,34 @@ void PlayState::EventListener( IEventPtr newEvent )
 			}
 		}
 	}
+	else if ( newEvent->GetEventType() == Event_Sync_Enemy::GUID )
+	{
+		std::shared_ptr<Event_Sync_Enemy> data = std::static_pointer_cast<Event_Sync_Enemy>( newEvent );
+		SyncEnemy( data->ID(), data->Model(), data->Animation(), data->HP(), data->IsAlive(), data->Position(), data->Direction() );
+	}
+	else if ( newEvent->GetEventType() == Event_Enemy_List_Synced::GUID )
+	{
+		mEnemyListSynced = true;
+	}
+	else if ( newEvent->GetEventType() == Event_Server_Initialized::GUID )
+	{
+		mServerInitialized = true;
+	}
+}
+
+void PlayState::SyncEnemy( unsigned int id, unsigned int model, unsigned int animation, float hp, bool alive, XMFLOAT3 position, XMFLOAT3 direction )
+{
+	mEnemyListSynced = false;
+	mEnemies[id]->SetID( id );
+	mEnemies[id]->SetModelID( model );
+	mEnemies[id]->SetAnimation( animation );
+	mEnemies[id]->SetHP( hp );
+	mEnemies[id]->SetIsAlive( alive );
+	mEnemies[id]->SetPosition( position );
+	mEnemies[id]->SetDirection( direction );
+
+	if( id == (MAX_NR_OF_ENEMIES-1) )
+		mEnemyListSynced = true;
 }
 
 // Tell server that local  player has taken damage
@@ -355,6 +382,15 @@ HRESULT PlayState::Update( float deltaTime )
 	mShip.BuffPlayer( mPlayer );
 	mShip.PickTurretTarget( mAllPlayers );
 	mShip.Update( deltaTime );
+	if( mEnemyListSynced )
+	{
+		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+		{
+			if( mEnemies[i]->IsAlive() )
+				mEnemies[i]->Update( deltaTime );
+		}
+	}
+
 
 	return S_OK;
 }
@@ -363,19 +399,15 @@ HRESULT PlayState::Render()
 {
 
 	RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
-	RenderManager::GetInstance()->AddObject3dToList( mNest1Asset, DirectX::XMFLOAT3( 8.0f, 0.0f, 0.0f ) );
-	RenderManager::GetInstance()->AddObject3dToList( mTree1Asset, DirectX::XMFLOAT3( 12.0f, 0.0f, 0.0f ) );
-
-	for( int i = 0; i < 6; i++ )
-	{
-		RenderManager::GetInstance()->AddObject3dToList( mStoneAssets[i], DirectX::XMFLOAT3( (float)i*4.0f, 0.0f, -4.0f ) );
-	}
 	
-	for(int i = 0; i < animTestNr; i++)
-		RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation[i], mTestAnimationAnimation[i], &mAnimationTime, DirectX::XMFLOAT3( (float)i * -5.0f, 0.0f, 0.0f ) );
+	//for(int i = 0; i < animTestNr; i++)
+	//	RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation[i], mTestAnimationAnimation[i], &mAnimationTime, DirectX::XMFLOAT3( (float)i * -5.0f, 0.0f, 0.0f ) );
+
 
 	mPlayer->Render( 0.0f, 1 );
-	//mWorldMap->Render( 0.0f );
+
+	mWorldMap->Render( 0.0f , mPlayer );
+
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
 	{
 		if ( mRemotePlayers.at(i) )
@@ -388,7 +420,19 @@ HRESULT PlayState::Render()
 
 	//mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
 
+
+	// Enemies
+  	if( mEnemyListSynced )
+	{
+		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+		{
+			if( mEnemies[i]->IsAlive() )
+				mEnemies[i]->Render();
+		}
+	}
+
 	mShip.Render();
+
 
 	RenderManager::GetInstance()->Render();
 
@@ -397,10 +441,16 @@ HRESULT PlayState::Render()
 
 void PlayState::OnEnter()
 {
+	// Send Game Started event to server
+	IEventPtr E1( new Event_Game_Started() );
+	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 void PlayState::OnExit()
 {
+	// Send Game Started event to server
+	IEventPtr E1( new Event_Game_Ended() );
+	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 void PlayState::Reset()
@@ -423,18 +473,40 @@ HRESULT PlayState::Initialize()
 		Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptorDeath2.PaMan", mTestAnimationAnimation[i] );
 	}
 
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_1.pfs", mNest1Asset );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_1.pfs", mStoneAssets[0] );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_2.pfs", mStoneAssets[1] );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_3.pfs", mStoneAssets[2] );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_4.pfs", mStoneAssets[3] );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_5.pfs", mStoneAssets[4] );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", "stone_6.pfs", mStoneAssets[5] );
-
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Tree/", "tree1.pfs", mTree1Asset );
+	AssetID loader;
 
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dAsset );
-
+	for( int i = 1; i < 8; i++ )
+	{
+		char buffer[50];
+		sprintf_s(buffer,"tree%d.pfs",i);
+		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Tree/", buffer, loader );
+	}
+	for( int i = 1; i < 6; i++ )
+	{
+		char buffer[50];
+		sprintf_s(buffer,"greaystone%d.pfs",i);
+		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", buffer, loader );
+	}
+	for( int i = 1; i < 7; i++ )
+	{
+		char buffer[50];
+		sprintf_s(buffer,"sandstone%d.pfs",i);
+		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", buffer, loader );
+	}
+	//for( int i = 1; i < 5; i++ )
+	//{
+	//	char buffer[50];
+	//	sprintf_s(buffer,"bush%d.pfs",i);
+	//	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bushes/", buffer, mTree1Asset );
+	//}
+	//for( int i = 1; i < 3; i++ )
+	//{
+	//	char buffer[50];
+	//	sprintf_s(buffer,"plant%d.pfs",i);
+	//	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bushes/", buffer, mTree1Asset );
+	//}
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bushes/", "plant1.pfs", loader );
 	std::string colorIDFileNames[MAX_REMOTE_PLAYERS] = { "../Content/Assets/Textures/FunnyCircles/BlueID.png", "../Content/Assets/Textures/FunnyCircles/CoralID.png", "../Content/Assets/Textures/FunnyCircles/DarkBlueID.png", "../Content/Assets/Textures/FunnyCircles/DarkGreenID.png", "../Content/Assets/Textures/FunnyCircles/DarkPurpleID.png", "../Content/Assets/Textures/FunnyCircles/GreenID.png", "../Content/Assets/Textures/FunnyCircles/GreyID.png", "../Content/Assets/Textures/FunnyCircles/LightBlueID.png", "../Content/Assets/Textures/FunnyCircles/LightGreenID.png", "../Content/Assets/Textures/FunnyCircles/LightPurpleID.png","../Content/Assets/Textures/FunnyCircles/OrangeID.png", "../Content/Assets/Textures/FunnyCircles/PinkID.png", "../Content/Assets/Textures/FunnyCircles/ScreamBlueID.png", "../Content/Assets/Textures/FunnyCircles/YellowID.png" };
 
 	for( int i=0; i<MAX_REMOTE_PLAYERS; i++ )
@@ -450,8 +522,11 @@ HRESULT PlayState::Initialize()
 	mPlayer = new Player();
 	mPlayer->Initialize();
 
-	//mWorldMap = new Map();
-	//mWorldMap->Initialize( 8.0f, 24 );
+	mWorldMap = new Map();
+	mWorldMap->Initialize( 4 );
+
+	//mMapNodeMan = new MapNodeManager();
+	//mMapNodeMan->Initialize( "../Content/Assets/Nodes/gridtest2.lp"  );
 
 	//Fill up on Projectiles, test values
 	mProjectiles	= new Projectile*[MAX_PROJECTILES];
@@ -470,6 +545,9 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Projectile_Fired::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Melee_Hit::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Update_HP::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Sync_Enemy::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Enemy_List_Synced::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Initialized::GUID );
 
 	mFont.Initialize( "../Content/Assets/Fonts/final_font/" );
 
@@ -477,16 +555,27 @@ HRESULT PlayState::Initialize()
 	mAllPlayers.push_back( mPlayer );
 	mShip.Initialize( 0, XMFLOAT3( 10.0f, 0.0f, 10.0f ), XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
 
+	enemy = new Enemy();
+	enemy->Initialize( 2 );
+
+	// Enemies
+	mEnemies	= new Enemy*[MAX_NR_OF_ENEMIES];
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	{
+		mEnemies[i] = new Enemy();
+		mEnemies[i]->Initialize( i );
+	}
+
 	return S_OK;
 }
 
 void PlayState::Release()
 {
-	mPlayer->Release();
-	SAFE_DELETE(mPlayer);
-
 	mWorldMap->Release();
 	SAFE_DELETE( mWorldMap );
+
+	mPlayer->Release();
+	SAFE_DELETE(mPlayer);
 
 	for( auto& rp : mRemotePlayers )
 	{
@@ -498,20 +587,37 @@ void PlayState::Release()
 	mShip.Release();
 
 	for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
+	{
+		mProjectiles[i]->Release();
 		SAFE_DELETE( mProjectiles[i] );
-
+	}
 	delete [] mProjectiles;
+
+	// Enemies
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+		SAFE_DELETE( mEnemies[i] );
+
+	delete [] mEnemies;
+
+	mFont.Release();
+
 }
 
 PlayState::PlayState()
 {
-	mPlayer			= nullptr;
-	mRemotePlayers	= std::vector<RemotePlayer*>( 0 );
+	mPlayer				= nullptr;
+	mRemotePlayers		= std::vector<RemotePlayer*>( 0 );
 	mRemotePlayers.reserve(MAX_REMOTE_PLAYERS);
-	mFrameCounter	= 0;
-	mProjectiles	= nullptr;
+	mFrameCounter		= 0;
+	mProjectiles		= nullptr;
+	mEnemies			= nullptr;
+	mNrOfEnemies		= 0;
+	mMaxNrOfEnemies		= 0;
+	mEnemyListSynced	= false;
+	mServerInitialized  = false;
 }
 
 PlayState::~PlayState()
 {
+	printf("Destructor for %s\n", __FILE__);
 }

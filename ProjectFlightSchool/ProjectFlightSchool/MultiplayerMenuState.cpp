@@ -9,21 +9,18 @@ void MultiplayerMenuState::HandleInput()
 	else if( mButtons.at(TWO_VS_TWO)->LeftMousePressed() )
 	{	
 		std::string port = mPortBox.GetText();
-
 		IEventPtr E1( new Event_Start_Server( port ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 	else if( mButtons.at(THREE_VS_THREE)->LeftMousePressed() )
 	{
 		std::string port = mPortBox.GetText();
-
 		IEventPtr E1( new Event_Start_Server( port ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 	else if( mButtons.at(FOUR_VS_FOUR)->LeftMousePressed() )
 	{
 		std::string port = mPortBox.GetText();
-
 		IEventPtr E1( new Event_Start_Server( port ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
@@ -119,6 +116,7 @@ HRESULT MultiplayerMenuState::Initialize()
 void MultiplayerMenuState::Release()
 {
 	BaseMenuState::Release();
+	mPortBox.Release();
 }
 
 MultiplayerMenuState::MultiplayerMenuState() : BaseMenuState()

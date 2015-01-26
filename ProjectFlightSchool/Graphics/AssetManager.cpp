@@ -377,7 +377,7 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceConte
 	HRESULT hr = S_OK;
 
 	//If true return to caller because the asset already exist.
-	if( AssetExist( ( filePath + fileName ), assetId ) )
+	if( AssetExist( ( fileName ), assetId ) )
 	{
 		return hr;
 	}
@@ -530,7 +530,7 @@ HRESULT	AssetManager::LoadAnimated3dAsset( ID3D11Device* device, ID3D11DeviceCon
 	HRESULT hr = S_OK;
 
 	//If true return to caller because the asset already exist.
-	if( AssetExist( ( filePath + fileName ), assetId ) )
+	if( AssetExist( ( fileName ), assetId ) )
 	{
 		return hr;
 	}
@@ -579,7 +579,7 @@ HRESULT	AssetManager::LoadAnimated3dAsset( ID3D11Device* device, ID3D11DeviceCon
 		temp				= new Animated3dAsset();
 		temp->mAssetId		= assetId;
 		temp->mSkeletonId	= skeletonId;
-		temp->mFileName		= filePath + fileName;
+		temp->mFileName		= fileName;
 		temp->mVertexCount	= meshInfo.nrOfVertices;
 
 		D3D11_BUFFER_DESC bufferDesc;
@@ -637,7 +637,7 @@ HRESULT	AssetManager::LoadSkeletonAsset( string filePath, string fileName, Asset
 {
 	HRESULT hr = S_OK;
 
-	if( AssetExist( (char*)(filePath + fileName).c_str(), assetId ) )
+	if( AssetExist( (char*)(fileName).c_str(), assetId ) )
 	{
 		return hr;
 	}
@@ -665,7 +665,7 @@ HRESULT	AssetManager::LoadSkeletonAsset( string filePath, string fileName, Asset
 			AssignAssetId( assetId );
 			tempSkel			= new SkeletonAsset();
 			tempSkel->mAssetId	= assetId;
-			tempSkel->mFileName	= filePath + fileName;
+			tempSkel->mFileName	= fileName;
 
 			int lastindex	= fileName.find_last_of(".");
 			string rawName	= fileName.substr(0, lastindex);
@@ -780,7 +780,7 @@ HRESULT	AssetManager::LoadAnimationAsset( string filePath, string fileName, Asse
 {
 	HRESULT hr = S_OK;
 
-	if( AssetExist( ( filePath + fileName ), assetId ) )
+	if( AssetExist( ( fileName ), assetId ) )
 	{
 		return hr;
 	}
@@ -810,7 +810,7 @@ HRESULT	AssetManager::LoadAnimationAsset( string filePath, string fileName, Asse
 			AssignAssetId( assetId );
 			tempAnim			= new AnimationAsset();
 			tempAnim->mAssetId	= assetId;
-			tempAnim->mFileName	= filePath + fileName;
+			tempAnim->mFileName	= fileName;
 
 			int lastindex	= fileName.find_last_of( "." );
 			string rawName	= fileName.substr(0, lastindex);
@@ -972,7 +972,7 @@ void AssetManager::Release()
 		//else if( typeid( *mAssetContainer[i] ) == typeid( Static2dAsset ) )
 		//	( (Static2dAsset*)mAssetContainer[i] )->Release();
 
-		//SAFE_DELETE( mAssetContainer[i] );
+		SAFE_DELETE( mAssetContainer[i] );
 	}
 	mAssetContainer.clear();
 }

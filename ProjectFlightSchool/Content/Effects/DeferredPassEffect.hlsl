@@ -43,6 +43,14 @@ VS_Out VS_main( uint index : SV_VertexID )
 
 //Pixel
 
+#define NUM_POINTLIGHTS 8
+
+struct PointLight
+{
+	float4 position;
+	float4 colorAndRadius;
+};
+
 cbuffer CbufferPerFrame	: register( b0 )
 {
 	float4x4 viewMatrix;
@@ -50,9 +58,10 @@ cbuffer CbufferPerFrame	: register( b0 )
 	float4	 cameraPosition;
 }
 
-Texture2D<float4> albedoSpecBuffer		: register( t0 );
-Texture2D<float4> normalBuffer			: register( t1 );
-Texture2D<float4> worldPositionBuffer	: register( t2 );
+Texture2D<float4>				albedoSpecBuffer		: register( t0 );
+Texture2D<float4>				normalBuffer			: register( t1 );
+Texture2D<float4>				worldPositionBuffer		: register( t2 );
+StructuredBuffer<PointLight>	lightStructure			: register( t5 );
 
 SamplerState pointSampler			: register( s0 );
 SamplerState linearSampler			: register( s1 );
@@ -113,13 +122,27 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	//-------------------------------------------------------------------------------------------------
 	//	TEMP POINT LIGHT FUCK YOU MAX
 	//-------------------------------------------------------------------------------------------------
+	//float3 lPos[8] = {	float3( -20.0f, 10.0f, 0.0f ),
+	//					float3( 20.0f, 13.0f, 0.0f ),
+	//					float3( 0.0f, 10.0f, 20.0f ),
+	//					float3( 0.0f, 13.0f, -20.0f ),
+	//					float3( 0.0f, 10.0f, 0.0f ),
+	//					float3( -20.0f, 10.0f, 20.0f ),
+	//					float3( 20.0f, 13.0f, 20.0f ),
+	//					float3( 20.0f, 10.0f, -20.0f )};
 
-	float3 lPos[3] = { float3( 0.0f, 5.0f, 0.0f ), float3( 20.0f, 5.0f, 0.0f ), float3( 5.0f, 5.0f, 15.0f ) };
-	float3 lCol[3] = { float3( 0.2f, 0.2f, 0.5f ), float3( 0.6f, 0.2f, 0.2f ), float3( 0.2f, 0.6f, 0.6f ) };
+	//float3 lCol[8] = {	float3( 0.6f, 0.2f, 0.2f ),
+	//					float3( 0.2f, 0.6f, 0.2f ),
+	//					float3( 0.2f, 0.2f, 0.6f ),
+	//					float3( 0.6f, 0.6f, 0.2f ),
+	//					float3( 0.2f, 0.6f, 0.6f ),
+	//					float3( 0.6f, 0.2f, 0.6f ),
+	//					float3( 0.6f, 0.6f, 0.2f ),
+	//					float3( 0.2f, 0.6f, 0.2f )};
 	
-	for( int i = 0; i < 3; i++ )
+	for( int i = 0; i < 8; i++ )
 	{
-		float3 lightDir = worldSample - lPos[i];
+		float3 lightDir = worldSample - lightStructure[i].position.xyz;
 		float d = length( lightDir );
 		lightDir /= d;
 		
@@ -130,7 +153,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 		float diff	= saturate( dot( -lightDir, N ) );
 		float3 spec	= float3( float3( 1.0f, 1.0f, 1.0f ) * pow( dot( R, V ), specularPower ) ) * specularSample;
 
-		finalColor += ( ambient * ssao + diffuse + specular ) * lCol[i] / ( d * 0.01f + d * d * 0.002f );
+		finalColor += ( ambient * ssao + diffuse + specular ) * lightStructure[i].colorAndRadius.xyz / ( d * 0.01f + d * d * 0.005f );
 	}
 
 	saturate( finalColor );

@@ -1,37 +1,85 @@
 #include "Map.h"
+#include "MapNodeManager.h"
+#include "MapNodePlacer.h"
 
-
-HRESULT Map::Render( float deltaTime )
+HRESULT Map::Render( float deltaTime, Player* player )
 {
-	for( UINT i = 0; i < mMapDim * mMapDim; i++ )
+	
+	//MapSection* mapNodes[20];
+	//int count = 0;
+	//mMapSection->GetSectionContainingUnit( mapNodes, count, player->GetBoundingBox() );
+
+	//for( int i = 0; i < count; i++ )
+	//{
+	//	mapNodes[i]->Render( deltaTime );
+	//}
+	for( int i = 0; i < (int)MapNodePlacer::GetInstance()->GetNrOfNodes(); i++ )
 	{
-		mMapSections[i].Render( deltaTime );
+		mNodes[i]->Render( deltaTime );
 	}
+
 	return S_OK;
 }
-HRESULT Map::Initialize( float vertexSpacing, UINT mapDim )
+UINT Map::GetMapDim() const
 {
-	mVertexSpacing = vertexSpacing;
+	return mMapDim ;//* SECTION_DIM;
+}
+UINT Map::GetMapWidth() const
+{
+	return mMapDim ;//* SECTION_DIM;
+}
+UINT Map::GetMapHeight() const
+{
+	return mMapDim ;//* SECTION_DIM;
+}
+UINT Map::GetMapHalfWidth() const
+{
+	return mMapDim / 2;
+}
+UINT Map::GetMapHalfHeight() const
+{
+	return mMapDim / 2;
+}
+UINT Map::GetNrOfNodes() const
+{
+	return mNrOfNodes;
+}
+HRESULT Map::Initialize( UINT mapDim )
+{
+	//Map size is mapDim* mapDim
 	mMapDim = mapDim;
+	MapNodeManager::GetInstance()->Initialize( "../Content/Assets/Nodes/test7.lp"  );
+
+	MapNodePlacer::GetInstance()->Initialize( this );
+	MapNodePlacer::GetInstance()->BuildMap( mNodes );
+	mNrOfNodes = MapNodePlacer::GetInstance()->GetNrOfNodes();
 	
-	MapSection::SetUpIndices();
+	//MapSection::SetUpIndices();
 
-	mMapSections = new MapSection[mMapDim * mMapDim];
+	mMapSection = new MapSection();
 
-	for( UINT i = 0; i < mMapDim * mMapDim; i++ )
+	mMapSection->Initialize( this, nullptr, mNodes, 0 );
+
+	for( int i = 0; i < (int)mNrOfNodes; i++ )
 	{
-		
-		mMapSections[i].Initialize( i, mVertexSpacing, mMapDim );
+		mMapSection->AddNodeToSection( mNodes[i] );
 	}
+	//for( UINT i = 0; i < mMapDim * mMapDim; i++ )
+	//{
+	//	
+	//	mMapSections[i].Initialize( i, mVertexSpacing, mMapDim );
+	//}
+
 	return S_OK;
 }
 void Map::Release()
 {
-	for( int i = 0; i < SECTION_DIM * SECTION_DIM; i++ )
-	{
-		//mMapSections[i].Release();
-	}
-	//delete[] mMapSections;
+	mMapSection->Release();
+	SAFE_DELETE( mMapSection );
+
+	MapNodePlacer::GetInstance()->Release();
+	MapNodeManager::GetInstance()->Release();
+
 }
 Map::Map()
 {

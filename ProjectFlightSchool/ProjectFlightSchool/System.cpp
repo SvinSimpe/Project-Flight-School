@@ -21,13 +21,8 @@ LRESULT CALLBACK System::WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			break;
 
 		case WM_KEYDOWN:
-			switch( wParam )
-			{
-				case VK_ESCAPE:
-					PostQuitMessage( 0 );
-					break;
-			}
 			break;
+
 		case WM_INPUT:
 			Input::GetInstance()->Update( lParam ); //Returns a bool vector that represents all button presses
 			break;
@@ -69,25 +64,22 @@ int	System::Run()
 		}
 		else
 		{
-			RECT r;
-			GetWindowRect( mHWnd, &r );
+			//RECT r;
+			//GetWindowRect( mHWnd, &r );
 
 			float deltaTime	= mTimer->GetDeltaTime();
-			float fps		= mTimer->GetFPS();
+			//float fps		= mTimer->GetFPS();
 
-			int mem	= 0;//(int)Graphics::GetInstance()->QueryMemoryUsed();
-
-			wchar_t title[200];
-			swprintf( title, sizeof(title), L"Project-Flight-School: Version 0.2 -  DeltaTime: %f  - FPS: %d\t vRam: %d Stop!... Hamburger time!",
-				deltaTime, (int)fps, mem );
-			SetWindowText( mHWnd, title );
+			//wchar_t title[100];
+			//swprintf( title, sizeof(title), L"ProjectFlightSchool - DTime: %f", deltaTime );//, (int)fps );
+			//swprintf( title, sizeof(title), L"Derp" );
+			//SetWindowText( mHWnd, title );
 
 			//ClipCursor( &r );//		Uncomment this to lock the cursor to the game window
 			Update( deltaTime );
 			Render();
 		}
 	}
-	Release();
 	return (int)message.wParam;
 }
 
@@ -140,7 +132,7 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 	///////////////////////////////
 
 	Graphics::GetInstance()->Initialize( mHWnd, mScreenWidth, mScreenHeight );
-
+	EventManager::GetInstance();
 	Input::GetInstance()->Initialize( mScreenWidth, mScreenHeight, mHWnd );
 
 	RenderManager::GetInstance()->Initialize();
@@ -157,15 +149,14 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 //Release all data used.
 void System::Release()
 {
-	mGame->Release();
-	SAFE_DELETE( mGame );
+	SAFE_RELEASE_DELETE( mGame );
 
-	mTimer->Release();
-	SAFE_DELETE( mTimer );
+	SAFE_RELEASE_DELETE( mTimer );
 
 	Graphics::GetInstance()->Release();
-
+	EventManager::GetInstance()->Release();
 	Input::GetInstance()->Release();
+	RenderManager::GetInstance()->Release();
 }
 
 System::System()

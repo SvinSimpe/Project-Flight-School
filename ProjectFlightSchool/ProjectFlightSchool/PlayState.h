@@ -25,9 +25,6 @@ class PlayState : public BaseState
 		AssetID	mTestAnimation[animTestNr];
 		AssetID	mTestAnimationAnimation[animTestNr];
 
-		AssetID mNest1Asset;
-		AssetID mStoneAssets[6];
-		AssetID mTree1Asset;
 		AssetID mTest2dAsset;
 		AssetID mTeams[2];
 		AssetID	mColorIDs[MAX_REMOTE_PLAYERS];

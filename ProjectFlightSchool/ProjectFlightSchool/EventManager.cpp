@@ -47,6 +47,8 @@ EventManager* EventManager::instance = nullptr;
 //---------------------------------------------------------------------------------------------------------------------
 bool EventManager::Update( unsigned long maxMillis )
 {
+	EnterCriticalSection( &lock );
+
 	unsigned long currMs = GetTickCount();
 	unsigned long maxMs = ( ( maxMillis == IEventManager::kINFINITE ) ? ( IEventManager::kINFINITE ) : ( currMs + maxMillis ) );
 
@@ -100,6 +102,8 @@ bool EventManager::Update( unsigned long maxMillis )
 		}
 	}
 	
+	LeaveCriticalSection( &lock );
+
 	return queueFlushed;
 }
 //---------------------------------------------------------------------------------------------------------------------

@@ -65,7 +65,7 @@ struct EvSyncEnemy
 struct EvMeleeHit
 {
 	unsigned int			ID;
-	unsigned int			damage;
+	float					damage;
 	float					knockBack;
 	DirectX::XMFLOAT3		direction;
 };

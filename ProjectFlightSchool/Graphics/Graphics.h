@@ -8,6 +8,7 @@
 #include "Effect.h"
 #include "CbufferPerFrame.h"
 #include "CbufferPerObject.h"
+#include "LightStructure.h"
 #include "Camera.h"
 #include "Gbuffer.h"
 #include "..\ProjectFlightSchool\RenderStructs.h"
@@ -18,10 +19,20 @@
 	#define LIBRARY_EXPORT __declspec( dllimport )
 #endif
 
+enum BlendStates
+{
+	BLEND_2D,
+
+	//New states added above this comment
+	BLEND_STATES_AMOUNT
+};
+
 #define NUM_GBUFFERS 3
 #define MAX_ANIM_INSTANCE_BATCH 32
 
 #define MAX_STATIC3D_INSTANCE_BATCH 512
+
+#define SAFE_RELEASE_DELETE( x ) if( x ) { ( x )->Release(); delete x; ( x ) = nullptr; }
 
 class LIBRARY_EXPORT Graphics
 {
@@ -45,8 +56,12 @@ class LIBRARY_EXPORT Graphics
 		ID3D11Buffer*				mCbufferPerObject;
 		ID3D11Buffer*				mCbufferPerObjectAnimated;
 		ID3D11Buffer*				mCbufferPerInstancedAnimated;
+		ID3D11Buffer*				mBufferPerInstanceObject;
+		ID3D11Buffer*				mLightBuffer;
+		ID3D11ShaderResourceView*	mLightStructuredBuffer;
 		ID3D11SamplerState*			mPointSamplerState;
 		ID3D11SamplerState*			mLinearSamplerState;
+		ID3D11BlendState*			mBlendState[BLEND_STATES_AMOUNT];
 
 
 		AssetManager*				mAssetManager;
@@ -55,12 +70,11 @@ class LIBRARY_EXPORT Graphics
 		Effect*						m2dEffect;
 		Effect*						mAnimatedEffect;
 		Effect*						mAnimInstancedEffect;
+		Effect*						mDeferredPassEffect;
 		Camera*						mCamera;
 		Camera*						mDeveloperCamera;
 		bool						mIsDeveloperCameraActive;
-		Effect*						mDeferredPassEffect;
 		Gbuffer*					mGbuffers[NUM_GBUFFERS];
-		ID3D11Buffer*				mBufferPerInstanceObject;
 
 		StaticInstance				mStatic3dInstanced[MAX_STATIC3D_INSTANCE_BATCH];
 		AnimatedInstance			mAnimInstanced[MAX_ANIM_INSTANCE_BATCH];
@@ -93,7 +107,7 @@ class LIBRARY_EXPORT Graphics
 		void RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList );
 		void RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList );
 
-		DirectX::XMFLOAT4X4 GetRootMatrix( AssetID modelAssetId, AssetID animationAssetId, float animationTime );
+		DirectX::XMFLOAT4X4	GetRootMatrix( AssetID modelAssetId, AssetID animationAssetId, float animationTime );
 
 		Camera* GetCamera() const;
 		Camera* GetDeveloperCamera() const;
@@ -101,6 +115,7 @@ class LIBRARY_EXPORT Graphics
 		void	ZoomInDeveloperCamera();
 		void	ZoomOutDeveloperCamera();
 
+		void MapLightStructuredBuffer( LightStructure* lightStructure );
 		void SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY );
 		void SetInverseViewMatrix( DirectX::XMMATRIX &inverseViewMatrix );
 		void SetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatrix );
@@ -108,6 +123,9 @@ class LIBRARY_EXPORT Graphics
 		void SetFocus( DirectX::XMFLOAT3 &focusPoint );
 
 		void	BeginScene();
+		void	GbufferPass();
+		void	DeferredPass();
+		void	ScreenSpacePass();
 		void	EndScene();
 
 		void GetAnimationMatrices( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo& info );

@@ -11,13 +11,27 @@ Graphics::Graphics()
 	mDevice			= nullptr;
 	mDeviceContext	= nullptr;
 
-	mRenderTargetView	= nullptr;
-	mDepthStencilView	= nullptr;
-	mCbufferPerFrame	= nullptr;
+	mRenderTargetView				= nullptr;
+	mDepthStencilView				= nullptr;
+	mDepthDisabledStencilState		= nullptr;
+	mDepthEnabledStencilState		= nullptr;
+	mCbufferPerFrame				= nullptr;
+	mCbufferPerObject				= nullptr;
+	mCbufferPerObjectAnimated		= nullptr;
+	mCbufferPerInstancedAnimated	= nullptr;
+	mBufferPerInstanceObject		= nullptr;
+	mLightBuffer					= nullptr;
+	mLightStructuredBuffer			= nullptr;
+	mPointSamplerState				= nullptr;
+	mLinearSamplerState				= nullptr;
 
 	mAssetManager				= nullptr;
 	mStaticEffect				= nullptr;
+	mStaticInstancedEffect		= nullptr;
+	m2dEffect					= nullptr;
 	mAnimatedEffect				= nullptr;
+	mAnimInstancedEffect		= nullptr;
+	mDeferredPassEffect			= nullptr;
 	mCamera						= nullptr;
 	mDeveloperCamera			= nullptr;
 	mIsDeveloperCameraActive	= false;
@@ -73,10 +87,6 @@ HRESULT Graphics::LoadAnimationAsset( std::string filePath, std::string fileName
 
 void Graphics::Render2dAsset( AssetID assetId, float x, float y, float width, float height )
 {
-	mDeviceContext->OMSetDepthStencilState( mDepthDisabledStencilState, 1 );
-
-	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
-
 	UINT32 vertexSize	= sizeof(StaticVertex);
 	UINT32 offset		= 0;
 
@@ -94,17 +104,8 @@ void Graphics::Render2dAsset( AssetID assetId, float x, float y, float width, fl
 	MapBuffer( mVertexBuffer2d, &vertices, sizeof(StaticVertex) * 4 );
 	mDeviceContext->IASetVertexBuffers( 0, 1, &mVertexBuffer2d, &vertexSize, &offset );
 
-	mDeviceContext->IASetInputLayout( m2dEffect->GetInputLayout() );
-
-	mDeviceContext->VSSetShader( m2dEffect->GetVertexShader(), nullptr, 0 );
-	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->PSSetShader( m2dEffect->GetPixelShader(), nullptr, 0 );
-
 	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[assetId] )->mSRV );
 	mDeviceContext->Draw( 4, 0 );
-	mDeviceContext->OMSetDepthStencilState( mDepthEnabledStencilState, 1 );
 }
 
 void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX::XMFLOAT3 y )
@@ -255,6 +256,7 @@ void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 				if( currAssetID == (UINT)-1 )
 				{
 					currAssetID = info[i].mAssetId;
+					strider		= i;
 				}
 
 				if( currAssetID == info[i].mAssetId )
@@ -278,7 +280,7 @@ void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 			//////////////////////////////////////////////////////////////////
 			//						RENDER CALL
 			//////////////////////////////////////////////////////////////////
-			strider += ( objectToRender - 1 );
+			
 			mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 			Static3dAsset* model = (Static3dAsset*)mAssetManager->mAssetContainer[currAssetID];
 			
@@ -332,6 +334,7 @@ void Graphics::RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList )
 				if( currAssetID == (UINT)-1 )
 				{
 					currAssetID = info[i].mModelId;
+					strider		= i;
 				}
 
 				if( currAssetID == info[i].mModelId )
@@ -357,7 +360,7 @@ void Graphics::RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList )
 			//////////////////////////////////////////////////////////////////
 			//						RENDER CALL
 			//////////////////////////////////////////////////////////////////
-			strider += ( objectToRender - 1 );
+			
 			Animated3dAsset* model = (Animated3dAsset*)mAssetManager->mAssetContainer[currAssetID];
 
 			ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[model->mTextures[TEXTURES_DIFFUSE]] )->mSRV,
@@ -453,6 +456,11 @@ void Graphics::ZoomOutDeveloperCamera()
 	mDeveloperCamera->ZoomOut();
 }
 
+void Graphics::MapLightStructuredBuffer( LightStructure* lightStructure )
+{
+	MapBuffer( mLightBuffer, (void*)lightStructure, sizeof( LightStructure ) );
+}
+
 void Graphics::SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY )
 {
 	//Calculate mouse position in NDC space
@@ -485,32 +493,40 @@ void Graphics::BeginScene()
 {
 	mDeviceContext->ClearState();
 
-	if( mIsDeveloperCameraActive )
-		mDeveloperCamera->Update();
-	else
-		mCamera->Update();
-
 	/////////////////////////////////
 	// Clear errything
 	/////////////////////////////////
 	static float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	//ID3D11ShaderResourceView* nullSRV[TEXTURES_AMOUNT] = { nullptr, nullptr, nullptr };
 	mDeviceContext->ClearRenderTargetView( mRenderTargetView, clearColor );
+
+	static float blendColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	mDeviceContext->OMSetBlendState( nullptr, blendColor, 0xffffffff );
+
+	mDeviceContext->ClearDepthStencilView( mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
+	mDeviceContext->OMSetDepthStencilState( mDepthEnabledStencilState, 1 );
+}
+
+void Graphics::GbufferPass()
+{
+
+	if( mIsDeveloperCameraActive )
+		mDeveloperCamera->Update();
+	else
+		mCamera->Update();
+	static float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	for( int i = 0; i < NUM_GBUFFERS; i++)
 		mDeviceContext->ClearRenderTargetView( mGbuffers[i]->mRenderTargetView, clearColor );
 	mDeviceContext->ClearDepthStencilView( mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
 
+	
 	/////////////////////////////////
 	// Gbuffer generation pass
 	/////////////////////////////////
-
 	ID3D11RenderTargetView* rtvsToSet[NUM_GBUFFERS];
 	for( int i = 0; i < NUM_GBUFFERS; i++)
 		rtvsToSet[i] = mGbuffers[i]->mRenderTargetView;
 	mDeviceContext->OMSetRenderTargets( 3, rtvsToSet, mDepthStencilView );
 	mDeviceContext->RSSetViewports( 1, &mStandardView );
-	
-	//mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, nullSRV );
 
 	//Map CbufferPerFrame
 	CbufferPerFrame data;
@@ -534,8 +550,7 @@ void Graphics::BeginScene()
 	mDeviceContext->PSSetSamplers( 1, 1, &mLinearSamplerState );
 }
 
-//Finalize rendering.
-void Graphics::EndScene()
+void Graphics::DeferredPass()
 {
 	/////////////////////////////////
 	// Deferred rendering pass
@@ -551,7 +566,7 @@ void Graphics::EndScene()
 	for( int i = 0; i < NUM_GBUFFERS; i++)
 		mDeviceContext->PSSetShaderResources( i, 1, &mGbuffers[i]->mShaderResourceView );
 
-		//mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
+	mDeviceContext->PSSetShaderResources( 5, 1, &mLightStructuredBuffer );
 
 	mDeviceContext->VSSetShader( mDeferredPassEffect->GetVertexShader(), nullptr, 0 );
 	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
@@ -565,7 +580,27 @@ void Graphics::EndScene()
 	mDeviceContext->PSSetConstantBuffers( 0, 1, &mCbufferPerFrame );
 
 	mDeviceContext->Draw( 4, 0 );
+}
 
+void Graphics::ScreenSpacePass()
+{
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
+	mDeviceContext->OMSetDepthStencilState( mDepthDisabledStencilState, 1 );
+	static float blend[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	mDeviceContext->OMSetBlendState( mBlendState[BLEND_2D], blend, 0xffffffff );
+
+	mDeviceContext->IASetInputLayout( m2dEffect->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( m2dEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( m2dEffect->GetPixelShader(), nullptr, 0 );
+}
+
+//Finalize rendering.
+void Graphics::EndScene()
+{
 	mSwapChain->Present( 0, 0 );
 }
 
@@ -844,6 +879,27 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	if( FAILED( hr = mDevice->CreateSamplerState( &samplerDesc, &mLinearSamplerState ) ) )
 		return hr;
 
+	//////////////////////////////
+	// CREATE BLEND STATE
+	//////////////////////////////
+	D3D11_BLEND_DESC blendDesc;
+	ZeroMemory( &blendDesc, sizeof( blendDesc ) );
+
+	//2d blend state
+	blendDesc.AlphaToCoverageEnable					= FALSE;
+	blendDesc.IndependentBlendEnable				= FALSE;
+	blendDesc.RenderTarget[0].BlendEnable			= TRUE;
+	blendDesc.RenderTarget[0].SrcBlend				= D3D11_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend				= D3D11_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOp				= D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha			= D3D11_BLEND_INV_DEST_ALPHA;
+	blendDesc.RenderTarget[0].DestBlendAlpha		= D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].BlendOpAlpha			= D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask	= D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	if( FAILED( hr = mDevice->CreateBlendState( &blendDesc, &mBlendState[BLEND_2D] ) ) )
+		return hr;
+
 	///////////////////////////////
 	// CREATE CBUFFERPERFRAME
 	///////////////////////////////
@@ -896,6 +952,22 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, nullptr, &mBufferPerInstanceObject ) ) )
 		return hr;
 
+	//Light buffer for structured buffer
+	D3D11_BUFFER_DESC lightBufferDesc;
+	ZeroMemory( &lightBufferDesc, sizeof( lightBufferDesc ) );
+	lightBufferDesc.BindFlags			= D3D11_BIND_SHADER_RESOURCE;
+	lightBufferDesc.Usage				= D3D11_USAGE_DYNAMIC;
+	lightBufferDesc.CPUAccessFlags		= D3D11_CPU_ACCESS_WRITE;
+	lightBufferDesc.MiscFlags			= D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+	lightBufferDesc.ByteWidth			= sizeof( LightStructure );
+	lightBufferDesc.StructureByteStride	= sizeof( PointLight );
+
+	if( FAILED( hr = mDevice->CreateBuffer( &lightBufferDesc, nullptr, &mLightBuffer ) ) )
+		return hr;
+
+	if( FAILED( hr = mDevice->CreateShaderResourceView( mLightBuffer, nullptr, &mLightStructuredBuffer ) ) )
+		return hr;
+
 	//AssetManager
 	mAssetManager = new AssetManager;
 	mAssetManager->Initialize( mDevice, mDeviceContext );
@@ -940,6 +1012,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	if( FAILED( hr = mAnimatedEffect->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
+
 	//Animated instanced effect
 	mAnimInstancedEffect	= new Effect;
 	effectInfo.filePath		= "../Content/Effects/AnimatedInstanced3dEffect.hlsl";
@@ -948,6 +1021,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	if( FAILED( hr = mAnimInstancedEffect->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
+
 	//--------------------------
 	mDeferredPassEffect = new Effect;
 	effectInfo.filePath		= "../Content/Effects/DeferredPassEffect.hlsl";
@@ -1041,6 +1115,8 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 		return hr;
 	}
 
+	OutputDebugString( L"----- Graphics Initialization Complete. -----" );
+
 	return hr;
 }
 
@@ -1061,31 +1137,30 @@ void Graphics::Release()
 	SAFE_RELEASE( mCbufferPerObjectAnimated );
 	SAFE_RELEASE( mCbufferPerInstancedAnimated );
 	SAFE_RELEASE( mBufferPerInstanceObject );
+	SAFE_RELEASE( mLightBuffer );
+	SAFE_RELEASE( mLightStructuredBuffer );
 
 	SAFE_RELEASE( mPointSamplerState );
 	SAFE_RELEASE( mLinearSamplerState );
 
-	mAssetManager->Release();
-	mStaticEffect->Release();
-	mAnimatedEffect->Release();
-	m2dEffect->Release();
-	mAnimInstancedEffect->Release();
-	mDeferredPassEffect->Release();
-	mCamera->Release();
-	mDeveloperCamera->Release();
-	
+	SAFE_RELEASE_DELETE( mAssetManager );
+	SAFE_RELEASE_DELETE( mStaticEffect );
+	SAFE_RELEASE_DELETE( mStaticInstancedEffect );
+	SAFE_RELEASE_DELETE( m2dEffect );
+	SAFE_RELEASE_DELETE( mAnimatedEffect );
+	SAFE_RELEASE_DELETE( mAnimInstancedEffect );
+	SAFE_RELEASE_DELETE( mDeferredPassEffect );
+	SAFE_RELEASE_DELETE( mCamera );
+	SAFE_RELEASE_DELETE( mDeveloperCamera );
+
 	for( int i = 0; i < NUM_GBUFFERS; i++ )
 	{
 		mGbuffers[i]->Release();
 		SAFE_DELETE( mGbuffers[i] );
 	}
 
-	SAFE_DELETE( mAssetManager );
-	SAFE_DELETE( mStaticEffect );
-	SAFE_DELETE( mAnimatedEffect );
-	SAFE_DELETE( m2dEffect );
-	SAFE_DELETE( mDeferredPassEffect );
-	SAFE_DELETE( mAnimInstancedEffect );
-	SAFE_DELETE( mCamera );
-	SAFE_DELETE( mDeveloperCamera );
+	for( int i = 0; i < BLEND_STATES_AMOUNT; i++ )
+	{
+		mBlendState[i]->Release();
+	}
 }

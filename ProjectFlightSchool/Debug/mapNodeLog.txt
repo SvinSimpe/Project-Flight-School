@@ -430,6 +430,8 @@ AssetID: 188
 
 
 
+<<<<<<< HEAD
+=======
 GameObject allocated with:
 Pos: (10.103750,0.000000,-8.595832)
 Rotation:  (0.000000,0.000000,0.000000)
@@ -1078,3 +1080,4 @@ AssetID: 188
 
 
 
+>>>>>>> development

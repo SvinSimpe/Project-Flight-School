@@ -45,6 +45,8 @@ class LIBRARY_EXPORT Graphics
 		UINT						mScreenWidth;
 		UINT						mScreenHeight;	
 		ID3D11Buffer*				mVertexBuffer2d;
+		ID3D11Buffer*				mDebugBoxBuffer;
+		ID3D11Buffer*				mBoxBufferIndices;
 
 		IDXGISwapChain*				mSwapChain;
 		ID3D11Device*				mDevice;
@@ -74,6 +76,7 @@ class LIBRARY_EXPORT Graphics
 		Effect*						mAnimatedEffect;
 		Effect*						mAnimInstancedEffect;
 		Effect*						mDeferredPassEffect;
+		Effect*						mDebugShaderEffect;
 		Camera*						mCamera;
 		Camera*						mDeveloperCamera;
 		bool						mIsDeveloperCameraActive;
@@ -111,6 +114,7 @@ class LIBRARY_EXPORT Graphics
 		void RenderPlane2dAsset( PlaneInfo* info, UINT sizeOfList );
 		void RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList );
 		void RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList );
+		void RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max );
 
 		DirectX::XMFLOAT4X4	GetRootMatrix( AssetID modelAssetId, AssetID animationAssetId, float animationTime );
 

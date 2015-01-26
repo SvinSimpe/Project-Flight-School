@@ -130,7 +130,7 @@ HRESULT Enemy::Initialize( int id )
 	mMaxHp			= 100.0f;
 	mCurrentHp		= mMaxHp;
 	mAnimationTime	= 1.0f;
-	mVelocity		= 0.02;
+	mVelocity		= 0.02f;
 
 	return S_OK;
 }

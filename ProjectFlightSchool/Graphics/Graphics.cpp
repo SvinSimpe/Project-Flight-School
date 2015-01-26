@@ -35,6 +35,8 @@ Graphics::Graphics()
 	mCamera						= nullptr;
 	mDeveloperCamera			= nullptr;
 	mIsDeveloperCameraActive	= false;
+
+	mNumPointLights				= 0;
 }
 
 Graphics::~Graphics()
@@ -456,9 +458,10 @@ void Graphics::ZoomOutDeveloperCamera()
 	mDeveloperCamera->ZoomOut();
 }
 
-void Graphics::MapLightStructuredBuffer( LightStructure* lightStructure )
+void Graphics::MapLightStructuredBuffer( LightStructure* lightStructure, int numPointLights )
 {
 	MapBuffer( mLightBuffer, (void*)lightStructure, sizeof( LightStructure ) );
+	mNumPointLights = numPointLights;
 }
 
 void Graphics::SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY )
@@ -543,6 +546,7 @@ void Graphics::GbufferPass()
 		data.projectionMatrix	= mCamera->GetProjMatrix();
 		data.cameraPosition		= mCamera->GetPos();
 	}
+	data.numPointLights = mNumPointLights;
 	MapBuffer( mCbufferPerFrame, &data, sizeof( CbufferPerFrame ) );
 
 	mDeviceContext->VSSetConstantBuffers( 0, 1, &mCbufferPerFrame );

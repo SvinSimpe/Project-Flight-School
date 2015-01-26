@@ -4,7 +4,7 @@
 #pragma region Private functions
 void RenderManager::SetLightStructuredBuffer()
 {
-	Graphics::GetInstance()->MapLightStructuredBuffer( mLightManager->GetLightStructure() );
+	Graphics::GetInstance()->MapLightStructuredBuffer( mLightManager->GetLightStructure(), mLightManager->GetNumActivePointLights() );
 }
 
 void RenderManager::Clear()
@@ -69,7 +69,6 @@ void RenderManager::Clear()
 
 RenderManager::RenderManager()
 {
-	
 }
 
 RenderManager::~RenderManager()

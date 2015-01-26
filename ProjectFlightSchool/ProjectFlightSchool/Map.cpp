@@ -48,7 +48,7 @@ HRESULT Map::Initialize( UINT mapDim )
 {
 	//Map size is mapDim* mapDim
 	mMapDim = mapDim;
-	MapNodeManager::GetInstance()->Initialize( "../Content/Assets/Nodes/test8.lp"  );
+	MapNodeManager::GetInstance()->Initialize( "../Content/Assets/Nodes/test11.lp"  );
 
 	MapNodePlacer::GetInstance()->Initialize( this );
 	MapNodePlacer::GetInstance()->BuildMap( mNodes );

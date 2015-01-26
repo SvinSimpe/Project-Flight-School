@@ -60,6 +60,17 @@ void RenderManager::Clear()
 	
 	mNrOfPlane = 0;
 	//------------------------------
+
+	//Box
+	BoxInfo clearBox;
+	clearBox.max		= DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	clearBox.min		= DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	for( UINT i = 0; i < mNrOfPlane; i++ )
+	{
+		mBoxArray[i] = clearBox;
+	}
+
+	mNrOfBoxes = 0;
 }
 
 RenderManager::RenderManager()
@@ -100,7 +111,14 @@ void RenderManager::AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLef
 
 	mObject2dArray[mNrOfObject2d++] = info;
 }
+void RenderManager::AddBoxToList( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
+{
+	BoxInfo info;
+	info.min = min;
+	info.max = max;
 
+	mBoxArray[mNrOfBoxes++] = info;
+}
 void RenderManager::AddAnim3dToList( AssetID modelAssetId, AssetID animationAssetId, float* animationTime, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation )
 {
     static Anim3dInfo info;
@@ -144,6 +162,11 @@ HRESULT RenderManager::Render()
 	for( UINT i = 0; i < mNrOfObject2d; i++ )
 	{
 		Graphics::GetInstance()->Render2dAsset( mObject2dArray[i].mAssetId, mObject2dArray[i].mTopLeftCorner.x, mObject2dArray[i].mTopLeftCorner.y, mObject2dArray[i].mWidthHeight.x, mObject2dArray[i].mWidthHeight.y );
+	}
+
+	for( UINT i = 0; i < mNrOfBoxes; i++ )
+	{
+		Graphics::GetInstance()->RenderDebugBox( mBoxArray[i].min, mBoxArray[i].max );
 	}
 
 	Graphics::GetInstance()->EndScene();

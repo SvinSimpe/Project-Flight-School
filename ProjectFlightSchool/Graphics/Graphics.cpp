@@ -82,6 +82,46 @@ HRESULT Graphics::LoadAnimationAsset( std::string filePath, std::string fileName
 {
 	return mAssetManager->LoadAnimationAsset( filePath, fileName, assetId );
 }
+void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
+{
+	mDeviceContext->OMSetDepthStencilState( mDepthDisabledStencilState, 1 );
+
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
+
+	UINT32 vertexSize	= sizeof(StaticVertex);
+	UINT32 offset		= 0;
+
+	DirectX::XMFLOAT3 boxSize = DirectX::XMFLOAT3( max.x - min.x, max.y - min.y, max.z - min.z );
+	DirectX::XMFLOAT3 center  = DirectX::XMFLOAT3( ( min.x + max.x ) / 2, ( min.y + max.y ) / 2, ( min.z + max.z ) / 2 );
+
+	ID3D11Buffer* buffersToSet[] = { ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexBuffer };
+	mDeviceContext->IASetVertexBuffers( 0, 1, &mDebugBoxBuffer, &vertexSize, &offset );
+	mDeviceContext->IASetIndexBuffer( mBoxBufferIndices, DXGI_FORMAT_R32_UINT, 0 );
+
+	//Map CbufferPerObject
+	CbufferPerObject data;
+	DirectX::XMMATRIX scaling		= DirectX::XMMatrixScaling( boxSize.x, boxSize.y, boxSize.z );
+	DirectX::XMMATRIX translation	= DirectX::XMMatrixTranslation( center.x, center.y, center.z );
+
+	data.worldMatrix = DirectX::XMMatrixTranspose( scaling * translation );
+	//data.worldMatrix = DirectX::XMMatrixIdentity();
+
+	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
+
+	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
+
+	mDeviceContext->IASetInputLayout( mDebugShaderEffect->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mDebugShaderEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mDebugShaderEffect->GetPixelShader(), nullptr, 0 );
+
+	//mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexCount, 0 );//, 0, 0 );
+	mDeviceContext->DrawIndexed( 24, 0, 0 );
+	mDeviceContext->OMSetDepthStencilState( mDepthEnabledStencilState, 1 );
+}
 
 void Graphics::Render2dAsset( AssetID assetId, float x, float y, float width, float height )
 {
@@ -928,6 +968,19 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	if( FAILED( hr = mStaticEffect->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 
+	//DebugEffect
+	mDebugShaderEffect	= new Effect;
+
+	ZeroMemory( &effectInfo, sizeof( EffectInfo ) );
+	effectInfo.filePath					= "../Content/Effects/DebugShaderEffect.hlsl";
+	effectInfo.fileName					= "DebugShaderEffect";
+	effectInfo.vertexType				= STATIC_VERTEX_TYPE;
+	effectInfo.isVertexShaderIncluded	= true;
+	effectInfo.isPixelShaderIncluded	= true;
+
+	if( FAILED( hr = mDebugShaderEffect->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+
 	//Statice instanced effect
 	mStaticInstancedEffect	= new Effect;
 	effectInfo.filePath		= "../Content/Effects/Static3dInstancedEffect.hlsl";
@@ -1057,6 +1110,75 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 		return hr;
 	}
 
+	StaticVertex boxVertices[]		= 
+	{
+		//BackBottomLeft
+		{ -0.5, -0.5, -0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+		//BackBottomRight
+		{  0.5, -0.5, -0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+		//BackTopRight
+		{  0.5,  0.5, -0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+		//BackTopLeft 
+		{ -0.5,  0.5, -0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+		//FrontBottomLeft
+		{ -0.5, -0.5,  0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+		//FrontBottomRight
+		{  0.5, -0.5,  0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+		//FrontTopRight
+		{  0.5,  0.5,  0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+		//FrontTopLeft
+		{ -0.5,  0.5,  0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+	};
+
+	D3D11_BUFFER_DESC debugBoxBuffer;
+	ZeroMemory( &debugBoxBuffer, sizeof(debugBoxBuffer) );
+	debugBoxBuffer.BindFlags		= D3D11_BIND_VERTEX_BUFFER;
+	debugBoxBuffer.ByteWidth		= sizeof(StaticVertex) * 8;
+	debugBoxBuffer.Usage			= D3D11_USAGE_IMMUTABLE;
+	debugBoxBuffer.CPUAccessFlags	= 0;
+
+	subData.pSysMem = boxVertices;
+
+	hr = mDevice->CreateBuffer( &debugBoxBuffer, &subData, &mDebugBoxBuffer );
+	if ( FAILED( hr ) )
+	{
+		//Failed to create vertex buffer
+		return hr;
+	}
+
+	UINT boxIndices[] = 
+	{
+		0, 1,
+		1, 2,
+		2, 3,
+		3, 0,
+
+		4, 5,
+		5, 6,
+		6, 7,
+		7, 4,
+
+		3, 7,
+		2, 6,
+		5, 1,
+		0, 4
+	};
+	D3D11_BUFFER_DESC debugIndexBoxBuffer;
+	ZeroMemory( &debugIndexBoxBuffer, sizeof(debugIndexBoxBuffer) );
+	debugIndexBoxBuffer.BindFlags		= D3D11_BIND_INDEX_BUFFER;
+	debugIndexBoxBuffer.ByteWidth		= sizeof( UINT ) * 24;
+	debugIndexBoxBuffer.Usage			= D3D11_USAGE_IMMUTABLE;
+	debugIndexBoxBuffer.CPUAccessFlags	= 0;
+
+	subData.pSysMem = boxIndices;
+
+	hr = mDevice->CreateBuffer( &debugIndexBoxBuffer, &subData, &mBoxBufferIndices );
+	if ( FAILED( hr ) )
+	{
+		//Failed to create vertex buffer
+		return hr;
+	}
+
 	OutputDebugString( L"----- Graphics Initialization Complete. -----" );
 
 	return hr;
@@ -1079,6 +1201,8 @@ void Graphics::Release()
 	SAFE_RELEASE( mCbufferPerObjectAnimated );
 	SAFE_RELEASE( mCbufferPerInstancedAnimated );
 	SAFE_RELEASE( mBufferPerInstanceObject );
+	SAFE_RELEASE( mDebugBoxBuffer );
+	SAFE_RELEASE( mBoxBufferIndices );
 
 	SAFE_RELEASE( mPointSamplerState );
 	SAFE_RELEASE( mLinearSamplerState );
@@ -1087,6 +1211,7 @@ void Graphics::Release()
 	SAFE_RELEASE_DELETE( mStaticEffect );
 	SAFE_RELEASE_DELETE( mStaticInstancedEffect );
 	SAFE_RELEASE_DELETE( m2dEffect );
+	SAFE_RELEASE_DELETE( mDebugShaderEffect );
 	SAFE_RELEASE_DELETE( mAnimatedEffect );
 	SAFE_RELEASE_DELETE( mAnimInstancedEffect );
 	SAFE_RELEASE_DELETE( mDeferredPassEffect );

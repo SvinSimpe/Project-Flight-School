@@ -156,5 +156,8 @@
     <Text Include="..\Content\Effects\Static3dInstancedEffect.hlsl">
       <Filter>Effects</Filter>
     </Text>
+    <Text Include="DebugShaderEffect.hlsl">
+      <Filter>Effects</Filter>
+    </Text>
   </ItemGroup>
 </Project>

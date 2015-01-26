@@ -71,7 +71,7 @@ HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 			ob.Initialize( obInfo, assetID );
 			staticObjects.push_back( ob );
 			char log[400];
-			sprintf_s(log,"Timestamp: %s\nCount: %d\nGameObject allocated with:\nPos: (%f,%f,%f)\nRotation:  (%f,%f,%f)\nScale:  (%f,%f,%f)\nAssetID: %d\nName: %s\n\n\n",__TIMESTAMP__, i,
+			sprintf_s(log,"Timestamp: %s\nCount: %d\nGameObject allocated with:\nPos: (%f,%f,%f)\nRotation:  (%f,%f,%f)\nScale:  (%f,%f,%f)\nAssetID: %d\nName: %s\n\n\n",__TIME__, i,
 				ob.GetPos().x,ob.GetPos().y, ob.GetPos().z,
 				ob.GetRotation().x,ob.GetRotation().y, ob.GetRotation().z,
 				ob.GetScale().x, ob.GetScale().y, ob.GetScale().z,

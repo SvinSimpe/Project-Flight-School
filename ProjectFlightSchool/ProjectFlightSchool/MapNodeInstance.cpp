@@ -1,6 +1,7 @@
 #include "MapNodeInstance.h"
 #include "MapNode.h"
 #include "BoundingGeometry.h"
+#include "RenderManager.h"
 
 HRESULT MapNodeInstance::Update( float deltaTime )
 {
@@ -12,7 +13,9 @@ HRESULT	MapNodeInstance::Render( float deltaTime )
 	{
 		mNode->Render( deltaTime, mWorld );
 	}
-
+	DirectX::XMFLOAT3 min = DirectX::XMFLOAT3( mPos.x - ( mNode->GetGridWidth() * 0.5f ), 0, mPos.z - ( mNode->GetGridHeight() * 0.5f ) );
+	DirectX::XMFLOAT3 max = DirectX::XMFLOAT3( min.x + mNode->GetGridWidth(), 5, min.z + mNode->GetGridHeight() );
+	RenderManager::GetInstance()->AddBoxToList( min, max );
 	return S_OK;
 }
 DirectX::XMFLOAT3 MapNodeInstance::GetPos()const

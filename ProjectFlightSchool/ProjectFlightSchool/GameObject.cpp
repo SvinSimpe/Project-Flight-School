@@ -12,7 +12,7 @@ HRESULT	GameObject::Render(float deltaTime, DirectX::XMFLOAT4X4 parentWorld )
 	DirectX::XMMATRIX scaling		= DirectX::XMMatrixScaling( mScale.x, mScale.y, mScale.z );
 	DirectX::XMMATRIX rotation		= DirectX::XMMatrixRotationRollPitchYaw( mRotation.x, mRotation.y, mRotation.z );
 	DirectX::XMMATRIX translation	= DirectX::XMMatrixTranslation( mPos.x, mPos.y, mPos.z );
-	DirectX::XMMATRIX world = ( translation * rotation * scaling );
+	DirectX::XMMATRIX world = parent * ( translation * rotation * scaling );
 
 	DirectX::XMFLOAT4X4 worldFinished;
 	DirectX::XMStoreFloat4x4( &worldFinished, world );

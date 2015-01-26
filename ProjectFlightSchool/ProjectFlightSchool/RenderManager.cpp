@@ -108,14 +108,16 @@ void RenderManager::AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLef
 	mObject2dArray[mNrOfObject2d++] = info;
 }
 
-void RenderManager::AddAnim3dToList( AssetID modelAssetId, AssetID animationAssetId, float* animationTime, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation )
+bool RenderManager::AddAnim3dToList( AssetID modelAssetId, AssetID animationAssetId, float* animationTime, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation )
 {
     static Anim3dInfo info;
 	info.mModelId	= modelAssetId;
 
-	Graphics::GetInstance()->GetAnimationMatrices( modelAssetId, animationAssetId, *animationTime, position, rotation, info ); 
+	bool localReturn = Graphics::GetInstance()->GetAnimationMatrices( modelAssetId, animationAssetId, *animationTime, playType, position, rotation, info ); 
 
 	mAnim3dArray[mNrOfAnim3d++] = info;
+
+	return localReturn;
 }
 
 void RenderManager::AddPlaneToList( AssetID assetId, DirectX::XMFLOAT3 topTriangle, DirectX::XMFLOAT3 bottomTriangle )

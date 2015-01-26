@@ -129,12 +129,12 @@ HRESULT Player::Update( float deltaTime )
 				mLowerBody.currentLowerAnimation = PLAYER_ANIMATION_LEGS_IDLE;
 
 				if( mLowerBody.currentLowerAnimation != PLAYER_ANIMATION_LEGS_IDLE )
-					mLowerBody.currentLowerAnimationTime	= 1.0f;
+					mLowerBody.currentLowerAnimationTime	= 1.0f / 60.0f;
 			}
 			else if( mLowerBody.currentLowerAnimation == PLAYER_ANIMATION_LEGS_IDLE )
 			{
 				mLowerBody.currentLowerAnimation		= PLAYER_ANIMATION_LEGS_WALK;
-				mLowerBody.currentLowerAnimationTime	= 1.0f;
+				mLowerBody.currentLowerAnimationTime	= 1.0f / 60.0f;
 			}
 
 

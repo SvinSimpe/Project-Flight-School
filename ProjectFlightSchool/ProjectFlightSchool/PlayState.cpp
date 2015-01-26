@@ -357,6 +357,9 @@ void PlayState::HandleRemoteMeleeHit( unsigned int id, float damage, float knock
 
 HRESULT PlayState::Update( float deltaTime )
 {
+	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_SPACE ) )
+		mAnimationTime = 1.0f / 60.0f;
+
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{
 		CheckPlayerCollision();
@@ -397,12 +400,9 @@ HRESULT PlayState::Update( float deltaTime )
 
 HRESULT PlayState::Render()
 {
-
 	RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 	
-	//for(int i = 0; i < animTestNr; i++)
-	//	RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation[i], mTestAnimationAnimation[i], &mAnimationTime, DirectX::XMFLOAT3( (float)i * -5.0f, 0.0f, 0.0f ) );
-
+	RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation[0], mTestAnimationAnimation[0], &mAnimationTime, ANIMATION_PLAY_ONCE, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 
 	mPlayer->Render( 0.0f, 1 );
 

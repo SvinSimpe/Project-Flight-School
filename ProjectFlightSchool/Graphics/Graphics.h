@@ -27,6 +27,9 @@ enum BlendStates
 	BLEND_STATES_AMOUNT
 };
 
+#define ANIMATION_PLAY_LOOPED	0
+#define ANIMATION_PLAY_ONCE		1
+
 #define NUM_GBUFFERS 3
 #define MAX_ANIM_INSTANCE_BATCH 32
 
@@ -130,7 +133,7 @@ class LIBRARY_EXPORT Graphics
 		void	ScreenSpacePass();
 		void	EndScene();
 
-		void GetAnimationMatrices( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo& info );
+		bool GetAnimationMatrices( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo& info );
 
 		UINT QueryMemoryUsed();
 

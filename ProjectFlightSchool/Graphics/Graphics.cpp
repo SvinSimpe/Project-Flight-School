@@ -608,15 +608,22 @@ void Graphics::EndScene()
 	mSwapChain->Present( 0, 0 );
 }
 
-void Graphics::GetAnimationMatrices( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo& info )
+bool Graphics::GetAnimationMatrices( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo& info )
 {
 	Animated3dAsset*	model		= (Animated3dAsset*)mAssetManager->mAssetContainer[modelAssetId];
 	Skeleton*			skeleton	= &( (SkeletonAsset*)mAssetManager->mAssetContainer[model->mSkeletonId] )->mSkeleton;
 	AnimationData*		animation	= &( (AnimationAsset*)mAssetManager->mAssetContainer[animationAssetId] )->mAnimationData;
 
-	if( animationTime > (float)animation->AnimLength / 60.0f )
+	bool localReturn = false;
+
+	if( animationTime >= (float)animation->AnimLength / 60.0f )
 	{
-		animationTime	-= ( (float)animation->AnimLength / 60.0f - 1.0f / 60.0f );
+		if( playType == ANIMATION_PLAY_LOOPED )
+			animationTime -= ( (float)animation->AnimLength / 60.0f - 1.0f / 60.0f );
+		else if( playType == ANIMATION_PLAY_ONCE )
+			animationTime = ( (float)animation->AnimLength / 60.0f );
+
+		localReturn = true;
 	}
 
 	float calcTime = animationTime * 60.0f;
@@ -678,6 +685,7 @@ void Graphics::GetAnimationMatrices( AssetID modelAssetId, AssetID animationAsse
 	for( int i = 0; i < skeleton->nrOfJoints; i++ )
 		DirectX::XMStoreFloat4x4( &info.mBoneTransforms[i], DirectX::XMMatrixTranspose( DirectX::XMMatrixMultiply( DirectX::XMLoadFloat4x4( &model->mBoneOffsets[i] ), currentBoneTransforms[i] ) ) );
 
+	return localReturn;
 }
 
 UINT Graphics::QueryMemoryUsed()

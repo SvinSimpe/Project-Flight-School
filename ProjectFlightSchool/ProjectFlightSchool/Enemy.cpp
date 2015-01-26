@@ -19,7 +19,7 @@ HRESULT Enemy::Update( float deltaTime )
 
 HRESULT Enemy::Render()
 {
-	RenderManager::GetInstance()->AddAnim3dToList( mModel, mAnimations[ENEMY_ANIMATION_IDLE], &mAnimationTime, mPosition );
+	RenderManager::GetInstance()->AddAnim3dToList( mModel, mAnimations[ENEMY_ANIMATION_IDLE], &mAnimationTime, ANIMATION_PLAY_LOOPED, mPosition );
 	return S_OK;
 }
 

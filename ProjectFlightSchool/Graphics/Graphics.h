@@ -76,6 +76,8 @@ class LIBRARY_EXPORT Graphics
 		bool						mIsDeveloperCameraActive;
 		Gbuffer*					mGbuffers[NUM_GBUFFERS];
 
+		int							mNumPointLights;
+
 		StaticInstance				mStatic3dInstanced[MAX_STATIC3D_INSTANCE_BATCH];
 		AnimatedInstance			mAnimInstanced[MAX_ANIM_INSTANCE_BATCH];
 		CbufferPerObjectAnimated	mAnimCbufferInstanced[MAX_ANIM_INSTANCE_BATCH];
@@ -115,7 +117,7 @@ class LIBRARY_EXPORT Graphics
 		void	ZoomInDeveloperCamera();
 		void	ZoomOutDeveloperCamera();
 
-		void MapLightStructuredBuffer( LightStructure* lightStructure );
+		void MapLightStructuredBuffer( LightStructure* lightStructure, int numPointLights );
 		void SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY );
 		void SetInverseViewMatrix( DirectX::XMMATRIX &inverseViewMatrix );
 		void SetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatrix );

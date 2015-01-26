@@ -956,3 +956,59 @@ class Event_Remote_Player_Melee_Hit : public IEvent
 			return mDirection;
 		}
 };
+
+class Event_Add_Point_Light : public IEvent
+{
+	// Member variables
+	private:
+		void* mLight;
+
+	protected:
+	public:
+		static const EventType GUID;
+	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Add_Point_Light( void* light )
+		{
+			mLight = light;
+		}
+		void* GetPointLight()
+		{
+			return mLight;
+		}
+};
+
+class Event_Remove_Point_Light : public IEvent
+{
+	// Member variables
+	private:
+		void* mLight;
+
+	protected:
+	public:
+		static const EventType GUID;
+	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Remove_Point_Light( void* light )
+		{
+			mLight = light;
+		}
+		void* GetPointLight()
+		{
+			return mLight;
+		}
+};

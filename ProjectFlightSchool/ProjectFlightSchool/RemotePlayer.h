@@ -9,10 +9,17 @@
 #include "Font.h"
 #include "WeaponInfo.h"
 
-#define	PLAYER_ANIMATION_LEGS_WALK	0
-#define PLAYER_ANIMATION_LEGS_IDLE	1
+#define	PLAYER_ANIMATION_LEGS_WALK			0
+#define PLAYER_ANIMATION_LEGS_IDLE			1
 
-#define PLAYER_ANIMATION_COUNT 2
+#define PLAYER_ANIMATION_CLAYMORE_IDLE		2
+#define PLAYER_ANIMATION_CLAYMORE_WALK		3
+#define PLAYER_ANIMATION_CLAYMORE_ATTACK	4
+
+#define PLAYER_ANIMATION_SHOTGUN_WALK		5
+#define PLAYER_ANIMATION_SHOTGUN_ATTACK		6
+
+#define PLAYER_ANIMATION_COUNT 7
 
 struct UpperBody
 {
@@ -29,6 +36,17 @@ struct LowerBody
 
 	AssetID		currentLowerAnimation;
 	float		currentLowerAnimationTime;
+};
+
+struct Arms
+{
+	AssetID		leftArm;
+	AssetID		leftArmCurrentAnimation;
+	float		leftArmAnimationTime;
+
+	AssetID		rightArm;
+	AssetID		rightArmCurrentAnimation;
+	float		rightArmAnimationTime;
 };
 
 struct LoadOut
@@ -60,8 +78,9 @@ class RemotePlayer
 		int				mTeam;
 		UpperBody		mUpperBody;
 		LowerBody		mLowerBody;
-		AssetID			mRightArm;
-		AssetID			mLeftArm;
+		Arms			mArms;
+		bool			mLeftArmAnimationCompleted;
+		bool			mRightArmAnimationCompleted;
 		AssetID			mAnimations[PLAYER_ANIMATION_COUNT];
 
 		BoundingBox*	mBoundingBox;

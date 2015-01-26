@@ -86,7 +86,13 @@ HRESULT Game::Update( float deltaTime )
 	mStateMachine->Update( deltaTime );
 	EventManager::GetInstance()->Update();
 	RenderManager::GetInstance()->Update( deltaTime );
-	
+
+	// Update enemies on server
+	if( mServerIsActive )
+	{
+		mServer->Update( deltaTime );
+	}
+
 	return S_OK;
 }
 

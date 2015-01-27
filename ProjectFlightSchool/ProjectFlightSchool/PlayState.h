@@ -16,7 +16,6 @@
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
-#define animTestNr 4
 #define MAX_PROJECTILES			1000
 
 class PlayState : public BaseState
@@ -25,8 +24,8 @@ class PlayState : public BaseState
 	private:
 		AssetID mPlaneAsset;
 
-		AssetID	mTestAnimation[animTestNr];
-		AssetID	mTestAnimationAnimation[animTestNr];
+		AssetID	mTestAnimation;
+		AssetID	mTestAnimationAnimation;
 
 		AssetID mTest2dAsset;
 		AssetID mTeams[2];

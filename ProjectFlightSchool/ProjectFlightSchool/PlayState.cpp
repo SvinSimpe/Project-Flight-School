@@ -402,7 +402,7 @@ HRESULT PlayState::Render()
 {
 	RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 	
-	RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation[0], mTestAnimationAnimation[0], &mAnimationTime, ANIMATION_PLAY_ONCE, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
+	RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation, mTestAnimationAnimation, &mAnimationTime, ANIMATION_PLAY_ONCE, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 
 	mPlayer->Render( 0.0f, 1 );
 
@@ -466,12 +466,9 @@ HRESULT PlayState::Initialize()
 	AssetID skeleton = 0;
 	AssetID skel  =0;
 
-	for(int i = 0; i < animTestNr; i++)
-	{
-		Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", skeleton );
-		Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, mTestAnimation[i] );
-		Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptorDeath2.PaMan", mTestAnimationAnimation[i] );
-	}
+	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", skeleton );
+	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, mTestAnimation );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptorDeath2.PaMan", mTestAnimationAnimation );
 
 	AssetID loader;
 

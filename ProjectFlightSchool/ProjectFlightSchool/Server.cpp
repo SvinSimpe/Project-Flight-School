@@ -114,7 +114,7 @@ XMFLOAT3 Server::SpawnEnemy()
 
 HRESULT Server::Update( float deltaTime )
 {
-	if( mInGame && mFrameCount++ > 10 )
+	if( mInGame && mFrameCount++ > 2 )
 	{
 		EvUpdateEnemyPosition enemy;
 		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
@@ -128,10 +128,10 @@ HRESULT Server::Update( float deltaTime )
 
 				for ( auto& socket : mClientSockets )
 				{
-					if ( socket.s != INVALID_SOCKET )
+					if ( socket.s != INVALID_SOCKET && mEnemyListSynced )
 					{
 						mConn->SendPkg( socket.s, 0, Net_Event::EV_ENEMY_UPDATE_POSITION, enemy ); // Update all enemy positions to all players
-						Sleep( 10 );
+						Sleep( 1 );
 					}
 				}
 			}
@@ -260,6 +260,8 @@ bool Server::Initialize( std::string port )
 		//EventManager::GetInstance()->QueueEvent( E1 );
 	}
 
+	mEnemyListSynced	= false;
+
 	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Game_Started::GUID );
 	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Game_Ended::GUID );
 
@@ -318,6 +320,8 @@ Server::Server()
 	mSpawners			= nullptr;
 	mNrOfEnemiesSpawned	= 0;
 	mFrameCount			= 0;
+
+	mEnemyListSynced	= false;
 }
 
 Server::~Server()

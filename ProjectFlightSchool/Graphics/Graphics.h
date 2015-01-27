@@ -27,6 +27,9 @@ enum BlendStates
 	BLEND_STATES_AMOUNT
 };
 
+#define ANIMATION_PLAY_LOOPED	0
+#define ANIMATION_PLAY_ONCE		1
+
 #define NUM_GBUFFERS 3
 #define MAX_ANIM_INSTANCE_BATCH 32
 
@@ -42,6 +45,8 @@ class LIBRARY_EXPORT Graphics
 		UINT						mScreenWidth;
 		UINT						mScreenHeight;	
 		ID3D11Buffer*				mVertexBuffer2d;
+		ID3D11Buffer*				mDebugBoxBuffer;
+		ID3D11Buffer*				mBoxBufferIndices;
 
 		IDXGISwapChain*				mSwapChain;
 		ID3D11Device*				mDevice;
@@ -71,10 +76,13 @@ class LIBRARY_EXPORT Graphics
 		Effect*						mAnimatedEffect;
 		Effect*						mAnimInstancedEffect;
 		Effect*						mDeferredPassEffect;
+		Effect*						mDebugShaderEffect;
 		Camera*						mCamera;
 		Camera*						mDeveloperCamera;
 		bool						mIsDeveloperCameraActive;
 		Gbuffer*					mGbuffers[NUM_GBUFFERS];
+
+		int							mNumPointLights;
 
 		StaticInstance				mStatic3dInstanced[MAX_STATIC3D_INSTANCE_BATCH];
 		AnimatedInstance			mAnimInstanced[MAX_ANIM_INSTANCE_BATCH];
@@ -106,6 +114,7 @@ class LIBRARY_EXPORT Graphics
 		void RenderPlane2dAsset( PlaneInfo* info, UINT sizeOfList );
 		void RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList );
 		void RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList );
+		void RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max );
 
 		DirectX::XMFLOAT4X4	GetRootMatrix( AssetID modelAssetId, AssetID animationAssetId, float animationTime );
 
@@ -115,7 +124,7 @@ class LIBRARY_EXPORT Graphics
 		void	ZoomInDeveloperCamera();
 		void	ZoomOutDeveloperCamera();
 
-		void MapLightStructuredBuffer( LightStructure* lightStructure );
+		void MapLightStructuredBuffer( LightStructure* lightStructure, int numPointLights );
 		void SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY );
 		void SetInverseViewMatrix( DirectX::XMMATRIX &inverseViewMatrix );
 		void SetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatrix );
@@ -128,7 +137,7 @@ class LIBRARY_EXPORT Graphics
 		void	ScreenSpacePass();
 		void	EndScene();
 
-		void GetAnimationMatrices( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo& info );
+		bool GetAnimationMatrices( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo& info );
 
 		UINT QueryMemoryUsed();
 

@@ -1,0 +1,651 @@
+GameObject allocated with:
+Pos: (10.103750,0.000000,-8.595832)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (0.734030,0.928625,0.734030)
+AssetID: 157
+ Name: tree5.pfs
+
+
+
+GameObject allocated with:
+Pos: (9.859034,0.000000,-4.124236)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 145
+ Name: tree1.pfs
+
+
+
+GameObject allocated with:
+Pos: (-7.276526,0.000000,-4.914852)
+Rotation:  (0.000000,1.514980,0.000000)
+Scale:  (1.157246,1.157246,1.157246)
+AssetID: 157
+ Name: tree5.pfs
+
+
+
+GameObject allocated with:
+Pos: (7.117867,0.000000,-5.317404)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.477156,1.477156,1.477156)
+AssetID: 145
+ Name: tree1.pfs
+
+
+
+GameObject allocated with:
+Pos: (-7.733613,0.000000,9.314947)
+Rotation:  (0.000000,-3.215117,0.000000)
+Scale:  (0.622704,0.622704,0.622704)
+AssetID: 153
+ Name: tree3.pfs
+
+
+
+GameObject allocated with:
+Pos: (0.124435,-0.000000,-9.201344)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.093972,1.449092,1.093972)
+AssetID: 156
+ Name: tree4.pfs
+
+
+
+GameObject allocated with:
+Pos: (-4.584859,-0.000000,2.016833)
+Rotation:  (0.000000,1.556432,0.000000)
+Scale:  (1.891162,1.891162,1.891162)
+AssetID: 145
+ Name: tree1.pfs
+
+
+
+GameObject allocated with:
+Pos: (10.399234,0.000000,-0.940913)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 159
+ Name: tree7.pfs
+
+
+
+GameObject allocated with:
+Pos: (7.790985,-0.000000,2.726250)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.314222,1.492438,1.314222)
+AssetID: 156
+ Name: tree4.pfs
+
+
+
+GameObject allocated with:
+Pos: (8.371134,0.000000,1.405258)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 145
+ Name: tree1.pfs
+
+
+
+GameObject allocated with:
+Pos: (4.276421,0.000000,-2.216286)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.477156,1.477156,1.477156)
+AssetID: 145
+ Name: tree1.pfs
+
+
+
+GameObject allocated with:
+Pos: (8.943938,0.000000,-9.058758)
+Rotation:  (0.000000,1.473785,0.000000)
+Scale:  (0.920293,0.920293,0.920293)
+AssetID: 159
+ Name: tree7.pfs
+
+
+
+GameObject allocated with:
+Pos: (3.091773,-0.000000,1.171608)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 176
+ Name: plant1.pfs
+
+
+
+GameObject allocated with:
+Pos: (8.105188,-0.000000,9.781539)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.093972,1.449092,1.093972)
+AssetID: 156
+ Name: tree4.pfs
+
+
+
+GameObject allocated with:
+Pos: (4.553645,-0.000000,-1.848236)
+Rotation:  (0.000000,1.556432,0.000000)
+Scale:  (1.891162,1.891162,1.891162)
+AssetID: 145
+ Name: tree1.pfs
+
+
+
+GameObject allocated with:
+Pos: (-9.565190,0.000000,9.725622)
+Rotation:  (0.000000,-1.176103,0.000000)
+Scale:  (0.976146,0.976146,0.976146)
+AssetID: 157
+ Name: tree5.pfs
+
+
+
+GameObject allocated with:
+Pos: (3.820260,-0.000000,-11.849134)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 159
+ Name: tree7.pfs
+
+
+
+GameObject allocated with:
+Pos: (1.456794,-0.000000,-2.684093)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 176
+ Name: plant1.pfs
+
+
+
+GameObject allocated with:
+Pos: (-7.476838,-0.000000,-7.447064)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.093972,1.449092,1.093972)
+AssetID: 156
+ Name: tree4.pfs
+
+
+
+GameObject allocated with:
+Pos: (-5.395792,-0.000000,6.263503)
+Rotation:  (0.000000,1.556432,0.000000)
+Scale:  (1.891162,1.891162,1.891162)
+AssetID: 145
+ Name: tree1.pfs
+
+
+
+GameObject allocated with:
+Pos: (1.543567,0.000000,-13.819074)
+Rotation:  (0.000000,-1.176103,0.000000)
+Scale:  (0.976146,0.976146,0.976146)
+AssetID: 157
+ Name: tree5.pfs
+
+
+
+GameObject allocated with:
+Pos: (-2.633631,-0.000000,-2.787635)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 176
+ Name: plant1.pfs
+
+
+
+GameObject allocated with:
+Pos: (-0.677079,0.000000,3.885030)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 176
+ Name: plant1.pfs
+
+
+
+GameObject allocated with:
+Pos: (-4.959617,0.000000,1.256725)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 176
+ Name: plant1.pfs
+
+
+
+GameObject allocated with:
+Pos: (10.103750,0.000000,-8.595832)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (0.734030,0.928625,0.734030)
+AssetID: 157
+ Name: tree5.pfs
+
+
+
+GameObject allocated with:
+Pos: (9.859034,0.000000,-4.124236)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 145
+ Name: tree1.pfs
+
+
+
+GameObject allocated with:
+Pos: (-7.276526,0.000000,-4.914852)
+Rotation:  (0.000000,1.514980,0.000000)
+Scale:  (1.157246,1.157246,1.157246)
+AssetID: 157
+ Name: tree5.pfs
+
+
+
+GameObject allocated with:
+Pos: (7.117867,0.000000,-5.317404)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.477156,1.477156,1.477156)
+AssetID: 145
+ Name: tree1.pfs
+
+
+
+GameObject allocated with:
+Pos: (-7.733613,0.000000,9.314947)
+Rotation:  (0.000000,-3.215117,0.000000)
+Scale:  (0.622704,0.622704,0.622704)
+AssetID: 153
+ Name: tree3.pfs
+
+
+
+GameObject allocated with:
+Pos: (0.124435,-0.000000,-9.201344)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.093972,1.449092,1.093972)
+AssetID: 156
+ Name: tree4.pfs
+
+
+
+GameObject allocated with:
+Pos: (-4.584859,-0.000000,2.016833)
+Rotation:  (0.000000,1.556432,0.000000)
+Scale:  (1.891162,1.891162,1.891162)
+AssetID: 145
+ Name: tree1.pfs
+
+
+
+GameObject allocated with:
+Pos: (10.399234,0.000000,-0.940913)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 159
+ Name: tree7.pfs
+
+
+
+GameObject allocated with:
+Pos: (7.790985,-0.000000,2.726250)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.314222,1.492438,1.314222)
+AssetID: 156
+ Name: tree4.pfs
+
+
+
+GameObject allocated with:
+Pos: (8.371134,0.000000,1.405258)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 145
+ Name: tree1.pfs
+
+
+
+GameObject allocated with:
+Pos: (4.276421,0.000000,-2.216286)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.477156,1.477156,1.477156)
+AssetID: 145
+ Name: tree1.pfs
+
+
+
+GameObject allocated with:
+Pos: (8.943938,0.000000,-9.058758)
+Rotation:  (0.000000,1.473785,0.000000)
+Scale:  (0.920293,0.920293,0.920293)
+AssetID: 159
+ Name: tree7.pfs
+
+
+
+GameObject allocated with:
+Pos: (3.091773,-0.000000,1.171608)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 176
+ Name: plant1.pfs
+
+
+
+GameObject allocated with:
+Pos: (8.105188,-0.000000,9.781539)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.093972,1.449092,1.093972)
+AssetID: 156
+ Name: tree4.pfs
+
+
+
+GameObject allocated with:
+Pos: (4.553645,-0.000000,-1.848236)
+Rotation:  (0.000000,1.556432,0.000000)
+Scale:  (1.891162,1.891162,1.891162)
+AssetID: 145
+ Name: tree1.pfs
+
+
+
+GameObject allocated with:
+Pos: (-9.565190,0.000000,9.725622)
+Rotation:  (0.000000,-1.176103,0.000000)
+Scale:  (0.976146,0.976146,0.976146)
+AssetID: 157
+ Name: tree5.pfs
+
+
+
+GameObject allocated with:
+Pos: (3.820260,-0.000000,-11.849134)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 159
+ Name: tree7.pfs
+
+
+
+GameObject allocated with:
+Pos: (1.456794,-0.000000,-2.684093)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 176
+ Name: plant1.pfs
+
+
+
+GameObject allocated with:
+Pos: (-7.476838,-0.000000,-7.447064)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.093972,1.449092,1.093972)
+AssetID: 156
+ Name: tree4.pfs
+
+
+
+GameObject allocated with:
+Pos: (-5.395792,-0.000000,6.263503)
+Rotation:  (0.000000,1.556432,0.000000)
+Scale:  (1.891162,1.891162,1.891162)
+AssetID: 145
+ Name: tree1.pfs
+
+
+
+GameObject allocated with:
+Pos: (1.543567,0.000000,-13.819074)
+Rotation:  (0.000000,-1.176103,0.000000)
+Scale:  (0.976146,0.976146,0.976146)
+AssetID: 157
+ Name: tree5.pfs
+
+
+
+GameObject allocated with:
+Pos: (-2.633631,-0.000000,-2.787635)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 176
+ Name: plant1.pfs
+
+
+
+GameObject allocated with:
+Pos: (-0.677079,0.000000,3.885030)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 176
+ Name: plant1.pfs
+
+
+
+GameObject allocated with:
+Pos: (-4.959617,0.000000,1.256725)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 176
+ Name: plant1.pfs
+
+
+
+<<<<<<< HEAD
+=======
+GameObject allocated with:
+Pos: (10.103750,0.000000,-8.595832)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (0.734030,0.928625,0.734030)
+AssetID: 157
+ Name: tree5.pfs
+
+
+
+GameObject allocated with:
+Pos: (9.859034,0.000000,-4.124236)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 145
+ Name: tree1.pfs
+
+
+
+GameObject allocated with:
+Pos: (-7.276526,0.000000,-4.914852)
+Rotation:  (0.000000,1.514980,0.000000)
+Scale:  (1.157246,1.157246,1.157246)
+AssetID: 157
+ Name: tree5.pfs
+
+
+
+GameObject allocated with:
+Pos: (7.117867,0.000000,-5.317404)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.477156,1.477156,1.477156)
+AssetID: 145
+ Name: tree1.pfs
+
+
+
+GameObject allocated with:
+Pos: (-7.733613,0.000000,9.314947)
+Rotation:  (0.000000,-3.215117,0.000000)
+Scale:  (0.622704,0.622704,0.622704)
+AssetID: 153
+ Name: tree3.pfs
+
+
+
+GameObject allocated with:
+Pos: (0.124435,-0.000000,-9.201344)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.093972,1.449092,1.093972)
+AssetID: 156
+ Name: tree4.pfs
+
+
+
+GameObject allocated with:
+Pos: (-4.584859,-0.000000,2.016833)
+Rotation:  (0.000000,1.556432,0.000000)
+Scale:  (1.891162,1.891162,1.891162)
+AssetID: 145
+ Name: tree1.pfs
+
+
+
+GameObject allocated with:
+Pos: (10.399234,0.000000,-0.940913)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 159
+ Name: tree7.pfs
+
+
+
+GameObject allocated with:
+Pos: (7.790985,-0.000000,2.726250)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.314222,1.492438,1.314222)
+AssetID: 156
+ Name: tree4.pfs
+
+
+
+GameObject allocated with:
+Pos: (8.371134,0.000000,1.405258)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 145
+ Name: tree1.pfs
+
+
+
+GameObject allocated with:
+Pos: (4.276421,0.000000,-2.216286)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.477156,1.477156,1.477156)
+AssetID: 145
+ Name: tree1.pfs
+
+
+
+GameObject allocated with:
+Pos: (8.943938,0.000000,-9.058758)
+Rotation:  (0.000000,1.473785,0.000000)
+Scale:  (0.920293,0.920293,0.920293)
+AssetID: 159
+ Name: tree7.pfs
+
+
+
+GameObject allocated with:
+Pos: (3.091773,-0.000000,1.171608)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 176
+ Name: plant1.pfs
+
+
+
+GameObject allocated with:
+Pos: (8.105188,-0.000000,9.781539)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.093972,1.449092,1.093972)
+AssetID: 156
+ Name: tree4.pfs
+
+
+
+GameObject allocated with:
+Pos: (4.553645,-0.000000,-1.848236)
+Rotation:  (0.000000,1.556432,0.000000)
+Scale:  (1.891162,1.891162,1.891162)
+AssetID: 145
+ Name: tree1.pfs
+
+
+
+GameObject allocated with:
+Pos: (-9.565190,0.000000,9.725622)
+Rotation:  (0.000000,-1.176103,0.000000)
+Scale:  (0.976146,0.976146,0.976146)
+AssetID: 157
+ Name: tree5.pfs
+
+
+
+GameObject allocated with:
+Pos: (3.820260,-0.000000,-11.849134)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 159
+ Name: tree7.pfs
+
+
+
+GameObject allocated with:
+Pos: (1.456794,-0.000000,-2.684093)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 176
+ Name: plant1.pfs
+
+
+
+GameObject allocated with:
+Pos: (-7.476838,-0.000000,-7.447064)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.093972,1.449092,1.093972)
+AssetID: 156
+ Name: tree4.pfs
+
+
+
+GameObject allocated with:
+Pos: (-5.395792,-0.000000,6.263503)
+Rotation:  (0.000000,1.556432,0.000000)
+Scale:  (1.891162,1.891162,1.891162)
+AssetID: 145
+ Name: tree1.pfs
+
+
+
+GameObject allocated with:
+Pos: (1.543567,0.000000,-13.819074)
+Rotation:  (0.000000,-1.176103,0.000000)
+Scale:  (0.976146,0.976146,0.976146)
+AssetID: 157
+ Name: tree5.pfs
+
+
+
+GameObject allocated with:
+Pos: (-2.633631,-0.000000,-2.787635)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 176
+ Name: plant1.pfs
+
+
+
+GameObject allocated with:
+Pos: (-0.677079,0.000000,3.885030)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 176
+ Name: plant1.pfs
+
+
+
+GameObject allocated with:
+Pos: (-4.959617,0.000000,1.256725)
+Rotation:  (0.000000,0.000000,0.000000)
+Scale:  (1.000000,1.000000,1.000000)
+AssetID: 176
+ Name: plant1.pfs
+
+
+
+>>>>>>> development

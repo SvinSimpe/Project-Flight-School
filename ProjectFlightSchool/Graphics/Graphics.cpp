@@ -35,6 +35,8 @@ Graphics::Graphics()
 	mCamera						= nullptr;
 	mDeveloperCamera			= nullptr;
 	mIsDeveloperCameraActive	= false;
+
+	mNumPointLights				= 0;
 }
 
 Graphics::~Graphics()
@@ -83,6 +85,46 @@ HRESULT Graphics::LoadSkeletonAsset( std::string filePath, std::string fileName,
 HRESULT Graphics::LoadAnimationAsset( std::string filePath, std::string fileName, AssetID &assetId )
 {
 	return mAssetManager->LoadAnimationAsset( filePath, fileName, assetId );
+}
+void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
+{
+	mDeviceContext->OMSetDepthStencilState( mDepthDisabledStencilState, 1 );
+
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
+
+	UINT32 vertexSize	= sizeof(StaticVertex);
+	UINT32 offset		= 0;
+
+	DirectX::XMFLOAT3 boxSize = DirectX::XMFLOAT3( max.x - min.x, max.y - min.y, max.z - min.z );
+	DirectX::XMFLOAT3 center  = DirectX::XMFLOAT3( ( min.x + max.x ) / 2, ( min.y + max.y ) / 2, ( min.z + max.z ) / 2 );
+
+	ID3D11Buffer* buffersToSet[] = { ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexBuffer };
+	mDeviceContext->IASetVertexBuffers( 0, 1, &mDebugBoxBuffer, &vertexSize, &offset );
+	mDeviceContext->IASetIndexBuffer( mBoxBufferIndices, DXGI_FORMAT_R32_UINT, 0 );
+
+	//Map CbufferPerObject
+	CbufferPerObject data;
+	DirectX::XMMATRIX scaling		= DirectX::XMMatrixScaling( boxSize.x, boxSize.y, boxSize.z );
+	DirectX::XMMATRIX translation	= DirectX::XMMatrixTranslation( center.x, center.y, center.z );
+
+	data.worldMatrix = DirectX::XMMatrixTranspose( scaling * translation );
+	//data.worldMatrix = DirectX::XMMatrixIdentity();
+
+	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
+
+	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
+
+	mDeviceContext->IASetInputLayout( mDebugShaderEffect->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mDebugShaderEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mDebugShaderEffect->GetPixelShader(), nullptr, 0 );
+
+	//mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexCount, 0 );//, 0, 0 );
+	mDeviceContext->DrawIndexed( 24, 0, 0 );
+	mDeviceContext->OMSetDepthStencilState( mDepthEnabledStencilState, 1 );
 }
 
 void Graphics::Render2dAsset( AssetID assetId, float x, float y, float width, float height )
@@ -456,9 +498,10 @@ void Graphics::ZoomOutDeveloperCamera()
 	mDeveloperCamera->ZoomOut();
 }
 
-void Graphics::MapLightStructuredBuffer( LightStructure* lightStructure )
+void Graphics::MapLightStructuredBuffer( LightStructure* lightStructure, int numPointLights )
 {
 	MapBuffer( mLightBuffer, (void*)lightStructure, sizeof( LightStructure ) );
+	mNumPointLights = numPointLights;
 }
 
 void Graphics::SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY )
@@ -543,6 +586,7 @@ void Graphics::GbufferPass()
 		data.projectionMatrix	= mCamera->GetProjMatrix();
 		data.cameraPosition		= mCamera->GetPos();
 	}
+	data.numPointLights = mNumPointLights;
 	MapBuffer( mCbufferPerFrame, &data, sizeof( CbufferPerFrame ) );
 
 	mDeviceContext->VSSetConstantBuffers( 0, 1, &mCbufferPerFrame );
@@ -604,15 +648,22 @@ void Graphics::EndScene()
 	mSwapChain->Present( 0, 0 );
 }
 
-void Graphics::GetAnimationMatrices( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo& info )
+bool Graphics::GetAnimationMatrices( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo& info )
 {
 	Animated3dAsset*	model		= (Animated3dAsset*)mAssetManager->mAssetContainer[modelAssetId];
 	Skeleton*			skeleton	= &( (SkeletonAsset*)mAssetManager->mAssetContainer[model->mSkeletonId] )->mSkeleton;
 	AnimationData*		animation	= &( (AnimationAsset*)mAssetManager->mAssetContainer[animationAssetId] )->mAnimationData;
 
-	if( animationTime > (float)animation->AnimLength / 60.0f )
+	bool localReturn = false;
+
+	if( animationTime >= (float)animation->AnimLength / 60.0f )
 	{
-		animationTime	-= ( (float)animation->AnimLength / 60.0f - 1.0f / 60.0f );
+		if( playType == ANIMATION_PLAY_LOOPED )
+			animationTime -= ( (float)animation->AnimLength / 60.0f - 1.0f / 60.0f );
+		else if( playType == ANIMATION_PLAY_ONCE )
+			animationTime = ( (float)animation->AnimLength / 60.0f );
+
+		localReturn = true;
 	}
 
 	float calcTime = animationTime * 60.0f;
@@ -674,6 +725,7 @@ void Graphics::GetAnimationMatrices( AssetID modelAssetId, AssetID animationAsse
 	for( int i = 0; i < skeleton->nrOfJoints; i++ )
 		DirectX::XMStoreFloat4x4( &info.mBoneTransforms[i], DirectX::XMMatrixTranspose( DirectX::XMMatrixMultiply( DirectX::XMLoadFloat4x4( &model->mBoneOffsets[i] ), currentBoneTransforms[i] ) ) );
 
+	return localReturn;
 }
 
 UINT Graphics::QueryMemoryUsed()
@@ -986,6 +1038,19 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	if( FAILED( hr = mStaticEffect->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 
+	//DebugEffect
+	mDebugShaderEffect	= new Effect;
+
+	ZeroMemory( &effectInfo, sizeof( EffectInfo ) );
+	effectInfo.filePath					= "../Content/Effects/DebugShaderEffect.hlsl";
+	effectInfo.fileName					= "DebugShaderEffect";
+	effectInfo.vertexType				= STATIC_VERTEX_TYPE;
+	effectInfo.isVertexShaderIncluded	= true;
+	effectInfo.isPixelShaderIncluded	= true;
+
+	if( FAILED( hr = mDebugShaderEffect->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+
 	//Statice instanced effect
 	mStaticInstancedEffect	= new Effect;
 	effectInfo.filePath		= "../Content/Effects/Static3dInstancedEffect.hlsl";
@@ -1115,6 +1180,75 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 		return hr;
 	}
 
+	StaticVertex boxVertices[]		= 
+	{
+		//BackBottomLeft
+		{ -0.5, -0.5, -0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+		//BackBottomRight
+		{  0.5, -0.5, -0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+		//BackTopRight
+		{  0.5,  0.5, -0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+		//BackTopLeft 
+		{ -0.5,  0.5, -0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+		//FrontBottomLeft
+		{ -0.5, -0.5,  0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+		//FrontBottomRight
+		{  0.5, -0.5,  0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+		//FrontTopRight
+		{  0.5,  0.5,  0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+		//FrontTopLeft
+		{ -0.5,  0.5,  0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+	};
+
+	D3D11_BUFFER_DESC debugBoxBuffer;
+	ZeroMemory( &debugBoxBuffer, sizeof(debugBoxBuffer) );
+	debugBoxBuffer.BindFlags		= D3D11_BIND_VERTEX_BUFFER;
+	debugBoxBuffer.ByteWidth		= sizeof(StaticVertex) * 8;
+	debugBoxBuffer.Usage			= D3D11_USAGE_IMMUTABLE;
+	debugBoxBuffer.CPUAccessFlags	= 0;
+
+	subData.pSysMem = boxVertices;
+
+	hr = mDevice->CreateBuffer( &debugBoxBuffer, &subData, &mDebugBoxBuffer );
+	if ( FAILED( hr ) )
+	{
+		//Failed to create vertex buffer
+		return hr;
+	}
+
+	UINT boxIndices[] = 
+	{
+		0, 1,
+		1, 2,
+		2, 3,
+		3, 0,
+
+		4, 5,
+		5, 6,
+		6, 7,
+		7, 4,
+
+		3, 7,
+		2, 6,
+		5, 1,
+		0, 4
+	};
+	D3D11_BUFFER_DESC debugIndexBoxBuffer;
+	ZeroMemory( &debugIndexBoxBuffer, sizeof(debugIndexBoxBuffer) );
+	debugIndexBoxBuffer.BindFlags		= D3D11_BIND_INDEX_BUFFER;
+	debugIndexBoxBuffer.ByteWidth		= sizeof( UINT ) * 24;
+	debugIndexBoxBuffer.Usage			= D3D11_USAGE_IMMUTABLE;
+	debugIndexBoxBuffer.CPUAccessFlags	= 0;
+
+	subData.pSysMem = boxIndices;
+
+	hr = mDevice->CreateBuffer( &debugIndexBoxBuffer, &subData, &mBoxBufferIndices );
+	if ( FAILED( hr ) )
+	{
+		//Failed to create vertex buffer
+		return hr;
+	}
+
 	OutputDebugString( L"----- Graphics Initialization Complete. -----" );
 
 	return hr;
@@ -1137,6 +1271,8 @@ void Graphics::Release()
 	SAFE_RELEASE( mCbufferPerObjectAnimated );
 	SAFE_RELEASE( mCbufferPerInstancedAnimated );
 	SAFE_RELEASE( mBufferPerInstanceObject );
+	SAFE_RELEASE( mDebugBoxBuffer );
+	SAFE_RELEASE( mBoxBufferIndices );
 	SAFE_RELEASE( mLightBuffer );
 	SAFE_RELEASE( mLightStructuredBuffer );
 
@@ -1147,6 +1283,7 @@ void Graphics::Release()
 	SAFE_RELEASE_DELETE( mStaticEffect );
 	SAFE_RELEASE_DELETE( mStaticInstancedEffect );
 	SAFE_RELEASE_DELETE( m2dEffect );
+	SAFE_RELEASE_DELETE( mDebugShaderEffect );
 	SAFE_RELEASE_DELETE( mAnimatedEffect );
 	SAFE_RELEASE_DELETE( mAnimInstancedEffect );
 	SAFE_RELEASE_DELETE( mDeferredPassEffect );

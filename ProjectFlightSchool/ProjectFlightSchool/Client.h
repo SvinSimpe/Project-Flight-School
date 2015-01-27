@@ -120,7 +120,7 @@ void Client::HandlePkg( Package<T>* p )
 		case Net_Event::EV_SYNC_ENEMY:
 		{
 			EvSyncEnemy enemy = (EvSyncEnemy&)p->body.content;
-			IEventPtr E1( new Event_Sync_Enemy( enemy.ID, enemy.model, enemy.animation, enemy.hp, enemy.isAlive, enemy.position, enemy.direction  ) );
+			IEventPtr E1( new Event_Sync_Enemy( enemy.ID, enemy.model, enemy.animation, enemy.position, enemy.direction  ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;

@@ -11,6 +11,8 @@
 class Player: public RemotePlayer
 {
 	private:
+		PointLight*		mPointLight;
+
 		float		mWeaponCoolDown;
 		float		mMeleeCoolDown;
 		bool		mIsMeleeing;

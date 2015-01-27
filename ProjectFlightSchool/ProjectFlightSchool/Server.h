@@ -35,6 +35,8 @@ class Server
 		unsigned int				mNrOfEnemiesSpawned;
 		unsigned int				mFrameCount;
 
+		bool						mEnemyListSynced;
+
 	protected:
 	public:
 
@@ -111,23 +113,19 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 			}
 
 			// Synchronize enemy list to connecting player
+			mEnemyListSynced	= false;
 			EvSyncEnemy enemy;
 			for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 			{
 				enemy.ID			= mEnemies[i]->GetID();
 				enemy.model			= mEnemies[i]->GetModelID();
 				enemy.animation		= mEnemies[i]->GetAnimation();
-				enemy.hp			= mEnemies[i]->GetHP();
-				enemy.isAlive		= mEnemies[i]->IsAlive();
 				enemy.position		= mEnemies[i]->GetPosition();
 				enemy.direction		= mEnemies[i]->GetDirection();
 
 				mConn->SendPkg( s.s, 0, Net_Event::EV_SYNC_ENEMY, enemy );
 				Sleep( 10 );
 			}
-			
-			// List synchronized
-			//mConn->SendPkg( s.s, 0, Net_Event::EV_ENEMY_LIST_SYNCED, 0 );
 
 			// Synchronize enemy spawner list to connecting player
 			EvSyncSapwn spawn;
@@ -138,6 +136,8 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 				mConn->SendPkg( s.s, 0, Net_Event::EV_SYNC_SPAWN, spawn );
 				Sleep( 10 );
 			}
+
+			mEnemyListSynced	= true;
 		}
 			break;
 		case Net_Event::EV_PLAYER_DIED:

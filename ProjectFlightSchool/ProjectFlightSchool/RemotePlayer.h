@@ -62,7 +62,7 @@ class RemotePlayer
 		LowerBody		mLowerBody;
 		AssetID			mRightArm;
 		AssetID			mLeftArm;
-		AssetID			mAnimations[PLAYER_ANIMATION_COUNT];	
+		AssetID			mAnimations[PLAYER_ANIMATION_COUNT];
 
 		BoundingBox*	mBoundingBox;
 		BoundingCircle*	mBoundingCircle;

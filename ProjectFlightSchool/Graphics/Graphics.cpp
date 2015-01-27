@@ -5,7 +5,6 @@ Graphics::Graphics()
 	mHWnd			= 0;
 	mScreenWidth	= 0;
 	mScreenHeight	= 0;	
-	mVertexBuffer2d = nullptr;
 
 	mSwapChain		= nullptr;
 	mDevice			= nullptr;
@@ -15,26 +14,20 @@ Graphics::Graphics()
 	mDepthStencilView				= nullptr;
 	mDepthDisabledStencilState		= nullptr;
 	mDepthEnabledStencilState		= nullptr;
-	mCbufferPerFrame				= nullptr;
-	mCbufferPerObject				= nullptr;
-	mCbufferPerObjectAnimated		= nullptr;
-	mCbufferPerInstancedAnimated	= nullptr;
-	mBufferPerInstanceObject		= nullptr;
-	mLightBuffer					= nullptr;
 	mLightStructuredBuffer			= nullptr;
 	mPointSamplerState				= nullptr;
 	mLinearSamplerState				= nullptr;
 
 	mAssetManager				= nullptr;
-	mStaticEffect				= nullptr;
-	mStaticInstancedEffect		= nullptr;
-	m2dEffect					= nullptr;
-	mAnimatedEffect				= nullptr;
-	mAnimInstancedEffect		= nullptr;
-	mDeferredPassEffect			= nullptr;
 	mCamera						= nullptr;
 	mDeveloperCamera			= nullptr;
 	mIsDeveloperCameraActive	= false;
+
+	for( int i = 0; i < BUFFERS_AMOUNT; i++ )
+		mBuffers[i] = nullptr;
+
+	for( int i = 0; i < EFFECTS_AMOUNT; i++ )
+		mEffects[i] = nullptr;
 }
 
 Graphics::~Graphics()
@@ -101,8 +94,8 @@ void Graphics::Render2dAsset( AssetID assetId, float x, float y, float width, fl
 	StaticVertex topright		= { right, top, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	1.0f, 0.0f };
 
 	StaticVertex vertices[4] = { bottomleft, topleft, bottomright, topright };
-	MapBuffer( mVertexBuffer2d, &vertices, sizeof(StaticVertex) * 4 );
-	mDeviceContext->IASetVertexBuffers( 0, 1, &mVertexBuffer2d, &vertexSize, &offset );
+	MapBuffer( mBuffers[BUFFERS_2D], &vertices, sizeof(StaticVertex) * 4 );
+	mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_2D], &vertexSize, &offset );
 
 	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[assetId] )->mSRV );
 	mDeviceContext->Draw( 4, 0 );
@@ -121,23 +114,23 @@ void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX
 	StaticVertex topright		= { y.x, x.y, x.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	1.0f, 0.0f };
 
 	StaticVertex vertices[4]	= { bottomleft, topleft, bottomright, topright };
-	MapBuffer( mVertexBuffer2d, &vertices, sizeof(StaticVertex) * 4 );
-	mDeviceContext->IASetVertexBuffers( 0, 1, &mVertexBuffer2d, &vertexSize, &offset );
+	MapBuffer( mBuffers[BUFFERS_2D], &vertices, sizeof(StaticVertex) * 4 );
+	mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_2D], &vertexSize, &offset );
 
-	mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
+	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_STATIC_VERTEX]->GetInputLayout() );
 
-	mDeviceContext->VSSetShader( mStaticEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->VSSetShader( mEffects[EFFECTS_STATIC_VERTEX]->GetVertexShader(), nullptr, 0 );
 	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->PSSetShader( mStaticEffect->GetPixelShader(), nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffects[EFFECTS_STATIC_VERTEX]->GetPixelShader(), nullptr, 0 );
 
 	//Map CbufferPerObject
 	CbufferPerObject data;
 	data.worldMatrix = DirectX::XMMatrixIdentity();
-	MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
+	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT], &data, sizeof( CbufferPerObject ) );
 
-	mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
+	mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] );
 
 	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[assetId] )->mSRV );
 	mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
@@ -228,18 +221,19 @@ void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 	//////////////////////////////////////////////////////////////////
 	//						RENDER CALL
 	//////////////////////////////////////////////////////////////////
-	
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 	
 	UINT32 vertexSize[2]			= { sizeof( StaticVertex ), sizeof( StaticInstance ) };
 	UINT32 offset[2]				= { 0, 0 };
-	mDeviceContext->IASetInputLayout( mStaticInstancedEffect->GetInputLayout() );
+	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_STATIC_INSTANCED]->GetInputLayout() );
 
-	mDeviceContext->VSSetShader( mStaticInstancedEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->VSSetShader( mEffects[EFFECTS_STATIC_INSTANCED]->GetVertexShader(), nullptr, 0 );
 	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->PSSetShader( mStaticInstancedEffect->GetPixelShader(), nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffects[EFFECTS_STATIC_INSTANCED]->GetPixelShader(), nullptr, 0 );
+
+	
 	
 	UINT objectToRender = 0;
 	UINT currAssetID = (UINT)-1;
@@ -293,8 +287,8 @@ void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 
 				mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
 
-				MapBuffer( mBufferPerInstanceObject, mStatic3dInstanced, ( sizeof( StaticInstance ) * objectToRender ) );
-				ID3D11Buffer* buffersToSet[2] = { model->mMeshes[i].mVertexBuffer, mBufferPerInstanceObject };
+				MapBuffer( mBuffers[BUFFERS_STATIC3D_PER_INSTANCED_OBJECT], mStatic3dInstanced, ( sizeof( StaticInstance ) * objectToRender ) );
+				ID3D11Buffer* buffersToSet[2] = { model->mMeshes[i].mVertexBuffer, mBuffers[BUFFERS_STATIC3D_PER_INSTANCED_OBJECT] };
 				mDeviceContext->IASetVertexBuffers( 0, 2, buffersToSet, vertexSize, offset );
 
 				mDeviceContext->DrawInstanced( model->mMeshes[i].mVertexCount, objectToRender, 0, 0 );
@@ -310,13 +304,13 @@ void Graphics::RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList )
 	UINT32 vertexSize[2]	= { sizeof( AnimatedVertex ), sizeof( AnimatedInstance ) };
 	UINT32 offset[2]		= { 0, 0 };
 	
-	mDeviceContext->IASetInputLayout( mAnimInstancedEffect->GetInputLayout() );
+	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_ANIMATED_INSTANCED]->GetInputLayout() );
 
-	mDeviceContext->VSSetShader( mAnimInstancedEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->VSSetShader( mEffects[EFFECTS_ANIMATED_INSTANCED]->GetVertexShader(), nullptr, 0 );
 	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->PSSetShader( mAnimInstancedEffect->GetPixelShader(), nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffects[EFFECTS_ANIMATED_INSTANCED]->GetPixelShader(), nullptr, 0 );
 
 
 	UINT objectToRender = 0;
@@ -369,13 +363,86 @@ void Graphics::RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList )
 														};
 
 			mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
-			MapBuffer( mCbufferPerInstancedAnimated, mAnimCbufferInstanced, ( sizeof( CbufferPerObjectAnimated ) * objectToRender ) );
-			MapBuffer( mBufferPerInstanceObject, mAnimInstanced, ( sizeof( AnimatedInstance ) * objectToRender ) );
-			ID3D11Buffer* buffersToSet[2] = { model->mVertexBuffer, mBufferPerInstanceObject };
+			MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_INSTANCED_ANIMATED], mAnimCbufferInstanced, ( sizeof( CbufferPerObjectAnimated ) * objectToRender ) );
+			MapBuffer( mBuffers[BUFFERS_STATIC3D_PER_INSTANCED_OBJECT], mAnimInstanced, ( sizeof( AnimatedInstance ) * objectToRender ) );
+			ID3D11Buffer* buffersToSet[2] = { model->mVertexBuffer, mBuffers[BUFFERS_STATIC3D_PER_INSTANCED_OBJECT] };
 
 			mDeviceContext->IASetVertexBuffers( 0, 2, buffersToSet, vertexSize, offset );
-			mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerInstancedAnimated );
+			mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_INSTANCED_ANIMATED] );
 			mDeviceContext->DrawInstanced( model->mVertexCount, objectToRender, 0, 0 );
+		}
+		else break;
+	}
+}
+
+void Graphics::RenderBillboard( BillboardInfo* info, UINT sizeOfList )
+{
+	//////////////////////////////////////////////////////////////////
+	//						RENDER CALL
+	//////////////////////////////////////////////////////////////////
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_POINTLIST );
+	
+	UINT32 vertexSize[2]			= { sizeof( Vertex12 ), sizeof( BillboardInstanced ) };
+	UINT32 offset[2]				= { 0, 0 };
+	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_BILLBOARD]->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mEffects[EFFECTS_BILLBOARD]->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( mEffects[EFFECTS_BILLBOARD]->GetGeometryShader(), nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffects[EFFECTS_BILLBOARD]->GetPixelShader(), nullptr, 0 );
+
+	mDeviceContext->GSSetConstantBuffers( 0, 1, &mBuffers[BUFFERS_CBUFFER_PER_FRAME] );
+
+	UINT objectToRender = 0;
+	UINT currAssetID = (UINT)-1;
+	UINT strider = 0;
+
+	while( true )
+	{
+		objectToRender = 0;
+		currAssetID = (UINT)-1;
+		for( UINT i = strider; i < sizeOfList; i++ )
+		{
+			if( info[i].mAssetId != (UINT)-1 )
+			{
+				if( currAssetID == (UINT)-1 )
+				{
+					currAssetID = info[i].mAssetId;
+					strider		= i;
+				}
+
+				if( currAssetID == info[i].mAssetId )
+				{
+					mBillboardInstanced[objectToRender].position[0] = info[i].mWorldPosition.x;
+					mBillboardInstanced[objectToRender].position[1] = info[i].mWorldPosition.y;
+					mBillboardInstanced[objectToRender].position[2] = info[i].mWorldPosition.z;
+					mBillboardInstanced[objectToRender].width		= info[i].mWidth;
+					mBillboardInstanced[objectToRender].height		= info[i].mHeight;
+					info[i].mAssetId = (UINT)-1;
+					objectToRender++;
+
+					if( objectToRender == MAX_BILLBOARD_BATCH )
+					{
+						break;
+					}
+				}
+			}
+		}
+		
+		if( objectToRender > 0 )
+		{
+			//////////////////////////////////////////////////////////////////
+			//						RENDER CALL
+			//////////////////////////////////////////////////////////////////
+			ID3D11ShaderResourceView* texturesToSet[] = { ( (Static2dAsset*)mAssetManager->mAssetContainer[currAssetID] )->mSRV };
+
+			mDeviceContext->PSSetShaderResources( 0, 1, texturesToSet );
+
+			MapBuffer( mBuffers[BUFFERS_BILLBOARD], mBillboardInstanced, ( sizeof( BillboardInstanced ) * objectToRender ) );
+			ID3D11Buffer* buffersToSet[2] = { mBuffers[BUFFERS_SINGLE_VERTEX], mBuffers[BUFFERS_BILLBOARD] };
+			mDeviceContext->IASetVertexBuffers( 0, 2, buffersToSet, vertexSize, offset );
+			mDeviceContext->DrawInstanced( 1, objectToRender, 0, 0 );
 		}
 		else break;
 	}
@@ -458,7 +525,7 @@ void Graphics::ZoomOutDeveloperCamera()
 
 void Graphics::MapLightStructuredBuffer( LightStructure* lightStructure )
 {
-	MapBuffer( mLightBuffer, (void*)lightStructure, sizeof( LightStructure ) );
+	MapBuffer( mBuffers[BUFFERS_LIGHT], (void*)lightStructure, sizeof( LightStructure ) );
 }
 
 void Graphics::SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY )
@@ -543,9 +610,9 @@ void Graphics::GbufferPass()
 		data.projectionMatrix	= mCamera->GetProjMatrix();
 		data.cameraPosition		= mCamera->GetPos();
 	}
-	MapBuffer( mCbufferPerFrame, &data, sizeof( CbufferPerFrame ) );
+	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_FRAME], &data, sizeof( CbufferPerFrame ) );
 
-	mDeviceContext->VSSetConstantBuffers( 0, 1, &mCbufferPerFrame );
+	mDeviceContext->VSSetConstantBuffers( 0, 1, &mBuffers[BUFFERS_CBUFFER_PER_FRAME] );
 	mDeviceContext->PSSetSamplers( 0, 1, &mPointSamplerState );
 	mDeviceContext->PSSetSamplers( 1, 1, &mLinearSamplerState );
 }
@@ -568,16 +635,16 @@ void Graphics::DeferredPass()
 
 	mDeviceContext->PSSetShaderResources( 5, 1, &mLightStructuredBuffer );
 
-	mDeviceContext->VSSetShader( mDeferredPassEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->VSSetShader( mEffects[EFFECTS_DEFERRED]->GetVertexShader(), nullptr, 0 );
 	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->PSSetShader( mDeferredPassEffect->GetPixelShader(), nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffects[EFFECTS_DEFERRED]->GetPixelShader(), nullptr, 0 );
 
 	mDeviceContext->PSSetSamplers( 0, 1, &mPointSamplerState );
 	mDeviceContext->PSSetSamplers( 1, 1, &mLinearSamplerState );
 
-	mDeviceContext->PSSetConstantBuffers( 0, 1, &mCbufferPerFrame );
+	mDeviceContext->PSSetConstantBuffers( 0, 1, &mBuffers[BUFFERS_CBUFFER_PER_FRAME] );
 
 	mDeviceContext->Draw( 4, 0 );
 }
@@ -589,13 +656,13 @@ void Graphics::ScreenSpacePass()
 	static float blend[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	mDeviceContext->OMSetBlendState( mBlendState[BLEND_2D], blend, 0xffffffff );
 
-	mDeviceContext->IASetInputLayout( m2dEffect->GetInputLayout() );
+	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_2D]->GetInputLayout() );
 
-	mDeviceContext->VSSetShader( m2dEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->VSSetShader( mEffects[EFFECTS_2D]->GetVertexShader(), nullptr, 0 );
 	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->PSSetShader( m2dEffect->GetPixelShader(), nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffects[EFFECTS_2D]->GetPixelShader(), nullptr, 0 );
 }
 
 //Finalize rendering.
@@ -910,7 +977,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	bufferDesc.CPUAccessFlags	= D3D11_CPU_ACCESS_WRITE;
 	bufferDesc.Usage			= D3D11_USAGE_DYNAMIC;
 
-	if( FAILED( hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mCbufferPerFrame ) ) )
+	if( FAILED( hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mBuffers[BUFFERS_CBUFFER_PER_FRAME] ) ) )
 		return hr;
 
 	///////////////////////////////
@@ -918,15 +985,15 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	///////////////////////////////
 	bufferDesc.ByteWidth = sizeof( CbufferPerObject );
 
-	if( FAILED( hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mCbufferPerObject ) ) )
+	if( FAILED( hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] ) ) )
 		return hr;
 
 	///////////////////////////////////////
 	// CREATE CBUFFERPEROBJECTANIMATED
 	///////////////////////////////////////
-	bufferDesc.ByteWidth				= sizeof( CbufferPerObjectAnimated );
+	bufferDesc.ByteWidth = sizeof( CbufferPerObjectAnimated );
 
-	hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mCbufferPerObjectAnimated );
+	hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT_ANIMATED] );
 
 	//InstancedAnimatedData cbuffer 
 	D3D11_BUFFER_DESC bufferInstancedDesc;
@@ -938,7 +1005,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	bufferInstancedDesc.MiscFlags			= 0;
 	bufferInstancedDesc.StructureByteStride	= 0;
 
-	if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, nullptr, &mCbufferPerInstancedAnimated ) ) )
+	if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, nullptr, &mBuffers[BUFFERS_CBUFFER_PER_INSTANCED_ANIMATED] ) ) )
 		return hr;
 
 	//InstancedObject buffer
@@ -949,7 +1016,31 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	bufferInstancedDesc.MiscFlags			= 0;
 	bufferInstancedDesc.StructureByteStride	= 0;
 	
-	if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, nullptr, &mBufferPerInstanceObject ) ) )
+	if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, nullptr, &mBuffers[BUFFERS_STATIC3D_PER_INSTANCED_OBJECT] ) ) )
+		return hr;
+
+	//Billboard buffer instanced
+	bufferInstancedDesc.ByteWidth = sizeof( Vertex12 ) * MAX_BILLBOARD_BATCH;
+
+	if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, nullptr, &mBuffers[BUFFERS_BILLBOARD] ) ) )
+		return hr;
+	//Single vertex buffer used for billboarding
+	bufferInstancedDesc.BindFlags			= D3D11_BIND_VERTEX_BUFFER;
+	bufferInstancedDesc.CPUAccessFlags		= 0;
+	bufferInstancedDesc.Usage				= D3D11_USAGE_DEFAULT;
+	bufferInstancedDesc.MiscFlags			= 0;
+	bufferInstancedDesc.StructureByteStride	= 0;
+	bufferInstancedDesc.ByteWidth			= sizeof( Vertex12 );
+
+	Vertex12 gv;
+	gv.position[0] = 0.0f;
+	gv.position[1] = 0.0f;
+	gv.position[2] = 0.0f;
+
+	D3D11_SUBRESOURCE_DATA test;
+	test.pSysMem = &gv;
+
+	if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, &test, &mBuffers[BUFFERS_SINGLE_VERTEX] ) ) )
 		return hr;
 
 	//Light buffer for structured buffer
@@ -962,18 +1053,61 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	lightBufferDesc.ByteWidth			= sizeof( LightStructure );
 	lightBufferDesc.StructureByteStride	= sizeof( PointLight );
 
-	if( FAILED( hr = mDevice->CreateBuffer( &lightBufferDesc, nullptr, &mLightBuffer ) ) )
+	if( FAILED( hr = mDevice->CreateBuffer( &lightBufferDesc, nullptr, &mBuffers[BUFFERS_LIGHT] ) ) )
 		return hr;
 
-	if( FAILED( hr = mDevice->CreateShaderResourceView( mLightBuffer, nullptr, &mLightStructuredBuffer ) ) )
+	if( FAILED( hr = mDevice->CreateShaderResourceView( mBuffers[BUFFERS_LIGHT], nullptr, &mLightStructuredBuffer ) ) )
 		return hr;
+
+	/////////////////////////
+	// INITIATE VERTEXBUFFER FOR 2D
+	/////////////////////////
+	float position[3]	= { 1.0f, 1.0f, 0.0f };
+	float normal[3]		= { 0.0f, 0.0f, 0.0f };
+	float tangent[3]	= { 0.0f, 0.0f, 0.0f };
+	float uv[2]			= { 1.0f, 1.0f };
+
+	StaticVertex vert[4];
+
+	for ( int k = 0; k < 4; k++ )
+	{
+		for ( int i = 0; i < 3; i++ )
+		{
+			vert[k].position[i] = position[i];
+			vert[k].normal[i]	= normal[i];
+			vert[k].tangent[i]	= tangent[i];
+		}
+		for ( int i = 0; i < 2; i++ )
+		{
+			vert[k].uv[i] = uv[i];
+		}
+	}
+
+	StaticVertex vertices[4] = { vert[0], vert[1], vert[2], vert[3] }; //Kanske måste fyllas med data
+	D3D11_BUFFER_DESC bufferDesc2d;
+	ZeroMemory( &bufferDesc2d, sizeof(bufferDesc2d) );
+	bufferDesc2d.BindFlags		= D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc2d.ByteWidth		= sizeof(StaticVertex) * 4;
+	bufferDesc2d.Usage			= D3D11_USAGE_DYNAMIC;
+	bufferDesc2d.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+	D3D11_SUBRESOURCE_DATA subData;
+	subData.pSysMem = vertices;
+
+	hr = mDevice->CreateBuffer( &bufferDesc2d, &subData, &mBuffers[BUFFERS_2D] );
+	if ( FAILED( hr ) )
+	{
+		//Failed to create vertex buffer
+		return hr;
+	}
 
 	//AssetManager
 	mAssetManager = new AssetManager;
 	mAssetManager->Initialize( mDevice, mDeviceContext );
 
 	//Effect
-	mStaticEffect	= new Effect;
+	for( int i = 0; i < EFFECTS_AMOUNT; i++ )
+		mEffects[i] = new Effect;
 
 	EffectInfo effectInfo;
 	ZeroMemory( &effectInfo, sizeof( EffectInfo ) );
@@ -983,53 +1117,65 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	effectInfo.isVertexShaderIncluded	= true;
 	effectInfo.isPixelShaderIncluded	= true;
 
-	if( FAILED( hr = mStaticEffect->Intialize( mDevice, &effectInfo ) ) )
+	if( FAILED( hr = mEffects[EFFECTS_STATIC_VERTEX]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 
-	//Statice instanced effect
-	mStaticInstancedEffect	= new Effect;
+	//Static instanced effect
 	effectInfo.filePath		= "../Content/Effects/Static3dInstancedEffect.hlsl";
 	effectInfo.fileName		= "Static3dInstancedEffect";
 	effectInfo.vertexType	= STATIC_INSTANCED_VERTEX_TYPE;
 
-	if( FAILED( hr = mStaticInstancedEffect->Intialize( mDevice, &effectInfo ) ) )
+	if( FAILED( hr = mEffects[EFFECTS_STATIC_INSTANCED]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 	//--------------------------
 
-	m2dEffect				= new Effect;
+	//2d effect
 	effectInfo.filePath		= "../Content/Effects/2dEffect.hlsl";
 	effectInfo.fileName		= "2dEffect";
 	effectInfo.vertexType	= STATIC_VERTEX_TYPE;
 
-	if( FAILED( hr = m2dEffect->Intialize( mDevice, &effectInfo ) ) )
+	if( FAILED( hr = mEffects[EFFECTS_2D]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
+	//--------------------------
 
-
-	mAnimatedEffect			= new Effect;
+	//Animated effect
+	
 	effectInfo.filePath		= "../Content/Effects/Animated3dEffect.hlsl";
 	effectInfo.fileName		= "Animated3dEffect";
 	effectInfo.vertexType	= ANIMATED_VERTEX_TYPE;
 
-	if( FAILED( hr = mAnimatedEffect->Intialize( mDevice, &effectInfo ) ) )
+	if( FAILED( hr = mEffects[EFFECTS_ANIMATED]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
+	//--------------------------
 
 	//Animated instanced effect
-	mAnimInstancedEffect	= new Effect;
 	effectInfo.filePath		= "../Content/Effects/AnimatedInstanced3dEffect.hlsl";
 	effectInfo.fileName		= "AnimatedInstanced3dEffect";
 	effectInfo.vertexType	= ANIMATED_VERTEX_INSTANCED_TYPE;
 
-	if( FAILED( hr = mAnimInstancedEffect->Intialize( mDevice, &effectInfo ) ) )
+	if( FAILED( hr = mEffects[EFFECTS_ANIMATED_INSTANCED]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 
 	//--------------------------
-	mDeferredPassEffect = new Effect;
+	
+	//Deferred effect
 	effectInfo.filePath		= "../Content/Effects/DeferredPassEffect.hlsl";
 	effectInfo.fileName		= "DeferredPassEffect";
 	effectInfo.vertexType	= STATIC_VERTEX_TYPE;
 
-	if( FAILED( hr = mDeferredPassEffect->Intialize( mDevice, &effectInfo ) ) )
+	if( FAILED( hr = mEffects[EFFECTS_DEFERRED]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
+	//--------------------------
+
+	//Billboard effect
+	effectInfo.filePath					= "../Content/Effects/BillboardEffect.hlsl";
+	effectInfo.fileName					= "BillboardEffect";
+	effectInfo.vertexType				= BILLBOARD_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_BILLBOARD]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
 
 	//Gbuffers
 	for( int i = 0; i < NUM_GBUFFERS; i++ )
@@ -1071,50 +1217,6 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	hr = mDeveloperCamera->Initialize( &developerCameraInfo );
 
-
-	/////////////////////////
-	// INITIATE VERTEXBUFFER FOR 2D
-	/////////////////////////
-	float position[3]	= { 1.0f, 1.0f, 0.0f };
-	float normal[3]		= { 0.0f, 0.0f, 0.0f };
-	float tangent[3]	= { 0.0f, 0.0f, 0.0f };
-	float uv[2]			= { 1.0f, 1.0f };
-
-	StaticVertex vert[4];
-
-	for ( int k = 0; k < 4; k++ )
-	{
-		for ( int i = 0; i < 3; i++ )
-		{
-			vert[k].position[i] = position[i];
-			vert[k].normal[i]	= normal[i];
-			vert[k].tangent[i]	= tangent[i];
-		}
-		for ( int i = 0; i < 2; i++ )
-		{
-			vert[k].uv[i] = uv[i];
-		}
-	}
-
-
-	StaticVertex vertices[4] = { vert[0], vert[1], vert[2], vert[3] }; //Kanske måste fyllas med data
-	D3D11_BUFFER_DESC bufferDesc2d;
-	ZeroMemory( &bufferDesc2d, sizeof(bufferDesc2d) );
-	bufferDesc2d.BindFlags		= D3D11_BIND_VERTEX_BUFFER;
-	bufferDesc2d.ByteWidth		= sizeof(StaticVertex) * 4;
-	bufferDesc2d.Usage			= D3D11_USAGE_DYNAMIC;
-	bufferDesc2d.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-	D3D11_SUBRESOURCE_DATA subData;
-	subData.pSysMem = vertices;
-
-	hr = mDevice->CreateBuffer( &bufferDesc2d, &subData, &mVertexBuffer2d );
-	if ( FAILED( hr ) )
-	{
-		//Failed to create vertex buffer
-		return hr;
-	}
-
 	OutputDebugString( L"----- Graphics Initialization Complete. -----" );
 
 	return hr;
@@ -1123,7 +1225,6 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 //Release all the stuff.
 void Graphics::Release()
 {
-	SAFE_RELEASE( mVertexBuffer2d );
 	SAFE_RELEASE( mSwapChain );
 	SAFE_RELEASE( mDevice );
 	SAFE_RELEASE( mDeviceContext );
@@ -1132,31 +1233,28 @@ void Graphics::Release()
 	SAFE_RELEASE( mDepthStencilView );
 	SAFE_RELEASE( mDepthDisabledStencilState );
 	SAFE_RELEASE( mDepthEnabledStencilState );
-	SAFE_RELEASE( mCbufferPerFrame );
-	SAFE_RELEASE( mCbufferPerObject );
-	SAFE_RELEASE( mCbufferPerObjectAnimated );
-	SAFE_RELEASE( mCbufferPerInstancedAnimated );
-	SAFE_RELEASE( mBufferPerInstanceObject );
-	SAFE_RELEASE( mLightBuffer );
 	SAFE_RELEASE( mLightStructuredBuffer );
 
 	SAFE_RELEASE( mPointSamplerState );
 	SAFE_RELEASE( mLinearSamplerState );
 
 	SAFE_RELEASE_DELETE( mAssetManager );
-	SAFE_RELEASE_DELETE( mStaticEffect );
-	SAFE_RELEASE_DELETE( mStaticInstancedEffect );
-	SAFE_RELEASE_DELETE( m2dEffect );
-	SAFE_RELEASE_DELETE( mAnimatedEffect );
-	SAFE_RELEASE_DELETE( mAnimInstancedEffect );
-	SAFE_RELEASE_DELETE( mDeferredPassEffect );
 	SAFE_RELEASE_DELETE( mCamera );
 	SAFE_RELEASE_DELETE( mDeveloperCamera );
 
+	for( int i = 0; i < BUFFERS_AMOUNT; i++ )
+	{
+		SAFE_RELEASE( mBuffers[i] );
+	}
+
+	for( int i = 0; i < EFFECTS_AMOUNT; i++ )
+	{
+		SAFE_RELEASE_DELETE( mEffects[i] );
+	}
+
 	for( int i = 0; i < NUM_GBUFFERS; i++ )
 	{
-		mGbuffers[i]->Release();
-		SAFE_DELETE( mGbuffers[i] );
+		SAFE_RELEASE_DELETE( mGbuffers[i] );
 	}
 
 	for( int i = 0; i < BLEND_STATES_AMOUNT; i++ )

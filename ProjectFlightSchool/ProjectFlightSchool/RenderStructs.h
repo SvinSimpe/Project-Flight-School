@@ -29,6 +29,14 @@ struct Object2dInfo
 
 };
 
+struct BillboardInfo
+{
+	UINT				mAssetId;
+	DirectX::XMFLOAT3	mWorldPosition;
+	float				mWidth;
+	float				mHeight;
+};
+
 struct PlaneInfo
 {
 	UINT				mAssetId;

@@ -11,6 +11,7 @@ class RenderManager
 		Object2dInfo	mObject2dArray[MAX_AMOUNT_OF_OBJECT2D];
 		Anim3dInfo		mAnim3dArray[MAX_AMOUNT_OF_ANIM3D];
 		PlaneInfo		mPlaneArray[MAX_AMOUNT_OF_PLANES];
+		BillboardInfo	mBillboardArray[MAX_AMOUNT_OF_OBJECT2D];
 
 		LightManager*	mLightManager;
 
@@ -20,6 +21,7 @@ class RenderManager
 		UINT mNrOfAnim3d;
 		UINT mNrOfObject2d;
 		UINT mNrOfPlane;
+		UINT mNrOfBillboard;
 
 	private:
 		void SetLightStructuredBuffer();
@@ -33,6 +35,7 @@ class RenderManager
 		void AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLeftCorner, DirectX::XMFLOAT2 widthHeight );
 		void AddAnim3dToList( AssetID modelAssetId, AssetID animationAssetId, float* animationTime, DirectX::XMFLOAT3 position = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), DirectX::XMFLOAT3 rotation = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 		void AddPlaneToList( AssetID assetId, DirectX::XMFLOAT3 topTriangle, DirectX::XMFLOAT3 bottomTriangle );
+		void AddBillboardToList( AssetID assetId, DirectX::XMFLOAT3 worldPosition, float width, float height );
 		HRESULT Update( float deltaTime );	//Currently clearing the arrays to standard values and reseting number of active objects variable for them in update
 		HRESULT Render();	
 		HRESULT Initialize();

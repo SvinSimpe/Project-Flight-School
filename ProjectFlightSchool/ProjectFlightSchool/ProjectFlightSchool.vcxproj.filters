@@ -162,27 +162,24 @@
     <ClCompile Include="InputSquare.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="Enemy.cpp">
- 	<Filter>Source Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="Button.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="Turret.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="Ship.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="LightManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-
+    <ClCompile Include="EnemySpawn.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
@@ -305,10 +302,8 @@
     <ClInclude Include="InputSquare.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-
-
     <ClInclude Include="Enemy.h">
-	<Filter>Header Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Button.h">
       <Filter>Header Files</Filter>
@@ -320,6 +315,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LightManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemySpawn.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

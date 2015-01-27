@@ -956,3 +956,73 @@ class Event_Remote_Player_Melee_Hit : public IEvent
 			return mDirection;
 		}
 };
+
+class Event_Sync_Spawn : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		XMFLOAT3		mPosition;
+	protected:
+	public:
+		static const EventType GUID;
+		// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Sync_Spawn( unsigned int id, XMFLOAT3 position )
+		{
+			mID		  = id;
+			mPosition = position;
+		}
+
+		unsigned int ID() const
+		{
+			return mID;
+		}
+
+		XMFLOAT3 Position() const
+		{
+			return mPosition;
+		}
+
+};
+
+class Event_Update_Enemy_Position : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		XMFLOAT3		mPosition;
+	protected:
+	public:
+		static const EventType GUID;
+		// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Update_Enemy_Position( unsigned int id, XMFLOAT3 position )
+		{
+			mID		  = id;
+			mPosition = position;
+		}
+
+		unsigned int ID() const
+		{
+			return mID;
+		}
+
+		XMFLOAT3 Position() const
+		{
+			return mPosition;
+		}
+
+};

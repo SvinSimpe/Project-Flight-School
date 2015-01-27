@@ -89,6 +89,7 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="EnemySpawn.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="..\Graphics\Font.cpp" />
     <ClCompile Include="BaseMenuState.cpp" />
@@ -130,6 +131,7 @@
     <ClInclude Include="BaseState.h" />
     <ClInclude Include="BoundingGeometry.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EnemySpawn.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="CreateMenuState.h" />
     <ClInclude Include="Entry.h" />

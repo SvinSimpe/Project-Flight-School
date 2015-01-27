@@ -6,6 +6,7 @@
 #include "Enemy.h"
 #include <stdlib.h>
 #include <time.h>
+#include "EnemySpawn.h"
 
 struct Clientinfo
 {
@@ -30,6 +31,9 @@ class Server
 		// Enemies
 		bool						mInGame;
 		Enemy**						mEnemies;
+		EnemySpawn**				mSpawners;
+		unsigned int				mNrOfEnemiesSpawned;
+		unsigned int				mFrameCount;
 
 	protected:
 	public:
@@ -47,6 +51,7 @@ class Server
 		bool			AcceptConnection();
 		bool			ReceiveLoop( int index );
 		void			DisconnectClient( SOCKET s );
+		XMFLOAT3		SpawnEnemy();
 
 	protected:
 	public:
@@ -123,6 +128,16 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 			
 			// List synchronized
 			//mConn->SendPkg( s.s, 0, Net_Event::EV_ENEMY_LIST_SYNCED, 0 );
+
+			// Synchronize enemy spawner list to connecting player
+			EvSyncSapwn spawn;
+			for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+			{
+				spawn.ID			= mSpawners[i]->GetID();
+				spawn.position		= mSpawners[i]->GetPosition();
+				mConn->SendPkg( s.s, 0, Net_Event::EV_SYNC_SPAWN, spawn );
+				Sleep( 10 );
+			}
 		}
 			break;
 		case Net_Event::EV_PLAYER_DIED:

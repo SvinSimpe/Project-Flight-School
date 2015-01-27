@@ -13,7 +13,10 @@ void Enemy::RemoteUpdate( IEventPtr newEvent )
 HRESULT Enemy::Update( float deltaTime )
 {
 	mAnimationTime += deltaTime;
-	//mPosition.x += mVelocity;
+	mPosition.x += mVelocity;
+	if( mPosition.x >= 50 )
+		Die();
+
 	return S_OK;
 }
 
@@ -126,7 +129,8 @@ HRESULT Enemy::Initialize( int id )
 	mMaxHp			= 100.0f;
 	mCurrentHp		= mMaxHp;
 	mAnimationTime	= 1.0f;
-	mVelocity		= 0.02;
+	mVelocity		= 0.15;
+	mIsAlive		= false;
 
 	return S_OK;
 }

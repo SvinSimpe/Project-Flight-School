@@ -70,4 +70,16 @@ struct EvMeleeHit
 	DirectX::XMFLOAT3		direction;
 };
 
+struct EvSyncSapwn
+{
+	unsigned int		ID;
+	DirectX::XMFLOAT3	position;
+};
+
+struct EvUpdateEnemyPosition
+{
+	unsigned int		ID;
+	DirectX::XMFLOAT3	position;
+};
+
 #endif

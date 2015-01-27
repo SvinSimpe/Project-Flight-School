@@ -127,6 +127,11 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Sync_Enemy> data = std::static_pointer_cast<Event_Sync_Enemy>( newEvent );
 		SyncEnemy( data->ID(), data->Model(), data->Animation(), data->HP(), data->IsAlive(), data->Position(), data->Direction() );
 	}
+	else if ( newEvent->GetEventType() == Event_Update_Enemy_Position::GUID )
+	{
+		std::shared_ptr<Event_Update_Enemy_Position> data = std::static_pointer_cast<Event_Update_Enemy_Position>( newEvent );
+		UpdateEnemyPosition( data->ID(), data->Position() );
+	}
 	else if ( newEvent->GetEventType() == Event_Enemy_List_Synced::GUID )
 	{
 		mEnemyListSynced = true;
@@ -134,6 +139,11 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if ( newEvent->GetEventType() == Event_Server_Initialized::GUID )
 	{
 		mServerInitialized = true;
+	}
+	else if ( newEvent->GetEventType() == Event_Sync_Spawn::GUID )
+	{
+		std::shared_ptr<Event_Sync_Spawn> data = std::static_pointer_cast<Event_Sync_Spawn>( newEvent );
+		SyncSpawn( data->ID(), data->Position() );
 	}
 }
 
@@ -150,6 +160,16 @@ void PlayState::SyncEnemy( unsigned int id, unsigned int model, unsigned int ani
 
 	if( id == (MAX_NR_OF_ENEMIES-1) )
 		mEnemyListSynced = true;
+}
+
+void PlayState::UpdateEnemyPosition( unsigned int id, XMFLOAT3 position )
+{
+	mEnemies[id]->SetPosition( position );
+}
+
+void PlayState::SyncSpawn( unsigned int id, XMFLOAT3 position )
+{
+	mSpawners[id] = position;
 }
 
 // Tell server that local  player has taken damage
@@ -382,14 +402,15 @@ HRESULT PlayState::Update( float deltaTime )
 	mShip.BuffPlayer( mPlayer );
 	mShip.PickTurretTarget( mAllPlayers );
 	mShip.Update( deltaTime );
-	if( mEnemyListSynced )
-	{
-		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
-		{
-			if( mEnemies[i]->IsAlive() )
-				mEnemies[i]->Update( deltaTime );
-		}
-	}
+	
+	//if( mEnemyListSynced )
+	//{
+	//	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	//	{
+	//		if( mEnemies[i]->IsAlive() )
+	//			mEnemies[i]->Update( deltaTime );
+	//	}
+	//}
 
 
 	return S_OK;
@@ -427,12 +448,18 @@ HRESULT PlayState::Render()
 		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 		{
 			if( mEnemies[i]->IsAlive() )
+			{
 				mEnemies[i]->Render();
+			}
 		}
 	}
 
-	mShip.Render();
+	for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
+	{
+		RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
+	}
 
+	mShip.Render();
 
 	RenderManager::GetInstance()->Render();
 
@@ -548,15 +575,14 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Sync_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Enemy_List_Synced::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Initialized::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Sync_Spawn::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Update_Enemy_Position::GUID );
 
 	mFont.Initialize( "../Content/Assets/Fonts/final_font/" );
 
 	//TEST
 	mAllPlayers.push_back( mPlayer );
 	mShip.Initialize( 0, XMFLOAT3( 10.0f, 0.0f, 10.0f ), XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
-
-	enemy = new Enemy();
-	enemy->Initialize( 2 );
 
 	// Enemies
 	mEnemies	= new Enemy*[MAX_NR_OF_ENEMIES];
@@ -565,6 +591,9 @@ HRESULT PlayState::Initialize()
 		mEnemies[i] = new Enemy();
 		mEnemies[i]->Initialize( i );
 	}
+
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_2.pfs", mSpawnModel );
+	mSpawners	= new XMFLOAT3[MAX_NR_OF_ENEMY_SPAWNERS];
 
 	return S_OK;
 }
@@ -598,6 +627,8 @@ void PlayState::Release()
 		SAFE_DELETE( mEnemies[i] );
 
 	delete [] mEnemies;
+
+	delete [] mSpawners;
 
 	mFont.Release();
 

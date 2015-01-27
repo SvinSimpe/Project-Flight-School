@@ -11,6 +11,8 @@
 #include "Ship.h"
 #include "Image.h"
 
+#include "EnemySpawn.h"
+
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
 #define animTestNr 4
@@ -41,8 +43,6 @@ class PlayState : public BaseState
 		std::vector<RemotePlayer*> mAllPlayers;
 
 		Ship						mShip;
-	
-		Enemy*						enemy;
 
 		//Game Data
 		Player*						mPlayer;
@@ -52,6 +52,8 @@ class PlayState : public BaseState
 		int							mCurrentColor;
 		Font						mFont;
 		Enemy**						mEnemies;
+		XMFLOAT3*					mSpawners;
+		AssetID						mSpawnModel;
 		unsigned int				mNrOfEnemies;
 		unsigned int				mMaxNrOfEnemies;
 		bool						mEnemyListSynced;
@@ -64,6 +66,8 @@ class PlayState : public BaseState
 	// Class functions
 	private:
 		void			SyncEnemy( unsigned int id, unsigned int model, unsigned int animation, float hp, bool alive, XMFLOAT3 position, XMFLOAT3 direction );
+		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position );
+		void			SyncSpawn( unsigned int id, XMFLOAT3 position );
 		void			RemoteUpdate( IEventPtr newEvent );
 		void			HandleDeveloperCameraInput();
 		void			CheckPlayerCollision();

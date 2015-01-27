@@ -23,9 +23,10 @@ class Effect
 		std::wstring stringToWstring( const std::string &s );
 
 	public:
-		ID3D11InputLayout*	GetInputLayout() const;
-		ID3D11VertexShader*	GetVertexShader() const;
-		ID3D11PixelShader*	GetPixelShader() const;
+		ID3D11InputLayout*		GetInputLayout() const;
+		ID3D11VertexShader*		GetVertexShader() const;
+		ID3D11GeometryShader*	GetGeometryShader() const;
+		ID3D11PixelShader*		GetPixelShader() const;
 
 		HRESULT Intialize( ID3D11Device* device, EffectInfo* effectInfo );
 		void Release();

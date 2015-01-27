@@ -552,9 +552,6 @@ HRESULT PlayState::Initialize()
 	mAllPlayers.push_back( mPlayer );
 	mShip.Initialize( 0, XMFLOAT3( 10.0f, 0.0f, 10.0f ), XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
 
-	enemy = new Enemy();
-	enemy->Initialize( 2 );
-
 	// Enemies
 	mEnemies	= new Enemy*[MAX_NR_OF_ENEMIES];
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )

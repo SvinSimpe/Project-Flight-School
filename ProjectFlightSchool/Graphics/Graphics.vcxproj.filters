@@ -179,4 +179,9 @@
       <Filter>Effects</Filter>
     </Text>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Content\Effects\BillboardEffect.hlsl">
+      <Filter>Effects</Filter>
+    </FxCompile>
+  </ItemGroup>
 </Project>

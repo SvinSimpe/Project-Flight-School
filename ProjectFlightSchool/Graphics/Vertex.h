@@ -3,6 +3,18 @@
 
 #include <DirectXMath.h>
 
+struct Vertex12
+{
+	float position[3];
+};
+
+struct BillboardInstanced
+{
+	float position[3];
+	float width;
+	float height;
+};
+
 struct Vertex24
 {
 	float position[3];

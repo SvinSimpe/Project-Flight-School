@@ -6,7 +6,6 @@
 #define SAFE_RELEASE_DELETE( x ) if( x ) { ( x )->Release(); delete x; ( x ) = nullptr; }
 #define SAFE_DELETE( x ) if( x ) { delete x; ( x ) = nullptr; }
 
-#define MAX_PARTICLE_SYSTEMS 50
 #define NR_OF_PARTICLE_TYPES 4
 
 class ParticleManager
@@ -16,7 +15,9 @@ class ParticleManager
 		size_t				mNrOfParticleSystems;
 		size_t				mNrOfActiveParticleSystems;
 		size_t*				mNrOfParticleSystemsPerType;
+		size_t*				mMaxNrOfParticleSystemsPerType;
 		size_t*				mNrOfActiveParticleSystemsPerType;
+		
 
 	public:
 		void Update( float deltaTime );

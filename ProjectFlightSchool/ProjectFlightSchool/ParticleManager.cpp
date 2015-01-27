@@ -56,6 +56,8 @@ bool ParticleManager::RequestParticleSystem( size_t entityID, size_t particleTyp
 	OutputDebugStringA( "' to entity '" );
 	OutputDebugStringA( LPCSTR(entityID) );
 	OutputDebugStringA( "' --" );
+
+	return true;
 }
 
 bool ParticleManager::DeactivateParticleSystem( size_t entityID, size_t particleType )
@@ -69,6 +71,7 @@ bool ParticleManager::DeactivateParticleSystem( size_t entityID, size_t particle
 			mNrOfActiveParticleSystems--;
 		}
 	}
+	return true;
 }
 
 void ParticleManager::Initialize()
@@ -77,12 +80,18 @@ void ParticleManager::Initialize()
 	// each muzzle flash and melee attack swing
 
 	mNrOfParticleSystemsPerType			= new size_t[NR_OF_PARTICLE_TYPES];
+	mMaxNrOfParticleSystemsPerType		= new size_t[NR_OF_PARTICLE_TYPES];
 	mNrOfActiveParticleSystemsPerType	= new size_t[NR_OF_PARTICLE_TYPES];
 	
 	mNrOfParticleSystemsPerType[Smoke] = 0;
 	mNrOfParticleSystemsPerType[Fire]  = 0;
 	mNrOfParticleSystemsPerType[Spark] = 0;
 	mNrOfParticleSystemsPerType[Blood] = 0;
+
+	mMaxNrOfParticleSystemsPerType[Smoke]	= 10;
+	mMaxNrOfParticleSystemsPerType[Fire]	= 10;
+	mMaxNrOfParticleSystemsPerType[Spark]	= 10;
+	mMaxNrOfParticleSystemsPerType[Blood]	= 10;
 
 	mNrOfActiveParticleSystemsPerType[Smoke] = 0;
 	mNrOfActiveParticleSystemsPerType[Fire]  = 0;
@@ -93,9 +102,9 @@ void ParticleManager::Initialize()
 	mParticleSystems = new ParticleSystem**[NR_OF_PARTICLE_TYPES];
 	for (size_t i = 0; i < NR_OF_PARTICLE_TYPES; i++)
 	{
-		mParticleSystems[i] = new ParticleSystem*[mNrOfParticleSystemsPerType[i]];
-		for (size_t j = 0; j < mNrOfParticleSystemsPerType[i]; j++)
-			mParticleSystems[i][j] = nullptr;
+		mParticleSystems[i] = new ParticleSystem*[mMaxNrOfParticleSystemsPerType[i]];
+		for (size_t j = 0; j < mMaxNrOfParticleSystemsPerType[i]; j++)
+			mParticleSystems[i][j] = new ParticleSystem();
 	}
 
 	//========== Initialize Particle Systems ==========
@@ -108,19 +117,19 @@ void ParticleManager::Initialize()
 	//		mNrOfParticleSystems++;
 
 
-	mParticleSystems[Smoke][0] = new ParticleSystem();
+
 	mParticleSystems[Smoke][0]->Initialize( Smoke, 2.0f, 10000 );
-	mNrOfActiveParticleSystemsPerType[Smoke]++;
+	mNrOfParticleSystemsPerType[Smoke]++;
 	mNrOfParticleSystems++;
 
-	mParticleSystems[Fire][0] = new ParticleSystem();
+
 	mParticleSystems[Fire][0]->Initialize( Fire, 2.0f, 10000 );
-	mNrOfActiveParticleSystemsPerType[Fire]++;
+	mNrOfParticleSystemsPerType[Fire]++;
 	mNrOfParticleSystems++;
 
-	mParticleSystems[Blood][0] = new ParticleSystem();
+
 	mParticleSystems[Blood][0]->Initialize( Blood, 2.0f, 10000 );
-	mNrOfActiveParticleSystemsPerType[Blood]++;
+	mNrOfParticleSystemsPerType[Blood]++;
 	mNrOfParticleSystems++;
 }
 
@@ -128,13 +137,16 @@ void ParticleManager::Release()
 {
 	for ( size_t i = 0; i < NR_OF_PARTICLE_TYPES; i++ )
 	{
-		for ( size_t j = 0; j < mNrOfParticleSystemsPerType[i]; j++ )
+		for ( size_t j = 0; j < mMaxNrOfParticleSystemsPerType[i]; j++ )
 		{
-			SAFE_RELEASE_DELETE( mParticleSystems[i][mNrOfParticleSystemsPerType[j]] );
+			SAFE_RELEASE_DELETE( mParticleSystems[i][j] );
 		}
 		delete [] mParticleSystems[i];
 	}
+	delete [] mParticleSystems;
+
 	SAFE_DELETE( mNrOfParticleSystemsPerType );
+	SAFE_DELETE( mMaxNrOfParticleSystemsPerType );
 	SAFE_DELETE( mNrOfActiveParticleSystemsPerType );
 }
 
@@ -144,6 +156,7 @@ ParticleManager::ParticleManager()
 	mNrOfParticleSystems				= 0;
 	mNrOfActiveParticleSystems			= 0;
 	mNrOfParticleSystemsPerType			= nullptr;
+	mMaxNrOfParticleSystemsPerType		= nullptr;
 	mNrOfActiveParticleSystemsPerType	= nullptr;
 }
 

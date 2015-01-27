@@ -178,6 +178,8 @@ struct ParticleData
 
 	void Release()
 	{
+		int k = 4;
+
 		// Free the alligned memory
 		_mm_free( xPosition );
 		_mm_free( yPosition );

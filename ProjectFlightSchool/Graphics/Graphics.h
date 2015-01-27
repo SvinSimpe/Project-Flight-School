@@ -36,6 +36,7 @@ enum Effects
 	EFFECTS_DEFERRED,
 	EFFECTS_BILLBOARD,
 
+	EFFECTS_DEBUG_BOX,
 	//New effects added above this comment
 	EFFECTS_AMOUNT
 };
@@ -50,8 +51,10 @@ enum Buffers
 	BUFFERS_2D,
 	BUFFERS_BILLBOARD,
 	BUFFERS_LIGHT,
-
 	BUFFERS_SINGLE_VERTEX,
+
+	BUFFERS_DEBUG_BOX,
+	BUFFERS_DEBUG_BOX_INDICES,
 	//New buffers added above this comment
 	BUFFERS_AMOUNT
 };
@@ -73,9 +76,6 @@ class LIBRARY_EXPORT Graphics
 		HWND						mHWnd;
 		UINT						mScreenWidth;
 		UINT						mScreenHeight;	
-		
-		ID3D11Buffer*				mDebugBoxBuffer;
-		ID3D11Buffer*				mBoxBufferIndices;
 
 		IDXGISwapChain*				mSwapChain;
 		ID3D11Device*				mDevice;
@@ -95,8 +95,6 @@ class LIBRARY_EXPORT Graphics
 
 		AssetManager*				mAssetManager;
 		Effect*						mEffects[EFFECTS_AMOUNT];
-
-		Effect*						mDebugShaderEffect;
 
 		Camera*						mCamera;
 		Camera*						mDeveloperCamera;

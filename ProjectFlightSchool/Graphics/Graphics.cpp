@@ -93,8 +93,9 @@ void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 	DirectX::XMFLOAT3 center  = DirectX::XMFLOAT3( ( min.x + max.x ) / 2, ( min.y + max.y ) / 2, ( min.z + max.z ) / 2 );
 
 	ID3D11Buffer* buffersToSet[] = { ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexBuffer };
-	mDeviceContext->IASetVertexBuffers( 0, 1, &mDebugBoxBuffer, &vertexSize, &offset );
-	mDeviceContext->IASetIndexBuffer( mBoxBufferIndices, DXGI_FORMAT_R32_UINT, 0 );
+	
+	mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_DEBUG_BOX], &vertexSize, &offset );
+	mDeviceContext->IASetIndexBuffer( mBuffers[BUFFERS_DEBUG_BOX_INDICES], DXGI_FORMAT_R32_UINT, 0 );
 
 	//Map CbufferPerObject
 	CbufferPerObject data;
@@ -107,14 +108,14 @@ void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT], &data, sizeof( CbufferPerObject ) );
 
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] );
+	
+	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_DEBUG_BOX]->GetInputLayout() );
 
-	mDeviceContext->IASetInputLayout( mDebugShaderEffect->GetInputLayout() );
-
-	mDeviceContext->VSSetShader( mDebugShaderEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->VSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetVertexShader(), nullptr, 0 );
 	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->PSSetShader( mDebugShaderEffect->GetPixelShader(), nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetPixelShader(), nullptr, 0 );
 
 	//mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexCount, 0 );//, 0, 0 );
 	mDeviceContext->DrawIndexed( 24, 0, 0 );
@@ -1097,16 +1098,14 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 		return hr;
 
 	//DebugEffect
-	mDebugShaderEffect	= new Effect;
-
 	ZeroMemory( &effectInfo, sizeof( EffectInfo ) );
 	effectInfo.filePath					= "../Content/Effects/DebugShaderEffect.hlsl";
 	effectInfo.fileName					= "DebugShaderEffect";
 	effectInfo.vertexType				= STATIC_VERTEX_TYPE;
 	effectInfo.isVertexShaderIncluded	= true;
 	effectInfo.isPixelShaderIncluded	= true;
-
-	if( FAILED( hr = mDebugShaderEffect->Intialize( mDevice, &effectInfo ) ) )
+	
+	if( FAILED( hr = mEffects[EFFECTS_DEBUG_BOX]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 	
 
@@ -1239,7 +1238,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	subData.pSysMem = boxVertices;
 
-	hr = mDevice->CreateBuffer( &debugBoxBuffer, &subData, &mDebugBoxBuffer );
+	hr = mDevice->CreateBuffer( &debugBoxBuffer, &subData, &mBuffers[BUFFERS_DEBUG_BOX] );
 	if ( FAILED( hr ) )
 	{
 		//Failed to create vertex buffer
@@ -1272,7 +1271,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	subData.pSysMem = boxIndices;
 
-	hr = mDevice->CreateBuffer( &debugIndexBoxBuffer, &subData, &mBoxBufferIndices );
+	hr = mDevice->CreateBuffer( &debugIndexBoxBuffer, &subData, &mBuffers[BUFFERS_DEBUG_BOX_INDICES] );
 	if ( FAILED( hr ) )
 	{
 		//Failed to create vertex buffer
@@ -1290,22 +1289,15 @@ void Graphics::Release()
 	SAFE_RELEASE( mSwapChain );
 	SAFE_RELEASE( mDevice );
 	SAFE_RELEASE( mDeviceContext );
-
 	SAFE_RELEASE( mRenderTargetView );
 	SAFE_RELEASE( mDepthStencilView );
 	SAFE_RELEASE( mDepthDisabledStencilState );
 	SAFE_RELEASE( mDepthEnabledStencilState );
-
-	SAFE_RELEASE( mDebugBoxBuffer );
-	SAFE_RELEASE( mBoxBufferIndices );
-
 	SAFE_RELEASE( mLightStructuredBuffer );
-
 	SAFE_RELEASE( mPointSamplerState );
 	SAFE_RELEASE( mLinearSamplerState );
 
 	SAFE_RELEASE_DELETE( mAssetManager );
-
 	SAFE_RELEASE_DELETE( mCamera );
 	SAFE_RELEASE_DELETE( mDeveloperCamera );
 

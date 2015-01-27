@@ -43,8 +43,6 @@ class PlayState : public BaseState
 		std::vector<RemotePlayer*> mAllPlayers;
 
 		Ship						mShip;
-	
-		Enemy*						enemy;
 
 		//Game Data
 		Player*						mPlayer;

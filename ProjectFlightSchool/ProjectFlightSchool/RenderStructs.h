@@ -7,6 +7,7 @@ static const UINT MAX_AMOUNT_OF_OBJECT3D	= 5000;
 static const UINT MAX_AMOUNT_OF_OBJECT2D	= 5000;
 static const UINT MAX_AMOUNT_OF_ANIM3D		= 100;
 static const UINT MAX_AMOUNT_OF_PLANES		= 2000;
+static const UINT MAX_AMOUNT_OF_BOXES		= 2000;
 
 struct Object3dInfo
 {
@@ -43,7 +44,11 @@ struct PlaneInfo
 	DirectX::XMFLOAT3	mTopTriangle;
 	DirectX::XMFLOAT3	mBottomTriangle;
 };
-
+struct BoxInfo
+{
+	DirectX::XMFLOAT3 min;
+	DirectX::XMFLOAT3 max;
+};
 
 struct RenderLists
 {

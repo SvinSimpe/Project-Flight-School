@@ -3,6 +3,9 @@
 #include "Connection.h"
 #include "Package.h"
 #include <vector>
+#include "Enemy.h"
+#include <stdlib.h>
+#include <time.h>
 
 struct Clientinfo
 {
@@ -24,6 +27,10 @@ class Server
 		int							mNrOfTeams;
 		unsigned int				mNrOfProjectilesFired;
 
+		// Enemies
+		bool						mInGame;
+		Enemy**						mEnemies;
+
 	protected:
 	public:
 
@@ -36,12 +43,14 @@ class Server
 
 	// Functions
 	private:
+		void			EventListener( IEventPtr newEvent );
 		bool			AcceptConnection();
 		bool			ReceiveLoop( int index );
 		void			DisconnectClient( SOCKET s );
 
 	protected:
 	public:
+		HRESULT			Update( float deltaTime );
 		bool			Connect();
 		bool			Run();
 		bool			Initialize( std::string port );
@@ -95,6 +104,25 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 					mConn->SendPkg( socket.s, 0, Net_Event::EV_PLAYER_JOINED, toAll ); // Sends the ID of the joining client to each already existing client
 				}
 			}
+
+			// Synchronize enemy list to connecting player
+			EvSyncEnemy enemy;
+			for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+			{
+				enemy.ID			= mEnemies[i]->GetID();
+				enemy.model			= mEnemies[i]->GetModelID();
+				enemy.animation		= mEnemies[i]->GetAnimation();
+				enemy.hp			= mEnemies[i]->GetHP();
+				enemy.isAlive		= mEnemies[i]->IsAlive();
+				enemy.position		= mEnemies[i]->GetPosition();
+				enemy.direction		= mEnemies[i]->GetDirection();
+
+				mConn->SendPkg( s.s, 0, Net_Event::EV_SYNC_ENEMY, enemy );
+				Sleep( 10 );
+			}
+			
+			// List synchronized
+			//mConn->SendPkg( s.s, 0, Net_Event::EV_ENEMY_LIST_SYNCED, 0 );
 		}
 			break;
 		case Net_Event::EV_PLAYER_DIED:

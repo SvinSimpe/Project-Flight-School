@@ -8,6 +8,7 @@
 #include "SkeletonAsset.h"
 #include "AnimationAsset.h"
 #include "Vertex.h"
+#include "ResourceLoader.h"
 //#include "ImporterAnim.h"
 //#include "MapPathImportHandler.h"
 #include <vector>
@@ -47,6 +48,7 @@ class AssetManager
 {
 	private:
 		AssetID mAssetIdCounter;
+		ResourceLoader* mResourceLoader;
 	protected:
 	public:
 		std::vector<AssetBase*> mAssetContainer;
@@ -55,8 +57,8 @@ class AssetManager
 		bool			AssetExist( std::string fileName, AssetID &assetId );	//Returns true and assigns the correct id to assetId if the asset exist.	
 		void			AssignAssetId( AssetID &assetId );					//Assigns the asset an id and increase the mAssetIdCounter.
 		HRESULT			PlaceholderAssets( ID3D11Device* device, ID3D11DeviceContext* dc );
-		HRESULT			LoadTextureFromFile ( ID3D11Device* device, ID3D11DeviceContext* dc, const wchar_t* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size = 0 );
-		std::wstring	StringToWstring( std::string fileName );
+		//HRESULT			LoadTextureFromFile ( ID3D11Device* device, ID3D11DeviceContext* dc, const wchar_t* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size = 0 );
+		//std::wstring	StringToWstring( std::string fileName );
 		HRESULT			CreateSRVAssets( ID3D11Device* device, ID3D11DeviceContext* dc, std::string filePath, MeshInfo &meshInfo, AssetID &assetId );
 		HRESULT			CreateSRVAssetsMesh( ID3D11Device* device, ID3D11DeviceContext* dc, std::string filePath, MeshInfo &meshInfo, Mesh &mesh );
 

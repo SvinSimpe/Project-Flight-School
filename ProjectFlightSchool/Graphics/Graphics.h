@@ -26,7 +26,6 @@ enum BlendStates
 	//New states added above this comment
 	BLEND_STATES_AMOUNT
 };
-
 enum Effects
 {
 	EFFECTS_STATIC_VERTEX,
@@ -57,6 +56,9 @@ enum Buffers
 	BUFFERS_AMOUNT
 };
 
+#define ANIMATION_PLAY_LOOPED	0
+#define ANIMATION_PLAY_ONCE		1
+
 #define NUM_GBUFFERS 3
 #define MAX_ANIM_INSTANCE_BATCH 32
 #define MAX_STATIC3D_INSTANCE_BATCH 512
@@ -71,6 +73,9 @@ class LIBRARY_EXPORT Graphics
 		HWND						mHWnd;
 		UINT						mScreenWidth;
 		UINT						mScreenHeight;	
+		
+		ID3D11Buffer*				mDebugBoxBuffer;
+		ID3D11Buffer*				mBoxBufferIndices;
 
 		IDXGISwapChain*				mSwapChain;
 		ID3D11Device*				mDevice;
@@ -90,10 +95,15 @@ class LIBRARY_EXPORT Graphics
 
 		AssetManager*				mAssetManager;
 		Effect*						mEffects[EFFECTS_AMOUNT];
+
+		Effect*						mDebugShaderEffect;
+
 		Camera*						mCamera;
 		Camera*						mDeveloperCamera;
 		bool						mIsDeveloperCameraActive;
 		Gbuffer*					mGbuffers[NUM_GBUFFERS];
+
+		int							mNumPointLights;
 
 		StaticInstance				mStatic3dInstanced[MAX_STATIC3D_INSTANCE_BATCH];
 		AnimatedInstance			mAnimInstanced[MAX_ANIM_INSTANCE_BATCH];
@@ -123,10 +133,11 @@ class LIBRARY_EXPORT Graphics
 		void Render( RenderLists& renderLists );
 		void Render2dAsset( AssetID assetId, float x, float y, float width, float height );
 		void RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX::XMFLOAT3 y );
-		void RenderPlane2dAsset( PlaneInfo* info, UINT sizeOfList );
 		void RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList );
 		void RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList );
 		void RenderBillboard( BillboardInfo* info, UINT sizeOfList );
+		void RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max );
+
 
 		DirectX::XMFLOAT4X4	GetRootMatrix( AssetID modelAssetId, AssetID animationAssetId, float animationTime );
 
@@ -136,7 +147,7 @@ class LIBRARY_EXPORT Graphics
 		void	ZoomInDeveloperCamera();
 		void	ZoomOutDeveloperCamera();
 
-		void MapLightStructuredBuffer( LightStructure* lightStructure );
+		void MapLightStructuredBuffer( LightStructure* lightStructure, int numPointLights );
 		void SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY );
 		void SetInverseViewMatrix( DirectX::XMMATRIX &inverseViewMatrix );
 		void SetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatrix );
@@ -149,7 +160,7 @@ class LIBRARY_EXPORT Graphics
 		void	ScreenSpacePass();
 		void	EndScene();
 
-		void GetAnimationMatrices( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo& info );
+		bool GetAnimationMatrices( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo& info );
 
 		UINT QueryMemoryUsed();
 

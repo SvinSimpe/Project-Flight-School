@@ -315,6 +315,50 @@ class Event_Start_Server : public IEvent
 		}
 };
 
+class Event_Game_Started : public IEvent
+{
+	// Member variables;
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Game_Started(  )
+		{
+		}
+};
+
+class Event_Game_Ended : public IEvent
+{
+	// Member variables;
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Game_Ended(  )
+		{
+		}
+};
+
 class Event_Start_Client : public IEvent
 {
 	// Member variables;
@@ -690,6 +734,69 @@ class Event_Remote_Player_Update_HP : public IEvent
 		}
 };
 
+class Event_Sync_Enemy : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		unsigned int	mModel;
+		unsigned int	mAnimation;
+		float			mHp;
+		bool			mIsAlive;
+		XMFLOAT3		mPosition;
+		XMFLOAT3		mDirection;
+
+	protected:
+	public:
+		static const EventType GUID;
+		// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+	Event_Sync_Enemy( unsigned int id, unsigned int model, unsigned int animation, float hp, bool alive, XMFLOAT3 position, XMFLOAT3 direction )
+		{
+			mID				= id;
+			mModel			= model;	
+			mAnimation		= animation;
+			mHp				= hp;
+			mIsAlive		= alive;
+			mPosition		= position;
+			mDirection		= direction;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+		unsigned int Model() const
+		{
+			return mModel;
+		}
+		unsigned int Animation() const
+		{
+			return mAnimation;
+		}
+		float HP()
+		{
+			return mHp;
+		}
+		bool IsAlive()
+		{
+			return mIsAlive;
+		}
+		XMFLOAT3 Position() const
+		{
+			return mPosition;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
+		}
+};
+
 class Event_Connection_Failed : public IEvent
 {
 	// Member variables
@@ -698,8 +805,7 @@ class Event_Connection_Failed : public IEvent
 	protected:
 	public:
 		static const EventType GUID;
-
-	// Member functions
+		// Member functions
 	private:
 	protected:
 		const EventType& GetEventType( void ) const
@@ -717,6 +823,27 @@ class Event_Connection_Failed : public IEvent
 		}
 };
 
+class Event_Enemy_List_Synced : public IEvent
+{
+	// Member variables
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Enemy_List_Synced( )
+		{
+		}
+};
+		
 class Event_Player_Melee_Hit : public IEvent
 {
 	// Member variables
@@ -763,6 +890,27 @@ class Event_Player_Melee_Hit : public IEvent
 		}
 };
 
+class Event_Server_Initialized : public IEvent
+{
+	// Member variables
+	private:
+		protected:
+	public:
+		static const EventType GUID;
+	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Server_Initialized( )
+		{
+		}
+};
+
 class Event_Remote_Player_Melee_Hit : public IEvent
 {
 	// Member variables
@@ -806,5 +954,61 @@ class Event_Remote_Player_Melee_Hit : public IEvent
 		XMFLOAT3 Direction() const
 		{
 			return mDirection;
+		}
+};
+
+class Event_Add_Point_Light : public IEvent
+{
+	// Member variables
+	private:
+		void* mLight;
+
+	protected:
+	public:
+		static const EventType GUID;
+	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Add_Point_Light( void* light )
+		{
+			mLight = light;
+		}
+		void* GetPointLight()
+		{
+			return mLight;
+		}
+};
+
+class Event_Remove_Point_Light : public IEvent
+{
+	// Member variables
+	private:
+		void* mLight;
+
+	protected:
+	public:
+		static const EventType GUID;
+	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Remove_Point_Light( void* light )
+		{
+			mLight = light;
+		}
+		void* GetPointLight()
+		{
+			return mLight;
 		}
 };

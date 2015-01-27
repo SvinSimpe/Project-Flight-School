@@ -49,6 +49,15 @@
     <Filter Include="GameStates\Source Files">
       <UniqueIdentifier>{d9974e49-2255-4e54-a24e-2331ef2a125e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Particle System">
+      <UniqueIdentifier>{1ffdf669-4307-4ac5-9e0b-37997600b821}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Particle System\Header">
+      <UniqueIdentifier>{9d9d8216-09df-4249-b0c7-65df400cffe3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Particle System\Source">
+      <UniqueIdentifier>{d8b37812-712b-4de0-b19c-fd498a2c3550}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -162,18 +171,35 @@
     <ClCompile Include="InputSquare.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+
+    <ClCompile Include="Enemy.cpp">
+ 	<Filter>Source Files</Filter>
+    </ClCompile>
+
     <ClCompile Include="Button.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+
     <ClCompile Include="Turret.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+
     <ClCompile Include="Ship.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    
+
+
+    <ClCompile Include="ParticleManager.cpp">
+      <Filter>Particle System\Source</Filter>
+    </ClCompile>
+  
+
+
     <ClCompile Include="LightManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
@@ -296,6 +322,11 @@
     <ClInclude Include="InputSquare.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+
+
+    <ClInclude Include="Enemy.h">
+	<Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Button.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -305,9 +336,27 @@
     <ClInclude Include="Ship.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    
+
+
+    <ClInclude Include="ParticleData.h">
+      <Filter>Particle System\Header</Filter>
+    </ClInclude>
+  
+    <ClInclude Include="ParticleSystem.h">
+      <Filter>Particle System\Header</Filter>
+    </ClInclude>
+  
+    <ClInclude Include="ParticleManager.h">
+      <Filter>Particle System\Header</Filter>
+    </ClInclude>
+      
+
+
     <ClInclude Include="LightManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+      
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

@@ -7,7 +7,7 @@ MapNodeManager* MapNodeManager::instance = nullptr;
 void MapNodeManager::writeToLog( const std::string &text )
 {
     std::ofstream log_file(
-        "mapNodeLog.txt", std::ios_base::out | std::ios_base::app );
+        "mapNodeLog.jocke", std::ios_base::out | std::ios_base::app );
     log_file << text << std::endl;
 }
 HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
@@ -63,14 +63,15 @@ HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 			GameObjectInfo obInfo;
 			AssetID assetID;
 			inFile.read( (char*)&gridMat, sizeof(JMatrix) );
+
 			obInfo.pos		= gridMat.pos;
 			obInfo.rotation = gridMat.rot;
 			obInfo.scale	= gridMat.scale;
 			Graphics::GetInstance()->LoadStatic3dAsset( "", gridMat.name, assetID );
 			ob.Initialize( obInfo, assetID );
 			staticObjects.push_back( ob );
-			char log[200];
-			sprintf_s(log,"GameObject allocated with:\nPos: (%f,%f,%f)\nRotation:  (%f,%f,%f)\nScale:  (%f,%f,%f)\nAssetID: %d\n Name: %s\n\n\n",
+			char log[400];
+			sprintf_s(log,"Timestamp: %s\nCount: %d\nGameObject allocated with:\nPos: (%f,%f,%f)\nRotation:  (%f,%f,%f)\nScale:  (%f,%f,%f)\nAssetID: %d\nName: %s\n\n\n",__TIME__, i,
 				ob.GetPos().x,ob.GetPos().y, ob.GetPos().z,
 				ob.GetRotation().x,ob.GetRotation().y, ob.GetRotation().z,
 				ob.GetScale().x, ob.GetScale().y, ob.GetScale().z,
@@ -83,17 +84,9 @@ HRESULT MapNodeManager::createNodes( char* fileName, int nrOfNodes )
 		initInfo.staticAssetCount = staticObjects.size();
 		initInfo.staticAssets = new GameObject[initInfo.staticAssetCount];
 
-		//memcpy(initInfo.staticAssets, &staticObjects[0], sizeof(GameObject) * staticObjects.size() );
-
-		printf("Nr of static objects: %d\n", staticObjects.size());
 		for( UINT i = 0; i < initInfo.staticAssetCount; i++ )
 		{
 			initInfo.staticAssets[i] = staticObjects[i];
-			//printf("GameObject allocated with:\nPos: (%f,%f,%f)\nRotation:  (%f,%f,%f)\nScale:  (%f,%f,%f)\nAssetID: %d\n\n\n",
-			//	initInfo.staticAssets[i].GetPos().x,initInfo.staticAssets[i].GetPos().y,initInfo.staticAssets[i].GetPos().z,
-			//	initInfo.staticAssets[i].GetRotation().x,initInfo.staticAssets[i].GetRotation().y,initInfo.staticAssets[i].GetRotation().z,
-			//	initInfo.staticAssets[i].GetScale().x,initInfo.staticAssets[i].GetScale().y,initInfo.staticAssets[i].GetScale().z,
-			//	initInfo.staticAssets[i].GetAssetID());
 		}
 
 		MapNode temp;

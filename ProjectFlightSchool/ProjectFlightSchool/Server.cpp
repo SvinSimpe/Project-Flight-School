@@ -3,6 +3,17 @@
 ///////////////////////////////////////////////////////////////////////////////
 //									PRIVATE
 ///////////////////////////////////////////////////////////////////////////////
+void Server::EventListener( IEventPtr newEvent )
+{
+	if ( newEvent->GetEventType() == Event_Game_Started::GUID )
+	{
+		mInGame		= true;
+	}
+	else if ( newEvent->GetEventType() == Event_Game_Ended::GUID )
+	{
+		mInGame		= false;
+	}
+}
 
 bool Server::AcceptConnection()
 {
@@ -96,6 +107,16 @@ void Server::DisconnectClient( SOCKET s )
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
 
+HRESULT Server::Update( float deltaTime )
+{
+	if( mInGame )
+	{
+		// Update
+	}
+
+	return S_OK;
+}
+
 bool Server::Connect()
 {
 	mListenSocket = socket( mAddrResult->ai_family, mAddrResult->ai_socktype, mAddrResult->ai_protocol );
@@ -179,6 +200,28 @@ bool Server::Initialize( std::string port )
 	mConn = new Connection();
 	mConn->Initialize();
 
+	// Enemies
+	srand( (unsigned int)time( NULL ) );
+	mEnemies	= new Enemy*[MAX_NR_OF_ENEMIES];
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	{
+		mEnemies[i] = new Enemy();
+		mEnemies[i]->Initialize( i );
+		mEnemies[i]->Spawn( XMFLOAT3( (float)( rand()%50 ), 0.0f, (float)( rand()%50 ) ) );
+		
+		//mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_UPDATE, msg );
+
+		//IEventPtr E1( new Event_Enemy_Created( mEnemies[i]->GetID(), mEnemies[i]->GetPosition(), MAX_NR_OF_ENEMIES) );
+		//EventManager::GetInstance()->QueueEvent( E1 );
+	}
+
+	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Game_Started::GUID );
+	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Game_Ended::GUID );
+
+
+	IEventPtr E1( new Event_Server_Initialized() );
+	EventManager::GetInstance()->QueueEvent( E1 );
+
 	return true;
 }
 
@@ -201,6 +244,12 @@ void Server::Release()
 	mConn->Release();
 	if( mConn )
 		delete mConn;
+
+	// Enemies
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+		SAFE_DELETE( mEnemies[i] );
+
+	delete [] mEnemies;
 }
 
 Server::Server()
@@ -211,8 +260,11 @@ Server::Server()
 	mClientSockets	= std::vector<Clientinfo>( 0 );
 	mConn			= nullptr;
 	mListenThreads	= std::vector<std::thread>( 0 );
-
 	mNrOfProjectilesFired	= 1;
+	
+	// Enemies
+	mInGame			= false;
+	mEnemies		= nullptr;
 }
 
 Server::~Server()

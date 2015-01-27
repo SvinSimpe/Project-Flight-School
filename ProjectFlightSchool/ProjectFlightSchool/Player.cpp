@@ -58,18 +58,24 @@ void Player::HandleInput( float deltaTime )
 	XMStoreFloat3( &mUpperBody.direction, playerToCursor );
 
 	//== Weapon handling ==
-	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_SPACE) && mWeaponCoolDown <= 0.0f )
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_MOUSE_LEFT) && mWeaponCoolDown <= 0.0f )
 	{
 		Fire();
-		mWeaponCoolDown = 0.1f;
+		mWeaponCoolDown = 0.8f;
+		mArms.rightArmCurrentAnimation	= PLAYER_ANIMATION_SHOTGUN_ATTACK;
+		mArms.rightArmAnimationTime		= 1.0f / 60.0f;
+		mRightArmAnimationCompleted		= false;
 	}
 	else
 		mWeaponCoolDown -= deltaTime;
 
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_E ) && mMeleeCoolDown <= 0.0f )
+	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_MOUSE_RIGHT ) && mMeleeCoolDown <= 0.0f )
 	{
-		mIsMeleeing = true;
-		mMeleeCoolDown = 2.0f;
+		mIsMeleeing						= true;
+		mMeleeCoolDown					= 2.0f;
+		mArms.leftArmCurrentAnimation	= PLAYER_ANIMATION_CLAYMORE_ATTACK;
+		mArms.leftArmAnimationTime		= 1.0f / 60.0f;
+		mLeftArmAnimationCompleted		= false;
 	}
 	else
 		mMeleeCoolDown -= deltaTime;
@@ -129,12 +135,12 @@ HRESULT Player::Update( float deltaTime )
 				mLowerBody.currentLowerAnimation = PLAYER_ANIMATION_LEGS_IDLE;
 
 				if( mLowerBody.currentLowerAnimation != PLAYER_ANIMATION_LEGS_IDLE )
-					mLowerBody.currentLowerAnimationTime	= 1.0f;
+					mLowerBody.currentLowerAnimationTime	= 1.0f / 60.0f;
 			}
 			else if( mLowerBody.currentLowerAnimation == PLAYER_ANIMATION_LEGS_IDLE )
 			{
 				mLowerBody.currentLowerAnimation		= PLAYER_ANIMATION_LEGS_WALK;
-				mLowerBody.currentLowerAnimationTime	= 1.0f;
+				mLowerBody.currentLowerAnimationTime	= 1.0f / 60.0f;
 			}
 
 
@@ -142,6 +148,16 @@ HRESULT Player::Update( float deltaTime )
 				mLowerBody.currentLowerAnimationTime += deltaTime * mCurrentVelocity / 1.1f;
 			else
 				mLowerBody.currentLowerAnimationTime += deltaTime;
+
+			if( !mLeftArmAnimationCompleted )
+				mArms.leftArmAnimationTime += deltaTime;
+			else
+				mArms.leftArmCurrentAnimation = PLAYER_ANIMATION_CLAYMORE_IDLE;
+			
+			if( !mRightArmAnimationCompleted )
+				mArms.rightArmAnimationTime += deltaTime;
+			else
+				mArms.rightArmCurrentAnimation	= PLAYER_ANIMATION_SHOTGUN_WALK;
 		}
 	}
 	else
@@ -163,14 +179,14 @@ HRESULT Player::Update( float deltaTime )
 	mBoundingCircle->center							= mLowerBody.position;
 	mLoadOut->meleeWeapon->boundingCircle->center	= mLowerBody.position;
 
+	//Update Light
+	mPointLight->position = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 10.0f, mLowerBody.position.z, 0.0f );
+
 	return S_OK;
 }
 
 HRESULT Player::Render( float deltaTime, int position )
 {
-	//RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
-	//RenderManager::GetInstance()->AddObject3dToList( mLowerBody.playerModel, mLowerBody.position );
-
 	if( !mIsAlive )
 	{
 		
@@ -294,6 +310,14 @@ HRESULT Player::Initialize()
 	mUpperBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 
+	////////////
+	// Light
+	mPointLight						= new PointLight;
+	mPointLight->position			= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
+	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.2f, 0.2f, 0.4f, 30.0f );
+	IEventPtr reg( new Event_Add_Point_Light( mPointLight ) );
+	EventManager::GetInstance()->QueueEvent( reg );
+
 	mMaxVelocity		= 7.7f;
 	mCurrentVelocity	= 0.0f;
 	mMaxAcceleration	= 20.0f;
@@ -308,11 +332,16 @@ HRESULT Player::Initialize()
 void Player::Release()
 {
 	RemotePlayer::Release();
+	IEventPtr reg( new Event_Remove_Point_Light( mPointLight ) );
+	EventManager::GetInstance()->QueueEvent( reg );
+	SAFE_DELETE( mPointLight );
 }
 
 Player::Player()
 	:RemotePlayer()
 {
+	mPointLight			= nullptr;
+
 	mWeaponCoolDown		= 0.0f;
 	mMeleeCoolDown		= 0.0f;
 	mIsMeleeing			= false;

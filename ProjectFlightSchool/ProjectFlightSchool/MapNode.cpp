@@ -7,7 +7,6 @@ HRESULT	MapNode::Render( float deltaTime, XMFLOAT4X4 parentWorld )
 	{
 		mStaticAssets[i].Render( deltaTime, parentWorld );
 	}
-
 	return S_OK;
 }
 StaticVertex* MapNode::GetGrid() const

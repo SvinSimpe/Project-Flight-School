@@ -28,6 +28,9 @@ Graphics::Graphics()
 
 	for( int i = 0; i < EFFECTS_AMOUNT; i++ )
 		mEffects[i] = nullptr;
+
+	mNumPointLights				= 0;
+
 }
 
 Graphics::~Graphics()
@@ -76,6 +79,46 @@ HRESULT Graphics::LoadSkeletonAsset( std::string filePath, std::string fileName,
 HRESULT Graphics::LoadAnimationAsset( std::string filePath, std::string fileName, AssetID &assetId )
 {
 	return mAssetManager->LoadAnimationAsset( filePath, fileName, assetId );
+}
+void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
+{
+	mDeviceContext->OMSetDepthStencilState( mDepthDisabledStencilState, 1 );
+
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
+
+	UINT32 vertexSize	= sizeof(StaticVertex);
+	UINT32 offset		= 0;
+
+	DirectX::XMFLOAT3 boxSize = DirectX::XMFLOAT3( max.x - min.x, max.y - min.y, max.z - min.z );
+	DirectX::XMFLOAT3 center  = DirectX::XMFLOAT3( ( min.x + max.x ) / 2, ( min.y + max.y ) / 2, ( min.z + max.z ) / 2 );
+
+	ID3D11Buffer* buffersToSet[] = { ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexBuffer };
+	mDeviceContext->IASetVertexBuffers( 0, 1, &mDebugBoxBuffer, &vertexSize, &offset );
+	mDeviceContext->IASetIndexBuffer( mBoxBufferIndices, DXGI_FORMAT_R32_UINT, 0 );
+
+	//Map CbufferPerObject
+	CbufferPerObject data;
+	DirectX::XMMATRIX scaling		= DirectX::XMMatrixScaling( boxSize.x, boxSize.y, boxSize.z );
+	DirectX::XMMATRIX translation	= DirectX::XMMatrixTranslation( center.x, center.y, center.z );
+
+	data.worldMatrix = DirectX::XMMatrixTranspose( scaling * translation );
+	//data.worldMatrix = DirectX::XMMatrixIdentity();
+	
+	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT], &data, sizeof( CbufferPerObject ) );
+
+	mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] );
+
+	mDeviceContext->IASetInputLayout( mDebugShaderEffect->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mDebugShaderEffect->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mDebugShaderEffect->GetPixelShader(), nullptr, 0 );
+
+	//mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexCount, 0 );//, 0, 0 );
+	mDeviceContext->DrawIndexed( 24, 0, 0 );
+	mDeviceContext->OMSetDepthStencilState( mDepthEnabledStencilState, 1 );
 }
 
 void Graphics::Render2dAsset( AssetID assetId, float x, float y, float width, float height )
@@ -136,84 +179,6 @@ void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX
 	mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
 	mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[NORMAL_PLACEHOLDER] )->mSRV );
 	mDeviceContext->Draw( 4, 0 );
-}
-
-void Graphics::RenderPlane2dAsset( PlaneInfo* info, UINT sizeOfList )
-{
-	//mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
-
-	//UINT32 vertexSize	= sizeof( StaticVertex );
-	//UINT32 offset		= 0;
-
-
-	//MapBuffer( mVertexBuffer2d, &vertices, sizeof(StaticVertex) * 4 );
-	//mDeviceContext->IASetVertexBuffers( 0, 1, &mVertexBuffer2d, &vertexSize, &offset );
-
-	//mDeviceContext->IASetInputLayout( mStaticEffect->GetInputLayout() );
-
-	//mDeviceContext->VSSetShader( mStaticEffect->GetVertexShader(), nullptr, 0 );
-	//mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
-	//mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
-	//mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
-	//mDeviceContext->PSSetShader( mStaticEffect->GetPixelShader(), nullptr, 0 );
-
-
-
-	//UINT objectToRender = 0;
-	//UINT currAssetID = (UINT)-1;
-	//UINT meshID = (UINT)-1;
-	//UINT loopBreaker = 0;
-	//bool alreadyAdded = false;
-
-	////Map CbufferPerObject
-	//CbufferPerObject data;
-	//data.worldMatrix = DirectX::XMMatrixIdentity();
-	//MapBuffer( mCbufferPerObject, &data, sizeof( CbufferPerObject ) );
-
-	//do
-	//{
-	//	loopBreaker = 0;
-	//	currAssetID = (UINT)-1;
-	//	objectToRender = 0;
-	//	for( UINT i = 0; i < sizeOfList; i++ )
-	//	{
-	//		if( info[i].mAssetId != (UINT)-1 )
-	//		{
-	//			if( currAssetID == (UINT)-1 )
-	//			{
-	//				currAssetID = info[i].mAssetId;
-	//			}
-
-	//			if( currAssetID == info[i].mAssetId )
-	//			{
-	//				
-	//				StaticVertex bottomleft		= { x.x, x.y, y.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 1.0f };
-	//				StaticVertex topleft		= { x.x, x.y, x.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 0.0f };
-	//				StaticVertex bottomright	= { y.x, x.y, y.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	1.0f, 1.0f };
-	//				StaticVertex topright		= { y.x, x.y, x.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	1.0f, 0.0f };
-
-	//				StaticVertex vertices[4]	= { bottomleft, topleft, bottomright, topright };
-
-	//				info[i].mAssetId = (UINT)-1;
-	//				objectToRender++;
-	//			}
-	//		}
-	//		else
-	//		{
-	//			loopBreaker++;
-	//		}
-	//	}
-
-	//	if( loopBreaker != sizeOfList )
-	//	{
-	//		mDeviceContext->VSSetConstantBuffers( 1, 1, &mCbufferPerObject );
-
-	//		mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[assetId] )->mSRV );
-	//		mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
-	//		mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[NORMAL_PLACEHOLDER] )->mSRV );
-	//		mDeviceContext->Draw( 4, 0 );
-	//	}
-	//}while( loopBreaker != sizeOfList );
 }
 
 void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
@@ -523,9 +488,10 @@ void Graphics::ZoomOutDeveloperCamera()
 	mDeveloperCamera->ZoomOut();
 }
 
-void Graphics::MapLightStructuredBuffer( LightStructure* lightStructure )
+void Graphics::MapLightStructuredBuffer( LightStructure* lightStructure, int numPointLights )
 {
 	MapBuffer( mBuffers[BUFFERS_LIGHT], (void*)lightStructure, sizeof( LightStructure ) );
+	mNumPointLights = numPointLights;
 }
 
 void Graphics::SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY )
@@ -610,6 +576,8 @@ void Graphics::GbufferPass()
 		data.projectionMatrix	= mCamera->GetProjMatrix();
 		data.cameraPosition		= mCamera->GetPos();
 	}
+	
+	data.numPointLights = mNumPointLights;
 	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_FRAME], &data, sizeof( CbufferPerFrame ) );
 
 	mDeviceContext->VSSetConstantBuffers( 0, 1, &mBuffers[BUFFERS_CBUFFER_PER_FRAME] );
@@ -671,15 +639,22 @@ void Graphics::EndScene()
 	mSwapChain->Present( 0, 0 );
 }
 
-void Graphics::GetAnimationMatrices( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo& info )
+bool Graphics::GetAnimationMatrices( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo& info )
 {
 	Animated3dAsset*	model		= (Animated3dAsset*)mAssetManager->mAssetContainer[modelAssetId];
 	Skeleton*			skeleton	= &( (SkeletonAsset*)mAssetManager->mAssetContainer[model->mSkeletonId] )->mSkeleton;
 	AnimationData*		animation	= &( (AnimationAsset*)mAssetManager->mAssetContainer[animationAssetId] )->mAnimationData;
 
-	if( animationTime > (float)animation->AnimLength / 60.0f )
+	bool localReturn = false;
+
+	if( animationTime >= (float)animation->AnimLength / 60.0f )
 	{
-		animationTime	-= ( (float)animation->AnimLength / 60.0f - 1.0f / 60.0f );
+		if( playType == ANIMATION_PLAY_LOOPED )
+			animationTime -= ( (float)animation->AnimLength / 60.0f - 1.0f / 60.0f );
+		else if( playType == ANIMATION_PLAY_ONCE )
+			animationTime = ( (float)animation->AnimLength / 60.0f );
+
+		localReturn = true;
 	}
 
 	float calcTime = animationTime * 60.0f;
@@ -741,6 +716,7 @@ void Graphics::GetAnimationMatrices( AssetID modelAssetId, AssetID animationAsse
 	for( int i = 0; i < skeleton->nrOfJoints; i++ )
 		DirectX::XMStoreFloat4x4( &info.mBoneTransforms[i], DirectX::XMMatrixTranspose( DirectX::XMMatrixMultiply( DirectX::XMLoadFloat4x4( &model->mBoneOffsets[i] ), currentBoneTransforms[i] ) ) );
 
+	return localReturn;
 }
 
 UINT Graphics::QueryMemoryUsed()
@@ -1120,6 +1096,20 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	if( FAILED( hr = mEffects[EFFECTS_STATIC_VERTEX]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 
+	//DebugEffect
+	mDebugShaderEffect	= new Effect;
+
+	ZeroMemory( &effectInfo, sizeof( EffectInfo ) );
+	effectInfo.filePath					= "../Content/Effects/DebugShaderEffect.hlsl";
+	effectInfo.fileName					= "DebugShaderEffect";
+	effectInfo.vertexType				= STATIC_VERTEX_TYPE;
+	effectInfo.isVertexShaderIncluded	= true;
+	effectInfo.isPixelShaderIncluded	= true;
+
+	if( FAILED( hr = mDebugShaderEffect->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	
+
 	//Static instanced effect
 	effectInfo.filePath		= "../Content/Effects/Static3dInstancedEffect.hlsl";
 	effectInfo.fileName		= "Static3dInstancedEffect";
@@ -1216,6 +1206,78 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	developerCameraInfo.farZ		= 1000.0f;
 
 	hr = mDeveloperCamera->Initialize( &developerCameraInfo );
+	if( FAILED( hr ) )
+		return hr;
+	
+
+	StaticVertex boxVertices[]		= 
+	{
+		//BackBottomLeft
+		{ -0.5, -0.5, -0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+		//BackBottomRight
+		{  0.5, -0.5, -0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+		//BackTopRight
+		{  0.5,  0.5, -0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+		//BackTopLeft 
+		{ -0.5,  0.5, -0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+		//FrontBottomLeft
+		{ -0.5, -0.5,  0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+		//FrontBottomRight
+		{  0.5, -0.5,  0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+		//FrontTopRight
+		{  0.5,  0.5,  0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+		//FrontTopLeft
+		{ -0.5,  0.5,  0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
+	};
+
+	D3D11_BUFFER_DESC debugBoxBuffer;
+	ZeroMemory( &debugBoxBuffer, sizeof(debugBoxBuffer) );
+	debugBoxBuffer.BindFlags		= D3D11_BIND_VERTEX_BUFFER;
+	debugBoxBuffer.ByteWidth		= sizeof(StaticVertex) * 8;
+	debugBoxBuffer.Usage			= D3D11_USAGE_IMMUTABLE;
+	debugBoxBuffer.CPUAccessFlags	= 0;
+
+	subData.pSysMem = boxVertices;
+
+	hr = mDevice->CreateBuffer( &debugBoxBuffer, &subData, &mDebugBoxBuffer );
+	if ( FAILED( hr ) )
+	{
+		//Failed to create vertex buffer
+		return hr;
+	}
+
+	UINT boxIndices[] = 
+	{
+		0, 1,
+		1, 2,
+		2, 3,
+		3, 0,
+
+		4, 5,
+		5, 6,
+		6, 7,
+		7, 4,
+
+		3, 7,
+		2, 6,
+		5, 1,
+		0, 4
+	};
+	D3D11_BUFFER_DESC debugIndexBoxBuffer;
+	ZeroMemory( &debugIndexBoxBuffer, sizeof(debugIndexBoxBuffer) );
+	debugIndexBoxBuffer.BindFlags		= D3D11_BIND_INDEX_BUFFER;
+	debugIndexBoxBuffer.ByteWidth		= sizeof( UINT ) * 24;
+	debugIndexBoxBuffer.Usage			= D3D11_USAGE_IMMUTABLE;
+	debugIndexBoxBuffer.CPUAccessFlags	= 0;
+
+	subData.pSysMem = boxIndices;
+
+	hr = mDevice->CreateBuffer( &debugIndexBoxBuffer, &subData, &mBoxBufferIndices );
+	if ( FAILED( hr ) )
+	{
+		//Failed to create vertex buffer
+		return hr;
+	}
 
 	OutputDebugString( L"----- Graphics Initialization Complete. -----" );
 
@@ -1233,12 +1295,17 @@ void Graphics::Release()
 	SAFE_RELEASE( mDepthStencilView );
 	SAFE_RELEASE( mDepthDisabledStencilState );
 	SAFE_RELEASE( mDepthEnabledStencilState );
+
+	SAFE_RELEASE( mDebugBoxBuffer );
+	SAFE_RELEASE( mBoxBufferIndices );
+
 	SAFE_RELEASE( mLightStructuredBuffer );
 
 	SAFE_RELEASE( mPointSamplerState );
 	SAFE_RELEASE( mLinearSamplerState );
 
 	SAFE_RELEASE_DELETE( mAssetManager );
+
 	SAFE_RELEASE_DELETE( mCamera );
 	SAFE_RELEASE_DELETE( mDeveloperCamera );
 

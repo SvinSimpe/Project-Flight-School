@@ -26,14 +26,46 @@ enum BlendStates
 	//New states added above this comment
 	BLEND_STATES_AMOUNT
 };
+enum Effects
+{
+	EFFECTS_STATIC_VERTEX,
+	EFFECTS_STATIC_INSTANCED,
+	EFFECTS_2D,
+	EFFECTS_ANIMATED,
+	EFFECTS_ANIMATED_INSTANCED,
+	EFFECTS_DEFERRED,
+	EFFECTS_BILLBOARD,
+
+	EFFECTS_DEBUG_BOX,
+	//New effects added above this comment
+	EFFECTS_AMOUNT
+};
+
+enum Buffers
+{
+	BUFFERS_CBUFFER_PER_FRAME,
+	BUFFERS_CBUFFER_PER_OBJECT,
+	BUFFERS_CBUFFER_PER_OBJECT_ANIMATED,
+	BUFFERS_CBUFFER_PER_INSTANCED_ANIMATED,
+	BUFFERS_STATIC3D_PER_INSTANCED_OBJECT,
+	BUFFERS_2D,
+	BUFFERS_BILLBOARD,
+	BUFFERS_LIGHT,
+	BUFFERS_SINGLE_VERTEX,
+
+	BUFFERS_DEBUG_BOX,
+	BUFFERS_DEBUG_BOX_INDICES,
+	//New buffers added above this comment
+	BUFFERS_AMOUNT
+};
 
 #define ANIMATION_PLAY_LOOPED	0
 #define ANIMATION_PLAY_ONCE		1
 
 #define NUM_GBUFFERS 3
 #define MAX_ANIM_INSTANCE_BATCH 32
-
 #define MAX_STATIC3D_INSTANCE_BATCH 512
+#define MAX_BILLBOARD_BATCH 1024
 
 #define SAFE_RELEASE_DELETE( x ) if( x ) { ( x )->Release(); delete x; ( x ) = nullptr; }
 
@@ -44,9 +76,6 @@ class LIBRARY_EXPORT Graphics
 		HWND						mHWnd;
 		UINT						mScreenWidth;
 		UINT						mScreenHeight;	
-		ID3D11Buffer*				mVertexBuffer2d;
-		ID3D11Buffer*				mDebugBoxBuffer;
-		ID3D11Buffer*				mBoxBufferIndices;
 
 		IDXGISwapChain*				mSwapChain;
 		ID3D11Device*				mDevice;
@@ -57,12 +86,7 @@ class LIBRARY_EXPORT Graphics
 		ID3D11DepthStencilState*	mDepthDisabledStencilState;
 		ID3D11DepthStencilState*	mDepthEnabledStencilState;
 		D3D11_VIEWPORT				mStandardView;
-		ID3D11Buffer*				mCbufferPerFrame;
-		ID3D11Buffer*				mCbufferPerObject;
-		ID3D11Buffer*				mCbufferPerObjectAnimated;
-		ID3D11Buffer*				mCbufferPerInstancedAnimated;
-		ID3D11Buffer*				mBufferPerInstanceObject;
-		ID3D11Buffer*				mLightBuffer;
+		ID3D11Buffer*				mBuffers[BUFFERS_AMOUNT];
 		ID3D11ShaderResourceView*	mLightStructuredBuffer;
 		ID3D11SamplerState*			mPointSamplerState;
 		ID3D11SamplerState*			mLinearSamplerState;
@@ -70,13 +94,8 @@ class LIBRARY_EXPORT Graphics
 
 
 		AssetManager*				mAssetManager;
-		Effect*						mStaticEffect;
-		Effect*						mStaticInstancedEffect;
-		Effect*						m2dEffect;
-		Effect*						mAnimatedEffect;
-		Effect*						mAnimInstancedEffect;
-		Effect*						mDeferredPassEffect;
-		Effect*						mDebugShaderEffect;
+		Effect*						mEffects[EFFECTS_AMOUNT];
+
 		Camera*						mCamera;
 		Camera*						mDeveloperCamera;
 		bool						mIsDeveloperCameraActive;
@@ -87,6 +106,7 @@ class LIBRARY_EXPORT Graphics
 		StaticInstance				mStatic3dInstanced[MAX_STATIC3D_INSTANCE_BATCH];
 		AnimatedInstance			mAnimInstanced[MAX_ANIM_INSTANCE_BATCH];
 		CbufferPerObjectAnimated	mAnimCbufferInstanced[MAX_ANIM_INSTANCE_BATCH];
+		BillboardInstanced			mBillboardInstanced[MAX_BILLBOARD_BATCH];
 
 
 	protected:
@@ -111,10 +131,11 @@ class LIBRARY_EXPORT Graphics
 		void Render( RenderLists& renderLists );
 		void Render2dAsset( AssetID assetId, float x, float y, float width, float height );
 		void RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX::XMFLOAT3 y );
-		void RenderPlane2dAsset( PlaneInfo* info, UINT sizeOfList );
 		void RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList );
 		void RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList );
+		void RenderBillboard( BillboardInfo* info, UINT sizeOfList );
 		void RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max );
+
 
 		DirectX::XMFLOAT4X4	GetRootMatrix( AssetID modelAssetId, AssetID animationAssetId, float animationTime );
 

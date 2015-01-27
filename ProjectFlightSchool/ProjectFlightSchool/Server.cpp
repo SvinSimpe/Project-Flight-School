@@ -131,7 +131,7 @@ HRESULT Server::Update( float deltaTime )
 					if ( socket.s != INVALID_SOCKET && mEnemyListSynced )
 					{
 						mConn->SendPkg( socket.s, 0, Net_Event::EV_ENEMY_UPDATE_POSITION, enemy ); // Update all enemy positions to all players
-						Sleep( 1 );
+						//Sleep( 1 );
 					}
 				}
 			}

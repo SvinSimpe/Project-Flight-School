@@ -174,21 +174,21 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device, ID3D11DeviceConte
 		tex[i] = nullptr;
 	}
 
-	hr = LoadTextureFromFile( device, dc, StringToWstring( "../Content/Assets/PlaceHolderTextures/diffuse.png" ).c_str(), (ID3D11Resource**)tex[0], &srv[0], NULL );
+	hr = mResourceLoader->LoadResource( device, dc, "../Content/Assets/PlaceHolderTextures/diffuse.png", (ID3D11Resource**)tex[0], &srv[0] );
 	if( FAILED( hr ) )
 	{	
 		//Failed to create the diffuse placeholder SRV
 		return hr;
 	}
 
-	hr = LoadTextureFromFile( device, dc, StringToWstring( "../Content/Assets/PlaceHolderTextures/specular.png" ).c_str(), (ID3D11Resource**)tex[1], &srv[1], NULL );
+	hr = mResourceLoader->LoadResource( device, dc,  "../Content/Assets/PlaceHolderTextures/specular.png", (ID3D11Resource**)tex[1], &srv[1] );
 	if( FAILED( hr ) )
 	{	
 		//Failed to create the specular placeholder SRV
 		return hr;
 	}
 
-	hr = LoadTextureFromFile( device, dc, StringToWstring( "../Content/Assets/PlaceHolderTextures/normal.png" ).c_str(), (ID3D11Resource**)tex[2], &srv[2], NULL );
+	hr = mResourceLoader->LoadResource( device, dc, "../Content/Assets/PlaceHolderTextures/normal.png", (ID3D11Resource**)tex[2], &srv[2] );
 	if( FAILED( hr ) )
 	{	
 		//Failed to create the normal placeholder SRV
@@ -223,17 +223,17 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device, ID3D11DeviceConte
 }
 
 //Loads a texture from file, the filename can be expressed as a string put with L prefix e.g L"Hello World", texture and SRV are both optional, size = Maximum size of buffer.
-HRESULT AssetManager::LoadTextureFromFile ( ID3D11Device* device, ID3D11DeviceContext* dc, const wchar_t* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size )
-{
-	HRESULT hr = S_OK;
-	hr = CreateWICTextureFromFile( device, dc, fileName, texture, srv, size );
-	return hr;
-}
+//HRESULT AssetManager::LoadTextureFromFile ( ID3D11Device* device, ID3D11DeviceContext* dc, const wchar_t* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size )
+//{
+//	HRESULT hr = S_OK;
+//	hr = CreateWICTextureFromFile( device, dc, fileName, texture, srv, size );
+//	return hr;
+//}
 
-std::wstring AssetManager::StringToWstring( std::string fileName )
-{
-	return std::wstring( fileName.begin(), fileName.end() );
-}
+//std::wstring AssetManager::StringToWstring( std::string fileName )
+//{
+//	return std::wstring( fileName.begin(), fileName.end() );
+//}
 
 HRESULT AssetManager::CreateSRVAssets( ID3D11Device* device, ID3D11DeviceContext* dc, std::string filePath, MeshInfo &meshInfo, AssetID &assetId )
 {
@@ -357,7 +357,7 @@ HRESULT AssetManager::LoadStatic2dAsset( ID3D11Device* device, ID3D11DeviceConte
 		ID3D11Texture2D* texture = nullptr;
 		AssignAssetId( assetId );
 
-		hr = LoadTextureFromFile( device, dc, StringToWstring( fileName ).c_str(), (ID3D11Resource**)texture, &srv, NULL );
+		hr = mResourceLoader->LoadResource( device, dc, fileName, (ID3D11Resource**)texture, &srv );
 		if(FAILED ( hr ) ) return hr;
 		
 		Static2dAsset* temp;
@@ -950,12 +950,13 @@ HRESULT	AssetManager::Initialize( ID3D11Device* device, ID3D11DeviceContext* dc 
 	mAssetIdCounter = NUM_PLACEHOLDER_ASSETS;
 	mAssetContainer.resize( mAssetIdCounter );
 	PlaceholderAssets( device, dc );
-	
+	mResourceLoader = new ResourceLoader();
 	return S_OK;
 }
 
 void AssetManager::Release()
 {
+	delete mResourceLoader;
 	for( UINT i = 0; i < mAssetContainer.size(); i++ )
 	{
 		mAssetContainer[i]->Release();

@@ -283,9 +283,9 @@ HRESULT RemotePlayer::Initialize()
 	////////////////
 	//Animations
 	// BODY
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Robot/Animations/", "robotLegsWalk.PaMan", mAnimations[PLAYER_ANIMATION_LEGS_WALK] ) ) )
-		OutputDebugString( L"\nERROR loading player model\n" );
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Robot/Animations/", "robotLegsIdle.PaMan", mAnimations[PLAYER_ANIMATION_LEGS_IDLE] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Robot/Animations/", "robotLegsWalk.PaMan", mAnimations[PLAYER_ANIMATION_LEGS_WALK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	//CLAYMORE

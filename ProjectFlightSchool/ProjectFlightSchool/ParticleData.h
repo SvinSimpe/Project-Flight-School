@@ -4,8 +4,11 @@
 #include <windows.h>
 #include <utility>
 #include <xmmintrin.h>
+#include <thread>
+#include <DirectXMath.h>
+using namespace DirectX;
 
-#define MAX_PARTICLES 10000
+#define MAX_PARTICLES 100000
 
 struct ParticleData
 {
@@ -44,6 +47,7 @@ struct ParticleData
 		lifeTime = (float*)_mm_malloc( nrOfParticles * sizeof(float), 16 );
 		color	 = (DWORD*)_mm_malloc( nrOfParticles * sizeof(DWORD), 16 );
 		isAlive	 = (bool*)_mm_malloc(  nrOfParticles * sizeof(bool),  16 );
+
 
 		for ( size_t i = 0; i < nrOfParticles; i += 4 )
 		{
@@ -92,7 +96,6 @@ struct ParticleData
 
 			nrOfParticlesAlive += 4;
 		}
-
 		this->emitRate = emitRate;
 	}
 
@@ -157,7 +160,7 @@ struct ParticleData
 			velocityDelta	= _mm_mul_ps( xmm1, scalar );
 			xmm0 = _mm_add_ps( xmm0, velocityDelta );
 			_mm_store_ps( &zPosition[i], xmm0 );
-		}		
+		}
 	}
 
 	void UpdateLifeTime( float deltaTime )
@@ -280,6 +283,11 @@ struct ParticleData
 				vertexCount++;
 			}
 		}
+	}
+
+	void task1(std::string msg)
+	{
+		std::string x =  msg;
 	}
 };
 

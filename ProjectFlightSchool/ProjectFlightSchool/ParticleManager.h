@@ -22,6 +22,9 @@ class ParticleManager
 		void Update( float deltaTime );
 		void Render( float deltaTime );
 
+		bool RequestParticleSystem( size_t entityID, size_t particleType, XMFLOAT3 position, XMFLOAT3 direction );
+		bool DeactivateParticleSystem( size_t entityID, size_t particleType );
+
 		void Initialize();
 		void Release();
 

@@ -392,6 +392,8 @@ HRESULT PlayState::Update( float deltaTime )
 	}
 
 
+	mParticleManager->Update( deltaTime );
+
 	return S_OK;
 }
 
@@ -566,6 +568,10 @@ HRESULT PlayState::Initialize()
 		mEnemies[i]->Initialize( i );
 	}
 
+	//ParticleManager
+	mParticleManager = new ParticleManager();
+	mParticleManager->Initialize();
+
 	return S_OK;
 }
 
@@ -601,6 +607,8 @@ void PlayState::Release()
 
 	mFont.Release();
 
+	SAFE_RELEASE_DELETE( mParticleManager );
+
 }
 
 PlayState::PlayState()
@@ -615,6 +623,7 @@ PlayState::PlayState()
 	mMaxNrOfEnemies		= 0;
 	mEnemyListSynced	= false;
 	mServerInitialized  = false;
+	mParticleManager	= nullptr;
 }
 
 PlayState::~PlayState()

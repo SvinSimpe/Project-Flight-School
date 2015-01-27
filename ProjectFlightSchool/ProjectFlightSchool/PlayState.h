@@ -10,6 +10,7 @@
 #include "Enemy.h"
 #include "Ship.h"
 #include "Image.h"
+#include "ParticleManager.h"
 
 //Test
 #include "ParticleManager.h"
@@ -59,6 +60,8 @@ class PlayState : public BaseState
 		unsigned int				mMaxNrOfEnemies;
 		bool						mEnemyListSynced;
 		bool						mServerInitialized;
+
+		ParticleManager*			mParticleManager;
 	
 
 	protected:

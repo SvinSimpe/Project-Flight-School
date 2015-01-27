@@ -79,10 +79,6 @@ void Player::HandleInput( float deltaTime )
 	}
 	else
 		mMeleeCoolDown -= deltaTime;
-
-	//== Event to sync player with server ==
-	IEventPtr E1( new Event_Player_Update( mLowerBody.position, mLowerBody.direction, mLowerBody.currentLowerAnimation, mLowerBody.currentLowerAnimationTime, mUpperBody.position, mUpperBody.direction ) );
-	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 void Player::Move( float deltaTime )
@@ -181,6 +177,15 @@ HRESULT Player::Update( float deltaTime )
 
 	//Update Light
 	mPointLight->position = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 10.0f, mLowerBody.position.z, 0.0f );
+
+	//== Event to sync player with server ==
+	mEventCapTimer += deltaTime;
+	if( mEventCapTimer > 0.02f )
+	{
+		IEventPtr E1( new Event_Player_Update( mLowerBody.position, mLowerBody.direction, mLowerBody.currentLowerAnimation, mLowerBody.currentLowerAnimationTime, mUpperBody.position, mUpperBody.direction ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
+		mEventCapTimer -= 0.02f;
+	}
 
 	return S_OK;
 }
@@ -340,6 +345,8 @@ void Player::Release()
 Player::Player()
 	:RemotePlayer()
 {
+	mEventCapTimer		= 0.0f;
+
 	mPointLight			= nullptr;
 
 	mWeaponCoolDown		= 0.0f;

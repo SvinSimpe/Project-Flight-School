@@ -103,16 +103,47 @@ void Server::DisconnectClient( SOCKET s )
 	}
 }
 
+XMFLOAT3 Server::SpawnEnemy()
+{
+	return mSpawners[mNrOfEnemiesSpawned++ % MAX_NR_OF_ENEMY_SPAWNERS]->GetSpawnPosition();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
 
 HRESULT Server::Update( float deltaTime )
 {
-	if( mInGame )
+	if( mInGame && mFrameCount++ > 2 )
 	{
-		// Update
+		EvUpdateEnemyPosition enemy;
+		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+		{
+			if( mEnemies[i]->IsAlive() )
+			{
+				mEnemies[i]->Update( deltaTime );
+
+				enemy.ID			= mEnemies[i]->GetID();
+				enemy.position		= mEnemies[i]->GetPosition();
+
+				for ( auto& socket : mClientSockets )
+				{
+					if ( socket.s != INVALID_SOCKET && mEnemyListSynced )
+					{
+						mConn->SendPkg( socket.s, 0, Net_Event::EV_ENEMY_UPDATE_POSITION, enemy ); // Update all enemy positions to all players
+						//Sleep( 1 );
+					}
+				}
+			}
+			else
+			{
+				mEnemies[i]->Spawn( SpawnEnemy() );
+			}
+		}
+		mFrameCount = 0;
 	}
+
+	//mFrameCount++;
 
 	return S_OK;
 }
@@ -200,20 +231,36 @@ bool Server::Initialize( std::string port )
 	mConn = new Connection();
 	mConn->Initialize();
 
-	// Enemies
-	srand( (unsigned int)time( NULL ) );
+	// Enemies & Spawners
+	srand( time( NULL ) );
+	mSpawners	= new EnemySpawn*[MAX_NR_OF_ENEMY_SPAWNERS];
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+	{
+		// Map size values
+		int negX, negY, posX, posY;
+		negX = rand() % 50;
+		negY = rand() % 50;
+		posX = rand() % 50;
+		posY = rand() % 50;
+		mSpawners[i] = new EnemySpawn();
+		mSpawners[i]->Initilaize( i );
+		mSpawners[i]->SetPosition( XMFLOAT3( (float)(posX - negX), 0.0f, (float)(negY - posY) ) );
+	}
+
 	mEnemies	= new Enemy*[MAX_NR_OF_ENEMIES];
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 	{
 		mEnemies[i] = new Enemy();
 		mEnemies[i]->Initialize( i );
-		mEnemies[i]->Spawn( XMFLOAT3( (float)( rand()%50 ), 0.0f, (float)( rand()%50 ) ) );
+		mEnemies[i]->Spawn( SpawnEnemy() );
 		
 		//mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_UPDATE, msg );
 
 		//IEventPtr E1( new Event_Enemy_Created( mEnemies[i]->GetID(), mEnemies[i]->GetPosition(), MAX_NR_OF_ENEMIES) );
 		//EventManager::GetInstance()->QueueEvent( E1 );
 	}
+
+	mEnemyListSynced	= false;
 
 	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Game_Started::GUID );
 	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Game_Ended::GUID );
@@ -250,6 +297,11 @@ void Server::Release()
 		SAFE_DELETE( mEnemies[i] );
 
 	delete [] mEnemies;
+
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+		SAFE_DELETE( mSpawners[i] );
+
+	delete [] mSpawners;
 }
 
 Server::Server()
@@ -263,8 +315,13 @@ Server::Server()
 	mNrOfProjectilesFired	= 1;
 	
 	// Enemies
-	mInGame			= false;
-	mEnemies		= nullptr;
+	mInGame				= false;
+	mEnemies			= nullptr;
+	mSpawners			= nullptr;
+	mNrOfEnemiesSpawned	= 0;
+	mFrameCount			= 0;
+
+	mEnemyListSynced	= false;
 }
 
 Server::~Server()

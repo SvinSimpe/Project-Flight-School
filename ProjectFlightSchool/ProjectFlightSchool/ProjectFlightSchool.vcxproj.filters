@@ -171,35 +171,30 @@
     <ClCompile Include="InputSquare.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="Enemy.cpp">
- 	<Filter>Source Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="Button.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="Turret.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="Ship.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    
-
-
     <ClCompile Include="ParticleManager.cpp">
       <Filter>Particle System\Source</Filter>
     </ClCompile>
-  
-
-
     <ClCompile Include="LightManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-
+    <ClCompile Include="EnemySpawn.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RemoteEnemy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
@@ -322,10 +317,8 @@
     <ClInclude Include="InputSquare.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-
-
     <ClInclude Include="Enemy.h">
-	<Filter>Header Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Button.h">
       <Filter>Header Files</Filter>
@@ -336,27 +329,24 @@
     <ClInclude Include="Ship.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    
-
-
     <ClInclude Include="ParticleData.h">
       <Filter>Particle System\Header</Filter>
     </ClInclude>
-  
     <ClInclude Include="ParticleSystem.h">
       <Filter>Particle System\Header</Filter>
     </ClInclude>
-  
     <ClInclude Include="ParticleManager.h">
       <Filter>Particle System\Header</Filter>
     </ClInclude>
-      
-
-
     <ClInclude Include="LightManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-      
+    <ClInclude Include="EnemySpawn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RemoteEnemy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

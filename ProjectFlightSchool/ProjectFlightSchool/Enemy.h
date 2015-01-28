@@ -8,8 +8,8 @@
 #include "RenderManager.h"
 #include "Font.h"
 
-#define MAX_NR_OF_ENEMIES		80
 
+#define MAX_NR_OF_ENEMIES		2
 #define ENEMY_ANIMATION_IDLE	0
 #define ENEMY_ANIMATION_COUNT	1
 
@@ -20,13 +20,14 @@ class Enemy
 		unsigned int		mID;
 		AssetID				mModel;
 		AssetID				mAnimations[ENEMY_ANIMATION_COUNT];
-		float				mAnimationTime;
 		float				mCurrentHp;
 		float				mMaxHp;
 		bool				mIsAlive;
 		XMFLOAT3			mPosition;
 		XMFLOAT3			mDirection;
 		float				mVelocity;
+
+		float				time;
 
 	protected:
 	public:
@@ -38,7 +39,7 @@ class Enemy
 	protected:
 	public:
 		virtual HRESULT		Update( float deltaTime );
-		virtual HRESULT		Render();
+		virtual HRESULT		Render( );
 		virtual void		Spawn( XMFLOAT3 spawnPos );
 		virtual void		Die();
 		unsigned int		GetID() const;

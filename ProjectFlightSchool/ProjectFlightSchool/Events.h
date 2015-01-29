@@ -45,11 +45,7 @@ class Event_Player_Update : public IEvent
 	// Member variables
 	private:
 		XMFLOAT3		mLowerBodyPos;
-		XMFLOAT3		mLowerBodyDirection;
-		unsigned int	mLowerBodyAnimation;
-		float			mLowerBodyAnimationTime;
-
-		XMFLOAT3		mUpperBodyPos;
+		XMFLOAT3		mVelocity;
 		XMFLOAT3		mUpperBodyDirection;
 
 	protected:
@@ -64,34 +60,19 @@ class Event_Player_Update : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Player_Update( XMFLOAT3 lowerBodyPos, XMFLOAT3 lowerBodyDirection, unsigned int lowerBodyAnimation, float lowerBodyAnimationTime, XMFLOAT3 upperBodyPos, XMFLOAT3 upperBodyDirection )
+		Event_Player_Update( XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDirection )
 		{
 			mLowerBodyPos			= lowerBodyPos;
-			mLowerBodyDirection		= lowerBodyDirection;
-			mLowerBodyAnimation		= lowerBodyAnimation;
-			mLowerBodyAnimationTime	= lowerBodyAnimationTime;
-			mUpperBodyPos			= upperBodyPos;
+			mVelocity				= velocity;
 			mUpperBodyDirection		= upperBodyDirection;
 		}
 		XMFLOAT3 LowerBodyPos() const
 		{
 			return mLowerBodyPos;
 		}
-		XMFLOAT3 LowerBodyDirection() const
+		XMFLOAT3 Velocity() const
 		{
-			return mLowerBodyDirection;
-		}
-		unsigned int LowerBodyAnimation() const
-		{
-			return mLowerBodyAnimation;
-		}
-		float LowerBodyAnimationTime() const
-		{
-			return mLowerBodyAnimationTime;
-		}
-		XMFLOAT3 UpperBodyPos() const
-		{
-			return mUpperBodyPos;
+			return mVelocity;
 		}
 		XMFLOAT3 UpperBodyDirection() const
 		{
@@ -105,11 +86,7 @@ class Event_Remote_Player_Update : public IEvent
 	private:
 		unsigned int	mID;
 		XMFLOAT3		mLowerBodyPos;
-		XMFLOAT3		mLowerBodyDirection;
-		unsigned int	mLowerBodyAnimation;
-		float			mLowerBodyAnimationTime;
-
-		XMFLOAT3		mUpperBodyPos;
+		XMFLOAT3		mVelocity;
 		XMFLOAT3		mUpperBodyDirection;
 
 	protected:
@@ -124,14 +101,11 @@ class Event_Remote_Player_Update : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Remote_Player_Update( unsigned int id, XMFLOAT3 lowerBodyPos, XMFLOAT3 lowerBodyDirection, unsigned int lowerBodyAnimation, float lowerBodyAnimationTime, XMFLOAT3 upperBodyPos, XMFLOAT3 upperBodyDirection )
+		Event_Remote_Player_Update( unsigned int id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDirection )
 		{
 			mID						= id;
 			mLowerBodyPos			= lowerBodyPos;
-			mLowerBodyDirection		= lowerBodyDirection;
-			mLowerBodyAnimation		= lowerBodyAnimation;
-			mLowerBodyAnimationTime	= lowerBodyAnimationTime;
-			mUpperBodyPos			= upperBodyPos;
+			mVelocity				= velocity;
 			mUpperBodyDirection		= upperBodyDirection;
 		}
 		unsigned int ID() const
@@ -142,21 +116,9 @@ class Event_Remote_Player_Update : public IEvent
 		{
 			return mLowerBodyPos;
 		}
-		XMFLOAT3 LowerBodyDirection() const
+		XMFLOAT3 Velocity() const
 		{
-			return mLowerBodyDirection;
-		}
-		unsigned int LowerBodyAnimation() const
-		{
-			return mLowerBodyAnimation;
-		}
-		float LowerBodyAnimationTime() const
-		{
-			return mLowerBodyAnimationTime;
-		}
-		XMFLOAT3 UpperBodyPos() const
-		{
-			return mUpperBodyPos;
+			return mVelocity;
 		}
 		XMFLOAT3 UpperBodyDirection() const
 		{

@@ -51,7 +51,7 @@ void Client::HandlePkg( Package<T>* p )
 		case Net_Event::EV_PLAYER_UPDATE:
 		{
 			EvPlayerUpdate msg = (EvPlayerUpdate&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Update( msg.id, msg.lowerBodyPosition, msg.lowerBodyDirection, msg.lowerBodyAnimation, msg.lowerBodyAnimationTime, msg.upperBodyPosition, msg.upperBodyDirection ) );
+			IEventPtr E1( new Event_Remote_Player_Update( msg.id, msg.lowerBodyPosition, msg.velocity, msg.upperBodyDirection ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;

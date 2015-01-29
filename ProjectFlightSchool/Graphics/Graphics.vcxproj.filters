@@ -178,10 +178,8 @@
     <Text Include="DebugShaderEffect.hlsl">
       <Filter>Effects</Filter>
     </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="..\Content\Effects\BillboardEffect.hlsl">
+    <Text Include="..\Content\Effects\BillboardEffect.hlsl">
       <Filter>Effects</Filter>
-    </FxCompile>
+    </Text>
   </ItemGroup>
 </Project>

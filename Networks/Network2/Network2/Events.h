@@ -43,6 +43,7 @@
 //---------------------------------------------------------------------------------------------------------------------
 // EvtData_Update_Tick - sent by the game logic each game tick
 //---------------------------------------------------------------------------------------------------------------------
+
 class EvtData_Update_Tick : public BaseEventData
 {
     int m_DeltaMilliseconds;
@@ -67,7 +68,7 @@ public:
 
 	virtual IEventDataPtr VCopy() const
 	{
-		return IEventDataPtr (GCC_NEW EvtData_Update_Tick ( m_DeltaMilliseconds ) );
+		return IEventDataPtr ( GCC_NEW EvtData_Update_Tick ( m_DeltaMilliseconds ) );
 	}
 
 	virtual void VSerialize( std::ostrstream & out )
@@ -81,3 +82,48 @@ public:
     }
 };
 
+// This event is used to send text
+class EvtData_Send_Text : public BaseEventData
+{
+	std::string mMessage;
+
+public:
+	static const EventType sk_EventType;
+
+	EvtData_Send_Text() {}
+
+	explicit EvtData_Send_Text( std::string message )
+		: mMessage(message)
+	{
+	}
+
+	std::string GetMessage() const
+	{
+		return mMessage;
+	}
+
+	virtual const EventType& VGetEventType(void) const
+	{
+		return sk_EventType;
+	}
+
+	virtual IEventDataPtr VCopy() const
+	{
+		return IEventDataPtr ( GCC_NEW EvtData_Send_Text (mMessage) );
+	}
+
+	virtual void VSerialize( std::ostrstream& out )
+	{
+		out << mMessage << " ";
+	}
+
+	virtual void VDeserialize( std::istream& in )
+	{
+		in >> mMessage;
+	}
+
+	virtual const char* GetName() const
+	{
+		return "EvtData_Send_Text";
+	}
+};

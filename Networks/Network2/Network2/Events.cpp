@@ -42,3 +42,4 @@
 // In Visual Studio, go to Tools->Create GUID and grab the first bit.
 
 const EventType EvtData_Update_Tick::sk_EventType(0xf0f5d183);
+const EventType EvtData_Send_Text::sk_EventType(0x69a3200a);

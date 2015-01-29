@@ -873,6 +873,7 @@ bool ClientSocketManager::Connect()
 		return false;
 	}
 	AddSocket( pSocket );
+
 	return true;
 }
 

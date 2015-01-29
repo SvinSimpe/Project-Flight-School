@@ -89,6 +89,7 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="EnemySpawn.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="..\Graphics\Font.cpp" />
     <ClCompile Include="BaseMenuState.cpp" />
@@ -115,6 +116,7 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayState.cpp" />
     <ClCompile Include="Projectile.cpp" />
+    <ClCompile Include="RemoteEnemy.cpp" />
     <ClCompile Include="RemotePlayer.cpp" />
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="Ship.cpp" />
@@ -131,6 +133,7 @@
     <ClInclude Include="BaseState.h" />
     <ClInclude Include="BoundingGeometry.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EnemySpawn.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="CreateMenuState.h" />
     <ClInclude Include="Entry.h" />
@@ -156,6 +159,7 @@
     <ClInclude Include="KeyDefines.h" />
     <ClInclude Include="PlayState.h" />
     <ClInclude Include="Projectile.h" />
+    <ClInclude Include="RemoteEnemy.h" />
     <ClInclude Include="RemotePlayer.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="RenderStructs.h" />

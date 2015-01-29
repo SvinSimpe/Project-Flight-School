@@ -12,14 +12,17 @@ void Enemy::RemoteUpdate( IEventPtr newEvent )
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT Enemy::Update( float deltaTime )
 {
-	mAnimationTime += deltaTime;
-	//mPosition.x += mVelocity;
+	mPosition.x += mVelocity;
+	time	+=	deltaTime;
+	if( mPosition.x >= 50 )
+		Die();
+
 	return S_OK;
 }
 
-HRESULT Enemy::Render()
+HRESULT Enemy::Render(  )
 {
-	RenderManager::GetInstance()->AddAnim3dToList( mModel, mAnimations[ENEMY_ANIMATION_IDLE], &mAnimationTime, ANIMATION_PLAY_LOOPED, mPosition );
+	RenderManager::GetInstance()->AddAnim3dToList( mModel, mAnimations[ENEMY_ANIMATION_IDLE], &time, ANIMATION_PLAY_LOOPED, mPosition );
 	return S_OK;
 }
 
@@ -30,10 +33,6 @@ void Enemy::Spawn( XMFLOAT3 spawnPos )
 	mCurrentHp	= mMaxHp;
 
 	// Send spawnEv
-
-	// Debug
-	/*mPosition.x = rand() % 20;
-	mPosition.z = rand() % 20;*/
 }
 
 void Enemy::Die()
@@ -124,13 +123,15 @@ HRESULT Enemy::Initialize( int id )
 	// Load animated 3d asset
 	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, mModel );
 	// Load animation asset
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptor_idle.PaMan", mAnimations[ENEMY_ANIMATION_IDLE] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptor_run.PaMan", mAnimations[ENEMY_ANIMATION_IDLE] );
 
 	mID				= id;
 	mMaxHp			= 100.0f;
 	mCurrentHp		= mMaxHp;
-	mAnimationTime	= 1.0f;
-	mVelocity		= 0.02f;
+	mVelocity		= 0.15;
+	mIsAlive		= false;
+
+	time			= 1.0f;
 
 	return S_OK;
 }
@@ -143,7 +144,6 @@ Enemy::Enemy()
 {
 	mID				= 0;
 	mModel			= 0;
-	mAnimationTime	= 0.0f;
 	mCurrentHp		= 0.0f;
 	mMaxHp			= 0.0f;
 	mIsAlive		= false;

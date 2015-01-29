@@ -66,5 +66,8 @@ const EventType Event_Server_Initialized::GUID( 22 );
 const EventType Event_Connection_Failed::GUID( 23 );
 const EventType Event_Player_Melee_Hit::GUID( 24 );
 const EventType Event_Remote_Player_Melee_Hit::GUID( 25 ); 
-const EventType	Event_Add_Point_Light::GUID( 26 );
-const EventType	Event_Remove_Point_Light::GUID( 27 );
+const EventType Event_Sync_Spawn::GUID( 26 );
+const EventType Event_Update_Enemy_Position::GUID( 27 );
+const EventType	Event_Add_Point_Light::GUID( 28 );
+const EventType	Event_Remove_Point_Light::GUID( 29 );
+

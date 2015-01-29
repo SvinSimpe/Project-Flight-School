@@ -120,13 +120,27 @@ void Client::HandlePkg( Package<T>* p )
 		case Net_Event::EV_SYNC_ENEMY:
 		{
 			EvSyncEnemy enemy = (EvSyncEnemy&)p->body.content;
-			IEventPtr E1( new Event_Sync_Enemy( enemy.ID, enemy.model, enemy.animation, enemy.hp, enemy.isAlive, enemy.position, enemy.direction  ) );
+			IEventPtr E1( new Event_Sync_Enemy( enemy.ID, enemy.model, enemy.animation, enemy.position, enemy.direction  ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
 		case Net_Event::EV_ENEMY_LIST_SYNCED:
 		{
 			IEventPtr E1( new Event_Enemy_List_Synced() );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
+		case Net_Event::EV_SYNC_SPAWN:
+		{
+			EvSyncSapwn spawn = (EvSyncSapwn&)p->body.content;
+			IEventPtr E1( new Event_Sync_Spawn( spawn.ID, spawn.position ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
+		case Net_Event::EV_ENEMY_UPDATE_POSITION:
+		{
+			EvUpdateEnemyPosition enemy = (EvUpdateEnemyPosition&)p->body.content;
+			IEventPtr E1( new Event_Update_Enemy_Position( enemy.ID, enemy.position ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;

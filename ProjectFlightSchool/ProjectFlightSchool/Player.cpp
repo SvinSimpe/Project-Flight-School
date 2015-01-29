@@ -61,7 +61,7 @@ void Player::HandleInput( float deltaTime )
 	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_MOUSE_LEFT) && mWeaponCoolDown <= 0.0f )
 	{
 		Fire();
-		mWeaponCoolDown = 0.8f;
+		mWeaponCoolDown = 0.1f;
 		mArms.rightArmCurrentAnimation	= PLAYER_ANIMATION_SHOTGUN_ATTACK;
 		mArms.rightArmAnimationTime		= 1.0f / 60.0f;
 		mRightArmAnimationCompleted		= false;
@@ -319,7 +319,7 @@ HRESULT Player::Initialize()
 	// Light
 	mPointLight						= new PointLight;
 	mPointLight->position			= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
-	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.2f, 0.2f, 0.4f, 30.0f );
+	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.4f, 0.4f, 0.4f, 30.0f );
 	IEventPtr reg( new Event_Add_Point_Light( mPointLight ) );
 	EventManager::GetInstance()->QueueEvent( reg );
 

@@ -63,12 +63,12 @@ void RenderManager::AddBoxToList( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 	info.max = max;
 	mBoxArray[mNrOfBoxes++] = info;
 }
-bool RenderManager::AddAnim3dToList( AssetID modelAssetId, AssetID animationAssetId, float* animationTime, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation )
+bool RenderManager::AddAnim3dToList( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation )
 {
     static Anim3dInfo info;
-	info.mModelId	= modelAssetId;
+	info.mModelId	= animTrack.mModelID;
 
-	bool localReturn = Graphics::GetInstance()->GetAnimationMatrices( modelAssetId, animationAssetId, *animationTime, playType, position, rotation, info ); 
+	bool localReturn = Graphics::GetInstance()->GetAnimationMatrices( animTrack, playType, position, rotation, info ); 
 
 	mAnim3dArray[mNrOfAnim3d++] = info;
 
@@ -94,6 +94,38 @@ void RenderManager::AddBillboardToList( AssetID assetId, DirectX::XMFLOAT3 world
 	info.mHeight		= height;
 
 	mBillboardArray[mNrOfBillboard++] = info;
+}
+
+void RenderManager::AnimationInitialize( AnimationTrack &animationTrack, AssetID model, AssetID defaultAnimation )
+{
+	animationTrack.mModelID					= model;
+	animationTrack.mCurrentAnimation		= defaultAnimation;
+	animationTrack.mCurrentAnimationTime	= 1.0f / 60.0f;
+	animationTrack.mNextAnimation			= defaultAnimation;
+	animationTrack.mNextAnimationTime		= 1.0f / 60.0f;
+	animationTrack.mInterpolation			= 0.0f;
+}
+
+void RenderManager::AnimationUpdate( AnimationTrack &animationTrack, float deltaTime )
+{
+	animationTrack.mCurrentAnimationTime += deltaTime;
+	if( animationTrack.mInterpolation > 0.0f )
+	{
+		animationTrack.mNextAnimationTime	+= deltaTime;
+		animationTrack.mInterpolation		-= deltaTime;
+		if( animationTrack.mInterpolation <= 0.0f )
+		{
+			animationTrack.mCurrentAnimation		= animationTrack.mNextAnimation;
+			animationTrack.mCurrentAnimationTime	= animationTrack.mNextAnimationTime;
+		}
+	}
+}
+
+void RenderManager::AnimationStartNew( AnimationTrack &animationTrack, AssetID newAnimation )
+{
+	animationTrack.mNextAnimation		= newAnimation;
+	animationTrack.mNextAnimationTime	= 1.0f / 60.0f;
+	animationTrack.mInterpolation		= 0.2f;
 }
 
 HRESULT RenderManager::Update( float deltaTime )

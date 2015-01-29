@@ -62,4 +62,14 @@ struct RenderLists
 	UINT			sizeOfPlaneList;
 };
 
+struct AnimationTrack
+{
+	UINT	mModelID;
+	UINT	mCurrentAnimation;
+	float	mCurrentAnimationTime;
+	UINT	mNextAnimation;
+	float	mNextAnimationTime;
+	float	mInterpolation;
+};
+
 #endif

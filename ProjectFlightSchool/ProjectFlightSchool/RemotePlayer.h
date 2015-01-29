@@ -25,28 +25,19 @@ struct UpperBody
 {
 	AssetID		playerModel;
 	XMFLOAT3	direction;
-	XMFLOAT3	position;
 };
 
 struct LowerBody
 {
-	AssetID		playerModel;
-	XMFLOAT3	direction;
-	XMFLOAT3	position;
-
-	AssetID		currentLowerAnimation;
-	float		currentLowerAnimationTime;
+	AnimationTrack	playerModel;
+	XMFLOAT3		direction;
+	XMFLOAT3		position;
 };
 
 struct Arms
 {
-	AssetID		leftArm;
-	AssetID		leftArmCurrentAnimation;
-	float		leftArmAnimationTime;
-
-	AssetID		rightArm;
-	AssetID		rightArmCurrentAnimation;
-	float		rightArmAnimationTime;
+	AnimationTrack leftArm;
+	AnimationTrack rightArm;
 };
 
 struct LoadOut
@@ -131,7 +122,8 @@ class RemotePlayer
 		XMFLOAT3		GetDirection() const;
 		void			SetDirection( XMFLOAT3 direction );
 		void			AddImpuls( XMFLOAT3 impuls );
-		virtual HRESULT	Render( float deltaTime, int position );
+		virtual HRESULT	Update( float deltaTime );
+		virtual HRESULT	Render( int position );
 		virtual HRESULT	Initialize();
 		void			Release();
 						RemotePlayer();

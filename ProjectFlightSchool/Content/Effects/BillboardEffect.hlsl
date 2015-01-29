@@ -1,11 +1,4 @@
 //Vertex
-cbuffer CbufferPerFrame	: register( b0 )
-{
-	float4x4 viewMatrix;
-	float4x4 projectionMatrix;
-	float4	 cameraPosition;
-}
-
 struct VS_In
 {
 	float3 unused	: POSITION;
@@ -20,6 +13,13 @@ VS_In VS_main( VS_In input )
 }
 
 //Geometry
+cbuffer CbufferPerFrame	: register( b0 )
+{
+	float4x4 viewMatrix;
+	float4x4 projectionMatrix;
+	float4	 cameraPosition;
+}
+
 struct GS_Out
 {
 	float4 position	: SV_POSITION;
@@ -30,9 +30,8 @@ struct GS_Out
 void GS_main( point VS_In input[1], inout TriangleStream<GS_Out> outputStream )
 {
 	float3 vecToCam = normalize( ( input[0].position - cameraPosition.xyz ) );
-	float3 upVec	= float3( 0.0f, 1.0f, 0.0f );
-	float3 rightVec = normalize( cross( upVec, vecToCam ) );
-	upVec = normalize( cross( vecToCam, rightVec ) );
+	float3 rightVec = float3( 1.0f, 0.0f, 0.0f );
+	float3 upVec = normalize( cross( vecToCam, rightVec ) );
 
 	//Get vertices for the quad
 	float3 vert[4];

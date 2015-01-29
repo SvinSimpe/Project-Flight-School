@@ -9,11 +9,10 @@ class RemoteEnemy
 {
 	private:
 		unsigned int		mID;
-		AssetID				mModel;
+		AnimationTrack		mAnimationTrack;
 		AssetID				mAnimations[ENEMY_ANIMATION_COUNT];
 		XMFLOAT3			mPosition;
 		XMFLOAT3			mDirection;
-		float				mAnimationTime;
 
 	protected:
 	public:

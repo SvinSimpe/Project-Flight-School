@@ -394,6 +394,14 @@ HRESULT PlayState::Update( float deltaTime )
 	else
 		mFrameCounter++;
 
+	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
+	{
+		if ( mRemotePlayers.at(i) )
+		{
+			mRemotePlayers.at(i)->Update( deltaTime );
+		}
+	}
+
 	HandleDeveloperCameraInput();
 	mPlayer->Update( deltaTime );
 
@@ -427,7 +435,7 @@ HRESULT PlayState::Render()
 	{
 		if ( mRemotePlayers.at(i) )
 		{
-			mRemotePlayers.at(i)->Render( 0.0f, i + 2 );
+			mRemotePlayers.at(i)->Render( i + 2 );
 		}
 	}
 

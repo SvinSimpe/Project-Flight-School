@@ -13,7 +13,7 @@ void Enemy::RemoteUpdate( IEventPtr newEvent )
 HRESULT Enemy::Update( float deltaTime )
 {
 	mPosition.x += mVelocity;
-	time	+=	deltaTime;
+	RenderManager::GetInstance()->AnimationUpdate( mAnimationTrack,deltaTime );
 	if( mPosition.x >= 50 )
 		Die();
 
@@ -22,7 +22,7 @@ HRESULT Enemy::Update( float deltaTime )
 
 HRESULT Enemy::Render(  )
 {
-	RenderManager::GetInstance()->AddAnim3dToList( mModel, mAnimations[ENEMY_ANIMATION_IDLE], &time, ANIMATION_PLAY_LOOPED, mPosition );
+	RenderManager::GetInstance()->AddAnim3dToList( mAnimationTrack, ANIMATION_PLAY_LOOPED, mPosition );
 	return S_OK;
 }
 
@@ -55,12 +55,12 @@ void Enemy::SetID( unsigned int id )
 
 AssetID Enemy::GetModelID() const
 {
-	return mModel;
+	return mAnimationTrack.mModelID;
 }
 
 void Enemy::SetModelID( AssetID model )
 {
-	mModel = model;
+	mAnimationTrack.mModelID = model;
 }
 
 AssetID Enemy::GetAnimation() const
@@ -117,21 +117,23 @@ void Enemy::SetDirection( XMFLOAT3 direction )
 
 HRESULT Enemy::Initialize( int id )
 {
-	// Load skeleton
-	AssetID skeleton = 0;
-	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", skeleton ); // Debug, raptor
-	// Load animated 3d asset
-	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, mModel );
 	// Load animation asset
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptor_run.PaMan", mAnimations[ENEMY_ANIMATION_IDLE] );
+
+	// Load skeleton
+	AssetID skeleton	= 0;
+	AssetID model		= 0;
+	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", skeleton ); // Debug, raptor
+	// Load animated 3d asset
+	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, model );
+	// Load animationTrack with model and standard animation
+	RenderManager::GetInstance()->AnimationInitialize( mAnimationTrack, model, mAnimations[ENEMY_ANIMATION_IDLE] );
 
 	mID				= id;
 	mMaxHp			= 100.0f;
 	mCurrentHp		= mMaxHp;
 	mVelocity		= 0.15;
 	mIsAlive		= false;
-
-	time			= 1.0f;
 
 	return S_OK;
 }
@@ -143,7 +145,6 @@ void Enemy::Release()
 Enemy::Enemy()
 {
 	mID				= 0;
-	mModel			= 0;
 	mCurrentHp		= 0.0f;
 	mMaxHp			= 0.0f;
 	mIsAlive		= false;

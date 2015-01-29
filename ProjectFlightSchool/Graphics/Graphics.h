@@ -137,7 +137,7 @@ class LIBRARY_EXPORT Graphics
 		void RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max );
 
 
-		DirectX::XMFLOAT4X4	GetRootMatrix( AssetID modelAssetId, AssetID animationAssetId, float animationTime );
+		DirectX::XMFLOAT4X4	GetRootMatrix( AnimationTrack animTrack );
 
 		Camera* GetCamera() const;
 		Camera* GetDeveloperCamera() const;
@@ -158,7 +158,7 @@ class LIBRARY_EXPORT Graphics
 		void	ScreenSpacePass();
 		void	EndScene();
 
-		bool GetAnimationMatrices( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo& info );
+		bool GetAnimationMatrices( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo &info );
 
 		UINT QueryMemoryUsed();
 

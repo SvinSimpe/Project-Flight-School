@@ -21,6 +21,12 @@
 
 #define PLAYER_ANIMATION_COUNT 7
 
+struct ServerPlayer
+{
+	unsigned int	ID;
+	XMFLOAT3		Position;
+};
+
 struct UpperBody
 {
 	AssetID		playerModel;

@@ -108,13 +108,37 @@ XMFLOAT3 Server::SpawnEnemy()
 	return mSpawners[mNrOfEnemiesSpawned++ % MAX_NR_OF_ENEMY_SPAWNERS]->GetSpawnPosition();
 }
 
+void Server::AggroCheck()
+{
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	{
+		if( mEnemies[i]->IsAlive() )
+		{
+			for ( size_t j = 0; j < mNrOfPlayers; j++ )
+			{
+				mAggCircle->center = mPlayers[j].Position;
+				mAggCircle->radius = 0.5f;
+
+				if( mEnemies[i]->GetAttackCircle()->Intersect( mAggCircle ) )
+				{
+					mEnemies[i]->SetVelocity( 0.0f );
+				}
+				else
+				{
+					mEnemies[i]->SetVelocity( 0.15f );
+				}
+			}
+		}
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
 
 HRESULT Server::Update( float deltaTime )
 {
-	if( mInGame && mFrameCount++ > 2 )
+	if( mInGame && mSafeUpdate && mFrameCount++ > 2 )
 	{
 		EvUpdateEnemyPosition enemy;
 		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
@@ -140,6 +164,10 @@ HRESULT Server::Update( float deltaTime )
 				mEnemies[i]->Spawn( SpawnEnemy() );
 			}
 		}
+
+		/*if( mSafeUpdate )
+			AggroCheck();*/
+
 		mFrameCount = 0;
 	}
 
@@ -261,6 +289,8 @@ bool Server::Initialize( std::string port )
 	}
 
 	mEnemyListSynced	= false;
+	mSafeUpdate			= false;
+	mAggCircle			= new BoundingCircle();
 
 	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Game_Started::GUID );
 	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Game_Ended::GUID );
@@ -302,6 +332,8 @@ void Server::Release()
 		SAFE_DELETE( mSpawners[i] );
 
 	delete [] mSpawners;
+
+	SAFE_DELETE( mAggCircle );
 }
 
 Server::Server()
@@ -321,7 +353,11 @@ Server::Server()
 	mNrOfEnemiesSpawned	= 0;
 	mFrameCount			= 0;
 
+	mAggCircle			= nullptr;
+
 	mEnemyListSynced	= false;
+	mSafeUpdate			= false;
+	mNrOfPlayers		= 0;
 }
 
 Server::~Server()

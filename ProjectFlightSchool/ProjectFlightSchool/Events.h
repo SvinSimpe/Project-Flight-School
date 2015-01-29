@@ -1041,7 +1041,6 @@ class Event_Update_Enemy_Position : public IEvent
 		}
 };
 		
-
 class Event_Remove_Point_Light : public IEvent
 {
 	// Member variables

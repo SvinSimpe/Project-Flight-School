@@ -8,7 +8,7 @@ HRESULT RemoteEnemy::Update( float deltaTime )
 
 HRESULT RemoteEnemy::Render()
 {
-	RenderManager::GetInstance()->AddAnim3dToList( mModel, mAnimations[ENEMY_ANIMATION_IDLE], &mAnimationTime, ANIMATION_PLAY_LOOPED, mPosition );
+	RenderManager::GetInstance()->AddAnim3dToList( mModel, mAnimation, &mAnimationTime, ANIMATION_PLAY_LOOPED, mPosition );
 	return S_OK;
 }
 
@@ -24,7 +24,7 @@ void RemoteEnemy::SetModelID( AssetID model )
 
 void RemoteEnemy::SetAnimation( AssetID animation )
 {
-	mAnimations[ENEMY_ANIMATION_IDLE] = animation;
+	mAnimation = animation;
 }
 
 void RemoteEnemy::SetPosition( XMFLOAT3 position )
@@ -35,6 +35,16 @@ void RemoteEnemy::SetPosition( XMFLOAT3 position )
 void RemoteEnemy::SetDirection( XMFLOAT3 direction )
 {
 	mDirection = direction;
+}
+
+void RemoteEnemy::SetSynced( bool isSynced )
+{
+	mIsSynced	= isSynced;
+}
+
+bool RemoteEnemy::IsSynced() const
+{
+	return mIsSynced;
 }
 
 HRESULT RemoteEnemy::Initialize( int id )
@@ -59,6 +69,7 @@ RemoteEnemy::RemoteEnemy()
 	mPosition		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mAnimationTime	= 0.0f;
+	mIsSynced		= false;
 }
 
 RemoteEnemy::~RemoteEnemy()

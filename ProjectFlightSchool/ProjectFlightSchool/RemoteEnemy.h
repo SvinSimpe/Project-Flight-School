@@ -10,10 +10,11 @@ class RemoteEnemy
 	private:
 		unsigned int		mID;
 		AssetID				mModel;
-		AssetID				mAnimations[ENEMY_ANIMATION_COUNT];
+		AssetID				mAnimation;
 		XMFLOAT3			mPosition;
 		XMFLOAT3			mDirection;
 		float				mAnimationTime;
+		bool				mIsSynced;
 
 	protected:
 	public:
@@ -28,6 +29,8 @@ class RemoteEnemy
 		void				SetAnimation( AssetID animation );
 		void				SetPosition( XMFLOAT3 position );
 		void				SetDirection( XMFLOAT3 direction );
+		void				SetSynced( bool isSynced );
+		bool				IsSynced() const;
 		virtual HRESULT		Initialize( int id );
 		void				Release();
 							RemoteEnemy();

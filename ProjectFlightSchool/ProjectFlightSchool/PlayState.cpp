@@ -155,6 +155,7 @@ void PlayState::SyncEnemy( unsigned int id, unsigned int model, unsigned int ani
 	mEnemies[id]->SetAnimation( animation );
 	mEnemies[id]->SetPosition( position );
 	mEnemies[id]->SetDirection( direction );
+	mEnemies[id]->SetSynced( true );
 
 	if( id == (MAX_NR_OF_ENEMIES-1) )
 		mEnemyListSynced = true;
@@ -408,7 +409,8 @@ HRESULT PlayState::Update( float deltaTime )
 	{
 		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 		{
-			mEnemies[i]->Update( deltaTime );
+			if( mEnemies[i]->IsSynced() )
+				mEnemies[i]->Update( deltaTime );
 		}
 	}
 	
@@ -438,7 +440,8 @@ HRESULT PlayState::Render()
 	{
 		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 		{
-			mEnemies[i]->Render();
+			if( mEnemies[i]->IsSynced() )
+				mEnemies[i]->Render();
 		}
 	}
 

@@ -40,14 +40,64 @@
 #include <functional>
 #include <strstream>
 #include <memory>
+#include <sstream>
+#include <map>
+
 //---------------------------------------------------------------------------------------------------------------------
 // Forward declaration & typedefs
 //---------------------------------------------------------------------------------------------------------------------
 class IEvent;
 
 typedef unsigned long EventType;
-typedef std::shared_ptr< IEvent > IEventPtr;
+typedef std::shared_ptr<IEvent> IEventPtr;
 typedef std::function<void( IEventPtr )> EventListenerDelegate;
+
+class EventFactory
+{
+	private:
+		std::map<EventType, IEvent*> mEvents;
+	protected:
+	public:
+
+	private:
+	protected:
+	public:
+		EventFactory()
+		{
+			mEvents = std::map<EventType, IEvent*>();
+		}
+
+		template<class SubClass>
+		bool Register( EventType id );
+		IEvent* Create( EventType id );
+};
+
+template<class SubClass>
+bool EventFactory::Register( EventType id )
+{
+	auto findIt = mEvents.find( id );
+	if( findIt == mEvents.end() )
+	{
+		mEvents[id] = dynamic_cast<IEvent*>(new SubClass());
+		return true;
+	}
+	return false;
+}
+
+IEvent* EventFactory::Create( EventType id )
+{
+	auto findIt = mEvents.find( id );
+	if( findIt != mEvents.end() )
+	{
+		IEvent* obj = findIt->second;
+		return obj;
+	}
+	return nullptr;
+}
+
+extern EventFactory gEventFactory = EventFactory();
+#define REGISTER_EVENT(eventClass) gEventFactory.Register<eventClass>(eventClass::GetEventType())
+#define CREATE_EVENT(eventType) gEventFactory.Create(eventType)
 
 //---------------------------------------------------------------------------------------------------------------------
 // IEventData                               - Chapter 11, page 310
@@ -58,7 +108,10 @@ class IEvent
 {
 	public:
 		virtual ~IEvent( void ) {}
-		virtual const EventType& GetEventType( void ) const = 0;
+		virtual const EventType& GetEventType( void ) const		= 0;
+		virtual void Serialize( std::stringstream& out ) const	= 0;
+		virtual void Deserialize( std::stringstream& in  )		= 0;
+		virtual IEventPtr Copy() const							= 0;
 };
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -84,7 +137,6 @@ public:
 
 	// returns true if all messages ready for processing were completed, false otherwise (e.g. timeout )
 	virtual bool Update( unsigned long maxMillis = kINFINITE ) = 0;
-
 
     // Registers a delegate function that will get called when the event type is triggered.  Returns true if 
     // successful, false if not.
@@ -118,8 +170,6 @@ public:
 
 	explicit IEventManager();
 	virtual ~IEventManager( void );
-
-
 };
 
 #endif

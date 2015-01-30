@@ -390,8 +390,12 @@ void ServerListenSocket::HandleInput()
 		int ipAddress = socket->GetIPAddress();
 
 		printf( "Client with sockID: %d connected from %d.\n", sockID, ipAddr );
+
         //std::shared_ptr<EvtData_Remote_Client> pEvent(GCC_NEW EvtData_Remote_Client(sockId, ipAddress));
         //IEventManager::Get()->VQueueEvent(pEvent);
+
+		std::shared_ptr<Event_Client> E1( PFS_NEW Event_Client( ipAddress, sockID ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 }
 
@@ -405,9 +409,22 @@ ServerListenSocket::ServerListenSocket( int portNum )
 
 /////////////////////////////////////////////////////////////////
 // RemoteEventSocket functions
-void RemoteEventSocket::CreateEvent( std::istrstream &in )
+
+void RemoteEventSocket::CreateEvent( std::stringstream &in )
 {
-	// Event creation logic here
+	EventType eventType;
+	in >> eventType;
+
+	IEventPtr E1( CREATE_EVENT( eventType ) );
+	if( E1 )
+	{
+		E1->Deserialize(in);
+		EventManager::GetInstance()->QueueEvent( E1 );
+	}
+	else
+	{
+		printf("ERROR Unknown event type from remote");
+	}
 }
 
 void RemoteEventSocket::HandleInput()
@@ -428,20 +445,21 @@ void RemoteEventSocket::HandleInput()
 				const char* buf = packet->GetData();
 				int size = static_cast<int>( packet->GetSize() );
 
-				std::istrstream in( buf + sizeof( u_long ), (size - sizeof( u_long ) ) );
+				std::stringstream in( buf + sizeof( u_long ), (size - sizeof( u_long ) ) );
 
 				int type;
 				in >> type;
 				switch( type ) // This is where we will put the input logic to the client
 				{
 				case NetMsg_Event:
-					CreateEvent( in );
-					break;
-				case NetMsg_PlayerLoginOk:
-					// Logic for creating an event where a new player is joining
+					{
+						CreateEvent( in );
+					}
 					break;
 				default:
-					printf( "Unknown message type" );
+					{
+						printf( "Unknown message type" );
+					}
 				}
 			}
 			else if( !strcmp( packet->GetType(), TextPacket::gType ) )

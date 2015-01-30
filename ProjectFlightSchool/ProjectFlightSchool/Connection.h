@@ -69,14 +69,13 @@ bool Connection::ReceivePkg( SOCKET &from, Package<T> &p )
 	if ( from == INVALID_SOCKET )
 		return false;
 
-	mResult = recv( from, (char*)&p, DEFAULT_BUFLEN, 0 );
+	mResult = recv( from, (char*)&p, DEFAULT_BUFLEN;, 0 );
 	if ( mResult < 0 )
 	{
 		printf( "recv failed when receiving from %d with error: %d\n", from, WSAGetLastError() );
 		DisconnectSocket( from );
 		return false;
 	}
-
 	return true;
 }
 #endif

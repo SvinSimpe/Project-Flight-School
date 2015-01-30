@@ -40,36 +40,4 @@
 
 // To define a new event - you need a 32-bit GUID. 
 // In Visual Studio, go to Tools->Create GUID and grab the first bit.
-const EventType Event_Player_Update::GUID( 0 );
-const EventType Event_Remote_Player_Update::GUID( 1 );
-const EventType Event_Local_Player_Joined::GUID( 2 );
-const EventType Event_Remote_Player_Joined::GUID( 3 );
-const EventType Event_Remote_Player_Left::GUID( 4 );
-const EventType Event_Change_State::GUID( 5 );
-const EventType Event_Start_Server::GUID( 6 );
-const EventType Event_Game_Started::GUID( 7 );
-const EventType Event_Game_Ended::GUID( 8 );
-const EventType Event_Start_Client::GUID( 9 );
-const EventType Event_Player_Died::GUID( 10 );
-const EventType Event_Remote_Player_Died::GUID( 11 );
-const EventType Event_Player_Damaged::GUID( 12 );
-const EventType Event_Remote_Player_Damaged::GUID( 13 );
-const EventType Event_Player_Spawned::GUID( 14 );
-const EventType Event_Remote_Player_Spawned::GUID( 15 );
-const EventType Event_Projectile_Fired::GUID( 16 );
-const EventType Event_Remote_Projectile_Fired::GUID( 17 );
-const EventType Event_Player_Update_HP::GUID( 18 );
-const EventType Event_Remote_Player_Update_HP::GUID( 19 );
-const EventType Event_Sync_Enemy::GUID( 20 );
-const EventType Event_Enemy_List_Synced::GUID( 21 );
-const EventType Event_Server_Initialized::GUID( 22 );
-const EventType Event_Connection_Failed::GUID( 23 );
-const EventType Event_Player_Melee_Hit::GUID( 24 );
-const EventType Event_Remote_Player_Melee_Hit::GUID( 25 );
-const EventType Event_Player_Attack::GUID( 26 );
-const EventType Event_Remote_Player_Attack::GUID( 27 );
-const EventType Event_Sync_Spawn::GUID( 28 );
-const EventType Event_Update_Enemy_Position::GUID( 29 );
-const EventType	Event_Add_Point_Light::GUID( 30 );
-const EventType	Event_Remove_Point_Light::GUID( 31 );
-
+const EventType Event_Client::GUID( 0x7c930f42 );

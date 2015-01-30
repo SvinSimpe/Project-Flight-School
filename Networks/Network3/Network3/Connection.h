@@ -7,6 +7,7 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #include "PacketImpl.h"
+#include "Events.h"
 #include <list>
 #include <map>
 #include <memory>
@@ -100,12 +101,11 @@ class RemoteEventSocket : public NetSocket
 		enum
 		{
 			NetMsg_Event,			// If this is sent, an event is created
-			NetMsg_PlayerLoginOk	// Creates an event for handling a new client
 		};
 
 	private:
 	protected:
-		void CreateEvent( std::istrstream &in );
+		void CreateEvent( std::stringstream &in );
 
 	public:
 		virtual void HandleInput();

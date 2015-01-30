@@ -2,6 +2,9 @@
 #define CONNECTION_H
 
 #pragma comment( lib, "Winmm.lib" )
+//#pragma warning( disable:C4996 )
+
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #include "PacketImpl.h"
 #include <list>
@@ -9,10 +12,11 @@
 #include <memory>
 #include <mmsystem.h>
 #include <stdio.h>
+#include <strstream>
 
-#define MAGIC_NUMBER (0x1f2e3d4c)
-#define MAX_PACKET_SIZE (256)
-#define RECV_BUFFER_SIZE (MAX_PACKET_SIZE * 512)
+#define MAGIC_NUMBER		(0x1f2e3d4c)
+#define MAX_PACKET_SIZE		(256)
+#define RECV_BUFFER_SIZE	(MAX_PACKET_SIZE * 512)
 
 // The Netsocket-class, used by socket managers to send and receive data from a socket
 class NetSocket
@@ -93,15 +97,15 @@ class RemoteEventSocket : public NetSocket
 	private:
 	protected:
 	public:
-		enum class NetMsg
+		enum
 		{
-			Event,
-			PlayerLoginOk
+			NetMsg_Event,			// If this is sent, an event is created
+			NetMsg_PlayerLoginOk	// Creates an event for handling a new client
 		};
 
 	private:
 	protected:
-		void CreateEvent( std::istringstream &in );
+		void CreateEvent( std::istrstream &in );
 
 	public:
 		virtual void HandleInput();
@@ -115,42 +119,59 @@ class SocketManager
 {
 	private:
 	protected:
-		WSADATA mWsaData;
 		typedef std::list<NetSocket*> SocketList;
 		typedef std::map<int, NetSocket*> SocketIDMap;
 
-		SocketList mSocketList;
+		WSADATA		mWsaData;
+		SocketList	mSocketList;
 		SocketIDMap mSocketMap;
-		int mNextSocketID;
-		UINT mInbound;
-		UINT mOutbound;
-		UINT mMaxOpenSockets;
-		UINT mSubnetMask;
-		UINT mSubnet;
+		int			mNextSocketID;
+		UINT		mInbound;
+		UINT		mOutbound;
+		UINT		mMaxOpenSockets;
+		UINT		mSubnetMask;
+		UINT		mSubnet;
 
 	public:
 
 	private:
 	protected:
-		NetSocket* FindSocket( UINT sockID );
+		NetSocket*	FindSocket( UINT sockID );
 
 	public:
-		void PrintError();
-		int AddSocket( NetSocket* socket );
-		void RemoveSocket( NetSocket* socket );
-		UINT GetHostByName( const std::string &hostName );
+		void		PrintError();
+		int			AddSocket( NetSocket* socket );
+		void		RemoveSocket( NetSocket* socket );
+		UINT		GetHostByName( const std::string &hostName );
 		const char* GetHostByAddr( UINT ip );
-		UINT GetIPAddress( UINT sockID );
-		void SetSubnet( UINT subnet, UINT subnetMask );
-		bool IsInternal( UINT ipAddr );
-		bool Initialize();
-		bool Send( UINT sockID, std::shared_ptr<IPacket> packet );
-		void AddToOutbound( int rc );
-		void AddToInbound( int rc );
-		void Release();
-		SocketManager();
-		virtual ~SocketManager();
+		UINT		GetIPAddress( UINT sockID );
+		void		SetSubnet( UINT subnet, UINT subnetMask );
+		bool		IsInternal( UINT ipAddr );
+		bool		Send( UINT sockID, std::shared_ptr<IPacket> packet );
+		void		AddToOutbound( int rc );
+		void		AddToInbound( int rc );
+		void		DoSelect( int pauseMicroSecs, bool handleInput = true );
+		bool		Initialize();
+		void		Release();
+					SocketManager();
+		virtual		~SocketManager();
 };
 
 extern SocketManager* gSocketManager;
+
+// class used by the clients
+class ClientSocketManager : public SocketManager
+{
+	private:
+		std::string mHostName;
+		UINT		mPort;
+	protected:
+	public:
+
+	private:
+	protected:
+	public:
+		bool	Connect( const std::string &hostName, UINT port );
+				ClientSocketManager();
+};
 #endif

@@ -2,6 +2,8 @@
 
 #define EXIT_ASSERT PFS_ASSERT(0);
 
+SocketManager* gSocketManager = nullptr;
+
 /////////////////////////////////////////////////////////////////
 // NetSocket functions
 bool NetSocket::Connect( UINT ip, UINT port, bool forceCoalesce )
@@ -29,7 +31,7 @@ bool NetSocket::Connect( UINT ip, UINT port, bool forceCoalesce )
 		mSocket = INVALID_SOCKET;
 		return false;
 	}
-	return false;
+	return true;
 }
 
 void NetSocket::SetBlocking( bool blocking )
@@ -322,6 +324,7 @@ void NetListenSocket::Initialize( int portNum )
 	{
 		PFS_ASSERT( "NetListenSocket Error: Init failed to create socket handle" );
 	}
+
 	if( setsockopt( mSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&value, sizeof( value ) ) == SOCKET_ERROR )
 	{
 		perror( "NetListenSocket::Initialize::setsockopt" );
@@ -329,6 +332,29 @@ void NetListenSocket::Initialize( int portNum )
 		mSocket = INVALID_SOCKET;
 		PFS_ASSERT( "NetListenSocket Error : Initialize failed to set socket options ");
 	}
+
+	memset( &sa, 0, sizeof( sa ) );
+	sa.sin_family = AF_INET;
+	sa.sin_addr.s_addr = ADDR_ANY;
+	sa.sin_port = htons( portNum );
+
+	if( bind( mSocket, (sockaddr*)&sa, sizeof( sa ) ) == SOCKET_ERROR )
+	{
+		perror( "NetListenSocket::Initialize::bind" );
+		closesocket( mSocket );
+		mSocket = INVALID_SOCKET;
+		PFS_ASSERT( "NetListenSocket error: Initialize failed to bind." );
+	}
+
+	SetBlocking( false );
+	if( listen( mSocket, 256 ) == SOCKET_ERROR )
+	{
+		closesocket( mSocket );
+		mSocket = INVALID_SOCKET;
+		PFS_ASSERT( "NetListenSocket error: Initialize failed to listen." );
+	}
+
+	gPort = portNum;
 }
 
 NetListenSocket::NetListenSocket()
@@ -358,7 +384,9 @@ void ServerListenSocket::HandleInput()
 	{
 		RemoteEventSocket* socket = PFS_NEW RemoteEventSocket( newSocket, ipAddr );
 		int sockID = gSocketManager->AddSocket( socket );
-		int ipAddress = gSocketManager->GetIPAddress( sockID );
+		int ipAddress = socket->GetIPAddress();
+
+		printf( "Client with sockID: %d connected from %d.\n", sockID, ipAddr );
         //std::shared_ptr<EvtData_Remote_Client> pEvent(GCC_NEW EvtData_Remote_Client(sockId, ipAddress));
         //IEventManager::Get()->VQueueEvent(pEvent);
 	}
@@ -374,8 +402,9 @@ ServerListenSocket::ServerListenSocket( int portNum )
 
 /////////////////////////////////////////////////////////////////
 // RemoteEventSocket functions
-void RemoteEventSocket::CreateEvent( std::istringstream &in )
+void RemoteEventSocket::CreateEvent( std::istrstream &in )
 {
+	// Event creation logic here
 }
 
 void RemoteEventSocket::HandleInput()
@@ -389,7 +418,33 @@ void RemoteEventSocket::HandleInput()
 
 		if( !strcmp( packet->GetType(), BinaryPacket::gType ) ) // Checks the type of the packet here
 		{
-			// HERE I AM YO
+			std::shared_ptr<IPacket> packet = *mInList.begin();
+			mInList.pop_front();
+			if( !strcmp( packet->GetType(), BinaryPacket::gType ) )
+			{
+				const char* buf = packet->GetData();
+				int size = static_cast<int>( packet->GetSize() );
+
+				std::istrstream in( buf + sizeof( u_long ), (size - sizeof( u_long ) ) );
+
+				int type;
+				in >> type;
+				switch( type ) // This is where we will put the input logic to the client
+				{
+				case NetMsg_Event:
+					CreateEvent( in );
+					break;
+				case NetMsg_PlayerLoginOk:
+					// Logic for creating an event where a new player is joining
+					break;
+				default:
+					printf( "Unknown message type" );
+				}
+			}
+			else if( !strcmp( packet->GetType(), TextPacket::gType ) )
+			{
+				printf( "Didn't receive a TextPacket.\n" );
+			}
 		}
 	}
 }
@@ -404,4 +459,317 @@ RemoteEventSocket::RemoteEventSocket()
 }
 
 // End of RemoteEventSocket functions
+/////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////
+// SocketManager functions
+
+NetSocket* SocketManager::FindSocket( UINT sockID )
+{
+	SocketIDMap::iterator i = mSocketMap.find( sockID );
+	if( i == mSocketMap.end() )
+	{
+		return nullptr;
+	}
+	return i->second;
+}
+
+void SocketManager::PrintError()
+{
+	int realError = WSAGetLastError();
+	char* reason;
+
+	switch( realError )
+	{
+	case WSANOTINITIALISED:
+		reason = "A successful WSAStartup must occur before using this API.";
+		break;
+	case WSAEFAULT:
+		reason = "The Windows Sockets implmentation was unable to allocate the needed resources for its internal operations, or the readfds, writefds, exceptfds, or timeval parameters are not part of the user address space.";
+		break;
+	case WSAENETDOWN:
+		reason = "The network subsystem has failed.";
+		break;
+	case WSAEINVAL:
+		reason = "The timeout value is not valid, or all three descriptor parameters were nullptr.";
+		break;
+	case WSAEINTR:
+		reason = "The (blocking) call was canceled via WSACancelBlockingCall.";
+		break;
+	case WSAEINPROGRESS:
+		reason = "A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.";
+		break;
+	case WSAENOTSOCK:
+		reason = "One of the descriptor sets contains an entry which is not a socket.";
+		break;
+	default:
+		reason = "Unknown";
+	}
+
+	printf( "SOCKET error: %s\n", reason );
+}
+
+int SocketManager::AddSocket( NetSocket* socket )
+{
+	socket->mID = mNextSocketID;
+	mSocketMap[mNextSocketID] = socket;
+	++mNextSocketID;
+
+	mSocketList.push_front( socket );
+	if( mSocketList.size() > mMaxOpenSockets )
+	{
+		++mMaxOpenSockets;
+	}
+	return socket->mID;
+}
+
+void SocketManager::RemoveSocket( NetSocket* socket )
+{
+	mSocketList.remove( socket );
+	mSocketMap.erase( socket->mID );
+	SAFE_DELETE( socket );
+}
+
+UINT SocketManager::GetHostByName( const std::string &hostName )
+{
+	// Retreives the IP details and puts it into the lHostEnt structure
+	hostent* hostEnt = gethostbyname( hostName.c_str() );
+	sockaddr_in sa; // placeholder for the IP address
+
+	if( hostEnt == nullptr )
+	{
+		printf("Error happened in GetHostByName()");
+		return 0;
+	}
+	memcpy( &sa.sin_addr, hostEnt->h_addr, hostEnt->h_length );
+	return ntohl( sa.sin_addr.s_addr );
+}
+
+const char* SocketManager::GetHostByAddr( UINT ip )
+{
+	static char host[256];
+
+	int netIP = htonl( ip );
+	hostent* hostEnt = gethostbyaddr( (const char*)&netIP, 4, PF_INET );
+
+	if( hostEnt )
+	{
+		strcpy_s( host, 256, hostEnt->h_name );
+		return host;
+	}
+
+	return nullptr;
+}
+
+UINT SocketManager::GetIPAddress( UINT sockID )
+{
+	NetSocket* socket = FindSocket( sockID );
+	if( socket )
+		return socket->GetIPAddress();
+	else
+		return 0;
+}
+
+void SocketManager::SetSubnet( UINT subnet, UINT subnetMask )
+{
+	mSubnet		= subnet;
+	mSubnetMask = subnetMask;
+}
+
+bool SocketManager::IsInternal( UINT ipAddr )
+{
+	if( !mSubnetMask )
+		return false;
+
+	if( ( ipAddr & mSubnetMask ) == mSubnet )
+		return false;
+
+	return true;
+}
+
+bool SocketManager::Send( UINT sockID, std::shared_ptr<IPacket> packet )
+{
+	NetSocket* socket = FindSocket( sockID );
+	if( !socket )
+		return false;
+	socket->Send( packet );
+	return true;
+}
+
+void SocketManager::AddToOutbound( int rc )
+{
+	mOutbound += rc;
+}
+
+void SocketManager::AddToInbound( int rc )
+{
+	mInbound += rc;
+}
+
+void SocketManager::DoSelect( int pauseMicroSecs, bool handleInput )
+{
+	timeval tv;
+	tv.tv_sec = 0;
+	tv.tv_usec = pauseMicroSecs; // 100 microseconds is 0.1 milliseconds, or 0.0001 seconds! THE MORE YOU KNOW!
+
+	fd_set input_set; 
+	fd_set output_set;
+	fd_set exception_set;
+
+	FD_ZERO( &input_set );
+	FD_ZERO( &output_set );
+	FD_ZERO( &exception_set );
+	int maxDesc = 0;
+
+	// select setup
+	for( auto& it : mSocketList )
+	{
+		NetSocket* socket = it;
+		if( socket->mDeleteFlag & 1 || socket->mSocket == INVALID_SOCKET )
+			continue;
+
+		if( handleInput )
+			FD_SET( socket->mSocket, &input_set );
+
+		FD_SET( socket->mSocket, &exception_set );
+
+		if( socket->HasOutput() )
+			FD_SET( socket->mSocket, &output_set );
+		if( (int)socket->mSocket > maxDesc )
+			maxDesc = (int)socket->mSocket;
+	}
+
+	// do the actual select, duration passed as tv, use nullptr to block until event
+	int selectReturn = 0;
+	selectReturn = select( maxDesc + 1, &input_set, &output_set, &exception_set, &tv );
+	if( selectReturn == SOCKET_ERROR )
+	{
+		PrintError();
+		return;
+	}
+
+	// handle input, output, and exceptions
+	if( selectReturn )
+	{
+		for( auto& it : mSocketList )
+		{
+			NetSocket* socket = it;
+
+			if( ( socket->mDeleteFlag & 1 ) || socket->mSocket == INVALID_SOCKET )
+				continue;
+
+			if( FD_ISSET( socket->mSocket, &exception_set ) )
+				socket->HandleException();
+
+			if( !( socket->mDeleteFlag & 1 ) && FD_ISSET( socket->mSocket, &output_set ) )
+				socket->HandleOutput();
+
+			if( handleInput && !(socket->mDeleteFlag & 1 ) && FD_ISSET( socket->mSocket, &input_set ) )
+				socket->HandleInput();
+		}
+	}
+	UINT timeNow = timeGetTime();
+
+	// handle deletion of any socket
+	SocketList::iterator i = mSocketList.begin();
+	while( i != mSocketList.end() )
+	{
+		NetSocket* socket = *i;
+		if( socket->mTimeOut )
+		{
+			if( socket->mTimeOut < timeNow )
+				socket->TimeOut();
+		}
+
+		if( socket->mDeleteFlag & 1 )
+		{
+			switch( socket->mDeleteFlag )
+			{
+			case 1:
+				gSocketManager->RemoveSocket( socket );
+				i = mSocketList.begin();
+				break;
+			case 3:
+				socket->mDeleteFlag = 2;
+				if( socket->mSocket != INVALID_SOCKET )
+				{
+					closesocket( socket->mSocket );
+					socket->mSocket = INVALID_SOCKET;
+				}
+				break;
+			}
+		}
+		++i;
+	}
+}
+
+
+bool SocketManager::Initialize()
+{
+	if( !(WSAStartup( 0x0202, &mWsaData) == 0) )
+		return false;
+
+	return true;
+}
+
+void SocketManager::Release()
+{
+	while( !mSocketList.empty() )
+	{
+		delete *mSocketList.begin();
+		mSocketList.pop_front();
+	}
+
+	WSACleanup();
+}
+
+SocketManager::SocketManager()
+{
+	mInbound = 0;
+	mOutbound = 0;
+	mMaxOpenSockets = 0;
+	mSubnetMask = 0;
+	mSubnet = 0xffffffff;
+	mNextSocketID = 0;
+	gSocketManager = this;
+	ZeroMemory( &mWsaData, sizeof( WSADATA ) );
+}
+
+
+SocketManager::~SocketManager()
+{
+}
+
+// End of SocketManager functions
+/////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////
+// Start of ClientSocketManager functions
+
+bool ClientSocketManager::Connect( const std::string &hostName, UINT port )
+{
+	mHostName	= hostName;
+	mPort		= port;
+
+	if( !SocketManager::Initialize() )
+		return false;
+
+	RemoteEventSocket* socket = PFS_NEW RemoteEventSocket();
+
+	if( !socket->Connect( GetHostByName( mHostName ), mPort ) )
+	{
+		SAFE_DELETE( socket );
+		return false;
+	}
+	AddSocket( socket );
+	return true;
+}
+
+ClientSocketManager::ClientSocketManager()
+{
+	mHostName	= "";
+	mPort		= 0;
+}
+
+// End of ClientSocketManager functions
 /////////////////////////////////////////////////////////////////

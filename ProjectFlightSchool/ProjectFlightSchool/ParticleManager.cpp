@@ -140,9 +140,12 @@ void ParticleManager::Initialize()
 	//mNrOfParticleSystemsPerType[Blood]++;
 	//mNrOfParticleSystems++;
 
-	mParticleSystems[MuzzleFlash][0]->Initialize( MuzzleFlash, 2.0f, 10000 );
-	mNrOfParticleSystemsPerType[MuzzleFlash]++;
-	mNrOfParticleSystems++;
+	for ( size_t i = 0; i < mMaxNrOfParticleSystemsPerType[MuzzleFlash]; i++ )
+	{
+		mParticleSystems[MuzzleFlash][i]->Initialize( MuzzleFlash, 2.0f, 10000 );
+		mNrOfParticleSystemsPerType[MuzzleFlash]++;
+		mNrOfParticleSystems++;
+	}
 }
 
 void ParticleManager::Release()

@@ -126,19 +126,19 @@ void Turret::Initialize( int team, XMFLOAT3 pos, XMFLOAT3 dir )
 
 	pos.y					+= 1.6f;
 	mUpperBody				= new BodyPart();
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Turret/", "turret.pfs", mUpperBody->model );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Turret/", "turret.pfs", mUpperBody->model );
 	mUpperBody->pos			= pos;
 	mUpperBody->dir			= dir;
 
 	pos.y					-= 1.0f;
 	mMiddleBody				= new BodyPart();
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Turret/", "base2.pfs", mMiddleBody->model );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Turret/", "base2.pfs", mMiddleBody->model );
 	mMiddleBody->pos		= pos;
 	mMiddleBody->dir		= dir;
 
 	pos.y					-= 0.6f;
 	mLowerBody				= new BodyPart();
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Ship/", "tripod.pfs", mLowerBody->model );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Ship/", "tripod.pfs", mLowerBody->model );
 	mLowerBody->pos			= pos;
 	mLowerBody->dir			= dir;
 

@@ -551,7 +551,8 @@ void Graphics::ChangeCamera()
 
 void Graphics::ZoomInDeveloperCamera()
 {
-	mDeveloperCamera->ZoomIn();
+	if( mDeveloperCamera->GetHeight() >= 1.0f )
+		mDeveloperCamera->ZoomIn();
 }
 
 void Graphics::ZoomOutDeveloperCamera()

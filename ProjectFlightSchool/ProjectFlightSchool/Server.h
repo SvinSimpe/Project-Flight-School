@@ -240,6 +240,19 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 			}
 		}
 			break;
+		case Net_Event::EV_PLAYER_ATTACK:
+		{
+			EvPlayerAttack toAll = (EvPlayerAttack&)p->body.content;
+			for ( auto& socket : mClientSockets )
+			{
+				if ( socket.s != s.s )
+				{
+					mConn->SendPkg( socket.s, 0, Net_Event::EV_PLAYER_ATTACK, toAll );
+				}
+			}
+		}
+			break;
+
 		default:
 		{
 			printf( "Error handling event from %d.\n", s );

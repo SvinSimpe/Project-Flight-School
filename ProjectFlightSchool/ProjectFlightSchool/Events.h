@@ -747,6 +747,27 @@ class Event_Sync_Enemy : public IEvent
 		}
 };
 
+class Event_Server_Initialized : public IEvent
+{
+	// Member variables
+	private:
+		protected:
+	public:
+		static const EventType GUID;
+	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Server_Initialized( )
+		{
+		}
+};
+
 class Event_Connection_Failed : public IEvent
 {
 	// Member variables
@@ -840,27 +861,6 @@ class Event_Player_Melee_Hit : public IEvent
 		}
 };
 
-class Event_Server_Initialized : public IEvent
-{
-	// Member variables
-	private:
-		protected:
-	public:
-		static const EventType GUID;
-	
-	// Member functions
-	private:
-	protected:
-		const EventType& GetEventType( void ) const
-		{
-			return GUID;
-		}
-	public:
-		Event_Server_Initialized( )
-		{
-		}
-};
-
 class Event_Remote_Player_Melee_Hit : public IEvent
 {
 	// Member variables
@@ -904,6 +904,80 @@ class Event_Remote_Player_Melee_Hit : public IEvent
 		XMFLOAT3 Direction() const
 		{
 			return mDirection;
+		}
+};
+
+class Event_Player_Attack : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mArmID;
+		unsigned int	mAnimation;
+
+	protected:
+	public:
+		static const EventType GUID;
+	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Player_Attack( unsigned int armID, unsigned int animation )
+		{
+			mArmID			= armID;
+			mAnimation		= animation;
+		}
+		unsigned int ArmID() const
+		{
+			return mArmID;
+		}
+		unsigned int Animation() const
+		{
+			return mAnimation;
+		}
+};
+
+class Event_Remote_Player_Attack : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		unsigned int	mArmID;
+		unsigned int	mAnimation;
+
+	protected:
+	public:
+		static const EventType GUID;
+	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Remote_Player_Attack( unsigned int id, unsigned int armID, unsigned int animation )
+		{
+			mID				= id;
+			mArmID			= armID;
+			mAnimation		= animation;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+		unsigned int ArmID() const
+		{
+			return mArmID;
+		}
+		unsigned int Animation() const
+		{
+			return mAnimation;
 		}
 };
 

@@ -72,3 +72,5 @@ const EventType	Event_Add_Point_Light::GUID( 28 );
 const EventType	Event_Remove_Point_Light::GUID( 29 );
 const EventType Event_Sync_Enemy_Type::GUID( 30 );
 const EventType Event_Sync_Enemy_State::GUID( 31 );
+const EventType Event_Player_Attack::GUID( 32 );
+const EventType Event_Remote_Player_Attack::GUID( 33 );

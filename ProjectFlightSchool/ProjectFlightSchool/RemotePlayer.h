@@ -9,6 +9,9 @@
 #include "Font.h"
 #include "WeaponInfo.h"
 
+#define LEFT_ARM_ID		0
+#define RIGHT_ARM_ID	1
+
 #define PLAYER_ANIMATION_LEGS_IDLE			0
 #define	PLAYER_ANIMATION_LEGS_WALK			1
 

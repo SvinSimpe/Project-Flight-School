@@ -132,6 +132,22 @@ void Client::EventListener( IEventPtr newEvent )
 			}
 		}
 	}
+	else if ( newEvent->GetEventType() == Event_Player_Attack::GUID )
+	{
+		std::shared_ptr<Event_Player_Attack> data = std::static_pointer_cast<Event_Player_Attack>( newEvent );
+		if ( mServerSocket != INVALID_SOCKET )
+		{
+			EvPlayerAttack msg;
+			msg.ID			= mID;
+			msg.armID		= data->ArmID();
+			msg.animation	= data->Animation();		
+
+			if ( mServerSocket != INVALID_SOCKET )
+			{
+				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_ATTACK, msg );
+			}
+		}
+	}
 }
 
 bool Client::Connect()
@@ -194,6 +210,7 @@ bool Client::Run()
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Spawned::GUID );
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Projectile_Fired::GUID );
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Melee_Hit::GUID );
+	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Attack::GUID );
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Update_HP::GUID );
 
 	std::thread listen( &Client::ReceiveLoop, this );

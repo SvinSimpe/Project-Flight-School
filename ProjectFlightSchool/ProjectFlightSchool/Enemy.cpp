@@ -132,7 +132,7 @@ HRESULT Enemy::Initialize( int id )
 	mID				= id;
 	mMaxHp			= 100.0f;
 	mCurrentHp		= mMaxHp;
-	mVelocity		= 0.15;
+	mVelocity		= 0.15f;
 	mIsAlive		= false;
 
 	return S_OK;

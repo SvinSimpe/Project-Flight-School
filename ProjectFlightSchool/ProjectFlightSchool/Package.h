@@ -20,6 +20,7 @@ enum class Net_Event
 	EV_SYNC_SPAWN,
 	EV_ENEMY_LIST_SYNCED,
 	EV_MELEE_HIT,
+	EV_PLAYER_ATTACK,
 	YOUR_ID
 };
 

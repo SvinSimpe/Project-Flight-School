@@ -131,6 +131,9 @@
     <Filter Include="TextureLoader">
       <UniqueIdentifier>{9491becd-8cbf-408b-80cf-0d8080b295cd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Effects\Particle Effects">
+      <UniqueIdentifier>{de343052-51ea-4c9c-97ed-76affe8c312e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\Content\Effects\Placeholder.hlsl">
@@ -157,5 +160,10 @@
     <Text Include="..\Content\Effects\Static3dInstancedEffect.hlsl">
       <Filter>Effects</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="MuzzleFlashEffect.hlsl">
+      <Filter>Effects\Particle Effects</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

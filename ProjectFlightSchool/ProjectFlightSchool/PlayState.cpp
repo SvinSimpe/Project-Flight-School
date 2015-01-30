@@ -103,6 +103,9 @@ void PlayState::EventListener( IEventPtr newEvent )
 		// Fire projectile
 		std::shared_ptr<Event_Remote_Projectile_Fired> data = std::static_pointer_cast<Event_Remote_Projectile_Fired>(newEvent);
 		FireProjectile( data->ID(), data->ProjectileID(), data->BodyPos(), data->Direction() );
+		
+		// Request Muzzle Flash from Particle Manager
+		mParticleManager->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Player_Melee_Hit::GUID )
 	{

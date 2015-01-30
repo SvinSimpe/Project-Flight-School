@@ -2,10 +2,10 @@
 
 void RemotePlayer::RemoteUpdate( IEventPtr newEvent )
 {
-	if ( newEvent->GetEventType() == Event_Remote_Player_Update::GUID )
+	if( newEvent->GetEventType() == Event_Remote_Player_Update::GUID )
 	{
-		std::shared_ptr<Event_Remote_Player_Update>data	= std::static_pointer_cast<Event_Remote_Player_Update>( newEvent );
-		if ( mID == data->ID() )
+		std::shared_ptr<Event_Remote_Player_Update> data = std::static_pointer_cast<Event_Remote_Player_Update>( newEvent );
+		if( mID == data->ID() )
 		{
 			mLowerBody.position								= data->LowerBodyPos();
 			XMStoreFloat3( &mLowerBody.direction, XMVector3Normalize( XMLoadFloat3( &data->Velocity() ) ) );
@@ -17,6 +17,23 @@ void RemotePlayer::RemoteUpdate( IEventPtr newEvent )
 			mBoundingCircle->center	= mLowerBody.position;
 		}
 	}
+	else if( newEvent->GetEventType() == Event_Remote_Player_Attack::GUID )
+	{
+		std::shared_ptr<Event_Remote_Player_Attack> data = std::static_pointer_cast<Event_Remote_Player_Attack>( newEvent );
+		if( mID == data->ID() )
+		{
+			if( data->ArmID() == LEFT_ARM_ID )
+			{
+				RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mAnimations[data->Animation()] );
+				mLeftArmAnimationCompleted = false;
+			}
+			else if( data->ArmID() == RIGHT_ARM_ID )
+			{
+				RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mAnimations[data->Animation()] );
+				mRightArmAnimationCompleted = false;
+			}
+		}
+	}
 }
 
 void RemotePlayer::RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID )
@@ -26,6 +43,7 @@ void RemotePlayer::RemoteInit( unsigned int id, int team, AssetID teamColor, Ass
 	mTeamAsset		= teamColor;
 	mColorIDAsset	= colorID;
 	EventManager::GetInstance()->AddListener( &RemotePlayer::RemoteUpdate, this, Event_Remote_Player_Update::GUID );
+	EventManager::GetInstance()->AddListener( &RemotePlayer::RemoteUpdate, this, Event_Remote_Player_Attack::GUID );
 }
 
 void RemotePlayer::BroadcastDeath( unsigned int shooter )
@@ -134,6 +152,15 @@ HRESULT RemotePlayer::Update( float deltaTime )
 
 	RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, 
 		mLowerBody.playerModel.mNextAnimation == mAnimations[PLAYER_ANIMATION_LEGS_WALK] ? deltaTime * currentVelocity / 1.1f : deltaTime );
+
+	if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mAnimations[PLAYER_ANIMATION_CLAYMORE_IDLE] )
+		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mAnimations[PLAYER_ANIMATION_CLAYMORE_IDLE] );
+
+	if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mAnimations[PLAYER_ANIMATION_SHOTGUN_WALK] )
+		RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mAnimations[PLAYER_ANIMATION_SHOTGUN_WALK] );
+
+	RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
+	RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
 
 	return S_OK;
 }

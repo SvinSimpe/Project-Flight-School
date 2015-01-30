@@ -375,9 +375,6 @@ void PlayState::HandleRemoteMeleeHit( unsigned int id, float damage, float knock
 
 HRESULT PlayState::Update( float deltaTime )
 {
-	/*if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_SPACE ) )
-		mAnimationTime = 1.0f / 60.0f;*/
-
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{
 		CheckPlayerCollision();

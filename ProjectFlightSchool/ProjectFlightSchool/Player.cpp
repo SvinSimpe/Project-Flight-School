@@ -62,8 +62,12 @@ void Player::HandleInput( float deltaTime )
 	{
 		Fire();
 		mWeaponCoolDown = 0.1f;
+		
 		RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mAnimations[PLAYER_ANIMATION_SHOTGUN_ATTACK] );
 		mRightArmAnimationCompleted		= false;
+
+		IEventPtr E1( new Event_Player_Attack( RIGHT_ARM_ID, PLAYER_ANIMATION_SHOTGUN_ATTACK ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 	else
 		mWeaponCoolDown -= deltaTime;
@@ -74,6 +78,9 @@ void Player::HandleInput( float deltaTime )
 		mMeleeCoolDown					= 2.0f;
 		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mAnimations[PLAYER_ANIMATION_CLAYMORE_ATTACK] );
 		mLeftArmAnimationCompleted		= false;
+
+		IEventPtr E1( new Event_Player_Attack( LEFT_ARM_ID, PLAYER_ANIMATION_CLAYMORE_ATTACK ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 	else
 		mMeleeCoolDown -= deltaTime;
@@ -297,7 +304,18 @@ void Player::SetIsMeleeing( bool isMeleeing )
 
 void Player::Fire()
 {
-	IEventPtr E1( new Event_Projectile_Fired( mID, XMFLOAT3( mLowerBody.position.x, 1.0f, mLowerBody.position.z ), mUpperBody.direction ) );
+	//Hardcoded to match shotgun
+	XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
+	XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
+	XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, 1.0f, mLowerBody.position.z ) );
+	
+	offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * 0.5f;
+	offset += direction * 1.8f;
+
+	XMFLOAT3 loadDir;
+	XMStoreFloat3( &loadDir, offset );
+
+	IEventPtr E1( new Event_Projectile_Fired( mID, XMFLOAT3( loadDir ), mUpperBody.direction ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
 }
 

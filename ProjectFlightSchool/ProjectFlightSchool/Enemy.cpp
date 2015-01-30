@@ -118,14 +118,14 @@ void Enemy::SetDirection( XMFLOAT3 direction )
 HRESULT Enemy::Initialize( int id )
 {
 	// Load animation asset
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptor_run.PaMan", mAnimations[ENEMY_ANIMATION_IDLE] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Raptor/Animations/", "raptor_run.PaMan", mAnimations[ENEMY_ANIMATION_IDLE] );
 
 	// Load skeleton
 	AssetID skeleton	= 0;
 	AssetID model		= 0;
-	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", skeleton ); // Debug, raptor
+	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Enemies/Raptor/Animations/", "raptor.Skel", skeleton ); // Debug, raptor
 	// Load animated 3d asset
-	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, model );
+	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Enemies/Raptor/", "scaledScene.apfs", skeleton, model );
 	// Load animationTrack with model and standard animation
 	RenderManager::GetInstance()->AnimationInitialize( mAnimationTrack, model, mAnimations[ENEMY_ANIMATION_IDLE] );
 

@@ -491,9 +491,9 @@ HRESULT PlayState::Initialize()
 	AssetID skeleton = 0;
 	AssetID skel  =0;
 
-	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", skeleton );
-	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, mTestAnimation );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptorDeath2.PaMan", mTestAnimationAnimation );
+	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Enemies/Raptor/Animations/", "raptor.Skel", skeleton );
+	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Enemies/Raptor/", "scaledScene.apfs", skeleton, mTestAnimation );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Raptor/Animations/", "raptorDeath2.PaMan", mTestAnimationAnimation );
 
 	AssetID loader;
 

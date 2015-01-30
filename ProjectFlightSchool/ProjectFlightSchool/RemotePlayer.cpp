@@ -302,23 +302,23 @@ HRESULT RemotePlayer::Initialize()
 	////////////////
 	//Animations
 	// BODY
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Robot/Animations/", "robotLegsIdle.PaMan", mAnimations[PLAYER_ANIMATION_LEGS_IDLE] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotLegsIdle.PaMan", mAnimations[PLAYER_ANIMATION_LEGS_IDLE] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Robot/Animations/", "robotLegsWalk.PaMan", mAnimations[PLAYER_ANIMATION_LEGS_WALK] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotLegsWalk.PaMan", mAnimations[PLAYER_ANIMATION_LEGS_WALK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	//CLAYMORE
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Robot/Weapons/Animations/", "claymoreIdle.PaMan", mAnimations[PLAYER_ANIMATION_CLAYMORE_IDLE] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Animations/", "claymoreIdle.PaMan", mAnimations[PLAYER_ANIMATION_CLAYMORE_IDLE] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Robot/Weapons/Animations/", "claymoreWalk.PaMan", mAnimations[PLAYER_ANIMATION_CLAYMORE_WALK] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Animations/", "claymoreWalk.PaMan", mAnimations[PLAYER_ANIMATION_CLAYMORE_WALK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Robot/Weapons/Animations/", "claymoreAttack.PaMan", mAnimations[PLAYER_ANIMATION_CLAYMORE_ATTACK] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Animations/", "claymoreAttack.PaMan", mAnimations[PLAYER_ANIMATION_CLAYMORE_ATTACK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	//SHOTGUN
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Robot/Weapons/Animations/", "shotgunWalk.PaMan", mAnimations[PLAYER_ANIMATION_SHOTGUN_WALK] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Animations/", "shotgunWalk.PaMan", mAnimations[PLAYER_ANIMATION_SHOTGUN_WALK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Robot/Weapons/Animations/", "shotgunAttack.PaMan", mAnimations[PLAYER_ANIMATION_SHOTGUN_ATTACK] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Animations/", "shotgunAttack.PaMan", mAnimations[PLAYER_ANIMATION_SHOTGUN_ATTACK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	//////////////////////////////////////
@@ -326,28 +326,28 @@ HRESULT RemotePlayer::Initialize()
 	/////////////////////////////////////
 	AssetID model		= 0;
 	AssetID skeleton	= 0;
-	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Robot/", "robotUpperbody.pfs", mUpperBody.playerModel ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Robot/", "robotUpperbody.pfs", mUpperBody.playerModel ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
-	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Robot/Animations/", "robotLegs.Skel", skeleton ) ) //Skeleton for legs
+	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotLegs.Skel", skeleton ) ) //Skeleton for legs
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Robot/", "robotLegs.apfs", skeleton, model ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/PermanentAssets/Robot/", "robotLegs.apfs", skeleton, model ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	RenderManager::GetInstance()->AnimationInitialize( mLowerBody.playerModel, model, mAnimations[PLAYER_ANIMATION_LEGS_IDLE] );
 
 	//Left Arm
-	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Robot/Weapons/Animations/", "claymoreSkel.Skel", skeleton ) )
+	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Animations/", "claymoreSkel.Skel", skeleton ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Robot/Weapons/", "claymore.apfs", skeleton, model ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/", "claymore.apfs", skeleton, model ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	RenderManager::GetInstance()->AnimationInitialize( mArms.leftArm, model, mAnimations[PLAYER_ANIMATION_CLAYMORE_IDLE] );
 
 	//Right Arm
-	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Robot/Weapons/Animations/", "shotgunSkel.Skel", skeleton ) )
+	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Animations/", "shotgunSkel.Skel", skeleton ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Robot/Weapons/", "shotgun.apfs", skeleton, model ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/", "shotgun.apfs", skeleton, model ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	RenderManager::GetInstance()->AnimationInitialize( mArms.rightArm, model, mAnimations[PLAYER_ANIMATION_SHOTGUN_WALK] );

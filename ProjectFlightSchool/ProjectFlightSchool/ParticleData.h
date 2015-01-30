@@ -4,12 +4,25 @@
 #include <windows.h>
 #include <utility>
 #include <xmmintrin.h>
+#include <thread>
+#include <DirectXMath.h>
+#include <time.h>
+using namespace DirectX;
 
-#define MAX_PARTICLES 10000
+#define MAX_PARTICLES 5000
+
+enum ParticleType
+{
+	Smoke,
+	Fire,
+	Spark,
+	Blood,
+	MuzzleFlash
+};
 
 struct ParticleData
 {
-	size_t	nrOfParticlesAlive;
+	size_t	nrOfParticlesAlive = 0;
 
 	float*	xPosition = nullptr;
 	float*	yPosition = nullptr;
@@ -27,6 +40,8 @@ struct ParticleData
 
 	void Initialize( float emitRate, size_t nrOfParticles ) //NrOfParticles must be a multiple of 4
 	{
+		srand( (unsigned int)time( NULL ) );
+
 		nrOfParticlesAlive = 0;
 
 		if( nrOfParticles > MAX_PARTICLES )
@@ -45,32 +60,33 @@ struct ParticleData
 		color	 = (DWORD*)_mm_malloc( nrOfParticles * sizeof(DWORD), 16 );
 		isAlive	 = (bool*)_mm_malloc(  nrOfParticles * sizeof(bool),  16 );
 
+
 		for ( size_t i = 0; i < nrOfParticles; i += 4 )
 		{
 			//========= Initialize position ===========
 			__m128 xmm0 = _mm_load_ps( &xPosition[i] );
-			xmm0 = _mm_set_ps( 5.0f, 5.0f, 5.0f, 5.0f );
+			xmm0 = _mm_set_ps( 0.0f, 0.0f, 0.0f, 0.0f );
 			_mm_store_ps( &xPosition[i], xmm0 );
 
 			xmm0 = _mm_load_ps( &yPosition[i] );
-			xmm0 = _mm_set_ps( 10.0f, 10.0f, 10.0f, 10.0f );
+			xmm0 = _mm_set_ps( 0.0f, 0.0f, 0.0f, 0.0f );
 			_mm_store_ps( &yPosition[i], xmm0 );
 
 			xmm0 = _mm_load_ps( &zPosition[i] );
-			xmm0 = _mm_set_ps( 15.0f, 15.0f, 15.0f, 15.0f );
+			xmm0 = _mm_set_ps( 0.0f, 0.0f, 0.0f, 0.0f );
 			_mm_store_ps( &zPosition[i], xmm0 );
 
 			//========= Initialize velocity ===========
 			xmm0 = _mm_load_ps( &xVelocity[i] );
-			xmm0 = _mm_set_ps( 1.0f, 1.0f, 1.0f, 1.0f );
+			xmm0 = _mm_set_ps( 0.0f, 0.0f, 0.0f, 0.0f );
 			_mm_store_ps( &xVelocity[i], xmm0 );
 
 			xmm0 = _mm_load_ps( &yVelocity[i] );
-			xmm0 = _mm_set_ps( 2.0f, 2.0f, 2.0f, 2.0f );
+			xmm0 = _mm_set_ps( 0.0f, 0.0f, 0.0f, 0.0f );
 			_mm_store_ps( &yVelocity[i], xmm0 );
 
 			xmm0 = _mm_load_ps( &zVelocity[i] );
-			xmm0 = _mm_set_ps( 4.0f, 4.0f, 4.0f, 4.0f );
+			xmm0 = _mm_set_ps( 0.0f, 0.0f, 0.0f, 0.0f );
 			_mm_store_ps( &zVelocity[i], xmm0 );
 
 			//========= Initialize life time ===========
@@ -85,14 +101,11 @@ struct ParticleData
 			color[i+3]	= 0;
 
 			//========= Initialize isAlive ===========
-			isAlive[i]		= true;
-			isAlive[i+1]	= true;
-			isAlive[i+2]	= true;
-			isAlive[i+3]	= true;
-
-			nrOfParticlesAlive += 4;
+			isAlive[i]		= false;
+			isAlive[i+1]	= false;
+			isAlive[i+2]	= false;
+			isAlive[i+3]	= false;
 		}
-
 		this->emitRate = emitRate;
 	}
 
@@ -157,7 +170,7 @@ struct ParticleData
 			velocityDelta	= _mm_mul_ps( xmm1, scalar );
 			xmm0 = _mm_add_ps( xmm0, velocityDelta );
 			_mm_store_ps( &zPosition[i], xmm0 );
-		}		
+		}
 	}
 
 	void UpdateLifeTime( float deltaTime )
@@ -170,6 +183,88 @@ struct ParticleData
 			__m128 xmm0 = _mm_load1_ps( &lifeTime[i] );
 			xmm0 = _mm_sub_ps( xmm0, delta );
 			_mm_store_ps( &lifeTime[i], xmm0 );
+		}
+	}
+
+
+
+	void SetLifeTime( size_t lowerBound, size_t uppeBound, size_t particleCount ) // If 2.0f is uppeBound, send 20
+	{
+		//======== this->lifeTime = randLifeTime  ========
+		__declspec( align( 16 ) ) float randomLife[4] = {0.0f};
+		//float randomLife = 0.0f;
+		__m128 xmm0;
+
+		for ( size_t i = nrOfParticlesAlive; i < nrOfParticlesAlive + particleCount; i += 4 )
+		{
+			while( i % 4 != 0 )
+				i--;
+			
+			// Generate and set random life time
+			for (size_t j = 0; j < 4; j++)
+				randomLife[j] = (float)( rand() % uppeBound + (float)lowerBound ) * 0.1f;
+
+			// Store random lifeTime
+			xmm0 = _mm_load_ps( &lifeTime[i] );
+			xmm0 = _mm_set_ps( randomLife[0], randomLife[1], randomLife[3], randomLife[4] );
+			_mm_store_ps( &lifeTime[i], xmm0 );
+		}	
+	}
+
+	void SetDirection( float xDirection, float yDirection, float zDirection, size_t particleCount )
+	{
+		for ( size_t i = nrOfParticlesAlive; i < nrOfParticlesAlive + particleCount; i += 4 )
+		{
+			while( i % 4 != 0 )
+				i--;
+
+			//==== xVelocity = xDirection ====
+			__m128 xmm0	= _mm_load_ps( &xVelocity[i] );
+			xmm0 = _mm_set1_ps( xDirection );
+			_mm_store_ps( &xVelocity[i], xmm0 );
+
+			//==== yPosition += yVelocity * deltaTime ====
+			xmm0	= _mm_load_ps( &yVelocity[i] );
+			xmm0 = _mm_set1_ps( yDirection );
+			_mm_store_ps( &yVelocity[i], xmm0 );
+
+			//==== zPosition += zVelocity * deltaTime ====
+			xmm0	= _mm_load_ps( &zVelocity[i] );
+			xmm0 = _mm_set1_ps( zDirection );
+			_mm_store_ps( &zVelocity[i], xmm0 );
+		}
+	}
+
+	void SetPosition( float xPosition, float yPosition, float zPosition, size_t particleCount )
+	{
+		for ( size_t i = nrOfParticlesAlive; i < nrOfParticlesAlive + particleCount; i += 4 )
+		{
+			while( i % 4 != 0 )
+				i--;
+
+			//==== this->xPosition = xPosition ====
+			__m128 xmm0	= _mm_load_ps( &this->xPosition[i] );
+			xmm0 = _mm_set_ps( xPosition, xPosition, xPosition, xPosition );
+			_mm_store_ps( &this->xPosition[i], xmm0 );
+
+			//==== this->yPosition = yPosition ====
+			xmm0		= _mm_load_ps( &this->yPosition[i] );
+			xmm0 = _mm_set_ps( yPosition, yPosition, yPosition, yPosition );
+			_mm_store_ps( &this->yPosition[i], xmm0 );
+
+			//==== this->yPosition = zPosition ====
+			xmm0		= _mm_load_ps( &this->zPosition[i] );
+			xmm0 = _mm_set_ps( zPosition, zPosition, zPosition, zPosition );
+			_mm_store_ps( &this->zPosition[i], xmm0 );
+		}
+	}
+
+	void CheckDeadParticles()
+	{
+		for (size_t i = 0; i < nrOfParticlesAlive; i++)
+		{
+  			if( lifeTime[i] <= 0.0f )
+				Kill( i );	
 		}
 	}
 
@@ -189,7 +284,7 @@ struct ParticleData
 		_mm_free( isAlive );
 	}
 
-	virtual void Emitter( size_t nrOfParticles ) = 0;
+	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emiterDirection) = 0;
 
 	virtual void Update( float deltaTime ) = 0;
 

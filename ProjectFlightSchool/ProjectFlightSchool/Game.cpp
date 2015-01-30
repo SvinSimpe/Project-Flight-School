@@ -112,9 +112,6 @@ HRESULT Game::Initialize()
 	EventManager::GetInstance()->AddListener( &Game::EventListener, this, Event_Start_Client::GUID );
 	mServerIsActive = false;
 
-	mParticleManager = new ParticleManager();
-	mParticleManager->Initialize();
-
 	OutputDebugString( L"----- Game Initialization Complete. -----" );
 
 	return S_OK;
@@ -140,8 +137,6 @@ void Game::Release()
 
 	mStateMachine->Release();
 	SAFE_DELETE( mStateMachine );
-
-	SAFE_RELEASE_DELETE( mParticleManager );
 }
 
 Game::Game()
@@ -151,7 +146,6 @@ Game::Game()
 	mServerThread		= std::thread();
 	mClient				= nullptr;
 	mServer				= nullptr;
-	mParticleManager	= nullptr;
 }
 
 Game::~Game()

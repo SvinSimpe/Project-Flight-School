@@ -163,6 +163,12 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
+    
+
+    <Text Include="MuzzleFlashEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+
     <Text Include="..\Content\Effects\BillboardEffect.hlsl">
       <FileType>Document</FileType>
     </Text>
@@ -173,6 +179,8 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+
+
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>

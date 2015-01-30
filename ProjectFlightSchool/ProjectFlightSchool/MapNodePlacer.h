@@ -22,6 +22,7 @@ class MapNodePlacer
 		static MapNodePlacer*	GetInstance();
 		void					BuildMap( MapNodeInstance** map );
 		UINT					GetNrOfNodes() const;
+		void					Reset();
 		HRESULT					Initialize( Map* map );
 		void					Release();
 								MapNodePlacer();

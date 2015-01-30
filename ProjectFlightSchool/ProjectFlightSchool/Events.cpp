@@ -68,3 +68,7 @@ const EventType Event_Player_Melee_Hit::GUID( 24 );
 const EventType Event_Remote_Player_Melee_Hit::GUID( 25 ); 
 const EventType	Event_Add_Point_Light::GUID( 26 );
 const EventType	Event_Remove_Point_Light::GUID( 27 );
+
+
+//Level events
+const EventType Event_Load_Level::GUID( 28 );

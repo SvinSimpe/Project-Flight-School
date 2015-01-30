@@ -473,37 +473,37 @@ HRESULT PlayState::Initialize()
 	AssetID loader;
 
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dAsset );
-	for( int i = 1; i < 8; i++ )
-	{
-		char buffer[50];
-		sprintf_s(buffer,"tree%d.pfs",i);
-		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Tree/", buffer, loader );
-	}
-	for( int i = 1; i < 6; i++ )
-	{
-		char buffer[50];
-		sprintf_s(buffer,"greaystone%d.pfs",i);
-		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", buffer, loader );
-	}
-	for( int i = 1; i < 7; i++ )
-	{
-		char buffer[50];
-		sprintf_s(buffer,"sandstone%d.pfs",i);
-		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", buffer, loader );
-	}
-	//for( int i = 1; i < 5; i++ )
+	//for( int i = 1; i < 8; i++ )
 	//{
 	//	char buffer[50];
-	//	sprintf_s(buffer,"bush%d.pfs",i);
-	//	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bushes/", buffer, mTree1Asset );
+	//	sprintf_s(buffer,"tree%d.pfs",i);
+	//	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Tree/", buffer, loader );
 	//}
-	//for( int i = 1; i < 3; i++ )
+	//for( int i = 1; i < 6; i++ )
 	//{
 	//	char buffer[50];
-	//	sprintf_s(buffer,"plant%d.pfs",i);
-	//	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bushes/", buffer, mTree1Asset );
+	//	sprintf_s(buffer,"greaystone%d.pfs",i);
+	//	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", buffer, loader );
 	//}
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bushes/", "plant1.pfs", loader );
+	//for( int i = 1; i < 7; i++ )
+	//{
+	//	char buffer[50];
+	//	sprintf_s(buffer,"sandstone%d.pfs",i);
+	//	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", buffer, loader );
+	//}
+	////for( int i = 1; i < 5; i++ )
+	////{
+	////	char buffer[50];
+	////	sprintf_s(buffer,"bush%d.pfs",i);
+	////	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bushes/", buffer, mTree1Asset );
+	////}
+	////for( int i = 1; i < 3; i++ )
+	////{
+	////	char buffer[50];
+	////	sprintf_s(buffer,"plant%d.pfs",i);
+	////	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bushes/", buffer, mTree1Asset );
+	////}
+	//Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bushes/", "plant1.pfs", loader );
 	std::string colorIDFileNames[MAX_REMOTE_PLAYERS] = { "../Content/Assets/Textures/FunnyCircles/BlueID.png", "../Content/Assets/Textures/FunnyCircles/CoralID.png", "../Content/Assets/Textures/FunnyCircles/DarkBlueID.png", "../Content/Assets/Textures/FunnyCircles/DarkGreenID.png", "../Content/Assets/Textures/FunnyCircles/DarkPurpleID.png", "../Content/Assets/Textures/FunnyCircles/GreenID.png", "../Content/Assets/Textures/FunnyCircles/GreyID.png", "../Content/Assets/Textures/FunnyCircles/LightBlueID.png", "../Content/Assets/Textures/FunnyCircles/LightGreenID.png", "../Content/Assets/Textures/FunnyCircles/LightPurpleID.png","../Content/Assets/Textures/FunnyCircles/OrangeID.png", "../Content/Assets/Textures/FunnyCircles/PinkID.png", "../Content/Assets/Textures/FunnyCircles/ScreamBlueID.png", "../Content/Assets/Textures/FunnyCircles/YellowID.png" };
 
 	for( int i=0; i<MAX_REMOTE_PLAYERS; i++ )
@@ -521,6 +521,9 @@ HRESULT PlayState::Initialize()
 
 	mWorldMap = new Map();
 	mWorldMap->Initialize( 4 );
+
+	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/ForestMap.xml")); 
+	EventManager::GetInstance()->TriggerEvent( E1 );
 
 	//mMapNodeMan = new MapNodeManager();
 	//mMapNodeMan->Initialize( "../Content/Assets/Nodes/gridtest2.lp"  );

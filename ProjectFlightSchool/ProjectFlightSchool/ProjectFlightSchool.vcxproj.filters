@@ -209,6 +209,12 @@
     </ClCompile>
     <ClCompile Include="tinyxmlparser.cpp">
       <Filter>TinyXML\Source Files</Filter>
+	</ClCompile>
+    <ClCompile Include="EnemySpawn.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RemoteEnemy.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -364,6 +370,12 @@
     </ClInclude>
     <ClInclude Include="NodeTypes.h">
       <Filter>Worldmap\Header Files</Filter>
+	</ClInclude>
+    <ClInclude Include="EnemySpawn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RemoteEnemy.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

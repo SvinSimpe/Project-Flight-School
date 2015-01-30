@@ -10,9 +10,10 @@
 #include "Enemy.h"
 #include "Ship.h"
 #include "Image.h"
-
-//Test
+#include "EnemySpawn.h"
+#include "RemoteEnemy.h"
 #include "ParticleManager.h"
+
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
@@ -51,11 +52,15 @@ class PlayState : public BaseState
 		int							mNrOfProjectilesFired;
 		int							mCurrentColor;
 		Font						mFont;
-		Enemy**						mEnemies;
+		RemoteEnemy**				mEnemies;
+		XMFLOAT3*					mSpawners;
+		AssetID						mSpawnModel;
 		unsigned int				mNrOfEnemies;
 		unsigned int				mMaxNrOfEnemies;
 		bool						mEnemyListSynced;
 		bool						mServerInitialized;
+
+		ParticleManager*			mParticleManager;
 	
 
 	protected:
@@ -63,7 +68,9 @@ class PlayState : public BaseState
 
 	// Class functions
 	private:
-		void			SyncEnemy( unsigned int id, unsigned int model, unsigned int animation, float hp, bool alive, XMFLOAT3 position, XMFLOAT3 direction );
+		void			SyncEnemy( unsigned int id, unsigned int model, unsigned int animation, XMFLOAT3 position, XMFLOAT3 direction );
+		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position );
+		void			SyncSpawn( unsigned int id, XMFLOAT3 position );
 		void			RemoteUpdate( IEventPtr newEvent );
 		void			HandleDeveloperCameraInput();
 		void			CheckPlayerCollision();

@@ -51,7 +51,7 @@ void Client::HandlePkg( Package<T>* p )
 		case Net_Event::EV_PLAYER_UPDATE:
 		{
 			EvPlayerUpdate msg = (EvPlayerUpdate&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Update( msg.id, msg.lowerBodyPosition, msg.lowerBodyDirection, msg.lowerBodyAnimation, msg.lowerBodyAnimationTime, msg.upperBodyPosition, msg.upperBodyDirection ) );
+			IEventPtr E1( new Event_Remote_Player_Update( msg.id, msg.lowerBodyPosition, msg.velocity, msg.upperBodyDirection ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
@@ -120,13 +120,27 @@ void Client::HandlePkg( Package<T>* p )
 		case Net_Event::EV_SYNC_ENEMY:
 		{
 			EvSyncEnemy enemy = (EvSyncEnemy&)p->body.content;
-			IEventPtr E1( new Event_Sync_Enemy( enemy.ID, enemy.model, enemy.animation, enemy.hp, enemy.isAlive, enemy.position, enemy.direction  ) );
+			IEventPtr E1( new Event_Sync_Enemy( enemy.ID, enemy.model, enemy.animation, enemy.position, enemy.direction  ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
 		case Net_Event::EV_ENEMY_LIST_SYNCED:
 		{
 			IEventPtr E1( new Event_Enemy_List_Synced() );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
+		case Net_Event::EV_SYNC_SPAWN:
+		{
+			EvSyncSapwn spawn = (EvSyncSapwn&)p->body.content;
+			IEventPtr E1( new Event_Sync_Spawn( spawn.ID, spawn.position ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
+		case Net_Event::EV_ENEMY_UPDATE_POSITION:
+		{
+			EvUpdateEnemyPosition enemy = (EvUpdateEnemyPosition&)p->body.content;
+			IEventPtr E1( new Event_Update_Enemy_Position( enemy.ID, enemy.position ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
@@ -137,9 +151,16 @@ void Client::HandlePkg( Package<T>* p )
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
+		case Net_Event::EV_PLAYER_ATTACK:
+		{
+			EvPlayerAttack playerAttack = (EvPlayerAttack&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Attack( playerAttack.ID, playerAttack.armID, playerAttack.animation ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
 		default:
 		{
-			printf( "Error handling event from server.\n" );
+			OutputDebugStringA( "Error handling event from server.\n" );
 		}
 	}
 }

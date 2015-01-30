@@ -12,10 +12,7 @@ struct EvPlayerUpdate
 {
 	unsigned int		id;
 	DirectX::XMFLOAT3	lowerBodyPosition;
-	DirectX::XMFLOAT3	lowerBodyDirection;
-	unsigned int		lowerBodyAnimation;
-	float				lowerBodyAnimationTime;
-	DirectX::XMFLOAT3	upperBodyPosition;
+	DirectX::XMFLOAT3	velocity;
 	DirectX::XMFLOAT3	upperBodyDirection;
 };
 
@@ -45,6 +42,7 @@ struct EvProjectileFired
 	DirectX::XMFLOAT3 position;
 	DirectX::XMFLOAT3 direction;
 };
+
 struct EvEnemyCreated
 {
 	unsigned int ID;
@@ -62,12 +60,32 @@ struct EvSyncEnemy
 	DirectX::XMFLOAT3	position;
 	DirectX::XMFLOAT3	direction;
 };
+
 struct EvMeleeHit
 {
 	unsigned int			ID;
 	float					damage;
 	float					knockBack;
 	DirectX::XMFLOAT3		direction;
+};
+
+struct EvPlayerAttack
+{
+	unsigned int ID;
+	unsigned int armID;
+	unsigned int animation;
+};
+
+struct EvSyncSapwn
+{
+	unsigned int		ID;
+	DirectX::XMFLOAT3	position;
+};
+
+struct EvUpdateEnemyPosition
+{
+	unsigned int		ID;
+	DirectX::XMFLOAT3	position;
 };
 
 #endif

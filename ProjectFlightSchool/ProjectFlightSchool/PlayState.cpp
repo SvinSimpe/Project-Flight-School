@@ -103,6 +103,9 @@ void PlayState::EventListener( IEventPtr newEvent )
 		// Fire projectile
 		std::shared_ptr<Event_Remote_Projectile_Fired> data = std::static_pointer_cast<Event_Remote_Projectile_Fired>(newEvent);
 		FireProjectile( data->ID(), data->ProjectileID(), data->BodyPos(), data->Direction() );
+		
+		// Request Muzzle Flash from Particle Manager
+		mParticleManager->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Player_Melee_Hit::GUID )
 	{
@@ -125,7 +128,12 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if ( newEvent->GetEventType() == Event_Sync_Enemy::GUID )
 	{
 		std::shared_ptr<Event_Sync_Enemy> data = std::static_pointer_cast<Event_Sync_Enemy>( newEvent );
-		SyncEnemy( data->ID(), data->Model(), data->Animation(), data->HP(), data->IsAlive(), data->Position(), data->Direction() );
+		SyncEnemy( data->ID(), data->Model(), data->Animation(), data->Position(), data->Direction() );
+	}
+	else if ( newEvent->GetEventType() == Event_Update_Enemy_Position::GUID )
+	{
+		std::shared_ptr<Event_Update_Enemy_Position> data = std::static_pointer_cast<Event_Update_Enemy_Position>( newEvent );
+		UpdateEnemyPosition( data->ID(), data->Position() );
 	}
 	else if ( newEvent->GetEventType() == Event_Enemy_List_Synced::GUID )
 	{
@@ -135,21 +143,34 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		mServerInitialized = true;
 	}
+	else if ( newEvent->GetEventType() == Event_Sync_Spawn::GUID )
+	{
+		std::shared_ptr<Event_Sync_Spawn> data = std::static_pointer_cast<Event_Sync_Spawn>( newEvent );
+		SyncSpawn( data->ID(), data->Position() );
+	}
 }
 
-void PlayState::SyncEnemy( unsigned int id, unsigned int model, unsigned int animation, float hp, bool alive, XMFLOAT3 position, XMFLOAT3 direction )
+void PlayState::SyncEnemy( unsigned int id, unsigned int model, unsigned int animation, XMFLOAT3 position, XMFLOAT3 direction )
 {
 	mEnemyListSynced = false;
 	mEnemies[id]->SetID( id );
 	mEnemies[id]->SetModelID( model );
 	mEnemies[id]->SetAnimation( animation );
-	mEnemies[id]->SetHP( hp );
-	mEnemies[id]->SetIsAlive( alive );
 	mEnemies[id]->SetPosition( position );
 	mEnemies[id]->SetDirection( direction );
 
 	if( id == (MAX_NR_OF_ENEMIES-1) )
 		mEnemyListSynced = true;
+}
+
+void PlayState::UpdateEnemyPosition( unsigned int id, XMFLOAT3 position )
+{
+	mEnemies[id]->SetPosition( position );
+}
+
+void PlayState::SyncSpawn( unsigned int id, XMFLOAT3 position )
+{
+	mSpawners[id] = position;
 }
 
 // Tell server that local  player has taken damage
@@ -357,9 +378,6 @@ void PlayState::HandleRemoteMeleeHit( unsigned int id, float damage, float knock
 
 HRESULT PlayState::Update( float deltaTime )
 {
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_SPACE ) )
-		mAnimationTime = 1.0f / 60.0f;
-
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{
 		CheckPlayerCollision();
@@ -376,6 +394,14 @@ HRESULT PlayState::Update( float deltaTime )
 	else
 		mFrameCounter++;
 
+	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
+	{
+		if ( mRemotePlayers.at(i) )
+		{
+			mRemotePlayers.at(i)->Update( deltaTime );
+		}
+	}
+
 	HandleDeveloperCameraInput();
 	mPlayer->Update( deltaTime );
 
@@ -385,15 +411,16 @@ HRESULT PlayState::Update( float deltaTime )
 	mShip.BuffPlayer( mPlayer );
 	mShip.PickTurretTarget( mAllPlayers );
 	mShip.Update( deltaTime );
+
 	if( mEnemyListSynced )
 	{
 		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 		{
-			if( mEnemies[i]->IsAlive() )
-				mEnemies[i]->Update( deltaTime );
+			mEnemies[i]->Update( deltaTime );
 		}
 	}
 
+	mParticleManager->Update( deltaTime );
 
 	return S_OK;
 }
@@ -402,8 +429,6 @@ HRESULT PlayState::Render()
 {
 	RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 	
-	RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation, mTestAnimationAnimation, &mAnimationTime, ANIMATION_PLAY_ONCE, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
-
 	mPlayer->Render( 0.0f, 1 );
 
 	mWorldMap->Render( 0.0f , mPlayer );
@@ -412,27 +437,27 @@ HRESULT PlayState::Render()
 	{
 		if ( mRemotePlayers.at(i) )
 		{
-			mRemotePlayers.at(i)->Render( 0.0f, i + 2 );
+			mRemotePlayers.at(i)->Render( i + 2 );
 		}
 	}
 
 	RenderProjectiles();
-
-	//mFont.WriteText( "HELLO WORLD!\nTIM IS AWESOME!\nTABBING\tIS\tCOOL!\n#YOLO@SWAG.COM", 0.0f, 0.0f, 1.0f );
-
 
 	// Enemies
   	if( mEnemyListSynced )
 	{
 		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 		{
-			if( mEnemies[i]->IsAlive() )
-				mEnemies[i]->Render();
+			mEnemies[i]->Render();
 		}
 	}
 
-	mShip.Render();
+	for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
+	{
+		RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
+	}
 
+	mShip.Render();
 
 	RenderManager::GetInstance()->Render();
 
@@ -466,44 +491,10 @@ HRESULT PlayState::Initialize()
 	AssetID skeleton = 0;
 	AssetID skel  =0;
 
-	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", skeleton );
-	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, mTestAnimation );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptorDeath2.PaMan", mTestAnimationAnimation );
+	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Enemies/Raptor/Animations/", "raptor.Skel", skeleton );
+	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Enemies/Raptor/", "scaledScene.apfs", skeleton, mTestAnimation );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Raptor/Animations/", "raptorDeath2.PaMan", mTestAnimationAnimation );
 
-	AssetID loader;
-
-	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dAsset );
-	//for( int i = 1; i < 8; i++ )
-	//{
-	//	char buffer[50];
-	//	sprintf_s(buffer,"tree%d.pfs",i);
-	//	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Tree/", buffer, loader );
-	//}
-	//for( int i = 1; i < 6; i++ )
-	//{
-	//	char buffer[50];
-	//	sprintf_s(buffer,"greaystone%d.pfs",i);
-	//	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", buffer, loader );
-	//}
-	//for( int i = 1; i < 7; i++ )
-	//{
-	//	char buffer[50];
-	//	sprintf_s(buffer,"sandstone%d.pfs",i);
-	//	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", buffer, loader );
-	//}
-	////for( int i = 1; i < 5; i++ )
-	////{
-	////	char buffer[50];
-	////	sprintf_s(buffer,"bush%d.pfs",i);
-	////	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bushes/", buffer, mTree1Asset );
-	////}
-	////for( int i = 1; i < 3; i++ )
-	////{
-	////	char buffer[50];
-	////	sprintf_s(buffer,"plant%d.pfs",i);
-	////	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bushes/", buffer, mTree1Asset );
-	////}
-	//Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bushes/", "plant1.pfs", loader );
 	std::string colorIDFileNames[MAX_REMOTE_PLAYERS] = { "../Content/Assets/Textures/FunnyCircles/BlueID.png", "../Content/Assets/Textures/FunnyCircles/CoralID.png", "../Content/Assets/Textures/FunnyCircles/DarkBlueID.png", "../Content/Assets/Textures/FunnyCircles/DarkGreenID.png", "../Content/Assets/Textures/FunnyCircles/DarkPurpleID.png", "../Content/Assets/Textures/FunnyCircles/GreenID.png", "../Content/Assets/Textures/FunnyCircles/GreyID.png", "../Content/Assets/Textures/FunnyCircles/LightBlueID.png", "../Content/Assets/Textures/FunnyCircles/LightGreenID.png", "../Content/Assets/Textures/FunnyCircles/LightPurpleID.png","../Content/Assets/Textures/FunnyCircles/OrangeID.png", "../Content/Assets/Textures/FunnyCircles/PinkID.png", "../Content/Assets/Textures/FunnyCircles/ScreamBlueID.png", "../Content/Assets/Textures/FunnyCircles/YellowID.png" };
 
 	for( int i=0; i<MAX_REMOTE_PLAYERS; i++ )
@@ -548,6 +539,8 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Sync_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Enemy_List_Synced::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Initialized::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Sync_Spawn::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Update_Enemy_Position::GUID );
 
 	mFont.Initialize( "../Content/Assets/Fonts/final_font/" );
 
@@ -556,12 +549,19 @@ HRESULT PlayState::Initialize()
 	mShip.Initialize( 0, XMFLOAT3( 10.0f, 0.0f, 10.0f ), XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
 
 	// Enemies
-	mEnemies	= new Enemy*[MAX_NR_OF_ENEMIES];
+	mEnemies	= new RemoteEnemy*[MAX_NR_OF_ENEMIES];
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 	{
-		mEnemies[i] = new Enemy();
+		mEnemies[i] = new RemoteEnemy();
 		mEnemies[i]->Initialize( i );
 	}
+
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_2.pfs", mSpawnModel );
+	mSpawners	= new XMFLOAT3[MAX_NR_OF_ENEMY_SPAWNERS];
+
+	//ParticleManager
+	mParticleManager = new ParticleManager();
+	mParticleManager->Initialize();
 
 	return S_OK;
 }
@@ -596,7 +596,11 @@ void PlayState::Release()
 
 	delete [] mEnemies;
 
+	delete [] mSpawners;
+
 	mFont.Release();
+
+	SAFE_RELEASE_DELETE( mParticleManager );
 
 }
 
@@ -612,6 +616,8 @@ PlayState::PlayState()
 	mMaxNrOfEnemies		= 0;
 	mEnemyListSynced	= false;
 	mServerInitialized  = false;
+	mAnimationTime		= 0.0f;
+	mParticleManager	= nullptr;
 }
 
 PlayState::~PlayState()

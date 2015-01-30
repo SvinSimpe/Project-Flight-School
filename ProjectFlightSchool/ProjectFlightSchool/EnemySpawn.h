@@ -6,7 +6,7 @@
 #include "Events.h"
 #include "RenderManager.h"
 
-#define MAX_NR_OF_ENEMY_SPAWNERS	3
+#define MAX_NR_OF_ENEMY_SPAWNERS	10
 
 class EnemySpawn
 {

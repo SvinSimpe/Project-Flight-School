@@ -125,7 +125,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if ( newEvent->GetEventType() == Event_Sync_Enemy::GUID )
 	{
 		std::shared_ptr<Event_Sync_Enemy> data = std::static_pointer_cast<Event_Sync_Enemy>( newEvent );
-		SyncEnemy( data->ID(), data->Model(), data->Animation(), data->Position(), data->Direction() );
+		SyncEnemy( data->ID(), (EnemyState)data->State(), (EnemyType)data->Type(), data->Position(), data->Direction() );
 	}
 	else if ( newEvent->GetEventType() == Event_Update_Enemy_Position::GUID )
 	{
@@ -147,12 +147,13 @@ void PlayState::EventListener( IEventPtr newEvent )
 	}
 }
 
-void PlayState::SyncEnemy( unsigned int id, unsigned int model, unsigned int animation, XMFLOAT3 position, XMFLOAT3 direction )
+void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction )
 {
 	mEnemyListSynced = false;
 	mEnemies[id]->SetID( id );
-	mEnemies[id]->SetModelID( model );
-	mEnemies[id]->SetAnimation( animation );
+	mEnemies[id]->SetEnemyType( type );
+	mEnemies[id]->SetModelID( mEnemyAnimationManager->GetModel( mEnemies[id]->GetEnemyType() ), mEnemyAnimationManager->GetDefaultAnimation( mEnemies[id]->GetEnemyType() ) );
+	mEnemies[id]->SetAnimation( mEnemyAnimationManager->GetAnimation( mEnemies[id]->GetEnemyType(), state ) );
 	mEnemies[id]->SetPosition( position );
 	mEnemies[id]->SetDirection( direction );
 	mEnemies[id]->SetSynced( true );
@@ -395,6 +396,14 @@ HRESULT PlayState::Update( float deltaTime )
 	else
 		mFrameCounter++;
 
+	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
+	{
+		if ( mRemotePlayers.at(i) )
+		{
+			mRemotePlayers.at(i)->Update( deltaTime );
+		}
+	}
+
 	HandleDeveloperCameraInput();
 	mPlayer->Update( deltaTime );
 
@@ -405,7 +414,7 @@ HRESULT PlayState::Update( float deltaTime )
 	mShip.PickTurretTarget( mAllPlayers );
 	mShip.Update( deltaTime );
 
-	if( mEnemyListSynced )
+	//if( mEnemyListSynced )
 	{
 		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 		{
@@ -429,7 +438,7 @@ HRESULT PlayState::Render()
 	{
 		if ( mRemotePlayers.at(i) )
 		{
-			mRemotePlayers.at(i)->Render( 0.0f, i + 2 );
+			mRemotePlayers.at(i)->Render( i + 2 );
 		}
 	}
 
@@ -562,11 +571,14 @@ HRESULT PlayState::Initialize()
 	mShip.Initialize( 0, XMFLOAT3( 10.0f, 0.0f, 10.0f ), XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
 
 	// Enemies
+	mEnemyAnimationManager = new EnemyAnimationManager();
+	mEnemyAnimationManager->Initialize();
+
 	mEnemies	= new RemoteEnemy*[MAX_NR_OF_ENEMIES];
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 	{
 		mEnemies[i] = new RemoteEnemy();
-		mEnemies[i]->Initialize( i );
+		mEnemies[i]->Initialize( i, mEnemyAnimationManager->GetModel( Standard ), mEnemyAnimationManager->GetAnimation( Standard, Idle ) );
 	}
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_2.pfs", mSpawnModel );
@@ -600,6 +612,8 @@ void PlayState::Release()
 	delete [] mProjectiles;
 
 	// Enemies
+	SAFE_DELETE( mEnemyAnimationManager );
+
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 		SAFE_DELETE( mEnemies[i] );
 
@@ -613,17 +627,18 @@ void PlayState::Release()
 
 PlayState::PlayState()
 {
-	mPlayer				= nullptr;
-	mRemotePlayers		= std::vector<RemotePlayer*>( 0 );
+	mPlayer					= nullptr;
+	mRemotePlayers			= std::vector<RemotePlayer*>( 0 );
 	mRemotePlayers.reserve(MAX_REMOTE_PLAYERS);
-	mFrameCounter		= 0;
-	mProjectiles		= nullptr;
-	mEnemies			= nullptr;
-	mNrOfEnemies		= 0;
-	mMaxNrOfEnemies		= 0;
-	mEnemyListSynced	= false;
-	mServerInitialized  = false;
-	mAnimationTime		= 0.0f;
+	mFrameCounter			= 0;
+	mProjectiles			= nullptr;
+	mEnemyAnimationManager	= nullptr;
+	mEnemies				= nullptr;
+	mNrOfEnemies			= 0;
+	mMaxNrOfEnemies			= 0;
+	mEnemyListSynced		= false;
+	mServerInitialized		= false;
+	mAnimationTime			= 0.0f;
 }
 
 PlayState::~PlayState()

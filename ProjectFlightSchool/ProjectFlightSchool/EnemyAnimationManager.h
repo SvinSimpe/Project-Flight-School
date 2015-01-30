@@ -22,6 +22,13 @@ class EnemyAnimationManager
 	private:
 	protected:
 	public:
+		AssetID			GetAnimation( EnemyType enemy, EnemyState state ) const;
+		AssetID			GetDefaultAnimation( EnemyType enemy ) const;
+		AssetID			GetModel( EnemyType enemy ) const;
+		HRESULT			Initialize();
+		void			Release();
+						EnemyAnimationManager();
+						~EnemyAnimationManager();
 };
 
 #endif

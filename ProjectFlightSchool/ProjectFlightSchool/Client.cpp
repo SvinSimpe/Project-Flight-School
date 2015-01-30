@@ -30,10 +30,7 @@ void Client::EventListener( IEventPtr newEvent )
 			EvPlayerUpdate msg;
 			msg.id						= mID;
 			msg.lowerBodyPosition		= data->LowerBodyPos();
-			msg.lowerBodyDirection		= data->LowerBodyDirection();
-			msg.lowerBodyAnimation		= data->LowerBodyAnimation();
-			msg.lowerBodyAnimationTime	= data->LowerBodyAnimationTime();
-			msg.upperBodyPosition		= data->UpperBodyPos();
+			msg.velocity				= data->Velocity();
 			msg.upperBodyDirection		= data->UpperBodyDirection();
 
 			if ( mServerSocket != INVALID_SOCKET )

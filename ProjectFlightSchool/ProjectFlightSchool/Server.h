@@ -61,7 +61,7 @@ class Server
 		bool			AcceptConnection();
 		bool			ReceiveLoop( int index );
 		void			DisconnectClient( SOCKET s );
-		XMFLOAT3		SpawnEnemy();
+		XMFLOAT3		GetNextSpawn();
 		void			AggroCheck();
 
 	protected:
@@ -117,6 +117,7 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 			break;
 		case Net_Event::EV_PLAYER_JOINED:
 		{
+			mSafeUpdate	= false;
 			CRITICAL_SECTION lock;
 			InitializeCriticalSection( &lock );
 			EnterCriticalSection( &lock );
@@ -140,8 +141,8 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 			for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 			{
 				enemy.ID			= mEnemies[i]->GetID();
-				enemy.model			= mEnemies[i]->GetModelID();
-				enemy.animation		= mEnemies[i]->GetAnimation();
+				enemy.state			= mEnemies[i]->GetEnemyState();
+				enemy.type			= mEnemies[i]->GetEnemyType();
 				enemy.position		= mEnemies[i]->GetPosition();
 				enemy.direction		= mEnemies[i]->GetDirection();
 
@@ -162,6 +163,7 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 			mEnemyListSynced	= true;
 			LeaveCriticalSection( &lock );
 			DeleteCriticalSection( &lock );
+			mSafeUpdate			= true;
 		}
 			break;
 		case Net_Event::EV_PLAYER_DIED:

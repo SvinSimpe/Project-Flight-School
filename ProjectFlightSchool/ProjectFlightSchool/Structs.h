@@ -12,10 +12,7 @@ struct EvPlayerUpdate
 {
 	unsigned int		id;
 	DirectX::XMFLOAT3	lowerBodyPosition;
-	DirectX::XMFLOAT3	lowerBodyDirection;
-	unsigned int		lowerBodyAnimation;
-	float				lowerBodyAnimationTime;
-	DirectX::XMFLOAT3	upperBodyPosition;
+	DirectX::XMFLOAT3	velocity;
 	DirectX::XMFLOAT3	upperBodyDirection;
 };
 
@@ -55,8 +52,8 @@ struct EvEnemyCreated
 struct EvSyncEnemy
 {
 	unsigned int		ID;
-	unsigned int		model;
-	unsigned int		animation;
+	unsigned int		state;
+	unsigned int		type;
 	float				hp;
 	bool				isAlive;
 	DirectX::XMFLOAT3	position;

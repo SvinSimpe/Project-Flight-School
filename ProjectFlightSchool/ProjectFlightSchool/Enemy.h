@@ -7,10 +7,9 @@
 #include "BoundingGeometry.h"
 #include "RenderManager.h"
 #include "Font.h"
-#include "BoundingGeometry.h"
 
 
-#define MAX_NR_OF_ENEMIES		3
+#define MAX_NR_OF_ENEMIES		4
 
 // ---- Define all enemy animations ----
 // Standard
@@ -37,20 +36,15 @@
 #define ENEMY_ANIMATION_COUNT	16
 //----------------------------------------
 enum EnemyType { Standard, Ranged, Boomer, Tank };
+enum EnemyState { Idle, Run, Attack, Death };
 
 class Enemy
 {
 	// Member variables
 	private:
-		AssetID				mModel;
-		AssetID				mModelStandard;
-		AssetID				mModelRanged;
-		AssetID				mModelBoomer;
-		AssetID				mModelTank;
-		AssetID				mAnimations[ENEMY_ANIMATION_COUNT];
-
 		unsigned int		mID;
 		EnemyType			mEnemyType;
+		EnemyState			mCurrentState;
 		float				mCurrentHp;
 		float				mMaxHp;
 		float				mDamage;
@@ -58,7 +52,7 @@ class Enemy
 		XMFLOAT3			mPosition;
 		XMFLOAT3			mDirection;
 		float				mVelocity;
-		BoundingCircle*		mAttackRadius;		
+		BoundingCircle*		mAttackRadius;
 
 	protected:
 	public:
@@ -84,10 +78,8 @@ class Enemy
 		void				SetVelocity( float velocity );
 		unsigned int		GetID() const;
 		void				SetID( unsigned int id );
-		AssetID				GetModelID() const;
-		/*void				SetModelID( AssetID model );*/
-		AssetID				GetAnimation() const;
-		/*void				SetAnimation( AssetID animation );*/
+		EnemyType			GetEnemyType() const;
+		EnemyState			GetEnemyState() const;
 		float				GetHP() const;
 		void				SetHP( float hp );
 		bool				IsAlive() const;

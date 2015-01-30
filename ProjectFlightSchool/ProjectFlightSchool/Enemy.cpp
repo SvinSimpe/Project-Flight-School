@@ -16,9 +16,8 @@ void Enemy::CreateStandard()
 	mMaxHp		= 100.0f;
 	mCurrentHp	= mMaxHp;
 	mDamage		= 20.0f;
-	mVelocity	= 0.15f;
+	mVelocity	= 0.1f;
 	mAttackRadius->radius	= 5.0f;
-	mModel		= mModelStandard;
 }
 
 void Enemy::CreateRanged()
@@ -34,9 +33,8 @@ void Enemy::CreateRanged()
 	mMaxHp					= 80.0f;
 	mCurrentHp				= mMaxHp;
 	mDamage					= 10.0f;
-	mVelocity				= 0.2f;
+	mVelocity				= 0.14f;
 	mAttackRadius->radius	= 3.0f;
-	mModel					= mModelRanged;
 }
 
 void Enemy::CreateBoomer()
@@ -53,7 +51,6 @@ void Enemy::CreateBoomer()
 	mCurrentHp	= mMaxHp;
 	mDamage		= 50.0f;
 	mVelocity	= 0.25f;
-	mModel		= mModelBoomer;
 }
 
 void Enemy::CreateTank()
@@ -70,22 +67,30 @@ void Enemy::CreateTank()
 	mCurrentHp	= mMaxHp;
 	mDamage		= 20.0f;
 	mVelocity	= 0.05f;
-	mModel		= mModelTank;
 }
 
 void Enemy::StandardLogic( float deltaTime )
 {
 	mPosition.x += mVelocity;
+
 	if( mPosition.x >= 50 )
 		Die();
 }
 
 void Enemy::RangedLogic( float deltaTime )
 {
+	mPosition.x += mVelocity;
+
+	if( mPosition.x >= 50 )
+		Die();
 }
 
 void Enemy::BoomerLogic( float deltaTime )
 {
+	mPosition.x += mVelocity;
+
+	if( mPosition.x >= 50 )
+		Die();
 }
 
 void Enemy::TankLogic( float deltaTime )
@@ -128,13 +133,29 @@ HRESULT Enemy::Update( float deltaTime )
 		default:
 			OutputDebugStringA( "> Error: No enemy type " );
 	}
-
 	return S_OK;
 }
 
 void Enemy::Spawn( XMFLOAT3 spawnPos )
 {
-	CreateStandard();
+	switch( mID % 3 )
+	{
+	case 0:
+		CreateStandard();
+		break;
+	case 1:
+		CreateRanged();
+		break;
+	case 2:
+		CreateRanged();
+		//CreateBoomer();
+		break;
+	}
+
+	//CreateStandard();
+	//CreateRanged();
+	//CreateBoomer();
+	//CreateTank();
 
 	mPosition	= spawnPos;
 	mIsAlive	= true;
@@ -171,27 +192,16 @@ void Enemy::SetID( unsigned int id )
 	mID = id;
 }
 
-AssetID Enemy::GetModelID() const
+EnemyType Enemy::GetEnemyType() const
 {
-	return mModel;
+	return mEnemyType;
 }
 
-//void Enemy::SetModelID( AssetID model )
-//{
-//	mModel = model;
-//}
-
-AssetID Enemy::GetAnimation() const
+EnemyState Enemy::GetEnemyState() const
 {
 	// Change to current animation
-	return mAnimations[ENEMY_ANIMATION_STANDARD_RUN];
+	return mCurrentState;
 }
-
-//void Enemy::SetAnimation( AssetID animation )
-//{
-//	// Change to current animation
-//	mAnimations[ENEMY_ANIMATION_STANDARD_IDLE] = animation;
-//}
 
 float Enemy::GetHP() const
 {
@@ -235,26 +245,13 @@ void Enemy::SetDirection( XMFLOAT3 direction )
 
 HRESULT Enemy::Initialize( int id )
 {
-	// Load skeleton
-	AssetID skeleton = 0;
-	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", skeleton ); // Debug, raptor
-	// Load animated 3d asset
-	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, mModelStandard );
-	// Load Standard run animation asset
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptor_idle.PaMan", mAnimations[ENEMY_ANIMATION_STANDARD_IDLE] );
-	// Load Standard run animation asset
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptor_run.PaMan", mAnimations[ENEMY_ANIMATION_STANDARD_RUN] );
-	// Load Standard run animation asset
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptor_attack.PaMan", mAnimations[ENEMY_ANIMATION_STANDARD_ATTACK] );
-	// Load Standard run animation asset
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptor_death.PaMan", mAnimations[ENEMY_ANIMATION_STANDARD_DEATH] );
-
 	mID				= id;
 	mMaxHp			= 100.0f;
 	mCurrentHp		= mMaxHp;
 	mDamage			= 0.0f;
 	mVelocity		= 0.15;
 	mIsAlive		= false;
+	mCurrentState	= Run;
 
 	mAttackRadius	= new BoundingCircle( 1.0f );
 
@@ -269,7 +266,6 @@ void Enemy::Release()
 Enemy::Enemy()
 {
 	mID				= 0;
-	mModel			= 0;
 	mCurrentHp		= 0.0f;
 	mMaxHp			= 0.0f;
 	mDamage			= 0.0f;
@@ -278,6 +274,7 @@ Enemy::Enemy()
 	mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity		= 0.0f;
 	mAttackRadius	= nullptr;
+	mCurrentState	= Idle;
 }
 
 Enemy::~Enemy()

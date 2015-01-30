@@ -414,19 +414,74 @@ void Graphics::RenderBillboard( BillboardInfo* info, UINT sizeOfList )
 	}
 }
 
-DirectX::XMFLOAT4X4 Graphics::GetRootMatrix( AssetID modelAssetId, AssetID animationAssetId, float animationTime )
+DirectX::XMFLOAT4X4 Graphics::GetRootMatrix( AnimationTrack animTrack )
 {
-	Animated3dAsset*	model		= (Animated3dAsset*)mAssetManager->mAssetContainer[modelAssetId];
+	Animated3dAsset*	model		= (Animated3dAsset*)mAssetManager->mAssetContainer[animTrack.mModelID];
 	Skeleton*			skeleton	= &( (SkeletonAsset*)mAssetManager->mAssetContainer[model->mSkeletonId] )->mSkeleton;
-	AnimationData*		animation	= &( (AnimationAsset*)mAssetManager->mAssetContainer[animationAssetId] )->mAnimationData;
+	AnimationData*		animation	= &( (AnimationAsset*)mAssetManager->mAssetContainer[animTrack.mCurrentAnimation] )->mAnimationData;
 
-	float calcTime = animationTime * 60.0f;
+	bool isAnimationBlending		= false;
+
+	DirectX::XMMATRIX currMatrix;
+	DirectX::XMMATRIX nextMatrix;
+
+	//////////////////////////////////////////////////////////
+	//			Interpolation evaluation step
+	//////////////////////////////////////////////////////////
+	if( animTrack.mInterpolation > 0.0f ) // generate matrices to blend between interpolation
+	{
+		isAnimationBlending = true;
+
+		AnimationData*	animation2	= &( (AnimationAsset*)mAssetManager->mAssetContainer[animTrack.mNextAnimation] )->mAnimationData;
+
+		float calcTime = animTrack.mNextAnimationTime * 60.0f;
+
+		float prevTime		= 1.0f;
+		float targetTime	= 1.0f;
+
+		DirectX::XMFLOAT4X4 targetMatrix	= animation2->joints.at(0).matricies.at(0);
+		DirectX::XMFLOAT4X4	previousMatrix	= targetMatrix;
+
+		for( int j = 0; j < (int)animation2->joints.at(0).keys.size() - 1; j++ )
+		{
+			if( (float)animation2->joints.at(0).keys.at(j) < calcTime )
+			{
+				prevTime		= targetTime;
+				previousMatrix	= targetMatrix;
+				targetTime		= (float)animation2->joints.at(0).keys.at(j+1);
+				targetMatrix	= animation2->joints.at(0).matricies.at(j+1);
+			}
+		}
+
+		float interpolation = 1.0f;
+		if( targetTime - prevTime > 0.0f )
+			interpolation = ( calcTime - prevTime ) / ( targetTime - prevTime );
+
+		DirectX::XMMATRIX child	= DirectX::XMLoadFloat4x4( &previousMatrix );
+
+		DirectX::XMVECTOR targetComp[3];
+		DirectX::XMVECTOR childComp[3];
+
+		DirectX::XMMatrixDecompose( &targetComp[0], &targetComp[1], &targetComp[2], DirectX::XMLoadFloat4x4( &targetMatrix ) );
+		DirectX::XMMatrixDecompose( &childComp[0], &childComp[1], &childComp[2], child );
+
+		nextMatrix = DirectX::XMMatrixAffineTransformation(	DirectX::XMVectorLerp( childComp[0], targetComp[0], interpolation ),
+														DirectX::XMVectorZero(),
+														DirectX::XMQuaternionSlerp( childComp[1], targetComp[1], interpolation ),
+														DirectX::XMVectorLerp( childComp[2], targetComp[2], interpolation ) );
+	}
+
+	/////////////////////////////////////////////////////////////
+	//			Calculate matrices for current animation
+	/////////////////////////////////////////////////////////////
+
+	float calcTime = animTrack.mCurrentAnimationTime * 60.0f;
 
 	float prevTime		= 1.0f;
 	float targetTime	= 1.0f;
 
-	DirectX::XMFLOAT4X4	previousMatrix;
-	DirectX::XMFLOAT4X4 targetMatrix = animation->joints.at(0).matricies.at(0);
+	DirectX::XMFLOAT4X4 targetMatrix	= animation->joints.at(0).matricies.at(0);
+	DirectX::XMFLOAT4X4	previousMatrix	= targetMatrix;
 
 	for( int j = 0; j < (int)animation->joints.at(0).keys.size() - 1; j++ )
 	{
@@ -451,13 +506,28 @@ DirectX::XMFLOAT4X4 Graphics::GetRootMatrix( AssetID modelAssetId, AssetID anima
 	DirectX::XMMatrixDecompose( &targetComp[0], &targetComp[1], &targetComp[2], DirectX::XMLoadFloat4x4( &targetMatrix ) );
 	DirectX::XMMatrixDecompose( &childComp[0], &childComp[1], &childComp[2], child );
 
-	child = DirectX::XMMatrixAffineTransformation(	DirectX::XMVectorLerp( childComp[0], targetComp[0], interpolation ),
+	currMatrix = DirectX::XMMatrixAffineTransformation(	DirectX::XMVectorLerp( childComp[0], targetComp[0], interpolation ),
 														DirectX::XMVectorZero(),
 														DirectX::XMQuaternionSlerp( childComp[1], targetComp[1], interpolation ),
 														DirectX::XMVectorLerp( childComp[2], targetComp[2], interpolation ) );		
 
+	if( isAnimationBlending )
+	{
+		float blendInterpolation = animTrack.mInterpolation / 0.2f;
+		DirectX::XMVECTOR currComp[3];
+		DirectX::XMVECTOR nextComp[3];
+
+		DirectX::XMMatrixDecompose( &currComp[0], &currComp[1], &currComp[2], currMatrix );
+		DirectX::XMMatrixDecompose( &nextComp[0], &nextComp[1], &nextComp[2], nextMatrix );
+
+		currMatrix = DirectX::XMMatrixAffineTransformation(	DirectX::XMVectorLerp( nextComp[0], currComp[0], blendInterpolation ),
+																				DirectX::XMVectorZero(),
+																				DirectX::XMQuaternionSlerp( nextComp[1], currComp[1], blendInterpolation ),
+																				DirectX::XMVectorLerp( nextComp[2], currComp[2], blendInterpolation ) );
+	}
+
 	DirectX::XMFLOAT4X4 output;
-	DirectX::XMStoreFloat4x4( &output, child );
+	DirectX::XMStoreFloat4x4( &output, currMatrix );
 	return output;
 }
 
@@ -640,39 +710,114 @@ void Graphics::EndScene()
 	mSwapChain->Present( 0, 0 );
 }
 
-bool Graphics::GetAnimationMatrices( AssetID modelAssetId, AssetID animationAssetId, float &animationTime, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo& info )
+bool Graphics::GetAnimationMatrices( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo &info )
 {
-	Animated3dAsset*	model		= (Animated3dAsset*)mAssetManager->mAssetContainer[modelAssetId];
+	Animated3dAsset*	model		= (Animated3dAsset*)mAssetManager->mAssetContainer[animTrack.mModelID];
 	Skeleton*			skeleton	= &( (SkeletonAsset*)mAssetManager->mAssetContainer[model->mSkeletonId] )->mSkeleton;
-	AnimationData*		animation	= &( (AnimationAsset*)mAssetManager->mAssetContainer[animationAssetId] )->mAnimationData;
+	AnimationData*		animation	= &( (AnimationAsset*)mAssetManager->mAssetContainer[animTrack.mCurrentAnimation] )->mAnimationData;
 
-	bool localReturn = false;
-
-	if( animationTime >= (float)animation->AnimLength / 60.0f )
-	{
-		if( playType == ANIMATION_PLAY_LOOPED )
-			animationTime -= ( (float)animation->AnimLength / 60.0f - 1.0f / 60.0f );
-		else if( playType == ANIMATION_PLAY_ONCE )
-			animationTime = ( (float)animation->AnimLength / 60.0f );
-
-		localReturn = true;
-	}
-
-	float calcTime = animationTime * 60.0f;
+	bool isAnimationBlending		= false;
 
 	DirectX::XMMATRIX currentBoneTransforms[NUM_SUPPORTED_JOINTS];
+	DirectX::XMMATRIX nextBoneTransforms[NUM_SUPPORTED_JOINTS];
 	for( int i = 0; i < NUM_SUPPORTED_JOINTS; i++ )
 	{
 		currentBoneTransforms[i] = DirectX::XMMatrixIdentity();
 	}
+
+	//////////////////////////////////////////////////////////
+	//			Interpolation evaluation step
+	//////////////////////////////////////////////////////////
+	if( animTrack.mInterpolation > 0.0f ) // generate matrices to blend between interpolation
+	{
+		isAnimationBlending = true;
+
+		for( int i = 0; i < NUM_SUPPORTED_JOINTS; i++ )
+		{
+			nextBoneTransforms[i] = DirectX::XMMatrixIdentity();
+		}
+		AnimationData*	animation2	= &( (AnimationAsset*)mAssetManager->mAssetContainer[animTrack.mNextAnimation] )->mAnimationData;
+
+		if( animTrack.mNextAnimationTime >= (float)animation2->AnimLength / 60.0f )
+		{
+			if( playType == ANIMATION_PLAY_LOOPED )
+				animTrack.mNextAnimationTime -= ( (float)animation2->AnimLength / 60.0f - 1.0f / 60.0f );
+			else if( playType == ANIMATION_PLAY_ONCE )
+				animTrack.mNextAnimationTime = ( (float)animation2->AnimLength / 60.0f );
+		}
+
+			float calcTime = animTrack.mNextAnimationTime * 60.0f;
+
+			for( int i = 0; i < (int)skeleton->joints.size(); i++ )
+			{
+				float prevTime		= 1.0f;
+				float targetTime	= 1.0f;
+
+				DirectX::XMFLOAT4X4 targetMatrix	= animation2->joints.at(i).matricies.at(0);
+				DirectX::XMFLOAT4X4	previousMatrix	= targetMatrix;
+
+				for( int j = 0; j < (int)animation2->joints.at(i).keys.size() - 1; j++ )
+				{
+					if( (float)animation2->joints.at(i).keys.at(j) < calcTime )
+					{
+						prevTime		= targetTime;
+						previousMatrix	= targetMatrix;
+						targetTime		= (float)animation2->joints.at(i).keys.at(j+1);
+						targetMatrix	= animation2->joints.at(i).matricies.at(j+1);
+					}
+				}
+
+				float interpolation = 1.0f;
+				if( targetTime - prevTime > 0.0f )
+					interpolation = ( calcTime - prevTime ) / ( targetTime - prevTime );
+
+				DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &previousMatrix );
+
+				DirectX::XMVECTOR targetComp[3];
+				DirectX::XMVECTOR childComp[3];
+
+				DirectX::XMMatrixDecompose( &targetComp[0], &targetComp[1], &targetComp[2], DirectX::XMLoadFloat4x4( &targetMatrix ) );
+				DirectX::XMMatrixDecompose( &childComp[0], &childComp[1], &childComp[2], child );
+
+				child = DirectX::XMMatrixAffineTransformation(	DirectX::XMVectorLerp( childComp[0], targetComp[0], interpolation ),
+																	DirectX::XMVectorZero(),
+																	DirectX::XMQuaternionSlerp( childComp[1], targetComp[1], interpolation ),
+																	DirectX::XMVectorLerp( childComp[2], targetComp[2], interpolation ) );		
+
+				DirectX::XMMATRIX parent	= animation2->joints.at(i).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
+													nextBoneTransforms[animation2->joints.at(i).parentIndex];
+
+				nextBoneTransforms[i] = child * parent;
+			}
+
+	}
+
+	/////////////////////////////////////////////////////////////
+	//			Calculate matrices for current animation
+	/////////////////////////////////////////////////////////////
+
+	bool localReturn = false;
+
+	if( animTrack.mCurrentAnimationTime >= (float)animation->AnimLength / 60.0f )
+	{
+		if( playType == ANIMATION_PLAY_LOOPED )
+			animTrack.mCurrentAnimationTime -= ( (float)animation->AnimLength / 60.0f - 1.0f / 60.0f );
+		else if( playType == ANIMATION_PLAY_ONCE )
+			animTrack.mCurrentAnimationTime = ( (float)animation->AnimLength / 60.0f );
+
+		if( !isAnimationBlending )
+			localReturn = true;
+	}
+
+	float calcTime = animTrack.mCurrentAnimationTime * 60.0f;
 
 	for( int i = 0; i < (int)skeleton->joints.size(); i++ )
 	{
 		float prevTime		= 1.0f;
 		float targetTime	= 1.0f;
 
-		DirectX::XMFLOAT4X4	previousMatrix;
-		DirectX::XMFLOAT4X4 targetMatrix = animation->joints.at(i).matricies.at(0);
+		DirectX::XMFLOAT4X4 targetMatrix	= animation->joints.at(i).matricies.at(0);
+		DirectX::XMFLOAT4X4	previousMatrix	= targetMatrix;
 
 		for( int j = 0; j < (int)animation->joints.at(i).keys.size() - 1; j++ )
 		{
@@ -708,6 +853,23 @@ bool Graphics::GetAnimationMatrices( AssetID modelAssetId, AssetID animationAsse
 		currentBoneTransforms[i] = child * parent;
 	}
 
+	if( isAnimationBlending )
+	{
+		float blendInterpolation = animTrack.mInterpolation / 0.2f;
+		DirectX::XMVECTOR currComp[3];
+		DirectX::XMVECTOR nextComp[3];
+
+		for( int j = 0; j < NUM_SUPPORTED_JOINTS; j++ )
+		{
+			DirectX::XMMatrixDecompose( &currComp[0], &currComp[1], &currComp[2], currentBoneTransforms[j] );
+			DirectX::XMMatrixDecompose( &nextComp[0], &nextComp[1], &nextComp[2], nextBoneTransforms[j] );
+
+			currentBoneTransforms[j] = DirectX::XMMatrixAffineTransformation(	DirectX::XMVectorLerp( nextComp[0], currComp[0], blendInterpolation ),
+																				DirectX::XMVectorZero(),
+																				DirectX::XMQuaternionSlerp( nextComp[1], currComp[1], blendInterpolation ),
+																				DirectX::XMVectorLerp( nextComp[2], currComp[2], blendInterpolation ) );
+		}
+	}
 
 	DirectX::XMStoreFloat4x4( &info.mWorld, DirectX::XMMatrixTranspose( DirectX::XMMatrixRotationRollPitchYaw( rotation.x, rotation.y, rotation.z ) *										
 											DirectX::XMMatrixTranslation( position.x, position.y, position.z ) ) );

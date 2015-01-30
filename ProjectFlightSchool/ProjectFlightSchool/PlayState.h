@@ -12,6 +12,7 @@
 #include "Image.h"
 #include "EnemySpawn.h"
 #include "RemoteEnemy.h"
+#include "EnemyAnimationManager.h"
 //Test
 #include "ParticleManager.h"
 
@@ -53,6 +54,7 @@ class PlayState : public BaseState
 		int							mNrOfProjectilesFired;
 		int							mCurrentColor;
 		Font						mFont;
+		EnemyAnimationManager*		mEnemyAnimationManager;
 		RemoteEnemy**				mEnemies;
 		XMFLOAT3*					mSpawners;
 		AssetID						mSpawnModel;
@@ -67,7 +69,7 @@ class PlayState : public BaseState
 
 	// Class functions
 	private:
-		void			SyncEnemy( unsigned int id, unsigned int model, unsigned int animation, XMFLOAT3 position, XMFLOAT3 direction );
+		void			SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction );
 		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position );
 		void			SyncSpawn( unsigned int id, XMFLOAT3 position );
 		void			RemoteUpdate( IEventPtr newEvent );

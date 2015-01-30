@@ -2,13 +2,13 @@
 
 HRESULT RemoteEnemy::Update( float deltaTime )
 {
-	mAnimationTime += deltaTime;
+	RenderManager::GetInstance()->AnimationUpdate( mAnimationTrack, deltaTime );
 	return S_OK;
 }
 
 HRESULT RemoteEnemy::Render()
 {
-	RenderManager::GetInstance()->AddAnim3dToList( mModel, mAnimation, &mAnimationTime, ANIMATION_PLAY_LOOPED, mPosition );
+	RenderManager::GetInstance()->AddAnim3dToList( mAnimationTrack, ANIMATION_PLAY_LOOPED, mPosition );
 	return S_OK;
 }
 
@@ -17,14 +17,20 @@ void RemoteEnemy::SetID( unsigned int id )
 	mID = id;
 }
 
-void RemoteEnemy::SetModelID( AssetID model )
+void RemoteEnemy::SetEnemyType( EnemyType type )
 {
-	mModel	= model;
+	mEnemyType	= type;
+}
+
+void RemoteEnemy::SetModelID( AssetID model, AssetID defaultAnimation )
+{
+	RenderManager::GetInstance()->AnimationInitialize( mAnimationTrack, model, defaultAnimation );
 }
 
 void RemoteEnemy::SetAnimation( AssetID animation )
 {
-	mAnimation = animation;
+	if( mAnimationTrack.mNextAnimation != animation )
+		RenderManager::GetInstance()->AnimationStartNew( mAnimationTrack, animation );
 }
 
 void RemoteEnemy::SetPosition( XMFLOAT3 position )
@@ -47,13 +53,21 @@ bool RemoteEnemy::IsSynced() const
 	return mIsSynced;
 }
 
-HRESULT RemoteEnemy::Initialize( int id )
+EnemyType RemoteEnemy::GetEnemyType() const
+{
+	return mEnemyType;
+}
+
+HRESULT RemoteEnemy::Initialize( int id, AssetID model, AssetID animation )
 {
 	mID				= id;
-	mModel			= 0;
+	mEnemyType		= Standard;		// Default enemy
 	mPosition		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mAnimationTime	= 1.0f;
+	mIsSynced		= false;
+
+	// Load animationTrack with model and standard animation
+	RenderManager::GetInstance()->AnimationInitialize( mAnimationTrack, model, animation );
 
 	return S_OK;
 }
@@ -65,10 +79,8 @@ void RemoteEnemy::Release()
 RemoteEnemy::RemoteEnemy()
 {
 	mID				= 0;
-	mModel			= 0;
 	mPosition		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mAnimationTime	= 0.0f;
 	mIsSynced		= false;
 }
 

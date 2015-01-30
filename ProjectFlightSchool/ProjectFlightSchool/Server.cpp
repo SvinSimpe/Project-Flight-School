@@ -103,7 +103,7 @@ void Server::DisconnectClient( SOCKET s )
 	}
 }
 
-XMFLOAT3 Server::SpawnEnemy()
+XMFLOAT3 Server::GetNextSpawn()
 {
 	return mSpawners[mNrOfEnemiesSpawned++ % MAX_NR_OF_ENEMY_SPAWNERS]->GetSpawnPosition();
 }
@@ -161,7 +161,7 @@ HRESULT Server::Update( float deltaTime )
 			}
 			else
 			{
-				mEnemies[i]->Spawn( SpawnEnemy() );
+				mEnemies[i]->Spawn( GetNextSpawn() );
 			}
 		}
 
@@ -264,15 +264,24 @@ bool Server::Initialize( std::string port )
 	mSpawners	= new EnemySpawn*[MAX_NR_OF_ENEMY_SPAWNERS];
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
 	{
-		// Map size values
-		int negX, negY, posX, posY;
-		negX = rand() % 50;
-		negY = rand() % 50;
-		posX = rand() % 50;
-		posY = rand() % 50;
-		mSpawners[i] = new EnemySpawn();
-		mSpawners[i]->Initilaize( i );
-		mSpawners[i]->SetPosition( XMFLOAT3( (float)(posX - negX), 0.0f, (float)(negY - posY) ) );
+		if( i == 0)
+		{
+			mSpawners[i] = new EnemySpawn();
+			mSpawners[i]->Initilaize( i );
+			mSpawners[i]->SetPosition( XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
+		}
+		else
+		{
+			// Map size values
+			int negX, negY, posX, posY;
+			negX = rand() % 50;
+			negY = rand() % 50;
+			posX = rand() % 50;
+			posY = rand() % 50;
+			mSpawners[i] = new EnemySpawn();
+			mSpawners[i]->Initilaize( i );
+			mSpawners[i]->SetPosition( XMFLOAT3( (float)(posX - negX), 0.0f, (float)(negY - posY) ) );
+		}
 	}
 
 	mEnemies	= new Enemy*[MAX_NR_OF_ENEMIES];
@@ -280,7 +289,7 @@ bool Server::Initialize( std::string port )
 	{
 		mEnemies[i] = new Enemy();
 		mEnemies[i]->Initialize( i );
-		mEnemies[i]->Spawn( SpawnEnemy() );
+		mEnemies[i]->Spawn( GetNextSpawn() );
 		
 		//mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_UPDATE, msg );
 

@@ -81,7 +81,7 @@ HRESULT Projectile::Initialize()
 	mSpeed		= 20.0f;
 	mLifeTime	= 4.0f;
 	mBoundingCircle = new BoundingCircle( 0.5f );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bullet/", "bullet.pfs", mProjectileAsset );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Bullet/", "bullet.pfs", mProjectileAsset );
 
 	return S_OK;
 }

@@ -41,7 +41,7 @@ void Ship::Render()
 void Ship::Initialize( int team, XMFLOAT3 pos, XMFLOAT3 dir )
 {
 	mModel = new BodyPart();
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Ship/", "ship.pfs", mModel->model );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Ship/", "ship.pfs", mModel->model );
 	mModel->pos = pos;
 	mModel->dir = dir;
 

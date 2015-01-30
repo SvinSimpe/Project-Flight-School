@@ -12,14 +12,17 @@ void Enemy::RemoteUpdate( IEventPtr newEvent )
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT Enemy::Update( float deltaTime )
 {
-	mAnimationTime += deltaTime;
-	//mPosition.x += mVelocity;
+	mPosition.x += mVelocity;
+	RenderManager::GetInstance()->AnimationUpdate( mAnimationTrack,deltaTime );
+	if( mPosition.x >= 50 )
+		Die();
+
 	return S_OK;
 }
 
-HRESULT Enemy::Render()
+HRESULT Enemy::Render(  )
 {
-	RenderManager::GetInstance()->AddAnim3dToList( mModel, mAnimations[ENEMY_ANIMATION_IDLE], &mAnimationTime, mPosition );
+	RenderManager::GetInstance()->AddAnim3dToList( mAnimationTrack, ANIMATION_PLAY_LOOPED, mPosition );
 	return S_OK;
 }
 
@@ -30,10 +33,6 @@ void Enemy::Spawn( XMFLOAT3 spawnPos )
 	mCurrentHp	= mMaxHp;
 
 	// Send spawnEv
-
-	// Debug
-	/*mPosition.x = rand() % 20;
-	mPosition.z = rand() % 20;*/
 }
 
 void Enemy::Die()
@@ -56,12 +55,12 @@ void Enemy::SetID( unsigned int id )
 
 AssetID Enemy::GetModelID() const
 {
-	return mModel;
+	return mAnimationTrack.mModelID;
 }
 
 void Enemy::SetModelID( AssetID model )
 {
-	mModel = model;
+	mAnimationTrack.mModelID = model;
 }
 
 AssetID Enemy::GetAnimation() const
@@ -118,19 +117,23 @@ void Enemy::SetDirection( XMFLOAT3 direction )
 
 HRESULT Enemy::Initialize( int id )
 {
+	// Load animation asset
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptor_run.PaMan", mAnimations[ENEMY_ANIMATION_IDLE] );
+
 	// Load skeleton
-	AssetID skeleton = 0;
+	AssetID skeleton	= 0;
+	AssetID model		= 0;
 	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", skeleton ); // Debug, raptor
 	// Load animated 3d asset
-	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, mModel );
-	// Load animation asset
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptor_idle.PaMan", mAnimations[ENEMY_ANIMATION_IDLE] );
+	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, model );
+	// Load animationTrack with model and standard animation
+	RenderManager::GetInstance()->AnimationInitialize( mAnimationTrack, model, mAnimations[ENEMY_ANIMATION_IDLE] );
 
 	mID				= id;
 	mMaxHp			= 100.0f;
 	mCurrentHp		= mMaxHp;
-	mAnimationTime	= 1.0f;
-	mVelocity		= 0.02f;
+	mVelocity		= 0.15f;
+	mIsAlive		= false;
 
 	return S_OK;
 }
@@ -142,8 +145,6 @@ void Enemy::Release()
 Enemy::Enemy()
 {
 	mID				= 0;
-	mModel			= 0;
-	mAnimationTime	= 0.0f;
 	mCurrentHp		= 0.0f;
 	mMaxHp			= 0.0f;
 	mIsAlive		= false;

@@ -9,26 +9,38 @@
 #include "Font.h"
 #include "WeaponInfo.h"
 
-#define	PLAYER_ANIMATION_LEGS_WALK	0
-#define PLAYER_ANIMATION_LEGS_IDLE	1
+#define LEFT_ARM_ID		0
+#define RIGHT_ARM_ID	1
 
-#define PLAYER_ANIMATION_COUNT 2
+#define PLAYER_ANIMATION_LEGS_IDLE			0
+#define	PLAYER_ANIMATION_LEGS_WALK			1
+
+#define PLAYER_ANIMATION_CLAYMORE_IDLE		2
+#define PLAYER_ANIMATION_CLAYMORE_WALK		3
+#define PLAYER_ANIMATION_CLAYMORE_ATTACK	4
+
+#define PLAYER_ANIMATION_SHOTGUN_WALK		5
+#define PLAYER_ANIMATION_SHOTGUN_ATTACK		6
+
+#define PLAYER_ANIMATION_COUNT 7
 
 struct UpperBody
 {
 	AssetID		playerModel;
 	XMFLOAT3	direction;
-	XMFLOAT3	position;
 };
 
 struct LowerBody
 {
-	AssetID		playerModel;
-	XMFLOAT3	direction;
-	XMFLOAT3	position;
+	AnimationTrack	playerModel;
+	XMFLOAT3		direction;
+	XMFLOAT3		position;
+};
 
-	AssetID		currentLowerAnimation;
-	float		currentLowerAnimationTime;
+struct Arms
+{
+	AnimationTrack leftArm;
+	AnimationTrack rightArm;
 };
 
 struct LoadOut
@@ -60,8 +72,9 @@ class RemotePlayer
 		int				mTeam;
 		UpperBody		mUpperBody;
 		LowerBody		mLowerBody;
-		AssetID			mRightArm;
-		AssetID			mLeftArm;
+		Arms			mArms;
+		bool			mLeftArmAnimationCompleted;
+		bool			mRightArmAnimationCompleted;
 		AssetID			mAnimations[PLAYER_ANIMATION_COUNT];
 
 		BoundingBox*	mBoundingBox;
@@ -112,7 +125,8 @@ class RemotePlayer
 		XMFLOAT3		GetDirection() const;
 		void			SetDirection( XMFLOAT3 direction );
 		void			AddImpuls( XMFLOAT3 impuls );
-		virtual HRESULT	Render( float deltaTime, int position );
+		virtual HRESULT	Update( float deltaTime );
+		virtual HRESULT	Render( int position );
 		virtual HRESULT	Initialize();
 		void			Release();
 						RemotePlayer();

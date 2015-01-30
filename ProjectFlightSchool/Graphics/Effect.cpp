@@ -66,6 +66,11 @@ ID3D11VertexShader*	Effect::GetVertexShader() const
 	return mVertexShader;
 }
 
+ID3D11GeometryShader* Effect::GetGeometryShader() const
+{
+	return mGeometryShader;
+}
+
 ID3D11PixelShader*	Effect::GetPixelShader() const
 {
 	return mPixelShader;
@@ -212,12 +217,83 @@ HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo* effectInfo )
 					vertexShaderBlob->GetBufferSize(),
 					&mInputLayout );
 			}
+			else if( effectInfo->vertexType == BILLBOARD_VERTEX_TYPE )
+			{
+				D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
+						{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+						{ "WORLDPOSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+						{ "WIDTH", 0, DXGI_FORMAT_R32_FLOAT, 1, 12, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+						{ "HEIGHT", 0, DXGI_FORMAT_R32_FLOAT, 1, 16, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+				};
+				hr = device->CreateInputLayout( inputDesc,
+					ARRAYSIZE( inputDesc ),
+					vertexShaderBlob->GetBufferPointer(),
+					vertexShaderBlob->GetBufferSize(),
+					&mInputLayout );
+			}
 		}
 		SAFE_RELEASE( vertexShaderBlob );
 		fileReader.close();
 	}
 
+	if ( effectInfo->isGeometryShaderIncluded )
+	{
+		//--------------------------
+		// Compile Geometry Shader | 
+		//--------------------------
+		ID3DBlob* geometryShaderBlob = nullptr;
+		std::ifstream fileReader;
+		std::string file( effectInfo->fileName );
+		std::string checkFileExist = "../Content/Effects/CompiledShaders/" + file + "_GS.cso";
+		fileReader.open( checkFileExist.c_str() );
+		
+		if( fileReader.is_open() )
+		{
+			D3DReadFileToBlob( stringToWstring( checkFileExist ).c_str(), &geometryShaderBlob );
+			hr = device->CreateGeometryShader( geometryShaderBlob->GetBufferPointer(), geometryShaderBlob->GetBufferSize(), 0, &mGeometryShader );
 
+			if ( FAILED( hr ) )
+			{
+				OutputDebugStringA( "Failed to load from file " );
+				OutputDebugStringA( (LPCSTR)effectInfo->filePath );
+				OutputDebugStringA( " at GeometryShader stage" );
+			}
+		}
+		else 
+		{
+			if( SUCCEEDED( hr = CompileShader( effectInfo->filePath, "GS_main", "gs_5_0", nullptr, &geometryShaderBlob ) ) )
+			{
+				hr = device->CreateGeometryShader( geometryShaderBlob->GetBufferPointer(),
+					geometryShaderBlob->GetBufferSize(),
+					nullptr,
+					&mGeometryShader );
+
+			
+			}
+
+			if ( FAILED( hr ) )
+			{
+				OutputDebugStringA( "Failed to compile " );
+				OutputDebugStringA( (LPCSTR)effectInfo->filePath );
+				OutputDebugStringA( " at GeometryShader stage" );
+			}
+			else
+			{
+				CreateDirectory( L"../Content/Effects/CompiledShaders/", NULL );
+				std::ofstream fileWriter( checkFileExist.c_str() );
+				if( fileWriter.is_open() )
+				{
+					fileWriter << "";
+					fileWriter.close();
+				}
+				D3DWriteBlobToFile( geometryShaderBlob, stringToWstring( checkFileExist ).c_str(), true );
+			}
+		}
+
+		SAFE_RELEASE( geometryShaderBlob );
+		fileReader.close();
+	}
+	
 
 	if ( effectInfo->isPixelShaderIncluded )
 	{

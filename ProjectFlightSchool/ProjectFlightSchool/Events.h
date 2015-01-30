@@ -45,11 +45,7 @@ class Event_Player_Update : public IEvent
 	// Member variables
 	private:
 		XMFLOAT3		mLowerBodyPos;
-		XMFLOAT3		mLowerBodyDirection;
-		unsigned int	mLowerBodyAnimation;
-		float			mLowerBodyAnimationTime;
-
-		XMFLOAT3		mUpperBodyPos;
+		XMFLOAT3		mVelocity;
 		XMFLOAT3		mUpperBodyDirection;
 
 	protected:
@@ -64,34 +60,19 @@ class Event_Player_Update : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Player_Update( XMFLOAT3 lowerBodyPos, XMFLOAT3 lowerBodyDirection, unsigned int lowerBodyAnimation, float lowerBodyAnimationTime, XMFLOAT3 upperBodyPos, XMFLOAT3 upperBodyDirection )
+		Event_Player_Update( XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDirection )
 		{
 			mLowerBodyPos			= lowerBodyPos;
-			mLowerBodyDirection		= lowerBodyDirection;
-			mLowerBodyAnimation		= lowerBodyAnimation;
-			mLowerBodyAnimationTime	= lowerBodyAnimationTime;
-			mUpperBodyPos			= upperBodyPos;
+			mVelocity				= velocity;
 			mUpperBodyDirection		= upperBodyDirection;
 		}
 		XMFLOAT3 LowerBodyPos() const
 		{
 			return mLowerBodyPos;
 		}
-		XMFLOAT3 LowerBodyDirection() const
+		XMFLOAT3 Velocity() const
 		{
-			return mLowerBodyDirection;
-		}
-		unsigned int LowerBodyAnimation() const
-		{
-			return mLowerBodyAnimation;
-		}
-		float LowerBodyAnimationTime() const
-		{
-			return mLowerBodyAnimationTime;
-		}
-		XMFLOAT3 UpperBodyPos() const
-		{
-			return mUpperBodyPos;
+			return mVelocity;
 		}
 		XMFLOAT3 UpperBodyDirection() const
 		{
@@ -105,11 +86,7 @@ class Event_Remote_Player_Update : public IEvent
 	private:
 		unsigned int	mID;
 		XMFLOAT3		mLowerBodyPos;
-		XMFLOAT3		mLowerBodyDirection;
-		unsigned int	mLowerBodyAnimation;
-		float			mLowerBodyAnimationTime;
-
-		XMFLOAT3		mUpperBodyPos;
+		XMFLOAT3		mVelocity;
 		XMFLOAT3		mUpperBodyDirection;
 
 	protected:
@@ -124,14 +101,11 @@ class Event_Remote_Player_Update : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Remote_Player_Update( unsigned int id, XMFLOAT3 lowerBodyPos, XMFLOAT3 lowerBodyDirection, unsigned int lowerBodyAnimation, float lowerBodyAnimationTime, XMFLOAT3 upperBodyPos, XMFLOAT3 upperBodyDirection )
+		Event_Remote_Player_Update( unsigned int id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDirection )
 		{
 			mID						= id;
 			mLowerBodyPos			= lowerBodyPos;
-			mLowerBodyDirection		= lowerBodyDirection;
-			mLowerBodyAnimation		= lowerBodyAnimation;
-			mLowerBodyAnimationTime	= lowerBodyAnimationTime;
-			mUpperBodyPos			= upperBodyPos;
+			mVelocity				= velocity;
 			mUpperBodyDirection		= upperBodyDirection;
 		}
 		unsigned int ID() const
@@ -142,21 +116,9 @@ class Event_Remote_Player_Update : public IEvent
 		{
 			return mLowerBodyPos;
 		}
-		XMFLOAT3 LowerBodyDirection() const
+		XMFLOAT3 Velocity() const
 		{
-			return mLowerBodyDirection;
-		}
-		unsigned int LowerBodyAnimation() const
-		{
-			return mLowerBodyAnimation;
-		}
-		float LowerBodyAnimationTime() const
-		{
-			return mLowerBodyAnimationTime;
-		}
-		XMFLOAT3 UpperBodyPos() const
-		{
-			return mUpperBodyPos;
+			return mVelocity;
 		}
 		XMFLOAT3 UpperBodyDirection() const
 		{
@@ -741,8 +703,6 @@ class Event_Sync_Enemy : public IEvent
 		unsigned int	mID;
 		unsigned int	mModel;
 		unsigned int	mAnimation;
-		float			mHp;
-		bool			mIsAlive;
 		XMFLOAT3		mPosition;
 		XMFLOAT3		mDirection;
 
@@ -757,13 +717,11 @@ class Event_Sync_Enemy : public IEvent
 			return GUID;
 		}
 	public:
-	Event_Sync_Enemy( unsigned int id, unsigned int model, unsigned int animation, float hp, bool alive, XMFLOAT3 position, XMFLOAT3 direction )
+	Event_Sync_Enemy( unsigned int id, unsigned int model, unsigned int animation, XMFLOAT3 position, XMFLOAT3 direction )
 		{
 			mID				= id;
 			mModel			= model;	
 			mAnimation		= animation;
-			mHp				= hp;
-			mIsAlive		= alive;
 			mPosition		= position;
 			mDirection		= direction;
 		}
@@ -779,14 +737,6 @@ class Event_Sync_Enemy : public IEvent
 		{
 			return mAnimation;
 		}
-		float HP()
-		{
-			return mHp;
-		}
-		bool IsAlive()
-		{
-			return mIsAlive;
-		}
 		XMFLOAT3 Position() const
 		{
 			return mPosition;
@@ -794,6 +744,27 @@ class Event_Sync_Enemy : public IEvent
 		XMFLOAT3 Direction() const
 		{
 			return mDirection;
+		}
+};
+
+class Event_Server_Initialized : public IEvent
+{
+	// Member variables
+	private:
+		protected:
+	public:
+		static const EventType GUID;
+	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Server_Initialized( )
+		{
 		}
 };
 
@@ -890,27 +861,6 @@ class Event_Player_Melee_Hit : public IEvent
 		}
 };
 
-class Event_Server_Initialized : public IEvent
-{
-	// Member variables
-	private:
-		protected:
-	public:
-		static const EventType GUID;
-	
-	// Member functions
-	private:
-	protected:
-		const EventType& GetEventType( void ) const
-		{
-			return GUID;
-		}
-	public:
-		Event_Server_Initialized( )
-		{
-		}
-};
-
 class Event_Remote_Player_Melee_Hit : public IEvent
 {
 	// Member variables
@@ -957,6 +907,114 @@ class Event_Remote_Player_Melee_Hit : public IEvent
 		}
 };
 
+class Event_Player_Attack : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mArmID;
+		unsigned int	mAnimation;
+
+	protected:
+	public:
+		static const EventType GUID;
+	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Player_Attack( unsigned int armID, unsigned int animation )
+		{
+			mArmID			= armID;
+			mAnimation		= animation;
+		}
+		unsigned int ArmID() const
+		{
+			return mArmID;
+		}
+		unsigned int Animation() const
+		{
+			return mAnimation;
+		}
+};
+
+class Event_Remote_Player_Attack : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		unsigned int	mArmID;
+		unsigned int	mAnimation;
+
+	protected:
+	public:
+		static const EventType GUID;
+	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Remote_Player_Attack( unsigned int id, unsigned int armID, unsigned int animation )
+		{
+			mID				= id;
+			mArmID			= armID;
+			mAnimation		= animation;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+		unsigned int ArmID() const
+		{
+			return mArmID;
+		}
+		unsigned int Animation() const
+		{
+			return mAnimation;
+		}
+};
+
+class Event_Sync_Spawn : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		XMFLOAT3		mPosition;
+	protected:
+	public:
+		static const EventType GUID;
+		// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Sync_Spawn( unsigned int id, XMFLOAT3 position )
+		{
+			mID		  = id;
+			mPosition = position;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+
+		XMFLOAT3 Position() const
+		{
+			return mPosition;
+		}
+
+};
+
 class Event_Add_Point_Light : public IEvent
 {
 	// Member variables
@@ -985,6 +1043,40 @@ class Event_Add_Point_Light : public IEvent
 		}
 };
 
+class Event_Update_Enemy_Position : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		XMFLOAT3		mPosition;
+	protected:
+	public:
+		static const EventType GUID;
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Update_Enemy_Position( unsigned int id, XMFLOAT3 position )
+		{
+			mID		  = id;
+			mPosition = position;
+		}
+
+		unsigned int ID() const
+		{
+			return mID;
+		}
+
+		XMFLOAT3 Position() const
+		{
+			return mPosition;
+		}
+};
+		
 class Event_Remove_Point_Light : public IEvent
 {
 	// Member variables
@@ -1003,6 +1095,7 @@ class Event_Remove_Point_Light : public IEvent
 			return GUID;
 		}
 	public:
+
 		Event_Remove_Point_Light( void* light )
 		{
 			mLight = light;

@@ -7,6 +7,7 @@ static const UINT MAX_AMOUNT_OF_OBJECT3D	= 5000;
 static const UINT MAX_AMOUNT_OF_OBJECT2D	= 5000;
 static const UINT MAX_AMOUNT_OF_ANIM3D		= 100;
 static const UINT MAX_AMOUNT_OF_PLANES		= 2000;
+static const UINT MAX_AMOUNT_OF_BOXES		= 2000;
 
 struct Object3dInfo
 {
@@ -29,13 +30,25 @@ struct Object2dInfo
 
 };
 
+struct BillboardInfo
+{
+	UINT				mAssetId;
+	DirectX::XMFLOAT3	mWorldPosition;
+	float				mWidth;
+	float				mHeight;
+};
+
 struct PlaneInfo
 {
 	UINT				mAssetId;
 	DirectX::XMFLOAT3	mTopTriangle;
 	DirectX::XMFLOAT3	mBottomTriangle;
 };
-
+struct BoxInfo
+{
+	DirectX::XMFLOAT3 min;
+	DirectX::XMFLOAT3 max;
+};
 
 struct RenderLists
 {
@@ -47,6 +60,16 @@ struct RenderLists
 	UINT			sizeOfObject2dList;
 	PlaneInfo*		plane;
 	UINT			sizeOfPlaneList;
+};
+
+struct AnimationTrack
+{
+	UINT	mModelID;
+	UINT	mCurrentAnimation;
+	float	mCurrentAnimationTime;
+	UINT	mNextAnimation;
+	float	mNextAnimationTime;
+	float	mInterpolation;
 };
 
 #endif

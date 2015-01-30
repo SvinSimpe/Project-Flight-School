@@ -8,7 +8,6 @@
 #include "RenderManager.h"
 #include "Font.h"
 
-
 #define MAX_NR_OF_ENEMIES		2
 #define ENEMY_ANIMATION_IDLE	0
 #define ENEMY_ANIMATION_COUNT	1

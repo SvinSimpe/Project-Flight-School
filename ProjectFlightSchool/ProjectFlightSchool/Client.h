@@ -151,9 +151,16 @@ void Client::HandlePkg( Package<T>* p )
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
+		case Net_Event::EV_PLAYER_ATTACK:
+		{
+			EvPlayerAttack playerAttack = (EvPlayerAttack&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Attack( playerAttack.ID, playerAttack.armID, playerAttack.animation ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
 		default:
 		{
-			printf( "Error handling event from server.\n" );
+			OutputDebugStringA( "Error handling event from server.\n" );
 		}
 	}
 }

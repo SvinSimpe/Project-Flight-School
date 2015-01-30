@@ -42,6 +42,7 @@ struct EvProjectileFired
 	DirectX::XMFLOAT3 position;
 	DirectX::XMFLOAT3 direction;
 };
+
 struct EvEnemyCreated
 {
 	unsigned int ID;
@@ -59,12 +60,20 @@ struct EvSyncEnemy
 	DirectX::XMFLOAT3	position;
 	DirectX::XMFLOAT3	direction;
 };
+
 struct EvMeleeHit
 {
 	unsigned int			ID;
 	float					damage;
 	float					knockBack;
 	DirectX::XMFLOAT3		direction;
+};
+
+struct EvPlayerAttack
+{
+	unsigned int ID;
+	unsigned int armID;
+	unsigned int animation;
 };
 
 struct EvSyncSapwn

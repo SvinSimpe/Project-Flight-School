@@ -6,6 +6,7 @@ SocketManager* gSocketManager = nullptr;
 
 /////////////////////////////////////////////////////////////////
 // NetSocket functions
+
 bool NetSocket::Connect( UINT ip, UINT port, bool forceCoalesce )
 {
 	struct sockaddr_in sa;
@@ -238,11 +239,13 @@ NetSocket::~NetSocket()
 		mSocket = INVALID_SOCKET;
 	}
 }
+
 // End of NetSocket functions
 /////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////
 // NetListenSocket functions
+
 void NetListenSocket::InitScan( int portNum_min, int portNum_max )
 {
 	sockaddr_in sa;
@@ -703,7 +706,6 @@ void SocketManager::DoSelect( int pauseMicroSecs, bool handleInput )
 	}
 }
 
-
 bool SocketManager::Initialize()
 {
 	if( !(WSAStartup( 0x0202, &mWsaData) == 0) )
@@ -731,10 +733,8 @@ SocketManager::SocketManager()
 	mSubnetMask = 0;
 	mSubnet = 0xffffffff;
 	mNextSocketID = 0;
-	gSocketManager = this;
 	ZeroMemory( &mWsaData, sizeof( WSADATA ) );
 }
-
 
 SocketManager::~SocketManager()
 {

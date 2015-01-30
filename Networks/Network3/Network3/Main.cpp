@@ -2,10 +2,10 @@
 #include <string>
 #include <iostream>
 
-void Cleanup()
+void Cleanup( SocketManager* socketManager )
 {
-	gSocketManager->Release();
-	SAFE_DELETE( gSocketManager );
+	socketManager->Release();
+	SAFE_DELETE( socketManager );
 }
 
 int main()
@@ -29,45 +29,43 @@ int main()
 		{
 			std::cout << "Failed to initialize server." << std::endl;
 			getchar();
-			Cleanup();
+			Cleanup( gSocketManager );
 			return 1;
 		}
 		gSocketManager->AddSocket( new ServerListenSocket( port ) );
 		std::cout << "Server up and running." << std::endl;
 	}
-	else if( answer == "C" || answer == "c" )
-	{
-		answer = "";
-		std::cout << "Enter IP: (leave empty for localhost)" << std::endl;
-		std::getline( std::cin, answer );
-
-		if( !(answer == "") )
-		{
-			ip = answer;
-		}
-		std:: cout << "Attempting to connect to server with IP: " << ip << std::endl;
-		ClientSocketManager* client = new ClientSocketManager();
-		if( !client->Connect( ip, port ) )
-		{
-			std::cout << "Failed to connect to server." << std::endl;
-			getchar();
-			Cleanup();
-			return 2;
-		}
-		gSocketManager = client;
-		std::cout << "Client connected to server." << std::endl;
-	}
 	else
 	{
 		std::cout << "Fuck you!" << std::endl;
-		getchar();
-		return 3;
 	}
+
+	answer = "";
+	std::cout << "Enter IP: (leave empty for localhost)" << std::endl;
+	std::getline( std::cin, answer );
+
+	if( !(answer == "") )
+	{
+		ip = answer;
+	}
+	std:: cout << "Attempting to connect to server with IP: " << ip << std::endl;
+	ClientSocketManager* client = new ClientSocketManager();
+	if( !client->Connect( ip, port ) )
+	{
+		std::cout << "Failed to connect to server." << std::endl;
+		getchar();
+		Cleanup( client );
+		Cleanup( gSocketManager );
+		return 2;
+	}
+	std::cout << "Client connected to server." << std::endl;
 
 	while( !GetAsyncKeyState( VK_ESCAPE ) )
 	{
 		gSocketManager->DoSelect(0);
 	}
-	Cleanup();
+
+	Cleanup( client );
+	Cleanup( gSocketManager );
 	return 0;
 }

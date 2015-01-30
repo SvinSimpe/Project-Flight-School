@@ -22,10 +22,12 @@ int main()
 	std::string ip	= "127.0.0.1";
 	UINT port		= 27015;
 
+	bool serverOn = false;
+
 	if( answer == "S" || answer == "s" )
 	{
 		gSocketManager = new SocketManager();
-		if( !gSocketManager->Initialize() )
+		if( ! (serverOn = gSocketManager->Initialize() ) )
 		{
 			std::cout << "Failed to initialize server." << std::endl;
 			getchar();
@@ -62,7 +64,9 @@ int main()
 
 	while( !GetAsyncKeyState( VK_ESCAPE ) )
 	{
-		gSocketManager->DoSelect(0);
+		if( serverOn )
+			gSocketManager->DoSelect( 0 );
+		client->DoSelect( 0 );
 	}
 
 	Cleanup( client );

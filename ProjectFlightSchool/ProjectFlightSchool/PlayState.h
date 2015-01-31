@@ -12,6 +12,7 @@
 #include "Image.h"
 #include "EnemySpawn.h"
 #include "RemoteEnemy.h"
+#include "Radar.h"
 //Test
 #include "ParticleManager.h"
 
@@ -60,6 +61,7 @@ class PlayState : public BaseState
 		unsigned int				mMaxNrOfEnemies;
 		bool						mEnemyListSynced;
 		bool						mServerInitialized;
+		Radar*						mRadar;
 	
 
 	protected:

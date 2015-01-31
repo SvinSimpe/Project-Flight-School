@@ -128,28 +128,28 @@ HRESULT RenderManager::Render()
 	//------------------------Finished filling the Gbuffers----------------------
 
 	//Test data for billboarding
-	mBillboardArray[0].mWorldPosition = DirectX::XMFLOAT3( 3, 1, 0 );
+	mBillboardArray[0].mWorldPosition = DirectX::XMFLOAT3( 0, 0, 0 );
 	mBillboardArray[0].mAssetId = DIFFUSE_PLACEHOLDER;
 	mBillboardArray[0].mWidth = 2.3f;
 	mBillboardArray[0].mHeight = 1.3f;
-	mBillboardArray[1].mWorldPosition = DirectX::XMFLOAT3( 3, 1, 6 );
-	mBillboardArray[1].mAssetId = DIFFUSE_PLACEHOLDER;
-	mBillboardArray[2].mWorldPosition = DirectX::XMFLOAT3( -2, 1, -4 );
-	mBillboardArray[2].mAssetId = DIFFUSE_PLACEHOLDER;
-	mBillboardArray[3].mWorldPosition = DirectX::XMFLOAT3( 7, 1, 0 );
-	mBillboardArray[3].mAssetId = DIFFUSE_PLACEHOLDER;
-	mBillboardArray[4].mWorldPosition = DirectX::XMFLOAT3( 0, 1, 0 );
-	mBillboardArray[4].mAssetId = DIFFUSE_PLACEHOLDER;
-	mBillboardArray[5].mWorldPosition = DirectX::XMFLOAT3( -6, 1, 0 );
-	mBillboardArray[5].mAssetId = DIFFUSE_PLACEHOLDER;
+	//mBillboardArray[1].mWorldPosition = DirectX::XMFLOAT3( 3, 1, 6 );
+	//mBillboardArray[1].mAssetId = DIFFUSE_PLACEHOLDER;
+	//mBillboardArray[2].mWorldPosition = DirectX::XMFLOAT3( -2, 1, -4 );
+	//mBillboardArray[2].mAssetId = DIFFUSE_PLACEHOLDER;
+	//mBillboardArray[3].mWorldPosition = DirectX::XMFLOAT3( 7, 1, 0 );
+	//mBillboardArray[3].mAssetId = DIFFUSE_PLACEHOLDER;
+	//mBillboardArray[4].mWorldPosition = DirectX::XMFLOAT3( 0, 1, 0 );
+	//mBillboardArray[4].mAssetId = DIFFUSE_PLACEHOLDER;
+	//mBillboardArray[5].mWorldPosition = DirectX::XMFLOAT3( -6, 1, 0 );
+	//mBillboardArray[5].mAssetId = DIFFUSE_PLACEHOLDER;
 
-	for( int i = 1; i < 6; i++)
-	{
-		mBillboardArray[i].mHeight = 1.0f;
-		mBillboardArray[i].mWidth	= 1.0f;
-	}
+	//for( int i = 1; i < 6; i++)
+	//{
+	//	mBillboardArray[i].mHeight = 1.0f;
+	//	mBillboardArray[i].mWidth	= 1.0f;
+	//}
 	//---------------------------------------------------
-	Graphics::GetInstance()->RenderBillboard( mBillboardArray, 6 );
+	Graphics::GetInstance()->RenderBillboard( mBillboardArray, 1 );
 
 	//Render the scene with deferred
 	Graphics::GetInstance()->DeferredPass();

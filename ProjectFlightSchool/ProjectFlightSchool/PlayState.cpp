@@ -412,42 +412,47 @@ HRESULT PlayState::Update( float deltaTime )
 		}
 	}
 	
+	
+	mRadar->Update( mPlayer->GetPlayerPosition(), /*mRemotePlayers[0]->GetPosition()*/ DirectX::XMFLOAT3( 0, 0, 0 ) );
+
 	return S_OK;
 }
 
 HRESULT PlayState::Render()
 {
 	RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
-	
+	//
 	mPlayer->Render( 0.0f, 1 );
 
-	mWorldMap->Render( 0.0f , mPlayer );
+	//mWorldMap->Render( 0.0f , mPlayer );
 
-	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
-	{
-		if ( mRemotePlayers.at(i) )
-		{
-			mRemotePlayers.at(i)->Render( 0.0f, i + 2 );
-		}
-	}
+	//for ( size_t i = 0; i < mRemotePlayers.size(); i++)
+	//{
+	//	if ( mRemotePlayers.at(i) )
+	//	{
+	//		mRemotePlayers.at(i)->Render( 0.0f, i + 2 );
+	//	}
+	//}
 
-	RenderProjectiles();
+	//RenderProjectiles();
 
-	// Enemies
-  	if( mEnemyListSynced )
-	{
-		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
-		{
-			mEnemies[i]->Render();
-		}
-	}
+	//// Enemies
+ // 	if( mEnemyListSynced )
+	//{
+	//	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	//	{
+	//		mEnemies[i]->Render();
+	//	}
+	//}
 
-	for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
-	{
-		RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
-	}
+	//for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
+	//{
+	//	RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
+	//}
 
-	mShip.Render();
+	//mShip.Render();
+
+	mRadar->Render();
 
 	RenderManager::GetInstance()->Render();
 
@@ -569,6 +574,9 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_2.pfs", mSpawnModel );
 	mSpawners	= new XMFLOAT3[MAX_NR_OF_ENEMY_SPAWNERS];
 
+	mRadar = new Radar();
+	mRadar->Initialize();
+
 	return S_OK;
 }
 
@@ -605,6 +613,8 @@ void PlayState::Release()
 	delete [] mSpawners;
 
 	mFont.Release();
+
+	SAFE_DELETE( mRadar );
 
 }
 

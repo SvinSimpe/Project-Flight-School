@@ -68,6 +68,7 @@ void Enemy::CreateTank()
 	mMaxHp		= 400.0f;
 	mCurrentHp	= mMaxHp;
 	mDamage		= 20.0f;
+	mSpeed		= 3.0f;
 	mAttackRadius->radius		= 1.0f;
 	mAttentionRadius->radius	= 10.0f;
 }
@@ -215,7 +216,7 @@ void Enemy::Spawn( XMFLOAT3 spawnPos )
 	//CreateStandard();
 	//CreateRanged();
 	//CreateBoomer();
-	//CreateTank();
+	CreateTank();
 
 	mPosition	= spawnPos;
 	mIsAlive	= true;

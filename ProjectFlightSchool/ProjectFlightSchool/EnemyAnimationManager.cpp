@@ -108,9 +108,9 @@ HRESULT EnemyAnimationManager::Initialize()
 	// ------------------- ( Pate Waiting )
 	// Load Tank Model
 	// Load skeleton
-	//Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", skeleton );
+	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Enemies/Tank/Animations/", "tankSkel.Skel", skeleton );
 	// Load animated 3d asset
-	//Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, mModelStandard );
+	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Enemies/Tank/", "EnemyTank.apfs", skeleton, mModelTank );
 
 	// ----------------
 	// LOAD ANMIMATIONS
@@ -133,13 +133,17 @@ HRESULT EnemyAnimationManager::Initialize()
 	// -------------------
 	// Load Boomer Animations
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurIdle2.PaMan",		mAnimations[ENEMY_ANIMATION_BOOMER_IDLE] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurrUN.PaMan",		mAnimations[ENEMY_ANIMATION_BOOMER_RUN] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurRun.PaMan",		mAnimations[ENEMY_ANIMATION_BOOMER_RUN] );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurAttack.PaMan",	mAnimations[ENEMY_ANIMATION_BOOMER_ATTACK] );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurDeath.PaMan",		mAnimations[ENEMY_ANIMATION_BOOMER_DEATH] );
 
 	// -------------------
 	// Load Tank Animations
 	// Pate Waiting
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Tank/Animations/", "tankIdle.PaMan",		mAnimations[ENEMY_ANIMATION_TANK_IDLE] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Tank/Animations/", "tankWalk.PaMan",		mAnimations[ENEMY_ANIMATION_TANK_RUN] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Tank/Animations/", "tankAttack.PaMan",		mAnimations[ENEMY_ANIMATION_TANK_ATTACK] );
+	//Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Tank/Animations/", "blowuposaurDeath.PaMan",		mAnimations[ENEMY_ANIMATION_BOOMER_DEATH] );
 	return S_OK;
 }
 

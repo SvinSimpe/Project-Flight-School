@@ -132,7 +132,7 @@ void Server::AggroCheck()
 			{
 				// The players agg circle
 				mAggCircle->center = mPlayers[j].Position;
-				mAggCircle->radius = 0.5f;
+				mAggCircle->radius = 1.0f;
 
 				if( mEnemies[i]->GetAttentionCircle()->Intersect( mAggCircle ) )
 				{

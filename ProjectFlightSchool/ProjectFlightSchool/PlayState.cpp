@@ -450,7 +450,8 @@ HRESULT PlayState::Update( float deltaTime )
 	}
 	mParticleManager->Update( deltaTime );
 	
-	mRadar->Update( mPlayer->GetPlayerPosition(), mRadarObjects, nrOfRadarObj );
+	//mRadar->Update( mPlayer->GetPlayerPosition(), mRadarObjects, nrOfRadarObj );
+	mGui->Update( mPlayer->GetPlayerPosition(), mRadarObjects, nrOfRadarObj );
 
 	// Test Anim
 	///////////////////////////////////////////////////////////////////////////
@@ -497,7 +498,8 @@ HRESULT PlayState::Render()
 
 	mShip.Render();
 
-	mRadar->Render();
+	//mRadar->Render();
+	mGui->Render();
 
 	RenderManager::GetInstance()->Render();
 
@@ -625,8 +627,10 @@ HRESULT PlayState::Initialize()
 	mParticleManager = new ParticleManager();
 	mParticleManager->Initialize();
 
-	mRadar = new Radar();
-	mRadar->Initialize();
+	//mRadar = new Radar();
+	//mRadar->Initialize();
+	mGui = new Gui();
+	mGui->Initialize();
 
 	//TestSound
 	m3DSoundAsset	= SoundBufferHandler::GetInstance()->Load3DBuffer( "alert02.wav" );
@@ -673,7 +677,9 @@ void PlayState::Release()
 
 	SAFE_RELEASE_DELETE( mParticleManager );
 
-	SAFE_DELETE( mRadar );
+	//SAFE_DELETE( mRadar );
+	mGui->Release();
+	SAFE_DELETE( mGui );
 
 }
 
@@ -691,7 +697,11 @@ PlayState::PlayState()
 	mEnemyListSynced	= false;
 	mServerInitialized  = false;
 	mParticleManager	= nullptr;
+<<<<<<< HEAD
 
+=======
+	mGui				= nullptr;
+>>>>>>> ef9e5b7edbd7e7f725b788710a4c2917a4033381
 }
 
 PlayState::~PlayState()

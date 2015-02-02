@@ -89,9 +89,13 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+<<<<<<< HEAD
 
     <ClCompile Include="EnemyAnimationManager.cpp" />
 
+=======
+    <ClCompile Include="Gui.cpp" />
+>>>>>>> ef9e5b7edbd7e7f725b788710a4c2917a4033381
     <ClCompile Include="SoundBufferHandler.cpp" />
     <ClCompile Include="DS3DBuffer.cpp" />
     <ClCompile Include="DSBuffer.cpp" />
@@ -140,6 +144,7 @@
     <ClInclude Include="BaseMenuState.h" />
     <ClInclude Include="BaseState.h" />
     <ClInclude Include="BoundingGeometry.h" />
+    <ClInclude Include="Gui.h" />
     <ClInclude Include="SoundBufferHandler.h" />
     <ClInclude Include="DS3DBuffer.h" />
     <ClInclude Include="DSBuffer.h" />

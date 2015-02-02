@@ -210,7 +210,7 @@
 
     <ClCompile Include="Radar.cpp">
       <Filter>Source Files</Filter>
-	</ClCompile>
+    </ClCompile>
     <ClCompile Include="DS3DBuffer.cpp">
       <Filter>DirectSound\Source</Filter>
     </ClCompile>
@@ -219,6 +219,9 @@
     </ClCompile>
     <ClCompile Include="SoundBufferHandler.cpp">
       <Filter>DirectSound\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Gui.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -379,8 +382,12 @@
 
     <ClInclude Include="Radar.h">
       <Filter>Header Files</Filter>
+<<<<<<< HEAD
 	</ClInclude>
 
+=======
+    </ClInclude>
+>>>>>>> ef9e5b7edbd7e7f725b788710a4c2917a4033381
     <ClInclude Include="DS3DBuffer.h">
       <Filter>DirectSound\Header</Filter>
     </ClInclude>
@@ -392,7 +399,13 @@
     <ClInclude Include="SoundBufferHandler.h">
       <Filter>DirectSound\Header</Filter>
     </ClInclude>
+<<<<<<< HEAD
 
+=======
+    <ClInclude Include="Gui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+>>>>>>> ef9e5b7edbd7e7f725b788710a4c2917a4033381
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

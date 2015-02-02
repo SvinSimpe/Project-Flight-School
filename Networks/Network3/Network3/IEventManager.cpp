@@ -40,6 +40,7 @@
 
 #include "IEventManager.h"
 
+EventFactory gEventFactory;
 
 IEventManager::IEventManager()
 {

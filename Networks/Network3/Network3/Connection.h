@@ -13,7 +13,7 @@
 #include <memory>
 #include <mmsystem.h>
 #include <stdio.h>
-#include <strstream>
+#include <sstream>
 
 #define MAGIC_NUMBER		(0x1f2e3d4c)
 #define MAX_PACKET_SIZE		(256)
@@ -89,8 +89,9 @@ class ServerListenSocket : public NetListenSocket
 	private:
 	protected:
 	public:
-		virtual void HandleInput();
-					 ServerListenSocket( int portNum );
+		void			AttachRemoteClient( int hostID, int socketID );
+		virtual void	HandleInput();
+						ServerListenSocket( int portNum );
 };
 
 class RemoteEventSocket : public NetSocket
@@ -173,5 +174,23 @@ class ClientSocketManager : public SocketManager
 	public:
 		bool	Connect( const std::string &hostName, UINT port );
 				ClientSocketManager();
+		virtual ~ClientSocketManager() {}
+};
+
+class NetworkEventForwarder
+{
+	private:
+	protected:
+		int				mSocketID;
+		SocketManager*	mSM;
+
+	public:
+
+	private:
+	protected:
+	public:
+		void	ForwardEvent( IEventPtr eventPtr );
+				NetworkEventForwarder( int socketID, SocketManager* sm ) { mSocketID = socketID; mSM = sm; }
+		virtual	~NetworkEventForwarder() {}
 };
 #endif

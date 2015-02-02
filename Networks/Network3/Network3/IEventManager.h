@@ -52,55 +52,8 @@ typedef unsigned long EventType;
 typedef std::shared_ptr<IEvent> IEventPtr;
 typedef std::function<void( IEventPtr )> EventListenerDelegate;
 
-class EventFactory
-{
-	private:
-		std::map<EventType, IEvent*> mEvents;
-	protected:
-	public:
-
-	private:
-	protected:
-	public:
-		EventFactory()
-		{
-			mEvents = std::map<EventType, IEvent*>();
-		}
-
-		template<class SubClass>
-		bool Register( EventType id );
-		IEvent* Create( EventType id );
-};
-
-template<class SubClass>
-bool EventFactory::Register( EventType id )
-{
-	auto findIt = mEvents.find( id );
-	if( findIt == mEvents.end() )
-	{
-		mEvents[id] = dynamic_cast<IEvent*>(new SubClass());
-		return true;
-	}
-	return false;
-}
-
-IEvent* EventFactory::Create( EventType id )
-{
-	auto findIt = mEvents.find( id );
-	if( findIt != mEvents.end() )
-	{
-		IEvent* obj = findIt->second;
-		return obj;
-	}
-	return nullptr;
-}
-
-extern EventFactory gEventFactory = EventFactory();
-#define REGISTER_EVENT(eventClass) gEventFactory.Register<eventClass>(eventClass::GetEventType())
-#define CREATE_EVENT(eventType) gEventFactory.Create(eventType)
-
 //---------------------------------------------------------------------------------------------------------------------
-// IEventData                               - Chapter 11, page 310
+// IEvent                               - Chapter 11, page 310
 // Base type for event object hierarchy, may be used itself for simplest event notifications such as those that do 
 // not carry additional payload data. If any event needs to propagate with payload data it must be defined separately.
 //---------------------------------------------------------------------------------------------------------------------
@@ -113,6 +66,64 @@ class IEvent
 		virtual void Deserialize( std::stringstream& in  )		= 0;
 		virtual IEventPtr Copy() const							= 0;
 };
+
+class EventFactory
+{
+	private:
+		std::map<EventType, IEvent*> mEvents;
+	protected:
+	public:
+
+	private:
+	protected:
+	public:
+		template<class SubClass>
+		bool Register( EventType id )
+		{
+			auto findIt = mEvents.find( id );
+			if( findIt == mEvents.end() )
+			{
+				printf( "Registering event with ID: %d!\n", id );
+				mEvents[id] = new SubClass;
+				return true;
+			}
+			return false;
+		}
+
+	private:
+	protected:
+	public:
+		IEvent* Create( EventType id )
+		{
+			auto findIt = mEvents.find( id );
+			printf( "Trying to retreive event with ID: %d\n", id );
+			if( findIt != mEvents.end() )
+			{
+				IEvent* obj = findIt->second;
+				return obj;
+			}
+			return nullptr;
+		}
+
+		EventFactory()
+		{
+			mEvents = std::map<EventType, IEvent*>();
+		}
+
+		virtual ~EventFactory() 
+		{
+			for( auto& it : mEvents )
+			{
+				if( it.second )
+					delete it.second;
+			}
+			mEvents.clear();
+		}
+};
+
+extern EventFactory gEventFactory;
+#define REGISTER_EVENT( eventClass ) gEventFactory.Register<eventClass>(eventClass::GUID)
+#define CREATE_EVENT( eventType ) gEventFactory.Create(eventType)
 
 //---------------------------------------------------------------------------------------------------------------------
 // IEventManager Description                        Chapter 11, page 314

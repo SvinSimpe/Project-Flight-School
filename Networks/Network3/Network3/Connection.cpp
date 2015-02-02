@@ -76,7 +76,7 @@ void NetSocket::HandleOutput()
 		int rc = send( mSocket, buf + mSendOfs, len - mSendOfs, 0 );
 		if( rc > 0 )
 		{
-			//gSocketManager->AddToOutbound( rc );
+			gSocketManager->AddToOutbound( rc );
 			mSendOfs	+= rc;
 			fSent		= 1;
 		}
@@ -165,7 +165,7 @@ void NetSocket::HandleInput()
 		}
 	}
 
-	//gSocketManager->AddToInbound( rc );
+	gSocketManager->AddToInbound( rc );
 	mRecvOfs = newData;
 
 	if( pktReceived )
@@ -227,7 +227,7 @@ NetSocket::NetSocket( SOCKET socket, UINT ip )
 	mTimeCreated	= timeGetTime();
 	mSocket			= socket;
 	mIPAddr			= ip;
-	mInternal		= //gSocketManager->IsInternal(mIPAddr);
+	mInternal		= gSocketManager->IsInternal(mIPAddr);
 	setsockopt( mSocket, SOL_SOCKET, SO_DONTLINGER, nullptr, 0 );
 }
 
@@ -376,6 +376,19 @@ NetListenSocket::NetListenSocket( int portNum )
 /////////////////////////////////////////////////////////////////
 // ServerListenSocket functions
 
+void ServerListenSocket::AttachRemoteClient( int hostID, int socketID )
+{
+	std::stringstream out;
+
+	out << static_cast<int>( RemoteEventSocket::NetMsg_Event ) << " ";
+	out << hostID << " ";
+	out << socketID << " ";
+	out << "\r\n";
+
+	std::shared_ptr<BinaryPacket> msg( PFS_NEW BinaryPacket( out.rdbuf()->str().c_str(), (u_long)out.str().size() ) );
+	gSocketManager->Send( socketID, msg );
+}
+
 void ServerListenSocket::HandleInput()
 {
 	UINT ipAddr;
@@ -391,11 +404,10 @@ void ServerListenSocket::HandleInput()
 
 		printf( "Client with sockID: %d connected from %d.\n", sockID, ipAddr );
 
-        //std::shared_ptr<EvtData_Remote_Client> pEvent(GCC_NEW EvtData_Remote_Client(sockId, ipAddress));
-        //IEventManager::Get()->VQueueEvent(pEvent);
-
 		std::shared_ptr<Event_Client> E1( PFS_NEW Event_Client( ipAddress, sockID ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
+
+		AttachRemoteClient( ipAddress, sockID );
 	}
 }
 
@@ -423,7 +435,7 @@ void RemoteEventSocket::CreateEvent( std::stringstream &in )
 	}
 	else
 	{
-		printf("ERROR Unknown event type from remote");
+		printf("ERROR Unknown event type from remote.\n");
 	}
 }
 
@@ -438,34 +450,29 @@ void RemoteEventSocket::HandleInput()
 
 		if( !strcmp( packet->GetType(), BinaryPacket::gType ) ) // Checks the type of the packet here
 		{
-			std::shared_ptr<IPacket> packet = *mInList.begin();
-			mInList.pop_front();
-			if( !strcmp( packet->GetType(), BinaryPacket::gType ) )
+			const char* buf = packet->GetData();
+			int size = static_cast<int>( packet->GetSize() );
+
+			std::stringstream in( buf + sizeof( u_long ), (size - sizeof( u_long ) ) );
+
+			int type;
+			in >> type;
+			switch( type ) // This is where we will put the input logic to the client
 			{
-				const char* buf = packet->GetData();
-				int size = static_cast<int>( packet->GetSize() );
-
-				std::stringstream in( buf + sizeof( u_long ), (size - sizeof( u_long ) ) );
-
-				int type;
-				in >> type;
-				switch( type ) // This is where we will put the input logic to the client
+			case NetMsg_Event:
 				{
-				case NetMsg_Event:
-					{
-						CreateEvent( in );
-					}
-					break;
-				default:
-					{
-						printf( "Unknown message type" );
-					}
+					CreateEvent( in );
+				}
+				break;
+			default:
+				{
+					printf( "Unknown message type" );
 				}
 			}
-			else if( !strcmp( packet->GetType(), TextPacket::gType ) )
-			{
-				printf( "Didn't receive a TextPacket.\n" );
-			}
+		}
+		else if( !strcmp( packet->GetType(), TextPacket::gType ) )
+		{
+			printf( "Didn't receive a TextPacket.\n" );
 		}
 	}
 }
@@ -672,6 +679,7 @@ void SocketManager::DoSelect( int pauseMicroSecs, bool handleInput )
 	// handle input, output, and exceptions
 	if( selectReturn )
 	{
+		printf( "Got something!\n" );
 		for( auto& it : mSocketList )
 		{
 			NetSocket* socket = it;
@@ -790,4 +798,24 @@ ClientSocketManager::ClientSocketManager()
 }
 
 // End of ClientSocketManager functions
+/////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////
+// Start of NetworkEventForwarder functions
+
+void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
+{
+	std::stringstream out;
+
+	out << static_cast<int>( RemoteEventSocket::NetMsg_Event ) << " ";
+	out << eventPtr->GetEventType() << " ";
+	eventPtr->Serialize( out );
+	out << "\r\n";
+
+	std::shared_ptr<BinaryPacket> msg( PFS_NEW BinaryPacket( out.rdbuf()->str().c_str(), (u_long)out.str().size() ) );
+
+	mSM->Send( mSocketID, msg );
+}
+
+// End of NetworkEventForwarder functions
 /////////////////////////////////////////////////////////////////

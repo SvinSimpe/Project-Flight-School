@@ -47,8 +47,8 @@ class Event_Client : public IEvent
 		int mSocketID;
 
 	protected:
-		static const EventType GUID;
 	public:
+		static const EventType GUID;
 
 	private:
 	protected:
@@ -63,6 +63,7 @@ class Event_Client : public IEvent
 			mHostID		= hostID;
 			mSocketID	= socketID;
 		}
+		~Event_Client() {}
 		const EventType& GetEventType() const
 		{
 			return GUID;

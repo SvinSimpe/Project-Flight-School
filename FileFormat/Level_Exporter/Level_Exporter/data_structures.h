@@ -14,10 +14,21 @@ struct Vertex
 	float Normals[3];
 };
 
+struct NavVertex
+{
+	float Position[3];
+};
+
 struct GridData
-{;
+{
 	UINT dimensions[2];
 	Vertex* vertices;
 	Matrix matrix;
+};
+
+struct NavMeshData
+{
+	NavVertex* vertices;
+
 };
 

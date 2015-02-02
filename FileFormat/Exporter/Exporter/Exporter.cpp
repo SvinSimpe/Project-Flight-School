@@ -513,6 +513,7 @@ void Exporter::GetTexture(MPlugArray &shaderConnections, MeshInfo_Maya &meshData
 			CopyTextureToDirectory(src, name);
 			
 			meshData.diffuseMapName = name.c_str();
+			int a = 0;
 		}
 	}
 }

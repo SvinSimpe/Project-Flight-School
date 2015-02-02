@@ -204,6 +204,9 @@
     <ClCompile Include="RemoteEnemy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Radar.cpp">
+      <Filter>Source Files</Filter>
+	</ClCompile>
     <ClCompile Include="DS3DBuffer.cpp">
       <Filter>DirectSound\Source</Filter>
     </ClCompile>
@@ -365,6 +368,9 @@
     <ClInclude Include="RemoteEnemy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Radar.h">
+      <Filter>Header Files</Filter>
+	</ClInclude>
     <ClInclude Include="DS3DBuffer.h">
       <Filter>DirectSound\Header</Filter>
     </ClInclude>

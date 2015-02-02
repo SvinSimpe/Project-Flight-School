@@ -99,6 +99,7 @@ void SoundBufferHandler::Release()
 	mActive3DSounds.clear();
 	mDSListener->Release();
 	mDSDevice->Release();
+	
 }
 
 SoundBufferHandler::SoundBufferHandler()

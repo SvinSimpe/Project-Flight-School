@@ -12,6 +12,8 @@
 #include "Image.h"
 #include "EnemySpawn.h"
 #include "RemoteEnemy.h"
+#include "Radar.h"
+//Test
 #include "ParticleManager.h"
 #include "SoundBufferHandler.h"
 
@@ -60,11 +62,13 @@ class PlayState : public BaseState
 
 		ParticleManager*			mParticleManager;
 
+		Radar*						mRadar;
+		RADAR_UPDATE_INFO			mRadarObjects[MAX_RADAR_OBJECTS];
+
 		//TestSound
 		int							m3DSoundAsset;
 		int							mSoundAsset;
 	
-
 	protected:
 	public:
 

@@ -464,7 +464,7 @@ void Exporter::GetNodePath(MFnMesh &mesh, MeshInfo_Maya &meshData)
 
 void Exporter::CopyTextureToDirectory(string texturePath, string fileName)
 {
-	if(texturePath.find("C:/") == -1)
+	if(texturePath.find(":/") == -1)
 	{
 		string dest = g_ExportPath + fileName;
 
@@ -472,7 +472,7 @@ void Exporter::CopyTextureToDirectory(string texturePath, string fileName)
 			g_ErrorMessages.push_back(texturePath + " not copied");
 	}
 
-	else if (texturePath.find("C:/") != -1)
+	else if (texturePath.find(":/") != -1)
 	{
 		unsigned findMayaMapPath = texturePath.find(g_currentExportMap);
 		string subName = texturePath.substr(findMayaMapPath);
@@ -602,6 +602,15 @@ bool Exporter::ExtractMeshData(MFnMesh &mesh)
 		return false;
 	}
 
+	//Freezes transformation	
+	MFnTransform transform = mesh.parent(0);
+	command = "makeIdentity -apply true " + transform.name();
+	if (!MGlobal::executeCommand(command))
+	{
+		g_ErrorMessages.push_back(string(mesh.name().asChar()) + " - Couldn't freeze transformation for mesh: ");
+		//return false;
+	}
+
 	//Extractic mesh raw data
 	if (!mesh.getPoints(meshInfo.points))
 	{
@@ -708,9 +717,9 @@ void Exporter::ConvertAndBuildStaticMesh(MeshInfo_Maya* meshIter)
 				polygon_iter.getUVIndex(2 - i, uv_index);
 				tangent_index = polygon_iter.tangentIndex(2 - i);
 
-				tempMeshData.vertices[index + i].position.x = meshIter->points[vertex_index].x * meshIter->scale[0];
-				tempMeshData.vertices[index + i].position.y = meshIter->points[vertex_index].y * meshIter->scale[1];
-				tempMeshData.vertices[index + i].position.z = -meshIter->points[vertex_index].z * meshIter->scale[2];
+				tempMeshData.vertices[index + i].position.x = meshIter->points[vertex_index].x;
+				tempMeshData.vertices[index + i].position.y = meshIter->points[vertex_index].y;
+				tempMeshData.vertices[index + i].position.z = -meshIter->points[vertex_index].z;
 
 				tempMeshData.vertices[index + i].normal.x = meshIter->normals[normal_index].x;
 				tempMeshData.vertices[index + i].normal.y = meshIter->normals[normal_index].y;
@@ -785,9 +794,9 @@ void Exporter::ConvertAndBuildAnimMesh(MeshInfo_Maya* meshIter)
 				polygon_iter.getUVIndex(2 - i, uv_index);
 				tangent_index = polygon_iter.tangentIndex(2 - i);
 
-				tempMeshData.vertices[index + i].position.x = meshIter->points[vertex_index].x * meshIter->scale[0];
-				tempMeshData.vertices[index + i].position.y = meshIter->points[vertex_index].y * meshIter->scale[1];
-				tempMeshData.vertices[index + i].position.z = -meshIter->points[vertex_index].z * meshIter->scale[2];
+				tempMeshData.vertices[index + i].position.x = meshIter->points[vertex_index].x;
+				tempMeshData.vertices[index + i].position.y = meshIter->points[vertex_index].y;
+				tempMeshData.vertices[index + i].position.z = -meshIter->points[vertex_index].z;
 
 				tempMeshData.vertices[index + i].normal.x = meshIter->normals[normal_index].x;
 				tempMeshData.vertices[index + i].normal.y = meshIter->normals[normal_index].y;
@@ -915,7 +924,7 @@ string Exporter::CreateExportFile(string fileName, string fileEnding)
 	{
 		string animationPath = g_ExportPath + "Animation";
 		if(CreateDirectory(animationPath.c_str(), NULL) == 0)
-			g_ErrorMessages.push_back(string(animationPath.c_str()) + " - Couldnt be created");
+			g_ErrorMessages.push_back(string(animationPath.c_str()) + " - wasn't created");
 	}
 
 	//Returning full path

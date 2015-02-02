@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include "EnemySpawn.h"
+#include "RemotePlayer.h"
+#include "Projectile.h"
 
 struct Clientinfo
 {
@@ -35,7 +37,15 @@ class Server
 		unsigned int				mNrOfEnemiesSpawned;
 		unsigned int				mFrameCount;
 
+		BoundingCircle*				mAggCircle;
+
 		bool						mEnemyListSynced;
+		bool						mSafeUpdate;
+
+		ServerPlayer				mPlayers[8];
+		unsigned int				mNrOfPlayers;
+
+		Projectile**				mProjectiles;
 
 	protected:
 	public:
@@ -43,7 +53,8 @@ class Server
 	// Template functions
 	private:
 		template <typename T>
-		void HandlePkg( SOCKET &s, Package<T>* p );
+		void			HandlePkg( SOCKET &s, Package<T>* p );
+
 	protected:
 	public:
 
@@ -53,7 +64,8 @@ class Server
 		bool			AcceptConnection();
 		bool			ReceiveLoop( int index );
 		void			DisconnectClient( SOCKET s );
-		XMFLOAT3		SpawnEnemy();
+		XMFLOAT3		GetNextSpawn();
+		void			AggroCheck();
 
 	protected:
 	public:
@@ -96,11 +108,23 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 					mConn->SendPkg( socket.s, 0, Net_Event::EV_PLAYER_UPDATE, msg );
 				}
 			}
+			for ( size_t i = 0; i < mNrOfPlayers; i++ )
+			{
+				if( mPlayers[i].ID == msg.id )
+				{
+					mPlayers[i].Position = msg.lowerBodyPosition;
+				}
+			}
 			
 		}
 			break;
 		case Net_Event::EV_PLAYER_JOINED:
 		{
+			mSafeUpdate	= false;
+			CRITICAL_SECTION lock;
+			InitializeCriticalSection( &lock );
+			EnterCriticalSection( &lock );
+
 			EvInitialize toAll; // Contains the ID of the joining client
 			toAll.ID	= (unsigned int)s.s;
 			toAll.team	= s.team;
@@ -112,14 +136,16 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 				}
 			}
 
+			mPlayers[mNrOfPlayers++].ID	= toAll.ID;
+
 			// Synchronize enemy list to connecting player
 			mEnemyListSynced	= false;
 			EvSyncEnemy enemy;
 			for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 			{
 				enemy.ID			= mEnemies[i]->GetID();
-				enemy.model			= mEnemies[i]->GetModelID();
-				enemy.animation		= mEnemies[i]->GetAnimation();
+				enemy.state			= mEnemies[i]->GetEnemyState();
+				enemy.type			= mEnemies[i]->GetEnemyType();
 				enemy.position		= mEnemies[i]->GetPosition();
 				enemy.direction		= mEnemies[i]->GetDirection();
 
@@ -138,6 +164,9 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 			}
 
 			mEnemyListSynced	= true;
+			LeaveCriticalSection( &lock );
+			DeleteCriticalSection( &lock );
+			mSafeUpdate			= true;
 		}
 			break;
 		case Net_Event::EV_PLAYER_DIED:

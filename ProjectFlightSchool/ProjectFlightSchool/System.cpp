@@ -86,8 +86,8 @@ int	System::Run()
 //Initializes the window and sub-applications. 
 HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 {
-	mScreenWidth	= 1280;
-	mScreenHeight	= 780;
+	mScreenWidth	= 1920;
+	mScreenHeight	= 1080;
 
 	/////////////////////////////
 	// Initialize windows-window

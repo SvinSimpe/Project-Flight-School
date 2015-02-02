@@ -394,11 +394,14 @@ HRESULT PlayState::Update( float deltaTime )
 	else
 		mFrameCounter++;
 
+	UINT nrOfRadarObj = 0;
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
 	{
 		if ( mRemotePlayers.at(i) )
 		{
 			mRemotePlayers.at(i)->Update( deltaTime );
+			mRadarObjects[nrOfRadarObj].mRadarObjectPos = mRemotePlayers[i]->GetPosition();
+			mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
 		}
 	}
 
@@ -412,15 +415,26 @@ HRESULT PlayState::Update( float deltaTime )
 	mShip.PickTurretTarget( mAllPlayers );
 	mShip.Update( deltaTime );
 
+	mRadarObjects[nrOfRadarObj].mRadarObjectPos = mShip.GetPosition();
+	mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_FRIENDLY;
+
+
 	if( mEnemyListSynced )
 	{
 		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 		{
 			mEnemies[i]->Update( deltaTime );
+			mRadarObjects[nrOfRadarObj].mType = RADAR_TYPE::HOSTILE;
+			mRadarObjects[nrOfRadarObj++].mRadarObjectPos = mEnemies[i]->GetPosition();
 		}
 	}
-
 	mParticleManager->Update( deltaTime );
+	
+	//Disabled for testing purposes
+	mRadar->Update( mPlayer->GetPlayerPosition(), mRadarObjects, nrOfRadarObj );
+	//mRadarObjects[0].mRadarObjectPos = DirectX::XMFLOAT3( 0, 0, 0 );
+	//mRadarObjects[0].mType = RADAR_TYPE::SHIP_HOSTILE;
+	//mRadar->Update( mPlayer->GetPlayerPosition(), mRadarObjects, 1 );
 
 	return S_OK;
 }
@@ -428,10 +442,10 @@ HRESULT PlayState::Update( float deltaTime )
 HRESULT PlayState::Render()
 {
 	RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
-	
+	//
 	mPlayer->Render( 0.0f, 1 );
 
-	mWorldMap->Render( 0.0f , mPlayer );
+	//mWorldMap->Render( 0.0f , mPlayer );
 
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
 	{
@@ -458,6 +472,8 @@ HRESULT PlayState::Render()
 	}
 
 	mShip.Render();
+
+	mRadar->Render();
 
 	RenderManager::GetInstance()->Render();
 
@@ -579,9 +595,13 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_2.pfs", mSpawnModel );
 	mSpawners	= new XMFLOAT3[MAX_NR_OF_ENEMY_SPAWNERS];
 
+
 	//ParticleManager
 	mParticleManager = new ParticleManager();
 	mParticleManager->Initialize();
+
+	mRadar = new Radar();
+	mRadar->Initialize();
 
 	return S_OK;
 }
@@ -621,6 +641,8 @@ void PlayState::Release()
 	mFont.Release();
 
 	SAFE_RELEASE_DELETE( mParticleManager );
+
+	SAFE_DELETE( mRadar );
 
 }
 

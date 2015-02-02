@@ -21,6 +21,7 @@ class Ship
 	protected:
 	public:
 		void			BuffPlayer( Player* player );
+		XMFLOAT3		GetPosition() const;
 		BoundingCircle* GetHitBox() const;
 		void			TakeDamage( float damage );
 		void			PickTurretTarget( std::vector<RemotePlayer*> targets );

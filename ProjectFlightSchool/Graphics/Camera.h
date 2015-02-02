@@ -57,6 +57,7 @@ class Camera
 
 		//Must be called before GetViewMatrix, GetProjMatrix
 		HRESULT Initialize( CameraInfo* cameraInfo );
+		HRESULT Initialize( CameraInfo* cameraInfo, bool orthoCam );
 		void Release();
 
 		Camera();

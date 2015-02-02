@@ -15,6 +15,8 @@ void PlayState::EventListener( IEventPtr newEvent )
 			mPlayer->SetTeam( data->Team(), mTeams[data->Team()] );
 			mPlayer->SetColor( mColorIDs[mCurrentColor] );
 			mCurrentColor++;
+			//TestSound
+			SoundBufferHandler::GetInstance()->Play( mSoundAsset );
 		}
 	}
 
@@ -103,6 +105,9 @@ void PlayState::EventListener( IEventPtr newEvent )
 		// Fire projectile
 		std::shared_ptr<Event_Remote_Projectile_Fired> data = std::static_pointer_cast<Event_Remote_Projectile_Fired>(newEvent);
 		FireProjectile( data->ID(), data->ProjectileID(), data->BodyPos(), data->Direction() );
+
+		//TestSound
+		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->BodyPos());
 		
 		// Request Muzzle Flash from Particle Manager
 		mParticleManager->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
@@ -583,11 +588,15 @@ HRESULT PlayState::Initialize()
 	mParticleManager = new ParticleManager();
 	mParticleManager->Initialize();
 
+	//TestSound
+	m3DSoundAsset	= SoundBufferHandler::GetInstance()->Load3DBuffer( "alert02.wav" );
+	mSoundAsset		= SoundBufferHandler::GetInstance()->LoadBuffer( "alert02.wav" );
+
 	return S_OK;
 }
 
 void PlayState::Release()
-{
+{	
 	mWorldMap->Release();
 	SAFE_DELETE( mWorldMap );
 

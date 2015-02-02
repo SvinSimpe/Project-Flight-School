@@ -58,6 +58,15 @@
     <Filter Include="Particle System\Source">
       <UniqueIdentifier>{d8b37812-712b-4de0-b19c-fd498a2c3550}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DirectSound">
+      <UniqueIdentifier>{4e89a911-104e-46c2-bc3f-2fae6889d70b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DirectSound\Header">
+      <UniqueIdentifier>{a6cc2f38-70a6-4aed-84e9-fc95ca321f79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DirectSound\Source">
+      <UniqueIdentifier>{0c6b1923-05d3-4a95-8a22-1b63d94719cc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -194,6 +203,15 @@
     </ClCompile>
     <ClCompile Include="RemoteEnemy.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DS3DBuffer.cpp">
+      <Filter>DirectSound\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="DSBuffer.cpp">
+      <Filter>DirectSound\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundBufferHandler.cpp">
+      <Filter>DirectSound\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -346,6 +364,15 @@
     </ClInclude>
     <ClInclude Include="RemoteEnemy.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DS3DBuffer.h">
+      <Filter>DirectSound\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="DSBuffer.h">
+      <Filter>DirectSound\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundBufferHandler.h">
+      <Filter>DirectSound\Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

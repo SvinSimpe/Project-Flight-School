@@ -2,9 +2,9 @@
 
 ClientSocketManager* Client::mSocketManager = nullptr;
 
-void Client::DoSelect( int pauseMicroSecs, bool handleInput )
+void Client::InitForwardingEvents()
 {
-	gSocketManager->DoSelect( pauseMicroSecs, handleInput );
+	// Code for adding events that should be forwarded to the network by the client here
 }
 
 void Client::Initialize( std::string ip, unsigned int port )

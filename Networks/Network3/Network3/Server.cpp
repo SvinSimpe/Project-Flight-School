@@ -2,9 +2,9 @@
 
 SocketManager* Server::mSocketManager = nullptr;
 
-void Server::DoSelect( int pauseMicroSecs, bool handleInput )
+void Server::InitForwardingEvents()
 {
-	gSocketManager->DoSelect( pauseMicroSecs, handleInput );
+	// Code for adding events that should be forwarded to the network by the server
 }
 
 void Server::Initialize( unsigned int port )

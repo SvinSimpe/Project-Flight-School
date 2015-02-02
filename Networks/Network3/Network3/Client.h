@@ -12,9 +12,9 @@ public:
 	static ClientSocketManager*	mSocketManager;
 
 private:
+	void			InitForwardingEvents();
 protected:
 public:
-	void			DoSelect( int pauseMicroSecs, bool handleInput = true );
 	void			Initialize( std::string ip, unsigned int port );
 	void			Release();
 					Client();

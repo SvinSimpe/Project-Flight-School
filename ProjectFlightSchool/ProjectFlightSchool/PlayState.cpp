@@ -430,11 +430,7 @@ HRESULT PlayState::Update( float deltaTime )
 	}
 	mParticleManager->Update( deltaTime );
 	
-	//Disabled for testing purposes
 	mRadar->Update( mPlayer->GetPlayerPosition(), mRadarObjects, nrOfRadarObj );
-	//mRadarObjects[0].mRadarObjectPos = DirectX::XMFLOAT3( 0, 0, 0 );
-	//mRadarObjects[0].mType = RADAR_TYPE::SHIP_HOSTILE;
-	//mRadar->Update( mPlayer->GetPlayerPosition(), mRadarObjects, 1 );
 
 	return S_OK;
 }

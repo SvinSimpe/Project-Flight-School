@@ -5,7 +5,7 @@
 #include "RenderManager.h"
 #include "Input.h"
 
-#define MAX_RADAR_OBJECTS 20
+#define MAX_RADAR_OBJECTS 100
 
 enum RADAR_TYPE
 {

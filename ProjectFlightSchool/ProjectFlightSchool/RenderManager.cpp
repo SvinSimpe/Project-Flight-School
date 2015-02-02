@@ -66,7 +66,7 @@ void RenderManager::AddBoxToList( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 bool RenderManager::AddAnim3dToList( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation )
 {
     static Anim3dInfo info;
-	info.mModelId	= animTrack.mModelID;
+	info.mModelId = animTrack.mModelID;
 
 	bool localReturn = Graphics::GetInstance()->GetAnimationMatrices( animTrack, playType, position, rotation, info ); 
 

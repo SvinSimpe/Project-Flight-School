@@ -381,6 +381,7 @@ void ServerListenSocket::AttachRemoteClient( int hostID, int socketID )
 	std::stringstream out;
 
 	out << static_cast<int>( RemoteEventSocket::NetMsg_Event ) << " ";
+	out << Event_Client::GUID << " ";
 	out << hostID << " ";
 	out << socketID << " ";
 	out << "\r\n";
@@ -430,7 +431,7 @@ void RemoteEventSocket::CreateEvent( std::stringstream &in )
 	IEventPtr E1( CREATE_EVENT( eventType ) );
 	if( E1 )
 	{
-		E1->Deserialize(in);
+		E1->Deserialize( in );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 	else

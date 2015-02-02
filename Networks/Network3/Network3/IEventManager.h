@@ -112,11 +112,11 @@ class EventFactory
 
 		virtual ~EventFactory() 
 		{
-			for( auto& it : mEvents )
-			{
-				if( it.second )
-					delete it.second;
-			}
+			//for( auto& it : mEvents )
+			//{
+			//	if( it.second )
+			//		delete it.second;
+			//}
 			mEvents.clear();
 		}
 };

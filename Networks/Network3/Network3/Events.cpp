@@ -40,4 +40,4 @@
 
 // To define a new event - you need a 32-bit GUID. 
 // In Visual Studio, go to Tools->Create GUID and grab the first bit.
-const EventType Event_Client::GUID( 0x7c930f42 );
+const EventType Event_Client::GUID( 0 );

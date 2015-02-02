@@ -12,6 +12,12 @@ void Ship::BuffPlayer( Player* player )
 	}
 }
 
+
+XMFLOAT3 Ship::GetPosition() const
+{
+	return mModel->pos;
+}
+
 BoundingCircle* Ship::GetHitBox() const
 {
 	return mHitBox;

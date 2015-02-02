@@ -5,7 +5,14 @@
 class Exporter
 {
 private:
+
+	vector<string> g_ErrorMessages;
+
 	string g_FilePath;
+	string g_ExportPath;
+	string g_currentExportMap;
+	
+	vector<string> g_ExporterDirectoryNameList;
 
 	vector<MeshInfo_Maya> g_meshInfoMaya;
 	vector<MeshData_Export_Static> g_meshDataExportStatic;
@@ -25,12 +32,11 @@ private:
 	bool InitializeMaya();
 	void ReleaseMaya();
 
-	bool GetMayaFilenamesInDirectory(vector<string> &filenameList);
 	void GetNodePath(MFnMesh &mesh, MeshInfo_Maya &meshData);
 	void GetTexture(MPlugArray &shaderConnections, MeshInfo_Maya &meshData);
 	void GetNormalMap(MPlugArray &shaderConnections, MeshInfo_Maya &meshData);
 	void GetSpecularMap(MPlugArray &shaderConnections, MeshInfo_Maya &meshData);
-	void SceneManager(const char* fileName);
+	void SceneManager(const char* mapName, const char* fileName);
 	void ReleaseDataTypes();
 
 	void ConvertAndBuildMeshInfoExport();
@@ -47,6 +53,13 @@ private:
 	void WriteStaticMeshToFileBinary(const char* fileName);
 	void WriteAnimMeshToFileBinary(const char* fileName);
 	void WriteSkelToFileBinary();
+
+	//New stuff
+	bool GetDirectories(vector<string> &directorynameList);
+	bool GetMayaFilenamesInDirectory(const char* directoryname, vector<string> &filenameList);
+	bool CreateExportPath(string fileName);
+	void ReadExporterDirectoryNames();
+	void CopyTextureToDirectory(string texturePath, string fileName);
 
 };
 

@@ -126,6 +126,29 @@ HRESULT Camera::Initialize( CameraInfo* cameraInfo )
 	return S_OK;
 }
 
+HRESULT Camera::Initialize( CameraInfo* cameraInfo, bool orthoCam )
+{
+	mPos			= cameraInfo->eyePos;
+	mFocusPoint		= cameraInfo->focusPoint;
+	mUp				= cameraInfo->up;
+
+	mFoV			= cameraInfo->foVY;
+	mNearZ			= cameraInfo->nearZ;
+	mFarZ			= cameraInfo->farZ;
+	mWidth			= cameraInfo->width;
+	mHeight			= cameraInfo->height;
+	mAspectRatio	= mWidth/mHeight;
+
+	DirectX::XMVECTOR vecPos	= DirectX::XMLoadFloat4( &mPos );
+	DirectX::XMVECTOR vecFocus	= DirectX::XMLoadFloat4( &mFocusPoint );
+	DirectX::XMVECTOR vecUp		= DirectX::XMLoadFloat4( &mUp );
+
+	DirectX::XMStoreFloat4x4( &mViewMatrix, DirectX::XMMatrixLookAtLH( vecPos, vecFocus, vecUp ) );
+	DirectX::XMStoreFloat4x4( &mProjMatrix, DirectX::XMMatrixOrthographicLH( mWidth, mHeight, mNearZ, mFarZ ) );
+
+	return S_OK;
+}
+
 void Camera::Release()
 {
 }

@@ -89,13 +89,11 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
-<<<<<<< HEAD
 
     <ClCompile Include="EnemyAnimationManager.cpp" />
 
-=======
+
     <ClCompile Include="Gui.cpp" />
->>>>>>> ef9e5b7edbd7e7f725b788710a4c2917a4033381
     <ClCompile Include="SoundBufferHandler.cpp" />
     <ClCompile Include="DS3DBuffer.cpp" />
     <ClCompile Include="DSBuffer.cpp" />

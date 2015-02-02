@@ -697,11 +697,7 @@ PlayState::PlayState()
 	mEnemyListSynced	= false;
 	mServerInitialized  = false;
 	mParticleManager	= nullptr;
-<<<<<<< HEAD
-
-=======
 	mGui				= nullptr;
->>>>>>> ef9e5b7edbd7e7f725b788710a4c2917a4033381
 }
 
 PlayState::~PlayState()

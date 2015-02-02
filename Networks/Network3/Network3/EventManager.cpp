@@ -41,7 +41,8 @@
 #include <windows.h>
 #include <windowsx.h>
 
-EventManager* EventManager::instance = nullptr;
+EventManager* EventManager::mInstance = nullptr;
+EventFactory* EventFactory::mInstance = nullptr;
 
 //---------------------------------------------------------------------------------------------------------------------
 // EventManager::VTick
@@ -233,11 +234,11 @@ bool EventManager::AbortEvent( const EventType& inType, bool allOfType )
 
 EventManager* EventManager::GetInstance()
 {
-	if( instance == nullptr )
+	if( mInstance == nullptr )
 	{
-		instance = new EventManager();
+		mInstance = new EventManager();
 	}
-	return instance;
+	return mInstance;
 }
 //---------------------------------------------------------------------------------------------------------------------
 // EventManager::EventManager
@@ -252,10 +253,11 @@ EventManager::EventManager()
 void EventManager::Release()
 {
 	DeleteCriticalSection( &lock );
-	if(instance != nullptr)
+	if(mInstance != nullptr)
 	{
-		delete instance;
+		delete mInstance;
 	}
+	EventFactory::GetInstance()->Release();
 }
 //---------------------------------------------------------------------------------------------------------------------
 // EventManager::~EventManager

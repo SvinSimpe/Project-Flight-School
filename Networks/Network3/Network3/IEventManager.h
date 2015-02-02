@@ -52,48 +52,6 @@ typedef unsigned long EventType;
 typedef std::shared_ptr<IEvent> IEventPtr;
 typedef std::function<void( IEventPtr )> EventListenerDelegate;
 
-class EventFactory
-{
-	private:
-		std::map<EventType, IEvent*> mEvents;
-	protected:
-	public:
-
-	private:
-	protected:
-	public:
-		template<class SubClass>
-		bool Register( EventType id )
-		{
-			auto findIt = mEvents.find( id );
-			if( findIt == mEvents.end() )
-			{
-				mEvents[id] = new SubClass;
-				return true;
-			}
-			return false;
-		}
-
-	private:
-	protected:
-	public:
-		IEvent* Create( EventType id )
-		{
-			auto findIt = mEvents.find( id );
-			if( findIt != mEvents.end() )
-			{
-				printf( "Trying to retreive event with ID: %d\n", id );
-				IEvent* obj = findIt->second;
-				return obj;
-			}
-			return nullptr;
-		}
-};
-
-extern EventFactory gEventFactory;
-#define REGISTER_EVENT( eventClass ) gEventFactory.Register<eventClass>(eventClass::GUID)
-#define CREATE_EVENT( eventType ) gEventFactory.Create(eventType)
-
 //---------------------------------------------------------------------------------------------------------------------
 // IEvent                               - Chapter 11, page 310
 // Base type for event object hierarchy, may be used itself for simplest event notifications such as those that do 

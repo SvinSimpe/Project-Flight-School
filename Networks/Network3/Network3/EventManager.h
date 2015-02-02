@@ -44,6 +44,70 @@
 #include <map>
 #include <Windows.h>
 
+class EventFactory
+{
+	private:
+		std::map<EventType, IEvent*> mEvents;
+		static EventFactory* mInstance;
+	protected:
+	public:
+
+	private:
+	protected:
+	public:
+		template<class SubClass>
+		bool Register( EventType id )
+		{
+			auto findIt = mEvents.find( id );
+			if( findIt == mEvents.end() )
+			{
+				mEvents[id] = new SubClass;
+				return true;
+			}
+			return false;
+		}
+
+	private:
+	protected:
+	public:
+		static EventFactory* GetInstance()
+		{
+			if( !mInstance )
+			{
+				mInstance = new EventFactory();
+			}
+			return mInstance;
+		}
+		IEvent* Create( EventType id )
+		{
+			auto findIt = mEvents.find( id );
+			if( findIt != mEvents.end() )
+			{
+				printf( "Trying to retreive event with ID: %d\n", id );
+				IEvent* obj = findIt->second;
+				return obj;
+			}
+			return nullptr;
+		}
+		void Release()
+		{
+			for( auto& evt : mEvents )
+			{
+				if( evt.second )
+					delete evt.second;
+			}
+			mEvents.clear();
+			if( mInstance )
+				delete mInstance;
+		}
+		~EventFactory()
+		{
+		}
+};
+
+#define REGISTER_EVENT( eventClass ) EventFactory::GetInstance()->Register<eventClass>(eventClass::GUID)
+#define CREATE_EVENT( eventType ) EventFactory::GetInstance()->Create(eventType)
+
 const unsigned int EVENTMANAGER_NUM_QUEUES = 2;
 
 class EventManager : public IEventManager
@@ -89,7 +153,7 @@ class EventManager : public IEventManager
 		static EventManager* GetInstance();
 
 	private:
-		static EventManager* instance;
+		static EventManager* mInstance;
 		explicit EventManager();
 		virtual bool AddListener( const EventListenerDelegate& eventDelegate, const EventType& type );
 		virtual bool RemoveListener( const EventListenerDelegate& eventDelegate, const EventType& type );

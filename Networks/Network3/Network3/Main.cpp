@@ -13,7 +13,7 @@ int main()
 {
 #if defined(DEBUG) | defined(_DEBUG)
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
-	// 186, 185, 184, 183, 182, 181, 180
+	// 143, 145, 146
 	//_CrtSetBreakAlloc(143); // Break at specific memory allocation point
 #endif
 
@@ -66,7 +66,7 @@ int main()
 		Cleanup( client );
 		return 2;
 	}
-	nef = PFS_NEW NetworkEventForwarder( 0, client );
+	nef = PFS_NEW NetworkEventForwarder( 0, server );
 
 	EventManager::GetInstance()->AddListener( &NetworkEventForwarder::ForwardEvent, nef, Event_Client::GUID );
 	EventManager::GetInstance()->AddListener( &NetworkEventForwarder::ForwardEvent, nef, Event_Text::GUID );

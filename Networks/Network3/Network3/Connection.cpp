@@ -470,8 +470,6 @@ void RemoteEventSocket::HandleInput()
 					int hostID, socketID;
 					in >> hostID;
 					in >> socketID;
-					std::shared_ptr<Event_Client> E1( PFS_NEW Event_Client( hostID, socketID ) );
-					EventManager::GetInstance()->QueueEvent( E1 );
 					printf( "HostID: %d, SocketID: %d\n", hostID, socketID );
 				}
 				break;

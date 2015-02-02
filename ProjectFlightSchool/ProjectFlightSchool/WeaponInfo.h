@@ -3,18 +3,31 @@
 
 #include "BoundingGeometry.h"
 
+enum WeaponType
+{
+	BLOWTORCH,
+	CLAYMORE,
+	GRENADELAUNCHER,
+	HAMMER,
+	MINIGUN,
+	SAW,
+	SHOTGUN,
+	SNIPER,
+	WEAPON_COUNT,
+};
+
 struct RangedInfo
 {
-	char*	weaponName;
-	float	attackRate;
-	float	damage;
-	float	range;
-	int		spread;
-	float	areaOfEffect;
+	WeaponType	weaponType;
+	float		attackRate;
+	float		damage;
+	float		range;
+	int			spread;
+	float		areaOfEffect;
 
 	RangedInfo()
 	{
-		weaponName		= "";
+		weaponType		= SHOTGUN;
 		attackRate		= 0.0f;
 		damage			= 0.0f;
 		range			= 0.0f;
@@ -22,10 +35,10 @@ struct RangedInfo
 		areaOfEffect	= 0.0f;
 	}
 
-	RangedInfo( char* weaponName, float attackRate, float damage,
+	RangedInfo( WeaponType weaponType, float attackRate, float damage,
 				float range, int spread, float areaOfEffect )
 	{
-		this->weaponName	= weaponName;
+		this->weaponType	= weaponType;
 		this->attackRate	= attackRate;
 		this->damage		= damage;
 		this->range			= range;
@@ -35,7 +48,7 @@ struct RangedInfo
 };
 struct MeleeInfo
 {
-	char*			weaponName;
+	WeaponType		weaponType;
 	float			attackRate;
 	float			damage;
 	float			radius;
@@ -45,7 +58,7 @@ struct MeleeInfo
 
 	MeleeInfo()
 	{
-		weaponName		= "";
+		weaponType		= CLAYMORE;
 		attackRate		= 0.0f;
 		damage			= 0.0f;
 		radius			= 0.0f;
@@ -54,10 +67,10 @@ struct MeleeInfo
 		boundingCircle	= nullptr;
 	}
 
-	MeleeInfo( char* weaponName, float attackRate, float damage,
+	MeleeInfo( WeaponType weaponType, float attackRate, float damage,
 			   float radius, int spread, float knockBack, BoundingCircle* boundingCircle )
 	{
-		this->weaponName		= weaponName;
+		this->weaponType		= weaponType;
 		this->attackRate		= attackRate;
 		this->damage			= damage;
 		this->radius			= radius;

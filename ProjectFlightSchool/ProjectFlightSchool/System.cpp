@@ -130,25 +130,36 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 	///////////////////////////////
 	// Initialize sub-applications
 	///////////////////////////////
+	HRESULT hr = CoInitializeEx( NULL, 0 );
+    if ( FAILED( hr ) )
+    {
+      MessageBox( NULL, L"CoInitializeEx failed", L"Error", MB_OK );
+    }
 
 	Graphics::GetInstance()->Initialize( mHWnd, mScreenWidth, mScreenHeight );
 	EventManager::GetInstance();
 	Input::GetInstance()->Initialize( mScreenWidth, mScreenHeight, mHWnd );
 
 	RenderManager::GetInstance()->Initialize();
-
+	//TestSound
+	SoundBufferHandler::GetInstance()->Initialize();
+	
 	mGame = new Game();
 	mGame->Initialize();
 
 	mTimer = new Timer();
 	mTimer->Initialize();
+
+	CoUninitialize();
 	
+
 	return S_OK;
 }
 
 //Release all data used.
 void System::Release()
 {
+	SoundBufferHandler::GetInstance()->Release();
 	SAFE_RELEASE_DELETE( mGame );
 
 	SAFE_RELEASE_DELETE( mTimer );
@@ -157,6 +168,7 @@ void System::Release()
 	EventManager::GetInstance()->Release();
 	Input::GetInstance()->Release();
 	RenderManager::GetInstance()->Release();
+	
 }
 
 System::System()

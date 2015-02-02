@@ -13,8 +13,10 @@
 #include "EnemySpawn.h"
 #include "RemoteEnemy.h"
 #include "EnemyAnimationManager.h"
+#include "Radar.h"
 //Test
 #include "ParticleManager.h"
+#include "SoundBufferHandler.h"
 
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
@@ -26,8 +28,7 @@ class PlayState : public BaseState
 	private:
 		AssetID mPlaneAsset;
 
-		AssetID	mTestAnimation;
-		AssetID	mTestAnimationAnimation;
+		AnimationTrack mTestAnimation;
 
 		AssetID mTest2dAsset;
 		AssetID mTeams[2];
@@ -35,8 +36,6 @@ class PlayState : public BaseState
 
 		Map*		mWorldMap;
 		MapNodeManager* mMapNodeMan;
-
-		float	mAnimationTime;
 
 		//Collision
 		unsigned int	mFrameCounter;
@@ -63,8 +62,14 @@ class PlayState : public BaseState
 		bool						mServerInitialized;
 
 		ParticleManager*			mParticleManager;
-	
 
+		Radar*						mRadar;
+		RADAR_UPDATE_INFO			mRadarObjects[MAX_RADAR_OBJECTS];
+
+		//TestSound
+		int							m3DSoundAsset;
+		int							mSoundAsset;
+	
 	protected:
 	public:
 

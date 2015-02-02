@@ -59,6 +59,14 @@ enum Buffers
 	BUFFERS_AMOUNT
 };
 
+enum Cameras
+{
+	CAMERAS_MAIN,
+	CAMERAS_DEV,
+	//New cameras added above this comment
+	CAMERAS_AMOUNT
+};
+
 #define ANIMATION_PLAY_LOOPED	0
 #define ANIMATION_PLAY_ONCE		1
 
@@ -95,9 +103,7 @@ class LIBRARY_EXPORT Graphics
 
 		AssetManager*				mAssetManager;
 		Effect*						mEffects[EFFECTS_AMOUNT];
-
-		Camera*						mCamera;
-		Camera*						mDeveloperCamera;
+		Camera*						mCamera[CAMERAS_AMOUNT];
 		bool						mIsDeveloperCameraActive;
 		Gbuffer*					mGbuffers[NUM_GBUFFERS];
 

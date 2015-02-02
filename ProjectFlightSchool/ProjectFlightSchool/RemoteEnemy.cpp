@@ -1,5 +1,10 @@
 #include "RemoteEnemy.h"
 
+XMFLOAT3 RemoteEnemy::GetPosition() const
+{
+	return mPosition;
+}
+
 HRESULT RemoteEnemy::Update( float deltaTime )
 {
 	RenderManager::GetInstance()->AnimationUpdate( mAnimationTrack, deltaTime );

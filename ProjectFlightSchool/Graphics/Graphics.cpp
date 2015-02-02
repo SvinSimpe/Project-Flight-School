@@ -19,8 +19,6 @@ Graphics::Graphics()
 	mLinearSamplerState				= nullptr;
 
 	mAssetManager				= nullptr;
-	mCamera						= nullptr;
-	mDeveloperCamera			= nullptr;
 	mIsDeveloperCameraActive	= false;
 
 	for( int i = 0; i < BUFFERS_AMOUNT; i++ )
@@ -28,6 +26,9 @@ Graphics::Graphics()
 
 	for( int i = 0; i < EFFECTS_AMOUNT; i++ )
 		mEffects[i] = nullptr;
+
+	for( int i = 0; i < CAMERAS_AMOUNT; i++ )
+		mCamera[i] = nullptr;
 
 	mNumPointLights				= 0;
 
@@ -533,12 +534,12 @@ DirectX::XMFLOAT4X4 Graphics::GetRootMatrix( AnimationTrack animTrack )
 
 Camera* Graphics::GetCamera() const
 {
-	return mCamera;
+	return mCamera[CAMERAS_MAIN];
 }
 
 Camera* Graphics::GetDeveloperCamera() const
 {
-	return mDeveloperCamera;
+	return mCamera[CAMERAS_DEV];
 }
 
 void Graphics::ChangeCamera()
@@ -551,13 +552,15 @@ void Graphics::ChangeCamera()
 
 void Graphics::ZoomInDeveloperCamera()
 {
-	if( mDeveloperCamera->GetHeight() >= 1.0f )
-		mDeveloperCamera->ZoomIn();
+	if ( mCamera[CAMERAS_DEV]->GetHeight() >= 1.0f )
+		mCamera[CAMERAS_DEV]->ZoomIn();
+
+	mCamera[CAMERAS_DEV]->ZoomIn();
 }
 
 void Graphics::ZoomOutDeveloperCamera()
 {
-	mDeveloperCamera->ZoomOut();
+	mCamera[CAMERAS_DEV]->ZoomOut();
 }
 
 void Graphics::MapLightStructuredBuffer( LightStructure* lightStructure, int numPointLights )
@@ -575,22 +578,22 @@ void Graphics::SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositi
 
 void Graphics::SetInverseViewMatrix( DirectX::XMMATRIX &inverseViewMatrix )
 {
-	inverseViewMatrix = mCamera->GetInverseViewMatrix();
+	inverseViewMatrix = mCamera[CAMERAS_MAIN]->GetInverseViewMatrix();
 }
 
 void Graphics::SetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatrix )
 {
-	projectionViewMatrix = mCamera->GetInverseProjectionMatrix();
+	projectionViewMatrix = mCamera[CAMERAS_MAIN]->GetInverseProjectionMatrix();
 }
 
 void Graphics::SetEyePosition( DirectX::XMFLOAT3 &eyePosition )
 {
-	mCamera->SetEyePosition( eyePosition );
+	mCamera[CAMERAS_MAIN]->SetEyePosition( eyePosition );
 }
 
 void Graphics::SetFocus( DirectX::XMFLOAT3 &focusPoint )
 {
-	mCamera->SetFocus( focusPoint );
+	mCamera[CAMERAS_MAIN]->SetFocus( focusPoint );
 }
 
 //Clear canvas and prepare for rendering.
@@ -615,9 +618,9 @@ void Graphics::GbufferPass()
 {
 
 	if( mIsDeveloperCameraActive )
-		mDeveloperCamera->Update();
+		mCamera[CAMERAS_DEV]->Update();
 	else
-		mCamera->Update();
+		mCamera[CAMERAS_MAIN]->Update();
 	static float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	for( int i = 0; i < NUM_GBUFFERS; i++)
 		mDeviceContext->ClearRenderTargetView( mGbuffers[i]->mRenderTargetView, clearColor );
@@ -638,15 +641,15 @@ void Graphics::GbufferPass()
 
 	if( mIsDeveloperCameraActive )
 	{
-		data.viewMatrix			= mDeveloperCamera->GetViewMatrix();
-		data.projectionMatrix	= mDeveloperCamera->GetProjMatrix();
-		data.cameraPosition		= mDeveloperCamera->GetPos();
+		data.viewMatrix			= mCamera[CAMERAS_DEV]->GetViewMatrix();
+		data.projectionMatrix	= mCamera[CAMERAS_DEV]->GetProjMatrix();
+		data.cameraPosition		= mCamera[CAMERAS_DEV]->GetPos();
 	}
 	else
 	{
-		data.viewMatrix			= mCamera->GetViewMatrix();
-		data.projectionMatrix	= mCamera->GetProjMatrix();
-		data.cameraPosition		= mCamera->GetPos();
+		data.viewMatrix			= mCamera[CAMERAS_MAIN]->GetViewMatrix();
+		data.projectionMatrix	= mCamera[CAMERAS_MAIN]->GetProjMatrix();
+		data.cameraPosition		= mCamera[CAMERAS_MAIN]->GetPos();
 	}
 	
 	data.numPointLights = mNumPointLights;
@@ -1337,7 +1340,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	}
 
 	//Camera
-	mCamera = new Camera;
+	mCamera[CAMERAS_MAIN] = new Camera;
 
 	CameraInfo cameraInfo;
 	ZeroMemory( &cameraInfo, sizeof( cameraInfo ) );
@@ -1350,11 +1353,11 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	cameraInfo.nearZ		= 0.1f;
 	cameraInfo.farZ			= 1000.0f;
 
-	if( FAILED( hr = mCamera->Initialize( &cameraInfo ) ) )
+	if( FAILED( hr = mCamera[CAMERAS_MAIN]->Initialize( &cameraInfo ) ) )
 		return hr;
 
 	//Developer Camera
-	mDeveloperCamera = new Camera;
+	mCamera[CAMERAS_DEV] = new Camera;
 
 	CameraInfo developerCameraInfo;
 	ZeroMemory( &cameraInfo, sizeof( developerCameraInfo ) );
@@ -1367,10 +1370,9 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	developerCameraInfo.nearZ		= 0.1f;
 	developerCameraInfo.farZ		= 1000.0f;
 
-	hr = mDeveloperCamera->Initialize( &developerCameraInfo );
+	hr = mCamera[CAMERAS_DEV]->Initialize( &developerCameraInfo );
 	if( FAILED( hr ) )
 		return hr;
-	
 
 	StaticVertex boxVertices[]		= 
 	{
@@ -1461,8 +1463,11 @@ void Graphics::Release()
 	SAFE_RELEASE( mLinearSamplerState );
 
 	SAFE_RELEASE_DELETE( mAssetManager );
-	SAFE_RELEASE_DELETE( mCamera );
-	SAFE_RELEASE_DELETE( mDeveloperCamera );
+
+	for( int i = 0; i < CAMERAS_AMOUNT; i++ )
+	{
+		SAFE_RELEASE_DELETE( mCamera[i] );
+	}
 
 	for( int i = 0; i < BUFFERS_AMOUNT; i++ )
 	{

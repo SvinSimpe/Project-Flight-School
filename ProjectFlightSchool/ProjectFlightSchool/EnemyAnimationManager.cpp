@@ -101,9 +101,9 @@ HRESULT EnemyAnimationManager::Initialize()
 	// -------------------
 	// Load Boomer Model
 	// Load skeleton
-	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurSkel.Skel", skeleton );
+	//Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurSkel.Skel", skeleton );
 	// Load animated 3d asset
-	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Enemies/Blowuposaur/", "blowuposaur.apfs", skeleton, mModelBoomer );
+	//Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Enemies/Blowuposaur/", "blowuposaur.apfs", skeleton, mModelBoomer );
 
 	// ------------------- ( Pate Waiting )
 	// Load Tank Model

@@ -1,0 +1,28 @@
+#INFO
+####################################
+#searchfor	#directorytoplacefile
+
+#Use_hashtag_for_comments_and_don't_use_blankspace
+####################################
+
+#Permanent_Asset
+ship		/Ship/
+robot		/Robot/
+weapon		/Weapons/
+xporb		/XPorb/
+battery		/Battery/
+turret		/Turret/
+
+#Forest_Assets
+bone		/Bones/
+nest		/Nests/
+bush		/Bushes/
+plant		/Plants/
+grass		/Grass/
+tree		/Trees/
+mushroom 	/Mushrooms/
+stone		/Stones/		
+water		/Water/
+
+#Forest_Enemies
+raptor		/Enemies/

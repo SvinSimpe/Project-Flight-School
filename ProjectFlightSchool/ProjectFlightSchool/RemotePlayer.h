@@ -12,17 +12,28 @@
 #define LEFT_ARM_ID		0
 #define RIGHT_ARM_ID	1
 
-#define PLAYER_ANIMATION_LEGS_IDLE			0
-#define	PLAYER_ANIMATION_LEGS_WALK			1
+enum PLAYER_ANIMATION
+{
+	LEGS_IDLE,
+	LEGS_WALK,
 
-#define PLAYER_ANIMATION_CLAYMORE_IDLE		2
-#define PLAYER_ANIMATION_CLAYMORE_WALK		3
-#define PLAYER_ANIMATION_CLAYMORE_ATTACK	4
+	COUNT,
+};
 
-#define PLAYER_ANIMATION_SHOTGUN_WALK		5
-#define PLAYER_ANIMATION_SHOTGUN_ATTACK		6
+enum WEAPON_ANIMATION
+{
+	IDLE,
+	WALK,
+	ATTACK,
+	ATTACK2,
+	ATTACK_START,
+	ATTACK_IDLE,
+	ATTACK_END,
+	OVERHEAT_START,
+	OVERHEAT_END,
 
-#define PLAYER_ANIMATION_COUNT 7
+	WEAPON_ANIMATION_COUNT,
+};
 
 struct ServerPlayer
 {
@@ -81,7 +92,9 @@ class RemotePlayer
 		Arms			mArms;
 		bool			mLeftArmAnimationCompleted;
 		bool			mRightArmAnimationCompleted;
-		AssetID			mAnimations[PLAYER_ANIMATION_COUNT];
+		AssetID			mAnimations[PLAYER_ANIMATION::COUNT];
+		AssetID			mWeaponModels[WEAPON_COUNT];
+		AssetID			mWeaponAnimations[WEAPON_COUNT][WEAPON_ANIMATION_COUNT];
 
 		BoundingBox*	mBoundingBox;
 		BoundingCircle*	mBoundingCircle;

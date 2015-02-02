@@ -27,6 +27,7 @@ int main()
 	bool serverOn = false;
 	SocketManager* server = nullptr;
 	NetworkEventForwarder* nef = nullptr;
+	NetworkEventForwarder* nef2 = nullptr;
 
 	if( !REGISTER_EVENT( Event_Client ) )
 		std::cout << "Failed when registering event with ID: " << Event_Client::GUID << std::endl;
@@ -44,7 +45,7 @@ int main()
 			return 1;
 		}
 		server->AddSocket( new ServerListenSocket( port ) );
-
+		nef = PFS_NEW NetworkEventForwarder( 0, server );
 		std::cout << "Server up and running." << std::endl;
 	}
 
@@ -66,7 +67,6 @@ int main()
 		Cleanup( client );
 		return 2;
 	}
-	nef = PFS_NEW NetworkEventForwarder( 0, server );
 
 	EventManager::GetInstance()->AddListener( &NetworkEventForwarder::ForwardEvent, nef, Event_Client::GUID );
 	EventManager::GetInstance()->AddListener( &NetworkEventForwarder::ForwardEvent, nef, Event_Text::GUID );

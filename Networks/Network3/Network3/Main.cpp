@@ -29,6 +29,7 @@ int main()
 		if( !server->Initialize( port ) )
 			OutputDebugStringA( "FUCK!" );
 		std::cout << "Server up and running." << std::endl;
+		serverOn = true;
 	}
 
 	answer = "";

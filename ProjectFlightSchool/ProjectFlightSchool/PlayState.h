@@ -13,6 +13,7 @@
 #include "EnemySpawn.h"
 #include "RemoteEnemy.h"
 #include "ParticleManager.h"
+#include "SoundBufferHandler.h"
 
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
@@ -61,6 +62,10 @@ class PlayState : public BaseState
 		bool						mServerInitialized;
 
 		ParticleManager*			mParticleManager;
+
+		//TestSound
+		int							m3DSoundAsset;
+		int							mSoundAsset;
 	
 
 	protected:

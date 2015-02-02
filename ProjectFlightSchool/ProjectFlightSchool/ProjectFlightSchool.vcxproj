@@ -89,6 +89,9 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SoundBufferHandler.cpp" />
+    <ClCompile Include="DS3DBuffer.cpp" />
+    <ClCompile Include="DSBuffer.cpp" />
     <ClCompile Include="EnemySpawn.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="..\Graphics\Font.cpp" />
@@ -132,6 +135,9 @@
     <ClInclude Include="BaseMenuState.h" />
     <ClInclude Include="BaseState.h" />
     <ClInclude Include="BoundingGeometry.h" />
+    <ClInclude Include="SoundBufferHandler.h" />
+    <ClInclude Include="DS3DBuffer.h" />
+    <ClInclude Include="DSBuffer.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="EnemySpawn.h" />
     <ClInclude Include="Image.h" />

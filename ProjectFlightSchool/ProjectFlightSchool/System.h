@@ -23,9 +23,7 @@ class System
 		HWND		mHWnd;
 		UINT		mScreenWidth;
 		UINT		mScreenHeight;
-
 		Game*		mGame;
-		
 		Timer*		mTimer;
 
 	protected:

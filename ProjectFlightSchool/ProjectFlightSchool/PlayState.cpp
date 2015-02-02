@@ -103,6 +103,9 @@ void PlayState::EventListener( IEventPtr newEvent )
 		// Fire projectile
 		std::shared_ptr<Event_Remote_Projectile_Fired> data = std::static_pointer_cast<Event_Remote_Projectile_Fired>(newEvent);
 		FireProjectile( data->ID(), data->ProjectileID(), data->BodyPos(), data->Direction() );
+		
+		// Request Muzzle Flash from Particle Manager
+		mParticleManager->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Player_Melee_Hit::GUID )
 	{
@@ -416,7 +419,9 @@ HRESULT PlayState::Update( float deltaTime )
 			mEnemies[i]->Update( deltaTime );
 		}
 	}
-	
+
+	mParticleManager->Update( deltaTime );
+
 	return S_OK;
 }
 
@@ -486,9 +491,9 @@ HRESULT PlayState::Initialize()
 	AssetID skeleton = 0;
 	AssetID skel  =0;
 
-	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Raptor/Animations/", "raptor.Skel", skeleton );
-	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Raptor/", "scaledScene.apfs", skeleton, mTestAnimation );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Raptor/Animations/", "raptorDeath2.PaMan", mTestAnimationAnimation );
+	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Enemies/Raptor/Animations/", "raptor.Skel", skeleton );
+	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Enemies/Raptor/", "scaledScene.apfs", skeleton, mTestAnimation );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Raptor/Animations/", "raptorDeath2.PaMan", mTestAnimationAnimation );
 
 	AssetID loader;
 
@@ -574,6 +579,10 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_2.pfs", mSpawnModel );
 	mSpawners	= new XMFLOAT3[MAX_NR_OF_ENEMY_SPAWNERS];
 
+	//ParticleManager
+	mParticleManager = new ParticleManager();
+	mParticleManager->Initialize();
+
 	return S_OK;
 }
 
@@ -611,6 +620,8 @@ void PlayState::Release()
 
 	mFont.Release();
 
+	SAFE_RELEASE_DELETE( mParticleManager );
+
 }
 
 PlayState::PlayState()
@@ -626,6 +637,7 @@ PlayState::PlayState()
 	mEnemyListSynced	= false;
 	mServerInitialized  = false;
 	mAnimationTime		= 0.0f;
+	mParticleManager	= nullptr;
 }
 
 PlayState::~PlayState()

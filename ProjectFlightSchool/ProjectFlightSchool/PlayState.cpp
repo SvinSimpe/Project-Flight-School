@@ -633,8 +633,8 @@ HRESULT PlayState::Initialize()
 	mGui->Initialize();
 
 	//TestSound
-	m3DSoundAsset	= SoundBufferHandler::GetInstance()->Load3DBuffer( "alert02.wav" );
-	mSoundAsset		= SoundBufferHandler::GetInstance()->LoadBuffer( "alert02.wav" );
+	m3DSoundAsset	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav" );
+	mSoundAsset		= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
 
 	return S_OK;
 }

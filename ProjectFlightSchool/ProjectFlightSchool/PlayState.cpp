@@ -399,11 +399,14 @@ HRESULT PlayState::Update( float deltaTime )
 	else
 		mFrameCounter++;
 
+	UINT nrOfRadarObj = 0;
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
 	{
 		if ( mRemotePlayers.at(i) )
 		{
 			mRemotePlayers.at(i)->Update( deltaTime );
+			mRadarObjects[nrOfRadarObj].mRadarObjectPos = mRemotePlayers[i]->GetPosition();
+			mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
 		}
 	}
 
@@ -411,21 +414,32 @@ HRESULT PlayState::Update( float deltaTime )
 	mPlayer->Update( deltaTime );
 
 	UpdateProjectiles( deltaTime );
-	mAnimationTime	+= deltaTime;
 
 	mShip.BuffPlayer( mPlayer );
 	mShip.PickTurretTarget( mAllPlayers );
 	mShip.Update( deltaTime );
+
+	mRadarObjects[nrOfRadarObj].mRadarObjectPos = mShip.GetPosition();
+	mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_FRIENDLY;
+
 
 	if( mEnemyListSynced )
 	{
 		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 		{
 			mEnemies[i]->Update( deltaTime );
+			mRadarObjects[nrOfRadarObj].mType = RADAR_TYPE::HOSTILE;
+			mRadarObjects[nrOfRadarObj++].mRadarObjectPos = mEnemies[i]->GetPosition();
 		}
 	}
-
 	mParticleManager->Update( deltaTime );
+	
+	mRadar->Update( mPlayer->GetPlayerPosition(), mRadarObjects, nrOfRadarObj );
+
+	// Test Anim
+	///////////////////////////////////////////////////////////////////////////
+	RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
+	///////////////////////////////////////////////////////////////////////////
 
 	return S_OK;
 }
@@ -433,7 +447,9 @@ HRESULT PlayState::Update( float deltaTime )
 HRESULT PlayState::Render()
 {
 	RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
-	
+
+	RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation, ANIMATION_PLAY_LOOPED, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
+
 	mPlayer->Render( 0.0f, 1 );
 
 	mWorldMap->Render( 0.0f , mPlayer );
@@ -464,6 +480,8 @@ HRESULT PlayState::Render()
 
 	mShip.Render();
 
+	mRadar->Render();
+
 	RenderManager::GetInstance()->Render();
 
 	return S_OK;
@@ -493,14 +511,14 @@ HRESULT PlayState::Initialize()
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Plane/", "plane.pfs", mPlaneAsset );
 
-	AssetID skeleton = 0;
-	AssetID skel  =0;
+	AssetID model	= 0;
+	AssetID loader	= 0;
 
-	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Enemies/Raptor/Animations/", "raptor.Skel", skeleton );
-	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Enemies/Raptor/", "scaledScene.apfs", skeleton, mTestAnimation );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Raptor/Animations/", "raptorDeath2.PaMan", mTestAnimationAnimation );
+	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurSkel.Skel", loader );
+	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Enemies/Blowuposaur/", "blowuposaur.apfs", loader, model );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurIdle.PaMan", loader );
 
-	AssetID loader;
+	RenderManager::GetInstance()->AnimationInitialize( mTestAnimation, model, loader );
 
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dAsset );
 	for( int i = 1; i < 8; i++ )
@@ -533,16 +551,11 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/FunnyCircles/WhiteTeam.png", mTeams[0] );
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/FunnyCircles/BlackTeam.png", mTeams[1] );
 
-	mAnimationTime	= 1.0f;
-
 	mPlayer = new Player();
 	mPlayer->Initialize();
 
 	mWorldMap = new Map();
 	mWorldMap->Initialize( 4 );
-
-	//mMapNodeMan = new MapNodeManager();
-	//mMapNodeMan->Initialize( "../Content/Assets/Nodes/gridtest2.lp"  );
 
 	//Fill up on Projectiles, test values
 	mProjectiles	= new Projectile*[MAX_PROJECTILES];
@@ -584,9 +597,13 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_2.pfs", mSpawnModel );
 	mSpawners	= new XMFLOAT3[MAX_NR_OF_ENEMY_SPAWNERS];
 
+
 	//ParticleManager
 	mParticleManager = new ParticleManager();
 	mParticleManager->Initialize();
+
+	mRadar = new Radar();
+	mRadar->Initialize();
 
 	//TestSound
 	m3DSoundAsset	= SoundBufferHandler::GetInstance()->Load3DBuffer( "alert02.wav" );
@@ -631,6 +648,8 @@ void PlayState::Release()
 
 	SAFE_RELEASE_DELETE( mParticleManager );
 
+	SAFE_DELETE( mRadar );
+
 }
 
 PlayState::PlayState()
@@ -645,7 +664,6 @@ PlayState::PlayState()
 	mMaxNrOfEnemies		= 0;
 	mEnemyListSynced	= false;
 	mServerInitialized  = false;
-	mAnimationTime		= 0.0f;
 	mParticleManager	= nullptr;
 }
 

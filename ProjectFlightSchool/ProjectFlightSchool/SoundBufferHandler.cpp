@@ -100,11 +100,7 @@ void SoundBufferHandler::Release()
 	}
 	mActive3DSounds.clear();
 	mDSListener->Release();
-	if ( mDSDevice )
-	{
-		mDSDevice->Release();
-		mDSDevice = 0;
-	}
+	mDSDevice->Release();
 }
 
 SoundBufferHandler::SoundBufferHandler()

@@ -86,8 +86,8 @@ int	System::Run()
 //Initializes the window and sub-applications. 
 HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 {
-	mScreenWidth	= 1280;
-	mScreenHeight	= 780;
+	mScreenWidth	= 1920;
+	mScreenHeight	= 1080;
 
 	/////////////////////////////
 	// Initialize windows-window
@@ -159,6 +159,7 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 //Release all data used.
 void System::Release()
 {
+	SoundBufferHandler::GetInstance()->Release();
 	SAFE_RELEASE_DELETE( mGame );
 
 	SAFE_RELEASE_DELETE( mTimer );
@@ -167,7 +168,7 @@ void System::Release()
 	EventManager::GetInstance()->Release();
 	Input::GetInstance()->Release();
 	RenderManager::GetInstance()->Release();
-	SoundBufferHandler::GetInstance()->Release();
+	
 }
 
 System::System()

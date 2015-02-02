@@ -20,6 +20,7 @@ class RemoteEnemy
 	private:
 	protected:
 	public:
+		XMFLOAT3			GetPosition() const;
 		HRESULT				Update( float deltaTime );
 		HRESULT				Render();
 		void				SetID( unsigned int id );

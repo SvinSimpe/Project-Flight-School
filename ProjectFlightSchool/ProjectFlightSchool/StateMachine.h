@@ -1,8 +1,13 @@
 #ifndef STATEMACHINE_H
 #define STATEMACHINE_H
 
-#include "PlayState.h"
 #include "StartMenuState.h"
+#include "CreateMenuState.h"
+#include "JoinMenuState.h"
+#include "MultiplayerMenuState.h"
+#include "OptionsMenuState.h"
+#include "SingleplayerMenuState.h"
+#include "PlayState.h"
 
 class StateMachine
 {
@@ -16,7 +21,7 @@ class StateMachine
 
 	// Class functions
 	private:
-		void ChangeStateListener( IEventPtr newEvent );
+		void	EventListener( IEventPtr newEvent );
 	protected:
 	public:
 		HRESULT Update( float deltaTime );

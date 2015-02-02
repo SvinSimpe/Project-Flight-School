@@ -21,13 +21,8 @@ LRESULT CALLBACK System::WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			break;
 
 		case WM_KEYDOWN:
-			switch( wParam )
-			{
-				case VK_ESCAPE:
-					PostQuitMessage( 0 );
-					break;
-			}
 			break;
+
 		case WM_INPUT:
 			Input::GetInstance()->Update( lParam ); //Returns a bool vector that represents all button presses
 			break;
@@ -69,33 +64,30 @@ int	System::Run()
 		}
 		else
 		{
-			RECT r;
-			GetWindowRect( mHWnd, &r );
+			//RECT r;
+			//GetWindowRect( mHWnd, &r );
 
 			float deltaTime	= mTimer->GetDeltaTime();
-			float fps		= mTimer->GetFPS();
+			//float fps		= mTimer->GetFPS();
 
-			int mem	= 0;//(int)Graphics::GetInstance()->QueryMemoryUsed();
-
-			wchar_t title[200];
-			swprintf( title, sizeof(title), L"Project-Flight-School: Version 0.2 -  DeltaTime: %f  - FPS: %d\t vRam: %d Stop!... Hamburger time!",
-				deltaTime, (int)fps, mem );
-			SetWindowText( mHWnd, title );
+			//wchar_t title[100];
+			//swprintf( title, sizeof(title), L"ProjectFlightSchool - DTime: %f", deltaTime );//, (int)fps );
+			//swprintf( title, sizeof(title), L"Derp" );
+			//SetWindowText( mHWnd, title );
 
 			//ClipCursor( &r );//		Uncomment this to lock the cursor to the game window
 			Update( deltaTime );
 			Render();
 		}
 	}
-
 	return (int)message.wParam;
 }
 
 //Initializes the window and sub-applications. 
 HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 {
-	mScreenWidth	= 1280;
-	mScreenHeight	= 780;
+	mScreenWidth	= 1920;
+	mScreenHeight	= 1080;
 
 	/////////////////////////////
 	// Initialize windows-window
@@ -138,34 +130,45 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 	///////////////////////////////
 	// Initialize sub-applications
 	///////////////////////////////
+	HRESULT hr = CoInitializeEx( NULL, 0 );
+    if ( FAILED( hr ) )
+    {
+      MessageBox( NULL, L"CoInitializeEx failed", L"Error", MB_OK );
+    }
 
 	Graphics::GetInstance()->Initialize( mHWnd, mScreenWidth, mScreenHeight );
-
+	EventManager::GetInstance();
 	Input::GetInstance()->Initialize( mScreenWidth, mScreenHeight, mHWnd );
 
 	RenderManager::GetInstance()->Initialize();
-
+	//TestSound
+	SoundBufferHandler::GetInstance()->Initialize();
+	
 	mGame = new Game();
 	mGame->Initialize();
 
 	mTimer = new Timer();
 	mTimer->Initialize();
+
+	CoUninitialize();
 	
+
 	return S_OK;
 }
 
 //Release all data used.
 void System::Release()
 {
-	mGame->Release();
-	SAFE_DELETE( mGame );
+	SoundBufferHandler::GetInstance()->Release();
+	SAFE_RELEASE_DELETE( mGame );
 
-	mTimer->Release();
-	SAFE_DELETE( mTimer );
+	SAFE_RELEASE_DELETE( mTimer );
 
 	Graphics::GetInstance()->Release();
-
+	EventManager::GetInstance()->Release();
 	Input::GetInstance()->Release();
+	RenderManager::GetInstance()->Release();
+	
 }
 
 System::System()

@@ -4,6 +4,7 @@
 #include <DirectXMath.h>
 
 #define NUM_SUPPORTED_JOINTS 32
+#define NUM_SUPPORTED_ANIM_INSTANCES 32
 
 struct CbufferPerObject
 {
@@ -12,7 +13,11 @@ struct CbufferPerObject
 
 struct CbufferPerObjectAnimated
 {
-	DirectX::XMMATRIX worldMatrix;
 	DirectX::XMMATRIX boneTransforms[NUM_SUPPORTED_JOINTS];
+};
+
+struct CbufferPerInstancedAnimated
+{
+	CbufferPerObject perInstance[NUM_SUPPORTED_ANIM_INSTANCES];
 };
 #endif

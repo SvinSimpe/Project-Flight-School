@@ -97,11 +97,14 @@
     <ClInclude Include="CameraInfo.h" />
     <ClInclude Include="CbufferPerFrame.h" />
     <ClInclude Include="CbufferPerObject.h" />
+    <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="Effect.h" />
     <ClInclude Include="EffectInfo.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Gbuffer.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="LightStructure.h" />
+    <ClInclude Include="ResourceLoader.h" />
     <ClInclude Include="SkeletonAsset.h" />
     <ClInclude Include="Static2dAsset.h" />
     <ClInclude Include="Static3dAsset.h" />
@@ -115,8 +118,10 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="AssetBase.cpp" />
     <ClCompile Include="AssetManager.cpp" />
+    <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="Effect.cpp" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="ResourceLoader.cpp" />
     <ClCompile Include="SkeletonAsset.cpp" />
     <ClCompile Include="Static2dAsset.cpp" />
     <ClCompile Include="Static3dAsset.cpp" />
@@ -144,6 +149,38 @@
       <FileType>Document</FileType>
     </Text>
     <Text Include="..\Content\Effects\2dEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Content\Effects\AnimatedInstanced3dEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Content\Effects\Static3dInstancedEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    
+
+    <Text Include="MuzzleFlashEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+
+    <Text Include="..\Content\Effects\BillboardEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="DebugShaderEffect.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+
+
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>

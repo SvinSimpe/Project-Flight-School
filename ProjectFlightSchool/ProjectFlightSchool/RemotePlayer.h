@@ -4,70 +4,74 @@
 #include "Graphics.h"
 #include "EventManager.h"
 #include "Events.h"
+#include "BoundingGeometry.h"
 #include "RenderManager.h"
+#include "Font.h"
+#include "WeaponInfo.h"
 
-struct BoundingBox
+#define LEFT_ARM_ID		0
+#define RIGHT_ARM_ID	1
+
+enum PLAYER_ANIMATION
 {
-	XMFLOAT3	position;
-	float		width;
-	float		height;
+	LEGS_IDLE,
+	LEGS_WALK,
 
-	BoundingBox()
-	{
-		position	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-		width		= 1.0f;
-		height		= 1.0f;
-	}
-
-	BoundingBox( float width, float height )
-	{
-		this->width		= width;
-		this->height	= height;
-	}
-
-	bool Intersect( BoundingBox* inBox ) 
-	{
-		return ( ( position.x < inBox->position.x + inBox->width  ) && ( position.x + width  > inBox->position.x ) &&
-				 ( position.z < inBox->position.z + inBox->height ) && ( position.z + height > inBox->position.z ) );		
-	}
+	COUNT,
 };
 
-struct BoundingCircle
+enum WEAPON_ANIMATION
 {
-	XMFLOAT3	center;
-	float		radius;
+	IDLE,
+	WALK,
+	ATTACK,
+	ATTACK2,
+	ATTACK_START,
+	ATTACK_IDLE,
+	ATTACK_END,
+	OVERHEAT_START,
+	OVERHEAT_END,
 
-	BoundingCircle()
-	{
-		center	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-		radius	= 0.0f;
-	}
-
-	BoundingCircle( float radius )
-	{
-		this->radius	= radius;
-	}
-
-	bool Intersect( BoundingCircle* inCircle ) const
-	{
-		return ( pow( center.x - inCircle->center.x, 2 ) + pow( center.z - inCircle->center.z, 2 ) ) < pow( radius + inCircle->radius, 2 );
-	}
+	WEAPON_ANIMATION_COUNT,
 };
-
 
 struct UpperBody
 {
-	UINT		playerModel;
+	AssetID		playerModel;
 	XMFLOAT3	direction;
-	XMFLOAT3	position;
 };
 
 struct LowerBody
 {
-	UINT		playerModel;
-	XMFLOAT3	direction;
-	XMFLOAT3	position;
-	float		speed;
+	AnimationTrack	playerModel;
+	XMFLOAT3		direction;
+	XMFLOAT3		position;
+};
+
+struct Arms
+{
+	AnimationTrack leftArm;
+	AnimationTrack rightArm;
+};
+
+struct LoadOut
+{
+	RangedInfo*	rangedWeapon;
+	MeleeInfo*	meleeWeapon;
+
+	LoadOut()
+	{
+		rangedWeapon	= nullptr;
+		meleeWeapon		= nullptr;
+	}
+
+	void Release()
+	{
+		SAFE_DELETE( rangedWeapon );
+		if( meleeWeapon )
+			SAFE_DELETE( meleeWeapon->boundingCircle );
+		SAFE_DELETE( meleeWeapon );
+	}
 };
 
 class RemotePlayer
@@ -76,8 +80,16 @@ class RemotePlayer
 	private:
 	protected:
 		unsigned int	mID;
+		int				mTeam;
 		UpperBody		mUpperBody;
 		LowerBody		mLowerBody;
+		Arms			mArms;
+		bool			mLeftArmAnimationCompleted;
+		bool			mRightArmAnimationCompleted;
+		AssetID			mAnimations[PLAYER_ANIMATION::COUNT];
+		AssetID			mWeaponModels[WEAPON_COUNT];
+		AssetID			mWeaponAnimations[WEAPON_COUNT][WEAPON_ANIMATION_COUNT];
+
 		BoundingBox*	mBoundingBox;
 		BoundingCircle*	mBoundingCircle;
 		float			mCurrentHp;
@@ -85,29 +97,62 @@ class RemotePlayer
 		bool			mIsAlive;
 		float			mSpawnTime;
 		float			mTimeTillSpawn;
+		AssetID			mGreenHPAsset;
+		AssetID			mRedHPAsset;
+		AssetID			mOrangeHPAsset;
+		AssetID			mTeamAsset;
+		AssetID			mColorIDAsset;
+		int				mNrOfDeaths;
+		int				mNrOfKills;
+		Font			mFont;
 
+		XMFLOAT3	mVelocity;
+		LoadOut*	mLoadOut;
 
 	public:
 
 	// Member functions
 	private:
-		void		RemoteUpdate( IEventPtr newEvent );
+		void			RemoteUpdate( IEventPtr newEvent );
 
 	protected:
-		void		LookAt( float rotation );
 
 	public:
-		void			RemoteInit( unsigned int id );
+		void			RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID );
+		void			BroadcastDeath( unsigned int shooter );
+
 		virtual void	Die();
+		void			HandleSpawn( float deltaTime );
+		void			Spawn();
+		virtual void	TakeDamage( float damage, unsigned int shooter );
+		void			SetHP( float hp );
+		void			CountUpKills();
+		bool			IsAlive() const;
+		LoadOut*		GetLoadOut() const;
+		float			GetHP() const;
 		int				GetID() const;
+		int				GetTeam() const;
 		BoundingBox*	GetBoundingBox() const;
 		BoundingCircle*	GetBoundingCircle() const;
 		XMFLOAT3		GetPosition() const;
-		virtual HRESULT	Render( float deltaTime );
+		XMFLOAT3		GetDirection() const;
+		void			SetDirection( XMFLOAT3 direction );
+		void			AddImpuls( XMFLOAT3 impuls );
+		virtual HRESULT	Update( float deltaTime );
+		virtual HRESULT	Render( int position );
 		virtual HRESULT	Initialize();
 		void			Release();
 						RemotePlayer();
 		virtual			~RemotePlayer();
+
+
+
+
+
+
+
+		////TEST
+		void TakeDamage( float damage );
 };
 
 #endif

@@ -43,16 +43,24 @@ VS_Out VS_main( uint index : SV_VertexID )
 
 //Pixel
 
+struct PointLight
+{
+	float4 position;
+	float4 colorAndRadius;
+};
+
 cbuffer CbufferPerFrame	: register( b0 )
 {
-	float4x4 viewMatrix;
-	float4x4 projectionMatrix;
-	float4	 cameraPosition;
+	float4x4	viewMatrix;
+	float4x4	projectionMatrix;
+	float4		cameraPosition;
+	int			numPointLights;
 }
 
-Texture2D<float4> albedoSpecBuffer		: register( t0 );
-Texture2D<float4> normalBuffer			: register( t1 );
-Texture2D<float4> worldPositionBuffer	: register( t2 );
+Texture2D<float4>				albedoSpecBuffer		: register( t0 );
+Texture2D<float4>				normalBuffer			: register( t1 );
+Texture2D<float4>				worldPositionBuffer		: register( t2 );
+StructuredBuffer<PointLight>	lightStructure			: register( t5 );
 
 SamplerState pointSampler			: register( s0 );
 SamplerState linearSampler			: register( s1 );
@@ -82,7 +90,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 			float l		= length( dif ) * 2.0f;
 			dif			= normalize( dif );
 		
-			ssao +=	max( 0.0f, dot( normalSample, dif ) - 0.01f ) * 1.0f / ( 1.0f + l ) * 10.0f;
+			ssao +=	max( 0.0f, dot( normalSample, dif ) - 0.01f ) * 1.0f / ( 1.0f + l ) * 5.0f;
 		}
 	}
 
@@ -92,7 +100,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	float3 ambient		= float3( 0.2f, 0.2f,  0.2f );
 	float3 diffuse		= float3( 0.0f, 0.0f,  0.0f );
 	float3 specular		= float3( 0.1f, 0.1f,  0.1f );
-	float3 color		= float3( 0.75f, 0.8f,  0.8f );
+	float3 color		= float3( 0.1f, 0.1f,  0.1f );
 
 	float3 lightDirection	= float3( -0.5f, -1.0f, 0.3f );
 
@@ -107,7 +115,32 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	float specularPower		= 4.0f;
 	specular				= float3( float3( 1.0f, 1.0f, 1.0f ) * pow( specularFactor, specularPower ) ) * specularSample;
 
-	float3 finalColor		= float3( ( ambient * ssao + diffuse + specular ) * color );
+	float3 finalColor		= ( ambient * ssao + diffuse + specular ) * color;
+
+
+	//-------------------------------------------------------------------------------------------------
+	//	POINT LIGHT FUCK YOU MAX
+	//-------------------------------------------------------------------------------------------------
+
+	for( int i = 0; i < numPointLights; i++ )
+	{
+		float3 lightDir = worldSample - lightStructure[i].position.xyz;
+		float d = length( lightDir );
+		lightDir /= d;
+		
+		float3 N = normalSample;
+		float3 V = cameraPosition.xyz;
+		float3 R = reflect( lightDir, N );
+
+		float diff	= saturate( dot( -lightDir, N ) );
+		float3 spec	= float3( float3( 1.0f, 1.0f, 1.0f ) * pow( dot( R, V ), specularPower ) ) * specularSample;
+
+		float radiusInverse = 1.0f / lightStructure[i].colorAndRadius.w;
+		finalColor += ( ambient * ssao + diffuse + specular ) * lightStructure[i].colorAndRadius.xyz 
+						/ ( d * ( 0.01f * radiusInverse ) + d * d * ( 0.05f * radiusInverse ) );
+	}
+
+	saturate( finalColor );
 
 	//return float4( ambient * ssao, 1.0f );
 	//return float4( specular, 1.0f );

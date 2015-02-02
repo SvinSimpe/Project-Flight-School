@@ -3,6 +3,17 @@
 ///////////////////////////////////////////////////////////////////////////////
 //									PRIVATE
 ///////////////////////////////////////////////////////////////////////////////
+void Server::EventListener( IEventPtr newEvent )
+{
+	if ( newEvent->GetEventType() == Event_Game_Started::GUID )
+	{
+		mInGame		= true;
+	}
+	else if ( newEvent->GetEventType() == Event_Game_Ended::GUID )
+	{
+		mInGame		= false;
+	}
+}
 
 bool Server::AcceptConnection()
 {
@@ -14,25 +25,13 @@ bool Server::AcceptConnection()
 	}
 	else
 	{
-		EvPlayerID toJoining;
-		for ( auto& socket : mClientSockets )
-		{
-			if(socket != INVALID_SOCKET)
-			{
-				toJoining.ID = (unsigned int)socket;
-				mConn->SendPkg( s, 0, Net_Event::EV_PLAYER_JOINED, toJoining ); // Sends the ID of the already existing clients to the joining client
-				Sleep(10);
-			}
-		}
-		Sleep(10);
-
-		int flag	= 1;
-        mResult		= setsockopt( s,            /* socket affected */
-                                IPPROTO_TCP,     /* set option at TCP level */
-                                TCP_NODELAY,     /* name of option */
-                                (char*) &flag,  /* the cast is historical cruft */
-                                sizeof(int) );    /* length of option value */
-		if(mResult != 0)
+		int flag = 1;
+		mResult = setsockopt( s,            /* socket affected */
+			IPPROTO_TCP,     /* set option at TCP level */
+			TCP_NODELAY,     /* name of option */
+			(char*)&flag,  /* the cast is historical cruft */
+			sizeof(int)) ;    /* length of option value */
+		if ( mResult != 0 )
 		{
 			printf( "setsockopt failed with error: %d\n", WSAGetLastError() );
 			shutdown( s, SD_SEND );
@@ -41,10 +40,27 @@ bool Server::AcceptConnection()
 			return false;
 		}
 
-		mClientSockets.push_back( s );
-		EvPlayerID msg;
-		msg.ID = (unsigned int)s;
-		mConn->SendPkg( s, -1, Net_Event::YOUR_ID, s );
+		Clientinfo newClient	= { s, mNextTeamDelegation };
+		mNextTeamDelegation		= ( mNrOfTeams - 1 ) - ( mNextTeamDelegation / ( mNrOfTeams - 1 ) );
+
+		EvInitialize toJoining;
+		for ( auto& socket : mClientSockets )
+		{
+			if( socket.s != INVALID_SOCKET )
+			{
+				toJoining.ID	= socket.s;
+				toJoining.team	= socket.team;
+				mConn->SendPkg( s, 0, Net_Event::EV_PLAYER_JOINED, toJoining ); // Sends the ID of the already existing clients to the joining client
+				Sleep( 10 );
+			}
+		}
+		Sleep( 10 );
+
+		mClientSockets.push_back( newClient );
+		EvInitialize msg;
+		msg.ID		= (unsigned int)s;
+		msg.team	= newClient.team;
+		mConn->SendPkg( s, -1, Net_Event::YOUR_ID, msg );
 	}
 	printf( "%d connected.\n", s );
 
@@ -54,17 +70,17 @@ bool Server::AcceptConnection()
 bool Server::ReceiveLoop( int index )
 {
 	Package<void*>* p = new Package<void*>[DEFAULT_BUFLEN];
-	while ( mClientSockets.at(index) != INVALID_SOCKET )
+	while ( mClientSockets.at(index).s != INVALID_SOCKET )
 	{
-		SOCKET savedSocket = mClientSockets.at(index); // Used in case of disconnect
-		if ( mConn->ReceivePkg( mClientSockets.at(index), *p ) )
+		SOCKET savedSocket = mClientSockets.at(index).s; // Used in case of disconnect
+		if ( mConn->ReceivePkg( mClientSockets.at(index).s, *p ) )
 		{
 			if ( p->head.eventType != Net_Event::ERROR_EVENT )
 			{
-				HandlePkg( mClientSockets.at(index), p );
+				HandlePkg( mClientSockets.at(index).s, p );
 			}
 		}
-		if( mClientSockets.at(index) == INVALID_SOCKET )
+		if( mClientSockets.at(index).s == INVALID_SOCKET )
 		{
 			DisconnectClient( savedSocket );
 		}
@@ -83,13 +99,54 @@ void Server::DisconnectClient( SOCKET s )
 	msg.ID = s;
 	for( auto& to : mClientSockets )
 	{
-		mConn->SendPkg( to, 0, Net_Event::EV_PLAYER_LEFT, msg );
+		mConn->SendPkg( to.s, 0, Net_Event::EV_PLAYER_LEFT, msg );
 	}
+}
+
+XMFLOAT3 Server::SpawnEnemy()
+{
+	return mSpawners[mNrOfEnemiesSpawned++ % MAX_NR_OF_ENEMY_SPAWNERS]->GetSpawnPosition();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
+
+HRESULT Server::Update( float deltaTime )
+{
+	if( mInGame && mFrameCount++ > 2 )
+	{
+		EvUpdateEnemyPosition enemy;
+		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+		{
+			if( mEnemies[i]->IsAlive() )
+			{
+				mEnemies[i]->Update( deltaTime );
+
+				enemy.ID			= mEnemies[i]->GetID();
+				enemy.position		= mEnemies[i]->GetPosition();
+
+				for ( auto& socket : mClientSockets )
+				{
+					if ( socket.s != INVALID_SOCKET && mEnemyListSynced )
+					{
+						mConn->SendPkg( socket.s, 0, Net_Event::EV_ENEMY_UPDATE_POSITION, enemy ); // Update all enemy positions to all players
+						//Sleep( 1 );
+					}
+				}
+			}
+			else
+			{
+				mEnemies[i]->Spawn( SpawnEnemy() );
+			}
+		}
+		mFrameCount = 0;
+	}
+
+	//mFrameCount++;
+
+	return S_OK;
+}
 
 bool Server::Connect()
 {
@@ -143,8 +200,11 @@ bool Server::Run()
 	return true;
 }
 
-bool Server::Initialize( const char* port )
+bool Server::Initialize( std::string port )
 {
+	mNextTeamDelegation = 0;
+	mNrOfTeams			= 2;
+
 	WSADATA WSAData = WSADATA();
 	mResult			= WSAStartup( MAKEWORD( 2, 2 ), &WSAData );
 	if ( mResult != 0 )
@@ -160,7 +220,7 @@ bool Server::Initialize( const char* port )
 	hints.ai_protocol	= 0;
 	hints.ai_flags		= AI_PASSIVE;
 
-	mResult				= getaddrinfo( nullptr, port, &hints, &mAddrResult );
+	mResult				= getaddrinfo( nullptr, port.c_str(), &hints, &mAddrResult );
 	if ( mResult != 0 )
 	{
 		printf( "getaddrinfo failed with error: %d\n", mResult );
@@ -171,6 +231,44 @@ bool Server::Initialize( const char* port )
 	mConn = new Connection();
 	mConn->Initialize();
 
+	// Enemies & Spawners
+	srand( time( NULL ) );
+	mSpawners	= new EnemySpawn*[MAX_NR_OF_ENEMY_SPAWNERS];
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+	{
+		// Map size values
+		int negX, negY, posX, posY;
+		negX = rand() % 50;
+		negY = rand() % 50;
+		posX = rand() % 50;
+		posY = rand() % 50;
+		mSpawners[i] = new EnemySpawn();
+		mSpawners[i]->Initilaize( i );
+		mSpawners[i]->SetPosition( XMFLOAT3( (float)(posX - negX), 0.0f, (float)(negY - posY) ) );
+	}
+
+	mEnemies	= new Enemy*[MAX_NR_OF_ENEMIES];
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	{
+		mEnemies[i] = new Enemy();
+		mEnemies[i]->Initialize( i );
+		mEnemies[i]->Spawn( SpawnEnemy() );
+		
+		//mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_UPDATE, msg );
+
+		//IEventPtr E1( new Event_Enemy_Created( mEnemies[i]->GetID(), mEnemies[i]->GetPosition(), MAX_NR_OF_ENEMIES) );
+		//EventManager::GetInstance()->QueueEvent( E1 );
+	}
+
+	mEnemyListSynced	= false;
+
+	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Game_Started::GUID );
+	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Game_Ended::GUID );
+
+
+	IEventPtr E1( new Event_Server_Initialized() );
+	EventManager::GetInstance()->QueueEvent( E1 );
+
 	return true;
 }
 
@@ -178,7 +276,7 @@ void Server::Release()
 {
 	for( auto& s : mClientSockets )
 	{
-		mConn->DisconnectSocket( s ); 
+		mConn->DisconnectSocket( s.s ); 
 	}
 	for ( auto& t : mListenThreads )
 	{
@@ -193,6 +291,17 @@ void Server::Release()
 	mConn->Release();
 	if( mConn )
 		delete mConn;
+
+	// Enemies
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+		SAFE_DELETE( mEnemies[i] );
+
+	delete [] mEnemies;
+
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+		SAFE_DELETE( mSpawners[i] );
+
+	delete [] mSpawners;
 }
 
 Server::Server()
@@ -200,9 +309,19 @@ Server::Server()
 	mResult			= 0;
 	mAddrResult		= nullptr;
 	mListenSocket	= INVALID_SOCKET;
-	mClientSockets	= std::vector<SOCKET>( 0 );
+	mClientSockets	= std::vector<Clientinfo>( 0 );
 	mConn			= nullptr;
 	mListenThreads	= std::vector<std::thread>( 0 );
+	mNrOfProjectilesFired	= 1;
+	
+	// Enemies
+	mInGame				= false;
+	mEnemies			= nullptr;
+	mSpawners			= nullptr;
+	mNrOfEnemiesSpawned	= 0;
+	mFrameCount			= 0;
+
+	mEnemyListSynced	= false;
 }
 
 Server::~Server()

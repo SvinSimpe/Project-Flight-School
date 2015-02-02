@@ -5,13 +5,22 @@
 #include "BaseState.h"
 #include "Player.h"
 #include "RemotePlayer.h"
+#include "MapNodeManager.h"
 #include "Font.h"
+#include "Enemy.h"
+#include "Ship.h"
+#include "Image.h"
+#include "EnemySpawn.h"
+#include "RemoteEnemy.h"
+#include "Radar.h"
+//Test
+#include "ParticleManager.h"
+#include "SoundBufferHandler.h"
 
 
-#define MAX_REMOTE_PLAYERS		10
-#define MAX_PROJECTILES			30	
+#define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
-
+#define MAX_PROJECTILES			1000
 
 class PlayState : public BaseState
 {
@@ -19,57 +28,72 @@ class PlayState : public BaseState
 	private:
 		AssetID mPlaneAsset;
 
-		AssetID	mTestAsset;
+		AnimationTrack mTestAnimation;
 
-		AssetID	mTestAnimation;
-		AssetID	mTestAnimationAnimation;
-
-		AssetID mTestRobot;
-		AssetID mTestRobotAni;
-
-		float mRobotTime;
-
-		AssetID mNest1Asset;
-		AssetID mStoneAssets[6];
-		AssetID mTree1Asset;
 		AssetID mTest2dAsset;
+		AssetID mTeams[2];
+		AssetID	mColorIDs[MAX_REMOTE_PLAYERS];
 
 		Map*		mWorldMap;
-
-		float	mAnimationTime;
-
-	// Debug
-		Player*						mPlayer;
-		std::vector<RemotePlayer*>	mRemotePlayers;
-
-	// Game Data
-		Projectile**				mProjectiles;				// A collection of the games projectiles
-		int							mNrOfProjectilesFired;
+		MapNodeManager* mMapNodeMan;
 
 		//Collision
 		unsigned int	mFrameCounter;
 
-		Font			mFont;
+		//TEST
+		std::vector<RemotePlayer*> mAllPlayers;
+
+		Ship						mShip;
+
+		//Game Data
+		Player*						mPlayer;
+		std::vector<RemotePlayer*>	mRemotePlayers;
+		Projectile**				mProjectiles;				// A collection of the games projectiles
+		int							mNrOfProjectilesFired;
+		int							mCurrentColor;
+		Font						mFont;
+		RemoteEnemy**				mEnemies;
+		XMFLOAT3*					mSpawners;
+		AssetID						mSpawnModel;
+		unsigned int				mNrOfEnemies;
+		unsigned int				mMaxNrOfEnemies;
+		bool						mEnemyListSynced;
+		bool						mServerInitialized;
+
+		ParticleManager*			mParticleManager;
+
+		Radar*						mRadar;
+		RADAR_UPDATE_INFO			mRadarObjects[MAX_RADAR_OBJECTS];
+
+		//TestSound
+		int							m3DSoundAsset;
+		int							mSoundAsset;
 	
 	protected:
 	public:
 
 	// Class functions
 	private:
+		void			SyncEnemy( unsigned int id, unsigned int model, unsigned int animation, XMFLOAT3 position, XMFLOAT3 direction );
+		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position );
+		void			SyncSpawn( unsigned int id, XMFLOAT3 position );
 		void			RemoteUpdate( IEventPtr newEvent );
 		void			HandleDeveloperCameraInput();
-		void			CheckCollision();
+		void			CheckPlayerCollision();
+		void			CheckProjectileCollision();
+		void			CheckMeeleCollision();
 		void			EventListener( IEventPtr newEvent );
-		void			BroadcastDamage();						// Tell server that local  player has taken damage
+		void			BroadcastDamage( unsigned int playerID, unsigned int projectileID );						// Tell server that local  player has taken damage
+		void			BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction );
 
-		void			FireProjectile( XMFLOAT3 position, XMFLOAT3 direction );
+		void			FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction );
 		void			UpdateProjectiles( float deltaTime );
 		void			RenderProjectiles();
+		void			HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID );
+		void			HandleRemoteMeleeHit( unsigned int id, float damage, float knockBack, XMFLOAT3 direction );
 
 	protected:
 	public:
-		
-
 		virtual HRESULT Update( float deltaTime );
 		virtual HRESULT Render();
 		virtual void	OnEnter();

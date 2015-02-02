@@ -38,6 +38,7 @@
 *.cso
 *.orig
 *.pch
+*.jocke
 
 #Dir
 #Bin/Content/

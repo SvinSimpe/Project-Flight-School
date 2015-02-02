@@ -2,67 +2,23 @@
 #include <Graphics.h>
 
 #pragma region Private functions
+void RenderManager::SetLightStructuredBuffer()
+{
+	Graphics::GetInstance()->MapLightStructuredBuffer( mLightManager->GetLightStructure(), mLightManager->GetNumActivePointLights() );
+}
+
 void RenderManager::Clear()
 {
-	//Object3d
-	Object3dInfo clearObject3d;
-	clearObject3d.mAssetId = (UINT)-1;
-	DirectX::XMStoreFloat4x4( &clearObject3d.mWorld, DirectX::XMMatrixIdentity() );
-
-	for( UINT i = 0; i < mNrOfObject3d; i++ )
-	{
-		mObject3dArray[i] = clearObject3d;
-	}
-
 	mNrOfObject3d = 0;
-	//------------------------------
-
-	//Object2d
-	Object2dInfo clearObject2d;
-	clearObject2d.mAssetId			= (UINT)-1;
-	clearObject2d.mTopLeftCorner	= DirectX::XMFLOAT2( 0.0f, 0.0f );
-	clearObject2d.mWidthHeight		= DirectX::XMFLOAT2( 0.0f, 0.0f );
-
-	for( UINT i = 0; i < mNrOfObject2d; i++ )
-	{
-		mObject2dArray[i] = clearObject2d;
-	}
-
 	mNrOfObject2d = 0;
-	//------------------------------
-
-	//Anim3d
-	Anim3dInfo clearAnim3d;
-	clearAnim3d.mModelId	= (UINT)-1;
-	clearAnim3d.mAnimId		= (UINT)-1;
-	clearAnim3d.mAnimTime	= 0;
-
-	for( UINT i = 0; i < mNrOfAnim3d; i++ )
-	{
-		mAnim3dArray[i] = clearAnim3d;
-	}
-	
 	mNrOfAnim3d = 0;
-	//------------------------------
-
-	//Plane
-	PlaneInfo clearPlane;
-	clearPlane.mAssetId			= (UINT)-1;
-	clearPlane.mTopTriangle		= DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	clearPlane.mBottomTriangle	= DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
-
-	for( UINT i = 0; i < mNrOfPlane; i++ )
-	{
-		mPlaneArray[i] = clearPlane;
-	}
-	
 	mNrOfPlane = 0;
-	//------------------------------
+	mNrOfBillboard = 0;
+	mNrOfBoxes = 0;
 }
 
 RenderManager::RenderManager()
 {
-	
 }
 
 RenderManager::~RenderManager()
@@ -77,12 +33,20 @@ void RenderManager::AddObject3dToList( AssetID assetId, DirectX::XMFLOAT3 positi
 {
 	Object3dInfo info;
 	info.mAssetId = assetId;
-	DirectX::XMStoreFloat4x4( &info.mWorld, ( DirectX::XMMatrixRotationRollPitchYaw( rotation.x, rotation.y, rotation.z ) *										
-											  DirectX::XMMatrixTranslation( position.x, position.y, position.z ) ) );
+	DirectX::XMStoreFloat4x4( &info.mWorld, ( DirectX::XMMatrixTranspose( DirectX::XMMatrixRotationRollPitchYaw( rotation.x, rotation.y, rotation.z ) *										
+											  DirectX::XMMatrixTranslation( position.x, position.y, position.z ) ) ) );
 	
 	mObject3dArray[mNrOfObject3d++] = info;
 }
+void RenderManager::AddObject3dToList( AssetID assetId, DirectX::XMFLOAT4X4 world )
+{
+	Object3dInfo info;
+	info.mAssetId = assetId;
 
+	DirectX::XMStoreFloat4x4( &info.mWorld, DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( &world ) ) );
+
+	mObject3dArray[mNrOfObject3d++] = info;
+}
 void RenderManager::AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLeftCorner, DirectX::XMFLOAT2 widthHeight )
 {
 	Object2dInfo info;
@@ -92,15 +56,23 @@ void RenderManager::AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLef
 
 	mObject2dArray[mNrOfObject2d++] = info;
 }
-
-void RenderManager::AddAnim3dToList( AssetID modelAssetId, AssetID animationAssetId, float* animationTime )
+void RenderManager::AddBoxToList( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 {
-	Anim3dInfo info;
-	info.mModelId	= modelAssetId;
-	info.mAnimId	= animationAssetId;
-	info.mAnimTime	= animationTime;
+	BoxInfo info;
+	info.min = min;
+	info.max = max;
+	mBoxArray[mNrOfBoxes++] = info;
+}
+bool RenderManager::AddAnim3dToList( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation )
+{
+    static Anim3dInfo info;
+	info.mModelId = animTrack.mModelID;
+
+	bool localReturn = Graphics::GetInstance()->GetAnimationMatrices( animTrack, playType, position, rotation, info ); 
 
 	mAnim3dArray[mNrOfAnim3d++] = info;
+
+	return localReturn;
 }
 
 void RenderManager::AddPlaneToList( AssetID assetId, DirectX::XMFLOAT3 topTriangle, DirectX::XMFLOAT3 bottomTriangle )
@@ -113,6 +85,49 @@ void RenderManager::AddPlaneToList( AssetID assetId, DirectX::XMFLOAT3 topTriang
 	mPlaneArray[mNrOfPlane++] = info;
 }
 
+void RenderManager::AddBillboardToList( AssetID assetId, DirectX::XMFLOAT3 worldPosition, float width, float height )
+{
+	BillboardInfo info;
+	info.mAssetId		= assetId;
+	info.mWorldPosition	= worldPosition;
+	info.mWidth			= width;
+	info.mHeight		= height;
+
+	mBillboardArray[mNrOfBillboard++] = info;
+}
+
+void RenderManager::AnimationInitialize( AnimationTrack &animationTrack, AssetID model, AssetID defaultAnimation )
+{
+	animationTrack.mModelID					= model;
+	animationTrack.mCurrentAnimation		= defaultAnimation;
+	animationTrack.mCurrentAnimationTime	= 1.0f / 60.0f;
+	animationTrack.mNextAnimation			= defaultAnimation;
+	animationTrack.mNextAnimationTime		= 1.0f / 60.0f;
+	animationTrack.mInterpolation			= 0.0f;
+}
+
+void RenderManager::AnimationUpdate( AnimationTrack &animationTrack, float deltaTime )
+{
+	animationTrack.mCurrentAnimationTime += deltaTime;
+	if( animationTrack.mInterpolation > 0.0f )
+	{
+		animationTrack.mNextAnimationTime	+= deltaTime;
+		animationTrack.mInterpolation		-= deltaTime;
+		if( animationTrack.mInterpolation <= 0.0f )
+		{
+			animationTrack.mCurrentAnimation		= animationTrack.mNextAnimation;
+			animationTrack.mCurrentAnimationTime	= animationTrack.mNextAnimationTime;
+		}
+	}
+}
+
+void RenderManager::AnimationStartNew( AnimationTrack &animationTrack, AssetID newAnimation )
+{
+	animationTrack.mNextAnimation		= newAnimation;
+	animationTrack.mNextAnimationTime	= 1.0f / 60.0f;
+	animationTrack.mInterpolation		= 0.2f;
+}
+
 HRESULT RenderManager::Update( float deltaTime )
 {
 	Clear();
@@ -122,25 +137,65 @@ HRESULT RenderManager::Update( float deltaTime )
 
 HRESULT RenderManager::Render()
 {
-	for( UINT i = 0; i < mNrOfObject3d; i++ )
-	{
-		Graphics::GetInstance()->RenderStatic3dAsset( mObject3dArray[i].mAssetId, &mObject3dArray[i].mWorld );
-	}
+	
+	//Reset the scene to default values
+	Graphics::GetInstance()->BeginScene();
 
-	for( UINT i = 0; i < mNrOfAnim3d; i++ )
-	{
-		Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray[i].mModelId, mAnim3dArray[i].mAnimId, *mAnim3dArray[i].mAnimTime );
-	}
+	//Prepare the scene to be rendered with Gbuffers
+	Graphics::GetInstance()->GbufferPass();
+	SetLightStructuredBuffer();
 
-	for( UINT i = 0; i < mNrOfObject2d; i++ )
-	{
-		Graphics::GetInstance()->Render2dAsset( mObject2dArray[i].mAssetId, mObject2dArray[i].mTopLeftCorner.x, mObject2dArray[i].mTopLeftCorner.y, mObject2dArray[i].mWidthHeight.x, mObject2dArray[i].mWidthHeight.y );
-	}
+	//------------------------Fill the Gbuffers with data----------------------
+	Graphics::GetInstance()->RenderStatic3dAsset( mObject3dArray, mNrOfObject3d );
 
 	for( UINT i = 0; i < mNrOfPlane; i++ )
 	{
 		Graphics::GetInstance()->RenderPlane2dAsset( mPlaneArray[i].mAssetId, mPlaneArray[i].mTopTriangle, mPlaneArray[i].mBottomTriangle );
 	}
+	for( UINT i = 0; i < mNrOfBoxes; i++ )
+	{
+		Graphics::GetInstance()->RenderDebugBox( mBoxArray[i].min, mBoxArray[i].max );
+	}
+	Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray, mNrOfAnim3d );
+	//------------------------Finished filling the Gbuffers----------------------
+
+	//Test data for billboarding
+	mBillboardArray[0].mWorldPosition = DirectX::XMFLOAT3( 0, 0, 0 );
+	mBillboardArray[0].mAssetId = DIFFUSE_PLACEHOLDER;
+	mBillboardArray[0].mWidth = 2.3f;
+	mBillboardArray[0].mHeight = 1.3f;
+	//mBillboardArray[1].mWorldPosition = DirectX::XMFLOAT3( 3, 1, 6 );
+	//mBillboardArray[1].mAssetId = DIFFUSE_PLACEHOLDER;
+	//mBillboardArray[2].mWorldPosition = DirectX::XMFLOAT3( -2, 1, -4 );
+	//mBillboardArray[2].mAssetId = DIFFUSE_PLACEHOLDER;
+	//mBillboardArray[3].mWorldPosition = DirectX::XMFLOAT3( 7, 1, 0 );
+	//mBillboardArray[3].mAssetId = DIFFUSE_PLACEHOLDER;
+	//mBillboardArray[4].mWorldPosition = DirectX::XMFLOAT3( 0, 1, 0 );
+	//mBillboardArray[4].mAssetId = DIFFUSE_PLACEHOLDER;
+	//mBillboardArray[5].mWorldPosition = DirectX::XMFLOAT3( -6, 1, 0 );
+	//mBillboardArray[5].mAssetId = DIFFUSE_PLACEHOLDER;
+
+	//for( int i = 1; i < 6; i++)
+	//{
+	//	mBillboardArray[i].mHeight = 1.0f;
+	//	mBillboardArray[i].mWidth	= 1.0f;
+	//}
+	//---------------------------------------------------
+	Graphics::GetInstance()->RenderBillboard( mBillboardArray, 1 );
+
+	//Render the scene with deferred
+	Graphics::GetInstance()->DeferredPass();
+
+	//Prepare the scene to render Screen space located assets
+	Graphics::GetInstance()->ScreenSpacePass();
+
+	//Render screen space located assets
+	for( UINT i = 0; i < mNrOfObject2d; i++ )
+	{
+		Graphics::GetInstance()->Render2dAsset( mObject2dArray[i].mAssetId, mObject2dArray[i].mTopLeftCorner.x, mObject2dArray[i].mTopLeftCorner.y, mObject2dArray[i].mWidthHeight.x, mObject2dArray[i].mWidthHeight.y );
+	}
+	//Present the scene onto the screen
+	Graphics::GetInstance()->EndScene();
 
 	return S_OK;
 }
@@ -148,13 +203,14 @@ HRESULT RenderManager::Render()
 HRESULT RenderManager::Initialize()
 {
 	Clear();
-
+	mLightManager = new LightManager;
+	mLightManager->Initialize();
 	return S_OK;
 }
 
 void RenderManager::Release()
 {
-
+	SAFE_RELEASE_DELETE( mLightManager );
 }
 
 RenderManager* RenderManager::GetInstance()

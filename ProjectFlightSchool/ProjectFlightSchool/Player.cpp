@@ -2,24 +2,28 @@
 
 void Player::HandleInput( float deltaTime )
 {
-	mLowerBody.direction = XMFLOAT3( 0.0f, 0.0f, 0.0f );
-
+	mAcceleration = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_W) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_S) )
-		Move( XMFLOAT3( 0.0f, 0.0f, 1.0f ) );
+		mAcceleration.z = mMaxAcceleration;
 	
 	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_A) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_D) )
-		Move( XMFLOAT3( -1.0f, 0.0f, 0.0f ) );
+		mAcceleration.x = -mMaxAcceleration;
 
 	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_S) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_W) )
-		Move( XMFLOAT3( 0.0f, 0.0f, -1.0f ) );
+		mAcceleration.z = -mMaxAcceleration;
 	
 	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_D) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_A) )
-		Move( XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
+		mAcceleration.x = mMaxAcceleration;
 
 
-
-	
-
+	//Normalize acceleration 
+	XMVECTOR normalizer = XMVector3Length( XMLoadFloat3( &mAcceleration ) );
+	if( XMVectorGetX( normalizer ) > mMaxAcceleration )
+	{
+		normalizer	 = XMVector3Normalize( XMLoadFloat3( &mAcceleration ) );
+		normalizer	*= mMaxAcceleration;
+		XMStoreFloat3( &mAcceleration, normalizer );
+	}
 
 	//== Calculate upper body rotation ==
 	XMVECTOR rayOrigin	= XMVECTOR( Input::GetInstance()->mCurrentNDCMousePos );
@@ -41,8 +45,6 @@ void Player::HandleInput( float deltaTime )
 	XMVECTOR rayDirInWorld	= XMVector3TransformCoord( rayDir, combinedInverse );
 	rayDirInWorld			= XMVector3Normalize( rayDirInWorld - rayPosInWorld );
 
-
-
 	float t					= 0.0f;
 	XMVECTOR planeNormal	= XMVectorSet( 0.0f, 1.0f, 0.0f, 0.0f );
 	XMVECTOR result			= -( XMVector3Dot( rayPosInWorld, planeNormal ) ) / ( XMVector3Dot( rayDirInWorld, planeNormal ) );
@@ -50,71 +52,63 @@ void Player::HandleInput( float deltaTime )
 	XMVECTOR intersection	= XMVectorAdd( rayPosInWorld, rayDirInWorld * t );
 
 
-	XMVECTOR playerToCursor = XMVectorSubtract( intersection, XMLoadFloat3( &mUpperBody.position ) );
+	XMVECTOR playerToCursor = XMVectorSubtract( intersection, XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, 1.0f, mLowerBody.position.z ) ) );
 	XMStoreFloat3( &unPack, playerToCursor );
-	playerToCursor = XMVectorSet( unPack.x, 0.0f, unPack.z, 0.0f );
+	playerToCursor = XMVector3Normalize( XMVectorSet( unPack.x, 0.0f, unPack.z, 0.0f ) );
+	XMStoreFloat3( &mUpperBody.direction, playerToCursor );
 
-
-	playerToCursor	= XMVector3Normalize( playerToCursor );
-	float radians	= atan2f( XMVectorGetZ( playerToCursor ), XMVectorGetX( playerToCursor ) );
-
-
- 	mUpperBody.direction.x = 0.0f;
-	mUpperBody.direction.y = -radians;
-	mUpperBody.direction.z = 0.0f;
-
-	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_SPACE) && mWeaponCoolDown <= 0.0f )
+	//== Weapon handling ==
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_MOUSE_LEFT) && mWeaponCoolDown <= 0.0f )
 	{
 		Fire();
 		mWeaponCoolDown = 0.1f;
+		
+		RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] );
+		mRightArmAnimationCompleted		= false;
+
+		IEventPtr E1( new Event_Player_Attack( RIGHT_ARM_ID, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 	else
 		mWeaponCoolDown -= deltaTime;
 
-	IEventPtr E1( new Event_Player_Moved( mLowerBody.position, mUpperBody.position, mUpperBody.direction ) );
-	EventManager::GetInstance()->QueueEvent( E1 );
-}
-
-void Player::Move( XMFLOAT3 direction )
-{
-	mLowerBody.direction.x += direction.x;
-	mLowerBody.direction.z += direction.z;
-	
-	//Normalize direction vector
-	if ( direction.x < 0.00001f && direction.z < 0.00001f )
+	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_MOUSE_RIGHT ) && mMeleeCoolDown <= 0.0f )
 	{
-		mLowerBody.direction.x /= pow((pow(mLowerBody.direction.x, 2) + pow(mLowerBody.direction.y, 2) + pow(mLowerBody.direction.z, 2)), 0.5f);
-		mLowerBody.direction.z /= pow((pow(mLowerBody.direction.x, 2) + pow(mLowerBody.direction.y, 2) + pow(mLowerBody.direction.z, 2)), 0.5f);
-	}
-}
+		mIsMeleeing						= true;
+		mMeleeCoolDown					= 2.0f;
+		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
+		mLeftArmAnimationCompleted		= false;
 
-// Set current hp to 0 to avoid negative values and send event that player has died
-void Player::Die()
-{
-	RemotePlayer::Die();
-	IEventPtr dieEv( new Event_Player_Died( mID ) );
-	EventManager::GetInstance()->QueueEvent( dieEv );
-}
-
-void Player::HandleSpawn( float deltaTime )
-{
-	if( mTimeTillSpawn <= 0.0f )
-	{
-		Spawn();
+		IEventPtr E1( new Event_Player_Attack( LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK]) );
+		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 	else
-	{
-		mTimeTillSpawn -= deltaTime;
-	}
+		mMeleeCoolDown -= deltaTime;
 }
 
-void Player::Spawn()
+void Player::Move( float deltaTime )
 {
-	mIsAlive = true;
-	mUpperBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
-	mLowerBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
-	IEventPtr spawnEv( new Event_Player_Spawned( mID ) );
-	EventManager::GetInstance()->QueueEvent( spawnEv );
+	mVelocity.x += mAcceleration.x * deltaTime - mVelocity.x * VELOCITY_FALLOFF * deltaTime;
+	mVelocity.y = 0.0f;
+	mVelocity.z += mAcceleration.z * deltaTime - mVelocity.z * VELOCITY_FALLOFF * deltaTime;
+
+	XMVECTOR normalizer = XMVector3Length( XMLoadFloat3( &mVelocity ) );
+	mCurrentVelocity = XMVectorGetX( normalizer );
+	if(  mCurrentVelocity > mMaxVelocity )
+	{
+		normalizer	 = XMVector3Normalize( XMLoadFloat3( &mVelocity ) );
+		normalizer	*= mMaxVelocity;
+		XMStoreFloat3( &mVelocity, normalizer );
+	}
+
+	mLowerBody.direction.x	= mVelocity.x;
+	mLowerBody.direction.y	= 0.0f;
+	mLowerBody.direction.z	= mVelocity.z;
+	normalizer				= XMVector3Normalize( XMLoadFloat3( &mLowerBody.direction ) );
+	XMStoreFloat3( &mLowerBody.direction, normalizer );
+
+	mLowerBody.position.x += mVelocity.x * deltaTime;
+	mLowerBody.position.z += mVelocity.z * deltaTime;
 }
 
 HRESULT Player::Update( float deltaTime )
@@ -130,91 +124,251 @@ HRESULT Player::Update( float deltaTime )
 		}
 		else
 		{
-			mUpperBody.position.x += mLowerBody.direction.x * mLowerBody.speed * deltaTime;
-			mUpperBody.position.z += mLowerBody.direction.z * mLowerBody.speed * deltaTime;
+			Move( deltaTime );
 
-			mLowerBody.position.x += mLowerBody.direction.x * mLowerBody.speed * deltaTime;
-			mLowerBody.position.z += mLowerBody.direction.z * mLowerBody.speed * deltaTime;
+			// Update Animation
+			if( mCurrentVelocity < 0.2f )
+			{
+				if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE] )
+				{
+					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
+				}
+			}
+			else
+			{
+				if(	mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK] )
+				{
+					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_WALK] );
+				}
+			}
+
+			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, 
+				mLowerBody.playerModel.mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK] ? deltaTime * mCurrentVelocity / 1.1f : deltaTime );
+
+			if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] )
+				RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
+
+			if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] )
+				RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
+
+			RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
+			RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
+
 		}
 	}
 	else
 	{
-		HandleSpawn( deltaTime );
+		RemotePlayer::HandleSpawn( deltaTime );
 	}
-
 
 	///Lock camera position to player
 	XMFLOAT3 cameraPosition;
 	cameraPosition.x = mLowerBody.position.x;
-	cameraPosition.y = mLowerBody.position.y + 25.0f;
-	cameraPosition.z = mLowerBody.position.z - 15.0f;
+	cameraPosition.y = mLowerBody.position.y + 20.0f;
+	cameraPosition.z = mLowerBody.position.z - 12.0f;
 
 	Graphics::GetInstance()->SetEyePosition( cameraPosition );
 	Graphics::GetInstance()->SetFocus( mLowerBody.position );
 
 	//Update Bounding Primitives
-	mBoundingBox->position	= mLowerBody.position;
-	mBoundingCircle->center	= mLowerBody.position;
+	mBoundingBox->position							= mLowerBody.position;
+	mBoundingCircle->center							= mLowerBody.position;
+	mLoadOut->meleeWeapon->boundingCircle->center	= mLowerBody.position;
+
+	//Update Light
+	mPointLight->position = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 10.0f, mLowerBody.position.z, 0.0f );
+
+	//== Event to sync player with server ==
+	mEventCapTimer += deltaTime;
+	if( mEventCapTimer > 0.02f )
+	{
+		IEventPtr E1( new Event_Player_Update( mLowerBody.position, mVelocity, mUpperBody.direction ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
+		mEventCapTimer -= 0.02f;
+	}
 
 	return S_OK;
 }
 
-HRESULT Player::Render( float deltaTime )
+HRESULT Player::Render( float deltaTime, int position )
 {
+	if( !mIsAlive )
+	{
+		
+        std::string textToWrite = "TEN";
+		
+		if( mTimeTillSpawn < 1.0f )
+		{
+			textToWrite = "ONE";
+		}
+		else if( mTimeTillSpawn < 2.0f )
+		{
+			textToWrite = "TWO";
+		}
+		else if( mTimeTillSpawn < 3.0f )
+		{
+			textToWrite = "THREE";
+		}
+		else if( mTimeTillSpawn < 4.0f )
+		{
+			textToWrite = "FOUR";
+		}
+		else if( mTimeTillSpawn < 5.0f )
+		{
+			textToWrite = "FIVE";
+		}
+		else if( mTimeTillSpawn < 6.0f )
+		{
+			textToWrite = "SIX";
+		}
+		else if( mTimeTillSpawn < 7.0f )
+		{
+			textToWrite = "SEVEN";
+		}
+		else if( mTimeTillSpawn < 8.0f )
+		{
+			textToWrite = "EIGHT";
+		}
+		else if( mTimeTillSpawn < 9.0f )
+		{
+			textToWrite = "NINE";
+		}
+		
 
-	RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, mUpperBody.position, mUpperBody.direction );
-	RenderManager::GetInstance()->AddObject3dToList( mLowerBody.playerModel, mLowerBody.position );
 
-	RemotePlayer::Render( deltaTime );
+		mFont.WriteText( textToWrite, 500.0f, 500.0f, 1.0f );
+	}
+
+	RemotePlayer::Render( position );
+
 
 	return S_OK;
 }
 
-void Player::Fire()
+void Player::TakeDamage( float damage, unsigned int shooter )
 {
-	IEventPtr E1( new Event_Projectile_Fired( mID, mUpperBody.position, mUpperBody.direction ) );
-	EventManager::GetInstance()->QueueEvent( E1 );
+	if( mIsBuffed )
+	{
+		float moddedDmg = damage * mBuffMod;
+		damage -= moddedDmg;
+
+	}
+	RemotePlayer::TakeDamage( damage, shooter );
+}
+
+void Player::SetBuffed( bool buffed )
+{
+	mIsBuffed = buffed;
+}
+
+void Player::SetID( unsigned int id )
+{
+	mID = id;
+}
+
+void Player::SetTeam( int team, AssetID teamColor )
+{
+	mTeam		= team;
+	mTeamAsset	= teamColor;
+}
+
+void Player::SetColor( AssetID color )
+{
+	mColorIDAsset = color;
+}
+
+XMFLOAT3 Player::GetPlayerPosition() const
+{
+	return mLowerBody.position;
 }
 
 void Player::SetPosition( XMVECTOR position )
 {
 	XMStoreFloat3( &mLowerBody.position, position );
-	XMStoreFloat3( &mUpperBody.position, position );
+}
+
+XMFLOAT3 Player::GetUpperBodyDirection() const
+{
+	return mUpperBody.direction;
+}
+
+bool Player::GetIsMeleeing() const
+{
+	return mIsMeleeing;
+}
+
+void Player::SetIsMeleeing( bool isMeleeing )
+{
+	mIsMeleeing = isMeleeing;
+}
+
+void Player::Fire()
+{
+	//Hardcoded to match shotgun
+	XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
+	XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
+	XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, 1.0f, mLowerBody.position.z ) );
+	
+	offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * 0.5f;
+	offset += direction * 1.8f;
+
+	XMFLOAT3 loadDir;
+	XMStoreFloat3( &loadDir, offset );
+
+	IEventPtr E1( new Event_Projectile_Fired( mID, XMFLOAT3( loadDir ), mUpperBody.direction ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 HRESULT Player::Initialize()
 {
 	RemotePlayer::Initialize();
-	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Robot/", "robotScenebody.pfs", mUpperBody.playerModel ) ) )
-		OutputDebugString( L"\nERROR\n" );
 
-	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Robot/", "robotScenelegs.pfs", mLowerBody.playerModel ) ) )
-		OutputDebugString( L"\nERROR\n" );
-
-
-	mUpperBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
-	mLowerBody.speed	= 15.0f;
 
-	mWeaponCoolDown		= 0.1f;
+	////////////
+	// Light
+	mPointLight						= new PointLight;
+	mPointLight->position			= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
+	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.4f, 0.4f, 0.4f, 30.0f );
+	IEventPtr reg( new Event_Add_Point_Light( mPointLight ) );
+	EventManager::GetInstance()->QueueEvent( reg );
 
-	mBoundingBox			= new BoundingBox( 1.5f, 1.5f );
-	mBoundingCircle			= new BoundingCircle( 0.5f );
+	mMaxVelocity		= 7.7f;
+	mCurrentVelocity	= 0.0f;
+	mMaxAcceleration	= 20.0f;
+	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mVelocity			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
-	mWeaponCoolDown		= 0.1f;
+	mBuffMod			= 0.5f;
 
 	return S_OK;
 }
 
 void Player::Release()
 {
-
+	RemotePlayer::Release();
+	IEventPtr reg( new Event_Remove_Point_Light( mPointLight ) );
+	EventManager::GetInstance()->QueueEvent( reg );
+	SAFE_DELETE( mPointLight );
 }
 
 Player::Player()
 	:RemotePlayer()
 {
-	mWeaponCoolDown			= 0.0f;
+	mEventCapTimer		= 0.0f;
+
+	mPointLight			= nullptr;
+
+	mWeaponCoolDown		= 0.0f;
+	mMeleeCoolDown		= 0.0f;
+	mIsMeleeing			= false;
+
+	mMaxVelocity		= 0.0f;
+	mCurrentVelocity	= 0.0f;
+	mMaxAcceleration	= 0.0f;
+	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mIsBuffed			= false;
+	mBuffMod			= 0.0f;
 }
 
 Player::~Player()

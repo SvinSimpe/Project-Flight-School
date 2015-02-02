@@ -2,10 +2,10 @@
 
 struct VS_In
 {
-	float3 position : POSITION;
-	float3 normal	: NORMAL;
-	float3 tangent	: TANGENT;
-	float2 uv		: TEX;
+	float3 position			: POSITION;
+	float3 normal			: NORMAL;
+	float3 tangent			: TANGENT;
+	float2 uv				: TEX;
 };
 
 struct VS_Out
@@ -29,6 +29,6 @@ SamplerState linearSampler			: register( s1 );
 
 float4 PS_main(VS_Out input) : SV_TARGET0
 {
-	clip ( diffuseTexture.Sample( linearSampler, input.uv ).w < 0.7f ? -1:1 );
+	clip( diffuseTexture.Sample( linearSampler, input.uv ).w < 0.7f ? -1:1 );
 	return float4( diffuseTexture.Sample( linearSampler, input.uv ).xyz, 1.0f );
 }

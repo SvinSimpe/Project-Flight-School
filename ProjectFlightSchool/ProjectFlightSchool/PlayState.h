@@ -26,8 +26,7 @@ class PlayState : public BaseState
 	private:
 		AssetID mPlaneAsset;
 
-		AssetID	mTestAnimation;
-		AssetID	mTestAnimationAnimation;
+		AnimationTrack mTestAnimation;
 
 		AssetID mTest2dAsset;
 		AssetID mTeams[2];
@@ -35,8 +34,6 @@ class PlayState : public BaseState
 
 		Map*		mWorldMap;
 		MapNodeManager* mMapNodeMan;
-
-		float	mAnimationTime;
 
 		//Collision
 		unsigned int	mFrameCounter;

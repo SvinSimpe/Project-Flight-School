@@ -24,12 +24,12 @@ void RemotePlayer::RemoteUpdate( IEventPtr newEvent )
 		{
 			if( data->ArmID() == LEFT_ARM_ID )
 			{
-				RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mAnimations[data->Animation()] );
+				RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, data->Animation() );
 				mLeftArmAnimationCompleted = false;
 			}
 			else if( data->ArmID() == RIGHT_ARM_ID )
 			{
-				RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mAnimations[data->Animation()] );
+				RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, data->Animation() );
 				mRightArmAnimationCompleted = false;
 			}
 		}

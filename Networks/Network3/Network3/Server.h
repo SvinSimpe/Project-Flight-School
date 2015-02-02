@@ -16,7 +16,7 @@ private:
 protected:
 public:
 	void			ForwardEvent( IEventPtr ePtr );
-	void			Initialize( unsigned int port );
+	bool			Initialize( unsigned int port );
 	void			Release();
 					Server();
 	virtual			~Server();

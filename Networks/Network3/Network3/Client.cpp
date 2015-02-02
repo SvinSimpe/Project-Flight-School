@@ -7,15 +7,18 @@ void Client::InitForwardingEvents()
 	// Code for adding events that should be forwarded to the network by the client here
 }
 
-void Client::Initialize( std::string ip, unsigned int port )
+bool Client::Initialize( std::string ip, unsigned int port )
 {
 	mSocketManager = PFS_NEW ClientSocketManager();
 	mNEF = PFS_NEW NetworkEventForwarder( 0, mSocketManager );
 	if( !mSocketManager->Connect( ip, port ) )
 	{
+		OutputDebugStringA( "Client failed to initialize." );
 		Release();
-		return;
+		return false;
 	}
+	InitForwardingEvents();
+	return true;
 }
 
 void Client::Release()

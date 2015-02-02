@@ -10,12 +10,14 @@ int main()
 	// 143, 145, 146
 	//_CrtSetBreakAlloc(143); // Break at specific memory allocation point
 #endif
+	REGISTER_EVENT( Event_Client );
+	REGISTER_EVENT( Event_Text );
 
 	std::string answer = "";
 	std::cout << "Would you like to start a (S)erver or a (C)lient? ";
 	std::getline( std::cin, answer );
 
-	std::string ip	= "localhost";
+	std::string ip	= "127.0.0.1";
 	UINT port		= 27015;
 
 	bool serverOn = false;
@@ -24,7 +26,8 @@ int main()
 	if( answer == "S" || answer == "s" )
 	{
 		server = new Server();
-		server->Initialize( port );
+		if( !server->Initialize( port ) )
+			OutputDebugStringA( "FUCK!" );
 		std::cout << "Server up and running." << std::endl;
 	}
 
@@ -39,7 +42,8 @@ int main()
 	std:: cout << "Attempting to connect to server with IP: " << ip << std::endl;
 
 	Client* client = new Client();
-	client->Initialize( ip, port );
+	if( !client->Initialize( ip, port ) )
+		OutputDebugStringA( "FUCK!" );
 
 	std::cout << "Client connected to server." << std::endl;
 

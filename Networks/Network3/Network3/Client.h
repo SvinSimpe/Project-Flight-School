@@ -15,7 +15,7 @@ private:
 	void			InitForwardingEvents();
 protected:
 public:
-	void			Initialize( std::string ip, unsigned int port );
+	bool			Initialize( std::string ip, unsigned int port );
 	void			Release();
 					Client();
 	virtual			~Client();

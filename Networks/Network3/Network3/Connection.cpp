@@ -822,7 +822,7 @@ void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 	out << "\r\n";
 
 	std::shared_ptr<BinaryPacket> msg( PFS_NEW BinaryPacket( out.rdbuf()->str().c_str(), (u_long)out.str().size() ) );
-	mSM->Send( mSocketID, msg );
+	gSocketManager->Send( mSocketID, msg );
 }
 
 // End of NetworkEventForwarder functions

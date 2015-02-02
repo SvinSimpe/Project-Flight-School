@@ -35,6 +35,12 @@ enum WEAPON_ANIMATION
 	WEAPON_ANIMATION_COUNT,
 };
 
+struct ServerPlayer
+{
+	unsigned int	ID;
+	XMFLOAT3		Position;
+};
+
 struct UpperBody
 {
 	AssetID		playerModel;

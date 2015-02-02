@@ -53,8 +53,8 @@ struct EvEnemyCreated
 struct EvSyncEnemy
 {
 	unsigned int		ID;
-	unsigned int		model;
-	unsigned int		animation;
+	unsigned int		state;
+	unsigned int		type;
 	float				hp;
 	bool				isAlive;
 	DirectX::XMFLOAT3	position;
@@ -86,6 +86,13 @@ struct EvUpdateEnemyPosition
 {
 	unsigned int		ID;
 	DirectX::XMFLOAT3	position;
+	DirectX::XMFLOAT3	direction;
+};
+
+struct EvSetEnemyState
+{
+	unsigned int	ID;
+	unsigned int	state;
 };
 
 #endif

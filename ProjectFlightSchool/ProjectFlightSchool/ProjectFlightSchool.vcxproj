@@ -89,10 +89,17 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+<<<<<<< HEAD
+
+    <ClCompile Include="EnemyAnimationManager.cpp" />
+
+=======
     <ClCompile Include="Gui.cpp" />
+>>>>>>> ef9e5b7edbd7e7f725b788710a4c2917a4033381
     <ClCompile Include="SoundBufferHandler.cpp" />
     <ClCompile Include="DS3DBuffer.cpp" />
     <ClCompile Include="DSBuffer.cpp" />
+
     <ClCompile Include="EnemySpawn.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="..\Graphics\Font.cpp" />
@@ -170,6 +177,7 @@
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="Radar.h" />
     <ClInclude Include="RemoteEnemy.h" />
+    <ClInclude Include="EnemyAnimationManager.h" />
     <ClInclude Include="RemotePlayer.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="RenderStructs.h" />

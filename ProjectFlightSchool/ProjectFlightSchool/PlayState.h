@@ -12,8 +12,13 @@
 #include "Image.h"
 #include "EnemySpawn.h"
 #include "RemoteEnemy.h"
+<<<<<<< HEAD
+#include "EnemyAnimationManager.h"
+#include "Radar.h"
+=======
 //#include "Radar.h"
 #include "Gui.h"
+>>>>>>> ef9e5b7edbd7e7f725b788710a4c2917a4033381
 //Test
 #include "ParticleManager.h"
 #include "SoundBufferHandler.h"
@@ -21,7 +26,6 @@
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
-#define MAX_PROJECTILES			1000
 
 class PlayState : public BaseState
 {
@@ -53,6 +57,7 @@ class PlayState : public BaseState
 		int							mNrOfProjectilesFired;
 		int							mCurrentColor;
 		Font						mFont;
+		EnemyAnimationManager*		mEnemyAnimationManager;
 		RemoteEnemy**				mEnemies;
 		XMFLOAT3*					mSpawners;
 		AssetID						mSpawnModel;
@@ -76,8 +81,9 @@ class PlayState : public BaseState
 
 	// Class functions
 	private:
-		void			SyncEnemy( unsigned int id, unsigned int model, unsigned int animation, XMFLOAT3 position, XMFLOAT3 direction );
-		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position );
+		void			SetEnemyState( unsigned int id, EnemyState state );
+		void			SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction );
+		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction );
 		void			SyncSpawn( unsigned int id, XMFLOAT3 position );
 		void			RemoteUpdate( IEventPtr newEvent );
 		void			HandleDeveloperCameraInput();

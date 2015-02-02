@@ -8,7 +8,8 @@ HRESULT RemoteEnemy::Update( float deltaTime )
 
 HRESULT RemoteEnemy::Render()
 {
-	RenderManager::GetInstance()->AddAnim3dToList( mAnimationTrack, ANIMATION_PLAY_LOOPED, mPosition );
+	float radians = atan2f( mDirection.z, mDirection.x );
+	RenderManager::GetInstance()->AddAnim3dToList( mAnimationTrack, ANIMATION_PLAY_LOOPED, mPosition, XMFLOAT3( 0.0f, -radians, 0.0f ) );
 	return S_OK;
 }
 

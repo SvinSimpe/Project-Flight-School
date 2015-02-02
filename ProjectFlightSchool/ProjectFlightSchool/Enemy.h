@@ -8,7 +8,7 @@
 #include "RenderManager.h"
 #include "Font.h"
 
-#define MAX_NR_OF_ENEMIES		4
+#define MAX_NR_OF_ENEMIES		1
 
 // ---- Define all enemy animations ----
 // Standard
@@ -35,7 +35,7 @@
 #define ENEMY_ANIMATION_COUNT	16
 //----------------------------------------
 enum EnemyType { Standard, Ranged, Boomer, Tank };
-enum EnemyState { Idle, Run, Attack, Death };
+enum EnemyState { Idle, Run, Attack, Death, MoveToShip, HuntPlayer };
 
 class Enemy
 {
@@ -47,11 +47,13 @@ class Enemy
 		float				mCurrentHp;
 		float				mMaxHp;
 		float				mDamage;
+		float				mSpeed;
 		bool				mIsAlive;
 		XMFLOAT3			mPosition;
 		XMFLOAT3			mDirection;
-		float				mVelocity;
+		XMFLOAT3			mVelocity;
 		BoundingCircle*		mAttackRadius;
+		BoundingCircle*		mAttentionRadius;
 
 	protected:
 	public:
@@ -71,10 +73,12 @@ class Enemy
 	protected:
 	public:
 		HRESULT				Update( float deltaTime );
+		void				SetState( EnemyState state );
+		void				SetHuntedPlayer( XMFLOAT3 player );
 		void				Spawn( XMFLOAT3 spawnPos );
-		BoundingCircle*		GetAttackCircle()	const;
+		BoundingCircle*		GetAttackCircle()	 const;
+		BoundingCircle*		GetAttentionCircle() const;
 		void				Die();
-		void				SetVelocity( float velocity );
 		unsigned int		GetID() const;
 		void				SetID( unsigned int id );
 		EnemyType			GetEnemyType() const;

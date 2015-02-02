@@ -140,7 +140,7 @@ void Client::HandlePkg( Package<T>* p )
 		case Net_Event::EV_ENEMY_UPDATE_POSITION:
 		{
 			EvUpdateEnemyPosition enemy = (EvUpdateEnemyPosition&)p->body.content;
-			IEventPtr E1( new Event_Update_Enemy_Position( enemy.ID, enemy.position ) );
+			IEventPtr E1( new Event_Update_Enemy_Position( enemy.ID, enemy.position, enemy.direction ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
@@ -155,6 +155,13 @@ void Client::HandlePkg( Package<T>* p )
 		{
 			EvPlayerAttack playerAttack = (EvPlayerAttack&)p->body.content;
 			IEventPtr E1( new Event_Remote_Player_Attack( playerAttack.ID, playerAttack.armID, playerAttack.animation ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
+		case Net_Event::EV_SET_ENEMY_STATE:
+		{
+			EvSetEnemyState state = (EvSetEnemyState&)p->body.content;
+			IEventPtr E1( new Event_Set_Remote_Enemy_State( state.ID, state.state ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;

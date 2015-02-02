@@ -86,6 +86,13 @@ struct EvUpdateEnemyPosition
 {
 	unsigned int		ID;
 	DirectX::XMFLOAT3	position;
+	DirectX::XMFLOAT3	direction;
+};
+
+struct EvSetEnemyState
+{
+	unsigned int	ID;
+	unsigned int	state;
 };
 
 #endif

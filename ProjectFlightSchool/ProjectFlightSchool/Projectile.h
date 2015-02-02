@@ -7,6 +7,8 @@
 #include "BoundingGeometry.h"
 #include "RenderManager.h"
 
+#define MAX_PROJECTILES			1000
+
 class Projectile
 {
 	private:

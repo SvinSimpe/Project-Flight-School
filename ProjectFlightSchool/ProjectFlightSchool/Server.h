@@ -8,6 +8,7 @@
 #include <time.h>
 #include "EnemySpawn.h"
 #include "RemotePlayer.h"
+#include "Projectile.h"
 
 struct Clientinfo
 {
@@ -43,6 +44,8 @@ class Server
 
 		ServerPlayer				mPlayers[8];
 		unsigned int				mNrOfPlayers;
+
+		Projectile**				mProjectiles;
 
 	protected:
 	public:

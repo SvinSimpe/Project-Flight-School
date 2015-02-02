@@ -133,7 +133,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if ( newEvent->GetEventType() == Event_Update_Enemy_Position::GUID )
 	{
 		std::shared_ptr<Event_Update_Enemy_Position> data = std::static_pointer_cast<Event_Update_Enemy_Position>( newEvent );
-		UpdateEnemyPosition( data->ID(), data->Position() );
+		UpdateEnemyPosition( data->ID(), data->Position(), data->Direction() );
 	}
 	else if ( newEvent->GetEventType() == Event_Enemy_List_Synced::GUID )
 	{
@@ -148,6 +148,16 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Sync_Spawn> data = std::static_pointer_cast<Event_Sync_Spawn>( newEvent );
 		SyncSpawn( data->ID(), data->Position() );
 	}
+	else if ( newEvent->GetEventType() == Event_Set_Remote_Enemy_State::GUID )
+	{
+		std::shared_ptr<Event_Set_Remote_Enemy_State> data = std::static_pointer_cast<Event_Set_Remote_Enemy_State>( newEvent );
+		SetEnemyState( data->ID(), (EnemyState)data->State() );
+	}
+}
+
+void PlayState::SetEnemyState( unsigned int id, EnemyState state )
+{
+	mEnemies[id]->SetAnimation( mEnemyAnimationManager->GetAnimation( mEnemies[id]->GetEnemyType(), state ) );
 }
 
 void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction )
@@ -165,9 +175,10 @@ void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XM
 		mEnemyListSynced = true;
 }
 
-void PlayState::UpdateEnemyPosition( unsigned int id, XMFLOAT3 position )
+void PlayState::UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction )
 {
 	mEnemies[id]->SetPosition( position );
+	mEnemies[id]->SetDirection( direction );
 }
 
 void PlayState::SyncSpawn( unsigned int id, XMFLOAT3 position )
@@ -565,6 +576,7 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Initialized::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Sync_Spawn::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Update_Enemy_Position::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Set_Remote_Enemy_State::GUID );
 
 	mFont.Initialize( "../Content/Assets/Fonts/final_font/" );
 

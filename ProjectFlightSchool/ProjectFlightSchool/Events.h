@@ -1049,6 +1049,7 @@ class Event_Update_Enemy_Position : public IEvent
 	private:
 		unsigned int	mID;
 		XMFLOAT3		mPosition;
+		XMFLOAT3		mDirection;
 	protected:
 	public:
 		static const EventType GUID;
@@ -1060,10 +1061,11 @@ class Event_Update_Enemy_Position : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Update_Enemy_Position( unsigned int id, XMFLOAT3 position )
+		Event_Update_Enemy_Position( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction )
 		{
-			mID		  = id;
-			mPosition = position;
+			mID			= id;
+			mPosition	= position;
+			mDirection	= direction;
 		}
 
 		unsigned int ID() const
@@ -1074,6 +1076,11 @@ class Event_Update_Enemy_Position : public IEvent
 		XMFLOAT3 Position() const
 		{
 			return mPosition;
+		}
+		
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
 		}
 };
 		
@@ -1158,6 +1165,72 @@ class Event_Sync_Enemy_State : public IEvent
 		}
 	public:
 	Event_Sync_Enemy_State( unsigned int id, unsigned int state )
+		{
+			mID				= id;
+			mState			= state;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+		unsigned int State() const
+		{
+			return mState;
+		}
+};
+
+class Event_Set_Enemy_State : public IEvent // Server side
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		unsigned int	mState;
+
+	protected:
+	public:
+		static const EventType GUID;
+		// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+	Event_Set_Enemy_State( unsigned int id, unsigned int state )
+		{
+			mID				= id;
+			mState			= state;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+		unsigned int State() const
+		{
+			return mState;
+		}
+};
+
+class Event_Set_Remote_Enemy_State : public IEvent // Client side
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		unsigned int	mState;
+
+	protected:
+	public:
+		static const EventType GUID;
+		// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+	Event_Set_Remote_Enemy_State( unsigned int id, unsigned int state )
 		{
 			mID				= id;
 			mState			= state;

@@ -232,7 +232,7 @@ bool Server::Initialize( std::string port )
 	mConn->Initialize();
 
 	// Enemies & Spawners
-	srand( time( NULL ) );
+	srand( (unsigned int)time( NULL ) );
 	mSpawners	= new EnemySpawn*[MAX_NR_OF_ENEMY_SPAWNERS];
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
 	{

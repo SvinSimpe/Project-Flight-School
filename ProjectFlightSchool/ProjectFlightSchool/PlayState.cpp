@@ -446,7 +446,7 @@ HRESULT PlayState::Update( float deltaTime )
 
 HRESULT PlayState::Render()
 {
-	RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
+	//RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 
 	RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation, ANIMATION_PLAY_LOOPED, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 

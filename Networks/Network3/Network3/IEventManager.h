@@ -52,21 +52,6 @@ typedef unsigned long EventType;
 typedef std::shared_ptr<IEvent> IEventPtr;
 typedef std::function<void( IEventPtr )> EventListenerDelegate;
 
-//---------------------------------------------------------------------------------------------------------------------
-// IEvent                               - Chapter 11, page 310
-// Base type for event object hierarchy, may be used itself for simplest event notifications such as those that do 
-// not carry additional payload data. If any event needs to propagate with payload data it must be defined separately.
-//---------------------------------------------------------------------------------------------------------------------
-class IEvent 
-{
-	public:
-		virtual ~IEvent( void ) {}
-		virtual const EventType& GetEventType( void ) const		= 0;
-		virtual void Serialize( std::stringstream& out ) const	= 0;
-		virtual void Deserialize( std::stringstream& in  )		= 0;
-		virtual IEventPtr Copy() const							= 0;
-};
-
 class EventFactory
 {
 	private:
@@ -83,7 +68,6 @@ class EventFactory
 			auto findIt = mEvents.find( id );
 			if( findIt == mEvents.end() )
 			{
-				printf( "Registering event with ID: %d!\n", id );
 				mEvents[id] = new SubClass;
 				return true;
 			}
@@ -96,34 +80,34 @@ class EventFactory
 		IEvent* Create( EventType id )
 		{
 			auto findIt = mEvents.find( id );
-			printf( "Trying to retreive event with ID: %d\n", id );
 			if( findIt != mEvents.end() )
 			{
+				printf( "Trying to retreive event with ID: %d\n", id );
 				IEvent* obj = findIt->second;
 				return obj;
 			}
 			return nullptr;
-		}
-
-		EventFactory()
-		{
-			mEvents = std::map<EventType, IEvent*>();
-		}
-
-		virtual ~EventFactory() 
-		{
-			//for( auto& it : mEvents )
-			//{
-			//	if( it.second )
-			//		delete it.second;
-			//}
-			mEvents.clear();
 		}
 };
 
 extern EventFactory gEventFactory;
 #define REGISTER_EVENT( eventClass ) gEventFactory.Register<eventClass>(eventClass::GUID)
 #define CREATE_EVENT( eventType ) gEventFactory.Create(eventType)
+
+//---------------------------------------------------------------------------------------------------------------------
+// IEvent                               - Chapter 11, page 310
+// Base type for event object hierarchy, may be used itself for simplest event notifications such as those that do 
+// not carry additional payload data. If any event needs to propagate with payload data it must be defined separately.
+//---------------------------------------------------------------------------------------------------------------------
+class IEvent 
+{
+	public:
+		virtual ~IEvent( void ) {}
+		virtual const EventType& GetEventType() const			= 0;
+		virtual void Serialize( std::stringstream& out ) const	= 0;
+		virtual void Deserialize( std::stringstream& in  )		= 0;
+		virtual IEventPtr Copy() const							= 0;
+};
 
 //---------------------------------------------------------------------------------------------------------------------
 // IEventManager Description                        Chapter 11, page 314

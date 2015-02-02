@@ -42,6 +42,7 @@
 #include <windowsx.h>
 
 EventManager* EventManager::instance = nullptr;
+
 //---------------------------------------------------------------------------------------------------------------------
 // EventManager::VTick
 //---------------------------------------------------------------------------------------------------------------------
@@ -174,8 +175,6 @@ bool EventManager::TriggerEvent( const IEventPtr& pEvent ) const
 //---------------------------------------------------------------------------------------------------------------------
 bool EventManager::QueueEvent( const IEventPtr& pEvent )
 {
-
-
     // make sure the event is valid
     if ( !pEvent )
     {

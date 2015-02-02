@@ -14,7 +14,7 @@ int main()
 #if defined(DEBUG) | defined(_DEBUG)
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 	// 186, 185, 184, 183, 182, 181, 180
-	//_CrtSetBreakAlloc(186); // Break at specific memory allocation point
+	//_CrtSetBreakAlloc(143); // Break at specific memory allocation point
 #endif
 
 	std::string answer = "";
@@ -26,9 +26,12 @@ int main()
 
 	bool serverOn = false;
 	SocketManager* server = nullptr;
+	NetworkEventForwarder* nef = nullptr;
 
 	if( !REGISTER_EVENT( Event_Client ) )
-		std::cout << "Failed to register event!" << std::endl;
+		std::cout << "Failed when registering event with ID: " << Event_Client::GUID << std::endl;
+	if( !REGISTER_EVENT( Event_Text ) )
+		std::cout << "Failed when registering event with ID: " << Event_Text::GUID << std::endl;
 
 	if( answer == "S" || answer == "s" )
 	{
@@ -41,11 +44,8 @@ int main()
 			return 1;
 		}
 		server->AddSocket( new ServerListenSocket( port ) );
+
 		std::cout << "Server up and running." << std::endl;
-	}
-	else
-	{
-		std::cout << "Fuck you!" << std::endl;
 	}
 
 	answer = "";
@@ -66,10 +66,11 @@ int main()
 		Cleanup( client );
 		return 2;
 	}
-	std::cout << "Client connected to server." << std::endl;
+	nef = PFS_NEW NetworkEventForwarder( 0, client );
 
-	NetworkEventForwarder* nef = PFS_NEW NetworkEventForwarder( 0, client );
 	EventManager::GetInstance()->AddListener( &NetworkEventForwarder::ForwardEvent, nef, Event_Client::GUID );
+	EventManager::GetInstance()->AddListener( &NetworkEventForwarder::ForwardEvent, nef, Event_Text::GUID );
+	std::cout << "Client connected to server." << std::endl;
 
 	while( !GetAsyncKeyState( VK_ESCAPE ) )
 	{
@@ -80,9 +81,12 @@ int main()
 		}
 		gSocketManager = client;
 		gSocketManager->DoSelect( 0 );
+		EventManager::GetInstance()->Update();
 	}
 
 	EventManager::GetInstance()->RemoveListener( &NetworkEventForwarder::ForwardEvent, nef, Event_Client::GUID );
+	EventManager::GetInstance()->RemoveListener( &NetworkEventForwarder::ForwardEvent, nef, Event_Text::GUID );
+
 	SAFE_DELETE( nef );
 	EventManager::GetInstance()->Release();
 	Cleanup( client );

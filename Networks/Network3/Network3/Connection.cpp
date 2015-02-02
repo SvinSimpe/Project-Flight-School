@@ -380,8 +380,7 @@ void ServerListenSocket::AttachRemoteClient( int hostID, int socketID )
 {
 	std::stringstream out;
 
-	out << static_cast<int>( RemoteEventSocket::NetMsg_Event ) << " ";
-	out << Event_Client::GUID << " ";
+	out << static_cast<int>( RemoteEventSocket::NetMsg_LoginOk ) << " ";
 	out << hostID << " ";
 	out << socketID << " ";
 	out << "\r\n";
@@ -423,7 +422,7 @@ ServerListenSocket::ServerListenSocket( int portNum )
 /////////////////////////////////////////////////////////////////
 // RemoteEventSocket functions
 
-void RemoteEventSocket::CreateEvent( std::stringstream &in )
+void RemoteEventSocket::BuildEvent( std::stringstream &in )
 {
 	EventType eventType;
 	in >> eventType;
@@ -432,11 +431,12 @@ void RemoteEventSocket::CreateEvent( std::stringstream &in )
 	if( E1 )
 	{
 		E1->Deserialize( in );
-		EventManager::GetInstance()->QueueEvent( E1 );
+		if( !EventManager::GetInstance()->QueueEvent( E1 ) )
+			printf( "Failed to queue event with ID: %d\n", eventType );
 	}
 	else
 	{
-		printf("ERROR Unknown event type from remote.\n");
+		printf("ERROR Unknown event type from remote: 0x%d\n", eventType);
 	}
 }
 
@@ -462,7 +462,17 @@ void RemoteEventSocket::HandleInput()
 			{
 			case NetMsg_Event:
 				{
-					CreateEvent( in );
+					BuildEvent( in );
+				}
+				break;
+			case NetMsg_LoginOk:
+				{
+					int hostID, socketID;
+					in >> hostID;
+					in >> socketID;
+					std::shared_ptr<Event_Client> E1( PFS_NEW Event_Client( hostID, socketID ) );
+					EventManager::GetInstance()->QueueEvent( E1 );
+					printf( "HostID: %d, SocketID: %d\n", hostID, socketID );
 				}
 				break;
 			default:
@@ -473,7 +483,7 @@ void RemoteEventSocket::HandleInput()
 		}
 		else if( !strcmp( packet->GetType(), TextPacket::gType ) )
 		{
-			printf( "Didn't receive a TextPacket.\n" );
+			printf( "Network: %s\n", packet->GetData()+sizeof(u_long) );
 		}
 	}
 }
@@ -680,7 +690,6 @@ void SocketManager::DoSelect( int pauseMicroSecs, bool handleInput )
 	// handle input, output, and exceptions
 	if( selectReturn )
 	{
-		printf( "Got something!\n" );
 		for( auto& it : mSocketList )
 		{
 			NetSocket* socket = it;
@@ -806,6 +815,7 @@ ClientSocketManager::ClientSocketManager()
 
 void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 {
+	printf( "Inside ForwardEvent!\n" );
 	std::stringstream out;
 
 	out << static_cast<int>( RemoteEventSocket::NetMsg_Event ) << " ";
@@ -814,7 +824,6 @@ void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 	out << "\r\n";
 
 	std::shared_ptr<BinaryPacket> msg( PFS_NEW BinaryPacket( out.rdbuf()->str().c_str(), (u_long)out.str().size() ) );
-
 	mSM->Send( mSocketID, msg );
 }
 

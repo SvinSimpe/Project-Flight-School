@@ -64,6 +64,14 @@ class Event_Client : public IEvent
 			mSocketID	= socketID;
 		}
 		~Event_Client() {}
+		int HostID() const
+		{
+			return mHostID;
+		}
+		int SocketID() const
+		{
+			return mSocketID;
+		}
 		const EventType& GetEventType() const
 		{
 			return GUID;
@@ -82,12 +90,56 @@ class Event_Client : public IEvent
 		{
 			return IEventPtr( new Event_Client( mHostID, mSocketID ) );
 		}
-		int HostID() const
+};
+
+class Event_Text : public IEvent
+{
+	private:
+		unsigned int	mSocket;
+		std::string		mText;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Text()
 		{
-			return mHostID;
+			mSocket = 0;
+			mText	= "";
 		}
-		int SocketID() const
+		Event_Text( unsigned int socket, std::string text )
 		{
-			return mSocketID;
+			mSocket = socket;
+			mText = text;
+		}
+		~Event_Text() {}
+		unsigned int Socket() const
+		{
+			return mSocket;
+		}
+		std::string Text() const
+		{
+			return mText;
+		}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::stringstream& out ) const
+		{
+			out << mSocket << " ";
+			out << mText << " ";
+		}
+		void Deserialize( std::stringstream& in )
+		{
+			in >> mSocket;
+			in >> mText;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Text( mSocket, mText ) );
 		}
 };

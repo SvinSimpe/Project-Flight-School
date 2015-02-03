@@ -256,7 +256,7 @@ void NetListenSocket::InitScan( int portNum_min, int portNum_max )
 		EXIT_ASSERT
 			exit( 1 );
 	}
-	if( setsockopt( mSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&x, sizeof( x ) ) == SOCKET_ERROR )
+	if( setsockopt( mSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&x, sizeof( x ) ) == SOCKET_ERROR )
 	{
 		closesocket( mSocket );
 		mSocket = INVALID_SOCKET;
@@ -395,7 +395,7 @@ void ServerListenSocket::HandleInput()
 	SOCKET newSocket = AcceptConnection( &ipAddr );
 
 	int value = 1;
-	setsockopt( newSocket, SOL_SOCKET, SO_DONTLINGER, (char*)value, sizeof( value ) );
+	setsockopt( newSocket, IPPROTO_TCP, TCP_NODELAY, (char*)value, sizeof( value ) );
 	if( newSocket != INVALID_SOCKET )
 	{
 		RemoteEventSocket* socket = PFS_NEW RemoteEventSocket( newSocket, ipAddr );

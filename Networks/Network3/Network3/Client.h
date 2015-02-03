@@ -11,6 +11,7 @@ class Client : public Network
 		NetworkEventForwarder*	mNEF;
 		ClientSocketManager*	mSocketManager;
 		bool					mActive;
+		int						mID;
 	protected:
 	public:
 

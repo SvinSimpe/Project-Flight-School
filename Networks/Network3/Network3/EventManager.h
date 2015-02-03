@@ -46,6 +46,7 @@
 
 namespace EF
 {
+	// Returns pointers to the default constructor of an Event-SubClass
 	template<class SubClass>
 	IEvent* GenericEventCreationFunction(void) { return new SubClass; }
 
@@ -98,9 +99,6 @@ namespace EF
 			{
 				if( mInstance )
 					delete mInstance;
-			}
-			~EventFactory()
-			{
 			}
 	};
 }

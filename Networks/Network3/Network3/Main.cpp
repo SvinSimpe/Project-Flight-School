@@ -33,85 +33,54 @@ int main()
 
 	bool serverOn = false;
 
-	Network* network = nullptr;
+	Server* server		= nullptr;
+	Client* client		= nullptr;
 	if( answer == "S" || answer == "s" )
 	{
-		network = new Server();
-		if( !network->Initialize(port) )
+		server = new Server();
+		if( !server->Initialize(port) )
 		{
 			return 1;
 		}
+		serverOn = true;
 	}
-	else if( answer == "C" || answer == "c" )
+	client = new Client();
+	if( !client->Initialize( ip, port ) )
 	{
-		network = new Client();
-		if( !dynamic_cast<Client*>(network)->Initialize( ip, port ) )
-		{
-			return 2;
-		}
-	}
-	else
-	{
-		OutputDebugStringA( "No correct input. Idiot.\n" );
-		return 3;
+		return 2;
 	}
 
+	int frameCount = 0;
 	while( !GetAsyncKeyState( VK_ESCAPE ) )
 	{
-		network->DoSelect( 0 );
-		network->Update( 0.0f );
+		frameCount++;
+		if( serverOn )
+		{
+			server->DoSelect( 0 );
+		}
+		client->DoSelect( 0 );
+		if( frameCount > 2000 )
+		{
+			if( serverOn )
+			{
+				server->Update( 0.0f );
+			}
+			client->Update( 0.0f );
+			frameCount = 0;
+		}
 		EventManager::GetInstance()->Update();
 	}
 
-	if( network )
-		network->Release();
-	SAFE_DELETE( network );
-	gSocketManager = nullptr;
 	EventManager::GetInstance()->Release();
-	/////////////////////////////////////////////////////////////////////////////////
-	//NetworkEventForwarder* nef = nullptr;
-	//ClientSocketManager* client = nullptr;
-	//if( answer == "S" || answer == "s" )
-	//{
-	//	gSocketManager = new SocketManager();
-	//	if( !gSocketManager->Initialize() )
-	//	{
-	//		OutputDebugStringA( "Server couldn't initialize.\n" );
-	//		return 1;
-	//	}
-	//	gSocketManager->AddSocket( new ServerListenSocket( port ) );
-	//	std::cout << "Server up and running." << std::endl;
-	//	serverOn = true;
-	//}
-	//else if( answer == "C" || answer == "c" )
-	//{
-	//	client = new ClientSocketManager();
-	//	if( !client->Connect( ip, port ) )
-	//	{
-	//		OutputDebugStringA( "Client couldn't connect.\n" );
-	//		return 2;
-	//	}
-	//	gSocketManager = client;
-	//	nef = new NetworkEventForwarder();
-	//	nef->Initialize( 0, gSocketManager );
-	//	EventManager::GetInstance()->AddListener( &NetworkEventForwarder::ForwardEvent, nef, Event_Client_Joined::GUID );
-	//	std::cout << "Client connected to server." << std::endl;
-	//}
-	//else
-	//{
-	//	printf( "Things messed up.\n" );
-	//	return 3;
-	//}
-
-	//while( !GetAsyncKeyState( VK_ESCAPE ) )
-	//{
-	//	gSocketManager->DoSelect( 0 );
-	//	EventManager::GetInstance()->Update();
-	//}
-
-	//EventManager::GetInstance()->Release();
-	//gSocketManager->Release();
-	//SAFE_DELETE( gSocketManager );
-	//SAFE_DELETE( nef );
+	if( serverOn )
+	{
+		if( server )
+			server->Release();
+		SAFE_DELETE( server );
+	}
+	if( client )
+		client->Release();
+	SAFE_DELETE( client );
+	gSocketManager = nullptr;
 	return 0;
 }

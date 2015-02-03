@@ -5,7 +5,7 @@ void Server::HandleEvents( IEventPtr evtPtr )
 	if( evtPtr->GetEventType() == Event_Text::GUID )
 	{
 		std::shared_ptr<Event_Text> data = std::static_pointer_cast<Event_Text>( evtPtr );
-		int socketID = data->Socket();
+		int socketID = data->SocketID();
 		std::string text = data->Text();
 		std::cout << socketID << " says: " << text << std::endl;
 	}

@@ -8,6 +8,7 @@ void Client::HandleEvents( IEventPtr evtPtr )
 		int hostID = data->HostID();
 		int socketID = data->SocketID();
 		std::cout << hostID << ", " << socketID << std::endl;
+		mID = socketID;
 
 		mActive = true;
 	}
@@ -30,7 +31,7 @@ void Client::Update( float deltaTime )
 {
 	if( mActive )
 	{
-		IEventPtr E1( PFS_NEW Event_Text( (UINT)1, "Hello_World!" ) );
+		IEventPtr E1( PFS_NEW Event_Text( mID, "Hello_World!" ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 }
@@ -70,6 +71,7 @@ Client::Client() : Network()
 	mSocketManager	= nullptr;
 	mNEF			= nullptr;
 	mActive			= false;
+	mID				= -1;
 }
 
 Client::~Client()

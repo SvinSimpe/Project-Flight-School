@@ -95,11 +95,12 @@ class Event_Client_Joined : public IEvent
 class Event_Text : public IEvent
 {
 	private:
-		unsigned int	mSocket;
+		int				mSocketID;
 		std::string		mText;
 
 	protected:
 	public:
+		static const bool ServerEvent = true;
 		static const EventType GUID;
 
 	private:
@@ -107,18 +108,18 @@ class Event_Text : public IEvent
 	public:
 		Event_Text()
 		{
-			mSocket = 0;
+			mSocketID = 0;
 			mText	= "";
 		}
-		Event_Text( unsigned int socket, std::string text )
+		Event_Text( int socketID, std::string text )
 		{
-			mSocket = socket;
+			mSocketID = socketID;
 			mText = text;
 		}
 		~Event_Text() {}
-		unsigned int Socket() const
+		int SocketID() const
 		{
-			return mSocket;
+			return mSocketID;
 		}
 		std::string Text() const
 		{
@@ -130,16 +131,16 @@ class Event_Text : public IEvent
 		}
 		void Serialize( std::stringstream& out ) const
 		{
-			out << mSocket << " ";
+			out << mSocketID << " ";
 			out << mText << " ";
 		}
 		void Deserialize( std::stringstream& in )
 		{
-			in >> mSocket;
+			in >> mSocketID;
 			in >> mText;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Text( mSocket, mText ) );
+			return IEventPtr( new Event_Text( mSocketID, mText ) );
 		}
 };

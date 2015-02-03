@@ -14,6 +14,7 @@ class JoinMenuState : public BaseMenuState
 
 		InputSquare	mIPBox;
 		InputSquare	mPortBox;
+		InputSquare	mNameBox;
 
 	protected:
 	public:

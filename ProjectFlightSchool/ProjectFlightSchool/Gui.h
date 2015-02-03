@@ -6,24 +6,24 @@
 class Gui
 {
 
-private:
-	Radar*					mRadar;
+	private:
+		Radar* mRadar;
 
-protected:
+	protected:
 
-public:
+	public:
 
-private:
+	private:
 
-protected:
+	protected:
 
-public:
-	HRESULT	Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjects[], UINT nrOfObjects );
-	HRESULT	Render();
-	HRESULT	Initialize();
-	void	Release();
-			Gui();
-			~Gui();
+	public:
+		HRESULT	Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjects[], UINT nrOfObjects );
+		HRESULT	Render();
+		HRESULT	Initialize();
+		void	Release();
+				Gui();
+				~Gui();
 
 };
 

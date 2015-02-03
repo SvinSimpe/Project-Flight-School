@@ -27,7 +27,7 @@ void Gui::Release()
 
 Gui::Gui()
 {
-	mRadar				= nullptr;
+	mRadar = nullptr;
 }
 
 Gui::~Gui()

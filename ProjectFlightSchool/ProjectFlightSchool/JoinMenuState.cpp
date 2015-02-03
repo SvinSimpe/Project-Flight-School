@@ -19,11 +19,19 @@ void JoinMenuState::HandleInput()
 	{
 		mIPBox.SwitchActive( true );
 		mPortBox.SwitchActive( false );
+		mNameBox.SwitchActive( false );
 	}
 	else if( mPortBox.LeftMousePressed() )
 	{
 		mIPBox.SwitchActive( false );
 		mPortBox.SwitchActive( true );
+		mNameBox.SwitchActive( false );
+	}
+	else if( mNameBox.LeftMousePressed() )
+	{
+		mIPBox.SwitchActive( false );
+		mPortBox.SwitchActive( false );
+		mNameBox.SwitchActive( true );
 	}
 }
 
@@ -36,6 +44,7 @@ HRESULT JoinMenuState::Update( float deltaTime )
 	}
 	mIPBox.Update( deltaTime );
 	mPortBox.Update( deltaTime );
+	mNameBox.Update( deltaTime );
 
 	return S_OK;
 }
@@ -49,6 +58,7 @@ HRESULT JoinMenuState::Render()
 	}
 	mIPBox.Render();
 	mPortBox.Render();
+	mNameBox.Render();
 
 	RenderManager::GetInstance()->Render();
 	return S_OK;
@@ -78,6 +88,8 @@ void JoinMenuState::Reset()
 	x += w + 20;
 
 	mPortBox.Initialize( "27015", "Port", x, y, w, h );
+
+	mNameBox.Initialize( "mudkipfucker", "IP", Input::GetInstance()->mScreenWidth * 0.5f - (640.0f * 0.5f) * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + (177.0f * 0.5f) *0.5f, 640.0f * 0.5f, 177.0f * 0.5f );
 }
 
 HRESULT JoinMenuState::Initialize()
@@ -110,6 +122,8 @@ HRESULT JoinMenuState::Initialize()
 
 	mPortBox.Initialize( "27015", "Port", x, y, w, h );
 
+	mNameBox.Initialize( "mudkipfucker", "IP", Input::GetInstance()->mScreenWidth * 0.5f - (640.0f * 0.5f) * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + (177.0f * 0.5f) *0.5f, 640.0f * 0.5f, 177.0f * 0.5f );
+
 	return S_OK;
 }
 
@@ -118,6 +132,7 @@ void JoinMenuState::Release()
 	BaseMenuState::Release();
 	mIPBox.Release();
 	mPortBox.Release();
+	mNameBox.Release();
 }
 
 JoinMenuState::JoinMenuState() : BaseMenuState()

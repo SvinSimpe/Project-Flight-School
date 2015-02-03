@@ -41,6 +41,7 @@ int main()
 		return 3;
 	}
 
+	EF::REGISTER_EVENT( Event_Client_Amount_Update );
 	EF::REGISTER_EVENT( Event_Client_Joined );
 	EF::REGISTER_EVENT( Event_Text );
 

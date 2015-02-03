@@ -11,7 +11,6 @@ class Client : public Network
 		std::string				mIP;
 		NetworkEventForwarder*	mNEF;
 		UINT					mID;
-		bool					mActive;
 
 	protected:
 	public:

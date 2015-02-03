@@ -320,15 +320,13 @@ SOCKET NetListenSocket::AcceptConnection( UINT* addr )
 
 void NetListenSocket::Initialize( int portNum )
 {
-	sockaddr_in sa;
-	int value = 1;
-
 	if( ( mSocket = socket( PF_INET, SOCK_STREAM, 0 ) )  == INVALID_SOCKET )
 	{
 		PFS_ASSERT( "NetListenSocket Error: Init failed to create socket handle" );
 	}
 
-	if( setsockopt( mSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&value, sizeof( value ) ) == SOCKET_ERROR )
+	int value = 1;
+	if( setsockopt( mSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&value, sizeof( value ) ) == SOCKET_ERROR )
 	{
 		perror( "NetListenSocket::Initialize::setsockopt" );
 		closesocket( mSocket );
@@ -336,9 +334,10 @@ void NetListenSocket::Initialize( int portNum )
 		PFS_ASSERT( "NetListenSocket Error : Initialize failed to set socket options ");
 	}
 
+	sockaddr_in sa;
 	memset( &sa, 0, sizeof( sa ) );
-	sa.sin_family = AF_INET;
-	sa.sin_addr.s_addr = ADDR_ANY;
+	sa.sin_family		= AF_INET;
+	sa.sin_addr.s_addr	= ADDR_ANY;
 	sa.sin_port = htons( portNum );
 
 	if( bind( mSocket, (sockaddr*)&sa, sizeof( sa ) ) == SOCKET_ERROR )
@@ -385,7 +384,7 @@ void ServerListenSocket::HandleInput()
 	SOCKET newSocket = AcceptConnection( &ipAddr );
 
 	int value = 1;
-	setsockopt( newSocket, SOL_SOCKET, SO_DONTLINGER, (char*)value, sizeof( value ) );
+	setsockopt( newSocket, IPPROTO_TCP, TCP_NODELAY, (char*)value, sizeof( value ) );
 	if( newSocket != INVALID_SOCKET )
 	{
 		RemoteEventSocket* socket = PFS_NEW RemoteEventSocket( mSocketManager, newSocket, ipAddr );
@@ -492,6 +491,19 @@ RemoteEventSocket::RemoteEventSocket( SocketManager* socketManager )
 /////////////////////////////////////////////////////////////////
 // SocketManager functions
 
+void SocketManager::UpdateSocketList()
+{
+	std::list<UINT> SocketIDs = std::list<UINT>();
+	for( auto& it : mSocketList )
+	{
+		SocketIDs.push_front( it->mID );
+	}
+	SocketIDs.pop_front();
+
+	IEventPtr E1( PFS_NEW Event_Client_Amount_Update( SocketIDs ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
+}
+
 NetSocket* SocketManager::FindSocket( UINT sockID )
 {
 	SocketIDMap::iterator i = mSocketMap.find( sockID );
@@ -548,6 +560,8 @@ int SocketManager::AddSocket( NetSocket* socket )
 	{
 		++mMaxOpenSockets;
 	}
+
+	UpdateSocketList();
 	return socket->mID;
 }
 
@@ -556,6 +570,8 @@ void SocketManager::RemoveSocket( NetSocket* socket )
 	mSocketList.remove( socket );
 	mSocketMap.erase( socket->mID );
 	SAFE_DELETE( socket );
+
+	UpdateSocketList();
 }
 
 UINT SocketManager::GetHostByName( const std::string &hostName )

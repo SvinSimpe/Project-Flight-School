@@ -6,7 +6,9 @@
 class Server : public Network
 {
 	private:
-		SocketManager* mSocketManager;
+		SocketManager*	mSocketManager;
+		std::list<UINT> mSocketIDs;
+
 	protected:
 	public:
 

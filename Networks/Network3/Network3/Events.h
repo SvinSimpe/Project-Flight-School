@@ -61,7 +61,7 @@ class Event_Client_Amount_Update : public IEvent
 			mSocketIDs	= socketIDs;
 		}
 		~Event_Client_Amount_Update() {}
-		std::list<UINT> SocketID() const
+		std::list<UINT> SocketIDs() const
 		{
 			return mSocketIDs;
 		}

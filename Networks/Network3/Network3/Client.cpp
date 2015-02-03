@@ -9,8 +9,6 @@ void Client::HandleEvents( IEventPtr evtPtr )
 		mID = data->SocketID();
 
 		std::cout << "My ID is: " << mID << std::endl;
-
-		mActive = true;
 	}
 }
 
@@ -29,11 +27,7 @@ void Client::InitForwardingEvents()
 
 void Client::Update( float deltaTime )
 {
-	if( mActive )
-	{
-		IEventPtr E1( PFS_NEW Event_Text( mID, "Hello_World!" ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
-	}
+
 }
 
 void Client::DoSelect( int pauseMicroSecs, bool handleInput )

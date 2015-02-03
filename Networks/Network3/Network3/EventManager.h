@@ -42,6 +42,7 @@
 #include "IEventManager.h"
 #include <list>
 #include <map>
+#include <vector>
 #include <Windows.h>
 
 namespace EF

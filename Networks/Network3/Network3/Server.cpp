@@ -1,20 +1,32 @@
 #include "Server.h"
+#include <iostream>
+
+void Server::Broadcast( NetSocket* exception, Packet msg )
+{
+
+}
+
+void Server::Send( NetSocket* receiver, Packet pkt )
+{
+
+}
 
 void Server::HandleEvents( IEventPtr evtPtr )
 {
-	if( evtPtr->GetEventType() == Event_Text::GUID )
+	if( evtPtr->GetEventType() == Event_Client_Status_Update::GUID )
 	{
-		std::shared_ptr<Event_Text> data = std::static_pointer_cast<Event_Text>( evtPtr );
-		int socketID = data->SocketID();
-		std::string text = data->Text();
-		std::cout << socketID << " says: " << text << std::endl;
+		mSocketList.clear();
+		std::shared_ptr<Event_Client_Status_Update> data = std::static_pointer_cast<Event_Client_Status_Update>( evtPtr );
+		mSocketList = data->SocketList();
+		std::cout << "Amount of connected clients: " << mSocketList.size() << std::endl;
 	}
 }
 
 void Server::InitEventListening()
 {
 	// Code for adding events that should be listened to by the server
-	EventManager::GetInstance()->AddListener( &Server::HandleEvents, this, Event_Text::GUID );
+
+	EventManager::GetInstance()->AddListener( &Server::HandleEvents, this, Event_Client_Status_Update::GUID );
 }
 
 void Server::Update( float deltaTime )
@@ -48,11 +60,13 @@ void Server::Release()
 {
 	mSocketManager->Release();
 	SAFE_DELETE( mSocketManager );
+	mSocketList.clear();
 }
 
 Server::Server() : Network()
 {
-	mSocketManager = nullptr;
+	mSocketManager	= nullptr;
+	mSocketList		= std::vector<int>();
 }
 
 Server::~Server()

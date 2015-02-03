@@ -42,3 +42,4 @@
 // In Visual Studio, go to Tools->Create GUID and grab the first bit.
 const EventType Event_Client_Joined::GUID( 0 );
 const EventType Event_Text::GUID( 1 );
+const EventType Event_Client_Status_Update::GUID( 2 );

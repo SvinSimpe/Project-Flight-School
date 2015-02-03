@@ -38,6 +38,7 @@
 //========================================================================
 #include "EventManager.h"
 #include <DirectXMath.h>
+#include <iostream>
 using namespace DirectX;
 
 class Event_Client_Joined : public IEvent
@@ -100,7 +101,6 @@ class Event_Text : public IEvent
 
 	protected:
 	public:
-		static const bool ServerEvent = true;
 		static const EventType GUID;
 
 	private:
@@ -142,5 +142,49 @@ class Event_Text : public IEvent
 		IEventPtr Copy() const
 		{
 			return IEventPtr( new Event_Text( mSocketID, mText ) );
+		}
+};
+
+// This is a local event sent from SocketManager whenever the amount of clients connected is changed
+class Event_Client_Status_Update : public IEvent
+{
+	private:
+		std::vector<int> mSocketList;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Status_Update()
+		{
+			mSocketList = std::vector<int>();
+		}
+		Event_Client_Status_Update( std::vector<int> socketList )
+		{
+			mSocketList = socketList;
+		}
+		~Event_Client_Status_Update() {}
+		std::vector<int> SocketList()
+		{
+			return mSocketList;
+		}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::stringstream& out ) const
+		{
+			std::cout << "Unserializable! Don't try to send this event over the network, noob." << std::endl;
+		}
+		void Deserialize( std::stringstream& in )
+		{
+			std::cout << "Undeserializable! Don't try to send this event over the network, noob." << std::endl;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Status_Update( mSocketList ) );
 		}
 };

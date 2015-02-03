@@ -403,11 +403,6 @@ void ServerListenSocket::HandleInput()
 		int ipAddress = socket->GetIPAddress();
 
 		printf( "Client with sockID: %d connected from %d.\n", sockID, ipAddr );
-
-		//std::shared_ptr<Event_Client_Joined> E1( PFS_NEW Event_Client_Joined( ipAddress, sockID ) );
-		//EventManager::GetInstance()->QueueEvent( E1 );
-
-		AttachRemoteClient( ipAddress, sockID );
 	}
 }
 
@@ -502,6 +497,20 @@ RemoteEventSocket::RemoteEventSocket()
 /////////////////////////////////////////////////////////////////
 // SocketManager functions
 
+void SocketManager::ClientUpdateEvent()
+{
+	std::vector<int> socketList;
+	for( auto& socket : mSocketMap )
+	{
+		if( socket.second->mID != 0 ) // This is to avoid getting the ServerListenSocket-ID
+		{
+			socketList.push_back( socket.second->mID );
+		}
+	}
+	std::shared_ptr<Event_Client_Status_Update> E1( PFS_NEW Event_Client_Status_Update( socketList ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
+}
+
 NetSocket* SocketManager::FindSocket( UINT sockID )
 {
 	SocketIDMap::iterator i = mSocketMap.find( sockID );
@@ -558,6 +567,9 @@ int SocketManager::AddSocket( NetSocket* socket )
 	{
 		++mMaxOpenSockets;
 	}
+
+	ClientUpdateEvent();
+
 	return socket->mID;
 }
 
@@ -565,6 +577,9 @@ void SocketManager::RemoveSocket( NetSocket* socket )
 {
 	mSocketList.remove( socket );
 	mSocketMap.erase( socket->mID );
+
+	ClientUpdateEvent();
+
 	SAFE_DELETE( socket );
 }
 

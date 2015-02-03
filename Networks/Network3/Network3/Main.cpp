@@ -3,18 +3,6 @@
 #include "Server.h"
 #include "Client.h"
 
-void HandleEvents( IEventPtr evtPtr )
-{
-	if( evtPtr->GetEventType() == Event_Client_Joined::GUID )
-	{
-		std::shared_ptr<Event_Client_Joined> data = std::static_pointer_cast<Event_Client_Joined>( evtPtr );
-		int hostID = data->HostID();
-		int socketID = data->SocketID();
-
-		std::cout << hostID << ", " << socketID << std::endl;
-	}
-}
-
 int main()
 {
 #if defined(DEBUG) | defined(_DEBUG)
@@ -23,6 +11,7 @@ int main()
 #endif
 	EF::REGISTER_EVENT( Event_Client_Joined );
 	EF::REGISTER_EVENT( Event_Text );
+	EF::REGISTER_EVENT( Event_Client_Status_Update );
 
 	std::string answer = "";
 	std::cout << "Would you like to start a (S)erver or a (C)lient? ";

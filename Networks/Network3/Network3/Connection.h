@@ -139,6 +139,7 @@ class SocketManager
 	public:
 
 	private:
+		void		ClientUpdateEvent();
 	protected:
 		NetSocket*	FindSocket( UINT sockID );
 

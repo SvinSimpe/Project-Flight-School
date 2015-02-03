@@ -16,11 +16,13 @@ private:
 	AssetID					mAllyHealthBar;
 	AssetID					mAllyHealthFrame;
 	AssetID					mPlayerBar;
+	AssetID					mLevelUp;
 	int						mNrOfHealths;
 	XMFLOAT2				mSizeAllyHealth;
 	XMFLOAT2				mSizeAllyHealthBar;
 	XMFLOAT2				mSizeAllyHealthFrame;
 	XMFLOAT2				mSizePlayerHealthXP;
+	XMFLOAT2				mSizeLevelUp;
 	float					mSpaceAllyHealthBar;
 	float					mSpaceAllyHealth;
 	float					mSpaceAllyHealthBarToEdge;

@@ -90,6 +90,22 @@ HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP, float pla
 		mFont.WriteText( renderText, 297.0f, 930.0f, 3.8f );
 	}
 
+	////////////////
+	//Level up
+	////////////////
+	if( playerXp >= 1 )
+	{
+		topLeft.x	= 140.0f;
+		topLeft.y	= mScreenHeight - 218 - mSizeLevelUp.y;
+		widthHeight	= mSizeLevelUp;
+		RenderManager::GetInstance()->AddObject2dToList( mLevelUp, topLeft, widthHeight );
+
+		int renderLevelUp = playerXp;
+		renderText = "!";
+		renderText += std::to_string( renderLevelUp );
+		mFont.WriteText( renderText, (topLeft.x + 75.0f ), ( topLeft.y + 66.0f ), 4.8f );
+	}
+
 	return result;
 }
 
@@ -113,6 +129,7 @@ HRESULT Gui::Initialize()
 	mSizeAllyHealth						= XMFLOAT2( ( ( mSizeAllyHealthBar.x - ( mSpaceAllyHealthToBar * 2 ) - ( ( mNrOfHealths ) * mSpaceAllyHealth ) ) / mNrOfHealths ), ( mSizeAllyHealthBar.y - ( mSpaceAllyHealthToBar * 2 ) ) );
 	mSizeAllyHealthFrame				= XMFLOAT2( 110.0f, 110.0f );
 	mSizePlayerHealthXP					= XMFLOAT2( 440.0f, 280.0f );
+	mSizeLevelUp						= XMFLOAT2( 204.0f, 200.0f );
 
 	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/allyhealth.dds", mAllyHealth );
 	if( FAILED( result ) )
@@ -130,6 +147,11 @@ HRESULT Gui::Initialize()
 		return result;
 	}
 	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/playerHealth+XP.dds", mPlayerBar );
+	if( FAILED( result ) )
+	{
+		return result;
+	}
+	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/levelUp.dds", mLevelUp );
 	if( FAILED( result ) )
 	{
 		return result;

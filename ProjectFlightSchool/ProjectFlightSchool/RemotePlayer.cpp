@@ -452,7 +452,6 @@ HRESULT RemotePlayer::Initialize()
 	if( FAILED( Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/OrangeHP.png", mOrangeHPAsset ) ) )
 		OutputDebugString( L"\nERROR\n" );
 
-	//mUpperBody.position						= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mLowerBody.position						= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mNrOfDeaths								= 0;
 	mNrOfKills								= 0;

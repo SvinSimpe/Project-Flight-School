@@ -111,6 +111,12 @@ void Player::Move( float deltaTime )
 	mLowerBody.position.z += mVelocity.z * deltaTime;
 }
 
+void Player::Test( IEventPtr n )
+{
+		std::shared_ptr<Event_Set_Player_Name> data = std::static_pointer_cast<Event_Set_Player_Name>( n );
+		mPlayerName.SetText( data->PlayerName() );
+}
+
 HRESULT Player::Update( float deltaTime )
 {
 	HandleInput( deltaTime );
@@ -153,6 +159,18 @@ HRESULT Player::Update( float deltaTime )
 
 			RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
 			RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
+
+			DirectX::XMFLOAT3 temp;
+			DirectX::XMMATRIX view, proj;
+			Graphics::GetInstance()->GetViewMatrix( view );
+			Graphics::GetInstance()->GetProjectionMatrix( proj );
+			DirectX::XMStoreFloat3( &temp, DirectX::XMVector3TransformCoord( DirectX::XMLoadFloat3( &mLowerBody.position ), DirectX::XMMatrixMultiply( view, proj ) ) );
+		
+			temp.x += 1 *0.5f;
+			temp.y += 1 *0.5f;
+			temp.z += 1 *0.5f;
+
+			mPlayerName.SetPosition( 900, 420 );
 
 		}
 	}
@@ -240,7 +258,7 @@ HRESULT Player::Render( float deltaTime, int position )
 	}
 
 	RemotePlayer::Render( position );
-
+	mPlayerName.Render();
 
 	return S_OK;
 }
@@ -324,7 +342,8 @@ HRESULT Player::Initialize()
 	RemotePlayer::Initialize();
 
 	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
-
+	mHasName = false;
+	mPlayerName.Initialize( "", "", 0, 0, 0.25f );
 	////////////
 	// Light
 	mPointLight						= new PointLight;
@@ -332,7 +351,8 @@ HRESULT Player::Initialize()
 	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.4f, 0.4f, 0.4f, 30.0f );
 	IEventPtr reg( new Event_Add_Point_Light( mPointLight ) );
 	EventManager::GetInstance()->QueueEvent( reg );
-
+	
+	EventManager::GetInstance()->AddListener( &Player::Test, this, Event_Set_Player_Name::GUID );
 	mMaxVelocity		= 7.7f;
 	mCurrentVelocity	= 0.0f;
 	mMaxAcceleration	= 20.0f;
@@ -350,6 +370,7 @@ void Player::Release()
 	IEventPtr reg( new Event_Remove_Point_Light( mPointLight ) );
 	EventManager::GetInstance()->QueueEvent( reg );
 	SAFE_DELETE( mPointLight );
+	mPlayerName.Release();
 }
 
 Player::Player()

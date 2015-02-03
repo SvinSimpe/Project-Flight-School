@@ -1244,3 +1244,30 @@ class Event_Set_Remote_Enemy_State : public IEvent // Client side
 			return mState;
 		}
 };
+
+class Event_Set_Player_Name : public IEvent
+{
+	// Member variables
+	private:
+		std::string mPlayerName;
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Set_Player_Name( std::string playerName )
+		{
+			mPlayerName = playerName;
+		}
+		std::string PlayerName() const
+		{
+			return mPlayerName;
+		}
+};

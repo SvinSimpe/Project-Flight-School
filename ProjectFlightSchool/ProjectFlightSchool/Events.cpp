@@ -76,3 +76,4 @@ const EventType Event_Player_Attack::GUID( 32 );
 const EventType Event_Remote_Player_Attack::GUID( 33 );
 const EventType Event_Set_Enemy_State::GUID( 34 );
 const EventType Event_Set_Remote_Enemy_State::GUID( 35 );
+const EventType	Event_Set_Player_Name::GUID( 36 );

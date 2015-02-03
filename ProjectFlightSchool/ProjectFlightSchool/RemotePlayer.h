@@ -8,6 +8,7 @@
 #include "RenderManager.h"
 #include "Font.h"
 #include "WeaponInfo.h"
+#include "Text.h"
 
 #define LEFT_ARM_ID		0
 #define RIGHT_ARM_ID	1
@@ -86,6 +87,7 @@ class RemotePlayer
 	private:
 	protected:
 		unsigned int	mID;
+		Text			mPlayerName;
 		int				mTeam;
 		UpperBody		mUpperBody;
 		LowerBody		mLowerBody;

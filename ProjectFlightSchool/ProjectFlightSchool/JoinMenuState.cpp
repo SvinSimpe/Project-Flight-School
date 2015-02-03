@@ -9,11 +9,13 @@ void JoinMenuState::HandleInput()
 	}
 	else if( mButtons.at(JOIN)->LeftMousePressed() )
 	{
-		std::string ip		= mIPBox.GetText();
-		std::string port	= mPortBox.GetText();
-
+		std::string ip			= mIPBox.GetText();
+		std::string port		= mPortBox.GetText();
+		 
 		IEventPtr E1( new Event_Start_Client( ip, port ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
+		IEventPtr E2( new Event_Set_Player_Name( mNameBox.GetText() ) );
+		EventManager::GetInstance()->QueueEvent( E2 );
 	}
 	else if( mIPBox.LeftMousePressed() )
 	{

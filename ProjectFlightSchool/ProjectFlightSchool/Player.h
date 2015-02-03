@@ -5,6 +5,9 @@
 #include "Projectile.h"
 #include "RemotePlayer.h"
 #include "RenderManager.h"
+#include "Text.h"
+#include "EventManager.h"
+#include "Events.h"
 
 #define VELOCITY_FALLOFF 2.0f
 
@@ -14,6 +17,9 @@ class Player: public RemotePlayer
 		float		mEventCapTimer;
 
 		PointLight*		mPointLight;
+
+		Text		mPlayerName;
+		bool		mHasName;
 
 		float		mWeaponCoolDown;
 		float		mMeleeCoolDown;
@@ -34,6 +40,7 @@ class Player: public RemotePlayer
 
 	protected:
 	public:
+		void		Test( IEventPtr n );
 		HRESULT		Update( float deltaTime );
 		HRESULT		Render( float deltaTime, int position );
 

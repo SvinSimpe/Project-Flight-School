@@ -10,6 +10,12 @@ void Text::SetText( std::string text )
 	mText = text;
 }
 
+void Text::SetPosition( float x, float y )
+{
+	mX = x;
+	mY = y;
+}
+
 void Text::Initialize( std::string fontPath, std::string text, float x, float y, float scale )
 {
 	Font::Initialize( fontPath );

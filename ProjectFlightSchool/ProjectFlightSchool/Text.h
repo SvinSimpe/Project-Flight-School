@@ -20,6 +20,7 @@ class Text : public Font
 	public:
 		void	Render();
 		void	SetText( std::string text );
+		void	SetPosition( float x, float y );
 		void	Initialize( std::string fontPath, std::string text, float x, float y, float scale );
 		void	Release();
 				Text();

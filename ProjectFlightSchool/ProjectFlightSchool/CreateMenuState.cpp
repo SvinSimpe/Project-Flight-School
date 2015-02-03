@@ -6,11 +6,15 @@ void CreateMenuState::HandleInput()
 	{
 		IEventPtr E1( new Event_Change_State( SINGLE_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
+		IEventPtr E2( new Event_Set_Player_Name( mNameBox.GetText() ) );
+		EventManager::GetInstance()->QueueEvent( E2 );
 	}
 	else if( mButtons.at(MULTIPLAYER)->LeftMousePressed() )
 	{
 		IEventPtr E1( new Event_Change_State( MULTI_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
+		IEventPtr E2( new Event_Set_Player_Name( mNameBox.GetText() ) );
+		EventManager::GetInstance()->QueueEvent( E2 );
 	}
 	else if( mButtons.at(BACK)->LeftMousePressed() )
 	{

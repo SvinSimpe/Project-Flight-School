@@ -155,6 +155,9 @@ class LIBRARY_EXPORT Graphics
 		void	ZoomInDeveloperCamera();
 		void	ZoomOutDeveloperCamera();
 
+		void GetViewMatrix( DirectX::XMMATRIX &view );
+		void GetProjectionMatrix( DirectX::XMMATRIX &proj );
+
 		void MapLightStructuredBuffer( LightStructure* lightStructure, int numPointLights );
 		void SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY );
 		void SetInverseViewMatrix( DirectX::XMMATRIX &inverseViewMatrix );

@@ -593,6 +593,16 @@ void Graphics::ZoomOutDeveloperCamera()
 	mCamera[CAMERAS_DEV]->ZoomOut();
 }
 
+void Graphics::GetViewMatrix( DirectX::XMMATRIX &view )
+{
+	view = mCamera[CAMERAS_MAIN]->GetViewMatrix();
+}
+
+void Graphics::GetProjectionMatrix( DirectX::XMMATRIX &proj )
+{
+	proj = mCamera[CAMERAS_MAIN]->GetProjMatrix();
+}
+
 void Graphics::MapLightStructuredBuffer( LightStructure* lightStructure, int numPointLights )
 {
 	MapBuffer( mBuffers[BUFFERS_LIGHT], (void*)lightStructure, sizeof( LightStructure ) );

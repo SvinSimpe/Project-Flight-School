@@ -34,6 +34,11 @@ void RemotePlayer::RemoteUpdate( IEventPtr newEvent )
 			}
 		}
 	}
+	else if( newEvent->GetEventType() == Event_Set_Player_Name::GUID )
+	{
+		std::shared_ptr<Event_Set_Player_Name> data = std::static_pointer_cast<Event_Set_Player_Name>( newEvent );
+		mPlayerName.SetText( data->PlayerName() );
+	}
 }
 
 void RemotePlayer::RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID )
@@ -44,6 +49,7 @@ void RemotePlayer::RemoteInit( unsigned int id, int team, AssetID teamColor, Ass
 	mColorIDAsset	= colorID;
 	EventManager::GetInstance()->AddListener( &RemotePlayer::RemoteUpdate, this, Event_Remote_Player_Update::GUID );
 	EventManager::GetInstance()->AddListener( &RemotePlayer::RemoteUpdate, this, Event_Remote_Player_Attack::GUID );
+	EventManager::GetInstance()->AddListener( &RemotePlayer::RemoteUpdate, this, Event_Set_Player_Name::GUID );
 }
 
 void RemotePlayer::BroadcastDeath( unsigned int shooter )
@@ -161,6 +167,8 @@ HRESULT RemotePlayer::Update( float deltaTime )
 
 	RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
 	RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
+
+	mPlayerName.SetPosition( mLowerBody.position.x, 2.0f );
 
 	return S_OK;
 }
@@ -293,6 +301,8 @@ HRESULT RemotePlayer::Render( int position )
 		mFont.WriteText( textToWrite, 25.0f, ((20.0f*(float)position)-7), 0.25f );
 		
 	}
+
+	mPlayerName.Render();
 
 	return S_OK;
 }
@@ -456,6 +466,8 @@ HRESULT RemotePlayer::Initialize()
 	mLowerBody.position						= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mNrOfDeaths								= 0;
 	mNrOfKills								= 0;
+
+	mPlayerName.Initialize( "", "", mLowerBody.position.x, 1.0f, 1.0f );
 
 	mLeftArmAnimationCompleted				= false;
 	mRightArmAnimationCompleted				= false;

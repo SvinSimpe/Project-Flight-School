@@ -24,24 +24,25 @@
 class NetSocket
 {
 	private:
-		friend class SocketManager;
 		typedef std::list<std::shared_ptr<IPacket>> PacketList;
+		friend class SocketManager;
 
 	protected:
-		SOCKET		mSocket;
-		int			mID; // A unique ID given by the SocketManager
-		int			mDeleteFlag;
-		PacketList	mOutList;
-		PacketList	mInList;
-		char		mRecvBuf[RECV_BUFFER_SIZE];
-		UINT		mRecvOfs;
-		UINT		mRecvBegin;
-		bool		mBinaryProtocol;
-		int			mSendOfs;
-		UINT		mTimeOut;
-		UINT		mIPAddr;
-		int			mInternal;
-		int			mTimeCreated;
+		SocketManager*	mSocketManager;
+		SOCKET			mSocket;
+		int				mID; // A unique ID given by the SocketManager
+		int				mDeleteFlag;
+		PacketList		mOutList;
+		PacketList		mInList;
+		char			mRecvBuf[RECV_BUFFER_SIZE];
+		UINT			mRecvOfs;
+		UINT			mRecvBegin;
+		bool			mBinaryProtocol;
+		int				mSendOfs;
+		UINT			mTimeOut;
+		UINT			mIPAddr;
+		int				mInternal;
+		int				mTimeCreated;
 
 	public:
 
@@ -58,8 +59,8 @@ class NetSocket
 		virtual void	TimeOut();
 		void			SetTimeOut( UINT ms = 45 * 1000 );
 		UINT			GetIPAddress();
-						NetSocket(); // Used by clients to initialize a NetSocket prior to calling Connect()
-						NetSocket( SOCKET socket, UINT ip );
+						NetSocket( SocketManager* socketManager ); // Used by clients to initialize a NetSocket prior to calling Connect()
+						NetSocket( SocketManager* socketManager, SOCKET socket, UINT ip );
 		virtual			~NetSocket();
 };
 
@@ -76,8 +77,8 @@ class NetListenSocket : public NetSocket
 		void	InitScan( int portNum_min, int portNum_max );
 		SOCKET	AcceptConnection( UINT* addr );
 		void	Initialize( int portNum );
-				NetListenSocket();
-				NetListenSocket( int portNum );
+				NetListenSocket( SocketManager* socketManager );
+				NetListenSocket( SocketManager* socketManager, int portNum );
 };
 
 class ServerListenSocket : public NetListenSocket
@@ -92,7 +93,7 @@ class ServerListenSocket : public NetListenSocket
 	public:
 		void			AttachRemoteClient( int hostID, int socketID );
 		virtual void	HandleInput();
-						ServerListenSocket( int portNum );
+						ServerListenSocket( SocketManager* socketManager, int portNum );
 };
 
 class RemoteEventSocket : public NetSocket
@@ -113,8 +114,8 @@ class RemoteEventSocket : public NetSocket
 
 	public:
 		virtual void HandleInput();
-		RemoteEventSocket( SOCKET newSocket, UINT ip );
-		RemoteEventSocket();
+		RemoteEventSocket( SocketManager* socketManager, SOCKET newSocket, UINT ip );
+		RemoteEventSocket( SocketManager* socketManager );
 };
 
 
@@ -160,8 +161,6 @@ class SocketManager
 					SocketManager();
 		virtual		~SocketManager();
 };
-
-extern SocketManager* gSocketManager;
 
 // class used by the clients
 class ClientSocketManager : public SocketManager

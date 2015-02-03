@@ -38,8 +38,7 @@ void Client::Update( float deltaTime )
 
 void Client::DoSelect( int pauseMicroSecs, bool handleInput )
 {
-	gSocketManager = mSocketManager;
-	gSocketManager->DoSelect( pauseMicroSecs, handleInput );
+	mSocketManager->DoSelect( pauseMicroSecs, handleInput );
 }
 
 bool Client::Initialize( std::string ip, unsigned int port )

@@ -2,8 +2,6 @@
 
 #define EXIT_ASSERT PFS_ASSERT(0);
 
-SocketManager* gSocketManager = nullptr;
-
 /////////////////////////////////////////////////////////////////
 // NetSocket functions
 
@@ -76,7 +74,7 @@ void NetSocket::HandleOutput()
 		int rc = send( mSocket, buf + mSendOfs, len - mSendOfs, 0 );
 		if( rc > 0 )
 		{
-			gSocketManager->AddToOutbound( rc );
+			mSocketManager->AddToOutbound( rc );
 			mSendOfs	+= rc;
 			fSent		= 1;
 		}
@@ -165,7 +163,7 @@ void NetSocket::HandleInput()
 		}
 	}
 
-	gSocketManager->AddToInbound( rc );
+	mSocketManager->AddToInbound( rc );
 	mRecvOfs = newData;
 
 	if( pktReceived )
@@ -203,8 +201,9 @@ UINT NetSocket::GetIPAddress()
 	return mIPAddr;
 }
 
-NetSocket::NetSocket()
+NetSocket::NetSocket( SocketManager* socketManager )
 {
+	mSocketManager  = socketManager;
 	mSocket			= INVALID_SOCKET;
 	mDeleteFlag		= 0;
 	mSendOfs		= 0;
@@ -215,8 +214,9 @@ NetSocket::NetSocket()
 	mBinaryProtocol = 1;
 }
 
-NetSocket::NetSocket( SOCKET socket, UINT ip )
+NetSocket::NetSocket( SocketManager* socketManager, SOCKET socket, UINT ip )
 {
+	mSocketManager	= socketManager;
 	mDeleteFlag		= 0;
 	mSendOfs		= 0;
 	mTimeOut		= 0;
@@ -227,7 +227,7 @@ NetSocket::NetSocket( SOCKET socket, UINT ip )
 	mTimeCreated	= timeGetTime();
 	mSocket			= socket;
 	mIPAddr			= ip;
-	mInternal		= gSocketManager->IsInternal(mIPAddr);
+	mInternal		= mSocketManager->IsInternal(mIPAddr);
 	setsockopt( mSocket, SOL_SOCKET, SO_DONTLINGER, nullptr, 0 );
 }
 
@@ -360,13 +360,16 @@ void NetListenSocket::Initialize( int portNum )
 	gPort = portNum;
 }
 
-NetListenSocket::NetListenSocket()
+NetListenSocket::NetListenSocket( SocketManager* socketManager )
+	: NetSocket( socketManager )
 {
 }
 
-NetListenSocket::NetListenSocket( int portNum )
+NetListenSocket::NetListenSocket( SocketManager* socketManager, int portNum )
+	: NetSocket( socketManager )
 {
 	gPort = 0;
+	mSocketManager = socketManager;
 	Initialize( portNum );
 }
 
@@ -386,7 +389,7 @@ void ServerListenSocket::AttachRemoteClient( int hostID, int socketID )
 	out << "\r\n";
 
 	std::shared_ptr<BinaryPacket> msg( PFS_NEW BinaryPacket( out.rdbuf()->str().c_str(), (u_long)out.str().size() ) );
-	gSocketManager->Send( socketID, msg );
+	mSocketManager->Send( socketID, msg );
 }
 
 void ServerListenSocket::HandleInput()
@@ -398,8 +401,8 @@ void ServerListenSocket::HandleInput()
 	setsockopt( newSocket, SOL_SOCKET, SO_DONTLINGER, (char*)value, sizeof( value ) );
 	if( newSocket != INVALID_SOCKET )
 	{
-		RemoteEventSocket* socket = PFS_NEW RemoteEventSocket( newSocket, ipAddr );
-		int sockID = gSocketManager->AddSocket( socket );
+		RemoteEventSocket* socket = PFS_NEW RemoteEventSocket( mSocketManager, newSocket, ipAddr );
+		int sockID = mSocketManager->AddSocket( socket );
 		int ipAddress = socket->GetIPAddress();
 
 		printf( "Client with sockID: %d connected from %d.\n", sockID, ipAddr );
@@ -411,7 +414,8 @@ void ServerListenSocket::HandleInput()
 	}
 }
 
-ServerListenSocket::ServerListenSocket( int portNum )
+ServerListenSocket::ServerListenSocket( SocketManager* socketManager, int portNum )
+	: NetListenSocket( socketManager )
 {
 	Initialize( portNum );
 }
@@ -487,12 +491,13 @@ void RemoteEventSocket::HandleInput()
 	}
 }
 
-RemoteEventSocket::RemoteEventSocket( SOCKET newSocket, UINT ip )
-	: NetSocket( newSocket, ip )
+RemoteEventSocket::RemoteEventSocket( SocketManager* socketManager, SOCKET newSocket, UINT ip )
+	: NetSocket( socketManager, newSocket, ip )
 {
 }
 
-RemoteEventSocket::RemoteEventSocket()
+RemoteEventSocket::RemoteEventSocket( SocketManager* socketManager )
+	: NetSocket( socketManager )
 {
 }
 
@@ -724,7 +729,7 @@ void SocketManager::DoSelect( int pauseMicroSecs, bool handleInput )
 			switch( socket->mDeleteFlag )
 			{
 			case 1:
-				gSocketManager->RemoveSocket( socket );
+				RemoveSocket( socket );
 				i = mSocketList.begin();
 				break;
 			case 3:
@@ -790,7 +795,7 @@ bool ClientSocketManager::Connect( const std::string &hostName, UINT port )
 	if( !SocketManager::Initialize() )
 		return false;
 
-	RemoteEventSocket* socket = PFS_NEW RemoteEventSocket();
+	RemoteEventSocket* socket = PFS_NEW RemoteEventSocket( this );
 
 	if( !socket->Connect( GetHostByName( mHostName ), mPort ) )
 	{
@@ -801,7 +806,8 @@ bool ClientSocketManager::Connect( const std::string &hostName, UINT port )
 	return true;
 }
 
-ClientSocketManager::ClientSocketManager()
+ClientSocketManager::ClientSocketManager() 
+	: SocketManager()
 {
 	mHostName	= "";
 	mPort		= 0;

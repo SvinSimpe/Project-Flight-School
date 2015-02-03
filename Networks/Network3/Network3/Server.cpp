@@ -24,8 +24,7 @@ void Server::Update( float deltaTime )
 
 void Server::DoSelect( int pauseMicroSecs, bool handleInput )
 {
-	gSocketManager = mSocketManager;
-	gSocketManager->DoSelect( pauseMicroSecs, handleInput );
+	mSocketManager->DoSelect( pauseMicroSecs, handleInput );
 }
 
 bool Server::Initialize( UINT port )
@@ -37,7 +36,7 @@ bool Server::Initialize( UINT port )
 		OutputDebugStringA( "Failed to initialize server.\n" );
 		return false;
 	}
-	mSocketManager->AddSocket( new ServerListenSocket( mPort ) );
+	mSocketManager->AddSocket( new ServerListenSocket( mSocketManager, mPort ) );
 	std::cout << "Server started on port: " << mPort << std::endl;
 
 	InitEventListening();

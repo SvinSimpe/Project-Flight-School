@@ -59,7 +59,6 @@ int main()
 	if( network )
 		network->Release();
 	SAFE_DELETE( network );
-	gSocketManager = nullptr;
 	EventManager::GetInstance()->Release();
 	return 0;
 }

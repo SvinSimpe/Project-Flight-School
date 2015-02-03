@@ -17,15 +17,15 @@
 #define MAGIC_NUMBER (0x1f2e3d4c)
 
 #if !defined(SAFE_DELETE)
-	#define SAFE_DELETE(x) if(x) delete x; x=NULL;
+	#define SAFE_DELETE(x) if(x) delete x; x=nullptr;
 #endif
 
 #if !defined(SAFE_DELETE_ARRAY)
-	#define SAFE_DELETE_ARRAY(x) if (x) delete [] x; x=NULL; 
+	#define SAFE_DELETE_ARRAY(x) if (x) delete [] x; x=nullptr; 
 #endif
 
 #if !defined(SAFE_RELEASE)
-	#define SAFE_RELEASE(x) if(x) x->Release(); x=NULL;
+	#define SAFE_RELEASE(x) if(x) x->Release(); x=nullptr;
 #endif
 
 #if defined(_DEBUG)

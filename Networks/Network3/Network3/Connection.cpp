@@ -404,10 +404,10 @@ void ServerListenSocket::HandleInput()
 
 		printf( "Client with sockID: %d connected from %d.\n", sockID, ipAddr );
 
-		std::shared_ptr<Event_Client> E1( PFS_NEW Event_Client( ipAddress, sockID ) );
+		std::shared_ptr<Event_Client_Joined> E1( PFS_NEW Event_Client_Joined( ipAddress, sockID ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
-		AttachRemoteClient( ipAddress, sockID );
+		//AttachRemoteClient( ipAddress, sockID );
 	}
 }
 
@@ -750,11 +750,12 @@ bool SocketManager::Initialize()
 
 void SocketManager::Release()
 {
-	while( !mSocketList.empty() )
+	for( auto& socket : mSocketList )
 	{
-		delete *mSocketList.begin();
-		mSocketList.pop_front();
+		SAFE_DELETE( socket );
 	}
+	mSocketList.clear();
+	mSocketMap.clear();
 
 	WSACleanup();
 }
@@ -822,7 +823,7 @@ void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 	out << "\r\n";
 
 	std::shared_ptr<BinaryPacket> msg( PFS_NEW BinaryPacket( out.rdbuf()->str().c_str(), (u_long)out.str().size() ) );
-	gSocketManager->Send( mSocketID, msg );
+	mSM->Send( mSocketID, msg );
 }
 
 // End of NetworkEventForwarder functions

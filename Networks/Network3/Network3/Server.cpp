@@ -2,16 +2,20 @@
 
 SocketManager* Server::mSocketManager = nullptr;
 
+void Server::InitEventListening()
+{
+	// Code for adding events that should be listened to by the server
+}
+
 void Server::InitForwardingEvents()
 {
 	// Code for adding events that should be forwarded to the network by the server
-	EventManager::GetInstance()->AddListener( &NetworkEventForwarder::ForwardEvent, mNEF, Event_Text::GUID );
 }
 
 bool Server::Initialize( unsigned int port )
 {
-	mSocketManager = PFS_NEW SocketManager();
-	mNEF = PFS_NEW NetworkEventForwarder( 0, mSocketManager );
+	mSocketManager = new SocketManager();
+	mNEF = new NetworkEventForwarder( 0, mSocketManager );
 	if( !mSocketManager->Initialize() )
 	{
 		OutputDebugStringA( "Server failed to initialize." );
@@ -25,7 +29,7 @@ bool Server::Initialize( unsigned int port )
 
 void Server::Release()
 {
-	mSocketManager->Release();
+	SAFE_RELEASE( mSocketManager );
 	SAFE_DELETE( mSocketManager );
 	SAFE_DELETE( mNEF );
 }

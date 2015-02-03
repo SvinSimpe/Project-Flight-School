@@ -193,6 +193,6 @@ class NetworkEventForwarder
 	public:
 		void	ForwardEvent( IEventPtr eventPtr );
 				NetworkEventForwarder( int socketID, SocketManager* sm ) { mSocketID = socketID; mSM = sm; }
-		virtual	~NetworkEventForwarder() {}
+		virtual	~NetworkEventForwarder() { }
 };
 #endif

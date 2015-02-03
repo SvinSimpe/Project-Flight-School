@@ -40,7 +40,7 @@
 #include <DirectXMath.h>
 using namespace DirectX;
 
-class Event_Client : public IEvent
+class Event_Client_Joined : public IEvent
 {
 	private:
 		int mHostID;
@@ -53,17 +53,17 @@ class Event_Client : public IEvent
 	private:
 	protected:
 	public:
-		Event_Client()
+		Event_Client_Joined()
 		{
 			mHostID		= -1;
 			mSocketID	= -1;
 		}
-		Event_Client( int hostID, int socketID )
+		Event_Client_Joined( int hostID, int socketID )
 		{
 			mHostID		= hostID;
 			mSocketID	= socketID;
 		}
-		~Event_Client() {}
+		~Event_Client_Joined() {}
 		int HostID() const
 		{
 			return mHostID;
@@ -88,7 +88,7 @@ class Event_Client : public IEvent
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Client( mHostID, mSocketID ) );
+			return IEventPtr( new Event_Client_Joined( mHostID, mSocketID ) );
 		}
 };
 

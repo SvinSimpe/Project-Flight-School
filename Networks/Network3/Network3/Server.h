@@ -5,20 +5,23 @@
 
 class Server
 {
-private:
-	NetworkEventForwarder*	mNEF;
-protected:
-public:
-	static SocketManager*	mSocketManager;
+	private:
+		NetworkEventForwarder*	mNEF;
 
-private:
-	void			InitForwardingEvents();
-protected:
-public:
-	void			ForwardEvent( IEventPtr ePtr );
-	bool			Initialize( unsigned int port );
-	void			Release();
-					Server();
-	virtual			~Server();
+	protected:
+	public:
+		static SocketManager*	mSocketManager;
+
+	private:
+		void	InitEventListening();
+		void	InitForwardingEvents();
+
+	protected:
+	public:
+		void	ForwardEvent( IEventPtr ePtr );
+		bool	Initialize( unsigned int port );
+		void	Release();
+				Server();
+		virtual	~Server();
 };
 #endif

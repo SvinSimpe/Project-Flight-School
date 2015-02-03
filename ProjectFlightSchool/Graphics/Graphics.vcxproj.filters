@@ -154,12 +154,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\Content\Effects\Placeholder.hlsl">
-      <Filter>Effects</Filter>
-    </Text>
-    <Text Include="..\Content\Effects\PlaceholderAni.hlsl">
-      <Filter>Effects</Filter>
-    </Text>
     <Text Include="..\Content\Effects\Animated3dEffect.hlsl">
       <Filter>Effects</Filter>
     </Text>

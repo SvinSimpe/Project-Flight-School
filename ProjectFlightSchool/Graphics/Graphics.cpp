@@ -39,7 +39,6 @@ Graphics::~Graphics()
 
 }
 
-
 //Map buffer
 HRESULT Graphics::MapBuffer( ID3D11Buffer* buffer, void* data, int size )
 {
@@ -154,10 +153,10 @@ void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX
 	UINT32 vertexSize	= sizeof(StaticVertex);
 	UINT32 offset		= 0;
 
-	StaticVertex bottomleft		= { x.x, x.y, y.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 1.0f };
-	StaticVertex topleft		= { x.x, x.y, x.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 0.0f };
-	StaticVertex bottomright	= { y.x, x.y, y.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	1.0f, 1.0f };
-	StaticVertex topright		= { y.x, x.y, x.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	1.0f, 0.0f };
+	StaticVertex bottomleft		= { x.x, x.y + 0.001f, y.z,		0.0f, 1.0f, 0.0f,	0.71f, 0.0f, 0.71f,		0.0f, 1.0f };
+	StaticVertex topleft		= { x.x, x.y + 0.001f, x.z,		0.0f, 1.0f, 0.0f,	0.71f, 0.0f, 0.71f,		0.0f, 0.0f };
+	StaticVertex bottomright	= { y.x, x.y + 0.001f, y.z,		0.0f, 1.0f, 0.0f,	0.71f, 0.0f, 0.71f,		1.0f, 1.0f };
+	StaticVertex topright		= { y.x, x.y + 0.001f, x.z,		0.0f, 1.0f, 0.0f,	0.71f, 0.0f, 0.71f,		1.0f, 0.0f };
 
 	StaticVertex vertices[4]	= { bottomleft, topleft, bottomright, topright };
 	MapBuffer( mBuffers[BUFFERS_2D], &vertices, sizeof(StaticVertex) * 4 );
@@ -179,8 +178,8 @@ void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] );
 
 	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[assetId] )->mSRV );
-	mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
-	mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[NORMAL_PLACEHOLDER] )->mSRV );
+	mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[NORMAL_PLACEHOLDER] )->mSRV );
+	mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
 	mDeviceContext->Draw( 4, 0 );
 }
 

@@ -8,6 +8,12 @@ class Gui
 
 private:
 	Radar*					mRadar;
+	int						mScreenWidth;
+	int						mScreenHeight;
+	AssetID					mAllyHealth;
+	AssetID					mAllyHealthBar;
+	AssetID					mAllyHealthFrame;
+	AssetID					mPlayerBar;
 
 protected:
 

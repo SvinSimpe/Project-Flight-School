@@ -3,18 +3,6 @@
 #include "Server.h"
 #include "Client.h"
 
-void HandleEvents( IEventPtr evtPtr )
-{
-	if( evtPtr->GetEventType() == Event_Client_Joined::GUID )
-	{
-		std::shared_ptr<Event_Client_Joined> data = std::static_pointer_cast<Event_Client_Joined>( evtPtr );
-		int hostID = data->HostID();
-		int socketID = data->SocketID();
-
-		std::cout << hostID << ", " << socketID << std::endl;
-	}
-}
-
 int main()
 {
 #if defined(DEBUG) | defined(_DEBUG)
@@ -56,10 +44,15 @@ int main()
 		return 3;
 	}
 
+	int frameCount = 0;
 	while( !GetAsyncKeyState( VK_ESCAPE ) )
 	{
 		network->DoSelect( 0 );
-		network->Update( 0.0f );
+		frameCount++;
+		if( frameCount > 10000 )
+		{
+			network->Update( 0.0f );
+		}
 		EventManager::GetInstance()->Update();
 	}
 
@@ -68,50 +61,5 @@ int main()
 	SAFE_DELETE( network );
 	gSocketManager = nullptr;
 	EventManager::GetInstance()->Release();
-	/////////////////////////////////////////////////////////////////////////////////
-	//NetworkEventForwarder* nef = nullptr;
-	//ClientSocketManager* client = nullptr;
-	//if( answer == "S" || answer == "s" )
-	//{
-	//	gSocketManager = new SocketManager();
-	//	if( !gSocketManager->Initialize() )
-	//	{
-	//		OutputDebugStringA( "Server couldn't initialize.\n" );
-	//		return 1;
-	//	}
-	//	gSocketManager->AddSocket( new ServerListenSocket( port ) );
-	//	std::cout << "Server up and running." << std::endl;
-	//	serverOn = true;
-	//}
-	//else if( answer == "C" || answer == "c" )
-	//{
-	//	client = new ClientSocketManager();
-	//	if( !client->Connect( ip, port ) )
-	//	{
-	//		OutputDebugStringA( "Client couldn't connect.\n" );
-	//		return 2;
-	//	}
-	//	gSocketManager = client;
-	//	nef = new NetworkEventForwarder();
-	//	nef->Initialize( 0, gSocketManager );
-	//	EventManager::GetInstance()->AddListener( &NetworkEventForwarder::ForwardEvent, nef, Event_Client_Joined::GUID );
-	//	std::cout << "Client connected to server." << std::endl;
-	//}
-	//else
-	//{
-	//	printf( "Things messed up.\n" );
-	//	return 3;
-	//}
-
-	//while( !GetAsyncKeyState( VK_ESCAPE ) )
-	//{
-	//	gSocketManager->DoSelect( 0 );
-	//	EventManager::GetInstance()->Update();
-	//}
-
-	//EventManager::GetInstance()->Release();
-	//gSocketManager->Release();
-	//SAFE_DELETE( gSocketManager );
-	//SAFE_DELETE( nef );
 	return 0;
 }

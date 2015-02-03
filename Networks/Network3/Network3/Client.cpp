@@ -6,8 +6,9 @@ void Client::HandleEvents( IEventPtr evtPtr )
 	{
 		std::shared_ptr<Event_Client_Joined> data = std::static_pointer_cast<Event_Client_Joined>( evtPtr );
 		int hostID = data->HostID();
-		int socketID = data->SocketID();
-		std::cout << hostID << ", " << socketID << std::endl;
+		mID = data->SocketID();
+
+		std::cout << "My ID is: " << mID << std::endl;
 
 		mActive = true;
 	}
@@ -30,7 +31,7 @@ void Client::Update( float deltaTime )
 {
 	if( mActive )
 	{
-		IEventPtr E1( PFS_NEW Event_Text( (UINT)1, "Hello_World!" ) );
+		IEventPtr E1( PFS_NEW Event_Text( mID, "Hello_World!" ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 }
@@ -60,7 +61,8 @@ bool Client::Initialize( std::string ip, unsigned int port )
 
 void Client::Release()
 {
-	mSocketManager->Release();
+	if( mSocketManager )
+		mSocketManager->Release();
 	SAFE_DELETE( mSocketManager );
 	SAFE_DELETE( mNEF );
 }
@@ -68,7 +70,9 @@ void Client::Release()
 Client::Client() : Network()
 {
 	mSocketManager	= nullptr;
+	mIP				= "";
 	mNEF			= nullptr;
+	mID				= 0;
 	mActive			= false;
 }
 

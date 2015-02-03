@@ -8,6 +8,7 @@ bool Network::Initialize( UINT port )
 
 Network::Network()
 {
+	mPort = 0;
 }
 
 Network::~Network()

@@ -7,10 +7,12 @@
 class Client : public Network
 {
 	private:
+		ClientSocketManager*	mSocketManager;
 		std::string				mIP;
 		NetworkEventForwarder*	mNEF;
-		ClientSocketManager*	mSocketManager;
+		UINT					mID;
 		bool					mActive;
+
 	protected:
 	public:
 

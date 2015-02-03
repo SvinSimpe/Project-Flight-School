@@ -120,6 +120,11 @@ float RemotePlayer::GetHP() const
 	return mCurrentHp;
 }
 
+float RemotePlayer::GetMaxHP() const
+{
+	return mMaxHp;
+}
+
 int RemotePlayer::GetID() const
 {
 	return mID;
@@ -290,7 +295,7 @@ HRESULT RemotePlayer::Render( int position )
 			textToWrite	+= "I";
 			currentDeaths--;
 		}
-		mFont.WriteText( textToWrite, 25.0f, ((20.0f*(float)position)-7), 0.25f );
+		mFont.WriteText( textToWrite, 25.0f, ((20.0f*(float)position)-7), 1.95f );
 		
 	}
 
@@ -452,7 +457,6 @@ HRESULT RemotePlayer::Initialize()
 	if( FAILED( Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/OrangeHP.png", mOrangeHPAsset ) ) )
 		OutputDebugString( L"\nERROR\n" );
 
-	//mUpperBody.position						= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mLowerBody.position						= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mNrOfDeaths								= 0;
 	mNrOfKills								= 0;

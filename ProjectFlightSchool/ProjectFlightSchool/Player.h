@@ -13,7 +13,7 @@ class Player: public RemotePlayer
 	private:
 		float		mEventCapTimer;
 
-		PointLight*		mPointLight;
+		PointLight*		mPointLight[5];
 
 		float		mWeaponCoolDown;
 		float		mMeleeCoolDown;

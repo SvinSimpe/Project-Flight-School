@@ -12,11 +12,13 @@ class Client : public Network
 		ClientSocketManager*	mSocketManager;
 		bool					mActive;
 		int						mID;
+		std::vector<UINT>		mRemoteIDs;
 	protected:
 	public:
 
 	private:
-		void	HandleEvents( IEventPtr evtPtr );
+		void	HandleLocalJoin( IEventPtr evtPtr );
+		void	HandleRemoteList( IEventPtr evtPtr );
 		void	InitEventListening();
 		void	InitForwardingEvents();
 

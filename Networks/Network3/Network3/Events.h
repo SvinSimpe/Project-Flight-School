@@ -41,11 +41,10 @@
 #include <iostream>
 using namespace DirectX;
 
-class Event_Client_Joined : public IEvent
+class Event_Local_Client_Joined : public IEvent
 {
 	private:
-		int mHostID;
-		int mSocketID;
+		UINT mID;
 
 	protected:
 	public:
@@ -54,24 +53,18 @@ class Event_Client_Joined : public IEvent
 	private:
 	protected:
 	public:
-		Event_Client_Joined()
+		Event_Local_Client_Joined()
 		{
-			mHostID		= -1;
-			mSocketID	= -1;
+			mID = -1;
 		}
-		Event_Client_Joined( int hostID, int socketID )
+		Event_Local_Client_Joined( UINT ID )
 		{
-			mHostID		= hostID;
-			mSocketID	= socketID;
+			mID = ID;
 		}
-		~Event_Client_Joined() {}
-		int HostID() const
+		~Event_Local_Client_Joined() {}
+		UINT ID() const
 		{
-			return mHostID;
-		}
-		int SocketID() const
-		{
-			return mSocketID;
+			return mID;
 		}
 		const EventType& GetEventType() const
 		{
@@ -79,26 +72,23 @@ class Event_Client_Joined : public IEvent
 		}
 		void Serialize( std::stringstream& out ) const
 		{
-			out << mHostID << " ";
-			out << mSocketID << " ";
+			out << mID << " ";
 		}
 		void Deserialize( std::stringstream& in )
 		{
-			in >> mHostID;
-			in >> mSocketID;
+			in >> mID;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Client_Joined( mHostID, mSocketID ) );
+			return IEventPtr( new Event_Local_Client_Joined( mID ) );
 		}
 };
 
-class Event_Text : public IEvent
+class Event_Remote_Client_List : public IEvent
 {
 	private:
-		int				mSocketID;
-		std::string		mText;
-
+		size_t				mSize;
+		std::vector<UINT>	mRemoteIDs;
 	protected:
 	public:
 		static const EventType GUID;
@@ -106,24 +96,24 @@ class Event_Text : public IEvent
 	private:
 	protected:
 	public:
-		Event_Text()
+		Event_Remote_Client_List()
 		{
-			mSocketID = 0;
-			mText	= "";
+			mSize		= 0;
+			mRemoteIDs	= std::vector<UINT>();
 		}
-		Event_Text( int socketID, std::string text )
+		Event_Remote_Client_List( size_t size, std::vector<UINT> remoteIDs )
 		{
-			mSocketID = socketID;
-			mText = text;
+			mSize		= size;
+			mRemoteIDs	= remoteIDs;
 		}
-		~Event_Text() {}
-		int SocketID() const
+		~Event_Remote_Client_List() {}
+		size_t Size() const
 		{
-			return mSocketID;
+			return mSize;
 		}
-		std::string Text() const
+		std::vector<UINT> RemoteIDs() const
 		{
-			return mText;
+			return mRemoteIDs;
 		}
 		const EventType& GetEventType() const
 		{
@@ -131,17 +121,25 @@ class Event_Text : public IEvent
 		}
 		void Serialize( std::stringstream& out ) const
 		{
-			out << mSocketID << " ";
-			out << mText << " ";
+			out << mSize << " ";
+			for( unsigned int i = 0; i < mSize; i++ )
+			{
+				out << mRemoteIDs.at(i) << " ";
+			}
 		}
 		void Deserialize( std::stringstream& in )
 		{
-			in >> mSocketID;
-			in >> mText;
+			in >> mSize;
+			for( size_t i = 0; i < mSize; i++ )
+			{
+				int id;
+				in >> id;
+				mRemoteIDs.push_back( id );
+			}
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Text( mSocketID, mText ) );
+			return IEventPtr( new Event_Remote_Client_List( mSize, mRemoteIDs ) );
 		}
 };
 
@@ -149,7 +147,7 @@ class Event_Text : public IEvent
 class Event_Client_Status_Update : public IEvent
 {
 	private:
-		std::vector<int> mSocketList;
+		std::vector<UINT> mSocketList;
 
 	protected:
 	public:
@@ -160,14 +158,14 @@ class Event_Client_Status_Update : public IEvent
 	public:
 		Event_Client_Status_Update()
 		{
-			mSocketList = std::vector<int>();
+			mSocketList = std::vector<UINT>();
 		}
-		Event_Client_Status_Update( std::vector<int> socketList )
+		Event_Client_Status_Update( std::vector<UINT> socketList )
 		{
 			mSocketList = socketList;
 		}
 		~Event_Client_Status_Update() {}
-		std::vector<int> SocketList()
+		std::vector<UINT> SocketList()
 		{
 			return mSocketList;
 		}

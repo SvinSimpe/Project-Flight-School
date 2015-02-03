@@ -9,8 +9,8 @@ int main()
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 	//_CrtSetBreakAlloc(142); // Break at specific memory allocation point
 #endif
-	EF::REGISTER_EVENT( Event_Client_Joined );
-	EF::REGISTER_EVENT( Event_Text );
+	EF::REGISTER_EVENT( Event_Local_Client_Joined );
+	EF::REGISTER_EVENT( Event_Remote_Client_List );
 	EF::REGISTER_EVENT( Event_Client_Status_Update );
 
 	std::string answer = "";

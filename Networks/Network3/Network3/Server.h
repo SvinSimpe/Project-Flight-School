@@ -9,17 +9,18 @@ class Server : public Network
 	private:
 		typedef std::shared_ptr<BinaryPacket> Packet;
 		SocketManager* mSocketManager;
-		std::vector<int> mSocketList;
+		std::vector<UINT> mSocketList;
+		NetworkEventForwarder* mNEF;
 
 	protected:
 	public:
 
 	private:
-		// Sends a packet to every connected socket, except for the exception if there is one
-		void	Broadcast( NetSocket* exception, Packet pkt );
-		// Sends a packet to only the specified socket
-		void	Send( NetSocket* receiver, Packet pkt );
-		void	HandleEvents( IEventPtr evtPtr );
+		void	BroadcastPkt( Packet pkt, UINT exception = 0 );
+		void	BroadcastEvent( IEventPtr eventPtr, UINT exception = 0 );
+		void	SendPkt( UINT receiver, Packet pkt );
+		void	SendEvent( UINT receiver, IEventPtr eventPtr );
+		void	HandleEvents( IEventPtr eventPtr );
 		void	InitEventListening();
 
 	protected:

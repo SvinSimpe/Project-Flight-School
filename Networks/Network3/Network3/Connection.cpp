@@ -256,7 +256,7 @@ void NetListenSocket::InitScan( int portNum_min, int portNum_max )
 		EXIT_ASSERT
 			exit( 1 );
 	}
-	if( setsockopt( mSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&x, sizeof( x ) ) == SOCKET_ERROR )
+	if( setsockopt( mSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&x, sizeof( x ) ) == SOCKET_ERROR )
 	{
 		closesocket( mSocket );
 		mSocket = INVALID_SOCKET;
@@ -376,26 +376,13 @@ NetListenSocket::NetListenSocket( int portNum )
 /////////////////////////////////////////////////////////////////
 // ServerListenSocket functions
 
-void ServerListenSocket::AttachRemoteClient( int hostID, int socketID )
-{
-	std::stringstream out;
-
-	out << static_cast<int>( RemoteEventSocket::NetMsg_LoginOk ) << " ";
-	out << hostID << " ";
-	out << socketID << " ";
-	out << "\r\n";
-
-	std::shared_ptr<BinaryPacket> msg( PFS_NEW BinaryPacket( out.rdbuf()->str().c_str(), (u_long)out.str().size() ) );
-	gSocketManager->Send( socketID, msg );
-}
-
 void ServerListenSocket::HandleInput()
 {
 	UINT ipAddr;
 	SOCKET newSocket = AcceptConnection( &ipAddr );
 
 	int value = 1;
-	setsockopt( newSocket, IPPROTO_TCP, TCP_NODELAY, (char*)value, sizeof( value ) );
+	setsockopt( newSocket, SOL_SOCKET, SO_DONTLINGER, (char*)value, sizeof( value ) );
 	if( newSocket != INVALID_SOCKET )
 	{
 		RemoteEventSocket* socket = PFS_NEW RemoteEventSocket( newSocket, ipAddr );
@@ -462,16 +449,14 @@ void RemoteEventSocket::HandleInput()
 				break;
 			case NetMsg_LoginOk:
 				{
-					int hostID, socketID;
-					in >> hostID;
+					int socketID;
 					in >> socketID;
-					IEventPtr E1( new Event_Client_Joined( hostID, socketID ) );
-					EventManager::GetInstance()->QueueEvent( E1 );
+					std::cout << socketID << std::endl;
 				}
 				break;
 			default:
 				{
-					printf( "Unknown message type" );
+					std::cout << "Unknown message type." << std::endl;
 				}
 			}
 		}
@@ -499,12 +484,12 @@ RemoteEventSocket::RemoteEventSocket()
 
 void SocketManager::ClientUpdateEvent()
 {
-	std::vector<int> socketList;
-	for( auto& socket : mSocketMap )
+	std::vector<UINT> socketList;
+	for( auto& socket : mSocketList )
 	{
-		if( socket.second->mID != 0 ) // This is to avoid getting the ServerListenSocket-ID
+		if( socket->mID != 0 ) // This is to avoid getting the ServerListenSocket-ID
 		{
-			socketList.push_back( socket.second->mID );
+			socketList.push_back( socket->mID );
 		}
 	}
 	std::shared_ptr<Event_Client_Status_Update> E1( PFS_NEW Event_Client_Status_Update( socketList ) );
@@ -839,6 +824,19 @@ void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 
 	std::shared_ptr<BinaryPacket> msg( PFS_NEW BinaryPacket( out.rdbuf()->str().c_str(), (u_long)out.str().size() ) );
 	mSocketManager.Send( mSocketID, msg );
+}
+
+void NetworkEventForwarder::ForwardEvent( UINT socket, IEventPtr eventPtr )
+{
+	std::stringstream out;
+
+	out << static_cast<int>( RemoteEventSocket::NetMsg_Event ) << " ";
+	out << eventPtr->GetEventType() << " ";
+	eventPtr->Serialize( out );
+	out << "\r\n";
+
+	std::shared_ptr<BinaryPacket> msg( PFS_NEW BinaryPacket( out.rdbuf()->str().c_str(), (u_long)out.str().size() ) );
+	mSocketManager.Send( socket, msg );
 }
 
 void NetworkEventForwarder::Initialize( int socketID, SocketManager sm )

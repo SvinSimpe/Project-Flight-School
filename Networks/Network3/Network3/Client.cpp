@@ -1,40 +1,44 @@
 #include "Client.h"
 #include <iostream>
 
-void Client::HandleEvents( IEventPtr evtPtr )
+void Client::HandleLocalJoin( IEventPtr evtPtr )
 {
-	if( evtPtr->GetEventType() == Event_Client_Joined::GUID )
+	if( evtPtr->GetEventType() == Event_Local_Client_Joined::GUID )
 	{
-		std::shared_ptr<Event_Client_Joined> data = std::static_pointer_cast<Event_Client_Joined>( evtPtr );
-		int hostID = data->HostID();
-		int socketID = data->SocketID();
-		std::cout << hostID << ", " << socketID << std::endl;
-		mID = socketID;
-
+		std::shared_ptr<Event_Local_Client_Joined> data = std::static_pointer_cast<Event_Local_Client_Joined>( evtPtr );
+		mID = data->ID();
+		std::cout << "My ID is: " << mID << std::endl;
 		mActive = true;
+	}
+}
+
+void Client::HandleRemoteList( IEventPtr evtPtr )
+{
+	if( evtPtr->GetEventType() == Event_Remote_Client_List::GUID )
+	{
+		mRemoteIDs.clear();
+		std::shared_ptr<Event_Remote_Client_List> data = std::static_pointer_cast<Event_Remote_Client_List>( evtPtr );
+		mRemoteIDs = data->RemoteIDs();
+		std::cout << "Number of other players online: " << mRemoteIDs.size() << std::endl;
 	}
 }
 
 // Code for adding events that should be listened to by the client
 void Client::InitEventListening()
 {
-	EventManager::GetInstance()->AddListener( &Client::HandleEvents, this, Event_Client_Joined::GUID );
+	EventManager::GetInstance()->AddListener( &Client::HandleLocalJoin, this, Event_Local_Client_Joined::GUID );
+	EventManager::GetInstance()->AddListener( &Client::HandleRemoteList, this, Event_Remote_Client_List::GUID );
 }
 
 // Initializes all the eventlisteners for events that needs to be forwarded to the server
 void Client::InitForwardingEvents()
 {
 	// Code for adding events that should be forwarded to the network by the client here
-	EventManager::GetInstance()->AddListener( &NetworkEventForwarder::ForwardEvent, mNEF, Event_Text::GUID );
 }
 
 void Client::Update( float deltaTime )
 {
-	if( mActive )
-	{
-		IEventPtr E1( PFS_NEW Event_Text( mID, "Hello_World!" ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
-	}
+	// Nothing here yet!
 }
 
 void Client::DoSelect( int pauseMicroSecs, bool handleInput )
@@ -73,6 +77,7 @@ Client::Client() : Network()
 	mNEF			= nullptr;
 	mActive			= false;
 	mID				= -1;
+	mRemoteIDs		= std::vector<UINT>();
 }
 
 Client::~Client()

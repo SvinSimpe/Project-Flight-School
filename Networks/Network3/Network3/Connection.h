@@ -90,7 +90,7 @@ class ServerListenSocket : public NetListenSocket
 	private:
 	protected:
 	public:
-		void			AttachRemoteClient( int hostID, int socketID );
+		void			AttachRemoteClient( int socketID );
 		virtual void	HandleInput();
 						ServerListenSocket( int portNum );
 };
@@ -104,7 +104,6 @@ class RemoteEventSocket : public NetSocket
 		{
 			NetMsg_LoginOk,
 			NetMsg_Event,			// If this is sent, an event is created
-			NetMsg_Text,
 		};
 
 	private:
@@ -185,7 +184,7 @@ class NetworkEventForwarder
 {
 	private:
 	protected:
-		int				mSocketID;
+		UINT			mSocketID;
 		SocketManager	mSocketManager;
 
 	public:
@@ -193,7 +192,8 @@ class NetworkEventForwarder
 	private:
 	protected:
 	public:
-		void	ForwardEvent( IEventPtr eventPtr );
+		void	ForwardEvent( IEventPtr eventPtr ); // Used by the client
+		void	ForwardEvent( UINT socket, IEventPtr eventPtr ); // Used by the server
 		void	Initialize( int socketID, SocketManager sm );
 				NetworkEventForwarder();
 		virtual	~NetworkEventForwarder();

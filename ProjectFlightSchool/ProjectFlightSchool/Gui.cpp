@@ -6,7 +6,7 @@ HRESULT Gui::Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjects
 	return result;
 }
 
-HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP )
+HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP, float playerShield, float playerXp )
 {
 	HRESULT result = mRadar->Render();
 	XMFLOAT2 topLeft;
@@ -64,20 +64,31 @@ HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP )
 	
 	mFont.WriteText( "Hp", 106.0f, 858.0f, 2.9f );
 	int renderHealth = playerHP * 100;
-	std::string renderText = std::to_string( renderHealth );
-	renderText += "%";
-	mFont.WriteText( renderText, 95.0f, 896.0f, 2.9f );
+	std::string renderText;
+	if ( renderHealth >= 0 )
+	{
+		renderText = std::to_string( renderHealth );
+		renderText += "%";
+		mFont.WriteText( renderText, 95.0f, 896.0f, 2.9f );
+	}
 
-	mFont.WriteText( "Shield", 68.0f, 945.0f, 2.9f );
-	renderText = std::to_string( renderHealth ); //Should be changed to Shield.
-	renderText += "%";
-	mFont.WriteText( renderText, 95.0f, 983.0f, 2.9f );
+	int renderShield = playerShield * 100;
+	if ( renderShield >= 0 )
+	{
+		mFont.WriteText( "Shield", 68.0f, 945.0f, 2.9f );
+		renderText = std::to_string( renderShield );
+		renderText += "%";
+		mFont.WriteText( renderText, 95.0f, 983.0f, 2.9f );
+	}
 
-	mFont.WriteText( "Xp", 316.0f, 871.0f, 3.8f );
-	renderText = std::to_string( renderHealth ); //Should be changed to Xp.
-	renderText += "%";
-	mFont.WriteText( renderText, 297.0f, 930.0f, 3.8f );
-
+	int renderXp = playerXp * 100;
+	if ( renderXp >= 0 )
+	{
+		mFont.WriteText( "Xp", 316.0f, 871.0f, 3.8f );
+		renderText = std::to_string( renderXp );
+		renderText += "%";
+		mFont.WriteText( renderText, 297.0f, 930.0f, 3.8f );
+	}
 
 	return result;
 }

@@ -36,7 +36,7 @@ protected:
 
 public:
 	HRESULT	Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjects[], UINT nrOfObjects );
-	HRESULT	Render( int nrOfAllies, float alliesHP[], float playerHP );
+	HRESULT	Render( int nrOfAllies, float alliesHP[], float playerHP, float playerShield, float playerXp );
 	HRESULT	Initialize();
 	void	Release();
 			Gui();

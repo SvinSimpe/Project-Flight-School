@@ -240,7 +240,7 @@ HRESULT Player::Render( float deltaTime, int position )
 		
 
 
-		mFont.WriteText( textToWrite, 500.0f, 500.0f, 1.0f );
+		mFont.WriteText( textToWrite, 500.0f, 500.0f, 7.8f );
 	}
 
 	RemotePlayer::Render( position );

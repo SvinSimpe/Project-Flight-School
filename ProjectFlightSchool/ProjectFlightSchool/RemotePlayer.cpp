@@ -295,7 +295,7 @@ HRESULT RemotePlayer::Render( int position )
 			textToWrite	+= "I";
 			currentDeaths--;
 		}
-		mFont.WriteText( textToWrite, 25.0f, ((20.0f*(float)position)-7), 0.25f );
+		mFont.WriteText( textToWrite, 25.0f, ((20.0f*(float)position)-7), 1.95f );
 		
 	}
 

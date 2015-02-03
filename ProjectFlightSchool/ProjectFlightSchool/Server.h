@@ -255,6 +255,12 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 			}
 		}
 			break;
+		case Net_Event::EV_ENEMY_PROJECTILE_DAMGAE:
+		{
+			EvEnemyProjectileDamage enemyDamage = (EvEnemyProjectileDamage&)p->body.content;
+			mEnemies[enemyDamage.enemyID]->TakeDamage( enemyDamage.damage );
+		}
+			break;
 
 		default:
 		{

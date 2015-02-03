@@ -4,6 +4,7 @@
 #include "Graphics.h"
 #include "RenderManager.h"
 #include "Enemy.h"
+#include "BoundingGeometry.h"
 
 class RemoteEnemy
 {
@@ -14,7 +15,10 @@ class RemoteEnemy
 		AnimationTrack		mAnimationTrack;
 		XMFLOAT3			mPosition;
 		XMFLOAT3			mDirection;
+		bool				mIsAlive;
 		bool				mIsSynced;
+		bool				mLoopAnimation;
+		BoundingCircle*		mBoundingCircle;
 
 	protected:
 	public:
@@ -27,6 +31,10 @@ class RemoteEnemy
 		HRESULT				Update( float deltaTime );
 		HRESULT				Render();
 		void				SetID( unsigned int id );
+		unsigned int		GetID()	const;
+		void				SetIsAlive( bool isAlive );
+		bool				IsAlive() const;
+		void				SetLoopAnimation( bool loop );
 		void				SetEnemyType( EnemyType type );
 		void				SetModelID( AssetID model, AssetID defaultAnimation );
 		void				SetAnimation( AssetID animation );
@@ -35,6 +43,7 @@ class RemoteEnemy
 		void				SetSynced( bool isSynced );
 		bool				IsSynced() const;
 		EnemyType			GetEnemyType() const;
+		BoundingCircle*		GetBoundingCircle() const;
 		virtual HRESULT		Initialize( int id, AssetID model, AssetID animation );
 		void				Release();
 							RemoteEnemy();

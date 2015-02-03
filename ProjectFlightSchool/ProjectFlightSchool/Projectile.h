@@ -41,4 +41,5 @@ class Projectile
 						Projectile();
 						~Projectile();
 };
+
 #endif

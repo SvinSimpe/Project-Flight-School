@@ -1050,6 +1050,7 @@ class Event_Update_Enemy_Position : public IEvent
 		unsigned int	mID;
 		XMFLOAT3		mPosition;
 		XMFLOAT3		mDirection;
+		bool			mIsAlive;
 	protected:
 	public:
 		static const EventType GUID;
@@ -1061,11 +1062,12 @@ class Event_Update_Enemy_Position : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Update_Enemy_Position( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction )
+		Event_Update_Enemy_Position( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive )
 		{
 			mID			= id;
 			mPosition	= position;
 			mDirection	= direction;
+			mIsAlive	= isAlive;
 		}
 
 		unsigned int ID() const
@@ -1081,6 +1083,11 @@ class Event_Update_Enemy_Position : public IEvent
 		XMFLOAT3 Direction() const
 		{
 			return mDirection;
+		}
+
+		bool IsAlive() const
+		{
+			return mIsAlive;
 		}
 };
 		
@@ -1242,5 +1249,114 @@ class Event_Set_Remote_Enemy_State : public IEvent // Client side
 		unsigned int State() const
 		{
 			return mState;
+		}
+};
+
+class Event_Projectile_Damage_Enemy : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mShooterID;
+		unsigned int	mProjectileID;
+		unsigned int	mEnemyID;
+		float			mDamage;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Projectile_Damage_Enemy( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage )
+		{
+			mShooterID		= shooterID;
+			mProjectileID	= projectileID;
+			mEnemyID		= enemyID;
+			mDamage			= damage;
+		}
+		unsigned int Shooter() const
+		{
+			return mShooterID;
+		}
+		unsigned int Projectile() const
+		{
+			return mProjectileID;
+		}
+		unsigned int Enemy() const
+		{
+			return mEnemyID;
+		}
+		float Damage() const
+		{
+			return mDamage;
+		}
+};
+
+class Event_Enemy_Died : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mEnemyID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Enemy_Died( unsigned int enemyID )
+		{
+			mEnemyID		= enemyID;
+		}
+		unsigned int Enemy() const
+		{
+			return mEnemyID;
+		}
+};
+
+class Event_Enemy_Attack_Player : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mPlayerID;	
+		float			mDamage;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Enemy_Attack_Player( unsigned int playerID, float damage )
+		{
+			mPlayerID	= playerID;
+			mDamage		= damage;
+		}
+		unsigned int Player() const
+		{
+			return mPlayerID;
+		}
+
+		float Damage() const
+		{
+			return mDamage;
 		}
 };

@@ -86,12 +86,10 @@ class ServerListenSocket : public NetListenSocket
 	private:
 	protected:
 	public:
-		unsigned short gPort;
 
 	private:
 	protected:
 	public:
-		void			AttachRemoteClient( int hostID, int socketID );
 		virtual void	HandleInput();
 						ServerListenSocket( SocketManager* socketManager, int portNum );
 };
@@ -144,6 +142,7 @@ class SocketManager
 		NetSocket*	FindSocket( UINT sockID );
 
 	public:
+		void		UpdateSocketList();
 		void		PrintError();
 		int			AddSocket( NetSocket* socket );
 		void		RemoveSocket( NetSocket* socket );

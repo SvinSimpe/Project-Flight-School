@@ -38,7 +38,50 @@
 //========================================================================
 #include "EventManager.h"
 #include <DirectXMath.h>
+#include <iostream>
 using namespace DirectX;
+
+class Event_Client_Amount_Update : public IEvent
+{
+	private:
+		std::list<UINT> mSocketIDs;
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Amount_Update()
+		{
+			mSocketIDs = std::list<UINT>();
+		}
+		Event_Client_Amount_Update( std::list<UINT> socketIDs )
+		{
+			mSocketIDs	= socketIDs;
+		}
+		~Event_Client_Amount_Update() {}
+		std::list<UINT> SocketID() const
+		{
+			return mSocketIDs;
+		}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::stringstream& out ) const
+		{
+			std::cout << "Not serializable, stop it." << std::endl;
+		}
+		void Deserialize( std::stringstream& in )
+		{
+			std::cout << "Not deserializable either, seriously stop it." << std::endl;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Amount_Update( mSocketIDs ) );
+		}
+};
 
 class Event_Client_Joined : public IEvent
 {

@@ -379,19 +379,6 @@ NetListenSocket::NetListenSocket( SocketManager* socketManager, int portNum )
 /////////////////////////////////////////////////////////////////
 // ServerListenSocket functions
 
-void ServerListenSocket::AttachRemoteClient( int hostID, int socketID )
-{
-	std::stringstream out;
-
-	out << static_cast<int>( RemoteEventSocket::NetMsg_LoginOk ) << " ";
-	out << hostID << " ";
-	out << socketID << " ";
-	out << "\r\n";
-
-	std::shared_ptr<BinaryPacket> msg( PFS_NEW BinaryPacket( out.rdbuf()->str().c_str(), (u_long)out.str().size() ) );
-	mSocketManager->Send( socketID, msg );
-}
-
 void ServerListenSocket::HandleInput()
 {
 	UINT ipAddr;
@@ -409,8 +396,6 @@ void ServerListenSocket::HandleInput()
 
 		//std::shared_ptr<Event_Client_Joined> E1( PFS_NEW Event_Client_Joined( ipAddress, sockID ) );
 		//EventManager::GetInstance()->QueueEvent( E1 );
-
-		AttachRemoteClient( ipAddress, sockID );
 	}
 }
 

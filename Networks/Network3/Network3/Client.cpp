@@ -9,8 +9,7 @@ void Client::HandleEvents( IEventPtr evtPtr )
 		int socketID = data->SocketID();
 		std::cout << hostID << ", " << socketID << std::endl;
 
-		IEventPtr E1( new Event_Text( socketID, "Hello_server!" ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
+		mActive = true;
 	}
 }
 
@@ -29,7 +28,11 @@ void Client::InitForwardingEvents()
 
 void Client::Update( float deltaTime )
 {
-
+	if( mActive )
+	{
+		IEventPtr E1( PFS_NEW Event_Text( (UINT)1, "Hello_World!" ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
+	}
 }
 
 void Client::DoSelect( int pauseMicroSecs, bool handleInput )
@@ -66,6 +69,7 @@ Client::Client() : Network()
 {
 	mSocketManager	= nullptr;
 	mNEF			= nullptr;
+	mActive			= false;
 }
 
 Client::~Client()

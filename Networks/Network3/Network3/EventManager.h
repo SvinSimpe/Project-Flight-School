@@ -44,66 +44,66 @@
 #include <map>
 #include <Windows.h>
 
-class EventFactory
+namespace EF
 {
-	private:
-		std::map<EventType, IEvent*> mEvents;
-		static EventFactory* mInstance;
-	protected:
-	public:
+	template<class SubClass>
+	IEvent* GenericEventCreationFunction(void) { return new SubClass; }
 
-	private:
-	protected:
-	public:
-		template<class SubClass>
-		bool Register( EventType id )
-		{
-			auto findIt = mEvents.find( id );
-			if( findIt == mEvents.end() )
-			{
-				mEvents[id] = new SubClass;
-				return true;
-			}
-			return false;
-		}
+	class EventFactory
+	{
+		private:
+			typedef IEvent* (*EventCreationFunction)(void);
+			std::map<EventType, EventCreationFunction> mEvents;
+			static EventFactory* mInstance;
+		protected:
+		public:
 
-	private:
-	protected:
-	public:
-		static EventFactory* GetInstance()
-		{
-			if( !mInstance )
+		private:
+		protected:
+		public:
+			template<class SubClass>
+			bool Register( EventType id )
 			{
-				mInstance = new EventFactory();
+				auto findIt = mEvents.find( id );
+				if( findIt == mEvents.end() )
+				{
+					mEvents[id] = &GenericEventCreationFunction<SubClass>;
+					return true;
+				}
+				return false;
 			}
-			return mInstance;
-		}
-		IEvent* Create( EventType id )
-		{
-			auto findIt = mEvents.find( id );
-			if( findIt != mEvents.end() )
+
+		private:
+		protected:
+		public:
+			static EventFactory* GetInstance()
 			{
-				printf( "Trying to retreive event with ID: %d\n", id );
-				IEvent* obj = findIt->second;
-				return obj;
+				if( !mInstance )
+				{
+					mInstance = new EventFactory();
+				}
+				return mInstance;
 			}
-			return nullptr;
-		}
-		void Release()
-		{
-			for( auto& evt : mEvents )
+			IEvent* Create( EventType id )
 			{
-				if( evt.second )
-					delete evt.second;
+				auto findIt = mEvents.find( id );
+				if( findIt != mEvents.end() )
+				{
+					EventCreationFunction obj = findIt->second;
+					return obj();
+				}
+				return nullptr;
 			}
-			mEvents.clear();
-			if( mInstance )
-				delete mInstance;
-		}
-		~EventFactory()
-		{
-		}
-};
+			void Release()
+			{
+				if( mInstance )
+					delete mInstance;
+			}
+			~EventFactory()
+			{
+			}
+	};
+}
 
 #define REGISTER_EVENT( eventClass ) EventFactory::GetInstance()->Register<eventClass>(eventClass::GUID)
 #define CREATE_EVENT( eventType ) EventFactory::GetInstance()->Create(eventType)

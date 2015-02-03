@@ -10,6 +10,7 @@ class Client : public Network
 		std::string				mIP;
 		NetworkEventForwarder*	mNEF;
 		ClientSocketManager*	mSocketManager;
+		bool					mActive;
 	protected:
 	public:
 

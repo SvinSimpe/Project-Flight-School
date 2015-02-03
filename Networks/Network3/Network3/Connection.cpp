@@ -105,7 +105,7 @@ void NetSocket::HandleInput()
 	u_long packetSize = 0;
 	int rc = recv( mSocket, mRecvBuf + mRecvBegin + mRecvOfs, RECV_BUFFER_SIZE - ( mRecvBegin + mRecvOfs ), 0 );
 	
-	printf( "Incoming %6d bytes. Begin %6d offset %4d\n", rc, mRecvBegin, mRecvOfs );
+	//printf( "Incoming %6d bytes. Begin %6d offset %4d\n", rc, mRecvBegin, mRecvOfs );
 
 	if( rc == 0 )
 	{
@@ -427,7 +427,7 @@ void RemoteEventSocket::BuildEvent( std::stringstream &in )
 	EventType eventType;
 	in >> eventType;
 
-	IEventPtr E1( CREATE_EVENT( eventType ) );
+	IEventPtr E1( EF::CREATE_EVENT( eventType ) );
 	if( E1 )
 	{
 		E1->Deserialize( in );
@@ -821,8 +821,6 @@ void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 	out << eventPtr->GetEventType() << " ";
 	eventPtr->Serialize( out );
 	out << "\r\n";
-
-	std::cout << out.str() << std::endl;
 
 	std::shared_ptr<BinaryPacket> msg( PFS_NEW BinaryPacket( out.rdbuf()->str().c_str(), (u_long)out.str().size() ) );
 	mSocketManager.Send( mSocketID, msg );

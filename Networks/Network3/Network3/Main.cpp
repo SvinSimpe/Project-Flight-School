@@ -19,11 +19,10 @@ int main()
 {
 #if defined(DEBUG) | defined(_DEBUG)
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
-	// 149
-	//_CrtSetBreakAlloc(149); // Break at specific memory allocation point
+	//_CrtSetBreakAlloc(142); // Break at specific memory allocation point
 #endif
-	REGISTER_EVENT( Event_Client_Joined );
-	REGISTER_EVENT( Event_Text );
+	EF::REGISTER_EVENT( Event_Client_Joined );
+	EF::REGISTER_EVENT( Event_Text );
 
 	std::string answer = "";
 	std::cout << "Would you like to start a (S)erver or a (C)lient? ";
@@ -60,6 +59,7 @@ int main()
 	while( !GetAsyncKeyState( VK_ESCAPE ) )
 	{
 		network->DoSelect( 0 );
+		network->Update( 0.0f );
 		EventManager::GetInstance()->Update();
 	}
 

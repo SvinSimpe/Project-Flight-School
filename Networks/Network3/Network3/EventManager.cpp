@@ -41,6 +41,8 @@
 #include <windows.h>
 #include <windowsx.h>
 
+using namespace EF;
+
 EventManager* EventManager::mInstance = nullptr;
 EventFactory* EventFactory::mInstance = nullptr;
 

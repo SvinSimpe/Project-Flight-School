@@ -39,6 +39,8 @@ bool Server::Initialize( UINT port )
 	}
 	mSocketManager->AddSocket( new ServerListenSocket( mPort ) );
 	std::cout << "Server started on port: " << mPort << std::endl;
+
+	InitEventListening();
 	return true;
 }
 

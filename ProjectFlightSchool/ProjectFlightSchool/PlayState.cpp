@@ -498,8 +498,17 @@ HRESULT PlayState::Render()
 
 	mShip.Render();
 
-	//mRadar->Render();
-	mGui->Render();
+	int nrOfAllys = 0;
+	float allysHP[MAX_REMOTE_PLAYERS];
+	for( auto rp : mRemotePlayers )
+	{
+		/*if( rp->GetTeam() == mPlayer->GetTeam() )
+		{*/
+			allysHP[nrOfAllys] = (float)(rp->GetHP()/rp->GetMaxHP());
+			nrOfAllys++;
+		/*}*/
+	}
+	mGui->Render(nrOfAllys, allysHP);
 
 	RenderManager::GetInstance()->Render();
 

@@ -120,6 +120,11 @@ float RemotePlayer::GetHP() const
 	return mCurrentHp;
 }
 
+float RemotePlayer::GetMaxHP() const
+{
+	return mMaxHp;
+}
+
 int RemotePlayer::GetID() const
 {
 	return mID;

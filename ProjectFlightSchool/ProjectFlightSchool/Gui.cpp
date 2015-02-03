@@ -6,50 +6,53 @@ HRESULT Gui::Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjects
 	return result;
 }
 
-HRESULT Gui::Render()
+HRESULT Gui::Render( int nrOfAllys, float allysHP[] )
 {
 	HRESULT result = mRadar->Render();
-	
-	int			nrOfHealths;
-	XMFLOAT2	sizeAllyHealth;
-	XMFLOAT2	sizeAllyHealthBar;
-	XMFLOAT2	sizeAllyHealthFrame;
-	float		spaceAllyHealthBar;
-	float		spaceAllyHealth;
-	float		spaceAllyHealthBarToEdge;
-	float		SpaceAllyHealthToBar;
-
-	nrOfHealths							= 20;
-	SpaceAllyHealthToBar					= 4.0f;
-	sizeAllyHealthBar					= XMFLOAT2( 215.0f, 40.0f );
-	sizeAllyHealth						= XMFLOAT2( ( ( sizeAllyHealthBar.x - ( SpaceAllyHealthToBar * 2 ) ) / nrOfHealths ), ( sizeAllyHealthBar.y - ( SpaceAllyHealthToBar * 2 ) ) );
-	sizeAllyHealthFrame					= XMFLOAT2( 110.0f, 110.0f );
-	spaceAllyHealth						= 1.0f;
-	spaceAllyHealthBar					= 15.0f;
-	spaceAllyHealthBarToEdge			= 27.0f;
-
-	XMFLOAT2 lowestAllyHealthTopLeft;
-
 	XMFLOAT2 topLeft;
 	XMFLOAT2 widthHeight;
-	topLeft.x					= mScreenWidth - spaceAllyHealthBarToEdge - sizeAllyHealthBar.x;
-	topLeft.y					= mScreenHeight - spaceAllyHealthBarToEdge - sizeAllyHealthBar.y;
-	widthHeight					= sizeAllyHealthBar;
-	lowestAllyHealthTopLeft		= topLeft;
 
-	RenderManager::GetInstance()->AddObject2dToList( mAllyHealthBar, topLeft, widthHeight );
 
-	topLeft.x		= lowestAllyHealthTopLeft.x + SpaceAllyHealthToBar;
-	topLeft.y		= lowestAllyHealthTopLeft.y + SpaceAllyHealthToBar;
-	widthHeight		= sizeAllyHealth;
+	//////////////////////
+	//Allys hp
+	//////////////////////
+	XMFLOAT2	latestAllyHealthTopLeft;
+	XMFLOAT2	latestAllyHealthBottomRight;
+	float		offSetForHealths = mSpaceAllyHealthToBar;
+	int			nrOfHealthsToRender;
+	for (int i = 0; i < nrOfAllys; i++)
+	{
+		topLeft.x						= mScreenWidth - mSpaceAllyHealthBarToEdge - mSizeAllyHealthBar.x;
+		topLeft.y						= mScreenHeight - mSpaceAllyHealthBarToEdge - mSizeAllyHealthBar.y;
+		widthHeight						= mSizeAllyHealthBar;
+		latestAllyHealthTopLeft			= topLeft;
+		latestAllyHealthBottomRight.x	= topLeft.x + mSizeAllyHealthBar.x;
+		latestAllyHealthBottomRight.y	= topLeft.y + mSizeAllyHealthBar.y;
+		RenderManager::GetInstance()->AddObject2dToList(mAllyHealthBar, topLeft, widthHeight);
 
-	RenderManager::GetInstance()->AddObject2dToList( mAllyHealth, topLeft, widthHeight );
+		nrOfHealthsToRender = (20.0f * allysHP[i]);
 
-	topLeft.x		= lowestAllyHealthTopLeft.x - spaceAllyHealthBar;
-	topLeft.y		= lowestAllyHealthTopLeft.y - spaceAllyHealthBar;
-	widthHeight		= sizeAllyHealthFrame;
+		if (nrOfHealthsToRender > 0)
+		{
+			for (int j = 0; j < nrOfHealthsToRender; j++)
+			{
 
-	RenderManager::GetInstance()->AddObject2dToList( mAllyHealthFrame, topLeft, widthHeight );
+				topLeft.x = latestAllyHealthBottomRight.x - offSetForHealths - mSizeAllyHealth.x;
+				topLeft.y = latestAllyHealthBottomRight.y - mSpaceAllyHealthToBar - mSizeAllyHealth.y;
+				widthHeight = mSizeAllyHealth;
+				RenderManager::GetInstance()->AddObject2dToList(mAllyHealth, topLeft, widthHeight);
+				offSetForHealths += mSpaceAllyHealth + mSizeAllyHealth.x;
+			}
+		}
+	}
+
+	if (nrOfAllys > 0)
+	{
+		topLeft.x = latestAllyHealthTopLeft.x - mSpaceAllyHealthBar - 4.0f;
+		topLeft.y = latestAllyHealthTopLeft.y - mSpaceAllyHealthBar - 4.0f;
+		widthHeight = mSizeAllyHealthFrame;
+		RenderManager::GetInstance()->AddObject2dToList(mAllyHealthFrame, topLeft, widthHeight);
+	}
 
 	return result;
 }
@@ -62,8 +65,16 @@ HRESULT Gui::Initialize()
 	{
 		return result;
 	}
-	mScreenHeight	= Input::GetInstance()->mScreenHeight;
-	mScreenWidth	= Input::GetInstance()->mScreenWidth;
+	mScreenHeight						= Input::GetInstance()->mScreenHeight;
+	mScreenWidth						= Input::GetInstance()->mScreenWidth;
+	mNrOfHealths						= 20;
+	mSpaceAllyHealthToBar				= 6.0f;
+	mSpaceAllyHealth					= 2.0f;
+	mSpaceAllyHealthBar					= 15.0f;
+	mSpaceAllyHealthBarToEdge			= 27.0f;
+	mSizeAllyHealthBar					= XMFLOAT2( 215.0f, 40.0f );
+	mSizeAllyHealth						= XMFLOAT2( ( ( mSizeAllyHealthBar.x - ( mSpaceAllyHealthToBar * 2 ) - ( ( mNrOfHealths ) * mSpaceAllyHealth ) ) / mNrOfHealths ), ( mSizeAllyHealthBar.y - ( mSpaceAllyHealthToBar * 2 ) ) );
+	mSizeAllyHealthFrame				= XMFLOAT2( 110.0f, 110.0f );
 
 	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/allyhealth.dds", mAllyHealth );
 	if( FAILED( result ) )

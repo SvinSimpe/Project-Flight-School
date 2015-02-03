@@ -12,7 +12,7 @@
 #include "Image.h"
 #include "EnemySpawn.h"
 #include "RemoteEnemy.h"
-#include "ParticleManager.h"
+
 
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.

@@ -143,16 +143,12 @@
     <Filter Include="TextureLoader">
       <UniqueIdentifier>{9491becd-8cbf-408b-80cf-0d8080b295cd}</UniqueIdentifier>
     </Filter>
-    
-
     <Filter Include="Effects\Particle Effects">
       <UniqueIdentifier>{de343052-51ea-4c9c-97ed-76affe8c312e}</UniqueIdentifier>
     </Filter>
-  
     <Filter Include="TextureLoader\Source Files">
       <UniqueIdentifier>{1fdeebc1-b516-463f-a255-a22f8a167f95}</UniqueIdentifier>
     </Filter>
-
     <Filter Include="TextureLoader\Header Files">
       <UniqueIdentifier>{e8888771-1836-4d03-9c57-3a072d29c629}</UniqueIdentifier>
     </Filter>
@@ -188,10 +184,8 @@
     <Text Include="..\Content\Effects\BillboardEffect.hlsl">
       <Filter>Effects</Filter>
     </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="MuzzleFlashEffect.hlsl">
+    <Text Include="..\Content\Effects\Particle Effects\MuzzleFlashEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
-    </FxCompile>
+    </Text>
   </ItemGroup>
 </Project>

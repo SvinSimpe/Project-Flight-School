@@ -9,12 +9,13 @@ void RenderManager::SetLightStructuredBuffer()
 
 void RenderManager::Clear()
 {
-	mNrOfObject3d = 0;
-	mNrOfObject2d = 0;
-	mNrOfAnim3d = 0;
-	mNrOfPlane = 0;
-	mNrOfBillboard = 0;
-	mNrOfBoxes = 0;
+	mNrOfObject3d	= 0;
+	mNrOfObject2d	= 0;
+	mNrOfAnim3d		= 0;
+	mNrOfPlane		= 0;
+	mNrOfBillboard	= 0;
+	mNrOfParticles	= 0;
+	mNrOfBoxes		= 0;
 }
 
 RenderManager::RenderManager()
@@ -94,6 +95,42 @@ void RenderManager::AddBillboardToList( AssetID assetId, DirectX::XMFLOAT3 world
 	info.mHeight		= height;
 
 	mBillboardArray[mNrOfBillboard++] = info;
+}
+
+void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, size_t* nrOfActiveParticleSystemsPerType  )
+{
+	ParticleInfo info;
+	UINT offset = 0;
+	for ( size_t i = 0; i < NR_OF_PARTICLE_TYPES; i++ )
+	{
+		// Set AssetID per Particle Type
+		info.mAssetId = particleSystem[i][0]->assetID;
+
+		// Calculate offset per Particle Type
+		for (size_t l = 0; l < nrOfActiveParticleSystemsPerType[i]; l++)
+		{
+			offset += particleSystem[i][l]->nrOfParticlesAlive;
+		}
+
+		// Set offset
+		info.mOffsetToNextParticleType = offset;
+
+		// Fill Array with Particle Info
+		for (size_t j = 0; j < nrOfActiveParticleSystemsPerType[i]; j++)
+		{
+
+			for (size_t k = 0; k < particleSystem[i][j]->nrOfParticlesAlive; k++)
+			{
+				info.mWorldPosition.x	= particleSystem[i][j]->xPosition[k];
+				info.mWorldPosition.y	= particleSystem[i][j]->yPosition[k];
+				info.mWorldPosition.z	= particleSystem[i][j]->zPosition[k];
+
+				info.mLifeTime			= particleSystem[i][j]->lifeTime[k];
+
+				mParticleInfoArray[mNrOfParticles++] = info;
+			}
+		}
+	}	
 }
 
 void RenderManager::AnimationInitialize( AnimationTrack &animationTrack, AssetID model, AssetID defaultAnimation )
@@ -182,6 +219,8 @@ HRESULT RenderManager::Render()
 	}
 	//---------------------------------------------------
 	Graphics::GetInstance()->RenderBillboard( mBillboardArray, 6 );
+
+	Graphics::GetInstance()->RenderParticleSystems( mParticleInfoArray, mNrOfParticles );
 
 	//Render the scene with deferred
 	Graphics::GetInstance()->DeferredPass();

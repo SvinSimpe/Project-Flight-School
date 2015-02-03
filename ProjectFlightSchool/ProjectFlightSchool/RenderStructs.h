@@ -38,12 +38,21 @@ struct BillboardInfo
 	float				mHeight;
 };
 
+struct ParticleInfo
+{
+	UINT				mAssetId;
+	UINT				mOffsetToNextParticleType;
+	DirectX::XMFLOAT3	mWorldPosition;
+	float				mLifeTime;
+};
+
 struct PlaneInfo
 {
 	UINT				mAssetId;
 	DirectX::XMFLOAT3	mTopTriangle;
 	DirectX::XMFLOAT3	mBottomTriangle;
 };
+
 struct BoxInfo
 {
 	DirectX::XMFLOAT3 min;

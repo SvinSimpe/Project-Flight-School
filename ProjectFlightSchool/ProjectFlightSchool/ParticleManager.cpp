@@ -19,13 +19,8 @@ void ParticleManager::Update( float deltaTime )
 
 void ParticleManager::Render( float deltaTime )
 {
-	for ( size_t i = 0; i < NR_OF_PARTICLE_TYPES; i++ )
-	{
-		for (size_t j = 0; j < mNrOfActiveParticleSystemsPerType[i]; j++)
-		{
-			mParticleSystems[i][j]->Render( deltaTime );
-		}
-	}
+	RenderManager::GetInstance()->AddParticleSystemToList( mParticleSystems, mNrOfActiveParticleSystemsPerType );
+
 }
 
 bool ParticleManager::RequestParticleSystem( size_t entityID, ParticleType particleType, XMFLOAT3 position, XMFLOAT3 direction )

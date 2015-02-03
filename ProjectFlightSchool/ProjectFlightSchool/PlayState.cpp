@@ -458,6 +458,7 @@ HRESULT PlayState::Render()
 	}
 
 	mShip.Render();
+	mParticleManager->Render( 0.0f );
 
 	RenderManager::GetInstance()->Render();
 

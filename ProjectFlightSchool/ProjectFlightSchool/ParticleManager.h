@@ -2,11 +2,14 @@
 #define _PARTICLEMANAGER_H_
 
 #include "ParticleSystem.h"
+#include "RenderManager.h"
 
 #define SAFE_RELEASE_DELETE( x ) if( x ) { ( x )->Release(); delete x; ( x ) = nullptr; }
 #define SAFE_DELETE( x ) if( x ) { delete x; ( x ) = nullptr; }
 
 #define NR_OF_PARTICLE_TYPES 5
+#define MAX_NR_OF_PARTICLES  50000
+
 
 class ParticleManager
 {

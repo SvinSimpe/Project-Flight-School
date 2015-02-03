@@ -3,6 +3,7 @@
 
 #include "LightManager.h"
 #include "RenderStructs.h"
+#include "ParticleManager.h"
 
 class RenderManager
 {
@@ -12,6 +13,7 @@ class RenderManager
 		Anim3dInfo		mAnim3dArray[MAX_AMOUNT_OF_ANIM3D];
 		PlaneInfo		mPlaneArray[MAX_AMOUNT_OF_PLANES];
 		BillboardInfo	mBillboardArray[MAX_AMOUNT_OF_OBJECT2D];
+		ParticleInfo	mParticleInfoArray[50000];
 		BoxInfo			mBoxArray[MAX_AMOUNT_OF_BOXES];
 
 		LightManager*	mLightManager;
@@ -23,6 +25,7 @@ class RenderManager
 		UINT mNrOfObject2d;
 		UINT mNrOfPlane;
 		UINT mNrOfBillboard;
+		UINT mNrOfParticles;
 		UINT mNrOfBoxes;
 
 	private:
@@ -39,6 +42,7 @@ class RenderManager
 		bool AddAnim3dToList( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), DirectX::XMFLOAT3 rotation = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 		void AddPlaneToList( AssetID assetId, DirectX::XMFLOAT3 topTriangle, DirectX::XMFLOAT3 bottomTriangle );
 		void AddBillboardToList( AssetID assetId, DirectX::XMFLOAT3 worldPosition, float width, float height );
+		void AddParticleSystemToList( ParticleSystem*** particleSystem,  size_t* nrOfActiveParticleSystemsPerType );
 
 		void AnimationInitialize( AnimationTrack &animationTrack, AssetID model, AssetID defaultAnimation );
 		void AnimationUpdate( AnimationTrack &animationTrack, float deltaTime );

@@ -15,6 +15,12 @@ struct BillboardInstanced
 	float height;
 };
 
+struct ParticleVertex16
+{
+	float position[3];
+	float lifeTime;
+};
+
 struct Vertex24
 {
 	float position[3];

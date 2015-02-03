@@ -38,6 +38,8 @@ struct ParticleData
 
 	float	emitRate	= 0.0f;
 
+	XMFLOAT3 randomDirectionVector = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+
 	void Initialize( float emitRate, size_t nrOfParticles ) //NrOfParticles must be a multiple of 4
 	{
 		srand( (unsigned int)time( NULL ) );
@@ -180,13 +182,22 @@ struct ParticleData
 		for ( size_t i = 0; i < nrOfParticlesAlive; i += 4 )
 		{
 			//======== lifeTime -= deltaTime  ========
-			__m128 xmm0 = _mm_load1_ps( &lifeTime[i] );
+			__m128 xmm0 = _mm_load_ps( &lifeTime[i] );
 			xmm0 = _mm_sub_ps( xmm0, delta );
 			_mm_store_ps( &lifeTime[i], xmm0 );
 		}
 	}
 
+	void GetRandomSpread( float spreadAngle )
+	{
+		XMVECTOR aimingDirection = XMLoadFloat3( &randomDirectionVector );
 
+		spreadAngle = (float)( rand() % (int)spreadAngle * 2 ) - spreadAngle;
+		
+		aimingDirection = XMVector3TransformCoord( aimingDirection, XMMatrixRotationY( XMConvertToRadians( spreadAngle ) ) );
+
+		XMStoreFloat3( &randomDirectionVector, aimingDirection );
+	}
 
 	void SetLifeTime( size_t lowerBound, size_t uppeBound, size_t particleCount ) // If 2.0f is uppeBound, send 20
 	{
@@ -206,31 +217,39 @@ struct ParticleData
 
 			// Store random lifeTime
 			xmm0 = _mm_load_ps( &lifeTime[i] );
-			xmm0 = _mm_set_ps( randomLife[0], randomLife[1], randomLife[3], randomLife[4] );
+			xmm0 = _mm_set_ps( randomLife[0], randomLife[1], randomLife[2], randomLife[3] );
 			_mm_store_ps( &lifeTime[i], xmm0 );
+
+			int k = 4;
 		}	
 	}
 
-	void SetDirection( float xDirection, float yDirection, float zDirection, size_t particleCount )
+	void SetDirection( float xDirection, float yDirection, float zDirection, size_t particleCount, float spreadAngle )
 	{
 		for ( size_t i = nrOfParticlesAlive; i < nrOfParticlesAlive + particleCount; i += 4 )
 		{
 			while( i % 4 != 0 )
 				i--;
 
+			randomDirectionVector.x = xDirection;
+			randomDirectionVector.y = yDirection;
+			randomDirectionVector.z = zDirection;
+
+			GetRandomSpread( spreadAngle );
+
 			//==== xVelocity = xDirection ====
 			__m128 xmm0	= _mm_load_ps( &xVelocity[i] );
-			xmm0 = _mm_set1_ps( xDirection );
+			xmm0 = _mm_set1_ps( randomDirectionVector.x * 20.0f );
 			_mm_store_ps( &xVelocity[i], xmm0 );
 
 			//==== yPosition += yVelocity * deltaTime ====
 			xmm0	= _mm_load_ps( &yVelocity[i] );
-			xmm0 = _mm_set1_ps( yDirection );
+			xmm0 = _mm_set1_ps( randomDirectionVector.y * 20.0f );
 			_mm_store_ps( &yVelocity[i], xmm0 );
 
 			//==== zPosition += zVelocity * deltaTime ====
 			xmm0	= _mm_load_ps( &zVelocity[i] );
-			xmm0 = _mm_set1_ps( zDirection );
+			xmm0 = _mm_set1_ps( randomDirectionVector.z * 20.0f );
 			_mm_store_ps( &zVelocity[i], xmm0 );
 		}
 	}

@@ -2,6 +2,7 @@
 #define _PARTICLESYSTEM_H_
 
 #include "ParticleData.h"
+
 #include <Graphics.h>
 #include <limits>
 
@@ -16,6 +17,7 @@ struct ParticleSystem : public ParticleData
 	XMFLOAT3	emitterPosition		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	XMFLOAT3	emitterDirection	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	bool		isActive			= false;
+	AssetID		assetID;
 
 #pragma endregion
 
@@ -26,6 +28,8 @@ struct ParticleSystem : public ParticleData
 		this->particleType		= particleType;
 		ParticleData::Initialize( emitRate, nrOfParticles );
 
+
+		Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/PlaceHolderTextures/diffuse.png", assetID );
 		// Load asset for particle type
 		// - Shader
 		// - Texture
@@ -49,7 +53,7 @@ struct ParticleSystem : public ParticleData
 		isActive			= false;
 	}
 
-	void Generate( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection, size_t particleCount )
+	void Generate( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection, size_t particleCount, float spreadAngle )
 	{
 		// Check if there is enough particles to meet request
 		if( ( particleCount + nrOfParticlesAlive ) > MAX_PARTICLES )
@@ -61,8 +65,16 @@ struct ParticleSystem : public ParticleData
 		
 		// Initialize particles
 
-		SetLifeTime( 1, 20, particleCount );
-		SetDirection( emitterDirection.x, emitterDirection.y, emitterDirection.z, particleCount );
+		SetLifeTime( 1, 2, particleCount );
+
+		///==================
+		// Use emitterDirection as base and randomize a different direction vector
+		// with a maximum angle deviation
+
+
+		///==================
+
+		SetDirection( emitterDirection.x, emitterDirection.y, emitterDirection.z, particleCount, 60.0f );
 		SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
 
 		// Wake particles
@@ -77,7 +89,7 @@ struct ParticleSystem : public ParticleData
 		// Wake particles and assign direction
 		if( particleType == MuzzleFlash )
 		{
-			Generate( MuzzleFlash, emitterPosition, emitterDirection, 100 );
+			Generate( MuzzleFlash, emitterPosition, emitterDirection, 100, 5.0f );
 		}
 
 		// Add other particle types here!
@@ -156,7 +168,7 @@ struct ParticleSystem : public ParticleData
 
 	virtual void Render( float deltaTime )
 	{
-	
+		
 	}
 
 	void Release()

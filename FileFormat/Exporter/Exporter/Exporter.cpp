@@ -23,7 +23,7 @@ void Exporter::ReadExporterDirectoryNames()
 	fileIn.open(g_FilePath + "folderNames.txt");
 	if (!fileIn)
 	{
-		g_ErrorMessages.push_back("folderNames.txt couldnt be opened");
+		g_ErrorMessages.push_back("\tfolderNames.txt couldnt be opened");
 		return;
 	}
 		
@@ -45,7 +45,7 @@ bool Exporter::InitializeMaya()
 
 	if (!MLibrary::initialize("Exporter", false))
 	{
-		g_ErrorMessages.push_back("<Error> Mlibrary::initialize()");
+		g_ErrorMessages.push_back("\t<Error> Mlibrary::initialize()");
 		return false;
 	}
 
@@ -157,7 +157,7 @@ bool Exporter::CreateExportPath(string fileName)
 
 				if (CreateDirectory(g_ExportPath.c_str(), NULL) == ERROR_PATH_NOT_FOUND)
 				{
-					g_ErrorMessages.push_back("<Error> Couldnt create export directory: " + g_ExporterDirectoryNameList[i]);
+					g_ErrorMessages.push_back("\t<Error> Couldnt create export directory: " + g_ExporterDirectoryNameList[i]);
 					g_ExportPath = "";
 					return false;
 				}
@@ -171,7 +171,7 @@ bool Exporter::CreateExportPath(string fileName)
 		return true;
 	else
 	{
-		g_ErrorMessages.push_back("<Error> Couldnt create export directory: UNKNOWN_TYPES");
+		g_ErrorMessages.push_back("\t<Error> Couldnt create export directory: UNKNOWN_TYPES");
 		g_ExportPath = "";
 		return false;
 	}
@@ -185,14 +185,14 @@ void Exporter::RunExporter()
 	
 	if (!InitializeMaya())
 	{
-		g_ErrorMessages.push_back("<Error> Maya initilization failed.");
+		g_ErrorMessages.push_back("\t<Error> Maya initilization failed.");
 		return;
 	}
 
 	//Getting scene directories
 	if (!GetDirectories(directorynameList))
 	{
-		g_ErrorMessages.push_back("<Error> Maya directories not found.");
+		g_ErrorMessages.push_back("\t<Error> Maya directories not found.");
 		return;
 	}
 		
@@ -204,12 +204,18 @@ void Exporter::RunExporter()
 		GetMayaFilenamesInDirectory(map->c_str(), fileNameList);
 
 		if(fileNameList.size() == 0)
-			g_ErrorMessages.push_back("No files found in directory: " + string(map->c_str()));
+			g_ErrorMessages.push_back("\tNo files found in directory: " + string(map->c_str()));
 
 
 		for (auto file = fileNameList.begin(); file != fileNameList.end(); file++)
 		{
+			g_ErrorMessages.push_back("\n#### " + string(file->c_str()) + " ####");
+			int nrOfErrors = g_ErrorMessages.size();
+
 			SceneManager(map->c_str(), file->c_str());
+
+			if(nrOfErrors == g_ErrorMessages.size())
+				g_ErrorMessages.pop_back();
 		}
 	}
 
@@ -244,7 +250,7 @@ void Exporter::SceneManager(const char* mapName, const char* fileName)
 	status = MFileIO::newFile(true);
 	if (!status)
 	{
-		g_ErrorMessages.push_back(string(fileName) + " - <Error> MFileIO::NewFile()");
+		g_ErrorMessages.push_back("\t" + string(fileName) + " - <Error> MFileIO::NewFile()");
 		return;
 	}
 
@@ -257,20 +263,20 @@ void Exporter::SceneManager(const char* mapName, const char* fileName)
 	status = MFileIO::open(fullPath);
 	if (!status)
 	{
-		g_ErrorMessages.push_back(string(fileName) + "<Error> MFileIO::Open()");
+		g_ErrorMessages.push_back("\t" + string(fileName) + "<Error> MFileIO::Open()");
 		return;
 	}
 
 	if(!CreateExportPath(fileName))
 	{
-		g_ErrorMessages.push_back(string(fileName) + "<Error> Couldnt create export path. ");
+		g_ErrorMessages.push_back("\t" + string(fileName) + "<Error> Couldnt create export path. ");
 		return;
 	}
 
 	//Extracting and saving all the data to the meshinfo_maya buffer
 	if (!ExtractCurrentSceneRawData())
 	{
-		g_ErrorMessages.push_back(string(fileName) + "<Error> ExtractCurrentSceneRawData()");
+		g_ErrorMessages.push_back("\t" + string(fileName) + "<Error> ExtractCurrentSceneRawData()");
 		return;
 	}
 
@@ -469,7 +475,7 @@ void Exporter::CopyTextureToDirectory(string texturePath, string fileName)
 		string dest = g_ExportPath + fileName;
 
 		if(CopyFile(texturePath.c_str(), dest.c_str(), FALSE) == 0)
-			g_ErrorMessages.push_back(texturePath + " not copied");
+			g_ErrorMessages.push_back("\t" + texturePath + " not copied");
 	}
 
 	else if (texturePath.find(":/") != -1)
@@ -481,7 +487,7 @@ void Exporter::CopyTextureToDirectory(string texturePath, string fileName)
 		string dest = g_ExportPath + fileName;
 
 		if(CopyFile(fixedSrc.c_str(), dest.c_str(), FALSE) == 0)
-			g_ErrorMessages.push_back(subName + " not copied");
+			g_ErrorMessages.push_back("\t" + subName + " not copied");
 	}
 }
 
@@ -599,7 +605,7 @@ bool Exporter::ExtractMeshData(MFnMesh &mesh)
 	MString command = "polyTriangulate -ch 1 " + meshInfo.meshName;
 	if (!MGlobal::executeCommand(command))
 	{
-		g_ErrorMessages.push_back(string(mesh.name().asChar()) + " - Couldn't triangulate mesh: ");
+		g_ErrorMessages.push_back("\t" + string(mesh.name().asChar()) + " - Couldn't triangulate mesh: ");
 		return false;
 	}
 
@@ -608,32 +614,32 @@ bool Exporter::ExtractMeshData(MFnMesh &mesh)
 	command = "makeIdentity -apply true " + transform.name();
 	if (!MGlobal::executeCommand(command))
 	{
-		g_ErrorMessages.push_back(string(mesh.name().asChar()) + " - Couldn't freeze transformation for mesh: ");
+		g_ErrorMessages.push_back("\t" + string(mesh.name().asChar()) + " - Couldn't freeze transformation for mesh: ");
 		//return false;
 	}
 
 	//Extractic mesh raw data
 	if (!mesh.getPoints(meshInfo.points))
 	{
-		g_ErrorMessages.push_back(string(mesh.name().asChar()) + " - Couldn't get points for mesh: ");
+		g_ErrorMessages.push_back("\t" + string(mesh.name().asChar()) + " - Couldn't get points for mesh: ");
 		return false;
 	}
 
 	if (!mesh.getNormals(meshInfo.normals))
 	{
-		g_ErrorMessages.push_back(string(mesh.name().asChar()) + " - Couldn't get normals for mesh: ");
+		g_ErrorMessages.push_back("\t" + string(mesh.name().asChar()) + " - Couldn't get normals for mesh: ");
 		return false;
 	}
 
 	if (!mesh.getUVs(meshInfo.uvs_x, meshInfo.uvs_y))
 	{
-		g_ErrorMessages.push_back(string(mesh.name().asChar()) + " - Couldn't get UVs for mesh: ");
+		g_ErrorMessages.push_back("\t" + string(mesh.name().asChar()) + " - Couldn't get UVs for mesh: ");
 		return false;
 	}
 
 	if (!mesh.getTangents(meshInfo.tangents))
 	{
-		g_ErrorMessages.push_back(string(mesh.name().asChar()) + " - Couldn't get tangents for mesh: ");
+		g_ErrorMessages.push_back("\t" + string(mesh.name().asChar()) + " - Couldn't get tangents for mesh: ");
 		return false;
 	}
 
@@ -643,7 +649,7 @@ bool Exporter::ExtractMeshData(MFnMesh &mesh)
 	if(res)
 		if(!transformation.getScale(meshInfo.scale))
 		{
-			g_ErrorMessages.push_back(string(mesh.name().asChar()) + " - Couldn't get scale for mesh: ");
+			g_ErrorMessages.push_back("\t" + string(mesh.name().asChar()) + " - Couldn't get scale for mesh: ");
 			return false;
 		}
 
@@ -736,7 +742,7 @@ void Exporter::ConvertAndBuildStaticMesh(MeshInfo_Maya* meshIter)
 		}
 		else
 		{
-			g_ErrorMessages.push_back(string(meshIter->meshName.asChar()) + " - Error: non-triangular polygon detected. DO IT RIGHT NEXT TIME OR DIE." "Attempts to continue export with missing polygon...");
+			g_ErrorMessages.push_back("\t" + string(meshIter->meshName.asChar()) + " - Error: non-triangular polygon detected. DO IT RIGHT NEXT TIME OR DIE." "Attempts to continue export with missing polygon...");
 		}
 		polygon_iter.next();
 		index += 3;
@@ -824,7 +830,7 @@ void Exporter::ConvertAndBuildAnimMesh(MeshInfo_Maya* meshIter)
 		}
 		else
 		{
-			g_ErrorMessages.push_back(string(meshIter->meshName.asChar()) + " - Error: non-triangular polygon detected. DO IT RIGHT NEXT TIME OR DIE." "Attempts to continue export with missing polygon...");
+			g_ErrorMessages.push_back("\t" + string(meshIter->meshName.asChar()) + " - Error: non-triangular polygon detected. DO IT RIGHT NEXT TIME OR DIE." "Attempts to continue export with missing polygon...");
 		}
 		polygon_iter.next();
 		index += 3;
@@ -845,7 +851,7 @@ void Exporter::WriteStaticMeshToFileBinary(const char* fileName)
 	
 	if (!fileOut)
 	{
-		g_ErrorMessages.push_back(string(fileName) + " - coudlnt be created/opened");
+		g_ErrorMessages.push_back("\t" + string(fileName) + " - coudlnt be created/opened");
 		return;
 	}
 
@@ -873,7 +879,7 @@ void Exporter::WriteAnimMeshToFileBinary(const char* fileName)
 
 	if (!fileOut)
 	{
-		g_ErrorMessages.push_back(string(fileName) + " - coudlnt be created/opened");
+		g_ErrorMessages.push_back("\t" + string(fileName) + " - coudlnt be created/opened");
 		return;
 	}
 
@@ -899,7 +905,7 @@ void Exporter::WriteSkelToFileBinary()
 
 		if (!fileOut)
 		{
-			g_ErrorMessages.push_back(string(g_skeletonData[i].fileName) + " - coudlnt be created/opened");
+			g_ErrorMessages.push_back("\t" + string(g_skeletonData[i].fileName) + " - coudlnt be created/opened");
 			return;
 		}
 
@@ -924,8 +930,8 @@ string Exporter::CreateExportFile(string fileName, string fileEnding)
 	if(fileEnding == ".skel")
 	{
 		string animationPath = g_ExportPath + "Animation";
-		if(CreateDirectory(animationPath.c_str(), NULL) == 0)
-			g_ErrorMessages.push_back(string(animationPath.c_str()) + " - wasn't created");
+		if(CreateDirectory(animationPath.c_str(), NULL) != 0)
+			g_ErrorMessages.push_back("\t" + string(animationPath.c_str()) + " - wasn't created");
 	}
 
 	//Returning full path

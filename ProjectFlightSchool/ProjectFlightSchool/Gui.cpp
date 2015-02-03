@@ -6,7 +6,7 @@ HRESULT Gui::Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjects
 	return result;
 }
 
-HRESULT Gui::Render( int nrOfAllys, float allysHP[] )
+HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP )
 {
 	HRESULT result = mRadar->Render();
 	XMFLOAT2 topLeft;
@@ -14,13 +14,13 @@ HRESULT Gui::Render( int nrOfAllys, float allysHP[] )
 
 
 	//////////////////////
-	//Allys hp
+	//Allies hp
 	//////////////////////
 	XMFLOAT2	latestAllyHealthTopLeft;
 	XMFLOAT2	latestAllyHealthBottomRight;
 	float		offSetForHealths = mSpaceAllyHealthToBar;
 	int			nrOfHealthsToRender;
-	for (int i = 0; i < nrOfAllys; i++)
+	for ( int i = 0; i < nrOfAllies; i++ )
 	{
 		topLeft.x						= mScreenWidth - mSpaceAllyHealthBarToEdge - mSizeAllyHealthBar.x;
 		topLeft.y						= mScreenHeight - mSpaceAllyHealthBarToEdge - mSizeAllyHealthBar.y;
@@ -28,38 +28,64 @@ HRESULT Gui::Render( int nrOfAllys, float allysHP[] )
 		latestAllyHealthTopLeft			= topLeft;
 		latestAllyHealthBottomRight.x	= topLeft.x + mSizeAllyHealthBar.x;
 		latestAllyHealthBottomRight.y	= topLeft.y + mSizeAllyHealthBar.y;
-		RenderManager::GetInstance()->AddObject2dToList(mAllyHealthBar, topLeft, widthHeight);
+		RenderManager::GetInstance()->AddObject2dToList( mAllyHealthBar, topLeft, widthHeight );
 
-		nrOfHealthsToRender = (20.0f * allysHP[i]);
+		nrOfHealthsToRender = ( 20.0f * alliesHP[i] );
 
-		if (nrOfHealthsToRender > 0)
+		if ( nrOfHealthsToRender > 0 )
 		{
-			for (int j = 0; j < nrOfHealthsToRender; j++)
+			for ( int j = 0; j < nrOfHealthsToRender; j++ )
 			{
 
 				topLeft.x = latestAllyHealthBottomRight.x - offSetForHealths - mSizeAllyHealth.x;
 				topLeft.y = latestAllyHealthBottomRight.y - mSpaceAllyHealthToBar - mSizeAllyHealth.y;
 				widthHeight = mSizeAllyHealth;
-				RenderManager::GetInstance()->AddObject2dToList(mAllyHealth, topLeft, widthHeight);
+				RenderManager::GetInstance()->AddObject2dToList( mAllyHealth, topLeft, widthHeight );
 				offSetForHealths += mSpaceAllyHealth + mSizeAllyHealth.x;
 			}
 		}
 	}
 
-	if (nrOfAllys > 0)
+	if ( nrOfAllies > 0 )
 	{
 		topLeft.x = latestAllyHealthTopLeft.x - mSpaceAllyHealthBar - 4.0f;
 		topLeft.y = latestAllyHealthTopLeft.y - mSpaceAllyHealthBar - 4.0f;
 		widthHeight = mSizeAllyHealthFrame;
-		RenderManager::GetInstance()->AddObject2dToList(mAllyHealthFrame, topLeft, widthHeight);
+		RenderManager::GetInstance()->AddObject2dToList( mAllyHealthFrame, topLeft, widthHeight );
 	}
+
+	///////////////////
+	//Player hp, shield & xp
+	///////////////////
+	topLeft.x	= 0.0f;
+	topLeft.y	= mScreenHeight - mSizePlayerHealthXP.y;
+	widthHeight	= mSizePlayerHealthXP;
+	RenderManager::GetInstance()->AddObject2dToList( mPlayerBar, topLeft, widthHeight );
+	
+	mFont.WriteText( "Hp", 106.0f, 858.0f, 2.9f );
+	int renderHealth = playerHP * 100;
+	std::string renderText = std::to_string( renderHealth );
+	renderText += "%";
+	mFont.WriteText( renderText, 95.0f, 896.0f, 2.9f );
+
+	mFont.WriteText( "Shield", 68.0f, 945.0f, 2.9f );
+	renderText = std::to_string( renderHealth ); //Should be changed to Shield.
+	renderText += "%";
+	mFont.WriteText( renderText, 95.0f, 983.0f, 2.9f );
+
+	mFont.WriteText( "Xp", 316.0f, 871.0f, 3.8f );
+	renderText = std::to_string( renderHealth ); //Should be changed to Xp.
+	renderText += "%";
+	mFont.WriteText( renderText, 297.0f, 930.0f, 3.8f );
+
 
 	return result;
 }
 
 HRESULT Gui::Initialize()
 {
-	mRadar = new Radar();
+	mFont.Initialize( "../Content/Assets/Fonts/final_font/" );
+	mRadar			= new Radar();
 	HRESULT result	= mRadar->Initialize();
 	if( FAILED( result ) )
 	{
@@ -75,6 +101,7 @@ HRESULT Gui::Initialize()
 	mSizeAllyHealthBar					= XMFLOAT2( 215.0f, 40.0f );
 	mSizeAllyHealth						= XMFLOAT2( ( ( mSizeAllyHealthBar.x - ( mSpaceAllyHealthToBar * 2 ) - ( ( mNrOfHealths ) * mSpaceAllyHealth ) ) / mNrOfHealths ), ( mSizeAllyHealthBar.y - ( mSpaceAllyHealthToBar * 2 ) ) );
 	mSizeAllyHealthFrame				= XMFLOAT2( 110.0f, 110.0f );
+	mSizePlayerHealthXP					= XMFLOAT2( 440.0f, 280.0f );
 
 	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/allyhealth.dds", mAllyHealth );
 	if( FAILED( result ) )

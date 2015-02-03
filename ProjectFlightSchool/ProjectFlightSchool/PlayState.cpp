@@ -498,17 +498,17 @@ HRESULT PlayState::Render()
 
 	mShip.Render();
 
-	int nrOfAllys = 0;
-	float allysHP[MAX_REMOTE_PLAYERS];
+	int nrOfAllies = 0;
+	float alliesHP[MAX_REMOTE_PLAYERS];
 	for( auto rp : mRemotePlayers )
 	{
 		/*if( rp->GetTeam() == mPlayer->GetTeam() )
 		{*/
-			allysHP[nrOfAllys] = (float)(rp->GetHP()/rp->GetMaxHP());
-			nrOfAllys++;
+			alliesHP[nrOfAllies] = (float)( rp->GetHP() / rp->GetMaxHP() );
+			nrOfAllies++;
 		/*}*/
 	}
-	mGui->Render(nrOfAllys, allysHP);
+	mGui->Render( nrOfAllies, alliesHP, (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ) );
 
 	RenderManager::GetInstance()->Render();
 

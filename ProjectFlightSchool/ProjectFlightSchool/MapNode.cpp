@@ -17,10 +17,6 @@ UINT MapNode::GetVertexCount() const
 {
 	return mVertexCount;
 }
-UINT MapNode::GetGridDim() const
-{
-	return mGridDim;
-}
 UINT MapNode::GetGridWidth() const
 {
 	return mGridWidth;
@@ -32,10 +28,6 @@ UINT MapNode::GetGridHeight() const
 XMFLOAT3 MapNode::GetOrigin() const
 {
 	return mOrigin;
-}
-UINT MapNode::GetNodeDim() const
-{
-	return mNodeDim;
 }
 GameObject* MapNode::GetStaticAssets() const
 {
@@ -49,7 +41,7 @@ MapNodeInstance* MapNode::GetMapNodeInstance()
 {
 	MapNodeInstance* result = nullptr;
 	bool instanceFound = false;
-	for( int i = 0; i < (int)mInstanceCount && !instanceFound; i++ )
+	for( int i = 0; i < (int)INSTANCE_COUNT && !instanceFound; i++ )
 	{
 		if( mInstances[i].GetInstanceID() == -1 )
 		{
@@ -65,7 +57,7 @@ MapNodeInstance* MapNode::GetMapNodeInstance()
 }
 void MapNode::ReleaseInstance( int InstanceID )
 {
-	for( int i = 0; i < 100; i++ )
+	for( int i = 0; i < INSTANCE_COUNT; i++ )
 	{
 		if( mInstances[i].GetInstanceID() == InstanceID )
 		{
@@ -79,7 +71,7 @@ HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 	mOrigin				= XMFLOAT3(initInfo.anchor.x, 0, initInfo.anchor.z);
 	//BUGHAXX
 	//mGridDim			= initInfo.gridDim;
-	mGridDim			= 24;
+	mGridDim			= initInfo.gridDim;
 	//Handles releaseing assets
 	mStaticAssets		= initInfo.staticAssets;
 	mStaticAssetCount	= initInfo.staticAssetCount;
@@ -105,42 +97,7 @@ HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 		mGrid[i].uv[0] = 1.0f;
 		mGrid[i].uv[1] = 1.0f;
 	}
-////////////////////////////////////////////////////
-	SetUpExits();
-////////////////////////////////////////////////////
-	mInstanceCount = 150;
 	return S_OK;
-}
-HRESULT MapNode::SetUpExits()
-{
-	exits[0].exit.x = -11;
-	exits[0].exit.y = 0;
-	exits[0].exit.z = 0;
-	exits[0].valid	= true;
-
-	exits[1].exit.x = 0;
-	exits[1].exit.y = 0;
-	exits[1].exit.z = -11;
-	exits[1].valid	= true;
-
-	exits[2].exit.x = 11;
-	exits[2].exit.y = 0;
-	exits[2].exit.z = 0;
-	exits[2].valid	= true;
-
-	exits[3].exit.x = 0;
-	exits[3].exit.y = 0;
-	exits[3].exit.z = 11;
-	exits[3].valid	= true;
-
-
-
-
-	return S_OK;
-}
-ExitPoint* MapNode::GetExits() 
-{
-	return exits;
 }
 void MapNode::Release()
 {

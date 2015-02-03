@@ -76,4 +76,4 @@ const EventType	Event_Remove_Point_Light::GUID( 31 );
 
 //LoadLevel events
 
-const EventType Event_Load_Level::GUID( 28 );
+const EventType Event_Load_Level::GUID( 32 );

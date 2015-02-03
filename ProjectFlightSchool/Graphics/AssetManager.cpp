@@ -1,6 +1,7 @@
 #include "AssetManager.h"
 #include "WICTextureLoader.h"
 #include <sstream>
+#include <crtdbg.h>
 
 using namespace std;
 
@@ -311,7 +312,11 @@ HRESULT AssetManager::CreateSRVAssetsMesh( ID3D11Device* device, ID3D11DeviceCon
 		tempStr = filePath + string( meshInfo.diffuseMapName );
 
 		hr = LoadStatic2dAsset( device, dc, (char*)tempStr.c_str(), mesh.mTextures[TEXTURES_DIFFUSE] );
-		if( FAILED( hr ) ) return hr;
+		if( FAILED( hr ) ) 
+		{
+			OutputDebugStringA( ("Loading failed on " + tempStr + "\n").c_str() );
+			return hr;
+		}
 	}
 
 	//Normal map
@@ -322,7 +327,11 @@ HRESULT AssetManager::CreateSRVAssetsMesh( ID3D11Device* device, ID3D11DeviceCon
 		tempStr = filePath + string( meshInfo.normalMapName );
 
 		hr = LoadStatic2dAsset( device, dc, (char*)tempStr.c_str(), mesh.mTextures[TEXTURES_NORMAL] );
-		if( FAILED( hr ) ) return hr;
+		if( FAILED( hr ) ) 
+		{
+			OutputDebugStringA( ("Loading failed on " + tempStr + "\n").c_str() );
+			return hr;
+		}
 	}
 
 	//Specular map
@@ -333,7 +342,11 @@ HRESULT AssetManager::CreateSRVAssetsMesh( ID3D11Device* device, ID3D11DeviceCon
 		tempStr = filePath + string( meshInfo.specularMapName );
 
 		hr = LoadStatic2dAsset( device, dc, (char*)tempStr.c_str(), mesh.mTextures[TEXTURES_SPECULAR] );
-		if( FAILED( hr ) ) return hr;
+		if( FAILED( hr ) ) 
+		{
+			OutputDebugStringA( ("Loading failed on " + tempStr + "\n").c_str() );
+			return hr;
+		}
 	}
 
 	return hr;

@@ -427,7 +427,7 @@ HRESULT PlayState::Update( float deltaTime )
 
 HRESULT PlayState::Render()
 {
-	RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
+	//RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 	
 	mPlayer->Render( 0.0f, 1 );
 
@@ -513,7 +513,7 @@ HRESULT PlayState::Initialize()
 	mWorldMap = new Map();
 	mWorldMap->Initialize( 4 );
 
-	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/ForestMap.xml")); 
+	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/testMap.xml")); 
 	EventManager::GetInstance()->TriggerEvent( E1 );
 
 	//mMapNodeMan = new MapNodeManager();
@@ -622,5 +622,4 @@ PlayState::PlayState()
 
 PlayState::~PlayState()
 {
-	printf("Destructor for %s\n", __FILE__);
 }

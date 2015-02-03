@@ -83,8 +83,7 @@ HRESULT Map::Initialize( UINT mapDim )
 	MapNodePlacer::GetInstance()->Initialize( this );
 
 	EventManager::GetInstance()->AddListener( &Map::OnLoadLevel, this, Event_Load_Level::GUID );
-
-	//"../Content/Assets/Nodes/test11.lp"
+	//MapNodeManager::GetInstance()->CreateNode( "../Content/Assets/Nodes/testTile.lp" );
 	
 	return S_OK;
 }

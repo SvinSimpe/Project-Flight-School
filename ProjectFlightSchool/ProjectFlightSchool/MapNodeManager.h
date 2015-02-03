@@ -8,7 +8,7 @@ struct JMatrix
 {
 	char name[50];
 	XMFLOAT3 pos;
-	XMFLOAT3 rot;
+	XMFLOAT4 rot;
 	XMFLOAT3 scale;
 };
 
@@ -22,12 +22,12 @@ class MapNodeManager
 	public:
 
 	private:
-		MapNode* createNode( const char* filePath );
+		
 		void writeToLog( const std::string &test );
 	protected:
 	public:
 		static		MapNodeManager* instance;
-
+		MapNode* CreateNode( const char* filePath );
 		NodeMap GetNodes();
 		void LoadLevel( std::string filePath );
 		static MapNodeManager* GetInstance();

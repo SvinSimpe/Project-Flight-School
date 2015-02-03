@@ -2,10 +2,9 @@
 #define MAPNODE_H
 #include "GameObject.h"
 #include "MapNodeInstance.h"
+#define INSTANCE_COUNT 150
 
 using namespace DirectX;
-
-
 
 
 struct MapNodeInfo
@@ -18,8 +17,6 @@ struct MapNodeInfo
 		GameObject*		staticAssets;
 		UINT			staticAssetCount;
 };
-
-//Forward declaration for the compiler
 
 class MapNode
 {
@@ -38,11 +35,6 @@ class MapNode
 		UINT			mStaticAssetCount;
 
 		MapNodeInstance mInstances[150];
-		UINT			mInstanceCount;
-
-		//////////////////////////////////////////////////////
-		ExitPoint exits[4];
-		//////////////////////////////////////////////////////
 
 	protected:
 	public:
@@ -64,12 +56,7 @@ class MapNode
 
 		XMFLOAT3			GetOrigin() const;
 
-		UINT				GetNodeDim() const;
-
 		GameObject*			GetStaticAssets() const;
-		HRESULT				SetUpExits();
-		/*int					GetNrOfExits() const;*/
-		ExitPoint*			GetExits();
 
 		MapNodeInstance*	GetMapNodeInstance();
 		void				ReleaseInstance( int InstanceID );

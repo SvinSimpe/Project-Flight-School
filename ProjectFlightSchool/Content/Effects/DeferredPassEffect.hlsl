@@ -97,7 +97,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	ssao = 1.0f - ssao / 16.0f;
 
 	//======== PHONG SHADING ===========
-	float3 ambient		= float3( 0.2f, 0.2f,  0.2f );
+	float3 ambient		= float3( 1.0f, 1.0f,  1.0f );
 	float3 diffuse		= float3( 0.0f, 0.0f,  0.0f );
 	float3 specular		= float3( 0.1f, 0.1f,  0.1f );
 	float3 color		= float3( 0.1f, 0.1f,  0.1f );

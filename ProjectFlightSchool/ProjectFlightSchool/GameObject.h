@@ -6,14 +6,14 @@
 struct GameObjectInfo
 {
 		DirectX::XMFLOAT3 pos;
-		DirectX::XMFLOAT3 rotation;
+		DirectX::XMFLOAT4 rotation;
 		DirectX::XMFLOAT3 scale;
 };
 class GameObject
 {
 	private:
 		DirectX::XMFLOAT3 mPos;
-		DirectX::XMFLOAT3 mRotation;
+		DirectX::XMFLOAT4 mRotation;
 		DirectX::XMFLOAT3 mScale;
 
 		AssetID mAssetID;
@@ -30,8 +30,8 @@ class GameObject
 		DirectX::XMFLOAT3	GetPos() const;
 		void		SetPos( DirectX::XMFLOAT3 pos );
 
-		DirectX::XMFLOAT3	GetRotation() const;
-		void		SetRotation( DirectX::XMFLOAT3 rotation );
+		DirectX::XMFLOAT4	GetRotation() const;
+		void		SetRotation( DirectX::XMFLOAT4 rotation );
 
 		DirectX::XMFLOAT3	GetScale() const;
 		void		SetScale( DirectX::XMFLOAT3 scale );

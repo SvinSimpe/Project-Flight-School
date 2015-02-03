@@ -14,23 +14,32 @@ MapNodePlacer* MapNodePlacer::GetInstance()
 	return instance;
 }
 
-bool MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNode )
+NODE_RETURN_CODE MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNode )
 {
-	int debug = (int)( ( newNode->GetMapNode()->GetGridDim() / ( NODE_DIM ) ) );
-	for( int x = pX; x < (int)( pX + ( newNode->GetMapNode()->GetGridDim() ) / ( NODE_DIM ) ); x++ )
+	int nodeWith   = (int)( ( newNode->GetMapNode()->GetGridWidth() / ( NODE_DIM ) ) );
+	int nodeHeight = (int)( ( newNode->GetMapNode()->GetGridHeight() / ( NODE_DIM ) ) );
+
+
+
+	for( int x = pX; x < (int)( pX + nodeWith ); x++ )
 	{
-		for( int y = pY; y < (int)( pY +  ( newNode->GetMapNode()->GetGridDim() ) / ( NODE_DIM ) ); y++ )
+		for( int y = pY; y < (int)( pY +  nodeHeight ); y++ )
 		{
 			if( mBuildMap[x][y] != nullptr )
 			{
-				return false;
+				return OCCUPIED;
 			}
 		}
 	}
 
-	for( int x = pX; x < (int)( pX + ( newNode->GetMapNode()->GetGridDim() ) / ( NODE_DIM ) ); x++ )
+	if( (int)mMap->GetMapWidth() < ( pX + nodeWith ) || (int)mMap->GetMapWidth() < ( pY + nodeHeight ) )
 	{
-		for( int y = pY; y < (int)( pY + ( newNode->GetMapNode()->GetGridDim() ) / ( NODE_DIM ) ); y++ )
+		return NOFIT;
+	}
+
+	for( int x = pX; x < (int)( pX + nodeWith ); x++ )
+	{
+		for( int y = pY; y < (int)( pY +  nodeHeight ); y++ )
 		{
 			mBuildMap[x][y] = newNode;
 		}
@@ -39,44 +48,49 @@ bool MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNode )
 
 	newNode->SetPos( newPos );
 
-	return true;
+	return PLACED;
 }
 void MapNodePlacer::BuildMap( MapNodeInstance** map )
 {
+	NodeMap nodeMap = MapNodeManager::GetInstance()->GetNodes();
+	int count = 0;
+
 	for( int x = 0; x < (int)mMap->GetMapDim(); x++ )
 	{
 		for( int y = 0; y < (int)mMap->GetMapDim(); y++ )
 		{
-			//Check "Tier", lastNode, chances of boss arena and/or energy position.
-			MapNodeInstance* newNode = MapNodeManager::GetInstance()->GetNodes()[NodeTypes::BOSS_NODE][0]->GetMapNodeInstance();
 			if(MAX_NODES < mNrOfNodes)
 			{
 				return;
 			}
-			if( CanPlace( x, y, newNode ) )
+			bool doLoop = true;
+			//Check "Tier", lastNode, chances of boss arena and/or energy position.
+			//int count = rand() % 21;
+			count = count % 1;
+			MapNodeInstance* newNode = nodeMap[NodeTypes::AREA_NODE][count]->GetMapNodeInstance();
+
+
+			while( doLoop )
 			{
-				map[mNrOfNodes++] = newNode;
-			}
-			else
-			{
-				newNode->ReleaseInstance();
+				int randomNode = rand() % 1;
+				MapNodeInstance* newNode = nodeMap[NodeTypes::AREA_NODE][randomNode]->GetMapNodeInstance();
+				switch( CanPlace( x, y, newNode ) )
+				{
+					case OCCUPIED:
+						doLoop = false;
+						newNode->ReleaseInstance();
+						break;
+					case NOFIT:
+						newNode->ReleaseInstance();
+						break;
+					case PLACED:
+						map[mNrOfNodes++] = newNode;
+						count++;
+						doLoop = false;
+						break;
+				}
 			}
 		}
-	}
-	for( int y = 0; y < (int)mMap->GetMapDim(); y++ )
-	{
-		for( int x = 0; x < (int)mMap->GetMapDim(); x++ )
-		{
-			if(mBuildMap[x][y] != nullptr )
-			{
-				printf(" NODE ");
-			}
-			else
-			{
-				printf(" NULL ");
-			}
-		}
-		printf("\n");
 	}
 	return;
 }

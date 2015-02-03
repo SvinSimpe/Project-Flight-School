@@ -1,7 +1,12 @@
 #ifndef MAPNODEPLACER_H
 #define MAPNODEPLACER_H
 #include "Map.h"
-
+enum NODE_RETURN_CODE
+{
+	OCCUPIED,
+	NOFIT,
+	PLACED
+};
 class MapNodePlacer
 {
 	private:
@@ -15,7 +20,7 @@ class MapNodePlacer
 		static MapNodePlacer* instance;
 	private:
 		//int CanPlace( MapNodeInstance* currentNode, MapNodeInstance* newNode );
-		bool CanPlace( int x, int y, MapNodeInstance* newNode );
+		NODE_RETURN_CODE CanPlace( int x, int y, MapNodeInstance* newNode );
 	protected:
 	public:
 

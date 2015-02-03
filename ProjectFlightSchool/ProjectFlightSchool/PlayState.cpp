@@ -450,7 +450,6 @@ HRESULT PlayState::Update( float deltaTime )
 	}
 	mParticleManager->Update( deltaTime );
 	
-	//mRadar->Update( mPlayer->GetPlayerPosition(), mRadarObjects, nrOfRadarObj );
 	mGui->Update( mPlayer->GetPlayerPosition(), mRadarObjects, nrOfRadarObj );
 
 	// Test Anim
@@ -498,8 +497,17 @@ HRESULT PlayState::Render()
 
 	mShip.Render();
 
-	//mRadar->Render();
-	mGui->Render();
+	int nrOfAllies = 0;
+	float alliesHP[MAX_REMOTE_PLAYERS];
+	for( auto rp : mRemotePlayers )
+	{
+		if( rp->GetTeam() == mPlayer->GetTeam() )
+		{
+			alliesHP[nrOfAllies] = (float)( rp->GetHP() / rp->GetMaxHP() );
+			nrOfAllies++;
+		}
+	}
+	mGui->Render( nrOfAllies, alliesHP, (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ) ); //Should be changed to shield and Xp
 
 	RenderManager::GetInstance()->Render();
 
@@ -627,8 +635,6 @@ HRESULT PlayState::Initialize()
 	mParticleManager = new ParticleManager();
 	mParticleManager->Initialize();
 
-	//mRadar = new Radar();
-	//mRadar->Initialize();
 	mGui = new Gui();
 	mGui->Initialize();
 
@@ -677,7 +683,6 @@ void PlayState::Release()
 
 	SAFE_RELEASE_DELETE( mParticleManager );
 
-	//SAFE_DELETE( mRadar );
 	mGui->Release();
 	SAFE_DELETE( mGui );
 

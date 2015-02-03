@@ -13,7 +13,6 @@
 #include "EnemySpawn.h"
 #include "RemoteEnemy.h"
 #include "EnemyAnimationManager.h"
-//#include "Radar.h"
 #include "Gui.h"
 //Test
 #include "ParticleManager.h"
@@ -64,7 +63,6 @@ class PlayState : public BaseState
 
 		ParticleManager*			mParticleManager;
 
-		//Radar*						mRadar;
 		RADAR_UPDATE_INFO			mRadarObjects[MAX_RADAR_OBJECTS];
 		Gui*						mGui;
 

@@ -29,58 +29,46 @@ int main()
 	std::getline( std::cin, answer );
 
 	std::string ip	= "127.0.0.1";
-	UINT port		= 27015;
+	UINT port		= 1337;
 
 	bool serverOn = false;
 
-	Server* server		= nullptr;
-	Client* client		= nullptr;
+	Network* network = nullptr;
 	if( answer == "S" || answer == "s" )
 	{
-		server = new Server();
-		if( !server->Initialize(port) )
+		network = new Server();
+		if( !network->Initialize(port) )
 		{
 			return 1;
 		}
 		serverOn = true;
 	}
-	client = new Client();
-	if( !client->Initialize( ip, port ) )
+	else if( answer == "C" || answer == "c" )
 	{
-		return 2;
+		network = new Client();
+		if( !dynamic_cast<Client*>(network)->Initialize( ip, port ) )
+		{
+			return 2;
+		}
 	}
 
 	int frameCount = 0;
 	while( !GetAsyncKeyState( VK_ESCAPE ) )
 	{
 		frameCount++;
-		if( serverOn )
-		{
-			server->DoSelect( 0 );
-		}
-		client->DoSelect( 0 );
+		network->DoSelect( 0 );
 		if( frameCount > 2000 )
 		{
-			if( serverOn )
-			{
-				server->Update( 0.0f );
-			}
-			client->Update( 0.0f );
+			network->Update( 0.0f );
 			frameCount = 0;
 		}
 		EventManager::GetInstance()->Update();
 	}
 
 	EventManager::GetInstance()->Release();
-	if( serverOn )
-	{
-		if( server )
-			server->Release();
-		SAFE_DELETE( server );
-	}
-	if( client )
-		client->Release();
-	SAFE_DELETE( client );
+	if( network )
+		network->Release();
+	SAFE_DELETE( network );
 	gSocketManager = nullptr;
 	return 0;
 }

@@ -204,6 +204,10 @@
     <ClCompile Include="RemoteEnemy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="EnemyAnimationManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+
     <ClCompile Include="Radar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -371,21 +375,32 @@
     <ClInclude Include="RemoteEnemy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+
+    <ClInclude Include="EnemyAnimationManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+
     <ClInclude Include="Radar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+
+
     <ClInclude Include="DS3DBuffer.h">
       <Filter>DirectSound\Header</Filter>
     </ClInclude>
+
     <ClInclude Include="DSBuffer.h">
       <Filter>DirectSound\Header</Filter>
     </ClInclude>
+
     <ClInclude Include="SoundBufferHandler.h">
       <Filter>DirectSound\Header</Filter>
     </ClInclude>
+
     <ClInclude Include="Gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

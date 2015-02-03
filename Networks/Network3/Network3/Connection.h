@@ -14,6 +14,7 @@
 #include <mmsystem.h>
 #include <stdio.h>
 #include <sstream>
+#include <iostream>
 
 #define MAGIC_NUMBER		(0x1f2e3d4c)
 #define MAX_PACKET_SIZE		(256)
@@ -192,7 +193,8 @@ class NetworkEventForwarder
 	protected:
 	public:
 		void	ForwardEvent( IEventPtr eventPtr );
-				NetworkEventForwarder( int socketID, SocketManager* sm ) { mSocketID = socketID; mSM = sm; }
-		virtual	~NetworkEventForwarder() { }
+		void	Initialize( int socketID, SocketManager* sm );
+				NetworkEventForwarder();
+		virtual	~NetworkEventForwarder();
 };
 #endif

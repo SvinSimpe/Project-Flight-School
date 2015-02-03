@@ -1,7 +1,5 @@
 #include "Server.h"
 
-SocketManager* Server::mSocketManager = nullptr;
-
 void Server::InitEventListening()
 {
 	// Code for adding events that should be listened to by the server
@@ -10,33 +8,38 @@ void Server::InitEventListening()
 void Server::InitForwardingEvents()
 {
 	// Code for adding events that should be forwarded to the network by the server
+	EventManager::GetInstance()->AddListener( &NetworkEventForwarder::ForwardEvent, mNEF, Event_Client_Joined::GUID );
 }
 
-bool Server::Initialize( unsigned int port )
+void Server::DoSelect( int pauseMicroSecs, bool handleInput )
 {
+	gSocketManager = mSocketManager;
+	gSocketManager->DoSelect( pauseMicroSecs, handleInput );
+}
+
+bool Server::Initialize( UINT port )
+{
+	Network::Initialize( port );
 	mSocketManager = new SocketManager();
-	mNEF = new NetworkEventForwarder( 0, mSocketManager );
 	if( !mSocketManager->Initialize() )
 	{
-		OutputDebugStringA( "Server failed to initialize." );
-		Release();
+		OutputDebugStringA( "Failed to initialize server.\n" );
 		return false;
 	}
-	mSocketManager->AddSocket( new ServerListenSocket( port ) );
-	InitForwardingEvents();
+	mSocketManager->AddSocket( new ServerListenSocket( mPort ) );
 	return true;
 }
 
 void Server::Release()
 {
-	SAFE_RELEASE( mSocketManager );
+	Network::Release();
+	mSocketManager->Release();
 	SAFE_DELETE( mSocketManager );
-	SAFE_DELETE( mNEF );
 }
 
-Server::Server()
+Server::Server() : Network()
 {
-	mNEF = nullptr;
+	mSocketManager = nullptr;
 }
 
 Server::~Server()

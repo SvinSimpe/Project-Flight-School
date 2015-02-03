@@ -1,16 +1,14 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "Connection.h"
+#include "Network.h"
 
-class Server
+class Server : public Network
 {
 	private:
-		NetworkEventForwarder*	mNEF;
-
+		SocketManager* mSocketManager;
 	protected:
 	public:
-		static SocketManager*	mSocketManager;
 
 	private:
 		void	InitEventListening();
@@ -18,8 +16,8 @@ class Server
 
 	protected:
 	public:
-		void	ForwardEvent( IEventPtr ePtr );
-		bool	Initialize( unsigned int port );
+		void	DoSelect( int pauseMicroSecs, bool handleInput = true );
+		bool	Initialize( UINT port );
 		void	Release();
 				Server();
 		virtual	~Server();

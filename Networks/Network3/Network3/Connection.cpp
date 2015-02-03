@@ -407,7 +407,7 @@ void ServerListenSocket::HandleInput()
 		std::shared_ptr<Event_Client_Joined> E1( PFS_NEW Event_Client_Joined( ipAddress, sockID ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
-		//AttachRemoteClient( ipAddress, sockID );
+		AttachRemoteClient( ipAddress, sockID );
 	}
 }
 
@@ -470,7 +470,9 @@ void RemoteEventSocket::HandleInput()
 					int hostID, socketID;
 					in >> hostID;
 					in >> socketID;
-					printf( "HostID: %d, SocketID: %d\n", hostID, socketID );
+					std::cout << hostID << ", " << socketID << std::endl;
+					//IEventPtr E1( new Event_Client_Joined( hostID, socketID ) );
+					//EventManager::GetInstance()->QueueEvent( E1 );
 				}
 				break;
 			default:
@@ -824,6 +826,22 @@ void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 
 	std::shared_ptr<BinaryPacket> msg( PFS_NEW BinaryPacket( out.rdbuf()->str().c_str(), (u_long)out.str().size() ) );
 	mSM->Send( mSocketID, msg );
+}
+
+void NetworkEventForwarder::Initialize( int socketID, SocketManager* sm )
+{
+	mSocketID	= socketID;
+	mSM			= sm;
+}
+
+NetworkEventForwarder::NetworkEventForwarder()
+{
+	mSocketID	= -1;
+	mSM			= nullptr;
+}
+
+NetworkEventForwarder::~NetworkEventForwarder( )
+{
 }
 
 // End of NetworkEventForwarder functions

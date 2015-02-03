@@ -1,14 +1,26 @@
-#include "Server.h"
-#include "Client.h"
 #include <string>
 #include <iostream>
+#include "Server.h"
+#include "Client.h"
+
+void HandleEvents( IEventPtr evtPtr )
+{
+	if( evtPtr->GetEventType() == Event_Client_Joined::GUID )
+	{
+		std::shared_ptr<Event_Client_Joined> data = std::static_pointer_cast<Event_Client_Joined>( evtPtr );
+		int hostID = data->HostID();
+		int socketID = data->SocketID();
+
+		std::cout << hostID << ", " << socketID << std::endl;
+	}
+}
 
 int main()
 {
 #if defined(DEBUG) | defined(_DEBUG)
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
-	// 149 150 151 152 153 154
-	//_CrtSetBreakAlloc(161); // Break at specific memory allocation point
+	// 149
+	//_CrtSetBreakAlloc(149); // Break at specific memory allocation point
 #endif
 	REGISTER_EVENT( Event_Client_Joined );
 	REGISTER_EVENT( Event_Text );
@@ -22,60 +34,83 @@ int main()
 
 	bool serverOn = false;
 
-	Server* server = nullptr;
-	Client* client = nullptr;
-
+	Network* network = nullptr;
 	if( answer == "S" || answer == "s" )
 	{
-		server = new Server();
-		if( !server->Initialize( port ) )
+		network = new Server();
+		if( !network->Initialize(port) )
 		{
-			OutputDebugStringA( "FUCK!" );
 			return 1;
 		}
-		std::cout << "Server up and running." << std::endl;
-		serverOn = true;
-		gSocketManager = server->mSocketManager;
 	}
-	else if( answer == "C" || answer == "c")
+	else if( answer == "C" || answer == "c" )
 	{
-		answer = "";
-		std::cout << "Enter IP: (leave empty for localhost) ";
-		std::getline( std::cin, answer );
-
-		if( !(answer == "") )
+		network = new Client();
+		if( !dynamic_cast<Client*>(network)->Initialize( ip, port ) )
 		{
-			ip = answer;
-		}
-		std:: cout << "Attempting to connect to server with IP: " << ip << std::endl;
-
-		client = new Client();
-		if( !client->Initialize( ip, port ) )
-		{
-			OutputDebugStringA( "FUCK!" );
 			return 2;
 		}
-		std::cout << "Client connected to server." << std::endl;
-		gSocketManager = client->mSocketManager;
 	}
 	else
 	{
-		OutputDebugStringA( "FUCK!" );
+		OutputDebugStringA( "No correct input. Idiot.\n" );
 		return 3;
 	}
 
 	while( !GetAsyncKeyState( VK_ESCAPE ) )
 	{
-		gSocketManager->DoSelect( 0 );
-		EventManager::GetInstance()->Update();
+		network->DoSelect( 0 );
 	}
 
+	if( network )
+		network->Release();
+	SAFE_DELETE( network );
+	gSocketManager = nullptr;
 	EventManager::GetInstance()->Release();
-	SAFE_RELEASE( client );
-	SAFE_DELETE( client );
-	SAFE_RELEASE( server );
-	SAFE_DELETE( server );
-	SAFE_RELEASE( gSocketManager );
-	SAFE_DELETE( gSocketManager );
+	/////////////////////////////////////////////////////////////////////////////////
+	//NetworkEventForwarder* nef = nullptr;
+	//ClientSocketManager* client = nullptr;
+	//if( answer == "S" || answer == "s" )
+	//{
+	//	gSocketManager = new SocketManager();
+	//	if( !gSocketManager->Initialize() )
+	//	{
+	//		OutputDebugStringA( "Server couldn't initialize.\n" );
+	//		return 1;
+	//	}
+	//	gSocketManager->AddSocket( new ServerListenSocket( port ) );
+	//	std::cout << "Server up and running." << std::endl;
+	//	serverOn = true;
+	//}
+	//else if( answer == "C" || answer == "c" )
+	//{
+	//	client = new ClientSocketManager();
+	//	if( !client->Connect( ip, port ) )
+	//	{
+	//		OutputDebugStringA( "Client couldn't connect.\n" );
+	//		return 2;
+	//	}
+	//	gSocketManager = client;
+	//	nef = new NetworkEventForwarder();
+	//	nef->Initialize( 0, gSocketManager );
+	//	EventManager::GetInstance()->AddListener( &NetworkEventForwarder::ForwardEvent, nef, Event_Client_Joined::GUID );
+	//	std::cout << "Client connected to server." << std::endl;
+	//}
+	//else
+	//{
+	//	printf( "Things messed up.\n" );
+	//	return 3;
+	//}
+
+	//while( !GetAsyncKeyState( VK_ESCAPE ) )
+	//{
+	//	gSocketManager->DoSelect( 0 );
+	//	EventManager::GetInstance()->Update();
+	//}
+
+	//EventManager::GetInstance()->Release();
+	//gSocketManager->Release();
+	//SAFE_DELETE( gSocketManager );
+	//SAFE_DELETE( nef );
 	return 0;
 }

@@ -1,10 +1,20 @@
 #include "Client.h"
 
-ClientSocketManager* Client::mSocketManager = nullptr;
+void Client::HandleEvents( IEventPtr evtPtr )
+{
+	if( evtPtr->GetEventType() == Event_Client_Joined::GUID )
+	{
+		std::shared_ptr<Event_Client_Joined> data = std::static_pointer_cast<Event_Client_Joined>( evtPtr );
+		int hostID = data->HostID();
+		int socketID = data->SocketID();
+		std::cout << hostID << ", " << socketID << std::endl;
+	}
+}
 
 void Client::InitEventListening()
 {
 	// Code for adding events that should be listened to by the client
+	EventManager::GetInstance()->AddListener( &Client::HandleEvents, this, Event_Client_Joined::GUID );
 }
 
 void Client::InitForwardingEvents()
@@ -13,31 +23,36 @@ void Client::InitForwardingEvents()
 	EventManager::GetInstance()->AddListener( &NetworkEventForwarder::ForwardEvent, mNEF, Event_Text::GUID );
 }
 
+void Client::DoSelect( int pauseMicroSecs, bool handleInput )
+{
+	gSocketManager = mSocketManager;
+	gSocketManager->DoSelect( pauseMicroSecs, handleInput );
+}
+
 bool Client::Initialize( std::string ip, unsigned int port )
 {
+	Network::Initialize( port );
+	mIP = ip;
 	mSocketManager = new ClientSocketManager();
-	mNEF = new NetworkEventForwarder( 0, mSocketManager );
-	if( !mSocketManager->Connect( ip, port ) )
+	if( !mSocketManager->Connect( mIP, mPort ) )
 	{
-		OutputDebugStringA( "Client failed to initialize." );
-		Release();
-		return false;
+		OutputDebugStringA( "Client failed to connect to server.\n" );
 	}
-	InitForwardingEvents();
+	mNEF = new NetworkEventForwarder();
+	mNEF->Initialize( 0, mSocketManager );
 	return true;
 }
 
 void Client::Release()
 {
-	SAFE_RELEASE( mSocketManager );
+	Network::Release();
+	mSocketManager->Release();
 	SAFE_DELETE( mSocketManager );
-
-	SAFE_DELETE( mNEF );
 }
 
-Client::Client()
+Client::Client() : Network()
 {
-	mNEF = nullptr;
+	mSocketManager = nullptr;
 }
 
 Client::~Client()

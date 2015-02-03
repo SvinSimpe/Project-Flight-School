@@ -52,7 +52,7 @@ bool Client::Initialize( std::string ip, unsigned int port )
 	}
 	std::cout << "Client connected to server on IP: " << mIP << ", port: " << mPort << std::endl;
 	mNEF = new NetworkEventForwarder();
-	mNEF->Initialize( 0, *mSocketManager );
+	mNEF->Initialize( 0, mSocketManager ); // Always sends to socket 0, the server's socketID
 	InitForwardingEvents();
 	InitEventListening();
 	return true;

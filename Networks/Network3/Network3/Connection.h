@@ -183,8 +183,8 @@ class NetworkEventForwarder
 {
 	private:
 	protected:
-		int				mSocketID;
-		SocketManager	mSocketManager;
+		UINT			mSocketID;
+		SocketManager*	mSocketManager;
 
 	public:
 
@@ -192,7 +192,7 @@ class NetworkEventForwarder
 	protected:
 	public:
 		void	ForwardEvent( IEventPtr eventPtr );
-		void	Initialize( int socketID, SocketManager sm );
+		void	Initialize( UINT socketID, SocketManager* sm );
 				NetworkEventForwarder();
 		virtual	~NetworkEventForwarder();
 };

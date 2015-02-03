@@ -829,10 +829,10 @@ void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 	out << "\r\n";
 
 	std::shared_ptr<BinaryPacket> msg( PFS_NEW BinaryPacket( out.rdbuf()->str().c_str(), (u_long)out.str().size() ) );
-	mSocketManager.Send( mSocketID, msg );
+	mSocketManager->Send( mSocketID, msg );
 }
 
-void NetworkEventForwarder::Initialize( int socketID, SocketManager sm )
+void NetworkEventForwarder::Initialize( UINT socketID, SocketManager* sm )
 {
 	mSocketID		= socketID;
 	mSocketManager	= sm;
@@ -840,7 +840,8 @@ void NetworkEventForwarder::Initialize( int socketID, SocketManager sm )
 
 NetworkEventForwarder::NetworkEventForwarder()
 {
-	mSocketID	= -1;
+	mSocketID		= 0;
+	mSocketManager	= nullptr;
 }
 
 NetworkEventForwarder::~NetworkEventForwarder( )

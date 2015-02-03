@@ -9,9 +9,6 @@ int main()
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 	//_CrtSetBreakAlloc(142); // Break at specific memory allocation point
 #endif
-	EF::REGISTER_EVENT( Event_Client_Joined );
-	EF::REGISTER_EVENT( Event_Text );
-
 	std::string answer = "";
 	std::cout << "Would you like to start a (S)erver or a (C)lient? ";
 	std::getline( std::cin, answer );
@@ -40,9 +37,12 @@ int main()
 	}
 	else
 	{
-		OutputDebugStringA( "No correct input. Idiot.\n" );
+		OutputDebugStringA( "Incorrect input. Idiot.\n" );
 		return 3;
 	}
+
+	EF::REGISTER_EVENT( Event_Client_Joined );
+	EF::REGISTER_EVENT( Event_Text );
 
 	int frameCount = 0;
 	while( !GetAsyncKeyState( VK_ESCAPE ) )

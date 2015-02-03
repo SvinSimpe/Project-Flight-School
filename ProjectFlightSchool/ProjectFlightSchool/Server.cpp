@@ -13,6 +13,20 @@ void Server::EventListener( IEventPtr newEvent )
 	{
 		mInGame		= false;
 	}
+	else if( newEvent->GetEventType() == Event_Set_Enemy_State::GUID )
+	{
+		std::shared_ptr<Event_Set_Enemy_State> data = std::static_pointer_cast<Event_Set_Enemy_State>( newEvent );
+		EvSetEnemyState state;
+		state.ID	= data->ID();
+		state.state	= data->State();
+		for ( auto& socket : mClientSockets )
+		{
+			if ( socket.s != INVALID_SOCKET )
+			{
+				mConn->SendPkg( socket.s, 0, Net_Event::EV_SET_ENEMY_STATE, state );
+			}
+		}
+	}
 }
 
 bool Server::AcceptConnection()
@@ -103,9 +117,42 @@ void Server::DisconnectClient( SOCKET s )
 	}
 }
 
-XMFLOAT3 Server::SpawnEnemy()
+XMFLOAT3 Server::GetNextSpawn()
 {
 	return mSpawners[mNrOfEnemiesSpawned++ % MAX_NR_OF_ENEMY_SPAWNERS]->GetSpawnPosition();
+}
+
+void Server::AggroCheck()
+{
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	{
+		if( mEnemies[i]->IsAlive() )
+		{
+			for ( size_t j = 0; j < mNrOfPlayers; j++ )
+			{
+				// The players agg circle
+				mAggCircle->center = mPlayers[j].Position;
+				mAggCircle->radius = 1.0f;
+
+				if( mEnemies[i]->GetAttentionCircle()->Intersect( mAggCircle ) )
+				{
+					if( mEnemies[i]->GetAttackCircle()->Intersect( mAggCircle ) )
+					{
+						mEnemies[i]->SetState( Attack );
+					}
+					else
+					{
+						mEnemies[i]->SetState( HuntPlayer );
+						mEnemies[i]->SetHuntedPlayer( mPlayers[j].Position );
+					}
+				}
+				else
+				{
+					mEnemies[i]->SetState( Idle );
+				}
+			}
+		}
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -114,7 +161,7 @@ XMFLOAT3 Server::SpawnEnemy()
 
 HRESULT Server::Update( float deltaTime )
 {
-	if( mInGame && mFrameCount++ > 2 )
+	if( mInGame && mSafeUpdate )//&& mFrameCount++ > 2 )
 	{
 		EvUpdateEnemyPosition enemy;
 		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
@@ -125,6 +172,7 @@ HRESULT Server::Update( float deltaTime )
 
 				enemy.ID			= mEnemies[i]->GetID();
 				enemy.position		= mEnemies[i]->GetPosition();
+				enemy.direction		= mEnemies[i]->GetDirection();
 
 				for ( auto& socket : mClientSockets )
 				{
@@ -137,9 +185,13 @@ HRESULT Server::Update( float deltaTime )
 			}
 			else
 			{
-				mEnemies[i]->Spawn( SpawnEnemy() );
+				mEnemies[i]->Spawn( GetNextSpawn() );
 			}
 		}
+
+		//if( mSafeUpdate )
+			AggroCheck();
+
 		mFrameCount = 0;
 	}
 
@@ -232,7 +284,7 @@ bool Server::Initialize( std::string port )
 	mConn->Initialize();
 
 	// Enemies & Spawners
-	srand( time( NULL ) );
+	srand( (unsigned int)time( NULL ) );
 	mSpawners	= new EnemySpawn*[MAX_NR_OF_ENEMY_SPAWNERS];
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
 	{
@@ -252,7 +304,7 @@ bool Server::Initialize( std::string port )
 	{
 		mEnemies[i] = new Enemy();
 		mEnemies[i]->Initialize( i );
-		mEnemies[i]->Spawn( SpawnEnemy() );
+		mEnemies[i]->Spawn( GetNextSpawn() );
 		
 		//mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_UPDATE, msg );
 
@@ -261,9 +313,12 @@ bool Server::Initialize( std::string port )
 	}
 
 	mEnemyListSynced	= false;
+	mSafeUpdate			= false;
+	mAggCircle			= new BoundingCircle();
 
 	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Game_Started::GUID );
 	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Game_Ended::GUID );
+	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Set_Enemy_State::GUID );
 
 
 	IEventPtr E1( new Event_Server_Initialized() );
@@ -302,6 +357,8 @@ void Server::Release()
 		SAFE_DELETE( mSpawners[i] );
 
 	delete [] mSpawners;
+
+	SAFE_DELETE( mAggCircle );
 }
 
 Server::Server()
@@ -321,7 +378,11 @@ Server::Server()
 	mNrOfEnemiesSpawned	= 0;
 	mFrameCount			= 0;
 
+	mAggCircle			= nullptr;
+
 	mEnemyListSynced	= false;
+	mSafeUpdate			= false;
+	mNrOfPlayers		= 0;
 }
 
 Server::~Server()

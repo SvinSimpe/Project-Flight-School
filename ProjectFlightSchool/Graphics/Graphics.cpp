@@ -39,7 +39,6 @@ Graphics::~Graphics()
 
 }
 
-
 //Map buffer
 HRESULT Graphics::MapBuffer( ID3D11Buffer* buffer, void* data, int size )
 {
@@ -81,6 +80,7 @@ HRESULT Graphics::LoadAnimationAsset( std::string filePath, std::string fileName
 {
 	return mAssetManager->LoadAnimationAsset( filePath, fileName, assetId );
 }
+
 void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 {
 	mDeviceContext->OMSetDepthStencilState( mDepthDisabledStencilState, 1 );
@@ -153,10 +153,10 @@ void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX
 	UINT32 vertexSize	= sizeof(StaticVertex);
 	UINT32 offset		= 0;
 
-	StaticVertex bottomleft		= { x.x, x.y, y.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 1.0f };
-	StaticVertex topleft		= { x.x, x.y, x.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 0.0f };
-	StaticVertex bottomright	= { y.x, x.y, y.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	1.0f, 1.0f };
-	StaticVertex topright		= { y.x, x.y, x.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	1.0f, 0.0f };
+	StaticVertex bottomleft		= { x.x, x.y + 0.001f, y.z,		0.0f, 1.0f, 0.0f,	0.71f, 0.0f, 0.71f,		0.0f, 1.0f };
+	StaticVertex topleft		= { x.x, x.y + 0.001f, x.z,		0.0f, 1.0f, 0.0f,	0.71f, 0.0f, 0.71f,		0.0f, 0.0f };
+	StaticVertex bottomright	= { y.x, x.y + 0.001f, y.z,		0.0f, 1.0f, 0.0f,	0.71f, 0.0f, 0.71f,		1.0f, 1.0f };
+	StaticVertex topright		= { y.x, x.y + 0.001f, x.z,		0.0f, 1.0f, 0.0f,	0.71f, 0.0f, 0.71f,		1.0f, 0.0f };
 
 	StaticVertex vertices[4]	= { bottomleft, topleft, bottomright, topright };
 	MapBuffer( mBuffers[BUFFERS_2D], &vertices, sizeof(StaticVertex) * 4 );
@@ -178,8 +178,8 @@ void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] );
 
 	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[assetId] )->mSRV );
-	mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
-	mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[NORMAL_PLACEHOLDER] )->mSRV );
+	mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[NORMAL_PLACEHOLDER] )->mSRV );
+	mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
 	mDeviceContext->Draw( 4, 0 );
 }
 
@@ -199,8 +199,6 @@ void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->PSSetShader( mEffects[EFFECTS_STATIC_INSTANCED]->GetPixelShader(), nullptr, 0 );
-
-	
 	
 	UINT objectToRender = 0;
 	UINT currAssetID = (UINT)-1;
@@ -412,6 +410,37 @@ void Graphics::RenderBillboard( BillboardInfo* info, UINT sizeOfList )
 			mDeviceContext->DrawInstanced( 1, objectToRender, 0, 0 );
 		}
 		else break;
+	}
+}
+
+void Graphics::RenderNodeGrid( NodeGridInfo* info, UINT sizeOfList )
+{
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+	
+	UINT32 vertexSize	= sizeof( StaticVertex );
+	UINT32 offset		= 0;
+	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_NODEGRID]->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mEffects[EFFECTS_NODEGRID]->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffects[EFFECTS_NODEGRID]->GetPixelShader(), nullptr, 0 );
+
+	for( UINT i = 0; i < sizeOfList; i++ )
+	{
+		CbufferPerObject cbuff;
+		cbuff.worldMatrix = DirectX::XMLoadFloat4x4( &info[i].mWorld );
+		MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT], &cbuff, sizeof( CbufferPerObject ) );
+		mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] );
+
+		MapBuffer( mBuffers[BUFFERS_SINGLE_STATIC_VERTEX], info[i].mVertices, sizeof(StaticVertex) * info[i].mNrOfVertices );
+		mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_SINGLE_STATIC_VERTEX], &vertexSize, &offset );
+
+		mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[DIFFUSE_PLACEHOLDER] )->mSRV );
+		mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[NORMAL_PLACEHOLDER] )->mSRV );
+		mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
+		mDeviceContext->Draw( info[i].mNrOfVertices, 0 );
 	}
 }
 
@@ -667,9 +696,7 @@ void Graphics::DeferredPass()
 	/////////////////////////////////
 	mDeviceContext->ClearState();
 
-	mDeviceContext->ClearDepthStencilView( mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
-
-	mDeviceContext->OMSetRenderTargets( 1, &mRenderTargetView, mDepthStencilView );
+	mDeviceContext->OMSetRenderTargets( 1, &mRenderTargetView, nullptr );
 	mDeviceContext->RSSetViewports( 1, &mStandardView );
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
 	
@@ -1186,6 +1213,16 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, &test, &mBuffers[BUFFERS_SINGLE_VERTEX] ) ) )
 		return hr;
 
+	//Single vertex buffer used for nodeGrid
+	ZeroMemory( &bufferInstancedDesc, sizeof( bufferInstancedDesc ) );
+	bufferInstancedDesc.BindFlags		= D3D11_BIND_VERTEX_BUFFER;
+	bufferInstancedDesc.CPUAccessFlags	= D3D11_CPU_ACCESS_WRITE;
+	bufferInstancedDesc.Usage			= D3D11_USAGE_DYNAMIC;
+	bufferInstancedDesc.ByteWidth		= sizeof( StaticVertex ) * MAX_SINGLE_STATIC_VERTICES;
+
+	if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, nullptr, &mBuffers[BUFFERS_SINGLE_STATIC_VERTEX] ) ) )
+		return hr;
+
 	//Light buffer for structured buffer
 	D3D11_BUFFER_DESC lightBufferDesc;
 	ZeroMemory( &lightBufferDesc, sizeof( lightBufferDesc ) );
@@ -1319,6 +1356,14 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	effectInfo.vertexType	= STATIC_VERTEX_TYPE;
 
 	if( FAILED( hr = mEffects[EFFECTS_DEFERRED]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//NodeGrid effect
+	effectInfo.filePath		= "../Content/Effects/NodeGridEffect.hlsl";
+	effectInfo.fileName		= "NodeGridEffect";
+
+	if( FAILED( hr = mEffects[EFFECTS_NODEGRID]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 	//--------------------------
 

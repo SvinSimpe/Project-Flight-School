@@ -176,7 +176,11 @@ HRESULT Player::Update( float deltaTime )
 	mLoadOut->meleeWeapon->boundingCircle->center	= mLowerBody.position;
 
 	//Update Light
-	mPointLight->position = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 10.0f, mLowerBody.position.z, 0.0f );
+	mPointLight[0]->position = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 7.0f, mLowerBody.position.z, 0.0f );
+	mPointLight[1]->position = DirectX::XMFLOAT4( mLowerBody.position.x - 10.0f, mLowerBody.position.y + 7.0f, mLowerBody.position.z + 10.0f, 0.0f );
+	mPointLight[2]->position = DirectX::XMFLOAT4( mLowerBody.position.x + 10.0f, mLowerBody.position.y + 7.0f, mLowerBody.position.z + 10.0f, 0.0f );
+	mPointLight[3]->position = DirectX::XMFLOAT4( mLowerBody.position.x - 10.0f, mLowerBody.position.y + 7.0f, mLowerBody.position.z - 10.0f, 0.0f );
+	mPointLight[4]->position = DirectX::XMFLOAT4( mLowerBody.position.x + 10.0f, mLowerBody.position.y + 7.0f, mLowerBody.position.z - 10.0f, 0.0f );
 
 	//== Event to sync player with server ==
 	mEventCapTimer += deltaTime;
@@ -236,7 +240,7 @@ HRESULT Player::Render( float deltaTime, int position )
 		
 
 
-		mFont.WriteText( textToWrite, 500.0f, 500.0f, 1.0f );
+		mFont.WriteText( textToWrite, 500.0f, 500.0f, 7.8f );
 	}
 
 	RemotePlayer::Render( position );
@@ -327,11 +331,19 @@ HRESULT Player::Initialize()
 
 	////////////
 	// Light
-	mPointLight						= new PointLight;
-	mPointLight->position			= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
-	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.4f, 0.4f, 0.4f, 30.0f );
-	IEventPtr reg( new Event_Add_Point_Light( mPointLight ) );
-	EventManager::GetInstance()->QueueEvent( reg );
+	for( int i = 0; i < 5; i++ )
+	{
+		mPointLight[i]						= new PointLight;
+		mPointLight[i]->position			= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
+		IEventPtr reg( new Event_Add_Point_Light( mPointLight[i] ) );
+		EventManager::GetInstance()->QueueEvent( reg );
+	}
+
+	mPointLight[0]->colorAndRadius		= DirectX::XMFLOAT4( 0.6f, 0.6f, 0.6f, 20.0f );
+	mPointLight[1]->colorAndRadius		= DirectX::XMFLOAT4( 0.6f, 0.2f, 0.2f, 20.0f );
+	mPointLight[2]->colorAndRadius		= DirectX::XMFLOAT4( 0.2f, 0.6f, 0.2f, 20.0f );
+	mPointLight[3]->colorAndRadius		= DirectX::XMFLOAT4( 0.2f, 0.2f, 0.6f, 20.0f );
+	mPointLight[4]->colorAndRadius		= DirectX::XMFLOAT4( 0.6f, 0.6f, 0.2f, 20.0f );
 
 	mMaxVelocity		= 7.7f;
 	mCurrentVelocity	= 0.0f;
@@ -347,9 +359,12 @@ HRESULT Player::Initialize()
 void Player::Release()
 {
 	RemotePlayer::Release();
-	IEventPtr reg( new Event_Remove_Point_Light( mPointLight ) );
-	EventManager::GetInstance()->QueueEvent( reg );
-	SAFE_DELETE( mPointLight );
+	for( int i = 0; i < 5; i++ )
+	{
+		IEventPtr reg( new Event_Remove_Point_Light( mPointLight[0] ) );
+		EventManager::GetInstance()->QueueEvent( reg );
+		SAFE_DELETE( mPointLight[i] );
+	}
 }
 
 Player::Player()
@@ -357,7 +372,8 @@ Player::Player()
 {
 	mEventCapTimer		= 0.0f;
 
-	mPointLight			= nullptr;
+	for( int i = 0; i < 5; i++ )
+		mPointLight[i]	= nullptr;
 
 	mWeaponCoolDown		= 0.0f;
 	mMeleeCoolDown		= 0.0f;

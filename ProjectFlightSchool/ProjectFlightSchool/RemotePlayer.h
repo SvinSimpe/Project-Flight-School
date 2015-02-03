@@ -35,6 +35,12 @@ enum WEAPON_ANIMATION
 	WEAPON_ANIMATION_COUNT,
 };
 
+struct ServerPlayer
+{
+	unsigned int	ID;
+	XMFLOAT3		Position;
+};
+
 struct UpperBody
 {
 	AssetID		playerModel;
@@ -130,6 +136,7 @@ class RemotePlayer
 		bool			IsAlive() const;
 		LoadOut*		GetLoadOut() const;
 		float			GetHP() const;
+		float			GetMaxHP() const;
 		int				GetID() const;
 		int				GetTeam() const;
 		BoundingBox*	GetBoundingBox() const;

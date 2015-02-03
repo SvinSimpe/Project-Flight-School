@@ -101,9 +101,9 @@ HRESULT EnemyAnimationManager::Initialize()
 	// -------------------
 	// Load Boomer Model
 	// Load skeleton
-	//Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurSkel.Skel", skeleton );
+	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurSkel.Skel", skeleton );
 	// Load animated 3d asset
-	//Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Enemies/Blowuposaur/", "blowuposaur.apfs", skeleton, mModelBoomer );
+	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Enemies/Blowuposaur/", "blowuposaur.apfs", skeleton, mModelBoomer );
 
 	// ------------------- ( Pate Waiting )
 	// Load Tank Model
@@ -118,10 +118,10 @@ HRESULT EnemyAnimationManager::Initialize()
 
 	// -------------------
 	// Load Standard Animations
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Raptor/Animations/", "raptor_idle.PaMan",	mAnimations[ENEMY_ANIMATION_STANDARD_IDLE] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Raptor/Animations/", "raptor_run.PaMan",	mAnimations[ENEMY_ANIMATION_STANDARD_RUN] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Raptor/Animations/", "raptor_attack.PaMan", mAnimations[ENEMY_ANIMATION_STANDARD_ATTACK] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Raptor/Animations/", "raptor_death.PaMan",	mAnimations[ENEMY_ANIMATION_STANDARD_DEATH] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Raptor/Animations/", "raptorIdle.PaMan",	mAnimations[ENEMY_ANIMATION_STANDARD_IDLE] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Raptor/Animations/", "raptorRun.PaMan",	mAnimations[ENEMY_ANIMATION_STANDARD_RUN] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Raptor/Animations/", "raptorAttack1.PaMan", mAnimations[ENEMY_ANIMATION_STANDARD_ATTACK] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Raptor/Animations/", "raptorDeath2(fix(fix)).PaMan",	mAnimations[ENEMY_ANIMATION_STANDARD_DEATH] );
 
 	// -------------------
 	// Load Ranged Animations
@@ -132,8 +132,8 @@ HRESULT EnemyAnimationManager::Initialize()
 
 	// -------------------
 	// Load Boomer Animations
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurIdle2.PaMan",		mAnimations[ENEMY_ANIMATION_BOOMER_IDLE] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurRun.PaMan",		mAnimations[ENEMY_ANIMATION_BOOMER_RUN] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurIdle.PaMan",		mAnimations[ENEMY_ANIMATION_BOOMER_IDLE] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurWalk.PaMan",		mAnimations[ENEMY_ANIMATION_BOOMER_RUN] );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurAttack.PaMan",	mAnimations[ENEMY_ANIMATION_BOOMER_ATTACK] );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurDeath.PaMan",		mAnimations[ENEMY_ANIMATION_BOOMER_DEATH] );
 

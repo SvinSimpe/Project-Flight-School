@@ -256,6 +256,17 @@ void Player::TakeDamage( float damage, unsigned int shooter )
 	RemotePlayer::TakeDamage( damage, shooter );
 }
 
+void Player::TakeEnemyDamage( float damage )
+{
+	mCurrentHp -= damage;
+	IEventPtr player( new Event_Player_Update_HP( mID, mCurrentHp ) );
+	EventManager::GetInstance()->QueueEvent( player );
+	if ( mIsAlive && mCurrentHp <= 0.0f )
+	{
+		Die();
+	}
+}
+
 void Player::SetBuffed( bool buffed )
 {
 	mIsBuffed = buffed;

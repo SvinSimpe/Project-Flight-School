@@ -1,14 +1,25 @@
 #include "Server.h"
 
+void Server::HandleEvents( IEventPtr evtPtr )
+{
+	if( evtPtr->GetEventType() == Event_Text::GUID )
+	{
+		std::shared_ptr<Event_Text> data = std::static_pointer_cast<Event_Text>( evtPtr );
+		int socketID = data->Socket();
+		std::string text = data->Text();
+		std::cout << socketID << " says: " << text << std::endl;
+	}
+}
+
 void Server::InitEventListening()
 {
 	// Code for adding events that should be listened to by the server
+	EventManager::GetInstance()->AddListener( &Server::HandleEvents, this, Event_Text::GUID );
 }
 
-void Server::InitForwardingEvents()
+void Server::Update( float deltaTime )
 {
-	// Code for adding events that should be forwarded to the network by the server
-	EventManager::GetInstance()->AddListener( &NetworkEventForwarder::ForwardEvent, mNEF, Event_Client_Joined::GUID );
+
 }
 
 void Server::DoSelect( int pauseMicroSecs, bool handleInput )
@@ -27,12 +38,12 @@ bool Server::Initialize( UINT port )
 		return false;
 	}
 	mSocketManager->AddSocket( new ServerListenSocket( mPort ) );
+	std::cout << "Server started on port: " << mPort << std::endl;
 	return true;
 }
 
 void Server::Release()
 {
-	Network::Release();
 	mSocketManager->Release();
 	SAFE_DELETE( mSocketManager );
 }

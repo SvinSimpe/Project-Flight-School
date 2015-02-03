@@ -7,8 +7,9 @@
 class Client : public Network
 {
 	private:
-		std::string mIP;
-		ClientSocketManager* mSocketManager;
+		std::string				mIP;
+		NetworkEventForwarder*	mNEF;
+		ClientSocketManager*	mSocketManager;
 	protected:
 	public:
 
@@ -19,6 +20,7 @@ class Client : public Network
 
 	protected:
 	public:
+		void	Update( float deltaTime );
 		void	DoSelect( int pauseMicroSecs, bool handleInput = true );
 		bool	Initialize( std::string ip, unsigned int port );
 		void	Release();

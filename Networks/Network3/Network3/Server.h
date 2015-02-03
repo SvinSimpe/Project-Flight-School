@@ -11,11 +11,12 @@ class Server : public Network
 	public:
 
 	private:
+		void	HandleEvents( IEventPtr evtPtr );
 		void	InitEventListening();
-		void	InitForwardingEvents();
 
 	protected:
 	public:
+		void	Update( float deltaTime );
 		void	DoSelect( int pauseMicroSecs, bool handleInput = true );
 		bool	Initialize( UINT port );
 		void	Release();

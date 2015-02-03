@@ -9,18 +9,16 @@ class Network
 {
 	private:
 	protected:
-		NetworkEventForwarder*	mNEF;
-		UINT					mPort;
+		UINT mPort;
 	public:
 
 	private:
-		virtual void	InitEventListening() = 0;
-		virtual void	InitForwardingEvents() = 0;
 	protected:
 	public:
+		virtual void	Update( float deltaTime ) = 0;
 		virtual void	DoSelect( int pauseMicroSecs, bool handleInput = true ) = 0;
 		virtual bool	Initialize( UINT port );
-		virtual void	Release();
+		virtual void	Release() = 0;
 						Network();
 		virtual			~Network();
 };

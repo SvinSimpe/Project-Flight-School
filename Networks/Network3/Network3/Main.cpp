@@ -60,6 +60,7 @@ int main()
 	while( !GetAsyncKeyState( VK_ESCAPE ) )
 	{
 		network->DoSelect( 0 );
+		EventManager::GetInstance()->Update();
 	}
 
 	if( network )

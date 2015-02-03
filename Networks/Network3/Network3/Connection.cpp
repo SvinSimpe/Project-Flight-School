@@ -404,8 +404,8 @@ void ServerListenSocket::HandleInput()
 
 		printf( "Client with sockID: %d connected from %d.\n", sockID, ipAddr );
 
-		std::shared_ptr<Event_Client_Joined> E1( PFS_NEW Event_Client_Joined( ipAddress, sockID ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
+		//std::shared_ptr<Event_Client_Joined> E1( PFS_NEW Event_Client_Joined( ipAddress, sockID ) );
+		//EventManager::GetInstance()->QueueEvent( E1 );
 
 		AttachRemoteClient( ipAddress, sockID );
 	}
@@ -470,9 +470,8 @@ void RemoteEventSocket::HandleInput()
 					int hostID, socketID;
 					in >> hostID;
 					in >> socketID;
-					std::cout << hostID << ", " << socketID << std::endl;
-					//IEventPtr E1( new Event_Client_Joined( hostID, socketID ) );
-					//EventManager::GetInstance()->QueueEvent( E1 );
+					IEventPtr E1( new Event_Client_Joined( hostID, socketID ) );
+					EventManager::GetInstance()->QueueEvent( E1 );
 				}
 				break;
 			default:
@@ -816,7 +815,6 @@ ClientSocketManager::ClientSocketManager()
 
 void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 {
-	printf( "Inside ForwardEvent!\n" );
 	std::stringstream out;
 
 	out << static_cast<int>( RemoteEventSocket::NetMsg_Event ) << " ";
@@ -824,20 +822,21 @@ void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 	eventPtr->Serialize( out );
 	out << "\r\n";
 
+	std::cout << out.str() << std::endl;
+
 	std::shared_ptr<BinaryPacket> msg( PFS_NEW BinaryPacket( out.rdbuf()->str().c_str(), (u_long)out.str().size() ) );
-	mSM->Send( mSocketID, msg );
+	mSocketManager.Send( mSocketID, msg );
 }
 
-void NetworkEventForwarder::Initialize( int socketID, SocketManager* sm )
+void NetworkEventForwarder::Initialize( int socketID, SocketManager sm )
 {
-	mSocketID	= socketID;
-	mSM			= sm;
+	mSocketID		= socketID;
+	mSocketManager	= sm;
 }
 
 NetworkEventForwarder::NetworkEventForwarder()
 {
 	mSocketID	= -1;
-	mSM			= nullptr;
 }
 
 NetworkEventForwarder::~NetworkEventForwarder( )

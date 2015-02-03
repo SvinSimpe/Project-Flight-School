@@ -185,7 +185,7 @@ class NetworkEventForwarder
 	private:
 	protected:
 		int				mSocketID;
-		SocketManager*	mSM;
+		SocketManager	mSocketManager;
 
 	public:
 
@@ -193,7 +193,7 @@ class NetworkEventForwarder
 	protected:
 	public:
 		void	ForwardEvent( IEventPtr eventPtr );
-		void	Initialize( int socketID, SocketManager* sm );
+		void	Initialize( int socketID, SocketManager sm );
 				NetworkEventForwarder();
 		virtual	~NetworkEventForwarder();
 };

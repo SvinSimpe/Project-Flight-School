@@ -35,6 +35,7 @@ enum Effects
 	EFFECTS_ANIMATED_INSTANCED,
 	EFFECTS_DEFERRED,
 	EFFECTS_BILLBOARD,
+	EFFECTS_NODEGRID,
 
 	EFFECTS_DEBUG_BOX,
 	//New effects added above this comment
@@ -52,6 +53,7 @@ enum Buffers
 	BUFFERS_BILLBOARD,
 	BUFFERS_LIGHT,
 	BUFFERS_SINGLE_VERTEX,
+	BUFFERS_SINGLE_STATIC_VERTEX,
 
 	BUFFERS_DEBUG_BOX,
 	BUFFERS_DEBUG_BOX_INDICES,
@@ -59,13 +61,23 @@ enum Buffers
 	BUFFERS_AMOUNT
 };
 
+enum Cameras
+{
+	CAMERAS_MAIN,
+	CAMERAS_DEV,
+	//New cameras added above this comment
+	CAMERAS_AMOUNT
+};
+
 #define ANIMATION_PLAY_LOOPED	0
 #define ANIMATION_PLAY_ONCE		1
 
-#define NUM_GBUFFERS 3
-#define MAX_ANIM_INSTANCE_BATCH 32
+#define NUM_GBUFFERS				3
+#define MAX_ANIM_INSTANCE_BATCH		32
 #define MAX_STATIC3D_INSTANCE_BATCH 512
-#define MAX_BILLBOARD_BATCH 1024
+#define MAX_BILLBOARD_BATCH			1024
+
+#define MAX_SINGLE_STATIC_VERTICES	20000
 
 #define SAFE_RELEASE_DELETE( x ) if( x ) { ( x )->Release(); delete x; ( x ) = nullptr; }
 
@@ -95,9 +107,7 @@ class LIBRARY_EXPORT Graphics
 
 		AssetManager*				mAssetManager;
 		Effect*						mEffects[EFFECTS_AMOUNT];
-
-		Camera*						mCamera;
-		Camera*						mDeveloperCamera;
+		Camera*						mCamera[CAMERAS_AMOUNT];
 		bool						mIsDeveloperCameraActive;
 		Gbuffer*					mGbuffers[NUM_GBUFFERS];
 
@@ -107,7 +117,6 @@ class LIBRARY_EXPORT Graphics
 		AnimatedInstance			mAnimInstanced[MAX_ANIM_INSTANCE_BATCH];
 		CbufferPerObjectAnimated	mAnimCbufferInstanced[MAX_ANIM_INSTANCE_BATCH];
 		BillboardInstanced			mBillboardInstanced[MAX_BILLBOARD_BATCH];
-
 
 	protected:
 	public:
@@ -134,6 +143,7 @@ class LIBRARY_EXPORT Graphics
 		void RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList );
 		void RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList );
 		void RenderBillboard( BillboardInfo* info, UINT sizeOfList );
+		void RenderNodeGrid( NodeGridInfo* info, UINT sizeOfList );
 		void RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max );
 
 

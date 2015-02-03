@@ -72,7 +72,7 @@ void MapNodePlacer::BuildMap( MapNodeInstance** map )
 
 			while( doLoop )
 			{
-				int randomNode = rand() % 1;
+				int randomNode = rand() % 23;
 				MapNodeInstance* newNode = nodeMap[NodeTypes::AREA_NODE][randomNode]->GetMapNodeInstance();
 				switch( CanPlace( x, y, newNode ) )
 				{

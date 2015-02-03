@@ -24,12 +24,12 @@ void RemotePlayer::RemoteUpdate( IEventPtr newEvent )
 		{
 			if( data->ArmID() == LEFT_ARM_ID )
 			{
-				RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mAnimations[data->Animation()] );
+				RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, data->Animation() );
 				mLeftArmAnimationCompleted = false;
 			}
 			else if( data->ArmID() == RIGHT_ARM_ID )
 			{
-				RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mAnimations[data->Animation()] );
+				RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, data->Animation() );
 				mRightArmAnimationCompleted = false;
 			}
 		}
@@ -137,27 +137,27 @@ HRESULT RemotePlayer::Update( float deltaTime )
 
 	if( currentVelocity < 0.2f )
 	{
-		if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION_LEGS_IDLE] )
+		if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE] )
 		{
-			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION_LEGS_IDLE] );
+			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
 		}
 	}
 	else
 	{
-		if(	mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION_LEGS_WALK] )
+		if(	mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK] )
 		{
-			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION_LEGS_WALK] );
+			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_WALK] );
 		}
 	}
 
 	RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, 
-		mLowerBody.playerModel.mNextAnimation == mAnimations[PLAYER_ANIMATION_LEGS_WALK] ? deltaTime * currentVelocity / 1.1f : deltaTime );
+		mLowerBody.playerModel.mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK] ? deltaTime * currentVelocity / 1.1f : deltaTime );
 
-	if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mAnimations[PLAYER_ANIMATION_CLAYMORE_IDLE] )
-		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mAnimations[PLAYER_ANIMATION_CLAYMORE_IDLE] );
+	if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] )
+		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
 
-	if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mAnimations[PLAYER_ANIMATION_SHOTGUN_WALK] )
-		RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mAnimations[PLAYER_ANIMATION_SHOTGUN_WALK] );
+	if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] )
+		RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
 
 	RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
 	RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
@@ -302,23 +302,76 @@ HRESULT RemotePlayer::Initialize()
 	////////////////
 	//Animations
 	// BODY
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotLegsIdle.PaMan", mAnimations[PLAYER_ANIMATION_LEGS_IDLE] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotLegsIdle.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_IDLE] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotLegsWalk.PaMan", mAnimations[PLAYER_ANIMATION_LEGS_WALK] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotLegsWalk.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_WALK] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+
+	//BLOWTORCH
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchIdle.PaMan",			mWeaponAnimations[BLOWTORCH][IDLE] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchAttackStart.PaMan",		mWeaponAnimations[BLOWTORCH][ATTACK_START] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );																							
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchAttackIdle.PaMan",		mWeaponAnimations[BLOWTORCH][ATTACK_IDLE] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );																										
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchAttackEnd.PaMan",		mWeaponAnimations[BLOWTORCH][ATTACK_END] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );																										
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchOverheatStart.PaMan",	mWeaponAnimations[BLOWTORCH][OVERHEAT_START] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );																										
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchOverheatEnd.PaMan",		mWeaponAnimations[BLOWTORCH][OVERHEAT_END] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	//CLAYMORE
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Animations/", "claymoreIdle.PaMan", mAnimations[PLAYER_ANIMATION_CLAYMORE_IDLE] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Claymore/Animations/", "claymoreIdle.PaMan"	, mWeaponAnimations[CLAYMORE][IDLE] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );																						
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Claymore/Animations/", "claymoreWalk.PaMan"	, mWeaponAnimations[CLAYMORE][WALK] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );																								
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Claymore/Animations/", "claymoreAttack.PaMan"	, mWeaponAnimations[CLAYMORE][ATTACK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Animations/", "claymoreWalk.PaMan", mAnimations[PLAYER_ANIMATION_CLAYMORE_WALK] ) ) )
-		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Animations/", "claymoreAttack.PaMan", mAnimations[PLAYER_ANIMATION_CLAYMORE_ATTACK] ) ) )
+	
+	//HAMMER
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/Animations/", "hammerIdle.PaMan",	mWeaponAnimations[HAMMER][IDLE] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );																							
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/Animations/", "hammerWalk.PaMan",	mWeaponAnimations[HAMMER][WALK] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );																							
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/Animations/", "hammerAnim1.PaMan", mWeaponAnimations[HAMMER][ATTACK] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );																							
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/Animations/", "hammerAnim2.PaMan",	mWeaponAnimations[HAMMER][ATTACK2] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
-	//SHOTGUN
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Animations/", "shotgunWalk.PaMan", mAnimations[PLAYER_ANIMATION_SHOTGUN_WALK] ) ) )
+	//MINIGUN
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Minigun/Animations/", "minigunWalknIdle.PaMan",	mWeaponAnimations[MINIGUN][IDLE] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Animations/", "shotgunAttack.PaMan", mAnimations[PLAYER_ANIMATION_SHOTGUN_ATTACK] ) ) )
+	else
+		mWeaponAnimations[MINIGUN][WALK] = mWeaponAnimations[MINIGUN][IDLE];
+
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Minigun/Animations/", "minigunAttack.PaMan",	mWeaponAnimations[MINIGUN][ATTACK] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );																							
+
+	//GRENADELAUNCHER
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Grenadelauncher/Animations/", "grenadeLauncherIdleWalk.PaMan", mWeaponAnimations[GRENADELAUNCHER][IDLE] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );																							
+	else
+		mWeaponAnimations[GRENADELAUNCHER][WALK] = mWeaponAnimations[GRENADELAUNCHER][IDLE];
+
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Grenadelauncher/Animations/", "grenadeLauncherAttack.PaMan", mWeaponAnimations[GRENADELAUNCHER][ATTACK] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );																							
+
+	//SHOTGUN
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Shotgun/Animations/", "shotgunIdle.PaMan",	mWeaponAnimations[SHOTGUN][IDLE] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Shotgun/Animations/", "shotgunWalk.PaMan",	mWeaponAnimations[SHOTGUN][WALK] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Shotgun/Animations/", "shotgunAttack.PaMan",	mWeaponAnimations[SHOTGUN][ATTACK] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+
+	//SNIPER
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Sniper/Animations/", "sniperWalknIdle.PaMan",	mWeaponAnimations[SNIPER][IDLE] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+	else
+		mWeaponAnimations[SNIPER][WALK] = mWeaponAnimations[SNIPER][IDLE];
+
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Sniper/Animations/", "sniperAnim.PaMan",	mWeaponAnimations[SNIPER][ATTACK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	//////////////////////////////////////
@@ -334,23 +387,57 @@ HRESULT RemotePlayer::Initialize()
 	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/PermanentAssets/Robot/", "robotLegs.apfs", skeleton, model ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
-	RenderManager::GetInstance()->AnimationInitialize( mLowerBody.playerModel, model, mAnimations[PLAYER_ANIMATION_LEGS_IDLE] );
+	RenderManager::GetInstance()->AnimationInitialize( mLowerBody.playerModel, model, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
 
-	//Left Arm
-	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Animations/", "claymoreSkel.Skel", skeleton ) )
+	//WEAPON MODELS
+	//Blowtorch
+	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchSkel.Skel", skeleton ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/", "claymore.apfs", skeleton, model ) ) )
-		OutputDebugString( L"\nERROR loading player model\n" );
-
-	RenderManager::GetInstance()->AnimationInitialize( mArms.leftArm, model, mAnimations[PLAYER_ANIMATION_CLAYMORE_IDLE] );
-
-	//Right Arm
-	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Animations/", "shotgunSkel.Skel", skeleton ) )
-		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/", "shotgun.apfs", skeleton, model ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/", "blowtorch.apfs", skeleton, mWeaponModels[BLOWTORCH] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
-	RenderManager::GetInstance()->AnimationInitialize( mArms.rightArm, model, mAnimations[PLAYER_ANIMATION_SHOTGUN_WALK] );
+	//Claymore
+	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Claymore/Animations/", "claymoreSkel.Skel", skeleton ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Claymore/", "claymore.apfs", skeleton, mWeaponModels[CLAYMORE] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+
+	//Grenadelauncher
+	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Grenadelauncher/Animations/", "grenadeLauncherSkel.Skel", skeleton ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Grenadelauncher/", "grenadeLauncher.apfs", skeleton, mWeaponModels[GRENADELAUNCHER] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+
+	//Hammer
+	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/Animations/", "hammerSkel.Skel", skeleton ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/", "hammer.apfs", skeleton, mWeaponModels[HAMMER] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+
+	//Minigun
+	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Minigun/Animations/", "minigunSkel.Skel", skeleton ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Minigun/", "minigun.apfs", skeleton, mWeaponModels[MINIGUN] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+
+	//Saw
+	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Saw/Animations/", "sawSkel.Skel", skeleton ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Saw/", "saw.apfs", skeleton, mWeaponModels[SAW] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+
+	//Shotgun
+	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Shotgun/Animations/", "shotgunSkel.Skel", skeleton ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Shotgun/", "shotgun.apfs", skeleton, mWeaponModels[SHOTGUN] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+
+	//Sniper
+	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Sniper/Animations/", "sniperSkel.Skel", skeleton ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Sniper/", "sniper.apfs", skeleton, mWeaponModels[SNIPER] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+
 
 	//////////////////////////////////////
 	//			HUD ELEMENTS
@@ -365,7 +452,6 @@ HRESULT RemotePlayer::Initialize()
 	if( FAILED( Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/OrangeHP.png", mOrangeHPAsset ) ) )
 		OutputDebugString( L"\nERROR\n" );
 
-	//mUpperBody.position						= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mLowerBody.position						= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mNrOfDeaths								= 0;
 	mNrOfKills								= 0;
@@ -386,8 +472,11 @@ HRESULT RemotePlayer::Initialize()
 
 	//Weapon Initialization
 	mLoadOut				= new LoadOut();
-	mLoadOut->rangedWeapon	= new RangedInfo( "Machine Gun", 5.0f, 1, 5.0f, 2, 0 );
-	mLoadOut->meleeWeapon	= new MeleeInfo( "Sword", 4.0f, 3, 2.0f, 7, 2.0f, new BoundingCircle( 2.0f ) );
+	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN, 5.0f, 1, 5.0f, 2, 0 );
+	mLoadOut->meleeWeapon	= new MeleeInfo( HAMMER, 4.0f, 3, 2.0f, 7, 2.0f, new BoundingCircle( 2.0f ) );
+
+	RenderManager::GetInstance()->AnimationInitialize( mArms.leftArm, mWeaponModels[mLoadOut->meleeWeapon->weaponType], mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
+	RenderManager::GetInstance()->AnimationInitialize( mArms.rightArm, mWeaponModels[mLoadOut->rangedWeapon->weaponType], mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
 
 	return S_OK;
 }

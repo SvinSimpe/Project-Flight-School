@@ -19,8 +19,6 @@ Graphics::Graphics()
 	mLinearSamplerState				= nullptr;
 
 	mAssetManager				= nullptr;
-	mCamera						= nullptr;
-	mDeveloperCamera			= nullptr;
 	mIsDeveloperCameraActive	= false;
 
 	for( int i = 0; i < BUFFERS_AMOUNT; i++ )
@@ -28,6 +26,9 @@ Graphics::Graphics()
 
 	for( int i = 0; i < EFFECTS_AMOUNT; i++ )
 		mEffects[i] = nullptr;
+
+	for( int i = 0; i < CAMERAS_AMOUNT; i++ )
+		mCamera[i] = nullptr;
 
 	mNumPointLights				= 0;
 
@@ -37,7 +38,6 @@ Graphics::~Graphics()
 {
 
 }
-
 
 //Map buffer
 HRESULT Graphics::MapBuffer( ID3D11Buffer* buffer, void* data, int size )
@@ -80,6 +80,7 @@ HRESULT Graphics::LoadAnimationAsset( std::string filePath, std::string fileName
 {
 	return mAssetManager->LoadAnimationAsset( filePath, fileName, assetId );
 }
+
 void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 {
 	mDeviceContext->OMSetDepthStencilState( mDepthDisabledStencilState, 1 );
@@ -152,10 +153,10 @@ void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX
 	UINT32 vertexSize	= sizeof(StaticVertex);
 	UINT32 offset		= 0;
 
-	StaticVertex bottomleft		= { x.x, x.y, y.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 1.0f };
-	StaticVertex topleft		= { x.x, x.y, x.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 0.0f };
-	StaticVertex bottomright	= { y.x, x.y, y.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	1.0f, 1.0f };
-	StaticVertex topright		= { y.x, x.y, x.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	1.0f, 0.0f };
+	StaticVertex bottomleft		= { x.x, x.y + 0.001f, y.z,		0.0f, 1.0f, 0.0f,	0.71f, 0.0f, 0.71f,		0.0f, 1.0f };
+	StaticVertex topleft		= { x.x, x.y + 0.001f, x.z,		0.0f, 1.0f, 0.0f,	0.71f, 0.0f, 0.71f,		0.0f, 0.0f };
+	StaticVertex bottomright	= { y.x, x.y + 0.001f, y.z,		0.0f, 1.0f, 0.0f,	0.71f, 0.0f, 0.71f,		1.0f, 1.0f };
+	StaticVertex topright		= { y.x, x.y + 0.001f, x.z,		0.0f, 1.0f, 0.0f,	0.71f, 0.0f, 0.71f,		1.0f, 0.0f };
 
 	StaticVertex vertices[4]	= { bottomleft, topleft, bottomright, topright };
 	MapBuffer( mBuffers[BUFFERS_2D], &vertices, sizeof(StaticVertex) * 4 );
@@ -177,8 +178,8 @@ void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] );
 
 	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[assetId] )->mSRV );
-	mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
-	mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[NORMAL_PLACEHOLDER] )->mSRV );
+	mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[NORMAL_PLACEHOLDER] )->mSRV );
+	mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
 	mDeviceContext->Draw( 4, 0 );
 }
 
@@ -198,8 +199,6 @@ void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->PSSetShader( mEffects[EFFECTS_STATIC_INSTANCED]->GetPixelShader(), nullptr, 0 );
-
-	
 	
 	UINT objectToRender = 0;
 	UINT currAssetID = (UINT)-1;
@@ -414,6 +413,37 @@ void Graphics::RenderBillboard( BillboardInfo* info, UINT sizeOfList )
 	}
 }
 
+void Graphics::RenderNodeGrid( NodeGridInfo* info, UINT sizeOfList )
+{
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+	
+	UINT32 vertexSize	= sizeof( StaticVertex );
+	UINT32 offset		= 0;
+	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_NODEGRID]->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mEffects[EFFECTS_NODEGRID]->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffects[EFFECTS_NODEGRID]->GetPixelShader(), nullptr, 0 );
+
+	for( UINT i = 0; i < sizeOfList; i++ )
+	{
+		CbufferPerObject cbuff;
+		cbuff.worldMatrix = DirectX::XMLoadFloat4x4( &info[i].mWorld );
+		MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT], &cbuff, sizeof( CbufferPerObject ) );
+		mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] );
+
+		MapBuffer( mBuffers[BUFFERS_SINGLE_STATIC_VERTEX], info[i].mVertices, sizeof(StaticVertex) * info[i].mNrOfVertices );
+		mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_SINGLE_STATIC_VERTEX], &vertexSize, &offset );
+
+		mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[DIFFUSE_PLACEHOLDER] )->mSRV );
+		mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[NORMAL_PLACEHOLDER] )->mSRV );
+		mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
+		mDeviceContext->Draw( info[i].mNrOfVertices, 0 );
+	}
+}
+
 DirectX::XMFLOAT4X4 Graphics::GetRootMatrix( AnimationTrack animTrack )
 {
 	Animated3dAsset*	model		= (Animated3dAsset*)mAssetManager->mAssetContainer[animTrack.mModelID];
@@ -533,12 +563,12 @@ DirectX::XMFLOAT4X4 Graphics::GetRootMatrix( AnimationTrack animTrack )
 
 Camera* Graphics::GetCamera() const
 {
-	return mCamera;
+	return mCamera[CAMERAS_MAIN];
 }
 
 Camera* Graphics::GetDeveloperCamera() const
 {
-	return mDeveloperCamera;
+	return mCamera[CAMERAS_DEV];
 }
 
 void Graphics::ChangeCamera()
@@ -551,13 +581,15 @@ void Graphics::ChangeCamera()
 
 void Graphics::ZoomInDeveloperCamera()
 {
-	if( mDeveloperCamera->GetHeight() >= 1.0f )
-		mDeveloperCamera->ZoomIn();
+	if ( mCamera[CAMERAS_DEV]->GetHeight() >= 1.0f )
+		mCamera[CAMERAS_DEV]->ZoomIn();
+
+	mCamera[CAMERAS_DEV]->ZoomIn();
 }
 
 void Graphics::ZoomOutDeveloperCamera()
 {
-	mDeveloperCamera->ZoomOut();
+	mCamera[CAMERAS_DEV]->ZoomOut();
 }
 
 void Graphics::MapLightStructuredBuffer( LightStructure* lightStructure, int numPointLights )
@@ -575,22 +607,22 @@ void Graphics::SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositi
 
 void Graphics::SetInverseViewMatrix( DirectX::XMMATRIX &inverseViewMatrix )
 {
-	inverseViewMatrix = mCamera->GetInverseViewMatrix();
+	inverseViewMatrix = mCamera[CAMERAS_MAIN]->GetInverseViewMatrix();
 }
 
 void Graphics::SetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatrix )
 {
-	projectionViewMatrix = mCamera->GetInverseProjectionMatrix();
+	projectionViewMatrix = mCamera[CAMERAS_MAIN]->GetInverseProjectionMatrix();
 }
 
 void Graphics::SetEyePosition( DirectX::XMFLOAT3 &eyePosition )
 {
-	mCamera->SetEyePosition( eyePosition );
+	mCamera[CAMERAS_MAIN]->SetEyePosition( eyePosition );
 }
 
 void Graphics::SetFocus( DirectX::XMFLOAT3 &focusPoint )
 {
-	mCamera->SetFocus( focusPoint );
+	mCamera[CAMERAS_MAIN]->SetFocus( focusPoint );
 }
 
 //Clear canvas and prepare for rendering.
@@ -615,9 +647,9 @@ void Graphics::GbufferPass()
 {
 
 	if( mIsDeveloperCameraActive )
-		mDeveloperCamera->Update();
+		mCamera[CAMERAS_DEV]->Update();
 	else
-		mCamera->Update();
+		mCamera[CAMERAS_MAIN]->Update();
 	static float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	for( int i = 0; i < NUM_GBUFFERS; i++)
 		mDeviceContext->ClearRenderTargetView( mGbuffers[i]->mRenderTargetView, clearColor );
@@ -638,15 +670,15 @@ void Graphics::GbufferPass()
 
 	if( mIsDeveloperCameraActive )
 	{
-		data.viewMatrix			= mDeveloperCamera->GetViewMatrix();
-		data.projectionMatrix	= mDeveloperCamera->GetProjMatrix();
-		data.cameraPosition		= mDeveloperCamera->GetPos();
+		data.viewMatrix			= mCamera[CAMERAS_DEV]->GetViewMatrix();
+		data.projectionMatrix	= mCamera[CAMERAS_DEV]->GetProjMatrix();
+		data.cameraPosition		= mCamera[CAMERAS_DEV]->GetPos();
 	}
 	else
 	{
-		data.viewMatrix			= mCamera->GetViewMatrix();
-		data.projectionMatrix	= mCamera->GetProjMatrix();
-		data.cameraPosition		= mCamera->GetPos();
+		data.viewMatrix			= mCamera[CAMERAS_MAIN]->GetViewMatrix();
+		data.projectionMatrix	= mCamera[CAMERAS_MAIN]->GetProjMatrix();
+		data.cameraPosition		= mCamera[CAMERAS_MAIN]->GetPos();
 	}
 	
 	data.numPointLights = mNumPointLights;
@@ -1183,6 +1215,16 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, &test, &mBuffers[BUFFERS_SINGLE_VERTEX] ) ) )
 		return hr;
 
+	//Single vertex buffer used for nodeGrid
+	ZeroMemory( &bufferInstancedDesc, sizeof( bufferInstancedDesc ) );
+	bufferInstancedDesc.BindFlags		= D3D11_BIND_VERTEX_BUFFER;
+	bufferInstancedDesc.CPUAccessFlags	= D3D11_CPU_ACCESS_WRITE;
+	bufferInstancedDesc.Usage			= D3D11_USAGE_DYNAMIC;
+	bufferInstancedDesc.ByteWidth		= sizeof( StaticVertex ) * MAX_SINGLE_STATIC_VERTICES;
+
+	if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, nullptr, &mBuffers[BUFFERS_SINGLE_STATIC_VERTEX] ) ) )
+		return hr;
+
 	//Light buffer for structured buffer
 	D3D11_BUFFER_DESC lightBufferDesc;
 	ZeroMemory( &lightBufferDesc, sizeof( lightBufferDesc ) );
@@ -1319,6 +1361,14 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 		return hr;
 	//--------------------------
 
+	//NodeGrid effect
+	effectInfo.filePath		= "../Content/Effects/NodeGridEffect.hlsl";
+	effectInfo.fileName		= "NodeGridEffect";
+
+	if( FAILED( hr = mEffects[EFFECTS_NODEGRID]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
 	//Billboard effect
 	effectInfo.filePath					= "../Content/Effects/BillboardEffect.hlsl";
 	effectInfo.fileName					= "BillboardEffect";
@@ -1337,7 +1387,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	}
 
 	//Camera
-	mCamera = new Camera;
+	mCamera[CAMERAS_MAIN] = new Camera;
 
 	CameraInfo cameraInfo;
 	ZeroMemory( &cameraInfo, sizeof( cameraInfo ) );
@@ -1350,11 +1400,11 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	cameraInfo.nearZ		= 0.1f;
 	cameraInfo.farZ			= 1000.0f;
 
-	if( FAILED( hr = mCamera->Initialize( &cameraInfo ) ) )
+	if( FAILED( hr = mCamera[CAMERAS_MAIN]->Initialize( &cameraInfo ) ) )
 		return hr;
 
 	//Developer Camera
-	mDeveloperCamera = new Camera;
+	mCamera[CAMERAS_DEV] = new Camera;
 
 	CameraInfo developerCameraInfo;
 	ZeroMemory( &cameraInfo, sizeof( developerCameraInfo ) );
@@ -1367,10 +1417,9 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	developerCameraInfo.nearZ		= 0.1f;
 	developerCameraInfo.farZ		= 1000.0f;
 
-	hr = mDeveloperCamera->Initialize( &developerCameraInfo );
+	hr = mCamera[CAMERAS_DEV]->Initialize( &developerCameraInfo );
 	if( FAILED( hr ) )
 		return hr;
-	
 
 	StaticVertex boxVertices[]		= 
 	{
@@ -1461,8 +1510,11 @@ void Graphics::Release()
 	SAFE_RELEASE( mLinearSamplerState );
 
 	SAFE_RELEASE_DELETE( mAssetManager );
-	SAFE_RELEASE_DELETE( mCamera );
-	SAFE_RELEASE_DELETE( mDeveloperCamera );
+
+	for( int i = 0; i < CAMERAS_AMOUNT; i++ )
+	{
+		SAFE_RELEASE_DELETE( mCamera[i] );
+	}
 
 	for( int i = 0; i < BUFFERS_AMOUNT; i++ )
 	{

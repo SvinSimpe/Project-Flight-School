@@ -42,6 +42,8 @@ struct MeshInfo_Maya
 	MString meshName;
 	MDagPath meshPath;
 
+	double scale[3];
+
 	MString diffuseMapName;
 	MString normalMapName;
 	MString specularMapName;

@@ -3,8 +3,94 @@
 ///////////////////////////////////////////////////////////////////////////////
 //									PRIVATE
 ///////////////////////////////////////////////////////////////////////////////
-void Enemy::RemoteUpdate( IEventPtr newEvent )
+void Enemy::CreateStandard()
 {
+	/*
+	Standard Enemy
+		Med hp
+		Med dmg
+		Med spd
+		Med atkrate
+	*/
+	mEnemyType					= Standard;
+	mMaxHp						= 100.0f;
+	mCurrentHp					= mMaxHp;
+	mDamage						= 20.0f;
+	mSpeed						= 5.0f;
+	mAttackRadius->radius		= 1.0f;
+	mAttentionRadius->radius	= 10.0f;
+}
+
+void Enemy::CreateRanged()
+{
+	/*
+	Ranged Enemy
+		Med hp
+		Low dmg
+		High spd
+		Hign atkrate
+	*/
+	mEnemyType					= Ranged;
+	mMaxHp						= 80.0f;
+	mCurrentHp					= mMaxHp;
+	mDamage						= 10.0f;
+	mAttackRadius->radius		= 5.0f;
+	mAttentionRadius->radius	= 10.0f;
+}
+
+void Enemy::CreateBoomer()
+{
+	/*
+	Boomer Enemy
+		Low hp
+		High dmg
+		High spd
+		Explodes on impact
+	*/
+	mEnemyType					= Boomer;
+	mMaxHp						= 30.0f;
+	mCurrentHp					= mMaxHp;
+	mDamage						= 50.0f;
+	mAttackRadius->radius		= 1.0f;
+	mAttentionRadius->radius	= 10.0f;
+}
+
+void Enemy::CreateTank()
+{
+	/*
+	Tank Enemy
+		High hp
+		Med dmg
+		Low spd
+		Med atkrate
+	*/
+	mEnemyType	= Tank;
+	mMaxHp		= 400.0f;
+	mCurrentHp	= mMaxHp;
+	mDamage		= 20.0f;
+	mSpeed		= 3.0f;
+	mAttackRadius->radius		= 1.0f;
+	mAttentionRadius->radius	= 10.0f;
+}
+
+void Enemy::StandardLogic( float deltaTime )
+{
+
+}
+
+void Enemy::RangedLogic( float deltaTime )
+{
+
+}
+
+void Enemy::BoomerLogic( float deltaTime )
+{
+
+}
+
+void Enemy::TankLogic( float deltaTime )
+{
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -12,27 +98,141 @@ void Enemy::RemoteUpdate( IEventPtr newEvent )
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT Enemy::Update( float deltaTime )
 {
-	mPosition.x += mVelocity;
-	RenderManager::GetInstance()->AnimationUpdate( mAnimationTrack,deltaTime );
-	if( mPosition.x >= 50 )
-		Die();
+	mAttackRadius->center		= mPosition;
+	mAttentionRadius->center	= mPosition;
 
+	// Update specific enemy logic
+	switch( mEnemyType )
+	{
+		case Standard:
+		{
+			StandardLogic( deltaTime );
+		}
+		break;
+
+		case Ranged:
+		{
+			RangedLogic( deltaTime );
+		}
+		break;
+
+		case Boomer:
+		{
+			BoomerLogic( deltaTime );
+		}
+		break;
+
+		case Tank:
+		{
+			TankLogic( deltaTime );
+		}
+		break;
+
+		default:
+			OutputDebugStringA( "\n--Error: No enemy type " );
+	}
+
+	// Update enemy state
+	switch( mCurrentState )
+	{
+		case Idle:
+		{
+		}
+		break;
+
+		case Run:
+		{
+		}
+		break;
+
+		case Attack:
+		{
+		}
+		break;
+
+		case Death:
+		{
+		}
+		break;
+
+		case MoveToShip:
+		{
+		}
+		break;
+
+		case HuntPlayer:
+		{
+			mPosition.x += mVelocity.x * mSpeed * deltaTime;
+			mPosition.z += mVelocity.z * mSpeed * deltaTime;
+			mDirection = mVelocity;
+		}
+		break;
+
+		default:
+			OutputDebugStringA( "--Error: No enemy state " );
+	}
 	return S_OK;
 }
 
-HRESULT Enemy::Render(  )
+void Enemy::SetState( EnemyState state )
 {
-	RenderManager::GetInstance()->AddAnim3dToList( mAnimationTrack, ANIMATION_PLAY_LOOPED, mPosition );
-	return S_OK;
+	// If state is an EnemyState set mCurrentState to state
+	if( state == Idle		||
+		state == Run		||
+		state == Attack		||
+		state == Death		||
+		state == MoveToShip ||
+		state == HuntPlayer		)
+	{
+		mCurrentState = state;
+		IEventPtr state( new Event_Set_Enemy_State( mID, mCurrentState ) );
+		EventManager::GetInstance()->QueueEvent( state );
+	}
+}
+
+void Enemy::SetHuntedPlayer( XMFLOAT3 player )
+{
+	mVelocity.x = player.x - mPosition.x;
+	mVelocity.z = player.z - mPosition.z;
+	XMStoreFloat3( &mVelocity, XMVector3Normalize( XMLoadFloat3( &mVelocity ) ) );
 }
 
 void Enemy::Spawn( XMFLOAT3 spawnPos )
 {
+	switch( mID % 3 )
+	{
+	case 0:
+		CreateStandard();
+		break;
+	case 1:
+		CreateRanged();
+		break;
+	case 2:
+		CreateRanged();
+		//CreateBoomer();
+		break;
+	}
+
+	//CreateStandard();
+	//CreateRanged();
+	//CreateBoomer();
+	CreateTank();
+
 	mPosition	= spawnPos;
 	mIsAlive	= true;
-	mCurrentHp	= mMaxHp;
+	
 
 	// Send spawnEv
+}
+
+BoundingCircle* Enemy::GetAttackCircle() const
+{
+	return mAttackRadius;
+}
+
+BoundingCircle* Enemy::GetAttentionCircle() const
+{
+	return mAttentionRadius;
 }
 
 void Enemy::Die()
@@ -53,26 +253,15 @@ void Enemy::SetID( unsigned int id )
 	mID = id;
 }
 
-AssetID Enemy::GetModelID() const
+EnemyType Enemy::GetEnemyType() const
 {
-	return mAnimationTrack.mModelID;
+	return mEnemyType;
 }
 
-void Enemy::SetModelID( AssetID model )
-{
-	mAnimationTrack.mModelID = model;
-}
-
-AssetID Enemy::GetAnimation() const
+EnemyState Enemy::GetEnemyState() const
 {
 	// Change to current animation
-	return mAnimations[ENEMY_ANIMATION_IDLE];
-}
-
-void Enemy::SetAnimation( AssetID animation )
-{
-	// Change to current animation
-	mAnimations[ENEMY_ANIMATION_IDLE] = animation;
+	return mCurrentState;
 }
 
 float Enemy::GetHP() const
@@ -117,29 +306,24 @@ void Enemy::SetDirection( XMFLOAT3 direction )
 
 HRESULT Enemy::Initialize( int id )
 {
-	// Load animation asset
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Raptor/Animations/", "raptor_run.PaMan", mAnimations[ENEMY_ANIMATION_IDLE] );
-
-	// Load skeleton
-	AssetID skeleton	= 0;
-	AssetID model		= 0;
-	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Enemies/Raptor/Animations/", "raptor.Skel", skeleton ); // Debug, raptor
-	// Load animated 3d asset
-	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Enemies/Raptor/", "scaledScene.apfs", skeleton, model );
-	// Load animationTrack with model and standard animation
-	RenderManager::GetInstance()->AnimationInitialize( mAnimationTrack, model, mAnimations[ENEMY_ANIMATION_IDLE] );
-
 	mID				= id;
 	mMaxHp			= 100.0f;
 	mCurrentHp		= mMaxHp;
-	mVelocity		= 0.15f;
+	mDamage			= 0.0f;
+	mSpeed			= 1.0f;
+	mVelocity		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mIsAlive		= false;
+	mCurrentState	= MoveToShip;
+
+	mAttackRadius		= new BoundingCircle( 1.0f );
+	mAttentionRadius	= new BoundingCircle( 1.0f );
 
 	return S_OK;
 }
 
 void Enemy::Release()
 {
+	SAFE_DELETE( mAttackRadius );
 }
 
 Enemy::Enemy()
@@ -147,10 +331,15 @@ Enemy::Enemy()
 	mID				= 0;
 	mCurrentHp		= 0.0f;
 	mMaxHp			= 0.0f;
+	mDamage			= 0.0f;
+	mSpeed			= 0.0f;
 	mIsAlive		= false;
 	mPosition		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mVelocity		= 0.0f;
+	mVelocity		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mAttackRadius	=  nullptr;
+	mAttentionRadius = nullptr;
+	mCurrentState	= Idle;
 }
 
 Enemy::~Enemy()

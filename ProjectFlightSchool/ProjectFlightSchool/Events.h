@@ -701,8 +701,8 @@ class Event_Sync_Enemy : public IEvent
 	// Member variables
 	private:
 		unsigned int	mID;
-		unsigned int	mModel;
-		unsigned int	mAnimation;
+		unsigned int	mState;
+		unsigned int	mEnemyType;
 		XMFLOAT3		mPosition;
 		XMFLOAT3		mDirection;
 
@@ -717,11 +717,11 @@ class Event_Sync_Enemy : public IEvent
 			return GUID;
 		}
 	public:
-	Event_Sync_Enemy( unsigned int id, unsigned int model, unsigned int animation, XMFLOAT3 position, XMFLOAT3 direction )
+	Event_Sync_Enemy( unsigned int id, unsigned int state, unsigned int enemyType, XMFLOAT3 position, XMFLOAT3 direction )
 		{
 			mID				= id;
-			mModel			= model;	
-			mAnimation		= animation;
+			mState			= state;
+			mEnemyType		= enemyType;
 			mPosition		= position;
 			mDirection		= direction;
 		}
@@ -729,13 +729,13 @@ class Event_Sync_Enemy : public IEvent
 		{
 			return mID;
 		}
-		unsigned int Model() const
+		unsigned int State() const
 		{
-			return mModel;
+			return mState;
 		}
-		unsigned int Animation() const
+		unsigned int Type() const
 		{
-			return mAnimation;
+			return mEnemyType;
 		}
 		XMFLOAT3 Position() const
 		{
@@ -1049,6 +1049,7 @@ class Event_Update_Enemy_Position : public IEvent
 	private:
 		unsigned int	mID;
 		XMFLOAT3		mPosition;
+		XMFLOAT3		mDirection;
 	protected:
 	public:
 		static const EventType GUID;
@@ -1060,10 +1061,11 @@ class Event_Update_Enemy_Position : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Update_Enemy_Position( unsigned int id, XMFLOAT3 position )
+		Event_Update_Enemy_Position( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction )
 		{
-			mID		  = id;
-			mPosition = position;
+			mID			= id;
+			mPosition	= position;
+			mDirection	= direction;
 		}
 
 		unsigned int ID() const
@@ -1074,6 +1076,11 @@ class Event_Update_Enemy_Position : public IEvent
 		XMFLOAT3 Position() const
 		{
 			return mPosition;
+		}
+		
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
 		}
 };
 		
@@ -1105,17 +1112,48 @@ class Event_Remove_Point_Light : public IEvent
 			return mLight;
 		}
 };
+class Event_Sync_Enemy_Type : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		unsigned int	mEnemyType;
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+
+	Event_Sync_Enemy_Type( unsigned int id, unsigned int enemyType )
+		{
+			mID				= id;
+			mEnemyType		= enemyType;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+		unsigned int Type() const
+		{
+			return mEnemyType;
+		}
+};
+
 class Event_Load_Level : public IEvent
 {
 	// Member variables
 	private:
 		std::string mFilePath;
-
 	protected:
 	public:
 		static const EventType GUID;
-	
-	// Member functions
+
 	private:
 	protected:
 		const EventType& GetEventType( void ) const
@@ -1130,5 +1168,104 @@ class Event_Load_Level : public IEvent
 		std::string GetFileName()
 		{
 			return mFilePath;
+		}
+};
+
+class Event_Sync_Enemy_State : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		unsigned int	mState;
+
+	protected:
+	public:
+		static const EventType GUID;
+		// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Sync_Enemy_State( unsigned int id, unsigned int state )
+		{
+			mID				= id;
+			mState			= state;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+		unsigned int State() const
+		{
+			return mState;
+		}
+};
+
+class Event_Set_Enemy_State : public IEvent // Server side
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		unsigned int	mState;
+
+	protected:
+	public:
+		static const EventType GUID;
+		// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+	Event_Set_Enemy_State( unsigned int id, unsigned int state )
+		{
+			mID				= id;
+			mState			= state;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+		unsigned int State() const
+		{
+			return mState;
+		}
+};
+
+class Event_Set_Remote_Enemy_State : public IEvent // Client side
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		unsigned int	mState;
+
+	protected:
+	public:
+		static const EventType GUID;
+		// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+	Event_Set_Remote_Enemy_State( unsigned int id, unsigned int state )
+		{
+			mID				= id;
+			mState			= state;
+		}
+		unsigned int ID() const
+		{
+			return mID;
+		}
+		unsigned int State() const
+		{
+			return mState;
 		}
 };

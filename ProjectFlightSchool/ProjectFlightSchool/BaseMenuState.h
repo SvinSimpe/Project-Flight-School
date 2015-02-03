@@ -20,13 +20,13 @@ class BaseMenuState : public BaseState
 
 	private:
 	protected:
-		virtual void	HandleInput()	= 0;
+		virtual void	HandleInput()				= 0;
 	public:
 		virtual HRESULT Update( float deltaTime );
 		virtual HRESULT Render();
-		virtual void	OnEnter()		= 0;
+		virtual void	OnEnter()					= 0;
 		virtual void	OnExit();
-		virtual void	Reset()			= 0;
+		virtual void	Reset()						= 0;
 		virtual HRESULT Initialize();
 		virtual void	Release();
 						BaseMenuState();

@@ -793,7 +793,7 @@ HRESULT	AssetManager::LoadAnimationAsset( string filePath, string fileName, Asse
 {
 	HRESULT hr = S_OK;
 
-	if( AssetExist( ( fileName ), assetId ) )
+	if( AssetExist( ( (char*)fileName.c_str() ), assetId ) )
 	{
 		return hr;
 	}

@@ -12,6 +12,7 @@ class RenderManager
 		Anim3dInfo		mAnim3dArray[MAX_AMOUNT_OF_ANIM3D];
 		PlaneInfo		mPlaneArray[MAX_AMOUNT_OF_PLANES];
 		BillboardInfo	mBillboardArray[MAX_AMOUNT_OF_OBJECT2D];
+		NodeGridInfo	mNodeGridArray[MAX_AMOUNT_OF_NODEGRIDS];
 		BoxInfo			mBoxArray[MAX_AMOUNT_OF_BOXES];
 
 		LightManager*	mLightManager;
@@ -23,6 +24,7 @@ class RenderManager
 		UINT mNrOfObject2d;
 		UINT mNrOfPlane;
 		UINT mNrOfBillboard;
+		UINT mNrOfNodeGrid;
 		UINT mNrOfBoxes;
 
 	private:
@@ -39,6 +41,7 @@ class RenderManager
 		bool AddAnim3dToList( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), DirectX::XMFLOAT3 rotation = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 		void AddPlaneToList( AssetID assetId, DirectX::XMFLOAT3 topTriangle, DirectX::XMFLOAT3 bottomTriangle );
 		void AddBillboardToList( AssetID assetId, DirectX::XMFLOAT3 worldPosition, float width, float height );
+		void AddNodeGridToList( StaticVertex* vertices, UINT nrOfVertices, DirectX::XMFLOAT4X4 world );
 
 		void AnimationInitialize( AnimationTrack &animationTrack, AssetID model, AssetID defaultAnimation );
 		void AnimationUpdate( AnimationTrack &animationTrack, float deltaTime );

@@ -63,10 +63,10 @@ void Player::HandleInput( float deltaTime )
 		Fire();
 		mWeaponCoolDown = 0.1f;
 		
-		RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mAnimations[PLAYER_ANIMATION_SHOTGUN_ATTACK] );
+		RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] );
 		mRightArmAnimationCompleted		= false;
 
-		IEventPtr E1( new Event_Player_Attack( RIGHT_ARM_ID, PLAYER_ANIMATION_SHOTGUN_ATTACK ) );
+		IEventPtr E1( new Event_Player_Attack( RIGHT_ARM_ID, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 	else
@@ -76,10 +76,10 @@ void Player::HandleInput( float deltaTime )
 	{
 		mIsMeleeing						= true;
 		mMeleeCoolDown					= 2.0f;
-		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mAnimations[PLAYER_ANIMATION_CLAYMORE_ATTACK] );
+		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
 		mLeftArmAnimationCompleted		= false;
 
-		IEventPtr E1( new Event_Player_Attack( LEFT_ARM_ID, PLAYER_ANIMATION_CLAYMORE_ATTACK ) );
+		IEventPtr E1( new Event_Player_Attack( LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK]) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 	else
@@ -129,27 +129,27 @@ HRESULT Player::Update( float deltaTime )
 			// Update Animation
 			if( mCurrentVelocity < 0.2f )
 			{
-				if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION_LEGS_IDLE] )
+				if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE] )
 				{
-					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION_LEGS_IDLE] );
+					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
 				}
 			}
 			else
 			{
-				if(	mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION_LEGS_WALK] )
+				if(	mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK] )
 				{
-					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION_LEGS_WALK] );
+					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_WALK] );
 				}
 			}
 
 			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, 
-				mLowerBody.playerModel.mNextAnimation == mAnimations[PLAYER_ANIMATION_LEGS_WALK] ? deltaTime * mCurrentVelocity / 1.1f : deltaTime );
+				mLowerBody.playerModel.mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK] ? deltaTime * mCurrentVelocity / 1.1f : deltaTime );
 
-			if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mAnimations[PLAYER_ANIMATION_CLAYMORE_IDLE] )
-				RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mAnimations[PLAYER_ANIMATION_CLAYMORE_IDLE] );
+			if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] )
+				RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
 
-			if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mAnimations[PLAYER_ANIMATION_SHOTGUN_WALK] )
-				RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mAnimations[PLAYER_ANIMATION_SHOTGUN_WALK] );
+			if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] )
+				RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
 
 			RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
 			RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
@@ -176,7 +176,11 @@ HRESULT Player::Update( float deltaTime )
 	mLoadOut->meleeWeapon->boundingCircle->center	= mLowerBody.position;
 
 	//Update Light
-	mPointLight->position = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 10.0f, mLowerBody.position.z, 0.0f );
+	mPointLight[0]->position = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 7.0f, mLowerBody.position.z, 0.0f );
+	mPointLight[1]->position = DirectX::XMFLOAT4( mLowerBody.position.x - 10.0f, mLowerBody.position.y + 7.0f, mLowerBody.position.z + 10.0f, 0.0f );
+	mPointLight[2]->position = DirectX::XMFLOAT4( mLowerBody.position.x + 10.0f, mLowerBody.position.y + 7.0f, mLowerBody.position.z + 10.0f, 0.0f );
+	mPointLight[3]->position = DirectX::XMFLOAT4( mLowerBody.position.x - 10.0f, mLowerBody.position.y + 7.0f, mLowerBody.position.z - 10.0f, 0.0f );
+	mPointLight[4]->position = DirectX::XMFLOAT4( mLowerBody.position.x + 10.0f, mLowerBody.position.y + 7.0f, mLowerBody.position.z - 10.0f, 0.0f );
 
 	//== Event to sync player with server ==
 	mEventCapTimer += deltaTime;
@@ -327,11 +331,19 @@ HRESULT Player::Initialize()
 
 	////////////
 	// Light
-	mPointLight						= new PointLight;
-	mPointLight->position			= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
-	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.4f, 0.4f, 0.4f, 30.0f );
-	IEventPtr reg( new Event_Add_Point_Light( mPointLight ) );
-	EventManager::GetInstance()->QueueEvent( reg );
+	for( int i = 0; i < 5; i++ )
+	{
+		mPointLight[i]						= new PointLight;
+		mPointLight[i]->position			= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
+		IEventPtr reg( new Event_Add_Point_Light( mPointLight[i] ) );
+		EventManager::GetInstance()->QueueEvent( reg );
+	}
+
+	mPointLight[0]->colorAndRadius		= DirectX::XMFLOAT4( 0.6f, 0.6f, 0.6f, 20.0f );
+	mPointLight[1]->colorAndRadius		= DirectX::XMFLOAT4( 0.6f, 0.2f, 0.2f, 20.0f );
+	mPointLight[2]->colorAndRadius		= DirectX::XMFLOAT4( 0.2f, 0.6f, 0.2f, 20.0f );
+	mPointLight[3]->colorAndRadius		= DirectX::XMFLOAT4( 0.2f, 0.2f, 0.6f, 20.0f );
+	mPointLight[4]->colorAndRadius		= DirectX::XMFLOAT4( 0.6f, 0.6f, 0.2f, 20.0f );
 
 	mMaxVelocity		= 7.7f;
 	mCurrentVelocity	= 0.0f;
@@ -347,9 +359,12 @@ HRESULT Player::Initialize()
 void Player::Release()
 {
 	RemotePlayer::Release();
-	IEventPtr reg( new Event_Remove_Point_Light( mPointLight ) );
-	EventManager::GetInstance()->QueueEvent( reg );
-	SAFE_DELETE( mPointLight );
+	for( int i = 0; i < 5; i++ )
+	{
+		IEventPtr reg( new Event_Remove_Point_Light( mPointLight[0] ) );
+		EventManager::GetInstance()->QueueEvent( reg );
+		SAFE_DELETE( mPointLight[i] );
+	}
 }
 
 Player::Player()
@@ -357,7 +372,8 @@ Player::Player()
 {
 	mEventCapTimer		= 0.0f;
 
-	mPointLight			= nullptr;
+	for( int i = 0; i < 5; i++ )
+		mPointLight[i]	= nullptr;
 
 	mWeaponCoolDown		= 0.0f;
 	mMeleeCoolDown		= 0.0f;

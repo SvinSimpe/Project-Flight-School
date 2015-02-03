@@ -1,8 +1,11 @@
 #include "MapNode.h"
 #include "MapNodeInstance.h"
+#include "RenderManager.h"
 
 HRESULT	MapNode::Render( float deltaTime, XMFLOAT4X4 parentWorld )
 {
+	RenderManager::GetInstance()->AddNodeGridToList( mGrid, mVertexCount, parentWorld );
+
 	for( int i = 0; i < (int)mStaticAssetCount; i++ )
 	{
 		mStaticAssets[i].Render( deltaTime, parentWorld );

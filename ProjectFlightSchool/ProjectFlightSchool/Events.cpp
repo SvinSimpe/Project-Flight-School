@@ -65,15 +65,19 @@ const EventType Event_Enemy_List_Synced::GUID( 21 );
 const EventType Event_Server_Initialized::GUID( 22 );
 const EventType Event_Connection_Failed::GUID( 23 );
 const EventType Event_Player_Melee_Hit::GUID( 24 );
-const EventType Event_Remote_Player_Melee_Hit::GUID( 25 );
-const EventType Event_Player_Attack::GUID( 26 );
-const EventType Event_Remote_Player_Attack::GUID( 27 );
-const EventType Event_Sync_Spawn::GUID( 28 );
-const EventType Event_Update_Enemy_Position::GUID( 29 );
-const EventType	Event_Add_Point_Light::GUID( 30 );
-const EventType	Event_Remove_Point_Light::GUID( 31 );
 
 
-//LoadLevel events
+const EventType Event_Remote_Player_Melee_Hit::GUID( 25 ); 
+const EventType Event_Sync_Spawn::GUID( 26 );
+const EventType Event_Update_Enemy_Position::GUID( 27 );
+const EventType	Event_Add_Point_Light::GUID( 28 );
+const EventType	Event_Remove_Point_Light::GUID( 29 );
+const EventType Event_Sync_Enemy_Type::GUID( 30 );
+const EventType Event_Sync_Enemy_State::GUID( 31 );
+const EventType Event_Player_Attack::GUID( 32 );
+const EventType Event_Remote_Player_Attack::GUID( 33 );
+const EventType Event_Set_Enemy_State::GUID( 34 );
+const EventType Event_Set_Remote_Enemy_State::GUID( 35 );
 
-const EventType Event_Load_Level::GUID( 32 );
+
+const EventType Event_Load_Level::GUID( 0xc16fcd07 );

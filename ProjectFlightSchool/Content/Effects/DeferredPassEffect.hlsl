@@ -133,10 +133,10 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 		float3 R = reflect( lightDir, N );
 
 		float diff	= saturate( dot( -lightDir, N ) );
-		float3 spec	= float3( float3( 1.0f, 1.0f, 1.0f ) * pow( dot( R, V ), specularPower ) ) * specularSample;
+		float3 spec	= float3( lightStructure[i].colorAndRadius.xyz * pow( dot( R, V ), specularPower ) ) * specularSample;
 
 		float radiusInverse = 1.0f / lightStructure[i].colorAndRadius.w;
-		finalColor += ( ambient * ssao + diffuse + specular ) * lightStructure[i].colorAndRadius.xyz 
+		finalColor += ( diffuse + specular ) * lightStructure[i].colorAndRadius.xyz 
 						/ ( d * ( 0.01f * radiusInverse ) + d * d * ( 0.05f * radiusInverse ) );
 	}
 

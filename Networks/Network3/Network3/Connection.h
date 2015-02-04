@@ -108,7 +108,7 @@ class RemoteEventSocket : public NetSocket
 
 	private:
 	protected:
-		void BuildEvent( std::stringstream &in );
+		void CreateEvent( std::stringstream &in );
 
 	public:
 		virtual void HandleInput();

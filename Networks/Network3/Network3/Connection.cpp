@@ -393,8 +393,8 @@ void ServerListenSocket::HandleInput()
 
 		printf( "Client with sockID: %d connected from %d.\n", sockID, ipAddr );
 
-		//std::shared_ptr<Event_Client_Joined> E1( PFS_NEW Event_Client_Joined( ipAddress, sockID ) );
-		//EventManager::GetInstance()->QueueEvent( E1 );
+		std::shared_ptr<Event_Client_Joined> E1( PFS_NEW Event_Client_Joined( ipAddress, sockID ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 }
 
@@ -410,7 +410,7 @@ ServerListenSocket::ServerListenSocket( SocketManager* socketManager, int portNu
 /////////////////////////////////////////////////////////////////
 // RemoteEventSocket functions
 
-void RemoteEventSocket::BuildEvent( std::stringstream &in )
+void RemoteEventSocket::CreateEvent( std::stringstream &in )
 {
 	EventType eventType;
 	in >> eventType;
@@ -450,7 +450,7 @@ void RemoteEventSocket::HandleInput()
 			{
 			case NetMsg_Event:
 				{
-					BuildEvent( in );
+					CreateEvent( in );
 				}
 				break;
 			case NetMsg_LoginOk:
@@ -464,7 +464,7 @@ void RemoteEventSocket::HandleInput()
 				break;
 			default:
 				{
-					printf( "Unknown message type" );
+					std::cout << "Unknown message type." << std::endl;
 				}
 			}
 		}

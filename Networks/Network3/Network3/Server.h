@@ -8,6 +8,8 @@ class Server : public Network
 	private:
 		SocketManager*	mSocketManager;
 		std::list<UINT> mSocketIDs;
+		std::list<NetworkEventForwarder> mNEFs;
+		bool mActive;
 
 	protected:
 	public:
@@ -15,6 +17,7 @@ class Server : public Network
 	private:
 		void	HandleEvents( IEventPtr evtPtr );
 		void	InitEventListening();
+		void	InitEventForwarding();
 
 	protected:
 	public:

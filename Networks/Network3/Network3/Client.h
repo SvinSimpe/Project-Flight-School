@@ -10,9 +10,14 @@ class Client : public Network
 		ClientSocketManager*	mSocketManager;
 		std::string				mIP;
 		NetworkEventForwarder*	mNEF;
-		UINT					mID;
 		std::list<UINT>			mRemoteIDs;
 		bool					mActive;
+		UINT					mID;
+
+		// TESTING CODE FOR EVENTS BELOW
+		XMFLOAT3	mLowerBodyPos;
+		XMFLOAT3	mVelocity;
+		XMFLOAT3	mUpperBodyDirection;
 
 	protected:
 	public:
@@ -21,6 +26,8 @@ class Client : public Network
 		void	LocalJoin( IEventPtr eventPtr );
 		void	RemoteJoined( IEventPtr eventPtr );
 		void	RemoteLeft( IEventPtr eventPtr );
+		void	RemoteUpdate( IEventPtr eventPtr );
+		
 		void	InitEventListening();
 		void	InitForwardingEvents();
 

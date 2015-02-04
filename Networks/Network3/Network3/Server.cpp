@@ -1,21 +1,5 @@
 #include "Server.h"
 
-void Server::BroadcastEvent( IEventPtr eventPtr, UINT exception )
-{
-	for( auto& to : mClientMap )
-	{
-		if( to.first != exception )
-		{
-			to.second.ForwardEvent( eventPtr );
-		}
-	}
-}
-
-void Server::SendEvent( IEventPtr eventPtr, UINT to )
-{
-	mClientMap[to].ForwardEvent( eventPtr );
-}
-
 void Server::ClientJoined( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Client_Joined::GUID )
@@ -58,12 +42,46 @@ void Server::ClientLeft( IEventPtr eventPtr )
 	}
 }
 
+void Server::LocalUpdate( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Local_Update::GUID )
+	{
+		std::shared_ptr<Event_Local_Update> data = std::static_pointer_cast<Event_Local_Update>( eventPtr );
+		UINT id = data->ID();
+		XMFLOAT3 pos = data->LowerBodyPos();
+		XMFLOAT3 vel = data->Velocity();
+		XMFLOAT3 dir = data->UpperBodyDirection();
+
+		std::cout << "Client with ID: " << id << " just updated." << std::endl;
+
+		IEventPtr E1( PFS_NEW Event_Remote_Update( id, pos, vel, dir ) );
+		BroadcastEvent( E1, id );
+	}
+}
+
+void Server::BroadcastEvent( IEventPtr eventPtr, UINT exception )
+{
+	for( auto& to : mClientMap )
+	{
+		if( to.first != exception )
+		{
+			to.second.ForwardEvent( eventPtr );
+		}
+	}
+}
+
+void Server::SendEvent( IEventPtr eventPtr, UINT to )
+{
+	mClientMap[to].ForwardEvent( eventPtr );
+}
+
 /* This will register all the events that only the server will listen to,
 	such as clients joining/disconnecting. */
 void Server::InitEventListening()
 {
 	EventManager::GetInstance()->AddListener( &Server::ClientJoined, this, Event_Client_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientLeft, this, Event_Client_Left::GUID );
+	EventManager::GetInstance()->AddListener( &Server::LocalUpdate, this, Event_Local_Update::GUID );
 }
 
 void Server::Update( float deltaTime )

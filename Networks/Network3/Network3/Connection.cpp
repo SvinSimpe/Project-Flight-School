@@ -812,24 +812,6 @@ void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 	std::shared_ptr<BinaryPacket> msg(PFS_NEW BinaryPacket( out.str().c_str(), (u_long)out.str().length()));
 
 	mSocketManager->Send( mSocketID, msg );
-
-	//const char* buf = msg->GetData();
-	//int size = static_cast<int>( msg->GetSize() );
-
-	//std::istringstream blob;
-
-	////blob.rdbuf()->pubsetbuf( (char*)buf + sizeof( u_long ), (size - sizeof( u_long ) ) );
-
-	//std::istringstream in( buf + sizeof( u_long ), (size - sizeof( u_long ) ) );
-
-	//IEventPtr evtPtr = eventPtr->Copy();
-
-	//int type, evtType;
-	//in >> type;
-	//in >> evtType;
-	//evtPtr->Deserialize( in );
-
-	//std::cout << type << " " << evtType << std::endl;
 }
 
 void NetworkEventForwarder::Initialize( UINT socketID, SocketManager* sm )

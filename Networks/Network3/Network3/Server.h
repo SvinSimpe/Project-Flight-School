@@ -13,11 +13,12 @@ class Server : public Network
 	public:
 
 	private:
-		void	BroadcastEvent( IEventPtr eventPtr, UINT exception = (UINT)-1 );
-		void	SendEvent( IEventPtr eventPtr, UINT to );
 		void	ClientJoined( IEventPtr eventPtr );
 		void	ClientLeft( IEventPtr eventPtr );
-		void	MessageRecv( IEventPtr eventPtr );
+		void	LocalUpdate( IEventPtr eventPtr );
+
+		void	BroadcastEvent( IEventPtr eventPtr, UINT exception = (UINT)-1 );
+		void	SendEvent( IEventPtr eventPtr, UINT to );
 		void	InitEventListening();
 
 	protected:

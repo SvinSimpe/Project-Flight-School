@@ -1119,6 +1119,7 @@ class Event_Remove_Point_Light : public IEvent
 			return mLight;
 		}
 };
+
 class Event_Sync_Enemy_Type : public IEvent
 {
 	// Member variables

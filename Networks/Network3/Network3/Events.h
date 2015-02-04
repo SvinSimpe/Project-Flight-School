@@ -46,6 +46,7 @@ using namespace DirectX;
 
 extern EventType counter; // If you want know what this does, just check Events.cpp :D
 
+// Only used by the server when a new client joins
 class Event_Client_Joined : public IEvent
 {
 	private:
@@ -89,6 +90,7 @@ class Event_Client_Joined : public IEvent
 		}
 };
 
+// Only used by the server when a client leaves
 class Event_Client_Left : public IEvent
 {
 	private:
@@ -132,6 +134,7 @@ class Event_Client_Left : public IEvent
 		}
 };
 
+// Listened to by the player who's joining a game in order for it to get it's ID (no team implemented yet)
 class Event_Local_Joined : public IEvent
 {
 	private:
@@ -175,6 +178,7 @@ class Event_Local_Joined : public IEvent
 		}
 };
 
+// Listened to by every client and handles a remote client joining the game
 class Event_Remote_Joined : public IEvent
 {
 	private:
@@ -218,6 +222,7 @@ class Event_Remote_Joined : public IEvent
 		}
 };
 
+// Listened to by every client and handles a remote client leaving the game
 class Event_Remote_Left : public IEvent
 {
 	private:
@@ -258,5 +263,183 @@ class Event_Remote_Left : public IEvent
 		UINT ID() const
 		{
 			return mID;
+		}
+};
+
+// Listened to by the server and handles the local client updating
+// The same as Event_Player_Update in the project
+class Event_Local_Update : public IEvent
+{
+	private:
+		UINT		mID;
+		XMFLOAT3	mLowerBodyPos;
+		XMFLOAT3	mVelocity;
+		XMFLOAT3	mUpperBodyDirection;
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Local_Update()
+		{
+			mID						= (UINT)-1;
+			mLowerBodyPos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mVelocity				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mUpperBodyDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		}
+		Event_Local_Update( UINT id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDir )
+		{
+			mID						= id;
+			mLowerBodyPos			= lowerBodyPos;
+			mVelocity				= velocity;
+			mUpperBodyDirection		= upperBodyDir;
+		}
+		~Event_Local_Update() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			
+			out << mLowerBodyPos.x << " ";
+			out << mLowerBodyPos.y << " ";
+			out << mLowerBodyPos.z << " ";
+
+			out << mVelocity.x << " ";
+			out << mVelocity.y << " ";
+			out << mVelocity.z << " ";
+
+			out << mUpperBodyDirection.x << " ";
+			out << mUpperBodyDirection.y << " ";
+			out << mUpperBodyDirection.z << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+
+			in >> mLowerBodyPos.x;
+			in >> mLowerBodyPos.y;
+			in >> mLowerBodyPos.z;
+
+			in >> mVelocity.x;
+			in >> mVelocity.y;
+			in >> mVelocity.z;
+
+			in >> mUpperBodyDirection.x;
+			in >> mUpperBodyDirection.y;
+			in >> mUpperBodyDirection.z;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Local_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		XMFLOAT3 LowerBodyPos() const
+		{
+			return mLowerBodyPos;
+		}
+		XMFLOAT3 Velocity() const
+		{
+			return mVelocity;
+		}
+		XMFLOAT3 UpperBodyDirection() const
+		{
+			return mUpperBodyDirection;
+		}
+};
+
+// Created and broadcasted to each remote client whenever a local update is sent to the server
+// The same as Event_Remote_Player_Update in the project
+class Event_Remote_Update : public IEvent
+{
+	private:
+		UINT		mID;
+		XMFLOAT3	mLowerBodyPos;
+		XMFLOAT3	mVelocity;
+		XMFLOAT3	mUpperBodyDirection;
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Update()
+		{
+			mID						= (UINT)-1;
+			mLowerBodyPos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mVelocity				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mUpperBodyDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		}
+		Event_Remote_Update( UINT id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDir )
+		{
+			mID						= id;
+			mLowerBodyPos			= lowerBodyPos;
+			mVelocity				= velocity;
+			mUpperBodyDirection		= upperBodyDir;
+		}
+		~Event_Remote_Update() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			
+			out << mLowerBodyPos.x << " ";
+			out << mLowerBodyPos.y << " ";
+			out << mLowerBodyPos.z << " ";
+
+			out << mVelocity.x << " ";
+			out << mVelocity.y << " ";
+			out << mVelocity.z << " ";
+
+			out << mUpperBodyDirection.x << " ";
+			out << mUpperBodyDirection.y << " ";
+			out << mUpperBodyDirection.z << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+
+			in >> mLowerBodyPos.x;
+			in >> mLowerBodyPos.y;
+			in >> mLowerBodyPos.z;
+
+			in >> mVelocity.x;
+			in >> mVelocity.y;
+			in >> mVelocity.z;
+
+			in >> mUpperBodyDirection.x;
+			in >> mUpperBodyDirection.y;
+			in >> mUpperBodyDirection.z;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		XMFLOAT3 LowerBodyPos() const
+		{
+			return mLowerBodyPos;
+		}
+		XMFLOAT3 Velocity() const
+		{
+			return mVelocity;
+		}
+		XMFLOAT3 UpperBodyDirection() const
+		{
+			return mUpperBodyDirection;
 		}
 };

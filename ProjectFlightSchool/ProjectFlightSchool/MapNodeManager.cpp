@@ -23,6 +23,7 @@ void MapNodeManager::writeToLog( const std::string &text )
 }
 void MapNodeManager::LoadLevel( std::string filePath ) 
 {
+	HRESULT hr = S_OK;
 	std::vector<std::string> assetPaths;
 	TiXmlDocument doc;
 	if( !doc.LoadFile( filePath.c_str() ) )
@@ -54,7 +55,7 @@ void MapNodeManager::LoadLevel( std::string filePath )
 		{
 			int d = 0;
 		}
-		Graphics::GetInstance()->LoadStatic3dAsset( it->substr( 0, found + 1 ), it->substr( found + 1 ), id );
+		hr = Graphics::GetInstance()->LoadStatic3dAsset( it->substr( 0, found + 1 ), it->substr( found + 1 ), id );
 		if( id == CUBE_PLACEHOLDER )
 		{
 			OutputDebugStringA( "Model not found! Maybe path is wrong? \n");

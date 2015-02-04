@@ -13,6 +13,13 @@ HRESULT Map::Render( float deltaTime, Player* player )
 	//{
 	//	mapNodes[i]->Render( deltaTime );
 	//}
+
+	XMFLOAT3 playerPos = player->GetPosition();
+
+	int x = (int)playerPos.x / 24;
+	int z = (int)playerPos.z / 24;
+
+
 	for( int i = 0; i < (int)MapNodePlacer::GetInstance()->GetNrOfNodes(); i++ )
 	{
 		mNodes[i]->Render( deltaTime );
@@ -20,7 +27,6 @@ HRESULT Map::Render( float deltaTime, Player* player )
 
 	return S_OK;
 }
-
 void Map::OnLoadLevel( IEventPtr pEvent )
 {
 	if( Event_Load_Level::GUID == pEvent->GetEventType() )

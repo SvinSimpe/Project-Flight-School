@@ -40,6 +40,8 @@
 #include <DirectXMath.h>
 using namespace DirectX;
 
+extern EventType counter;
+
 class Event_Client_Joined : public IEvent
 {
 	private:
@@ -252,57 +254,5 @@ class Event_Remote_Left : public IEvent
 		UINT ID() const
 		{
 			return mID;
-		}
-};
-
-class Event_Send_Msg : public IEvent
-{
-	private:
-		UINT mID;
-		std::string mText;
-
-	protected:
-	public:
-		static const EventType GUID;
-
-	private:
-	protected:
-	public:
-		Event_Send_Msg()
-		{
-			mID		= 0;
-			mText	= "";
-		}
-		Event_Send_Msg( UINT socket, std::string text )
-		{
-			mID		= socket;
-			mText	= text;
-		}
-		~Event_Send_Msg() {}
-		const EventType& GetEventType() const
-		{
-			return GUID;
-		}
-		void Serialize( std::ostringstream& out ) const
-		{
-			out << mID << " ";
-			out << mText << " ";
-		}
-		void Deserialize( std::istringstream& in )
-		{
-			in >> mID;
-			in >> mText;
-		}
-		IEventPtr Copy() const
-		{
-			return IEventPtr( new Event_Send_Msg( mID, mText ) );
-		}
-		UINT ID() const
-		{
-			return mID;
-		}
-		std::string Text() const
-		{
-			return mText;
 		}
 };

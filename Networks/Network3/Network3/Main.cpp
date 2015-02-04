@@ -14,7 +14,6 @@ int main()
 	EF::REGISTER_EVENT( Event_Local_Joined );
 	EF::REGISTER_EVENT( Event_Remote_Joined );
 	EF::REGISTER_EVENT( Event_Remote_Left );
-	EF::REGISTER_EVENT( Event_Send_Msg );
 
 	std::string answer = "";
 	std::cout << "Would you like to start a (S)erver or a (C)lient? ";

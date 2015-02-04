@@ -26,29 +26,16 @@ void Server::ClientLeft( IEventPtr eventPtr )
 	}
 }
 
-void Server::MessageRecv( IEventPtr eventPtr )
-{
-	if( eventPtr->GetEventType() == Event_Send_Msg::GUID )
-	{
-		std::shared_ptr<Event_Send_Msg> data = std::static_pointer_cast<Event_Send_Msg>( eventPtr );
-		UINT id = data->ID();
-		std::string text = data->Text();
-
-		std::cout << id << " says: " << text << std::endl;
-	}
-}
-
+/* This will register all the events that only the server will listen to,
+	such as clients joining/disconnecting. */
 void Server::InitEventListening()
 {
 	EventManager::GetInstance()->AddListener( &Server::ClientJoined, this, Event_Client_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientLeft, this, Event_Client_Left::GUID );
-	EventManager::GetInstance()->AddListener( &Server::MessageRecv, this, Event_Send_Msg::GUID );
 }
 
-// Idea: The server has a list of network event forwarders that takes care of one socket each
-// in order to distribute events between clients.
-// This list is updated with the Event_Client_Amount_Update.
-
+/* This will register all the events that needs to be updated to all the clients.
+	These events will be local server events such as updating enemies and such. */
 void Server::RemoveEventForwarding( NetworkEventForwarder* nef )
 {
 

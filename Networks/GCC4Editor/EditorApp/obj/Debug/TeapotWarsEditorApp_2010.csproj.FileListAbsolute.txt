@@ -1,9 +1,0 @@
-C:\Users\Tiiiiiiim\Documents\ProjektMapp\Networks\Lib\Win32Debug\EditorApp.exe.config
-C:\Users\Tiiiiiiim\Documents\ProjektMapp\Networks\Lib\Win32Debug\EditorApp.exe
-C:\Users\Tiiiiiiim\Documents\ProjektMapp\Networks\Lib\Win32Debug\EditorApp.pdb
-C:\Users\Tiiiiiiim\Documents\ProjektMapp\Networks\GCC4Editor\EditorApp\obj\Debug\TeapotWarsEditorApp_2010.csprojResolveAssemblyReference.cache
-C:\Users\Tiiiiiiim\Documents\ProjektMapp\Networks\GCC4Editor\EditorApp\obj\Debug\EditorApp.EditorForm.resources
-C:\Users\Tiiiiiiim\Documents\ProjektMapp\Networks\GCC4Editor\EditorApp\obj\Debug\EditorApp.Properties.Resources.resources
-C:\Users\Tiiiiiiim\Documents\ProjektMapp\Networks\GCC4Editor\EditorApp\obj\Debug\TeapotWarsEditorApp_2010.csproj.GenerateResource.Cache
-C:\Users\Tiiiiiiim\Documents\ProjektMapp\Networks\GCC4Editor\EditorApp\obj\Debug\EditorApp.exe
-C:\Users\Tiiiiiiim\Documents\ProjektMapp\Networks\GCC4Editor\EditorApp\obj\Debug\EditorApp.pdb

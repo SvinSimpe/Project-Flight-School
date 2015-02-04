@@ -1,47 +1,44 @@
 #include "Server.h"
 
-void Server::HandleEvents( IEventPtr evtPtr )
+void Server::ClientJoined( IEventPtr evtPtr )
 {
-	if( evtPtr->GetEventType() == Event_Text::GUID )
+	if( evtPtr->GetEventType() == Event_Client_Joined::GUID )
 	{
-		std::shared_ptr<Event_Text> data = std::static_pointer_cast<Event_Text>( evtPtr );
-		int socketID = data->SocketID();
-		std::string text = data->Text();
-		std::cout << socketID << " says: " << text << std::endl;
-	}
-	else if( evtPtr->GetEventType() == Event_Client_Amount_Update::GUID )
-	{
-		std::shared_ptr<Event_Client_Amount_Update> data = std::static_pointer_cast<Event_Client_Amount_Update>( evtPtr );
-		mSocketIDs = data->SocketIDs();
+		std::shared_ptr<Event_Client_Joined> data = std::static_pointer_cast<Event_Client_Joined>( evtPtr );
+		UINT id = data->ID();
+		mForwardMap[id].Initialize( id, mSocketManager );
 
-		std::cout << "Number of connected clients: " << mSocketIDs.size() << std::endl;
-		//mActive = true;
+		std::cout << "Client with ID: " << id << " joined. There are now " << mForwardMap.size() << " clients online." << std::endl;
+	}
+}
+
+void Server::ClientLeft( IEventPtr evtPtr )
+{
+	if( evtPtr->GetEventType() == Event_Client_Left::GUID )
+	{
+		std::shared_ptr<Event_Client_Left> data = std::static_pointer_cast<Event_Client_Left>( evtPtr );
+		UINT id = data->ID();
+		mForwardMap.erase( id );
+		std::cout << "Client with ID: " << id << " left. There are now " << mForwardMap.size() << " clients online." << std::endl;
 	}
 }
 
 void Server::InitEventListening()
 {
-	EventManager::GetInstance()->AddListener( &Server::HandleEvents, this, Event_Text::GUID );
-	EventManager::GetInstance()->AddListener( &Server::HandleEvents, this, Event_Client_Amount_Update::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientJoined, this, Event_Client_Joined::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientLeft, this, Event_Client_Left::GUID );
 }
 
 // Idea: The server has a list of network event forwarders that takes care of one socket each
 // in order to distribute events between clients.
 // This list is updated with the Event_Client_Amount_Update.
 
-void Server::InitEventForwarding()
+void Server::InitEventForwarding( NetworkEventForwarder* nef )
 {
-	EventManager::GetInstance()->AddListener( &NetworkEventForwarder::ForwardEvent, &mNEF, Event_Client_Joined::GUID );
-	EventManager::GetInstance()->AddListener( &NetworkEventForwarder::ForwardEvent, &mNEF, Event_Text::GUID );
 }
 
 void Server::Update( float deltaTime )
 {
-	if( mActive )
-	{
-		IEventPtr E1( PFS_NEW Event_Text( 0, "Hello_Client!" ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
-	}
 }
 
 void Server::DoSelect( int pauseMicroSecs, bool handleInput )
@@ -61,10 +58,7 @@ bool Server::Initialize( UINT port )
 	mSocketManager->AddSocket( new ServerListenSocket( mSocketManager, mPort ) );
 	std::cout << "Server started on port: " << mPort << std::endl;
 
-	mNEF.Initialize( 1, mSocketManager );
-
 	InitEventListening();
-	InitEventForwarding();
 	return true;
 }
 
@@ -72,14 +66,13 @@ void Server::Release()
 {
 	mSocketManager->Release();
 	SAFE_DELETE( mSocketManager );
-	mSocketIDs.clear();
+	mForwardMap.clear();
 }
 
 Server::Server() : Network()
 {
 	mSocketManager = nullptr;
-	mSocketIDs = std::list<UINT>();
-	mActive = false;
+	mForwardMap = std::map<UINT, NetworkEventForwarder>();
 }
 
 Server::~Server()

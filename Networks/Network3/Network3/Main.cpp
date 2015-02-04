@@ -41,8 +41,8 @@ int main()
 		return 3;
 	}
 
-	EF::REGISTER_EVENT( Event_Client_Amount_Update );
 	EF::REGISTER_EVENT( Event_Client_Joined );
+	EF::REGISTER_EVENT( Event_Client_Left );
 	EF::REGISTER_EVENT( Event_Text );
 
 	int frameCount = 0;

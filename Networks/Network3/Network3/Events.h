@@ -38,56 +38,12 @@
 //========================================================================
 #include "EventManager.h"
 #include <DirectXMath.h>
-#include <iostream>
 using namespace DirectX;
-
-class Event_Client_Amount_Update : public IEvent
-{
-	private:
-		std::list<UINT> mSocketIDs;
-	protected:
-	public:
-		static const EventType GUID;
-
-	private:
-	protected:
-	public:
-		Event_Client_Amount_Update()
-		{
-			mSocketIDs = std::list<UINT>();
-		}
-		Event_Client_Amount_Update( std::list<UINT> socketIDs )
-		{
-			mSocketIDs	= socketIDs;
-		}
-		~Event_Client_Amount_Update() {}
-		std::list<UINT> SocketIDs() const
-		{
-			return mSocketIDs;
-		}
-		const EventType& GetEventType() const
-		{
-			return GUID;
-		}
-		void Serialize( std::stringstream& out ) const
-		{
-			std::cout << "Not serializable, stop it." << std::endl;
-		}
-		void Deserialize( std::stringstream& in )
-		{
-			std::cout << "Not deserializable either, seriously stop it." << std::endl;
-		}
-		IEventPtr Copy() const
-		{
-			return IEventPtr( new Event_Client_Amount_Update( mSocketIDs ) );
-		}
-};
 
 class Event_Client_Joined : public IEvent
 {
 	private:
-		int mHostID;
-		int mSocketID;
+		UINT mID;
 
 	protected:
 	public:
@@ -98,22 +54,16 @@ class Event_Client_Joined : public IEvent
 	public:
 		Event_Client_Joined()
 		{
-			mHostID		= -1;
-			mSocketID	= -1;
+			mID = 0;
 		}
-		Event_Client_Joined( int hostID, int socketID )
+		Event_Client_Joined( UINT socket )
 		{
-			mHostID		= hostID;
-			mSocketID	= socketID;
+			mID = socket;
 		}
 		~Event_Client_Joined() {}
-		int HostID() const
+		int ID() const
 		{
-			return mHostID;
-		}
-		int SocketID() const
-		{
-			return mSocketID;
+			return mID;
 		}
 		const EventType& GetEventType() const
 		{
@@ -121,17 +71,58 @@ class Event_Client_Joined : public IEvent
 		}
 		void Serialize( std::stringstream& out ) const
 		{
-			out << mHostID << " ";
-			out << mSocketID << " ";
+			out << mID << " ";
 		}
 		void Deserialize( std::stringstream& in )
 		{
-			in >> mHostID;
-			in >> mSocketID;
+			in >> mID;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Client_Joined( mHostID, mSocketID ) );
+			return IEventPtr( new Event_Client_Joined( mID ) );
+		}
+};
+
+class Event_Client_Left : public IEvent
+{
+	private:
+		UINT mID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Left()
+		{
+			mID = 0;
+		}
+		Event_Client_Left( UINT socket )
+		{
+			mID = socket;
+		}
+		~Event_Client_Left() {}
+		int ID() const
+		{
+			return mID;
+		}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::stringstream& out ) const
+		{
+			out << mID << " ";
+		}
+		void Deserialize( std::stringstream& in )
+		{
+			in >> mID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Left( mID ) );
 		}
 };
 

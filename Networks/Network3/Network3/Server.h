@@ -7,17 +7,16 @@ class Server : public Network
 {
 	private:
 		SocketManager*	mSocketManager;
-		std::list<UINT> mSocketIDs;
-		std::list<NetworkEventForwarder> mNEFs;
-		bool mActive;
+		std::map<UINT, NetworkEventForwarder> mForwardMap;
 
 	protected:
 	public:
 
 	private:
-		void	HandleEvents( IEventPtr evtPtr );
+		void	ClientJoined( IEventPtr eventPtr );
+		void	ClientLeft( IEventPtr eventPtr );
 		void	InitEventListening();
-		void	InitEventForwarding();
+		void	InitEventForwarding( NetworkEventForwarder* nef );
 
 	protected:
 	public:

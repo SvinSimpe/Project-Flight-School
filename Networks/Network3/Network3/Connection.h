@@ -142,7 +142,6 @@ class SocketManager
 		NetSocket*	FindSocket( UINT sockID );
 
 	public:
-		void		UpdateSocketList();
 		void		PrintError();
 		int			AddSocket( NetSocket* socket );
 		void		RemoveSocket( NetSocket* socket );

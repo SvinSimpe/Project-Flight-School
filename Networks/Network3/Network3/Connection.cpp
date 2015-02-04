@@ -391,9 +391,9 @@ void ServerListenSocket::HandleInput()
 		int sockID = mSocketManager->AddSocket( socket );
 		int ipAddress = socket->GetIPAddress();
 
-		printf( "Client with sockID: %d connected from %d.\n", sockID, ipAddr );
+		//printf( "Client with sockID: %d connected from %d.\n", sockID, ipAddr );
 
-		std::shared_ptr<Event_Client_Joined> E1( PFS_NEW Event_Client_Joined( ipAddress, sockID ) );
+		IEventPtr E1( PFS_NEW Event_Client_Joined( sockID ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 }
@@ -458,8 +458,6 @@ void RemoteEventSocket::HandleInput()
 					int hostID, socketID;
 					in >> hostID;
 					in >> socketID;
-					IEventPtr E1( new Event_Client_Joined( hostID, socketID ) );
-					EventManager::GetInstance()->QueueEvent( E1 );
 				}
 				break;
 			default:
@@ -490,19 +488,6 @@ RemoteEventSocket::RemoteEventSocket( SocketManager* socketManager )
 
 /////////////////////////////////////////////////////////////////
 // SocketManager functions
-
-void SocketManager::UpdateSocketList()
-{
-	std::list<UINT> SocketIDs = std::list<UINT>();
-	for( auto& it : mSocketList )
-	{
-		SocketIDs.push_front( it->mID );
-	}
-	SocketIDs.pop_front();
-
-	IEventPtr E1( PFS_NEW Event_Client_Amount_Update( SocketIDs ) );
-	EventManager::GetInstance()->QueueEvent( E1 );
-}
 
 NetSocket* SocketManager::FindSocket( UINT sockID )
 {
@@ -561,17 +546,18 @@ int SocketManager::AddSocket( NetSocket* socket )
 		++mMaxOpenSockets;
 	}
 
-	UpdateSocketList();
 	return socket->mID;
 }
 
 void SocketManager::RemoveSocket( NetSocket* socket )
 {
+	UINT id = (UINT)socket->mID;
 	mSocketList.remove( socket );
 	mSocketMap.erase( socket->mID );
 	SAFE_DELETE( socket );
 
-	UpdateSocketList();
+	IEventPtr E1( PFS_NEW Event_Client_Left( id ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 UINT SocketManager::GetHostByName( const std::string &hostName )

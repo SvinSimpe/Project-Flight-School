@@ -83,7 +83,6 @@ MapNode* MapNodeManager::CreateNode( const char* fileName )
 
 	//char localFileName[50];
 	//sprintf_s( localFileName, "%s%d", fileName, i );
-	UINT dimZ;
 
 	std::ifstream inFile( fileName, std::ios::binary );
 
@@ -99,8 +98,8 @@ MapNode* MapNodeManager::CreateNode( const char* fileName )
 
 
 	//First read dimension, TODO: remove dimZ, needed atm, read vertexCount
-	inFile.read( (char*)&initInfo.gridDim, sizeof( UINT ) );
-	inFile.read( (char*)&dimZ, sizeof( UINT ) );
+	inFile.read( (char*)&initInfo.gridWidth, sizeof( UINT ) );
+	inFile.read( (char*)&initInfo.gridHeight, sizeof( UINT ) );
 	inFile.read( (char*)&initInfo.vertexCount, sizeof( UINT ) );
 	initInfo.grid = new Vertex24[initInfo.vertexCount];
 	inFile.read( (char*)initInfo.grid, sizeof( Vertex24 ) * initInfo.vertexCount ) ;

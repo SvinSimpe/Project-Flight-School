@@ -19,6 +19,10 @@ NODE_RETURN_CODE MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNo
 	int nodeWith   = (int)( ( newNode->GetMapNode()->GetGridWidth() / ( NODE_DIM ) ) );
 	int nodeHeight = (int)( ( newNode->GetMapNode()->GetGridHeight() / ( NODE_DIM ) ) );
 
+	if( (int)mMap->GetMapWidth() < ( pX + nodeWith ) || (int)mMap->GetMapWidth() < ( pY + nodeHeight ) )
+	{
+		return NOFIT;
+	}
 
 
 	for( int x = pX; x < (int)( pX + nodeWith ); x++ )
@@ -30,11 +34,6 @@ NODE_RETURN_CODE MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNo
 				return OCCUPIED;
 			}
 		}
-	}
-
-	if( (int)mMap->GetMapWidth() < ( pX + nodeWith ) || (int)mMap->GetMapWidth() < ( pY + nodeHeight ) )
-	{
-		return NOFIT;
 	}
 
 	for( int x = pX; x < (int)( pX + nodeWith ); x++ )

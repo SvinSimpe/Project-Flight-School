@@ -30,7 +30,7 @@ HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP, float pla
 		latestAllyHealthBottomRight.y	= topLeft.y + mSizeAllyHealthBar.y;
 		RenderManager::GetInstance()->AddObject2dToList( mAllyHealthBar, topLeft, widthHeight );
 
-		nrOfHealthsToRender = ( 20.0f * alliesHP[i] );
+		nrOfHealthsToRender = (int)( 20.0f * alliesHP[i] );
 
 		if ( nrOfHealthsToRender > 0 )
 		{
@@ -63,7 +63,7 @@ HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP, float pla
 	RenderManager::GetInstance()->AddObject2dToList( mPlayerBar, topLeft, widthHeight );
 	
 	mFont.WriteText( "Hp", 106.0f, 858.0f, 2.9f );
-	int renderHealth = playerHP * 100;
+	int renderHealth = (int)( playerHP * 100 );
 	std::string renderText;
 	if ( renderHealth >= 0 )
 	{
@@ -72,7 +72,7 @@ HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP, float pla
 		mFont.WriteText( renderText, 95.0f, 896.0f, 2.9f );
 	}
 
-	int renderShield = playerShield * 100;
+	int renderShield = (int)( playerShield * 100 );
 	if ( renderShield >= 0 )
 	{
 		mFont.WriteText( "Shield", 68.0f, 945.0f, 2.9f );
@@ -81,7 +81,7 @@ HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP, float pla
 		mFont.WriteText( renderText, 95.0f, 983.0f, 2.9f );
 	}
 
-	int renderXp = playerXp * 100;
+	int renderXp = (int)( playerXp * 100 );
 	if ( renderXp >= 0 )
 	{
 		mFont.WriteText( "Xp", 316.0f, 871.0f, 3.8f );
@@ -100,7 +100,7 @@ HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP, float pla
 		widthHeight	= mSizeLevelUp;
 		RenderManager::GetInstance()->AddObject2dToList( mLevelUp, topLeft, widthHeight );
 
-		int renderLevelUp = playerXp;
+		int renderLevelUp = (int)playerXp;
 		renderText = "!";
 		renderText += std::to_string( renderLevelUp );
 		mFont.WriteText( renderText, (topLeft.x + 75.0f ), ( topLeft.y + 66.0f ), 4.8f );
@@ -114,7 +114,7 @@ HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP, float pla
 	XMFLOAT2 shipHealthBarTopLeft		= topLeft;
 	RenderManager::GetInstance()->AddObject2dToList( mShipHealthBar, topLeft, mSizeShipHealthBar );
 
-	nrOfHealthsToRender = ( 20.0f * shipHP );
+	nrOfHealthsToRender = (int)( 20.0f * shipHP );
 	offSetForHealths	= shipHealthBarTopLeft.x + mEndShipHealth.x;
 
 	if ( nrOfHealthsToRender > 0 )
@@ -160,7 +160,7 @@ HRESULT Gui::Initialize()
 	mStartShipHealth.y					= (float)( mSizeShipHealthBar.y / 12.20f );
 	mEndShipHealth.x					= (float)( mSizeShipHealthBar.x / 1.08f );
 	mEndShipHealth.y					= (float)( mSizeShipHealthBar.y / 1.55f );
-	mSizeShipHealth.x					= mSizeShipHealthBar.x / 10.3;
+	mSizeShipHealth.x					= (float)( mSizeShipHealthBar.x / 10.3f );
 	mSizeShipHealth.y					= ( mEndShipHealth.y - mStartShipHealth.y );
 	mSizeShipHealthTop					= ( ( mEndShipHealth.x - mStartShipHealth.x - ( ( mNrOfHealths - 1 ) * mSpaceShipHealth ) ) / mNrOfHealths );
 

@@ -577,7 +577,7 @@ HRESULT PlayState::Render()
 	std::stringstream ss;
 	ss	<< "RemotePlayers\t" << mRemotePlayers.size() << "\n"
 		<< "ProjectilesFired\t" << mNrOfProjectilesFired << "\n";
-	mFont.WriteText( ss.str(), 40.0f, 200.0f, 0.3f );
+	mFont.WriteText( ss.str(), 40.0f, 200.0f, 2.0f );
 
 	RenderManager::GetInstance()->Render();
 

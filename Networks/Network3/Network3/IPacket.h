@@ -37,11 +37,13 @@
 
 #define PFS_ASSERT( x ) ( (void)( 0 && ( x ) ) )
 
+typedef unsigned long PacketType;
+
 // This is the interface of the Packet-classes existing in the game
 class IPacket
 {
 	public:
-		virtual char const* const	GetType() const = 0;
+		virtual const PacketType& 	GetType() const = 0;
 		virtual char const* const	GetData() const = 0;
 		virtual u_long				GetSize() const = 0;
 		virtual ~IPacket() {}

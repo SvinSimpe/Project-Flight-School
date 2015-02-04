@@ -9,6 +9,13 @@ int main()
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 	//_CrtSetBreakAlloc(142); // Break at specific memory allocation point
 #endif
+	EF::REGISTER_EVENT( Event_Client_Joined );
+	EF::REGISTER_EVENT( Event_Client_Left );
+	EF::REGISTER_EVENT( Event_Local_Joined );
+	EF::REGISTER_EVENT( Event_Remote_Joined );
+	EF::REGISTER_EVENT( Event_Remote_Left );
+	EF::REGISTER_EVENT( Event_Send_Msg );
+
 	std::string answer = "";
 	std::cout << "Would you like to start a (S)erver or a (C)lient? ";
 	std::getline( std::cin, answer );
@@ -40,12 +47,6 @@ int main()
 		OutputDebugStringA( "Incorrect input. Idiot.\n" );
 		return 3;
 	}
-
-	EF::REGISTER_EVENT( Event_Client_Joined );
-	EF::REGISTER_EVENT( Event_Client_Left );
-	EF::REGISTER_EVENT( Event_Local_Joined );
-	EF::REGISTER_EVENT( Event_Remote_Joined );
-	EF::REGISTER_EVENT( Event_Remote_Left );
 
 
 	int frameCount = 0;

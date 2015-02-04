@@ -56,30 +56,30 @@ class Event_Client_Joined : public IEvent
 		{
 			mID = 0;
 		}
-		Event_Client_Joined( UINT socket )
+		Event_Client_Joined( UINT id )
 		{
-			mID = socket;
+			mID = id;
 		}
 		~Event_Client_Joined() {}
-		int ID() const
-		{
-			return mID;
-		}
 		const EventType& GetEventType() const
 		{
 			return GUID;
 		}
-		void Serialize( std::stringstream& out ) const
+		void Serialize( std::ostringstream& out ) const
 		{
 			out << mID << " ";
 		}
-		void Deserialize( std::stringstream& in )
+		void Deserialize( std::istringstream& in )
 		{
 			in >> mID;
 		}
 		IEventPtr Copy() const
 		{
 			return IEventPtr( new Event_Client_Joined( mID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
 		}
 };
 
@@ -99,24 +99,20 @@ class Event_Client_Left : public IEvent
 		{
 			mID = 0;
 		}
-		Event_Client_Left( UINT socket )
+		Event_Client_Left( UINT id )
 		{
-			mID = socket;
+			mID = id;
 		}
 		~Event_Client_Left() {}
-		int ID() const
-		{
-			return mID;
-		}
 		const EventType& GetEventType() const
 		{
 			return GUID;
 		}
-		void Serialize( std::stringstream& out ) const
+		void Serialize( std::ostringstream& out ) const
 		{
 			out << mID << " ";
 		}
-		void Deserialize( std::stringstream& in )
+		void Deserialize( std::istringstream& in )
 		{
 			in >> mID;
 		}
@@ -124,12 +120,16 @@ class Event_Client_Left : public IEvent
 		{
 			return IEventPtr( new Event_Client_Left( mID ) );
 		}
+		UINT ID() const
+		{
+			return mID;
+		}
 };
 
 class Event_Local_Joined : public IEvent
 {
 	private:
-		UINT mID;
+		int mID;
 
 	protected:
 	public:
@@ -142,30 +142,30 @@ class Event_Local_Joined : public IEvent
 		{
 			mID = 0;
 		}
-		Event_Local_Joined( UINT socket )
+		Event_Local_Joined( int id )
 		{
-			mID = socket;
+			mID = id;
 		}
 		~Event_Local_Joined() {}
-		int ID() const
-		{
-			return mID;
-		}
 		const EventType& GetEventType() const
 		{
 			return GUID;
 		}
-		void Serialize( std::stringstream& out ) const
+		void Serialize( std::ostringstream& out ) const
 		{
 			out << mID << " ";
 		}
-		void Deserialize( std::stringstream& in )
+		void Deserialize( std::istringstream& in )
 		{
 			in >> mID;
 		}
 		IEventPtr Copy() const
 		{
 			return IEventPtr( new Event_Local_Joined( mID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
 		}
 };
 
@@ -185,30 +185,30 @@ class Event_Remote_Joined : public IEvent
 		{
 			mID = 0;
 		}
-		Event_Remote_Joined( UINT socket )
+		Event_Remote_Joined( UINT id )
 		{
-			mID = socket;
+			mID = id;
 		}
 		~Event_Remote_Joined() {}
-		int ID() const
-		{
-			return mID;
-		}
 		const EventType& GetEventType() const
 		{
 			return GUID;
 		}
-		void Serialize( std::stringstream& out ) const
+		void Serialize( std::ostringstream& out ) const
 		{
 			out << mID << " ";
 		}
-		void Deserialize( std::stringstream& in )
+		void Deserialize( std::istringstream& in )
 		{
 			in >> mID;
 		}
 		IEventPtr Copy() const
 		{
 			return IEventPtr( new Event_Remote_Joined( mID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
 		}
 };
 
@@ -228,29 +228,81 @@ class Event_Remote_Left : public IEvent
 		{
 			mID = 0;
 		}
-		Event_Remote_Left( UINT socket )
+		Event_Remote_Left( UINT id )
 		{
-			mID = socket;
+			mID = id;
 		}
 		~Event_Remote_Left() {}
-		int ID() const
-		{
-			return mID;
-		}
 		const EventType& GetEventType() const
 		{
 			return GUID;
 		}
-		void Serialize( std::stringstream& out ) const
+		void Serialize( std::ostringstream& out ) const
 		{
 			out << mID << " ";
 		}
-		void Deserialize( std::stringstream& in )
+		void Deserialize( std::istringstream& in )
 		{
 			in >> mID;
 		}
 		IEventPtr Copy() const
 		{
 			return IEventPtr( new Event_Remote_Left( mID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+};
+
+class Event_Send_Msg : public IEvent
+{
+	private:
+		UINT mID;
+		std::string mText;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Send_Msg()
+		{
+			mID		= 0;
+			mText	= "";
+		}
+		Event_Send_Msg( UINT socket, std::string text )
+		{
+			mID		= socket;
+			mText	= text;
+		}
+		~Event_Send_Msg() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mText << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mText;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Send_Msg( mID, mText ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		std::string Text() const
+		{
+			return mText;
 		}
 };

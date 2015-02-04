@@ -99,15 +99,15 @@ class RemoteEventSocket : public NetSocket
 	private:
 	protected:
 	public:
+		// This enum is made just in case we need to send something else than a packet
 		enum
 		{
-			NetMsg_LoginOk,			// Send as a BinaryPacket to the connecting client
-			NetMsg_Event			// If this is sent, an event is created
+			NetMsg_Event,			// If this is sent, an event is created
 		};
 
 	private:
 	protected:
-		void CreateEvent( std::stringstream &in );
+		void CreateEvent( std::istringstream& in );
 
 	public:
 		virtual void HandleInput();

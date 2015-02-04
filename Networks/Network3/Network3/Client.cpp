@@ -8,6 +8,7 @@ void Client::LocalJoin( IEventPtr eventPtr )
 		mID = data->ID();
 
 		std::cout << "My ID is: " << mID << std::endl;
+		mActive = true;
 	}
 }
 
@@ -25,6 +26,7 @@ void Client::InitForwardingEvents()
 
 void Client::Update( float deltaTime )
 {
+
 }
 
 void Client::DoSelect( int pauseMicroSecs, bool handleInput )

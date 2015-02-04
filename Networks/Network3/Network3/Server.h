@@ -15,6 +15,7 @@ class Server : public Network
 	private:
 		void	ClientJoined( IEventPtr eventPtr );
 		void	ClientLeft( IEventPtr eventPtr );
+		void	MessageRecv( IEventPtr eventPtr );
 		void	InitEventListening();
 		void	InitEventForwarding( NetworkEventForwarder* nef );
 		void	RemoveEventForwarding( NetworkEventForwarder* nef );

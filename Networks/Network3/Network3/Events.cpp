@@ -45,3 +45,4 @@ const EventType Event_Client_Left::GUID( 1 );
 const EventType Event_Local_Joined::GUID( 2 );
 const EventType Event_Remote_Joined::GUID( 3 );
 const EventType Event_Remote_Left::GUID( 4 );
+const EventType Event_Send_Msg::GUID( 5 );

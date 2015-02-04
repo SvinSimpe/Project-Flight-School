@@ -62,8 +62,8 @@ class IEvent
 	public:
 		virtual ~IEvent( void ) {}
 		virtual const EventType& GetEventType() const			= 0;
-		virtual void Serialize( std::stringstream& out ) const	= 0;
-		virtual void Deserialize( std::stringstream& in  )		= 0;
+		virtual void Serialize( std::ostringstream& out ) const	= 0;
+		virtual void Deserialize( std::istringstream& in  )		= 0;
 		virtual IEventPtr Copy() const							= 0;
 };
 

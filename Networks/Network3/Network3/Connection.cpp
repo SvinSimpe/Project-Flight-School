@@ -10,7 +10,7 @@ bool NetSocket::Connect( UINT ip, UINT port, bool forceCoalesce )
 	struct sockaddr_in sa;
 	int x = 1;
 
-	if( ( mSocket = socket( PF_INET, SOCK_STREAM, 0 ) ) == INVALID_SOCKET )
+	if( ( mSocket = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP ) ) == INVALID_SOCKET )
 	{
 		return false;
 	}
@@ -251,7 +251,7 @@ void NetListenSocket::InitScan( int portNum_min, int portNum_max )
 	sockaddr_in sa;
 	int x = 1;
 
-	if( ( mSocket = socket( PF_INET, SOCK_STREAM, IPPROTO_TCP ) ) == INVALID_SOCKET )
+	if( ( mSocket = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP ) ) == INVALID_SOCKET )
 	{
 		EXIT_ASSERT
 			exit( 1 );
@@ -320,7 +320,7 @@ SOCKET NetListenSocket::AcceptConnection( UINT* addr )
 
 void NetListenSocket::Initialize( int portNum )
 {
-	if( ( mSocket = socket( PF_INET, SOCK_STREAM, 0 ) )  == INVALID_SOCKET )
+	if( ( mSocket = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP ) )  == INVALID_SOCKET )
 	{
 		PFS_ASSERT( "NetListenSocket Error: Init failed to create socket handle" );
 	}
@@ -395,28 +395,6 @@ void ServerListenSocket::HandleInput()
 
 		IEventPtr E1( PFS_NEW Event_Client_Joined( sockID ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
-
-		std::stringstream out( std::stringstream::out );
-
-		//out << static_cast<int>( RemoteEventSocket::NetMsg_LoginOk ) << " ";
-		//out << (UINT)sockID << " ";
-		//out << "\r\n";
-
-		IEventPtr E2( new Event_Local_Joined( sockID ) ); 
-
-		out << static_cast<int>( RemoteEventSocket::NetMsg_Event ) << " ";
-		out << E2->GetEventType() << " "; // testing static_cast here
-		E2->Serialize( out );
-		out << "\r\n";
-
-		u_long size = out.str().size();
-
-		std::string str = out.rdbuf()->str();
-		const char* c_str = str.c_str();
-		
-		std::shared_ptr<BinaryPacket> msg( new BinaryPacket(out.rdbuf()->str(), size ) );
-
-		mSocketManager->Send( sockID, msg );
 	}
 }
 
@@ -432,7 +410,7 @@ ServerListenSocket::ServerListenSocket( SocketManager* socketManager, int portNu
 /////////////////////////////////////////////////////////////////
 // RemoteEventSocket functions
 
-void RemoteEventSocket::CreateEvent( std::stringstream &in )
+void RemoteEventSocket::CreateEvent( std::istringstream &in )
 {
 	EventType eventType;
 	in >> eventType;
@@ -459,12 +437,12 @@ void RemoteEventSocket::HandleInput()
 		std::shared_ptr<IPacket> packet = *mInList.begin();
 		mInList.pop_front();
 
-		if( !strcmp( packet->GetType(), BinaryPacket::gType ) ) // Checks the type of the packet here
+		if( packet->GetType() == BinaryPacket::GUID ) // Checks the type of the packet here
 		{
 			const char* buf = packet->GetData();
 			int size = static_cast<int>( packet->GetSize() );
 
-			std::stringstream in( buf + sizeof( u_long ), (size - sizeof( u_long ) ) );
+			std::istringstream in( buf + sizeof( u_long ), (size - sizeof( u_long ) ) );
 
 			int type;
 			in >> type;
@@ -475,21 +453,13 @@ void RemoteEventSocket::HandleInput()
 					CreateEvent( in );
 				}
 				break;
-			case NetMsg_LoginOk:
-				{
-					int socketID;
-					in >> socketID;
-					//IEventPtr E1( PFS_NEW Event_Local_Joined( socketID ) );
-					//EventManager::GetInstance()->QueueEvent( E1 );
-				}
-				break;
 			default:
 				{
 					std::cout << "Unknown message type." << std::endl;
 				}
 			}
 		}
-		else if( !strcmp( packet->GetType(), TextPacket::gType ) )
+		else if( packet->GetType() == BinaryPacket::GUID )
 		{
 			printf( "Network: %s\n", packet->GetData()+sizeof(u_long) );
 		}
@@ -643,10 +613,6 @@ bool SocketManager::IsInternal( UINT ipAddr )
 bool SocketManager::Send( UINT sockID, std::shared_ptr<IPacket> packet )
 {
 	NetSocket* socket = FindSocket( sockID );
-
-	const char* type = packet->GetType();
-	const char* data = packet->GetData();
-	u_long size = packet->GetSize();
 
 	if( !socket )
 		return false;
@@ -836,15 +802,34 @@ ClientSocketManager::ClientSocketManager()
 
 void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 {
-	std::stringstream out;
+	std::ostringstream out;
 
 	out << static_cast<int>( RemoteEventSocket::NetMsg_Event ) << " ";
 	out << eventPtr->GetEventType() << " ";
 	eventPtr->Serialize( out );
 	out << "\r\n";
 
-	std::shared_ptr<BinaryPacket> msg( PFS_NEW BinaryPacket( out.rdbuf()->str().c_str(), (u_long)out.str().size() ) );
+	std::shared_ptr<BinaryPacket> msg(PFS_NEW BinaryPacket( out.str().c_str(), (u_long)out.str().length()));
+
 	mSocketManager->Send( mSocketID, msg );
+
+	//const char* buf = msg->GetData();
+	//int size = static_cast<int>( msg->GetSize() );
+
+	//std::istringstream blob;
+
+	////blob.rdbuf()->pubsetbuf( (char*)buf + sizeof( u_long ), (size - sizeof( u_long ) ) );
+
+	//std::istringstream in( buf + sizeof( u_long ), (size - sizeof( u_long ) ) );
+
+	//IEventPtr evtPtr = eventPtr->Copy();
+
+	//int type, evtType;
+	//in >> type;
+	//in >> evtType;
+	//evtPtr->Deserialize( in );
+
+	//std::cout << type << " " << evtType << std::endl;
 }
 
 void NetworkEventForwarder::Initialize( UINT socketID, SocketManager* sm )

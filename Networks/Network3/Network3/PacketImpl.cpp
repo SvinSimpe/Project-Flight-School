@@ -1,7 +1,7 @@
 #include "PacketImpl.h"
 
-const char* BinaryPacket::gType	= "BinaryPacket";
-const char* TextPacket::gType	= "TextPacket";
+const PacketType BinaryPacket::GUID( 0x21b2 );
+const PacketType TextPacket::GUID( 0x38c5 );
 
 /////////////////////////////////////////////////////////////////// 
 // TestPacket

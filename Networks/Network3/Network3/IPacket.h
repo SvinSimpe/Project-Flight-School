@@ -13,6 +13,7 @@
 #include <ws2tcpip.h>
 #include <IPHlpApi.h>
 #include <crtdbg.h>
+#include <string>
 
 #define MAGIC_NUMBER (0x1f2e3d4c)
 
@@ -40,9 +41,9 @@
 class IPacket
 {
 	public:
-		virtual char const* const GetType() const = 0;
-		virtual char const* const GetData() const = 0;
-		virtual u_long GetSize() const = 0;
+		virtual char const* const	GetType() const = 0;
+		virtual char const* const	GetData() const = 0;
+		virtual u_long				GetSize() const = 0;
 		virtual ~IPacket() {}
 };
 #endif

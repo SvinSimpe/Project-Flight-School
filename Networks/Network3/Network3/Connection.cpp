@@ -384,7 +384,7 @@ void ServerListenSocket::HandleInput()
 	SOCKET newSocket = AcceptConnection( &ipAddr );
 
 	int value = 1;
-	setsockopt( newSocket, IPPROTO_TCP, TCP_NODELAY, (char*)value, sizeof( value ) );
+	setsockopt( newSocket, SOL_SOCKET, SO_DONTLINGER, (char*)value, sizeof( value ) );
 	if( newSocket != INVALID_SOCKET )
 	{
 		RemoteEventSocket* socket = PFS_NEW RemoteEventSocket( mSocketManager, newSocket, ipAddr );
@@ -395,6 +395,28 @@ void ServerListenSocket::HandleInput()
 
 		IEventPtr E1( PFS_NEW Event_Client_Joined( sockID ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
+
+		std::stringstream out( std::stringstream::out );
+
+		//out << static_cast<int>( RemoteEventSocket::NetMsg_LoginOk ) << " ";
+		//out << (UINT)sockID << " ";
+		//out << "\r\n";
+
+		IEventPtr E2( new Event_Local_Joined( sockID ) ); 
+
+		out << static_cast<int>( RemoteEventSocket::NetMsg_Event ) << " ";
+		out << E2->GetEventType() << " "; // testing static_cast here
+		E2->Serialize( out );
+		out << "\r\n";
+
+		u_long size = out.str().size();
+
+		std::string str = out.rdbuf()->str();
+		const char* c_str = str.c_str();
+		
+		std::shared_ptr<BinaryPacket> msg( new BinaryPacket(out.rdbuf()->str(), size ) );
+
+		mSocketManager->Send( sockID, msg );
 	}
 }
 
@@ -455,9 +477,10 @@ void RemoteEventSocket::HandleInput()
 				break;
 			case NetMsg_LoginOk:
 				{
-					int hostID, socketID;
-					in >> hostID;
+					int socketID;
 					in >> socketID;
+					//IEventPtr E1( PFS_NEW Event_Local_Joined( socketID ) );
+					//EventManager::GetInstance()->QueueEvent( E1 );
 				}
 				break;
 			default:
@@ -620,6 +643,11 @@ bool SocketManager::IsInternal( UINT ipAddr )
 bool SocketManager::Send( UINT sockID, std::shared_ptr<IPacket> packet )
 {
 	NetSocket* socket = FindSocket( sockID );
+
+	const char* type = packet->GetType();
+	const char* data = packet->GetData();
+	u_long size = packet->GetSize();
+
 	if( !socket )
 		return false;
 	socket->Send( packet );

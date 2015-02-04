@@ -17,7 +17,7 @@ class Client : public Network
 	public:
 
 	private:
-		void	HandleEvents( IEventPtr evtPtr );
+		void	LocalJoin( IEventPtr eventPtr );
 		void	InitEventListening();
 		void	InitForwardingEvents();
 

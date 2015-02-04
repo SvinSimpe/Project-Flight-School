@@ -101,9 +101,8 @@ class RemoteEventSocket : public NetSocket
 	public:
 		enum
 		{
-			NetMsg_LoginOk,
-			NetMsg_Event,			// If this is sent, an event is created
-			NetMsg_Text,
+			NetMsg_LoginOk,			// Send as a BinaryPacket to the connecting client
+			NetMsg_Event			// If this is sent, an event is created
 		};
 
 	private:

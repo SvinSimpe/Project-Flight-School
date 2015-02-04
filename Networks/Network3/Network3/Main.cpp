@@ -43,7 +43,10 @@ int main()
 
 	EF::REGISTER_EVENT( Event_Client_Joined );
 	EF::REGISTER_EVENT( Event_Client_Left );
-	EF::REGISTER_EVENT( Event_Text );
+	EF::REGISTER_EVENT( Event_Local_Joined );
+	EF::REGISTER_EVENT( Event_Remote_Joined );
+	EF::REGISTER_EVENT( Event_Remote_Left );
+
 
 	int frameCount = 0;
 	while( !GetAsyncKeyState( VK_ESCAPE ) )

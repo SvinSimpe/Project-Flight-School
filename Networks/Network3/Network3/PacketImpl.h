@@ -36,7 +36,7 @@ inline BinaryPacket::BinaryPacket( char const* const data, u_long size )
 	mData = PFS_NEW char[size + sizeof( u_long )];
 	PFS_ASSERT( mData );
 	*(u_long*)mData = htonl( size + sizeof(u_long) );
-	memcpy( mData + sizeof(u_long), data, size );
+	memcpy( mData + sizeof(u_long), &data, size );
 }
 
 inline BinaryPacket::BinaryPacket( u_long size )

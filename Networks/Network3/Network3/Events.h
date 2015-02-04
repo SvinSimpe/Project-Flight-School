@@ -126,11 +126,10 @@ class Event_Client_Left : public IEvent
 		}
 };
 
-class Event_Text : public IEvent
+class Event_Local_Joined : public IEvent
 {
 	private:
-		int	mSocketID;
-		std::string		mText;
+		UINT mID;
 
 	protected:
 	public:
@@ -139,24 +138,18 @@ class Event_Text : public IEvent
 	private:
 	protected:
 	public:
-		Event_Text()
+		Event_Local_Joined()
 		{
-			mSocketID = 0;
-			mText	= "";
+			mID = 0;
 		}
-		Event_Text( int socket, std::string text )
+		Event_Local_Joined( UINT socket )
 		{
-			mSocketID = socket;
-			mText = text;
+			mID = socket;
 		}
-		~Event_Text() {}
-		int SocketID() const
+		~Event_Local_Joined() {}
+		int ID() const
 		{
-			return mSocketID;
-		}
-		std::string Text() const
-		{
-			return mText;
+			return mID;
 		}
 		const EventType& GetEventType() const
 		{
@@ -164,16 +157,100 @@ class Event_Text : public IEvent
 		}
 		void Serialize( std::stringstream& out ) const
 		{
-			out << mSocketID << " ";
-			out << mText << " ";
+			out << mID << " ";
 		}
 		void Deserialize( std::stringstream& in )
 		{
-			in >> mSocketID;
-			in >> mText;
+			in >> mID;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Text( mSocketID, mText ) );
+			return IEventPtr( new Event_Local_Joined( mID ) );
+		}
+};
+
+class Event_Remote_Joined : public IEvent
+{
+	private:
+		UINT mID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Joined()
+		{
+			mID = 0;
+		}
+		Event_Remote_Joined( UINT socket )
+		{
+			mID = socket;
+		}
+		~Event_Remote_Joined() {}
+		int ID() const
+		{
+			return mID;
+		}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::stringstream& out ) const
+		{
+			out << mID << " ";
+		}
+		void Deserialize( std::stringstream& in )
+		{
+			in >> mID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Joined( mID ) );
+		}
+};
+
+class Event_Remote_Left : public IEvent
+{
+	private:
+		UINT mID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Left()
+		{
+			mID = 0;
+		}
+		Event_Remote_Left( UINT socket )
+		{
+			mID = socket;
+		}
+		~Event_Remote_Left() {}
+		int ID() const
+		{
+			return mID;
+		}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::stringstream& out ) const
+		{
+			out << mID << " ";
+		}
+		void Deserialize( std::stringstream& in )
+		{
+			in >> mID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Left( mID ) );
 		}
 };

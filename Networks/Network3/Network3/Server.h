@@ -17,6 +17,7 @@ class Server : public Network
 		void	ClientLeft( IEventPtr eventPtr );
 		void	InitEventListening();
 		void	InitEventForwarding( NetworkEventForwarder* nef );
+		void	RemoveEventForwarding( NetworkEventForwarder* nef );
 
 	protected:
 	public:

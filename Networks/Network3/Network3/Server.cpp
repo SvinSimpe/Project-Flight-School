@@ -9,6 +9,8 @@ void Server::ClientJoined( IEventPtr evtPtr )
 		mForwardMap[id].Initialize( id, mSocketManager );
 
 		std::cout << "Client with ID: " << id << " joined. There are now " << mForwardMap.size() << " clients online." << std::endl;
+
+		InitEventForwarding( &mForwardMap[id] );
 	}
 }
 
@@ -35,6 +37,12 @@ void Server::InitEventListening()
 
 void Server::InitEventForwarding( NetworkEventForwarder* nef )
 {
+
+}
+
+void Server::RemoveEventForwarding( NetworkEventForwarder* nef )
+{
+
 }
 
 void Server::Update( float deltaTime )

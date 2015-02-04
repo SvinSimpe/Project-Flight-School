@@ -1,12 +1,20 @@
 #include "Client.h"
 
-void Client::HandleEvents( IEventPtr evtPtr )
+void Client::LocalJoin( IEventPtr eventPtr )
 {
+	if( eventPtr->GetEventType() == Event_Local_Joined::GUID )
+	{
+		std::shared_ptr<Event_Local_Joined> data = std::static_pointer_cast<Event_Local_Joined>( eventPtr );
+		mID = data->ID();
+
+		std::cout << "My ID is: " << mID << std::endl;
+	}
 }
 
 // Code for adding events that should be listened to by the client
 void Client::InitEventListening()
 {
+	EventManager::GetInstance()->AddListener( &Client::LocalJoin, this, Event_Local_Joined::GUID );
 }
 
 // Initializes all the eventlisteners for events that needs to be forwarded to the server

@@ -59,7 +59,7 @@ bool LevelExporter::GetMayaFilenamesInDirectory(vector<string> &filenameList)
 
 			else
 			{
-				FindClose(dhandle); 
+				FindClose(dhandle);
 				return false;
 			}
 		}
@@ -69,13 +69,13 @@ bool LevelExporter::GetMayaFilenamesInDirectory(vector<string> &filenameList)
 	{
 		return false;
 	}
-	
+
 	return true;
 }
 void LevelExporter::RunExporter()
 {
 	vector<string> fileNameList;
-	  
+
 	if (!InitializeMaya())
 	{
 		cout << "<Error> Maya initilization failed." << endl;
@@ -89,7 +89,7 @@ void LevelExporter::RunExporter()
 		cout << "<Error> Files not found in directory." << endl;
 		return;
 	}
-		
+
 	//Looping through every file in the list
 	for (auto file = fileNameList.begin(); file != fileNameList.end(); file++)
 	{
@@ -117,7 +117,7 @@ void LevelExporter::SceneManager(const char* fileName)
 	// Creates the fullpath of the file. (directoryPath + fileName)
 	char fullPath[MAX_PATH];
 	sprintf_s(fullPath, sizeof(fullPath), "%s%s%s", g_FilePath.c_str(), "LevelEditor/MayaFiles/", fileName);
-	
+
 	cout << "Open file: " << fileName << endl << endl;
 	//Open current maya file
 	status = MFileIO::open(fullPath);
@@ -139,8 +139,8 @@ void LevelExporter::SceneManager(const char* fileName)
 
 	cout << "Writing data to file... " << endl;
 	//Writing the data to file in binary
-	
-	
+
+
 	WriteFileToBinary(fileName);
 
 	return;
@@ -148,7 +148,7 @@ void LevelExporter::SceneManager(const char* fileName)
 
 void LevelExporter::ReleaseDataTypes()
 {
-	
+
 	if (vertexCount > 0)
 	{
 		delete[] gridData.vertices;
@@ -161,7 +161,7 @@ void LevelExporter::ReleaseDataTypes()
 		navvertexCount = 0;
 	}
 
-	if(matrices.size() > 0)
+	if (matrices.size() > 0)
 		matrices.clear();
 
 }
@@ -211,7 +211,6 @@ bool LevelExporter::ExtractCurrentSceneRawData()
 
 	return true;
 }
-
 
 void LevelExporter::GetDimensions(MFnMesh &mesh, UINT* dimensions)
 {
@@ -298,7 +297,7 @@ bool LevelExporter::ExtractGridData(MFnMesh &mesh)
 	MFloatVectorArray normals;
 
 	MString command = "polyTriangulate -ch 1 " + mesh.name();
-	if(!MGlobal::executeCommand(command))
+	if (!MGlobal::executeCommand(command))
 	{
 		cout << "Couldn't triangulate mesh: " << mesh.name() << endl;
 		cin >> waitingForInput;
@@ -374,7 +373,7 @@ void LevelExporter::ConvertNavMeshData(MFnMesh &mesh, MFloatPointArray & points)
 		}
 		nindex += 3;
 		polygon_iter.next();
-		
+
 	}
 	int a = 0;
 }
@@ -391,7 +390,7 @@ void LevelExporter::ConvertGridData(MFnMesh &mesh, MFloatPointArray &points, MFl
 	gridData.vertices = new Vertex[vertexCount];
 
 	int index = 0;
-	while(!polygon_iter.isDone())
+	while (!polygon_iter.isDone())
 	{
 		MIntArray indexArray;
 		polygon_iter.getVertices(indexArray);
@@ -424,9 +423,9 @@ void LevelExporter::WriteFileToBinary(const char* fileName)
 	string fullPath = CreateExportFile(fileName, ".lp");
 
 	//Open/Creates file
- 	ofstream fileOut;
+	ofstream fileOut;
 	fileOut.open(fullPath, ios_base::binary);
-	
+
 	if (!fileOut)
 		return;
 
@@ -438,7 +437,7 @@ void LevelExporter::WriteFileToBinary(const char* fileName)
 	fileOut.write((char*)gridData.vertices, sizeof(Vertex) * vertexCount);
 	fileOut.write((char*)&gridData.matrix, sizeof(Matrix));
 	fileOut.write((char*)&navvertexCount, sizeof(UINT));
-	fileOut.write((char*)navData.vertices, sizeof(NavMeshData) * navvertexCount);
+	fileOut.write((char*)navData.vertices, sizeof(NavVertex) * navvertexCount);
 	fileOut.write((char*)&nrOfObjects, sizeof(nrOfObjects));
 	for (int i = 0; i < matrices.size(); i++)
 	{
@@ -451,7 +450,7 @@ void LevelExporter::WriteFileToBinary(const char* fileName)
 
 string LevelExporter::CreateExportFile(string fileName, string fileEnding)
 {
-	 //remove .mb from file
+	//remove .mb from file
 	int sub_string_length = (int)fileName.find_last_of(".", fileName.size() - 1);
 
 	// fileName with right filetype

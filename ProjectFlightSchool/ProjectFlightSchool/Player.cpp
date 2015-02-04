@@ -240,7 +240,7 @@ HRESULT Player::Render( float deltaTime, int position )
 		
 
 
-		mFont.WriteText( textToWrite, 500.0f, 500.0f, 1.0f );
+		mFont.WriteText( textToWrite, 500.0f, 500.0f, 7.8f );
 	}
 
 	RemotePlayer::Render( position );
@@ -258,6 +258,17 @@ void Player::TakeDamage( float damage, unsigned int shooter )
 
 	}
 	RemotePlayer::TakeDamage( damage, shooter );
+}
+
+void Player::TakeEnemyDamage( float damage )
+{
+	mCurrentHp -= damage;
+	IEventPtr player( new Event_Player_Update_HP( mID, mCurrentHp ) );
+	EventManager::GetInstance()->QueueEvent( player );
+	if ( mIsAlive && mCurrentHp <= 0.0f )
+	{
+		Die();
+	}
 }
 
 void Player::SetBuffed( bool buffed )

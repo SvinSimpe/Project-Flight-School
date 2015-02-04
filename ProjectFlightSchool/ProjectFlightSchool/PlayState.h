@@ -14,7 +14,6 @@
 #include "EnemySpawn.h"
 #include "RemoteEnemy.h"
 #include "EnemyAnimationManager.h"
-//#include "Radar.h"
 #include "Gui.h"
 //Test
 #include "ParticleManager.h"
@@ -61,7 +60,6 @@ class PlayState : public BaseState
 
 		ParticleManager*			mParticleManager;
 
-		//Radar*						mRadar;
 		RADAR_UPDATE_INFO			mRadarObjects[MAX_RADAR_OBJECTS];
 		Gui*						mGui;
 
@@ -76,7 +74,7 @@ class PlayState : public BaseState
 	private:
 		void			SetEnemyState( unsigned int id, EnemyState state );
 		void			SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction );
-		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction );
+		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive );
 		void			SyncSpawn( unsigned int id, XMFLOAT3 position );
 		void			RemoteUpdate( IEventPtr newEvent );
 		void			HandleDeveloperCameraInput();
@@ -86,7 +84,7 @@ class PlayState : public BaseState
 		void			EventListener( IEventPtr newEvent );
 		void			BroadcastDamage( unsigned int playerID, unsigned int projectileID );						// Tell server that local  player has taken damage
 		void			BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction );
-
+		void			BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage );
 		void			FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction );
 		void			UpdateProjectiles( float deltaTime );
 		void			RenderProjectiles();

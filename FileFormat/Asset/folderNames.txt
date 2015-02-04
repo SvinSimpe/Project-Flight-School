@@ -8,10 +8,21 @@
 #Permanent_Asset
 ship		/Ship/
 robot		/Robot/
-weapon		/Weapons/
-xporb		/XPorb/
+bullet		/BUllets/
+xpOrb		/XPorb/
 battery		/Battery/
-turret		/Turret/
+turret		/Turrets/
+
+blowtorch	/Blowtorch/
+claymore	/Claymore/
+grenade		/GrenadeLauncher/
+hammer		/Hammer/
+minigun		/MiniGun/
+saw		/Saw/
+shotgun		/Shotgun/
+sniper		/Sniper/
+
+####################################
 
 #Forest_Assets
 bone		/Bones/
@@ -20,9 +31,33 @@ bush		/Bushes/
 plant		/Plants/
 grass		/Grass/
 tree		/Trees/
+log		/Trees/
 mushroom 	/Mushrooms/
 stone		/Stones/		
 water		/Water/
+puddle		/Water/
+plane		/Plane/
+
+####################################
 
 #Forest_Enemies
-raptor		/Enemies/
+raptor		/Raptor/
+goblin		/Goblin/
+goliath		/Bosses/
+blowuposaur	/Blowuposaur/
+tank		/Tank/
+
+####################################
+
+#Snow_Assets
+crater		/Crater/
+stone		/Stone/
+Stone		/Stone/
+gejser		/Gejser/
+plant		/Plants/
+Plant		/Plants/
+ice		/Ice/
+ici		/Ice/
+giant		/GiantAssets/
+
+####################################

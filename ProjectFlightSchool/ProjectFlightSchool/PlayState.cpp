@@ -231,7 +231,8 @@ void PlayState::BroadcastMeleeDamage( unsigned playerID, float damage, float kno
 
 void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction )
 {
-	mProjectiles[mNrOfProjectilesFired % MAX_PROJECTILES]->SetDirection( id, projectileID, position, direction );
+	mNrOfProjectilesFired = mNrOfProjectilesFired % MAX_PROJECTILES;
+	mProjectiles[mNrOfProjectilesFired]->SetDirection( id, projectileID, position, direction );
 	//mProjectiles[mNrOfProjectilesFired % MAX_PROJECTILES]->SetIsActive( true );
 	mNrOfProjectilesFired++;
 }
@@ -527,8 +528,6 @@ HRESULT PlayState::Update( float deltaTime )
 
 HRESULT PlayState::Render()
 {
-	//RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
-
 	//RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation, ANIMATION_PLAY_LOOPED, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 
 	mPlayer->Render( 0.0f, 1 );
@@ -574,6 +573,12 @@ HRESULT PlayState::Render()
 	}
 	mGui->Render( nrOfAllies, alliesHP, (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ) ); //Should be changed to shield and Xp
 
+	//RENDER DEVTEXT
+	std::stringstream ss;
+	ss	<< "RemotePlayers\t" << mRemotePlayers.size() << "\n"
+		<< "ProjectilesFired\t" << mNrOfProjectilesFired << "\n";
+	mFont.WriteText( ss.str(), 40.0f, 200.0f, 2.0f );
+
 	RenderManager::GetInstance()->Render();
 
 	return S_OK;
@@ -600,8 +605,6 @@ void PlayState::Reset()
 HRESULT PlayState::Initialize()
 {
 	mStateType = PLAY_STATE;
-
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Plane/", "plane.pfs", mPlaneAsset );
 
 //	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Tree/", "tree5.pfs", mTestAsset );
 
@@ -763,8 +766,6 @@ PlayState::PlayState()
 	mFrameCounter		= 0;
 	mProjectiles		= nullptr;
 	mEnemies			= nullptr;
-	mNrOfEnemies		= 0;
-	mMaxNrOfEnemies		= 0;
 	mEnemyListSynced	= false;
 	mServerInitialized  = false;
 	mParticleManager	= nullptr;

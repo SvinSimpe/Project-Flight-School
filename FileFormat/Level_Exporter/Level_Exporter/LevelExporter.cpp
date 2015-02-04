@@ -20,7 +20,7 @@ bool LevelExporter::InitializeMaya()
 
 	if (!MLibrary::initialize("Exporter", false))
 	{
-		cout << "<Error> Mlibrary::initialize()" << endl;
+		errorMsg.push_back("<Error> Mlibrary::initialize()");
 		return false;
 	}
 
@@ -78,15 +78,14 @@ void LevelExporter::RunExporter()
 
 	if (!InitializeMaya())
 	{
-		cout << "<Error> Maya initilization failed." << endl;
-		cin >> waitingForInput;
+		errorMsg.push_back("<Error> Maya initilization failed.");
 		return;
 	}
 
 	//Getting filelist
 	if (!GetMayaFilenamesInDirectory(fileNameList))
 	{
-		cout << "<Error> Files not found in directory." << endl;
+		errorMsg.push_back("<Error> Files not found in directory.");
 		return;
 	}
 
@@ -96,6 +95,23 @@ void LevelExporter::RunExporter()
 		SceneManager(file->c_str());
 	}
 
+
+	cout << "\n##### ERRORS #####" << endl << endl;
+
+	if (errorMsg.size() == 0)
+		cout << "No errors" << endl;
+
+	else if (errorMsg.size() > 0)
+	{
+		for (int i = 0; i < errorMsg.size(); i++)
+		{
+			cout << errorMsg[i] << endl;
+		}
+	}
+
+	cout << "\n##################" << endl << endl;
+	cout << "Press any key to exit." << endl;
+	cin.get();
 	return;
 }
 void LevelExporter::SceneManager(const char* fileName)
@@ -109,8 +125,8 @@ void LevelExporter::SceneManager(const char* fileName)
 	status = MFileIO::newFile(true);
 	if (!status)
 	{
-		cout << "<Error> MFileIO::NewFile()" << endl;
-		cin >> waitingForInput;
+		errorMsg.push_back("<Error> MFileIO::NewFile()");
+
 		return;
 	}
 
@@ -123,8 +139,7 @@ void LevelExporter::SceneManager(const char* fileName)
 	status = MFileIO::open(fullPath);
 	if (!status)
 	{
-		cout << "<Error> MFileIO::Open()" << endl;
-		cin >> waitingForInput;
+		errorMsg.push_back("<Error> MFileIO::Open()");
 		return;
 	}
 
@@ -132,8 +147,7 @@ void LevelExporter::SceneManager(const char* fileName)
 	//Extracting and saving all the data to the meshinfo_maya buffer
 	if (!ExtractCurrentSceneRawData())
 	{
-		cout << "<Error> ExtractCurrentSceneRawData()" << endl;
-		cin >> waitingForInput;
+		errorMsg.push_back("<Error> ExtractCurrentSceneRawData()");
 		return;
 	}
 
@@ -186,7 +200,7 @@ bool LevelExporter::ExtractCurrentSceneRawData()
 				{
 					if (!ExtractGridData(mesh))
 					{
-						cout << "Error GridData" << endl;
+						errorMsg.push_back("Error GridData" + string(mesh.name().asChar()));
 						return false;
 					}
 				}
@@ -195,7 +209,7 @@ bool LevelExporter::ExtractCurrentSceneRawData()
 				{
 					if (!ExtractNavMesh(mesh))
 					{
-						cout << "Error NavMeshData" << endl;
+						errorMsg.push_back("Error NavMeshData" + string(mesh.name().asChar()));
 						return false;
 					}
 				}
@@ -299,23 +313,20 @@ bool LevelExporter::ExtractGridData(MFnMesh &mesh)
 	MString command = "polyTriangulate -ch 1 " + mesh.name();
 	if (!MGlobal::executeCommand(command))
 	{
-		cout << "Couldn't triangulate mesh: " << mesh.name() << endl;
-		cin >> waitingForInput;
+		errorMsg.push_back("Couldn't triangulate mesh: " + string(mesh.name().asChar()));
 		return false;
 	}
 
 	//Extractic mesh raw data
 	if (!mesh.getPoints(points))
 	{
-		cout << "Couldn't get points for mesh: " << mesh.name() << endl;
-		cin >> waitingForInput;
+		errorMsg.push_back("Couldn't get points for mesh: " + string(mesh.name().asChar()));
 		return false;
 	}
 
 	if (!mesh.getNormals(normals))
 	{
-		cout << "Couldn't get normals for mesh: " << mesh.name() << endl;
-		cin >> waitingForInput;
+		errorMsg.push_back("Couldn't get normals for mesh: " + string(mesh.name().asChar()));
 		return false;
 	}
 
@@ -330,15 +341,13 @@ bool LevelExporter::ExtractNavMesh(MFnMesh &mesh)
 	MString command = "polyTriangulate -ch 1 " + mesh.name();
 	if (!MGlobal::executeCommand(command))
 	{
-		cout << "Couldn't triangulate Navmesh: " << mesh.name() << endl;
-		cin >> waitingForInput;
+		errorMsg.push_back("Couldn't triangulate Navmesh: " + string(mesh.name().asChar()));
 		return false;
 	}
 
 	if (!mesh.getPoints(points))
 	{
-		cout << "Couldn't get points for NavMesh: " << mesh.name() << endl;
-		cin >> waitingForInput;
+		errorMsg.push_back("Couldn't get points for NavMesh: " + string(mesh.name().asChar()));
 		return false;
 	}
 
@@ -429,7 +438,7 @@ void LevelExporter::WriteFileToBinary(const char* fileName)
 	if (!fileOut)
 		return;
 
-	cout << "Exporting level grid to " << fullPath.c_str() << endl << endl;
+	cout << "Exporting node to " << fullPath.c_str() << endl << endl;
 	UINT nrOfObjects = matrices.size();
 
 	fileOut.write((char*)&gridData.dimensions, sizeof(gridData.dimensions));

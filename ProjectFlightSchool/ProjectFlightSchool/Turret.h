@@ -4,8 +4,9 @@
 #include "Player.h"
 #include <math.h>
 
-#define SHOOTCOOLDOWN 0.1f
-#define PI 3.14159265f
+#define SHOOTCOOLDOWN			0.1f
+#define TURRET_ROTATION_SPEED	50.0f
+#define PI						3.14159265f
 
 struct BodyPart
 {

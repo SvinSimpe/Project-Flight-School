@@ -169,7 +169,7 @@ void InputSquare::Render()
 	{
 		mTitle->Render();
 	}
-	mText->WriteText( mCurrentText, (float)mUpperLeft.x + 40, (float)mUpperLeft.y + 40, 0.25f );
+	mText->WriteText( mCurrentText, (float)mUpperLeft.x + 40, (float)mUpperLeft.y + 40, 1.95f );
 }
 
 bool InputSquare::Update( float deltaTime )

@@ -699,9 +699,7 @@ void Graphics::DeferredPass()
 	/////////////////////////////////
 	mDeviceContext->ClearState();
 
-	mDeviceContext->ClearDepthStencilView( mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
-
-	mDeviceContext->OMSetRenderTargets( 1, &mRenderTargetView, mDepthStencilView );
+	mDeviceContext->OMSetRenderTargets( 1, &mRenderTargetView, nullptr );
 	mDeviceContext->RSSetViewports( 1, &mStandardView );
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
 	

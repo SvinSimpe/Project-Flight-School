@@ -13,12 +13,15 @@ void Enemy::CreateStandard()
 		Med atkrate
 	*/
 	mEnemyType					= Standard;
-	mMaxHp						= 100.0f;
+	mMaxHp						= 20.0f;
 	mCurrentHp					= mMaxHp;
-	mDamage						= 20.0f;
+	mDamage						= 10.0f;
 	mSpeed						= 5.0f;
 	mAttackRadius->radius		= 1.0f;
 	mAttentionRadius->radius	= 10.0f;
+	mXpDrop						= 5;
+	mSpawnTime					= 10.0f;
+	mAttackRate					= 1.0f;
 }
 
 void Enemy::CreateRanged()
@@ -31,11 +34,14 @@ void Enemy::CreateRanged()
 		Hign atkrate
 	*/
 	mEnemyType					= Ranged;
-	mMaxHp						= 80.0f;
+	mMaxHp						= 20.0f;
 	mCurrentHp					= mMaxHp;
 	mDamage						= 10.0f;
 	mAttackRadius->radius		= 5.0f;
 	mAttentionRadius->radius	= 10.0f;
+	mXpDrop						= 5;
+	mSpawnTime					= 10.0f;
+	mAttackRate					= 1.0f;
 }
 
 void Enemy::CreateBoomer()
@@ -48,11 +54,14 @@ void Enemy::CreateBoomer()
 		Explodes on impact
 	*/
 	mEnemyType					= Boomer;
-	mMaxHp						= 30.0f;
+	mMaxHp						= 20.0f;
 	mCurrentHp					= mMaxHp;
-	mDamage						= 50.0f;
+	mDamage						= 10.0f;
 	mAttackRadius->radius		= 1.0f;
 	mAttentionRadius->radius	= 10.0f;
+	mXpDrop						= 5;
+	mSpawnTime					= 10.0f;
+	mAttackRate					= 1.0f;
 }
 
 void Enemy::CreateTank()
@@ -65,12 +74,15 @@ void Enemy::CreateTank()
 		Med atkrate
 	*/
 	mEnemyType	= Tank;
-	mMaxHp		= 400.0f;
+	mMaxHp		= 100.0f;
 	mCurrentHp	= mMaxHp;
 	mDamage		= 20.0f;
 	mSpeed		= 3.0f;
 	mAttackRadius->radius		= 1.0f;
 	mAttentionRadius->radius	= 10.0f;
+	mXpDrop						= 15;
+	mSpawnTime					= 10.0f;
+	mAttackRate					= 3.0f;
 }
 
 void Enemy::StandardLogic( float deltaTime )
@@ -98,6 +110,7 @@ void Enemy::TankLogic( float deltaTime )
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT Enemy::Update( float deltaTime )
 {
+	mDeltaTime					= deltaTime;
 	mAttackRadius->center		= mPosition;
 	mAttentionRadius->center	= mPosition;
 
@@ -157,6 +170,9 @@ HRESULT Enemy::Update( float deltaTime )
 
 		case MoveToShip:
 		{
+			mPosition.x += mVelocity.x * mSpeed * deltaTime;
+			mPosition.z += mVelocity.z * mSpeed * deltaTime;
+			mDirection = mVelocity;
 		}
 		break;
 
@@ -171,22 +187,35 @@ HRESULT Enemy::Update( float deltaTime )
 		default:
 			OutputDebugStringA( "--Error: No enemy state " );
 	}
+
 	return S_OK;
 }
 
 void Enemy::SetState( EnemyState state )
 {
-	// If state is an EnemyState set mCurrentState to state
-	if( state == Idle		||
-		state == Run		||
-		state == Attack		||
-		state == Death		||
-		state == MoveToShip ||
-		state == HuntPlayer		)
+	if( state != mCurrentState )
 	{
-		mCurrentState = state;
-		IEventPtr state( new Event_Set_Enemy_State( mID, mCurrentState ) );
-		EventManager::GetInstance()->QueueEvent( state );
+		// If state is an EnemyState set mCurrentState to state
+		if( state == Idle		||
+			state == Run		||
+			state == Attack		||
+			state == Death		||
+			state == MoveToShip ||
+			state == HuntPlayer		)
+		{
+			mCurrentState = state;
+			IEventPtr state( new Event_Set_Enemy_State( mID, mCurrentState ) );
+			EventManager::GetInstance()->QueueEvent( state );
+		}
+	}
+}
+
+void Enemy::TakeDamage( float damage )
+{
+	mCurrentHp -= damage;
+	if( mCurrentHp <= 0.0f )
+	{
+		Die();
 	}
 }
 
@@ -195,6 +224,18 @@ void Enemy::SetHuntedPlayer( XMFLOAT3 player )
 	mVelocity.x = player.x - mPosition.x;
 	mVelocity.z = player.z - mPosition.z;
 	XMStoreFloat3( &mVelocity, XMVector3Normalize( XMLoadFloat3( &mVelocity ) ) );
+}
+
+void Enemy::HandleSpawn( float deltaTime, XMFLOAT3 spawnPos )
+{
+	if( mTimeTillSapwn <= 0.0f )
+	{
+		Spawn( spawnPos );
+	}
+	else
+	{
+		mTimeTillSapwn -= deltaTime;
+	}
 }
 
 void Enemy::Spawn( XMFLOAT3 spawnPos )
@@ -213,16 +254,18 @@ void Enemy::Spawn( XMFLOAT3 spawnPos )
 		break;
 	}
 
-	//CreateStandard();
+	CreateStandard();
 	//CreateRanged();
 	//CreateBoomer();
-	CreateTank();
+	//CreateTank();
 
 	mPosition	= spawnPos;
 	mIsAlive	= true;
 	
 
 	// Send spawnEv
+	IEventPtr state( new Event_Set_Enemy_State( mID, Idle ) );
+	EventManager::GetInstance()->QueueEvent( state );
 }
 
 BoundingCircle* Enemy::GetAttackCircle() const
@@ -237,10 +280,27 @@ BoundingCircle* Enemy::GetAttentionCircle() const
 
 void Enemy::Die()
 {
-	mIsAlive	= false;
-	mCurrentHp	= 0.0f;
-
+	mIsAlive		= false;
+	mCurrentHp		= 0.0f;
+	mTimeTillSapwn	= mSpawnTime;
+	
 	// Send dieEv
+	IEventPtr state( new Event_Set_Enemy_State( mID, Death ) );
+	EventManager::GetInstance()->QueueEvent( state );
+}
+
+float Enemy::HandleAttack()
+{
+	if( mTimeTillAttack <= 0.0f )
+	{
+		mTimeTillAttack = mAttackRate;
+		return mDamage;
+	}
+	else
+	{
+		mTimeTillAttack -= mDeltaTime;
+		return 0.0f;
+	}
 }
 
 unsigned int Enemy::GetID() const
@@ -324,6 +384,7 @@ HRESULT Enemy::Initialize( int id )
 void Enemy::Release()
 {
 	SAFE_DELETE( mAttackRadius );
+	SAFE_DELETE( mAttentionRadius );
 }
 
 Enemy::Enemy()
@@ -340,6 +401,11 @@ Enemy::Enemy()
 	mAttackRadius	=  nullptr;
 	mAttentionRadius = nullptr;
 	mCurrentState	= Idle;
+	mXpDrop			= 0;
+	mSpawnTime		= 0.0f;
+	mTimeTillSapwn	= 0.0f;
+	mAttackRate		= 0.0f;
+	mTimeTillAttack	= 0.0f;
 }
 
 Enemy::~Enemy()

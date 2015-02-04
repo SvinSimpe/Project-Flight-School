@@ -1,0 +1,99 @@
+<?xml version="1.0" standalone="no" ?>
+<Level>
+    <Nodes>
+        <Node path="../Content/Assets/Nodes/ShipTile.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileALargePuddle.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileBossNestBoneArena.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileBossNestStoneArena.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileforest.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileforest2.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileforest3.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileforest4.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileFungusForest.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tilegiantbonesntrees.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileglade.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tilegrassshroom.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileLake1.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileLake2.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileMediumForest.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileMushroomForest.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileshroompuddle.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileSmallForest.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileSomeNests.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tiletreeforest.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileWithnests.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileWithNests2.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileWithPuddles.lp" type="AREA_NODE" />
+    </Nodes>
+    <Assets>
+        <Asset path="../Content/Assets/ForestAssets/Tree/tree1.pfs" />
+		    <Asset path="../Content/Assets/ForestAssets/Tree/tree2.pfs" />
+		    <Asset path="../Content/Assets/ForestAssets/Tree/tree3.pfs" />
+		    <Asset path="../Content/Assets/ForestAssets/Tree/tree4.pfs" />
+		    <Asset path="../Content/Assets/ForestAssets/Tree/tree5.pfs" />
+		    <Asset path="../Content/Assets/ForestAssets/Tree/tree6.pfs" />
+		    <Asset path="../Content/Assets/ForestAssets/Tree/tree7.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Tree/tree8.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Tree/tree9.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Tree/bluetree3.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Tree/bluetree4.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Tree/largeTree.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Tree/newtree.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Tree/oddtree1.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Tree/oddtree2.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Tree/pinktree1.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Tree/pinktree2.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Stones/greaystone1.pfs" />
+		    <Asset path="../Content/Assets/ForestAssets/Stones/greaystone2.pfs" />
+		    <Asset path="../Content/Assets/ForestAssets/Stones/greaystone3.pfs" />
+		    <Asset path="../Content/Assets/ForestAssets/Stones/greaystone4.pfs" />
+		    <Asset path="../Content/Assets/ForestAssets/Stones/greaystone5.pfs" />
+		    <Asset path="../Content/Assets/ForestAssets/Stones/sandstone1.pfs" />
+		    <Asset path="../Content/Assets/ForestAssets/Stones/sandstone2.pfs" />
+		    <Asset path="../Content/Assets/ForestAssets/Stones/sandstone3.pfs" />
+		    <Asset path="../Content/Assets/ForestAssets/Stones/sandstone4.pfs" />
+		    <Asset path="../Content/Assets/ForestAssets/Stones/sandstone5.pfs" />
+		    <Asset path="../Content/Assets/ForestAssets/Stones/sandstone6.pfs" />
+		    <Asset path="../Content/Assets/ForestAssets/Bushes/plant1.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Bushes/plant2.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Bushes/plant3.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Bushes/bush1.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Bushes/bush2.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Bushes/bush3.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Bushes/bush4.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Bushes/bush5.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Bones/bones.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Bones/skeletonbone.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Bones/skeletonbone2.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Bones/skeletonboneribbs.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/BossNest/bossnestBignest.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/BossNest/bossnestBonepile.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/BossNest/bosstone1.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/BossNest/bosstone2.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/BossNest/bosstone3.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/BossNest/bosstone4.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/BossNest/bosstone5.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/BossNest/bosstone6.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/BossNest/bosstone7.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/BossNest/bosstone8.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/BossNest/bosstone9.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/BossNest/bosstone10.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/BossNest/bosstone11.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/BossNest/bosstone12.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/BossNest/bosstone13.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/BossNest/bosstone14.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Grass/grassasset1.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Log/log1.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Mushrooms/mushroom1.pfs" /> 
+        <Asset path="../Content/Assets/ForestAssets/Mushrooms/mushroom2.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Mushrooms/mushroom2small.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Mushrooms/smallmushroom1.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Mushrooms/smallmushroom2.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Mushrooms/smallmushroom3.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Nests/nest1.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Nests/nest2.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Nests/nest3.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Water/puddle.pfs" />
+        <Asset path="../Content/Assets/ForestAssets/Water/water.pfs" />
+    </Assets>
+</Level>

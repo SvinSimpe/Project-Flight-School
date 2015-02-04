@@ -1,6 +1,7 @@
 #ifndef PLAYSTATE_H
 #define PLAYSTATE_H
 
+#include <sstream>
 #include "Map.h"
 #include "BaseState.h"
 #include "Player.h"
@@ -27,8 +28,6 @@ class PlayState : public BaseState
 {
 	// Class members
 	private:
-		AssetID mPlaneAsset;
-
 		AnimationTrack mTestAnimation;
 
 		AssetID mTest2dAsset;
@@ -57,8 +56,6 @@ class PlayState : public BaseState
 		RemoteEnemy**				mEnemies;
 		XMFLOAT3*					mSpawners;
 		AssetID						mSpawnModel;
-		unsigned int				mNrOfEnemies;
-		unsigned int				mMaxNrOfEnemies;
 		bool						mEnemyListSynced;
 		bool						mServerInitialized;
 

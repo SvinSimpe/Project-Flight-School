@@ -10,7 +10,8 @@ class JoinMenuState : public BaseMenuState
 		static const int
 			JOIN			= 0,
 			BACK			= 1,
-			BUTTON_AMOUNT	= 2;
+			MIKAEL			= 2,
+			BUTTON_AMOUNT	= 3;
 
 		InputSquare	mIPBox;
 		InputSquare	mPortBox;

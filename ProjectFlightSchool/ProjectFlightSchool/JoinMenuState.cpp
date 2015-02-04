@@ -15,6 +15,14 @@ void JoinMenuState::HandleInput()
 		IEventPtr E1( new Event_Start_Client( ip, port ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
+	else if( mButtons.at(MIKAEL)->LeftMousePressed() )
+	{
+		std::string ip		= "192.168.1.88";
+		std::string port	= mPortBox.GetText();
+
+		IEventPtr E1( new Event_Start_Client( ip, port ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
+	}
 	else if( mIPBox.LeftMousePressed() )
 	{
 		mIPBox.SwitchActive( true );
@@ -98,6 +106,14 @@ HRESULT JoinMenuState::Initialize()
 
 	mButtons.push_back( new Button() );
 	mButtons.at(BACK)->Initialize( "../Content/Assets/Textures/Menu/Back.png", x, y, w, h );
+
+	////// MIKAEL JOINBUTTON
+	x -= ( w + 20 );
+	y -= ( h + 20 );
+
+	mButtons.push_back( new Button() );
+	mButtons.at(MIKAEL)->Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/Join.png", x, y, w, h ); 
+
 
 	x = (float)Input::GetInstance()->mScreenWidth  * 0.10f;
 	y = (float)Input::GetInstance()->mScreenHeight * 0.80f;

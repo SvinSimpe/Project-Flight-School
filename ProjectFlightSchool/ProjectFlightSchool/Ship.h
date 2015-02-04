@@ -23,6 +23,8 @@ class Ship
 		void			BuffPlayer( Player* player );
 		XMFLOAT3		GetPosition() const;
 		BoundingCircle* GetHitBox() const;
+		float			GetMaxHull() const;
+		float			GetCurrentHull() const;
 		void			TakeDamage( float damage );
 		void			PickTurretTarget( std::vector<RemotePlayer*> targets );
 		void			Update( float deltaTime );

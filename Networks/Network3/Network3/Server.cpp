@@ -1,17 +1,46 @@
 #include "Server.h"
 
+void Server::BroadcastEvent( IEventPtr eventPtr, UINT exception )
+{
+	for( auto& to : mClientMap )
+	{
+		if( to.first != exception )
+		{
+			to.second.ForwardEvent( eventPtr );
+		}
+	}
+}
+
+void Server::SendEvent( IEventPtr eventPtr, UINT to )
+{
+	mClientMap[to].ForwardEvent( eventPtr );
+}
+
 void Server::ClientJoined( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Client_Joined::GUID )
 	{
 		std::shared_ptr<Event_Client_Joined> data = std::static_pointer_cast<Event_Client_Joined>( eventPtr );
 		UINT id = data->ID();
-		mForwardMap[id].Initialize( id, mSocketManager );
 
-		std::cout << "Client with ID: " << id << " joined. There are now " << mForwardMap.size() << " clients online." << std::endl;
+		mClientMap[id].Initialize( id, mSocketManager );
 
-		IEventPtr E1( PFS_NEW Event_Local_Joined( id ) );
-		mForwardMap[id].ForwardEvent( E1 );
+		std::cout << "Client with ID: " << id << " joined. There are now " << mClientMap.size() << " clients online." << std::endl;
+
+		IEventPtr E1( PFS_NEW Event_Remote_Joined( id ) ); // Sends the incoming ID to the existing remotes
+		BroadcastEvent( E1, id );
+
+		IEventPtr E2( PFS_NEW Event_Local_Joined( id ) );
+		SendEvent( E2, id );
+
+		for( auto& remote : mClientMap )
+		{
+			if( remote.first != id )
+			{
+				IEventPtr E3( PFS_NEW Event_Remote_Joined( remote.first ) ); // The key of the map is the ID of the remote
+				SendEvent( E3, id );
+			}
+		}
 	}
 }
 
@@ -21,8 +50,11 @@ void Server::ClientLeft( IEventPtr eventPtr )
 	{
 		std::shared_ptr<Event_Client_Left> data = std::static_pointer_cast<Event_Client_Left>( eventPtr );
 		UINT id = data->ID();
-		mForwardMap.erase( id );
-		std::cout << "Client with ID: " << id << " left. There are now " << mForwardMap.size() << " client(s) online." << std::endl;
+		mClientMap.erase( id );
+		std::cout << "Client with ID: " << id << " left. There are now " << mClientMap.size() << " client(s) online." << std::endl;
+
+		IEventPtr E1( PFS_NEW Event_Remote_Left( id ) );
+		BroadcastEvent( E1 );
 	}
 }
 
@@ -32,13 +64,6 @@ void Server::InitEventListening()
 {
 	EventManager::GetInstance()->AddListener( &Server::ClientJoined, this, Event_Client_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientLeft, this, Event_Client_Left::GUID );
-}
-
-/* This will register all the events that needs to be updated to all the clients.
-	These events will be local server events such as updating enemies and such. */
-void Server::RemoveEventForwarding( NetworkEventForwarder* nef )
-{
-
 }
 
 void Server::Update( float deltaTime )
@@ -70,13 +95,13 @@ void Server::Release()
 {
 	mSocketManager->Release();
 	SAFE_DELETE( mSocketManager );
-	mForwardMap.clear();
+	mClientMap.clear();
 }
 
 Server::Server() : Network()
 {
 	mSocketManager = nullptr;
-	mForwardMap = std::map<UINT, NetworkEventForwarder>();
+	mClientMap = std::map<UINT, NetworkEventForwarder>();
 }
 
 Server::~Server()

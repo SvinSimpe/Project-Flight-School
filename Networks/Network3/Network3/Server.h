@@ -7,18 +7,18 @@ class Server : public Network
 {
 	private:
 		SocketManager*	mSocketManager;
-		std::map<UINT, NetworkEventForwarder> mForwardMap;
+		std::map<UINT, NetworkEventForwarder> mClientMap;
 
 	protected:
 	public:
 
 	private:
+		void	BroadcastEvent( IEventPtr eventPtr, UINT exception = (UINT)-1 );
+		void	SendEvent( IEventPtr eventPtr, UINT to );
 		void	ClientJoined( IEventPtr eventPtr );
 		void	ClientLeft( IEventPtr eventPtr );
 		void	MessageRecv( IEventPtr eventPtr );
 		void	InitEventListening();
-		void	InitEventForwarding( NetworkEventForwarder* nef );
-		void	RemoveEventForwarding( NetworkEventForwarder* nef );
 
 	protected:
 	public:

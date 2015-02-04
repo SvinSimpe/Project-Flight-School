@@ -12,16 +12,41 @@ void Client::LocalJoin( IEventPtr eventPtr )
 	}
 }
 
-// Code for adding events that should be listened to by the client
+void Client::RemoteJoined( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Joined::GUID )
+	{
+		std::shared_ptr<Event_Remote_Joined> data = std::static_pointer_cast<Event_Remote_Joined>( eventPtr );
+		UINT id = data->ID();
+		mRemoteIDs.push_back( id );
+
+		std::cout << "Remote with ID: " << id << " joined. There are now " << mRemoteIDs.size() << " remotes online." << std::endl;
+	}
+}
+
+void Client::RemoteLeft( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Left::GUID )
+	{
+		std::shared_ptr<Event_Remote_Left> data = std::static_pointer_cast<Event_Remote_Left>( eventPtr );
+		UINT id = data->ID();
+		mRemoteIDs.remove( id );
+
+		std::cout << "Remote with ID: " << id << " left. There are now " << mRemoteIDs.size() << " remotes online." << std::endl;
+	}
+}
+
+/* Registers all the events that should be listened to from the server. */
 void Client::InitEventListening()
 {
 	EventManager::GetInstance()->AddListener( &Client::LocalJoin, this, Event_Local_Joined::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteJoined, this, Event_Remote_Joined::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteLeft, this, Event_Remote_Left::GUID );
 }
 
-// Initializes all the eventlisteners for events that needs to be forwarded to the server
+/* Registers all the events that should be sent to the server. */
 void Client::InitForwardingEvents()
 {
-	// Code for adding events that should be forwarded to the network by the client here
 }
 
 void Client::Update( float deltaTime )
@@ -59,6 +84,7 @@ void Client::Release()
 		mSocketManager->Release();
 	SAFE_DELETE( mSocketManager );
 	SAFE_DELETE( mNEF );
+	mRemoteIDs.clear();
 }
 
 Client::Client() : Network()
@@ -67,6 +93,7 @@ Client::Client() : Network()
 	mIP				= "";
 	mNEF			= nullptr;
 	mID				= 0;
+	mRemoteIDs		= std::list<UINT>();
 	mActive			= false;
 }
 

@@ -11,6 +11,7 @@ class Client : public Network
 		std::string				mIP;
 		NetworkEventForwarder*	mNEF;
 		UINT					mID;
+		std::list<UINT>			mRemoteIDs;
 		bool					mActive;
 
 	protected:
@@ -18,6 +19,8 @@ class Client : public Network
 
 	private:
 		void	LocalJoin( IEventPtr eventPtr );
+		void	RemoteJoined( IEventPtr eventPtr );
+		void	RemoteLeft( IEventPtr eventPtr );
 		void	InitEventListening();
 		void	InitForwardingEvents();
 

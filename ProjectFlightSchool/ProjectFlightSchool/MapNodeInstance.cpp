@@ -62,40 +62,6 @@ HRESULT	MapNodeInstance::Initialize()
 	mRotation = 0;
 	return S_OK;
 }
-ExitPoint MapNodeInstance::GetExit( int exitSlot )
-{
-	return mExits[exitSlot];
-}
-void MapNodeInstance::SetUpExits()
-{
-	ExitPoint* exits = mNode->GetExits();
-	for( int i = 0; i < 4; i++ )
-	{
-		mExits[i].exit		= XMFLOAT3( mPos.x + exits[i].exit.x, mPos.y + exits[i].exit.y, mPos.z + exits[i].exit.z );
-		mExits[i].valid		= exits[i].valid;
-		mExits[i].neighbour	= nullptr;
-	}
-}
-int MapNodeInstance::HasExit()
-{
-	int result = -1;
-	bool exitFound = false;
-
-	for( int i = 0; i < 4 && !exitFound; i++ )
-	{
-		if( mExits[i].valid && mExits[i].neighbour == nullptr )
-		{
-			result = i;
-			exitFound = true;
-		}
-	}
-
-	return result;
-}
-void MapNodeInstance::AddNeighbour( int exitSlot, MapNodeInstance* neighbour )
-{
-	mExits[exitSlot].neighbour = neighbour;
-}
 void MapNodeInstance::Release()
 {
 }

@@ -1,33 +1,35 @@
 #ifndef MAPNODEMANAGER_H
 #define MAPNODEMANAGER_H
 #include "MapNode.h"
-
+#include <unordered_map>
+#include "EventManager.h"
+#include "Events.h"
 struct JMatrix
 {
-	char name[50];
-	XMFLOAT3 pos;
-	XMFLOAT3 rot;
-	XMFLOAT3 scale;
+	char name[64];
+	double transformation[16];
 };
+
+typedef std::unordered_map< std::string, std::vector<MapNode*> > NodeMap;
+
 class MapNodeManager
 {
 	private:
-		MapNode*	mNodes;
-		int			mNrOfNodes;
+		NodeMap mNodeMap;
 	protected:
 	public:
 
 	private:
-		HRESULT createNodes( char* filePath,  int nrOfNodes );
+		void ConvertToFloat( XMFLOAT4X4& dest, double* source );
 		void writeToLog( const std::string &test );
 	protected:
 	public:
 		static		MapNodeManager* instance;
-
-		MapNode* GetNodes();
-
+		MapNode* CreateNode( const char* filePath );
+		NodeMap GetNodes();
+		void LoadLevel( std::string filePath );
 		static MapNodeManager* GetInstance();
-		HRESULT		Initialize( char* fileName );
+		HRESULT		Initialize();
 		void		Release();
 					MapNodeManager();
 		virtual		~MapNodeManager();

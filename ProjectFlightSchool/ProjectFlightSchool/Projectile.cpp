@@ -3,9 +3,10 @@
 HRESULT Projectile::Update( float deltaTime )
 {
 	mPosition.x += mDirection.x * mSpeed * deltaTime;
+	mPosition.y += mDirection.y * mSpeed * deltaTime;
 	mPosition.z += mDirection.z * mSpeed * deltaTime;
 
-	if( mLifeTime <= 0.0f )
+	if( mLifeTime <= 0.0f || mPosition.y < -0.05f )
 	{
 		Reset();
 	}
@@ -19,8 +20,13 @@ HRESULT Projectile::Update( float deltaTime )
 
 HRESULT Projectile::Render( )
 {
-	//Graphics::GetInstance()->RenderStatic3dAsset( 1, mPosition.x, mPosition.y, mPosition.z );
-	RenderManager::GetInstance()->AddObject3dToList( mProjectileAsset, mPosition, XMFLOAT3( 0.0f, mRotation, 0.0f ) );
+	float yaw	= -atan2f( mDirection.z, mDirection.x );
+	float roll	= -XMVectorGetX( 
+					XMVector3AngleBetweenVectors( 
+					XMLoadFloat3( &XMFLOAT3( mDirection.x, 0.0f, mDirection.z ) ),
+					XMLoadFloat3( &mDirection ) ) );
+
+	RenderManager::GetInstance()->AddObject3dToList( mProjectileAsset, mPosition, XMFLOAT3( 0.0f, yaw, roll ) );
 
 	return S_OK;
 }
@@ -32,13 +38,8 @@ void Projectile::SetDirection( unsigned int playerID, unsigned int id, XMFLOAT3 
 	mPlayerID		= playerID;
 	mPosition		= startPosition;
 
-	float radians = atan2f( direction.z, direction.x );
-
-	mDirection.x	= cosf( -radians );
-	mDirection.y	= 0.0f;
-	mDirection.z	= -sinf( -radians );
-	mRotation		= -atan2f( mDirection.z, mDirection.x );
-	mIsActive		= true;
+	mDirection	= direction;	
+	mIsActive	= true;
 }
 
 void Projectile::SetIsActive( bool isActive )
@@ -99,7 +100,6 @@ Projectile::Projectile()
 	mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mSpeed			= 0.0f;
 	mIsActive		= false;
-	mRotation		= 0.0f;
 	mLifeTime		= 0.0f;
 	mBoundingCircle	= nullptr;	
 }

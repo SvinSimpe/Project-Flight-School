@@ -8,20 +8,27 @@ void Turret::IdleTurret::Action( Turret* t )
 
 void Turret::AttackingTurret::Action( Turret* t )
 {
-	XMVECTOR homingVec	= ( XMLoadFloat3( &t->mTarget->GetBoundingCircle()->center ) - XMLoadFloat3( &t->mBoundingCircle->center ) );
-	homingVec			= XMVector3Normalize( homingVec );
+	XMVECTOR homingVec	= XMVector3Normalize( XMLoadFloat3( &t->mTarget->GetBoundingCircle()->center ) - XMLoadFloat3( &t->mBoundingCircle->center ) );
 
-	XMVECTOR turretVec		= XMLoadFloat3( &t->mUpperBody->dir );
-	
-	float x = 0.98f;
-	float y = 1.0f - x;
+	// Rotate y direction
+	XMVECTOR rightDir = XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 0.1f, 0.0f ) ), XMLoadFloat3( &t->mUpperBody->dir ) );
 
-	XMStoreFloat3( &t->mUpperBody->dir, XMVectorAdd( turretVec * x, homingVec * y) );
+	float rightDot	= XMVectorGetX( XMVector3Dot( rightDir, homingVec ) );
+	float leftDot	= XMVectorGetX( XMVector3Dot( -rightDir, homingVec ) );
+
+	float angleY = t->mDT * ( rightDot < leftDot ? -leftDot : rightDot ) * TURRET_ROTATION_SPEED;
+
+	XMStoreFloat3( &t->mUpperBody->dir, XMVector3TransformNormal( XMLoadFloat3( &t->mUpperBody->dir ), XMMatrixRotationY( angleY ) ) );
+
+	// Rotate Z
+	t->mUpperBody->dir.y = XMVectorGetY( homingVec );
+	XMStoreFloat3( &t->mUpperBody->dir, XMVector3Normalize( XMLoadFloat3( &t->mUpperBody->dir ) ) );
+
 	t->mMiddleBody->dir = t->mUpperBody->dir;
 
 	float dot = XMVectorGetY( XMVector3Dot( XMLoadFloat3( &t->mUpperBody->dir ), homingVec ) );
 
-	if( t->mShootTimer <= 0.0f && dot > 0.85f )
+	if( t->mShootTimer <= 0.0f && dot > 0.90f )
 	{
 		t->Fire();
 	}
@@ -29,7 +36,9 @@ void Turret::AttackingTurret::Action( Turret* t )
 
 void Turret::Fire()
 {
-	IEventPtr E1( new Event_Projectile_Fired( mTeamID, mUpperBody->pos, mUpperBody->dir ));
+	XMFLOAT3 firePos;
+	XMStoreFloat3( &firePos, XMLoadFloat3( &mUpperBody->pos ) + XMLoadFloat3( &mUpperBody->dir ) * 3.0f );
+	IEventPtr E1( new Event_Projectile_Fired( mTeamID, firePos, mUpperBody->dir ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
 	mShootTimer = SHOOTCOOLDOWN;
 }
@@ -108,14 +117,12 @@ HRESULT Turret::Update( float deltaTime )
 void Turret::Render()
 {
 	float yaw = atan2f( mUpperBody->dir.z, mUpperBody->dir.x );
-	XMVECTOR straightVec = XMLoadFloat3( &XMFLOAT3( mUpperBody->dir.x, 0.0f, mUpperBody->dir.z ) );
-	XMVECTOR upperVec = XMLoadFloat3( &mUpperBody->dir );
+	float roll	= -XMVectorGetX( 
+					XMVector3AngleBetweenVectors( 
+					XMLoadFloat3( &XMFLOAT3(  mUpperBody->dir.x, 0.0f, mUpperBody->dir.z ) ),
+					XMLoadFloat3( &mUpperBody->dir ) ) );
 
-	XMVECTOR angle = XMVector3AngleBetweenVectors( straightVec, upperVec );
-	XMFLOAT3 result;
-	XMStoreFloat3( &result, angle );
-
-	RenderManager::GetInstance()->AddObject3dToList( mUpperBody->model, mUpperBody->pos, XMFLOAT3( 0.0f, -yaw, -result.z ) );
+	RenderManager::GetInstance()->AddObject3dToList( mUpperBody->model, mUpperBody->pos, XMFLOAT3( 0.0f, -yaw, roll ) );
 	RenderManager::GetInstance()->AddObject3dToList( mMiddleBody->model, mMiddleBody->pos, XMFLOAT3( 0.0f, -yaw, 0.0f ) );
 	RenderManager::GetInstance()->AddObject3dToList( mLowerBody->model, mLowerBody->pos);
 }

@@ -58,6 +58,15 @@
     <Filter Include="Particle System\Source">
       <UniqueIdentifier>{d8b37812-712b-4de0-b19c-fd498a2c3550}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TinyXML">
+      <UniqueIdentifier>{a841a948-70ea-4389-8bce-09119989e439}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TinyXML\Header Files">
+      <UniqueIdentifier>{031b3576-a995-400b-b5b2-d97964b33761}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TinyXML\Source Files">
+      <UniqueIdentifier>{d500dcaf-dda4-4429-9cb2-a000c439b982}</UniqueIdentifier>
+	</Filter>
     <Filter Include="DirectSound">
       <UniqueIdentifier>{4e89a911-104e-46c2-bc3f-2fae6889d70b}</UniqueIdentifier>
     </Filter>
@@ -198,6 +207,18 @@
     <ClCompile Include="LightManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tinystr.cpp">
+      <Filter>TinyXML\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml.cpp">
+      <Filter>TinyXML\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxmlerror.cpp">
+      <Filter>TinyXML\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxmlparser.cpp">
+      <Filter>TinyXML\Source Files</Filter>
+	</ClCompile>
     <ClCompile Include="EnemySpawn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -369,6 +390,15 @@
     <ClInclude Include="LightManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tinystr.h">
+      <Filter>TinyXML\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml.h">
+      <Filter>TinyXML\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeTypes.h">
+      <Filter>Worldmap\Header Files</Filter>
+	</ClInclude>
     <ClInclude Include="EnemySpawn.h">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -66,9 +66,25 @@ void GameObject::SetAssetID(AssetID assetID)
 }
 HRESULT	GameObject::Initialize( GameObjectInfo gameObjectInfo, AssetID assetID )
 {
-	mPos		= gameObjectInfo.pos;
-	mRotation	= gameObjectInfo.rotation;
-	mScale		= gameObjectInfo.scale;
+	//mPos		= gameObjectInfo.pos;
+	//mRotation	= gameObjectInfo.rotation;
+	//mScale		= gameObjectInfo.scale;
+
+	DirectX::XMVECTOR scale;
+	DirectX::XMVECTOR rotation;
+	DirectX::XMVECTOR translation;
+
+	DirectX::XMMatrixDecompose( &scale, &rotation, &translation, XMLoadFloat4x4( &gameObjectInfo.transformation ) );
+
+	XMStoreFloat3( &mScale, scale );
+	XMStoreFloat4( &mRotation, rotation );
+	XMStoreFloat3( &mPos, translation );
+
+	mPos.z = -mPos.z;
+
+	mRotation.x = -mRotation.x;
+	mRotation.y = -mRotation.y;
+
 	mAssetID	= assetID;
 
 	return S_OK;

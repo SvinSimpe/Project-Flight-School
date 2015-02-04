@@ -5,6 +5,16 @@
 MapNodeManager* MapNodeManager::instance = nullptr;
 
  
+
+void MapNodeManager::ConvertToFloat( XMFLOAT4X4& dest, double* values )
+{
+	XMFLOAT4X4 temp = {		(float)values[0], (float)values[1], (float)values[2], (float)values[3], 
+							(float)values[4], (float)values[5], (float)values[6], (float)values[7],
+							(float)values[8], (float)values[9], (float)values[10], (float)values[11], 
+							(float)values[12], (float)values[13], (float)values[14], (float)values[15] };
+
+	dest = temp;
+}
 void MapNodeManager::writeToLog( const std::string &text )
 {
     std::ofstream log_file(
@@ -96,10 +106,13 @@ MapNode* MapNodeManager::CreateNode( const char* fileName )
 	inFile.read( (char*)initInfo.grid, sizeof( Vertex24 ) * initInfo.vertexCount ) ;
 
 	JMatrix gridMat;
+	//inFile.read( (char*)derpSOMFAN, 50 );
+	//inFile.read( (char*)derpface, 128 );
+	inFile.read( (char*)&gridMat, sizeof(gridMat) );
 
-	inFile.read( (char*)&gridMat, sizeof(JMatrix) );
-
-	initInfo.anchor = gridMat.pos;
+	//initInfo.anchor = gridMat.pos;
+	//initInfo.anchor = gridMat.transformation;
+	ConvertToFloat( initInfo.anchor, gridMat.transformation );
 
 	UINT navVertexCount = 0;
 	
@@ -119,29 +132,31 @@ MapNode* MapNodeManager::CreateNode( const char* fileName )
 		GameObjectInfo obInfo;
 		AssetID assetID;
 		inFile.read( (char*)&gridMat, sizeof(JMatrix) );
+
+		ConvertToFloat( obInfo.transformation, gridMat.transformation );
 		
-		obInfo.pos		= gridMat.pos;
+		//obInfo.pos		= gridMat.pos;
 
-		obInfo.rotation = gridMat.rot;
-		obInfo.scale	= gridMat.scale;
+		//obInfo.rotation = gridMat.rot;
+		//obInfo.scale	= gridMat.scale;
 
-		obInfo.rotation.x = -obInfo.rotation.x;
-		obInfo.rotation.y = -obInfo.rotation.y;
+		//obInfo.rotation.x = -obInfo.rotation.x;
+		//obInfo.rotation.y = -obInfo.rotation.y;
 		//obInfo.rotation.z = -obInfo.rotation.z;
 		
 		Graphics::GetInstance()->LoadStatic3dAsset( "", gridMat.name, assetID );
 		ob.Initialize( obInfo, assetID );
 		staticObjects.push_back( ob );
-		if( obInfo.pos.y < -1.0f || obInfo.pos.y > 1.0f )
-		{
-			char log[400];
-			sprintf_s(log,"Timestamp: %s\nCount: %d\nGameObject allocated with:\nPos: (%f,%f,%f)\nRotation:  (%f,%f,%f)\nScale:  (%f,%f,%f)\nAssetID: %d\nName: %s\n\n\n",__TIME__, i,
-				ob.GetPos().x,ob.GetPos().y, ob.GetPos().z,
-				ob.GetRotation().x,ob.GetRotation().y, ob.GetRotation().z,
-				ob.GetScale().x, ob.GetScale().y, ob.GetScale().z,
-				ob.GetAssetID(), gridMat.name);
-			writeToLog(log);
-		}
+		//if( obInfo.pos.y < -1.0f || obInfo.pos.y > 1.0f )
+		//{
+		//	char log[400];
+		//	sprintf_s(log,"Timestamp: %s\nCount: %d\nGameObject allocated with:\nPos: (%f,%f,%f)\nRotation:  (%f,%f,%f)\nScale:  (%f,%f,%f)\nAssetID: %d\nName: %s\n\n\n",__TIME__, i,
+		//		ob.GetPos().x,ob.GetPos().y, ob.GetPos().z,
+		//		ob.GetRotation().x,ob.GetRotation().y, ob.GetRotation().z,
+		//		ob.GetScale().x, ob.GetScale().y, ob.GetScale().z,
+		//		ob.GetAssetID(), gridMat.name);
+		//	writeToLog(log);
+		//}
 	}
 	inFile.close();
 

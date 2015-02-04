@@ -6,10 +6,13 @@
 #include "Events.h"
 struct JMatrix
 {
-	char name[50];
-	XMFLOAT3 pos;
-	XMFLOAT4 rot;
-	XMFLOAT3 scale;
+	char name[64];
+	//-------------- Quaternion
+	//XMFLOAT3 pos;
+	//XMFLOAT4 rot;
+	//XMFLOAT3 scale;
+	//-------------- Quaternion
+	double transformation[16];
 };
 
 typedef std::unordered_map< std::string, std::vector<MapNode*> > NodeMap;
@@ -22,7 +25,7 @@ class MapNodeManager
 	public:
 
 	private:
-		
+		void ConvertToFloat( XMFLOAT4X4& dest, double* source );
 		void writeToLog( const std::string &test );
 	protected:
 	public:

@@ -12,7 +12,8 @@ struct MapNodeInfo
 		Vertex24*		grid;
 		UINT			vertexCount;
 		UINT			gridDim;
-		XMFLOAT3		anchor;
+		//XMFLOAT3		anchor;
+		XMFLOAT4X4		anchor;
 		UINT			nodeDim;
 		GameObject*		staticAssets;
 		UINT			staticAssetCount;
@@ -22,6 +23,7 @@ class MapNode
 {
 	private:
 		StaticVertex*	mGrid;
+
 		UINT			mVertexCount;
 		UINT			mGridDim;
 

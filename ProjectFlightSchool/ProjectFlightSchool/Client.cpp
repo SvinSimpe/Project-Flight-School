@@ -148,6 +148,23 @@ void Client::EventListener( IEventPtr newEvent )
 			}
 		}
 	}
+	else if ( newEvent->GetEventType() == Event_Projectile_Damage_Enemy::GUID )
+	{
+		std::shared_ptr<Event_Projectile_Damage_Enemy> data = std::static_pointer_cast<Event_Projectile_Damage_Enemy>( newEvent );
+		if ( mServerSocket != INVALID_SOCKET )
+		{
+			EvEnemyProjectileDamage msg;
+			msg.shooterID		= data->Shooter();	
+			msg.projectileID	= data->Projectile();
+			msg.enemyID			= data->Enemy();
+			msg.damage			= data->Damage();
+
+			if ( mServerSocket != INVALID_SOCKET )
+			{
+				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_ENEMY_PROJECTILE_DAMGAE, msg );
+			}
+		}
+	}
 }
 
 bool Client::Connect()
@@ -212,6 +229,7 @@ bool Client::Run()
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Melee_Hit::GUID );
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Attack::GUID );
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Update_HP::GUID );
+	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Projectile_Damage_Enemy::GUID );
 
 	std::thread listen( &Client::ReceiveLoop, this );
 

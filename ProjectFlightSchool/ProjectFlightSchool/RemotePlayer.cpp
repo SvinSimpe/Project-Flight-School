@@ -339,9 +339,9 @@ HRESULT RemotePlayer::Initialize()
 		OutputDebugString( L"\nERROR loading player model\n" );																							
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/Animations/", "hammerWalk.PaMan",	mWeaponAnimations[HAMMER][WALK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );																							
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/Animations/", "hammerAnim1.PaMan", mWeaponAnimations[HAMMER][ATTACK] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/Animations/", "hammerAttack1.PaMan", mWeaponAnimations[HAMMER][ATTACK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );																							
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/Animations/", "hammerAnim2.PaMan",	mWeaponAnimations[HAMMER][ATTACK2] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/Animations/", "hammerAttack2.PaMan",	mWeaponAnimations[HAMMER][ATTACK2] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	//MINIGUN

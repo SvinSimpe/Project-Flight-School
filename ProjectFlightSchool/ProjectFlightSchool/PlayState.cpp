@@ -554,7 +554,7 @@ HRESULT PlayState::Initialize()
 	mWorldMap = new Map();
 	mWorldMap->Initialize( 4 );
 
-	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/testMap.xml")); 
+	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/ForestMap.xml")); 
 	EventManager::GetInstance()->TriggerEvent( E1 );
 
 	//mMapNodeMan = new MapNodeManager();

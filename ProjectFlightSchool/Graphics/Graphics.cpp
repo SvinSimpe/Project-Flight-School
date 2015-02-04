@@ -618,11 +618,14 @@ void Graphics::SetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatr
 void Graphics::SetEyePosition( DirectX::XMFLOAT3 &eyePosition )
 {
 	mCamera[CAMERAS_MAIN]->SetEyePosition( eyePosition );
+	DirectX::XMFLOAT4 camPos = mCamera[CAMERAS_DEV]->GetPos();
+	mCamera[CAMERAS_DEV]->SetEyePosition( DirectX::XMFLOAT3(  eyePosition.x, camPos.y,  eyePosition.z ) );
 }
 
 void Graphics::SetFocus( DirectX::XMFLOAT3 &focusPoint )
 {
 	mCamera[CAMERAS_MAIN]->SetFocus( focusPoint );
+	mCamera[CAMERAS_DEV]->SetFocus( focusPoint );
 }
 
 //Clear canvas and prepare for rendering.

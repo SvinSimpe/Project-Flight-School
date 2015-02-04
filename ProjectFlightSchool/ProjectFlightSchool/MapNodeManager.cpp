@@ -120,9 +120,9 @@ MapNode* MapNodeManager::CreateNode( const char* fileName )
 
 	XMFLOAT3* navVertices = new XMFLOAT3[navVertexCount];
 
-	inFile.read( (char*)navVertices, sizeof( XMFLOAT3 ) * navVertexCount );
+	inFile.read( (char*)navVertices, sizeof( DirectX::XMFLOAT3 ) * navVertexCount );
 
-	inFile.read( (char*)&nrOfObjects,sizeof(UINT));
+	inFile.read( (char*)&nrOfObjects, sizeof( UINT ) );
 	//Read all the objects associated with the node
 	writeToLog( "\n -----------------------------------------------------\n" );
 	writeToLog( fileName );
@@ -147,16 +147,15 @@ MapNode* MapNodeManager::CreateNode( const char* fileName )
 		Graphics::GetInstance()->LoadStatic3dAsset( "", gridMat.name, assetID );
 		ob.Initialize( obInfo, assetID );
 		staticObjects.push_back( ob );
-		//if( obInfo.pos.y < -1.0f || obInfo.pos.y > 1.0f )
-		//{
-		//	char log[400];
-		//	sprintf_s(log,"Timestamp: %s\nCount: %d\nGameObject allocated with:\nPos: (%f,%f,%f)\nRotation:  (%f,%f,%f)\nScale:  (%f,%f,%f)\nAssetID: %d\nName: %s\n\n\n",__TIME__, i,
-		//		ob.GetPos().x,ob.GetPos().y, ob.GetPos().z,
-		//		ob.GetRotation().x,ob.GetRotation().y, ob.GetRotation().z,
-		//		ob.GetScale().x, ob.GetScale().y, ob.GetScale().z,
-		//		ob.GetAssetID(), gridMat.name);
-		//	writeToLog(log);
-		//}
+
+		char log[400];
+		sprintf_s(log,"Timestamp: %s\nCount: %d\nGameObject allocated with:\nPos: (%f,%f,%f)\nRotation:  (%f,%f,%f)\nScale:  (%f,%f,%f)\nAssetID: %d\nName: %s\n\n\n",__TIME__, i,
+			ob.GetPos().x,ob.GetPos().y, ob.GetPos().z,
+			ob.GetRotation().x,ob.GetRotation().y, ob.GetRotation().z,
+			ob.GetScale().x, ob.GetScale().y, ob.GetScale().z,
+			ob.GetAssetID(), gridMat.name);
+		writeToLog(log);
+
 	}
 	inFile.close();
 

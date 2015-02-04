@@ -27,7 +27,7 @@ bool Button::MouseInbounds()
 
 bool Button::LeftMousePressed()
 {
-	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_MOUSE_LEFT) && mClickTimer <= 0.0f ) // Checks if left button is clicked and if the cooldown has run out
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_MOUSE_LEFT ) && mClickTimer <= 0.0f ) // Checks if left button is clicked and if the cooldown has run out
 	{
 		if( MouseInbounds() ) // Checks if the mouse is within bounds of the button
 		{
@@ -40,7 +40,7 @@ bool Button::LeftMousePressed()
 
 bool Button::RightMousePressed()
 {
-	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_MOUSE_RIGHT) && mClickTimer <= 0.0f )
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_MOUSE_RIGHT ) && mClickTimer <= 0.0f )
 	{
 		if( MouseInbounds() )
 		{

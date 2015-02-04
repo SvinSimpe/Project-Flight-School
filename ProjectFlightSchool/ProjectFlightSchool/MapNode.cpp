@@ -20,10 +20,6 @@ UINT MapNode::GetVertexCount() const
 {
 	return mVertexCount;
 }
-UINT MapNode::GetGridDim() const
-{
-	return mGridDim;
-}
 UINT MapNode::GetGridWidth() const
 {
 	return mGridWidth;
@@ -35,10 +31,6 @@ UINT MapNode::GetGridHeight() const
 XMFLOAT3 MapNode::GetOrigin() const
 {
 	return mOrigin;
-}
-UINT MapNode::GetNodeDim() const
-{
-	return mNodeDim;
 }
 GameObject* MapNode::GetStaticAssets() const
 {
@@ -52,7 +44,7 @@ MapNodeInstance* MapNode::GetMapNodeInstance()
 {
 	MapNodeInstance* result = nullptr;
 	bool instanceFound = false;
-	for( int i = 0; i < (int)mInstanceCount && !instanceFound; i++ )
+	for( int i = 0; i < (int)INSTANCE_COUNT && !instanceFound; i++ )
 	{
 		if( mInstances[i].GetInstanceID() == -1 )
 		{
@@ -68,7 +60,7 @@ MapNodeInstance* MapNode::GetMapNodeInstance()
 }
 void MapNode::ReleaseInstance( int InstanceID )
 {
-	for( int i = 0; i < 100; i++ )
+	for( int i = 0; i < INSTANCE_COUNT; i++ )
 	{
 		if( mInstances[i].GetInstanceID() == InstanceID )
 		{
@@ -79,17 +71,24 @@ void MapNode::ReleaseInstance( int InstanceID )
 HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 {
 	mGrid				= new StaticVertex[initInfo.vertexCount];
-	mOrigin				= XMFLOAT3(initInfo.anchor.x, 0, initInfo.anchor.z);
 	//BUGHAXX
-	//mGridDim			= initInfo.gridDim;
-	mGridDim			= 24;
-	//Handles releaseing assets
+
+	mGridWidth			= initInfo.gridWidth;
+	mGridHeight			= initInfo.gridHeight;
+	//Handles deleting assets
 	mStaticAssets		= initInfo.staticAssets;
 	mStaticAssetCount	= initInfo.staticAssetCount;
 	mVertexCount		= initInfo.vertexCount;
+	
+	DirectX::XMVECTOR scale;
+	DirectX::XMVECTOR rotation;
+	DirectX::XMVECTOR translation;
 
-	mGridWidth			= mGridDim;
-	mGridHeight			= mGridDim;
+	DirectX::XMMatrixDecompose( &scale, &rotation, &translation, XMLoadFloat4x4( &initInfo.anchor ) );
+
+	XMStoreFloat3( &mOrigin, translation );
+
+	mOrigin.z = -mOrigin.z;
 
 	for( int i = 0; i < (int)mVertexCount; i++ )
 	{
@@ -108,42 +107,7 @@ HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 		mGrid[i].uv[0] = 1.0f;
 		mGrid[i].uv[1] = 1.0f;
 	}
-////////////////////////////////////////////////////
-	SetUpExits();
-////////////////////////////////////////////////////
-	mInstanceCount = 150;
 	return S_OK;
-}
-HRESULT MapNode::SetUpExits()
-{
-	exits[0].exit.x = -11;
-	exits[0].exit.y = 0;
-	exits[0].exit.z = 0;
-	exits[0].valid	= true;
-
-	exits[1].exit.x = 0;
-	exits[1].exit.y = 0;
-	exits[1].exit.z = -11;
-	exits[1].valid	= true;
-
-	exits[2].exit.x = 11;
-	exits[2].exit.y = 0;
-	exits[2].exit.z = 0;
-	exits[2].valid	= true;
-
-	exits[3].exit.x = 0;
-	exits[3].exit.y = 0;
-	exits[3].exit.z = 11;
-	exits[3].valid	= true;
-
-
-
-
-	return S_OK;
-}
-ExitPoint* MapNode::GetExits() 
-{
-	return exits;
 }
 void MapNode::Release()
 {
@@ -154,8 +118,8 @@ MapNode::MapNode()
 {
 	mGrid			= nullptr;
 	mVertexCount	= 0;
-	mGridDim		= 0;
-	mNodeDim		= 0;
+	mGridWidth		= 0;
+	mGridHeight		= 0;
 	mOrigin			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mStaticAssets	= nullptr;
 }

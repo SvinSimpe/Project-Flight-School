@@ -6,7 +6,10 @@ bool Camera::Update()
 	DirectX::XMVECTOR vecFocus	= DirectX::XMLoadFloat4( &mFocusPoint );
 	DirectX::XMVECTOR vecUp		= DirectX::XMLoadFloat4( &mUp );
 
-	DirectX::XMStoreFloat4x4( &mViewMatrix, DirectX::XMMatrixLookAtLH( vecPos, vecFocus, vecUp ) );
+	if( !DirectX::XMVector3Equal( vecPos, DirectX::XMVectorZero() ) )
+	{
+		DirectX::XMStoreFloat4x4( &mViewMatrix, DirectX::XMMatrixLookAtLH( vecPos, vecFocus, vecUp ) );
+	}
 
 	return true;
 }

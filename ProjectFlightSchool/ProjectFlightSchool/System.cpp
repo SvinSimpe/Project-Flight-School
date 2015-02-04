@@ -20,11 +20,12 @@ LRESULT CALLBACK System::WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			PostQuitMessage( 0 );
 			break;
 
-		case WM_KEYDOWN:
+		case WM_KILLFOCUS:
+			Input::GetInstance()->LostFocus();
 			break;
 
 		case WM_INPUT:
-			Input::GetInstance()->Update( lParam ); //Returns a bool vector that represents all button presses
+			Input::GetInstance()->RawRead( lParam ); //Returns a bool vector that represents all button presses
 			break;
 
 		default:
@@ -37,6 +38,7 @@ LRESULT CALLBACK System::WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM
 HRESULT	System::Update( float deltaTime )
 {
 	mGame->Update( deltaTime );
+	Input::GetInstance()->Update();
 	return S_OK;
 }
 

@@ -7,11 +7,6 @@
 struct JMatrix
 {
 	char name[64];
-	//-------------- Quaternion
-	//XMFLOAT3 pos;
-	//XMFLOAT4 rot;
-	//XMFLOAT3 scale;
-	//-------------- Quaternion
 	double transformation[16];
 };
 

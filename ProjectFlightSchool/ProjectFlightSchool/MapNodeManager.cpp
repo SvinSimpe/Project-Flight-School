@@ -135,27 +135,19 @@ MapNode* MapNodeManager::CreateNode( const char* fileName )
 
 		ConvertToFloat( obInfo.transformation, gridMat.transformation );
 		
-		//obInfo.pos		= gridMat.pos;
-
-		//obInfo.rotation = gridMat.rot;
-		//obInfo.scale	= gridMat.scale;
-
-		//obInfo.rotation.x = -obInfo.rotation.x;
-		//obInfo.rotation.y = -obInfo.rotation.y;
-		//obInfo.rotation.z = -obInfo.rotation.z;
 		
 		Graphics::GetInstance()->LoadStatic3dAsset( "", gridMat.name, assetID );
 		ob.Initialize( obInfo, assetID );
 		staticObjects.push_back( ob );
-
-		char log[400];
-		sprintf_s(log,"Timestamp: %s\nCount: %d\nGameObject allocated with:\nPos: (%f,%f,%f)\nRotation:  (%f,%f,%f)\nScale:  (%f,%f,%f)\nAssetID: %d\nName: %s\n\n\n",__TIME__, i,
-			ob.GetPos().x,ob.GetPos().y, ob.GetPos().z,
-			ob.GetRotation().x,ob.GetRotation().y, ob.GetRotation().z,
-			ob.GetScale().x, ob.GetScale().y, ob.GetScale().z,
-			ob.GetAssetID(), gridMat.name);
-		writeToLog(log);
-
+		#ifdef _DEBUG
+				char log[400];
+				sprintf_s(log,"Timestamp: %s\nCount: %d\nGameObject allocated with:\nPos: (%f,%f,%f)\nRotation:  (%f,%f,%f)\nScale:  (%f,%f,%f)\nAssetID: %d\nName: %s\n\n\n",__TIME__, i,
+				ob.GetPos().x,ob.GetPos().y, ob.GetPos().z,
+				ob.GetRotation().x,ob.GetRotation().y, ob.GetRotation().z,
+				ob.GetScale().x, ob.GetScale().y, ob.GetScale().z,
+				ob.GetAssetID(), gridMat.name);
+			writeToLog(log);
+		#endif
 	}
 	inFile.close();
 

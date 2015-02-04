@@ -62,10 +62,6 @@ HRESULT	MapNodeInstance::Initialize()
 	mRotation = 0;
 	return S_OK;
 }
-void MapNodeInstance::AddNeighbour( int exitSlot, MapNodeInstance* neighbour )
-{
-	mExits[exitSlot].neighbour = neighbour;
-}
 void MapNodeInstance::Release()
 {
 }

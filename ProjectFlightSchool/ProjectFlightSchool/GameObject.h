@@ -5,10 +5,6 @@
 
 struct GameObjectInfo
 {
-		//DirectX::XMFLOAT3 pos;
-		//DirectX::XMFLOAT4 rotation;
-		//DirectX::XMFLOAT3 scale;
-
 	DirectX::XMFLOAT4X4 transformation;
 };
 class GameObject

@@ -4,22 +4,6 @@
 
 HRESULT Map::Render( float deltaTime, Player* player )
 {
-	
-	//MapSection* mapNodes[20];
-	//int count = 0;
-	//mMapSection->GetSectionContainingUnit( mapNodes, count, player->GetBoundingBox() );
-
-	//for( int i = 0; i < count; i++ )
-	//{
-	//	mapNodes[i]->Render( deltaTime );
-	//}
-
-	XMFLOAT3 playerPos = player->GetPosition();
-
-	int x = (int)playerPos.x / 24;
-	int z = (int)playerPos.z / 24;
-
-
 	for( int i = 0; i < (int)MapNodePlacer::GetInstance()->GetNrOfNodes(); i++ )
 	{
 		mNodes[i]->Render( deltaTime );

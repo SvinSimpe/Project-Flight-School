@@ -559,10 +559,6 @@ HRESULT PlayState::Render()
 
 	mShip.Render();
 
-<<<<<<< HEAD
-	//mRadar->Render();
-	//mGui->Render();
-=======
 	int nrOfAllies = 0;
 	float alliesHP[MAX_REMOTE_PLAYERS];
 	for( auto rp : mRemotePlayers )
@@ -580,7 +576,6 @@ HRESULT PlayState::Render()
 	ss	<< "RemotePlayers\t" << mRemotePlayers.size() << "\n"
 		<< "ProjectilesFired\t" << mNrOfProjectilesFired << "\n";
 	mFont.WriteText( ss.str(), 40.0f, 200.0f, 2.0f );
->>>>>>> development
 
 	RenderManager::GetInstance()->Render();
 
@@ -635,7 +630,7 @@ HRESULT PlayState::Initialize()
 	mPlayer->Initialize();
 
 	mWorldMap = new Map();
-	mWorldMap->Initialize( 16 );
+	mWorldMap->Initialize( 8 );
 
 	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/ForestMap.xml")); 
 	EventManager::GetInstance()->TriggerEvent( E1 );

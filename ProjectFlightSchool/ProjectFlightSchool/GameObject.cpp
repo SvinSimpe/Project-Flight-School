@@ -9,19 +9,9 @@ HRESULT	GameObject::Update(float deltaTime)
 HRESULT	GameObject::Render(float deltaTime, DirectX::XMFLOAT4X4 parentWorld )
 {
 	DirectX::XMMATRIX parent		= DirectX::XMLoadFloat4x4( &parentWorld );
-	//DirectX::XMMATRIX scaling		= DirectX::XMMatrixScaling( mScale.x, mScale.y, mScale.z );
-	//DirectX::XMMATRIX rotation		= DirectX::XMMatrixRotationRollPitchYaw( mRotation.x, mRotation.y, mRotation.z );
-	//DirectX::XMMATRIX translation	= DirectX::XMMatrixTranslation( mPos.x, mPos.y, mPos.z );
-
-	//DirectX::XMMATRIX scaling		= DirectX::XMMatrixScalingFromVector( DirectX::XMLoadFloat3( &mScale ) );
-	//DirectX::XMMATRIX rotation		= DirectX( DirectX::XMLoadFloat3( &mRotation ) );
-	//DirectX::XMMATRIX translation	= DirectX::XMMatrixTranslationFromVector( DirectX::XMLoadFloat3( &mPos ) );
-
-
 
 	DirectX::XMMATRIX transformation = DirectX::XMMatrixAffineTransformation( DirectX::XMLoadFloat3( &mScale ), DirectX::XMVectorZero(), DirectX::XMLoadFloat4( &mRotation ), DirectX::XMLoadFloat3( &mPos ) );
 
-	//DirectX::XMMATRIX world			= ( scaling * rotation * translation ) * parent;
 	DirectX::XMMATRIX world = transformation * parent;
 	DirectX::XMFLOAT4X4 worldFinished;
 	DirectX::XMStoreFloat4x4( &worldFinished, world );
@@ -66,10 +56,6 @@ void GameObject::SetAssetID(AssetID assetID)
 }
 HRESULT	GameObject::Initialize( GameObjectInfo gameObjectInfo, AssetID assetID )
 {
-	//mPos		= gameObjectInfo.pos;
-	//mRotation	= gameObjectInfo.rotation;
-	//mScale		= gameObjectInfo.scale;
-
 	DirectX::XMVECTOR scale;
 	DirectX::XMVECTOR rotation;
 	DirectX::XMVECTOR translation;

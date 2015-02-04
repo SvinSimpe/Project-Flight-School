@@ -11,7 +11,6 @@ class MapNodePlacer
 {
 	private:
 		Map* mMap;
-		//MapNodeInstance** mPlacedNodes;
 		MapNodeInstance*** mBuildMap;
 		int mNrOfNodes;
 
@@ -19,7 +18,6 @@ class MapNodePlacer
 	public:
 		static MapNodePlacer* instance;
 	private:
-		//int CanPlace( MapNodeInstance* currentNode, MapNodeInstance* newNode );
 		NODE_RETURN_CODE CanPlace( int x, int y, MapNodeInstance* newNode );
 	protected:
 	public:

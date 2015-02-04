@@ -64,7 +64,6 @@ void MapNodePlacer::BuildMap( MapNodeInstance** map )
 			}
 			bool doLoop = true;
 			//Check "Tier", lastNode, chances of boss arena and/or energy position.
-			//int count = rand() % 21;
 
 			while( doLoop )
 			{

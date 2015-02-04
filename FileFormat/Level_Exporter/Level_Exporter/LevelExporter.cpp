@@ -185,11 +185,25 @@ bool LevelExporter::ExtractCurrentSceneRawData()
 				if (mesh.name() == "GridShape")
 				{
 					if (!ExtractGridData(mesh))
+					{
+						cout << "Error GridData" << endl;
 						return false;
+					}
 				}
 
-				if (mesh.name() != "GridShape")
+				if (mesh.name() == "NavMeshShape")
+				{
+					if (!ExtractNavMesh(mesh))
+					{
+						cout << "Error NavMeshData" << endl;
+						return false;
+					}
+				}
+
+				else if (mesh.name() != "GridShape" || mesh.name() != "NavMeshShape")
+				{
 					ExtractAndConvertMatrix(mesh, 0);
+				}
 			}
 		}
 		dagIter.next();
@@ -197,6 +211,7 @@ bool LevelExporter::ExtractCurrentSceneRawData()
 
 	return true;
 }
+
 
 void LevelExporter::GetDimensions(MFnMesh &mesh, UINT* dimensions)
 {
@@ -215,67 +230,64 @@ Matrix LevelExporter::ExtractAndConvertMatrix(MFnMesh &mesh, int fauling)
 {
 	Matrix matrix;
 
+
 	MStatus status = MS::kSuccess;
 
-	string id;
-	int count = 0;
-	
 	MFnTransform mayaTransform(mesh.parent(0), &status);
 
-	id = mayaTransform.name().asChar();
 
-	//MMatrix tempMatrix = mayaTransform.transformationMatrix(&status);
-	
+	string id;
 
-	//for (int i = 0; i < mayaTransform.name().length(); i++)
-	//{
-	//	if (mayaTransform.name().asChar()[i] != '_')
-	//	{
-	//		id += mayaTransform.name().asChar()[i];
-	//	}
-	//	else
-	//	{
-	//		break;
-	//	}
-	//}
+	for (int i = 0; i < mayaTransform.name().length(); i++)
+	{
+		if (mayaTransform.name().asChar()[i] != '_')
+		{
+			id += mayaTransform.name().asChar()[i];
+		}
+		else
+		{
+			break;
+		}
+	}
 
-
-	//string hej(tempChar);
-
-	
 	//Gets parent name and saves it to "name"
- 	if(fauling == 0)
+	if (fauling == 0)
 		sprintf_s(matrix.name, sizeof(matrix.name), "%s%s", id.c_str(), ".pfs");
 
-	if(fauling == 1)
+	if (fauling == 1)
 		sprintf_s(matrix.name, sizeof(matrix.name), "%s", mayaTransform.name().asChar());
-	
+
 	MVector translate;
-	MEulerRotation rotate;
+	MQuaternion rotate;
 	double scale[3];
 
-	translate = mayaTransform.getTranslation(MSpace::kObject);
 
+	matrix.derp = mayaTransform.transformation().asMatrix();
+
+
+	translate = mayaTransform.getTranslation(MSpace::kTransform);
 	mayaTransform.getRotation(rotate);
 	mayaTransform.getScale(scale);
 
-	matrix.translate[0] = translate.x;
-	matrix.translate[1] = translate.y;
-	matrix.translate[2] = translate.z * -1.0f;
 
-	matrix.rotate[0] = rotate.x;
-	matrix.rotate[1] = rotate.y;
-	matrix.rotate[2] = rotate.z;
+	//matrix.translate[0] = translate.x;
+	//matrix.translate[1] = translate.y;
+	//matrix.translate[2] = translate.z * -1.0f;
 
-	matrix.scale[0] = scale[0];
-	matrix.scale[1] = scale[1];
-	matrix.scale[2] = scale[2];
+	//matrix.rotate[0] = rotate.x;
+	//matrix.rotate[1] = rotate.y;
+	//matrix.rotate[2] = rotate.z;
+	//matrix.rotate[3] = rotate.w;
+
+	//matrix.scale[0] = scale[0];
+	//matrix.scale[1] = scale[1];
+	//matrix.scale[2] = scale[2];
 
 
-	if(fauling == 0)
+	if (fauling == 0)
 		matrices.push_back(matrix);
 
-	if(fauling == 1)
+	if (fauling == 1)
 		return matrix;
 }
 
@@ -341,7 +353,7 @@ void LevelExporter::ConvertNavMeshData(MFnMesh &mesh, MFloatPointArray & points)
 
 	navvertexCount = polygon_iter.count() * 3;
 
-	navData.vertices = new NavVertex[vertexCount];
+	navData.vertices = new NavVertex[navvertexCount];
 	int nindex = 0;
 
 	while (!polygon_iter.isDone())
@@ -422,12 +434,12 @@ void LevelExporter::WriteFileToBinary(const char* fileName)
 	UINT nrOfObjects = matrices.size();
 
 	fileOut.write((char*)&gridData.dimensions, sizeof(gridData.dimensions));
-	fileOut.write((char*)&vertexCount, sizeof(UINT)); 
-	fileOut.write((char*)gridData.vertices, sizeof(Vertex) * vertexCount); 
+	fileOut.write((char*)&vertexCount, sizeof(UINT));
+	fileOut.write((char*)gridData.vertices, sizeof(Vertex) * vertexCount);
 	fileOut.write((char*)&gridData.matrix, sizeof(Matrix));
-	//fileOut.write((char*)&navData.vertices, sizeof(NavVertex) * navvertexCount);
+	fileOut.write((char*)&navvertexCount, sizeof(UINT));
+	fileOut.write((char*)navData.vertices, sizeof(NavMeshData) * navvertexCount);
 	fileOut.write((char*)&nrOfObjects, sizeof(nrOfObjects));
-	
 	for (int i = 0; i < matrices.size(); i++)
 	{
 		//Writing matrix info to file

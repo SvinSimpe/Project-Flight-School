@@ -30,6 +30,10 @@ int main()
 		network = new Server();
 		if( !network->Initialize(port) )
 		{
+			if( network )
+				network->Release();
+			SAFE_DELETE( network );
+			EventManager::GetInstance()->Release();
 			return 1;
 		}
 	}
@@ -38,6 +42,10 @@ int main()
 		network = new Client();
 		if( !dynamic_cast<Client*>(network)->Initialize( ip, port ) )
 		{
+			if( network )
+				network->Release();
+			SAFE_DELETE( network );
+			EventManager::GetInstance()->Release();
 			return 2;
 		}
 	}

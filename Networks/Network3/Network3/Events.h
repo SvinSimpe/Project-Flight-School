@@ -39,8 +39,9 @@
 #include "EventManager.h"
 #include <DirectXMath.h>
 using namespace DirectX;
+/*	This has been slightly modified in order to allow each event-class to serialize it's data. */
 
-extern EventType counter;
+extern EventType counter; // If you want know what this does, just check Events.cpp :D
 
 class Event_Client_Joined : public IEvent
 {

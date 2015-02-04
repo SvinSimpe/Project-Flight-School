@@ -67,6 +67,7 @@ bool Client::Initialize( std::string ip, unsigned int port )
 	if( !mSocketManager->Connect( mIP, mPort ) )
 	{
 		OutputDebugStringA( "Client failed to connect to server.\n" );
+		return false;
 	}
 	std::cout << "Client connected to server on IP: " << mIP << ", port: " << mPort << std::endl;
 

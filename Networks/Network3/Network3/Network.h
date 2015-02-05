@@ -13,7 +13,6 @@ class Network
 
 	private:
 		virtual void	StartUp( IEventPtr eventPtr ) = 0;
-		virtual void	InitEventListening() = 0;
 
 	protected:
 

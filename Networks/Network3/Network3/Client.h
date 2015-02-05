@@ -34,7 +34,6 @@ class Client : public Network
 		void	RemoteDamaged( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
-		void	InitEventListening();
 
 	protected:
 		bool	Connect( std::string ip, UINT port );

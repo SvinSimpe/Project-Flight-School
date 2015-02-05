@@ -122,17 +122,6 @@ void Server::SendEvent( IEventPtr eventPtr, UINT to )
 	mClientMap[to].ForwardEvent( eventPtr );
 }
 
-/* This will register all the events that only the server will listen to,
-	such as clients joining/disconnecting. */
-void Server::InitEventListening()
-{
-	EventManager::GetInstance()->AddListener( &Server::ClientJoined, this, Event_Client_Joined::GUID );
-	EventManager::GetInstance()->AddListener( &Server::ClientLeft, this, Event_Client_Left::GUID );
-	EventManager::GetInstance()->AddListener( &Server::LocalUpdate, this, Event_Local_Update::GUID );
-	EventManager::GetInstance()->AddListener( &Server::LocalDied, this, Event_Local_Died::GUID );
-	EventManager::GetInstance()->AddListener( &Server::LocalDamaged, this, Event_Local_Damaged::GUID );
-}
-
 bool Server::Connect( UINT port )
 {
 	mSocketManager = new SocketManager();
@@ -157,7 +146,13 @@ void Server::DoSelect( int pauseMicroSecs, bool handleInput )
 
 bool Server::Initialize()
 {
-	InitEventListening();
+	EventManager::GetInstance()->AddListener( &Server::ClientJoined, this, Event_Client_Joined::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientLeft, this, Event_Client_Left::GUID );
+	EventManager::GetInstance()->AddListener( &Server::LocalUpdate, this, Event_Local_Update::GUID );
+	EventManager::GetInstance()->AddListener( &Server::LocalDied, this, Event_Local_Died::GUID );
+	EventManager::GetInstance()->AddListener( &Server::LocalDamaged, this, Event_Local_Damaged::GUID );
+
+	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
 	return true;
 }
 
@@ -172,8 +167,6 @@ Server::Server() : Network()
 {
 	mSocketManager	= nullptr;
 	mClientMap		= std::map<UINT, NetworkEventForwarder>();
-
-	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
 }
 
 Server::~Server()

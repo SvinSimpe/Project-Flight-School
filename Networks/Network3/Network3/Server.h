@@ -24,7 +24,6 @@ class Server : public Network
 
 		void	BroadcastEvent( IEventPtr eventPtr, UINT exception = (UINT)-1 );
 		void	SendEvent( IEventPtr eventPtr, UINT to );
-		void	InitEventListening();
 
 	protected:
 		bool	Connect( UINT port );

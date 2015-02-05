@@ -16,22 +16,6 @@ int main()
 	//_CrtSetBreakAlloc(160); // Break at specific memory allocation point
 #endif
 	// REGISTER_EVENT should only be run once for each event
-	EF::REGISTER_EVENT( Event_Client_Joined );
-	EF::REGISTER_EVENT( Event_Client_Left );
-	EF::REGISTER_EVENT( Event_Local_Joined );
-	EF::REGISTER_EVENT( Event_Remote_Joined );
-	EF::REGISTER_EVENT( Event_Remote_Left );
-	EF::REGISTER_EVENT( Event_Local_Update );
-	EF::REGISTER_EVENT( Event_Remote_Update );
-	EF::REGISTER_EVENT( Event_Change_State );
-	EF::REGISTER_EVENT( Event_Start_Server );
-	EF::REGISTER_EVENT( Event_Start_Client );
-	EF::REGISTER_EVENT( Event_Game_Started );
-	EF::REGISTER_EVENT( Event_Game_Ended );
-	EF::REGISTER_EVENT( Event_Local_Died );
-	EF::REGISTER_EVENT( Event_Remote_Died );
-	EF::REGISTER_EVENT( Event_Local_Damaged );
-	EF::REGISTER_EVENT( Event_Remote_Damaged );
 
 	Client::GetInstance()->Initialize();
 

@@ -2,6 +2,24 @@
 
 Client* Client::mInstance = nullptr;
 
+
+Client::Client() : Network()
+{
+	mID						= (UINT)-1;
+	mSocketManager			= nullptr;
+	mNEF					= nullptr;
+	mRemoteIDs				= std::list<UINT>();
+	mActive					= false;
+
+	mLowerBodyPos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mVelocity				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mUpperBodyDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+}
+
+Client::~Client()
+{
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Start of eventlistening functions
 
@@ -95,15 +113,6 @@ void Client::StartUp( IEventPtr eventPtr )
 }
 
 /* Registers all the events that should be listened to from the server. */
-void Client::InitEventListening()
-{
-	EventManager::GetInstance()->AddListener( &Client::LocalJoin, this, Event_Local_Joined::GUID );
-	EventManager::GetInstance()->AddListener( &Client::RemoteJoined, this, Event_Remote_Joined::GUID );
-	EventManager::GetInstance()->AddListener( &Client::RemoteLeft, this, Event_Remote_Left::GUID );
-	EventManager::GetInstance()->AddListener( &Client::RemoteUpdate, this, Event_Remote_Update::GUID );
-	EventManager::GetInstance()->AddListener( &Client::RemoteDied, this, Event_Remote_Died::GUID );
-	EventManager::GetInstance()->AddListener( &Client::RemoteDamaged, this, Event_Remote_Damaged::GUID );
-}
 
 bool Client::Connect( std::string ip, UINT port )
 {
@@ -116,12 +125,6 @@ bool Client::Connect( std::string ip, UINT port )
 
 	mNEF = new NetworkEventForwarder();
 	mNEF->Initialize( 0, mSocketManager ); // Always sends to socket 0, the server's socketID
-	return true;
-}
-
-bool Client::Initialize()
-{
-	InitEventListening();
 	return true;
 }
 
@@ -157,6 +160,36 @@ void Client::DoSelect( int pauseMicroSecs, bool handleInput )
 	mSocketManager->DoSelect( pauseMicroSecs, handleInput );
 }
 
+bool Client::Initialize()
+{
+	EF::REGISTER_EVENT( Event_Client_Joined );
+	EF::REGISTER_EVENT( Event_Client_Left );
+	EF::REGISTER_EVENT( Event_Local_Joined );
+	EF::REGISTER_EVENT( Event_Remote_Joined );
+	EF::REGISTER_EVENT( Event_Remote_Left );
+	EF::REGISTER_EVENT( Event_Local_Update );
+	EF::REGISTER_EVENT( Event_Remote_Update );
+	EF::REGISTER_EVENT( Event_Change_State );
+	EF::REGISTER_EVENT( Event_Start_Server );
+	EF::REGISTER_EVENT( Event_Start_Client );
+	EF::REGISTER_EVENT( Event_Game_Started );
+	EF::REGISTER_EVENT( Event_Game_Ended );
+	EF::REGISTER_EVENT( Event_Local_Died );
+	EF::REGISTER_EVENT( Event_Remote_Died );
+	EF::REGISTER_EVENT( Event_Local_Damaged );
+	EF::REGISTER_EVENT( Event_Remote_Damaged );
+
+	EventManager::GetInstance()->AddListener( &Client::LocalJoin, this, Event_Local_Joined::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteJoined, this, Event_Remote_Joined::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteLeft, this, Event_Remote_Left::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteUpdate, this, Event_Remote_Update::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteDied, this, Event_Remote_Died::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteDamaged, this, Event_Remote_Damaged::GUID );
+
+	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
+	return true;
+}
+
 void Client::Release()
 {
 	if( mSocketManager )
@@ -165,23 +198,4 @@ void Client::Release()
 	SAFE_DELETE( mNEF );
 	mRemoteIDs.clear();
 	SAFE_DELETE( mInstance );
-}
-
-Client::Client() : Network()
-{
-	mID						= (UINT)-1;
-	mSocketManager			= nullptr;
-	mNEF					= nullptr;
-	mRemoteIDs				= std::list<UINT>();
-	mActive					= false;
-
-	mLowerBodyPos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mVelocity				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mUpperBodyDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-
-	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
-}
-
-Client::~Client()
-{
 }

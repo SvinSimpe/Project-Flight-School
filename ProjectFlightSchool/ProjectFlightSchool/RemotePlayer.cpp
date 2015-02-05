@@ -13,8 +13,9 @@ void RemotePlayer::RemoteUpdate( IEventPtr newEvent )
 			mUpperBody.direction							= data->UpperBodyDirection();
 
 			//TEST
-			mBoundingBox->position	= mLowerBody.position;
-			mBoundingCircle->center	= mLowerBody.position;
+			mBoundingBox->position		= mLowerBody.position;
+			mBoundingCircle->center		= mLowerBody.position;
+			mBoundingCircleAura->center	= mLowerBody.position;
 		}
 	}
 	else if( newEvent->GetEventType() == Event_Remote_Player_Attack::GUID )
@@ -57,8 +58,9 @@ void RemotePlayer::BroadcastDeath( unsigned int shooter )
 void RemotePlayer::Die()
 {
 	mNrOfDeaths++;
-	mIsAlive = false;
-	mCurrentHp = 0.0f;
+	mIsAlive		= false;
+	mIsDown			= false;
+	mCurrentHp		= 0.0f;
 	mTimeTillSpawn	= mSpawnTime;
 }
 
@@ -83,18 +85,6 @@ void RemotePlayer::Spawn()
 	EventManager::GetInstance()->QueueEvent( spawnEv );
 }
 
-void RemotePlayer::TakeDamage( float damage, unsigned int shooter )
-{
-	mCurrentHp -= damage;
-	IEventPtr player( new Event_Player_Update_HP( mID, mCurrentHp ) );
-	EventManager::GetInstance()->QueueEvent( player );
-	if ( mIsAlive && mCurrentHp <= 0.0f )
-	{
-		Die();
-		BroadcastDeath( shooter );
-	}
-}
-
 void RemotePlayer::SetHP( float hp )
 {
 	mCurrentHp = hp;
@@ -105,9 +95,36 @@ void RemotePlayer::CountUpKills()
 	mNrOfKills++;
 }
 
+void RemotePlayer::GoDown()
+{
+	mIsAlive					= false;
+	mIsDown						= true;
+	mPointLightIfDown			= new PointLight;
+	mPointLightIfDown->position	= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
+	IEventPtr reg( new Event_Add_Point_Light( mPointLightIfDown ) );
+	EventManager::GetInstance()->QueueEvent( reg );
+	mPointLightIfDown->colorAndRadius = DirectX::XMFLOAT4( 0.6f, 0.2f, 0.6f, 8.0f );
+}
+
+void RemotePlayer::GoUp()
+{
+	OutputDebugStringA("Wadup");
+	mIsAlive	= true;
+	mIsDown		= false;
+	mCurrentHp	= mMaxHp / 5.0f;
+	IEventPtr reg( new Event_Remove_Point_Light( mPointLightIfDown ) );
+	EventManager::GetInstance()->QueueEvent( reg );
+	SAFE_DELETE( mPointLightIfDown );
+}
+
 bool RemotePlayer::IsAlive() const
 {
 	return mIsAlive;
+}
+
+bool RemotePlayer::IsDown() const
+{
+	return mIsDown;
 }
 
 LoadOut* RemotePlayer::GetLoadOut() const
@@ -166,6 +183,11 @@ HRESULT RemotePlayer::Update( float deltaTime )
 
 	RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
 	RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
+
+	/*if( mIsDown )
+	{
+		mPointLightIfDown->position = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 7.0f, mLowerBody.position.z, 0.0f );
+	}*/
 
 	return S_OK;
 }
@@ -296,7 +318,13 @@ HRESULT RemotePlayer::Render( int position )
 			currentDeaths--;
 		}
 		mFont.WriteText( textToWrite, 25.0f, ((20.0f*(float)position)-7), 1.95f );
-		
+	}
+
+	if( mIsDown )
+	{
+		std::string textToWrite = std::to_string( mID );
+		textToWrite				+= " is down";
+		mFont.WriteText( textToWrite, 500, 500, 3.0f );
 	}
 
 	return S_OK;
@@ -466,10 +494,12 @@ HRESULT RemotePlayer::Initialize()
 
 	mBoundingBox			= new BoundingBox( 1.5f, 1.5f );
 	mBoundingCircle			= new BoundingCircle( 0.5f );
+	mBoundingCircleAura		= new BoundingCircle( 1.0f );
 	
 	mFont.Initialize( "../Content/Assets/Fonts/mv_boli_26_red/" );
 
 	mIsAlive				= true;
+	mIsDown					= false;
 	mMaxHp					= 100.0f;
 	mCurrentHp				= mMaxHp;
 	mSpawnTime				= 10.0f;
@@ -493,6 +523,7 @@ void RemotePlayer::Release()
 
 	SAFE_DELETE( mBoundingBox );
 	SAFE_DELETE( mBoundingCircle );
+	SAFE_DELETE( mBoundingCircleAura );
 	mFont.Release();
 }
 
@@ -504,6 +535,11 @@ BoundingBox* RemotePlayer::GetBoundingBox() const
 BoundingCircle*	RemotePlayer::GetBoundingCircle() const
 {
 	return mBoundingCircle;
+}
+
+BoundingCircle*	RemotePlayer::GetBoundingCircleAura() const
+{
+	return mBoundingCircleAura;
 }
 
 XMFLOAT3 RemotePlayer::GetPosition() const
@@ -546,7 +582,9 @@ RemotePlayer::RemotePlayer()
 
 	mBoundingBox			= nullptr;
 	mBoundingCircle			= nullptr;
+	mBoundingCircleAura		= nullptr;
 	mLoadOut				= nullptr;
+	mPointLightIfDown		= nullptr;
 }
 
 RemotePlayer::~RemotePlayer()

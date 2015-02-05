@@ -47,8 +47,8 @@ bool ParticleManager::RequestParticleSystem( size_t entityID, ParticleType parti
 	{
 		if( mParticleSystems[particleType][i]->entityParentID == entityID )
 		{
-			OutputDebugStringA( "-- Entity already has a Particle system of request type connected to it --\n" );
-			OutputDebugStringA( "-- Sending new burst from emitter --\n" );
+			//OutputDebugStringA( "-- Entity already has a Particle system of request type connected to it --\n" );
+			//OutputDebugStringA( "-- Sending new burst from emitter --\n" );
 			mParticleSystems[particleType][i]->Emitter( particleType, position, direction );
 			return true;
 		}

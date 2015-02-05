@@ -98,6 +98,7 @@ class RemotePlayer
 
 		BoundingBox*	mBoundingBox;
 		BoundingCircle*	mBoundingCircle;
+		BoundingCircle*	mBoundingCircleAura;
 		float			mCurrentHp;
 		float			mMaxHp;
 		bool			mIsAlive;
@@ -115,6 +116,9 @@ class RemotePlayer
 		XMFLOAT3	mVelocity;
 		LoadOut*	mLoadOut;
 
+		bool			mIsDown;
+		PointLight*		mPointLightIfDown;
+
 	public:
 
 	// Member functions
@@ -130,10 +134,12 @@ class RemotePlayer
 		virtual void	Die();
 		void			HandleSpawn( float deltaTime );
 		void			Spawn();
-		virtual void	TakeDamage( float damage, unsigned int shooter );
 		void			SetHP( float hp );
 		void			CountUpKills();
+		void			GoDown();
+		void			GoUp();
 		bool			IsAlive() const;
+		bool			IsDown() const;
 		LoadOut*		GetLoadOut() const;
 		float			GetHP() const;
 		float			GetMaxHP() const;
@@ -141,6 +147,7 @@ class RemotePlayer
 		int				GetTeam() const;
 		BoundingBox*	GetBoundingBox() const;
 		BoundingCircle*	GetBoundingCircle() const;
+		BoundingCircle*	GetBoundingCircleAura() const;
 		XMFLOAT3		GetPosition() const;
 		XMFLOAT3		GetDirection() const;
 		void			SetDirection( XMFLOAT3 direction );

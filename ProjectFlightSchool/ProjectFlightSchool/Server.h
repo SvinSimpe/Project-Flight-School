@@ -261,6 +261,42 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 			mEnemies[enemyDamage.enemyID]->TakeDamage( enemyDamage.damage );
 		}
 			break;
+		case Net_Event::EV_PLAYER_DOWN:
+		{
+			EvPlayerID playerDown = (EvPlayerID&)p->body.content;
+			for ( auto& socket : mClientSockets )
+			{
+				if ( socket.s != s.s )
+				{
+					mConn->SendPkg( socket.s, 0, Net_Event::EV_PLAYER_DOWN, playerDown );
+				}
+			}
+		}
+			break;
+		case Net_Event::EV_PLAYER_UP:
+		{
+			EvPlayerID playerDown = (EvPlayerID&)p->body.content;
+			for ( auto& socket : mClientSockets )
+			{
+				if ( socket.s != s.s )
+				{
+					mConn->SendPkg( socket.s, 0, Net_Event::EV_PLAYER_UP, playerDown );
+				}
+			}
+		}
+			break;
+		case Net_Event::EV_PLAYER_REVIVE:
+		{
+			EvPlayerID playerDown = (EvPlayerID&)p->body.content;
+			for ( auto& socket : mClientSockets )
+			{
+				if ( socket.s == playerDown.ID )
+				{
+					mConn->SendPkg( socket.s, 0, Net_Event::EV_PLAYER_REVIVE, playerDown );
+				}
+			}
+		}
+			break;
 
 		default:
 		{

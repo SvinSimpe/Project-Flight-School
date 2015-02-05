@@ -1,7 +1,21 @@
 #include "Player.h"
 
-void Player::HandleInput( float deltaTime )
+void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
 {
+	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_SPACE) )
+	{
+		for( auto rp : remotePlayers )
+		{
+			if ( rp->IsDown() )
+			{
+				if ( mBoundingCircleAura->Intersect( rp->GetBoundingCircleAura() ) )
+				{
+					ReviveRemotePlayer( rp->GetID() );
+				}
+			}
+		}
+	}
+
 	mAcceleration = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_W) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_S) )
 		mAcceleration.z = mMaxAcceleration;
@@ -111,18 +125,14 @@ void Player::Move( float deltaTime )
 	mLowerBody.position.z += mVelocity.z * deltaTime;
 }
 
-HRESULT Player::Update( float deltaTime )
+HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
 {
-	HandleInput( deltaTime );
+	HandleInput( deltaTime, remotePlayers );
 
 	// If player is alive, update position. If hp <= 0 kill player
 	if( mIsAlive )
 	{
-		if ( mCurrentHp <= 0.0f )
-		{
-			Die();
-		}
-		else
+		if( !mIsDown )
 		{
 			Move( deltaTime );
 
@@ -156,6 +166,10 @@ HRESULT Player::Update( float deltaTime )
 
 		}
 	}
+	else if( mIsDown )
+	{
+
+	}
 	else
 	{
 		RemotePlayer::HandleSpawn( deltaTime );
@@ -171,9 +185,10 @@ HRESULT Player::Update( float deltaTime )
 	Graphics::GetInstance()->SetFocus( mLowerBody.position );
 
 	//Update Bounding Primitives
-	mBoundingBox->position							= mLowerBody.position;
-	mBoundingCircle->center							= mLowerBody.position;
-	mLoadOut->meleeWeapon->boundingCircle->center	= mLowerBody.position;
+	mBoundingBox->position								= mLowerBody.position;
+	mBoundingCircle->center								= mLowerBody.position;
+	mBoundingCircleAura->center							= mLowerBody.position;
+	mLoadOut->meleeWeapon->boundingCircle->center		= mLowerBody.position;
 
 	//Update Light
 	mPointLight[0]->position = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 7.0f, mLowerBody.position.z, 0.0f );
@@ -196,7 +211,11 @@ HRESULT Player::Update( float deltaTime )
 
 HRESULT Player::Render( float deltaTime, int position )
 {
-	if( !mIsAlive )
+	if( mIsDown )
+	{
+		mFont.WriteText( "Down", 300, 300, 5 );
+	}
+	else if( !mIsAlive )
 	{
 		
         std::string textToWrite = "TEN";
@@ -257,7 +276,7 @@ void Player::TakeDamage( float damage, unsigned int shooter )
 		damage -= moddedDmg;
 
 	}
-	RemotePlayer::TakeDamage( damage, shooter );
+	TakeDamagePlayer( damage, shooter );
 }
 
 void Player::TakeEnemyDamage( float damage )
@@ -267,8 +286,13 @@ void Player::TakeEnemyDamage( float damage )
 	EventManager::GetInstance()->QueueEvent( player );
 	if ( mIsAlive && mCurrentHp <= 0.0f )
 	{
-		Die();
+		GotDown();
 	}
+}
+
+void Player::Revive()
+{
+	GotUp();
 }
 
 void Player::SetBuffed( bool buffed )
@@ -317,6 +341,37 @@ void Player::SetIsMeleeing( bool isMeleeing )
 	mIsMeleeing = isMeleeing;
 }
 
+void Player::TakeDamagePlayer( float damage, unsigned int shooter )
+{
+	mCurrentHp -= damage;
+	IEventPtr player( new Event_Player_Update_HP( mID, mCurrentHp ) );
+	EventManager::GetInstance()->QueueEvent( player );
+	if ( mIsAlive && mCurrentHp <= 0.0f )
+	{
+		GotDown();
+	}
+}
+
+void Player::GotDown()
+{
+	RemotePlayer::GoDown();
+	IEventPtr player( new Event_Player_Down( mID ) );
+	EventManager::GetInstance()->QueueEvent( player );
+}
+
+void Player::GotUp()
+{
+	RemotePlayer::GoUp();
+	IEventPtr player( new Event_Player_Up( mID ) );
+	EventManager::GetInstance()->QueueEvent( player );
+}
+
+void Player::ReviveRemotePlayer( int remotePlayerID )
+{
+	IEventPtr player( new Event_Remote_Player_Revive( remotePlayerID ) );
+	EventManager::GetInstance()->QueueEvent( player );
+}
+
 void Player::Fire()
 {
 	//Hardcoded to match shotgun
@@ -350,7 +405,7 @@ HRESULT Player::Initialize()
 		EventManager::GetInstance()->QueueEvent( reg );
 	}
 
-	mPointLight[0]->colorAndRadius		= DirectX::XMFLOAT4( 0.6f, 0.6f, 0.6f, 20.0f );
+	mPointLight[0]->colorAndRadius		= DirectX::XMFLOAT4( 0.2f, 0.2f, 0.2f, 20.0f );
 	mPointLight[1]->colorAndRadius		= DirectX::XMFLOAT4( 0.6f, 0.2f, 0.2f, 20.0f );
 	mPointLight[2]->colorAndRadius		= DirectX::XMFLOAT4( 0.2f, 0.6f, 0.2f, 20.0f );
 	mPointLight[3]->colorAndRadius		= DirectX::XMFLOAT4( 0.2f, 0.2f, 0.6f, 20.0f );

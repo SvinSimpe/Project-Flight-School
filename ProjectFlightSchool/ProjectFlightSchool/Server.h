@@ -287,10 +287,10 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 			break;
 		case Net_Event::EV_PLAYER_REVIVE:
 		{
-			EvPlayerID playerDown = (EvPlayerID&)p->body.content;
+			EvIDAndTime playerDown = (EvIDAndTime&)p->body.content;
 			for ( auto& socket : mClientSockets )
 			{
-				if ( socket.s == playerDown.ID )
+				if ( socket.s == playerDown.playerID )
 				{
 					mConn->SendPkg( socket.s, 0, Net_Event::EV_PLAYER_REVIVE, playerDown );
 				}

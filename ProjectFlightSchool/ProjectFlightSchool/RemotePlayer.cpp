@@ -57,6 +57,9 @@ void RemotePlayer::BroadcastDeath( unsigned int shooter )
 // Set current hp to 0 to avoid negative values and send event that player has died
 void RemotePlayer::Die()
 {
+	IEventPtr reg( new Event_Remove_Point_Light( mPointLightIfDown ) );
+	EventManager::GetInstance()->QueueEvent( reg );
+	SAFE_DELETE( mPointLightIfDown );
 	mNrOfDeaths++;
 	mIsAlive		= false;
 	mIsDown			= false;
@@ -73,6 +76,19 @@ void RemotePlayer::HandleSpawn( float deltaTime )
 	else
 	{
 		mTimeTillSpawn -= deltaTime;
+	}
+}
+
+void RemotePlayer::HandleDeath( float deltaTime )
+{
+	if( mTimeTillDeath <= 0.0f )
+	{
+		Die();
+		BroadcastDeath( mLastKiller );
+	}
+	else
+	{
+		mTimeTillDeath -= deltaTime;
 	}
 }
 
@@ -97,6 +113,8 @@ void RemotePlayer::CountUpKills()
 
 void RemotePlayer::GoDown()
 {
+	mTimeTillDeath				= mDeathTime;
+	mTimeTillRevive				= mReviveTime;
 	mIsAlive					= false;
 	mIsDown						= true;
 	mPointLightIfDown			= new PointLight;
@@ -108,7 +126,6 @@ void RemotePlayer::GoDown()
 
 void RemotePlayer::GoUp()
 {
-	OutputDebugStringA("Wadup");
 	mIsAlive	= true;
 	mIsDown		= false;
 	mCurrentHp	= mMaxHp / 5.0f;
@@ -503,7 +520,11 @@ HRESULT RemotePlayer::Initialize()
 	mMaxHp					= 100.0f;
 	mCurrentHp				= mMaxHp;
 	mSpawnTime				= 10.0f;
+	mDeathTime				= 10.0f;
+	mReviveTime				= 3.0f;
 	mTimeTillSpawn			= mSpawnTime;
+	mTimeTillDeath			= mDeathTime;
+	mTimeTillRevive			= mReviveTime;
 
 	//Weapon Initialization
 	mLoadOut				= new LoadOut();
@@ -579,6 +600,11 @@ RemotePlayer::RemotePlayer()
 	mCurrentHp				= 0.0f;
 	mSpawnTime				= 0.0f;
 	mTimeTillSpawn			= 0.0f;
+	mDeathTime				= 0.0f;
+	mTimeTillDeath			= 0.0f;
+	mReviveTime				= 0.0f;
+	mTimeTillRevive			= 0.0f;
+	mLastKiller				= 0;
 
 	mBoundingBox			= nullptr;
 	mBoundingCircle			= nullptr;

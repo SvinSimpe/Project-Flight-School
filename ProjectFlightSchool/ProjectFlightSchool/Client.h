@@ -188,8 +188,8 @@ void Client::HandlePkg( Package<T>* p )
 			break;
 		case Net_Event::EV_PLAYER_REVIVE:
 		{
-			EvPlayerID player = (EvPlayerID&)p->body.content;
-			IEventPtr E1( new Event_Player_Revive( player.ID ) );
+			EvIDAndTime player = (EvIDAndTime&)p->body.content;
+			IEventPtr E1( new Event_Player_Revive( player.playerID, player.deltaTime ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;

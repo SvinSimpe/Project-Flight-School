@@ -31,9 +31,10 @@ class Player: public RemotePlayer
 	private:
 		void		HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlayers );
 		void		Move( float deltaTime );
-		void		GotDown();
+		void		GotDown( int shooter );
 		void		GotUp();
-		void		ReviveRemotePlayer( int remotePlayerID );
+		void		ReviveRemotePlayer( int remotePlayerID, float deltaTime );
+		void		StopReviveRemotePlayer( int remotePlayerID );
 
 	protected:
 	public:
@@ -54,6 +55,7 @@ class Player: public RemotePlayer
 		bool			GetIsMeleeing()	const;
 		void			SetIsMeleeing( bool isMeleeing );
 		virtual void	TakeDamagePlayer( float damage, unsigned int shooter );
+		void			HandleRevive( float deltaTime );
 			
 		HRESULT		Initialize();
 		void		Release();

@@ -1503,6 +1503,7 @@ class Event_Remote_Player_Revive : public IEvent
 	// Member variables
 	private:
 		unsigned int	mPlayerID;
+		float			mDeltaTime;
 
 	protected:
 	public:
@@ -1516,13 +1517,18 @@ class Event_Remote_Player_Revive : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Remote_Player_Revive( unsigned int playerID )
+		Event_Remote_Player_Revive( unsigned int playerID, float deltaTime )
 		{
 			mPlayerID	= playerID;
+			mDeltaTime	= deltaTime;
 		}
 		unsigned int Player() const
 		{
 			return mPlayerID;
+		}
+		float DeltaTime() const
+		{
+			return mDeltaTime;
 		}
 };
 
@@ -1531,6 +1537,7 @@ class Event_Player_Revive : public IEvent
 	// Member variables
 	private:
 		unsigned int	mPlayerID;
+		float			mDeltaTime;
 
 	protected:
 	public:
@@ -1544,12 +1551,17 @@ class Event_Player_Revive : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Player_Revive( unsigned int playerID )
+		Event_Player_Revive( unsigned int playerID, float deltaTime )
 		{
 			mPlayerID	= playerID;
+			mDeltaTime	= deltaTime;
 		}
 		unsigned int Player() const
 		{
 			return mPlayerID;
+		}
+		float DeltaTime() const
+		{
+			return mDeltaTime;
 		}
 };

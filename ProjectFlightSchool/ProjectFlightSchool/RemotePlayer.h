@@ -102,8 +102,14 @@ class RemotePlayer
 		float			mCurrentHp;
 		float			mMaxHp;
 		bool			mIsAlive;
+		bool			mIsReviving;
 		float			mSpawnTime;
 		float			mTimeTillSpawn;
+		float			mDeathTime;
+		float			mTimeTillDeath;
+		float			mReviveTime;
+		float			mTimeTillRevive;
+		int				mLastKiller;
 		AssetID			mGreenHPAsset;
 		AssetID			mRedHPAsset;
 		AssetID			mOrangeHPAsset;
@@ -133,6 +139,7 @@ class RemotePlayer
 
 		virtual void	Die();
 		void			HandleSpawn( float deltaTime );
+		void			HandleDeath( float deltaTime );
 		void			Spawn();
 		void			SetHP( float hp );
 		void			CountUpKills();

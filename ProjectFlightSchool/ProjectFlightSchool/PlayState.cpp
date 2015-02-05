@@ -189,7 +189,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if ( newEvent->GetEventType() == Event_Player_Revive::GUID )
 	{
 		std::shared_ptr<Event_Player_Revive> data = std::static_pointer_cast<Event_Player_Revive>( newEvent );
-		mPlayer->Revive();
+		mPlayer->HandleRevive( data->DeltaTime() );
 	}
 }
 

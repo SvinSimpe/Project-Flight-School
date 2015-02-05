@@ -198,8 +198,9 @@ void Client::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Remote_Player_Revive> data = std::static_pointer_cast<Event_Remote_Player_Revive>( newEvent );
 		if ( mServerSocket != INVALID_SOCKET )
 		{
-			EvPlayerID msg;
-			msg.ID = data->Player();
+			EvIDAndTime msg;
+			msg.playerID	= data->Player();
+			msg.deltaTime	= data->DeltaTime();
 
 			if ( mServerSocket != INVALID_SOCKET )
 			{

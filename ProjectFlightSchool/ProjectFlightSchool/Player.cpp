@@ -10,7 +10,7 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 			{
 				if ( mBoundingCircleAura->Intersect( rp->GetBoundingCircleAura() ) )
 				{
-					ReviveRemotePlayer( rp->GetID() );
+					ReviveRemotePlayer( rp->GetID(), deltaTime );
 				}
 			}
 		}
@@ -168,7 +168,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	}
 	else if( mIsDown )
 	{
-
+		RemotePlayer::HandleDeath( deltaTime );
 	}
 	else
 	{
@@ -213,7 +213,8 @@ HRESULT Player::Render( float deltaTime, int position )
 {
 	if( mIsDown )
 	{
-		mFont.WriteText( "Down", 300, 300, 5 );
+		std::string textToRender = "Down " + std::to_string( (int)mTimeTillDeath );
+		mFont.WriteText( textToRender, 300, 300, 5 );
 	}
 	else if( !mIsAlive )
 	{
@@ -286,7 +287,7 @@ void Player::TakeEnemyDamage( float damage )
 	EventManager::GetInstance()->QueueEvent( player );
 	if ( mIsAlive && mCurrentHp <= 0.0f )
 	{
-		GotDown();
+		GotDown( 0 );
 	}
 }
 
@@ -348,12 +349,13 @@ void Player::TakeDamagePlayer( float damage, unsigned int shooter )
 	EventManager::GetInstance()->QueueEvent( player );
 	if ( mIsAlive && mCurrentHp <= 0.0f )
 	{
-		GotDown();
+		GotDown( shooter );
 	}
 }
 
-void Player::GotDown()
+void Player::GotDown( int shooter )
 {
+	mLastKiller = shooter;
 	RemotePlayer::GoDown();
 	IEventPtr player( new Event_Player_Down( mID ) );
 	EventManager::GetInstance()->QueueEvent( player );
@@ -366,10 +368,28 @@ void Player::GotUp()
 	EventManager::GetInstance()->QueueEvent( player );
 }
 
-void Player::ReviveRemotePlayer( int remotePlayerID )
+void Player::ReviveRemotePlayer( int remotePlayerID, float deltaTime )
 {
-	IEventPtr player( new Event_Remote_Player_Revive( remotePlayerID ) );
+	mIsReviving = true;
+	IEventPtr player( new Event_Remote_Player_Revive( remotePlayerID, deltaTime ) );
 	EventManager::GetInstance()->QueueEvent( player );
+}
+
+void Player::StopReviveRemotePlayer( int remotePlayerID )
+{
+	mIsReviving = false;
+}
+
+void Player::HandleRevive( float deltaTime )
+{
+	if( mTimeTillRevive <= 0.0f )
+	{
+		GotUp();
+	}
+	else
+	{
+		mTimeTillRevive -= deltaTime;
+	}
 }
 
 void Player::Fire()

@@ -172,6 +172,27 @@ void Client::HandlePkg( Package<T>* p )
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
+		case Net_Event::EV_PLAYER_DOWN:
+		{
+			EvPlayerID remotePlayerDown = (EvPlayerID&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Down( remotePlayerDown.ID ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
+		case Net_Event::EV_PLAYER_UP:
+		{
+			EvPlayerID remotePlayerUp = (EvPlayerID&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Up( remotePlayerUp.ID ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
+		case Net_Event::EV_PLAYER_REVIVE:
+		{
+			EvIDAndTime player = (EvIDAndTime&)p->body.content;
+			IEventPtr E1( new Event_Player_Revive( player.playerID, player.deltaTime ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
 
 		default:
 		{

@@ -36,27 +36,33 @@ class Player: public RemotePlayer
 		
 	private:
 		void		CreatePlayerName( IEventPtr newEvent );
-		void		HandleInput( float deltaTime );
+		void		HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlayers );
 		void		Move( float deltaTime );
+		void		GotDown( int shooter );
+		void		GotUp();
+		void		ReviveRemotePlayer( int remotePlayerID, float deltaTime );
+		void		StopReviveRemotePlayer( int remotePlayerID );
 
 	protected:
 	public:
 		std::string	GetPlayerName() const;
-		HRESULT		Update( float deltaTime );
+		HRESULT		Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers );
 		HRESULT		Render( float deltaTime, int position );
-
-		void		TakeDamage( float damage, unsigned int shooter );
-		void		TakeEnemyDamage( float damage );
-		void		SetBuffed( bool buffed );
-		void		SetID( unsigned int id );
-		void		SetTeam( int team, AssetID teamColor );
-		void		SetColor( AssetID color );
-		XMFLOAT3	GetPlayerPosition() const;
-		void		SetPosition( XMVECTOR position );
-		void		Fire();
-		XMFLOAT3	GetUpperBodyDirection() const;
-		bool		GetIsMeleeing()	const;
-		void		SetIsMeleeing( bool isMeleeing );
+		void			TakeDamage( float damage, unsigned int shooter );
+		void			TakeEnemyDamage( float damage );
+		void			Revive();
+		void			SetBuffed( bool buffed );
+		void			SetID( unsigned int id );
+		void			SetTeam( int team, AssetID teamColor );
+		void			SetColor( AssetID color );
+		XMFLOAT3		GetPlayerPosition() const;
+		void			SetPosition( XMVECTOR position );
+		void			Fire();
+		XMFLOAT3		GetUpperBodyDirection() const;
+		bool			GetIsMeleeing()	const;
+		void			SetIsMeleeing( bool isMeleeing );
+		virtual void	TakeDamagePlayer( float damage, unsigned int shooter );
+		void			HandleRevive( float deltaTime );
 			
 		HRESULT		Initialize();
 		void		Release();

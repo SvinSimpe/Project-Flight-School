@@ -65,7 +65,7 @@ class Server
 		bool			ReceiveLoop( int index );
 		void			DisconnectClient( SOCKET s );
 		XMFLOAT3		GetNextSpawn();
-		void			AggroCheck();
+		void			StateCheck();
 
 	protected:
 	public:
@@ -112,7 +112,8 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 			{
 				if( mPlayers[i].ID == msg.id )
 				{
-					mPlayers[i].Position = msg.lowerBodyPosition;
+					mPlayers[i].Position	= msg.lowerBodyPosition;
+					mPlayers[i].IsAlive		= msg.isAlive;
 				}
 			}
 			
@@ -259,6 +260,12 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 		{
 			EvEnemyProjectileDamage enemyDamage = (EvEnemyProjectileDamage&)p->body.content;
 			mEnemies[enemyDamage.enemyID]->TakeDamage( enemyDamage.damage );
+		}
+			break;
+		case Net_Event::EV_ENEMY_MELEE_HIT:
+		{
+			EvEnemyMeleeHit enemyDamage = (EvEnemyMeleeHit&)p->body.content;
+			mEnemies[enemyDamage.ID]->TakeMeleeDamage( enemyDamage.damage, enemyDamage.knockBack, enemyDamage.direction );
 		}
 			break;
 

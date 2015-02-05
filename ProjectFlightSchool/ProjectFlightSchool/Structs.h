@@ -14,6 +14,7 @@ struct EvPlayerUpdate
 	DirectX::XMFLOAT3	lowerBodyPosition;
 	DirectX::XMFLOAT3	velocity;
 	DirectX::XMFLOAT3	upperBodyDirection;
+	bool				isAlive;
 };
 
 struct EvPlayerID
@@ -108,6 +109,14 @@ struct EvEnemyAttackPlayer
 {
 	unsigned int playerID;
 	float		 damage;
+};
+
+struct EvEnemyMeleeHit
+{
+	unsigned int			ID;
+	float					damage;
+	float					knockBack;
+	DirectX::XMFLOAT3		direction;
 };
 
 #endif

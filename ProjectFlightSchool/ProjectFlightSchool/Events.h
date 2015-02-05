@@ -47,6 +47,7 @@ class Event_Player_Update : public IEvent
 		XMFLOAT3		mLowerBodyPos;
 		XMFLOAT3		mVelocity;
 		XMFLOAT3		mUpperBodyDirection;
+		bool			mIsAlive;
 
 	protected:
 	public:
@@ -60,11 +61,12 @@ class Event_Player_Update : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Player_Update( XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDirection )
+		Event_Player_Update( XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDirection, bool isAlive )
 		{
 			mLowerBodyPos			= lowerBodyPos;
 			mVelocity				= velocity;
 			mUpperBodyDirection		= upperBodyDirection;
+			mIsAlive				= isAlive;
 		}
 		XMFLOAT3 LowerBodyPos() const
 		{
@@ -77,6 +79,10 @@ class Event_Player_Update : public IEvent
 		XMFLOAT3 UpperBodyDirection() const
 		{
 			return mUpperBodyDirection;
+		}
+		bool IsAlive() const
+		{
+			return mIsAlive;
 		}
 };
 
@@ -1358,5 +1364,51 @@ class Event_Enemy_Attack_Player : public IEvent
 		float Damage() const
 		{
 			return mDamage;
+		}
+};
+
+class Event_Enemy_Melee_Hit : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		float			mDamage;
+		float			mKnockBack;
+		XMFLOAT3		mDirection;
+
+	protected:
+	public:
+		static const EventType GUID;
+	
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Enemy_Melee_Hit( unsigned int id, float damage, float knockBack, XMFLOAT3 direction )
+		{
+			mID				= id;
+			mDamage			= damage;
+			mKnockBack		= knockBack;
+			mDirection		= direction;
+		}
+		unsigned int Enemy() const
+		{
+			return mID;
+		} 
+		float Damage() const
+		{
+			return mDamage;
+		}
+		float KnockBack() const
+		{
+			return mKnockBack;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
 		}
 };

@@ -30,7 +30,7 @@ void Player::EventListener(IEventPtr newEvent)
 		std::shared_ptr<Event_Remote_Player_Melee_Hit> data = std::static_pointer_cast<Event_Remote_Player_Melee_Hit>(newEvent);
 		if( mID == data->ID() )
 		{
-			XMFLOAT3 direction;
+			XMFLOAT3 direction = data->Direction();
 			direction.x *= data->KnockBack();
 			direction.z *= data->KnockBack();
 			AddImpuls( direction );
@@ -297,7 +297,38 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 		{
 			HandleDeath( deltaTime );
 		}
-		RemotePlayer::Update( deltaTime );
+		
+		
+		float currentVelocity = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) );
+
+		if( currentVelocity < 0.2f )
+		{
+			if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE] )
+			{
+				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
+			}
+		}
+		else
+		{
+			if(	mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK] )
+			{
+				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_WALK] );
+			}
+		}
+
+		RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, 
+			mLowerBody.playerModel.mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK] ? deltaTime * currentVelocity / 1.1f : deltaTime );
+
+		if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] )
+			RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
+
+		if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] )
+			RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
+
+		RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
+		RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
+
+		//RemotePlayer::Update( deltaTime );
 	}
 	else
 	{

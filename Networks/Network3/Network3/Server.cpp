@@ -9,22 +9,24 @@ void Server::ClientJoined( IEventPtr eventPtr )
 	{
 		std::shared_ptr<Event_Client_Joined> data = std::static_pointer_cast<Event_Client_Joined>( eventPtr );
 		UINT id = data->ID();
+		UINT teamID = CurrentTeamDelegate();
 
-		mClientMap[id].Initialize( id, mSocketManager );
+		mClientMap[id].TeamID = teamID;
+		mClientMap[id].NEF.Initialize( id, mSocketManager );
 
-		std::cout << "Client with ID: " << id << " joined. There are now " << mClientMap.size() << " clients online." << std::endl;
+		std::cout << "Client with ID: " << id << " joined team: " << teamID << ". There are now " << mClientMap.size() << " clients online." << std::endl;
 
-		IEventPtr E1( PFS_NEW Event_Remote_Joined( id ) ); // Sends the incoming ID to the existing remotes
+		IEventPtr E1( PFS_NEW Event_Remote_Joined( id, teamID ) ); // Sends the incoming ID to the existing remotes
 		BroadcastEvent( E1, id );
 
-		IEventPtr E2( PFS_NEW Event_Local_Joined( id ) );
+		IEventPtr E2( PFS_NEW Event_Local_Joined( id, teamID ) );
 		SendEvent( E2, id );
 
 		for( auto& remote : mClientMap )
 		{
 			if( remote.first != id )
 			{
-				IEventPtr E3( PFS_NEW Event_Remote_Joined( remote.first ) ); // The key of the map is the ID of the remote
+				IEventPtr E3( PFS_NEW Event_Remote_Joined( remote.first, remote.second.TeamID ) ); // The key of the map is the ID of the remote
 				SendEvent( E3, id );
 			}
 		}
@@ -112,14 +114,23 @@ void Server::BroadcastEvent( IEventPtr eventPtr, UINT exception )
 	{
 		if( to.first != exception )
 		{
-			to.second.ForwardEvent( eventPtr );
+			to.second.NEF.ForwardEvent( eventPtr );
 		}
 	}
 }
 
 void Server::SendEvent( IEventPtr eventPtr, UINT to )
 {
-	mClientMap[to].ForwardEvent( eventPtr );
+	mClientMap[to].NEF.ForwardEvent( eventPtr );
+}
+
+UINT Server::CurrentTeamDelegate()
+{
+	UINT currentTeam = mTeamDelegate;
+	mTeamDelegate++;
+	if( mTeamDelegate > MAX_TEAMS )
+		mTeamDelegate = 1;
+	return currentTeam;
 }
 
 bool Server::Connect( UINT port )
@@ -153,6 +164,8 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::LocalDamaged, this, Event_Local_Damaged::GUID );
 
 	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
+
+	mTeamDelegate = 1;
 	return true;
 }
 
@@ -166,7 +179,8 @@ void Server::Release()
 Server::Server() : Network()
 {
 	mSocketManager	= nullptr;
-	mClientMap		= std::map<UINT, NetworkEventForwarder>();
+	mClientMap		= std::map<UINT, ClientNEF>();
+	mTeamDelegate	= (UINT)-1;
 }
 
 Server::~Server()

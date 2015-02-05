@@ -136,11 +136,12 @@ class Event_Client_Left : public IEvent
 		}
 };
 
-// Listened to by the player who's joining a game in order for it to get it's ID (no team implemented yet)
+// Listened to by the player who's joining a game in order for it to get it's ID
 class Event_Local_Joined : public IEvent
 {
 	private:
 		UINT mID;
+		UINT mTeamID;
 
 	protected:
 	public:
@@ -151,11 +152,13 @@ class Event_Local_Joined : public IEvent
 	public:
 		Event_Local_Joined()
 		{
-			mID	= (UINT)-1;
+			mID		= (UINT)-1;
+			mTeamID = (UINT)-1;
 		}
-		Event_Local_Joined( UINT id )
+		Event_Local_Joined( UINT id, UINT teamID )
 		{
-			mID	= id;
+			mID		= id;
+			mTeamID = teamID;
 		}
 		~Event_Local_Joined() {}
 		const EventType& GetEventType() const
@@ -165,18 +168,24 @@ class Event_Local_Joined : public IEvent
 		void Serialize( std::ostringstream& out ) const
 		{
 			out << mID << " ";
+			out << mTeamID << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
 			in >> mID;
+			in >> mTeamID;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Local_Joined( mID ) );
+			return IEventPtr( new Event_Local_Joined( mID, mTeamID ) );
 		}
 		UINT ID() const
 		{
 			return mID;
+		}
+		UINT TeamID() const
+		{
+			return mTeamID;
 		}
 };
 
@@ -185,6 +194,7 @@ class Event_Remote_Joined : public IEvent
 {
 	private:
 		UINT mID;
+		UINT mTeamID;
 
 	protected:
 	public:
@@ -195,11 +205,13 @@ class Event_Remote_Joined : public IEvent
 	public:
 		Event_Remote_Joined()
 		{
-			mID	= (UINT)-1;
+			mID		= (UINT)-1;
+			mTeamID = (UINT)-1;
 		}
-		Event_Remote_Joined( UINT id )
+		Event_Remote_Joined( UINT id, UINT teamID )
 		{
-			mID = id;
+			mID		= id;
+			mTeamID = teamID;
 		}
 		~Event_Remote_Joined() {}
 		const EventType& GetEventType() const
@@ -209,18 +221,24 @@ class Event_Remote_Joined : public IEvent
 		void Serialize( std::ostringstream& out ) const
 		{
 			out << mID << " ";
+			out << mTeamID << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
 			in >> mID;
+			in >> mTeamID;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Remote_Joined( mID ) );
+			return IEventPtr( new Event_Remote_Joined( mID, mTeamID ) );
 		}
 		UINT ID() const
 		{
 			return mID;
+		}
+		UINT TeamID() const
+		{
+			return mTeamID;
 		}
 };
 

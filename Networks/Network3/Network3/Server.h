@@ -6,8 +6,16 @@
 class Server : public Network
 {
 	private:
+		struct ClientNEF
+		{
+			NetworkEventForwarder NEF;
+			UINT TeamID;
+		};
+		const UINT MAX_TEAMS = 2;
+
 		SocketManager*	mSocketManager;
-		std::map<UINT, NetworkEventForwarder> mClientMap;
+		std::map<UINT, ClientNEF> mClientMap;
+		UINT mTeamDelegate;
 
 	protected:
 	public:
@@ -24,6 +32,7 @@ class Server : public Network
 
 		void	BroadcastEvent( IEventPtr eventPtr, UINT exception = (UINT)-1 );
 		void	SendEvent( IEventPtr eventPtr, UINT to );
+		UINT	CurrentTeamDelegate();
 
 	protected:
 		bool	Connect( UINT port );

@@ -6,6 +6,7 @@ Client* Client::mInstance = nullptr;
 Client::Client() : Network()
 {
 	mID						= (UINT)-1;
+	mTeamID					= (UINT)-1;
 	mSocketManager			= nullptr;
 	mNEF					= nullptr;
 	mRemoteIDs				= std::list<UINT>();
@@ -29,8 +30,9 @@ void Client::LocalJoin( IEventPtr eventPtr )
 	{
 		std::shared_ptr<Event_Local_Joined> data = std::static_pointer_cast<Event_Local_Joined>( eventPtr );
 		mID = data->ID();
+		mTeamID = data->TeamID();
 
-		std::cout << "My ID is: " << mID << std::endl;
+		std::cout << "My ID is: " << mID << " and I just joined team " << mTeamID << std::endl;
 		mActive = true;
 	}
 }
@@ -41,9 +43,10 @@ void Client::RemoteJoined( IEventPtr eventPtr )
 	{
 		std::shared_ptr<Event_Remote_Joined> data = std::static_pointer_cast<Event_Remote_Joined>( eventPtr );
 		UINT id = data->ID();
+		UINT teamID = data->TeamID();
 		mRemoteIDs.push_back( id );
 
-		std::cout << "Remote with ID: " << id << " joined. There are now " << mRemoteIDs.size() << " remotes online." << std::endl;
+		std::cout << "Remote with ID: " << id << " joined team: " << teamID << ". There are now " << mRemoteIDs.size() << " remotes online." << std::endl;
 	}
 }
 
@@ -147,11 +150,11 @@ void Client::Update( float deltaTime )
 		//IEventPtr E1( PFS_NEW Event_Local_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection ) );
 		//IEventPtr E1( PFS_NEW Event_Local_Died( mID, 0 ) );
 
-		for( int i = 0; i < 10; i++ )
-		{
-			IEventPtr E1( PFS_NEW Event_Local_Damaged( mID, i ) );
-			SendEvent( E1 );
-		}
+		//for( int i = 0; i < 10; i++ )
+		//{
+		//	IEventPtr E1( PFS_NEW Event_Local_Damaged( mID, i ) );
+		//	SendEvent( E1 );
+		//}
 	}
 }
 

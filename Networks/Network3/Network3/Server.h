@@ -15,6 +15,7 @@ class Server : public Network
 
 		SocketManager*	mSocketManager;
 		std::map<UINT, ClientNEF> mClientMap;
+		std::map<UINT, Enemy> mEnemies;
 		UINT mTeamDelegate;
 
 	protected:
@@ -30,9 +31,12 @@ class Server : public Network
 		void	ClientSpawned( IEventPtr eventPtr );
 		void	ClientFiredProjectile( IEventPtr eventPtr );
 		void	ClientUpdateHP( IEventPtr eventPtr );
+		void	ClientMeleeHit( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 
+		void	CreateEnemies();
+		void	SyncEnemy( UINT toClient );
 		void	BroadcastEvent( IEventPtr eventPtr, UINT exception = (UINT)-1 );
 		void	SendEvent( IEventPtr eventPtr, UINT to );
 		UINT	CurrentTeamDelegate();

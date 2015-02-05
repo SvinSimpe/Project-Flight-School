@@ -14,14 +14,18 @@ void Server::ClientJoined( IEventPtr eventPtr )
 		mClientMap[id].TeamID = teamID;
 		mClientMap[id].NEF.Initialize( id, mSocketManager );
 
+		// Sends the ID of the newly connected client to the newly connected client
+		IEventPtr E1( PFS_NEW Event_Local_Joined( id, teamID ) );
+		SendEvent( E1, id );
+		SyncEnemy( id );
+
 		std::cout << "Client with ID: " << id << " joined team: " << teamID << ". There are now " << mClientMap.size() << " clients online." << std::endl;
 
-		IEventPtr E1( PFS_NEW Event_Remote_Joined( id, teamID ) ); // Sends the incoming ID to the existing remotes
-		BroadcastEvent( E1, id );
+		// Sends the incoming ID to the existing remotes
+		IEventPtr E2( PFS_NEW Event_Remote_Joined( id, teamID ) ); 
+		BroadcastEvent( E2, id );
 
-		IEventPtr E2( PFS_NEW Event_Local_Joined( id, teamID ) );
-		SendEvent( E2, id );
-
+		// Sends the list of existing remotes to the newly connected client
 		for( auto& remote : mClientMap )
 		{
 			if( remote.first != id )
@@ -148,6 +152,25 @@ void Server::ClientUpdateHP( IEventPtr eventPtr )
 	}
 }
 
+void Server::ClientMeleeHit( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Melee_Hit::GUID )
+	{
+		std::shared_ptr<Event_Client_Melee_Hit> data = std::static_pointer_cast<Event_Client_Melee_Hit>( eventPtr );
+		UINT id = data->ID();
+		UINT victim = data->VictimID();
+		float damage = data->Damage();
+		float knockBack = data->KnockBack();
+		XMFLOAT3 dir = data->Direction();
+
+		std::cout << "Remote with ID: " << id << " hit " << victim << " for " << damage << " with ";
+		std::cout << knockBack << " knockback, facing: (" << dir.x << ", " << dir.y << ", " << dir.z << ")" << std::endl;
+
+		IEventPtr E1( PFS_NEW Event_Remote_Melee_Hit( id, victim, damage, knockBack, dir ) );
+		BroadcastEvent( E1, id );
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -158,8 +181,38 @@ void Server::StartUp( IEventPtr eventPtr )
 	{
 		std::shared_ptr<Event_Start_Server> data = std::static_pointer_cast<Event_Start_Server>( eventPtr );
 		UINT port = data->Port();
-		if( !Connect( port ) )
+		if( Connect( port ) )
+		{
+			CreateEnemies();
+		}
+		else
+		{
 			std::cout << "Failed to start server!" << std::endl;
+		}
+	}
+}
+
+void Server::CreateEnemies()
+{
+	for( UINT i = 0; i < 5; i++ )
+	{
+		mEnemies[i] = Enemy( i, 0, 0, XMFLOAT3( (float)i, (float)i, (float)i ), XMFLOAT3( (float)i, (float)i, (float)i ) );
+
+		Enemy e = mEnemies[i];
+		std::cout << "Created enemy: " << e.id << " with state: " << e.state << " of type: " << e.type;
+		std::cout << " at: (" << e.pos.x << ", " << e.pos.y << ", " << e.pos.z << ")";
+		std::cout << " facing: (" << e.dir.x << ", " << e.dir.y << ", " << e.dir.z << ")" << std::endl;
+	}
+}
+
+// Syncs the newly connected player with the current enemy list
+void Server::SyncEnemy( UINT toClient )
+{
+	for( auto& enemy : mEnemies )
+	{
+		Enemy e = enemy.second;
+		IEventPtr E1( PFS_NEW Event_Server_Sync_Enemy( e.id, e.state, e.type, e.pos, e.dir ) );
+		SendEvent( E1, toClient );
 	}
 }
 
@@ -220,6 +273,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientSpawned, this, Event_Client_Spawned::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientFiredProjectile, this, Event_Client_Fired_Projectile::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientUpdateHP, this, Event_Client_Update_HP::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientMeleeHit, this, Event_Client_Melee_Hit::GUID );
 
 	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
 
@@ -238,6 +292,7 @@ Server::Server() : Network()
 {
 	mSocketManager	= nullptr;
 	mClientMap		= std::map<UINT, ClientNEF>();
+	mEnemies		= std::map<UINT, Enemy>();
 	mTeamDelegate	= (UINT)-1;
 }
 

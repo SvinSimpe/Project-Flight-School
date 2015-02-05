@@ -10,6 +10,7 @@ Client::Client() : Network()
 	mSocketManager			= nullptr;
 	mNEF					= nullptr;
 	mRemoteIDs				= std::list<UINT>();
+	mEnemies				= std::list<Enemy>();
 	mActive					= false;
 
 	mLowerBodyPos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
@@ -148,6 +149,41 @@ void Client::RemoteUpdateHP( IEventPtr eventPtr )
 	}
 }
 
+void Client::RemoteMeleeHit( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Melee_Hit::GUID )
+	{
+		std::shared_ptr<Event_Remote_Melee_Hit> data = std::static_pointer_cast<Event_Remote_Melee_Hit>( eventPtr );
+		UINT id = data->ID();
+		UINT victim = data->VictimID();
+		float damage = data->Damage();
+		float knockBack = data->KnockBack();
+		XMFLOAT3 dir = data->Direction();
+
+		std::cout << "Remote with ID: " << id << " hit " << victim << " for " << damage << " damage with ";
+		std::cout << knockBack << " knockback, facing: (" << dir.x << ", " << dir.y << ", " << dir.z << ")" << std::endl; 
+	}
+}
+
+void Client::ServerSyncEnemy( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Server_Sync_Enemy::GUID )
+	{
+		std::shared_ptr<Event_Server_Sync_Enemy> data = std::static_pointer_cast<Event_Server_Sync_Enemy>( eventPtr );
+		UINT id = data->ID();
+		UINT state = data->State();
+		UINT type = data->Type();
+		XMFLOAT3 pos = data->Position();
+		XMFLOAT3 dir = data->Direction();
+
+		mEnemies.push_back( Enemy( id, state, type, pos, dir ) );
+		Enemy e = mEnemies.back();
+		std::cout << "Server synced enemy: " << e.id << " with state: " << e.state << " of type: " << e.type;
+		std::cout << " at: (" << e.pos.x << ", " << e.pos.y << ", " << e.pos.z << ")";
+		std::cout << " facing: (" << e.dir.x << ", " << e.dir.y << ", " << e.dir.z << ")" << std::endl;
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -198,12 +234,13 @@ void Client::Update( float deltaTime )
 		//IEventPtr E1( PFS_NEW Event_Client_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection ) );
 		//IEventPtr E1( PFS_NEW Event_Client_Died( mID, 0 ) );
 		//IEventPtr E1( PFS_NEW Event_Client_Spawned( mID ) );
+		IEventPtr E1( PFS_NEW Event_Client_Melee_Hit( mID, 0, 10.6f, 0.67f, XMFLOAT3( 56.0f, 32.0f, 12.0f ) ) );
 
-		for( float i = -1.0f; i <= 1.0f; i += 1.0f )
-		{
-			IEventPtr E1( PFS_NEW Event_Client_Update_HP( mID, i ) );
-			SendEvent( E1 );
-		}
+		//for( float i = -1.0f; i <= 1.0f; i += 1.0f )
+		//{
+		//	IEventPtr E1( PFS_NEW Event_Client_Update_HP( mID, i ) );
+		//	SendEvent( E1 );
+		//}
 
 		//for( int i = 0; i < 10; i++ )
 		//{
@@ -211,7 +248,7 @@ void Client::Update( float deltaTime )
 		//	IEventPtr E1( PFS_NEW Event_Client_Fired_Projectile( mID, i, XMFLOAT3((float)i, 0.0f, 0.0f), XMFLOAT3((float)i, 0.0f, 0.0f ) ) );
 		//	SendEvent( E1 );
 		//}
-		//SendEvent( E1 );
+		SendEvent( E1 );
 	}
 }
 
@@ -244,6 +281,9 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Remote_Fired_Projectile );
 	EF::REGISTER_EVENT( Event_Client_Update_HP );
 	EF::REGISTER_EVENT( Event_Remote_Update_HP );
+	EF::REGISTER_EVENT( Event_Server_Sync_Enemy );
+	EF::REGISTER_EVENT( Event_Client_Melee_Hit );
+	EF::REGISTER_EVENT( Event_Remote_Melee_Hit );
 
 	EventManager::GetInstance()->AddListener( &Client::LocalJoined, this, Event_Local_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteJoined, this, Event_Remote_Joined::GUID );
@@ -254,6 +294,8 @@ bool Client::Initialize()
 	EventManager::GetInstance()->AddListener( &Client::RemoteSpawned, this, Event_Remote_Spawned::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteFiredProjectile, this, Event_Remote_Fired_Projectile::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteUpdateHP, this, Event_Remote_Update_HP::GUID );
+	EventManager::GetInstance()->AddListener( &Client::ServerSyncEnemy, this, Event_Server_Sync_Enemy::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteMeleeHit, this, Event_Remote_Melee_Hit::GUID );
 
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	return true;

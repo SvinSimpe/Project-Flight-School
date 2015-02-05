@@ -43,7 +43,8 @@ using namespace DirectX;
 	New rules:
 	- For every event that you create a REGISTER_EVENT call has to be made for that function.
 	- Events that are to be sent to the server from the client (don't worry, it's a singleton) needs to be sent, never listened to by the client itself.
-	- Events that needs to be sent (read above rule) by the client all have the word "Client" in them.
+	- Events that needs to be sent by the client all have the word "Client" in their names.
+	- Events that handles anything that's only Server->Client related have the word "Server" in their names.
 	- More rules will be implemented later. */
 
 extern EventType counter; // If you want know what this does, just check Events.cpp :D
@@ -1132,6 +1133,7 @@ class Event_Remote_Fired_Projectile : public IEvent
 		}
 };
 
+// An event sent from the client to the server whenever HP is lost/gained
 class Event_Client_Update_HP : public IEvent
 {
 	private:
@@ -1184,6 +1186,7 @@ class Event_Client_Update_HP : public IEvent
 		}
 };
 
+// An event used to update the other clients on a certain clients HP-update
 class Event_Remote_Update_HP : public IEvent
 {
 	private:
@@ -1233,5 +1236,268 @@ class Event_Remote_Update_HP : public IEvent
 		float HP() const
 		{
 			return mHP;
+		}
+};
+
+// An event used by the server to send clients the list of existing enemies
+class Event_Server_Sync_Enemy : public IEvent
+{
+	private:
+		UINT		mID;
+		UINT		mState;
+		UINT		mType;
+		XMFLOAT3	mPosition;
+		XMFLOAT3	mDirection;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Sync_Enemy()
+		{
+			mID			= (UINT)-1;
+			mState		= (UINT)-1;
+			mType		= (UINT)-1;
+			mPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mDirection	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		}
+		Event_Server_Sync_Enemy( UINT id, UINT state, UINT type, XMFLOAT3 position, XMFLOAT3 direction )
+		{
+			mID			= id;
+			mState		= state;
+			mType		= type;
+			mPosition	= position;
+			mDirection	= direction;
+		}
+		~Event_Server_Sync_Enemy() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mState << " ";
+			out << mType << " ";
+
+			out << mPosition.x << " ";
+			out << mPosition.y << " ";
+			out << mPosition.z << " ";
+
+			out << mDirection.x << " ";
+			out << mDirection.y << " ";
+			out << mDirection.z << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mState;
+			in >> mType;
+
+			in >> mPosition.x;
+			in >> mPosition.y;
+			in >> mPosition.z;
+
+			in >> mDirection.x;
+			in >> mDirection.y;
+			in >> mDirection.z;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Sync_Enemy( mID, mState, mType, mPosition, mDirection ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT State() const
+		{
+			return mState;
+		}
+		UINT Type() const
+		{
+			return mType;
+		}
+		XMFLOAT3 Position() const
+		{
+			return mPosition;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
+		}
+};
+
+// This event is sent by a client who hits a remote client
+class Event_Client_Melee_Hit : public IEvent
+{
+	private:
+		UINT		mID;
+		UINT		mVictimID;
+		float		mDamage;
+		float		mKnockBack;
+		XMFLOAT3	mDirection;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Melee_Hit()
+		{
+			mID			= (UINT)-1;
+			mVictimID	= (UINT)-1;
+			mDamage		= -1.0f;
+			mKnockBack	= -1.0f;
+			mDirection	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		}
+		Event_Client_Melee_Hit( UINT id, UINT victimID, float damage, float knockBack, XMFLOAT3 direction )
+		{
+			mID			= id;
+			mVictimID	= victimID;
+			mDamage		= damage;
+			mKnockBack	= knockBack;
+			mDirection	= direction;
+		}
+		~Event_Client_Melee_Hit() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mVictimID << " ";
+			out << mDamage << " ";
+			out << mKnockBack << " ";
+
+			out << mDirection.x << " ";
+			out << mDirection.y << " ";
+			out << mDirection.z << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mVictimID;
+			in >> mDamage;
+			in >> mKnockBack;
+
+			in >> mDirection.x;
+			in >> mDirection.y;
+			in >> mDirection.z;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Melee_Hit( mID, mVictimID, mDamage, mKnockBack, mDirection ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT VictimID() const
+		{
+			return mVictimID;
+		}
+		float Damage() const
+		{
+			return mDamage;
+		}
+		float KnockBack() const
+		{
+			return mKnockBack;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
+		}
+};
+
+class Event_Remote_Melee_Hit : public IEvent
+{
+	private:
+		UINT		mID;
+		UINT		mVictimID;
+		float		mDamage;
+		float		mKnockBack;
+		XMFLOAT3	mDirection;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Melee_Hit()
+		{
+			mID			= (UINT)-1;
+			mVictimID	= (UINT)-1;
+			mDamage		= -1.0f;
+			mKnockBack	= -1.0f;
+			mDirection	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		}
+		Event_Remote_Melee_Hit( UINT id, UINT victimID, float damage, float knockBack, XMFLOAT3 direction )
+		{
+			mID			= id;
+			mVictimID	= victimID;
+			mDamage		= damage;
+			mKnockBack	= knockBack;
+			mDirection	= direction;
+		}
+		~Event_Remote_Melee_Hit() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mVictimID << " ";
+			out << mDamage << " ";
+			out << mKnockBack << " ";
+
+			out << mDirection.x << " ";
+			out << mDirection.y << " ";
+			out << mDirection.z << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mVictimID;
+			in >> mDamage;
+			in >> mKnockBack;
+
+			in >> mDirection.x;
+			in >> mDirection.y;
+			in >> mDirection.z;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Melee_Hit( mID, mVictimID, mDamage, mKnockBack, mDirection ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT VictimID() const
+		{
+			return mVictimID;
+		}
+		float Damage() const
+		{
+			return mDamage;
+		}
+		float KnockBack() const
+		{
+			return mKnockBack;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
 		}
 };

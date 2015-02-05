@@ -65,3 +65,6 @@ const EventType Event_Client_Fired_Projectile::GUID( counter++ );
 const EventType Event_Remote_Fired_Projectile::GUID( counter++ );
 const EventType Event_Client_Update_HP::GUID( counter++ );
 const EventType Event_Remote_Update_HP::GUID( counter++ );
+const EventType Event_Server_Sync_Enemy::GUID( counter++ );
+const EventType Event_Client_Melee_Hit::GUID( counter++ );
+const EventType Event_Remote_Melee_Hit::GUID( counter++ );

@@ -153,9 +153,6 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="MuzzleFlashEffect.hlsl">
-      <FileType>Document</FileType>
-    </Text>
     <Text Include="..\Content\Effects\BillboardEffect.hlsl">
       <FileType>Document</FileType>
     </Text>
@@ -170,6 +167,9 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
+    <Text Include="..\Content\Effects\Particle Effects\MuzzleFlashEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
     <Text Include="..\Content\Effects\NodeGridEffect.hlsl">
       <FileType>Document</FileType>
     </Text>

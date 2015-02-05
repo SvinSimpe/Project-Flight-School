@@ -558,6 +558,7 @@ HRESULT PlayState::Render()
 	}
 
 	mShip.Render();
+	mParticleManager->Render( 0.0f );
 
 	int nrOfAllies = 0;
 	float alliesHP[MAX_REMOTE_PLAYERS];

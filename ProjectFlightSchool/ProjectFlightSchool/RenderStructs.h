@@ -28,7 +28,7 @@ struct Object2dInfo
 	UINT				mAssetId;
 	DirectX::XMFLOAT2	mTopLeftCorner;
 	DirectX::XMFLOAT2	mWidthHeight;
-
+	DirectX::XMFLOAT4	mColor;
 };
 
 struct BillboardInfo

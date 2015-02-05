@@ -47,6 +47,7 @@ class Event_Player_Update : public IEvent
 		XMFLOAT3		mLowerBodyPos;
 		XMFLOAT3		mVelocity;
 		XMFLOAT3		mUpperBodyDirection;
+		std::string		mName;
 
 	protected:
 	public:
@@ -60,23 +61,29 @@ class Event_Player_Update : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Player_Update( XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDirection )
+		Event_Player_Update( XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDirection, std::string name )
 		{
 			mLowerBodyPos			= lowerBodyPos;
 			mVelocity				= velocity;
 			mUpperBodyDirection		= upperBodyDirection;
+			mName					= name;
+
 		}
-		XMFLOAT3 LowerBodyPos() const
+		XMFLOAT3	LowerBodyPos() const
 		{
 			return mLowerBodyPos;
 		}
-		XMFLOAT3 Velocity() const
+		XMFLOAT3	Velocity() const
 		{
 			return mVelocity;
 		}
-		XMFLOAT3 UpperBodyDirection() const
+		XMFLOAT3	UpperBodyDirection() const
 		{
 			return mUpperBodyDirection;
+		}
+		std::string Name() const
+		{
+			return mName;
 		}
 };
 
@@ -88,6 +95,7 @@ class Event_Remote_Player_Update : public IEvent
 		XMFLOAT3		mLowerBodyPos;
 		XMFLOAT3		mVelocity;
 		XMFLOAT3		mUpperBodyDirection;
+		std::string		mName;
 
 	protected:
 	public:
@@ -101,28 +109,33 @@ class Event_Remote_Player_Update : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Remote_Player_Update( unsigned int id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDirection )
+		Event_Remote_Player_Update( unsigned int id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDirection, std::string name )
 		{
 			mID						= id;
 			mLowerBodyPos			= lowerBodyPos;
 			mVelocity				= velocity;
 			mUpperBodyDirection		= upperBodyDirection;
+			mName					= name;
 		}
-		unsigned int ID() const
+		unsigned int	ID() const
 		{
 			return mID;
 		}
-		XMFLOAT3 LowerBodyPos() const
+		XMFLOAT3		LowerBodyPos() const
 		{
 			return mLowerBodyPos;
 		}
-		XMFLOAT3 Velocity() const
+		XMFLOAT3		Velocity() const
 		{
 			return mVelocity;
 		}
-		XMFLOAT3 UpperBodyDirection() const
+		XMFLOAT3		UpperBodyDirection() const
 		{
 			return mUpperBodyDirection;
+		}
+		std::string		Name() const
+		{
+			return mName;
 		}
 };
 
@@ -147,8 +160,8 @@ class Event_Local_Player_Joined : public IEvent
 	public:
 		Event_Local_Player_Joined( unsigned int id, int team )
 		{
-			mID		= id;
-			mTeam	= team;
+			mID			= id;
+			mTeam		= team;
 		}
 		unsigned int ID() const
 		{
@@ -181,8 +194,8 @@ class Event_Remote_Player_Joined : public IEvent
 	public:
 		Event_Remote_Player_Joined( unsigned int id, int team )
 		{
-			mID		= id;
-			mTeam	= team;
+			mID			= id;
+			mTeam		= team;
 		}
 		unsigned int ID() const
 		{
@@ -1277,6 +1290,35 @@ class Event_Set_Remote_Enemy_State : public IEvent // Client side
 		}
 };
 
+class Event_Create_Player_Name : public IEvent
+{
+	// Member variables
+	private:
+		std::string		mPlayerName;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Create_Player_Name( std::string playerName )
+		{
+			mPlayerName = playerName;
+		}
+		std::string PlayerName() const
+		{
+			return mPlayerName;
+		}
+};
+
+
 class Event_Projectile_Damage_Enemy : public IEvent
 {
 	// Member variables
@@ -1357,10 +1399,11 @@ class Event_Enemy_Attack_Player : public IEvent
 	private:
 		unsigned int	mPlayerID;	
 		float			mDamage;
-
+	
 	protected:
 	public:
 		static const EventType GUID;
+
 
 	// Member functions
 	private:

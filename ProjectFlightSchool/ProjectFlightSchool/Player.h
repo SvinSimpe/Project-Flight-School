@@ -1,16 +1,16 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "Input.h"
 #include "Projectile.h"
 #include "RemotePlayer.h"
+#include "Input.h"
 
 #define VELOCITY_FALLOFF 2.0f
 
 class Player: public RemotePlayer
 {
 	private:
-		float		mEventCapTimer;
+		float			mEventCapTimer;
 
 		PointLight*	mPointLight[5];
 		float		mMaxVelocity;
@@ -20,6 +20,8 @@ class Player: public RemotePlayer
 		
 		bool		mIsBuffed;
 		bool		mIsMeleeing;
+		bool		mHasName;
+		std::string	mPlayerName;
 		float		mWeaponCoolDown;
 		float		mMeleeCoolDown;
 		float		mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1

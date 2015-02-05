@@ -4,38 +4,43 @@
 
 void Player::EventListener(IEventPtr newEvent)
 {
-	if ( newEvent->GetEventType() == Event_Remote_Player_Died::GUID )
+	if (newEvent->GetEventType() == Event_Remote_Player_Died::GUID)
 	{
 		// Kill remote player
-		std::shared_ptr<Event_Remote_Player_Died> data = std::static_pointer_cast<Event_Remote_Player_Died>( newEvent );
-		if ( data->KillerID() == mID )
+		std::shared_ptr<Event_Remote_Player_Died> data = std::static_pointer_cast<Event_Remote_Player_Died>(newEvent);
+		if (data->KillerID() == mID)
 		{
 			CountUpKills();
 		}
 	}
-	else if ( newEvent->GetEventType() == Event_Player_Revive::GUID )
+	else if (newEvent->GetEventType() == Event_Player_Revive::GUID)
 	{
-		std::shared_ptr<Event_Player_Revive> data = std::static_pointer_cast<Event_Player_Revive>( newEvent );
-		HandleRevive( data->DeltaTime() );
+		std::shared_ptr<Event_Player_Revive> data = std::static_pointer_cast<Event_Player_Revive>(newEvent);
+		HandleRevive(data->DeltaTime());
 	}
-	else if ( newEvent->GetEventType() == Event_Enemy_Attack_Player::GUID )
+	else if (newEvent->GetEventType() == Event_Enemy_Attack_Player::GUID)
 	{
-		std::shared_ptr<Event_Enemy_Attack_Player> data = std::static_pointer_cast<Event_Enemy_Attack_Player>( newEvent );
-		if( mID == data->Player() )
-			TakeDamage( data->Damage(), 0 );
+		std::shared_ptr<Event_Enemy_Attack_Player> data = std::static_pointer_cast<Event_Enemy_Attack_Player>(newEvent);
+		if (mID == data->Player())
+			TakeDamage(data->Damage(), 0);
 	}
-	else if ( newEvent->GetEventType() == Event_Remote_Player_Melee_Hit::GUID )
+	else if (newEvent->GetEventType() == Event_Remote_Player_Melee_Hit::GUID)
 	{
 		// Melee Hit
 		std::shared_ptr<Event_Remote_Player_Melee_Hit> data = std::static_pointer_cast<Event_Remote_Player_Melee_Hit>(newEvent);
-		if( mID == data->ID() )
+		if (mID == data->ID())
 		{
 			XMFLOAT3 direction = data->Direction();
 			direction.x *= data->KnockBack();
 			direction.z *= data->KnockBack();
-			AddImpuls( direction );
-			TakeDamage( data->Damage(), 0 );
+			AddImpuls(direction);
+			TakeDamage(data->Damage(), 0);
 		}
+	}
+	else if (newEvent->GetEventType() == Event_Create_Player_Name::GUID)
+	{
+		std::shared_ptr<Event_Create_Player_Name> data = std::static_pointer_cast<Event_Create_Player_Name>(newEvent);
+		mPlayerName = data->PlayerName();
 	}
 }
 
@@ -270,9 +275,9 @@ void Player::TakeDamage( float damage, unsigned int shooter )
 	}
 }
 
-void Player::HandleRevive( float deltaTime )
+void Player::HandleRevive(float deltaTime)
 {
-	if( mTimeTillRevive <= 0.0f )
+	if (mTimeTillRevive <= 0.0f)
 	{
 		GoUp();
 	}
@@ -361,7 +366,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	mEventCapTimer += deltaTime;
 	if( mEventCapTimer > 0.02f )
 	{
-		IEventPtr E1( new Event_Player_Update( mLowerBody.position, mVelocity, mUpperBody.direction ) );
+		IEventPtr E1( new Event_Player_Update( mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 		mEventCapTimer -= 0.02f;
 	}
@@ -433,9 +438,12 @@ HRESULT Player::Initialize()
 	RemotePlayer::Initialize();
 
 	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
-
+	mHasName = false;
+	mPlayerName = "";
+	
 	////////////
 	// Light
+	////////////
 	for( int i = 0; i < 5; i++ )
 	{
 		mPointLight[i]						= new PointLight;
@@ -470,6 +478,7 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Player_Revive::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Enemy_Attack_Player::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Player_Melee_Hit::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Create_Player_Name::GUID );
 	
 	return S_OK;
 }

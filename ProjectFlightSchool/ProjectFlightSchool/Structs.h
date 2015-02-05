@@ -14,6 +14,7 @@ struct EvPlayerUpdate
 	DirectX::XMFLOAT3	lowerBodyPosition;
 	DirectX::XMFLOAT3	velocity;
 	DirectX::XMFLOAT3	upperBodyDirection;
+	std::string			playerName;
 };
 
 struct EvPlayerID
@@ -25,8 +26,8 @@ struct EvPlayerID
 
 struct EvInitialize
 {
-	unsigned int ID;
-	unsigned int team;
+	unsigned int	ID;
+	unsigned int	team;
 };
 
 struct EvKilled

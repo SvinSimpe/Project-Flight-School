@@ -85,6 +85,7 @@ class RemotePlayer
 	private:
 	protected:
 		unsigned int	mID;
+		std::string		mPlayerName;
 		int				mTeam;
 		bool			mIsAlive;
 		bool			mIsDown;
@@ -153,8 +154,10 @@ class RemotePlayer
 		BoundingCircle*	GetBoundingCircleAura() const;
 		XMFLOAT3		GetPosition() const;
 		XMFLOAT3		GetDirection() const;
+		std::string		GetName() const;
 		void			SetDirection( XMFLOAT3 direction );
 		void			SetHP( float hp );
+		void			SetName( std::string name );
 };
 
 #endif

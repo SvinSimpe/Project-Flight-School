@@ -13,6 +13,7 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 			XMStoreFloat3( &mLowerBody.direction, XMVector3Normalize( XMLoadFloat3( &data->Velocity() ) ) );
 			mVelocity										= data->Velocity();
 			mUpperBody.direction							= data->UpperBodyDirection();
+			mPlayerName										= data->Name();
 
 			//TEST
 			mBoundingBox->position		= mLowerBody.position;
@@ -554,6 +555,11 @@ XMFLOAT3 RemotePlayer::GetDirection() const
 	return mLowerBody.direction;
 }
 
+std::string RemotePlayer::GetName() const
+{
+	return mPlayerName;
+}
+
 void RemotePlayer::SetDirection( XMFLOAT3 direction )
 {
 	XMStoreFloat3( &mLowerBody.direction, ( XMLoadFloat3( &mLowerBody.direction ) += XMLoadFloat3( &direction ) ) );
@@ -563,4 +569,9 @@ void RemotePlayer::SetDirection( XMFLOAT3 direction )
 void RemotePlayer::SetHP( float hp )
 {
 	mCurrentHp = hp;
+}
+
+void RemotePlayer::SetName( std::string name )
+{
+	mPlayerName = name;
 }

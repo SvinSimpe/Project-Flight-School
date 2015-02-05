@@ -18,6 +18,10 @@
 #define SAFE_RELEASE( x ) if( x ){ x->Release(); x = nullptr; }
 #endif
 
+#if !defined(SAFE_RELEASE_DELETE)
+#define SAFE_RELEASE_DELETE( x ) if( x ) { ( x )->Release(); delete x; ( x ) = nullptr; }
+#endif 
+
 typedef UINT AssetID;
 
 struct JointAnimation

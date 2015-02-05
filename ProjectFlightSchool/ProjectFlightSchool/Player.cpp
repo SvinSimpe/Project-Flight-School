@@ -1,5 +1,14 @@
 #include "Player.h"
 
+void Player::CreatePlayerName( IEventPtr newEvent )
+{
+	if( newEvent->GetEventType() == Event_Create_Player_Name::GUID )
+	{
+		std::shared_ptr<Event_Create_Player_Name> data = std::static_pointer_cast<Event_Create_Player_Name>( newEvent );
+		mPlayerName = data->PlayerName();
+	}
+}
+
 void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
 {
 	if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_SPACE) )
@@ -125,6 +134,11 @@ void Player::Move( float deltaTime )
 	mLowerBody.position.z += mVelocity.z * deltaTime;
 }
 
+std::string	Player::GetPlayerName() const
+{
+	return mPlayerName;
+}
+
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
 {
 	HandleInput( deltaTime, remotePlayers );
@@ -201,7 +215,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	mEventCapTimer += deltaTime;
 	if( mEventCapTimer > 0.02f )
 	{
-		IEventPtr E1( new Event_Player_Update( mLowerBody.position, mVelocity, mUpperBody.direction ) );
+		IEventPtr E1( new Event_Player_Update( mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 		mEventCapTimer -= 0.02f;
 	}
@@ -264,7 +278,6 @@ HRESULT Player::Render( float deltaTime, int position )
 	}
 
 	RemotePlayer::Render( position );
-
 
 	return S_OK;
 }
@@ -414,9 +427,13 @@ HRESULT Player::Initialize()
 	RemotePlayer::Initialize();
 
 	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
-
+	mHasName = false;
+	mPlayerName = "";
+	EventManager::GetInstance()->AddListener( &Player::CreatePlayerName, this, Event_Create_Player_Name::GUID );
+	
 	////////////
 	// Light
+	////////////
 	for( int i = 0; i < 5; i++ )
 	{
 		mPointLight[i]						= new PointLight;

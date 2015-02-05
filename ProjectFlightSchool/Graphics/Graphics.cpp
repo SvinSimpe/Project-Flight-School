@@ -681,6 +681,16 @@ void Graphics::ZoomOutDeveloperCamera()
 	mCamera[CAMERAS_DEV]->ZoomOut();
 }
 
+void Graphics::GetViewMatrix( DirectX::XMMATRIX &view )
+{
+	view = mCamera[CAMERAS_MAIN]->GetViewMatrix();
+}
+
+void Graphics::GetProjectionMatrix( DirectX::XMMATRIX &proj )
+{
+	proj = mCamera[CAMERAS_MAIN]->GetProjMatrix();
+}
+
 void Graphics::MapLightStructuredBuffer( LightStructure* lightStructure, int numPointLights )
 {
 	MapBuffer( mBuffers[BUFFERS_LIGHT], (void*)lightStructure, sizeof( LightStructure ) );
@@ -1517,7 +1527,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	cameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
 	cameraInfo.width		= (float)screenWidth;
 	cameraInfo.height		= (float)screenHeight;
-	cameraInfo.foVY			= 0.75f;
+	cameraInfo.foVY			= 3.14159265f * 0.25f;
 	cameraInfo.nearZ		= 0.1f;
 	cameraInfo.farZ			= 1000.0f;
 
@@ -1534,7 +1544,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	developerCameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
 	developerCameraInfo.width		= (float)screenWidth;
 	developerCameraInfo.height		= (float)screenHeight;
-	developerCameraInfo.foVY		= 0.75f;
+	developerCameraInfo.foVY		= 3.14159265f * 0.25f;
 	developerCameraInfo.nearZ		= 0.1f;
 	developerCameraInfo.farZ		= 1000.0f;
 

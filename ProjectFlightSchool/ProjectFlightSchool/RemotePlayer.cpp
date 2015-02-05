@@ -11,6 +11,7 @@ void RemotePlayer::RemoteUpdate( IEventPtr newEvent )
 			XMStoreFloat3( &mLowerBody.direction, XMVector3Normalize( XMLoadFloat3( &data->Velocity() ) ) );
 			mVelocity										= data->Velocity();
 			mUpperBody.direction							= data->UpperBodyDirection();
+			mPlayerName										= data->Name();
 
 			//TEST
 			mBoundingBox->position		= mLowerBody.position;
@@ -101,6 +102,23 @@ void RemotePlayer::Spawn()
 	EventManager::GetInstance()->QueueEvent( spawnEv );
 }
 
+void RemotePlayer::TakeDamage( float damage, unsigned int shooter )
+{
+	mCurrentHp -= damage;
+	IEventPtr player( new Event_Player_Update_HP( mID, mCurrentHp ) );
+	EventManager::GetInstance()->QueueEvent( player );
+	if ( mIsAlive && mCurrentHp <= 0.0f )
+	{
+		Die();
+		BroadcastDeath( shooter );
+	}
+}
+
+void RemotePlayer::SetName( std::string name )
+{
+	mPlayerName = name;
+}
+
 void RemotePlayer::SetHP( float hp )
 {
 	mCurrentHp = hp;
@@ -137,6 +155,11 @@ void RemotePlayer::GoUp()
 bool RemotePlayer::IsAlive() const
 {
 	return mIsAlive;
+}
+
+std::string RemotePlayer::GetName() const
+{
+	return mPlayerName;
 }
 
 bool RemotePlayer::IsDown() const
@@ -334,6 +357,7 @@ HRESULT RemotePlayer::Render( int position )
 			textToWrite	+= "I";
 			currentDeaths--;
 		}
+
 		mFont.WriteText( textToWrite, 25.0f, ((20.0f*(float)position)-7), 1.95f );
 	}
 
@@ -505,6 +529,8 @@ HRESULT RemotePlayer::Initialize()
 	mLowerBody.position						= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mNrOfDeaths								= 0;
 	mNrOfKills								= 0;
+
+	mPlayerName = "";
 
 	mLeftArmAnimationCompleted				= false;
 	mRightArmAnimationCompleted				= false;

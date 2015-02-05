@@ -2,10 +2,8 @@
 
 struct Matrix
 {
-	char name[50];
-	float translate[3];
-	float rotate[3];
-	float scale[3];
+	char name[64];
+	MMatrix derp;
 };
 
 struct Vertex

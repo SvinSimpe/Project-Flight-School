@@ -13,7 +13,7 @@ class RenderManager
 		Anim3dInfo		mAnim3dArray[MAX_AMOUNT_OF_ANIM3D];
 		PlaneInfo		mPlaneArray[MAX_AMOUNT_OF_PLANES];
 		BillboardInfo	mBillboardArray[MAX_AMOUNT_OF_OBJECT2D];
-		ParticleInfo	mParticleInfoArray[50000];
+		ParticleInfo	mParticleInfoArray[MAX_NR_OF_PARTICLES];
 		NodeGridInfo	mNodeGridArray[MAX_AMOUNT_OF_NODEGRIDS];
 		BoxInfo			mBoxArray[MAX_AMOUNT_OF_BOXES];
 

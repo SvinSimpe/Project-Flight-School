@@ -7,13 +7,6 @@ HRESULT MapSection::Render( float deltaTime )
 	{
 		mInstances[i]->Render( deltaTime );
 	}
-	//for( int i = 0; i < 4; i++ )
-	//{
-	//	if( mChildren[i] != nullptr )
-	//	{
-	//		mChildren[i]->Render( deltaTime );
-	//	}
-	//}
 	return S_OK;
 }
 HRESULT MapSection::Initialize( Map* map, MapSection* parent, MapNodeInstance** mapNodes, int childID )

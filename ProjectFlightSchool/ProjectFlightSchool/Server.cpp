@@ -27,6 +27,20 @@ void Server::EventListener( IEventPtr newEvent )
 			}
 		}
 	}
+	else if( newEvent->GetEventType() == Event_Enemy_Died::GUID )
+	{
+		std::shared_ptr<Event_Enemy_Died> data = std::static_pointer_cast<Event_Enemy_Died>( newEvent );
+		EvSetEnemyState state;
+		state.ID	= data->Enemy();
+		state.state	= Death;
+		for ( auto& socket : mClientSockets )
+		{
+			if ( socket.s != INVALID_SOCKET )
+			{
+				mConn->SendPkg( socket.s, 0, Net_Event::EV_SET_ENEMY_STATE, state );
+			}
+		}
+	}
 }
 
 bool Server::AcceptConnection()
@@ -139,6 +153,20 @@ void Server::AggroCheck()
 					if( mEnemies[i]->GetAttackCircle()->Intersect( mAggCircle ) )
 					{
 						mEnemies[i]->SetState( Attack );
+						float attack = mEnemies[i]->HandleAttack();
+						if( attack != 0.0f )
+						{
+							EvEnemyAttackPlayer enemyAtk;
+							enemyAtk.playerID	= mPlayers[j].ID;
+							enemyAtk.damage		= attack;
+							for ( auto& socket : mClientSockets )
+							{
+								if ( socket.s != INVALID_SOCKET && mEnemyListSynced )
+								{
+									mConn->SendPkg( socket.s, 0, Net_Event::EV_ENEMY_ATTACK_PLAYER, enemyAtk );
+								}
+							}
+						}
 					}
 					else
 					{
@@ -173,6 +201,7 @@ HRESULT Server::Update( float deltaTime )
 				enemy.ID			= mEnemies[i]->GetID();
 				enemy.position		= mEnemies[i]->GetPosition();
 				enemy.direction		= mEnemies[i]->GetDirection();
+				enemy.isAlive		= mEnemies[i]->IsAlive();
 
 				for ( auto& socket : mClientSockets )
 				{
@@ -185,7 +214,7 @@ HRESULT Server::Update( float deltaTime )
 			}
 			else
 			{
-				mEnemies[i]->Spawn( GetNextSpawn() );
+				mEnemies[i]->HandleSpawn( deltaTime, GetNextSpawn() );
 			}
 		}
 
@@ -319,6 +348,7 @@ bool Server::Initialize( std::string port )
 	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Game_Started::GUID );
 	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Game_Ended::GUID );
 	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Set_Enemy_State::GUID );
+	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Enemy_Died::GUID );
 
 
 	IEventPtr E1( new Event_Server_Initialized() );

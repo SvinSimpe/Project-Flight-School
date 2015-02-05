@@ -4,7 +4,7 @@ void Font::WriteText( std::string toWrite, float x, float y, float scale )
 {
 	float xOffset = 0.0f;
 	float yOffset = 0.0f;
-	float yLower  = 20.0f * scale;
+	float yLower  = 20.0f * scale/LETTER_SCALE;
 	for( unsigned int i = 0; i < toWrite.size(); i++ )
 	{
 		char l = toWrite[i];
@@ -32,6 +32,10 @@ void Font::WriteText( std::string toWrite, float x, float y, float scale )
 		{
 			l = '~';
 		}
+		else if( l == '%' || mCharacters.find(l) == mCharacters.end() )
+		{
+			l = '%';
+		}
 
 		if( l == 'g' || l == 'j' || l == 'y' || l == 'q' || l == 'p')
 		{
@@ -51,32 +55,32 @@ void Font::Initialize( std::string path )
 	path = "../Content/Assets/Fonts/final_font/";
 	Letter UPPER_CASE[] =
 	{
-		Letter( 'A', 49.0f ),
-		Letter( 'B', 50.0f ),
-		Letter( 'C', 49.0f ),
-		Letter( 'D', 50.0f ),
-		Letter( 'E', 49.0f ),
-		Letter( 'F', 49.0f ),
-		Letter( 'G', 50.0f ),
-		Letter( 'H', 50.0f ),
-		Letter( 'I', 50.0f ),
-		Letter( 'J', 40.0f ),
-		Letter( 'K', 49.0f ),
-		Letter( 'L', 49.0f ),
-		Letter( 'M', 50.0f ),
-		Letter( 'N', 50.0f ),
-		Letter( 'O', 50.0f ),
-		Letter( 'P', 50.0f ),
-		Letter( 'Q', 50.0f ),
-		Letter( 'R', 50.0f ),
-		Letter( 'S', 50.0f ),
-		Letter( 'T', 50.0f ),
-		Letter( 'U', 50.0f ),
-		Letter( 'V', 50.0f ),
-		Letter( 'W', 50.0f ),
-		Letter( 'X', 50.0f ),
-		Letter( 'Y', 50.0f ),
-		Letter( 'Z', 50.0f ) // Is actually ?
+		Letter( 'A', 49.0f/LETTER_SCALE ),
+		Letter( 'B', 50.0f/LETTER_SCALE ),
+		Letter( 'C', 49.0f/LETTER_SCALE ),
+		Letter( 'D', 50.0f/LETTER_SCALE ),
+		Letter( 'E', 49.0f/LETTER_SCALE ),
+		Letter( 'F', 49.0f/LETTER_SCALE ),
+		Letter( 'G', 50.0f/LETTER_SCALE ),
+		Letter( 'H', 50.0f/LETTER_SCALE ),
+		Letter( 'I', 50.0f/LETTER_SCALE ),
+		Letter( 'J', 40.0f/LETTER_SCALE ),
+		Letter( 'K', 49.0f/LETTER_SCALE ),
+		Letter( 'L', 49.0f/LETTER_SCALE ),
+		Letter( 'M', 50.0f/LETTER_SCALE ),
+		Letter( 'N', 50.0f/LETTER_SCALE ),
+		Letter( 'O', 50.0f/LETTER_SCALE ),
+		Letter( 'P', 50.0f/LETTER_SCALE ),
+		Letter( 'Q', 50.0f/LETTER_SCALE ),
+		Letter( 'R', 50.0f/LETTER_SCALE ),
+		Letter( 'S', 50.0f/LETTER_SCALE ),
+		Letter( 'T', 50.0f/LETTER_SCALE ),
+		Letter( 'U', 50.0f/LETTER_SCALE ),
+		Letter( 'V', 50.0f/LETTER_SCALE ),
+		Letter( 'W', 50.0f/LETTER_SCALE ),
+		Letter( 'X', 50.0f/LETTER_SCALE ),
+		Letter( 'Y', 50.0f/LETTER_SCALE ),
+		Letter( 'Z', 50.0f/LETTER_SCALE ) // Is actually ?
 	};
 
 	for( auto& it : UPPER_CASE )
@@ -88,32 +92,32 @@ void Font::Initialize( std::string path )
 
 	Letter LOWER_CASE[] =
 	{
-		Letter( 'a', 48.0f ),
-		Letter( 'b', 48.0f ),
-		Letter( 'c', 48.0f ),
-		Letter( 'd', 48.0f ),
-		Letter( 'e', 48.0f ),
-		Letter( 'f', 43.0f ),
-		Letter( 'g', 48.0f ),
-		Letter( 'h', 48.0f ),
-		Letter( 'i', 38.0f ),
-		Letter( 'j', 38.0f ),
-		Letter( 'k', 48.0f ),
-		Letter( 'l', 38.0f ),
-		Letter( 'm', 48.0f ),
-		Letter( 'n', 48.0f ),
-		Letter( 'o', 48.0f ),
-		Letter( 'p', 48.0f ),
-		Letter( 'q', 48.0f ),
-		Letter( 'r', 48.0f ),
-		Letter( 's', 48.0f ),
-		Letter( 't', 48.0f ),
-		Letter( 'u', 48.0f ),
-		Letter( 'v', 48.0f ),
-		Letter( 'w', 48.0f ),
-		Letter( 'x', 48.0f ),
-		Letter( 'y', 48.0f ),
-		Letter( 'z', 48.0f ),
+		Letter( 'a', 48.0f/LETTER_SCALE ),
+		Letter( 'b', 48.0f/LETTER_SCALE ),
+		Letter( 'c', 48.0f/LETTER_SCALE ),
+		Letter( 'd', 48.0f/LETTER_SCALE ),
+		Letter( 'e', 48.0f/LETTER_SCALE ),
+		Letter( 'f', 43.0f/LETTER_SCALE ),
+		Letter( 'g', 48.0f/LETTER_SCALE ),
+		Letter( 'h', 48.0f/LETTER_SCALE ),
+		Letter( 'i', 38.0f/LETTER_SCALE ),
+		Letter( 'j', 38.0f/LETTER_SCALE ),
+		Letter( 'k', 48.0f/LETTER_SCALE ),
+		Letter( 'l', 38.0f/LETTER_SCALE ),
+		Letter( 'm', 48.0f/LETTER_SCALE ),
+		Letter( 'n', 48.0f/LETTER_SCALE ),
+		Letter( 'o', 48.0f/LETTER_SCALE ),
+		Letter( 'p', 48.0f/LETTER_SCALE ),
+		Letter( 'q', 48.0f/LETTER_SCALE ),
+		Letter( 'r', 48.0f/LETTER_SCALE ),
+		Letter( 's', 48.0f/LETTER_SCALE ),
+		Letter( 't', 48.0f/LETTER_SCALE ),
+		Letter( 'u', 48.0f/LETTER_SCALE ),
+		Letter( 'v', 48.0f/LETTER_SCALE ),
+		Letter( 'w', 48.0f/LETTER_SCALE ),
+		Letter( 'x', 48.0f/LETTER_SCALE ),
+		Letter( 'y', 48.0f/LETTER_SCALE ),
+		Letter( 'z', 48.0f/LETTER_SCALE ),
 	};
 
 	for( auto& it : LOWER_CASE )
@@ -125,16 +129,16 @@ void Font::Initialize( std::string path )
 
 	Letter NUMBERS[] =
 	{
-		Letter( '0', 50.0f ),
-		Letter( '1', 50.0f ),
-		Letter( '2', 50.0f ),
-		Letter( '3', 50.0f ),
-		Letter( '4', 45.0f ),
-		Letter( '5', 50.0f ),
-		Letter( '6', 50.0f ),
-		Letter( '7', 50.0f ),
-		Letter( '8', 50.0f ),
-		Letter( '9', 50.0f )
+		Letter( '0', 50.0f/LETTER_SCALE ),
+		Letter( '1', 50.0f/LETTER_SCALE ),
+		Letter( '2', 50.0f/LETTER_SCALE ),
+		Letter( '3', 50.0f/LETTER_SCALE ),
+		Letter( '4', 45.0f/LETTER_SCALE ),
+		Letter( '5', 50.0f/LETTER_SCALE ),
+		Letter( '6', 50.0f/LETTER_SCALE ),
+		Letter( '7', 50.0f/LETTER_SCALE ),
+		Letter( '8', 50.0f/LETTER_SCALE ),
+		Letter( '9', 50.0f/LETTER_SCALE )
 	};
 
 	for( auto& it : NUMBERS )
@@ -146,9 +150,10 @@ void Font::Initialize( std::string path )
 
 	Letter SYMBOLS[] =
 	{
-		Letter( '_', 20.0f ),
-		Letter( '!', 13.0f ),
-		Letter( '~', 50.0f ),
+		Letter( '_', 20.0f/LETTER_SCALE ),
+		Letter( '!', 13.0f/LETTER_SCALE ),
+		Letter( '~', 50.0f/LETTER_SCALE ),
+		Letter( '%', 50.0f/LETTER_SCALE ),
 	};
 
 	for( auto& it : SYMBOLS )

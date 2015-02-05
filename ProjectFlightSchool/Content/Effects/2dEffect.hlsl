@@ -29,6 +29,5 @@ SamplerState linearSampler			: register( s1 );
 
 float4 PS_main(VS_Out input) : SV_TARGET0
 {
-	clip( diffuseTexture.Sample( linearSampler, input.uv ).w < 0.7f ? -1:1 );
-	return float4( diffuseTexture.Sample( linearSampler, input.uv ).xyz, 1.0f );
+	return diffuseTexture.Sample( linearSampler, input.uv );
 }

@@ -138,7 +138,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if ( newEvent->GetEventType() == Event_Update_Enemy_Position::GUID )
 	{
 		std::shared_ptr<Event_Update_Enemy_Position> data = std::static_pointer_cast<Event_Update_Enemy_Position>( newEvent );
-		UpdateEnemyPosition( data->ID(), data->Position(), data->Direction() );
+		UpdateEnemyPosition( data->ID(), data->Position(), data->Direction(), data->IsAlive() );
 	}
 	else if ( newEvent->GetEventType() == Event_Enemy_List_Synced::GUID )
 	{
@@ -158,10 +158,28 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Set_Remote_Enemy_State> data = std::static_pointer_cast<Event_Set_Remote_Enemy_State>( newEvent );
 		SetEnemyState( data->ID(), (EnemyState)data->State() );
 	}
+	else if ( newEvent->GetEventType() == Event_Enemy_Attack_Player::GUID )
+	{
+		std::shared_ptr<Event_Enemy_Attack_Player> data = std::static_pointer_cast<Event_Enemy_Attack_Player>( newEvent );
+		if( mPlayer->GetID() == data->Player() )
+			mPlayer->TakeEnemyDamage( data->Damage() );
+	}
 }
 
 void PlayState::SetEnemyState( unsigned int id, EnemyState state )
 {
+	if( state == Death )
+	{
+		mEnemies[id]->SetLoopAnimation( false );
+		mEnemies[id]->SetIsAlive( false );
+
+	}
+	else
+	{
+		mEnemies[id]->SetLoopAnimation( true );
+		mEnemies[id]->SetIsAlive( true );
+	}
+
 	mEnemies[id]->SetAnimation( mEnemyAnimationManager->GetAnimation( mEnemies[id]->GetEnemyType(), state ) );
 }
 
@@ -180,10 +198,11 @@ void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XM
 		mEnemyListSynced = true;
 }
 
-void PlayState::UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction )
+void PlayState::UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive )
 {
 	mEnemies[id]->SetPosition( position );
 	mEnemies[id]->SetDirection( direction );
+	mEnemies[id]->SetIsAlive( isAlive );
 }
 
 void PlayState::SyncSpawn( unsigned int id, XMFLOAT3 position )
@@ -198,6 +217,12 @@ void PlayState::BroadcastDamage( unsigned int playerID, unsigned int projectileI
 	EventManager::GetInstance()->QueueEvent( dmgEv );
 }
 
+void PlayState::BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage )
+{
+	IEventPtr dmgEv( new Event_Projectile_Damage_Enemy( shooterID, projectileID, enemyID, damage ) );
+	EventManager::GetInstance()->QueueEvent( dmgEv );
+}
+
 void PlayState::BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction )
 {
 	IEventPtr dmgEv( new Event_Player_Melee_Hit( playerID, damage, knockBack, direction ) );
@@ -206,7 +231,8 @@ void PlayState::BroadcastMeleeDamage( unsigned playerID, float damage, float kno
 
 void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction )
 {
-	mProjectiles[mNrOfProjectilesFired % MAX_PROJECTILES]->SetDirection( id, projectileID, position, direction );
+	mNrOfProjectilesFired = mNrOfProjectilesFired % MAX_PROJECTILES;
+	mProjectiles[mNrOfProjectilesFired]->SetDirection( id, projectileID, position, direction );
 	//mProjectiles[mNrOfProjectilesFired % MAX_PROJECTILES]->SetIsActive( true );
 	mNrOfProjectilesFired++;
 }
@@ -238,13 +264,13 @@ void PlayState::RenderProjectiles()
 void PlayState::HandleDeveloperCameraInput()
 {
 	// TOGGLE CAM
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_RCTRL ) )
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_RCTRL ) )
 		Graphics::GetInstance()->ChangeCamera();
 	// ZOOM IN
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_DOWN ) )
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_DOWN ) )
 		Graphics::GetInstance()->ZoomOutDeveloperCamera();
 	// ZOOM OUT
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_UP) )
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_UP) )
 		Graphics::GetInstance()->ZoomInDeveloperCamera();
 }
 
@@ -280,36 +306,76 @@ void PlayState::CheckPlayerCollision()
 
 void PlayState::CheckProjectileCollision()
 {
-	if( mRemotePlayers.size() > 0 )
-	{
-		for (size_t i = 0; i < mRemotePlayers.size(); i++)
-		{
-			for (size_t j = 0; j < MAX_PROJECTILES; j++)
-			{
-				if ( mProjectiles[j]->IsActive() )
-				{
-					if( mProjectiles[j]->GetPlayerID() == mPlayer->GetID() )
-					{
-						if( mProjectiles[j]->GetBoundingCircle()->Intersect( mRemotePlayers[i]->GetBoundingCircle() ) ) //Player hit remote
-						{
-							BroadcastDamage( mRemotePlayers[i]->GetID(), mProjectiles[j]->GetID() );
-						}			
-					}
-				}	
-			}
-		}
-	}
-
-	for( size_t i = 0; i < MAX_PROJECTILES; i++ )
+	for ( size_t i	 = 0; i < MAX_PROJECTILES; i++ )
 	{
 		if( mProjectiles[i]->IsActive() )
 		{
-			if( mProjectiles[i]->GetBoundingCircle()->Intersect( mShip.GetHitBox() ))
+			// Players
+			if( mRemotePlayers.size() > 0 )
 			{
-				mShip.TakeDamage( 1.0f );
+				for ( size_t j = 0; j < mRemotePlayers.size(); j++ )
+				{
+					if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() )
+					{
+						if( mProjectiles[i]->GetBoundingCircle()->Intersect( mRemotePlayers[j]->GetBoundingCircle() ) )
+						{
+							BroadcastDamage( mRemotePlayers[j]->GetID(), mProjectiles[i]->GetID() );
+							return;
+						}
+					}
+				}
 			}
+
+			// Enemies
+			for ( size_t j = 0; j < MAX_NR_OF_ENEMIES; j++ )
+			{
+				if( mEnemies[j]->IsAlive() )
+				{
+					if( mProjectiles[i]->GetBoundingCircle()->Intersect( mEnemies[j]->GetBoundingCircle() ) )
+					{
+						// hit
+						BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mPlayer->GetLoadOut()->rangedWeapon->damage );
+						mProjectiles[i]->Reset();
+						return;
+					}
+				}
+			}
+
+			// Ship
 		}
 	}
+
+	//if( mRemotePlayers.size() > 0 )
+	//{
+	//	for (size_t i = 0; i < mRemotePlayers.size(); i++)
+	//	{
+	//		for (size_t j = 0; j < MAX_PROJECTILES; j++)
+	//		{
+	//			if ( mProjectiles[j]->IsActive() )
+	//			{
+	//				if( mProjectiles[j]->GetPlayerID() == mPlayer->GetID() )
+	//				{
+	//					if( mProjectiles[j]->GetBoundingCircle()->Intersect( mRemotePlayers[i]->GetBoundingCircle() ) ) //Player hit remote
+	//					{
+	//						BroadcastDamage( mRemotePlayers[i]->GetID(), mProjectiles[j]->GetID() );
+	//					}			
+	//				}
+	//			}	
+	//		}
+	//	}
+	//}
+
+	// Ship cant be damaged på projectiles
+	//for( size_t i = 0; i < MAX_PROJECTILES; i++ )
+	//{
+	//	if( mProjectiles[i]->IsActive() )
+	//	{
+	//		if( mProjectiles[i]->GetBoundingCircle()->Intersect( mShip.GetHitBox() ))
+	//		{
+	//			mShip.TakeDamage( 1.0f );
+	//		}
+	//	}
+	//}
 }
 
 void PlayState::CheckMeeleCollision()
@@ -450,7 +516,6 @@ HRESULT PlayState::Update( float deltaTime )
 	}
 	mParticleManager->Update( deltaTime );
 	
-	//mRadar->Update( mPlayer->GetPlayerPosition(), mRadarObjects, nrOfRadarObj );
 	mGui->Update( mPlayer->GetPlayerPosition(), mRadarObjects, nrOfRadarObj );
 
 	// Test Anim
@@ -463,10 +528,6 @@ HRESULT PlayState::Update( float deltaTime )
 
 HRESULT PlayState::Render()
 {
-	//RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
-
-	//RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation, ANIMATION_PLAY_LOOPED, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
-
 	mPlayer->Render( 0.0f, 1 );
 
 	mWorldMap->Render( 0.0f , mPlayer );
@@ -499,8 +560,23 @@ HRESULT PlayState::Render()
 	mShip.Render();
 	mParticleManager->Render( 0.0f );
 
-	//mRadar->Render();
-	mGui->Render();
+	int nrOfAllies = 0;
+	float alliesHP[MAX_REMOTE_PLAYERS];
+	for( auto rp : mRemotePlayers )
+	{
+		if( rp->GetTeam() == mPlayer->GetTeam() )
+		{
+			alliesHP[nrOfAllies] = (float)( rp->GetHP() / rp->GetMaxHP() );
+			nrOfAllies++;
+		}
+	}
+	mGui->Render( nrOfAllies, alliesHP, (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mShip.GetCurrentHull() / mShip.GetMaxHull() ) ); //Should be changed to shield and Xp
+
+	//RENDER DEVTEXT
+	std::stringstream ss;
+	ss	<< "RemotePlayers\t" << mRemotePlayers.size() << "\n"
+		<< "ProjectilesFired\t" << mNrOfProjectilesFired << "\n";
+	mFont.WriteText( ss.str(), 40.0f, 200.0f, 2.0f );
 
 	RenderManager::GetInstance()->Render();
 
@@ -529,8 +605,6 @@ HRESULT PlayState::Initialize()
 {
 	mStateType = PLAY_STATE;
 
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Plane/", "plane.pfs", mPlaneAsset );
-
 //	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Tree/", "tree5.pfs", mTestAsset );
 
 	AssetID model	= 0;
@@ -543,26 +617,6 @@ HRESULT PlayState::Initialize()
 	//RenderManager::GetInstance()->AnimationInitialize( mTestAnimation, model, loader );
 
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dAsset );
-	for( int i = 1; i < 8; i++ )
-	{
-		char buffer[50];
-		sprintf_s(buffer,"tree%d.pfs",i);
-		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Tree/", buffer, loader );
-	}
-	for( int i = 1; i < 6; i++ )
-	{
-		char buffer[50];
-		sprintf_s(buffer,"greaystone%d.pfs",i);
-		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", buffer, loader );
-	}
-	for( int i = 1; i < 7; i++ )
-	{
-		char buffer[50];
-		sprintf_s(buffer,"sandstone%d.pfs",i);
-		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", buffer, loader );
-	}
-
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bushes/", "plant1.pfs", loader );
 	std::string colorIDFileNames[MAX_REMOTE_PLAYERS] = { "../Content/Assets/Textures/FunnyCircles/BlueID.png", "../Content/Assets/Textures/FunnyCircles/CoralID.png", "../Content/Assets/Textures/FunnyCircles/DarkBlueID.png", "../Content/Assets/Textures/FunnyCircles/DarkGreenID.png", "../Content/Assets/Textures/FunnyCircles/DarkPurpleID.png", "../Content/Assets/Textures/FunnyCircles/GreenID.png", "../Content/Assets/Textures/FunnyCircles/GreyID.png", "../Content/Assets/Textures/FunnyCircles/LightBlueID.png", "../Content/Assets/Textures/FunnyCircles/LightGreenID.png", "../Content/Assets/Textures/FunnyCircles/LightPurpleID.png","../Content/Assets/Textures/FunnyCircles/OrangeID.png", "../Content/Assets/Textures/FunnyCircles/PinkID.png", "../Content/Assets/Textures/FunnyCircles/ScreamBlueID.png", "../Content/Assets/Textures/FunnyCircles/YellowID.png" };
 
 	for( int i=0; i<MAX_REMOTE_PLAYERS; i++ )
@@ -577,7 +631,13 @@ HRESULT PlayState::Initialize()
 	mPlayer->Initialize();
 
 	mWorldMap = new Map();
-	mWorldMap->Initialize( 4 );
+	mWorldMap->Initialize( 8 );
+
+	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/ForestMap.xml")); 
+	EventManager::GetInstance()->TriggerEvent( E1 );
+
+	//mMapNodeMan = new MapNodeManager();
+	//mMapNodeMan->Initialize( "../Content/Assets/Nodes/gridtest2.lp"  );
 
 	//Fill up on Projectiles, test values
 	mProjectiles	= new Projectile*[MAX_PROJECTILES];
@@ -602,6 +662,7 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Sync_Spawn::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Update_Enemy_Position::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Set_Remote_Enemy_State::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Enemy_Attack_Player::GUID );
 
 	mFont.Initialize( "../Content/Assets/Fonts/final_font/" );
 
@@ -628,8 +689,6 @@ HRESULT PlayState::Initialize()
 	mParticleManager = new ParticleManager();
 	mParticleManager->Initialize();
 
-	//mRadar = new Radar();
-	//mRadar->Initialize();
 	mGui = new Gui();
 	mGui->Initialize();
 
@@ -678,7 +737,6 @@ void PlayState::Release()
 
 	SAFE_RELEASE_DELETE( mParticleManager );
 
-	//SAFE_DELETE( mRadar );
 	mGui->Release();
 	SAFE_DELETE( mGui );
 
@@ -693,8 +751,6 @@ PlayState::PlayState()
 	mFrameCounter		= 0;
 	mProjectiles		= nullptr;
 	mEnemies			= nullptr;
-	mNrOfEnemies		= 0;
-	mMaxNrOfEnemies		= 0;
 	mEnemyListSynced	= false;
 	mServerInitialized  = false;
 	mParticleManager	= nullptr;
@@ -703,5 +759,4 @@ PlayState::PlayState()
 
 PlayState::~PlayState()
 {
-	printf("Destructor for %s\n", __FILE__);
 }

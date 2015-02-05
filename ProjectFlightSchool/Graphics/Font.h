@@ -11,6 +11,9 @@
 #define TAB_WIDTH		(SPACE_WIDTH * 8)
 #define LETTER_HEIGHT	78.0f/LETTER_SCALE
 
+#define COLOR_RED	XMFLOAT4( 1.0f, 0.0f, 0.0f, 1.0f )
+#define COLOR_CYAN	XMFLOAT4( 0.0f, 0.94f, 1.0f, 1.0f )
+
 class Font
 {
 private:
@@ -37,7 +40,7 @@ public:
 private:
 protected:
 public:
-	void			WriteText( std::string toWrite, float x, float y, float scale );
+	void			WriteText( std::string toWrite, float x, float y, float scale, XMFLOAT4 color = XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 	virtual void	Initialize( std::string path );
 	virtual void	Release();
 					Font();

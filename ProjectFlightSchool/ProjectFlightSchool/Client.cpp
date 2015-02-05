@@ -165,6 +165,49 @@ void Client::EventListener( IEventPtr newEvent )
 			}
 		}
 	}
+	else if ( newEvent->GetEventType() == Event_Player_Down::GUID )
+	{
+		std::shared_ptr<Event_Player_Down> data = std::static_pointer_cast<Event_Player_Down>( newEvent );
+		if ( mServerSocket != INVALID_SOCKET )
+		{
+			EvPlayerID msg;
+			msg.ID = data->Player();
+
+			if ( mServerSocket != INVALID_SOCKET )
+			{
+				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_DOWN, msg );
+			}
+		}
+	}
+	else if ( newEvent->GetEventType() == Event_Player_Up::GUID )
+	{
+		std::shared_ptr<Event_Player_Up> data = std::static_pointer_cast<Event_Player_Up>( newEvent );
+		if ( mServerSocket != INVALID_SOCKET )
+		{
+			EvPlayerID msg;
+			msg.ID = data->Player();
+
+			if ( mServerSocket != INVALID_SOCKET )
+			{
+				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_UP, msg );
+			}
+		}
+	}
+	else if ( newEvent->GetEventType() == Event_Remote_Player_Revive::GUID )
+	{
+		std::shared_ptr<Event_Remote_Player_Revive> data = std::static_pointer_cast<Event_Remote_Player_Revive>( newEvent );
+		if ( mServerSocket != INVALID_SOCKET )
+		{
+			EvIDAndTime msg;
+			msg.playerID	= data->Player();
+			msg.deltaTime	= data->DeltaTime();
+
+			if ( mServerSocket != INVALID_SOCKET )
+			{
+				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_REVIVE, msg );
+			}
+		}
+	}
 }
 
 bool Client::Connect()
@@ -230,6 +273,9 @@ bool Client::Run()
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Attack::GUID );
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Update_HP::GUID );
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Projectile_Damage_Enemy::GUID );
+	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Down::GUID );
+	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Up::GUID );
+	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Remote_Player_Revive::GUID );
 
 	std::thread listen( &Client::ReceiveLoop, this );
 

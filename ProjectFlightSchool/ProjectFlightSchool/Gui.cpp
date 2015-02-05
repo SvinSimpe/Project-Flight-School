@@ -6,7 +6,7 @@ HRESULT Gui::Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjects
 	return result;
 }
 
-HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP, float playerShield, float playerXp )
+HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP, float playerShield, float playerXp, float shipHP )
 {
 	HRESULT result = mRadar->Render();
 	XMFLOAT2 topLeft;
@@ -30,7 +30,7 @@ HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP, float pla
 		latestAllyHealthBottomRight.y	= topLeft.y + mSizeAllyHealthBar.y;
 		RenderManager::GetInstance()->AddObject2dToList( mAllyHealthBar, topLeft, widthHeight );
 
-		nrOfHealthsToRender = ( 20.0f * alliesHP[i] );
+		nrOfHealthsToRender = (int)( 20.0f * alliesHP[i] );
 
 		if ( nrOfHealthsToRender > 0 )
 		{
@@ -63,7 +63,7 @@ HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP, float pla
 	RenderManager::GetInstance()->AddObject2dToList( mPlayerBar, topLeft, widthHeight );
 	
 	mFont.WriteText( "Hp", 106.0f, 858.0f, 2.9f );
-	int renderHealth = playerHP * 100;
+	int renderHealth = (int)( playerHP * 100 );
 	std::string renderText;
 	if ( renderHealth >= 0 )
 	{
@@ -72,7 +72,7 @@ HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP, float pla
 		mFont.WriteText( renderText, 95.0f, 896.0f, 2.9f );
 	}
 
-	int renderShield = playerShield * 100;
+	int renderShield = (int)( playerShield * 100 );
 	if ( renderShield >= 0 )
 	{
 		mFont.WriteText( "Shield", 68.0f, 945.0f, 2.9f );
@@ -81,7 +81,7 @@ HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP, float pla
 		mFont.WriteText( renderText, 95.0f, 983.0f, 2.9f );
 	}
 
-	int renderXp = playerXp * 100;
+	int renderXp = (int)( playerXp * 100 );
 	if ( renderXp >= 0 )
 	{
 		mFont.WriteText( "Xp", 316.0f, 871.0f, 3.8f );
@@ -95,15 +95,38 @@ HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP, float pla
 	////////////////
 	if( playerXp >= 1 )
 	{
-		topLeft.x	= 140.0f;
-		topLeft.y	= mScreenHeight - 218 - mSizeLevelUp.y;
+		topLeft.x	= topLeft.x + mTopLeftCompWithPlayerHealthXP.x;
+		topLeft.y	= topLeft.y - mTopLeftCompWithPlayerHealthXP.y;
 		widthHeight	= mSizeLevelUp;
 		RenderManager::GetInstance()->AddObject2dToList( mLevelUp, topLeft, widthHeight );
 
-		int renderLevelUp = playerXp;
+		int renderLevelUp = (int)playerXp;
 		renderText = "!";
 		renderText += std::to_string( renderLevelUp );
 		mFont.WriteText( renderText, (topLeft.x + 75.0f ), ( topLeft.y + 66.0f ), 4.8f );
+	}
+
+	///////////////////////
+	//Ship Bar
+	///////////////////////
+	topLeft.x							= ( mScreenWidth / 2 ) - ( mSizeShipHealthBar.x / 2 );
+	topLeft.y							= 0.0f;
+	XMFLOAT2 shipHealthBarTopLeft		= topLeft;
+	RenderManager::GetInstance()->AddObject2dToList( mShipHealthBar, topLeft, mSizeShipHealthBar );
+
+	nrOfHealthsToRender = (int)( 20.0f * shipHP );
+	offSetForHealths	= shipHealthBarTopLeft.x + mEndShipHealth.x;
+
+	if ( nrOfHealthsToRender > 0 )
+	{
+		for ( int i = 0; i < nrOfHealthsToRender; i++ )
+		{
+			topLeft.x	= offSetForHealths - mSizeShipHealth.x;
+			topLeft.y	= mStartShipHealth.y;
+			widthHeight	= mSizeShipHealth;
+			RenderManager::GetInstance()->AddObject2dToList( mShipHealth, topLeft, widthHeight );
+			offSetForHealths -= ( mSpaceShipHealth + mSizeShipHealthTop );
+		}
 	}
 
 	return result;
@@ -129,7 +152,17 @@ HRESULT Gui::Initialize()
 	mSizeAllyHealth						= XMFLOAT2( ( ( mSizeAllyHealthBar.x - ( mSpaceAllyHealthToBar * 2 ) - ( ( mNrOfHealths ) * mSpaceAllyHealth ) ) / mNrOfHealths ), ( mSizeAllyHealthBar.y - ( mSpaceAllyHealthToBar * 2 ) ) );
 	mSizeAllyHealthFrame				= XMFLOAT2( 110.0f, 110.0f );
 	mSizePlayerHealthXP					= XMFLOAT2( 440.0f, 280.0f );
-	mSizeLevelUp						= XMFLOAT2( 204.0f, 200.0f );
+	mSizeLevelUp						= XMFLOAT2( (float)( mSizePlayerHealthXP.x / 2.16f ), (float)( mSizePlayerHealthXP.y / 1.4f ) );
+	mTopLeftCompWithPlayerHealthXP		= XMFLOAT2( (float)( mSizePlayerHealthXP.x / 3.14f ), (float)( mSizeLevelUp.y / 1.45f ) );
+	mSizeShipHealthBar					= XMFLOAT2( 986.0f, 113.0f );
+	mSpaceShipHealth					= 3.0f;
+	mStartShipHealth.x					= (float)( mSizeShipHealthBar.x / 3.94f );
+	mStartShipHealth.y					= (float)( mSizeShipHealthBar.y / 12.20f );
+	mEndShipHealth.x					= (float)( mSizeShipHealthBar.x / 1.08f );
+	mEndShipHealth.y					= (float)( mSizeShipHealthBar.y / 1.55f );
+	mSizeShipHealth.x					= (float)( mSizeShipHealthBar.x / 10.3f );
+	mSizeShipHealth.y					= ( mEndShipHealth.y - mStartShipHealth.y );
+	mSizeShipHealthTop					= ( ( mEndShipHealth.x - mStartShipHealth.x - ( ( mNrOfHealths - 1 ) * mSpaceShipHealth ) ) / mNrOfHealths );
 
 	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/allyhealth.dds", mAllyHealth );
 	if( FAILED( result ) )
@@ -152,6 +185,16 @@ HRESULT Gui::Initialize()
 		return result;
 	}
 	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/levelUp.dds", mLevelUp );
+	if( FAILED( result ) )
+	{
+		return result;
+	}
+	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/shipHealth.dds", mShipHealth );
+	if( FAILED( result ) )
+	{
+		return result;
+	}
+	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/shipHealthBar.dds", mShipHealthBar );
 	if( FAILED( result ) )
 	{
 		return result;

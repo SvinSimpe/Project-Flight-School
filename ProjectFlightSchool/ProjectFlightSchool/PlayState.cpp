@@ -237,7 +237,8 @@ void PlayState::BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float
 
 void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction )
 {
-	mProjectiles[mNrOfProjectilesFired % MAX_PROJECTILES]->SetDirection( id, projectileID, position, direction );
+	mNrOfProjectilesFired = mNrOfProjectilesFired % MAX_PROJECTILES;
+	mProjectiles[mNrOfProjectilesFired]->SetDirection( id, projectileID, position, direction );
 	//mProjectiles[mNrOfProjectilesFired % MAX_PROJECTILES]->SetIsActive( true );
 	mNrOfProjectilesFired++;
 }
@@ -269,13 +270,13 @@ void PlayState::RenderProjectiles()
 void PlayState::HandleDeveloperCameraInput()
 {
 	// TOGGLE CAM
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_RCTRL ) )
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_RCTRL ) )
 		Graphics::GetInstance()->ChangeCamera();
 	// ZOOM IN
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_DOWN ) )
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_DOWN ) )
 		Graphics::GetInstance()->ZoomOutDeveloperCamera();
 	// ZOOM OUT
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_UP) )
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_UP) )
 		Graphics::GetInstance()->ZoomInDeveloperCamera();
 }
 
@@ -561,10 +562,6 @@ HRESULT PlayState::Update( float deltaTime )
 
 HRESULT PlayState::Render()
 {
-	//RenderManager::GetInstance()->AddObject3dToList( mPlaneAsset, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
-
-	//RenderManager::GetInstance()->AddAnim3dToList( mTestAnimation, ANIMATION_PLAY_LOOPED, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
-
 	mPlayer->Render( 0.0f, 1 );
 
 	mWorldMap->Render( 0.0f , mPlayer );
@@ -595,6 +592,7 @@ HRESULT PlayState::Render()
 	}
 
 	mShip.Render();
+	mParticleManager->Render( 0.0f );
 
 	int nrOfAllies = 0;
 	float alliesHP[MAX_REMOTE_PLAYERS];
@@ -606,7 +604,13 @@ HRESULT PlayState::Render()
 			nrOfAllies++;
 		}
 	}
-	mGui->Render( nrOfAllies, alliesHP, (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ) ); //Should be changed to shield and Xp
+	mGui->Render( nrOfAllies, alliesHP, (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mShip.GetCurrentHull() / mShip.GetMaxHull() ) ); //Should be changed to shield and Xp
+
+	//RENDER DEVTEXT
+	std::stringstream ss;
+	ss	<< "RemotePlayers\t" << mRemotePlayers.size() << "\n"
+		<< "ProjectilesFired\t" << mNrOfProjectilesFired << "\n";
+	mFont.WriteText( ss.str(), 40.0f, 200.0f, 2.0f );
 
 	RenderManager::GetInstance()->Render();
 
@@ -635,8 +639,6 @@ HRESULT PlayState::Initialize()
 {
 	mStateType = PLAY_STATE;
 
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Plane/", "plane.pfs", mPlaneAsset );
-
 //	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Tree/", "tree5.pfs", mTestAsset );
 
 	AssetID model	= 0;
@@ -649,26 +651,6 @@ HRESULT PlayState::Initialize()
 	//RenderManager::GetInstance()->AnimationInitialize( mTestAnimation, model, loader );
 
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dAsset );
-	for( int i = 1; i < 8; i++ )
-	{
-		char buffer[50];
-		sprintf_s(buffer,"tree%d.pfs",i);
-		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Tree/", buffer, loader );
-	}
-	for( int i = 1; i < 6; i++ )
-	{
-		char buffer[50];
-		sprintf_s(buffer,"greaystone%d.pfs",i);
-		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", buffer, loader );
-	}
-	for( int i = 1; i < 7; i++ )
-	{
-		char buffer[50];
-		sprintf_s(buffer,"sandstone%d.pfs",i);
-		Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Stones/", buffer, loader );
-	}
-
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Bushes/", "plant1.pfs", loader );
 	std::string colorIDFileNames[MAX_REMOTE_PLAYERS] = { "../Content/Assets/Textures/FunnyCircles/BlueID.png", "../Content/Assets/Textures/FunnyCircles/CoralID.png", "../Content/Assets/Textures/FunnyCircles/DarkBlueID.png", "../Content/Assets/Textures/FunnyCircles/DarkGreenID.png", "../Content/Assets/Textures/FunnyCircles/DarkPurpleID.png", "../Content/Assets/Textures/FunnyCircles/GreenID.png", "../Content/Assets/Textures/FunnyCircles/GreyID.png", "../Content/Assets/Textures/FunnyCircles/LightBlueID.png", "../Content/Assets/Textures/FunnyCircles/LightGreenID.png", "../Content/Assets/Textures/FunnyCircles/LightPurpleID.png","../Content/Assets/Textures/FunnyCircles/OrangeID.png", "../Content/Assets/Textures/FunnyCircles/PinkID.png", "../Content/Assets/Textures/FunnyCircles/ScreamBlueID.png", "../Content/Assets/Textures/FunnyCircles/YellowID.png" };
 
 	for( int i=0; i<MAX_REMOTE_PLAYERS; i++ )
@@ -683,7 +665,13 @@ HRESULT PlayState::Initialize()
 	mPlayer->Initialize();
 
 	mWorldMap = new Map();
-	mWorldMap->Initialize( 4 );
+	mWorldMap->Initialize( 8 );
+
+	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/ForestMap.xml")); 
+	EventManager::GetInstance()->TriggerEvent( E1 );
+
+	//mMapNodeMan = new MapNodeManager();
+	//mMapNodeMan->Initialize( "../Content/Assets/Nodes/gridtest2.lp"  );
 
 	//Fill up on Projectiles, test values
 	mProjectiles	= new Projectile*[MAX_PROJECTILES];
@@ -797,8 +785,6 @@ PlayState::PlayState()
 	mFrameCounter		= 0;
 	mProjectiles		= nullptr;
 	mEnemies			= nullptr;
-	mNrOfEnemies		= 0;
-	mMaxNrOfEnemies		= 0;
 	mEnemyListSynced	= false;
 	mServerInitialized  = false;
 	mParticleManager	= nullptr;
@@ -807,5 +793,4 @@ PlayState::PlayState()
 
 PlayState::~PlayState()
 {
-	printf("Destructor for %s\n", __FILE__);
 }

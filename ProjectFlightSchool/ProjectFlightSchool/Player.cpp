@@ -3,16 +3,16 @@
 void Player::HandleInput( float deltaTime )
 {
 	mAcceleration = XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_W) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_S) )
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_W ) && !Input::GetInstance()->IsKeyDown( KEYS::KEYS_S ) )
 		mAcceleration.z = mMaxAcceleration;
 	
-	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_A) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_D) )
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_A ) && !Input::GetInstance()->IsKeyDown( KEYS::KEYS_D ) )
 		mAcceleration.x = -mMaxAcceleration;
 
-	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_S) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_W) )
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_S ) && !Input::GetInstance()->IsKeyDown( KEYS::KEYS_W ) )
 		mAcceleration.z = -mMaxAcceleration;
 	
-	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_D) && !Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_A) )
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_D ) && !Input::GetInstance()->IsKeyDown( KEYS::KEYS_A ) )
 		mAcceleration.x = mMaxAcceleration;
 
 
@@ -58,7 +58,7 @@ void Player::HandleInput( float deltaTime )
 	XMStoreFloat3( &mUpperBody.direction, playerToCursor );
 
 	//== Weapon handling ==
-	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_MOUSE_LEFT) && mWeaponCoolDown <= 0.0f )
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_LEFT ) && mWeaponCoolDown <= 0.0f )
 	{
 		Fire();
 		mWeaponCoolDown = 0.1f;
@@ -72,7 +72,7 @@ void Player::HandleInput( float deltaTime )
 	else
 		mWeaponCoolDown -= deltaTime;
 
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_MOUSE_RIGHT ) && mMeleeCoolDown <= 0.0f )
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_RIGHT ) && mMeleeCoolDown <= 0.0f )
 	{
 		mIsMeleeing						= true;
 		mMeleeCoolDown					= 2.0f;

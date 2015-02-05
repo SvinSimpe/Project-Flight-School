@@ -65,6 +65,8 @@ const EventType Event_Enemy_List_Synced::GUID( 21 );
 const EventType Event_Server_Initialized::GUID( 22 );
 const EventType Event_Connection_Failed::GUID( 23 );
 const EventType Event_Player_Melee_Hit::GUID( 24 );
+
+
 const EventType Event_Remote_Player_Melee_Hit::GUID( 25 ); 
 const EventType Event_Sync_Spawn::GUID( 26 );
 const EventType Event_Update_Enemy_Position::GUID( 27 );
@@ -76,7 +78,10 @@ const EventType Event_Player_Attack::GUID( 32 );
 const EventType Event_Remote_Player_Attack::GUID( 33 );
 const EventType Event_Set_Enemy_State::GUID( 34 );
 const EventType Event_Set_Remote_Enemy_State::GUID( 35 );
+
 const EventType Event_Projectile_Damage_Enemy::GUID( 36 );
 const EventType Event_Enemy_Died::GUID( 37 );
 const EventType Event_Enemy_Attack_Player::GUID( 38 );
 const EventType Event_Enemy_Melee_Hit::GUID( 39 );
+const EventType Event_Load_Level::GUID( 0xc16fcd07 );
+

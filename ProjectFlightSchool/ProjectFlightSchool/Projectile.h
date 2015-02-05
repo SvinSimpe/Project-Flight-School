@@ -19,7 +19,6 @@ class Projectile
 		XMFLOAT3		mDirection;
 		float			mSpeed;
 		bool			mIsActive;
-		float			mRotation;
 		float			mLifeTime;
 		BoundingCircle*	mBoundingCircle;
 

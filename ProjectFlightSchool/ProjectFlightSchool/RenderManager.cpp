@@ -14,6 +14,7 @@ void RenderManager::Clear()
 	mNrOfAnim3d		= 0;
 	mNrOfPlane		= 0;
 	mNrOfBillboard	= 0;
+	mNrOfParticles	= 0;
 	mNrOfNodeGrid	= 0;
 	mNrOfBoxes		= 0;
 }
@@ -99,6 +100,42 @@ void RenderManager::AddBillboardToList( AssetID assetId, DirectX::XMFLOAT3 world
 	info.mHeight		= height;
 
 	mBillboardArray[mNrOfBillboard++] = info;
+}
+
+void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, int* nrOfActiveParticleSystemsPerType  )
+{
+	ParticleInfo info;
+	UINT offset = 0;
+	for ( int i = 0; i < NR_OF_PARTICLE_TYPES; i++ )
+	{
+		// Set AssetID per Particle Type
+		info.mAssetId = particleSystem[i][0]->assetID;
+
+		// Calculate offset per Particle Type
+		for ( int l = 0; l < nrOfActiveParticleSystemsPerType[i]; l++ )
+		{
+			offset += particleSystem[i][l]->nrOfParticlesAlive;
+		}
+
+		// Set offset
+		info.mOffsetToNextParticleType = offset;
+
+		// Fill Array with Particle Info
+		for ( int j = 0; j < nrOfActiveParticleSystemsPerType[i]; j++ )
+		{
+
+			for ( int k = 0; k < particleSystem[i][j]->nrOfParticlesAlive; k++ )
+			{
+				info.mWorldPosition.x	= particleSystem[i][j]->xPosition[k];
+				info.mWorldPosition.y	= particleSystem[i][j]->yPosition[k];
+				info.mWorldPosition.z	= particleSystem[i][j]->zPosition[k];
+
+				info.mLifeTime			= particleSystem[i][j]->lifeTime[k];
+
+				mParticleInfoArray[mNrOfParticles++] = info;
+			}
+		}
+	}	
 }
 
 void RenderManager::AddNodeGridToList( StaticVertex* vertices, UINT nrOfVertices, DirectX::XMFLOAT4X4 world )
@@ -204,6 +241,9 @@ HRESULT RenderManager::Render()
 
 	//Render the scene with deferred
 	Graphics::GetInstance()->DeferredPass();
+
+	//Render the particles
+	Graphics::GetInstance()->RenderParticleSystems( mParticleInfoArray, mNrOfParticles );
 
 	//Prepare the scene to render Screen space located assets
 	Graphics::GetInstance()->ScreenSpacePass();

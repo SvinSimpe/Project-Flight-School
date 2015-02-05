@@ -1,16 +1,33 @@
 #include "Input.h"
 #include <strsafe.h>
 
+void Input::KeyChecker( KEYS key, UINT flag )
+{
+	if( ( flag & RI_KEY_MAKE ) == 0 )
+		mCurrentFrame[key] = true;
+	if( ( flag & RI_KEY_BREAK ) == 1 )
+		mCurrentFrame[key] = false;
+}
+
 #pragma region Public functions
 
-bool Input::IsKeyDown( UINT flag )
+bool Input::IsKeyDown( KEYS key )
 {
-	if( ( flag & RI_KEY_BREAK ) != 0 )
-	{
-		return false;
-	}
+	return mCurrentFrame[key];
+}
 
-	return true;
+bool Input::IsKeyPressed( KEYS key )
+{
+	return mCurrentFrame[key] && !mLastFrame[key];
+}
+
+void Input::LostFocus()
+{
+	for( int i = 0; i < KEYS::KEYS_AMOUNT; i++ )
+	{
+		mLastFrame[i]		= false;
+		mCurrentFrame[i]	= false;
+	}
 }
 
 RAWINPUT* Input::ReadMessage( LPARAM lParam )
@@ -34,8 +51,7 @@ RAWINPUT* Input::ReadMessage( LPARAM lParam )
     return raw;
 }
 
-
-void Input::Update( LPARAM lParam )
+void Input::RawRead( LPARAM lParam )
 {
 	RAWINPUT* raw;
 	raw = ReadMessage( lParam );
@@ -96,138 +112,138 @@ void Input::Update( LPARAM lParam )
 			switch( raw->data.keyboard.VKey )
 			{
 				case 0x30: // 0
-					mCurrentFrame[KEYS::KEYS_0] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_0, raw->data.keyboard.Flags );
 					break;
 				case 0x31: // 1
-					mCurrentFrame[KEYS::KEYS_1] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_1, raw->data.keyboard.Flags );
 					break;
 				case 0x32: // 2
-					mCurrentFrame[KEYS::KEYS_2] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_2, raw->data.keyboard.Flags );
 					break;
 				case 0x33: // 3 
-					mCurrentFrame[KEYS::KEYS_3] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_3, raw->data.keyboard.Flags );
 					break;
 				case 0x34: // 4
-					mCurrentFrame[KEYS::KEYS_4] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_4, raw->data.keyboard.Flags );
 					break;
 				case 0x35: // 5
-					mCurrentFrame[KEYS::KEYS_5] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_5, raw->data.keyboard.Flags );
 					break;
 				case 0x36: // 6
-					mCurrentFrame[KEYS::KEYS_6] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_6, raw->data.keyboard.Flags );
 					break;
 				case 0x37: // 7
-					mCurrentFrame[KEYS::KEYS_7] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_7, raw->data.keyboard.Flags );
 					break;
 				case 0x38: // 8
-					mCurrentFrame[KEYS::KEYS_8] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_8, raw->data.keyboard.Flags );
 					break;
 				case 0x39: // 9
-					mCurrentFrame[KEYS::KEYS_9] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_9, raw->data.keyboard.Flags );
 					break;
 
 				case 0x41:		//A
-					mCurrentFrame[KEYS::KEYS_A] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_A, raw->data.keyboard.Flags );
 					break;
 				case 0x42:		//B
-					mCurrentFrame[KEYS::KEYS_B] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_B, raw->data.keyboard.Flags );
 					break;
 				case 0x43:		//C
-					mCurrentFrame[KEYS::KEYS_C] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_C, raw->data.keyboard.Flags );
 					break;
 				case 0x44:		//D
-					mCurrentFrame[KEYS::KEYS_D] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_D, raw->data.keyboard.Flags );
 					break;
 				case 0x45:		//E
-					mCurrentFrame[KEYS::KEYS_E] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_E, raw->data.keyboard.Flags );
 					break;
 				case 0x46:		//F
-					mCurrentFrame[KEYS::KEYS_F] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_F, raw->data.keyboard.Flags );
 					break;
 				case 0x47:		//G
-					mCurrentFrame[KEYS::KEYS_G] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_G, raw->data.keyboard.Flags );
 					break;
 				case 0x48:		//H
-					mCurrentFrame[KEYS::KEYS_H] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_H, raw->data.keyboard.Flags );
 					break;
 				case 0x49:		//I
-					mCurrentFrame[KEYS::KEYS_I] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_I, raw->data.keyboard.Flags );
 					break;
 				case 0x4A:		//J
-					mCurrentFrame[KEYS::KEYS_J] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_J, raw->data.keyboard.Flags );
 					break;
 				case 0x4B:		//K
-					mCurrentFrame[KEYS::KEYS_K] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_K, raw->data.keyboard.Flags );
 					break;
 				case 0x4C:		//L
-					mCurrentFrame[KEYS::KEYS_L] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_L, raw->data.keyboard.Flags );
 					break;
 				case 0x4D:		//M
-					mCurrentFrame[KEYS::KEYS_M] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_M, raw->data.keyboard.Flags );
 					break;
 				case 0x4E:		//N
-					mCurrentFrame[KEYS::KEYS_N] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_N, raw->data.keyboard.Flags );
 					break;
 				case 0x4F:		//O
-					mCurrentFrame[KEYS::KEYS_O] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_O, raw->data.keyboard.Flags );
 					break;
 				case 0x50:		//P
-					mCurrentFrame[KEYS::KEYS_P] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_P, raw->data.keyboard.Flags );
 					break;
 				case 0x51:		//Q
-					mCurrentFrame[KEYS::KEYS_Q] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_Q, raw->data.keyboard.Flags );
 					break;
 				case 0x52:		//R
-					mCurrentFrame[KEYS::KEYS_R] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_R, raw->data.keyboard.Flags );
 					break;
 				case 0x53:		//S
-					mCurrentFrame[KEYS::KEYS_S] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_S, raw->data.keyboard.Flags );
 					break;
 				case 0x54:		//T
-					mCurrentFrame[KEYS::KEYS_T] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_T, raw->data.keyboard.Flags );
 					break;
 				case 0x55:		//U
-					mCurrentFrame[KEYS::KEYS_U] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_U, raw->data.keyboard.Flags );
 					break;
 				case 0x56:		//V
-					mCurrentFrame[KEYS::KEYS_V] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_V, raw->data.keyboard.Flags );
 					break;
 				case 0x57:		//W
-					mCurrentFrame[KEYS::KEYS_W] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_W, raw->data.keyboard.Flags );
 					break;
 				case 0x58:		//X
-					mCurrentFrame[KEYS::KEYS_X] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_X, raw->data.keyboard.Flags );
 					break;
 				case 0x59:		//Y
-					mCurrentFrame[KEYS::KEYS_Y] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_Y, raw->data.keyboard.Flags );
 					break;
 				case 0x5A:		//Z
-					mCurrentFrame[KEYS::KEYS_Z] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_Z, raw->data.keyboard.Flags );
 					break;
 
 				case VK_SPACE:	
-					mCurrentFrame[KEYS::KEYS_SPACE] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_SPACE, raw->data.keyboard.Flags );
 					break;
 				case VK_BACK:
-					mCurrentFrame[KEYS::KEYS_BACKSPACE] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_BACKSPACE, raw->data.keyboard.Flags );
 					break;
 				case VK_OEM_PERIOD:
-					mCurrentFrame[KEYS::KEYS_PERIOD] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_PERIOD, raw->data.keyboard.Flags );
 					break;
 				case VK_RETURN:
-					mCurrentFrame[KEYS::KEYS_ENTER] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_ENTER, raw->data.keyboard.Flags );
 					break;
 				case VK_CONTROL:
-					mCurrentFrame[KEYS::KEYS_RCTRL] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_RCTRL, raw->data.keyboard.Flags );
 					break;
 				case VK_LSHIFT:
-					mCurrentFrame[KEYS::KEYS_LSHIFT] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_LSHIFT, raw->data.keyboard.Flags );
 					break;
 				case VK_UP:
-					mCurrentFrame[KEYS::KEYS_UP] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_UP, raw->data.keyboard.Flags );
 					break;
 				case VK_DOWN:
-					mCurrentFrame[KEYS::KEYS_DOWN] = IsKeyDown( raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_DOWN, raw->data.keyboard.Flags );
 					break;
 			}
 			break;
@@ -235,6 +251,12 @@ void Input::Update( LPARAM lParam )
 			//TBD for xbox controller
 			break;
 	}
+}
+
+void Input::Update()
+{
+	for( int i = 0; i < KEYS::KEYS_AMOUNT; i++ )
+		mLastFrame[i] = mCurrentFrame[i];
 }
 
 HRESULT	Input::Initialize( UINT screenWidth, UINT screenHeight, HWND hWnd )
@@ -264,10 +286,12 @@ HRESULT	Input::Initialize( UINT screenWidth, UINT screenHeight, HWND hWnd )
 	}
 
 	mCurrentFrame.resize( KEYS::KEYS_AMOUNT );
+	mLastFrame.resize( KEYS::KEYS_AMOUNT );
 
 	for( int i = 0; i < KEYS::KEYS_AMOUNT; i++ )
 	{
-		mCurrentFrame[i] = false;
+		mCurrentFrame[i]	= false;
+		mLastFrame[i]		= false;
 	}
 
 	mCurrentMousePos.x = (long)( screenWidth * 0.5 );

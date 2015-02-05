@@ -7,6 +7,7 @@
 #include "Events.h"
 #include "Button.h"
 #include "Font.h"
+#include "InputSquare.h"
 
 class BaseMenuState : public BaseState
 {

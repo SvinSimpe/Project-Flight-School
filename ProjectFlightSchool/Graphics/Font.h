@@ -16,34 +16,36 @@
 
 class Font
 {
-private:
-	struct Letter
-	{
-		AssetID asset;
-		char name;
-		float w;
-		float h = LETTER_HEIGHT;
-		Letter()
+	private:
+		struct Letter
 		{
-		}
-		Letter( char _name, float _w )
-		{
-			name = _name;
-			w = _w;
-		}
-	};
+			AssetID asset;
+			char name;
+			float w;
+			float h = LETTER_HEIGHT;
+			Letter()
+			{
+			}
+			Letter( char _name, float _w )
+			{
+				name = _name;
+				w = _w;
+			}
+		};
 
-	std::unordered_map<char, Letter> mCharacters;
-protected:
-public:
+		std::unordered_map<char, Letter> mCharacters;
 
-private:
-protected:
-public:
-	void			WriteText( std::string toWrite, float x, float y, float scale, XMFLOAT4 color = XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f ) );
-	virtual void	Initialize( std::string path );
-	virtual void	Release();
-					Font();
-	virtual			~Font();
+	protected:
+	public:
+
+	private:
+	protected:
+	public:
+		float			GetMiddleXPoint( std::string toWrite, float scale );
+		void			WriteText( std::string toWrite, float x, float y, float scale, XMFLOAT4 color = XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+		virtual void	Initialize( std::string path );
+		virtual void	Release();
+						Font();
+		virtual			~Font();
 };
 #endif

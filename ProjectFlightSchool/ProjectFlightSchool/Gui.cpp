@@ -1,13 +1,56 @@
 #include "Gui.h"
 
-HRESULT Gui::Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjects[], UINT nrOfObjects )
+HRESULT Gui::Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjects[], UINT nrOfObjects, DirectX::XMFLOAT3 remotePlayerPos, std::string remotePlayerName, int remotePlayerTeamID, int remotePlayerID, int playerTeamID, bool updateRemotePlayerName )
 {
-	HRESULT result = mRadar->Update( playerPos, radarObjects, nrOfObjects );
+	HRESULT result = S_OK;
+	
+	if( updateRemotePlayerName )
+	{
+		//Updating remote player names
+		DirectX::XMMATRIX view, proj;
+		Graphics::GetInstance()->GetViewMatrix( view );
+		Graphics::GetInstance()->GetProjectionMatrix( proj );
+		view = DirectX::XMMatrixTranspose( view );
+		proj = DirectX::XMMatrixTranspose( proj );
+
+	
+		DirectX::XMFLOAT4 textPos = XMFLOAT4( remotePlayerPos.x, remotePlayerPos.y + 3.25f, remotePlayerPos.z, 1.0f );
+		DirectX::XMStoreFloat4( &textPos, DirectX::XMVector4Transform( DirectX::XMLoadFloat4( &textPos ), DirectX::XMMatrixMultiply( view, proj ) ) );
+
+		textPos.x /= textPos.w;
+		textPos.y /= textPos.w;
+
+		textPos.x = ( textPos.x + 1.0f ) * ( 0.5f * Input::GetInstance()->mScreenWidth );
+		textPos.y = ( 1.0f - textPos.y ) * ( 0.5f * Input::GetInstance()->mScreenHeight );
+		
+		if( remotePlayerTeamID == playerTeamID )
+		{
+			mPlayerNames[remotePlayerID].SetText( remotePlayerName, COLOR_CYAN );
+		}
+		else
+		{
+			mPlayerNames[remotePlayerID].SetText( remotePlayerName, COLOR_RED );
+		}
+
+		mPlayerNames[remotePlayerID].SetPosition( textPos.x - mPlayerNames[remotePlayerID].GetMiddleXPoint( mPlayerNames[remotePlayerID].GetText(), mPlayerNames[remotePlayerID].GetScale() ), textPos.y );
+		//-------------------------------------------------------------
+	}
+
+	result = mRadar->Update( playerPos, radarObjects, nrOfObjects );
 	return result;
+
 }
 
 HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP, float playerShield, float playerXp, float shipHP )
 {
+
+	mRadar->Render();
+
+	for( int i = 0; i < MAX_REMOTE_PLAYERS - 1; i++ )
+	{
+		mPlayerNames[i].Render();
+	}
+
 	HRESULT result = mRadar->Render();
 	XMFLOAT2 topLeft;
 	XMFLOAT2 widthHeight;
@@ -134,6 +177,12 @@ HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP, float pla
 
 HRESULT Gui::Initialize()
 {
+
+	for( int i = 0; i < MAX_REMOTE_PLAYERS - 1; i++ )
+	{
+		mPlayerNames[i].Initialize( "../Content/Assets/Fonts/final_font/", "", 0, 0, 1.5f );
+	}
+
 	mFont.Initialize( "../Content/Assets/Fonts/final_font/" );
 	mRadar			= new Radar();
 	HRESULT result	= mRadar->Initialize();
@@ -201,6 +250,7 @@ HRESULT Gui::Initialize()
 	}
 
 	return result;
+
 }
 
 void Gui::Release()
@@ -211,7 +261,7 @@ void Gui::Release()
 
 Gui::Gui()
 {
-	mRadar				= nullptr;
+	mRadar = nullptr;
 }
 
 Gui::~Gui()

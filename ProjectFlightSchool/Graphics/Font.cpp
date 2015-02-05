@@ -1,5 +1,45 @@
 #include "Font.h"
 
+
+float Font::GetMiddleXPoint( std::string toWrite, float scale ) 
+{
+	float xOffset = 0.0f;
+	float yOffset = 0.0f;
+	float yLower  = 20.0f * scale;
+	for( unsigned int i = 0; i < toWrite.size(); i++ )
+	{
+		char l = toWrite[i];
+		if( l == ' ' ) // space
+		{
+			xOffset += SPACE_WIDTH * scale;
+			continue;
+		}
+		else if( l == 10 ) // '\n'
+		{
+			xOffset = 0.0f;
+			yOffset += LETTER_HEIGHT * scale;
+			continue;
+		}
+		else if( l == 9 ) // '\t'
+		{
+			xOffset += TAB_WIDTH * scale;
+			continue;
+		}
+		else if( l == '.' )
+		{
+			l = '_';
+		}
+		else if( l == '?' || mCharacters.find(l) == mCharacters.end() )
+		{
+			l = '~';
+		}
+	
+		xOffset += ( mCharacters[l].w + X_OFFSET ) * scale;
+	}
+
+	return ( xOffset * 0.5f );
+}
+
 void Font::WriteText( std::string toWrite, float x, float y, float scale, XMFLOAT4 color )
 {
 	float xOffset = 0.0f;

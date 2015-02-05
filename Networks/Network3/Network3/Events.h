@@ -1417,6 +1417,7 @@ class Event_Client_Melee_Hit : public IEvent
 		}
 };
 
+// This event is sent by the server to the other clients to notify them that someone's been hit
 class Event_Remote_Melee_Hit : public IEvent
 {
 	private:
@@ -1499,5 +1500,127 @@ class Event_Remote_Melee_Hit : public IEvent
 		XMFLOAT3 Direction() const
 		{
 			return mDirection;
+		}
+};
+
+// Sent by the client whenever it attacks in order to sync the animations to the remotes
+class Event_Client_Attack : public IEvent
+{
+	private:
+		UINT mID;
+		UINT mArmID;
+		UINT mAnimation;
+
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Attack()
+		{
+			mID			= (UINT)-1;
+			mArmID		= (UINT)-1;
+			mAnimation	= (UINT)-1;
+		}
+		Event_Client_Attack( UINT id, UINT armID, UINT animation )
+		{
+			mID			= id;
+			mArmID		= armID;
+			mAnimation	= animation;
+		}
+		~Event_Client_Attack() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mArmID << " ";
+			out << mAnimation << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mArmID;
+			in >> mAnimation;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Attack( mID, mArmID, mAnimation ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT ArmID() const
+		{
+			return mArmID;
+		}
+		UINT Animation() const
+		{
+			return mAnimation;
+		}
+};
+
+// Sent by the server to update the remotes on the animation of the client
+class Event_Remote_Attack : public IEvent
+{
+	private:
+		UINT mID;
+		UINT mArmID;
+		UINT mAnimation;
+
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Attack()
+		{
+			mID			= (UINT)-1;
+			mArmID		= (UINT)-1;
+			mAnimation	= (UINT)-1;
+		}
+		Event_Remote_Attack( UINT id, UINT armID, UINT animation )
+		{
+			mID			= id;
+			mArmID		= armID;
+			mAnimation	= animation;
+		}
+		~Event_Remote_Attack() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mArmID << " ";
+			out << mAnimation << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mArmID;
+			in >> mAnimation;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Attack( mID, mArmID, mAnimation ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT ArmID() const
+		{
+			return mArmID;
+		}
+		UINT Animation() const
+		{
+			return mAnimation;
 		}
 };

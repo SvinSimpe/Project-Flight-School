@@ -38,6 +38,7 @@ class Client : public Network
 		void	RemoteFiredProjectile( IEventPtr eventPtr );
 		void	RemoteUpdateHP( IEventPtr eventPtr );
 		void	RemoteMeleeHit( IEventPtr eventPtr );
+		void	RemoteAttack( IEventPtr eventPtr );
 		void	ServerSyncEnemy( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );

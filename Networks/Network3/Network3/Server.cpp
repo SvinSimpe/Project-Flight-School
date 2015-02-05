@@ -171,6 +171,22 @@ void Server::ClientMeleeHit( IEventPtr eventPtr )
 	}
 }
 
+void Server::ClientAttack( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Attack::GUID )
+	{
+		std::shared_ptr<Event_Client_Attack> data = std::static_pointer_cast<Event_Client_Attack>( eventPtr );
+		UINT id = data->ID();
+		UINT armID = data->ArmID();
+		UINT anim = data->Animation();
+
+		std::cout << "Client with ID: " << id << " hit with arm: " << armID << " which is doing animation: #" << anim << std::endl;
+
+		IEventPtr E1( PFS_NEW Event_Remote_Attack( id, armID, anim ) );
+		BroadcastEvent( E1, id );
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -274,6 +290,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientFiredProjectile, this, Event_Client_Fired_Projectile::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientUpdateHP, this, Event_Client_Update_HP::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientMeleeHit, this, Event_Client_Melee_Hit::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientAttack, this, Event_Client_Attack::GUID );
 
 	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
 

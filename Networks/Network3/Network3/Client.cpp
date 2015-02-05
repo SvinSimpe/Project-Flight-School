@@ -165,6 +165,19 @@ void Client::RemoteMeleeHit( IEventPtr eventPtr )
 	}
 }
 
+void Client::RemoteAttack( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Attack::GUID )
+	{
+		std::shared_ptr<Event_Remote_Attack> data = std::static_pointer_cast<Event_Remote_Attack>( eventPtr );
+		UINT id = data->ID();
+		UINT armID = data->ArmID();
+		UINT anim = data->Animation();
+
+		std::cout << "Remote with ID: " << id << " hit with arm: " << armID << " which is doing animation: #" << anim << std::endl;
+	}
+}
+
 void Client::ServerSyncEnemy( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Server_Sync_Enemy::GUID )
@@ -234,7 +247,8 @@ void Client::Update( float deltaTime )
 		//IEventPtr E1( PFS_NEW Event_Client_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection ) );
 		//IEventPtr E1( PFS_NEW Event_Client_Died( mID, 0 ) );
 		//IEventPtr E1( PFS_NEW Event_Client_Spawned( mID ) );
-		IEventPtr E1( PFS_NEW Event_Client_Melee_Hit( mID, 0, 10.6f, 0.67f, XMFLOAT3( 56.0f, 32.0f, 12.0f ) ) );
+		//IEventPtr E1( PFS_NEW Event_Client_Melee_Hit( mID, 0, 10.6f, 0.67f, XMFLOAT3( 56.0f, 32.0f, 12.0f ) ) );
+		IEventPtr E1( PFS_NEW Event_Client_Attack( mID, 0, 1) );
 
 		//for( float i = -1.0f; i <= 1.0f; i += 1.0f )
 		//{
@@ -284,6 +298,8 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Server_Sync_Enemy );
 	EF::REGISTER_EVENT( Event_Client_Melee_Hit );
 	EF::REGISTER_EVENT( Event_Remote_Melee_Hit );
+	EF::REGISTER_EVENT( Event_Client_Attack );
+	EF::REGISTER_EVENT( Event_Remote_Attack );
 
 	EventManager::GetInstance()->AddListener( &Client::LocalJoined, this, Event_Local_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteJoined, this, Event_Remote_Joined::GUID );
@@ -296,6 +312,7 @@ bool Client::Initialize()
 	EventManager::GetInstance()->AddListener( &Client::RemoteUpdateHP, this, Event_Remote_Update_HP::GUID );
 	EventManager::GetInstance()->AddListener( &Client::ServerSyncEnemy, this, Event_Server_Sync_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteMeleeHit, this, Event_Remote_Melee_Hit::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteAttack, this, Event_Remote_Attack::GUID );
 
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	return true;

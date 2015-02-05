@@ -32,6 +32,7 @@ class Server : public Network
 		void	ClientFiredProjectile( IEventPtr eventPtr );
 		void	ClientUpdateHP( IEventPtr eventPtr );
 		void	ClientMeleeHit( IEventPtr eventPtr );
+		void	ClientAttack( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 

@@ -141,6 +141,7 @@ class RemotePlayer
 		std::string		GetName() const;
 		LoadOut*		GetLoadOut() const;
 		float			GetHP() const;
+		float			GetMaxHP() const;
 		int				GetID() const;
 		int				GetTeam() const;
 		BoundingBox*	GetBoundingBox() const;

@@ -8,7 +8,7 @@
 #include "RenderManager.h"
 #include "Font.h"
 
-#define MAX_NR_OF_ENEMIES		1
+#define MAX_NR_OF_ENEMIES		0
 
 // ---- Define all enemy animations ----
 // Standard
@@ -54,6 +54,12 @@ class Enemy
 		XMFLOAT3			mVelocity;
 		BoundingCircle*		mAttackRadius;
 		BoundingCircle*		mAttentionRadius;
+		unsigned int		mXpDrop;
+		float				mSpawnTime;
+		float				mTimeTillSapwn;
+		float				mAttackRate;
+		float				mTimeTillAttack;
+		float				mDeltaTime;
 
 	protected:
 	public:
@@ -74,11 +80,14 @@ class Enemy
 	public:
 		HRESULT				Update( float deltaTime );
 		void				SetState( EnemyState state );
+		void				TakeDamage( float damage );
 		void				SetHuntedPlayer( XMFLOAT3 player );
+		void				HandleSpawn( float deltaTime, XMFLOAT3 spawnPos );
 		void				Spawn( XMFLOAT3 spawnPos );
 		BoundingCircle*		GetAttackCircle()	 const;
 		BoundingCircle*		GetAttentionCircle() const;
 		void				Die();
+		float				HandleAttack();
 		unsigned int		GetID() const;
 		void				SetID( unsigned int id );
 		EnemyType			GetEnemyType() const;

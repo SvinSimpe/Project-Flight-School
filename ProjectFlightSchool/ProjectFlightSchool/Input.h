@@ -15,13 +15,14 @@ const UINT BUFFER_SIZE			= 40;	//Fixed buffer size for interpretating RAWINPUT m
 class Input
 {
 	private:
+		std::vector<bool>	mCurrentFrame;
+		std::vector<bool>	mLastFrame;
 	protected:
 	public:
 		RAWINPUTDEVICE		mRid[NUMBER_OF_DEVICES];
 		LPBYTE				mLpb[BUFFER_SIZE];
-		std::vector<bool>	mCurrentFrame;
-		POINT				mCurrentMousePos;
 
+		POINT				mCurrentMousePos;
 		DirectX::XMVECTOR	mCurrentNDCMousePos;
 		UINT				mScreenWidth;
 		UINT				mScreenHeight;
@@ -29,6 +30,7 @@ class Input
 		HWND				mHwnd;
 
 	private:
+		void	KeyChecker( KEYS key, UINT flag );
 		//Stoping the compiler from generating methods for copying the object
 				Input( Input const& );		//Not implemented
 		void	operator=( Input const& );	//Not implemented
@@ -38,10 +40,13 @@ class Input
 	protected:
 	public:
 		//Returns true if the key is currently being pressed down, otherwise false. Do not call this, call Update( ... ).
-		bool		IsKeyDown( UINT flag );
+		bool		IsKeyDown( KEYS key );
+		bool		IsKeyPressed( KEYS key );
+		void		LostFocus();
 		//Do not call this, call Update( ... ).
 		RAWINPUT*	ReadMessage( LPARAM lParam );
-		void		Update( LPARAM lParam );
+		void		RawRead( LPARAM lParam );
+		void		Update();
 		HRESULT		Initialize( UINT screenWidth, UINT screenHeight, HWND hWnd );
 		void		Release();
 

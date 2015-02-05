@@ -9,7 +9,7 @@
 #include <time.h>
 using namespace DirectX;
 
-#define MAX_PARTICLES 5000
+#define MAX_PARTICLES 1000
 
 enum ParticleType
 {
@@ -22,7 +22,7 @@ enum ParticleType
 
 struct ParticleData
 {
-	size_t	nrOfParticlesAlive = 0;
+	int	nrOfParticlesAlive = 0;
 
 	float*	xPosition = nullptr;
 	float*	yPosition = nullptr;
@@ -36,9 +36,10 @@ struct ParticleData
 	DWORD*	color		= nullptr;
 	bool*	isAlive		= nullptr;
 
-	float	emitRate	= 0.0f;
+	
+	XMFLOAT3 randomDirectionVector[4];
 
-	void Initialize( float emitRate, size_t nrOfParticles ) //NrOfParticles must be a multiple of 4
+	void Initialize( int nrOfParticles ) //NrOfParticles must be a multiple of 4
 	{
 		srand( (unsigned int)time( NULL ) );
 
@@ -61,7 +62,7 @@ struct ParticleData
 		isAlive	 = (bool*)_mm_malloc(  nrOfParticles * sizeof(bool),  16 );
 
 
-		for ( size_t i = 0; i < nrOfParticles; i += 4 )
+		for ( int i = 0; i < nrOfParticles; i += 4 )
 		{
 			//========= Initialize position ===========
 			__m128 xmm0 = _mm_load_ps( &xPosition[i] );
@@ -106,7 +107,9 @@ struct ParticleData
 			isAlive[i+2]	= false;
 			isAlive[i+3]	= false;
 		}
-		this->emitRate = emitRate;
+
+		for (size_t i = 0; i < 4; i++)
+			randomDirectionVector[i] = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	}
 
 	void SwapData( size_t a, size_t b )
@@ -139,6 +142,7 @@ struct ParticleData
 		if( nrOfParticlesAlive > 0 )
 		{
 			isAlive[id] = false;
+			lifeTime[id] = 0.0f;
 			SwapData( id, nrOfParticlesAlive - 1 );
 			nrOfParticlesAlive--;
 		}
@@ -148,7 +152,7 @@ struct ParticleData
 	{
 		const __m128 scalar = _mm_set1_ps( deltaTime );
 
-		for ( size_t i = 0; i < nrOfParticlesAlive; i += 4 )
+		for ( int i = 0; i < nrOfParticlesAlive; i += 4 )
 		{
 			//==== xPosition += xVelocity * deltaTime ====
 			__m128 xmm0				= _mm_load_ps( &xPosition[i] );
@@ -177,18 +181,36 @@ struct ParticleData
 	{
 		const __m128 delta = _mm_set1_ps( deltaTime );
 
-		for ( size_t i = 0; i < nrOfParticlesAlive; i += 4 )
+		for ( int i = 0; i < nrOfParticlesAlive; i += 4 )
 		{
 			//======== lifeTime -= deltaTime  ========
-			__m128 xmm0 = _mm_load1_ps( &lifeTime[i] );
+			__m128 xmm0 = _mm_load_ps( &lifeTime[i] );
 			xmm0 = _mm_sub_ps( xmm0, delta );
 			_mm_store_ps( &lifeTime[i], xmm0 );
 		}
 	}
 
+	void GetRandomSpread( float spreadAngle )
+	{
+		XMVECTOR aimingDirection = XMLoadFloat3( &randomDirectionVector[0] );
 
+		for (size_t i = 0; i < 4; i++)
+		{
+			float randomSpreadAngle = (float)( rand() % (int)spreadAngle * 2 ) - spreadAngle;
+		
+			XMVECTOR randomAimingDirection = XMVector3TransformCoord( aimingDirection, XMMatrixRotationY( XMConvertToRadians( randomSpreadAngle ) ) );
+			
 
-	void SetLifeTime( size_t lowerBound, size_t uppeBound, size_t particleCount ) // If 2.0f is uppeBound, send 20
+			XMStoreFloat3( &randomDirectionVector[i], randomAimingDirection );
+			
+			//Get random elevation
+			float randomElevation = ( (float)( rand() % 20 ) - 10 ) * 0.1f;
+			randomDirectionVector[i].y = randomElevation;
+		}
+
+	}
+
+	void SetLifeTime( size_t lowerBound, size_t upperBound, size_t particleCount ) // If 2.0f is uppeBound, send 20
 	{
 		//======== this->lifeTime = randLifeTime  ========
 		__declspec( align( 16 ) ) float randomLife[4] = {0.0f};
@@ -202,35 +224,42 @@ struct ParticleData
 			
 			// Generate and set random life time
 			for (size_t j = 0; j < 4; j++)
-				randomLife[j] = (float)( rand() % uppeBound + (float)lowerBound ) * 0.1f;
+				randomLife[j] = (float)( rand() % upperBound + (float)lowerBound ) * 0.1f; //0.01f;
 
 			// Store random lifeTime
 			xmm0 = _mm_load_ps( &lifeTime[i] );
-			xmm0 = _mm_set_ps( randomLife[0], randomLife[1], randomLife[3], randomLife[4] );
+			xmm0 = _mm_set_ps( randomLife[0], randomLife[1], randomLife[2], randomLife[3] );
 			_mm_store_ps( &lifeTime[i], xmm0 );
+
+			int k = 4;
 		}	
 	}
 
-	void SetDirection( float xDirection, float yDirection, float zDirection, size_t particleCount )
+	void SetDirection( float xDirection, float yDirection, float zDirection, size_t particleCount, float spreadAngle )
 	{
 		for ( size_t i = nrOfParticlesAlive; i < nrOfParticlesAlive + particleCount; i += 4 )
 		{
 			while( i % 4 != 0 )
 				i--;
 
+			randomDirectionVector[0].x = xDirection * 4.0f;
+			randomDirectionVector[0].y = yDirection * 4.0f;
+			randomDirectionVector[0].z = zDirection * 4.0f;
+			GetRandomSpread( spreadAngle );
+
 			//==== xVelocity = xDirection ====
 			__m128 xmm0	= _mm_load_ps( &xVelocity[i] );
-			xmm0 = _mm_set1_ps( xDirection );
+			xmm0 = _mm_set_ps( randomDirectionVector[0].x, randomDirectionVector[1].x, randomDirectionVector[2].x, randomDirectionVector[3].x );
 			_mm_store_ps( &xVelocity[i], xmm0 );
 
-			//==== yPosition += yVelocity * deltaTime ====
+			//==== yVelocity = yDirection ====
 			xmm0	= _mm_load_ps( &yVelocity[i] );
-			xmm0 = _mm_set1_ps( yDirection );
+			xmm0 = _mm_set_ps( randomDirectionVector[0].y, randomDirectionVector[1].y, randomDirectionVector[2].y, randomDirectionVector[3].y );
 			_mm_store_ps( &yVelocity[i], xmm0 );
 
-			//==== zPosition += zVelocity * deltaTime ====
+			//==== yVelocity = yDirection ====
 			xmm0	= _mm_load_ps( &zVelocity[i] );
-			xmm0 = _mm_set1_ps( zDirection );
+			xmm0 = _mm_set_ps( randomDirectionVector[0].z, randomDirectionVector[1].z, randomDirectionVector[2].z, randomDirectionVector[3].z );
 			_mm_store_ps( &zVelocity[i], xmm0 );
 		}
 	}
@@ -261,7 +290,17 @@ struct ParticleData
 
 	void CheckDeadParticles()
 	{
-		for (size_t i = 0; i < nrOfParticlesAlive; i++)
+		for ( int i = 0; i < nrOfParticlesAlive; i++ )
+		{
+  			if( lifeTime[i] <= 0.0f )
+				Kill( i );	
+		}
+		for ( int i = 0; i < nrOfParticlesAlive; i++ )
+		{
+  			if( lifeTime[i] <= 0.0f )
+				Kill( i );	
+		}
+		for ( int i = 0; i < nrOfParticlesAlive; i++ )
 		{
   			if( lifeTime[i] <= 0.0f )
 				Kill( i );	

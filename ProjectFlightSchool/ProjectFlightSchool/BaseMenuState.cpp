@@ -10,7 +10,7 @@ HRESULT BaseMenuState::Update( float deltaTime )
 HRESULT BaseMenuState::Render()
 {
 	RenderManager::GetInstance()->AddObject2dToList( mBackground, DirectX::XMFLOAT2( 0.0f, 0.0f ), DirectX::XMFLOAT2( (float)Input::GetInstance()->mScreenWidth, (float)Input::GetInstance()->mScreenHeight ));
-	mText.WriteText( "Walking Robot With Spear Gun", Input::GetInstance()->mScreenWidth * 0.25f, 25.0f, 0.5f );
+	mText.WriteText( "Walking Robot With Spear Gun", Input::GetInstance()->mScreenWidth * 0.25f, 25.0f, 4.0f );
 	return S_OK;
 }
 

@@ -16,7 +16,7 @@ class Player: public RemotePlayer
 	private:
 		float			mEventCapTimer;
 
-		PointLight*		mPointLight;
+		PointLight*		mPointLight[5];
 
 		std::string		mPlayerName;
 		bool			mHasName;
@@ -46,6 +46,7 @@ class Player: public RemotePlayer
 		HRESULT		Render( float deltaTime, int position );
 
 		void		TakeDamage( float damage, unsigned int shooter );
+		void		TakeEnemyDamage( float damage );
 		void		SetBuffed( bool buffed );
 		void		SetID( unsigned int id );
 		void		SetTeam( int team, AssetID teamColor );

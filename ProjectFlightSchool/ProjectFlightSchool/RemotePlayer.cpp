@@ -132,6 +132,11 @@ float RemotePlayer::GetHP() const
 	return mCurrentHp;
 }
 
+float RemotePlayer::GetMaxHP() const
+{
+	return mMaxHp;
+}
+
 int RemotePlayer::GetID() const
 {
 	return mID;
@@ -302,7 +307,9 @@ HRESULT RemotePlayer::Render( int position )
 			textToWrite	+= "I";
 			currentDeaths--;
 		}
-		mFont.WriteText( textToWrite, 25.0f, ((20.0f*(float)position)-7), 0.25f );	
+
+		mFont.WriteText( textToWrite, 25.0f, ((20.0f*(float)position)-7), 1.95f );
+
 	}
 
 	return S_OK;
@@ -345,9 +352,9 @@ HRESULT RemotePlayer::Initialize()
 		OutputDebugString( L"\nERROR loading player model\n" );																							
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/Animations/", "hammerWalk.PaMan",	mWeaponAnimations[HAMMER][WALK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );																							
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/Animations/", "hammerAnim1.PaMan", mWeaponAnimations[HAMMER][ATTACK] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/Animations/", "hammerAttack1.PaMan", mWeaponAnimations[HAMMER][ATTACK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );																							
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/Animations/", "hammerAnim2.PaMan",	mWeaponAnimations[HAMMER][ATTACK2] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/Animations/", "hammerAttack2.PaMan",	mWeaponAnimations[HAMMER][ATTACK2] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	//MINIGUN
@@ -463,7 +470,6 @@ HRESULT RemotePlayer::Initialize()
 	if( FAILED( Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/OrangeHP.png", mOrangeHPAsset ) ) )
 		OutputDebugString( L"\nERROR\n" );
 
-	//mUpperBody.position						= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mLowerBody.position						= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mNrOfDeaths								= 0;
 	mNrOfKills								= 0;

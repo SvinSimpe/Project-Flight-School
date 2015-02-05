@@ -39,7 +39,6 @@ Graphics::~Graphics()
 
 }
 
-
 //Map buffer
 HRESULT Graphics::MapBuffer( ID3D11Buffer* buffer, void* data, int size )
 {
@@ -154,10 +153,10 @@ void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX
 	UINT32 vertexSize	= sizeof(StaticVertex);
 	UINT32 offset		= 0;
 
-	StaticVertex bottomleft		= { x.x, x.y, y.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 1.0f };
-	StaticVertex topleft		= { x.x, x.y, x.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 0.0f };
-	StaticVertex bottomright	= { y.x, x.y, y.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	1.0f, 1.0f };
-	StaticVertex topright		= { y.x, x.y, x.z,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	1.0f, 0.0f };
+	StaticVertex bottomleft		= { x.x, x.y + 0.001f, y.z,		0.0f, 1.0f, 0.0f,	0.71f, 0.0f, 0.71f,		0.0f, 1.0f };
+	StaticVertex topleft		= { x.x, x.y + 0.001f, x.z,		0.0f, 1.0f, 0.0f,	0.71f, 0.0f, 0.71f,		0.0f, 0.0f };
+	StaticVertex bottomright	= { y.x, x.y + 0.001f, y.z,		0.0f, 1.0f, 0.0f,	0.71f, 0.0f, 0.71f,		1.0f, 1.0f };
+	StaticVertex topright		= { y.x, x.y + 0.001f, x.z,		0.0f, 1.0f, 0.0f,	0.71f, 0.0f, 0.71f,		1.0f, 0.0f };
 
 	StaticVertex vertices[4]	= { bottomleft, topleft, bottomright, topright };
 	MapBuffer( mBuffers[BUFFERS_2D], &vertices, sizeof(StaticVertex) * 4 );
@@ -179,8 +178,8 @@ void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX
 	mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] );
 
 	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[assetId] )->mSRV );
-	mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
-	mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[NORMAL_PLACEHOLDER] )->mSRV );
+	mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[NORMAL_PLACEHOLDER] )->mSRV );
+	mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
 	mDeviceContext->Draw( 4, 0 );
 }
 
@@ -364,6 +363,8 @@ void Graphics::RenderBillboard( BillboardInfo* info, UINT sizeOfList )
 	UINT currAssetID = (UINT)-1;
 	UINT strider = 0;
 
+
+
 	while( true )
 	{
 		objectToRender = 0;
@@ -414,6 +415,84 @@ void Graphics::RenderBillboard( BillboardInfo* info, UINT sizeOfList )
 	}
 }
 
+void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
+{
+	//////////////////////////////////////////////////////////////////
+	//						RENDER CALL
+	//////////////////////////////////////////////////////////////////
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_POINTLIST );
+	
+	mDeviceContext->OMSetBlendState( mBlendState[BLEND_2D], 0, 0xFFFFFFFF );
+
+	UINT32 vertexSize[2]			= { sizeof( Vertex12 ), sizeof( ParticleVertex16 ) };
+	UINT32 offset[2]				= { 0, 0 };
+	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_MUZZLEFLASH]->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mEffects[EFFECTS_MUZZLEFLASH]->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( mEffects[EFFECTS_MUZZLEFLASH]->GetGeometryShader(), nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffects[EFFECTS_MUZZLEFLASH]->GetPixelShader(), nullptr, 0 );
+
+	mDeviceContext->GSSetConstantBuffers( 0, 1, &mBuffers[BUFFERS_CBUFFER_PER_FRAME] );
+
+	UINT objectToRender = 0;
+	UINT currAssetID = (UINT)-1;
+	UINT strider = 0;
+
+	UINT offsetToParticleType = 0;
+
+	while( true )
+	{
+		objectToRender = 0;
+		currAssetID = (UINT)-1;
+		for( UINT i = strider; i < sizeOfList; i++ )
+		{
+
+			if( i == offsetToParticleType )
+			{
+				currAssetID				= info[i].mAssetId;
+				offsetToParticleType	= info[i].mOffsetToNextParticleType;
+			}
+
+
+			if( i < offsetToParticleType )
+			{
+				mParticleInstanced[objectToRender].position[0]  = info[i].mWorldPosition.x;
+				mParticleInstanced[objectToRender].position[1]  = info[i].mWorldPosition.y;
+				mParticleInstanced[objectToRender].position[2]  = info[i].mWorldPosition.z;
+
+				mParticleInstanced[objectToRender].lifeTime		= info[i].mLifeTime;
+
+
+				objectToRender++;
+				strider++;
+				if( objectToRender == MAX_BILLBOARD_BATCH )
+				{
+					break;
+				}
+			}
+		}
+	
+		
+		if( objectToRender > 0 )
+		{
+			//////////////////////////////////////////////////////////////////
+			//						RENDER CALL
+			//////////////////////////////////////////////////////////////////
+			ID3D11ShaderResourceView* texturesToSet[] = { ( (Static2dAsset*)mAssetManager->mAssetContainer[currAssetID] )->mSRV };
+
+			mDeviceContext->PSSetShaderResources( 0, 1, texturesToSet );
+
+			MapBuffer( mBuffers[BUFFERS_PARTICLE], mParticleInstanced, ( sizeof( ParticleVertex16 ) * objectToRender ) );
+			ID3D11Buffer* buffersToSet[2] = { mBuffers[BUFFERS_SINGLE_VERTEX], mBuffers[BUFFERS_PARTICLE] };
+			mDeviceContext->IASetVertexBuffers( 0, 2, buffersToSet, vertexSize, offset );
+			mDeviceContext->DrawInstanced( 1, objectToRender, 0, 0 );
+		}
+		else break;
+	}
+}
+
 void Graphics::RenderNodeGrid( NodeGridInfo* info, UINT sizeOfList )
 {
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
@@ -442,6 +521,7 @@ void Graphics::RenderNodeGrid( NodeGridInfo* info, UINT sizeOfList )
 		mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[NORMAL_PLACEHOLDER] )->mSRV );
 		mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
 		mDeviceContext->Draw( info[i].mNrOfVertices, 0 );
+
 	}
 }
 
@@ -629,11 +709,14 @@ void Graphics::SetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatr
 void Graphics::SetEyePosition( DirectX::XMFLOAT3 &eyePosition )
 {
 	mCamera[CAMERAS_MAIN]->SetEyePosition( eyePosition );
+	DirectX::XMFLOAT4 camPos = mCamera[CAMERAS_DEV]->GetPos();
+	mCamera[CAMERAS_DEV]->SetEyePosition( DirectX::XMFLOAT3(  eyePosition.x, camPos.y,  eyePosition.z ) );
 }
 
 void Graphics::SetFocus( DirectX::XMFLOAT3 &focusPoint )
 {
 	mCamera[CAMERAS_MAIN]->SetFocus( focusPoint );
+	mCamera[CAMERAS_DEV]->SetFocus( focusPoint );
 }
 
 //Clear canvas and prepare for rendering.
@@ -707,9 +790,7 @@ void Graphics::DeferredPass()
 	/////////////////////////////////
 	mDeviceContext->ClearState();
 
-	mDeviceContext->ClearDepthStencilView( mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
-
-	mDeviceContext->OMSetRenderTargets( 1, &mRenderTargetView, mDepthStencilView );
+	mDeviceContext->OMSetRenderTargets( 1, &mRenderTargetView, nullptr );
 	mDeviceContext->RSSetViewports( 1, &mStandardView );
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
 	
@@ -1226,6 +1307,20 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, &test, &mBuffers[BUFFERS_SINGLE_VERTEX] ) ) )
 		return hr;
 
+
+	//Billboard buffer instanced
+	bufferInstancedDesc.ByteWidth = sizeof( ParticleVertex16 ) * MAX_BILLBOARD_BATCH;
+
+	//Single vertex buffer used for billboarding
+	bufferInstancedDesc.BindFlags			= D3D11_BIND_VERTEX_BUFFER;
+	bufferInstancedDesc.CPUAccessFlags		= D3D11_CPU_ACCESS_WRITE;
+	bufferInstancedDesc.Usage				= D3D11_USAGE_DYNAMIC;
+	bufferInstancedDesc.MiscFlags			= 0;
+	bufferInstancedDesc.StructureByteStride	= 0;
+
+	if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, nullptr, &mBuffers[BUFFERS_PARTICLE] ) ) )
+		return hr;
+
 	//Single vertex buffer used for nodeGrid
 	ZeroMemory( &bufferInstancedDesc, sizeof( bufferInstancedDesc ) );
 	bufferInstancedDesc.BindFlags		= D3D11_BIND_VERTEX_BUFFER;
@@ -1388,6 +1483,15 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 
 	if( FAILED( hr = mEffects[EFFECTS_BILLBOARD]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
+
+	//Muzzle Flash effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/MuzzleFlashEffect.hlsl";
+	effectInfo.fileName					= "MuzzleFlashEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_MUZZLEFLASH]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
 	//--------------------------
 
 	//Gbuffers
@@ -1407,7 +1511,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	cameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
 	cameraInfo.width		= (float)screenWidth;
 	cameraInfo.height		= (float)screenHeight;
-	cameraInfo.foVY			= 0.75f;
+	cameraInfo.foVY			= 3.14159265f * 0.25f;
 	cameraInfo.nearZ		= 0.1f;
 	cameraInfo.farZ			= 1000.0f;
 
@@ -1424,7 +1528,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	developerCameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
 	developerCameraInfo.width		= (float)screenWidth;
 	developerCameraInfo.height		= (float)screenHeight;
-	developerCameraInfo.foVY		= 0.75f;
+	developerCameraInfo.foVY		= 3.14159265f * 0.25f;
 	developerCameraInfo.nearZ		= 0.1f;
 	developerCameraInfo.farZ		= 1000.0f;
 

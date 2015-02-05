@@ -176,6 +176,7 @@ void Client::EventListener( IEventPtr newEvent )
 			msg.damage		= data->Damage();
 			msg.knockBack	= data->KnockBack();
 			msg.direction	= data->Direction();
+			msg.stun		= data->Stun();
 			
 
 			if ( mServerSocket != INVALID_SOCKET )

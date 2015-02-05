@@ -8,7 +8,7 @@
 #include "RenderManager.h"
 #include "Font.h"
 
-#define MAX_NR_OF_ENEMIES		0
+#define MAX_NR_OF_ENEMIES		1
 
 // ---- Define all enemy animations ----
 // Standard
@@ -63,7 +63,6 @@ class Enemy
 		float				mTimeTillAttack;
 		float				mDeltaTime;
 		float				mStateTimer;
-		float				mStunTime;
 		float				mStunTimer;
 
 	protected:
@@ -86,7 +85,7 @@ class Enemy
 		HRESULT				Update( float deltaTime );
 		void				SetState( EnemyState state );
 		void				TakeDamage( float damage );
-		void				TakeMeleeDamage( float damage, float knockBack, XMFLOAT3 direction );
+		void				TakeMeleeDamage( float damage, float knockBack, XMFLOAT3 direction, float stun );
 		void				AddImpuls( XMFLOAT3 impuls );
 		void				SetHuntedPlayer( XMFLOAT3 player );
 		void				HandleSpawn( float deltaTime, XMFLOAT3 spawnPos );

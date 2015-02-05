@@ -117,6 +117,7 @@ struct EvEnemyMeleeHit
 	float					damage;
 	float					knockBack;
 	DirectX::XMFLOAT3		direction;
+	float					stun;
 };
 
 #endif

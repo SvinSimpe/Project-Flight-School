@@ -74,13 +74,24 @@ void Player::HandleInput( float deltaTime )
 
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_RIGHT ) && mMeleeCoolDown <= 0.0f )
 	{
-		mIsMeleeing						= true;
-		mMeleeCoolDown					= 2.0f;
 		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
 		mLeftArmAnimationCompleted		= false;
+		mHasMeleeStarted				= true;
+		mMeleeCoolDown					= mLoadOut->meleeWeapon->attackRate;
 
-		IEventPtr E1( new Event_Player_Attack( LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK]) );
-		EventManager::GetInstance()->QueueEvent( E1 );
+		//if( mTimeTillattack <= 0.0f )
+		//{
+		//	mIsMeleeing						= true;
+		//	mMeleeCoolDown					= mLoadOut->meleeWeapon->attackRate;
+		//	//RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
+		//	//mLeftArmAnimationCompleted		= false;
+
+		//	IEventPtr E1( new Event_Player_Attack( LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK]) );
+		//	EventManager::GetInstance()->QueueEvent( E1 );
+
+		//	mTimeTillattack = mLoadOut->meleeWeapon->timeTillAttack;
+		//	mHasMeleeStarted		= false;
+		//}
 	}
 	else
 		mMeleeCoolDown -= deltaTime;
@@ -114,6 +125,24 @@ void Player::Move( float deltaTime )
 HRESULT Player::Update( float deltaTime )
 {
 	HandleInput( deltaTime );
+
+	// Mele attack
+	if( mHasMeleeStarted )
+		mTimeTillattack -= deltaTime;
+
+	if( mTimeTillattack <= 0.0f )
+	{
+		mIsMeleeing						= true;
+		mMeleeCoolDown					= mLoadOut->meleeWeapon->attackRate;
+		//RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
+		//mLeftArmAnimationCompleted		= false;
+
+		IEventPtr E1( new Event_Player_Attack( LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK]) );
+		EventManager::GetInstance()->QueueEvent( E1 );
+
+		mTimeTillattack = mLoadOut->meleeWeapon->timeTillAttack;
+		mHasMeleeStarted		= false;
+	}
 
 	// If player is alive, update position. If hp <= 0 kill player
 	if( mIsAlive )
@@ -364,6 +393,8 @@ HRESULT Player::Initialize()
 
 	mBuffMod			= 0.5f;
 
+	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
+
 	return S_OK;
 }
 
@@ -388,6 +419,7 @@ Player::Player()
 
 	mWeaponCoolDown		= 0.0f;
 	mMeleeCoolDown		= 0.0f;
+	mTimeTillattack		= 0.0f;
 	mIsMeleeing			= false;
 
 	mMaxVelocity		= 0.0f;
@@ -396,6 +428,7 @@ Player::Player()
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mIsBuffed			= false;
 	mBuffMod			= 0.0f;
+	mHasMeleeStarted	= false;
 }
 
 Player::~Player()

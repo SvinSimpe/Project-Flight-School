@@ -89,15 +89,11 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
-
     <ClCompile Include="EnemyAnimationManager.cpp" />
-
-
     <ClCompile Include="Gui.cpp" />
     <ClCompile Include="SoundBufferHandler.cpp" />
     <ClCompile Include="DS3DBuffer.cpp" />
     <ClCompile Include="DSBuffer.cpp" />
-
     <ClCompile Include="EnemySpawn.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="..\Graphics\Font.cpp" />
@@ -202,6 +198,7 @@
     <ClInclude Include="tinyxml.h" />
     <ClInclude Include="Turret.h" />
     <ClInclude Include="WeaponInfo.h" />
+    <ClInclude Include="WeaponLoadoutInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input.h" />

@@ -231,7 +231,7 @@ void PlayState::BroadcastMeleeDamage( unsigned playerID, float damage, float kno
 
 void PlayState::BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float knockBack, XMFLOAT3 direction )
 {
-	IEventPtr dmgEv( new Event_Enemy_Melee_Hit( enemyID, damage, knockBack, direction ) );
+	IEventPtr dmgEv( new Event_Enemy_Melee_Hit( enemyID, damage, knockBack, direction, mPlayer->GetLoadOut()->meleeWeapon->stun ) );
 	EventManager::GetInstance()->QueueEvent( dmgEv );
 }
 

@@ -477,8 +477,8 @@ HRESULT RemotePlayer::Initialize()
 
 	//Weapon Initialization
 	mLoadOut				= new LoadOut();
-	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN, 5.0f, 1, 5.0f, 2, 0 );
-	mLoadOut->meleeWeapon	= new MeleeInfo( HAMMER, 1.0f, 5, 5.0f, 7, 2.0f, new BoundingCircle( 5.0f ) );
+	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN );
+	mLoadOut->meleeWeapon	= new MeleeInfo( HAMMER );
 
 	RenderManager::GetInstance()->AnimationInitialize( mArms.leftArm, mWeaponModels[mLoadOut->meleeWeapon->weaponType], mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
 	RenderManager::GetInstance()->AnimationInitialize( mArms.rightArm, mWeaponModels[mLoadOut->rangedWeapon->weaponType], mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );

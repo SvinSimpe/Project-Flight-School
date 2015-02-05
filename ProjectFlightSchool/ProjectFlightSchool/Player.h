@@ -17,13 +17,16 @@ class Player: public RemotePlayer
 
 		float		mWeaponCoolDown;
 		float		mMeleeCoolDown;
+		float		mTimeTillattack;
 		bool		mIsMeleeing;
+		bool		mHasMeleeStarted;
 		float		mMaxVelocity;
 		float		mCurrentVelocity;
 		float		mMaxAcceleration;
 		XMFLOAT3	mAcceleration;
 		bool		mIsBuffed;
 		float		mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
+
 
 	protected:
 	public:

@@ -22,7 +22,6 @@ void Enemy::CreateStandard()
 	mXpDrop						= 5;
 	mSpawnTime					= 10.0f;
 	mAttackRate					= 1.5f;
-	mStunTime					= 500.0f;
 }
 
 void Enemy::CreateRanged()
@@ -43,7 +42,6 @@ void Enemy::CreateRanged()
 	mXpDrop						= 5;
 	mSpawnTime					= 10.0f;
 	mAttackRate					= 1.0f;
-	mStunTime					= 1.0f;
 }
 
 void Enemy::CreateBoomer()
@@ -64,7 +62,6 @@ void Enemy::CreateBoomer()
 	mXpDrop						= 5;
 	mSpawnTime					= 10.0f;
 	mAttackRate					= 1.0f;
-	mStunTime					= 1.0f;
 }
 
 void Enemy::CreateTank()
@@ -86,7 +83,6 @@ void Enemy::CreateTank()
 	mXpDrop						= 15;
 	mSpawnTime					= 10.0f;
 	mAttackRate					= 3.0f;
-	mStunTime					= 0.5f;
 }
 
 void Enemy::StandardLogic( float deltaTime )
@@ -117,6 +113,7 @@ HRESULT Enemy::Update( float deltaTime )
 	mDeltaTime					= deltaTime;
 	mAttackRadius->center		= mPosition;
 	mAttentionRadius->center	= mPosition;
+
 	if( mStateTimer >= 0.0f )
 		mStateTimer -= deltaTime;
 
@@ -212,7 +209,7 @@ HRESULT Enemy::Update( float deltaTime )
 
 void Enemy::SetState( EnemyState state )
 {
-	if ( mStateTimer <= 0.0f )
+	if ( mStateTimer <= 0.0f && mCurrentState != Stunned )
 	{
 		if( state != mCurrentState )
 		{
@@ -241,17 +238,16 @@ void Enemy::TakeDamage( float damage )
 	}
 }
 
-void Enemy::TakeMeleeDamage( float damage, float knockBack, XMFLOAT3 direction )
+void Enemy::TakeMeleeDamage( float damage, float knockBack, XMFLOAT3 direction, float stun )
 {
 		direction.x *= knockBack;
 		direction.z *= knockBack;
 		AddImpuls( direction );
-		TakeDamage( damage );
 		mCurrentState = Stunned;
-		//SetState( Stunned );
-		mStunTimer = mStunTime;
+		mStunTimer = stun;
 		IEventPtr state( new Event_Set_Enemy_State( mID, Idle ) );
 		EventManager::GetInstance()->QueueEvent( state );
+		TakeDamage( damage );
 }
 
 void Enemy::AddImpuls( XMFLOAT3 impuls )
@@ -449,7 +445,6 @@ Enemy::Enemy()
 	mAttackRate			= 0.0f;
 	mTimeTillAttack		= 0.0f;
 	mStateTimer			= 0.0f;
-	mStunTime			= 0.0f;
 	mStunTimer			= 0.0f;
 }
 

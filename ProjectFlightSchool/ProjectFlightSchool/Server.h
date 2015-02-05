@@ -265,7 +265,10 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 		case Net_Event::EV_ENEMY_MELEE_HIT:
 		{
 			EvEnemyMeleeHit enemyDamage = (EvEnemyMeleeHit&)p->body.content;
-			mEnemies[enemyDamage.ID]->TakeMeleeDamage( enemyDamage.damage, enemyDamage.knockBack, enemyDamage.direction );
+			if( mEnemies[enemyDamage.ID]->IsAlive() && mEnemies[enemyDamage.ID]->GetEnemyState() != Stunned )
+			{
+				mEnemies[enemyDamage.ID]->TakeMeleeDamage( enemyDamage.damage, enemyDamage.knockBack, enemyDamage.direction, enemyDamage.stun );
+			}
 		}
 			break;
 

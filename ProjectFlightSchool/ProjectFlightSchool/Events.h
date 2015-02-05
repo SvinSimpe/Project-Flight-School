@@ -1125,6 +1125,7 @@ class Event_Remove_Point_Light : public IEvent
 			return mLight;
 		}
 };
+
 class Event_Sync_Enemy_Type : public IEvent
 {
 	// Member variables
@@ -1400,6 +1401,7 @@ class Event_Enemy_Melee_Hit : public IEvent
 		float			mDamage;
 		float			mKnockBack;
 		XMFLOAT3		mDirection;
+		float			mStun;
 
 	protected:
 	public:
@@ -1413,12 +1415,13 @@ class Event_Enemy_Melee_Hit : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Enemy_Melee_Hit( unsigned int id, float damage, float knockBack, XMFLOAT3 direction )
+		Event_Enemy_Melee_Hit( unsigned int id, float damage, float knockBack, XMFLOAT3 direction, float stun )
 		{
 			mID				= id;
 			mDamage			= damage;
 			mKnockBack		= knockBack;
 			mDirection		= direction;
+			mStun			= stun;
 		}
 		unsigned int Enemy() const
 		{
@@ -1435,5 +1438,9 @@ class Event_Enemy_Melee_Hit : public IEvent
 		XMFLOAT3 Direction() const
 		{
 			return mDirection;
+		}
+		float Stun() const
+		{
+			return mStun;
 		}
 };

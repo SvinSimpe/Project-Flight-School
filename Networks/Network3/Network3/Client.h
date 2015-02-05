@@ -7,11 +7,11 @@
 class Client : public Network
 {
 	private:
+		static Client*			mInstance;
+		UINT					mID;
 		ClientSocketManager*	mSocketManager;
-		std::string				mIP;
 		NetworkEventForwarder*	mNEF;
 		std::list<UINT>			mRemoteIDs;
-		UINT					mID;
 		bool					mActive;
 
 		// TESTING CODE FOR EVENTS BELOW
@@ -23,22 +23,26 @@ class Client : public Network
 	public:
 
 	private:
+				Client();
+		virtual	~Client();
+
 		void	LocalJoin( IEventPtr eventPtr );
 		void	RemoteJoined( IEventPtr eventPtr );
 		void	RemoteLeft( IEventPtr eventPtr );
 		void	RemoteUpdate( IEventPtr eventPtr );
+		void	RemoteDied( IEventPtr eventPtr );
+
 		void	StartUp( IEventPtr eventPtr );
-		
 		void	InitEventListening();
-		void	InitForwardingEvents();
 
 	protected:
-		bool	Initialize( std::string ip, unsigned int port );
+		bool	Connect( std::string ip, UINT port );
 	public:
+		static Client* GetInstance();
+		void	SendEvent( IEventPtr eventPtr );
 		void	Update( float deltaTime );
 		void	DoSelect( int pauseMicroSecs, bool handleInput = true );
+		bool	Initialize();
 		void	Release();
-				Client();
-		virtual	~Client();
 };
 #endif

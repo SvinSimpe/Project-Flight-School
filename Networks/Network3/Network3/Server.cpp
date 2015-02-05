@@ -1,5 +1,8 @@
 #include "Server.h"
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Start of eventlistening functions
+
 void Server::ClientJoined( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Client_Joined::GUID )
@@ -59,13 +62,31 @@ void Server::LocalUpdate( IEventPtr eventPtr )
 	}
 }
 
+void Server::LocalDied( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Local_Died::GUID )
+	{
+		std::shared_ptr<Event_Local_Died> data = std::static_pointer_cast<Event_Local_Died>( eventPtr );
+		UINT id = data->ID();
+		UINT killerID = data->KillerID();
+
+		std::cout << "Client with ID: " << id << " was killed by: " << killerID << std::endl;
+		IEventPtr E1( PFS_NEW Event_Remote_Died( id, killerID ) );
+		BroadcastEvent( E1, id );
+	}
+}
+
+// End of eventlistening functions
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// This is technically also an eventlistening function, but it's special so it can't be with the other ones
 void Server::StartUp( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Start_Server::GUID )
 	{
 		std::shared_ptr<Event_Start_Server> data = std::static_pointer_cast<Event_Start_Server>( eventPtr );
 		UINT port = data->Port();
-		if( !Initialize( port ) )
+		if( !Connect( port ) )
 			std::cout << "Failed to start server!" << std::endl;
 	}
 }
@@ -93,20 +114,19 @@ void Server::InitEventListening()
 	EventManager::GetInstance()->AddListener( &Server::ClientJoined, this, Event_Client_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientLeft, this, Event_Client_Left::GUID );
 	EventManager::GetInstance()->AddListener( &Server::LocalUpdate, this, Event_Local_Update::GUID );
+	EventManager::GetInstance()->AddListener( &Server::LocalDied, this, Event_Local_Died::GUID );
 }
 
-bool Server::Initialize( UINT port )
+bool Server::Connect( UINT port )
 {
-	Network::Initialize( port );
 	mSocketManager = new SocketManager();
 	if( !mSocketManager->Initialize() )
 	{
 		return false;
 	}
-	mSocketManager->AddSocket( new ServerListenSocket( mSocketManager, mPort ) );
-	std::cout << "Server started on port: " << mPort << std::endl;
+	mSocketManager->AddSocket( new ServerListenSocket( mSocketManager, port ) );
+	std::cout << "Server started on port: " << port << std::endl;
 
-	InitEventListening();
 	return true;
 }
 
@@ -117,6 +137,12 @@ void Server::Update( float deltaTime )
 void Server::DoSelect( int pauseMicroSecs, bool handleInput )
 {
 	mSocketManager->DoSelect( pauseMicroSecs, handleInput );
+}
+
+bool Server::Initialize()
+{
+	InitEventListening();
+	return true;
 }
 
 void Server::Release()

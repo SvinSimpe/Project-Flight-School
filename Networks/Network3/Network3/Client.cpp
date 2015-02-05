@@ -1,5 +1,10 @@
 #include "Client.h"
 
+Client* Client::mInstance = nullptr;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Start of eventlistening functions
+
 void Client::LocalJoin( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Local_Joined::GUID )
@@ -50,6 +55,21 @@ void Client::RemoteUpdate( IEventPtr eventPtr )
 	}
 }
 
+void Client::RemoteDied( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Died::GUID )
+	{
+		std::shared_ptr<Event_Remote_Died> data = std::static_pointer_cast<Event_Remote_Died>( eventPtr );
+		UINT id = data->ID();
+		UINT killerID = data->KillerID();
+
+		std::cout << "Remote with ID: " << id << " was killed by: " << killerID << std::endl;
+	}
+}
+
+// End of eventlistening functions
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Client::StartUp( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Start_Client::GUID )
@@ -57,8 +77,8 @@ void Client::StartUp( IEventPtr eventPtr )
 		std::shared_ptr<Event_Start_Client> data = std::static_pointer_cast<Event_Start_Client>( eventPtr );
 		std::string IP	= data->IP();
 		UINT port		= data->Port();
-		if( !Initialize( IP, port ) )
-			std::cout << "Failed to start client!" << std::endl;
+		if( !Connect( IP, port ) )
+			std::cout << "Failed to connect client!" << std::endl;
 	}
 }
 
@@ -69,39 +89,49 @@ void Client::InitEventListening()
 	EventManager::GetInstance()->AddListener( &Client::RemoteJoined, this, Event_Remote_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteLeft, this, Event_Remote_Left::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteUpdate, this, Event_Remote_Update::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteDied, this, Event_Remote_Died::GUID );
 }
 
-/* Registers all the events that should be sent to the server. */
-void Client::InitForwardingEvents()
+bool Client::Connect( std::string ip, UINT port )
 {
-	EventManager::GetInstance()->AddListener( &NetworkEventForwarder::ForwardEvent, mNEF, Event_Local_Update::GUID );
-}
-
-bool Client::Initialize( std::string ip, unsigned int port )
-{
-	Network::Initialize( port );
-	mIP = ip;
 	mSocketManager = new ClientSocketManager();
-	if( !mSocketManager->Connect( mIP, mPort ) )
+	if( !mSocketManager->Connect( ip, port ) )
 	{
 		return false;
 	}
-	std::cout << "Client connected to server on IP: " << mIP << ", port: " << mPort << std::endl;
+	std::cout << "Client connected to server on IP: " << ip << ", port: " << port << std::endl;
 
 	mNEF = new NetworkEventForwarder();
 	mNEF->Initialize( 0, mSocketManager ); // Always sends to socket 0, the server's socketID
+	return true;
+}
 
-	InitForwardingEvents();
+bool Client::Initialize()
+{
 	InitEventListening();
 	return true;
+}
+
+Client* Client::GetInstance()
+{
+	if( !mInstance )
+		mInstance = new Client();
+	return mInstance;
+}
+
+void Client::SendEvent( IEventPtr eventPtr )
+{
+	mNEF->ForwardEvent( eventPtr );
 }
 
 void Client::Update( float deltaTime )
 {
 	if( mActive )
 	{
-		IEventPtr E1( PFS_NEW Event_Local_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
+		//IEventPtr E1( PFS_NEW Event_Local_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection ) );
+		IEventPtr E1( PFS_NEW Event_Local_Died( mID, 0 ) );
+
+		SendEvent( E1 );
 	}
 }
 
@@ -117,16 +147,17 @@ void Client::Release()
 	SAFE_DELETE( mSocketManager );
 	SAFE_DELETE( mNEF );
 	mRemoteIDs.clear();
+	SAFE_DELETE( mInstance );
 }
 
 Client::Client() : Network()
 {
-	mSocketManager	= nullptr;
-	mIP				= "";
-	mNEF			= nullptr;
-	mRemoteIDs		= std::list<UINT>();
-	mActive			= false;
 	mID						= (UINT)-1;
+	mSocketManager			= nullptr;
+	mNEF					= nullptr;
+	mRemoteIDs				= std::list<UINT>();
+	mActive					= false;
+
 	mLowerBodyPos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mUpperBodyDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );

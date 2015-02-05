@@ -41,7 +41,8 @@
 using namespace DirectX;
 /*	This has been slightly modified in order to allow each event-class to serialize it's data. 
 	New rules:
-	- For every event that you create a REGISTER_EVENT call has to be made for that function. 
+	- For every event that you create a REGISTER_EVENT call has to be made for that function.
+	- Events that are to be received from the client to the server needs to be sent, never listened to.
 	- More rules will be implemented later. */
 
 extern EventType counter; // If you want know what this does, just check Events.cpp :D
@@ -642,5 +643,111 @@ class Event_Game_Ended : public IEvent
 		IEventPtr Copy() const
 		{
 			return IEventPtr( new Event_Game_Ended() );
+		}
+};
+
+// An event sent by the local client whenever s/he dies
+class Event_Local_Died : public IEvent
+{
+	private:
+		UINT mID;
+		UINT mKillerID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Local_Died()
+		{
+			mID			= (UINT)-1;
+			mKillerID	= (UINT)-1;
+		}
+		Event_Local_Died( UINT id, UINT killerID )
+		{
+			mID			= id;
+			mKillerID	= killerID;
+		}
+		~Event_Local_Died() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mKillerID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mKillerID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Local_Died( mID, mKillerID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT KillerID() const
+		{
+			return mKillerID;
+		}
+};
+
+// An event sent by the server to the remote clients whenever someone dies
+class Event_Remote_Died : public IEvent
+{
+	private:
+		UINT mID;
+		UINT mKillerID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Died()
+		{
+			mID			= (UINT)-1;
+			mKillerID	= (UINT)-1;
+		}
+		Event_Remote_Died( UINT id, UINT killerID )
+		{
+			mID			= id;
+			mKillerID	= killerID;
+		}
+		~Event_Remote_Died() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mKillerID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mKillerID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Died( mID, mKillerID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT KillerID() const
+		{
+			return mKillerID;
 		}
 };

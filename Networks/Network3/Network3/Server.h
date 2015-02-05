@@ -13,9 +13,12 @@ class Server : public Network
 	public:
 
 	private:
+		// Eventlistening functions
 		void	ClientJoined( IEventPtr eventPtr );
 		void	ClientLeft( IEventPtr eventPtr );
 		void	LocalUpdate( IEventPtr eventPtr );
+		void	LocalDied( IEventPtr eventPtr );
+
 		void	StartUp( IEventPtr eventPtr );
 
 		void	BroadcastEvent( IEventPtr eventPtr, UINT exception = (UINT)-1 );
@@ -23,11 +26,12 @@ class Server : public Network
 		void	InitEventListening();
 
 	protected:
-		bool	Initialize( UINT port );
+		bool	Connect( UINT port );
 
 	public:
 		void	Update( float deltaTime );
 		void	DoSelect( int pauseMicroSecs, bool handleInput = true );
+		bool	Initialize();
 		void	Release();
 				Server();
 		virtual	~Server();

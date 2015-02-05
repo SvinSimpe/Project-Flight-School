@@ -59,13 +59,14 @@ void Server::LocalUpdate( IEventPtr eventPtr )
 	}
 }
 
-void Server::StartServer( IEventPtr eventPtr )
+void Server::StartUp( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Start_Server::GUID )
 	{
 		std::shared_ptr<Event_Start_Server> data = std::static_pointer_cast<Event_Start_Server>( eventPtr );
 		UINT port = data->Port();
-		Initialize( port );
+		if( !Initialize( port ) )
+			std::cout << "Failed to start server!" << std::endl;
 	}
 }
 
@@ -92,7 +93,21 @@ void Server::InitEventListening()
 	EventManager::GetInstance()->AddListener( &Server::ClientJoined, this, Event_Client_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientLeft, this, Event_Client_Left::GUID );
 	EventManager::GetInstance()->AddListener( &Server::LocalUpdate, this, Event_Local_Update::GUID );
-	EventManager::GetInstance()->AddListener( &Server::StartServer, this, Event_Start_Server::GUID );
+}
+
+bool Server::Initialize( UINT port )
+{
+	Network::Initialize( port );
+	mSocketManager = new SocketManager();
+	if( !mSocketManager->Initialize() )
+	{
+		return false;
+	}
+	mSocketManager->AddSocket( new ServerListenSocket( mSocketManager, mPort ) );
+	std::cout << "Server started on port: " << mPort << std::endl;
+
+	InitEventListening();
+	return true;
 }
 
 void Server::Update( float deltaTime )
@@ -104,23 +119,6 @@ void Server::DoSelect( int pauseMicroSecs, bool handleInput )
 	mSocketManager->DoSelect( pauseMicroSecs, handleInput );
 }
 
-bool Server::Initialize( UINT port )
-{
-	Network::Initialize( port );
-	mSocketManager = new SocketManager();
-	if( !mSocketManager->Initialize() )
-	{
-		OutputDebugStringA( "Failed to initialize server.\n" );
-		return false;
-	}
-	mSocketManager->AddSocket( new ServerListenSocket( mSocketManager, mPort ) );
-	std::cout << "Server started on port: " << mPort << std::endl;
-
-	mActive = true;
-
-	return true;
-}
-
 void Server::Release()
 {
 	mSocketManager->Release();
@@ -130,10 +128,10 @@ void Server::Release()
 
 Server::Server() : Network()
 {
-	mSocketManager = nullptr;
-	mClientMap = std::map<UINT, NetworkEventForwarder>();
-	mActive = false;
-	InitEventListening();
+	mSocketManager	= nullptr;
+	mClientMap		= std::map<UINT, NetworkEventForwarder>();
+
+	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
 }
 
 Server::~Server()

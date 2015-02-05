@@ -50,6 +50,18 @@ void Client::RemoteUpdate( IEventPtr eventPtr )
 	}
 }
 
+void Client::StartUp( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Start_Client::GUID )
+	{
+		std::shared_ptr<Event_Start_Client> data = std::static_pointer_cast<Event_Start_Client>( eventPtr );
+		std::string IP	= data->IP();
+		UINT port		= data->Port();
+		if( !Initialize( IP, port ) )
+			std::cout << "Failed to start client!" << std::endl;
+	}
+}
+
 /* Registers all the events that should be listened to from the server. */
 void Client::InitEventListening()
 {
@@ -65,6 +77,25 @@ void Client::InitForwardingEvents()
 	EventManager::GetInstance()->AddListener( &NetworkEventForwarder::ForwardEvent, mNEF, Event_Local_Update::GUID );
 }
 
+bool Client::Initialize( std::string ip, unsigned int port )
+{
+	Network::Initialize( port );
+	mIP = ip;
+	mSocketManager = new ClientSocketManager();
+	if( !mSocketManager->Connect( mIP, mPort ) )
+	{
+		return false;
+	}
+	std::cout << "Client connected to server on IP: " << mIP << ", port: " << mPort << std::endl;
+
+	mNEF = new NetworkEventForwarder();
+	mNEF->Initialize( 0, mSocketManager ); // Always sends to socket 0, the server's socketID
+
+	InitForwardingEvents();
+	InitEventListening();
+	return true;
+}
+
 void Client::Update( float deltaTime )
 {
 	if( mActive )
@@ -77,26 +108,6 @@ void Client::Update( float deltaTime )
 void Client::DoSelect( int pauseMicroSecs, bool handleInput )
 {
 	mSocketManager->DoSelect( pauseMicroSecs, handleInput );
-}
-
-bool Client::Initialize( std::string ip, unsigned int port )
-{
-	Network::Initialize( port );
-	mIP = ip;
-	mSocketManager = new ClientSocketManager();
-	if( !mSocketManager->Connect( mIP, mPort ) )
-	{
-		OutputDebugStringA( "Client failed to connect to server.\n" );
-		return false;
-	}
-	std::cout << "Client connected to server on IP: " << mIP << ", port: " << mPort << std::endl;
-
-	mNEF = new NetworkEventForwarder();
-	mNEF->Initialize( 0, mSocketManager ); // Always sends to socket 0, the server's socketID
-
-	InitEventListening();
-	InitForwardingEvents();
-	return true;
 }
 
 void Client::Release()
@@ -119,6 +130,8 @@ Client::Client() : Network()
 	mLowerBodyPos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mUpperBodyDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+
+	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 }
 
 Client::~Client()

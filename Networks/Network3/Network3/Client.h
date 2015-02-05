@@ -11,8 +11,8 @@ class Client : public Network
 		std::string				mIP;
 		NetworkEventForwarder*	mNEF;
 		std::list<UINT>			mRemoteIDs;
-		bool					mActive;
 		UINT					mID;
+		bool					mActive;
 
 		// TESTING CODE FOR EVENTS BELOW
 		XMFLOAT3	mLowerBodyPos;
@@ -27,15 +27,16 @@ class Client : public Network
 		void	RemoteJoined( IEventPtr eventPtr );
 		void	RemoteLeft( IEventPtr eventPtr );
 		void	RemoteUpdate( IEventPtr eventPtr );
+		void	StartUp( IEventPtr eventPtr );
 		
 		void	InitEventListening();
 		void	InitForwardingEvents();
 
 	protected:
+		bool	Initialize( std::string ip, unsigned int port );
 	public:
 		void	Update( float deltaTime );
 		void	DoSelect( int pauseMicroSecs, bool handleInput = true );
-		bool	Initialize( std::string ip, unsigned int port );
 		void	Release();
 				Client();
 		virtual	~Client();

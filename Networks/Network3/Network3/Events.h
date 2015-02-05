@@ -530,3 +530,117 @@ class Event_Start_Server : public IEvent
 			return mPort;
 		}
 };
+
+// This is an event used by the client to start a client-object given IP and port
+class Event_Start_Client : public IEvent
+{
+	private:
+		std::string mIP;
+		UINT		mPort;
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Start_Client()
+		{
+			mIP		= "";
+			mPort	= (UINT)-1;
+		}
+		Event_Start_Client( std::string IP, UINT port )
+		{
+			mIP		= IP;
+			mPort	= port;
+		}
+		~Event_Start_Client() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mIP << " ";
+			out << mPort << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mIP;
+			in >> mPort;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Start_Client( mIP, mPort ) );
+		}
+		std::string IP() const
+		{
+			return mIP;
+		}
+		UINT Port() const
+		{
+			return mPort;
+		}
+};
+
+// An event used to start the game
+class Event_Game_Started : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Game_Started()
+		{
+		}
+		~Event_Game_Started() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Game_Started() );
+		}
+};
+
+// An event used to end the game
+class Event_Game_Ended : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Game_Ended()
+		{
+		}
+		~Event_Game_Ended() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Game_Ended() );
+		}
+};

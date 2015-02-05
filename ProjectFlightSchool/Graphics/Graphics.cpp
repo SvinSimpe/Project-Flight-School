@@ -422,6 +422,8 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 	//////////////////////////////////////////////////////////////////
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_POINTLIST );
 	
+	mDeviceContext->OMSetBlendState( mBlendState[BLEND_2D], 0, 0xFFFFFFFF );
+
 	UINT32 vertexSize[2]			= { sizeof( Vertex12 ), sizeof( ParticleVertex16 ) };
 	UINT32 offset[2]				= { 0, 0 };
 	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_MUZZLEFLASH]->GetInputLayout() );

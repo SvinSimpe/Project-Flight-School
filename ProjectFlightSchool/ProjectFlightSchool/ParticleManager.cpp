@@ -1,4 +1,5 @@
 #include "ParticleManager.h"
+#include "RenderManager.h"
 
 #pragma region Private functions
 

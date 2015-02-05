@@ -2,7 +2,6 @@
 #define _PARTICLEMANAGER_H_
 
 #include "ParticleSystem.h"
-#include "RenderManager.h"
 
 #define SAFE_RELEASE_DELETE( x ) if( x ) { ( x )->Release(); delete x; ( x ) = nullptr; }
 #define SAFE_DELETE( x ) if( x ) { delete x; ( x ) = nullptr; }

@@ -94,7 +94,7 @@ struct ParticleSystem : public ParticleData
 			case MuzzleFlash: 
 			{
 				// Update MuzzleFlash logic here
-				UpdateMuzzleFlash( deltaTime );
+				MuzzleFlashLogic( deltaTime );
 				break;
 			}
 			default:
@@ -118,7 +118,7 @@ struct ParticleSystem : public ParticleData
 		ParticleData::Release();
 	}
 
-	void UpdateMuzzleFlash( float deltaTime )
+	void MuzzleFlashLogic( float deltaTime )
 	{
 		// Check if new Particles is requested
  		if( nrOfRequestedParticles >= 4 )

@@ -35,7 +35,6 @@ struct ParticleData
 	float*	zVelocity = nullptr;
 
 	float*	lifeTime	= nullptr;
-	DWORD*	color		= nullptr;
 	bool*	isAlive		= nullptr;
 
 	
@@ -64,7 +63,6 @@ struct ParticleData
 		zVelocity = (float*)_mm_malloc( nrOfParticles * sizeof(float), 16 );
 
 		lifeTime = (float*)_mm_malloc( nrOfParticles * sizeof(float), 16 );
-		color	 = (DWORD*)_mm_malloc( nrOfParticles * sizeof(DWORD), 16 );
 		isAlive	 = (bool*)_mm_malloc(  nrOfParticles * sizeof(bool),  16 );
 
 
@@ -101,12 +99,6 @@ struct ParticleData
 			xmm0 = _mm_set_ps( 0.0f, 0.0f, 0.0f, 0.0f );
 			_mm_store_ps( &lifeTime[i], xmm0 );
 
-			//========= Initialize color ===========
-			color[i]	= 0;
-			color[i+1]	= 0;
-			color[i+2]	= 0;
-			color[i+3]	= 0;
-
 			//========= Initialize isAlive ===========
 			isAlive[i]		= false;
 			isAlive[i+1]	= false;
@@ -129,7 +121,6 @@ struct ParticleData
 		std::swap( zVelocity[a], zVelocity[b] );
 
 		std::swap( lifeTime[a], lifeTime[b] );
-		std::swap( color[a], color[b] );
 		std::swap( isAlive[a], isAlive[b] );
 	}
 
@@ -325,7 +316,6 @@ struct ParticleData
 		_mm_free( zVelocity );
 
 		_mm_free( lifeTime );
-		_mm_free( color );
 		_mm_free( isAlive );
 	}
 
@@ -334,93 +324,6 @@ struct ParticleData
 	virtual void Update( float deltaTime ) = 0;
 
 	virtual void Render( float deltaTime ) = 0;
-
-	void FunkyFunctionJunction()
-	{
-		//==============================
-		__declspec( align( 16 ) ) float v[4];
-		struct Vertex
-		{
-			float x = 0.0f;
-			float y = 0.0f;
-			float z = 0.0f;
-		};
-
-		Vertex* vertices = new Vertex[1000];
-		UINT vertexCount = 0;
-
-
-		UINT numParticles = 1000;
-		float* x		= nullptr;
-		float* y		= nullptr;
-		float* z		= nullptr;
-		bool* isAlive	= nullptr;
-
-		for ( size_t i = 0; i < numParticles; i+=4 )
-		{
-			__m128 xmm0 = _mm_load_ps( &x[i] );
-			__m128 xmm1 = _mm_load_ps( &y[i] );
-			__m128 xmm2 = _mm_load_ps( &z[i] );
-			__m128 xmm3 = _mm_set1_ps( 1.0f );
-		 
-		
-			__m128 xmm4 = _mm_unpacklo_ps( xmm0, xmm1 );
-			__m128 xmm6 = _mm_unpackhi_ps( xmm0, xmm1 );	 
-			__m128 xmm5 = _mm_unpacklo_ps( xmm2, xmm3 );
-			__m128 xmm7 = _mm_unpackhi_ps( xmm2, xmm3 );
-
-
-			xmm0 = _mm_shuffle_ps( xmm4, xmm5, _MM_SHUFFLE(1, 0, 1, 0 ) );
-			xmm1 = _mm_shuffle_ps( xmm4, xmm5, _MM_SHUFFLE(3, 2, 3, 2 ) );
-			xmm2 = _mm_shuffle_ps( xmm6, xmm7, _MM_SHUFFLE(1, 0, 1, 0 ) );
-			xmm3 = _mm_shuffle_ps( xmm6, xmm7, _MM_SHUFFLE(3, 2, 3, 2 ) );
-
-
-			if ( isAlive[i] )
-			{
-				_mm_store_ps( v, xmm0 );
-
-				vertices->x = v[0];
-				vertices->y = v[1];
-				vertices->z = v[2];
-
-				vertexCount++;
-			}
-
-			if ( isAlive[i+1] )
-			{
-				_mm_store_ps( v, xmm1 );
-
-				vertices->x = v[0];
-				vertices->y = v[1];
-				vertices->z = v[2];
-
-				vertexCount++;
-			}
-
-			if ( isAlive[i+2] )
-			{
-				_mm_store_ps( v, xmm2 );
-
-				vertices->x = v[0];
-				vertices->y = v[1];
-				vertices->z = v[2];
-
-				vertexCount++;
-			}
-
-			if ( isAlive[i+3] )
-			{
-				_mm_store_ps( v, xmm3 );
-
-				vertices->x = v[0];
-				vertices->y = v[1];
-				vertices->z = v[2];
-
-				vertexCount++;
-			}
-		}
-	}
 
 	#pragma endregion
 };

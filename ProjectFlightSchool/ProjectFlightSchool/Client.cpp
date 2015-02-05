@@ -32,6 +32,7 @@ void Client::EventListener( IEventPtr newEvent )
 			msg.lowerBodyPosition		= data->LowerBodyPos();
 			msg.velocity				= data->Velocity();
 			msg.upperBodyDirection		= data->UpperBodyDirection();
+			msg.isAlive					= data->IsAlive();
 			msg.playerName				= data->Name();
 			
 			if ( mServerSocket != INVALID_SOCKET )
@@ -166,6 +167,25 @@ void Client::EventListener( IEventPtr newEvent )
 			}
 		}
 	}
+	else if ( newEvent->GetEventType() == Event_Enemy_Melee_Hit::GUID )
+	{
+		std::shared_ptr<Event_Enemy_Melee_Hit> data = std::static_pointer_cast<Event_Enemy_Melee_Hit>( newEvent );
+		if ( mServerSocket != INVALID_SOCKET )
+		{
+			EvEnemyMeleeHit msg;
+			msg.ID			= data->Enemy();
+			msg.damage		= data->Damage();
+			msg.knockBack	= data->KnockBack();
+			msg.direction	= data->Direction();
+			msg.stun		= data->Stun();
+			
+
+			if ( mServerSocket != INVALID_SOCKET )
+			{
+				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_ENEMY_MELEE_HIT, msg );
+			}
+		}
+	}
 	else if ( newEvent->GetEventType() == Event_Player_Down::GUID )
 	{
 		std::shared_ptr<Event_Player_Down> data = std::static_pointer_cast<Event_Player_Down>( newEvent );
@@ -274,9 +294,11 @@ bool Client::Run()
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Attack::GUID );
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Update_HP::GUID );
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Projectile_Damage_Enemy::GUID );
+	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Enemy_Melee_Hit::GUID );
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Down::GUID );
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Up::GUID );
 	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Remote_Player_Revive::GUID );
+
 
 	std::thread listen( &Client::ReceiveLoop, this );
 

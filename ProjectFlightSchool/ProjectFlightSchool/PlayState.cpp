@@ -257,6 +257,12 @@ void PlayState::BroadcastMeleeDamage( unsigned playerID, float damage, float kno
 	EventManager::GetInstance()->QueueEvent( dmgEv );
 }
 
+void PlayState::BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float knockBack, XMFLOAT3 direction )
+{
+	IEventPtr dmgEv( new Event_Enemy_Melee_Hit( enemyID, damage, knockBack, direction, mPlayer->GetLoadOut()->meleeWeapon->stun ) );
+	EventManager::GetInstance()->QueueEvent( dmgEv );
+}
+
 void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction )
 {
 	mNrOfProjectilesFired = mNrOfProjectilesFired % MAX_PROJECTILES;
@@ -432,6 +438,31 @@ void PlayState::CheckMeeleCollision()
 			}
 		}
 	}
+
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	{
+		//Check intersection with melee circle & enemy
+		if( mPlayer->GetLoadOut()->meleeWeapon->boundingCircle->Intersect( mEnemies[i]->GetBoundingCircle() ) )
+		{
+			XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) * mPlayer->GetLoadOut()->meleeWeapon->radius );
+
+			//Spread to Radians
+			float halfRadian = XMConvertToRadians( mPlayer->GetLoadOut()->meleeWeapon->spread * 18.0f ) * 0.5f;
+
+			XMVECTOR playerToRemote = XMLoadFloat3( &mEnemies[i]->GetPosition() ) - XMLoadFloat3( &mPlayer->GetPosition() );
+
+			float angleRemoteToAim = 0.0f;
+			XMVECTOR playerToCenter = XMLoadFloat3( &mEnemies[i]->GetBoundingCircle()->center ) - XMLoadFloat3( &mPlayer->GetPlayerPosition() );
+			XMStoreFloat( &angleRemoteToAim, XMVector4AngleBetweenVectors( playerToCenter, meeleRadiusVector ) );
+
+			if( angleRemoteToAim <= halfRadian )
+			{
+				XMFLOAT3 direction = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+				XMStoreFloat3( &direction, XMVector4Normalize( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) ) );
+				BroadcastEnemyMeleeDamage(mEnemies[i]->GetID(), mPlayer->GetLoadOut()->meleeWeapon->damage, mPlayer->GetLoadOut()->meleeWeapon->knockBack, direction );
+			}
+		}
+	}
 }
 
 void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID )
@@ -538,8 +569,11 @@ HRESULT PlayState::Update( float deltaTime )
 			if( mEnemies[i]->IsSynced() )
 			{
 				mEnemies[i]->Update( deltaTime );
-				mRadarObjects[nrOfRadarObj].mType = RADAR_TYPE::HOSTILE;
-				mRadarObjects[nrOfRadarObj++].mRadarObjectPos = mEnemies[i]->GetPosition();
+				if( mEnemies[i]->IsAlive() )
+				{
+					mRadarObjects[nrOfRadarObj].mType = RADAR_TYPE::HOSTILE;
+					mRadarObjects[nrOfRadarObj++].mRadarObjectPos = mEnemies[i]->GetPosition();
+				}
 			}
 		}
 	}

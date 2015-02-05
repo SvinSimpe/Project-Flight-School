@@ -18,18 +18,20 @@ class Player: public RemotePlayer
 
 		PointLight*		mPointLight[5];
 
+		float		mWeaponCoolDown;
+		float		mMeleeCoolDown;
+		float		mTimeTillattack;
+		bool		mIsMeleeing;
+		bool		mHasMeleeStarted;
+		float		mMaxVelocity;
+		float		mCurrentVelocity;
+		float		mMaxAcceleration;
+		XMFLOAT3	mAcceleration;
+		bool		mIsBuffed;
+		float		mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
+
 		std::string		mPlayerName;
 		bool			mHasName;
-
-		float			mWeaponCoolDown;
-		float			mMeleeCoolDown;
-		bool			mIsMeleeing;
-		float			mMaxVelocity;
-		float			mCurrentVelocity;
-		float			mMaxAcceleration;
-		XMFLOAT3		mAcceleration;
-		bool			mIsBuffed;
-		float			mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
 
 	protected:
 	public:

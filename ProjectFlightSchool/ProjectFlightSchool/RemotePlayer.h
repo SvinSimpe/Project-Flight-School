@@ -41,6 +41,7 @@ struct ServerPlayer
 {
 	unsigned int	ID;
 	XMFLOAT3		Position;
+	bool			IsAlive;
 };
 
 struct UpperBody

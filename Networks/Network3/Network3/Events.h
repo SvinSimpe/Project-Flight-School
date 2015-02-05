@@ -1131,3 +1131,107 @@ class Event_Remote_Fired_Projectile : public IEvent
 			return mDirection;
 		}
 };
+
+class Event_Client_Update_HP : public IEvent
+{
+	private:
+		UINT		mID;
+		float		mHP;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Update_HP()
+		{
+			mID	= (UINT)-1;
+			mHP	= -1.0f;
+		}
+		Event_Client_Update_HP( UINT id, float hp )
+		{
+			mID	= id;
+			mHP = hp;
+		}
+		~Event_Client_Update_HP() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mHP << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mHP;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Update_HP( mID, mHP ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		float HP() const
+		{
+			return mHP;
+		}
+};
+
+class Event_Remote_Update_HP : public IEvent
+{
+	private:
+		UINT		mID;
+		float		mHP;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Update_HP()
+		{
+			mID	= (UINT)-1;
+			mHP	= -1.0f;
+		}
+		Event_Remote_Update_HP( UINT id, float hp )
+		{
+			mID	= id;
+			mHP = hp;
+		}
+		~Event_Remote_Update_HP() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mHP << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mHP;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Update_HP( mID, mHP ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		float HP() const
+		{
+			return mHP;
+		}
+};

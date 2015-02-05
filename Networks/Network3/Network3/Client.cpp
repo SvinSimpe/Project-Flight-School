@@ -125,6 +125,29 @@ void Client::RemoteFiredProjectile( IEventPtr eventPtr )
 	}
 }
 
+void Client::RemoteUpdateHP( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Update_HP::GUID )
+	{
+		std::shared_ptr<Event_Remote_Update_HP> data = std::static_pointer_cast<Event_Remote_Update_HP>( eventPtr );
+		UINT id = data->ID();
+		float hp = data->HP();
+
+		if( hp < 0.0f )
+		{
+			std::cout << "Remote with ID: " << id << " lost " << (-1.0f)*hp << " HP." << std::endl;
+		}
+		else if( hp > 0.0f )
+		{
+			std::cout << "Remote with ID: " << id << " gained " << hp << " HP." << std::endl;
+		}
+		else
+		{
+			std::cout << "Remote with ID: " << id << " updated it's HP for no reason." << std::endl;
+		}
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -176,12 +199,18 @@ void Client::Update( float deltaTime )
 		//IEventPtr E1( PFS_NEW Event_Client_Died( mID, 0 ) );
 		//IEventPtr E1( PFS_NEW Event_Client_Spawned( mID ) );
 
-		for( int i = 0; i < 10; i++ )
+		for( float i = -1.0f; i <= 1.0f; i += 1.0f )
 		{
-			//IEventPtr E1( PFS_NEW Event_Client_Damaged( mID, i ) );
-			IEventPtr E1( PFS_NEW Event_Client_Fired_Projectile( mID, i, XMFLOAT3((float)i, 0.0f, 0.0f), XMFLOAT3((float)i, 0.0f, 0.0f ) ) );
+			IEventPtr E1( PFS_NEW Event_Client_Update_HP( mID, i ) );
 			SendEvent( E1 );
 		}
+
+		//for( int i = 0; i < 10; i++ )
+		//{
+		//	//IEventPtr E1( PFS_NEW Event_Client_Damaged( mID, i ) );
+		//	IEventPtr E1( PFS_NEW Event_Client_Fired_Projectile( mID, i, XMFLOAT3((float)i, 0.0f, 0.0f), XMFLOAT3((float)i, 0.0f, 0.0f ) ) );
+		//	SendEvent( E1 );
+		//}
 		//SendEvent( E1 );
 	}
 }
@@ -213,6 +242,8 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Remote_Spawned );
 	EF::REGISTER_EVENT( Event_Client_Fired_Projectile );
 	EF::REGISTER_EVENT( Event_Remote_Fired_Projectile );
+	EF::REGISTER_EVENT( Event_Client_Update_HP );
+	EF::REGISTER_EVENT( Event_Remote_Update_HP );
 
 	EventManager::GetInstance()->AddListener( &Client::LocalJoined, this, Event_Local_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteJoined, this, Event_Remote_Joined::GUID );
@@ -222,6 +253,7 @@ bool Client::Initialize()
 	EventManager::GetInstance()->AddListener( &Client::RemoteDamaged, this, Event_Remote_Damaged::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteSpawned, this, Event_Remote_Spawned::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteFiredProjectile, this, Event_Remote_Fired_Projectile::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteUpdateHP, this, Event_Remote_Update_HP::GUID );
 
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	return true;

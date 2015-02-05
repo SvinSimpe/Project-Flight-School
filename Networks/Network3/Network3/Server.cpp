@@ -122,6 +122,32 @@ void Server::ClientFiredProjectile( IEventPtr eventPtr )
 	}
 }
 
+void Server::ClientUpdateHP( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Update_HP::GUID )
+	{
+		std::shared_ptr<Event_Client_Update_HP> data = std::static_pointer_cast<Event_Client_Update_HP>( eventPtr );
+		UINT id = data->ID();
+		float hp = data->HP();
+
+		if( hp < 0.0f )
+		{
+			std::cout << "Client with ID: " << id << " lost " << (-1.0f)*hp << " HP." << std::endl;
+		}
+		else if( hp > 0.0f )
+		{
+			std::cout << "Client with ID: " << id << " gained " << hp << " HP." << std::endl;
+		}
+		else
+		{
+			std::cout << "Client with ID: " << id << " updated it's HP for no reason." << std::endl;
+		}
+
+		IEventPtr E1( PFS_NEW Event_Remote_Update_HP( id, hp ) );
+		BroadcastEvent( E1, id );
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -193,6 +219,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientDamaged, this, Event_Client_Damaged::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientSpawned, this, Event_Client_Spawned::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientFiredProjectile, this, Event_Client_Fired_Projectile::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientUpdateHP, this, Event_Client_Update_HP::GUID );
 
 	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
 

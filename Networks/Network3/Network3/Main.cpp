@@ -15,7 +15,6 @@ int main()
 	// 156 159 160 201 204 205 
 	//_CrtSetBreakAlloc(160); // Break at specific memory allocation point
 #endif
-	// REGISTER_EVENT should only be run once for each event
 
 	Client::GetInstance()->Initialize();
 

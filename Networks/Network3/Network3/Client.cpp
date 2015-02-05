@@ -10,7 +10,7 @@ Client::Client() : Network()
 	mSocketManager			= nullptr;
 	mNEF					= nullptr;
 	mRemoteIDs				= std::list<UINT>();
-	mEnemies				= std::list<Enemy>();
+	mEnemies				= std::map<UINT, Enemy>();
 	mActive					= false;
 
 	mLowerBodyPos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
@@ -178,22 +178,85 @@ void Client::RemoteAttack( IEventPtr eventPtr )
 	}
 }
 
-void Client::ServerSyncEnemy( IEventPtr eventPtr )
+void Client::RemoteDown( IEventPtr eventPtr )
 {
-	if( eventPtr->GetEventType() == Event_Server_Sync_Enemy::GUID )
+	if( eventPtr->GetEventType() == Event_Remote_Down::GUID )
 	{
-		std::shared_ptr<Event_Server_Sync_Enemy> data = std::static_pointer_cast<Event_Server_Sync_Enemy>( eventPtr );
+		std::shared_ptr<Event_Remote_Down> data = std::static_pointer_cast<Event_Remote_Down>( eventPtr );
+		UINT id = data->ID();
+
+		std::cout << "Remote with ID: " << id << " went down." << std::endl;
+	}
+}
+
+void Client::RemoteUp( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Up::GUID )
+	{
+		std::shared_ptr<Event_Remote_Up> data = std::static_pointer_cast<Event_Remote_Up>( eventPtr );
+		UINT id = data->ID();
+
+		std::cout << "Remote with ID: " << id << " went up." << std::endl;
+	}
+}
+
+void Client::RemoteAttemptRevive( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Attempt_Revive::GUID )
+	{
+		std::shared_ptr<Event_Remote_Attempt_Revive> data = std::static_pointer_cast<Event_Remote_Attempt_Revive>( eventPtr );
+		UINT id = data->ID();
+		UINT downedID = data->DownedID();
+		float deltaTime = data->DeltaTime();
+
+		std::cout << "Remote with ID: " << id << " is attempting to revive " << downedID << " with " << deltaTime << " time left." << std::endl;
+	}
+}
+
+void Client::ServerCreateEnemy( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Server_Create_Enemy::GUID )
+	{
+		std::shared_ptr<Event_Server_Create_Enemy> data = std::static_pointer_cast<Event_Server_Create_Enemy>( eventPtr );
 		UINT id = data->ID();
 		UINT state = data->State();
 		UINT type = data->Type();
 		XMFLOAT3 pos = data->Position();
 		XMFLOAT3 dir = data->Direction();
 
-		mEnemies.push_back( Enemy( id, state, type, pos, dir ) );
-		Enemy e = mEnemies.back();
-		std::cout << "Server synced enemy: " << e.id << " with state: " << e.state << " of type: " << e.type;
+		mEnemies[id] = Enemy( id, state, type, pos, dir );
+		Enemy e = mEnemies[id];
+		std::cout << "Server created enemy: " << e.id << " with state: " << e.state << " of type: " << e.type;
 		std::cout << " at: (" << e.pos.x << ", " << e.pos.y << ", " << e.pos.z << ")";
 		std::cout << " facing: (" << e.dir.x << ", " << e.dir.y << ", " << e.dir.z << ")" << std::endl;
+	}
+}
+
+void Client::ServerUpdateEnemy( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Server_Update_Enemy::GUID )
+	{
+		std::shared_ptr<Event_Server_Update_Enemy> data = std::static_pointer_cast<Event_Server_Update_Enemy>( eventPtr );
+		UINT id = data->ID();
+		XMFLOAT3 pos = data->Position();
+		XMFLOAT3 dir = data->Direction();
+		bool isAlive = data->IsAlive();
+		
+		mEnemies[id].pos = pos;
+		mEnemies[id].dir = dir;
+		mEnemies[id].isAlive = isAlive;
+
+		Enemy e = mEnemies[id];
+		std::cout << "Server updated enemy: " << e.id << " to pos: (" << e.pos.x << ", " << e.pos.y << ", " << e.pos.z << ")";
+		std::cout << " facing: (" << e.dir.x << ", " << e.dir.y << ", " << e.dir.z << ") ";
+		if( isAlive )
+		{
+			std::cout <<  isAlive << std::endl;
+		}
+		else
+		{
+			std::cout << isAlive << std::endl;
+		}
 	}
 }
 
@@ -244,25 +307,14 @@ void Client::Update( float deltaTime )
 {
 	if( mActive )
 	{
-		//IEventPtr E1( PFS_NEW Event_Client_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection ) );
-		//IEventPtr E1( PFS_NEW Event_Client_Died( mID, 0 ) );
-		//IEventPtr E1( PFS_NEW Event_Client_Spawned( mID ) );
-		//IEventPtr E1( PFS_NEW Event_Client_Melee_Hit( mID, 0, 10.6f, 0.67f, XMFLOAT3( 56.0f, 32.0f, 12.0f ) ) );
-		IEventPtr E1( PFS_NEW Event_Client_Attack( mID, 0, 1) );
-
-		//for( float i = -1.0f; i <= 1.0f; i += 1.0f )
-		//{
-		//	IEventPtr E1( PFS_NEW Event_Client_Update_HP( mID, i ) );
-		//	SendEvent( E1 );
-		//}
-
-		//for( int i = 0; i < 10; i++ )
-		//{
-		//	//IEventPtr E1( PFS_NEW Event_Client_Damaged( mID, i ) );
-		//	IEventPtr E1( PFS_NEW Event_Client_Fired_Projectile( mID, i, XMFLOAT3((float)i, 0.0f, 0.0f), XMFLOAT3((float)i, 0.0f, 0.0f ) ) );
-		//	SendEvent( E1 );
-		//}
+		IEventPtr E1( PFS_NEW Event_Client_Down( mID ) );
 		SendEvent( E1 );
+
+		IEventPtr E2( PFS_NEW Event_Client_Attempt_Revive( 0, mID, 10.0f ) );
+		SendEvent( E2 );
+
+		IEventPtr E3( PFS_NEW Event_Client_Up( mID ) );
+		SendEvent( E3 );
 	}
 }
 
@@ -273,6 +325,7 @@ void Client::DoSelect( int pauseMicroSecs, bool handleInput )
 
 bool Client::Initialize()
 {
+	// REGISTER_EVENT should only be run once for each event
 	EF::REGISTER_EVENT( Event_Client_Joined );
 	EF::REGISTER_EVENT( Event_Client_Left );
 	EF::REGISTER_EVENT( Event_Local_Joined );
@@ -295,11 +348,29 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Remote_Fired_Projectile );
 	EF::REGISTER_EVENT( Event_Client_Update_HP );
 	EF::REGISTER_EVENT( Event_Remote_Update_HP );
-	EF::REGISTER_EVENT( Event_Server_Sync_Enemy );
+	EF::REGISTER_EVENT( Event_Server_Create_Enemy );
 	EF::REGISTER_EVENT( Event_Client_Melee_Hit );
 	EF::REGISTER_EVENT( Event_Remote_Melee_Hit );
 	EF::REGISTER_EVENT( Event_Client_Attack );
 	EF::REGISTER_EVENT( Event_Remote_Attack );
+	EF::REGISTER_EVENT( Event_Add_Point_Light );
+	EF::REGISTER_EVENT( Event_Remove_Point_Light );
+	EF::REGISTER_EVENT( Event_Server_Update_Enemy );
+
+	EF::REGISTER_EVENT( Event_Server_Sync_Enemy_State ); //
+	EF::REGISTER_EVENT( Event_Set_Enemy_State ); //
+	EF::REGISTER_EVENT( Event_Remote_Set_Enemy_State ); // 
+
+	EF::REGISTER_EVENT( Event_Client_Projectile_Damage_Enemy ); // 
+	EF::REGISTER_EVENT( Event_Server_Enemy_Died ); // 
+	EF::REGISTER_EVENT( Event_Server_Enemy_Attack_Player ); //
+	
+	EF::REGISTER_EVENT( Event_Client_Down );
+	EF::REGISTER_EVENT( Event_Remote_Down );
+	EF::REGISTER_EVENT( Event_Client_Up );
+	EF::REGISTER_EVENT( Event_Remote_Up );
+	EF::REGISTER_EVENT( Event_Client_Attempt_Revive );
+	EF::REGISTER_EVENT( Event_Remote_Attempt_Revive );
 
 	EventManager::GetInstance()->AddListener( &Client::LocalJoined, this, Event_Local_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteJoined, this, Event_Remote_Joined::GUID );
@@ -310,9 +381,13 @@ bool Client::Initialize()
 	EventManager::GetInstance()->AddListener( &Client::RemoteSpawned, this, Event_Remote_Spawned::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteFiredProjectile, this, Event_Remote_Fired_Projectile::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteUpdateHP, this, Event_Remote_Update_HP::GUID );
-	EventManager::GetInstance()->AddListener( &Client::ServerSyncEnemy, this, Event_Server_Sync_Enemy::GUID );
+	EventManager::GetInstance()->AddListener( &Client::ServerCreateEnemy, this, Event_Server_Create_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteMeleeHit, this, Event_Remote_Melee_Hit::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteAttack, this, Event_Remote_Attack::GUID );
+	EventManager::GetInstance()->AddListener( &Client::ServerUpdateEnemy, this, Event_Server_Update_Enemy::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteDown, this, Event_Remote_Down::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteUp, this, Event_Remote_Up::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteAttemptRevive, this, Event_Remote_Attempt_Revive::GUID );
 
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	return true;

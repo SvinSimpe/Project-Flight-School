@@ -17,7 +17,7 @@ void Server::ClientJoined( IEventPtr eventPtr )
 		// Sends the ID of the newly connected client to the newly connected client
 		IEventPtr E1( PFS_NEW Event_Local_Joined( id, teamID ) );
 		SendEvent( E1, id );
-		SyncEnemy( id );
+		SendEnemies( id );
 
 		std::cout << "Client with ID: " << id << " joined team: " << teamID << ". There are now " << mClientMap.size() << " clients online." << std::endl;
 
@@ -187,6 +187,41 @@ void Server::ClientAttack( IEventPtr eventPtr )
 	}
 }
 
+void Server::ClientDown( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Down::GUID )
+	{
+		std::shared_ptr<Event_Client_Down> data = std::static_pointer_cast<Event_Client_Down>( eventPtr );
+		UINT id = data->ID();
+
+		std::cout << "Client with ID: " << id << " went down." << std::endl;
+	}
+}
+
+void Server::ClientUp( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Up::GUID )
+	{
+		std::shared_ptr<Event_Client_Up> data = std::static_pointer_cast<Event_Client_Up>( eventPtr );
+		UINT id = data->ID();
+
+		std::cout << "Client with ID: " << id << " went up." << std::endl;
+	}
+}
+
+void Server::ClientAttemptRevive( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Attempt_Revive::GUID )
+	{
+		std::shared_ptr<Event_Client_Attempt_Revive> data = std::static_pointer_cast<Event_Client_Attempt_Revive>( eventPtr );
+		UINT id = data->ID();
+		UINT downedID = data->DownedID();
+		float deltaTime = data->DeltaTime();
+
+		std::cout << "Client with ID: " << id << " is attempting to revive " << downedID << " with " << deltaTime << " time left." << std::endl;
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -222,12 +257,12 @@ void Server::CreateEnemies()
 }
 
 // Syncs the newly connected player with the current enemy list
-void Server::SyncEnemy( UINT toClient )
+void Server::SendEnemies( UINT toClient )
 {
 	for( auto& enemy : mEnemies )
 	{
 		Enemy e = enemy.second;
-		IEventPtr E1( PFS_NEW Event_Server_Sync_Enemy( e.id, e.state, e.type, e.pos, e.dir ) );
+		IEventPtr E1( PFS_NEW Event_Server_Create_Enemy( e.id, e.state, e.type, e.pos, e.dir ) );
 		SendEvent( E1, toClient );
 	}
 }
@@ -272,6 +307,27 @@ bool Server::Connect( UINT port )
 
 void Server::Update( float deltaTime )
 {
+	//if( !mClientMap.empty() )
+	//{
+	//	int counter = 0;
+	//	for( auto& enemy : mEnemies )
+	//	{
+	//		enemy.second.pos.x += 0.1f;
+	//		enemy.second.dir.z += 0.1f;
+	//		if( ( counter % 2 ) > 0 )
+	//		{
+	//			enemy.second.isAlive = false;
+	//		}
+	//		else
+	//		{
+	//			enemy.second.isAlive = true;
+	//		}
+	//		counter++;
+
+	//		IEventPtr E1( PFS_NEW Event_Server_Update_Enemy( enemy.first, enemy.second.pos, enemy.second.dir, enemy.second.isAlive ) );
+	//		BroadcastEvent( E1 );
+	//	}
+	//}
 }
 
 void Server::DoSelect( int pauseMicroSecs, bool handleInput )
@@ -291,6 +347,10 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientUpdateHP, this, Event_Client_Update_HP::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientMeleeHit, this, Event_Client_Melee_Hit::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientAttack, this, Event_Client_Attack::GUID );
+
+	EventManager::GetInstance()->AddListener( &Server::ClientDown, this, Event_Client_Down::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientUp, this, Event_Client_Up::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientAttemptRevive, this, Event_Client_Attempt_Revive::GUID );
 
 	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
 

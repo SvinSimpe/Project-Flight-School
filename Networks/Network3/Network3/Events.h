@@ -1240,7 +1240,7 @@ class Event_Remote_Update_HP : public IEvent
 };
 
 // An event used by the server to send clients the list of existing enemies
-class Event_Server_Sync_Enemy : public IEvent
+class Event_Server_Create_Enemy : public IEvent
 {
 	private:
 		UINT		mID;
@@ -1256,7 +1256,7 @@ class Event_Server_Sync_Enemy : public IEvent
 	private:
 	protected:
 	public:
-		Event_Server_Sync_Enemy()
+		Event_Server_Create_Enemy()
 		{
 			mID			= (UINT)-1;
 			mState		= (UINT)-1;
@@ -1264,7 +1264,7 @@ class Event_Server_Sync_Enemy : public IEvent
 			mPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mDirection	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 		}
-		Event_Server_Sync_Enemy( UINT id, UINT state, UINT type, XMFLOAT3 position, XMFLOAT3 direction )
+		Event_Server_Create_Enemy( UINT id, UINT state, UINT type, XMFLOAT3 position, XMFLOAT3 direction )
 		{
 			mID			= id;
 			mState		= state;
@@ -1272,7 +1272,7 @@ class Event_Server_Sync_Enemy : public IEvent
 			mPosition	= position;
 			mDirection	= direction;
 		}
-		~Event_Server_Sync_Enemy() {}
+		~Event_Server_Create_Enemy() {}
 		const EventType& GetEventType() const
 		{
 			return GUID;
@@ -1307,7 +1307,7 @@ class Event_Server_Sync_Enemy : public IEvent
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Server_Sync_Enemy( mID, mState, mType, mPosition, mDirection ) );
+			return IEventPtr( new Event_Server_Create_Enemy( mID, mState, mType, mPosition, mDirection ) );
 		}
 		UINT ID() const
 		{
@@ -1624,3 +1624,885 @@ class Event_Remote_Attack : public IEvent
 			return mAnimation;
 		}
 };
+
+// Syncs the list of spawners that the server has with the one the client (apparantely?) has
+class Event_Server_Sync_Spawn : public IEvent
+{
+	private:
+		UINT		mID;
+		XMFLOAT3	mPosition;
+
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Sync_Spawn()
+		{
+			mID			= (UINT)-1;
+			mPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		}
+		Event_Server_Sync_Spawn( UINT id, XMFLOAT3 position )
+		{
+			mID			= id;
+			mPosition	= position;
+		}
+		~Event_Server_Sync_Spawn() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+
+			out << mPosition.x << " ";
+			out << mPosition.y << " ";
+			out << mPosition.z << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			
+			in >> mPosition.x;
+			in >> mPosition.y;
+			in >> mPosition.z;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Sync_Spawn( mID, mPosition ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		XMFLOAT3 Position() const
+		{
+			return mPosition;
+		}
+};
+
+// A client-local event used for creating point lights
+class Event_Add_Point_Light : public IEvent
+{
+	private:
+		void* mLight;
+
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Add_Point_Light()
+		{
+			mLight = nullptr;
+		}
+		Event_Add_Point_Light( void* light )
+		{
+			mLight = light;
+		}
+		~Event_Add_Point_Light() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			// Isn't supposed to be sent over the network
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			// Isn't supposed to be sent over the network
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Add_Point_Light( mLight ) );
+		}
+		void* Light() const
+		{
+			return mLight;
+		}
+};
+
+// A client-local event used for removing point lights
+class Event_Remove_Point_Light : public IEvent
+{
+	private:
+		void* mLight;
+
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remove_Point_Light()
+		{
+			mLight = nullptr;
+		}
+		Event_Remove_Point_Light( void* light )
+		{
+			mLight = light;
+		}
+		~Event_Remove_Point_Light() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			// Isn't supposed to be sent over the network
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			// Isn't supposed to be sent over the network
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remove_Point_Light( mLight ) );
+		}
+		void* Light() const
+		{
+			return mLight;
+		}
+};
+
+// Event used by the server to update the enemy
+class Event_Server_Update_Enemy : public IEvent
+{
+	private:
+		UINT		mID;
+		XMFLOAT3	mPosition;
+		XMFLOAT3	mDirection;
+		bool		mIsAlive;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Update_Enemy()
+		{
+			mID			= (UINT)-1;
+			mPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mDirection	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mIsAlive	= false;
+		}
+		Event_Server_Update_Enemy( UINT id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive )
+		{
+			mID			= id;
+			mPosition	= position;
+			mDirection	= direction;
+			mIsAlive	= isAlive;
+		}
+		~Event_Server_Update_Enemy() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+
+			out << mPosition.x << " ";
+			out << mPosition.y << " ";
+			out << mPosition.z << " ";
+
+			out << mDirection.x << " ";
+			out << mDirection.y << " ";
+			out << mDirection.z << " ";
+
+			out << mIsAlive << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+
+			in >> mPosition.x;
+			in >> mPosition.y;
+			in >> mPosition.z;
+
+			in >> mDirection.x;
+			in >> mDirection.y;
+			in >> mDirection.z;
+
+			in >> mIsAlive;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Update_Enemy( mID, mPosition, mDirection, mIsAlive ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		XMFLOAT3 Position() const
+		{
+			return mPosition;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
+		}
+		bool IsAlive() const
+		{
+			return mIsAlive;
+		}
+};
+
+// Event used by the server to sync the state of an enemy with the clients
+class Event_Server_Sync_Enemy_State : public IEvent
+{
+	private:
+		UINT mID;
+		UINT mState;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Sync_Enemy_State()
+		{
+			mID		= (UINT)-1;
+			mState	= (UINT)-1;
+		}
+		Event_Server_Sync_Enemy_State( UINT id, UINT killerID )
+		{
+			mID		= id;
+			mState	= killerID;
+		}
+		~Event_Server_Sync_Enemy_State() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mState << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mState;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Sync_Enemy_State( mID, mState ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT State() const
+		{
+			return mState;
+		}
+};
+
+// Event used locally by the server to change the state of a specific enemy
+class Event_Set_Enemy_State : public IEvent
+{
+	private:
+		UINT mID;
+		UINT mState;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Set_Enemy_State()
+		{
+			mID		= (UINT)-1;
+			mState	= (UINT)-1;
+		}
+		Event_Set_Enemy_State( UINT id, UINT killerID )
+		{
+			mID		= id;
+			mState	= killerID;
+		}
+		~Event_Set_Enemy_State() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mState << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mState;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Set_Enemy_State( mID, mState ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT State() const
+		{
+			return mState;
+		}
+};
+
+// Not sure what this event does yet, will have to see later.
+class Event_Remote_Set_Enemy_State : public IEvent
+{
+	private:
+		UINT mID;
+		UINT mState;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Set_Enemy_State()
+		{
+			mID		= (UINT)-1;
+			mState	= (UINT)-1;
+		}
+		Event_Remote_Set_Enemy_State( UINT id, UINT killerID )
+		{
+			mID		= id;
+			mState	= killerID;
+		}
+		~Event_Remote_Set_Enemy_State() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mState << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mState;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Set_Enemy_State( mID, mState ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT State() const
+		{
+			return mState;
+		}
+};
+
+// Sent from the client to the server whenever an enemy is shot by the client
+class Event_Client_Projectile_Damage_Enemy : public IEvent
+{
+	private:
+		UINT	mID;
+		UINT	mProjectileID;
+		UINT	mEnemyID;
+		float	mDamage;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Projectile_Damage_Enemy()
+		{
+			mID				= (UINT)-1;
+			mProjectileID	= (UINT)-1;
+			mEnemyID		= (UINT)-1;
+			mDamage			= -1.0f;
+		}
+		Event_Client_Projectile_Damage_Enemy( UINT id, UINT projectileID, UINT enemyID, float damage )
+		{
+			mID				= id;
+			mProjectileID	= (UINT)-1;
+			mEnemyID		= (UINT)-1;
+			mDamage			= damage;
+		}
+		~Event_Client_Projectile_Damage_Enemy() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mProjectileID << " ";
+			out << mEnemyID << " ";
+			out << mDamage << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mProjectileID;
+			in >> mEnemyID;
+			in >> mDamage;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Projectile_Damage_Enemy( mID, mProjectileID, mEnemyID, mDamage ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT ProjectileID() const
+		{
+			return mProjectileID;
+		}
+		UINT EnemyID() const
+		{
+			return mEnemyID;
+		}		
+		float Damage() const
+		{
+			return mDamage;
+		}
+};
+
+// Event sent from the server to the clients whenever an enemy dies
+class Event_Server_Enemy_Died : public IEvent
+{
+	private:
+		UINT mID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Enemy_Died()
+		{
+			mID = (UINT)-1;
+		}
+		Event_Server_Enemy_Died( UINT id )
+		{
+			mID	= id;
+		}
+		~Event_Server_Enemy_Died() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Enemy_Died( mID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+};
+
+// Event sent from server whenever an enemy attacks a client
+class Event_Server_Enemy_Attack_Player : public IEvent
+{
+	private:
+		UINT	mID;
+		UINT	mPlayerID;
+		float	mDamage;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Enemy_Attack_Player()
+		{
+			mID			= (UINT)-1;
+			mPlayerID	= (UINT)-1;
+			mDamage		= -1.0f;
+		}
+		Event_Server_Enemy_Attack_Player( UINT id, UINT playerID, float damage )
+		{
+			mID			= id;
+			mPlayerID	= playerID;
+			mDamage		= damage;
+		}
+		~Event_Server_Enemy_Attack_Player() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mPlayerID << " ";
+			out << mDamage << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mPlayerID;
+			in >> mDamage;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Enemy_Attack_Player( mID, mPlayerID, mDamage ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT PlayerID() const
+		{
+			return mPlayerID;
+		}		
+		float Damage() const
+		{
+			return mDamage;
+		}
+};
+
+// Event sent from client to server whenever it's downed
+class Event_Client_Down : public IEvent
+{
+	private:
+		UINT mID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Down()
+		{
+			mID = (UINT)-1;
+		}
+		Event_Client_Down( UINT id )
+		{
+			mID	= id;
+		}
+		~Event_Client_Down() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Down( mID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+};
+
+// Event sent to remotes whenever a client is downed
+class Event_Remote_Down : public IEvent
+{
+	private:
+		UINT mID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Down()
+		{
+			mID = (UINT)-1;
+		}
+		Event_Remote_Down( UINT id )
+		{
+			mID	= id;
+		}
+		~Event_Remote_Down() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Down( mID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+};
+
+// Event sent from client to server when a client is successfully revived
+class Event_Client_Up : public IEvent
+{
+	private:
+		UINT mID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Up()
+		{
+			mID = (UINT)-1;
+		}
+		Event_Client_Up( UINT id )
+		{
+			mID	= id;
+		}
+		~Event_Client_Up() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Up( mID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+};
+
+// Event sent from server to remotes when a client is successfully revived
+class Event_Remote_Up : public IEvent
+{
+	private:
+		UINT mID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Up()
+		{
+			mID = (UINT)-1;
+		}
+		Event_Remote_Up( UINT id )
+		{
+			mID	= id;
+		}
+		~Event_Remote_Up() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Up( mID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+};
+
+// Event sent from client to server whenever the client attempts a revive
+class Event_Client_Attempt_Revive : public IEvent
+{
+	private:
+		UINT mID;			// The ID of the player attempting the revive
+		UINT mDownedID;		// The ID of the player getting revived
+		float mDeltaTime;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Attempt_Revive()
+		{
+			mID			= (UINT)-1;
+			mDownedID	= (UINT)-1;
+			mDeltaTime	= -1.0f;
+		}
+		Event_Client_Attempt_Revive( UINT id, UINT downedID, float deltaTime )
+		{
+			mID			= id;
+			mDownedID	= downedID;
+			mDeltaTime	= deltaTime;
+		}
+		~Event_Client_Attempt_Revive() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mDownedID << " ";
+			out << mDeltaTime << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mDownedID;
+			in >> mDeltaTime;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Attempt_Revive( mID, mDownedID, mDeltaTime ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT DownedID() const
+		{
+			return mDownedID;
+		}
+		float DeltaTime() const
+		{
+			return mDeltaTime;
+		}
+};
+
+// Sent from the server to the remotes whenever a client attempts a revive
+class Event_Remote_Attempt_Revive : public IEvent
+{
+	private:
+		UINT mID;			// The ID of the player attempting the revive
+		UINT mDownedID;		// The ID of the player getting revived
+		float mDeltaTime;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Attempt_Revive()
+		{
+			mID			= (UINT)-1;
+			mDownedID	= (UINT)-1;
+			mDeltaTime	= -1.0f;
+		}
+		Event_Remote_Attempt_Revive( UINT id, UINT downedID, float deltaTime )
+		{
+			mID			= id;
+			mDownedID	= downedID;
+			mDeltaTime	= deltaTime;
+		}
+		~Event_Remote_Attempt_Revive() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mDownedID << " ";
+			out << mDeltaTime << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mDownedID;
+			in >> mDeltaTime;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Attempt_Revive( mID, mDownedID, mDeltaTime ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT DownedID() const
+		{
+			return mDownedID;
+		}
+		float DeltaTime() const
+		{
+			return mDeltaTime;
+		}
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// 2500 lines, bitches

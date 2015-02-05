@@ -33,11 +33,14 @@ class Server : public Network
 		void	ClientUpdateHP( IEventPtr eventPtr );
 		void	ClientMeleeHit( IEventPtr eventPtr );
 		void	ClientAttack( IEventPtr eventPtr );
+		void	ClientDown( IEventPtr eventPtr );
+		void	ClientUp( IEventPtr eventPtr );
+		void	ClientAttemptRevive( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 
 		void	CreateEnemies();
-		void	SyncEnemy( UINT toClient );
+		void	SendEnemies( UINT toClient );
 		void	BroadcastEvent( IEventPtr eventPtr, UINT exception = (UINT)-1 );
 		void	SendEvent( IEventPtr eventPtr, UINT to );
 		UINT	CurrentTeamDelegate();

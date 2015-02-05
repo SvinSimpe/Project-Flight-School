@@ -16,6 +16,7 @@ class Network
 			UINT type;
 			XMFLOAT3 pos;
 			XMFLOAT3 dir;
+			bool isAlive;
 
 			Enemy()
 			{
@@ -24,6 +25,7 @@ class Network
 				type = (UINT)-1;
 				pos = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 				dir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+				isAlive = false;
 			}
 
 			Enemy( UINT id, UINT state, UINT type, XMFLOAT3 pos, XMFLOAT3 dir )
@@ -33,6 +35,7 @@ class Network
 				this->type = type;
 				this->pos = pos;
 				this->dir = dir;
+				isAlive = true;
 			}
 		};
 	public:

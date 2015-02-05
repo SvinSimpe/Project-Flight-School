@@ -13,7 +13,7 @@ class Client : public Network
 		ClientSocketManager*	mSocketManager;
 		NetworkEventForwarder*	mNEF;
 		std::list<UINT>			mRemoteIDs;
-		std::list<Enemy>		mEnemies;
+		std::map<UINT, Enemy>	mEnemies;
 		bool					mActive;
 
 		// TESTING CODE FOR EVENTS BELOW
@@ -39,7 +39,12 @@ class Client : public Network
 		void	RemoteUpdateHP( IEventPtr eventPtr );
 		void	RemoteMeleeHit( IEventPtr eventPtr );
 		void	RemoteAttack( IEventPtr eventPtr );
-		void	ServerSyncEnemy( IEventPtr eventPtr );
+		void	RemoteDown( IEventPtr eventPtr );
+		void	RemoteUp( IEventPtr eventPtr );
+		void	RemoteAttemptRevive( IEventPtr eventPtr );
+
+		void	ServerCreateEnemy( IEventPtr eventPtr );
+		void	ServerUpdateEnemy( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 

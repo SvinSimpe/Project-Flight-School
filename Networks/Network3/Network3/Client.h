@@ -31,6 +31,7 @@ class Client : public Network
 		void	RemoteLeft( IEventPtr eventPtr );
 		void	RemoteUpdate( IEventPtr eventPtr );
 		void	RemoteDied( IEventPtr eventPtr );
+		void	RemoteDamaged( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 		void	InitEventListening();

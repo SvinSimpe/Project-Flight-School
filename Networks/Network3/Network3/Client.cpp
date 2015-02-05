@@ -67,6 +67,18 @@ void Client::RemoteDied( IEventPtr eventPtr )
 	}
 }
 
+void Client::RemoteDamaged( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Damaged::GUID )
+	{
+		std::shared_ptr<Event_Remote_Damaged> data = std::static_pointer_cast<Event_Remote_Damaged>( eventPtr );
+		UINT id = data->ID();
+		UINT projectileID = data->ProjectileID();
+
+		std::cout << "Remote with ID: " << id << " was shot by bullet with ID: " << projectileID << std::endl;
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -90,6 +102,7 @@ void Client::InitEventListening()
 	EventManager::GetInstance()->AddListener( &Client::RemoteLeft, this, Event_Remote_Left::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteUpdate, this, Event_Remote_Update::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteDied, this, Event_Remote_Died::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteDamaged, this, Event_Remote_Damaged::GUID );
 }
 
 bool Client::Connect( std::string ip, UINT port )
@@ -129,9 +142,13 @@ void Client::Update( float deltaTime )
 	if( mActive )
 	{
 		//IEventPtr E1( PFS_NEW Event_Local_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection ) );
-		IEventPtr E1( PFS_NEW Event_Local_Died( mID, 0 ) );
+		//IEventPtr E1( PFS_NEW Event_Local_Died( mID, 0 ) );
 
-		SendEvent( E1 );
+		for( int i = 0; i < 10; i++ )
+		{
+			IEventPtr E1( PFS_NEW Event_Local_Damaged( mID, i ) );
+			SendEvent( E1 );
+		}
 	}
 }
 

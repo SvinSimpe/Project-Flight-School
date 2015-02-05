@@ -76,6 +76,21 @@ void Server::LocalDied( IEventPtr eventPtr )
 	}
 }
 
+void Server::LocalDamaged( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Local_Damaged::GUID )
+	{
+		std::shared_ptr<Event_Local_Damaged> data = std::static_pointer_cast<Event_Local_Damaged>( eventPtr );
+		UINT id = data->ID();
+		UINT projectileID = data->ProjectileID();
+
+		std::cout << "Client with ID: " << id << " was shot by bullet with ID: " << projectileID << std::endl;
+		IEventPtr E1( PFS_NEW Event_Remote_Damaged( id, projectileID ) );
+		BroadcastEvent( E1, id );
+	}
+}
+
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -115,6 +130,7 @@ void Server::InitEventListening()
 	EventManager::GetInstance()->AddListener( &Server::ClientLeft, this, Event_Client_Left::GUID );
 	EventManager::GetInstance()->AddListener( &Server::LocalUpdate, this, Event_Local_Update::GUID );
 	EventManager::GetInstance()->AddListener( &Server::LocalDied, this, Event_Local_Died::GUID );
+	EventManager::GetInstance()->AddListener( &Server::LocalDamaged, this, Event_Local_Damaged::GUID );
 }
 
 bool Server::Connect( UINT port )

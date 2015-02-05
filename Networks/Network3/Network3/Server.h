@@ -18,6 +18,7 @@ class Server : public Network
 		void	ClientLeft( IEventPtr eventPtr );
 		void	LocalUpdate( IEventPtr eventPtr );
 		void	LocalDied( IEventPtr eventPtr );
+		void	LocalDamaged( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 

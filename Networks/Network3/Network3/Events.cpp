@@ -57,3 +57,5 @@ const EventType Event_Game_Started::GUID( counter++ );
 const EventType Event_Game_Ended::GUID( counter++ );
 const EventType Event_Local_Died::GUID( counter++ );
 const EventType Event_Remote_Died::GUID( counter++ );
+const EventType Event_Local_Damaged::GUID( counter++ );
+const EventType Event_Remote_Damaged::GUID( counter++ );

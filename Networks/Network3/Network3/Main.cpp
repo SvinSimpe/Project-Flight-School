@@ -6,6 +6,8 @@
 int StartServerAndClient( std::string ip, UINT port );
 int StartServerOrClient( std::string ip, UINT port );
 
+const int MAX_FRAMECOUNT = 10000;
+
 int main()
 {
 #if defined(DEBUG) | defined(_DEBUG)
@@ -28,13 +30,15 @@ int main()
 	EF::REGISTER_EVENT( Event_Game_Ended );
 	EF::REGISTER_EVENT( Event_Local_Died );
 	EF::REGISTER_EVENT( Event_Remote_Died );
+	EF::REGISTER_EVENT( Event_Local_Damaged );
+	EF::REGISTER_EVENT( Event_Remote_Damaged );
 
 	Client::GetInstance()->Initialize();
 
 	std::string ip	= "127.0.0.1";
 	UINT port		= 27015;
 
-	//return StartServerAndClient( ip, port );
+	//StartServerAndClient( ip, port );
 	StartServerOrClient( ip, port );
 
 	Client::GetInstance()->Release();
@@ -71,7 +75,7 @@ int StartServerAndClient( std::string ip, UINT port )
 		if( serverOn )
 			server->DoSelect( 0 );
 
-		if( frameCount > 10000 )
+		if( frameCount > MAX_FRAMECOUNT )
 		{
 			Client::GetInstance()->Update( 0.0f );
 			if( serverOn )
@@ -121,7 +125,7 @@ int StartServerOrClient( std::string ip, UINT port )
 	{
 		network->DoSelect( 0 );
 		frameCount++;
-		if( frameCount > 10000 )
+		if( frameCount > MAX_FRAMECOUNT )
 		{
 			network->Update( 0.0f );
 			frameCount = 0;

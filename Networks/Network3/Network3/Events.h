@@ -42,7 +42,8 @@ using namespace DirectX;
 /*	This has been slightly modified in order to allow each event-class to serialize it's data. 
 	New rules:
 	- For every event that you create a REGISTER_EVENT call has to be made for that function.
-	- Events that are to be received from the client to the server needs to be sent, never listened to.
+	- Events that are to be sent to the server from the client (don't worry, it's a singleton) needs to be sent, never listened to by the client itself.
+	- Events that needs to be sent (read above rule) by the client all have the word "local" in them.
 	- More rules will be implemented later. */
 
 extern EventType counter; // If you want know what this does, just check Events.cpp :D
@@ -749,5 +750,111 @@ class Event_Remote_Died : public IEvent
 		UINT KillerID() const
 		{
 			return mKillerID;
+		}
+};
+
+// An event created by the client whenever s/he is shot by a projectile
+class Event_Local_Damaged : public IEvent
+{
+	private:
+		UINT mID;
+		UINT mProjecileID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Local_Damaged()
+		{
+			mID			= (UINT)-1;
+			mProjecileID	= (UINT)-1;
+		}
+		Event_Local_Damaged( UINT id, UINT projectileID )
+		{
+			mID				= id;
+			mProjecileID	= projectileID;
+		}
+		~Event_Local_Damaged() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mProjecileID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mProjecileID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Local_Damaged( mID, mProjecileID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT ProjectileID() const
+		{
+			return mProjecileID;
+		}
+};
+
+// An event sent from the server whenever a local client has been shot
+class Event_Remote_Damaged : public IEvent
+{
+	private:
+		UINT mID;
+		UINT mProjecileID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Damaged()
+		{
+			mID			= (UINT)-1;
+			mProjecileID	= (UINT)-1;
+		}
+		Event_Remote_Damaged( UINT id, UINT projectileID )
+		{
+			mID				= id;
+			mProjecileID	= projectileID;
+		}
+		~Event_Remote_Damaged() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mProjecileID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mProjecileID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Damaged( mID, mProjecileID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT ProjectileID() const
+		{
+			return mProjecileID;
 		}
 };

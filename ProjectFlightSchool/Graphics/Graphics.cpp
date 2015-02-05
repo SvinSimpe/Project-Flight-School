@@ -123,27 +123,35 @@ void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 	mDeviceContext->OMSetDepthStencilState( mDepthEnabledStencilState, 1 );
 }
 
-void Graphics::Render2dAsset( AssetID assetId, float x, float y, float width, float height )
+void Graphics::Render2dAsset( Object2dInfo* info, UINT sizeOfList )
 {
 	UINT32 vertexSize	= sizeof(StaticVertex);
 	UINT32 offset		= 0;
 
-	float left		= ( ( x / (float)mScreenWidth ) * 2.0f ) - 1.0f;
-	float right		= ( ( ( x + width ) / (float)mScreenWidth ) * 2.0f ) - 1.0f;
-	float bottom	= ( ( ( y + height ) / (float)mScreenHeight ) * -2.0f ) + 1.0f;
-	float top		= ( ( y / (float)mScreenHeight ) * -2.0f ) + 1.0f;
+	for( UINT i = 0; i < sizeOfList; i++ )
+	{
+		float left		= ( ( info[i].mTopLeftCorner.x / (float)mScreenWidth ) * 2.0f ) - 1.0f;
+		float right		= ( ( ( info[i].mTopLeftCorner.x + info[i].mWidthHeight.x ) / (float)mScreenWidth ) * 2.0f ) - 1.0f;
+		float bottom	= ( ( ( info[i].mTopLeftCorner.y + info[i].mWidthHeight.y ) / (float)mScreenHeight ) * -2.0f ) + 1.0f;
+		float top		= ( ( info[i].mTopLeftCorner.y / (float)mScreenHeight ) * -2.0f ) + 1.0f;
 
-	StaticVertex bottomleft		= { left, bottom, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f };
-	StaticVertex topleft		= { left, top, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 0.0f };
-	StaticVertex bottomright	= { right, bottom, 0.0f,	0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	1.0f, 1.0f };
-	StaticVertex topright		= { right, top, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	1.0f, 0.0f };
+		StaticVertex bottomleft		= { left, bottom, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f };
+		StaticVertex topleft		= { left, top, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 0.0f };
+		StaticVertex bottomright	= { right, bottom, 0.0f,	0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	1.0f, 1.0f };
+		StaticVertex topright		= { right, top, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	1.0f, 0.0f };
 
-	StaticVertex vertices[4] = { bottomleft, topleft, bottomright, topright };
-	MapBuffer( mBuffers[BUFFERS_2D], &vertices, sizeof(StaticVertex) * 4 );
-	mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_2D], &vertexSize, &offset );
+		StaticVertex vertices[4] = { bottomleft, topleft, bottomright, topright };
+		MapBuffer( mBuffers[BUFFERS_2D], &vertices, sizeof(StaticVertex) * 4 );
+		mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_2D], &vertexSize, &offset );
 
-	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[assetId] )->mSRV );
-	mDeviceContext->Draw( 4, 0 );
+		CbufferPerObject2D cbuff;
+		cbuff.color = info[i].mColor;
+		MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT_2D], &cbuff, sizeof( CbufferPerObject2D ) );
+		mDeviceContext->PSSetConstantBuffers( 0, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT_2D] );
+
+		mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[info[i].mAssetId] )->mSRV );
+		mDeviceContext->Draw( 4, 0 );
+	}
 }
 
 void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX::XMFLOAT3 y )
@@ -671,6 +679,16 @@ void Graphics::ZoomInDeveloperCamera()
 void Graphics::ZoomOutDeveloperCamera()
 {
 	mCamera[CAMERAS_DEV]->ZoomOut();
+}
+
+void Graphics::GetViewMatrix( DirectX::XMMATRIX &view )
+{
+	view = mCamera[CAMERAS_MAIN]->GetViewMatrix();
+}
+
+void Graphics::GetProjectionMatrix( DirectX::XMMATRIX &proj )
+{
+	proj = mCamera[CAMERAS_MAIN]->GetProjMatrix();
 }
 
 void Graphics::MapLightStructuredBuffer( LightStructure* lightStructure, int numPointLights )
@@ -1243,6 +1261,14 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 		return hr;
 
 	///////////////////////////////////////
+	// CREATE CBUFFERPEROBJECT2D
+	///////////////////////////////////////
+	bufferDesc.ByteWidth = sizeof( CbufferPerObject2D );
+
+	if( FAILED( hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT_2D] ) ) )
+		return hr;
+
+	///////////////////////////////////////
 	// CREATE CBUFFERPEROBJECTANIMATED
 	///////////////////////////////////////
 	bufferDesc.ByteWidth = sizeof( CbufferPerObjectAnimated );
@@ -1501,7 +1527,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	cameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
 	cameraInfo.width		= (float)screenWidth;
 	cameraInfo.height		= (float)screenHeight;
-	cameraInfo.foVY			= 0.75f;
+	cameraInfo.foVY			= 3.14159265f * 0.25f;
 	cameraInfo.nearZ		= 0.1f;
 	cameraInfo.farZ			= 1000.0f;
 
@@ -1518,7 +1544,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	developerCameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
 	developerCameraInfo.width		= (float)screenWidth;
 	developerCameraInfo.height		= (float)screenHeight;
-	developerCameraInfo.foVY		= 0.75f;
+	developerCameraInfo.foVY		= 3.14159265f * 0.25f;
 	developerCameraInfo.nearZ		= 0.1f;
 	developerCameraInfo.farZ		= 1000.0f;
 

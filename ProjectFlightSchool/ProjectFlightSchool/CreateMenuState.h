@@ -11,6 +11,8 @@ class CreateMenuState : public BaseMenuState
 			MULTIPLAYER		= 1,
 			BACK			= 2,
 			BUTTON_AMOUNT	= 3;
+		
+		InputSquare	mNameBox;
 
 	protected:
 	public:

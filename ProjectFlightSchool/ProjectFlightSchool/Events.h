@@ -48,6 +48,7 @@ class Event_Player_Update : public IEvent
 		XMFLOAT3		mVelocity;
 		XMFLOAT3		mUpperBodyDirection;
 		bool			mIsAlive;
+		std::string		mName;
 
 	protected:
 	public:
@@ -61,28 +62,33 @@ class Event_Player_Update : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Player_Update( XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDirection, bool isAlive )
+		Event_Player_Update( XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDirection, bool isAlive, std::string name )
 		{
 			mLowerBodyPos			= lowerBodyPos;
 			mVelocity				= velocity;
 			mUpperBodyDirection		= upperBodyDirection;
 			mIsAlive				= isAlive;
+			mName					= name;
 		}
-		XMFLOAT3 LowerBodyPos() const
+		XMFLOAT3	LowerBodyPos() const
 		{
 			return mLowerBodyPos;
 		}
-		XMFLOAT3 Velocity() const
+		XMFLOAT3	Velocity() const
 		{
 			return mVelocity;
 		}
-		XMFLOAT3 UpperBodyDirection() const
+		XMFLOAT3	UpperBodyDirection() const
 		{
 			return mUpperBodyDirection;
 		}
 		bool IsAlive() const
 		{
 			return mIsAlive;
+		}
+		std::string Name() const
+		{
+			return mName;
 		}
 };
 
@@ -94,6 +100,7 @@ class Event_Remote_Player_Update : public IEvent
 		XMFLOAT3		mLowerBodyPos;
 		XMFLOAT3		mVelocity;
 		XMFLOAT3		mUpperBodyDirection;
+		std::string		mName;
 
 	protected:
 	public:
@@ -107,28 +114,33 @@ class Event_Remote_Player_Update : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Remote_Player_Update( unsigned int id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDirection )
+		Event_Remote_Player_Update( unsigned int id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDirection, std::string name )
 		{
 			mID						= id;
 			mLowerBodyPos			= lowerBodyPos;
 			mVelocity				= velocity;
 			mUpperBodyDirection		= upperBodyDirection;
+			mName					= name;
 		}
-		unsigned int ID() const
+		unsigned int	ID() const
 		{
 			return mID;
 		}
-		XMFLOAT3 LowerBodyPos() const
+		XMFLOAT3		LowerBodyPos() const
 		{
 			return mLowerBodyPos;
 		}
-		XMFLOAT3 Velocity() const
+		XMFLOAT3		Velocity() const
 		{
 			return mVelocity;
 		}
-		XMFLOAT3 UpperBodyDirection() const
+		XMFLOAT3		UpperBodyDirection() const
 		{
 			return mUpperBodyDirection;
+		}
+		std::string		Name() const
+		{
+			return mName;
 		}
 };
 
@@ -153,8 +165,8 @@ class Event_Local_Player_Joined : public IEvent
 	public:
 		Event_Local_Player_Joined( unsigned int id, int team )
 		{
-			mID		= id;
-			mTeam	= team;
+			mID			= id;
+			mTeam		= team;
 		}
 		unsigned int ID() const
 		{
@@ -187,8 +199,8 @@ class Event_Remote_Player_Joined : public IEvent
 	public:
 		Event_Remote_Player_Joined( unsigned int id, int team )
 		{
-			mID		= id;
-			mTeam	= team;
+			mID			= id;
+			mTeam		= team;
 		}
 		unsigned int ID() const
 		{
@@ -1284,6 +1296,34 @@ class Event_Set_Remote_Enemy_State : public IEvent // Client side
 		}
 };
 
+class Event_Create_Player_Name : public IEvent
+{
+	// Member variables
+	private:
+		std::string		mPlayerName;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Create_Player_Name( std::string playerName )
+		{
+			mPlayerName = playerName;
+		}
+		std::string PlayerName() const
+		{
+			return mPlayerName;
+		}
+};
+
 class Event_Projectile_Damage_Enemy : public IEvent
 {
 	// Member variables
@@ -1358,41 +1398,6 @@ class Event_Enemy_Died : public IEvent
 		}
 };
 
-class Event_Enemy_Attack_Player : public IEvent
-{
-	// Member variables
-	private:
-		unsigned int	mPlayerID;	
-		float			mDamage;
-
-	protected:
-	public:
-		static const EventType GUID;
-
-	// Member functions
-	private:
-	protected:
-		const EventType& GetEventType( void ) const
-		{
-			return GUID;
-		}
-	public:
-		Event_Enemy_Attack_Player( unsigned int playerID, float damage )
-		{
-			mPlayerID	= playerID;
-			mDamage		= damage;
-		}
-		unsigned int Player() const
-		{
-			return mPlayerID;
-		}
-
-		float Damage() const
-		{
-			return mDamage;
-		}
-};
-
 class Event_Enemy_Melee_Hit : public IEvent
 {
 	// Member variables
@@ -1406,7 +1411,8 @@ class Event_Enemy_Melee_Hit : public IEvent
 	protected:
 	public:
 		static const EventType GUID;
-	
+
+
 	// Member functions
 	private:
 	protected:
@@ -1415,6 +1421,7 @@ class Event_Enemy_Melee_Hit : public IEvent
 			return GUID;
 		}
 	public:
+
 		Event_Enemy_Melee_Hit( unsigned int id, float damage, float knockBack, XMFLOAT3 direction, float stun )
 		{
 			mID				= id;
@@ -1442,5 +1449,221 @@ class Event_Enemy_Melee_Hit : public IEvent
 		float Stun() const
 		{
 			return mStun;
+		}
+};
+
+class Event_Enemy_Attack_Player : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mPlayerID;	
+		float			mDamage;
+	
+	protected:
+	public:
+		static const EventType GUID;
+
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Enemy_Attack_Player( unsigned int playerID, float damage )
+		{
+			mPlayerID	= playerID;
+			mDamage		= damage;
+		}
+		unsigned int Player() const
+		{
+			return mPlayerID;
+		}
+
+		float Damage() const
+		{
+			return mDamage;
+		}
+};
+
+class Event_Remote_Player_Down : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mPlayerID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Remote_Player_Down( unsigned int playerID )
+		{
+			mPlayerID	= playerID;
+		}
+		unsigned int Player() const
+		{
+			return mPlayerID;
+		}
+};
+
+class Event_Player_Down : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mPlayerID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Player_Down( unsigned int playerID )
+		{
+			mPlayerID	= playerID;
+		}
+		unsigned int Player() const
+		{
+			return mPlayerID;
+		}
+};
+
+class Event_Remote_Player_Up : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mPlayerID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Remote_Player_Up( unsigned int playerID )
+		{
+			mPlayerID	= playerID;
+		}
+		unsigned int Player() const
+		{
+			return mPlayerID;
+		}
+};
+
+class Event_Player_Up : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mPlayerID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Player_Up( unsigned int playerID )
+		{
+			mPlayerID	= playerID;
+		}
+		unsigned int Player() const
+		{
+			return mPlayerID;
+		}
+};
+
+class Event_Remote_Player_Revive : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mPlayerID;
+		float			mDeltaTime;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Remote_Player_Revive( unsigned int playerID, float deltaTime )
+		{
+			mPlayerID	= playerID;
+			mDeltaTime	= deltaTime;
+		}
+		unsigned int Player() const
+		{
+			return mPlayerID;
+		}
+		float DeltaTime() const
+		{
+			return mDeltaTime;
+		}
+};
+
+class Event_Player_Revive : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mPlayerID;
+		float			mDeltaTime;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Player_Revive( unsigned int playerID, float deltaTime )
+		{
+			mPlayerID	= playerID;
+			mDeltaTime	= deltaTime;
+		}
+		unsigned int Player() const
+		{
+			return mPlayerID;
+		}
+		float DeltaTime() const
+		{
+			return mDeltaTime;
 		}
 };

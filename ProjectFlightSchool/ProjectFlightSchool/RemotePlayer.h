@@ -8,6 +8,8 @@
 #include "RenderManager.h"
 #include "Font.h"
 #include "WeaponInfo.h"
+#include "Text.h"
+#include "Input.h"
 
 #define LEFT_ARM_ID		0
 #define RIGHT_ARM_ID	1
@@ -87,6 +89,7 @@ class RemotePlayer
 	private:
 	protected:
 		unsigned int	mID;
+		std::string		mPlayerName;
 		int				mTeam;
 		UpperBody		mUpperBody;
 		LowerBody		mLowerBody;
@@ -99,11 +102,18 @@ class RemotePlayer
 
 		BoundingBox*	mBoundingBox;
 		BoundingCircle*	mBoundingCircle;
+		BoundingCircle*	mBoundingCircleAura;
 		float			mCurrentHp;
 		float			mMaxHp;
 		bool			mIsAlive;
+		bool			mIsReviving;
 		float			mSpawnTime;
 		float			mTimeTillSpawn;
+		float			mDeathTime;
+		float			mTimeTillDeath;
+		float			mReviveTime;
+		float			mTimeTillRevive;
+		int				mLastKiller;
 		AssetID			mGreenHPAsset;
 		AssetID			mRedHPAsset;
 		AssetID			mOrangeHPAsset;
@@ -115,6 +125,9 @@ class RemotePlayer
 
 		XMFLOAT3	mVelocity;
 		LoadOut*	mLoadOut;
+
+		bool			mIsDown;
+		PointLight*		mPointLightIfDown;
 
 	public:
 
@@ -130,11 +143,17 @@ class RemotePlayer
 
 		virtual void	Die();
 		void			HandleSpawn( float deltaTime );
+		void			HandleDeath( float deltaTime );
 		void			Spawn();
 		virtual void	TakeDamage( float damage, unsigned int shooter );
+		void			SetName( std::string name );
 		void			SetHP( float hp );
 		void			CountUpKills();
+		void			GoDown();
+		void			GoUp();
 		bool			IsAlive() const;
+		std::string		GetName() const;
+		bool			IsDown() const;
 		LoadOut*		GetLoadOut() const;
 		float			GetHP() const;
 		float			GetMaxHP() const;
@@ -142,6 +161,7 @@ class RemotePlayer
 		int				GetTeam() const;
 		BoundingBox*	GetBoundingBox() const;
 		BoundingCircle*	GetBoundingCircle() const;
+		BoundingCircle*	GetBoundingCircleAura() const;
 		XMFLOAT3		GetPosition() const;
 		XMFLOAT3		GetDirection() const;
 		void			SetDirection( XMFLOAT3 direction );

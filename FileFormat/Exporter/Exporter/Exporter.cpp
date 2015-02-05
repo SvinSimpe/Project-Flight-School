@@ -291,8 +291,8 @@ void Exporter::SceneManager(const char* mapName, const char* fileName)
 	if (g_meshDataExportAnim.size() != 0)
 		WriteAnimMeshToFileBinary(fileName);
 	
-	if (g_skeletonData.size() != 0)
-		WriteSkelToFileBinary();
+	//if (g_skeletonData.size() != 0)
+	//	WriteSkelToFileBinary();
 
 	cout << "    ...Done!" << endl;
 

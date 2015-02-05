@@ -46,6 +46,7 @@ goblin		/Goblin/
 goliath		/Bosses/
 blowuposaur	/Blowuposaur/
 tank		/Tank/
+Tank		/Tank/
 
 ####################################
 

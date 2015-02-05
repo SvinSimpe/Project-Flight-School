@@ -262,12 +262,50 @@ void Server::HandlePkg( SOCKET &fromSocket, Package<T>* p )
 			mEnemies[enemyDamage.enemyID]->TakeDamage( enemyDamage.damage );
 		}
 			break;
+
 		case Net_Event::EV_ENEMY_MELEE_HIT:
 		{
 			EvEnemyMeleeHit enemyDamage = (EvEnemyMeleeHit&)p->body.content;
 			if( mEnemies[enemyDamage.ID]->IsAlive() && mEnemies[enemyDamage.ID]->GetEnemyState() != Stunned )
 			{
 				mEnemies[enemyDamage.ID]->TakeMeleeDamage( enemyDamage.damage, enemyDamage.knockBack, enemyDamage.direction, enemyDamage.stun );
+			}
+		}
+			break;
+
+		case Net_Event::EV_PLAYER_DOWN:
+		{
+			EvPlayerID playerDown = (EvPlayerID&)p->body.content;
+			for ( auto& socket : mClientSockets )
+			{
+				if ( socket.s != s.s )
+				{
+					mConn->SendPkg( socket.s, 0, Net_Event::EV_PLAYER_DOWN, playerDown );
+				}
+			}
+		}
+			break;
+		case Net_Event::EV_PLAYER_UP:
+		{
+			EvPlayerID playerDown = (EvPlayerID&)p->body.content;
+			for ( auto& socket : mClientSockets )
+			{
+				if ( socket.s != s.s )
+				{
+					mConn->SendPkg( socket.s, 0, Net_Event::EV_PLAYER_UP, playerDown );
+				}
+			}
+		}
+			break;
+		case Net_Event::EV_PLAYER_REVIVE:
+		{
+			EvIDAndTime playerDown = (EvIDAndTime&)p->body.content;
+			for ( auto& socket : mClientSockets )
+			{
+				if ( socket.s == playerDown.playerID )
+				{
+					mConn->SendPkg( socket.s, 0, Net_Event::EV_PLAYER_REVIVE, playerDown );
+				}
 			}
 		}
 			break;

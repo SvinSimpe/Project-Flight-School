@@ -22,16 +22,6 @@ struct RADAR_UPDATE_INFO
 	UINT		mType;
 };
 
-static const float HEIGHT			= 12.0f;
-static const float WIDTH			= 12.0f;
-static const float HALF_WIDTH		= WIDTH * 0.5f;
-static const float HALF_HEIGHT		= HEIGHT * 0.5f;
-
-static const float SHIP_HEIGHT		= 18.0f;
-static const float SHIP_WIDTH		= 18.0f;
-static const float SHIP_HALF_HEIGHT	= SHIP_HEIGHT * 0.5f;
-static const float SHIP_HALF_WIDTH	= SHIP_WIDTH * 0.5f;
-
 struct ObjectOnRadar
 {
 	UINT mAssetId;
@@ -57,6 +47,17 @@ class Radar
 		float			mScaleY;
 		float			mOffsetX;
 		float			mOffsetY;
+
+		float			mRadarObjHeight;		
+		float			mRadarObjWidth;			
+		float			mRadarObjHalfWidth;		
+		float			mRadarObjHalfHeight;	
+
+		float			mRadarShipHeight;			
+		float			mRadarShipWidth;			
+		float			mRadarShipHalfHeight;		
+		float			mRadarShipHalfWidth;		
+
 	protected:
 	public:
 

@@ -14,6 +14,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 			mPlayer->SetID( data->ID() );
 			mPlayer->SetTeam( data->Team(), mTeams[data->Team()] );
 			mPlayer->SetColor( mColorIDs[mCurrentColor] );
+		
 			mCurrentColor++;
 			//TestSound
 			SoundBufferHandler::GetInstance()->Play( mSoundAsset );
@@ -164,6 +165,33 @@ void PlayState::EventListener( IEventPtr newEvent )
 		if( mPlayer->GetID() == data->Player() )
 			mPlayer->TakeEnemyDamage( data->Damage() );
 	}
+	else if ( newEvent->GetEventType() == Event_Remote_Player_Down::GUID )
+	{
+		std::shared_ptr<Event_Remote_Player_Down> data = std::static_pointer_cast<Event_Remote_Player_Down>( newEvent );
+		for (auto rp : mRemotePlayers)
+		{
+			if (rp->GetID() == data->Player())
+			{
+				rp->GoDown();
+			}
+		}
+	}
+	else if ( newEvent->GetEventType() == Event_Remote_Player_Up::GUID )
+	{
+		std::shared_ptr<Event_Remote_Player_Up> data = std::static_pointer_cast<Event_Remote_Player_Up>( newEvent );
+		for (auto rp : mRemotePlayers)
+		{
+			if (rp->GetID() == data->Player())
+			{
+				rp->GoUp();
+			}
+		}
+	}
+	else if ( newEvent->GetEventType() == Event_Player_Revive::GUID )
+	{
+		std::shared_ptr<Event_Player_Revive> data = std::static_pointer_cast<Event_Player_Revive>( newEvent );
+		mPlayer->HandleRevive( data->DeltaTime() );
+	}
 }
 
 void PlayState::SetEnemyState( unsigned int id, EnemyState state )
@@ -289,21 +317,21 @@ void PlayState::CheckPlayerCollision()
 			for (size_t i = 0; i < mRemotePlayers.size(); i++)
 			{
 				//if( mPlayer->GetBoundingBox()->Intersect( mRemotePlayers.at(i)->GetBoundingBox() ) )		// BoundingBox
-				if( mPlayer->GetBoundingCircle()->Intersect( mRemotePlayers.at(i)->GetBoundingCircle() ) )	// BoundingCircle
+				if (mPlayer->GetBoundingCircle()->Intersect(mRemotePlayers.at(i)->GetBoundingCircle()))		// BoundingCircle
 				{
 					//Direction
-					XMVECTOR remoteToPlayerVec	= ( XMLoadFloat3( &mPlayer->GetBoundingCircle()->center ) - 
-													XMLoadFloat3( &mRemotePlayers.at(i)->GetBoundingCircle()->center ) );
+					XMVECTOR remoteToPlayerVec = (XMLoadFloat3(&mPlayer->GetBoundingCircle()->center) -
+						XMLoadFloat3(&mRemotePlayers.at(i)->GetBoundingCircle()->center));
 
 					//Normalize direction
-					remoteToPlayerVec = XMVector4Normalize( remoteToPlayerVec );
+					remoteToPlayerVec = XMVector4Normalize(remoteToPlayerVec);
 
 					//Length of new vector
-					float vectorLength = ( mRemotePlayers.at(i)->GetBoundingCircle()->radius + mPlayer->GetBoundingCircle()->radius ) + 0.0001f;
-					
+					float vectorLength = (mRemotePlayers.at(i)->GetBoundingCircle()->radius + mPlayer->GetBoundingCircle()->radius) + 0.0001f;
+
 					//New position of player			 
-					XMVECTOR playerPosition = XMLoadFloat3( &mRemotePlayers.at(i)->GetBoundingCircle()->center ) + remoteToPlayerVec * vectorLength;
-					mPlayer->SetPosition( playerPosition );	
+					XMVECTOR playerPosition = XMLoadFloat3(&mRemotePlayers.at(i)->GetBoundingCircle()->center) + remoteToPlayerVec * vectorLength;
+					mPlayer->SetPosition(playerPosition);
 				}
 			}	
 		}
@@ -515,13 +543,14 @@ HRESULT PlayState::Update( float deltaTime )
 		if ( mRemotePlayers.at(i) )
 		{
 			mRemotePlayers.at(i)->Update( deltaTime );
+			mGui->Update( DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), nullptr, 0, mRemotePlayers[i]->GetPosition(), mRemotePlayers[i]->GetName(), mRemotePlayers[i]->GetTeam(), i, mPlayer->GetTeam(), true );
 			mRadarObjects[nrOfRadarObj].mRadarObjectPos = mRemotePlayers[i]->GetPosition();
 			mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
 		}
 	}
 
 	HandleDeveloperCameraInput();
-	mPlayer->Update( deltaTime );
+	mPlayer->Update( deltaTime, mRemotePlayers );
 
 	UpdateProjectiles( deltaTime );
 
@@ -550,7 +579,7 @@ HRESULT PlayState::Update( float deltaTime )
 	}
 	mParticleManager->Update( deltaTime );
 	
-	mGui->Update( mPlayer->GetPlayerPosition(), mRadarObjects, nrOfRadarObj );
+	mGui->Update( mPlayer->GetPlayerPosition(), mRadarObjects, nrOfRadarObj, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), "", 0, 0, 0, false );
 
 	// Test Anim
 	///////////////////////////////////////////////////////////////////////////
@@ -697,6 +726,9 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Update_Enemy_Position::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Set_Remote_Enemy_State::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Enemy_Attack_Player::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Down::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Up::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Player_Revive::GUID );
 
 	mFont.Initialize( "../Content/Assets/Fonts/final_font/" );
 

@@ -11,10 +11,12 @@ void RemotePlayer::RemoteUpdate( IEventPtr newEvent )
 			XMStoreFloat3( &mLowerBody.direction, XMVector3Normalize( XMLoadFloat3( &data->Velocity() ) ) );
 			mVelocity										= data->Velocity();
 			mUpperBody.direction							= data->UpperBodyDirection();
+			mPlayerName										= data->Name();
 
 			//TEST
-			mBoundingBox->position	= mLowerBody.position;
-			mBoundingCircle->center	= mLowerBody.position;
+			mBoundingBox->position		= mLowerBody.position;
+			mBoundingCircle->center		= mLowerBody.position;
+			mBoundingCircleAura->center	= mLowerBody.position;
 		}
 	}
 	else if( newEvent->GetEventType() == Event_Remote_Player_Attack::GUID )
@@ -56,9 +58,13 @@ void RemotePlayer::BroadcastDeath( unsigned int shooter )
 // Set current hp to 0 to avoid negative values and send event that player has died
 void RemotePlayer::Die()
 {
+	IEventPtr reg( new Event_Remove_Point_Light( mPointLightIfDown ) );
+	EventManager::GetInstance()->QueueEvent( reg );
+	SAFE_DELETE( mPointLightIfDown );
 	mNrOfDeaths++;
-	mIsAlive = false;
-	mCurrentHp = 0.0f;
+	mIsAlive		= false;
+	mIsDown			= false;
+	mCurrentHp		= 0.0f;
 	mTimeTillSpawn	= mSpawnTime;
 }
 
@@ -71,6 +77,19 @@ void RemotePlayer::HandleSpawn( float deltaTime )
 	else
 	{
 		mTimeTillSpawn -= deltaTime;
+	}
+}
+
+void RemotePlayer::HandleDeath( float deltaTime )
+{
+	if( mTimeTillDeath <= 0.0f )
+	{
+		Die();
+		BroadcastDeath( mLastKiller );
+	}
+	else
+	{
+		mTimeTillDeath -= deltaTime;
 	}
 }
 
@@ -95,6 +114,11 @@ void RemotePlayer::TakeDamage( float damage, unsigned int shooter )
 	}
 }
 
+void RemotePlayer::SetName( std::string name )
+{
+	mPlayerName = name;
+}
+
 void RemotePlayer::SetHP( float hp )
 {
 	mCurrentHp = hp;
@@ -105,9 +129,42 @@ void RemotePlayer::CountUpKills()
 	mNrOfKills++;
 }
 
+void RemotePlayer::GoDown()
+{
+	mTimeTillDeath				= mDeathTime;
+	mTimeTillRevive				= mReviveTime;
+	mIsAlive					= false;
+	mIsDown						= true;
+	mPointLightIfDown			= new PointLight;
+	mPointLightIfDown->position	= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
+	IEventPtr reg( new Event_Add_Point_Light( mPointLightIfDown ) );
+	EventManager::GetInstance()->QueueEvent( reg );
+	mPointLightIfDown->colorAndRadius = DirectX::XMFLOAT4( 0.6f, 0.2f, 0.6f, 8.0f );
+}
+
+void RemotePlayer::GoUp()
+{
+	mIsAlive	= true;
+	mIsDown		= false;
+	mCurrentHp	= mMaxHp / 5.0f;
+	IEventPtr reg( new Event_Remove_Point_Light( mPointLightIfDown ) );
+	EventManager::GetInstance()->QueueEvent( reg );
+	SAFE_DELETE( mPointLightIfDown );
+}
+
 bool RemotePlayer::IsAlive() const
 {
 	return mIsAlive;
+}
+
+std::string RemotePlayer::GetName() const
+{
+	return mPlayerName;
+}
+
+bool RemotePlayer::IsDown() const
+{
+	return mIsDown;
 }
 
 LoadOut* RemotePlayer::GetLoadOut() const
@@ -166,6 +223,11 @@ HRESULT RemotePlayer::Update( float deltaTime )
 
 	RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
 	RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
+
+	/*if( mIsDown )
+	{
+		mPointLightIfDown->position = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 7.0f, mLowerBody.position.z, 0.0f );
+	}*/
 
 	return S_OK;
 }
@@ -295,8 +357,15 @@ HRESULT RemotePlayer::Render( int position )
 			textToWrite	+= "I";
 			currentDeaths--;
 		}
+
 		mFont.WriteText( textToWrite, 25.0f, ((20.0f*(float)position)-7), 1.95f );
-		
+	}
+
+	if( mIsDown )
+	{
+		std::string textToWrite = std::to_string( mID );
+		textToWrite				+= " is down";
+		mFont.WriteText( textToWrite, 500, 500, 3.0f );
 	}
 
 	return S_OK;
@@ -461,19 +530,27 @@ HRESULT RemotePlayer::Initialize()
 	mNrOfDeaths								= 0;
 	mNrOfKills								= 0;
 
+	mPlayerName = "";
+
 	mLeftArmAnimationCompleted				= false;
 	mRightArmAnimationCompleted				= false;
 
 	mBoundingBox			= new BoundingBox( 1.5f, 1.5f );
 	mBoundingCircle			= new BoundingCircle( 0.5f );
+	mBoundingCircleAura		= new BoundingCircle( 1.0f );
 	
 	mFont.Initialize( "../Content/Assets/Fonts/mv_boli_26_red/" );
 
 	mIsAlive				= true;
+	mIsDown					= false;
 	mMaxHp					= 100.0f;
 	mCurrentHp				= mMaxHp;
 	mSpawnTime				= 10.0f;
+	mDeathTime				= 10.0f;
+	mReviveTime				= 3.0f;
 	mTimeTillSpawn			= mSpawnTime;
+	mTimeTillDeath			= mDeathTime;
+	mTimeTillRevive			= mReviveTime;
 
 	//Weapon Initialization
 	mLoadOut				= new LoadOut();
@@ -493,6 +570,7 @@ void RemotePlayer::Release()
 
 	SAFE_DELETE( mBoundingBox );
 	SAFE_DELETE( mBoundingCircle );
+	SAFE_DELETE( mBoundingCircleAura );
 	mFont.Release();
 }
 
@@ -504,6 +582,11 @@ BoundingBox* RemotePlayer::GetBoundingBox() const
 BoundingCircle*	RemotePlayer::GetBoundingCircle() const
 {
 	return mBoundingCircle;
+}
+
+BoundingCircle*	RemotePlayer::GetBoundingCircleAura() const
+{
+	return mBoundingCircleAura;
 }
 
 XMFLOAT3 RemotePlayer::GetPosition() const
@@ -543,10 +626,17 @@ RemotePlayer::RemotePlayer()
 	mCurrentHp				= 0.0f;
 	mSpawnTime				= 0.0f;
 	mTimeTillSpawn			= 0.0f;
+	mDeathTime				= 0.0f;
+	mTimeTillDeath			= 0.0f;
+	mReviveTime				= 0.0f;
+	mTimeTillRevive			= 0.0f;
+	mLastKiller				= 0;
 
 	mBoundingBox			= nullptr;
 	mBoundingCircle			= nullptr;
+	mBoundingCircleAura		= nullptr;
 	mLoadOut				= nullptr;
+	mPointLightIfDown		= nullptr;
 }
 
 RemotePlayer::~RemotePlayer()

@@ -6,16 +6,24 @@ void CreateMenuState::HandleInput()
 	{
 		IEventPtr E1( new Event_Change_State( SINGLE_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
+		IEventPtr E2( new Event_Create_Player_Name( mNameBox.GetText() ) );
+		EventManager::GetInstance()->QueueEvent( E2 );
 	}
 	else if( mButtons.at(MULTIPLAYER)->LeftMousePressed() )
 	{
 		IEventPtr E1( new Event_Change_State( MULTI_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
+		IEventPtr E2( new Event_Create_Player_Name( mNameBox.GetText() ) );
+		EventManager::GetInstance()->QueueEvent( E2 );
 	}
 	else if( mButtons.at(BACK)->LeftMousePressed() )
 	{
 		IEventPtr E1( new Event_Change_State( START_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
+	}
+	else if( mNameBox.LeftMousePressed() )
+	{
+		mNameBox.SwitchActive( true );
 	}
 }
 
@@ -26,6 +34,9 @@ HRESULT CreateMenuState::Update( float deltaTime )
 	{
 		mButtons.at(i)->Update( deltaTime );
 	}
+
+	mNameBox.Update( deltaTime );
+
 	return S_OK;
 }
 
@@ -36,6 +47,8 @@ HRESULT CreateMenuState::Render()
 	{
 		mButtons.at(i)->Render();
 	}
+
+	mNameBox.Render();
 
 	RenderManager::GetInstance()->Render();
 	return S_OK;
@@ -79,6 +92,9 @@ HRESULT CreateMenuState::Initialize()
 		}
 		x += 200;
 	}
+
+	mNameBox.Initialize( "mudkipfucker", "IP", Input::GetInstance()->mScreenWidth * 0.5f - (640.0f * 0.5f) * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + (177.0f * 0.5f) *0.5f, 640.0f * 0.5f, 177.0f * 0.5f );
+
 	return S_OK;
 }
 

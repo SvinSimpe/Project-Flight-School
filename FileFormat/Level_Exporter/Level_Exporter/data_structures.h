@@ -29,4 +29,3 @@ struct NavMeshData
 	NavVertex* vertices;
 
 };
-

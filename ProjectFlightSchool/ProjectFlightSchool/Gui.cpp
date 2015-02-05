@@ -1,6 +1,6 @@
 #include "Gui.h"
 
-HRESULT Gui::Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjects[], UINT nrOfObjects, DirectX::XMFLOAT3 remotePlayerPos, std::string remotePlayerName, int remotePlayerID, bool updateRemotePlayerName )
+HRESULT Gui::Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjects[], UINT nrOfObjects, DirectX::XMFLOAT3 remotePlayerPos, std::string remotePlayerName, int remotePlayerTeamID, int remotePlayerID, int playerTeamID, bool updateRemotePlayerName )
 {
 	HRESULT result = S_OK;
 	
@@ -22,7 +22,16 @@ HRESULT Gui::Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjects
 
 		textPos.x = ( textPos.x + 1.0f ) * ( 0.5f * Input::GetInstance()->mScreenWidth );
 		textPos.y = ( 1.0f - textPos.y ) * ( 0.5f * Input::GetInstance()->mScreenHeight );
-		mPlayerNames[remotePlayerID].SetText( remotePlayerName );
+		
+		if( remotePlayerTeamID == playerTeamID )
+		{
+			mPlayerNames[remotePlayerID].SetText( remotePlayerName, COLOR_CYAN );
+		}
+		else
+		{
+			mPlayerNames[remotePlayerID].SetText( remotePlayerName, COLOR_RED );
+		}
+
 		mPlayerNames[remotePlayerID].SetPosition( textPos.x - mPlayerNames[remotePlayerID].GetMiddleXPoint( mPlayerNames[remotePlayerID].GetText(), mPlayerNames[remotePlayerID].GetScale() ), textPos.y );
 		//-------------------------------------------------------------
 	}

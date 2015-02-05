@@ -49,6 +49,7 @@ enum Buffers
 {
 	BUFFERS_CBUFFER_PER_FRAME,
 	BUFFERS_CBUFFER_PER_OBJECT,
+	BUFFERS_CBUFFER_PER_OBJECT_2D,
 	BUFFERS_CBUFFER_PER_OBJECT_ANIMATED,
 	BUFFERS_CBUFFER_PER_INSTANCED_ANIMATED,
 	BUFFERS_STATIC3D_PER_INSTANCED_OBJECT,
@@ -143,7 +144,7 @@ class LIBRARY_EXPORT Graphics
 		HRESULT LoadAnimationAsset( std::string filePath, std::string fileName, AssetID &assetId );
 
 		void Render( RenderLists& renderLists );
-		void Render2dAsset( AssetID assetId, float x, float y, float width, float height );
+		void Render2dAsset( Object2dInfo* info, UINT sizeOfList );
 		void RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX::XMFLOAT3 y );
 		void RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList );
 		void RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList );

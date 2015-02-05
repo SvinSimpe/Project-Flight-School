@@ -12,12 +12,13 @@ std::string Text::GetText() const
 
 void Text::Render()
 {
-	Font::WriteText( mText, mX, mY, mScale );
+	Font::WriteText( mText, mX, mY, mScale, mColor );
 }
 
-void Text::SetText( std::string text )
+void Text::SetText( std::string text, DirectX::XMFLOAT4 color )
 {
-	mText = text;
+	mText	= text;
+	mColor	= color;
 }
 
 void Text::SetPosition( float x, float y )
@@ -26,13 +27,14 @@ void Text::SetPosition( float x, float y )
 	mY = y;
 }
 
-void Text::Initialize( std::string fontPath, std::string text, float x, float y, float scale )
+void Text::Initialize( std::string fontPath, std::string text, float x, float y, float scale, DirectX::XMFLOAT4 color )
 {
 	Font::Initialize( fontPath );
 	mX		= x;
 	mY		= y;
 	mScale	= scale;
 	mText	= text;
+	mColor  = color;
 }
 
 void Text::Release()

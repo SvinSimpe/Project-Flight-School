@@ -1,10 +1,45 @@
 #include "Player.h"
 
-void Player::CreatePlayerName( IEventPtr newEvent )
+/////Private
+
+void Player::EventListener(IEventPtr newEvent)
 {
-	if( newEvent->GetEventType() == Event_Create_Player_Name::GUID )
+	if ( newEvent->GetEventType() == Event_Remote_Player_Died::GUID )
 	{
-		std::shared_ptr<Event_Create_Player_Name> data = std::static_pointer_cast<Event_Create_Player_Name>( newEvent );
+		// Kill remote player
+		std::shared_ptr<Event_Remote_Player_Died> data = std::static_pointer_cast<Event_Remote_Player_Died>(newEvent);
+		if (data->KillerID() == mID)
+		{
+			CountUpKills();
+		}
+	}
+	else if ( newEvent->GetEventType() == Event_Player_Revive::GUID )
+	{
+		std::shared_ptr<Event_Player_Revive> data = std::static_pointer_cast<Event_Player_Revive>(newEvent);
+		HandleRevive(data->DeltaTime());
+	}
+	else if ( newEvent->GetEventType() == Event_Enemy_Attack_Player::GUID )
+	{
+		std::shared_ptr<Event_Enemy_Attack_Player> data = std::static_pointer_cast<Event_Enemy_Attack_Player>(newEvent);
+		if (mID == data->Player())
+			TakeDamage(data->Damage(), 0);
+	}
+	else if ( newEvent->GetEventType() == Event_Remote_Player_Melee_Hit::GUID )
+	{
+		// Melee Hit
+		std::shared_ptr<Event_Remote_Player_Melee_Hit> data = std::static_pointer_cast<Event_Remote_Player_Melee_Hit>(newEvent);
+		if (mID == data->ID())
+		{
+			XMFLOAT3 direction = data->Direction();
+			direction.x *= data->KnockBack();
+			direction.z *= data->KnockBack();
+			AddImpuls(direction);
+			TakeDamage(data->Damage(), 0);
+		}
+	}
+	else if ( newEvent->GetEventType() == Event_Create_Player_Name::GUID )
+	{
+		std::shared_ptr<Event_Create_Player_Name> data = std::static_pointer_cast<Event_Create_Player_Name>(newEvent);
 		mPlayerName = data->PlayerName();
 	}
 }
@@ -109,6 +144,31 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		mMeleeCoolDown -= deltaTime;
 }
 
+void Player::HandleSpawn( float deltaTime )
+{
+	if( mTimeTillSpawn <= 0.0f )
+	{
+		Spawn();
+	}
+	else
+	{
+		mTimeTillSpawn -= deltaTime;
+	}
+}
+
+void Player::HandleDeath( float deltaTime )
+{
+	if( mTimeTillDeath <= 0.0f )
+	{
+		Die();
+		BroadcastDeath( mLastKiller );
+	}
+	else
+	{
+		mTimeTillDeath -= deltaTime;
+	}
+}
+
 void Player::Move( float deltaTime )
 {
 	mVelocity.x += mAcceleration.x * deltaTime - mVelocity.x * VELOCITY_FALLOFF * deltaTime;
@@ -134,9 +194,97 @@ void Player::Move( float deltaTime )
 	mLowerBody.position.z += mVelocity.z * deltaTime;
 }
 
-std::string	Player::GetPlayerName() const
+void Player::GoDown( int shooter )
 {
-	return mPlayerName;
+	RemotePlayer::GoDown();
+	mTimeTillDeath	= mDeathTime;
+	mTimeTillRevive	= mReviveTime;
+	mLastKiller		= shooter;
+	IEventPtr player( new Event_Player_Down( mID ) );
+	EventManager::GetInstance()->QueueEvent( player );
+}
+
+void Player::GoUp()
+{
+	RemotePlayer::GoUp();
+	IEventPtr player( new Event_Player_Up( mID ) );
+	EventManager::GetInstance()->QueueEvent( player );
+}
+
+void Player::ReviveRemotePlayer( int remotePlayerID, float deltaTime )
+{
+	IEventPtr player( new Event_Remote_Player_Revive( remotePlayerID, deltaTime ) );
+	EventManager::GetInstance()->QueueEvent( player );
+}
+
+void Player::BroadcastDeath( unsigned int shooter )
+{
+	IEventPtr dieEv( new Event_Player_Died( mID, shooter ) );
+	EventManager::GetInstance()->QueueEvent( dieEv );
+}
+
+void Player::Revive()
+{
+	GoUp();
+}
+
+void Player::Die()
+{
+	RemotePlayer::Die();
+	mTimeTillSpawn	= mSpawnTime;
+}
+
+void Player::Fire()
+{
+	//Hardcoded to match shotgun
+	XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
+	XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
+	XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, 1.0f, mLowerBody.position.z ) );
+	
+	offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * 0.5f;
+	offset += direction * 1.8f;
+
+	XMFLOAT3 loadDir;
+	XMStoreFloat3( &loadDir, offset );
+
+	IEventPtr E1( new Event_Projectile_Fired( mID, XMFLOAT3( loadDir ), mUpperBody.direction ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
+}
+
+void Player::AddImpuls( XMFLOAT3 impuls )
+{
+	mVelocity.x += impuls.x;
+	mVelocity.z += impuls.z;
+}
+
+/////Public
+
+void Player::TakeDamage( float damage, unsigned int shooter )
+{
+	if( mIsBuffed )
+	{
+		float moddedDmg = damage * mBuffMod;
+		damage -= moddedDmg;
+	}
+	mCurrentHp -= damage;
+	IEventPtr player( new Event_Player_Update_HP( mID, mCurrentHp ) );
+	EventManager::GetInstance()->QueueEvent( player );
+	if ( !mIsDown && mIsAlive && mCurrentHp <= 0.0f )
+	{
+		GoDown( shooter );
+	}
+}
+
+void Player::HandleRevive(float deltaTime)
+{
+	if (mTimeTillRevive <= 0.0f)
+	{
+		GoUp();
+	}
+	else
+	{
+		mTimeTillRevive -= deltaTime;
+	}
 }
 
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
@@ -149,44 +297,47 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 		if( !mIsDown )
 		{
 			Move( deltaTime );
-
-			// Update Animation
-			if( mCurrentVelocity < 0.2f )
-			{
-				if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE] )
-				{
-					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
-				}
-			}
-			else
-			{
-				if(	mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK] )
-				{
-					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_WALK] );
-				}
-			}
-
-			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, 
-				mLowerBody.playerModel.mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK] ? deltaTime * mCurrentVelocity / 1.1f : deltaTime );
-
-			if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] )
-				RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
-
-			if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] )
-				RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
-
-			RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
-			RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
-
 		}
-	}
-	else if( mIsDown )
-	{
-		RemotePlayer::HandleDeath( deltaTime );
+		else
+		{
+			HandleDeath( deltaTime );
+		}
+		
+		
+		float currentVelocity = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) );
+
+		if( currentVelocity < 0.2f )
+		{
+			if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE] )
+			{
+				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
+			}
+		}
+		else
+		{
+			if(	mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK] )
+			{
+				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_WALK] );
+			}
+		}
+
+		RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, 
+			mLowerBody.playerModel.mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK] ? deltaTime * currentVelocity / 1.1f : deltaTime );
+
+		if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] )
+			RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
+
+		if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] )
+			RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
+
+		RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
+		RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
+
+		//RemotePlayer::Update( deltaTime );
 	}
 	else
 	{
-		RemotePlayer::HandleSpawn( deltaTime );
+		HandleSpawn( deltaTime );
 	}
 
 	///Lock camera position to player
@@ -282,146 +433,6 @@ HRESULT Player::Render( float deltaTime, int position )
 	return S_OK;
 }
 
-void Player::TakeDamage( float damage, unsigned int shooter )
-{
-	if( mIsBuffed )
-	{
-		float moddedDmg = damage * mBuffMod;
-		damage -= moddedDmg;
-
-	}
-	TakeDamagePlayer( damage, shooter );
-}
-
-void Player::TakeEnemyDamage( float damage )
-{
-	mCurrentHp -= damage;
-	IEventPtr player( new Event_Player_Update_HP( mID, mCurrentHp ) );
-	EventManager::GetInstance()->QueueEvent( player );
-	if ( mIsAlive && mCurrentHp <= 0.0f )
-	{
-		GotDown( 0 );
-	}
-}
-
-void Player::Revive()
-{
-	GotUp();
-}
-
-void Player::SetBuffed( bool buffed )
-{
-	mIsBuffed = buffed;
-}
-
-void Player::SetID( unsigned int id )
-{
-	mID = id;
-}
-
-void Player::SetTeam( int team, AssetID teamColor )
-{
-	mTeam		= team;
-	mTeamAsset	= teamColor;
-}
-
-void Player::SetColor( AssetID color )
-{
-	mColorIDAsset = color;
-}
-
-XMFLOAT3 Player::GetPlayerPosition() const
-{
-	return mLowerBody.position;
-}
-
-void Player::SetPosition( XMVECTOR position )
-{
-	XMStoreFloat3( &mLowerBody.position, position );
-}
-
-XMFLOAT3 Player::GetUpperBodyDirection() const
-{
-	return mUpperBody.direction;
-}
-
-bool Player::GetIsMeleeing() const
-{
-	return mIsMeleeing;
-}
-
-void Player::SetIsMeleeing( bool isMeleeing )
-{
-	mIsMeleeing = isMeleeing;
-}
-
-void Player::TakeDamagePlayer( float damage, unsigned int shooter )
-{
-	mCurrentHp -= damage;
-	IEventPtr player( new Event_Player_Update_HP( mID, mCurrentHp ) );
-	EventManager::GetInstance()->QueueEvent( player );
-	if ( mIsAlive && mCurrentHp <= 0.0f )
-	{
-		GotDown( shooter );
-	}
-}
-
-void Player::GotDown( int shooter )
-{
-	mLastKiller = shooter;
-	RemotePlayer::GoDown();
-	IEventPtr player( new Event_Player_Down( mID ) );
-	EventManager::GetInstance()->QueueEvent( player );
-}
-
-void Player::GotUp()
-{
-	RemotePlayer::GoUp();
-	IEventPtr player( new Event_Player_Up( mID ) );
-	EventManager::GetInstance()->QueueEvent( player );
-}
-
-void Player::ReviveRemotePlayer( int remotePlayerID, float deltaTime )
-{
-	mIsReviving = true;
-	IEventPtr player( new Event_Remote_Player_Revive( remotePlayerID, deltaTime ) );
-	EventManager::GetInstance()->QueueEvent( player );
-}
-
-void Player::StopReviveRemotePlayer( int remotePlayerID )
-{
-	mIsReviving = false;
-}
-
-void Player::HandleRevive( float deltaTime )
-{
-	if( mTimeTillRevive <= 0.0f )
-	{
-		GotUp();
-	}
-	else
-	{
-		mTimeTillRevive -= deltaTime;
-	}
-}
-
-void Player::Fire()
-{
-	//Hardcoded to match shotgun
-	XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
-	XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
-	XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, 1.0f, mLowerBody.position.z ) );
-	
-	offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * 0.5f;
-	offset += direction * 1.8f;
-
-	XMFLOAT3 loadDir;
-	XMStoreFloat3( &loadDir, offset );
-
-	IEventPtr E1( new Event_Projectile_Fired( mID, XMFLOAT3( loadDir ), mUpperBody.direction ) );
-	EventManager::GetInstance()->QueueEvent( E1 );
-}
-
 HRESULT Player::Initialize()
 {
 	RemotePlayer::Initialize();
@@ -429,7 +440,6 @@ HRESULT Player::Initialize()
 	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mHasName = false;
 	mPlayerName = "";
-	EventManager::GetInstance()->AddListener( &Player::CreatePlayerName, this, Event_Create_Player_Name::GUID );
 	
 	////////////
 	// Light
@@ -455,7 +465,21 @@ HRESULT Player::Initialize()
 	mVelocity			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
 	mBuffMod			= 0.5f;
+	
+	mSpawnTime				= 10.0f;
+	mDeathTime				= 10.0f;
+	mReviveTime				= 3.0f;
+	mTimeTillSpawn			= mSpawnTime;
+	mTimeTillDeath			= mDeathTime;
+	mTimeTillRevive			= mReviveTime;
 
+	
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Player_Died::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Player_Revive::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Enemy_Attack_Player::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Player_Melee_Hit::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Create_Player_Name::GUID );
+	
 	return S_OK;
 }
 
@@ -488,7 +512,63 @@ Player::Player()
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mIsBuffed			= false;
 	mBuffMod			= 0.0f;
+	
+	mSpawnTime				= 0.0f;
+	mTimeTillSpawn			= 0.0f;
+	mDeathTime				= 0.0f;
+	mTimeTillDeath			= 0.0f;
+	mReviveTime				= 0.0f;
+	mTimeTillRevive			= 0.0f;
+	mLastKiller				= 0;
 }
 
 Player::~Player()
 {}
+
+/////GetSet
+
+bool Player::GetIsMeleeing() const
+{
+	return mIsMeleeing;
+}
+
+XMFLOAT3 Player::GetPlayerPosition() const
+{
+	return mLowerBody.position;
+}
+
+XMFLOAT3 Player::GetUpperBodyDirection() const
+{
+	return mUpperBody.direction;
+}
+
+void Player::SetIsMeleeing( bool isMeleeing )
+{
+	mIsMeleeing = isMeleeing;
+}
+
+void Player::SetBuffed( bool buffed )
+{
+	mIsBuffed = buffed;
+}
+
+void Player::SetID( unsigned int id )
+{
+	mID = id;
+}
+
+void Player::SetTeam( int team, AssetID teamColor )
+{
+	mTeam		= team;
+	mTeamAsset	= teamColor;
+}
+
+void Player::SetColor( AssetID color )
+{
+	mColorIDAsset = color;
+}
+
+void Player::SetPosition( XMVECTOR position )
+{
+	XMStoreFloat3( &mLowerBody.position, position );
+}

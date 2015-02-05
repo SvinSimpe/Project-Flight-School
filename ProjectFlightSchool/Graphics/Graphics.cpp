@@ -123,27 +123,35 @@ void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 	mDeviceContext->OMSetDepthStencilState( mDepthEnabledStencilState, 1 );
 }
 
-void Graphics::Render2dAsset( AssetID assetId, float x, float y, float width, float height )
+void Graphics::Render2dAsset( Object2dInfo* info, UINT sizeOfList )
 {
 	UINT32 vertexSize	= sizeof(StaticVertex);
 	UINT32 offset		= 0;
 
-	float left		= ( ( x / (float)mScreenWidth ) * 2.0f ) - 1.0f;
-	float right		= ( ( ( x + width ) / (float)mScreenWidth ) * 2.0f ) - 1.0f;
-	float bottom	= ( ( ( y + height ) / (float)mScreenHeight ) * -2.0f ) + 1.0f;
-	float top		= ( ( y / (float)mScreenHeight ) * -2.0f ) + 1.0f;
+	for( UINT i = 0; i < sizeOfList; i++ )
+	{
+		float left		= ( ( info[i].mTopLeftCorner.x / (float)mScreenWidth ) * 2.0f ) - 1.0f;
+		float right		= ( ( ( info[i].mTopLeftCorner.x + info[i].mWidthHeight.x ) / (float)mScreenWidth ) * 2.0f ) - 1.0f;
+		float bottom	= ( ( ( info[i].mTopLeftCorner.y + info[i].mWidthHeight.y ) / (float)mScreenHeight ) * -2.0f ) + 1.0f;
+		float top		= ( ( info[i].mTopLeftCorner.y / (float)mScreenHeight ) * -2.0f ) + 1.0f;
 
-	StaticVertex bottomleft		= { left, bottom, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f };
-	StaticVertex topleft		= { left, top, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 0.0f };
-	StaticVertex bottomright	= { right, bottom, 0.0f,	0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	1.0f, 1.0f };
-	StaticVertex topright		= { right, top, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	1.0f, 0.0f };
+		StaticVertex bottomleft		= { left, bottom, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f };
+		StaticVertex topleft		= { left, top, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 0.0f };
+		StaticVertex bottomright	= { right, bottom, 0.0f,	0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	1.0f, 1.0f };
+		StaticVertex topright		= { right, top, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	1.0f, 0.0f };
 
-	StaticVertex vertices[4] = { bottomleft, topleft, bottomright, topright };
-	MapBuffer( mBuffers[BUFFERS_2D], &vertices, sizeof(StaticVertex) * 4 );
-	mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_2D], &vertexSize, &offset );
+		StaticVertex vertices[4] = { bottomleft, topleft, bottomright, topright };
+		MapBuffer( mBuffers[BUFFERS_2D], &vertices, sizeof(StaticVertex) * 4 );
+		mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_2D], &vertexSize, &offset );
 
-	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[assetId] )->mSRV );
-	mDeviceContext->Draw( 4, 0 );
+		CbufferPerObject2D cbuff;
+		cbuff.color = info[i].mColor;
+		MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT_2D], &cbuff, sizeof( CbufferPerObject2D ) );
+		mDeviceContext->PSSetConstantBuffers( 0, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT_2D] );
+
+		mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[info[i].mAssetId] )->mSRV );
+		mDeviceContext->Draw( 4, 0 );
+	}
 }
 
 void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX::XMFLOAT3 y )
@@ -1240,6 +1248,14 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	bufferDesc.ByteWidth = sizeof( CbufferPerObject );
 
 	if( FAILED( hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] ) ) )
+		return hr;
+
+	///////////////////////////////////////
+	// CREATE CBUFFERPEROBJECT2D
+	///////////////////////////////////////
+	bufferDesc.ByteWidth = sizeof( CbufferPerObject2D );
+
+	if( FAILED( hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT_2D] ) ) )
 		return hr;
 
 	///////////////////////////////////////

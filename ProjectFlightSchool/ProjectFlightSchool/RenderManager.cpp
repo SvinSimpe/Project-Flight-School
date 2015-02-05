@@ -239,10 +239,11 @@ HRESULT RenderManager::Render()
 	//---------------------------------------------------
 	Graphics::GetInstance()->RenderBillboard( mBillboardArray, 1 );
 
-	Graphics::GetInstance()->RenderParticleSystems( mParticleInfoArray, mNrOfParticles );
-
 	//Render the scene with deferred
 	Graphics::GetInstance()->DeferredPass();
+
+	//Render the particles
+	Graphics::GetInstance()->RenderParticleSystems( mParticleInfoArray, mNrOfParticles );
 
 	//Prepare the scene to render Screen space located assets
 	Graphics::GetInstance()->ScreenSpacePass();

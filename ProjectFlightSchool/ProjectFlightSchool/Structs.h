@@ -110,4 +110,10 @@ struct EvEnemyAttackPlayer
 	float		 damage;
 };
 
+struct EvIDAndTime
+{
+	unsigned int playerID;
+	float		 deltaTime;
+};
+
 #endif

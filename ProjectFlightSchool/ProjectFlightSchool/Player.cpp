@@ -4,7 +4,7 @@
 
 void Player::EventListener(IEventPtr newEvent)
 {
-	if (newEvent->GetEventType() == Event_Remote_Player_Died::GUID)
+	if ( newEvent->GetEventType() == Event_Remote_Player_Died::GUID )
 	{
 		// Kill remote player
 		std::shared_ptr<Event_Remote_Player_Died> data = std::static_pointer_cast<Event_Remote_Player_Died>(newEvent);
@@ -13,18 +13,18 @@ void Player::EventListener(IEventPtr newEvent)
 			CountUpKills();
 		}
 	}
-	else if (newEvent->GetEventType() == Event_Player_Revive::GUID)
+	else if ( newEvent->GetEventType() == Event_Player_Revive::GUID )
 	{
 		std::shared_ptr<Event_Player_Revive> data = std::static_pointer_cast<Event_Player_Revive>(newEvent);
 		HandleRevive(data->DeltaTime());
 	}
-	else if (newEvent->GetEventType() == Event_Enemy_Attack_Player::GUID)
+	else if ( newEvent->GetEventType() == Event_Enemy_Attack_Player::GUID )
 	{
 		std::shared_ptr<Event_Enemy_Attack_Player> data = std::static_pointer_cast<Event_Enemy_Attack_Player>(newEvent);
 		if (mID == data->Player())
 			TakeDamage(data->Damage(), 0);
 	}
-	else if (newEvent->GetEventType() == Event_Remote_Player_Melee_Hit::GUID)
+	else if ( newEvent->GetEventType() == Event_Remote_Player_Melee_Hit::GUID )
 	{
 		// Melee Hit
 		std::shared_ptr<Event_Remote_Player_Melee_Hit> data = std::static_pointer_cast<Event_Remote_Player_Melee_Hit>(newEvent);
@@ -37,7 +37,7 @@ void Player::EventListener(IEventPtr newEvent)
 			TakeDamage(data->Damage(), 0);
 		}
 	}
-	else if (newEvent->GetEventType() == Event_Create_Player_Name::GUID)
+	else if ( newEvent->GetEventType() == Event_Create_Player_Name::GUID )
 	{
 		std::shared_ptr<Event_Create_Player_Name> data = std::static_pointer_cast<Event_Create_Player_Name>(newEvent);
 		mPlayerName = data->PlayerName();

@@ -1,5 +1,14 @@
 #include "Player.h"
 
+void Player::CreatePlayerName( IEventPtr newEvent )
+{
+	if( newEvent->GetEventType() == Event_Create_Player_Name::GUID )
+	{
+		std::shared_ptr<Event_Create_Player_Name> data = std::static_pointer_cast<Event_Create_Player_Name>( newEvent );
+		mPlayerName = data->PlayerName();
+	}
+}
+
 void Player::HandleInput( float deltaTime )
 {
 	mAcceleration = XMFLOAT3( 0.0f, 0.0f, 0.0f );
@@ -111,10 +120,9 @@ void Player::Move( float deltaTime )
 	mLowerBody.position.z += mVelocity.z * deltaTime;
 }
 
-void Player::Test( IEventPtr n )
+std::string	Player::GetPlayerName() const
 {
-		std::shared_ptr<Event_Set_Player_Name> data = std::static_pointer_cast<Event_Set_Player_Name>( n );
-		mPlayerName.SetText( data->PlayerName() );
+	return mPlayerName;
 }
 
 HRESULT Player::Update( float deltaTime )
@@ -160,18 +168,6 @@ HRESULT Player::Update( float deltaTime )
 			RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
 			RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
 
-			DirectX::XMFLOAT3 temp;
-			DirectX::XMMATRIX view, proj;
-			Graphics::GetInstance()->GetViewMatrix( view );
-			Graphics::GetInstance()->GetProjectionMatrix( proj );
-			DirectX::XMStoreFloat3( &temp, DirectX::XMVector3TransformCoord( DirectX::XMLoadFloat3( &mLowerBody.position ), DirectX::XMMatrixMultiply( view, proj ) ) );
-		
-			temp.x += 1 *0.5f;
-			temp.y += 1 *0.5f;
-			temp.z += 1 *0.5f;
-
-			mPlayerName.SetPosition( 900, 420 );
-
 		}
 	}
 	else
@@ -200,7 +196,7 @@ HRESULT Player::Update( float deltaTime )
 	mEventCapTimer += deltaTime;
 	if( mEventCapTimer > 0.02f )
 	{
-		IEventPtr E1( new Event_Player_Update( mLowerBody.position, mVelocity, mUpperBody.direction ) );
+		IEventPtr E1( new Event_Player_Update( mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 		mEventCapTimer -= 0.02f;
 	}
@@ -258,7 +254,6 @@ HRESULT Player::Render( float deltaTime, int position )
 	}
 
 	RemotePlayer::Render( position );
-	mPlayerName.Render();
 
 	return S_OK;
 }
@@ -343,7 +338,7 @@ HRESULT Player::Initialize()
 
 	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mHasName = false;
-	mPlayerName.Initialize( "", "", 0, 0, 0.25f );
+	mPlayerName = "";
 	////////////
 	// Light
 	mPointLight						= new PointLight;
@@ -352,7 +347,7 @@ HRESULT Player::Initialize()
 	IEventPtr reg( new Event_Add_Point_Light( mPointLight ) );
 	EventManager::GetInstance()->QueueEvent( reg );
 	
-	EventManager::GetInstance()->AddListener( &Player::Test, this, Event_Set_Player_Name::GUID );
+	EventManager::GetInstance()->AddListener( &Player::CreatePlayerName, this, Event_Create_Player_Name::GUID );
 	mMaxVelocity		= 7.7f;
 	mCurrentVelocity	= 0.0f;
 	mMaxAcceleration	= 20.0f;
@@ -370,7 +365,6 @@ void Player::Release()
 	IEventPtr reg( new Event_Remove_Point_Light( mPointLight ) );
 	EventManager::GetInstance()->QueueEvent( reg );
 	SAFE_DELETE( mPointLight );
-	mPlayerName.Release();
 }
 
 Player::Player()

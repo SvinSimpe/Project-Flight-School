@@ -1,5 +1,15 @@
 #include "Text.h"
 
+float Text::GetScale() const
+{
+	return mScale;
+}
+
+std::string Text::GetText() const
+{
+	return mText;
+}
+
 void Text::Render()
 {
 	Font::WriteText( mText, mX, mY, mScale );

@@ -14,6 +14,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 			mPlayer->SetID( data->ID() );
 			mPlayer->SetTeam( data->Team(), mTeams[data->Team()] );
 			mPlayer->SetColor( mColorIDs[mCurrentColor] );
+		
 			mCurrentColor++;
 			//TestSound
 			SoundBufferHandler::GetInstance()->Play( mSoundAsset );
@@ -418,6 +419,7 @@ HRESULT PlayState::Update( float deltaTime )
 		if ( mRemotePlayers.at(i) )
 		{
 			mRemotePlayers.at(i)->Update( deltaTime );
+			mGui->Update( DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), nullptr, 0, mRemotePlayers[i]->GetPosition(), mRemotePlayers[i]->GetName(), i, true );
 			mRadarObjects[nrOfRadarObj].mRadarObjectPos = mRemotePlayers[i]->GetPosition();
 			mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
 		}
@@ -451,7 +453,7 @@ HRESULT PlayState::Update( float deltaTime )
 	mParticleManager->Update( deltaTime );
 	
 	//mRadar->Update( mPlayer->GetPlayerPosition(), mRadarObjects, nrOfRadarObj );
-	mGui->Update( mPlayer->GetPlayerPosition(), mRadarObjects, nrOfRadarObj );
+	mGui->Update( mPlayer->GetPlayerPosition(), mRadarObjects, nrOfRadarObj, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), "", 0, false );
 
 	// Test Anim
 	///////////////////////////////////////////////////////////////////////////

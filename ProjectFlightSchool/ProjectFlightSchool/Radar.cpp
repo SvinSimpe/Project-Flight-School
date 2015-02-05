@@ -94,18 +94,12 @@ HRESULT	Radar::Initialize()
 {
 	mNrOfObjects	= 1;
 
-	if( ( Input::GetInstance()->mScreenWidth * 0.15f ) < 384 )
-	{
-		mRadarDimXY = Input::GetInstance()->mScreenWidth * 0.15f;
-		mRadius = mRadarDimXY * 0.25f;
-		mRadarCenter = mRadarDimXY * 0.5f;
-	}
-	else
-	{
-		mRadarDimXY = 384.0f;
-		mRadius = 97.0f;
-		mRadarCenter = mRadarDimXY * 0.5f;
-	}
+
+	//Full image max pixel width and height == 384
+	//Radius from the center == 97 pixels
+	mRadarDimXY = Input::GetInstance()->mScreenWidth * 0.15f;
+	mRadius = mRadarDimXY * 0.25f;
+	mRadarCenter = mRadarDimXY * 0.5f;
 
 	mOffsetX		= Input::GetInstance()->mScreenWidth - mRadarDimXY;
 	mOffsetY		= 0;

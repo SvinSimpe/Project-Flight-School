@@ -11,6 +11,7 @@ void RemotePlayer::RemoteUpdate( IEventPtr newEvent )
 			XMStoreFloat3( &mLowerBody.direction, XMVector3Normalize( XMLoadFloat3( &data->Velocity() ) ) );
 			mVelocity										= data->Velocity();
 			mUpperBody.direction							= data->UpperBodyDirection();
+			mPlayerName										= data->Name();
 
 			//TEST
 			mBoundingBox->position	= mLowerBody.position;
@@ -34,11 +35,6 @@ void RemotePlayer::RemoteUpdate( IEventPtr newEvent )
 			}
 		}
 	}
-	else if( newEvent->GetEventType() == Event_Set_Player_Name::GUID )
-	{
-		std::shared_ptr<Event_Set_Player_Name> data = std::static_pointer_cast<Event_Set_Player_Name>( newEvent );
-		mPlayerName.SetText( data->PlayerName() );
-	}
 }
 
 void RemotePlayer::RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID )
@@ -49,7 +45,6 @@ void RemotePlayer::RemoteInit( unsigned int id, int team, AssetID teamColor, Ass
 	mColorIDAsset	= colorID;
 	EventManager::GetInstance()->AddListener( &RemotePlayer::RemoteUpdate, this, Event_Remote_Player_Update::GUID );
 	EventManager::GetInstance()->AddListener( &RemotePlayer::RemoteUpdate, this, Event_Remote_Player_Attack::GUID );
-	EventManager::GetInstance()->AddListener( &RemotePlayer::RemoteUpdate, this, Event_Set_Player_Name::GUID );
 }
 
 void RemotePlayer::BroadcastDeath( unsigned int shooter )
@@ -101,6 +96,12 @@ void RemotePlayer::TakeDamage( float damage, unsigned int shooter )
 	}
 }
 
+
+void RemotePlayer::SetName( std::string name )
+{
+	mPlayerName = name;
+}
+
 void RemotePlayer::SetHP( float hp )
 {
 	mCurrentHp = hp;
@@ -114,6 +115,11 @@ void RemotePlayer::CountUpKills()
 bool RemotePlayer::IsAlive() const
 {
 	return mIsAlive;
+}
+
+std::string RemotePlayer::GetName() const
+{
+	return mPlayerName;
 }
 
 LoadOut* RemotePlayer::GetLoadOut() const
@@ -167,8 +173,6 @@ HRESULT RemotePlayer::Update( float deltaTime )
 
 	RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
 	RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
-
-	mPlayerName.SetPosition( mLowerBody.position.x, 2.0f );
 
 	return S_OK;
 }
@@ -298,11 +302,8 @@ HRESULT RemotePlayer::Render( int position )
 			textToWrite	+= "I";
 			currentDeaths--;
 		}
-		mFont.WriteText( textToWrite, 25.0f, ((20.0f*(float)position)-7), 0.25f );
-		
+		mFont.WriteText( textToWrite, 25.0f, ((20.0f*(float)position)-7), 0.25f );	
 	}
-
-	mPlayerName.Render();
 
 	return S_OK;
 }
@@ -467,7 +468,7 @@ HRESULT RemotePlayer::Initialize()
 	mNrOfDeaths								= 0;
 	mNrOfKills								= 0;
 
-	mPlayerName.Initialize( "", "", mLowerBody.position.x, 1.0f, 1.0f );
+	mPlayerName = "";
 
 	mLeftArmAnimationCompleted				= false;
 	mRightArmAnimationCompleted				= false;

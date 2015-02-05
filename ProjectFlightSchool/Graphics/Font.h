@@ -30,12 +30,14 @@ private:
 	};
 
 	std::unordered_map<char, Letter> mCharacters;
+
 protected:
 public:
 
 private:
 protected:
 public:
+	float			GetMiddleXPoint( std::string toWrite, float scale );
 	void			WriteText( std::string toWrite, float x, float y, float scale );
 	virtual void	Initialize( std::string path );
 	virtual void	Release();

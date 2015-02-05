@@ -9,6 +9,7 @@
 #include "Font.h"
 #include "WeaponInfo.h"
 #include "Text.h"
+#include "Input.h"
 
 #define LEFT_ARM_ID		0
 #define RIGHT_ARM_ID	1
@@ -87,7 +88,7 @@ class RemotePlayer
 	private:
 	protected:
 		unsigned int	mID;
-		Text			mPlayerName;
+		std::string		mPlayerName;
 		int				mTeam;
 		UpperBody		mUpperBody;
 		LowerBody		mLowerBody;
@@ -133,9 +134,11 @@ class RemotePlayer
 		void			HandleSpawn( float deltaTime );
 		void			Spawn();
 		virtual void	TakeDamage( float damage, unsigned int shooter );
+		void			SetName( std::string name );
 		void			SetHP( float hp );
 		void			CountUpKills();
 		bool			IsAlive() const;
+		std::string		GetName() const;
 		LoadOut*		GetLoadOut() const;
 		float			GetHP() const;
 		int				GetID() const;

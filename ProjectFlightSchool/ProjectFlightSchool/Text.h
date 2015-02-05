@@ -18,12 +18,14 @@ class Text : public Font
 	private:
 	protected:
 	public:
-		void	Render();
-		void	SetText( std::string text );
-		void	SetPosition( float x, float y );
-		void	Initialize( std::string fontPath, std::string text, float x, float y, float scale );
-		void	Release();
-				Text();
-		virtual ~Text();
+		float		GetScale() const;
+		std::string GetText() const;
+		void		Render();
+		void		SetText( std::string text );
+		void		SetPosition( float x, float y );
+		void		Initialize( std::string fontPath, std::string text, float x, float y, float scale );
+		void		Release();
+					Text();
+		virtual		~Text();
 };
 #endif

@@ -32,7 +32,8 @@ void Client::EventListener( IEventPtr newEvent )
 			msg.lowerBodyPosition		= data->LowerBodyPos();
 			msg.velocity				= data->Velocity();
 			msg.upperBodyDirection		= data->UpperBodyDirection();
-
+			msg.playerName				= data->Name();
+			
 			if ( mServerSocket != INVALID_SOCKET )
 			{
 				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_UPDATE, msg );

@@ -14,33 +14,34 @@
 class Player: public RemotePlayer
 {
 	private:
-		float		mEventCapTimer;
+		float			mEventCapTimer;
 
 		PointLight*		mPointLight;
 
-		Text		mPlayerName;
-		bool		mHasName;
+		std::string		mPlayerName;
+		bool			mHasName;
 
-		float		mWeaponCoolDown;
-		float		mMeleeCoolDown;
-		bool		mIsMeleeing;
-		float		mMaxVelocity;
-		float		mCurrentVelocity;
-		float		mMaxAcceleration;
-		XMFLOAT3	mAcceleration;
-		bool		mIsBuffed;
-		float		mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
+		float			mWeaponCoolDown;
+		float			mMeleeCoolDown;
+		bool			mIsMeleeing;
+		float			mMaxVelocity;
+		float			mCurrentVelocity;
+		float			mMaxAcceleration;
+		XMFLOAT3		mAcceleration;
+		bool			mIsBuffed;
+		float			mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
 
 	protected:
 	public:
 		
 	private:
+		void		CreatePlayerName( IEventPtr newEvent );
 		void		HandleInput( float deltaTime );
 		void		Move( float deltaTime );
 
 	protected:
 	public:
-		void		Test( IEventPtr n );
+		std::string	GetPlayerName() const;
 		HRESULT		Update( float deltaTime );
 		HRESULT		Render( float deltaTime, int position );
 

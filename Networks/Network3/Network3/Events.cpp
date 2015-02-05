@@ -50,3 +50,5 @@ const EventType Event_Remote_Joined::GUID( counter++ );
 const EventType Event_Remote_Left::GUID( counter++ );
 const EventType Event_Local_Update::GUID( counter++ );
 const EventType Event_Remote_Update::GUID( counter++ );
+const EventType Event_Change_State::GUID( counter++ );
+const EventType Event_Start_Server::GUID( counter++ );

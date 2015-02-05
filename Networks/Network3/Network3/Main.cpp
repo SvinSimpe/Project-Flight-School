@@ -3,8 +3,8 @@
 #include "Server.h"
 #include "Client.h"
 
-int StartServerAndClient();
-int StartServerOrClient();
+int StartServerAndClient( std::string ip, UINT port );
+int StartServerOrClient( std::string ip, UINT port );
 
 int main()
 {
@@ -20,36 +20,29 @@ int main()
 	EF::REGISTER_EVENT( Event_Remote_Left );
 	EF::REGISTER_EVENT( Event_Local_Update );
 	EF::REGISTER_EVENT( Event_Remote_Update );
+	EF::REGISTER_EVENT( Event_Change_State );
+	EF::REGISTER_EVENT( Event_Start_Server );
 
-	std::string answer = "";
-	std::cout << "Would you like to" << std::endl;
-	std::cout << "(1) start a server AND client connection?" << std::endl;
-	std::cout << "(2) start a server OR client connection?" << std::endl;
+	//Server* server = new Server();
+	//IEventPtr E1( PFS_NEW Event_Start_Server( 27015 ) );
+	//EventManager::GetInstance()->QueueEvent( E1 );
 
-	std::getline( std::cin, answer );
-	if( answer == "1" )
-	{
-		return StartServerAndClient();
-	}
-	else if( answer == "2" )
-	{
-		return StartServerOrClient();
-	}
-	else
-	{
-		EventManager::GetInstance()->Release();
-		OutputDebugStringA( "Wrong input, douchebag." );
-		return 3;
-	}
+	//while( !server->mActive )
+	//{
+	//	EventManager::GetInstance()->Update();
+	//}
+
+	std::string ip	= "127.0.0.1";
+	UINT port		= 27015;
+
+	//return StartServerAndClient( ip, port );
+	return StartServerOrClient( ip, port );
 
 	return 0;
 }
 
-int StartServerAndClient()
+int StartServerAndClient( std::string ip, UINT port )
 {
-	std::string ip	= "127.0.0.1";
-	UINT port		= 27015;
-
 	Server* server = nullptr;
 	Client* client = nullptr;
 
@@ -105,14 +98,12 @@ int StartServerAndClient()
 	EventManager::GetInstance()->Release();
 	return 0;
 }
-int StartServerOrClient()
+
+int StartServerOrClient( std::string ip, UINT port )
 {
 	std::string answer = "";
 	std::cout << "Would you like to start a (S)erver or a (C)lient? ";
 	std::getline( std::cin, answer );
-
-	std::string ip	= "127.0.0.1";
-	UINT port		= 27015;
 
 	Network* network = nullptr;
 	if( answer == "S" || answer == "s" )

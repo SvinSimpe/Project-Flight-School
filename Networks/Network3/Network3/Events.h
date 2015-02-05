@@ -61,7 +61,7 @@ class Event_Client_Joined : public IEvent
 	public:
 		Event_Client_Joined()
 		{
-			mID = 0;
+			mID = (UINT)-1;
 		}
 		Event_Client_Joined( UINT id )
 		{
@@ -105,7 +105,7 @@ class Event_Client_Left : public IEvent
 	public:
 		Event_Client_Left()
 		{
-			mID = 0;
+			mID = (UINT)-1;
 		}
 		Event_Client_Left( UINT id )
 		{
@@ -138,7 +138,7 @@ class Event_Client_Left : public IEvent
 class Event_Local_Joined : public IEvent
 {
 	private:
-		int mID;
+		UINT mID;
 
 	protected:
 	public:
@@ -149,11 +149,11 @@ class Event_Local_Joined : public IEvent
 	public:
 		Event_Local_Joined()
 		{
-			mID = 0;
+			mID	= (UINT)-1;
 		}
-		Event_Local_Joined( int id )
+		Event_Local_Joined( UINT id )
 		{
-			mID = id;
+			mID	= id;
 		}
 		~Event_Local_Joined() {}
 		const EventType& GetEventType() const
@@ -193,7 +193,7 @@ class Event_Remote_Joined : public IEvent
 	public:
 		Event_Remote_Joined()
 		{
-			mID = 0;
+			mID	= (UINT)-1;
 		}
 		Event_Remote_Joined( UINT id )
 		{
@@ -237,7 +237,7 @@ class Event_Remote_Left : public IEvent
 	public:
 		Event_Remote_Left()
 		{
-			mID = 0;
+			mID = (UINT)-1;
 		}
 		Event_Remote_Left( UINT id )
 		{
@@ -441,5 +441,92 @@ class Event_Remote_Update : public IEvent
 		XMFLOAT3 UpperBodyDirection() const
 		{
 			return mUpperBodyDirection;
+		}
+};
+
+// This is a local event used by the client to switch between game states
+class Event_Change_State : public IEvent
+{
+	private:
+		int mEventID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Change_State()
+		{
+			mEventID = -1;
+		}
+		Event_Change_State( int id )
+		{
+			mEventID = id;
+		}
+		~Event_Change_State() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mEventID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mEventID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Change_State( mEventID ) );
+		}
+		int EventID() const
+		{
+			return mEventID;
+		}
+};
+
+// This is an event used by the client to start the server given a specific port
+class Event_Start_Server : public IEvent
+{
+	private:
+		UINT mPort;
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Start_Server()
+		{
+			mPort = (UINT)-1;
+		}
+		Event_Start_Server( UINT port )
+		{
+			mPort = port;
+		}
+		~Event_Start_Server() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mPort << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mPort;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Start_Server( mPort ) );
+		}
+		UINT Port() const
+		{
+			return mPort;
 		}
 };

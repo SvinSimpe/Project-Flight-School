@@ -47,11 +47,11 @@ void Server::ClientLeft( IEventPtr eventPtr )
 	}
 }
 
-void Server::LocalUpdate( IEventPtr eventPtr )
+void Server::ClientUpdate( IEventPtr eventPtr )
 {
-	if( eventPtr->GetEventType() == Event_Local_Update::GUID )
+	if( eventPtr->GetEventType() == Event_Client_Update::GUID )
 	{
-		std::shared_ptr<Event_Local_Update> data = std::static_pointer_cast<Event_Local_Update>( eventPtr );
+		std::shared_ptr<Event_Client_Update> data = std::static_pointer_cast<Event_Client_Update>( eventPtr );
 		UINT id = data->ID();
 		XMFLOAT3 pos = data->LowerBodyPos();
 		XMFLOAT3 vel = data->Velocity();
@@ -64,11 +64,11 @@ void Server::LocalUpdate( IEventPtr eventPtr )
 	}
 }
 
-void Server::LocalDied( IEventPtr eventPtr )
+void Server::ClientDied( IEventPtr eventPtr )
 {
-	if( eventPtr->GetEventType() == Event_Local_Died::GUID )
+	if( eventPtr->GetEventType() == Event_Client_Died::GUID )
 	{
-		std::shared_ptr<Event_Local_Died> data = std::static_pointer_cast<Event_Local_Died>( eventPtr );
+		std::shared_ptr<Event_Client_Died> data = std::static_pointer_cast<Event_Client_Died>( eventPtr );
 		UINT id = data->ID();
 		UINT killerID = data->KillerID();
 
@@ -78,16 +78,29 @@ void Server::LocalDied( IEventPtr eventPtr )
 	}
 }
 
-void Server::LocalDamaged( IEventPtr eventPtr )
+void Server::ClientDamaged( IEventPtr eventPtr )
 {
-	if( eventPtr->GetEventType() == Event_Local_Damaged::GUID )
+	if( eventPtr->GetEventType() == Event_Client_Damaged::GUID )
 	{
-		std::shared_ptr<Event_Local_Damaged> data = std::static_pointer_cast<Event_Local_Damaged>( eventPtr );
+		std::shared_ptr<Event_Client_Damaged> data = std::static_pointer_cast<Event_Client_Damaged>( eventPtr );
 		UINT id = data->ID();
 		UINT projectileID = data->ProjectileID();
 
 		std::cout << "Client with ID: " << id << " was shot by bullet with ID: " << projectileID << std::endl;
 		IEventPtr E1( PFS_NEW Event_Remote_Damaged( id, projectileID ) );
+		BroadcastEvent( E1, id );
+	}
+}
+
+void Server::ClientSpawned( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Spawned::GUID )
+	{
+		std::shared_ptr<Event_Client_Spawned> data = std::static_pointer_cast<Event_Client_Spawned>( eventPtr );
+		UINT id = data->ID();
+
+		std::cout << "Client with ID: " << id << " just spawned." << std::endl;
+		IEventPtr E1( PFS_NEW Event_Remote_Spawned( id ) );
 		BroadcastEvent( E1, id );
 	}
 }
@@ -159,9 +172,10 @@ bool Server::Initialize()
 {
 	EventManager::GetInstance()->AddListener( &Server::ClientJoined, this, Event_Client_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientLeft, this, Event_Client_Left::GUID );
-	EventManager::GetInstance()->AddListener( &Server::LocalUpdate, this, Event_Local_Update::GUID );
-	EventManager::GetInstance()->AddListener( &Server::LocalDied, this, Event_Local_Died::GUID );
-	EventManager::GetInstance()->AddListener( &Server::LocalDamaged, this, Event_Local_Damaged::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientUpdate, this, Event_Client_Update::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientDied, this, Event_Client_Died::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientDamaged, this, Event_Client_Damaged::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientSpawned, this, Event_Client_Spawned::GUID );
 
 	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
 

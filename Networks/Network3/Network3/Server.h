@@ -24,9 +24,10 @@ class Server : public Network
 		// Eventlistening functions
 		void	ClientJoined( IEventPtr eventPtr );
 		void	ClientLeft( IEventPtr eventPtr );
-		void	LocalUpdate( IEventPtr eventPtr );
-		void	LocalDied( IEventPtr eventPtr );
-		void	LocalDamaged( IEventPtr eventPtr );
+		void	ClientUpdate( IEventPtr eventPtr );
+		void	ClientDied( IEventPtr eventPtr );
+		void	ClientDamaged( IEventPtr eventPtr );
+		void	ClientSpawned( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 

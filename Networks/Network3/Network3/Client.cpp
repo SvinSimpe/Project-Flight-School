@@ -24,7 +24,7 @@ Client::~Client()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Start of eventlistening functions
 
-void Client::LocalJoin( IEventPtr eventPtr )
+void Client::LocalJoined( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Local_Joined::GUID )
 	{
@@ -100,6 +100,17 @@ void Client::RemoteDamaged( IEventPtr eventPtr )
 	}
 }
 
+void Client::RemoteSpawned( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Spawned::GUID )
+	{
+		std::shared_ptr<Event_Remote_Spawned> data = std::static_pointer_cast<Event_Remote_Spawned>( eventPtr );
+		UINT id = data->ID();
+
+		std::cout << "Remote with ID: " << id << " just spawned." << std::endl;
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -147,14 +158,16 @@ void Client::Update( float deltaTime )
 {
 	if( mActive )
 	{
-		//IEventPtr E1( PFS_NEW Event_Local_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection ) );
-		//IEventPtr E1( PFS_NEW Event_Local_Died( mID, 0 ) );
+		//IEventPtr E1( PFS_NEW Event_Client_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection ) );
+		//IEventPtr E1( PFS_NEW Event_Client_Died( mID, 0 ) );
+		IEventPtr E1( PFS_NEW Event_Client_Spawned( mID ) );
 
 		//for( int i = 0; i < 10; i++ )
 		//{
-		//	IEventPtr E1( PFS_NEW Event_Local_Damaged( mID, i ) );
+		//	IEventPtr E1( PFS_NEW Event_Client_Damaged( mID, i ) );
 		//	SendEvent( E1 );
 		//}
+		SendEvent( E1 );
 	}
 }
 
@@ -170,24 +183,27 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Local_Joined );
 	EF::REGISTER_EVENT( Event_Remote_Joined );
 	EF::REGISTER_EVENT( Event_Remote_Left );
-	EF::REGISTER_EVENT( Event_Local_Update );
+	EF::REGISTER_EVENT( Event_Client_Update );
 	EF::REGISTER_EVENT( Event_Remote_Update );
 	EF::REGISTER_EVENT( Event_Change_State );
 	EF::REGISTER_EVENT( Event_Start_Server );
 	EF::REGISTER_EVENT( Event_Start_Client );
 	EF::REGISTER_EVENT( Event_Game_Started );
 	EF::REGISTER_EVENT( Event_Game_Ended );
-	EF::REGISTER_EVENT( Event_Local_Died );
+	EF::REGISTER_EVENT( Event_Client_Died );
 	EF::REGISTER_EVENT( Event_Remote_Died );
-	EF::REGISTER_EVENT( Event_Local_Damaged );
+	EF::REGISTER_EVENT( Event_Client_Damaged );
 	EF::REGISTER_EVENT( Event_Remote_Damaged );
+	EF::REGISTER_EVENT( Event_Client_Spawned );
+	EF::REGISTER_EVENT( Event_Remote_Spawned );
 
-	EventManager::GetInstance()->AddListener( &Client::LocalJoin, this, Event_Local_Joined::GUID );
+	EventManager::GetInstance()->AddListener( &Client::LocalJoined, this, Event_Local_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteJoined, this, Event_Remote_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteLeft, this, Event_Remote_Left::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteUpdate, this, Event_Remote_Update::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteDied, this, Event_Remote_Died::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteDamaged, this, Event_Remote_Damaged::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteSpawned, this, Event_Remote_Spawned::GUID );
 
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	return true;

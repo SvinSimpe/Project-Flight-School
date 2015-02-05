@@ -43,7 +43,7 @@ using namespace DirectX;
 	New rules:
 	- For every event that you create a REGISTER_EVENT call has to be made for that function.
 	- Events that are to be sent to the server from the client (don't worry, it's a singleton) needs to be sent, never listened to by the client itself.
-	- Events that needs to be sent (read above rule) by the client all have the word "local" in them.
+	- Events that needs to be sent (read above rule) by the client all have the word "Client" in them.
 	- More rules will be implemented later. */
 
 extern EventType counter; // If you want know what this does, just check Events.cpp :D
@@ -143,7 +143,6 @@ class Event_Local_Joined : public IEvent
 		UINT mID;
 		UINT mTeamID;
 
-	protected:
 	public:
 		static const EventType GUID;
 
@@ -286,9 +285,9 @@ class Event_Remote_Left : public IEvent
 		}
 };
 
-// Listened to by the server and handles the local client updating
+// Listened to by the server and handles the Client client updating
 // The same as Event_Player_Update in the project
-class Event_Local_Update : public IEvent
+class Event_Client_Update : public IEvent
 {
 	private:
 		UINT		mID;
@@ -302,21 +301,21 @@ class Event_Local_Update : public IEvent
 	private:
 	protected:
 	public:
-		Event_Local_Update()
+		Event_Client_Update()
 		{
 			mID						= (UINT)-1;
 			mLowerBodyPos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mVelocity				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mUpperBodyDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 		}
-		Event_Local_Update( UINT id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDir )
+		Event_Client_Update( UINT id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDir )
 		{
 			mID						= id;
 			mLowerBodyPos			= lowerBodyPos;
 			mVelocity				= velocity;
 			mUpperBodyDirection		= upperBodyDir;
 		}
-		~Event_Local_Update() {}
+		~Event_Client_Update() {}
 		const EventType& GetEventType() const
 		{
 			return GUID;
@@ -355,7 +354,7 @@ class Event_Local_Update : public IEvent
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Local_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection ) );
+			return IEventPtr( new Event_Client_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection ) );
 		}
 		UINT ID() const
 		{
@@ -666,7 +665,7 @@ class Event_Game_Ended : public IEvent
 };
 
 // An event sent by the local client whenever s/he dies
-class Event_Local_Died : public IEvent
+class Event_Client_Died : public IEvent
 {
 	private:
 		UINT mID;
@@ -679,17 +678,17 @@ class Event_Local_Died : public IEvent
 	private:
 	protected:
 	public:
-		Event_Local_Died()
+		Event_Client_Died()
 		{
 			mID			= (UINT)-1;
 			mKillerID	= (UINT)-1;
 		}
-		Event_Local_Died( UINT id, UINT killerID )
+		Event_Client_Died( UINT id, UINT killerID )
 		{
 			mID			= id;
 			mKillerID	= killerID;
 		}
-		~Event_Local_Died() {}
+		~Event_Client_Died() {}
 		const EventType& GetEventType() const
 		{
 			return GUID;
@@ -706,7 +705,7 @@ class Event_Local_Died : public IEvent
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Local_Died( mID, mKillerID ) );
+			return IEventPtr( new Event_Client_Died( mID, mKillerID ) );
 		}
 		UINT ID() const
 		{
@@ -772,7 +771,7 @@ class Event_Remote_Died : public IEvent
 };
 
 // An event created by the client whenever s/he is shot by a projectile
-class Event_Local_Damaged : public IEvent
+class Event_Client_Damaged : public IEvent
 {
 	private:
 		UINT mID;
@@ -785,17 +784,17 @@ class Event_Local_Damaged : public IEvent
 	private:
 	protected:
 	public:
-		Event_Local_Damaged()
+		Event_Client_Damaged()
 		{
 			mID			= (UINT)-1;
 			mProjecileID	= (UINT)-1;
 		}
-		Event_Local_Damaged( UINT id, UINT projectileID )
+		Event_Client_Damaged( UINT id, UINT projectileID )
 		{
 			mID				= id;
 			mProjecileID	= projectileID;
 		}
-		~Event_Local_Damaged() {}
+		~Event_Client_Damaged() {}
 		const EventType& GetEventType() const
 		{
 			return GUID;
@@ -812,7 +811,7 @@ class Event_Local_Damaged : public IEvent
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Local_Damaged( mID, mProjecileID ) );
+			return IEventPtr( new Event_Client_Damaged( mID, mProjecileID ) );
 		}
 		UINT ID() const
 		{
@@ -874,5 +873,91 @@ class Event_Remote_Damaged : public IEvent
 		UINT ProjectileID() const
 		{
 			return mProjecileID;
+		}
+};
+
+class Event_Client_Spawned : public IEvent
+{
+	private:
+		UINT mID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Spawned()
+		{
+			mID = (UINT)-1;
+		}
+		Event_Client_Spawned( UINT id )
+		{
+			mID = id;
+		}
+		~Event_Client_Spawned() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Spawned( mID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+};
+
+class Event_Remote_Spawned : public IEvent
+{
+	private:
+		UINT mID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Spawned()
+		{
+			mID = (UINT)-1;
+		}
+		Event_Remote_Spawned( UINT id )
+		{
+			mID = id;
+		}
+		~Event_Remote_Spawned() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Spawned( mID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
 		}
 };

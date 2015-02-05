@@ -27,12 +27,13 @@ class Client : public Network
 				Client();
 		virtual	~Client();
 
-		void	LocalJoin( IEventPtr eventPtr );
+		void	LocalJoined( IEventPtr eventPtr );
 		void	RemoteJoined( IEventPtr eventPtr );
 		void	RemoteLeft( IEventPtr eventPtr );
 		void	RemoteUpdate( IEventPtr eventPtr );
 		void	RemoteDied( IEventPtr eventPtr );
 		void	RemoteDamaged( IEventPtr eventPtr );
+		void	RemoteSpawned( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 

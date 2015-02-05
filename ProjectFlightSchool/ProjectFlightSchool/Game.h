@@ -12,14 +12,13 @@ class Game
 	// Class members
 	private:
 		StateMachine*		mStateMachine;
+		Server*				mServer;
 
 	protected:
 	public:
 
 		// Class functions
 	private:
-		void EventListener( IEventPtr newEvent );
-
 	protected:
 	public:
 		HRESULT Update( float deltaTime );

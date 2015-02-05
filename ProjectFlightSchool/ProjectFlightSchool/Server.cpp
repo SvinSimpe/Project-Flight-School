@@ -194,6 +194,9 @@ void Server::ClientDown( IEventPtr eventPtr )
 		UINT id = data->ID();
 
 		std::cout << "Client with ID: " << id << " went down." << std::endl;
+
+		IEventPtr E1( PFS_NEW Event_Remote_Down( id ) );
+		BroadcastEvent( E1, id );
 	}
 }
 
@@ -205,6 +208,9 @@ void Server::ClientUp( IEventPtr eventPtr )
 		UINT id = data->ID();
 
 		std::cout << "Client with ID: " << id << " went up." << std::endl;
+
+		IEventPtr E1( PFS_NEW Event_Remote_Up( id ) );
+		BroadcastEvent( E1, id );
 	}
 }
 
@@ -218,6 +224,9 @@ void Server::ClientAttemptRevive( IEventPtr eventPtr )
 		float deltaTime = data->DeltaTime();
 
 		std::cout << "Client with ID: " << id << " is attempting to revive " << downedID << " with " << deltaTime << " time left." << std::endl;
+
+		IEventPtr E1( PFS_NEW Event_Remote_Attempt_Revive( id, downedID, deltaTime ) );
+		BroadcastEvent( E1, id );
 	}
 }
 
@@ -233,11 +242,15 @@ void Server::StartUp( IEventPtr eventPtr )
 		UINT port = data->Port();
 		if( Connect( port ) )
 		{
-			CreateEnemies();
+			IEventPtr E1( PFS_NEW Event_Initialize_Success () );
+			EventManager::GetInstance()->QueueEvent( E1 );
+
+			mActive = true;
 		}
 		else
 		{
-			std::cout << "Failed to start server!" << std::endl;
+			IEventPtr E1( PFS_NEW Event_Initialize_Fail ( "Failed to start server!" ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 	}
 }
@@ -306,32 +319,14 @@ bool Server::Connect( UINT port )
 
 void Server::Update( float deltaTime )
 {
-	//if( !mClientMap.empty() )
-	//{
-	//	int counter = 0;
-	//	for( auto& enemy : mEnemies )
-	//	{
-	//		enemy.second.pos.x += 0.1f;
-	//		enemy.second.dir.z += 0.1f;
-	//		if( ( counter % 2 ) > 0 )
-	//		{
-	//			enemy.second.isAlive = false;
-	//		}
-	//		else
-	//		{
-	//			enemy.second.isAlive = true;
-	//		}
-	//		counter++;
-
-	//		IEventPtr E1( PFS_NEW Event_Server_Update_Enemy( enemy.first, enemy.second.pos, enemy.second.dir, enemy.second.isAlive ) );
-	//		BroadcastEvent( E1 );
-	//	}
-	//}
 }
 
 void Server::DoSelect( int pauseMicroSecs, bool handleInput )
 {
-	mSocketManager->DoSelect( pauseMicroSecs, handleInput );
+	if( mActive )
+	{
+		mSocketManager->DoSelect( pauseMicroSecs, handleInput );
+	}
 }
 
 bool Server::Initialize()
@@ -346,7 +341,6 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientUpdateHP, this, Event_Client_Update_HP::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientMeleeHit, this, Event_Client_Melee_Hit::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientAttack, this, Event_Client_Attack::GUID );
-
 	EventManager::GetInstance()->AddListener( &Server::ClientDown, this, Event_Client_Down::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientUp, this, Event_Client_Up::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientAttemptRevive, this, Event_Client_Attempt_Revive::GUID );

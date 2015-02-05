@@ -16,6 +16,12 @@ void MultiplayerMenuState::HandleInput()
 		sstr >> iPort;
 		IEventPtr E1( new Event_Start_Server( iPort ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
+
+		IEventPtr E2( new Event_Start_Client( "localhost", iPort ) );
+		EventManager::GetInstance()->QueueEvent( E2 );
+
+		IEventPtr E3( new Event_Change_State( PLAY_STATE ) );
+		EventManager::GetInstance()->QueueEvent( E3 );
 	}
 	else if( mButtons.at(THREE_VS_THREE)->LeftMousePressed() )
 	{
@@ -26,6 +32,12 @@ void MultiplayerMenuState::HandleInput()
 		sstr >> iPort;
 		IEventPtr E1( new Event_Start_Server( iPort ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
+		
+		IEventPtr E2( new Event_Start_Client( "localhost", iPort ) );
+		EventManager::GetInstance()->QueueEvent( E2 );
+
+		IEventPtr E3( new Event_Change_State( PLAY_STATE ) );
+		EventManager::GetInstance()->QueueEvent( E3 );
 	}
 	else if( mButtons.at(FOUR_VS_FOUR)->LeftMousePressed() )
 	{
@@ -36,6 +48,12 @@ void MultiplayerMenuState::HandleInput()
 		sstr >> iPort;
 		IEventPtr E1( new Event_Start_Server( iPort ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
+				
+		IEventPtr E2( new Event_Start_Client( "localhost", iPort ) );
+		EventManager::GetInstance()->QueueEvent( E2 );
+
+		IEventPtr E3( new Event_Change_State( PLAY_STATE ) );
+		EventManager::GetInstance()->QueueEvent( E3 );
 	}
 	else if( mButtons.at(BACK)->LeftMousePressed() )
 	{

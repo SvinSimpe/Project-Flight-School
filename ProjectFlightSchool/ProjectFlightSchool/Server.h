@@ -13,10 +13,11 @@ class Server : public Network
 		};
 		const UINT MAX_TEAMS = 2;
 
-		SocketManager*	mSocketManager;
-		std::map<UINT, ClientNEF> mClientMap;
-		std::map<UINT, Enemy> mEnemies;
-		UINT mTeamDelegate;
+		SocketManager*				mSocketManager;
+		std::map<UINT, ClientNEF>	mClientMap;
+		std::map<UINT, Enemy>		mEnemies;
+		UINT						mTeamDelegate;
+		bool						mActive;
 
 	protected:
 	public:

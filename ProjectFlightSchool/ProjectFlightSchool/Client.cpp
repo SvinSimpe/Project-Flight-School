@@ -34,7 +34,6 @@ void Client::LocalJoined( IEventPtr eventPtr )
 		mTeamID = data->TeamID();
 
 		std::cout << "My ID is: " << mID << " and I just joined team " << mTeamID << std::endl;
-		mActive = true;
 	}
 }
 
@@ -271,6 +270,8 @@ void Client::StartUp( IEventPtr eventPtr )
 		UINT port		= data->Port();
 		if( !Connect( IP, port ) )
 			std::cout << "Failed to connect client!" << std::endl;
+		else
+			mActive = true;
 	}
 }
 
@@ -304,11 +305,18 @@ void Client::SendEvent( IEventPtr eventPtr )
 
 void Client::Update( float deltaTime )
 {
+	if( mActive )
+	{
+
+	}
 }
 
 void Client::DoSelect( int pauseMicroSecs, bool handleInput )
 {
-	mSocketManager->DoSelect( pauseMicroSecs, handleInput );
+	if( mActive )
+	{
+		mSocketManager->DoSelect( pauseMicroSecs, handleInput );
+	}
 }
 
 bool Client::Initialize()

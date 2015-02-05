@@ -4,11 +4,6 @@
 //									PRIVATE
 ///////////////////////////////////////////////////////////////////////////////
 
-
-void Game::EventListener( IEventPtr newEvent )
-{
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
@@ -18,6 +13,12 @@ HRESULT Game::Update( float deltaTime )
 	mStateMachine->Update( deltaTime );
 	EventManager::GetInstance()->Update();
 	RenderManager::GetInstance()->Update( deltaTime );
+
+	mServer->Update( deltaTime );
+	mServer->DoSelect( 0 );
+
+	Client::GetInstance()->Update( deltaTime );
+	Client::GetInstance()->DoSelect( 0 );
 
 
 	return S_OK;
@@ -34,9 +35,9 @@ HRESULT Game::Initialize()
 {
 	mStateMachine	= new StateMachine();
 	mStateMachine->Initialize();
-
-	EventManager::GetInstance()->AddListener( &Game::EventListener, this, Event_Start_Server::GUID );
-	EventManager::GetInstance()->AddListener( &Game::EventListener, this, Event_Start_Client::GUID );
+	mServer = new Server();
+	mServer->Initialize();
+	Client::GetInstance()->Initialize();
 
 	OutputDebugString( L"----- Game Initialization Complete. -----" );
 
@@ -47,6 +48,8 @@ void Game::Release()
 {
 	mStateMachine->Release();
 	SAFE_DELETE( mStateMachine );
+	mServer->Release();
+	SAFE_DELETE( mServer );
 }
 
 Game::Game()

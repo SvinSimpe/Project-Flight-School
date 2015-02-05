@@ -231,6 +231,20 @@ HRESULT Effect::Intialize( ID3D11Device* device, EffectInfo* effectInfo )
 					vertexShaderBlob->GetBufferSize(),
 					&mInputLayout );
 			}
+			else if( effectInfo->vertexType == PARTICLE_VERTEX_TYPE )
+			{
+				D3D11_INPUT_ELEMENT_DESC inputDesc[] = {
+						{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+						{ "WORLDPOSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+						{ "LIFETIME", 0, DXGI_FORMAT_R32_FLOAT, 1, 12, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
+
+				};
+				hr = device->CreateInputLayout( inputDesc,
+					ARRAYSIZE( inputDesc ),
+					vertexShaderBlob->GetBufferPointer(),
+					vertexShaderBlob->GetBufferSize(),
+					&mInputLayout );
+			}
 		}
 		SAFE_RELEASE( vertexShaderBlob );
 		fileReader.close();

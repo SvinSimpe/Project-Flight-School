@@ -14,6 +14,7 @@ void RenderManager::Clear()
 	mNrOfAnim3d		= 0;
 	mNrOfPlane		= 0;
 	mNrOfBillboard	= 0;
+	mNrOfParticles	= 0;
 	mNrOfNodeGrid	= 0;
 	mNrOfBoxes		= 0;
 }
@@ -50,12 +51,13 @@ void RenderManager::AddObject3dToList( AssetID assetId, DirectX::XMFLOAT4X4 worl
 	mObject3dArray[mNrOfObject3d++] = info;
 }
 
-void RenderManager::AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLeftCorner, DirectX::XMFLOAT2 widthHeight )
+void RenderManager::AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLeftCorner, DirectX::XMFLOAT2 widthHeight, DirectX::XMFLOAT4 color )
 {
 	Object2dInfo info;
 	info.mAssetId		= assetId;
 	info.mTopLeftCorner	= topLeftCorner;
 	info.mWidthHeight	= widthHeight;
+	info.mColor			= color;
 
 	mObject2dArray[mNrOfObject2d++] = info;
 }
@@ -99,6 +101,42 @@ void RenderManager::AddBillboardToList( AssetID assetId, DirectX::XMFLOAT3 world
 	info.mHeight		= height;
 
 	mBillboardArray[mNrOfBillboard++] = info;
+}
+
+void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, int* nrOfActiveParticleSystemsPerType  )
+{
+	ParticleInfo info;
+	UINT offset = 0;
+	for ( int i = 0; i < NR_OF_PARTICLE_TYPES; i++ )
+	{
+		// Set AssetID per Particle Type
+		info.mAssetId = particleSystem[i][0]->assetID;
+
+		// Calculate offset per Particle Type
+		for ( int l = 0; l < nrOfActiveParticleSystemsPerType[i]; l++ )
+		{
+			offset += particleSystem[i][l]->nrOfParticlesAlive;
+		}
+
+		// Set offset
+		info.mOffsetToNextParticleType = offset;
+
+		// Fill Array with Particle Info
+		for ( int j = 0; j < nrOfActiveParticleSystemsPerType[i]; j++ )
+		{
+
+			for ( int k = 0; k < particleSystem[i][j]->nrOfParticlesAlive; k++ )
+			{
+				info.mWorldPosition.x	= particleSystem[i][j]->xPosition[k];
+				info.mWorldPosition.y	= particleSystem[i][j]->yPosition[k];
+				info.mWorldPosition.z	= particleSystem[i][j]->zPosition[k];
+
+				info.mLifeTime			= particleSystem[i][j]->lifeTime[k];
+
+				mParticleInfoArray[mNrOfParticles++] = info;
+			}
+		}
+	}	
 }
 
 void RenderManager::AddNodeGridToList( StaticVertex* vertices, UINT nrOfVertices, DirectX::XMFLOAT4X4 world )
@@ -205,14 +243,15 @@ HRESULT RenderManager::Render()
 	//Render the scene with deferred
 	Graphics::GetInstance()->DeferredPass();
 
+	//Render the particles
+	Graphics::GetInstance()->RenderParticleSystems( mParticleInfoArray, mNrOfParticles );
+
 	//Prepare the scene to render Screen space located assets
 	Graphics::GetInstance()->ScreenSpacePass();
 
 	//Render screen space located assets
-	for( UINT i = 0; i < mNrOfObject2d; i++ )
-	{
-		Graphics::GetInstance()->Render2dAsset( mObject2dArray[i].mAssetId, mObject2dArray[i].mTopLeftCorner.x, mObject2dArray[i].mTopLeftCorner.y, mObject2dArray[i].mWidthHeight.x, mObject2dArray[i].mWidthHeight.y );
-	}
+	Graphics::GetInstance()->Render2dAsset( mObject2dArray, mNrOfObject2d );
+
 	//Present the scene onto the screen
 	Graphics::GetInstance()->EndScene();
 

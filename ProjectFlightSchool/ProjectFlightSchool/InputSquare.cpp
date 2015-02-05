@@ -32,7 +32,7 @@ void InputSquare::HandleInput()
 {
 	for( int i = 0; i < KEYS::KEYS_AMOUNT; i++ )
 	{
-		if( Input::GetInstance()->mCurrentFrame.at(i) )
+		if( Input::GetInstance()->IsKeyPressed( (KEYS)i ) )
 		{
 			mKeyTimer = KEYCOOLDOWN;
 			switch(i)

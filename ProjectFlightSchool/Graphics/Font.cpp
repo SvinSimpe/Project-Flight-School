@@ -1,6 +1,6 @@
 #include "Font.h"
 
-void Font::WriteText( std::string toWrite, float x, float y, float scale )
+void Font::WriteText( std::string toWrite, float x, float y, float scale, XMFLOAT4 color )
 {
 	float xOffset = 0.0f;
 	float yOffset = 0.0f;
@@ -39,11 +39,11 @@ void Font::WriteText( std::string toWrite, float x, float y, float scale )
 
 		if( l == 'g' || l == 'j' || l == 'y' || l == 'q' || l == 'p')
 		{
-			RenderManager::GetInstance()->AddObject2dToList( mCharacters[l].asset, DirectX::XMFLOAT2( (x + xOffset), (y + yLower + yOffset) ), DirectX::XMFLOAT2( (mCharacters[l].w * scale), (mCharacters[l].h * scale) ) );
+			RenderManager::GetInstance()->AddObject2dToList( mCharacters[l].asset, DirectX::XMFLOAT2( (x + xOffset), (y + yLower + yOffset) ), DirectX::XMFLOAT2( (mCharacters[l].w * scale), (mCharacters[l].h * scale) ), color );
 		}
 		else
 		{
-			RenderManager::GetInstance()->AddObject2dToList( mCharacters[l].asset, DirectX::XMFLOAT2( (x + xOffset), (y + yOffset) ), DirectX::XMFLOAT2( (mCharacters[l].w * scale), (mCharacters[l].h * scale) ) );
+			RenderManager::GetInstance()->AddObject2dToList( mCharacters[l].asset, DirectX::XMFLOAT2( (x + xOffset), (y + yOffset) ), DirectX::XMFLOAT2( (mCharacters[l].w * scale), (mCharacters[l].h * scale) ), color );
 		}
 	
 		xOffset += ( mCharacters[l].w + X_OFFSET ) * scale;
@@ -85,7 +85,7 @@ void Font::Initialize( std::string path )
 
 	for( auto& it : UPPER_CASE )
 	{
-		std::string fullPath = path + "Upper case/" + it.name + ".png";
+		std::string fullPath = path + "Upper case/" + it.name + ".dds";
 		Graphics::GetInstance()->LoadStatic2dAsset( fullPath, it.asset );
 		mCharacters[it.name] = it;
 	}
@@ -122,7 +122,7 @@ void Font::Initialize( std::string path )
 
 	for( auto& it : LOWER_CASE )
 	{
-		std::string fullPath = path + "Lower case/" + it.name + ".png";
+		std::string fullPath = path + "Lower case/" + it.name + ".dds";
 		Graphics::GetInstance()->LoadStatic2dAsset( fullPath, it.asset );
 		mCharacters[it.name] = it;
 	}
@@ -143,7 +143,7 @@ void Font::Initialize( std::string path )
 
 	for( auto& it : NUMBERS )
 	{
-		std::string fullPath = path + "Numbers/" + it.name + ".png";
+		std::string fullPath = path + "Numbers/" + it.name + ".dds";
 		Graphics::GetInstance()->LoadStatic2dAsset( fullPath, it.asset );
 		mCharacters[it.name] = it;
 	}
@@ -158,7 +158,7 @@ void Font::Initialize( std::string path )
 
 	for( auto& it : SYMBOLS )
 	{
-		std::string fullPath = path + "Symbols/" + it.name + ".png";
+		std::string fullPath = path + "Symbols/" + it.name + ".dds";
 		Graphics::GetInstance()->LoadStatic2dAsset( fullPath, it.asset );
 		mCharacters[it.name] = it;
 	}

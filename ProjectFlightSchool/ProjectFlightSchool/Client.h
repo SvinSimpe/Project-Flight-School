@@ -140,7 +140,7 @@ void Client::HandlePkg( Package<T>* p )
 		case Net_Event::EV_ENEMY_UPDATE_POSITION:
 		{
 			EvUpdateEnemyPosition enemy = (EvUpdateEnemyPosition&)p->body.content;
-			IEventPtr E1( new Event_Update_Enemy_Position( enemy.ID, enemy.position, enemy.direction ) );
+			IEventPtr E1( new Event_Update_Enemy_Position( enemy.ID, enemy.position, enemy.direction, enemy.isAlive ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;
@@ -162,6 +162,34 @@ void Client::HandlePkg( Package<T>* p )
 		{
 			EvSetEnemyState state = (EvSetEnemyState&)p->body.content;
 			IEventPtr E1( new Event_Set_Remote_Enemy_State( state.ID, state.state ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
+		case Net_Event::EV_ENEMY_ATTACK_PLAYER:
+		{
+			EvEnemyAttackPlayer enemyAtk = (EvEnemyAttackPlayer&)p->body.content;
+			IEventPtr E1( new Event_Enemy_Attack_Player( enemyAtk.playerID, enemyAtk.damage ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
+		case Net_Event::EV_PLAYER_DOWN:
+		{
+			EvPlayerID remotePlayerDown = (EvPlayerID&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Down( remotePlayerDown.ID ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
+		case Net_Event::EV_PLAYER_UP:
+		{
+			EvPlayerID remotePlayerUp = (EvPlayerID&)p->body.content;
+			IEventPtr E1( new Event_Remote_Player_Up( remotePlayerUp.ID ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+			break;
+		case Net_Event::EV_PLAYER_REVIVE:
+		{
+			EvIDAndTime player = (EvIDAndTime&)p->body.content;
+			IEventPtr E1( new Event_Player_Revive( player.playerID, player.deltaTime ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;

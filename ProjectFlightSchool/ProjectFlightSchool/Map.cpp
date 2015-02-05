@@ -4,15 +4,6 @@
 
 HRESULT Map::Render( float deltaTime, Player* player )
 {
-	
-	//MapSection* mapNodes[20];
-	//int count = 0;
-	//mMapSection->GetSectionContainingUnit( mapNodes, count, player->GetBoundingBox() );
-
-	//for( int i = 0; i < count; i++ )
-	//{
-	//	mapNodes[i]->Render( deltaTime );
-	//}
 	for( int i = 0; i < (int)MapNodePlacer::GetInstance()->GetNrOfNodes(); i++ )
 	{
 		mNodes[i]->Render( deltaTime );
@@ -20,6 +11,36 @@ HRESULT Map::Render( float deltaTime, Player* player )
 
 	return S_OK;
 }
+void Map::OnLoadLevel( IEventPtr pEvent )
+{
+	if( Event_Load_Level::GUID == pEvent->GetEventType() )
+	{
+		std::shared_ptr<Event_Load_Level> dataPtr = std::static_pointer_cast<Event_Load_Level>( pEvent );
+
+		MapNodeManager::GetInstance()->LoadLevel( dataPtr->GetFileName() );
+
+		MapNodePlacer::GetInstance()->Reset();
+
+		MapNodePlacer::GetInstance()->BuildMap( mNodes );
+
+		if( mMapSection )
+		{
+			mMapSection->Release();
+			delete mMapSection;
+		}
+		mNrOfNodes = MapNodePlacer::GetInstance()->GetNrOfNodes();
+
+		mMapSection = new MapSection();
+
+		mMapSection->Initialize( this, nullptr, mNodes, 0 );
+
+		for( int i = 0; i < (int)mNrOfNodes; i++ )
+		{
+			mMapSection->AddNodeToSection( mNodes[i] );
+		}
+	}
+}
+
 UINT Map::GetMapDim() const
 {
 	return mMapDim ;//* SECTION_DIM;
@@ -48,28 +69,12 @@ HRESULT Map::Initialize( UINT mapDim )
 {
 	//Map size is mapDim* mapDim
 	mMapDim = mapDim;
-	MapNodeManager::GetInstance()->Initialize( "../Content/Assets/Nodes/test11.lp"  );
-
+	MapNodeManager::GetInstance()->Initialize();
 	MapNodePlacer::GetInstance()->Initialize( this );
-	MapNodePlacer::GetInstance()->BuildMap( mNodes );
-	mNrOfNodes = MapNodePlacer::GetInstance()->GetNrOfNodes();
+
+	EventManager::GetInstance()->AddListener( &Map::OnLoadLevel, this, Event_Load_Level::GUID );
+	//MapNodeManager::GetInstance()->CreateNode( "../Content/Assets/Nodes/testTile.lp" );
 	
-	//MapSection::SetUpIndices();
-
-	mMapSection = new MapSection();
-
-	mMapSection->Initialize( this, nullptr, mNodes, 0 );
-
-	for( int i = 0; i < (int)mNrOfNodes; i++ )
-	{
-		mMapSection->AddNodeToSection( mNodes[i] );
-	}
-	//for( UINT i = 0; i < mMapDim * mMapDim; i++ )
-	//{
-	//	
-	//	mMapSections[i].Initialize( i, mVertexSpacing, mMapDim );
-	//}
-
 	return S_OK;
 }
 void Map::Release()
@@ -79,7 +84,6 @@ void Map::Release()
 
 	MapNodePlacer::GetInstance()->Release();
 	MapNodeManager::GetInstance()->Release();
-
 }
 Map::Map()
 {

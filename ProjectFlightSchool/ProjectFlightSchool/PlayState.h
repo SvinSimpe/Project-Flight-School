@@ -1,6 +1,7 @@
 #ifndef PLAYSTATE_H
 #define PLAYSTATE_H
 
+#include <sstream>
 #include "Map.h"
 #include "BaseState.h"
 #include "Player.h"
@@ -14,9 +15,9 @@
 #include "RemoteEnemy.h"
 #include "EnemyAnimationManager.h"
 #include "Gui.h"
-//Test
 #include "ParticleManager.h"
 #include "SoundBufferHandler.h"
+
 
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
@@ -26,8 +27,6 @@ class PlayState : public BaseState
 {
 	// Class members
 	private:
-		AssetID mPlaneAsset;
-
 		AnimationTrack mTestAnimation;
 
 		AssetID mTest2dAsset;
@@ -56,8 +55,6 @@ class PlayState : public BaseState
 		RemoteEnemy**				mEnemies;
 		XMFLOAT3*					mSpawners;
 		AssetID						mSpawnModel;
-		unsigned int				mNrOfEnemies;
-		unsigned int				mMaxNrOfEnemies;
 		bool						mEnemyListSynced;
 		bool						mServerInitialized;
 
@@ -77,7 +74,7 @@ class PlayState : public BaseState
 	private:
 		void			SetEnemyState( unsigned int id, EnemyState state );
 		void			SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction );
-		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction );
+		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive );
 		void			SyncSpawn( unsigned int id, XMFLOAT3 position );
 		void			RemoteUpdate( IEventPtr newEvent );
 		void			HandleDeveloperCameraInput();
@@ -87,7 +84,7 @@ class PlayState : public BaseState
 		void			EventListener( IEventPtr newEvent );
 		void			BroadcastDamage( unsigned int playerID, unsigned int projectileID );						// Tell server that local  player has taken damage
 		void			BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction );
-
+		void			BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage );
 		void			FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction );
 		void			UpdateProjectiles( float deltaTime );
 		void			RenderProjectiles();

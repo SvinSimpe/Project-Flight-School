@@ -123,27 +123,35 @@ void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 	mDeviceContext->OMSetDepthStencilState( mDepthEnabledStencilState, 1 );
 }
 
-void Graphics::Render2dAsset( AssetID assetId, float x, float y, float width, float height )
+void Graphics::Render2dAsset( Object2dInfo* info, UINT sizeOfList )
 {
 	UINT32 vertexSize	= sizeof(StaticVertex);
 	UINT32 offset		= 0;
 
-	float left		= ( ( x / (float)mScreenWidth ) * 2.0f ) - 1.0f;
-	float right		= ( ( ( x + width ) / (float)mScreenWidth ) * 2.0f ) - 1.0f;
-	float bottom	= ( ( ( y + height ) / (float)mScreenHeight ) * -2.0f ) + 1.0f;
-	float top		= ( ( y / (float)mScreenHeight ) * -2.0f ) + 1.0f;
+	for( UINT i = 0; i < sizeOfList; i++ )
+	{
+		float left		= ( ( info[i].mTopLeftCorner.x / (float)mScreenWidth ) * 2.0f ) - 1.0f;
+		float right		= ( ( ( info[i].mTopLeftCorner.x + info[i].mWidthHeight.x ) / (float)mScreenWidth ) * 2.0f ) - 1.0f;
+		float bottom	= ( ( ( info[i].mTopLeftCorner.y + info[i].mWidthHeight.y ) / (float)mScreenHeight ) * -2.0f ) + 1.0f;
+		float top		= ( ( info[i].mTopLeftCorner.y / (float)mScreenHeight ) * -2.0f ) + 1.0f;
 
-	StaticVertex bottomleft		= { left, bottom, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f };
-	StaticVertex topleft		= { left, top, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 0.0f };
-	StaticVertex bottomright	= { right, bottom, 0.0f,	0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	1.0f, 1.0f };
-	StaticVertex topright		= { right, top, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	1.0f, 0.0f };
+		StaticVertex bottomleft		= { left, bottom, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f };
+		StaticVertex topleft		= { left, top, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 0.0f };
+		StaticVertex bottomright	= { right, bottom, 0.0f,	0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	1.0f, 1.0f };
+		StaticVertex topright		= { right, top, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	1.0f, 0.0f };
 
-	StaticVertex vertices[4] = { bottomleft, topleft, bottomright, topright };
-	MapBuffer( mBuffers[BUFFERS_2D], &vertices, sizeof(StaticVertex) * 4 );
-	mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_2D], &vertexSize, &offset );
+		StaticVertex vertices[4] = { bottomleft, topleft, bottomright, topright };
+		MapBuffer( mBuffers[BUFFERS_2D], &vertices, sizeof(StaticVertex) * 4 );
+		mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_2D], &vertexSize, &offset );
 
-	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[assetId] )->mSRV );
-	mDeviceContext->Draw( 4, 0 );
+		CbufferPerObject2D cbuff;
+		cbuff.color = info[i].mColor;
+		MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT_2D], &cbuff, sizeof( CbufferPerObject2D ) );
+		mDeviceContext->PSSetConstantBuffers( 0, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT_2D] );
+
+		mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[info[i].mAssetId] )->mSRV );
+		mDeviceContext->Draw( 4, 0 );
+	}
 }
 
 void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX::XMFLOAT3 y )
@@ -363,6 +371,8 @@ void Graphics::RenderBillboard( BillboardInfo* info, UINT sizeOfList )
 	UINT currAssetID = (UINT)-1;
 	UINT strider = 0;
 
+
+
 	while( true )
 	{
 		objectToRender = 0;
@@ -413,6 +423,84 @@ void Graphics::RenderBillboard( BillboardInfo* info, UINT sizeOfList )
 	}
 }
 
+void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
+{
+	//////////////////////////////////////////////////////////////////
+	//						RENDER CALL
+	//////////////////////////////////////////////////////////////////
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_POINTLIST );
+	
+	mDeviceContext->OMSetBlendState( mBlendState[BLEND_2D], 0, 0xFFFFFFFF );
+
+	UINT32 vertexSize[2]			= { sizeof( Vertex12 ), sizeof( ParticleVertex16 ) };
+	UINT32 offset[2]				= { 0, 0 };
+	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_MUZZLEFLASH]->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mEffects[EFFECTS_MUZZLEFLASH]->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( mEffects[EFFECTS_MUZZLEFLASH]->GetGeometryShader(), nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffects[EFFECTS_MUZZLEFLASH]->GetPixelShader(), nullptr, 0 );
+
+	mDeviceContext->GSSetConstantBuffers( 0, 1, &mBuffers[BUFFERS_CBUFFER_PER_FRAME] );
+
+	UINT objectToRender = 0;
+	UINT currAssetID = (UINT)-1;
+	UINT strider = 0;
+
+	UINT offsetToParticleType = 0;
+
+	while( true )
+	{
+		objectToRender = 0;
+		currAssetID = (UINT)-1;
+		for( UINT i = strider; i < sizeOfList; i++ )
+		{
+
+			if( i == offsetToParticleType )
+			{
+				currAssetID				= info[i].mAssetId;
+				offsetToParticleType	= info[i].mOffsetToNextParticleType;
+			}
+
+
+			if( i < offsetToParticleType )
+			{
+				mParticleInstanced[objectToRender].position[0]  = info[i].mWorldPosition.x;
+				mParticleInstanced[objectToRender].position[1]  = info[i].mWorldPosition.y;
+				mParticleInstanced[objectToRender].position[2]  = info[i].mWorldPosition.z;
+
+				mParticleInstanced[objectToRender].lifeTime		= info[i].mLifeTime;
+
+
+				objectToRender++;
+				strider++;
+				if( objectToRender == MAX_BILLBOARD_BATCH )
+				{
+					break;
+				}
+			}
+		}
+	
+		
+		if( objectToRender > 0 )
+		{
+			//////////////////////////////////////////////////////////////////
+			//						RENDER CALL
+			//////////////////////////////////////////////////////////////////
+			ID3D11ShaderResourceView* texturesToSet[] = { ( (Static2dAsset*)mAssetManager->mAssetContainer[currAssetID] )->mSRV };
+
+			mDeviceContext->PSSetShaderResources( 0, 1, texturesToSet );
+
+			MapBuffer( mBuffers[BUFFERS_PARTICLE], mParticleInstanced, ( sizeof( ParticleVertex16 ) * objectToRender ) );
+			ID3D11Buffer* buffersToSet[2] = { mBuffers[BUFFERS_SINGLE_VERTEX], mBuffers[BUFFERS_PARTICLE] };
+			mDeviceContext->IASetVertexBuffers( 0, 2, buffersToSet, vertexSize, offset );
+			mDeviceContext->DrawInstanced( 1, objectToRender, 0, 0 );
+		}
+		else break;
+	}
+}
+
 void Graphics::RenderNodeGrid( NodeGridInfo* info, UINT sizeOfList )
 {
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
@@ -441,6 +529,7 @@ void Graphics::RenderNodeGrid( NodeGridInfo* info, UINT sizeOfList )
 		mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[NORMAL_PLACEHOLDER] )->mSRV );
 		mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
 		mDeviceContext->Draw( info[i].mNrOfVertices, 0 );
+
 	}
 }
 
@@ -618,11 +707,14 @@ void Graphics::SetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatr
 void Graphics::SetEyePosition( DirectX::XMFLOAT3 &eyePosition )
 {
 	mCamera[CAMERAS_MAIN]->SetEyePosition( eyePosition );
+	DirectX::XMFLOAT4 camPos = mCamera[CAMERAS_DEV]->GetPos();
+	mCamera[CAMERAS_DEV]->SetEyePosition( DirectX::XMFLOAT3(  eyePosition.x, camPos.y,  eyePosition.z ) );
 }
 
 void Graphics::SetFocus( DirectX::XMFLOAT3 &focusPoint )
 {
 	mCamera[CAMERAS_MAIN]->SetFocus( focusPoint );
+	mCamera[CAMERAS_DEV]->SetFocus( focusPoint );
 }
 
 //Clear canvas and prepare for rendering.
@@ -1159,6 +1251,14 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 		return hr;
 
 	///////////////////////////////////////
+	// CREATE CBUFFERPEROBJECT2D
+	///////////////////////////////////////
+	bufferDesc.ByteWidth = sizeof( CbufferPerObject2D );
+
+	if( FAILED( hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT_2D] ) ) )
+		return hr;
+
+	///////////////////////////////////////
 	// CREATE CBUFFERPEROBJECTANIMATED
 	///////////////////////////////////////
 	bufferDesc.ByteWidth = sizeof( CbufferPerObjectAnimated );
@@ -1211,6 +1311,20 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	test.pSysMem = &gv;
 
 	if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, &test, &mBuffers[BUFFERS_SINGLE_VERTEX] ) ) )
+		return hr;
+
+
+	//Billboard buffer instanced
+	bufferInstancedDesc.ByteWidth = sizeof( ParticleVertex16 ) * MAX_BILLBOARD_BATCH;
+
+	//Single vertex buffer used for billboarding
+	bufferInstancedDesc.BindFlags			= D3D11_BIND_VERTEX_BUFFER;
+	bufferInstancedDesc.CPUAccessFlags		= D3D11_CPU_ACCESS_WRITE;
+	bufferInstancedDesc.Usage				= D3D11_USAGE_DYNAMIC;
+	bufferInstancedDesc.MiscFlags			= 0;
+	bufferInstancedDesc.StructureByteStride	= 0;
+
+	if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, nullptr, &mBuffers[BUFFERS_PARTICLE] ) ) )
 		return hr;
 
 	//Single vertex buffer used for nodeGrid
@@ -1374,6 +1488,15 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	effectInfo.isGeometryShaderIncluded = true;
 
 	if( FAILED( hr = mEffects[EFFECTS_BILLBOARD]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+
+	//Muzzle Flash effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/MuzzleFlashEffect.hlsl";
+	effectInfo.fileName					= "MuzzleFlashEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_MUZZLEFLASH]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 	//--------------------------
 

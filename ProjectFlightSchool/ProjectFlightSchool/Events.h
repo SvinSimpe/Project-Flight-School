@@ -1050,6 +1050,7 @@ class Event_Update_Enemy_Position : public IEvent
 		unsigned int	mID;
 		XMFLOAT3		mPosition;
 		XMFLOAT3		mDirection;
+		bool			mIsAlive;
 	protected:
 	public:
 		static const EventType GUID;
@@ -1061,11 +1062,12 @@ class Event_Update_Enemy_Position : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Update_Enemy_Position( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction )
+		Event_Update_Enemy_Position( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive )
 		{
 			mID			= id;
 			mPosition	= position;
 			mDirection	= direction;
+			mIsAlive	= isAlive;
 		}
 
 		unsigned int ID() const
@@ -1081,6 +1083,11 @@ class Event_Update_Enemy_Position : public IEvent
 		XMFLOAT3 Direction() const
 		{
 			return mDirection;
+		}
+
+		bool IsAlive() const
+		{
+			return mIsAlive;
 		}
 };
 		
@@ -1112,18 +1119,16 @@ class Event_Remove_Point_Light : public IEvent
 			return mLight;
 		}
 };
-
 class Event_Sync_Enemy_Type : public IEvent
 {
 	// Member variables
 	private:
 		unsigned int	mID;
 		unsigned int	mEnemyType;
-
 	protected:
 	public:
 		static const EventType GUID;
-		// Member functions
+
 	private:
 	protected:
 		const EventType& GetEventType( void ) const
@@ -1131,6 +1136,7 @@ class Event_Sync_Enemy_Type : public IEvent
 			return GUID;
 		}
 	public:
+
 	Event_Sync_Enemy_Type( unsigned int id, unsigned int enemyType )
 		{
 			mID				= id;
@@ -1143,6 +1149,32 @@ class Event_Sync_Enemy_Type : public IEvent
 		unsigned int Type() const
 		{
 			return mEnemyType;
+		}
+};
+
+class Event_Load_Level : public IEvent
+{
+	// Member variables
+	private:
+		std::string mFilePath;
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Load_Level( std::string filePath )
+		{
+			mFilePath = filePath;
+		}
+		std::string GetFileName()
+		{
+			return mFilePath;
 		}
 };
 
@@ -1164,7 +1196,7 @@ class Event_Sync_Enemy_State : public IEvent
 			return GUID;
 		}
 	public:
-	Event_Sync_Enemy_State( unsigned int id, unsigned int state )
+		Event_Sync_Enemy_State( unsigned int id, unsigned int state )
 		{
 			mID				= id;
 			mState			= state;
@@ -1242,5 +1274,294 @@ class Event_Set_Remote_Enemy_State : public IEvent // Client side
 		unsigned int State() const
 		{
 			return mState;
+		}
+};
+
+class Event_Projectile_Damage_Enemy : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mShooterID;
+		unsigned int	mProjectileID;
+		unsigned int	mEnemyID;
+		float			mDamage;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Projectile_Damage_Enemy( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage )
+		{
+			mShooterID		= shooterID;
+			mProjectileID	= projectileID;
+			mEnemyID		= enemyID;
+			mDamage			= damage;
+		}
+		unsigned int Shooter() const
+		{
+			return mShooterID;
+		}
+		unsigned int Projectile() const
+		{
+			return mProjectileID;
+		}
+		unsigned int Enemy() const
+		{
+			return mEnemyID;
+		}
+		float Damage() const
+		{
+			return mDamage;
+		}
+};
+
+class Event_Enemy_Died : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mEnemyID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Enemy_Died( unsigned int enemyID )
+		{
+			mEnemyID		= enemyID;
+		}
+		unsigned int Enemy() const
+		{
+			return mEnemyID;
+		}
+};
+
+class Event_Enemy_Attack_Player : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mPlayerID;	
+		float			mDamage;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Enemy_Attack_Player( unsigned int playerID, float damage )
+		{
+			mPlayerID	= playerID;
+			mDamage		= damage;
+		}
+		unsigned int Player() const
+		{
+			return mPlayerID;
+		}
+
+		float Damage() const
+		{
+			return mDamage;
+		}
+};
+
+class Event_Remote_Player_Down : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mPlayerID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Remote_Player_Down( unsigned int playerID )
+		{
+			mPlayerID	= playerID;
+		}
+		unsigned int Player() const
+		{
+			return mPlayerID;
+		}
+};
+
+class Event_Player_Down : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mPlayerID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Player_Down( unsigned int playerID )
+		{
+			mPlayerID	= playerID;
+		}
+		unsigned int Player() const
+		{
+			return mPlayerID;
+		}
+};
+
+class Event_Remote_Player_Up : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mPlayerID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Remote_Player_Up( unsigned int playerID )
+		{
+			mPlayerID	= playerID;
+		}
+		unsigned int Player() const
+		{
+			return mPlayerID;
+		}
+};
+
+class Event_Player_Up : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mPlayerID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Player_Up( unsigned int playerID )
+		{
+			mPlayerID	= playerID;
+		}
+		unsigned int Player() const
+		{
+			return mPlayerID;
+		}
+};
+
+class Event_Remote_Player_Revive : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mPlayerID;
+		float			mDeltaTime;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Remote_Player_Revive( unsigned int playerID, float deltaTime )
+		{
+			mPlayerID	= playerID;
+			mDeltaTime	= deltaTime;
+		}
+		unsigned int Player() const
+		{
+			return mPlayerID;
+		}
+		float DeltaTime() const
+		{
+			return mDeltaTime;
+		}
+};
+
+class Event_Player_Revive : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mPlayerID;
+		float			mDeltaTime;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Player_Revive( unsigned int playerID, float deltaTime )
+		{
+			mPlayerID	= playerID;
+			mDeltaTime	= deltaTime;
+		}
+		unsigned int Player() const
+		{
+			return mPlayerID;
+		}
+		float DeltaTime() const
+		{
+			return mDeltaTime;
 		}
 };

@@ -3,7 +3,7 @@
 
 #include <DirectXMath.h>
 
-#define MAX_AMOUNT_OF_OBJECT3D	5000
+#define MAX_AMOUNT_OF_OBJECT3D	10000
 #define MAX_AMOUNT_OF_OBJECT2D	5000
 #define MAX_AMOUNT_OF_ANIM3D	100
 #define MAX_AMOUNT_OF_PLANES	2000
@@ -28,7 +28,7 @@ struct Object2dInfo
 	UINT				mAssetId;
 	DirectX::XMFLOAT2	mTopLeftCorner;
 	DirectX::XMFLOAT2	mWidthHeight;
-
+	DirectX::XMFLOAT4	mColor;
 };
 
 struct BillboardInfo
@@ -39,11 +39,20 @@ struct BillboardInfo
 	float				mHeight;
 };
 
+struct ParticleInfo
+{
+	UINT				mAssetId;
+	UINT				mOffsetToNextParticleType;
+	DirectX::XMFLOAT3	mWorldPosition;
+	float				mLifeTime;
+};
+
 struct NodeGridInfo
 {
 	StaticVertex*		mVertices;
 	UINT				mNrOfVertices;
 	DirectX::XMFLOAT4X4	mWorld;
+
 };
 
 struct PlaneInfo
@@ -52,6 +61,7 @@ struct PlaneInfo
 	DirectX::XMFLOAT3	mTopTriangle;
 	DirectX::XMFLOAT3	mBottomTriangle;
 };
+
 struct BoxInfo
 {
 	DirectX::XMFLOAT3 min;

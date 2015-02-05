@@ -23,6 +23,15 @@ BoundingCircle* Ship::GetHitBox() const
 	return mHitBox;
 }
 
+float Ship::GetMaxHull() const
+{
+	return mMaxHull;
+}
+float Ship::GetCurrentHull() const
+{
+	return mCurrentHull;
+}
+
 void Ship::TakeDamage( float damage )
 {
 	mCurrentHull -= damage;

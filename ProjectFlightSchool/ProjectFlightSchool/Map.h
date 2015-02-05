@@ -27,6 +27,7 @@ class Map
 	public:
 		HRESULT Render( float deltaTime, Player* player );
 		void GenerateGrid();
+		void OnLoadLevel( IEventPtr E1 );
 
 		UINT GetMapDim() const;
 		UINT GetMapWidth() const;

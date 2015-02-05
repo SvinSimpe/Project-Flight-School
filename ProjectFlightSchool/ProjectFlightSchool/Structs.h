@@ -87,12 +87,33 @@ struct EvUpdateEnemyPosition
 	unsigned int		ID;
 	DirectX::XMFLOAT3	position;
 	DirectX::XMFLOAT3	direction;
+	bool				isAlive;
 };
 
 struct EvSetEnemyState
 {
 	unsigned int	ID;
 	unsigned int	state;
+};
+
+struct EvEnemyProjectileDamage
+{
+	unsigned int	shooterID;
+	unsigned int	projectileID;
+	unsigned int	enemyID;
+	float			damage;
+};
+
+struct EvEnemyAttackPlayer
+{
+	unsigned int playerID;
+	float		 damage;
+};
+
+struct EvIDAndTime
+{
+	unsigned int playerID;
+	float		 deltaTime;
 };
 
 #endif

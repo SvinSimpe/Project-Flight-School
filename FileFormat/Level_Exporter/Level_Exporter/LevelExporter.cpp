@@ -209,6 +209,7 @@ bool LevelExporter::ExtractCurrentSceneRawData()
 				{
 					if (!ExtractNavMesh(mesh))
 					{
+
 						errorMsg.push_back("Error NavMeshData" + string(mesh.name().asChar()));
 						return false;
 					}

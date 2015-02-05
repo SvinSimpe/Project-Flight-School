@@ -264,13 +264,13 @@ void PlayState::RenderProjectiles()
 void PlayState::HandleDeveloperCameraInput()
 {
 	// TOGGLE CAM
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_RCTRL ) )
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_RCTRL ) )
 		Graphics::GetInstance()->ChangeCamera();
 	// ZOOM IN
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_DOWN ) )
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_DOWN ) )
 		Graphics::GetInstance()->ZoomOutDeveloperCamera();
 	// ZOOM OUT
-	if( Input::GetInstance()->mCurrentFrame.at( KEYS::KEYS_UP) )
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_UP) )
 		Graphics::GetInstance()->ZoomInDeveloperCamera();
 }
 

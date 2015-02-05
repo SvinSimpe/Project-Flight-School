@@ -59,7 +59,6 @@ BoundingBox MapNodeInstance::GetBoundingBox()
 }
 HRESULT	MapNodeInstance::Initialize()
 {
-	mRotation = 0;
 	return S_OK;
 }
 void MapNodeInstance::Release()
@@ -71,7 +70,6 @@ MapNodeInstance::MapNodeInstance()
 	mPos		= XMFLOAT3( 0, 0, 0 );
 	mOrigin		= XMFLOAT3( 0, 0, 0 );
 	mInstanceID	= -1;
-	mRotation	= 0;
 }
 MapNodeInstance::~MapNodeInstance()
 {

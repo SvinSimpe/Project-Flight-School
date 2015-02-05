@@ -2,7 +2,7 @@
 
 void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
 {
-	if( Input::GetInstance()->mCurrentFrame.at(KEYS::KEYS_SPACE) )
+	if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_SPACE) )
 	{
 		for( auto rp : remotePlayers )
 		{

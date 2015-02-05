@@ -15,11 +15,11 @@ class ParticleManager
 {
 	private:
 		ParticleSystem***	mParticleSystems;
-		size_t				mNrOfParticleSystems;
-		size_t				mNrOfActiveParticleSystems;
-		size_t*				mNrOfParticleSystemsPerType;
-		size_t*				mMaxNrOfParticleSystemsPerType;
-		size_t*				mNrOfActiveParticleSystemsPerType;
+		int					mNrOfParticleSystems;
+		int					mNrOfActiveParticleSystems;
+		int*				mNrOfParticleSystemsPerType;
+		int*				mMaxNrOfParticleSystemsPerType;
+		int*				mNrOfActiveParticleSystemsPerType;
 		
 
 	public:

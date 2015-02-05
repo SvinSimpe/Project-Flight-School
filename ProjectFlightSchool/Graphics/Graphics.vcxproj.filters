@@ -187,5 +187,10 @@
     <Text Include="..\Content\Effects\Particle Effects\MuzzleFlashEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
+
+    <Text Include="..\Content\Effects\NodeGridEffect.hlsl">
+      <Filter>Effects</Filter>
+    </Text>
+    
   </ItemGroup>
 </Project>

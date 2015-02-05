@@ -15,6 +15,7 @@ void RenderManager::Clear()
 	mNrOfPlane		= 0;
 	mNrOfBillboard	= 0;
 	mNrOfParticles	= 0;
+	mNrOfNodeGrid	= 0;
 	mNrOfBoxes		= 0;
 }
 
@@ -39,6 +40,7 @@ void RenderManager::AddObject3dToList( AssetID assetId, DirectX::XMFLOAT3 positi
 	
 	mObject3dArray[mNrOfObject3d++] = info;
 }
+
 void RenderManager::AddObject3dToList( AssetID assetId, DirectX::XMFLOAT4X4 world )
 {
 	Object3dInfo info;
@@ -48,6 +50,7 @@ void RenderManager::AddObject3dToList( AssetID assetId, DirectX::XMFLOAT4X4 worl
 
 	mObject3dArray[mNrOfObject3d++] = info;
 }
+
 void RenderManager::AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLeftCorner, DirectX::XMFLOAT2 widthHeight )
 {
 	Object2dInfo info;
@@ -57,6 +60,7 @@ void RenderManager::AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLef
 
 	mObject2dArray[mNrOfObject2d++] = info;
 }
+
 void RenderManager::AddBoxToList( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 {
 	BoxInfo info;
@@ -64,10 +68,11 @@ void RenderManager::AddBoxToList( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 	info.max = max;
 	mBoxArray[mNrOfBoxes++] = info;
 }
+
 bool RenderManager::AddAnim3dToList( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation )
 {
     static Anim3dInfo info;
-	info.mModelId	= animTrack.mModelID;
+	info.mModelId = animTrack.mModelID;
 
 	bool localReturn = Graphics::GetInstance()->GetAnimationMatrices( animTrack, playType, position, rotation, info ); 
 
@@ -97,17 +102,17 @@ void RenderManager::AddBillboardToList( AssetID assetId, DirectX::XMFLOAT3 world
 	mBillboardArray[mNrOfBillboard++] = info;
 }
 
-void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, size_t* nrOfActiveParticleSystemsPerType  )
+void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, int* nrOfActiveParticleSystemsPerType  )
 {
 	ParticleInfo info;
 	UINT offset = 0;
-	for ( size_t i = 0; i < NR_OF_PARTICLE_TYPES; i++ )
+	for ( int i = 0; i < NR_OF_PARTICLE_TYPES; i++ )
 	{
 		// Set AssetID per Particle Type
 		info.mAssetId = particleSystem[i][0]->assetID;
 
 		// Calculate offset per Particle Type
-		for (size_t l = 0; l < nrOfActiveParticleSystemsPerType[i]; l++)
+		for ( int l = 0; l < nrOfActiveParticleSystemsPerType[i]; l++ )
 		{
 			offset += particleSystem[i][l]->nrOfParticlesAlive;
 		}
@@ -116,10 +121,10 @@ void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, s
 		info.mOffsetToNextParticleType = offset;
 
 		// Fill Array with Particle Info
-		for (size_t j = 0; j < nrOfActiveParticleSystemsPerType[i]; j++)
+		for ( int j = 0; j < nrOfActiveParticleSystemsPerType[i]; j++ )
 		{
 
-			for (size_t k = 0; k < particleSystem[i][j]->nrOfParticlesAlive; k++)
+			for ( int k = 0; k < particleSystem[i][j]->nrOfParticlesAlive; k++ )
 			{
 				info.mWorldPosition.x	= particleSystem[i][j]->xPosition[k];
 				info.mWorldPosition.y	= particleSystem[i][j]->yPosition[k];
@@ -131,6 +136,16 @@ void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, s
 			}
 		}
 	}	
+}
+
+void RenderManager::AddNodeGridToList( StaticVertex* vertices, UINT nrOfVertices, DirectX::XMFLOAT4X4 world )
+{
+	NodeGridInfo info;
+	info.mVertices		= vertices;
+	info.mNrOfVertices	= nrOfVertices;
+	DirectX::XMStoreFloat4x4( &info.mWorld, ( DirectX::XMMatrixTranspose( XMLoadFloat4x4( &world ) ) ) );
+
+	mNodeGridArray[mNrOfNodeGrid++] = info;
 }
 
 void RenderManager::AnimationInitialize( AnimationTrack &animationTrack, AssetID model, AssetID defaultAnimation )
@@ -185,40 +200,44 @@ HRESULT RenderManager::Render()
 	//------------------------Fill the Gbuffers with data----------------------
 	Graphics::GetInstance()->RenderStatic3dAsset( mObject3dArray, mNrOfObject3d );
 
+	Graphics::GetInstance()->RenderNodeGrid( mNodeGridArray, mNrOfNodeGrid );
+
 	for( UINT i = 0; i < mNrOfPlane; i++ )
 	{
 		Graphics::GetInstance()->RenderPlane2dAsset( mPlaneArray[i].mAssetId, mPlaneArray[i].mTopTriangle, mPlaneArray[i].mBottomTriangle );
 	}
+
 	for( UINT i = 0; i < mNrOfBoxes; i++ )
 	{
 		Graphics::GetInstance()->RenderDebugBox( mBoxArray[i].min, mBoxArray[i].max );
 	}
+
 	Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray, mNrOfAnim3d );
 	//------------------------Finished filling the Gbuffers----------------------
 
 	//Test data for billboarding
-	mBillboardArray[0].mWorldPosition = DirectX::XMFLOAT3( 3, 1, 0 );
+	mBillboardArray[0].mWorldPosition = DirectX::XMFLOAT3( 0, 0, 0 );
 	mBillboardArray[0].mAssetId = DIFFUSE_PLACEHOLDER;
 	mBillboardArray[0].mWidth = 2.3f;
 	mBillboardArray[0].mHeight = 1.3f;
-	mBillboardArray[1].mWorldPosition = DirectX::XMFLOAT3( 3, 1, 6 );
-	mBillboardArray[1].mAssetId = DIFFUSE_PLACEHOLDER;
-	mBillboardArray[2].mWorldPosition = DirectX::XMFLOAT3( -2, 1, -4 );
-	mBillboardArray[2].mAssetId = DIFFUSE_PLACEHOLDER;
-	mBillboardArray[3].mWorldPosition = DirectX::XMFLOAT3( 7, 1, 0 );
-	mBillboardArray[3].mAssetId = DIFFUSE_PLACEHOLDER;
-	mBillboardArray[4].mWorldPosition = DirectX::XMFLOAT3( 0, 1, 0 );
-	mBillboardArray[4].mAssetId = DIFFUSE_PLACEHOLDER;
-	mBillboardArray[5].mWorldPosition = DirectX::XMFLOAT3( -6, 1, 0 );
-	mBillboardArray[5].mAssetId = DIFFUSE_PLACEHOLDER;
+	//mBillboardArray[1].mWorldPosition = DirectX::XMFLOAT3( 3, 1, 6 );
+	//mBillboardArray[1].mAssetId = DIFFUSE_PLACEHOLDER;
+	//mBillboardArray[2].mWorldPosition = DirectX::XMFLOAT3( -2, 1, -4 );
+	//mBillboardArray[2].mAssetId = DIFFUSE_PLACEHOLDER;
+	//mBillboardArray[3].mWorldPosition = DirectX::XMFLOAT3( 7, 1, 0 );
+	//mBillboardArray[3].mAssetId = DIFFUSE_PLACEHOLDER;
+	//mBillboardArray[4].mWorldPosition = DirectX::XMFLOAT3( 0, 1, 0 );
+	//mBillboardArray[4].mAssetId = DIFFUSE_PLACEHOLDER;
+	//mBillboardArray[5].mWorldPosition = DirectX::XMFLOAT3( -6, 1, 0 );
+	//mBillboardArray[5].mAssetId = DIFFUSE_PLACEHOLDER;
 
-	for( int i = 1; i < 6; i++)
-	{
-		mBillboardArray[i].mHeight = 1.0f;
-		mBillboardArray[i].mWidth	= 1.0f;
-	}
+	//for( int i = 1; i < 6; i++)
+	//{
+	//	mBillboardArray[i].mHeight = 1.0f;
+	//	mBillboardArray[i].mWidth	= 1.0f;
+	//}
 	//---------------------------------------------------
-	Graphics::GetInstance()->RenderBillboard( mBillboardArray, 6 );
+	Graphics::GetInstance()->RenderBillboard( mBillboardArray, 1 );
 
 	Graphics::GetInstance()->RenderParticleSystems( mParticleInfoArray, mNrOfParticles );
 

@@ -180,6 +180,9 @@
     <Text Include="..\Content\Effects\Particle Effects\MuzzleFlashEffect.hlsl">
       <FileType>Document</FileType>
     </Text>
+    <Text Include="..\Content\Effects\NodeGridEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

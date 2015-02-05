@@ -3,11 +3,12 @@
 
 #include <DirectXMath.h>
 
-static const UINT MAX_AMOUNT_OF_OBJECT3D	= 5000;
-static const UINT MAX_AMOUNT_OF_OBJECT2D	= 5000;
-static const UINT MAX_AMOUNT_OF_ANIM3D		= 100;
-static const UINT MAX_AMOUNT_OF_PLANES		= 2000;
-static const UINT MAX_AMOUNT_OF_BOXES		= 2000;
+#define MAX_AMOUNT_OF_OBJECT3D	5000
+#define MAX_AMOUNT_OF_OBJECT2D	5000
+#define MAX_AMOUNT_OF_ANIM3D	100
+#define MAX_AMOUNT_OF_PLANES	2000
+#define MAX_AMOUNT_OF_BOXES		2000
+#define MAX_AMOUNT_OF_NODEGRIDS	500
 
 struct Object3dInfo
 {
@@ -44,6 +45,14 @@ struct ParticleInfo
 	UINT				mOffsetToNextParticleType;
 	DirectX::XMFLOAT3	mWorldPosition;
 	float				mLifeTime;
+};
+
+struct NodeGridInfo
+{
+	StaticVertex*		mVertices;
+	UINT				mNrOfVertices;
+	DirectX::XMFLOAT4X4	mWorld;
+
 };
 
 struct PlaneInfo

@@ -8,9 +8,9 @@
 
 void ParticleManager::Update( float deltaTime )
 {
-	for ( size_t i = 0; i < NR_OF_PARTICLE_TYPES; i++ )
+	for ( int i = 0; i < NR_OF_PARTICLE_TYPES; i++ )
 	{
-		for (size_t j = 0; j < mNrOfActiveParticleSystemsPerType[i]; j++)
+		for ( int j = 0; j < mNrOfActiveParticleSystemsPerType[i]; j++ )
 		{
 			mParticleSystems[i][j]->Update( deltaTime );
 		}
@@ -20,7 +20,6 @@ void ParticleManager::Update( float deltaTime )
 void ParticleManager::Render( float deltaTime )
 {
 	RenderManager::GetInstance()->AddParticleSystemToList( mParticleSystems, mNrOfActiveParticleSystemsPerType );
-
 }
 
 bool ParticleManager::RequestParticleSystem( size_t entityID, ParticleType particleType, XMFLOAT3 position, XMFLOAT3 direction )
@@ -38,7 +37,7 @@ bool ParticleManager::RequestParticleSystem( size_t entityID, ParticleType parti
 	}
 
 	// Check if entity already has a particle system of request type connected to it
-	for ( size_t i = 0; i < mNrOfActiveParticleSystemsPerType[particleType]; i++ )
+	for ( int i = 0; i < mNrOfActiveParticleSystemsPerType[particleType]; i++ )
 	{
 		if( mParticleSystems[particleType][i]->entityParentID == entityID )
 		{
@@ -62,9 +61,9 @@ bool ParticleManager::RequestParticleSystem( size_t entityID, ParticleType parti
 
 bool ParticleManager::DeactivateParticleSystem( size_t entityID, ParticleType particleType )
 {
-	for (size_t i = 0; i < mNrOfActiveParticleSystemsPerType[particleType]; i++)
+	for ( int i = 0; i < mNrOfActiveParticleSystemsPerType[particleType]; i++ )
 	{
-		if( mParticleSystems[particleType][i]->isActive && mParticleSystems[particleType][i]->entityParentID == entityID )
+		if( mParticleSystems[particleType][i]->isEmitting && mParticleSystems[particleType][i]->entityParentID == entityID )
 		{
 			mParticleSystems[particleType][i]->Deactive();
 			mNrOfActiveParticleSystemsPerType[particleType]--;
@@ -79,9 +78,9 @@ void ParticleManager::Initialize()
 	// Function need to have nrOfPlayers to allocate Particle Systems for
 	// each muzzle flash and melee attack swing
 
-	mNrOfParticleSystemsPerType			= new size_t[NR_OF_PARTICLE_TYPES];
-	mMaxNrOfParticleSystemsPerType		= new size_t[NR_OF_PARTICLE_TYPES];
-	mNrOfActiveParticleSystemsPerType	= new size_t[NR_OF_PARTICLE_TYPES];
+	mNrOfParticleSystemsPerType			= new int[NR_OF_PARTICLE_TYPES];
+	mMaxNrOfParticleSystemsPerType		= new int[NR_OF_PARTICLE_TYPES];
+	mNrOfActiveParticleSystemsPerType	= new int[NR_OF_PARTICLE_TYPES];
 	
 	mNrOfParticleSystemsPerType[Smoke]			= 0;
 	mNrOfParticleSystemsPerType[Fire]			= 0;
@@ -103,10 +102,10 @@ void ParticleManager::Initialize()
 
 	//======= Allocate memory for Particle Systems =======
 	mParticleSystems = new ParticleSystem**[NR_OF_PARTICLE_TYPES];
-	for (size_t i = 0; i < NR_OF_PARTICLE_TYPES; i++)
+	for ( int i = 0; i < NR_OF_PARTICLE_TYPES; i++ )
 	{
 		mParticleSystems[i] = new ParticleSystem*[mMaxNrOfParticleSystemsPerType[i]];
-		for (size_t j = 0; j < mMaxNrOfParticleSystemsPerType[i]; j++)
+		for ( int j = 0; j < mMaxNrOfParticleSystemsPerType[i]; j++ )
 			mParticleSystems[i][j] = new ParticleSystem();
 	}
 
@@ -135,9 +134,9 @@ void ParticleManager::Initialize()
 	//mNrOfParticleSystemsPerType[Blood]++;
 	//mNrOfParticleSystems++;
 
-	for ( size_t i = 0; i < mMaxNrOfParticleSystemsPerType[MuzzleFlash]; i++ )
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[MuzzleFlash]; i++ )
 	{
-		mParticleSystems[MuzzleFlash][i]->Initialize( MuzzleFlash, 2.0f, 10000 );
+		mParticleSystems[MuzzleFlash][i]->Initialize( MuzzleFlash, 32.0f, 1000 );
 		mNrOfParticleSystemsPerType[MuzzleFlash]++;
 		mNrOfParticleSystems++;
 	}
@@ -145,9 +144,9 @@ void ParticleManager::Initialize()
 
 void ParticleManager::Release()
 {
-	for ( size_t i = 0; i < NR_OF_PARTICLE_TYPES; i++ )
+	for ( int i = 0; i < NR_OF_PARTICLE_TYPES; i++ )
 	{
-		for ( size_t j = 0; j < mMaxNrOfParticleSystemsPerType[i]; j++ )
+		for ( int j = 0; j < mMaxNrOfParticleSystemsPerType[i]; j++ )
 		{
 			SAFE_RELEASE_DELETE( mParticleSystems[i][j] );
 		}

@@ -13,19 +13,11 @@ class Game
 	private:
 		StateMachine*		mStateMachine;
 
-		std::thread			mClientThread;
-		std::thread			mServerThread;
-		Client*				mClient;
-		Server*				mServer;
-		bool				mServerIsActive;
-
 	protected:
 	public:
 
 		// Class functions
 	private:
-		void ServerInit( std::string port );
-		void ClientInit( std::string ip, std::string port );
 		void EventListener( IEventPtr newEvent );
 
 	protected:

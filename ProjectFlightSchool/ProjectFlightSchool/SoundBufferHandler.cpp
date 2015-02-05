@@ -64,7 +64,7 @@ void SoundBufferHandler::StopLoop3D( int SoundID )
 
 bool SoundBufferHandler::Initialize()
 {
-	EventManager::GetInstance()->AddListener( &SoundBufferHandler::EventListener, this, Event_Player_Update::GUID );
+	EventManager::GetInstance()->AddListener( &SoundBufferHandler::EventListener, this, Event_Client_Update::GUID );
 	bool result = SUCCEEDED( InitDevice() );
 	if ( result )
 	{
@@ -150,9 +150,9 @@ HRESULT SoundBufferHandler::InitDevice()
 
 void SoundBufferHandler::EventListener( IEventPtr newEvent )
 {
-	if (newEvent->GetEventType() == Event_Player_Update::GUID) // Add a remote player to the list when they connect
+	if (newEvent->GetEventType() == Event_Client_Update::GUID) // Add a remote player to the list when they connect
 	{
-		std::shared_ptr<Event_Player_Update> data = std::static_pointer_cast<Event_Player_Update>(newEvent);
+		std::shared_ptr<Event_Client_Update> data = std::static_pointer_cast<Event_Client_Update>(newEvent);
 		D3DVECTOR pos;
 		pos.x = data->LowerBodyPos().x;
 		pos.y = data->LowerBodyPos().y;

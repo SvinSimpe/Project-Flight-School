@@ -155,12 +155,11 @@ void Client::RemoteMeleeHit( IEventPtr eventPtr )
 	{
 		std::shared_ptr<Event_Remote_Melee_Hit> data = std::static_pointer_cast<Event_Remote_Melee_Hit>( eventPtr );
 		UINT id = data->ID();
-		UINT victim = data->VictimID();
 		float damage = data->Damage();
 		float knockBack = data->KnockBack();
 		XMFLOAT3 dir = data->Direction();
 
-		std::cout << "Remote with ID: " << id << " hit " << victim << " for " << damage << " damage with ";
+		std::cout << "Remote with ID: " << id << " damaged someone for " << damage << " damage with ";
 		std::cout << knockBack << " knockback, facing: (" << dir.x << ", " << dir.y << ", " << dir.z << ")" << std::endl; 
 	}
 }
@@ -305,17 +304,6 @@ void Client::SendEvent( IEventPtr eventPtr )
 
 void Client::Update( float deltaTime )
 {
-	if( mActive )
-	{
-		IEventPtr E1( PFS_NEW Event_Client_Down( mID ) );
-		SendEvent( E1 );
-
-		IEventPtr E2( PFS_NEW Event_Client_Attempt_Revive( 0, mID, 10.0f ) );
-		SendEvent( E2 );
-
-		IEventPtr E3( PFS_NEW Event_Client_Up( mID ) );
-		SendEvent( E3 );
-	}
 }
 
 void Client::DoSelect( int pauseMicroSecs, bool handleInput )
@@ -349,10 +337,12 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Client_Update_HP );
 	EF::REGISTER_EVENT( Event_Remote_Update_HP );
 	EF::REGISTER_EVENT( Event_Server_Create_Enemy );
+	EF::REGISTER_EVENT( Event_Server_Enemies_Created );
 	EF::REGISTER_EVENT( Event_Client_Melee_Hit );
 	EF::REGISTER_EVENT( Event_Remote_Melee_Hit );
 	EF::REGISTER_EVENT( Event_Client_Attack );
 	EF::REGISTER_EVENT( Event_Remote_Attack );
+	EF::REGISTER_EVENT( Event_Server_Sync_Spawn );
 	EF::REGISTER_EVENT( Event_Add_Point_Light );
 	EF::REGISTER_EVENT( Event_Remove_Point_Light );
 	EF::REGISTER_EVENT( Event_Server_Update_Enemy );
@@ -371,7 +361,11 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Remote_Up );
 	EF::REGISTER_EVENT( Event_Client_Attempt_Revive );
 	EF::REGISTER_EVENT( Event_Remote_Attempt_Revive );
-
+	EF::REGISTER_EVENT( Event_Initialize_Success );
+	EF::REGISTER_EVENT( Event_Initialize_Fail );
+	EF::REGISTER_EVENT( Event_Load_Level );
+	EF::REGISTER_EVENT( Event_Create_Player_Name );
+	
 	EventManager::GetInstance()->AddListener( &Client::LocalJoined, this, Event_Local_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteJoined, this, Event_Remote_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteLeft, this, Event_Remote_Left::GUID );

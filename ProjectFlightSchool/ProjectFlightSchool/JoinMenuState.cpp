@@ -11,8 +11,13 @@ void JoinMenuState::HandleInput()
 	{
 		std::string ip			= mIPBox.GetText();
 		std::string port		= mPortBox.GetText();
+
+		std::stringstream sstr;
+		sstr << port << " ";
+		UINT iPort;
+		sstr >> iPort;
 		 
-		IEventPtr E1( new Event_Start_Client( ip, port ) );
+		IEventPtr E1( new Event_Start_Client( ip, iPort ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 		IEventPtr E2( new Event_Create_Player_Name( mNameBox.GetText() ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
@@ -22,7 +27,12 @@ void JoinMenuState::HandleInput()
 		std::string ip		= "192.168.1.88";
 		std::string port	= mPortBox.GetText();
 
-		IEventPtr E1( new Event_Start_Client( ip, port ) );
+		std::stringstream sstr;
+		sstr << port << " ";
+		UINT iPort;
+		sstr >> iPort;
+
+		IEventPtr E1( new Event_Start_Client( ip, iPort ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 		IEventPtr E2( new Event_Create_Player_Name( mNameBox.GetText() ) );
 		EventManager::GetInstance()->QueueEvent( E2 );

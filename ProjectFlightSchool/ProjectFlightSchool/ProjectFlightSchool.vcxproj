@@ -91,6 +91,8 @@
   <ItemGroup>
     <ClCompile Include="EnemyAnimationManager.cpp" />
     <ClCompile Include="Gui.cpp" />
+    <ClCompile Include="Network.cpp" />
+    <ClCompile Include="PacketImpl.cpp" />
     <ClCompile Include="SoundBufferHandler.cpp" />
     <ClCompile Include="DS3DBuffer.cpp" />
     <ClCompile Include="DSBuffer.cpp" />
@@ -143,6 +145,9 @@
     <ClInclude Include="BaseState.h" />
     <ClInclude Include="BoundingGeometry.h" />
     <ClInclude Include="Gui.h" />
+    <ClInclude Include="IPacket.h" />
+    <ClInclude Include="Network.h" />
+    <ClInclude Include="PacketImpl.h" />
     <ClInclude Include="SoundBufferHandler.h" />
     <ClInclude Include="DS3DBuffer.h" />
     <ClInclude Include="DSBuffer.h" />
@@ -203,9 +208,7 @@
     <ClInclude Include="Input.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="Connection.h" />
-    <ClInclude Include="Package.h" />
     <ClInclude Include="Server.h" />
-    <ClInclude Include="Structs.h" />
     <ClInclude Include="EventManager.h" />
     <ClInclude Include="Events.h" />
     <ClInclude Include="IEventManager.h" />

@@ -66,7 +66,7 @@
     </Filter>
     <Filter Include="TinyXML\Source Files">
       <UniqueIdentifier>{d500dcaf-dda4-4429-9cb2-a000c439b982}</UniqueIdentifier>
-	</Filter>
+    </Filter>
     <Filter Include="DirectSound">
       <UniqueIdentifier>{4e89a911-104e-46c2-bc3f-2fae6889d70b}</UniqueIdentifier>
     </Filter>
@@ -218,7 +218,7 @@
     </ClCompile>
     <ClCompile Include="tinyxmlparser.cpp">
       <Filter>TinyXML\Source Files</Filter>
-	</ClCompile>
+    </ClCompile>
     <ClCompile Include="EnemySpawn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -252,6 +252,12 @@
     <ClCompile Include="Text.cpp">
       <Filter>GUI\Source</Filter>
     </ClCompile>
+    <ClCompile Include="Network.cpp">
+      <Filter>Network\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PacketImpl.cpp">
+      <Filter>Network\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
@@ -267,9 +273,6 @@
       <Filter>Network\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Connection.h">
-      <Filter>Network\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Package.h">
       <Filter>Network\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Server.h">
@@ -295,9 +298,6 @@
     </ClInclude>
     <ClInclude Include="RemotePlayer.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Structs.h">
-      <Filter>Network\Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Projectile.h">
       <Filter>Header Files</Filter>
@@ -397,7 +397,7 @@
     </ClInclude>
     <ClInclude Include="NodeTypes.h">
       <Filter>Worldmap\Header Files</Filter>
-	</ClInclude>
+    </ClInclude>
     <ClInclude Include="EnemySpawn.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -430,6 +430,15 @@
     </ClInclude>
     <ClInclude Include="Text.h">
       <Filter>GUI\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="IPacket.h">
+      <Filter>Network\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Network.h">
+      <Filter>Network\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketImpl.h">
+      <Filter>Network\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

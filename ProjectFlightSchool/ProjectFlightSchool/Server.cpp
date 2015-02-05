@@ -60,10 +60,11 @@ void Server::ClientUpdate( IEventPtr eventPtr )
 		XMFLOAT3 pos = data->LowerBodyPos();
 		XMFLOAT3 vel = data->Velocity();
 		XMFLOAT3 dir = data->UpperBodyDirection();
+		std::string name = data->Name();
 
 		std::cout << "Client with ID: " << id << " just updated." << std::endl;
 
-		IEventPtr E1( PFS_NEW Event_Remote_Update( id, pos, vel, dir ) );
+		IEventPtr E1( PFS_NEW Event_Remote_Update( id, pos, vel, dir, name ) );
 		BroadcastEvent( E1, id );
 	}
 }
@@ -115,13 +116,12 @@ void Server::ClientFiredProjectile( IEventPtr eventPtr )
 	{
 		std::shared_ptr<Event_Client_Fired_Projectile> data = std::static_pointer_cast<Event_Client_Fired_Projectile>( eventPtr );
 		UINT id = data->ID();
-		UINT projectileID = data->ProjectileID();
 		XMFLOAT3 pos = data->BodyPos();
 		XMFLOAT3 dir = data->Direction();
 
-		std::cout << "Client with ID: " << id << " just fired bullet: " << projectileID << " X-Pos: " << pos.x << " X-dir: " << dir.x << std::endl;
+		std::cout << "Client with ID: " << id << " just fired bullet a projectile at: X-Pos: " << pos.x << " X-dir: " << dir.x << std::endl;
 
-		IEventPtr E1( PFS_NEW Event_Remote_Fired_Projectile( id, projectileID, pos, dir ) );
+		IEventPtr E1( PFS_NEW Event_Remote_Fired_Projectile( id, 0, pos, dir ) );
 		BroadcastEvent( E1, id );
 	}
 }
@@ -158,15 +158,14 @@ void Server::ClientMeleeHit( IEventPtr eventPtr )
 	{
 		std::shared_ptr<Event_Client_Melee_Hit> data = std::static_pointer_cast<Event_Client_Melee_Hit>( eventPtr );
 		UINT id = data->ID();
-		UINT victim = data->VictimID();
 		float damage = data->Damage();
 		float knockBack = data->KnockBack();
 		XMFLOAT3 dir = data->Direction();
 
-		std::cout << "Remote with ID: " << id << " hit " << victim << " for " << damage << " with ";
+		std::cout << "Remote with ID: " << id << " hit something for " << damage << " with ";
 		std::cout << knockBack << " knockback, facing: (" << dir.x << ", " << dir.y << ", " << dir.z << ")" << std::endl;
 
-		IEventPtr E1( PFS_NEW Event_Remote_Melee_Hit( id, victim, damage, knockBack, dir ) );
+		IEventPtr E1( PFS_NEW Event_Remote_Melee_Hit( id, damage, knockBack, dir ) );
 		BroadcastEvent( E1, id );
 	}
 }

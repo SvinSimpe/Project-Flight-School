@@ -294,6 +294,7 @@ class Event_Client_Update : public IEvent
 		XMFLOAT3	mLowerBodyPos;
 		XMFLOAT3	mVelocity;
 		XMFLOAT3	mUpperBodyDirection;
+		std::string mName;
 	protected:
 	public:
 		static const EventType GUID;
@@ -307,13 +308,15 @@ class Event_Client_Update : public IEvent
 			mLowerBodyPos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mVelocity				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mUpperBodyDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mName					= "";
 		}
-		Event_Client_Update( UINT id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDir )
+		Event_Client_Update( UINT id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDir, std::string name )
 		{
 			mID						= id;
 			mLowerBodyPos			= lowerBodyPos;
 			mVelocity				= velocity;
 			mUpperBodyDirection		= upperBodyDir;
+			mName					= name;
 		}
 		~Event_Client_Update() {}
 		const EventType& GetEventType() const
@@ -335,6 +338,8 @@ class Event_Client_Update : public IEvent
 			out << mUpperBodyDirection.x << " ";
 			out << mUpperBodyDirection.y << " ";
 			out << mUpperBodyDirection.z << " ";
+
+			out << mName << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
@@ -351,10 +356,12 @@ class Event_Client_Update : public IEvent
 			in >> mUpperBodyDirection.x;
 			in >> mUpperBodyDirection.y;
 			in >> mUpperBodyDirection.z;
+
+			in >> mName;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Client_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection ) );
+			return IEventPtr( new Event_Client_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection, mName ) );
 		}
 		UINT ID() const
 		{
@@ -372,6 +379,10 @@ class Event_Client_Update : public IEvent
 		{
 			return mUpperBodyDirection;
 		}
+		std::string Name() const
+		{
+			return mName;
+		}
 };
 
 // Created and broadcasted to each remote client whenever a local update is sent to the server
@@ -382,6 +393,8 @@ class Event_Remote_Update : public IEvent
 		XMFLOAT3	mLowerBodyPos;
 		XMFLOAT3	mVelocity;
 		XMFLOAT3	mUpperBodyDirection;
+		std::string mName;
+
 	protected:
 	public:
 		static const EventType GUID;
@@ -395,13 +408,15 @@ class Event_Remote_Update : public IEvent
 			mLowerBodyPos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mVelocity				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mUpperBodyDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mName					= "";
 		}
-		Event_Remote_Update( UINT id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDir )
+		Event_Remote_Update( UINT id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDir, std::string name )
 		{
 			mID						= id;
 			mLowerBodyPos			= lowerBodyPos;
 			mVelocity				= velocity;
 			mUpperBodyDirection		= upperBodyDir;
+			mName					= name;
 		}
 		~Event_Remote_Update() {}
 		const EventType& GetEventType() const
@@ -423,6 +438,8 @@ class Event_Remote_Update : public IEvent
 			out << mUpperBodyDirection.x << " ";
 			out << mUpperBodyDirection.y << " ";
 			out << mUpperBodyDirection.z << " ";
+
+			out << mName << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
@@ -439,10 +456,12 @@ class Event_Remote_Update : public IEvent
 			in >> mUpperBodyDirection.x;
 			in >> mUpperBodyDirection.y;
 			in >> mUpperBodyDirection.z;
+
+			in >> mName;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Remote_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection ) );
+			return IEventPtr( new Event_Remote_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection, mName ) );
 		}
 		UINT ID() const
 		{
@@ -459,6 +478,10 @@ class Event_Remote_Update : public IEvent
 		XMFLOAT3 UpperBodyDirection() const
 		{
 			return mUpperBodyDirection;
+		}
+		std::string Name() const
+		{
+			return mName;
 		}
 };
 
@@ -968,7 +991,6 @@ class Event_Client_Fired_Projectile : public IEvent
 {
 	private:
 		UINT		mID;
-		UINT		mProjectileID;
 		XMFLOAT3	mBodyPos;
 		XMFLOAT3	mDirection;
 
@@ -982,14 +1004,12 @@ class Event_Client_Fired_Projectile : public IEvent
 		Event_Client_Fired_Projectile()
 		{
 			mID				= (UINT)-1;
-			mProjectileID	= (UINT)-1;
 			mBodyPos		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 		}
-		Event_Client_Fired_Projectile( UINT id, UINT projectileID, XMFLOAT3 bodyPos, XMFLOAT3 direction )
+		Event_Client_Fired_Projectile( UINT id, XMFLOAT3 bodyPos, XMFLOAT3 direction )
 		{
 			mID						= id;
-			mProjectileID			= projectileID;
 			mBodyPos				= bodyPos;
 			mDirection				= direction;
 		}
@@ -1002,8 +1022,6 @@ class Event_Client_Fired_Projectile : public IEvent
 		{
 			out << mID << " ";
 			
-			out << mProjectileID << " ";
-
 			out << mBodyPos.x << " ";
 			out << mBodyPos.y << " ";
 			out << mBodyPos.z << " ";
@@ -1016,8 +1034,6 @@ class Event_Client_Fired_Projectile : public IEvent
 		{
 			in >> mID;
 
-			in >> mProjectileID;
-
 			in >> mBodyPos.x;
 			in >> mBodyPos.y;
 			in >> mBodyPos.z;
@@ -1028,15 +1044,11 @@ class Event_Client_Fired_Projectile : public IEvent
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Client_Fired_Projectile( mID, mProjectileID, mBodyPos, mDirection ) );
+			return IEventPtr( new Event_Client_Fired_Projectile( mID, mBodyPos, mDirection ) );
 		}
 		UINT ID() const
 		{
 			return mID;
-		}
-		UINT ProjectileID() const
-		{
-			return mProjectileID;
 		}
 		XMFLOAT3 BodyPos() const
 		{
@@ -1331,12 +1343,42 @@ class Event_Server_Create_Enemy : public IEvent
 		}
 };
 
+// Sent from the server when all of the enemies has been created
+class Event_Server_Enemies_Created : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+	
+	private:
+	protected:
+	public:
+		Event_Server_Enemies_Created()
+		{
+		}
+		~Event_Server_Enemies_Created() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Enemies_Created() );
+		}
+};
+
 // This event is sent by a client who hits a remote client
 class Event_Client_Melee_Hit : public IEvent
 {
 	private:
 		UINT		mID;
-		UINT		mVictimID;
 		float		mDamage;
 		float		mKnockBack;
 		XMFLOAT3	mDirection;
@@ -1351,15 +1393,13 @@ class Event_Client_Melee_Hit : public IEvent
 		Event_Client_Melee_Hit()
 		{
 			mID			= (UINT)-1;
-			mVictimID	= (UINT)-1;
 			mDamage		= -1.0f;
 			mKnockBack	= -1.0f;
 			mDirection	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 		}
-		Event_Client_Melee_Hit( UINT id, UINT victimID, float damage, float knockBack, XMFLOAT3 direction )
+		Event_Client_Melee_Hit( UINT id, float damage, float knockBack, XMFLOAT3 direction )
 		{
 			mID			= id;
-			mVictimID	= victimID;
 			mDamage		= damage;
 			mKnockBack	= knockBack;
 			mDirection	= direction;
@@ -1372,7 +1412,6 @@ class Event_Client_Melee_Hit : public IEvent
 		void Serialize( std::ostringstream& out ) const
 		{
 			out << mID << " ";
-			out << mVictimID << " ";
 			out << mDamage << " ";
 			out << mKnockBack << " ";
 
@@ -1383,7 +1422,6 @@ class Event_Client_Melee_Hit : public IEvent
 		void Deserialize( std::istringstream& in )
 		{
 			in >> mID;
-			in >> mVictimID;
 			in >> mDamage;
 			in >> mKnockBack;
 
@@ -1393,15 +1431,11 @@ class Event_Client_Melee_Hit : public IEvent
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Client_Melee_Hit( mID, mVictimID, mDamage, mKnockBack, mDirection ) );
+			return IEventPtr( new Event_Client_Melee_Hit( mID, mDamage, mKnockBack, mDirection ) );
 		}
 		UINT ID() const
 		{
 			return mID;
-		}
-		UINT VictimID() const
-		{
-			return mVictimID;
 		}
 		float Damage() const
 		{
@@ -1422,7 +1456,6 @@ class Event_Remote_Melee_Hit : public IEvent
 {
 	private:
 		UINT		mID;
-		UINT		mVictimID;
 		float		mDamage;
 		float		mKnockBack;
 		XMFLOAT3	mDirection;
@@ -1437,15 +1470,13 @@ class Event_Remote_Melee_Hit : public IEvent
 		Event_Remote_Melee_Hit()
 		{
 			mID			= (UINT)-1;
-			mVictimID	= (UINT)-1;
 			mDamage		= -1.0f;
 			mKnockBack	= -1.0f;
 			mDirection	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 		}
-		Event_Remote_Melee_Hit( UINT id, UINT victimID, float damage, float knockBack, XMFLOAT3 direction )
+		Event_Remote_Melee_Hit( UINT id, float damage, float knockBack, XMFLOAT3 direction )
 		{
 			mID			= id;
-			mVictimID	= victimID;
 			mDamage		= damage;
 			mKnockBack	= knockBack;
 			mDirection	= direction;
@@ -1458,7 +1489,6 @@ class Event_Remote_Melee_Hit : public IEvent
 		void Serialize( std::ostringstream& out ) const
 		{
 			out << mID << " ";
-			out << mVictimID << " ";
 			out << mDamage << " ";
 			out << mKnockBack << " ";
 
@@ -1469,7 +1499,6 @@ class Event_Remote_Melee_Hit : public IEvent
 		void Deserialize( std::istringstream& in )
 		{
 			in >> mID;
-			in >> mVictimID;
 			in >> mDamage;
 			in >> mKnockBack;
 
@@ -1479,15 +1508,11 @@ class Event_Remote_Melee_Hit : public IEvent
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Remote_Melee_Hit( mID, mVictimID, mDamage, mKnockBack, mDirection ) );
+			return IEventPtr( new Event_Remote_Melee_Hit( mID, mDamage, mKnockBack, mDirection ) );
 		}
 		UINT ID() const
 		{
 			return mID;
-		}
-		UINT VictimID() const
-		{
-			return mVictimID;
 		}
 		float Damage() const
 		{
@@ -2487,5 +2512,160 @@ class Event_Remote_Attempt_Revive : public IEvent
 		float DeltaTime() const
 		{
 			return mDeltaTime;
+		}
+};
+
+// Event used when the server successfully initializes
+class Event_Initialize_Success : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+	
+	private:
+	protected:
+	public:
+		Event_Initialize_Success()
+		{
+		}
+		~Event_Initialize_Success() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Initialize_Success() );
+		}
+};
+
+// Event used when the server fails at initialization
+class Event_Initialize_Fail : public IEvent
+{
+	private:
+		std::string mMessage;
+	protected:
+	public:
+		static const EventType GUID;
+	
+	private:
+	protected:
+	public:
+		Event_Initialize_Fail()
+		{
+		}
+		Event_Initialize_Fail( std::string message )
+		{
+			mMessage = message;
+		}
+		~Event_Initialize_Fail() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mMessage << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mMessage;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Initialize_Fail( mMessage ) );
+		}
+		std::string Message() const
+		{
+			return mMessage;
+		}
+};
+
+// Not sure what this is for yet
+class Event_Load_Level : public IEvent
+{
+	private:
+		std::string mFilePath;
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Load_Level()
+		{
+		}
+		Event_Load_Level( std::string filePath )
+		{
+			mFilePath = filePath;
+		}
+		~Event_Load_Level() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mFilePath << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mFilePath;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Load_Level( mFilePath ) );
+		}
+		std::string FilePath() const
+		{
+			return mFilePath;
+		}
+};
+
+// Creates the player name? I guess..
+class Event_Create_Player_Name : public IEvent
+{
+	private:
+		std::string mPlayerName;
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Create_Player_Name()
+		{
+		}
+		Event_Create_Player_Name( std::string playerName )
+		{
+			mPlayerName = playerName;
+		}
+		~Event_Create_Player_Name() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mPlayerName << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mPlayerName;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Create_Player_Name( mPlayerName ) );
+		}
+		std::string PlayerName() const
+		{
+			return mPlayerName;
 		}
 };

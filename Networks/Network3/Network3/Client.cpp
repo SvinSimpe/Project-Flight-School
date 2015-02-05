@@ -111,6 +111,20 @@ void Client::RemoteSpawned( IEventPtr eventPtr )
 	}
 }
 
+void Client::RemoteFiredProjectile( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Fired_Projectile::GUID )
+	{
+		std::shared_ptr<Event_Remote_Fired_Projectile> data = std::static_pointer_cast<Event_Remote_Fired_Projectile>( eventPtr );
+		UINT id = data->ID();
+		UINT projectileID = data->ProjectileID();
+		XMFLOAT3 pos = data->BodyPos();
+		XMFLOAT3 dir = data->Direction();
+
+		std::cout << "Remote with ID: " << id << " just fired bullet: " << projectileID << " X-Pos: " << pos.x << " X-dir: " << dir.x << std::endl;
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -160,14 +174,15 @@ void Client::Update( float deltaTime )
 	{
 		//IEventPtr E1( PFS_NEW Event_Client_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection ) );
 		//IEventPtr E1( PFS_NEW Event_Client_Died( mID, 0 ) );
-		IEventPtr E1( PFS_NEW Event_Client_Spawned( mID ) );
+		//IEventPtr E1( PFS_NEW Event_Client_Spawned( mID ) );
 
-		//for( int i = 0; i < 10; i++ )
-		//{
-		//	IEventPtr E1( PFS_NEW Event_Client_Damaged( mID, i ) );
-		//	SendEvent( E1 );
-		//}
-		SendEvent( E1 );
+		for( int i = 0; i < 10; i++ )
+		{
+			//IEventPtr E1( PFS_NEW Event_Client_Damaged( mID, i ) );
+			IEventPtr E1( PFS_NEW Event_Client_Fired_Projectile( mID, i, XMFLOAT3((float)i, 0.0f, 0.0f), XMFLOAT3((float)i, 0.0f, 0.0f ) ) );
+			SendEvent( E1 );
+		}
+		//SendEvent( E1 );
 	}
 }
 
@@ -196,6 +211,8 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Remote_Damaged );
 	EF::REGISTER_EVENT( Event_Client_Spawned );
 	EF::REGISTER_EVENT( Event_Remote_Spawned );
+	EF::REGISTER_EVENT( Event_Client_Fired_Projectile );
+	EF::REGISTER_EVENT( Event_Remote_Fired_Projectile );
 
 	EventManager::GetInstance()->AddListener( &Client::LocalJoined, this, Event_Local_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteJoined, this, Event_Remote_Joined::GUID );
@@ -204,6 +221,7 @@ bool Client::Initialize()
 	EventManager::GetInstance()->AddListener( &Client::RemoteDied, this, Event_Remote_Died::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteDamaged, this, Event_Remote_Damaged::GUID );
 	EventManager::GetInstance()->AddListener( &Client::RemoteSpawned, this, Event_Remote_Spawned::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteFiredProjectile, this, Event_Remote_Fired_Projectile::GUID );
 
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	return true;

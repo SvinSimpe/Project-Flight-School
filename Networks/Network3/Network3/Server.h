@@ -28,6 +28,7 @@ class Server : public Network
 		void	ClientDied( IEventPtr eventPtr );
 		void	ClientDamaged( IEventPtr eventPtr );
 		void	ClientSpawned( IEventPtr eventPtr );
+		void	ClientFiredProjectile( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 

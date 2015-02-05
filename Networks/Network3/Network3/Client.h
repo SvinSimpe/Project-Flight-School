@@ -34,6 +34,7 @@ class Client : public Network
 		void	RemoteDied( IEventPtr eventPtr );
 		void	RemoteDamaged( IEventPtr eventPtr );
 		void	RemoteSpawned( IEventPtr eventPtr );
+		void	RemoteFiredProjectile( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 

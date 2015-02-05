@@ -105,6 +105,22 @@ void Server::ClientSpawned( IEventPtr eventPtr )
 	}
 }
 
+void Server::ClientFiredProjectile( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Fired_Projectile::GUID )
+	{
+		std::shared_ptr<Event_Client_Fired_Projectile> data = std::static_pointer_cast<Event_Client_Fired_Projectile>( eventPtr );
+		UINT id = data->ID();
+		UINT projectileID = data->ProjectileID();
+		XMFLOAT3 pos = data->BodyPos();
+		XMFLOAT3 dir = data->Direction();
+
+		std::cout << "Client with ID: " << id << " just fired bullet: " << projectileID << " X-Pos: " << pos.x << " X-dir: " << dir.x << std::endl;
+
+		IEventPtr E1( PFS_NEW Event_Remote_Fired_Projectile( id, projectileID, pos, dir ) );
+		BroadcastEvent( E1, id );
+	}
+}
 
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -176,6 +192,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientDied, this, Event_Client_Died::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientDamaged, this, Event_Client_Damaged::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientSpawned, this, Event_Client_Spawned::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientFiredProjectile, this, Event_Client_Fired_Projectile::GUID );
 
 	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
 

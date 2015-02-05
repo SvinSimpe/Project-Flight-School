@@ -61,3 +61,5 @@ const EventType Event_Client_Damaged::GUID( counter++ );
 const EventType Event_Remote_Damaged::GUID( counter++ );
 const EventType Event_Client_Spawned::GUID( counter++ );
 const EventType Event_Remote_Spawned::GUID( counter++ );
+const EventType Event_Client_Fired_Projectile::GUID( counter++ );
+const EventType Event_Remote_Fired_Projectile::GUID( counter++ );

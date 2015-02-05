@@ -286,7 +286,6 @@ class Event_Remote_Left : public IEvent
 };
 
 // Listened to by the server and handles the Client client updating
-// The same as Event_Player_Update in the project
 class Event_Client_Update : public IEvent
 {
 	private:
@@ -375,7 +374,6 @@ class Event_Client_Update : public IEvent
 };
 
 // Created and broadcasted to each remote client whenever a local update is sent to the server
-// The same as Event_Remote_Player_Update in the project
 class Event_Remote_Update : public IEvent
 {
 	private:
@@ -876,6 +874,7 @@ class Event_Remote_Damaged : public IEvent
 		}
 };
 
+// An event sent from the client to the server whenever the client respawns
 class Event_Client_Spawned : public IEvent
 {
 	private:
@@ -919,6 +918,7 @@ class Event_Client_Spawned : public IEvent
 		}
 };
 
+// An event sent from the server to the remote clients whenever a client respawns
 class Event_Remote_Spawned : public IEvent
 {
 	private:
@@ -959,5 +959,175 @@ class Event_Remote_Spawned : public IEvent
 		UINT ID() const
 		{
 			return mID;
+		}
+};
+
+// An event sent from the client to the server whenever a client fires a projectile
+class Event_Client_Fired_Projectile : public IEvent
+{
+	private:
+		UINT		mID;
+		UINT		mProjectileID;
+		XMFLOAT3	mBodyPos;
+		XMFLOAT3	mDirection;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Fired_Projectile()
+		{
+			mID				= (UINT)-1;
+			mProjectileID	= (UINT)-1;
+			mBodyPos		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		}
+		Event_Client_Fired_Projectile( UINT id, UINT projectileID, XMFLOAT3 bodyPos, XMFLOAT3 direction )
+		{
+			mID						= id;
+			mProjectileID			= projectileID;
+			mBodyPos				= bodyPos;
+			mDirection				= direction;
+		}
+		~Event_Client_Fired_Projectile() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			
+			out << mProjectileID << " ";
+
+			out << mBodyPos.x << " ";
+			out << mBodyPos.y << " ";
+			out << mBodyPos.z << " ";
+
+			out << mDirection.x << " ";
+			out << mDirection.y << " ";
+			out << mDirection.z << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+
+			in >> mProjectileID;
+
+			in >> mBodyPos.x;
+			in >> mBodyPos.y;
+			in >> mBodyPos.z;
+
+			in >> mDirection.x;
+			in >> mDirection.y;
+			in >> mDirection.z;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Fired_Projectile( mID, mProjectileID, mBodyPos, mDirection ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT ProjectileID() const
+		{
+			return mProjectileID;
+		}
+		XMFLOAT3 BodyPos() const
+		{
+			return mBodyPos;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
+		}
+};
+
+// An event sent from the server to the other clients whenever a client fires a projectile
+class Event_Remote_Fired_Projectile : public IEvent
+{
+	private:
+		UINT		mID;
+		UINT		mProjectileID;
+		XMFLOAT3	mBodyPos;
+		XMFLOAT3	mDirection;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Fired_Projectile()
+		{
+			mID				= (UINT)-1;
+			mProjectileID	= (UINT)-1;
+			mBodyPos		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		}
+		Event_Remote_Fired_Projectile( UINT id, UINT projectileID, XMFLOAT3 bodyPos, XMFLOAT3 direction )
+		{
+			mID						= id;
+			mProjectileID			= projectileID;
+			mBodyPos				= bodyPos;
+			mDirection				= direction;
+		}
+		~Event_Remote_Fired_Projectile() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			
+			out << mProjectileID << " ";
+
+			out << mBodyPos.x << " ";
+			out << mBodyPos.y << " ";
+			out << mBodyPos.z << " ";
+
+			out << mDirection.x << " ";
+			out << mDirection.y << " ";
+			out << mDirection.z << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+
+			in >> mProjectileID;
+
+			in >> mBodyPos.x;
+			in >> mBodyPos.y;
+			in >> mBodyPos.z;
+
+			in >> mDirection.x;
+			in >> mDirection.y;
+			in >> mDirection.z;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Fired_Projectile( mID, mProjectileID, mBodyPos, mDirection ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT ProjectileID() const
+		{
+			return mProjectileID;
+		}
+		XMFLOAT3 BodyPos() const
+		{
+			return mBodyPos;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
 		}
 };

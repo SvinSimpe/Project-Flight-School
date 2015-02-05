@@ -1119,18 +1119,16 @@ class Event_Remove_Point_Light : public IEvent
 			return mLight;
 		}
 };
-
 class Event_Sync_Enemy_Type : public IEvent
 {
 	// Member variables
 	private:
 		unsigned int	mID;
 		unsigned int	mEnemyType;
-
 	protected:
 	public:
 		static const EventType GUID;
-		// Member functions
+
 	private:
 	protected:
 		const EventType& GetEventType( void ) const
@@ -1138,6 +1136,7 @@ class Event_Sync_Enemy_Type : public IEvent
 			return GUID;
 		}
 	public:
+
 	Event_Sync_Enemy_Type( unsigned int id, unsigned int enemyType )
 		{
 			mID				= id;
@@ -1150,6 +1149,32 @@ class Event_Sync_Enemy_Type : public IEvent
 		unsigned int Type() const
 		{
 			return mEnemyType;
+		}
+};
+
+class Event_Load_Level : public IEvent
+{
+	// Member variables
+	private:
+		std::string mFilePath;
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Load_Level( std::string filePath )
+		{
+			mFilePath = filePath;
+		}
+		std::string GetFileName()
+		{
+			return mFilePath;
 		}
 };
 
@@ -1171,7 +1196,7 @@ class Event_Sync_Enemy_State : public IEvent
 			return GUID;
 		}
 	public:
-	Event_Sync_Enemy_State( unsigned int id, unsigned int state )
+		Event_Sync_Enemy_State( unsigned int id, unsigned int state )
 		{
 			mID				= id;
 			mState			= state;

@@ -15,9 +15,9 @@
 #include "RemoteEnemy.h"
 #include "EnemyAnimationManager.h"
 #include "Gui.h"
-//Test
 #include "ParticleManager.h"
 #include "SoundBufferHandler.h"
+
 
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.

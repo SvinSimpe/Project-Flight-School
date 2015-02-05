@@ -1,341 +1,404 @@
 #include "Client.h"
 
-bool Client::ReceiveLoop()
+Client* Client::mInstance = nullptr;
+
+
+Client::Client() : Network()
 {
-	Package<void*>* p = new Package<void*>[DEFAULT_BUFLEN]; // This will only be called once per Client instance
-	while ( mServerSocket != INVALID_SOCKET )
+	mID						= (UINT)-1;
+	mTeamID					= (UINT)-1;
+	mSocketManager			= nullptr;
+	mNEF					= nullptr;
+	mRemoteIDs				= std::list<UINT>();
+	mEnemies				= std::map<UINT, Enemy>();
+	mActive					= false;
+
+	mLowerBodyPos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mVelocity				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mUpperBodyDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+}
+
+Client::~Client()
+{
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Start of eventlistening functions
+
+void Client::LocalJoined( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Local_Joined::GUID )
 	{
-		if ( mConn->ReceivePkg( mServerSocket, *p ) )
+		std::shared_ptr<Event_Local_Joined> data = std::static_pointer_cast<Event_Local_Joined>( eventPtr );
+		mID = data->ID();
+		mTeamID = data->TeamID();
+
+		std::cout << "My ID is: " << mID << " and I just joined team " << mTeamID << std::endl;
+		mActive = true;
+	}
+}
+
+void Client::RemoteJoined( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Joined::GUID )
+	{
+		std::shared_ptr<Event_Remote_Joined> data = std::static_pointer_cast<Event_Remote_Joined>( eventPtr );
+		UINT id = data->ID();
+		UINT teamID = data->TeamID();
+		mRemoteIDs.push_back( id );
+
+		std::cout << "Remote with ID: " << id << " joined team: " << teamID << ". There are now " << mRemoteIDs.size() << " remotes online." << std::endl;
+	}
+}
+
+void Client::RemoteLeft( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Left::GUID )
+	{
+		std::shared_ptr<Event_Remote_Left> data = std::static_pointer_cast<Event_Remote_Left>( eventPtr );
+		UINT id = data->ID();
+		mRemoteIDs.remove( id );
+
+		std::cout << "Remote with ID: " << id << " left. There are now " << mRemoteIDs.size() << " remotes online." << std::endl;
+	}
+}
+
+void Client::RemoteUpdate( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Update::GUID )
+	{
+		std::shared_ptr<Event_Remote_Update> data = std::static_pointer_cast<Event_Remote_Update>( eventPtr );
+		UINT id = data->ID();
+		XMFLOAT3 pos = data->LowerBodyPos();
+		XMFLOAT3 vel = data->Velocity();
+		XMFLOAT3 dir = data->UpperBodyDirection();
+
+		std::cout << "Remote with ID: " << id << " updated." << std::endl;
+	}
+}
+
+void Client::RemoteDied( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Died::GUID )
+	{
+		std::shared_ptr<Event_Remote_Died> data = std::static_pointer_cast<Event_Remote_Died>( eventPtr );
+		UINT id = data->ID();
+		UINT killerID = data->KillerID();
+
+		std::cout << "Remote with ID: " << id << " was killed by: " << killerID << std::endl;
+	}
+}
+
+void Client::RemoteDamaged( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Damaged::GUID )
+	{
+		std::shared_ptr<Event_Remote_Damaged> data = std::static_pointer_cast<Event_Remote_Damaged>( eventPtr );
+		UINT id = data->ID();
+		UINT projectileID = data->ProjectileID();
+
+		std::cout << "Remote with ID: " << id << " was shot by bullet with ID: " << projectileID << std::endl;
+	}
+}
+
+void Client::RemoteSpawned( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Spawned::GUID )
+	{
+		std::shared_ptr<Event_Remote_Spawned> data = std::static_pointer_cast<Event_Remote_Spawned>( eventPtr );
+		UINT id = data->ID();
+
+		std::cout << "Remote with ID: " << id << " just spawned." << std::endl;
+	}
+}
+
+void Client::RemoteFiredProjectile( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Fired_Projectile::GUID )
+	{
+		std::shared_ptr<Event_Remote_Fired_Projectile> data = std::static_pointer_cast<Event_Remote_Fired_Projectile>( eventPtr );
+		UINT id = data->ID();
+		UINT projectileID = data->ProjectileID();
+		XMFLOAT3 pos = data->BodyPos();
+		XMFLOAT3 dir = data->Direction();
+
+		std::cout << "Remote with ID: " << id << " just fired bullet: " << projectileID << " X-Pos: " << pos.x << " X-dir: " << dir.x << std::endl;
+	}
+}
+
+void Client::RemoteUpdateHP( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Update_HP::GUID )
+	{
+		std::shared_ptr<Event_Remote_Update_HP> data = std::static_pointer_cast<Event_Remote_Update_HP>( eventPtr );
+		UINT id = data->ID();
+		float hp = data->HP();
+
+		if( hp < 0.0f )
 		{
-			if ( p->head.eventType != Net_Event::ERROR_EVENT )
-			{
-				HandlePkg( p );
-			}
+			std::cout << "Remote with ID: " << id << " lost " << (-1.0f)*hp << " HP." << std::endl;
+		}
+		else if( hp > 0.0f )
+		{
+			std::cout << "Remote with ID: " << id << " gained " << hp << " HP." << std::endl;
+		}
+		else
+		{
+			std::cout << "Remote with ID: " << id << " updated it's HP for no reason." << std::endl;
 		}
 	}
-	if ( p )
+}
+
+void Client::RemoteMeleeHit( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Melee_Hit::GUID )
 	{
-		delete[] p;
+		std::shared_ptr<Event_Remote_Melee_Hit> data = std::static_pointer_cast<Event_Remote_Melee_Hit>( eventPtr );
+		UINT id = data->ID();
+		UINT victim = data->VictimID();
+		float damage = data->Damage();
+		float knockBack = data->KnockBack();
+		XMFLOAT3 dir = data->Direction();
+
+		std::cout << "Remote with ID: " << id << " hit " << victim << " for " << damage << " damage with ";
+		std::cout << knockBack << " knockback, facing: (" << dir.x << ", " << dir.y << ", " << dir.z << ")" << std::endl; 
 	}
+}
+
+void Client::RemoteAttack( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Attack::GUID )
+	{
+		std::shared_ptr<Event_Remote_Attack> data = std::static_pointer_cast<Event_Remote_Attack>( eventPtr );
+		UINT id = data->ID();
+		UINT armID = data->ArmID();
+		UINT anim = data->Animation();
+
+		std::cout << "Remote with ID: " << id << " hit with arm: " << armID << " which is doing animation: #" << anim << std::endl;
+	}
+}
+
+void Client::RemoteDown( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Down::GUID )
+	{
+		std::shared_ptr<Event_Remote_Down> data = std::static_pointer_cast<Event_Remote_Down>( eventPtr );
+		UINT id = data->ID();
+
+		std::cout << "Remote with ID: " << id << " went down." << std::endl;
+	}
+}
+
+void Client::RemoteUp( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Up::GUID )
+	{
+		std::shared_ptr<Event_Remote_Up> data = std::static_pointer_cast<Event_Remote_Up>( eventPtr );
+		UINT id = data->ID();
+
+		std::cout << "Remote with ID: " << id << " went up." << std::endl;
+	}
+}
+
+void Client::RemoteAttemptRevive( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Remote_Attempt_Revive::GUID )
+	{
+		std::shared_ptr<Event_Remote_Attempt_Revive> data = std::static_pointer_cast<Event_Remote_Attempt_Revive>( eventPtr );
+		UINT id = data->ID();
+		UINT downedID = data->DownedID();
+		float deltaTime = data->DeltaTime();
+
+		std::cout << "Remote with ID: " << id << " is attempting to revive " << downedID << " with " << deltaTime << " time left." << std::endl;
+	}
+}
+
+void Client::ServerCreateEnemy( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Server_Create_Enemy::GUID )
+	{
+		std::shared_ptr<Event_Server_Create_Enemy> data = std::static_pointer_cast<Event_Server_Create_Enemy>( eventPtr );
+		UINT id = data->ID();
+		UINT state = data->State();
+		UINT type = data->Type();
+		XMFLOAT3 pos = data->Position();
+		XMFLOAT3 dir = data->Direction();
+
+		mEnemies[id] = Enemy( id, state, type, pos, dir );
+		Enemy e = mEnemies[id];
+		std::cout << "Server created enemy: " << e.id << " with state: " << e.state << " of type: " << e.type;
+		std::cout << " at: (" << e.pos.x << ", " << e.pos.y << ", " << e.pos.z << ")";
+		std::cout << " facing: (" << e.dir.x << ", " << e.dir.y << ", " << e.dir.z << ")" << std::endl;
+	}
+}
+
+void Client::ServerUpdateEnemy( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Server_Update_Enemy::GUID )
+	{
+		std::shared_ptr<Event_Server_Update_Enemy> data = std::static_pointer_cast<Event_Server_Update_Enemy>( eventPtr );
+		UINT id = data->ID();
+		XMFLOAT3 pos = data->Position();
+		XMFLOAT3 dir = data->Direction();
+		bool isAlive = data->IsAlive();
+		
+		mEnemies[id].pos = pos;
+		mEnemies[id].dir = dir;
+		mEnemies[id].isAlive = isAlive;
+
+		Enemy e = mEnemies[id];
+		std::cout << "Server updated enemy: " << e.id << " to pos: (" << e.pos.x << ", " << e.pos.y << ", " << e.pos.z << ")";
+		std::cout << " facing: (" << e.dir.x << ", " << e.dir.y << ", " << e.dir.z << ") ";
+		if( isAlive )
+		{
+			std::cout <<  isAlive << std::endl;
+		}
+		else
+		{
+			std::cout << isAlive << std::endl;
+		}
+	}
+}
+
+// End of eventlistening functions
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Client::StartUp( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Start_Client::GUID )
+	{
+		std::shared_ptr<Event_Start_Client> data = std::static_pointer_cast<Event_Start_Client>( eventPtr );
+		std::string IP	= data->IP();
+		UINT port		= data->Port();
+		if( !Connect( IP, port ) )
+			std::cout << "Failed to connect client!" << std::endl;
+	}
+}
+
+/* Registers all the events that should be listened to from the server. */
+
+bool Client::Connect( std::string ip, UINT port )
+{
+	mSocketManager = new ClientSocketManager();
+	if( !mSocketManager->Connect( ip, port ) )
+	{
+		return false;
+	}
+	std::cout << "Client connected to server on IP: " << ip << ", port: " << port << std::endl;
+
+	mNEF = new NetworkEventForwarder();
+	mNEF->Initialize( 0, mSocketManager ); // Always sends to socket 0, the server's socketID
 	return true;
 }
 
-void Client::EventListener( IEventPtr newEvent )
+Client* Client::GetInstance()
 {
-	if ( newEvent->GetEventType() == Event_Player_Update::GUID )
-	{
-		std::shared_ptr<Event_Player_Update> data = std::static_pointer_cast<Event_Player_Update>( newEvent );
-		if ( mServerSocket != INVALID_SOCKET )
-		{
-			EvPlayerUpdate msg;
-			msg.id						= mID;
-			msg.lowerBodyPosition		= data->LowerBodyPos();
-			msg.velocity				= data->Velocity();
-			msg.upperBodyDirection		= data->UpperBodyDirection();
-			msg.playerName				= data->Name();
-			
-			if ( mServerSocket != INVALID_SOCKET )
-			{
-				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_UPDATE, msg );
-			}
-		}
-	}
-	else if ( newEvent->GetEventType() == Event_Player_Died::GUID )
-	{
-		std::shared_ptr<Event_Player_Died> data = std::static_pointer_cast<Event_Player_Died>( newEvent );
-		if ( mServerSocket != INVALID_SOCKET )
-		{
-			EvKilled msg;
-			msg.ID			= data->ID();
-			msg.killerID	= data->KillerID();
+	if( !mInstance )
+		mInstance = new Client();
+	return mInstance;
+}
 
-			if ( mServerSocket != INVALID_SOCKET )
-			{
-				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_DIED, msg );
-			}
-		}
-	}
-	else if ( newEvent->GetEventType() == Event_Player_Damaged::GUID )
-	{
-		std::shared_ptr<Event_Player_Damaged> data = std::static_pointer_cast<Event_Player_Damaged>( newEvent );
-		if ( mServerSocket != INVALID_SOCKET )
-		{
-			EvPlayerID msg;
-			msg.ID = data->ID();
-			msg.projectileID = data->ProjectileID();
+void Client::SendEvent( IEventPtr eventPtr )
+{
+	mNEF->ForwardEvent( eventPtr );
+}
 
-			if ( mServerSocket != INVALID_SOCKET )
-			{
-				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_DAMAGED, msg );
-			}
-		}
-	}
-	else if ( newEvent->GetEventType() == Event_Player_Spawned::GUID )
+void Client::Update( float deltaTime )
+{
+	if( mActive )
 	{
-		std::shared_ptr<Event_Player_Spawned> data = std::static_pointer_cast<Event_Player_Spawned>( newEvent );
-		if ( mServerSocket != INVALID_SOCKET )
-		{
-			EvPlayerID msg;
-			msg.ID = data->ID();
+		IEventPtr E1( PFS_NEW Event_Client_Down( mID ) );
+		SendEvent( E1 );
 
-			if ( mServerSocket != INVALID_SOCKET )
-			{
-				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_SPAWNED, msg );
-			}
-		}
-	}
-	else if ( newEvent->GetEventType() == Event_Projectile_Fired::GUID )
-	{
-		std::shared_ptr<Event_Projectile_Fired> data = std::static_pointer_cast<Event_Projectile_Fired>( newEvent );
-		if ( mServerSocket != INVALID_SOCKET )
-		{
-			EvProjectileFired msg;
-			msg.ID			= mID;
-			msg.position	= data->BodyPos();
-			msg.direction	= data->Direction();
+		IEventPtr E2( PFS_NEW Event_Client_Attempt_Revive( 0, mID, 10.0f ) );
+		SendEvent( E2 );
 
-			if ( mServerSocket != INVALID_SOCKET )
-			{
-				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PROJECTILE_FIRED, msg );
-			}
-		}
-	}
-	else if ( newEvent->GetEventType() == Event_Player_Update_HP::GUID )
-	{
-		std::shared_ptr<Event_Player_Update_HP> data = std::static_pointer_cast<Event_Player_Update_HP>( newEvent );
-		if ( mServerSocket != INVALID_SOCKET )
-		{
-			EvPlayerID msg;
-			msg.ID	= mID;
-			msg.HP	= (unsigned int)data->HP();
-
-			if ( mServerSocket != INVALID_SOCKET )
-			{
-				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_UPDATE_HP, msg );
-			}
-		}
-	}
-	else if ( newEvent->GetEventType() == Event_Player_Melee_Hit::GUID )
-	{
-		std::shared_ptr<Event_Player_Melee_Hit> data = std::static_pointer_cast<Event_Player_Melee_Hit>( newEvent );
-		if ( mServerSocket != INVALID_SOCKET )
-		{
-			EvMeleeHit msg;
-			msg.ID			= data->ID();
-			msg.damage		= data->Damage();
-			msg.knockBack	= data->KnockBack();
-			msg.direction	= data->Direction();
-			
-
-			if ( mServerSocket != INVALID_SOCKET )
-			{
-				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_MELEE_HIT, msg );
-			}
-		}
-	}
-	else if ( newEvent->GetEventType() == Event_Player_Attack::GUID )
-	{
-		std::shared_ptr<Event_Player_Attack> data = std::static_pointer_cast<Event_Player_Attack>( newEvent );
-		if ( mServerSocket != INVALID_SOCKET )
-		{
-			EvPlayerAttack msg;
-			msg.ID			= mID;
-			msg.armID		= data->ArmID();
-			msg.animation	= data->Animation();		
-
-			if ( mServerSocket != INVALID_SOCKET )
-			{
-				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_ATTACK, msg );
-			}
-		}
-	}
-	else if ( newEvent->GetEventType() == Event_Projectile_Damage_Enemy::GUID )
-	{
-		std::shared_ptr<Event_Projectile_Damage_Enemy> data = std::static_pointer_cast<Event_Projectile_Damage_Enemy>( newEvent );
-		if ( mServerSocket != INVALID_SOCKET )
-		{
-			EvEnemyProjectileDamage msg;
-			msg.shooterID		= data->Shooter();	
-			msg.projectileID	= data->Projectile();
-			msg.enemyID			= data->Enemy();
-			msg.damage			= data->Damage();
-
-			if ( mServerSocket != INVALID_SOCKET )
-			{
-				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_ENEMY_PROJECTILE_DAMGAE, msg );
-			}
-		}
-	}
-	else if ( newEvent->GetEventType() == Event_Player_Down::GUID )
-	{
-		std::shared_ptr<Event_Player_Down> data = std::static_pointer_cast<Event_Player_Down>( newEvent );
-		if ( mServerSocket != INVALID_SOCKET )
-		{
-			EvPlayerID msg;
-			msg.ID = data->Player();
-
-			if ( mServerSocket != INVALID_SOCKET )
-			{
-				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_DOWN, msg );
-			}
-		}
-	}
-	else if ( newEvent->GetEventType() == Event_Player_Up::GUID )
-	{
-		std::shared_ptr<Event_Player_Up> data = std::static_pointer_cast<Event_Player_Up>( newEvent );
-		if ( mServerSocket != INVALID_SOCKET )
-		{
-			EvPlayerID msg;
-			msg.ID = data->Player();
-
-			if ( mServerSocket != INVALID_SOCKET )
-			{
-				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_UP, msg );
-			}
-		}
-	}
-	else if ( newEvent->GetEventType() == Event_Remote_Player_Revive::GUID )
-	{
-		std::shared_ptr<Event_Remote_Player_Revive> data = std::static_pointer_cast<Event_Remote_Player_Revive>( newEvent );
-		if ( mServerSocket != INVALID_SOCKET )
-		{
-			EvIDAndTime msg;
-			msg.playerID	= data->Player();
-			msg.deltaTime	= data->DeltaTime();
-
-			if ( mServerSocket != INVALID_SOCKET )
-			{
-				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_REVIVE, msg );
-			}
-		}
+		IEventPtr E3( PFS_NEW Event_Client_Up( mID ) );
+		SendEvent( E3 );
 	}
 }
 
-bool Client::Connect()
+void Client::DoSelect( int pauseMicroSecs, bool handleInput )
 {
-	for ( addrinfo* ptr = mAddrResult; ptr != nullptr; ptr = ptr->ai_next )
-	{
-		mServerSocket = socket( ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol );
-		if ( mServerSocket == INVALID_SOCKET )
-		{
-			printf( "socket failed with error: %d\n", WSAGetLastError() );
-			WSACleanup();
-			return false;
-		}
-
-		mResult = connect( mServerSocket, ptr->ai_addr, (int)ptr->ai_addrlen );
-		if ( mResult == SOCKET_ERROR )
-		{
-			closesocket( mServerSocket );
-			mServerSocket = INVALID_SOCKET;
-			continue;
-		}
-		break;
-	}
-	freeaddrinfo( mAddrResult );
-
-	if ( mServerSocket == INVALID_SOCKET )
-	{
-		printf( "Unable to connect to server.\n" );
-		closesocket( mServerSocket );
-		WSACleanup();
-		return false;
-	}
-
-	int flag = 1;
-    int mResult = setsockopt( mServerSocket,            /* socket affected */
-                                 IPPROTO_TCP,     /* set option at TCP level */
-                                 TCP_NODELAY,     /* name of option */
-                                 (char *) &flag,  /* the cast is historical
-                                                         cruft */
-                                 sizeof(int) );    /* length of option value */
-
-	if( mResult != 0 )
-	{
-		printf( "setsockopt failed with error %d.\n", WSAGetLastError() );
-		mConn->DisconnectSocket( mServerSocket );
-		WSACleanup();
-		return false;
-	}
-
-	printf( "Connected to: %d\n", mServerSocket );
-
-	return true;
+	mSocketManager->DoSelect( pauseMicroSecs, handleInput );
 }
 
-bool Client::Run()
+bool Client::Initialize()
 {
-	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Update::GUID );
-	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Died::GUID );
-	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Damaged::GUID );
-	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Spawned::GUID );
-	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Projectile_Fired::GUID );
-	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Melee_Hit::GUID );
-	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Attack::GUID );
-	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Update_HP::GUID );
-	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Projectile_Damage_Enemy::GUID );
-	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Down::GUID );
-	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Player_Up::GUID );
-	EventManager::GetInstance()->AddListener( &Client::EventListener, this, Event_Remote_Player_Revive::GUID );
+	// REGISTER_EVENT should only be run once for each event
+	EF::REGISTER_EVENT( Event_Client_Joined );
+	EF::REGISTER_EVENT( Event_Client_Left );
+	EF::REGISTER_EVENT( Event_Local_Joined );
+	EF::REGISTER_EVENT( Event_Remote_Joined );
+	EF::REGISTER_EVENT( Event_Remote_Left );
+	EF::REGISTER_EVENT( Event_Client_Update );
+	EF::REGISTER_EVENT( Event_Remote_Update );
+	EF::REGISTER_EVENT( Event_Change_State );
+	EF::REGISTER_EVENT( Event_Start_Server );
+	EF::REGISTER_EVENT( Event_Start_Client );
+	EF::REGISTER_EVENT( Event_Game_Started );
+	EF::REGISTER_EVENT( Event_Game_Ended );
+	EF::REGISTER_EVENT( Event_Client_Died );
+	EF::REGISTER_EVENT( Event_Remote_Died );
+	EF::REGISTER_EVENT( Event_Client_Damaged );
+	EF::REGISTER_EVENT( Event_Remote_Damaged );
+	EF::REGISTER_EVENT( Event_Client_Spawned );
+	EF::REGISTER_EVENT( Event_Remote_Spawned );
+	EF::REGISTER_EVENT( Event_Client_Fired_Projectile );
+	EF::REGISTER_EVENT( Event_Remote_Fired_Projectile );
+	EF::REGISTER_EVENT( Event_Client_Update_HP );
+	EF::REGISTER_EVENT( Event_Remote_Update_HP );
+	EF::REGISTER_EVENT( Event_Server_Create_Enemy );
+	EF::REGISTER_EVENT( Event_Client_Melee_Hit );
+	EF::REGISTER_EVENT( Event_Remote_Melee_Hit );
+	EF::REGISTER_EVENT( Event_Client_Attack );
+	EF::REGISTER_EVENT( Event_Remote_Attack );
+	EF::REGISTER_EVENT( Event_Add_Point_Light );
+	EF::REGISTER_EVENT( Event_Remove_Point_Light );
+	EF::REGISTER_EVENT( Event_Server_Update_Enemy );
 
-	std::thread listen( &Client::ReceiveLoop, this );
+	EF::REGISTER_EVENT( Event_Server_Sync_Enemy_State ); //
+	EF::REGISTER_EVENT( Event_Set_Enemy_State ); //
+	EF::REGISTER_EVENT( Event_Remote_Set_Enemy_State ); // 
 
-	mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_JOINED, 0 ); // The client "announces" itself to the server, and by extension, the other clients
+	EF::REGISTER_EVENT( Event_Client_Projectile_Damage_Enemy ); // 
+	EF::REGISTER_EVENT( Event_Server_Enemy_Died ); // 
+	EF::REGISTER_EVENT( Event_Server_Enemy_Attack_Player ); //
+	
+	EF::REGISTER_EVENT( Event_Client_Down );
+	EF::REGISTER_EVENT( Event_Remote_Down );
+	EF::REGISTER_EVENT( Event_Client_Up );
+	EF::REGISTER_EVENT( Event_Remote_Up );
+	EF::REGISTER_EVENT( Event_Client_Attempt_Revive );
+	EF::REGISTER_EVENT( Event_Remote_Attempt_Revive );
 
-	listen.join();
+	EventManager::GetInstance()->AddListener( &Client::LocalJoined, this, Event_Local_Joined::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteJoined, this, Event_Remote_Joined::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteLeft, this, Event_Remote_Left::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteUpdate, this, Event_Remote_Update::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteDied, this, Event_Remote_Died::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteDamaged, this, Event_Remote_Damaged::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteSpawned, this, Event_Remote_Spawned::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteFiredProjectile, this, Event_Remote_Fired_Projectile::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteUpdateHP, this, Event_Remote_Update_HP::GUID );
+	EventManager::GetInstance()->AddListener( &Client::ServerCreateEnemy, this, Event_Server_Create_Enemy::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteMeleeHit, this, Event_Remote_Melee_Hit::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteAttack, this, Event_Remote_Attack::GUID );
+	EventManager::GetInstance()->AddListener( &Client::ServerUpdateEnemy, this, Event_Server_Update_Enemy::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteDown, this, Event_Remote_Down::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteUp, this, Event_Remote_Up::GUID );
+	EventManager::GetInstance()->AddListener( &Client::RemoteAttemptRevive, this, Event_Remote_Attempt_Revive::GUID );
 
-	return true;
-}
-
-bool Client::Initialize( std::string ip, std::string port )
-{
-	WSADATA WSAData = WSADATA();
-	mResult			= WSAStartup( MAKEWORD( 2, 2 ), &WSAData );
-	if ( mResult != 0 )
-	{
-		printf( "WSAStartup failed with error: %d\n", mResult );
-		return false;
-	}
-
-	addrinfo hints = { 0 };
-	ZeroMemory( &hints, sizeof( hints ) );
-	hints.ai_family		= AF_INET;
-	hints.ai_socktype	= SOCK_STREAM;
-	hints.ai_protocol	= IPPROTO_TCP;
-
-	mResult = getaddrinfo( ip.c_str(), port.c_str(), &hints, &mAddrResult );
-	if ( mResult != 0 )
-	{
-		printf( "getaddrinfo failed with error: %d\n", mResult );
-		WSACleanup();
-		return false;
-	}
-
-	mConn = new Connection();
-	mConn->Initialize();
-
+	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	return true;
 }
 
 void Client::Release()
 {
-	mConn->DisconnectSocket( mServerSocket );
-
-	WSACleanup();
-
-	mConn->Release();
-	if ( mConn )
-		delete mConn;
-}
-
-Client::Client()
-{
-	mResult			= 0;
-	mAddrResult		= nullptr;
-	mServerSocket	= INVALID_SOCKET;
-	mConn			= nullptr;
-}
-
-Client::~Client()
-{
+	if( mSocketManager )
+		mSocketManager->Release();
+	SAFE_DELETE( mSocketManager );
+	SAFE_DELETE( mNEF );
+	mRemoteIDs.clear();
+	SAFE_DELETE( mInstance );
 }

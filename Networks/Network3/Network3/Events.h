@@ -2489,20 +2489,3 @@ class Event_Remote_Attempt_Revive : public IEvent
 			return mDeltaTime;
 		}
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// 2500 lines, bitches

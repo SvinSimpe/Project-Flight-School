@@ -2,15 +2,12 @@
 #define _PARTICLESYSTEM_H_
 
 #include "ParticleData.h"
-
 #include <Graphics.h>
 #include <limits>
 
-
-
 struct ParticleSystem : public ParticleData
 {
-#pragma region Members
+	#pragma region Members
 
 	size_t		entityParentID				= std::numeric_limits<unsigned int>::infinity();
 	size_t		particleType				= std::numeric_limits<unsigned int>::infinity();
@@ -21,10 +18,9 @@ struct ParticleSystem : public ParticleData
 	float		emitRate					= 0.0f;
 	AssetID		assetID;
 
+	#pragma endregion
 
-#pragma endregion
-
-#pragma region Functions
+	#pragma region Functions
 
 	void Initialize( ParticleType particleType, float emitRate, size_t nrOfParticles )
 	{
@@ -78,7 +74,7 @@ struct ParticleSystem : public ParticleData
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{	
-			if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 256, 20.0f );
+			if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 512, 20.0f );
 	}
 
 	virtual void Update( float deltaTime )
@@ -98,6 +94,7 @@ struct ParticleSystem : public ParticleData
 			case MuzzleFlash: 
 			{
 				// Update MuzzleFlash logic here
+				UpdateMuzzleFlash( deltaTime );
 				break;
 			}
 			default:
@@ -107,6 +104,22 @@ struct ParticleSystem : public ParticleData
 			}
 		}
 
+		// Last instruction
+		UpdatePosition( deltaTime );
+	}
+
+	virtual void Render( float deltaTime )
+	{
+		
+	}
+
+	void Release()
+	{
+		ParticleData::Release();
+	}
+
+	void UpdateMuzzleFlash( float deltaTime )
+	{
 		// Check if new Particles is requested
  		if( nrOfRequestedParticles >= 4 )
 		{
@@ -140,23 +153,8 @@ struct ParticleSystem : public ParticleData
 		}
 		else
 			nrOfRequestedParticles = 0;
-
-
-		// Last instruction
-		UpdatePosition( deltaTime );
 	}
 
-	virtual void Render( float deltaTime )
-	{
-		
-	}
-
-	void Release()
-	{
-		ParticleData::Release();
-	}
-
-#pragma endregion
+	#pragma endregion
 };
-
 #endif

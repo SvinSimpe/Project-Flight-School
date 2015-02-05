@@ -22,6 +22,8 @@ enum ParticleType
 
 struct ParticleData
 {
+	#pragma region Members
+
 	int	nrOfParticlesAlive = 0;
 
 	float*	xPosition = nullptr;
@@ -38,6 +40,10 @@ struct ParticleData
 
 	
 	XMFLOAT3 randomDirectionVector[4];
+
+	#pragma endregion
+
+	#pragma region Functions
 
 	void Initialize( int nrOfParticles ) //NrOfParticles must be a multiple of 4
 	{
@@ -415,6 +421,8 @@ struct ParticleData
 			}
 		}
 	}
+
+	#pragma endregion
 };
 
 #endif

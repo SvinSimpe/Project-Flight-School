@@ -21,7 +21,6 @@ class ParticleManager
 		int*				mMaxNrOfParticleSystemsPerType;
 		int*				mNrOfActiveParticleSystemsPerType;
 		
-
 	public:
 		void Update( float deltaTime );
 		void Render( float deltaTime );

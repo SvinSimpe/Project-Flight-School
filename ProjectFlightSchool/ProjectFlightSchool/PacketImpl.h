@@ -2,6 +2,7 @@
 #define PACKETIMPL_H
 
 #include "IPacket.h"
+#include <iostream>
 
 /////////////////////////////////////////////////////////////////
 // A virtual packet-class that can be constructed all at once
@@ -30,8 +31,6 @@ inline void BinaryPacket::MemCpy( char const* const data, size_t size, int destO
 	PFS_ASSERT( size + destOffset <= GetSize() - sizeof( u_long ) );
 	memcpy( mData + destOffset + sizeof( u_long ), data, size );
 }
-
-#include <iostream>
 
 inline BinaryPacket::BinaryPacket( char const* const data, u_long size )
 {

@@ -124,7 +124,6 @@ class RemotePlayer
 	private:
 		HRESULT			InitializeGraphics();
 		void			EventListener( IEventPtr newEvent );
-
 	protected:
 
 	public:

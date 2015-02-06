@@ -21,6 +21,7 @@
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
+#define TOSERVER_OFFSET			5000;
 
 class PlayState : public BaseState
 {

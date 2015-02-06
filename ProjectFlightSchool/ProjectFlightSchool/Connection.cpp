@@ -97,22 +97,23 @@ void NetSocket::HandleOutput()
 	} while( fSent && !mOutList.empty() );
 }
 
-void NetSocket::HandleInput()
+bool NetSocket::HandleInput()
 {
 	bool pktReceived = false;
 	u_long packetSize = 0;
+	SetBlocking( false );
 	int rc = recv( mSocket, mRecvBuf + mRecvBegin + mRecvOfs, RECV_BUFFER_SIZE - ( mRecvBegin + mRecvOfs ), 0 );
-	
 	//printf( "Incoming %6d bytes. Begin %6d offset %4d\n", rc, mRecvBegin, mRecvOfs );
 
-	if( rc == 0 )
+	if( rc == -1 )
 	{
-		return;
+		return false;
 	}
 	if( rc == SOCKET_ERROR )
 	{
+		printf( "recv() failed with error: %d\n", WSAGetLastError() );
 		mDeleteFlag = 1;
-		return;
+		return false;
 	}
 
 	const int hdrSize = sizeof( u_long );
@@ -132,7 +133,7 @@ void NetSocket::HandleInput()
 			if( packetSize > MAX_PACKET_SIZE )
 			{
 				HandleException();
-				return;
+				return false;
 			}
 
 			if( newData >= packetSize )
@@ -179,6 +180,7 @@ void NetSocket::HandleInput()
 			mRecvBegin = 0;
 		}
 	}
+	return pktReceived;
 }
 
 void NetSocket::HandleException()
@@ -378,7 +380,7 @@ NetListenSocket::NetListenSocket( SocketManager* socketManager, int portNum )
 /////////////////////////////////////////////////////////////////
 // ServerListenSocket functions
 
-void ServerListenSocket::HandleInput()
+bool ServerListenSocket::HandleInput()
 {
 	UINT ipAddr;
 	SOCKET newSocket = AcceptConnection( &ipAddr );
@@ -396,6 +398,7 @@ void ServerListenSocket::HandleInput()
 		IEventPtr E1( PFS_NEW Event_Client_Joined( sockID ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
+	return false;
 }
 
 ServerListenSocket::ServerListenSocket( SocketManager* socketManager, int portNum )
@@ -428,9 +431,9 @@ void RemoteEventSocket::CreateEvent( std::istringstream &in )
 	}
 }
 
-void RemoteEventSocket::HandleInput()
+bool RemoteEventSocket::HandleInput()
 {
-	NetSocket::HandleInput();
+	while( NetSocket::HandleInput() );
 
 	while( !mInList.empty() )
 	{
@@ -464,6 +467,7 @@ void RemoteEventSocket::HandleInput()
 			printf( "Network: %s\n", packet->GetData()+sizeof(u_long) );
 		}
 	}
+	return false;
 }
 
 RemoteEventSocket::RemoteEventSocket( SocketManager* socketManager, SOCKET newSocket, UINT ip )
@@ -712,7 +716,7 @@ void SocketManager::DoSelect( int pauseMicroSecs, bool handleInput )
 			case 1:
 				RemoveSocket( socket );
 				i = mSocketList.begin();
-				break;
+				continue;
 			case 3:
 				socket->mDeleteFlag = 2;
 				if( socket->mSocket != INVALID_SOCKET )

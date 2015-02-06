@@ -54,7 +54,7 @@ class NetSocket
 		void			Send( std::shared_ptr<IPacket> pkt, bool clearTimeOut = 1);
 		virtual int		HasOutput();
 		virtual void	HandleOutput();
-		virtual void	HandleInput();
+		virtual bool	HandleInput();
 		void			HandleException();
 		virtual void	TimeOut();
 		void			SetTimeOut( UINT ms = 45 * 1000 );
@@ -90,7 +90,7 @@ class ServerListenSocket : public NetListenSocket
 	private:
 	protected:
 	public:
-		virtual void	HandleInput();
+		virtual bool	HandleInput();
 						ServerListenSocket( SocketManager* socketManager, int portNum );
 };
 
@@ -110,7 +110,7 @@ class RemoteEventSocket : public NetSocket
 		void CreateEvent( std::istringstream& in );
 
 	public:
-		virtual void HandleInput();
+		virtual bool HandleInput();
 		RemoteEventSocket( SocketManager* socketManager, SOCKET newSocket, UINT ip );
 		RemoteEventSocket( SocketManager* socketManager );
 };

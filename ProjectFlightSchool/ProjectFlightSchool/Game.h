@@ -1,7 +1,6 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "Client.h"
 #include "Server.h"
 #include "StateMachine.h"
 #include "RenderManager.h"

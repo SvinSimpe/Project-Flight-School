@@ -2,6 +2,7 @@
 
 /////Private
 
+
 void Player::EventListener(IEventPtr newEvent)
 {
 	if ( newEvent->GetEventType() == Event_Remote_Died::GUID )
@@ -13,9 +14,9 @@ void Player::EventListener(IEventPtr newEvent)
 			CountUpKills();
 		}
 	}
-	else if ( newEvent->GetEventType() == Event_Client_Attempt_Revive::GUID )
+	else if ( newEvent->GetEventType() == Event_Remote_Attempt_Revive::GUID )
 	{
-		std::shared_ptr<Event_Client_Attempt_Revive> data = std::static_pointer_cast<Event_Client_Attempt_Revive>(newEvent);
+		std::shared_ptr<Event_Remote_Attempt_Revive> data = std::static_pointer_cast<Event_Remote_Attempt_Revive>(newEvent);
 		HandleRevive(data->DeltaTime());
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Enemy_Attack_Player::GUID )
@@ -123,9 +124,7 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		
 		RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] );
 		mRightArmAnimationCompleted		= false;
-
-		IEventPtr E1( new Event_Client_Attack( mID, RIGHT_ARM_ID, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
+		PushEvent( new Event_Client_Attack( mID, RIGHT_ARM_ID, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] ) );
 	}
 	else
 		mWeaponCoolDown -= deltaTime;
@@ -136,9 +135,7 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		mMeleeCoolDown					= 2.0f;
 		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
 		mLeftArmAnimationCompleted		= false;
-
-		IEventPtr E1( new Event_Client_Attack( mID, LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK]) );
-		EventManager::GetInstance()->QueueEvent( E1 );
+		PushEvent( new Event_Client_Attack( mID, LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK]) );
 	}
 	else
 		mMeleeCoolDown -= deltaTime;
@@ -149,6 +146,7 @@ void Player::HandleSpawn( float deltaTime )
 	if( mTimeTillSpawn <= 0.0f )
 	{
 		Spawn();
+		PushEvent( new Event_Client_Spawned( mID ) );
 	}
 	else
 	{
@@ -200,27 +198,23 @@ void Player::GoDown( int shooter )
 	mTimeTillDeath	= mDeathTime;
 	mTimeTillRevive	= mReviveTime;
 	mLastKiller		= shooter;
-	IEventPtr player( new Event_Client_Down( mID ) );
-	EventManager::GetInstance()->QueueEvent( player );
+	PushEvent( new Event_Client_Down( mID ) );
 }
 
 void Player::GoUp()
 {
 	RemotePlayer::GoUp();
-	IEventPtr player( new Event_Client_Up( mID ) );
-	EventManager::GetInstance()->QueueEvent( player );
+	PushEvent( new Event_Client_Up( mID ) );
 }
 
 void Player::ReviveRemotePlayer( int remotePlayerID, float deltaTime )
 {
-	IEventPtr player( new Event_Remote_Attempt_Revive( mID, remotePlayerID, deltaTime ) );
-	EventManager::GetInstance()->QueueEvent( player );
+	PushEvent( new Event_Remote_Attempt_Revive( mID, remotePlayerID, deltaTime ) );
 }
 
 void Player::BroadcastDeath( unsigned int shooter )
 {
-	IEventPtr dieEv( new Event_Client_Died( mID, shooter ) );
-	EventManager::GetInstance()->QueueEvent( dieEv );
+	PushEvent( new Event_Client_Died( mID, shooter ) );
 }
 
 void Player::Revive()
@@ -247,14 +241,18 @@ void Player::Fire()
 	XMFLOAT3 loadDir;
 	XMStoreFloat3( &loadDir, offset );
 
-	IEventPtr E1( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mUpperBody.direction ) );
-	EventManager::GetInstance()->QueueEvent( E1 );
+	PushEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mUpperBody.direction ) );
 }
 
 void Player::AddImpuls( XMFLOAT3 impuls )
 {
 	mVelocity.x += impuls.x;
 	mVelocity.z += impuls.z;
+}
+
+void Player::PushEvent( IEvent* ptr )
+{
+	mEventList.push_front( IEventPtr( ptr ) );
 }
 
 /////Public
@@ -267,8 +265,7 @@ void Player::TakeDamage( float damage, unsigned int shooter )
 		damage -= moddedDmg;
 	}
 	mCurrentHp -= damage;
-	IEventPtr player( new Event_Client_Update_HP( mID, mCurrentHp ) );
-	EventManager::GetInstance()->QueueEvent( player );
+	PushEvent( new Event_Client_Update_HP( mID, mCurrentHp ) );
 	if ( !mIsDown && mIsAlive && mCurrentHp <= 0.0f )
 	{
 		GoDown( shooter );
@@ -366,9 +363,8 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	mEventCapTimer += deltaTime;
 	if( mEventCapTimer > 0.02f )
 	{
-		IEventPtr E1( new Event_Client_Update( mID, mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
-		mEventCapTimer -= 0.02f;
+		PushEvent( new Event_Client_Update( mID, mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName ) );
+		mEventCapTimer = 0.0f;
 	}
 
 	return S_OK;
@@ -475,7 +471,7 @@ HRESULT Player::Initialize()
 
 	
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Died::GUID );
-	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Client_Attempt_Revive::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Attempt_Revive::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Enemy_Attack_Player::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Melee_Hit::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Create_Player_Name::GUID );
@@ -520,6 +516,8 @@ Player::Player()
 	mReviveTime				= 0.0f;
 	mTimeTillRevive			= 0.0f;
 	mLastKiller				= 0;
+
+	mEventList				= std::list<IEventPtr>();
 }
 
 Player::~Player()
@@ -571,4 +569,19 @@ void Player::SetColor( AssetID color )
 void Player::SetPosition( XMVECTOR position )
 {
 	XMStoreFloat3( &mLowerBody.position, position );
+}
+
+std::list<IEventPtr> Player::GetEvents()
+{
+	return mEventList;
+}
+
+void Player::EmptyList()
+{
+	mEventList.clear();
+}
+
+void Player::PopEvent()
+{
+	mEventList.pop_back();
 }

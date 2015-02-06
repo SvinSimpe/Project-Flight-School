@@ -148,19 +148,19 @@ void PlayState::SyncSpawn( unsigned int id, XMFLOAT3 position )
 void PlayState::BroadcastDamage( unsigned int playerID, unsigned int projectileID )
 {
 	IEventPtr dmgEv( new Event_Client_Damaged( playerID, projectileID ) );
-	EventManager::GetInstance()->QueueEvent( dmgEv );
+	Client::GetInstance()->SendEvent( dmgEv );
 }
 
 void PlayState::BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage )
 {
 	IEventPtr dmgEv( new Event_Client_Projectile_Damage_Enemy( shooterID, projectileID, enemyID, damage ) );
-	EventManager::GetInstance()->QueueEvent( dmgEv );
+	Client::GetInstance()->SendEvent( dmgEv );
 }
 
 void PlayState::BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction )
 {
 	IEventPtr dmgEv( new Event_Client_Melee_Hit( playerID, damage, knockBack, direction ) );
-	EventManager::GetInstance()->QueueEvent( dmgEv );
+	Client::GetInstance()->SendEvent( dmgEv );
 }
 
 void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction )
@@ -374,6 +374,13 @@ void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int project
 
 HRESULT PlayState::Update( float deltaTime )
 {
+	while( !mPlayer->GetEvents().empty() )
+	{
+		IEventPtr e = mPlayer->GetEvents().back();
+		Client::GetInstance()->SendEvent( e );
+		mPlayer->PopEvent();
+	}
+
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{
 		CheckPlayerCollision();
@@ -401,9 +408,9 @@ HRESULT PlayState::Update( float deltaTime )
 			mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
 		}
 	}
+	mPlayer->Update( deltaTime, mRemotePlayers );
 
 	HandleDeveloperCameraInput();
-	mPlayer->Update( deltaTime, mRemotePlayers );
 
 	UpdateProjectiles( deltaTime );
 

@@ -2,64 +2,66 @@
 #define GUI_H
 
 #include "Radar.h"
+#include "Text.h"
 #include "Font.h"
+#define MAX_REMOTE_PLAYERS 14
 
 class Gui
 {
 
-private:
-	Font					mFont;
-	Radar*					mRadar;
-	int						mScreenWidth;
-	int						mScreenHeight;
 
-	AssetID					mAllyHealth;
-	XMFLOAT2				mSizeAllyHealth;
-	float					mSpaceAllyHealth;
-	float					mSpaceAllyHealthToBar;
-	int						mNrOfHealths;
+	private:
+		Radar*	mRadar;
 
-	AssetID					mAllyHealthBar;
-	XMFLOAT2				mSizeAllyHealthBar;
-	float					mSpaceAllyHealthBar;
-	float					mSpaceAllyHealthBarToEdge;
+		Text	mPlayerNames[MAX_REMOTE_PLAYERS - 1]; //Don't need to store the local player's name
 
-	AssetID					mAllyHealthFrame;
-	XMFLOAT2				mSizeAllyHealthFrame;
+		Font					mFont;
+		int						mScreenWidth;
+		int						mScreenHeight;
 
-	AssetID					mPlayerBar;
-	XMFLOAT2				mSizePlayerHealthXP;
+		AssetID					mAllyHealth;
+		XMFLOAT2				mSizeAllyHealth;
+		float					mSpaceAllyHealth;
+		float					mSpaceAllyHealthToBar;
+		int						mNrOfHealths;
 
-	AssetID					mLevelUp;
-	XMFLOAT2				mSizeLevelUp;
-	XMFLOAT2				mTopLeftCompWithPlayerHealthXP;
+		AssetID					mAllyHealthBar;
+		XMFLOAT2				mSizeAllyHealthBar;
+		float					mSpaceAllyHealthBar;
+		float					mSpaceAllyHealthBarToEdge;
 
-	AssetID					mShipHealth;
-	XMFLOAT2				mSizeShipHealth;
-	float					mSizeShipHealthTop;
-	float					mSpaceShipHealth;
-	XMFLOAT2				mStartShipHealth;
-	XMFLOAT2				mEndShipHealth;
+		AssetID					mAllyHealthFrame;
+		XMFLOAT2				mSizeAllyHealthFrame;
 
-	AssetID					mShipHealthBar;
-	XMFLOAT2				mSizeShipHealthBar;
+		AssetID					mPlayerBar;
+		XMFLOAT2				mSizePlayerHealthXP;
 
-protected:
+		AssetID					mLevelUp;
+		XMFLOAT2				mSizeLevelUp;
+		XMFLOAT2				mTopLeftCompWithPlayerHealthXP;
 
-public:
+		AssetID					mShipHealth;
+		XMFLOAT2				mSizeShipHealth;
+		float					mSizeShipHealthTop;
+		float					mSpaceShipHealth;
+		XMFLOAT2				mStartShipHealth;
+		XMFLOAT2				mEndShipHealth;
 
-private:
+		AssetID					mShipHealthBar;
+		XMFLOAT2				mSizeShipHealthBar;
 
-protected:
+	protected:
+	public:
 
-public:
-	HRESULT	Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjects[], UINT nrOfObjects );
-	HRESULT	Render( int nrOfAllies, float alliesHP[], float playerHP, float playerShield, float playerXp, float shipHP );
-	HRESULT	Initialize();
-	void	Release();
-			Gui();
-			~Gui();
-
+	private:
+	protected:
+	public:
+		HRESULT	Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjects[], UINT nrOfObjects, DirectX::XMFLOAT3 remotePlayerPos, std::string remotePlayerName, int remotePlayerTeamID, int remotePlayerID, int playerTeamID, bool updateRemotePlayerName );
+		HRESULT	Render( int nrOfAllies, float alliesHP[], float playerHP, float playerShield, float playerXp, float shipHP );
+		HRESULT	Initialize();
+		void	Release();
+				Gui();
+				~Gui();
 };
 
 

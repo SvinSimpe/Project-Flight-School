@@ -136,7 +136,7 @@ XMFLOAT3 Server::GetNextSpawn()
 	return mSpawners[mNrOfEnemiesSpawned++ % MAX_NR_OF_ENEMY_SPAWNERS]->GetSpawnPosition();
 }
 
-void Server::AggroCheck()
+void Server::StateCheck()
 {
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 	{
@@ -148,7 +148,7 @@ void Server::AggroCheck()
 				mAggCircle->center = mPlayers[j].Position;
 				mAggCircle->radius = 1.0f;
 
-				if( mEnemies[i]->GetAttentionCircle()->Intersect( mAggCircle ) )
+				if( mPlayers[j].IsAlive && mEnemies[i]->GetAttentionCircle()->Intersect( mAggCircle ) && mEnemies[i]->GetEnemyState() != Stunned )
 				{
 					if( mEnemies[i]->GetAttackCircle()->Intersect( mAggCircle ) )
 					{
@@ -219,7 +219,7 @@ HRESULT Server::Update( float deltaTime )
 		}
 
 		//if( mSafeUpdate )
-			AggroCheck();
+			StateCheck();
 
 		mFrameCount = 0;
 	}

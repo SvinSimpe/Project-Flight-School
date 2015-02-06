@@ -47,6 +47,8 @@ class Event_Player_Update : public IEvent
 		XMFLOAT3		mLowerBodyPos;
 		XMFLOAT3		mVelocity;
 		XMFLOAT3		mUpperBodyDirection;
+		bool			mIsAlive;
+		std::string		mName;
 
 	protected:
 	public:
@@ -60,23 +62,33 @@ class Event_Player_Update : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Player_Update( XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDirection )
+		Event_Player_Update( XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDirection, bool isAlive, std::string name )
 		{
 			mLowerBodyPos			= lowerBodyPos;
 			mVelocity				= velocity;
 			mUpperBodyDirection		= upperBodyDirection;
+			mIsAlive				= isAlive;
+			mName					= name;
 		}
-		XMFLOAT3 LowerBodyPos() const
+		XMFLOAT3	LowerBodyPos() const
 		{
 			return mLowerBodyPos;
 		}
-		XMFLOAT3 Velocity() const
+		XMFLOAT3	Velocity() const
 		{
 			return mVelocity;
 		}
-		XMFLOAT3 UpperBodyDirection() const
+		XMFLOAT3	UpperBodyDirection() const
 		{
 			return mUpperBodyDirection;
+		}
+		bool IsAlive() const
+		{
+			return mIsAlive;
+		}
+		std::string Name() const
+		{
+			return mName;
 		}
 };
 
@@ -88,6 +100,7 @@ class Event_Remote_Player_Update : public IEvent
 		XMFLOAT3		mLowerBodyPos;
 		XMFLOAT3		mVelocity;
 		XMFLOAT3		mUpperBodyDirection;
+		std::string		mName;
 
 	protected:
 	public:
@@ -101,28 +114,33 @@ class Event_Remote_Player_Update : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Remote_Player_Update( unsigned int id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDirection )
+		Event_Remote_Player_Update( unsigned int id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDirection, std::string name )
 		{
 			mID						= id;
 			mLowerBodyPos			= lowerBodyPos;
 			mVelocity				= velocity;
 			mUpperBodyDirection		= upperBodyDirection;
+			mName					= name;
 		}
-		unsigned int ID() const
+		unsigned int	ID() const
 		{
 			return mID;
 		}
-		XMFLOAT3 LowerBodyPos() const
+		XMFLOAT3		LowerBodyPos() const
 		{
 			return mLowerBodyPos;
 		}
-		XMFLOAT3 Velocity() const
+		XMFLOAT3		Velocity() const
 		{
 			return mVelocity;
 		}
-		XMFLOAT3 UpperBodyDirection() const
+		XMFLOAT3		UpperBodyDirection() const
 		{
 			return mUpperBodyDirection;
+		}
+		std::string		Name() const
+		{
+			return mName;
 		}
 };
 
@@ -147,8 +165,8 @@ class Event_Local_Player_Joined : public IEvent
 	public:
 		Event_Local_Player_Joined( unsigned int id, int team )
 		{
-			mID		= id;
-			mTeam	= team;
+			mID			= id;
+			mTeam		= team;
 		}
 		unsigned int ID() const
 		{
@@ -181,8 +199,8 @@ class Event_Remote_Player_Joined : public IEvent
 	public:
 		Event_Remote_Player_Joined( unsigned int id, int team )
 		{
-			mID		= id;
-			mTeam	= team;
+			mID			= id;
+			mTeam		= team;
 		}
 		unsigned int ID() const
 		{
@@ -1119,6 +1137,7 @@ class Event_Remove_Point_Light : public IEvent
 			return mLight;
 		}
 };
+
 class Event_Sync_Enemy_Type : public IEvent
 {
 	// Member variables
@@ -1277,6 +1296,34 @@ class Event_Set_Remote_Enemy_State : public IEvent // Client side
 		}
 };
 
+class Event_Create_Player_Name : public IEvent
+{
+	// Member variables
+	private:
+		std::string		mPlayerName;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+		Event_Create_Player_Name( std::string playerName )
+		{
+			mPlayerName = playerName;
+		}
+		std::string PlayerName() const
+		{
+			return mPlayerName;
+		}
+};
+
 class Event_Projectile_Damage_Enemy : public IEvent
 {
 	// Member variables
@@ -1351,16 +1398,71 @@ class Event_Enemy_Died : public IEvent
 		}
 };
 
+class Event_Enemy_Melee_Hit : public IEvent
+{
+	// Member variables
+	private:
+		unsigned int	mID;
+		float			mDamage;
+		float			mKnockBack;
+		XMFLOAT3		mDirection;
+		float			mStun;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+
+	// Member functions
+	private:
+	protected:
+		const EventType& GetEventType( void ) const
+		{
+			return GUID;
+		}
+	public:
+
+		Event_Enemy_Melee_Hit( unsigned int id, float damage, float knockBack, XMFLOAT3 direction, float stun )
+		{
+			mID				= id;
+			mDamage			= damage;
+			mKnockBack		= knockBack;
+			mDirection		= direction;
+			mStun			= stun;
+		}
+		unsigned int Enemy() const
+		{
+			return mID;
+		} 
+		float Damage() const
+		{
+			return mDamage;
+		}
+		float KnockBack() const
+		{
+			return mKnockBack;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
+		}
+		float Stun() const
+		{
+			return mStun;
+		}
+};
+
 class Event_Enemy_Attack_Player : public IEvent
 {
 	// Member variables
 	private:
 		unsigned int	mPlayerID;	
 		float			mDamage;
-
+	
 	protected:
 	public:
 		static const EventType GUID;
+
 
 	// Member functions
 	private:

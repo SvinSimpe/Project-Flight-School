@@ -195,8 +195,15 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	cameraPosition.y = mLowerBody.position.y + 20.0f;
 	cameraPosition.z = mLowerBody.position.z - 12.0f;
 
-	Graphics::GetInstance()->SetEyePosition( cameraPosition );
-	Graphics::GetInstance()->SetFocus( mLowerBody.position );
+	Graphics::GetInstance()->SetEyePosition( CAMERAS_MAIN, cameraPosition );
+	Graphics::GetInstance()->SetFocus( CAMERAS_MAIN, mLowerBody.position );
+
+	//Shadow map camera
+	cameraPosition.y = mLowerBody.position.y + 30.0f;
+	cameraPosition.z = mLowerBody.position.z;
+
+	Graphics::GetInstance()->SetEyePosition( CAMERAS_SHADOWMAP, cameraPosition );
+	Graphics::GetInstance()->SetFocus( CAMERAS_SHADOWMAP, mLowerBody.position );
 
 	//Update Bounding Primitives
 	mBoundingBox->position								= mLowerBody.position;
@@ -205,11 +212,11 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	mLoadOut->meleeWeapon->boundingCircle->center		= mLowerBody.position;
 
 	//Update Light
-	mPointLight[0]->position = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 7.0f, mLowerBody.position.z, 0.0f );
-	mPointLight[1]->position = DirectX::XMFLOAT4( mLowerBody.position.x - 10.0f, mLowerBody.position.y + 7.0f, mLowerBody.position.z + 10.0f, 0.0f );
-	mPointLight[2]->position = DirectX::XMFLOAT4( mLowerBody.position.x + 10.0f, mLowerBody.position.y + 7.0f, mLowerBody.position.z + 10.0f, 0.0f );
-	mPointLight[3]->position = DirectX::XMFLOAT4( mLowerBody.position.x - 10.0f, mLowerBody.position.y + 7.0f, mLowerBody.position.z - 10.0f, 0.0f );
-	mPointLight[4]->position = DirectX::XMFLOAT4( mLowerBody.position.x + 10.0f, mLowerBody.position.y + 7.0f, mLowerBody.position.z - 10.0f, 0.0f );
+	mPointLight[0]->position = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 5.0f, mLowerBody.position.z, 0.0f );
+	//mPointLight[1]->position = DirectX::XMFLOAT4( mLowerBody.position.x - 10.0f, mLowerBody.position.y + 0.0f, mLowerBody.position.z + 10.0f, 0.0f );
+	//mPointLight[2]->position = DirectX::XMFLOAT4( mLowerBody.position.x + 10.0f, mLowerBody.position.y + 0.0f, mLowerBody.position.z + 10.0f, 0.0f );
+	//mPointLight[3]->position = DirectX::XMFLOAT4( mLowerBody.position.x - 10.0f, mLowerBody.position.y + 0.0f, mLowerBody.position.z - 10.0f, 0.0f );
+	//mPointLight[4]->position = DirectX::XMFLOAT4( mLowerBody.position.x + 10.0f, mLowerBody.position.y + 0.0f, mLowerBody.position.z - 10.0f, 0.0f );
 
 	//== Event to sync player with server ==
 	mEventCapTimer += deltaTime;
@@ -434,7 +441,7 @@ HRESULT Player::Initialize()
 	////////////
 	// Light
 	////////////
-	for( int i = 0; i < 5; i++ )
+	for( int i = 0; i < 1; i++ )
 	{
 		mPointLight[i]						= new PointLight;
 		mPointLight[i]->position			= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
@@ -442,11 +449,11 @@ HRESULT Player::Initialize()
 		EventManager::GetInstance()->QueueEvent( reg );
 	}
 
-	mPointLight[0]->colorAndRadius		= DirectX::XMFLOAT4( 0.2f, 0.2f, 0.2f, 20.0f );
-	mPointLight[1]->colorAndRadius		= DirectX::XMFLOAT4( 0.6f, 0.2f, 0.2f, 20.0f );
-	mPointLight[2]->colorAndRadius		= DirectX::XMFLOAT4( 0.2f, 0.6f, 0.2f, 20.0f );
-	mPointLight[3]->colorAndRadius		= DirectX::XMFLOAT4( 0.2f, 0.2f, 0.6f, 20.0f );
-	mPointLight[4]->colorAndRadius		= DirectX::XMFLOAT4( 0.6f, 0.6f, 0.2f, 20.0f );
+	mPointLight[0]->colorAndRadius		= DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 17.0f );
+	//mPointLight[1]->colorAndRadius		= DirectX::XMFLOAT4( 0.6f, 0.2f, 0.2f, 20.0f );
+	//mPointLight[2]->colorAndRadius		= DirectX::XMFLOAT4( 0.2f, 0.6f, 0.2f, 10.0f );
+	//mPointLight[3]->colorAndRadius		= DirectX::XMFLOAT4( 0.2f, 0.2f, 0.6f, 10.0f );
+	//mPointLight[4]->colorAndRadius		= DirectX::XMFLOAT4( 0.6f, 0.6f, 0.2f, 10.0f );
 
 	mMaxVelocity		= 7.7f;
 	mCurrentVelocity	= 0.0f;

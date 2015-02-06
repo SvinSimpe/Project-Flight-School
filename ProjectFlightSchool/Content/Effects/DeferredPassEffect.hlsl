@@ -57,9 +57,17 @@ cbuffer CbufferPerFrame	: register( b0 )
 	int			numPointLights;
 }
 
+cbuffer CbufferPerFrameShadow : register( b1 )
+{
+	float4x4	shadowViewMatrix;
+	float4x4	shadowProjectionMatrix;
+	float4		shadowCameraPosition;
+}
+
 Texture2D<float4>				albedoSpecBuffer		: register( t0 );
 Texture2D<float4>				normalBuffer			: register( t1 );
 Texture2D<float4>				worldPositionBuffer		: register( t2 );
+Texture2D<float4>				shadowMap				: register( t4 );
 StructuredBuffer<PointLight>	lightStructure			: register( t5 );
 
 SamplerState pointSampler			: register( s0 );
@@ -96,26 +104,54 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 
 	ssao = 1.0f - ssao / 16.0f;
 
-	//======== PHONG SHADING ===========
-	float3 ambient		= float3( 0.2f, 0.2f,  0.2f );
-	float3 diffuse		= float3( 0.0f, 0.0f,  0.0f );
-	float3 specular		= float3( 0.1f, 0.1f,  0.1f );
-	float3 color		= float3( 0.1f, 0.1f,  0.1f );
+	//-------------------------------------------------------------------------------------------------
+	//	SHADOW MAP
+	//-------------------------------------------------------------------------------------------------
+	float SHADOW_BIAS = 0.001f;
 
-	float3 lightDirection	= float3( -0.5f, -1.0f, 0.3f );
+	float shadowSample[4];
+
+	float4 posLightH	= mul( float4( worldSample, 1.0f ), shadowViewMatrix );
+	posLightH			= mul( posLightH, shadowProjectionMatrix );
+	posLightH.xy	   /= posLightH.w;
+
+	float2 smTex = float2( 0.5f * posLightH.x, -0.5f * posLightH.y ) + 0.5f;
+
+	float depth = posLightH.z / posLightH.w;
+
+	float dx = 1.0f / 1024.0f;
+	float dy = 1.0f / 1024.0f;
+	shadowSample[0] = shadowMap.Sample( linearSampler, smTex ).r + SHADOW_BIAS < depth ? 0.0f : 1.0f;
+	shadowSample[1] = shadowMap.Sample( linearSampler, smTex + float2( dx	, 0.0f	) ).r + SHADOW_BIAS < depth ? 0.0f : 1.0f;
+	shadowSample[2] = shadowMap.Sample( linearSampler, smTex + float2( 0.0f	, dy	) ).r + SHADOW_BIAS < depth ? 0.0f : 1.0f;
+	shadowSample[3] = shadowMap.Sample( linearSampler, smTex + float2( dx	, dy	) ).r + SHADOW_BIAS < depth ? 0.0f : 1.0f;
+
+	float2 lerps = frac( input.uv );
+
+	float shadowFactor = lerp(	lerp( shadowSample[0], shadowSample[1], lerps.x ),
+								lerp( shadowSample[2], shadowSample[3], lerps.x ),
+								lerps.y );
+
+	//======== SHADOW MAP POINTLIGHT ===========
+	float3 ambient		= float3( 0.3f, 0.3f,  0.3f );
+	float3 color		= float3( 0.3f, 0.2f,  0.2f );
+
+	float3 lightDirection	= worldSample - shadowCameraPosition.xyz;
+	float dShadow			= length( lightDirection );
+	lightDirection			/= dShadow;
 
 	//Calculate diffuse factor
-	float diffuseFactor = max( 0, dot( normalSample, -lightDirection ) );
-	diffuse				= color * diffuseFactor;
+	float	diffuseFactor	= saturate( dot( -lightDirection, normalSample ) );
+	float3	diffuse			= float3( diffuseFactor, diffuseFactor, diffuseFactor );
 
 	//Calculate specular factor
 	float3 reflection		= normalize( reflect( -lightDirection, normalSample ) );
 	float3 viewVector		= normalize( worldSample - cameraPosition.xyz );
 	float specularFactor	= saturate( dot( reflection, viewVector ) );
 	float specularPower		= 4.0f;
-	specular				= float3( float3( 1.0f, 1.0f, 1.0f ) * pow( specularFactor, specularPower ) ) * specularSample;
+	float3 specular			= float3( float3( 1.0f, 1.0f, 1.0f ) * pow( specularFactor, specularPower ) ) * specularSample;
 
-	float3 finalColor		= ( ambient * ssao + diffuse + specular ) * color;
+	float3 finalColor		= ( ( ( ambient * ssao + diffuse + specular ) * color ) * shadowFactor ) / ( dShadow * 0.01f + dShadow * dShadow * 0.005f );
 
 
 	//-------------------------------------------------------------------------------------------------
@@ -125,8 +161,8 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	for( int i = 0; i < numPointLights; i++ )
 	{
 		float3 lightDir = worldSample - lightStructure[i].position.xyz;
-		float d = length( lightDir );
-		lightDir /= d;
+		float d			= length( lightDir );
+		lightDir		/= d;
 		
 		float3 N = normalSample;
 		float3 V = cameraPosition.xyz;
@@ -135,15 +171,26 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 		float diff	= saturate( dot( -lightDir, N ) );
 		float3 spec	= float3( lightStructure[i].colorAndRadius.xyz * pow( dot( R, V ), specularPower ) ) * specularSample;
 
-		float radiusInverse = 1.0f / lightStructure[i].colorAndRadius.w;
-		finalColor += ( diffuse + specular ) * lightStructure[i].colorAndRadius.xyz 
-						/ ( d * ( 0.01f * radiusInverse ) + d * d * ( 0.05f * radiusInverse ) );
+		//float radiusInverse = 1.0f / lightStructure[i].colorAndRadius.w;
+		//finalColor += ( ( diffuse + specular ) * lightStructure[i].colorAndRadius.xyz ) 
+		//				/ ( 0.5f + d * ( 1.0f * radiusInverse ) + d * d * ( 1.0f * radiusInverse ) );
+
+		float denom			= d / lightStructure[i].colorAndRadius.w + 1.0f;
+		float attenuation	= 1.0f / ( denom * denom );
+
+		finalColor += ( diffuse + specular ) * lightStructure[i].colorAndRadius.xyz * attenuation;
 	}
 
 	saturate( finalColor );
 
+	//Water hotfix?
+	if( worldSample.y < -0.5f )
+		albedoSample = ( albedoSample * 0.3 + float3( 0.6f, 0.6f, 0.7f ) * 0.7f ) * saturate( ( 1 + ( worldSample.y + 0.5f ) * 0.3f ) );
+
 	//return float4( ambient * ssao, 1.0f );
 	//return float4( specular, 1.0f );
 	//return float4( normalSample, 1.0f );
+	//return float4( shadowFactor, 0.0f, 0.0f, 1.0f );
+
 	return float4( finalColor *	albedoSample, 1.0f );
 }

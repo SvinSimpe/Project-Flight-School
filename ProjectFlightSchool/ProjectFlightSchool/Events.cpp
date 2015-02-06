@@ -78,16 +78,17 @@ const EventType Event_Player_Attack::GUID( 32 );
 const EventType Event_Remote_Player_Attack::GUID( 33 );
 const EventType Event_Set_Enemy_State::GUID( 34 );
 const EventType Event_Set_Remote_Enemy_State::GUID( 35 );
+
 const EventType Event_Projectile_Damage_Enemy::GUID( 36 );
 const EventType Event_Enemy_Died::GUID( 37 );
 const EventType Event_Enemy_Attack_Player::GUID( 38 );
-const EventType Event_Create_Player_Name::GUID( 39 );
+const EventType Event_Enemy_Melee_Hit::GUID( 39 );
+const EventType Event_Load_Level::GUID( 0xc16fcd07 );
+
 const EventType Event_Remote_Player_Down::GUID( 40 );
 const EventType Event_Player_Down::GUID( 41 );
 const EventType Event_Remote_Player_Up::GUID( 42 );
 const EventType Event_Player_Up::GUID( 43 );
 const EventType Event_Remote_Player_Revive::GUID( 44 );
 const EventType Event_Player_Revive::GUID( 45 );
-
-const EventType Event_Load_Level::GUID( 0xc16fcd07 );
-
+const EventType Event_Create_Player_Name::GUID( 46 );

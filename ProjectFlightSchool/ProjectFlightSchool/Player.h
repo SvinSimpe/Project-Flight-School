@@ -11,20 +11,25 @@ class Player: public RemotePlayer
 {
 	private:
 		float			mEventCapTimer;
+		PointLight*		mPointLight[5];
 
-		PointLight*	mPointLight[5];
+		float		mWeaponCoolDown;
+		float		mMeleeCoolDown;
+		float		mTimeTillattack;
+		bool		mIsMeleeing;
+		bool		mHasMeleeStarted;
+
 		float		mMaxVelocity;
 		float		mCurrentVelocity;
 		float		mMaxAcceleration;
 		XMFLOAT3	mAcceleration;
-		
+
 		bool		mIsBuffed;
-		bool		mIsMeleeing;
-		bool		mHasName;
-		std::string	mPlayerName;
-		float		mWeaponCoolDown;
-		float		mMeleeCoolDown;
 		float		mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
+
+		std::string		mPlayerName;
+		bool			mHasName;
+		
 		float		mSpawnTime;
 		float		mTimeTillSpawn;
 		float		mDeathTime;

@@ -132,13 +132,24 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_RIGHT ) && mMeleeCoolDown <= 0.0f )
 	{
-		mIsMeleeing						= true;
-		mMeleeCoolDown					= 2.0f;
 		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
 		mLeftArmAnimationCompleted		= false;
+		mHasMeleeStarted				= true;
+		mMeleeCoolDown					= mLoadOut->meleeWeapon->attackRate;
 
-		IEventPtr E1( new Event_Player_Attack( LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK]) );
-		EventManager::GetInstance()->QueueEvent( E1 );
+		//if( mTimeTillattack <= 0.0f )
+		//{
+		//	mIsMeleeing						= true;
+		//	mMeleeCoolDown					= mLoadOut->meleeWeapon->attackRate;
+		//	//RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
+		//	//mLeftArmAnimationCompleted		= false;
+
+		//	IEventPtr E1( new Event_Player_Attack( LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK]) );
+		//	EventManager::GetInstance()->QueueEvent( E1 );
+
+		//	mTimeTillattack = mLoadOut->meleeWeapon->timeTillAttack;
+		//	mHasMeleeStarted		= false;
+		//}
 	}
 	else
 		mMeleeCoolDown -= deltaTime;
@@ -291,6 +302,24 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 {
 	HandleInput( deltaTime, remotePlayers );
 
+	// Mele attack
+	if( mHasMeleeStarted )
+		mTimeTillattack -= deltaTime;
+
+	if( mTimeTillattack <= 0.0f )
+	{
+		mIsMeleeing						= true;
+		mMeleeCoolDown					= mLoadOut->meleeWeapon->attackRate;
+		//RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
+		//mLeftArmAnimationCompleted		= false;
+
+		IEventPtr E1( new Event_Player_Attack( LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK]) );
+		EventManager::GetInstance()->QueueEvent( E1 );
+
+		mTimeTillattack = mLoadOut->meleeWeapon->timeTillAttack;
+		mHasMeleeStarted		= false;
+	}
+
 	// If player is alive, update position. If hp <= 0 kill player
 	if( mIsAlive )
 	{
@@ -366,7 +395,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	mEventCapTimer += deltaTime;
 	if( mEventCapTimer > 0.02f )
 	{
-		IEventPtr E1( new Event_Player_Update( mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName ) );
+		IEventPtr E1( new Event_Player_Update( mLowerBody.position, mVelocity, mUpperBody.direction, mIsAlive, mPlayerName ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 		mEventCapTimer -= 0.02f;
 	}
@@ -473,7 +502,8 @@ HRESULT Player::Initialize()
 	mTimeTillDeath			= mDeathTime;
 	mTimeTillRevive			= mReviveTime;
 
-	
+	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
+
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Player_Died::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Player_Revive::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Enemy_Attack_Player::GUID );
@@ -504,6 +534,7 @@ Player::Player()
 
 	mWeaponCoolDown		= 0.0f;
 	mMeleeCoolDown		= 0.0f;
+	mTimeTillattack		= 0.0f;
 	mIsMeleeing			= false;
 
 	mMaxVelocity		= 0.0f;
@@ -512,6 +543,7 @@ Player::Player()
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mIsBuffed			= false;
 	mBuffMod			= 0.0f;
+	mHasMeleeStarted	= false;
 	
 	mSpawnTime				= 0.0f;
 	mTimeTillSpawn			= 0.0f;

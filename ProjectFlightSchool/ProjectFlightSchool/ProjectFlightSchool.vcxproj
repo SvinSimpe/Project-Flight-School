@@ -198,6 +198,7 @@
     <ClInclude Include="tinyxml.h" />
     <ClInclude Include="Turret.h" />
     <ClInclude Include="WeaponInfo.h" />
+    <ClInclude Include="WeaponLoadoutInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Input.h" />

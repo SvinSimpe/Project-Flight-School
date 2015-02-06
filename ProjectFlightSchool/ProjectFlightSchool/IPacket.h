@@ -3,14 +3,14 @@
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
 #endif
-
-#pragma comment( lib, "Ws2_32.lib" )
 
 #include <Winsock2.h>
 #include <ws2tcpip.h>
 #include <IPHlpApi.h>
+#include <Windows.h>
+
+#pragma comment( lib, "Ws2_32.lib" )
 
 #define MAGIC_NUMBER (0x1f2e3d4c)
 

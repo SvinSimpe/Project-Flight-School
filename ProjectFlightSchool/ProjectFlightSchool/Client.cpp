@@ -12,10 +12,6 @@ Client::Client() : Network()
 	mRemoteIDs				= std::list<UINT>();
 	mEnemies				= std::map<UINT, NetEnemy>();
 	mActive					= false;
-
-	mLowerBodyPos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mVelocity				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mUpperBodyDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 }
 
 Client::~Client()

@@ -5,7 +5,6 @@
 #include "Server.h"
 #include "StateMachine.h"
 #include "RenderManager.h"
-#include <iostream>
 
 class Game
 {

@@ -37,7 +37,6 @@ HRESULT Game::Initialize()
 	mStateMachine->Initialize();
 	mServer = new Server();
 	mServer->Initialize();
-	Client::GetInstance()->Initialize();
 
 	OutputDebugString( L"----- Game Initialization Complete. -----" );
 

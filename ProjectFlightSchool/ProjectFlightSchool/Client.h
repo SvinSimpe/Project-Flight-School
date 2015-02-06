@@ -15,11 +15,6 @@ class Client : public Network
 		std::map<UINT, NetEnemy>mEnemies;
 		bool					mActive;
 
-		// TESTING CODE FOR EVENTS BELOW
-		XMFLOAT3	mLowerBodyPos;
-		XMFLOAT3	mVelocity;
-		XMFLOAT3	mUpperBodyDirection;
-
 	protected:
 	public:
 

@@ -138,6 +138,7 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
       MessageBox( NULL, L"CoInitializeEx failed", L"Error", MB_OK );
     }
 
+	Client::GetInstance()->Initialize();
 	Graphics::GetInstance()->Initialize( mHWnd, mScreenWidth, mScreenHeight );
 	EventManager::GetInstance();
 	Input::GetInstance()->Initialize( mScreenWidth, mScreenHeight, mHWnd );
@@ -154,23 +155,22 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 
 	CoUninitialize();
 	
-
 	return S_OK;
 }
 
 //Release all data used.
 void System::Release()
 {
-	SoundBufferHandler::GetInstance()->Release();
 	SAFE_RELEASE_DELETE( mGame );
 
 	SAFE_RELEASE_DELETE( mTimer );
 
+	Client::GetInstance()->Release();
 	Graphics::GetInstance()->Release();
 	EventManager::GetInstance()->Release();
 	Input::GetInstance()->Release();
 	RenderManager::GetInstance()->Release();
-	
+	SoundBufferHandler::GetInstance()->Release();
 }
 
 System::System()

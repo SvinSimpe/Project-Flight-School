@@ -60,5 +60,6 @@ Plant		/Plants/
 ice		/Ice/
 ici		/Ice/
 giant		/GiantAssets/
+scrapMetal	/scrapMetal/
 
 ####################################

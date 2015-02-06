@@ -19,9 +19,9 @@ cbuffer CbufferPerObject : register( b1 )
 
 cbuffer CbufferPerFrameShadow	: register( b2 )
 {
-	float4x4	viewMatrix;
-	float4x4	projectionMatrix;
-	float4		cameraPosition;
+	float4x4	shadowViewMatrix;
+	float4x4	shadowProjectionMatrix;
+	float4		shadowCameraPosition;
 }
 
 struct VS_In
@@ -59,8 +59,8 @@ VS_Out VS_main( VS_In input )
 	}
 	
 	output.position			= mul( float4( transformedPosition, 1.0f ), input.worldMatrix );
-	output.position			= mul( output.position, LightViewMatrix );
-	output.position			= mul( output.position, LightProjectionMatrix );
+	output.position			= mul( output.position, shadowViewMatrix );
+	output.position			= mul( output.position, shadowProjectionMatrix );
 
 	output.uv		= input.uv;
 

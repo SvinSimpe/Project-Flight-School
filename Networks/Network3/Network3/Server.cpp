@@ -15,14 +15,14 @@ void Server::ClientJoined( IEventPtr eventPtr )
 		mClientMap[id].NEF.Initialize( id, mSocketManager );
 
 		// Sends the ID of the newly connected client to the newly connected client
-		IEventPtr E1( PFS_NEW Event_Local_Joined( id, teamID ) );
+		IEventPtr E1( new Event_Local_Joined( id, teamID ) );
 		SendEvent( E1, id );
 		SendEnemies( id );
 
 		std::cout << "Client with ID: " << id << " joined team: " << teamID << ". There are now " << mClientMap.size() << " clients online." << std::endl;
 
 		// Sends the incoming ID to the existing remotes
-		IEventPtr E2( PFS_NEW Event_Remote_Joined( id, teamID ) ); 
+		IEventPtr E2( new Event_Remote_Joined( id, teamID ) ); 
 		BroadcastEvent( E2, id );
 
 		// Sends the list of existing remotes to the newly connected client
@@ -30,7 +30,7 @@ void Server::ClientJoined( IEventPtr eventPtr )
 		{
 			if( remote.first != id )
 			{
-				IEventPtr E3( PFS_NEW Event_Remote_Joined( remote.first, remote.second.TeamID ) ); // The key of the map is the ID of the remote
+				IEventPtr E3( new Event_Remote_Joined( remote.first, remote.second.TeamID ) ); // The key of the map is the ID of the remote
 				SendEvent( E3, id );
 			}
 		}
@@ -46,7 +46,7 @@ void Server::ClientLeft( IEventPtr eventPtr )
 		mClientMap.erase( id );
 		std::cout << "Client with ID: " << id << " left. There are now " << mClientMap.size() << " client(s) online." << std::endl;
 
-		IEventPtr E1( PFS_NEW Event_Remote_Left( id ) );
+		IEventPtr E1( new Event_Remote_Left( id ) );
 		BroadcastEvent( E1 );
 	}
 }
@@ -63,7 +63,7 @@ void Server::ClientUpdate( IEventPtr eventPtr )
 
 		std::cout << "Client with ID: " << id << " just updated." << std::endl;
 
-		IEventPtr E1( PFS_NEW Event_Remote_Update( id, pos, vel, dir ) );
+		IEventPtr E1( new Event_Remote_Update( id, pos, vel, dir ) );
 		BroadcastEvent( E1, id );
 	}
 }
@@ -77,7 +77,7 @@ void Server::ClientDied( IEventPtr eventPtr )
 		UINT killerID = data->KillerID();
 
 		std::cout << "Client with ID: " << id << " was killed by: " << killerID << std::endl;
-		IEventPtr E1( PFS_NEW Event_Remote_Died( id, killerID ) );
+		IEventPtr E1( new Event_Remote_Died( id, killerID ) );
 		BroadcastEvent( E1, id );
 	}
 }
@@ -91,7 +91,7 @@ void Server::ClientDamaged( IEventPtr eventPtr )
 		UINT projectileID = data->ProjectileID();
 
 		std::cout << "Client with ID: " << id << " was shot by bullet with ID: " << projectileID << std::endl;
-		IEventPtr E1( PFS_NEW Event_Remote_Damaged( id, projectileID ) );
+		IEventPtr E1( new Event_Remote_Damaged( id, projectileID ) );
 		BroadcastEvent( E1, id );
 	}
 }
@@ -104,7 +104,7 @@ void Server::ClientSpawned( IEventPtr eventPtr )
 		UINT id = data->ID();
 
 		std::cout << "Client with ID: " << id << " just spawned." << std::endl;
-		IEventPtr E1( PFS_NEW Event_Remote_Spawned( id ) );
+		IEventPtr E1( new Event_Remote_Spawned( id ) );
 		BroadcastEvent( E1, id );
 	}
 }
@@ -121,7 +121,7 @@ void Server::ClientFiredProjectile( IEventPtr eventPtr )
 
 		std::cout << "Client with ID: " << id << " just fired bullet: " << projectileID << " X-Pos: " << pos.x << " X-dir: " << dir.x << std::endl;
 
-		IEventPtr E1( PFS_NEW Event_Remote_Fired_Projectile( id, projectileID, pos, dir ) );
+		IEventPtr E1( new Event_Remote_Fired_Projectile( id, projectileID, pos, dir ) );
 		BroadcastEvent( E1, id );
 	}
 }
@@ -147,7 +147,7 @@ void Server::ClientUpdateHP( IEventPtr eventPtr )
 			std::cout << "Client with ID: " << id << " updated it's HP for no reason." << std::endl;
 		}
 
-		IEventPtr E1( PFS_NEW Event_Remote_Update_HP( id, hp ) );
+		IEventPtr E1( new Event_Remote_Update_HP( id, hp ) );
 		BroadcastEvent( E1, id );
 	}
 }
@@ -166,7 +166,7 @@ void Server::ClientMeleeHit( IEventPtr eventPtr )
 		std::cout << "Remote with ID: " << id << " hit " << victim << " for " << damage << " with ";
 		std::cout << knockBack << " knockback, facing: (" << dir.x << ", " << dir.y << ", " << dir.z << ")" << std::endl;
 
-		IEventPtr E1( PFS_NEW Event_Remote_Melee_Hit( id, victim, damage, knockBack, dir ) );
+		IEventPtr E1( new Event_Remote_Melee_Hit( id, victim, damage, knockBack, dir ) );
 		BroadcastEvent( E1, id );
 	}
 }
@@ -182,7 +182,7 @@ void Server::ClientAttack( IEventPtr eventPtr )
 
 		std::cout << "Client with ID: " << id << " hit with arm: " << armID << " which is doing animation: #" << anim << std::endl;
 
-		IEventPtr E1( PFS_NEW Event_Remote_Attack( id, armID, anim ) );
+		IEventPtr E1( new Event_Remote_Attack( id, armID, anim ) );
 		BroadcastEvent( E1, id );
 	}
 }
@@ -262,7 +262,7 @@ void Server::SendEnemies( UINT toClient )
 	for( auto& enemy : mEnemies )
 	{
 		Enemy e = enemy.second;
-		IEventPtr E1( PFS_NEW Event_Server_Create_Enemy( e.id, e.state, e.type, e.pos, e.dir ) );
+		IEventPtr E1( new Event_Server_Create_Enemy( e.id, e.state, e.type, e.pos, e.dir ) );
 		SendEvent( E1, toClient );
 	}
 }

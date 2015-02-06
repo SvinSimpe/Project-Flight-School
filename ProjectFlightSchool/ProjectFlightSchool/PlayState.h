@@ -1,7 +1,6 @@
 #ifndef PLAYSTATE_H
 #define PLAYSTATE_H
 
-#include <sstream>
 #include "Map.h"
 #include "BaseState.h"
 #include "Player.h"
@@ -17,6 +16,7 @@
 #include "Gui.h"
 #include "ParticleManager.h"
 #include "SoundBufferHandler.h"
+#include <sstream>
 
 
 

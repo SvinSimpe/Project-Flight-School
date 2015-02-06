@@ -39,6 +39,7 @@
 #include "EventManager.h"
 #include <DirectXMath.h>
 using namespace DirectX;
+
 /*	This has been slightly modified in order to allow each event-class to serialize it's data. 
 	New rules:
 	- For every event that you create a REGISTER_EVENT call has to be made for that function.

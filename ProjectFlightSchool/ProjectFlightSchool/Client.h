@@ -2,7 +2,6 @@
 #define CLIENT_H
 
 #include "Network.h"
-#include <iostream>
 
 class Client : public Network
 {

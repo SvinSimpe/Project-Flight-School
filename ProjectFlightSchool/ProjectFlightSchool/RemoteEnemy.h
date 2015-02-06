@@ -1,10 +1,8 @@
 #ifndef REMOTEENEMY_H
 #define REMOTEENEMY_H
 
-#include "Graphics.h"
 #include "RenderManager.h"
 #include "Enemy.h"
-#include "BoundingGeometry.h"
 
 class RemoteEnemy
 {

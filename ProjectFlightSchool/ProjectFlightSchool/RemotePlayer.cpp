@@ -4,9 +4,9 @@
 
 void RemotePlayer::EventListener( IEventPtr newEvent )
 {
-	if( newEvent->GetEventType() == Event_Remote_Player_Update::GUID )
+	if( newEvent->GetEventType() == Event_Remote_Update::GUID )
 	{
-		std::shared_ptr<Event_Remote_Player_Update> data = std::static_pointer_cast<Event_Remote_Player_Update>( newEvent );
+		std::shared_ptr<Event_Remote_Update> data = std::static_pointer_cast<Event_Remote_Update>( newEvent );
 		if( mID == data->ID() )
 		{
 			mLowerBody.position								= data->LowerBodyPos();
@@ -21,9 +21,9 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 			mBoundingCircleAura->center	= mLowerBody.position;
 		}
 	}
-	else if( newEvent->GetEventType() == Event_Remote_Player_Attack::GUID )
+	else if( newEvent->GetEventType() == Event_Remote_Attack::GUID )
 	{
-		std::shared_ptr<Event_Remote_Player_Attack> data = std::static_pointer_cast<Event_Remote_Player_Attack>( newEvent );
+		std::shared_ptr<Event_Remote_Attack> data = std::static_pointer_cast<Event_Remote_Attack>( newEvent );
 		if( mID == data->ID() )
 		{
 			if( data->ArmID() == LEFT_ARM_ID )
@@ -38,10 +38,10 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 			}
 		}
 	}
-	else if ( newEvent->GetEventType() == Event_Remote_Player_Died::GUID )
+	else if ( newEvent->GetEventType() == Event_Remote_Died::GUID )
 	{
 		// Kill remote player
-		std::shared_ptr<Event_Remote_Player_Died> data = std::static_pointer_cast<Event_Remote_Player_Died>( newEvent );
+		std::shared_ptr<Event_Remote_Died> data = std::static_pointer_cast<Event_Remote_Died>( newEvent );
 		if ( data->ID() == mID )
 		{
 			Die();
@@ -51,34 +51,34 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 			CountUpKills();
 		}
 	}
-	else if ( newEvent->GetEventType() == Event_Remote_Player_Spawned::GUID )
+	else if ( newEvent->GetEventType() == Event_Remote_Spawned::GUID )
 	{
-		std::shared_ptr<Event_Remote_Player_Spawned> data = std::static_pointer_cast<Event_Remote_Player_Spawned>( newEvent );
+		std::shared_ptr<Event_Remote_Spawned> data = std::static_pointer_cast<Event_Remote_Spawned>( newEvent );
 		if( mID == data->ID() )
 		{
 			Spawn();
 		}
 	}
-	else if ( newEvent->GetEventType() == Event_Remote_Player_Update_HP::GUID )
+	else if ( newEvent->GetEventType() == Event_Remote_Update_HP::GUID )
 	{
-		std::shared_ptr<Event_Remote_Player_Update_HP> data = std::static_pointer_cast<Event_Remote_Player_Update_HP>( newEvent );
+		std::shared_ptr<Event_Remote_Update_HP> data = std::static_pointer_cast<Event_Remote_Update_HP>( newEvent );
 		if( mID == data->ID() )
 		{
 			mCurrentHp = data->HP();
 		}
 	}
-	else if ( newEvent->GetEventType() == Event_Remote_Player_Down::GUID )
+	else if ( newEvent->GetEventType() == Event_Remote_Down::GUID )
 	{
-		std::shared_ptr<Event_Remote_Player_Down> data = std::static_pointer_cast<Event_Remote_Player_Down>( newEvent );
-		if ( mID == data->Player() )
+		std::shared_ptr<Event_Remote_Down> data = std::static_pointer_cast<Event_Remote_Down>( newEvent );
+		if ( mID == data->ID() )
 		{
 			GoDown();
 		}
 	}
-	else if ( newEvent->GetEventType() == Event_Remote_Player_Up::GUID )
+	else if ( newEvent->GetEventType() == Event_Remote_Up::GUID )
 	{
-		std::shared_ptr<Event_Remote_Player_Up> data = std::static_pointer_cast<Event_Remote_Player_Up>( newEvent );
-		if ( mID == data->Player() )
+		std::shared_ptr<Event_Remote_Up> data = std::static_pointer_cast<Event_Remote_Up>( newEvent );
+		if ( mID == data->ID() )
 		{
 			GoUp();
 		}
@@ -271,8 +271,6 @@ void RemotePlayer::Spawn()
 	mIsAlive			= true;
 	mCurrentHp			= mMaxHp;
 	mLowerBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
-	IEventPtr spawnEv( new Event_Player_Spawned( mID ) );
-	EventManager::GetInstance()->QueueEvent( spawnEv );
 }
 
 void RemotePlayer::CountUpKills()
@@ -443,13 +441,13 @@ void RemotePlayer::RemoteInit( unsigned int id, int team, AssetID teamColor, Ass
 	mTeam			= team;
 	mTeamAsset		= teamColor;
 	mColorIDAsset	= colorID;
-	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Player_Update::GUID );
-	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Player_Attack::GUID );
-	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Player_Died::GUID );
-	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Player_Spawned::GUID );
-	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Player_Update_HP::GUID );
-	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Player_Down::GUID );
-	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Player_Up::GUID );
+	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Update::GUID );
+	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Attack::GUID );
+	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Died::GUID );
+	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Spawned::GUID );
+	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Update_HP::GUID );
+	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Down::GUID );
+	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Up::GUID );
 }
 
 void RemotePlayer::Release()

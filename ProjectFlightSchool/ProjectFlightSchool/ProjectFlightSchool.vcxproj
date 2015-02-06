@@ -55,11 +55,12 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Ws2_32.lib;Graphics.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Winmm.lib;Ws2_32.lib;Graphics.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
@@ -75,13 +76,14 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>Ws2_32.lib;Graphics.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Winmm.lib;Ws2_32.lib;Graphics.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <ProjectReference>
@@ -91,6 +93,8 @@
   <ItemGroup>
     <ClCompile Include="EnemyAnimationManager.cpp" />
     <ClCompile Include="Gui.cpp" />
+    <ClCompile Include="Network.cpp" />
+    <ClCompile Include="PacketImpl.cpp" />
     <ClCompile Include="SoundBufferHandler.cpp" />
     <ClCompile Include="DS3DBuffer.cpp" />
     <ClCompile Include="DSBuffer.cpp" />
@@ -143,6 +147,9 @@
     <ClInclude Include="BaseState.h" />
     <ClInclude Include="BoundingGeometry.h" />
     <ClInclude Include="Gui.h" />
+    <ClInclude Include="IPacket.h" />
+    <ClInclude Include="Network.h" />
+    <ClInclude Include="PacketImpl.h" />
     <ClInclude Include="SoundBufferHandler.h" />
     <ClInclude Include="DS3DBuffer.h" />
     <ClInclude Include="DSBuffer.h" />
@@ -204,9 +211,7 @@
     <ClInclude Include="Input.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="Connection.h" />
-    <ClInclude Include="Package.h" />
     <ClInclude Include="Server.h" />
-    <ClInclude Include="Structs.h" />
     <ClInclude Include="EventManager.h" />
     <ClInclude Include="Events.h" />
     <ClInclude Include="IEventManager.h" />

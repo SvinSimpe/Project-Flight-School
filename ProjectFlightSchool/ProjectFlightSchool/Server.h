@@ -15,7 +15,6 @@ class Server : public Network
 
 		SocketManager*				mSocketManager;
 		std::map<UINT, ClientNEF>	mClientMap;
-		std::map<UINT, NetEnemy>		mEnemies;
 		UINT						mTeamDelegate;
 		bool						mActive;
 
@@ -40,8 +39,6 @@ class Server : public Network
 
 		void	StartUp( IEventPtr eventPtr );
 
-		void	CreateEnemies();
-		void	SendEnemies( UINT toClient );
 		void	BroadcastEvent( IEventPtr eventPtr, UINT exception = (UINT)-1 );
 		void	SendEvent( IEventPtr eventPtr, UINT to );
 		UINT	CurrentTeamDelegate();

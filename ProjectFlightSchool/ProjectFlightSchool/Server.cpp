@@ -265,27 +265,6 @@ void Server::StartUp( IEventPtr eventPtr )
 	}
 }
 
-void Server::CreateEnemies()
-{
-	for( UINT i = 0; i < 5; i++ )
-	{
-		mEnemies[i] = NetEnemy( i, 0, 0, XMFLOAT3( (float)i, (float)i, (float)i ), XMFLOAT3( (float)i, (float)i, (float)i ) );
-
-		NetEnemy e = mEnemies[i];
-	}
-}
-
-// Syncs the newly connected player with the current enemy list
-void Server::SendEnemies( UINT toClient )
-{
-	for( auto& enemy : mEnemies )
-	{
-		NetEnemy e = enemy.second;
-		IEventPtr E1( new Event_Server_Create_Enemy( e.id, e.state, e.type, e.pos, e.dir ) );
-		SendEvent( E1, toClient );
-	}
-}
-
 void Server::BroadcastEvent( IEventPtr eventPtr, UINT exception )
 {
 	for( auto& to : mClientMap )
@@ -373,7 +352,6 @@ Server::Server() : Network()
 {
 	mSocketManager	= nullptr;
 	mClientMap		= std::map<UINT, ClientNEF>();
-	mEnemies		= std::map<UINT, NetEnemy>();
 	mTeamDelegate	= (UINT)-1;
 }
 

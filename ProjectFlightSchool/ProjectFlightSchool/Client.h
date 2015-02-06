@@ -7,12 +7,8 @@ class Client : public Network
 {
 	private:
 		static Client*			mInstance;
-		UINT					mID;
-		UINT					mTeamID;
 		ClientSocketManager*	mSocketManager;
 		NetworkEventForwarder*	mNEF;
-		std::list<UINT>			mRemoteIDs;
-		std::map<UINT, NetEnemy>mEnemies;
 		bool					mActive;
 
 	protected:

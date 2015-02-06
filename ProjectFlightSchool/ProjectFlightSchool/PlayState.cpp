@@ -29,9 +29,6 @@ void PlayState::EventListener( IEventPtr newEvent )
 		mRemotePlayers.at(mRemotePlayers.size() - 1)->RemoteInit( data->ID(), data->TeamID(), mTeams[data->TeamID()], mColorIDs[mCurrentColor] );
 		mCurrentColor++;
 		printf( "Number of other players online: %d.\n", mRemotePlayers.size() );
-
-		///TEST
-		mAllPlayers.push_back( ( mRemotePlayers.at( mRemotePlayers.size()-1 ) ) );
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Left::GUID ) // Remove a remote player from the list when they disconnect
 	{
@@ -280,42 +277,8 @@ void PlayState::CheckProjectileCollision()
 					}
 				}
 			}
-
-			// Ship
 		}
 	}
-
-	//if( mRemotePlayers.size() > 0 )
-	//{
-	//	for (size_t i = 0; i < mRemotePlayers.size(); i++)
-	//	{
-	//		for (size_t j = 0; j < MAX_PROJECTILES; j++)
-	//		{
-	//			if ( mProjectiles[j]->IsActive() )
-	//			{
-	//				if( mProjectiles[j]->GetPlayerID() == mPlayer->GetID() )
-	//				{
-	//					if( mProjectiles[j]->GetBoundingCircle()->Intersect( mRemotePlayers[i]->GetBoundingCircle() ) ) //Player hit remote
-	//					{
-	//						BroadcastDamage( mRemotePlayers[i]->GetID(), mProjectiles[j]->GetID() );
-	//					}			
-	//				}
-	//			}	
-	//		}
-	//	}
-	//}
-
-	// Ship cant be damaged på projectiles
-	//for( size_t i = 0; i < MAX_PROJECTILES; i++ )
-	//{
-	//	if( mProjectiles[i]->IsActive() )
-	//	{
-	//		if( mProjectiles[i]->GetBoundingCircle()->Intersect( mShip.GetHitBox() ))
-	//		{
-	//			mShip.TakeDamage( 1.0f );
-	//		}
-	//	}
-	//}
 }
 
 void PlayState::CheckMeeleCollision()
@@ -445,11 +408,7 @@ HRESULT PlayState::Update( float deltaTime )
 
 	UpdateProjectiles( deltaTime );
 
-	mShip.BuffPlayer( mPlayer );
-	mShip.PickTurretTarget( mAllPlayers );
-	mShip.Update( deltaTime );
-
-	mRadarObjects[nrOfRadarObj].mRadarObjectPos = mShip.GetPosition();
+	//mRadarObjects[nrOfRadarObj].mRadarObjectPos = mShip.GetPosition();
 	mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_FRIENDLY;
 
 	// Enemies
@@ -511,7 +470,6 @@ HRESULT PlayState::Render()
 		RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
 	}
 
-	mShip.Render();
 	mParticleManager->Render( 0.0f );
 
 	int nrOfAllies = 0;
@@ -524,7 +482,7 @@ HRESULT PlayState::Render()
 			nrOfAllies++;
 		}
 	}
-	mGui->Render( nrOfAllies, alliesHP, (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mShip.GetCurrentHull() / mShip.GetMaxHull() ) ); //Should be changed to shield and Xp
+	mGui->Render( nrOfAllies, alliesHP, (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)100.0f ); //Should be changed to shield and Xp
 
 	//RENDER DEVTEXT
 	std::stringstream ss;
@@ -615,10 +573,6 @@ HRESULT PlayState::Initialize()
 
 	mFont.Initialize( "../Content/Assets/Fonts/final_font/" );
 
-	//TEST
-	mAllPlayers.push_back( mPlayer );
-	mShip.Initialize( 0, XMFLOAT3( 10.0f, 0.0f, 10.0f ), XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
-
 	// Enemies
 	mEnemyAnimationManager = new EnemyAnimationManager();
 	mEnemyAnimationManager->Initialize();
@@ -663,7 +617,6 @@ void PlayState::Release()
 	}
 
 	mRemotePlayers.clear();
-	mShip.Release();
 
 	for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
 	{

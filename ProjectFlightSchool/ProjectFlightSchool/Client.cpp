@@ -4,59 +4,13 @@ Client* Client::mInstance = nullptr;
 
 Client::Client() : Network()
 {
-	mID						= (UINT)-1;
-	mTeamID					= (UINT)-1;
 	mSocketManager			= nullptr;
 	mNEF					= nullptr;
-	mRemoteIDs				= std::list<UINT>();
-	mEnemies				= std::map<UINT, NetEnemy>();
 	mActive					= false;
 }
 
 Client::~Client()
 {
-}
-
-void Client::ServerCreateEnemy( IEventPtr eventPtr )
-{
-	if( eventPtr->GetEventType() == Event_Server_Create_Enemy::GUID )
-	{
-		std::shared_ptr<Event_Server_Create_Enemy> data = std::static_pointer_cast<Event_Server_Create_Enemy>( eventPtr );
-		UINT id = data->ID();
-		UINT state = data->State();
-		UINT type = data->Type();
-		XMFLOAT3 pos = data->Position();
-		XMFLOAT3 dir = data->Direction();
-
-		mEnemies[id] = NetEnemy( id, state, type, pos, dir );
-		NetEnemy e = mEnemies[id];
-	}
-}
-
-void Client::ServerUpdateEnemy( IEventPtr eventPtr )
-{
-	if( eventPtr->GetEventType() == Event_Server_Update_Enemy::GUID )
-	{
-		std::shared_ptr<Event_Server_Update_Enemy> data = std::static_pointer_cast<Event_Server_Update_Enemy>( eventPtr );
-		UINT id = data->ID();
-		XMFLOAT3 pos = data->Position();
-		XMFLOAT3 dir = data->Direction();
-		bool isAlive = data->IsAlive();
-		
-		mEnemies[id].pos = pos;
-		mEnemies[id].dir = dir;
-		mEnemies[id].isAlive = isAlive;
-
-		NetEnemy e = mEnemies[id];
-		if( isAlive )
-		{
-			std::cout <<  isAlive << std::endl;
-		}
-		else
-		{
-			std::cout << isAlive << std::endl;
-		}
-	}
 }
 
 // End of eventlistening functions
@@ -75,8 +29,6 @@ void Client::StartUp( IEventPtr eventPtr )
 			mActive = true;
 	}
 }
-
-/* Registers all the events that should be listened to from the server. */
 
 bool Client::Connect( std::string ip, UINT port )
 {
@@ -188,6 +140,5 @@ void Client::Release()
 		mSocketManager->Release();
 	SAFE_DELETE( mSocketManager );
 	SAFE_DELETE( mNEF );
-	mRemoteIDs.clear();
 	SAFE_DELETE( mInstance );
 }

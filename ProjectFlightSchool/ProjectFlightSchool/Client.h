@@ -13,7 +13,7 @@ class Client : public Network
 		ClientSocketManager*	mSocketManager;
 		NetworkEventForwarder*	mNEF;
 		std::list<UINT>			mRemoteIDs;
-		std::map<UINT, Enemy>	mEnemies;
+		std::map<UINT, NetEnemy>mEnemies;
 		bool					mActive;
 
 		// TESTING CODE FOR EVENTS BELOW

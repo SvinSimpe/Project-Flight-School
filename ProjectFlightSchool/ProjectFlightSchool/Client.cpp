@@ -10,7 +10,7 @@ Client::Client() : Network()
 	mSocketManager			= nullptr;
 	mNEF					= nullptr;
 	mRemoteIDs				= std::list<UINT>();
-	mEnemies				= std::map<UINT, Enemy>();
+	mEnemies				= std::map<UINT, NetEnemy>();
 	mActive					= false;
 
 	mLowerBodyPos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
@@ -32,8 +32,6 @@ void Client::LocalJoined( IEventPtr eventPtr )
 		std::shared_ptr<Event_Local_Joined> data = std::static_pointer_cast<Event_Local_Joined>( eventPtr );
 		mID = data->ID();
 		mTeamID = data->TeamID();
-
-		std::cout << "My ID is: " << mID << " and I just joined team " << mTeamID << std::endl;
 	}
 }
 
@@ -45,8 +43,6 @@ void Client::RemoteJoined( IEventPtr eventPtr )
 		UINT id = data->ID();
 		UINT teamID = data->TeamID();
 		mRemoteIDs.push_back( id );
-
-		std::cout << "Remote with ID: " << id << " joined team: " << teamID << ". There are now " << mRemoteIDs.size() << " remotes online." << std::endl;
 	}
 }
 
@@ -57,8 +53,6 @@ void Client::RemoteLeft( IEventPtr eventPtr )
 		std::shared_ptr<Event_Remote_Left> data = std::static_pointer_cast<Event_Remote_Left>( eventPtr );
 		UINT id = data->ID();
 		mRemoteIDs.remove( id );
-
-		std::cout << "Remote with ID: " << id << " left. There are now " << mRemoteIDs.size() << " remotes online." << std::endl;
 	}
 }
 
@@ -71,8 +65,6 @@ void Client::RemoteUpdate( IEventPtr eventPtr )
 		XMFLOAT3 pos = data->LowerBodyPos();
 		XMFLOAT3 vel = data->Velocity();
 		XMFLOAT3 dir = data->UpperBodyDirection();
-
-		std::cout << "Remote with ID: " << id << " updated." << std::endl;
 	}
 }
 
@@ -83,8 +75,6 @@ void Client::RemoteDied( IEventPtr eventPtr )
 		std::shared_ptr<Event_Remote_Died> data = std::static_pointer_cast<Event_Remote_Died>( eventPtr );
 		UINT id = data->ID();
 		UINT killerID = data->KillerID();
-
-		std::cout << "Remote with ID: " << id << " was killed by: " << killerID << std::endl;
 	}
 }
 
@@ -95,8 +85,6 @@ void Client::RemoteDamaged( IEventPtr eventPtr )
 		std::shared_ptr<Event_Remote_Damaged> data = std::static_pointer_cast<Event_Remote_Damaged>( eventPtr );
 		UINT id = data->ID();
 		UINT projectileID = data->ProjectileID();
-
-		std::cout << "Remote with ID: " << id << " was shot by bullet with ID: " << projectileID << std::endl;
 	}
 }
 
@@ -106,8 +94,6 @@ void Client::RemoteSpawned( IEventPtr eventPtr )
 	{
 		std::shared_ptr<Event_Remote_Spawned> data = std::static_pointer_cast<Event_Remote_Spawned>( eventPtr );
 		UINT id = data->ID();
-
-		std::cout << "Remote with ID: " << id << " just spawned." << std::endl;
 	}
 }
 
@@ -120,8 +106,6 @@ void Client::RemoteFiredProjectile( IEventPtr eventPtr )
 		UINT projectileID = data->ProjectileID();
 		XMFLOAT3 pos = data->BodyPos();
 		XMFLOAT3 dir = data->Direction();
-
-		std::cout << "Remote with ID: " << id << " just fired bullet: " << projectileID << " X-Pos: " << pos.x << " X-dir: " << dir.x << std::endl;
 	}
 }
 
@@ -132,19 +116,6 @@ void Client::RemoteUpdateHP( IEventPtr eventPtr )
 		std::shared_ptr<Event_Remote_Update_HP> data = std::static_pointer_cast<Event_Remote_Update_HP>( eventPtr );
 		UINT id = data->ID();
 		float hp = data->HP();
-
-		if( hp < 0.0f )
-		{
-			std::cout << "Remote with ID: " << id << " lost " << (-1.0f)*hp << " HP." << std::endl;
-		}
-		else if( hp > 0.0f )
-		{
-			std::cout << "Remote with ID: " << id << " gained " << hp << " HP." << std::endl;
-		}
-		else
-		{
-			std::cout << "Remote with ID: " << id << " updated it's HP for no reason." << std::endl;
-		}
 	}
 }
 
@@ -157,9 +128,6 @@ void Client::RemoteMeleeHit( IEventPtr eventPtr )
 		float damage = data->Damage();
 		float knockBack = data->KnockBack();
 		XMFLOAT3 dir = data->Direction();
-
-		std::cout << "Remote with ID: " << id << " damaged someone for " << damage << " damage with ";
-		std::cout << knockBack << " knockback, facing: (" << dir.x << ", " << dir.y << ", " << dir.z << ")" << std::endl; 
 	}
 }
 
@@ -171,8 +139,6 @@ void Client::RemoteAttack( IEventPtr eventPtr )
 		UINT id = data->ID();
 		UINT armID = data->ArmID();
 		UINT anim = data->Animation();
-
-		std::cout << "Remote with ID: " << id << " hit with arm: " << armID << " which is doing animation: #" << anim << std::endl;
 	}
 }
 
@@ -182,8 +148,6 @@ void Client::RemoteDown( IEventPtr eventPtr )
 	{
 		std::shared_ptr<Event_Remote_Down> data = std::static_pointer_cast<Event_Remote_Down>( eventPtr );
 		UINT id = data->ID();
-
-		std::cout << "Remote with ID: " << id << " went down." << std::endl;
 	}
 }
 
@@ -193,8 +157,6 @@ void Client::RemoteUp( IEventPtr eventPtr )
 	{
 		std::shared_ptr<Event_Remote_Up> data = std::static_pointer_cast<Event_Remote_Up>( eventPtr );
 		UINT id = data->ID();
-
-		std::cout << "Remote with ID: " << id << " went up." << std::endl;
 	}
 }
 
@@ -206,8 +168,6 @@ void Client::RemoteAttemptRevive( IEventPtr eventPtr )
 		UINT id = data->ID();
 		UINT downedID = data->DownedID();
 		float deltaTime = data->DeltaTime();
-
-		std::cout << "Remote with ID: " << id << " is attempting to revive " << downedID << " with " << deltaTime << " time left." << std::endl;
 	}
 }
 
@@ -222,11 +182,8 @@ void Client::ServerCreateEnemy( IEventPtr eventPtr )
 		XMFLOAT3 pos = data->Position();
 		XMFLOAT3 dir = data->Direction();
 
-		mEnemies[id] = Enemy( id, state, type, pos, dir );
-		Enemy e = mEnemies[id];
-		std::cout << "Server created enemy: " << e.id << " with state: " << e.state << " of type: " << e.type;
-		std::cout << " at: (" << e.pos.x << ", " << e.pos.y << ", " << e.pos.z << ")";
-		std::cout << " facing: (" << e.dir.x << ", " << e.dir.y << ", " << e.dir.z << ")" << std::endl;
+		mEnemies[id] = NetEnemy( id, state, type, pos, dir );
+		NetEnemy e = mEnemies[id];
 	}
 }
 
@@ -244,9 +201,7 @@ void Client::ServerUpdateEnemy( IEventPtr eventPtr )
 		mEnemies[id].dir = dir;
 		mEnemies[id].isAlive = isAlive;
 
-		Enemy e = mEnemies[id];
-		std::cout << "Server updated enemy: " << e.id << " to pos: (" << e.pos.x << ", " << e.pos.y << ", " << e.pos.z << ")";
-		std::cout << " facing: (" << e.dir.x << ", " << e.dir.y << ", " << e.dir.z << ") ";
+		NetEnemy e = mEnemies[id];
 		if( isAlive )
 		{
 			std::cout <<  isAlive << std::endl;
@@ -374,22 +329,22 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Load_Level );
 	EF::REGISTER_EVENT( Event_Create_Player_Name );
 	
-	EventManager::GetInstance()->AddListener( &Client::LocalJoined, this, Event_Local_Joined::GUID );
-	EventManager::GetInstance()->AddListener( &Client::RemoteJoined, this, Event_Remote_Joined::GUID );
-	EventManager::GetInstance()->AddListener( &Client::RemoteLeft, this, Event_Remote_Left::GUID );
-	EventManager::GetInstance()->AddListener( &Client::RemoteUpdate, this, Event_Remote_Update::GUID );
-	EventManager::GetInstance()->AddListener( &Client::RemoteDied, this, Event_Remote_Died::GUID );
-	EventManager::GetInstance()->AddListener( &Client::RemoteDamaged, this, Event_Remote_Damaged::GUID );
-	EventManager::GetInstance()->AddListener( &Client::RemoteSpawned, this, Event_Remote_Spawned::GUID );
-	EventManager::GetInstance()->AddListener( &Client::RemoteFiredProjectile, this, Event_Remote_Fired_Projectile::GUID );
-	EventManager::GetInstance()->AddListener( &Client::RemoteUpdateHP, this, Event_Remote_Update_HP::GUID );
-	EventManager::GetInstance()->AddListener( &Client::ServerCreateEnemy, this, Event_Server_Create_Enemy::GUID );
-	EventManager::GetInstance()->AddListener( &Client::RemoteMeleeHit, this, Event_Remote_Melee_Hit::GUID );
-	EventManager::GetInstance()->AddListener( &Client::RemoteAttack, this, Event_Remote_Attack::GUID );
-	EventManager::GetInstance()->AddListener( &Client::ServerUpdateEnemy, this, Event_Server_Update_Enemy::GUID );
-	EventManager::GetInstance()->AddListener( &Client::RemoteDown, this, Event_Remote_Down::GUID );
-	EventManager::GetInstance()->AddListener( &Client::RemoteUp, this, Event_Remote_Up::GUID );
-	EventManager::GetInstance()->AddListener( &Client::RemoteAttemptRevive, this, Event_Remote_Attempt_Revive::GUID );
+	//EventManager::GetInstance()->AddListener( &Client::LocalJoined, this, Event_Local_Joined::GUID );
+	//EventManager::GetInstance()->AddListener( &Client::RemoteJoined, this, Event_Remote_Joined::GUID );
+	//EventManager::GetInstance()->AddListener( &Client::RemoteLeft, this, Event_Remote_Left::GUID );
+	//EventManager::GetInstance()->AddListener( &Client::RemoteUpdate, this, Event_Remote_Update::GUID );
+	//EventManager::GetInstance()->AddListener( &Client::RemoteDied, this, Event_Remote_Died::GUID );
+	//EventManager::GetInstance()->AddListener( &Client::RemoteDamaged, this, Event_Remote_Damaged::GUID );
+	//EventManager::GetInstance()->AddListener( &Client::RemoteSpawned, this, Event_Remote_Spawned::GUID );
+	//EventManager::GetInstance()->AddListener( &Client::RemoteFiredProjectile, this, Event_Remote_Fired_Projectile::GUID );
+	//EventManager::GetInstance()->AddListener( &Client::RemoteUpdateHP, this, Event_Remote_Update_HP::GUID );
+	//EventManager::GetInstance()->AddListener( &Client::ServerCreateEnemy, this, Event_Server_Create_Enemy::GUID );
+	//EventManager::GetInstance()->AddListener( &Client::RemoteMeleeHit, this, Event_Remote_Melee_Hit::GUID );
+	//EventManager::GetInstance()->AddListener( &Client::RemoteAttack, this, Event_Remote_Attack::GUID );
+	//EventManager::GetInstance()->AddListener( &Client::ServerUpdateEnemy, this, Event_Server_Update_Enemy::GUID );
+	//EventManager::GetInstance()->AddListener( &Client::RemoteDown, this, Event_Remote_Down::GUID );
+	//EventManager::GetInstance()->AddListener( &Client::RemoteUp, this, Event_Remote_Up::GUID );
+	//EventManager::GetInstance()->AddListener( &Client::RemoteAttemptRevive, this, Event_Remote_Attempt_Revive::GUID );
 
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	return true;

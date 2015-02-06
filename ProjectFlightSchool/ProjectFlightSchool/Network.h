@@ -9,7 +9,7 @@ class Network
 {
 	private:
 	protected:
-		struct Enemy
+		struct NetEnemy
 		{
 			UINT id;
 			UINT state;
@@ -18,7 +18,7 @@ class Network
 			XMFLOAT3 dir;
 			bool isAlive;
 
-			Enemy()
+			NetEnemy()
 			{
 				id = (UINT)-1;
 				state = (UINT)-1;
@@ -28,7 +28,7 @@ class Network
 				isAlive = false;
 			}
 
-			Enemy( UINT id, UINT state, UINT type, XMFLOAT3 pos, XMFLOAT3 dir )
+			NetEnemy( UINT id, UINT state, UINT type, XMFLOAT3 pos, XMFLOAT3 dir )
 			{
 				this->id = id;
 				this->state = state;

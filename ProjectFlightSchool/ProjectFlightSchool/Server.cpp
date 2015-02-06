@@ -17,9 +17,7 @@ void Server::ClientJoined( IEventPtr eventPtr )
 		// Sends the ID of the newly connected client to the newly connected client
 		IEventPtr E1( PFS_NEW Event_Local_Joined( id, teamID ) );
 		SendEvent( E1, id );
-		SendEnemies( id );
-
-		std::cout << "Client with ID: " << id << " joined team: " << teamID << ". There are now " << mClientMap.size() << " clients online." << std::endl;
+		//SendEnemies( id );
 
 		// Sends the incoming ID to the existing remotes
 		IEventPtr E2( PFS_NEW Event_Remote_Joined( id, teamID ) ); 
@@ -44,7 +42,6 @@ void Server::ClientLeft( IEventPtr eventPtr )
 		std::shared_ptr<Event_Client_Left> data = std::static_pointer_cast<Event_Client_Left>( eventPtr );
 		UINT id = data->ID();
 		mClientMap.erase( id );
-		std::cout << "Client with ID: " << id << " left. There are now " << mClientMap.size() << " client(s) online." << std::endl;
 
 		IEventPtr E1( PFS_NEW Event_Remote_Left( id ) );
 		BroadcastEvent( E1 );
@@ -62,8 +59,6 @@ void Server::ClientUpdate( IEventPtr eventPtr )
 		XMFLOAT3 dir = data->UpperBodyDirection();
 		std::string name = data->Name();
 
-		std::cout << "Client with ID: " << id << " just updated." << std::endl;
-
 		IEventPtr E1( PFS_NEW Event_Remote_Update( id, pos, vel, dir, name ) );
 		BroadcastEvent( E1, id );
 	}
@@ -77,7 +72,6 @@ void Server::ClientDied( IEventPtr eventPtr )
 		UINT id = data->ID();
 		UINT killerID = data->KillerID();
 
-		std::cout << "Client with ID: " << id << " was killed by: " << killerID << std::endl;
 		IEventPtr E1( PFS_NEW Event_Remote_Died( id, killerID ) );
 		BroadcastEvent( E1, id );
 	}
@@ -91,7 +85,6 @@ void Server::ClientDamaged( IEventPtr eventPtr )
 		UINT id = data->ID();
 		UINT projectileID = data->ProjectileID();
 
-		std::cout << "Client with ID: " << id << " was shot by bullet with ID: " << projectileID << std::endl;
 		IEventPtr E1( PFS_NEW Event_Remote_Damaged( id, projectileID ) );
 		BroadcastEvent( E1, id );
 	}
@@ -104,7 +97,6 @@ void Server::ClientSpawned( IEventPtr eventPtr )
 		std::shared_ptr<Event_Client_Spawned> data = std::static_pointer_cast<Event_Client_Spawned>( eventPtr );
 		UINT id = data->ID();
 
-		std::cout << "Client with ID: " << id << " just spawned." << std::endl;
 		IEventPtr E1( PFS_NEW Event_Remote_Spawned( id ) );
 		BroadcastEvent( E1, id );
 	}
@@ -119,8 +111,6 @@ void Server::ClientFiredProjectile( IEventPtr eventPtr )
 		XMFLOAT3 pos = data->BodyPos();
 		XMFLOAT3 dir = data->Direction();
 
-		std::cout << "Client with ID: " << id << " just fired bullet a projectile at: X-Pos: " << pos.x << " X-dir: " << dir.x << std::endl;
-
 		IEventPtr E1( PFS_NEW Event_Remote_Fired_Projectile( id, 0, pos, dir ) );
 		BroadcastEvent( E1, id );
 	}
@@ -133,19 +123,6 @@ void Server::ClientUpdateHP( IEventPtr eventPtr )
 		std::shared_ptr<Event_Client_Update_HP> data = std::static_pointer_cast<Event_Client_Update_HP>( eventPtr );
 		UINT id = data->ID();
 		float hp = data->HP();
-
-		if( hp < 0.0f )
-		{
-			std::cout << "Client with ID: " << id << " lost " << (-1.0f)*hp << " HP." << std::endl;
-		}
-		else if( hp > 0.0f )
-		{
-			std::cout << "Client with ID: " << id << " gained " << hp << " HP." << std::endl;
-		}
-		else
-		{
-			std::cout << "Client with ID: " << id << " updated it's HP for no reason." << std::endl;
-		}
 
 		IEventPtr E1( PFS_NEW Event_Remote_Update_HP( id, hp ) );
 		BroadcastEvent( E1, id );
@@ -162,9 +139,6 @@ void Server::ClientMeleeHit( IEventPtr eventPtr )
 		float knockBack = data->KnockBack();
 		XMFLOAT3 dir = data->Direction();
 
-		std::cout << "Remote with ID: " << id << " hit something for " << damage << " with ";
-		std::cout << knockBack << " knockback, facing: (" << dir.x << ", " << dir.y << ", " << dir.z << ")" << std::endl;
-
 		IEventPtr E1( PFS_NEW Event_Remote_Melee_Hit( id, damage, knockBack, dir ) );
 		BroadcastEvent( E1, id );
 	}
@@ -179,8 +153,6 @@ void Server::ClientAttack( IEventPtr eventPtr )
 		UINT armID = data->ArmID();
 		UINT anim = data->Animation();
 
-		std::cout << "Client with ID: " << id << " hit with arm: " << armID << " which is doing animation: #" << anim << std::endl;
-
 		IEventPtr E1( PFS_NEW Event_Remote_Attack( id, armID, anim ) );
 		BroadcastEvent( E1, id );
 	}
@@ -193,8 +165,6 @@ void Server::ClientDown( IEventPtr eventPtr )
 		std::shared_ptr<Event_Client_Down> data = std::static_pointer_cast<Event_Client_Down>( eventPtr );
 		UINT id = data->ID();
 
-		std::cout << "Client with ID: " << id << " went down." << std::endl;
-
 		IEventPtr E1( PFS_NEW Event_Remote_Down( id ) );
 		BroadcastEvent( E1, id );
 	}
@@ -206,8 +176,6 @@ void Server::ClientUp( IEventPtr eventPtr )
 	{
 		std::shared_ptr<Event_Client_Up> data = std::static_pointer_cast<Event_Client_Up>( eventPtr );
 		UINT id = data->ID();
-
-		std::cout << "Client with ID: " << id << " went up." << std::endl;
 
 		IEventPtr E1( PFS_NEW Event_Remote_Up( id ) );
 		BroadcastEvent( E1, id );
@@ -222,8 +190,6 @@ void Server::ClientAttemptRevive( IEventPtr eventPtr )
 		UINT id = data->ID();
 		UINT downedID = data->DownedID();
 		float deltaTime = data->DeltaTime();
-
-		std::cout << "Client with ID: " << id << " is attempting to revive " << downedID << " with " << deltaTime << " time left." << std::endl;
 
 		IEventPtr E1( PFS_NEW Event_Remote_Attempt_Revive( id, downedID, deltaTime ) );
 		BroadcastEvent( E1, id );
@@ -259,12 +225,9 @@ void Server::CreateEnemies()
 {
 	for( UINT i = 0; i < 5; i++ )
 	{
-		mEnemies[i] = Enemy( i, 0, 0, XMFLOAT3( (float)i, (float)i, (float)i ), XMFLOAT3( (float)i, (float)i, (float)i ) );
+		mEnemies[i] = NetEnemy( i, 0, 0, XMFLOAT3( (float)i, (float)i, (float)i ), XMFLOAT3( (float)i, (float)i, (float)i ) );
 
-		Enemy e = mEnemies[i];
-		std::cout << "Created enemy: " << e.id << " with state: " << e.state << " of type: " << e.type;
-		std::cout << " at: (" << e.pos.x << ", " << e.pos.y << ", " << e.pos.z << ")";
-		std::cout << " facing: (" << e.dir.x << ", " << e.dir.y << ", " << e.dir.z << ")" << std::endl;
+		NetEnemy e = mEnemies[i];
 	}
 }
 
@@ -273,7 +236,7 @@ void Server::SendEnemies( UINT toClient )
 {
 	for( auto& enemy : mEnemies )
 	{
-		Enemy e = enemy.second;
+		NetEnemy e = enemy.second;
 		IEventPtr E1( PFS_NEW Event_Server_Create_Enemy( e.id, e.state, e.type, e.pos, e.dir ) );
 		SendEvent( E1, toClient );
 	}
@@ -319,6 +282,10 @@ bool Server::Connect( UINT port )
 
 void Server::Update( float deltaTime )
 {
+	if( mActive )
+	{
+
+	}
 }
 
 void Server::DoSelect( int pauseMicroSecs, bool handleInput )
@@ -362,7 +329,7 @@ Server::Server() : Network()
 {
 	mSocketManager	= nullptr;
 	mClientMap		= std::map<UINT, ClientNEF>();
-	mEnemies		= std::map<UINT, Enemy>();
+	mEnemies		= std::map<UINT, NetEnemy>();
 	mTeamDelegate	= (UINT)-1;
 }
 

@@ -15,7 +15,7 @@ class Server : public Network
 
 		SocketManager*				mSocketManager;
 		std::map<UINT, ClientNEF>	mClientMap;
-		std::map<UINT, Enemy>		mEnemies;
+		std::map<UINT, NetEnemy>		mEnemies;
 		UINT						mTeamDelegate;
 		bool						mActive;
 

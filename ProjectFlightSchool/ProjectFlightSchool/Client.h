@@ -22,21 +22,6 @@ class Client : public Network
 				Client();
 		virtual	~Client();
 
-		void	LocalJoined( IEventPtr eventPtr );
-		void	RemoteJoined( IEventPtr eventPtr );
-		void	RemoteLeft( IEventPtr eventPtr );
-		void	RemoteUpdate( IEventPtr eventPtr );
-		void	RemoteDied( IEventPtr eventPtr );
-		void	RemoteDamaged( IEventPtr eventPtr );
-		void	RemoteSpawned( IEventPtr eventPtr );
-		void	RemoteFiredProjectile( IEventPtr eventPtr );
-		void	RemoteUpdateHP( IEventPtr eventPtr );
-		void	RemoteMeleeHit( IEventPtr eventPtr );
-		void	RemoteAttack( IEventPtr eventPtr );
-		void	RemoteDown( IEventPtr eventPtr );
-		void	RemoteUp( IEventPtr eventPtr );
-		void	RemoteAttemptRevive( IEventPtr eventPtr );
-
 		void	ServerCreateEnemy( IEventPtr eventPtr );
 		void	ServerUpdateEnemy( IEventPtr eventPtr );
 

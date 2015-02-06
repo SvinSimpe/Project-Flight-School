@@ -427,8 +427,8 @@ HRESULT RemotePlayer::Initialize()
 
 	//Weapon Initialization
 	mLoadOut				= new LoadOut();
-	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN, 5.0f, 1, 5.0f, 2, 0 );
-	mLoadOut->meleeWeapon	= new MeleeInfo( HAMMER, 4.0f, 3, 2.0f, 7, 2.0f, new BoundingCircle( 2.0f ) );
+	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN );
+	mLoadOut->meleeWeapon	= new MeleeInfo( HAMMER );
 
 	InitializeGraphics();
 

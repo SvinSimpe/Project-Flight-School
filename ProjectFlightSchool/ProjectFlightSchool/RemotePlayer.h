@@ -38,6 +38,7 @@ struct ServerPlayer
 {
 	unsigned int	ID;
 	XMFLOAT3		Position;
+	bool			IsAlive;
 };
 
 struct UpperBody
@@ -158,6 +159,5 @@ class RemotePlayer
 		void			SetHP( float hp );
 		void			SetName( std::string name );
 };
-
 #endif
 

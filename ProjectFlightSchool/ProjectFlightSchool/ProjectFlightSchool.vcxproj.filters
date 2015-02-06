@@ -228,6 +228,11 @@
     <ClCompile Include="EnemyAnimationManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+
+    <ClCompile Include="Radar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+
     <ClCompile Include="DS3DBuffer.cpp">
       <Filter>DirectSound\Source</Filter>
     </ClCompile>
@@ -407,6 +412,11 @@
     <ClInclude Include="EnemyAnimationManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+
+    <ClInclude Include="Radar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+
     <ClInclude Include="DS3DBuffer.h">
       <Filter>DirectSound\Header</Filter>
     </ClInclude>
@@ -416,12 +426,14 @@
     <ClInclude Include="SoundBufferHandler.h">
       <Filter>DirectSound\Header</Filter>
     </ClInclude>
+
     <ClInclude Include="Button.h">
       <Filter>GUI\Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Graphics\Font.h">
       <Filter>GUI\Header</Filter>
     </ClInclude>
+
     <ClInclude Include="Gui.h">
       <Filter>GUI\Header</Filter>
     </ClInclude>
@@ -439,6 +451,9 @@
     </ClInclude>
     <ClInclude Include="PacketImpl.h">
       <Filter>Network\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WeaponLoadoutInfo.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

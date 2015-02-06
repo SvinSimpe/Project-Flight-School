@@ -2595,6 +2595,7 @@ class Event_Load_Level : public IEvent
 {
 	private:
 		std::string mFilePath;
+	protected:
 	public:
 		static const EventType GUID;
 
@@ -2636,6 +2637,7 @@ class Event_Create_Player_Name : public IEvent
 {
 	private:
 		std::string mPlayerName;
+	protected:
 	public:
 		static const EventType GUID;
 
@@ -2669,6 +2671,181 @@ class Event_Create_Player_Name : public IEvent
 		std::string PlayerName() const
 		{
 			return mPlayerName;
+		}
+};
+
+class Event_Client_Enemy_Attack : public IEvent
+{
+	private:
+		UINT mID;
+		UINT mEnemyID;
+		float mDamage;
+		float mKnockBack;
+		XMFLOAT3 mDirection;
+		float mStun;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Enemy_Attack()
+		{
+			mID			= (UINT)-1;
+			mEnemyID	= (UINT)-1;
+			mDamage		= 0.0f;
+			mKnockBack	= 0.0f;
+			mDirection  = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mStun		= 0.0f;
+		}
+		Event_Client_Enemy_Attack( UINT ID, UINT enemyID, float damage, float knockBack, XMFLOAT3 direction, float stun )
+		{
+			mID			= ID;
+			mEnemyID	= enemyID;
+			mDamage		= damage;
+			mKnockBack	= knockBack;
+			mDirection	= direction;
+			mStun		= stun;
+		}
+		~Event_Client_Enemy_Attack() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mEnemyID << " ";
+			out << mDamage << " ";
+			out << mKnockBack << " ";
+			out << mDirection.x << " ";
+			out << mDirection.y << " ";
+			out << mDirection.z << " ";
+			out << mStun << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mEnemyID;
+			in >> mDamage;
+			in >> mKnockBack;
+			in >> mDirection.x;
+			in >> mDirection.y;
+			in >> mDirection.z;
+			in >> mStun;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Enemy_Attack( mID, mEnemyID, mDamage, mKnockBack, mDirection, mStun ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT EnemyID() const
+		{
+			return mEnemyID;
+		}
+		float Damage() const
+		{
+			return mDamage;
+		}
+		float KnockBack() const
+		{
+			return mKnockBack;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
+		}
+		float Stun() const
+		{
+			return mStun;
+		}
+};
+
+class Event_Remote_Enemy_Attack : public IEvent
+{
+	private:
+		UINT mID;
+		UINT mEnemyID;
+		float mDamage;
+		float mKnockBack;
+		XMFLOAT3 mDirection;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Enemy_Attack()
+		{
+			mID			= (UINT)-1;
+			mEnemyID	= (UINT)-1;
+			mDamage		= 0.0f;
+			mKnockBack	= 0.0f;
+			mDirection  = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		}
+		Event_Remote_Enemy_Attack( UINT ID, UINT enemyID, float damage, float knockBack, XMFLOAT3 direction )
+		{
+			mID			= ID;
+			mEnemyID	= enemyID;
+			mDamage		= damage;
+			mKnockBack	= knockBack;
+			mDirection	= direction;
+		}
+		~Event_Remote_Enemy_Attack() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mEnemyID << " ";
+			out << mDamage << " ";
+			out << mKnockBack << " ";
+			out << mDirection.x << " ";
+			out << mDirection.y << " ";
+			out << mDirection.z << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mEnemyID;
+			in >> mDamage;
+			in >> mKnockBack;
+			in >> mDirection.x;
+			in >> mDirection.y;
+			in >> mDirection.z;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Enemy_Attack( mID, mEnemyID, mDamage, mKnockBack, mDirection ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT EnemyID() const
+		{
+			return mEnemyID;
+		}
+		float Damage() const
+		{
+			return mDamage;
+		}
+		float KnockBack() const
+		{
+			return mKnockBack;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
 		}
 };
 #endif

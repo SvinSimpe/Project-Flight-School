@@ -144,6 +144,50 @@ void Server::ClientMeleeHit( IEventPtr eventPtr )
 	}
 }
 
+//void Server::StateCheck()
+//{
+//	if( mEnemies[i]->IsAlive() )
+//	{
+//		for ( size_t j = 0; j < mNrOfPlayers; j++ )
+//		{
+//			// The players agg circle
+//			mAggCircle->center = mPlayers[j].Position;
+//			mAggCircle->radius = 1.0f;
+//
+//			if( mPlayers[j].IsAlive && mEnemies[i]->GetAttentionCircle()->Intersect( mAggCircle ) && mEnemies[i]->GetEnemyState() != Stunned )
+//			{
+//				if( mEnemies[i]->GetAttackCircle()->Intersect( mAggCircle ) )
+//				{
+//					mEnemies[i]->SetState( Attack );
+//					float attack = mEnemies[i]->HandleAttack();
+//					if( attack != 0.0f )
+//					{
+//						EvEnemyAttackPlayer enemyAtk;
+//						enemyAtk.playerID	= mPlayers[j].ID;
+//						enemyAtk.damage		= attack;
+//						for ( auto& socket : mClientSockets )
+//						{
+//							if ( socket.s != INVALID_SOCKET && mEnemyListSynced )
+//							{
+//								mConn->SendPkg( socket.s, 0, Net_Event::EV_ENEMY_ATTACK_PLAYER, enemyAtk );
+//							}
+//						}
+//					}
+//				}
+//				else
+//				{
+//					mEnemies[i]->SetState( HuntPlayer );
+//					mEnemies[i]->SetHuntedPlayer( mPlayers[j].Position );
+//				}
+//			}
+//			else
+//			{
+//				mEnemies[i]->SetState( Idle );
+//			}
+//		}
+//	}
+//}
+
 void Server::ClientAttack( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Client_Attack::GUID )

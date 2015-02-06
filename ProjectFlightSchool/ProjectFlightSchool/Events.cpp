@@ -91,3 +91,5 @@ const EventType Event_Initialize_Success::GUID( counter++ );
 const EventType Event_Initialize_Fail::GUID( counter++ );
 const EventType Event_Load_Level::GUID( counter++ );
 const EventType Event_Create_Player_Name::GUID( counter++ );
+const EventType Event_Client_Enemy_Attack::GUID( counter++ );
+const EventType Event_Remote_Enemy_Attack::GUID( counter++ );

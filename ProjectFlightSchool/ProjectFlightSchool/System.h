@@ -1,13 +1,6 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#undef WIN32_LEAN_AND_MEAN
-#endif
-
-#define VC_EXTRALEAN
 #include "Input.h"
 #include "Graphics.h"
 #include "Game.h"

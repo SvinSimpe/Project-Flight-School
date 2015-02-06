@@ -2,7 +2,6 @@
 #define MAPNODEMANAGER_H
 #include "MapNode.h"
 #include <unordered_map>
-#include "EventManager.h"
 #include "Events.h"
 struct JMatrix
 {

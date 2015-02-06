@@ -41,7 +41,11 @@
 #include <windows.h>
 #include <windowsx.h>
 
-EventManager* EventManager::instance = nullptr;
+using namespace EF;
+
+EventManager* EventManager::mInstance = nullptr;
+EventFactory* EventFactory::mInstance = nullptr;
+
 //---------------------------------------------------------------------------------------------------------------------
 // EventManager::VTick
 //---------------------------------------------------------------------------------------------------------------------
@@ -174,8 +178,6 @@ bool EventManager::TriggerEvent( const IEventPtr& pEvent ) const
 //---------------------------------------------------------------------------------------------------------------------
 bool EventManager::QueueEvent( const IEventPtr& pEvent )
 {
-
-
     // make sure the event is valid
     if ( !pEvent )
     {
@@ -234,11 +236,11 @@ bool EventManager::AbortEvent( const EventType& inType, bool allOfType )
 
 EventManager* EventManager::GetInstance()
 {
-	if( instance == nullptr )
+	if( mInstance == nullptr )
 	{
-		instance = new EventManager();
+		mInstance = new EventManager();
 	}
-	return instance;
+	return mInstance;
 }
 //---------------------------------------------------------------------------------------------------------------------
 // EventManager::EventManager
@@ -253,10 +255,11 @@ EventManager::EventManager()
 void EventManager::Release()
 {
 	DeleteCriticalSection( &lock );
-	if(instance != nullptr)
+	if(mInstance != nullptr)
 	{
-		delete instance;
+		delete mInstance;
 	}
+	EventFactory::GetInstance()->Release();
 }
 //---------------------------------------------------------------------------------------------------------------------
 // EventManager::~EventManager

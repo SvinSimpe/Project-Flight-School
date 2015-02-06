@@ -1,7 +1,7 @@
 #ifndef BASESTATE_H
 #define BASESTATE_H
 
-#include <Windows.h>
+#include "Client.h"
 #include "Graphics.h"
 #include "RenderManager.h"
 

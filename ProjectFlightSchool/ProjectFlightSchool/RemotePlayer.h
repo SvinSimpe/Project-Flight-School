@@ -1,8 +1,8 @@
 #ifndef REMOTEPLAYER_H
 #define REMOTEPLAYER_H
 
+#include "Input.h"
 #include "Graphics.h"
-#include "EventManager.h"
 #include "Events.h"
 #include "BoundingGeometry.h"
 #include "RenderManager.h"
@@ -125,7 +125,6 @@ class RemotePlayer
 	private:
 		HRESULT			InitializeGraphics();
 		void			EventListener( IEventPtr newEvent );
-
 	protected:
 
 	public:
@@ -160,6 +159,5 @@ class RemotePlayer
 		void			SetHP( float hp );
 		void			SetName( std::string name );
 };
-
 #endif
 

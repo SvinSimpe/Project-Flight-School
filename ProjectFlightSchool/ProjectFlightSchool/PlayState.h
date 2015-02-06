@@ -1,11 +1,10 @@
 #ifndef PLAYSTATE_H
 #define PLAYSTATE_H
 
-#include <sstream>
+#include "RemotePlayer.h"
 #include "Map.h"
 #include "BaseState.h"
 #include "Player.h"
-#include "RemotePlayer.h"
 #include "MapNodeManager.h"
 #include "Font.h"
 #include "Enemy.h"
@@ -17,11 +16,12 @@
 #include "Gui.h"
 #include "ParticleManager.h"
 #include "SoundBufferHandler.h"
-
+#include <sstream>
 
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
+#define TOSERVER_OFFSET			5000;
 
 class PlayState : public BaseState
 {

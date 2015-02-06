@@ -112,7 +112,7 @@ void Server::ClientFiredProjectile( IEventPtr eventPtr )
 		XMFLOAT3 dir = data->Direction();
 
 		IEventPtr E1( new Event_Remote_Fired_Projectile( id, 0, pos, dir ) );
-		BroadcastEvent( E1, id );
+		BroadcastEvent( E1 );
 	}
 }
 

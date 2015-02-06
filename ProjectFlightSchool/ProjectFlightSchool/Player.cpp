@@ -242,6 +242,8 @@ void Player::Fire()
 	XMStoreFloat3( &loadDir, offset );
 
 	PushEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mUpperBody.direction ) );
+
+
 }
 
 void Player::AddImpuls( XMFLOAT3 impuls )

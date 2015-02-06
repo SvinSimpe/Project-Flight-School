@@ -43,6 +43,8 @@ struct EvProjectileFired
 	unsigned int projectileID;
 	DirectX::XMFLOAT3 position;
 	DirectX::XMFLOAT3 direction;
+	float			  speed;
+	float			  range;
 };
 
 struct EvEnemyCreated

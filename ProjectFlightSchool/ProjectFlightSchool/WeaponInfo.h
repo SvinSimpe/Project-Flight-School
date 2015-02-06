@@ -23,8 +23,9 @@ struct RangedInfo
 	float		attackRate;
 	float		damage;
 	float		range;
-	int			spread;
+	float		spread;
 	float		areaOfEffect;
+	float		projectileSpeed;
 
 	RangedInfo()
 	{
@@ -32,8 +33,9 @@ struct RangedInfo
 		attackRate		= 0.0f;
 		damage			= 0.0f;
 		range			= 0.0f;
-		spread			= 0;
+		spread			= 0.0f;
 		areaOfEffect	= 0.0f;
+		projectileSpeed	= 0.0f;
 	}
 
 	RangedInfo( WeaponType weaponType )
@@ -49,6 +51,7 @@ struct RangedInfo
 				range			=	MINIGUN_RANGE;
 				spread			=	MINIGUN_SPREAD;
 				areaOfEffect	=	MINIGUN_AOE;
+				projectileSpeed	=	MINIGUN_SPEED;
 			}
 				break;
 
@@ -59,6 +62,7 @@ struct RangedInfo
 				range			=	SHOTGUN_RANGE;
 				spread			=	SHOTGUN_SPREAD;
 				areaOfEffect	=	SHOTGUN_AOE;
+				projectileSpeed	=	SHOTGUN_SPEED;
 			}
 				break;
 
@@ -69,6 +73,7 @@ struct RangedInfo
 				range			=	GL_RANGE;
 				spread			=	GL_SPREAD;
 				areaOfEffect	=	GL_AOE;
+				projectileSpeed	=	GL_SPEED;
 			}
 				break;
 
@@ -79,6 +84,7 @@ struct RangedInfo
 				range			=	SNIPER_RANGE;
 				spread			=	SNIPER_SPREAD;
 				areaOfEffect	=	SNIPER_AOE;
+				projectileSpeed	=	SNIPER_SPEED;
 			}
 				break;
 
@@ -89,6 +95,7 @@ struct RangedInfo
 				range			=	MINIGUN_RANGE;
 				spread			=	MINIGUN_SPREAD;
 				areaOfEffect	=	MINIGUN_AOE;
+				projectileSpeed	=	MINIGUN_SPEED;
 			}
 		}
 	}
@@ -99,7 +106,7 @@ struct MeleeInfo
 	float			attackRate;			// Cooldown from prev attack
 	float			damage;
 	float			radius;
-	int				spread;
+	float			spread;
 	float			knockBack;
 	float			timeTillAttack;		// From button press
 	float			stun;
@@ -131,7 +138,7 @@ struct MeleeInfo
 				radius			= CLAYMORE_RADIUS;
 				spread			= CLAYMORE_SPREAD;
 				knockBack		= CLAYMORE_KB;
-				boundingCircle	= new BoundingCircle( 4.0f );
+				boundingCircle	= new BoundingCircle( CLAYMORE_REACH );
 				timeTillAttack	= CLAYMORE_TTA;
 				stun			= CLAYMORE_STUN;
 			}
@@ -144,7 +151,7 @@ struct MeleeInfo
 				radius			= HAMMER_RADIUS;
 				spread			= HAMMER_SPREAD;
 				knockBack		= HAMMER_KB;
-				boundingCircle	= new BoundingCircle( 4.0f );
+				boundingCircle	= new BoundingCircle( HAMMER_REACH );
 				timeTillAttack	= HAMMER_TTA;
 				stun			= HAMMER_STUN;
 			}
@@ -157,7 +164,7 @@ struct MeleeInfo
 				radius			= BLOWTORCH_RADIUS;
 				spread			= BLOWTORCH_SPREAD;
 				knockBack		= BLOWTORCH_KB;
-				boundingCircle	= new BoundingCircle( 4.0f );
+				boundingCircle	= new BoundingCircle( BLOWTORCH_REACH );
 				timeTillAttack	= BLOWTORCH_TTA;
 				stun			= BLOWTORCH_STUN;
 			}
@@ -170,7 +177,7 @@ struct MeleeInfo
 				radius			= SAW_RADIUS;
 				spread			= SAW_SPREAD;
 				knockBack		= SAW_KB;
-				boundingCircle	= new BoundingCircle( 4.0f );
+				boundingCircle	= new BoundingCircle( SAW_REACH );
 				timeTillAttack	= SAW_TTA;
 				stun			= SAW_STUN;
 			}
@@ -183,7 +190,7 @@ struct MeleeInfo
 				radius			= HAMMER_RADIUS;
 				spread			= HAMMER_SPREAD;
 				knockBack		= HAMMER_KB;
-				boundingCircle	= new BoundingCircle( 4.0f );
+				boundingCircle	= new BoundingCircle( HAMMER_REACH );
 				timeTillAttack	= HAMMER_TTA;
 				stun			= HAMMER_STUN;
 			}

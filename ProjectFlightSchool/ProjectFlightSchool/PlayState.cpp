@@ -62,7 +62,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		// Fire projectile
 		std::shared_ptr<Event_Remote_Projectile_Fired> data = std::static_pointer_cast<Event_Remote_Projectile_Fired>(newEvent);
-		FireProjectile( data->ID(), data->ProjectileID(), data->BodyPos(), data->Direction() );
+		FireProjectile( data->ID(), data->ProjectileID(), data->BodyPos(), data->Direction(), data->Speed(), data->Range() );
 
 		//TestSound
 		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->BodyPos());
@@ -169,10 +169,10 @@ void PlayState::BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float
 	EventManager::GetInstance()->QueueEvent( dmgEv );
 }
 
-void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction )
+void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range )
 {
 	mNrOfProjectilesFired = mNrOfProjectilesFired % MAX_PROJECTILES;
-	mProjectiles[mNrOfProjectilesFired]->SetDirection( id, projectileID, position, direction );
+	mProjectiles[mNrOfProjectilesFired]->SetDirection( id, projectileID, position, direction, speed, range );
 	//mProjectiles[mNrOfProjectilesFired % MAX_PROJECTILES]->SetIsActive( true );
 	mNrOfProjectilesFired++;
 }
@@ -405,10 +405,11 @@ void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int project
 
 HRESULT PlayState::Update( float deltaTime )
 {
+	CheckProjectileCollision();
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{
 		CheckPlayerCollision();
-		CheckProjectileCollision();
+		//CheckProjectileCollision();
 
 		if( mPlayer->GetIsMeleeing() )
 		{

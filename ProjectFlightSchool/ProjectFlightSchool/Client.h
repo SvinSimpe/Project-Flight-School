@@ -106,7 +106,7 @@ void Client::HandlePkg( Package<T>* p )
 		case Net_Event::EV_PROJECTILE_FIRED:
 		{
 			EvProjectileFired projectileFired = (EvProjectileFired&)p->body.content;
-			IEventPtr E1( new Event_Remote_Projectile_Fired( projectileFired.ID, projectileFired.projectileID, projectileFired.position, projectileFired.direction  ) );
+			IEventPtr E1( new Event_Remote_Projectile_Fired( projectileFired.ID, projectileFired.projectileID, projectileFired.position, projectileFired.direction, projectileFired.speed, projectileFired.range  ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 			break;

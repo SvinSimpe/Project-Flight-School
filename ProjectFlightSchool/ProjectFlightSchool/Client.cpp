@@ -94,6 +94,8 @@ void Client::EventListener( IEventPtr newEvent )
 			msg.ID			= mID;
 			msg.position	= data->BodyPos();
 			msg.direction	= data->Direction();
+			msg.speed		= data->Speed();
+			msg.range		= data->Range();
 
 			if ( mServerSocket != INVALID_SOCKET )
 			{

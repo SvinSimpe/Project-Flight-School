@@ -570,6 +570,8 @@ class Event_Projectile_Fired : public IEvent
 		unsigned int	mID;
 		XMFLOAT3		mBodyPos;
 		XMFLOAT3		mDirection;
+		float			mSpeed;
+		float			mRange;
 
 	protected:
 	public:
@@ -583,11 +585,13 @@ class Event_Projectile_Fired : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Projectile_Fired( unsigned int id, XMFLOAT3 bodyPos, XMFLOAT3 direction )
+		Event_Projectile_Fired( unsigned int id, XMFLOAT3 bodyPos, XMFLOAT3 direction, float speed, float range )
 		{
 			mID				= id;
 			mBodyPos		= bodyPos;
 			mDirection		= direction;
+			mSpeed			= speed;
+			mRange			= range;
 		}
 		unsigned int ID() const
 		{
@@ -601,6 +605,14 @@ class Event_Projectile_Fired : public IEvent
 		{
 			return mDirection;
 		}
+		float Speed() const
+		{
+			return mSpeed;
+		}
+		float Range() const
+		{
+			return mRange;
+		}
 };
 
 class Event_Remote_Projectile_Fired : public IEvent
@@ -611,6 +623,8 @@ class Event_Remote_Projectile_Fired : public IEvent
 		unsigned int	mProjectileID;
 		XMFLOAT3		mBodyPos;
 		XMFLOAT3		mDirection;
+		float			mSpeed;
+		float			mRange;
 
 	protected:
 	public:
@@ -624,12 +638,14 @@ class Event_Remote_Projectile_Fired : public IEvent
 			return GUID;
 		}
 	public:
-		Event_Remote_Projectile_Fired( unsigned int id, unsigned int projectileID, XMFLOAT3 bodyPos, XMFLOAT3 direction )
+		Event_Remote_Projectile_Fired( unsigned int id, unsigned int projectileID, XMFLOAT3 bodyPos, XMFLOAT3 direction, float speed, float range )
 		{
 			mID				= id;
 			mProjectileID	= projectileID;
 			mBodyPos		= bodyPos;
 			mDirection		= direction;
+			mSpeed			= speed;
+			mRange			= range;
 		}
 		unsigned int ID() const
 		{
@@ -646,6 +662,14 @@ class Event_Remote_Projectile_Fired : public IEvent
 		XMFLOAT3 Direction() const
 		{
 			return mDirection;
+		}
+		float Speed() const
+		{
+			return mSpeed;
+		}
+		float Range() const
+		{
+			return mRange;
 		}
 };
 

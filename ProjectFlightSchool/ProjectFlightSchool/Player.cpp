@@ -119,7 +119,7 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_LEFT ) && mWeaponCoolDown <= 0.0f )
 	{
 		Fire();
-		mWeaponCoolDown = 0.1f;
+		mWeaponCoolDown = mLoadOut->rangedWeapon->attackRate;
 		
 		RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] );
 		mRightArmAnimationCompleted		= false;
@@ -258,8 +258,19 @@ void Player::Fire()
 	XMFLOAT3 loadDir;
 	XMStoreFloat3( &loadDir, offset );
 
-	IEventPtr E1( new Event_Projectile_Fired( mID, XMFLOAT3( loadDir ), mUpperBody.direction ) );
-	EventManager::GetInstance()->QueueEvent( E1 );
+	// Set random spread
+	if( mLoadOut->rangedWeapon->spread != 0.0f )
+	{
+		float directionOffset	=  (float)( rand() % 100 ) * 0.001f - mLoadOut->rangedWeapon->spread;
+		mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffset, mUpperBody.direction.y, mUpperBody.direction.z + directionOffset );
+		IEventPtr E1( new Event_Projectile_Fired( mID, XMFLOAT3( loadDir ), mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
+	}
+	else
+	{
+		IEventPtr E1( new Event_Projectile_Fired( mID, XMFLOAT3( loadDir ), mUpperBody.direction, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
+	}
 }
 
 void Player::AddImpuls( XMFLOAT3 impuls )
@@ -466,6 +477,8 @@ HRESULT Player::Initialize()
 {
 	RemotePlayer::Initialize();
 
+	srand( (unsigned int)time( NULL ) );
+
 	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mHasName = false;
 	mPlayerName = "";
@@ -541,6 +554,7 @@ Player::Player()
 	mCurrentVelocity	= 0.0f;
 	mMaxAcceleration	= 0.0f;
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mFireDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mIsBuffed			= false;
 	mBuffMod			= 0.0f;
 	mHasMeleeStarted	= false;

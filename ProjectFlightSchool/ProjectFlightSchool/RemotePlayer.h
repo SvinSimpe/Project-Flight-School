@@ -1,6 +1,7 @@
 #ifndef REMOTEPLAYER_H
 #define REMOTEPLAYER_H
 
+#include "Input.h"
 #include "Graphics.h"
 #include "Events.h"
 #include "BoundingGeometry.h"

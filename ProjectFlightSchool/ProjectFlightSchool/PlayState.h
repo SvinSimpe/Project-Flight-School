@@ -1,10 +1,10 @@
 #ifndef PLAYSTATE_H
 #define PLAYSTATE_H
 
+#include "RemotePlayer.h"
 #include "Map.h"
 #include "BaseState.h"
 #include "Player.h"
-#include "RemotePlayer.h"
 #include "MapNodeManager.h"
 #include "Font.h"
 #include "Enemy.h"

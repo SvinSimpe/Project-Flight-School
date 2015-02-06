@@ -3,7 +3,6 @@
 
 #include "Projectile.h"
 #include "RemotePlayer.h"
-#include "Input.h"
 
 #define VELOCITY_FALLOFF 2.0f
 

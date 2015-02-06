@@ -8,8 +8,6 @@
 #include "RenderManager.h"
 #include "Font.h"
 #include "WeaponInfo.h"
-#include "Text.h"
-#include "Input.h"
 
 #define LEFT_ARM_ID		0
 #define RIGHT_ARM_ID	1
@@ -18,7 +16,6 @@ enum PLAYER_ANIMATION
 {
 	LEGS_IDLE,
 	LEGS_WALK,
-
 	COUNT,
 };
 
@@ -91,68 +88,62 @@ class RemotePlayer
 		unsigned int	mID;
 		std::string		mPlayerName;
 		int				mTeam;
+		bool			mIsAlive;
+		bool			mIsDown;
+		float			mCurrentHp;
+		float			mMaxHp;
+		int				mNrOfDeaths;
+		int				mNrOfKills;
+		XMFLOAT3		mVelocity;
+		LoadOut*		mLoadOut;
+		BoundingBox*	mBoundingBox;
+		BoundingCircle*	mBoundingCircle;
+		BoundingCircle*	mBoundingCircleAura;
+
+		//Graphics
+		Font			mFont;
+		PointLight*		mPointLightIfDown;
+		AssetID			mAnimations[PLAYER_ANIMATION::COUNT];
+		AssetID			mWeaponModels[WEAPON_COUNT];
+		AssetID			mWeaponAnimations[WEAPON_COUNT][WEAPON_ANIMATION_COUNT];
 		UpperBody		mUpperBody;
 		LowerBody		mLowerBody;
 		Arms			mArms;
 		bool			mLeftArmAnimationCompleted;
 		bool			mRightArmAnimationCompleted;
-		AssetID			mAnimations[PLAYER_ANIMATION::COUNT];
-		AssetID			mWeaponModels[WEAPON_COUNT];
-		AssetID			mWeaponAnimations[WEAPON_COUNT][WEAPON_ANIMATION_COUNT];
 
-		BoundingBox*	mBoundingBox;
-		BoundingCircle*	mBoundingCircle;
-		BoundingCircle*	mBoundingCircleAura;
-		float			mCurrentHp;
-		float			mMaxHp;
-		bool			mIsAlive;
-		bool			mIsReviving;
-		float			mSpawnTime;
-		float			mTimeTillSpawn;
-		float			mDeathTime;
-		float			mTimeTillDeath;
-		float			mReviveTime;
-		float			mTimeTillRevive;
-		int				mLastKiller;
+		//Temporary information
 		AssetID			mGreenHPAsset;
 		AssetID			mRedHPAsset;
 		AssetID			mOrangeHPAsset;
 		AssetID			mTeamAsset;
 		AssetID			mColorIDAsset;
-		int				mNrOfDeaths;
-		int				mNrOfKills;
-		Font			mFont;
-
-		XMFLOAT3	mVelocity;
-		LoadOut*	mLoadOut;
-
-		bool			mIsDown;
-		PointLight*		mPointLightIfDown;
 
 	public:
 
 	// Member functions
 	private:
-		void			RemoteUpdate( IEventPtr newEvent );
+		HRESULT			InitializeGraphics();
+		void			EventListener( IEventPtr newEvent );
 
 	protected:
 
 	public:
-		void			RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID );
-		void			BroadcastDeath( unsigned int shooter );
-
 		virtual void	Die();
-		void			HandleSpawn( float deltaTime );
-		void			HandleDeath( float deltaTime );
 		void			Spawn();
-		virtual void	TakeDamage( float damage, unsigned int shooter );
-		void			SetName( std::string name );
-		void			SetHP( float hp );
 		void			CountUpKills();
-		void			GoDown();
-		void			GoUp();
+		virtual void	GoDown();
+		virtual void	GoUp();
+		virtual HRESULT	Update( float deltaTime );
+		virtual HRESULT	Render( int position );
+		virtual HRESULT	Initialize();
+		void			RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID );
+		void			Release();
+						RemotePlayer();
+		virtual			~RemotePlayer();
+
+		//GetSet
 		bool			IsAlive() const;
-		std::string		GetName() const;
 		bool			IsDown() const;
 		LoadOut*		GetLoadOut() const;
 		float			GetHP() const;
@@ -164,23 +155,10 @@ class RemotePlayer
 		BoundingCircle*	GetBoundingCircleAura() const;
 		XMFLOAT3		GetPosition() const;
 		XMFLOAT3		GetDirection() const;
+		std::string		GetName() const;
 		void			SetDirection( XMFLOAT3 direction );
-		void			AddImpuls( XMFLOAT3 impuls );
-		virtual HRESULT	Update( float deltaTime );
-		virtual HRESULT	Render( int position );
-		virtual HRESULT	Initialize();
-		void			Release();
-						RemotePlayer();
-		virtual			~RemotePlayer();
-
-
-
-
-
-
-
-		////TEST
-		void TakeDamage( float damage );
+		void			SetHP( float hp );
+		void			SetName( std::string name );
 };
 
 #endif

@@ -90,7 +90,6 @@ class PlayState : public BaseState
 		void			UpdateProjectiles( float deltaTime );
 		void			RenderProjectiles();
 		void			HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID );
-		void			HandleRemoteMeleeHit( unsigned int id, float damage, float knockBack, XMFLOAT3 direction );
 
 	protected:
 	public:

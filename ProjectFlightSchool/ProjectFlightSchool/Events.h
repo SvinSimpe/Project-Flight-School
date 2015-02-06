@@ -1,4 +1,5 @@
-#pragma once
+#ifndef EVENTS_H
+#define EVENTS_H
 //========================================================================
 // Events.h : defines common game events
 //
@@ -2670,3 +2671,4 @@ class Event_Create_Player_Name : public IEvent
 			return mPlayerName;
 		}
 };
+#endif

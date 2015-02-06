@@ -8,35 +8,6 @@ class Network
 {
 	private:
 	protected:
-		struct NetEnemy
-		{
-			UINT id;
-			UINT state;
-			UINT type;
-			XMFLOAT3 pos;
-			XMFLOAT3 dir;
-			bool isAlive;
-
-			NetEnemy()
-			{
-				id = (UINT)-1;
-				state = (UINT)-1;
-				type = (UINT)-1;
-				pos = XMFLOAT3( 0.0f, 0.0f, 0.0f );
-				dir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
-				isAlive = false;
-			}
-
-			NetEnemy( UINT id, UINT state, UINT type, XMFLOAT3 pos, XMFLOAT3 dir )
-			{
-				this->id = id;
-				this->state = state;
-				this->type = type;
-				this->pos = pos;
-				this->dir = dir;
-				isAlive = true;
-			}
-		};
 	public:
 
 	private:

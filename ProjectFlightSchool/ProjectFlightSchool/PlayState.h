@@ -39,11 +39,6 @@ class PlayState : public BaseState
 		//Collision
 		unsigned int	mFrameCounter;
 
-		//TEST
-		std::vector<RemotePlayer*> mAllPlayers;
-
-		Ship						mShip;
-
 		//Game Data
 		Player*						mPlayer;
 		std::vector<RemotePlayer*>	mRemotePlayers;

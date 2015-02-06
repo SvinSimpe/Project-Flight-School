@@ -43,7 +43,6 @@
 
 IEventManager::IEventManager()
 {
-
 }
 
 IEventManager::~IEventManager(void)

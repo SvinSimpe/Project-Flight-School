@@ -108,10 +108,11 @@ void Server::ClientFiredProjectile( IEventPtr eventPtr )
 	{
 		std::shared_ptr<Event_Client_Fired_Projectile> data = std::static_pointer_cast<Event_Client_Fired_Projectile>( eventPtr );
 		UINT id = data->ID();
+		UINT pid = CurrentPID();
 		XMFLOAT3 pos = data->BodyPos();
 		XMFLOAT3 dir = data->Direction();
 
-		IEventPtr E1( new Event_Remote_Fired_Projectile( id, 0, pos, dir ) );
+		IEventPtr E1( new Event_Remote_Fired_Projectile( id, pid, pos, dir ) );
 		BroadcastEvent( E1 );
 	}
 }
@@ -290,6 +291,15 @@ UINT Server::CurrentTeamDelegate()
 	return currentTeam;
 }
 
+UINT Server::CurrentPID()
+{
+	UINT currentPID = mCurrentPID;
+	mCurrentPID++;
+	if( mCurrentPID >= MAX_PROJECTILE_ID )
+		mCurrentPID = 0;
+	return currentPID;
+}
+
 bool Server::Connect( UINT port )
 {
 	mSocketManager = new SocketManager();
@@ -337,7 +347,8 @@ bool Server::Initialize()
 
 	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
 
-	mTeamDelegate = 1;
+	mTeamDelegate	= 1;
+	mCurrentPID		= 0;
 	return true;
 }
 
@@ -353,6 +364,8 @@ Server::Server() : Network()
 	mSocketManager	= nullptr;
 	mClientMap		= std::map<UINT, ClientNEF>();
 	mTeamDelegate	= (UINT)-1;
+	mCurrentPID		= (UINT)-1;
+	mActive			= false;
 }
 
 Server::~Server()

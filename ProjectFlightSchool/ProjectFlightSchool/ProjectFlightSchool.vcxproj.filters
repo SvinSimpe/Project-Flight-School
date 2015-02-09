@@ -257,6 +257,12 @@
     <ClCompile Include="Text.cpp">
       <Filter>GUI\Source</Filter>
     </ClCompile>
+    <ClCompile Include="Network.cpp">
+      <Filter>Network\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PacketImpl.cpp">
+      <Filter>Network\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
@@ -272,9 +278,6 @@
       <Filter>Network\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Connection.h">
-      <Filter>Network\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Package.h">
       <Filter>Network\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Server.h">
@@ -300,9 +303,6 @@
     </ClInclude>
     <ClInclude Include="RemotePlayer.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Structs.h">
-      <Filter>Network\Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Projectile.h">
       <Filter>Header Files</Filter>
@@ -443,11 +443,18 @@
     <ClInclude Include="Text.h">
       <Filter>GUI\Header</Filter>
     </ClInclude>
-
+    <ClInclude Include="IPacket.h">
+      <Filter>Network\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Network.h">
+      <Filter>Network\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketImpl.h">
+      <Filter>Network\Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="WeaponLoadoutInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

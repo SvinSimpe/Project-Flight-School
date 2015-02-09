@@ -1,203 +1,200 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#include "Connection.h"
-#include "EventManager.h"
-#include "Events.h"
+#include "Network.h"
 
-class Client // The class used by clients to connect to the server
+class Client : public Network
 {
-	// Members
 	private:
-		unsigned int	mID;
-		int				mResult;
-		addrinfo*		mAddrResult;
-		SOCKET			mServerSocket;
-		Connection*		mConn;
-
-	protected:
-
-	public:
-
-		// Template functions
-	private:
-		template <typename T>
-		void HandlePkg( Package<T>* p );
+		static Client*			mInstance;
+		ClientSocketManager*	mSocketManager;
+		NetworkEventForwarder*	mNEF;
+		bool					mActive;
 
 	protected:
 	public:
-		
-		// Functions
+
 	private:
-		bool	ReceiveLoop();
-		void	EventListener( IEventPtr newEvent );
-
-	protected:
-
-	public:
-		bool	Connect();
-		bool	Run();
-		bool	Initialize( std::string ip, std::string port ); // Sets up and connects to the server
-		void	Release();
 				Client();
 		virtual	~Client();
+
+		void	ServerCreateEnemy( IEventPtr eventPtr );
+		void	ServerUpdateEnemy( IEventPtr eventPtr );
+
+		void	StartUp( IEventPtr eventPtr );
+
+	protected:
+		bool	Connect( std::string ip, UINT port );
+	public:
+		static Client* GetInstance();
+		void	SendEvent( IEventPtr eventPtr );
+		void	Update( float deltaTime );
+		void	DoSelect( int pauseMicroSecs, bool handleInput = true );
+		bool	Initialize();
+		void	Release();
 };
+//<<<<<<< HEAD
+//
+//template <typename T>
+//void Client::HandlePkg( Package<T>* p )
+//{
+//	switch ( p->head.eventType )
+//	{
+//		case Net_Event::EV_PLAYER_UPDATE:
+//		{
+//			EvPlayerUpdate msg = (EvPlayerUpdate&)p->body.content;
+//			IEventPtr E1( new Event_Remote_Player_Update( msg.id, msg.lowerBodyPosition, msg.velocity, msg.upperBodyDirection, msg.playerName ) );
+//			EventManager::GetInstance()->QueueEvent( E1 );
+//		}
+//			break;
+//		case Net_Event::EV_PLAYER_JOINED:
+//		{
+//			EvInitialize msg = (EvInitialize&)p->body.content;
+//			IEventPtr E1( new Event_Remote_Player_Joined( msg.ID, msg.team ) );
+//			EventManager::GetInstance()->QueueEvent( E1 );
+//			printf( "Remote player with ID: %d joined.\n", msg.ID );
+//		}
+//			break;
+//		case Net_Event::EV_PLAYER_LEFT:
+//		{
+//			EvPlayerID msg = (EvPlayerID&)p->body.content;
+//			IEventPtr E1( new Event_Remote_Player_Left( msg.ID ) );
+//			EventManager::GetInstance()->QueueEvent( E1 );
+//			printf( "Remote player with ID: %d left.\n", msg.ID );
+//		}
+//			break;
+//		case Net_Event::YOUR_ID:
+//		{
+//			EvInitialize msg		= (EvInitialize&)p->body.content;
+//			mID						= msg.ID;
+//
+//			IEventPtr E1( new Event_Local_Player_Joined( msg.ID, msg.team ) );
+//			EventManager::GetInstance()->QueueEvent( E1 );
+//
+//			printf( "Your id is %d.\n", msg.ID );
+//		}
+//			break;
+//		case Net_Event::EV_PLAYER_DIED:
+//		{
+//			EvKilled deadPlayer = (EvKilled&)p->body.content;
+//			IEventPtr E1( new Event_Remote_Player_Died( deadPlayer.ID, deadPlayer.killerID ) );
+//			EventManager::GetInstance()->QueueEvent( E1 );
+//		}
+//			break;
+//		case Net_Event::EV_PLAYER_DAMAGED:
+//		{
+//			EvPlayerID damagedPlayer = (EvPlayerID&)p->body.content;
+//			IEventPtr E1( new Event_Remote_Player_Damaged( damagedPlayer.ID, damagedPlayer.projectileID ) );
+//			EventManager::GetInstance()->QueueEvent( E1 );
+//		}
+//			break;
+//		case Net_Event::EV_PLAYER_SPAWNED:
+//		{
+//			EvPlayerID spawnedPlayer = (EvPlayerID&)p->body.content;
+//			IEventPtr E1( new Event_Remote_Player_Spawned( spawnedPlayer.ID ) );
+//			EventManager::GetInstance()->QueueEvent( E1 );
+//		}
+//			break;
+//		case Net_Event::EV_PROJECTILE_FIRED:
+//		{
+//			EvProjectileFired projectileFired = (EvProjectileFired&)p->body.content;
+//			IEventPtr E1( new Event_Remote_Projectile_Fired( projectileFired.ID, projectileFired.projectileID, projectileFired.position, projectileFired.direction, projectileFired.speed, projectileFired.range  ) );
+//			EventManager::GetInstance()->QueueEvent( E1 );
+//		}
+//			break;
+//		case Net_Event::EV_UPDATE_HP:
+//		{
+//			EvPlayerID player = (EvPlayerID&)p->body.content;
+//			IEventPtr E1( new Event_Remote_Player_Update_HP( player.ID, (float)player.HP  ) );
+//			EventManager::GetInstance()->QueueEvent( E1 );
+//		}
+//			break;
+//		case Net_Event::EV_SYNC_ENEMY:
+//		{
+//			EvSyncEnemy enemy = (EvSyncEnemy&)p->body.content;
+//			IEventPtr E1( new Event_Sync_Enemy( enemy.ID, enemy.state, enemy.type, enemy.position, enemy.direction  ) );
+//			EventManager::GetInstance()->QueueEvent( E1 );
+//		}
+//			break;
+//		case Net_Event::EV_ENEMY_LIST_SYNCED:
+//		{
+//			IEventPtr E1( new Event_Enemy_List_Synced() );
+//			EventManager::GetInstance()->QueueEvent( E1 );
+//		}
+//			break;
+//		case Net_Event::EV_SYNC_SPAWN:
+//		{
+//			EvSyncSapwn spawn = (EvSyncSapwn&)p->body.content;
+//			IEventPtr E1( new Event_Sync_Spawn( spawn.ID, spawn.position ) );
+//			EventManager::GetInstance()->QueueEvent( E1 );
+//		}
+//			break;
+//		case Net_Event::EV_ENEMY_UPDATE_POSITION:
+//		{
+//			EvUpdateEnemyPosition enemy = (EvUpdateEnemyPosition&)p->body.content;
+//			IEventPtr E1( new Event_Update_Enemy_Position( enemy.ID, enemy.position, enemy.direction, enemy.isAlive ) );
+//			EventManager::GetInstance()->QueueEvent( E1 );
+//		}
+//			break;
+//		case Net_Event::EV_MELEE_HIT:
+//		{
+//			EvMeleeHit meleeHit = (EvMeleeHit&)p->body.content;
+//			IEventPtr E1( new Event_Remote_Player_Melee_Hit( meleeHit.ID, meleeHit.damage, meleeHit.knockBack, meleeHit.direction ) );
+//			EventManager::GetInstance()->QueueEvent( E1 );
+//		}
+//			break;
+//		case Net_Event::EV_PLAYER_ATTACK:
+//		{
+//			EvPlayerAttack playerAttack = (EvPlayerAttack&)p->body.content;
+//			IEventPtr E1( new Event_Remote_Player_Attack( playerAttack.ID, playerAttack.armID, playerAttack.animation ) );
+//			EventManager::GetInstance()->QueueEvent( E1 );
+//		}
+//			break;
+//		case Net_Event::EV_SET_ENEMY_STATE:
+//		{
+//			EvSetEnemyState state = (EvSetEnemyState&)p->body.content;
+//			IEventPtr E1( new Event_Set_Remote_Enemy_State( state.ID, state.state ) );
+//			EventManager::GetInstance()->QueueEvent( E1 );
+//		}
+//			break;
+//		case Net_Event::EV_ENEMY_ATTACK_PLAYER:
+//		{
+//			EvEnemyAttackPlayer enemyAtk = (EvEnemyAttackPlayer&)p->body.content;
+//			IEventPtr E1( new Event_Enemy_Attack_Player( enemyAtk.playerID, enemyAtk.damage ) );
+//			EventManager::GetInstance()->QueueEvent( E1 );
+//		}
+//			break;
+//		case Net_Event::EV_PLAYER_DOWN:
+//		{
+//			EvPlayerID remotePlayerDown = (EvPlayerID&)p->body.content;
+//			IEventPtr E1( new Event_Remote_Player_Down( remotePlayerDown.ID ) );
+//			EventManager::GetInstance()->QueueEvent( E1 );
+//		}
+//			break;
+//		case Net_Event::EV_PLAYER_UP:
+//		{
+//			EvPlayerID remotePlayerUp = (EvPlayerID&)p->body.content;
+//			IEventPtr E1( new Event_Remote_Player_Up( remotePlayerUp.ID ) );
+//			EventManager::GetInstance()->QueueEvent( E1 );
+//		}
+//			break;
+//		case Net_Event::EV_PLAYER_REVIVE:
+//		{
+//			EvIDAndTime player = (EvIDAndTime&)p->body.content;
+//			IEventPtr E1( new Event_Player_Revive( player.playerID, player.deltaTime ) );
+//			EventManager::GetInstance()->QueueEvent( E1 );
+//		}
+//			break;
+//
+//		default:
+//		{
+//			OutputDebugStringA( "Error handling event from server.\n" );
+//		}
+//	}
+//}
+//#endif
+//=======
+//#endif
+//>>>>>>> development	
 
-template <typename T>
-void Client::HandlePkg( Package<T>* p )
-{
-	switch ( p->head.eventType )
-	{
-		case Net_Event::EV_PLAYER_UPDATE:
-		{
-			EvPlayerUpdate msg = (EvPlayerUpdate&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Update( msg.id, msg.lowerBodyPosition, msg.velocity, msg.upperBodyDirection, msg.playerName ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-		}
-			break;
-		case Net_Event::EV_PLAYER_JOINED:
-		{
-			EvInitialize msg = (EvInitialize&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Joined( msg.ID, msg.team ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-			printf( "Remote player with ID: %d joined.\n", msg.ID );
-		}
-			break;
-		case Net_Event::EV_PLAYER_LEFT:
-		{
-			EvPlayerID msg = (EvPlayerID&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Left( msg.ID ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-			printf( "Remote player with ID: %d left.\n", msg.ID );
-		}
-			break;
-		case Net_Event::YOUR_ID:
-		{
-			EvInitialize msg		= (EvInitialize&)p->body.content;
-			mID						= msg.ID;
-
-			IEventPtr E1( new Event_Local_Player_Joined( msg.ID, msg.team ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-
-			printf( "Your id is %d.\n", msg.ID );
-		}
-			break;
-		case Net_Event::EV_PLAYER_DIED:
-		{
-			EvKilled deadPlayer = (EvKilled&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Died( deadPlayer.ID, deadPlayer.killerID ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-		}
-			break;
-		case Net_Event::EV_PLAYER_DAMAGED:
-		{
-			EvPlayerID damagedPlayer = (EvPlayerID&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Damaged( damagedPlayer.ID, damagedPlayer.projectileID ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-		}
-			break;
-		case Net_Event::EV_PLAYER_SPAWNED:
-		{
-			EvPlayerID spawnedPlayer = (EvPlayerID&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Spawned( spawnedPlayer.ID ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-		}
-			break;
-		case Net_Event::EV_PROJECTILE_FIRED:
-		{
-			EvProjectileFired projectileFired = (EvProjectileFired&)p->body.content;
-			IEventPtr E1( new Event_Remote_Projectile_Fired( projectileFired.ID, projectileFired.projectileID, projectileFired.position, projectileFired.direction, projectileFired.speed, projectileFired.range  ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-		}
-			break;
-		case Net_Event::EV_UPDATE_HP:
-		{
-			EvPlayerID player = (EvPlayerID&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Update_HP( player.ID, (float)player.HP  ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-		}
-			break;
-		case Net_Event::EV_SYNC_ENEMY:
-		{
-			EvSyncEnemy enemy = (EvSyncEnemy&)p->body.content;
-			IEventPtr E1( new Event_Sync_Enemy( enemy.ID, enemy.state, enemy.type, enemy.position, enemy.direction  ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-		}
-			break;
-		case Net_Event::EV_ENEMY_LIST_SYNCED:
-		{
-			IEventPtr E1( new Event_Enemy_List_Synced() );
-			EventManager::GetInstance()->QueueEvent( E1 );
-		}
-			break;
-		case Net_Event::EV_SYNC_SPAWN:
-		{
-			EvSyncSapwn spawn = (EvSyncSapwn&)p->body.content;
-			IEventPtr E1( new Event_Sync_Spawn( spawn.ID, spawn.position ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-		}
-			break;
-		case Net_Event::EV_ENEMY_UPDATE_POSITION:
-		{
-			EvUpdateEnemyPosition enemy = (EvUpdateEnemyPosition&)p->body.content;
-			IEventPtr E1( new Event_Update_Enemy_Position( enemy.ID, enemy.position, enemy.direction, enemy.isAlive ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-		}
-			break;
-		case Net_Event::EV_MELEE_HIT:
-		{
-			EvMeleeHit meleeHit = (EvMeleeHit&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Melee_Hit( meleeHit.ID, meleeHit.damage, meleeHit.knockBack, meleeHit.direction ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-		}
-			break;
-		case Net_Event::EV_PLAYER_ATTACK:
-		{
-			EvPlayerAttack playerAttack = (EvPlayerAttack&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Attack( playerAttack.ID, playerAttack.armID, playerAttack.animation ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-		}
-			break;
-		case Net_Event::EV_SET_ENEMY_STATE:
-		{
-			EvSetEnemyState state = (EvSetEnemyState&)p->body.content;
-			IEventPtr E1( new Event_Set_Remote_Enemy_State( state.ID, state.state ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-		}
-			break;
-		case Net_Event::EV_ENEMY_ATTACK_PLAYER:
-		{
-			EvEnemyAttackPlayer enemyAtk = (EvEnemyAttackPlayer&)p->body.content;
-			IEventPtr E1( new Event_Enemy_Attack_Player( enemyAtk.playerID, enemyAtk.damage ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-		}
-			break;
-		case Net_Event::EV_PLAYER_DOWN:
-		{
-			EvPlayerID remotePlayerDown = (EvPlayerID&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Down( remotePlayerDown.ID ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-		}
-			break;
-		case Net_Event::EV_PLAYER_UP:
-		{
-			EvPlayerID remotePlayerUp = (EvPlayerID&)p->body.content;
-			IEventPtr E1( new Event_Remote_Player_Up( remotePlayerUp.ID ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-		}
-			break;
-		case Net_Event::EV_PLAYER_REVIVE:
-		{
-			EvIDAndTime player = (EvIDAndTime&)p->body.content;
-			IEventPtr E1( new Event_Player_Revive( player.playerID, player.deltaTime ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-		}
-			break;
-
-		default:
-		{
-			OutputDebugStringA( "Error handling event from server.\n" );
-		}
-	}
-}
 #endif

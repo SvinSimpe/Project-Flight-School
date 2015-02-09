@@ -2,9 +2,7 @@
 #define LIGHTMANAGER_H
 
 #include <Graphics.h>
-#include <Windows.h>
 #include "Events.h"
-#include "EventManager.h"
 
 class LightManager
 {

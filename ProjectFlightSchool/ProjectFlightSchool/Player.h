@@ -41,6 +41,8 @@ class Player: public RemotePlayer
 		float		mTimeTillRevive;
 		int			mLastKiller;
 
+		std::list<IEventPtr> mEventList;
+
 	protected:
 	public:
 		
@@ -58,6 +60,7 @@ class Player: public RemotePlayer
 		void		Die();
 		void		Fire();
 		void		AddImpuls( XMFLOAT3 impuls );
+		void		PushEvent( IEvent* ptr );
 
 	protected:
 	public:
@@ -81,6 +84,10 @@ class Player: public RemotePlayer
 		void		SetTeam( int team, AssetID teamColor );
 		void		SetColor( AssetID color );
 		void		SetPosition( XMVECTOR position );
+
+		std::list<IEventPtr> GetEvents();
+		void		EmptyList();
+		void		PopEvent();
 };
 #endif
 

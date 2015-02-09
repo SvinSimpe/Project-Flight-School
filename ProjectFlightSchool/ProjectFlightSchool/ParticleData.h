@@ -9,7 +9,8 @@
 #include <time.h>
 using namespace DirectX;
 
-#define MAX_PARTICLES 1000
+#define MAX_PARTICLES 5000
+#define NR_OF_PARTICLE_TYPES 6
 
 enum ParticleType
 {
@@ -17,7 +18,8 @@ enum ParticleType
 	Fire,
 	Spark,
 	Blood,
-	MuzzleFlash
+	MuzzleFlash,
+	Smoke_MiniGun
 };
 
 struct ParticleData
@@ -25,6 +27,7 @@ struct ParticleData
 	#pragma region Members
 
 	int	nrOfParticlesAlive = 0;
+	size_t		particleType				= std::numeric_limits<unsigned int>::infinity();
 
 	float*	xPosition = nullptr;
 	float*	yPosition = nullptr;
@@ -36,9 +39,11 @@ struct ParticleData
 
 	float*	lifeTime	= nullptr;
 	bool*	isAlive		= nullptr;
+	float*	speed		= nullptr;
 
 	
 	XMFLOAT3 randomDirectionVector[4];
+	int		 nrOfRequestedParticles		= 0;
 
 	#pragma endregion
 
@@ -64,7 +69,7 @@ struct ParticleData
 
 		lifeTime = (float*)_mm_malloc( nrOfParticles * sizeof(float), 16 );
 		isAlive	 = (bool*)_mm_malloc(  nrOfParticles * sizeof(bool),  16 );
-
+		speed	 = (float*)_mm_malloc( nrOfParticles * sizeof(float), 16 );
 
 		for ( int i = 0; i < nrOfParticles; i += 4 )
 		{
@@ -104,6 +109,11 @@ struct ParticleData
 			isAlive[i+1]	= false;
 			isAlive[i+2]	= false;
 			isAlive[i+3]	= false;
+
+			//========= Initialize speed ===========
+			xmm0 = _mm_load_ps( &speed[i] );
+			xmm0 = _mm_set_ps( 0.0f, 0.0f, 0.0f, 0.0f );
+			_mm_store_ps( &speed[i], xmm0 );
 		}
 
 		for (size_t i = 0; i < 4; i++)
@@ -195,16 +205,22 @@ struct ParticleData
 		{
 			float randomSpreadAngle = (float)( rand() % (int)spreadAngle * 2 ) - spreadAngle;
 		
-			XMVECTOR randomAimingDirection = XMVector3TransformCoord( aimingDirection, XMMatrixRotationY( XMConvertToRadians( randomSpreadAngle ) ) );
-			
+			XMVECTOR randomAimingDirection = XMVector3TransformCoord( aimingDirection, XMMatrixRotationY( XMConvertToRadians( randomSpreadAngle ) ) );		
 
 			XMStoreFloat3( &randomDirectionVector[i], randomAimingDirection );
 			
-			//Get random elevation
-			float randomElevation = ( (float)( rand() % 20 ) - 10 ) * 0.1f;
-			randomDirectionVector[i].y = randomElevation;
+			if( particleType != Smoke_MiniGun )
+			{
+				//Get random elevation
+				float randomElevation = ( (float)( rand() % 20 ) - 10 ) * 0.1f;
+				randomDirectionVector[i].y = randomElevation;
+			}
 		}
+	}
 
+	float GetRandomSpeed( size_t lowerBound, size_t upperBound )
+	{
+		return (float)( rand() % upperBound + (float)lowerBound ) * 0.1f;
 	}
 
 	void SetLifeTime( size_t lowerBound, size_t upperBound, size_t particleCount ) // If 2.0f is uppeBound, send 20
@@ -214,34 +230,42 @@ struct ParticleData
 		//float randomLife = 0.0f;
 		__m128 xmm0;
 
-		for ( size_t i = nrOfParticlesAlive; i < nrOfParticlesAlive + particleCount; i += 4 )
+		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i += 4 )
 		{
 			while( i % 4 != 0 )
 				i--;
 			
 			// Generate and set random life time
 			for (size_t j = 0; j < 4; j++)
-				randomLife[j] = (float)( rand() % upperBound + (float)lowerBound ) * 0.1f; //0.01f;
+				randomLife[j] = (float)( rand() % upperBound + (float)lowerBound ) * 0.1f;
 
 			// Store random lifeTime
 			xmm0 = _mm_load_ps( &lifeTime[i] );
 			xmm0 = _mm_set_ps( randomLife[0], randomLife[1], randomLife[2], randomLife[3] );
 			_mm_store_ps( &lifeTime[i], xmm0 );
-
-			int k = 4;
 		}	
 	}
 
 	void SetDirection( float xDirection, float yDirection, float zDirection, size_t particleCount, float spreadAngle )
 	{
-		for ( size_t i = nrOfParticlesAlive; i < nrOfParticlesAlive + particleCount; i += 4 )
+		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i += 4 )
 		{
 			while( i % 4 != 0 )
 				i--;
 
-			randomDirectionVector[0].x = xDirection * 4.0f;
-			randomDirectionVector[0].y = yDirection * 4.0f;
-			randomDirectionVector[0].z = zDirection * 4.0f;
+			if( particleType == MuzzleFlash )
+			{
+				randomDirectionVector[0].x = xDirection * GetRandomSpeed( 10, 80 );
+ 				randomDirectionVector[0].y = yDirection * GetRandomSpeed( 10, 80 );
+				randomDirectionVector[0].z = zDirection * GetRandomSpeed( 10, 80 );		
+			}
+			else if( particleType == Smoke_MiniGun )
+			{
+				randomDirectionVector[0].x = xDirection * GetRandomSpeed( 10, 20 );
+ 				randomDirectionVector[0].y = yDirection * GetRandomSpeed( 10, 20 );
+				randomDirectionVector[0].z = zDirection * GetRandomSpeed( 10, 20 );		
+			}
+
 			GetRandomSpread( spreadAngle );
 
 			//==== xVelocity = xDirection ====
@@ -263,7 +287,7 @@ struct ParticleData
 
 	void SetPosition( float xPosition, float yPosition, float zPosition, size_t particleCount )
 	{
-		for ( size_t i = nrOfParticlesAlive; i < nrOfParticlesAlive + particleCount; i += 4 )
+		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i += 4 )
 		{
 			while( i % 4 != 0 )
 				i--;
@@ -285,18 +309,21 @@ struct ParticleData
 		}
 	}
 
+	void IncrementValueY()
+	{
+		const __m128 increment = _mm_set1_ps( 0.01f );
+
+		for ( int i = 0; i < nrOfParticlesAlive; i += 4 )
+		{
+			//======== lifeTime -= deltaTime  ========
+			__m128 xmm0 = _mm_load_ps( &yVelocity[i] );
+			xmm0 = _mm_add_ps( xmm0, increment );
+			_mm_store_ps( &yVelocity[i], xmm0 );
+		}
+	}
+
 	void CheckDeadParticles()
 	{
-		for ( int i = 0; i < nrOfParticlesAlive; i++ )
-		{
-  			if( lifeTime[i] <= 0.0f )
-				Kill( i );	
-		}
-		for ( int i = 0; i < nrOfParticlesAlive; i++ )
-		{
-  			if( lifeTime[i] <= 0.0f )
-				Kill( i );	
-		}
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
 		{
   			if( lifeTime[i] <= 0.0f )
@@ -317,6 +344,7 @@ struct ParticleData
 
 		_mm_free( lifeTime );
 		_mm_free( isAlive );
+		_mm_free( speed );
 	}
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emiterDirection) = 0;

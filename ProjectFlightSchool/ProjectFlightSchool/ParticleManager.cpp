@@ -88,18 +88,21 @@ void ParticleManager::Initialize()
 	mNrOfParticleSystemsPerType[Spark]			= 0;
 	mNrOfParticleSystemsPerType[Blood]			= 0;
 	mNrOfParticleSystemsPerType[MuzzleFlash]	= 0;
+	mNrOfParticleSystemsPerType[Smoke_MiniGun]	= 0;
 
-	mMaxNrOfParticleSystemsPerType[Smoke]		= 10;
-	mMaxNrOfParticleSystemsPerType[Fire]		= 10;
-	mMaxNrOfParticleSystemsPerType[Spark]		= 10;
-	mMaxNrOfParticleSystemsPerType[Blood]		= 10;
-	mMaxNrOfParticleSystemsPerType[MuzzleFlash]	= 10;
+	mMaxNrOfParticleSystemsPerType[Smoke]			= 10;
+	mMaxNrOfParticleSystemsPerType[Fire]			= 10;
+	mMaxNrOfParticleSystemsPerType[Spark]			= 10;
+	mMaxNrOfParticleSystemsPerType[Blood]			= 10;
+	mMaxNrOfParticleSystemsPerType[MuzzleFlash]		= 10;
+	mMaxNrOfParticleSystemsPerType[Smoke_MiniGun]	= 10;
 
-	mNrOfActiveParticleSystemsPerType[Smoke]		= 0;
-	mNrOfActiveParticleSystemsPerType[Fire]			= 0;
-	mNrOfActiveParticleSystemsPerType[Spark]		= 0;
-	mNrOfActiveParticleSystemsPerType[Blood]		= 0;
-	mNrOfActiveParticleSystemsPerType[MuzzleFlash]	= 0;
+	mNrOfActiveParticleSystemsPerType[Smoke]			= 0;
+	mNrOfActiveParticleSystemsPerType[Fire]				= 0;
+	mNrOfActiveParticleSystemsPerType[Spark]			= 0;
+	mNrOfActiveParticleSystemsPerType[Blood]			= 0;
+	mNrOfActiveParticleSystemsPerType[MuzzleFlash]		= 0;
+	mNrOfActiveParticleSystemsPerType[Smoke_MiniGun]	= 0;
 
 	//======= Allocate memory for Particle Systems =======
 	mParticleSystems = new ParticleSystem**[NR_OF_PARTICLE_TYPES];
@@ -137,8 +140,15 @@ void ParticleManager::Initialize()
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[MuzzleFlash]; i++ )
 	{
-		mParticleSystems[MuzzleFlash][i]->Initialize( MuzzleFlash, 32.0f, 1000 );
+		mParticleSystems[MuzzleFlash][i]->Initialize( MuzzleFlash, 4.0f, 2000 );
 		mNrOfParticleSystemsPerType[MuzzleFlash]++;
+		mNrOfParticleSystems++;
+	}
+
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Smoke_MiniGun]; i++ )
+	{
+		mParticleSystems[Smoke_MiniGun][i]->Initialize( Smoke_MiniGun, 4.0f, 5000 );
+		mNrOfParticleSystemsPerType[Smoke_MiniGun]++;
 		mNrOfParticleSystems++;
 	}
 }

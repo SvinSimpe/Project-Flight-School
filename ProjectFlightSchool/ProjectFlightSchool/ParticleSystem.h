@@ -10,8 +10,6 @@ struct ParticleSystem : public ParticleData
 	#pragma region Members
 
 	size_t		entityParentID				= std::numeric_limits<unsigned int>::infinity();
-	size_t		particleType				= std::numeric_limits<unsigned int>::infinity();
-	int			nrOfRequestedParticles		= 0;
 	XMFLOAT3	emitterPosition				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	XMFLOAT3	emitterDirection			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	bool		isEmitting					= false;
@@ -28,13 +26,21 @@ struct ParticleSystem : public ParticleData
 		this->emitRate			= emitRate;
 		ParticleData::Initialize( nrOfParticles );
 
-
-		Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/muzzleflash.dds", assetID );
-		// Load asset for particle type
-		// - Shader
-		// - Texture
-		// - etc.
-		//Graphics::
+		switch ( particleType )
+		{
+			case MuzzleFlash:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireSprite.dds", assetID );
+				break;
+			}
+			case Smoke_MiniGun:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/whiteSmoke.dds", assetID );
+				break;
+			}
+			default:
+				break;
+		}
 	}
 
 	void Activate( size_t entityParentID, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
@@ -67,21 +73,21 @@ struct ParticleSystem : public ParticleData
 		// Use emitterDirection as base and randomize a different direction vector with a maximum spread angle deviation
 		SetDirection( emitterDirection.x, emitterDirection.y, emitterDirection.z, particleCount, spreadAngle );
 		SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
-		SetLifeTime( 1, 2, particleCount );
+		
+		if( particleType == MuzzleFlash )	SetLifeTime( 1, 2, particleCount );
+		if( particleType == Smoke_MiniGun )	SetLifeTime( 1, 6, particleCount );
 
 		nrOfRequestedParticles += particleCount;
 	}
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{	
-			if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 512, 20.0f );
+			if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 32,  25.0f );
+			if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 128, 2.0f );
 	}
 
 	virtual void Update( float deltaTime )
 	{
-		if( deltaTime  > 0.0116370535f )
-			deltaTime = 0.0116370535f;
-
 		// First instruction
 		UpdateLifeTime( deltaTime );
 
@@ -95,6 +101,12 @@ struct ParticleSystem : public ParticleData
 			{
 				// Update MuzzleFlash logic here
 				MuzzleFlashLogic( deltaTime );
+				break;
+			}
+			case Smoke_MiniGun:
+			{
+				// Update Smoke_MiniGun logic here
+				Smoke_MiniGunLogic( deltaTime );
 				break;
 			}
 			default:
@@ -124,8 +136,9 @@ struct ParticleSystem : public ParticleData
  		if( nrOfRequestedParticles >= 4 )
 		{
 			// Calculate Particle count for this frame
-			int nrOfNewParticles = (int)( emitRate );// * deltaTime);
-			
+			int nrOfNewParticles = 16;//(int)( (float)(nrOfRequestedParticles * 0.4f )  * emitRate ); //(int)( emitRate );// * deltaTime);
+	
+
 			if( nrOfNewParticles > MAX_PARTICLES)
 				return;
 
@@ -153,6 +166,46 @@ struct ParticleSystem : public ParticleData
 		}
 		else
 			nrOfRequestedParticles = 0;
+	}
+
+	void Smoke_MiniGunLogic( float deltaTime )
+	{
+		// Check if new Particles is requested
+ 		if( nrOfRequestedParticles >= 4 )
+		{
+			// Calculate Particle count for this frame
+			int nrOfNewParticles = 32;//(int)( (float)(nrOfRequestedParticles * 0.4f )  * emitRate ); //(int)( emitRate );// * deltaTime);
+	
+
+			if( nrOfNewParticles > MAX_PARTICLES)
+				return;
+
+			// Check if Particle count is a multiple of 4 and is available
+			while( nrOfNewParticles % 4 != 0 &&  nrOfNewParticles <= nrOfRequestedParticles )
+			{
+				nrOfNewParticles--;
+				if( nrOfNewParticles <= 0 )
+				{
+					nrOfNewParticles		= 0;
+					nrOfRequestedParticles	= 0;
+					return;
+				}
+			}
+
+			
+			//// Wake Particles
+			size_t endID = nrOfParticlesAlive + nrOfNewParticles;
+			for ( size_t i = nrOfParticlesAlive; i < endID; i++ )
+				Wake( i );
+
+			nrOfRequestedParticles -= nrOfNewParticles;
+			if( nrOfRequestedParticles < 0 )
+				nrOfRequestedParticles = 0;
+		}
+		else
+			nrOfRequestedParticles = 0;
+
+		IncrementValueY();
 	}
 
 	#pragma endregion

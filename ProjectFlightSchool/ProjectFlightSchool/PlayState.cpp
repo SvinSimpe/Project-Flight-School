@@ -111,6 +111,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		
 		// Request Muzzle Flash from Particle Manager
 		mParticleManager->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
+		mParticleManager->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Player_Melee_Hit::GUID )
 	{
@@ -484,8 +485,8 @@ HRESULT PlayState::Update( float deltaTime )
 		if ( mRemotePlayers.at(i) )
 		{
 			mRemotePlayers.at(i)->Update( deltaTime );
-			mRadarObjects[nrOfRadarObj].mRadarObjectPos = mRemotePlayers[i]->GetPosition();
-			mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
+			/*mRadarObjects[nrOfRadarObj].mRadarObjectPos = mRemotePlayers[i]->GetPosition();
+			mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;*/
 		}
 	}
 
@@ -498,8 +499,8 @@ HRESULT PlayState::Update( float deltaTime )
 	mShip.PickTurretTarget( mAllPlayers );
 	mShip.Update( deltaTime );
 
-	mRadarObjects[nrOfRadarObj].mRadarObjectPos = mShip.GetPosition();
-	mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_FRIENDLY;
+	/*mRadarObjects[nrOfRadarObj].mRadarObjectPos = mShip.GetPosition();
+	mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_FRIENDLY;*/
 
 	// Enemies
 	if( mEnemyListSynced )
@@ -509,14 +510,14 @@ HRESULT PlayState::Update( float deltaTime )
 			if( mEnemies[i]->IsSynced() )
 			{
 				mEnemies[i]->Update( deltaTime );
-				mRadarObjects[nrOfRadarObj].mType = RADAR_TYPE::HOSTILE;
-				mRadarObjects[nrOfRadarObj++].mRadarObjectPos = mEnemies[i]->GetPosition();
+				/*mRadarObjects[nrOfRadarObj].mType = RADAR_TYPE::HOSTILE;
+				mRadarObjects[nrOfRadarObj++].mRadarObjectPos = mEnemies[i]->GetPosition();*/
 			}
 		}
 	}
 	mParticleManager->Update( deltaTime );
 	
-	mGui->Update( mPlayer->GetPlayerPosition(), mRadarObjects, nrOfRadarObj );
+	/*mGui->Update( mPlayer->GetPlayerPosition(), mRadarObjects, nrOfRadarObj );*/
 
 	// Test Anim
 	///////////////////////////////////////////////////////////////////////////
@@ -570,7 +571,7 @@ HRESULT PlayState::Render()
 			nrOfAllies++;
 		}
 	}
-	mGui->Render( nrOfAllies, alliesHP, (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mShip.GetCurrentHull() / mShip.GetMaxHull() ) ); //Should be changed to shield and Xp
+	//mGui->Render( nrOfAllies, alliesHP, (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mShip.GetCurrentHull() / mShip.GetMaxHull() ) ); //Should be changed to shield and Xp
 
 	//RENDER DEVTEXT
 	std::stringstream ss;

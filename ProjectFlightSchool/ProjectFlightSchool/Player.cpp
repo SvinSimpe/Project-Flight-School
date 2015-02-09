@@ -322,10 +322,10 @@ void Player::Fire()
 	//Hardcoded to match shotgun
 	XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
 	XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
-	XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, 1.0f, mLowerBody.position.z ) );
+	XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, 1.0f, mLowerBody.position.z ) ); // 1.0f == height
 	
 	offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * 0.5f;
-	offset += direction * 1.8f;
+	offset += direction * 1.8f; // right offset
 
 	XMFLOAT3 loadDir;
 	XMStoreFloat3( &loadDir, offset );

@@ -14,10 +14,12 @@ void Server::ClientJoined( IEventPtr eventPtr )
 		mClientMap[id].TeamID = teamID;
 		mClientMap[id].NEF.Initialize( id, mSocketManager );
 
-		// Sends the ID of the newly connected client to the newly connected client
+		// Sends necessary information of the newly connected client to the newly connected client
 		IEventPtr E1( new Event_Local_Joined( id, teamID ) );
 		SendEvent( E1, id );
 		//SendEnemies( id );
+
+		printf("Created client with ID: %d\n", id);
 
 		// Sends the incoming ID to the existing remotes
 		IEventPtr E2( new Event_Remote_Joined( id, teamID ) ); 
@@ -86,7 +88,7 @@ void Server::ClientDamaged( IEventPtr eventPtr )
 		UINT projectileID = data->ProjectileID();
 
 		IEventPtr E1( new Event_Remote_Damaged( id, projectileID ) );
-		BroadcastEvent( E1, id );
+		BroadcastEvent( E1 );
 	}
 }
 
@@ -141,7 +143,7 @@ void Server::ClientMeleeHit( IEventPtr eventPtr )
 		XMFLOAT3 dir = data->Direction();
 
 		IEventPtr E1( new Event_Remote_Melee_Hit( id, damage, knockBack, dir ) );
-		BroadcastEvent( E1, id );
+		BroadcastEvent( E1 );
 	}
 }
 

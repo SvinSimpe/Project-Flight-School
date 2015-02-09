@@ -408,8 +408,10 @@ HRESULT PlayState::Update( float deltaTime )
 
 	UpdateProjectiles( deltaTime );
 
-	//mRadarObjects[nrOfRadarObj].mRadarObjectPos = mShip.GetPosition();
-	mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_FRIENDLY;
+	//Test radar due to no ship :(
+	mRadarObjects[nrOfRadarObj].mRadarObjectPos = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );//mShip.GetPosition();
+	mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
+	//-------
 
 	// Enemies
 	if( mEnemyListSynced )

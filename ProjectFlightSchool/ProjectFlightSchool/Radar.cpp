@@ -69,8 +69,12 @@ HRESULT	Radar::Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjec
 			if( vecLength <= mRadius )
 			{
 
-				radarObjects[i].mRadarObjectPos.x = ( mOffsetX + ( ( mRadarDimXY * 0.5f ) - mRadarObjHalfWidth ) ) + ( radarObjects[i].mRadarObjectPos.x - playerPos.x );
-				radarObjects[i].mRadarObjectPos.y = -radarObjects[i].mRadarObjectPos.z + playerPos.z + ( mRadarDimXY * 0.5f ) - mRadarObjHalfHeight;
+				//radarObjects[i].mRadarObjectPos.x = ( mOffsetX + ( ( mRadarDimXY * 0.5f ) - mRadarObjHalfWidth ) ) + ( radarObjects[i].mRadarObjectPos.x - playerPos.x );
+				//radarObjects[i].mRadarObjectPos.y = -radarObjects[i].mRadarObjectPos.z + playerPos.z + ( mRadarDimXY * 0.5f ) - mRadarObjHalfHeight;
+
+				radarObjects[i].mRadarObjectPos.x = ( mOffsetX + ( ( mRadarDimXY * 0.5f ) - mRadarObjHalfWidth - ( mRadarObjWidth * 0.2f ) ) ) + ( radarObjects[i].mRadarObjectPos.x - playerPos.x ) * ( ( mRadarDimXY / mRadarRadius ) * BASE_SCALE_VALUE ) * ( mRadarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) );
+				radarObjects[i].mRadarObjectPos.y = ( ( mRadarDimXY * 0.5f ) - mRadarObjHalfWidth - ( mRadarObjWidth * 0.1f ) ) - radarObjects[i].mRadarObjectPos.z + playerPos.z * ( ( ( mRadarDimXY / mRadarRadius ) * BASE_SCALE_VALUE ) * ( mRadarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) ) );
+				
 
 				AddObjectToList( radarObjects[i].mRadarObjectPos, radarObjects[i].mType );
 			}
@@ -114,10 +118,10 @@ HRESULT	Radar::Initialize()
 	mObjects[0].mWidthHeight.x		= mRadarDimXY;
 	mObjects[0].mWidthHeight.y		= mRadarDimXY;
 
-	mRadarObjWidth					= Input::GetInstance()->mScreenWidth * 0.00625f;
-	mRadarObjHeight					= Input::GetInstance()->mScreenWidth * 0.00625f;
-	mRadarObjHalfWidth				= ( mRadarObjWidth * 0.5f ) * 0.3f;
-	mRadarObjHalfHeight				= ( mRadarObjHeight * 0.5f ) * 0.3f;
+	mRadarObjWidth					= mRadarDimXY * 0.055f;
+	mRadarObjHeight					= mRadarDimXY * 0.055f;
+	mRadarObjHalfWidth				= mRadarObjWidth * 0.5f;
+	mRadarObjHalfHeight				= mRadarObjHeight * 0.5f;
 
 	mRadarShipHeight				= mRadarDimXY * 0.069f; 
 	mRadarShipWidth					= mRadarDimXY * 0.069f; 

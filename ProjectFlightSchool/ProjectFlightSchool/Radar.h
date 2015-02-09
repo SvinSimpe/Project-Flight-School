@@ -6,6 +6,8 @@
 #include "Input.h"
 
 #define MAX_RADAR_OBJECTS 100
+#define BASE_SCALE_VALUE 0.15f
+#define BASE_VALUE_FOR_RESOLUTION_SCALING ( 1920.0f * BASE_SCALE_VALUE )
 
 enum RADAR_TYPE
 {
@@ -41,22 +43,22 @@ class Radar
 		UINT			mNrOfObjects;
 		ObjectOnRadar	mObjects[MAX_RADAR_OBJECTS];
 		float			mRadius;
-		float			mRadarDimXY;
-		float			mRadarCenter;
-		float			mScaleX;
-		float			mScaleY;
-		float			mOffsetX;
-		float			mOffsetY;
+		
+		float			mRadarObjWidth;	
+		float			mRadarObjHeight;
+		float			mRadarShipWidth;	
+		float			mRadarShipHeight;	
 
-		float			mRadarObjHeight;		
-		float			mRadarObjWidth;			
-		float			mRadarObjHalfWidth;		
-		float			mRadarObjHalfHeight;	
+		float			mRadarShipOffsetX;
+		float			mRadarShipOffsetY;		
+		float			mRadarShipTranslationX;
+		float			mRadarShipTranslationY;
 
-		float			mRadarShipHeight;			
-		float			mRadarShipWidth;			
-		float			mRadarShipHalfHeight;		
-		float			mRadarShipHalfWidth;		
+		float			mRadarObjectOffsetX;		
+		float			mRadarObjectOffsetY;		
+		float			mRadarObjectTranslationX;
+		float			mRadarObjectTranslationY;
+
 
 	protected:
 	public:

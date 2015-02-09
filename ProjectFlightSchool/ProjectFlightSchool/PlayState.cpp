@@ -12,8 +12,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		if ( mPlayer != nullptr )
 		{
 			mPlayer->SetID( data->ID() );
-			mPlayer->SetTeam( data->TeamID(), mTeams[data->TeamID()] );
-			mPlayer->SetColor( mColorIDs[mCurrentColor] );
+			mPlayer->SetTeam( data->TeamID() );
 
 			printf("My assigned ID is: %d\n", mPlayer->GetID());
 		

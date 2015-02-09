@@ -580,15 +580,9 @@ void Player::SetID( unsigned int id )
 	mID = id;
 }
 
-void Player::SetTeam( int team, AssetID teamColor )
+void Player::SetTeam( int team )
 {
 	mTeam		= team;
-	mTeamAsset	= teamColor;
-}
-
-void Player::SetColor( AssetID color )
-{
-	mColorIDAsset = color;
 }
 
 void Player::SetPosition( XMVECTOR position )

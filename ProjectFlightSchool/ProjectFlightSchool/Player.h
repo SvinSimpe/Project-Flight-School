@@ -77,8 +77,7 @@ class Player: public RemotePlayer
 		void		SetIsMeleeing( bool isMeleeing );
 		void		SetBuffed( bool buffed );
 		void		SetID( unsigned int id );
-		void		SetTeam( int team, AssetID teamColor );
-		void		SetColor( AssetID color );
+		void		SetTeam( int team );
 		void		SetPosition( XMVECTOR position );
 
 		std::list<IEventPtr> GetEvents();

@@ -50,23 +50,22 @@ class Radar
 		UINT			mNrOfObjects;
 		ObjectOnRadar	mObjects[MAX_RADAR_OBJECTS];
 		float			mRadius;
-		float			mRadarRadius;
-		float			mRadarDimXY;
-		float			mRadarCenter;
-		float			mScaleX;
-		float			mScaleY;
-		float			mOffsetX;
-		float			mOffsetY;
+		
+		float			mRadarObjWidth;	
+		float			mRadarObjHeight;
+		float			mRadarShipWidth;	
+		float			mRadarShipHeight;	
 
-		float			mRadarObjHeight;		
-		float			mRadarObjWidth;			
-		float			mRadarObjHalfWidth;		
-		float			mRadarObjHalfHeight;	
+		float			mRadarShipOffsetX;
+		float			mRadarShipOffsetY;		
+		float			mRadarShipTranslationX;
+		float			mRadarShipTranslationY;
 
-		float			mRadarShipHeight;			
-		float			mRadarShipWidth;			
-		float			mRadarShipHalfHeight;		
-		float			mRadarShipHalfWidth;		
+		float			mRadarObjectOffsetX;		
+		float			mRadarObjectOffsetY;		
+		float			mRadarObjectTranslationX;
+		float			mRadarObjectTranslationY;
+
 
 	protected:
 	public:

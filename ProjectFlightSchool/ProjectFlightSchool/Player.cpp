@@ -601,11 +601,6 @@ std::list<IEventPtr> Player::GetEvents()
 	return mEventList;
 }
 
-void Player::EmptyList()
-{
-	mEventList.clear();
-}
-
 void Player::PopEvent()
 {
 	mEventList.pop_back();

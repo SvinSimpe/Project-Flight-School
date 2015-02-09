@@ -1,3 +1,6 @@
+//		LEVEL 1 WEAPON DEFINES
+
+
 //////////////////////////////////
 //		 RANGED WEAPONS
 //////////////////////////////////
@@ -9,12 +12,12 @@
 // Projectile Speed	Travel speed of projectile. High value gives a fast projectile
 
 // Minigun
-#define MINIGUN_AR			0.05f	// Attack Rate
+#define MINIGUN_AR			0.2f	// Attack Rate
 #define MINIGUN_DAMAGE		1.0f	// Damage
-#define MINIGUN_RANGE		0.5f	// Range
+#define MINIGUN_RANGE		1.0f	// Range
 #define MINIGUN_SPREAD		0.1f	// Spread
 #define MINIGUN_AOE			0.0f	// Area of effect
-#define MINIGUN_SPEED		35.0f;	// Projectile Speed
+#define MINIGUN_SPEED		30.0f;	// Projectile Speed
 
 // Shotgun
 #define SHOTGUN_AR			1.0f	// Attack Rate
@@ -22,7 +25,7 @@
 #define SHOTGUN_RANGE		1.0f	// Range
 #define SHOTGUN_SPREAD		0.5f	// Spread
 #define SHOTGUN_AOE			0.0f	// Area of effect
-#define SHOTGUN_SPEED		40.0f;	// Projectile Speed
+#define SHOTGUN_SPEED		10.0f;	// Projectile Speed
 
 // Grenade Launcher
 #define GL_AR				1.5f	// Attack Rate
@@ -33,7 +36,7 @@
 #define GL_SPEED			10.0f;	// Projectile Speed
 
 // Sniper
-#define SNIPER_AR			3.0f	// Attack Rate
+#define SNIPER_AR			2.5f	// Attack Rate
 #define SNIPER_DAMAGE		20.0f	// Damage
 #define SNIPER_RANGE		5.0f	// Range
 #define SNIPER_SPREAD		0.0f	// Spread

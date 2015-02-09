@@ -258,18 +258,41 @@ void Player::Fire()
 	XMFLOAT3 loadDir;
 	XMStoreFloat3( &loadDir, offset );
 
-	// Set random spread
-	if( mLoadOut->rangedWeapon->spread != 0.0f )
+	if( mLoadOut->rangedWeapon->weaponType == SHOTGUN )
 	{
-		float directionOffset	=  (float)( rand() % 100 ) * 0.001f - mLoadOut->rangedWeapon->spread;
-		mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffset, mUpperBody.direction.y, mUpperBody.direction.z + directionOffset );
-		IEventPtr E1( new Event_Projectile_Fired( mID, XMFLOAT3( loadDir ), mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
+		// Fire shotgun
+
+		// middle projectile
+		IEventPtr proj1( new Event_Projectile_Fired( mID, XMFLOAT3( loadDir ), mUpperBody.direction, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		EventManager::GetInstance()->QueueEvent( proj1 );
+
+		//// projectile 1
+		XMFLOAT3 shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 30.0f ) ) ) );
+		IEventPtr proj2( new Event_Projectile_Fired( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		EventManager::GetInstance()->QueueEvent( proj2 );
+
+		// projectile 2
+		//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -30.0f ) ) ) );
+		IEventPtr proj3( new Event_Projectile_Fired( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		EventManager::GetInstance()->QueueEvent( proj3 );
 	}
 	else
 	{
-		IEventPtr E1( new Event_Projectile_Fired( mID, XMFLOAT3( loadDir ), mUpperBody.direction, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
+		// Set random spread
+		if( mLoadOut->rangedWeapon->spread != 0.0f )
+		{
+			float directionOffset	=  (float)( rand() % 100 ) * 0.001f - mLoadOut->rangedWeapon->spread;
+			mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffset, mUpperBody.direction.y, mUpperBody.direction.z + directionOffset );
+			IEventPtr E1( new Event_Projectile_Fired( mID, XMFLOAT3( loadDir ), mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+		else
+		{
+			IEventPtr E1( new Event_Projectile_Fired( mID, XMFLOAT3( loadDir ), mUpperBody.direction, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
 	}
 }
 

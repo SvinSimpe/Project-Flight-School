@@ -19,17 +19,19 @@ enum WeaponType
 
 struct RangedInfo
 {
-	WeaponType	weaponType;
-	float		attackRate;
-	float		damage;
-	float		range;
-	float		spread;
-	float		areaOfEffect;
-	float		projectileSpeed;
+	WeaponType		weaponType;
+	unsigned int	level;
+	float			attackRate;
+	float			damage;
+	float			range;
+	float			spread;
+	float			areaOfEffect;
+	float			projectileSpeed;
 
 	RangedInfo()
 	{
 		weaponType		= SHOTGUN;
+		level			= 1;
 		attackRate		= 0.0f;
 		damage			= 0.0f;
 		range			= 0.0f;
@@ -41,17 +43,24 @@ struct RangedInfo
 	RangedInfo( WeaponType weaponType )
 	{
 		this->weaponType	= weaponType;
+		level				= 1;
 
 		switch( weaponType )
 		{
 			case MINIGUN:
 			{
-				attackRate		=	MINIGUN_AR;
+				/*attackRate		=	MINIGUN_AR;
 				damage			=	MINIGUN_DAMAGE;
 				range			=	MINIGUN_RANGE;
 				spread			=	MINIGUN_SPREAD;
 				areaOfEffect	=	MINIGUN_AOE;
-				projectileSpeed	=	MINIGUN_SPEED;
+				projectileSpeed	=	MINIGUN_SPEED;*/
+				attackRate		= 0.03f;
+						damage			= 1.5f;
+						range			= 0.5f;
+						spread			= 0.05f;
+						areaOfEffect	= 0.0f;
+						projectileSpeed	= 40.0f;
 			}
 				break;
 
@@ -99,10 +108,140 @@ struct RangedInfo
 			}
 		}
 	}
+
+	void LevelUp()
+	{
+		level++;
+		switch( weaponType )
+		{
+			case MINIGUN:
+			{
+				switch( level )
+				{
+					case 2:
+					{
+					}
+						break;
+
+					case 3:
+					{
+					}
+						break;
+
+					case 4:
+					{
+					}
+						break;
+
+					case 5:
+					{
+						attackRate		= 0.01f;
+						damage			= 3.0f;
+						range			= 0.5f;
+						spread			= 0.2f;
+						areaOfEffect	= 0.0f;
+						projectileSpeed	= 60.0f;
+					}
+						break;
+
+				}
+			}
+				break;
+
+			case SHOTGUN:
+			{
+				switch( level )
+				{
+					case 2:
+					{
+					}
+						break;
+
+					case 3:
+					{
+					}
+						break;
+
+					case 4:
+					{
+					}
+						break;
+
+					case 5:
+					{
+					}
+						break;
+
+				}
+			}
+				break;
+
+			case GRENADELAUNCHER:
+			{
+				switch( level )
+				{
+					case 2:
+					{
+					}
+						break;
+
+					case 3:
+					{
+					}
+						break;
+
+					case 4:
+					{
+					}
+						break;
+
+					case 5:
+					{
+					}
+						break;
+
+				}
+			}
+				break;
+
+			case SNIPER:
+			{
+				switch( level )
+				{
+					case 2:
+					{
+					}
+						break;
+
+					case 3:
+					{
+					}
+						break;
+
+					case 4:
+					{
+					}
+						break;
+
+					case 5:
+					{
+					}
+						break;
+
+				}
+			}
+				break;
+
+			default:
+			{
+			}
+		}
+	}
 };
 struct MeleeInfo
 {
 	WeaponType		weaponType;
+	unsigned int	level;
 	float			attackRate;			// Cooldown from prev attack
 	float			damage;
 	float			radius;
@@ -115,6 +254,7 @@ struct MeleeInfo
 	MeleeInfo()
 	{
 		weaponType		= CLAYMORE;
+		level			= 1;
 		attackRate		= 0.0f;
 		damage			= 0.0f;
 		radius			= 0.0f;
@@ -128,6 +268,7 @@ struct MeleeInfo
 	MeleeInfo( WeaponType weaponType )
 	{
 		this->weaponType		= weaponType;
+		level					= 1;
 
 		switch( weaponType )
 		{
@@ -193,6 +334,129 @@ struct MeleeInfo
 				boundingCircle	= new BoundingCircle( HAMMER_REACH );
 				timeTillAttack	= HAMMER_TTA;
 				stun			= HAMMER_STUN;
+			}
+		}
+	}
+
+	void LevelUp()
+	{
+		level++;
+		switch( weaponType )
+		{
+			case MINIGUN:
+			{
+				switch( level )
+				{
+					case 2:
+					{
+					}
+						break;
+
+					case 3:
+					{
+					}
+						break;
+
+					case 4:
+					{
+					}
+						break;
+
+					case 5:
+					{
+					}
+						break;
+
+				}
+			}
+				break;
+
+			case SHOTGUN:
+			{
+				switch( level )
+				{
+					case 2:
+					{
+					}
+						break;
+
+					case 3:
+					{
+					}
+						break;
+
+					case 4:
+					{
+					}
+						break;
+
+					case 5:
+					{
+					}
+						break;
+
+				}
+			}
+				break;
+
+			case GRENADELAUNCHER:
+			{
+				switch( level )
+				{
+					case 2:
+					{
+					}
+						break;
+
+					case 3:
+					{
+					}
+						break;
+
+					case 4:
+					{
+					}
+						break;
+
+					case 5:
+					{
+					}
+						break;
+
+				}
+			}
+				break;
+
+			case SNIPER:
+			{
+				switch( level )
+				{
+					case 2:
+					{
+					}
+						break;
+
+					case 3:
+					{
+					}
+						break;
+
+					case 4:
+					{
+					}
+						break;
+
+					case 5:
+					{
+					}
+						break;
+
+				}
+			}
+				break;
+
+			default:
+			{
 			}
 		}
 	}

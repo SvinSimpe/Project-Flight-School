@@ -62,7 +62,8 @@ class Player: public RemotePlayer
 	public:
 		void		TakeDamage( float damage, unsigned int shooter );
 		void		HandleRevive( float deltaTime );
-			
+		
+		void		Reset();	
 		HRESULT		Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers );
 		HRESULT		Render( float deltaTime, int position );
 		HRESULT		Initialize();

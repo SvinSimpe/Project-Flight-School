@@ -12,11 +12,14 @@ class Server : public Network
 			UINT TeamID;
 		};
 		const UINT MAX_TEAMS = 2;
+		const UINT MAX_PROJECTILE_ID = 999;
 
 		SocketManager*				mSocketManager;
 		std::map<UINT, ClientNEF>	mClientMap;
 		UINT						mTeamDelegate;
+		UINT						mCurrentPID;
 		bool						mActive;
+
 
 	protected:
 	public:
@@ -42,6 +45,7 @@ class Server : public Network
 		void	BroadcastEvent( IEventPtr eventPtr, UINT exception = (UINT)-1 );
 		void	SendEvent( IEventPtr eventPtr, UINT to );
 		UINT	CurrentTeamDelegate();
+		UINT	CurrentPID();
 
 	protected:
 		bool	Connect( UINT port );

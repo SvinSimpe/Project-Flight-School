@@ -2674,8 +2674,6 @@ class Event_Create_Player_Name : public IEvent
 		}
 };
 
-
-
 class Event_Client_Enemy_Attack : public IEvent
 {
 	private:

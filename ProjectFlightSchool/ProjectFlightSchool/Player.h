@@ -56,7 +56,7 @@ class Player: public RemotePlayer
 		void		Die();
 		void		Fire();
 		void		AddImpuls( XMFLOAT3 impuls );
-		void		PushEvent( IEvent* ptr );
+		void		QueueEvent( IEvent* ptr );
 
 	protected:
 	public:
@@ -82,7 +82,6 @@ class Player: public RemotePlayer
 		void		SetPosition( XMVECTOR position );
 
 		std::list<IEventPtr> GetEvents();
-		void		EmptyList();
 		void		PopEvent();
 };
 #endif

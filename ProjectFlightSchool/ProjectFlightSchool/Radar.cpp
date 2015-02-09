@@ -58,8 +58,10 @@ HRESULT	Radar::Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjec
 		{
 			if( vecLength <= mRadius )
 			{
-				radarObjects[i].mRadarObjectPos.x = ( mOffsetX + ( ( mRadarDimXY * 0.5f ) - mRadarShipHalfWidth - ( mRadarShipWidth * 0.2f ) ) ) + ( radarObjects[i].mRadarObjectPos.x - playerPos.x ) * ( ( mRadarDimXY / mRadarRadius ) * BASE_SCALE_VALUE ) * ( mRadarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) );
-				radarObjects[i].mRadarObjectPos.y = ( ( mRadarDimXY * 0.5f ) - mRadarShipHalfHeight - ( mRadarShipWidth * 0.3f ) ) - radarObjects[i].mRadarObjectPos.z + playerPos.z * ( ( ( mRadarDimXY / mRadarRadius ) * BASE_SCALE_VALUE ) * ( mRadarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) ) );
+				radarObjects[i].mRadarObjectPos.x = mRadarShipOffsetX + ( radarObjects[i].mRadarObjectPos.x - playerPos.x ) * mRadarShipTranslationX;
+				radarObjects[i].mRadarObjectPos.y = mRadarShipOffsetY - radarObjects[i].mRadarObjectPos.z + playerPos.z * mRadarShipTranslationY;
+				//radarObjects[i].mRadarObjectPos.x = ( mOffsetX + ( ( mRadarDimXY * 0.5f ) - mRadarShipHalfWidth - ( mRadarShipWidth * 0.2f ) ) ) + ( radarObjects[i].mRadarObjectPos.x - playerPos.x ) * ( ( mRadarDimXY / mRadarRadius ) * BASE_SCALE_VALUE ) * ( mRadarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) );
+				//radarObjects[i].mRadarObjectPos.y = ( ( mRadarDimXY * 0.5f ) - mRadarShipHalfHeight - ( mRadarShipWidth * 0.3f ) ) - radarObjects[i].mRadarObjectPos.z + playerPos.z * ( ( ( mRadarDimXY / mRadarRadius ) * BASE_SCALE_VALUE ) * ( mRadarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) ) );
 				
 				AddObjectToList( radarObjects[i].mRadarObjectPos, radarObjects[i].mType );
 			}
@@ -68,13 +70,10 @@ HRESULT	Radar::Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjec
 		{
 			if( vecLength <= mRadius )
 			{
-
-				//radarObjects[i].mRadarObjectPos.x = ( mOffsetX + ( ( mRadarDimXY * 0.5f ) - mRadarObjHalfWidth ) ) + ( radarObjects[i].mRadarObjectPos.x - playerPos.x );
-				//radarObjects[i].mRadarObjectPos.y = -radarObjects[i].mRadarObjectPos.z + playerPos.z + ( mRadarDimXY * 0.5f ) - mRadarObjHalfHeight;
-
-				radarObjects[i].mRadarObjectPos.x = ( mOffsetX + ( ( mRadarDimXY * 0.5f ) - mRadarObjHalfWidth - ( mRadarObjWidth * 0.2f ) ) ) + ( radarObjects[i].mRadarObjectPos.x - playerPos.x ) * ( ( mRadarDimXY / mRadarRadius ) * BASE_SCALE_VALUE ) * ( mRadarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) );
-				radarObjects[i].mRadarObjectPos.y = ( ( mRadarDimXY * 0.5f ) - mRadarObjHalfWidth - ( mRadarObjWidth * 0.1f ) ) - radarObjects[i].mRadarObjectPos.z + playerPos.z * ( ( ( mRadarDimXY / mRadarRadius ) * BASE_SCALE_VALUE ) * ( mRadarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) ) );
-				
+				radarObjects[i].mRadarObjectPos.x = mRadarObjectOffsetX + ( radarObjects[i].mRadarObjectPos.x - playerPos.x ) * mRadarObjectTranslationX;
+				radarObjects[i].mRadarObjectPos.y = mRadarObjectOffsetY - radarObjects[i].mRadarObjectPos.z + playerPos.z * mRadarObjectTranslationY;
+				//radarObjects[i].mRadarObjectPos.x = ( mOffsetX + ( ( mRadarDimXY * 0.5f ) - mRadarObjHalfWidth - ( mRadarObjWidth * 0.2f ) ) ) + ( radarObjects[i].mRadarObjectPos.x - playerPos.x ) * ( ( mRadarDimXY / mRadarRadius ) * BASE_SCALE_VALUE ) * ( mRadarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) );
+				//radarObjects[i].mRadarObjectPos.y = ( ( mRadarDimXY * 0.5f ) - mRadarObjHalfWidth - ( mRadarObjWidth * 0.1f ) ) - radarObjects[i].mRadarObjectPos.z + playerPos.z * ( ( ( mRadarDimXY / mRadarRadius ) * BASE_SCALE_VALUE ) * ( mRadarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) ) );
 
 				AddObjectToList( radarObjects[i].mRadarObjectPos, radarObjects[i].mType );
 			}
@@ -95,38 +94,47 @@ HRESULT	Radar::Render()
 
 HRESULT	Radar::Initialize()
 {
+	//Full image max pixel width and height == 384
+	//Radius from the center == 97 pixels
 	
-	mNrOfObjects	= 1;
-	mRadarDimXY		= Input::GetInstance()->mScreenWidth * 0.15f;
-	mRadarRadius	= mRadarDimXY * 0.092f;
-	mRadarCenter	= mRadarDimXY * 0.5f;
-	mRadius			= 48.0f;
-
-	mOffsetX		= Input::GetInstance()->mScreenWidth - mRadarDimXY;
-	mOffsetY		= 0;
+	mNrOfObjects		= 1;
+	float radarDimXY	= Input::GetInstance()->mScreenWidth * BASE_SCALE_VALUE;
+	float radarRadius	= radarDimXY * 0.092f;
+	float radarCenter	= radarDimXY * 0.5f;
+	mRadius				= 48.0f;
 
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/PlaceHolderTextures/diffuse.png", mEnemyAssetID );
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/PlaceHolderTextures/diffuse.png", mObjectAssetID );
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/PlaceHolderTextures/diffuse.png", mFriendlyAssetID );
-	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Radar/radarEnemyShipTest.dds", mFriendlyShipAssetID );
-	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/PlaceHolderTextures/diffuse.png", mHostileShipAssetID );
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Radar/radarShip.dds", mFriendlyShipAssetID );
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Radar/radarEnemyShipTest.dds", mHostileShipAssetID );
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Radar/radar2.dds", mRadarAssetID );
 	
 	mObjects[0].mAssetId			= mRadarAssetID;
-	mObjects[0].mTopLeftCorner.x	= mOffsetX;
-	mObjects[0].mTopLeftCorner.y	= mOffsetY;
-	mObjects[0].mWidthHeight.x		= mRadarDimXY;
-	mObjects[0].mWidthHeight.y		= mRadarDimXY;
+	mObjects[0].mTopLeftCorner.x	= Input::GetInstance()->mScreenWidth - radarDimXY;
+	mObjects[0].mTopLeftCorner.y	= 0;
+	mObjects[0].mWidthHeight.x		= radarDimXY;
+	mObjects[0].mWidthHeight.y		= radarDimXY;
 
-	mRadarObjWidth					= mRadarDimXY * 0.055f;
-	mRadarObjHeight					= mRadarDimXY * 0.055f;
-	mRadarObjHalfWidth				= mRadarObjWidth * 0.5f;
-	mRadarObjHalfHeight				= mRadarObjHeight * 0.5f;
+	mRadarObjWidth					= radarDimXY * 0.055f;
+	mRadarObjHeight					= radarDimXY * 0.055f;
+	float radarObjHalfWidth			= mRadarObjWidth * 0.5f;
+	float radarObjHalfHeight		= mRadarObjHeight * 0.5f;
 
-	mRadarShipHeight				= mRadarDimXY * 0.069f; 
-	mRadarShipWidth					= mRadarDimXY * 0.069f; 
-	mRadarShipHalfHeight			= mRadarShipHeight * 0.5f;	
-	mRadarShipHalfWidth				= mRadarShipWidth * 0.5f; 
+	mRadarShipHeight				= radarDimXY * 0.069f; 
+	mRadarShipWidth					= radarDimXY * 0.069f; 
+	float radarShipHalfHeight		= mRadarShipHeight * 0.5f;	
+	float radarShipHalfWidth		= mRadarShipWidth * 0.5f; 
+
+	mRadarShipOffsetX				= ( ( Input::GetInstance()->mScreenWidth - radarDimXY ) + ( ( radarDimXY * 0.5f ) - radarShipHalfWidth - ( mRadarShipWidth * 0.1f ) ) );
+	mRadarShipOffsetY				= ( ( radarDimXY * 0.5f ) - radarShipHalfHeight - ( mRadarShipHeight * 0.1f ) );
+	mRadarShipTranslationX			= ( ( radarDimXY / radarRadius ) * BASE_SCALE_VALUE ) * ( radarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) );
+	mRadarShipTranslationY			= ( ( ( radarDimXY / radarRadius ) * BASE_SCALE_VALUE ) * ( radarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) ) );
+
+	mRadarObjectOffsetX				= ( ( Input::GetInstance()->mScreenWidth - radarDimXY ) + ( ( radarDimXY * 0.5f ) - radarObjHalfWidth - ( mRadarObjWidth * 0.1f ) ) );
+	mRadarObjectOffsetY				= ( ( radarDimXY * 0.5f ) - radarObjHalfWidth - ( mRadarObjHeight * 0.05f ) );
+	mRadarObjectTranslationX		= ( ( radarDimXY / radarRadius ) * BASE_SCALE_VALUE ) * ( radarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) );
+	mRadarObjectTranslationY		= ( ( ( radarDimXY / radarRadius ) * BASE_SCALE_VALUE ) * ( radarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) ) );
 
 	return S_OK;
 }

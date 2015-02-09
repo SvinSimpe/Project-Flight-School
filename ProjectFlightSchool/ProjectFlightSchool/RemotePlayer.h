@@ -112,13 +112,6 @@ class RemotePlayer
 		bool			mLeftArmAnimationCompleted;
 		bool			mRightArmAnimationCompleted;
 
-		//Temporary information
-		AssetID			mGreenHPAsset;
-		AssetID			mRedHPAsset;
-		AssetID			mOrangeHPAsset;
-		AssetID			mTeamAsset;
-		AssetID			mColorIDAsset;
-
 	public:
 
 	// Member functions

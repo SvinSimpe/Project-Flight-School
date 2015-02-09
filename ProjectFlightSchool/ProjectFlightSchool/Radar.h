@@ -5,7 +5,16 @@
 #include "RenderManager.h"
 #include "Input.h"
 
+
+//Full image pixel width and height == 384 pixels
+//Radius from the center of the image == 176 pixels
+//One tile == 24 ingame units
+//Ingame radius == 48 ingame units
+
 #define MAX_RADAR_OBJECTS 100
+#define BASE_SCALE_VALUE 0.15f
+#define BASE_RESOLUTION_VALUE 1920.0f
+#define BASE_VALUE_FOR_RESOLUTION_SCALING ( BASE_RESOLUTION_VALUE * BASE_SCALE_VALUE )
 
 enum RADAR_TYPE
 {
@@ -41,6 +50,7 @@ class Radar
 		UINT			mNrOfObjects;
 		ObjectOnRadar	mObjects[MAX_RADAR_OBJECTS];
 		float			mRadius;
+		float			mRadarRadius;
 		float			mRadarDimXY;
 		float			mRadarCenter;
 		float			mScaleX;

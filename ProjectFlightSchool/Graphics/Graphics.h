@@ -30,9 +30,11 @@ enum Effects
 {
 	EFFECTS_STATIC_VERTEX,
 	EFFECTS_STATIC_INSTANCED,
+	EFFECTS_STATIC_INSTANCED_SHADOW,
 	EFFECTS_2D,
 	EFFECTS_ANIMATED,
 	EFFECTS_ANIMATED_INSTANCED,
+	EFFECTS_ANIMATED_INSTANCED_SHADOW,
 	EFFECTS_DEFERRED,
 	EFFECTS_BILLBOARD,
 	EFFECTS_NODEGRID,
@@ -48,6 +50,7 @@ enum Effects
 enum Buffers
 {
 	BUFFERS_CBUFFER_PER_FRAME,
+	BUFFERS_CBUFFER_PER_FRAME_SHADOW,
 	BUFFERS_CBUFFER_PER_OBJECT,
 	BUFFERS_CBUFFER_PER_OBJECT_2D,
 	BUFFERS_CBUFFER_PER_OBJECT_ANIMATED,
@@ -70,6 +73,7 @@ enum Cameras
 {
 	CAMERAS_MAIN,
 	CAMERAS_DEV,
+	CAMERAS_SHADOWMAP,
 	//New cameras added above this comment
 	CAMERAS_AMOUNT
 };
@@ -83,6 +87,9 @@ enum Cameras
 #define MAX_BILLBOARD_BATCH			1024
 
 #define MAX_SINGLE_STATIC_VERTICES	20000
+
+#define SHADOW_MAP_WIDTH	1024
+#define SHADOW_MAP_HEIGHT	1024
 
 #define SAFE_RELEASE_DELETE( x ) if( x ) { ( x )->Release(); delete x; ( x ) = nullptr; }
 
@@ -115,6 +122,10 @@ class LIBRARY_EXPORT Graphics
 		Camera*						mCamera[CAMERAS_AMOUNT];
 		bool						mIsDeveloperCameraActive;
 		Gbuffer*					mGbuffers[NUM_GBUFFERS];
+
+		ID3D11DepthStencilView*		mShadowMapDSV;
+		ID3D11ShaderResourceView*	mShadowMapSRV;
+		D3D11_VIEWPORT				mShadowView;
 
 		int							mNumPointLights;
 
@@ -169,8 +180,8 @@ class LIBRARY_EXPORT Graphics
 		void SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY );
 		void SetInverseViewMatrix( DirectX::XMMATRIX &inverseViewMatrix );
 		void SetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatrix );
-		void SetEyePosition( DirectX::XMFLOAT3 &eyePosition );
-		void SetFocus( DirectX::XMFLOAT3 &focusPoint );
+		void SetEyePosition( Cameras camera, DirectX::XMFLOAT3 &eyePosition );
+		void SetFocus( Cameras camera, DirectX::XMFLOAT3 &focusPoint );
 
 		void	BeginScene();
 		void	GbufferPass();

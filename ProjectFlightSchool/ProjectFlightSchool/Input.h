@@ -1,9 +1,12 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
-#define VC_EXTRALEAN
+#endif
 #include <Windows.h>
+
+#define VC_EXTRALEAN
 #include <vector>
 #include "KeyDefines.h"
 #include <DirectXMath.h>

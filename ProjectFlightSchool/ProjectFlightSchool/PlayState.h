@@ -1,11 +1,10 @@
 #ifndef PLAYSTATE_H
 #define PLAYSTATE_H
 
-#include <sstream>
+#include "RemotePlayer.h"
 #include "Map.h"
 #include "BaseState.h"
 #include "Player.h"
-#include "RemotePlayer.h"
 #include "MapNodeManager.h"
 #include "Font.h"
 #include "Enemy.h"
@@ -17,11 +16,12 @@
 #include "Gui.h"
 #include "ParticleManager.h"
 #include "SoundBufferHandler.h"
-
+#include <sstream>
 
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
+#define TOSERVER_OFFSET			5000;
 
 class PlayState : public BaseState
 {
@@ -38,11 +38,6 @@ class PlayState : public BaseState
 
 		//Collision
 		unsigned int	mFrameCounter;
-
-		//TEST
-		std::vector<RemotePlayer*> mAllPlayers;
-
-		Ship						mShip;
 
 		//Game Data
 		Player*						mPlayer;
@@ -85,11 +80,11 @@ class PlayState : public BaseState
 		void			BroadcastDamage( unsigned int playerID, unsigned int projectileID );						// Tell server that local  player has taken damage
 		void			BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction );
 		void			BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage );
+		void			BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float knockBack, XMFLOAT3 direction );
 		void			FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction );
 		void			UpdateProjectiles( float deltaTime );
 		void			RenderProjectiles();
 		void			HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID );
-		void			HandleRemoteMeleeHit( unsigned int id, float damage, float knockBack, XMFLOAT3 direction );
 
 	protected:
 	public:

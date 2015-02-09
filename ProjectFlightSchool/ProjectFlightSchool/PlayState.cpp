@@ -6,13 +6,13 @@
 
 void PlayState::EventListener( IEventPtr newEvent )
 {
-	if ( newEvent->GetEventType() == Event_Local_Player_Joined::GUID ) // Add a remote player to the list when they connect
+	if ( newEvent->GetEventType() == Event_Local_Joined::GUID ) // Add a remote player to the list when they connect
 	{
-		std::shared_ptr<Event_Local_Player_Joined> data = std::static_pointer_cast<Event_Local_Player_Joined>( newEvent );
+		std::shared_ptr<Event_Local_Joined> data = std::static_pointer_cast<Event_Local_Joined>( newEvent );
 		if ( mPlayer != nullptr )
 		{
 			mPlayer->SetID( data->ID() );
-			mPlayer->SetTeam( data->Team(), mTeams[data->Team()] );
+			mPlayer->SetTeam( data->TeamID(), mTeams[data->TeamID()] );
 			mPlayer->SetColor( mColorIDs[mCurrentColor] );
 		
 			mCurrentColor++;
@@ -21,21 +21,18 @@ void PlayState::EventListener( IEventPtr newEvent )
 		}
 	}
 
-	else if ( newEvent->GetEventType() == Event_Remote_Player_Joined::GUID ) // Add a remote player to the list when they connect
+	else if ( newEvent->GetEventType() == Event_Remote_Joined::GUID ) // Add a remote player to the list when they connect
 	{
-		std::shared_ptr<Event_Remote_Player_Joined> data = std::static_pointer_cast<Event_Remote_Player_Joined>( newEvent );
+		std::shared_ptr<Event_Remote_Joined> data = std::static_pointer_cast<Event_Remote_Joined>( newEvent );
 		mRemotePlayers.push_back( new RemotePlayer() );
 		mRemotePlayers.at(mRemotePlayers.size() - 1)->Initialize();
-		mRemotePlayers.at(mRemotePlayers.size() - 1)->RemoteInit( data->ID(), data->Team(), mTeams[data->Team()], mColorIDs[mCurrentColor] );
+		mRemotePlayers.at(mRemotePlayers.size() - 1)->RemoteInit( data->ID(), data->TeamID(), mTeams[data->TeamID()], mColorIDs[mCurrentColor] );
 		mCurrentColor++;
 		printf( "Number of other players online: %d.\n", mRemotePlayers.size() );
-
-		///TEST
-		mAllPlayers.push_back( ( mRemotePlayers.at( mRemotePlayers.size()-1 ) ) );
 	}
-	else if ( newEvent->GetEventType() == Event_Remote_Player_Left::GUID ) // Remove a remote player from the list when they disconnect
+	else if ( newEvent->GetEventType() == Event_Remote_Left::GUID ) // Remove a remote player from the list when they disconnect
 	{
-		std::shared_ptr<Event_Remote_Player_Left> data = std::static_pointer_cast<Event_Remote_Player_Left>( newEvent );
+		std::shared_ptr<Event_Remote_Left> data = std::static_pointer_cast<Event_Remote_Left>( newEvent );
 		for( unsigned int i = 0; i < mRemotePlayers.size(); i++ )
 		{
 			if( !mRemotePlayers.at(i) )
@@ -52,59 +49,16 @@ void PlayState::EventListener( IEventPtr newEvent )
 		}
 		printf( "Number of other players online: %d.\n", mRemotePlayers.size() );
 	}
-	else if( newEvent->GetEventType() == Event_Remote_Player_Died::GUID )
-	{
-		// Kill remote player
- 		std::shared_ptr<Event_Remote_Player_Died> data = std::static_pointer_cast<Event_Remote_Player_Died>( newEvent );
-		for ( unsigned int i = 0; i < mRemotePlayers.size(); i++ )
-		{
-			if ( !mRemotePlayers.at(i) )
-			{
-				continue;
-			}
-			else if ( data->ID() == mRemotePlayers.at(i)->GetID() )
-			{
-				mRemotePlayers.at(i)->Die();
-				printf( "Killed by: %d\n", data->KillerID() );
-				// Debug
-				OutputDebugString( L"> A Remote player has died." );
-
-				//break;
-			}
-			else if( data->KillerID() == mRemotePlayers.at(i)->GetID() )
-			{
-				printf( "Murderer is: %d\n", data->KillerID() );
-				mRemotePlayers.at(i)->CountUpKills();
-			}
-		}
-		if( data->KillerID() == mPlayer->GetID() )
-		{
-			printf( "The murderer is you player: %d\n", data->KillerID() );
-			mPlayer->CountUpKills();
-		}
-	}
-	else if ( newEvent->GetEventType() == Event_Remote_Player_Damaged::GUID )
+	else if ( newEvent->GetEventType() == Event_Remote_Damaged::GUID )
 	{
 		// Damage remote player
-		std::shared_ptr<Event_Remote_Player_Damaged> data = std::static_pointer_cast<Event_Remote_Player_Damaged>(newEvent);
+		std::shared_ptr<Event_Remote_Damaged> data = std::static_pointer_cast<Event_Remote_Damaged>(newEvent);
 		HandleRemoteProjectileHit( data->ID(), data->ProjectileID() );
 	}
-	else if ( newEvent->GetEventType() == Event_Remote_Player_Spawned::GUID )
-	{
-		std::shared_ptr<Event_Remote_Player_Spawned> data = std::static_pointer_cast<Event_Remote_Player_Spawned>( newEvent );
-
-		for ( size_t i = 0; i < mRemotePlayers.size(); i++ )
-		{
-			if( mRemotePlayers.at(i)->GetID() == data->ID() )
-			{
-				mRemotePlayers.at(i)->Spawn();
-			}
-		}
-	}
-	else if ( newEvent->GetEventType() == Event_Remote_Projectile_Fired::GUID )
+	else if ( newEvent->GetEventType() == Event_Remote_Fired_Projectile::GUID )
 	{
 		// Fire projectile
-		std::shared_ptr<Event_Remote_Projectile_Fired> data = std::static_pointer_cast<Event_Remote_Projectile_Fired>(newEvent);
+		std::shared_ptr<Event_Remote_Fired_Projectile> data = std::static_pointer_cast<Event_Remote_Fired_Projectile>(newEvent);
 		FireProjectile( data->ID(), data->ProjectileID(), data->BodyPos(), data->Direction() );
 
 		//TestSound
@@ -113,84 +67,33 @@ void PlayState::EventListener( IEventPtr newEvent )
 		// Request Muzzle Flash from Particle Manager
 		mParticleManager->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
 	}
-	else if ( newEvent->GetEventType() == Event_Remote_Player_Melee_Hit::GUID )
+	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
 	{
-		// Melee Hit
-		std::shared_ptr<Event_Remote_Player_Melee_Hit> data = std::static_pointer_cast<Event_Remote_Player_Melee_Hit>(newEvent);
-		HandleRemoteMeleeHit( data->ID(), data->Damage(), data->KnockBack(), data->Direction() );
-	}
-	else if ( newEvent->GetEventType() == Event_Remote_Player_Update_HP::GUID )
-	{
-		std::shared_ptr<Event_Remote_Player_Update_HP> data = std::static_pointer_cast<Event_Remote_Player_Update_HP>( newEvent );
-
-		for ( size_t i = 0; i < mRemotePlayers.size(); i++ )
-		{
-			if( mRemotePlayers.at(i)->GetID() == data->ID() )
-			{
-				mRemotePlayers.at(i)->SetHP( data->HP() );
-			}
-		}
-	}
-	else if ( newEvent->GetEventType() == Event_Sync_Enemy::GUID )
-	{
-		std::shared_ptr<Event_Sync_Enemy> data = std::static_pointer_cast<Event_Sync_Enemy>( newEvent );
+		std::shared_ptr<Event_Server_Create_Enemy> data = std::static_pointer_cast<Event_Server_Create_Enemy>( newEvent );
 		SyncEnemy( data->ID(), (EnemyState)data->State(), (EnemyType)data->Type(), data->Position(), data->Direction() );
 	}
-	else if ( newEvent->GetEventType() == Event_Update_Enemy_Position::GUID )
+	else if ( newEvent->GetEventType() == Event_Server_Update_Enemy::GUID )
 	{
-		std::shared_ptr<Event_Update_Enemy_Position> data = std::static_pointer_cast<Event_Update_Enemy_Position>( newEvent );
+		std::shared_ptr<Event_Server_Update_Enemy> data = std::static_pointer_cast<Event_Server_Update_Enemy>( newEvent );
 		UpdateEnemyPosition( data->ID(), data->Position(), data->Direction(), data->IsAlive() );
 	}
-	else if ( newEvent->GetEventType() == Event_Enemy_List_Synced::GUID )
+	else if ( newEvent->GetEventType() == Event_Server_Enemies_Created::GUID )
 	{
 		mEnemyListSynced = true;
 	}
-	else if ( newEvent->GetEventType() == Event_Server_Initialized::GUID )
+	else if ( newEvent->GetEventType() == Event_Initialize_Success::GUID )
 	{
 		mServerInitialized = true;
 	}
-	else if ( newEvent->GetEventType() == Event_Sync_Spawn::GUID )
+	else if ( newEvent->GetEventType() == Event_Server_Sync_Spawn::GUID )
 	{
-		std::shared_ptr<Event_Sync_Spawn> data = std::static_pointer_cast<Event_Sync_Spawn>( newEvent );
+		std::shared_ptr<Event_Server_Sync_Spawn> data = std::static_pointer_cast<Event_Server_Sync_Spawn>( newEvent );
 		SyncSpawn( data->ID(), data->Position() );
 	}
-	else if ( newEvent->GetEventType() == Event_Set_Remote_Enemy_State::GUID )
+	else if ( newEvent->GetEventType() == Event_Remote_Set_Enemy_State::GUID )
 	{
-		std::shared_ptr<Event_Set_Remote_Enemy_State> data = std::static_pointer_cast<Event_Set_Remote_Enemy_State>( newEvent );
+		std::shared_ptr<Event_Remote_Set_Enemy_State> data = std::static_pointer_cast<Event_Remote_Set_Enemy_State>( newEvent );
 		SetEnemyState( data->ID(), (EnemyState)data->State() );
-	}
-	else if ( newEvent->GetEventType() == Event_Enemy_Attack_Player::GUID )
-	{
-		std::shared_ptr<Event_Enemy_Attack_Player> data = std::static_pointer_cast<Event_Enemy_Attack_Player>( newEvent );
-		if( mPlayer->GetID() == data->Player() )
-			mPlayer->TakeEnemyDamage( data->Damage() );
-	}
-	else if ( newEvent->GetEventType() == Event_Remote_Player_Down::GUID )
-	{
-		std::shared_ptr<Event_Remote_Player_Down> data = std::static_pointer_cast<Event_Remote_Player_Down>( newEvent );
-		for (auto rp : mRemotePlayers)
-		{
-			if (rp->GetID() == data->Player())
-			{
-				rp->GoDown();
-			}
-		}
-	}
-	else if ( newEvent->GetEventType() == Event_Remote_Player_Up::GUID )
-	{
-		std::shared_ptr<Event_Remote_Player_Up> data = std::static_pointer_cast<Event_Remote_Player_Up>( newEvent );
-		for (auto rp : mRemotePlayers)
-		{
-			if (rp->GetID() == data->Player())
-			{
-				rp->GoUp();
-			}
-		}
-	}
-	else if ( newEvent->GetEventType() == Event_Player_Revive::GUID )
-	{
-		std::shared_ptr<Event_Player_Revive> data = std::static_pointer_cast<Event_Player_Revive>( newEvent );
-		mPlayer->HandleRevive( data->DeltaTime() );
 	}
 }
 
@@ -241,20 +144,26 @@ void PlayState::SyncSpawn( unsigned int id, XMFLOAT3 position )
 // Tell server that local  player has taken damage
 void PlayState::BroadcastDamage( unsigned int playerID, unsigned int projectileID )
 {
-	IEventPtr dmgEv( new Event_Player_Damaged( playerID, projectileID ) );
-	EventManager::GetInstance()->QueueEvent( dmgEv );
+	IEventPtr dmgEv( new Event_Client_Damaged( playerID, projectileID ) );
+	Client::GetInstance()->SendEvent( dmgEv );
 }
 
 void PlayState::BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage )
 {
-	IEventPtr dmgEv( new Event_Projectile_Damage_Enemy( shooterID, projectileID, enemyID, damage ) );
-	EventManager::GetInstance()->QueueEvent( dmgEv );
+	IEventPtr dmgEv( new Event_Client_Projectile_Damage_Enemy( shooterID, projectileID, enemyID, damage ) );
+	Client::GetInstance()->SendEvent( dmgEv );
 }
 
 void PlayState::BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction )
 {
-	IEventPtr dmgEv( new Event_Player_Melee_Hit( playerID, damage, knockBack, direction ) );
-	EventManager::GetInstance()->QueueEvent( dmgEv );
+	IEventPtr dmgEv( new Event_Client_Melee_Hit( playerID, damage, knockBack, direction ) );
+	Client::GetInstance()->SendEvent( dmgEv );
+}
+
+void PlayState::BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float knockBack, XMFLOAT3 direction )
+{
+	IEventPtr dmgEv( new Event_Client_Enemy_Attack( mPlayer->GetID(), enemyID, damage, knockBack, direction, mPlayer->GetLoadOut()->meleeWeapon->stun ) );
+	Client::GetInstance()->SendEvent( dmgEv );
 }
 
 void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction )
@@ -368,42 +277,8 @@ void PlayState::CheckProjectileCollision()
 					}
 				}
 			}
-
-			// Ship
 		}
 	}
-
-	//if( mRemotePlayers.size() > 0 )
-	//{
-	//	for (size_t i = 0; i < mRemotePlayers.size(); i++)
-	//	{
-	//		for (size_t j = 0; j < MAX_PROJECTILES; j++)
-	//		{
-	//			if ( mProjectiles[j]->IsActive() )
-	//			{
-	//				if( mProjectiles[j]->GetPlayerID() == mPlayer->GetID() )
-	//				{
-	//					if( mProjectiles[j]->GetBoundingCircle()->Intersect( mRemotePlayers[i]->GetBoundingCircle() ) ) //Player hit remote
-	//					{
-	//						BroadcastDamage( mRemotePlayers[i]->GetID(), mProjectiles[j]->GetID() );
-	//					}			
-	//				}
-	//			}	
-	//		}
-	//	}
-	//}
-
-	// Ship cant be damaged på projectiles
-	//for( size_t i = 0; i < MAX_PROJECTILES; i++ )
-	//{
-	//	if( mProjectiles[i]->IsActive() )
-	//	{
-	//		if( mProjectiles[i]->GetBoundingCircle()->Intersect( mShip.GetHitBox() ))
-	//		{
-	//			mShip.TakeDamage( 1.0f );
-	//		}
-	//	}
-	//}
 }
 
 void PlayState::CheckMeeleCollision()
@@ -429,6 +304,31 @@ void PlayState::CheckMeeleCollision()
 				XMFLOAT3 direction = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 				XMStoreFloat3( &direction, XMVector4Normalize( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) ) );
 				BroadcastMeleeDamage( mRemotePlayers.at(i)->GetID(), mPlayer->GetLoadOut()->meleeWeapon->damage, mPlayer->GetLoadOut()->meleeWeapon->knockBack, direction );
+			}
+		}
+	}
+
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	{
+		//Check intersection with melee circle & enemy
+		if( mPlayer->GetLoadOut()->meleeWeapon->boundingCircle->Intersect( mEnemies[i]->GetBoundingCircle() ) )
+		{
+			XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) * mPlayer->GetLoadOut()->meleeWeapon->radius );
+
+			//Spread to Radians
+			float halfRadian = XMConvertToRadians( mPlayer->GetLoadOut()->meleeWeapon->spread * 18.0f ) * 0.5f;
+
+			XMVECTOR playerToRemote = XMLoadFloat3( &mEnemies[i]->GetPosition() ) - XMLoadFloat3( &mPlayer->GetPosition() );
+
+			float angleRemoteToAim = 0.0f;
+			XMVECTOR playerToCenter = XMLoadFloat3( &mEnemies[i]->GetBoundingCircle()->center ) - XMLoadFloat3( &mPlayer->GetPlayerPosition() );
+			XMStoreFloat( &angleRemoteToAim, XMVector4AngleBetweenVectors( playerToCenter, meeleRadiusVector ) );
+
+			if( angleRemoteToAim <= halfRadian )
+			{
+				XMFLOAT3 direction = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+				XMStoreFloat3( &direction, XMVector4Normalize( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) ) );
+				BroadcastEnemyMeleeDamage(mEnemies[i]->GetID(), mPlayer->GetLoadOut()->meleeWeapon->damage, mPlayer->GetLoadOut()->meleeWeapon->knockBack, direction );
 			}
 		}
 	}
@@ -462,34 +362,19 @@ void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int project
 	}
 }
 
-void PlayState::HandleRemoteMeleeHit( unsigned int id, float damage, float knockBack, XMFLOAT3 direction )
-{
-	if( id == mPlayer->GetID() )
-	{
-		direction.x *= knockBack;
-		direction.z *= knockBack;
-		mPlayer->AddImpuls( direction );
-		mPlayer->TakeDamage( damage, 0 );
-	}
-
-	for ( size_t i = 0; i < mRemotePlayers.size(); i++ )
-	{
-		if( mRemotePlayers.at(i)->GetID() == id )
-		{
-			direction.x *= ( knockBack * 5.0f ); // 1 knock back == 5
-			direction.z *= ( knockBack * 5.0f );
-			mRemotePlayers.at(i)->AddImpuls( direction );
-			mRemotePlayers.at(i)->TakeDamage( damage );
-		}
-	}
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
 
 HRESULT PlayState::Update( float deltaTime )
 {
+	while( !mPlayer->GetEvents().empty() )
+	{
+		IEventPtr e = mPlayer->GetEvents().back();
+		Client::GetInstance()->SendEvent( e );
+		mPlayer->PopEvent();
+	}
+
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{
 		CheckPlayerCollision();
@@ -517,17 +402,13 @@ HRESULT PlayState::Update( float deltaTime )
 			mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
 		}
 	}
+	mPlayer->Update( deltaTime, mRemotePlayers );
 
 	HandleDeveloperCameraInput();
-	mPlayer->Update( deltaTime, mRemotePlayers );
 
 	UpdateProjectiles( deltaTime );
 
-	mShip.BuffPlayer( mPlayer );
-	mShip.PickTurretTarget( mAllPlayers );
-	mShip.Update( deltaTime );
-
-	mRadarObjects[nrOfRadarObj].mRadarObjectPos = mShip.GetPosition();
+	//mRadarObjects[nrOfRadarObj].mRadarObjectPos = mShip.GetPosition();
 	mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_FRIENDLY;
 
 	// Enemies
@@ -538,8 +419,11 @@ HRESULT PlayState::Update( float deltaTime )
 			if( mEnemies[i]->IsSynced() )
 			{
 				mEnemies[i]->Update( deltaTime );
-				mRadarObjects[nrOfRadarObj].mType = RADAR_TYPE::HOSTILE;
-				mRadarObjects[nrOfRadarObj++].mRadarObjectPos = mEnemies[i]->GetPosition();
+				if( mEnemies[i]->IsAlive() )
+				{
+					mRadarObjects[nrOfRadarObj].mType = RADAR_TYPE::HOSTILE;
+					mRadarObjects[nrOfRadarObj++].mRadarObjectPos = mEnemies[i]->GetPosition();
+				}
 			}
 		}
 	}
@@ -586,7 +470,6 @@ HRESULT PlayState::Render()
 		RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
 	}
 
-	mShip.Render();
 	mParticleManager->Render( 0.0f );
 
 	int nrOfAllies = 0;
@@ -599,7 +482,7 @@ HRESULT PlayState::Render()
 			nrOfAllies++;
 		}
 	}
-	mGui->Render( nrOfAllies, alliesHP, (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mShip.GetCurrentHull() / mShip.GetMaxHull() ) ); //Should be changed to shield and Xp
+	mGui->Render( nrOfAllies, alliesHP, (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)1 ); //Should be changed to shield and Xp
 
 	//RENDER DEVTEXT
 	std::stringstream ss;
@@ -676,31 +559,19 @@ HRESULT PlayState::Initialize()
 		mProjectiles[i]->Initialize();
 	}
 
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Local_Player_Joined::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Joined::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Left::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Died::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Damaged::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Spawned::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Projectile_Fired::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Melee_Hit::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Update_HP::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Sync_Enemy::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Enemy_List_Synced::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Initialized::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Sync_Spawn::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Update_Enemy_Position::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Set_Remote_Enemy_State::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Enemy_Attack_Player::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Down::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Player_Up::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Player_Revive::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Local_Joined::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Joined::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Left::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Damaged::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Fired_Projectile::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Create_Enemy::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Enemies_Created::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Initialize_Success::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Spawn::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Update_Enemy::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Set_Enemy_State::GUID );
 
 	mFont.Initialize( "../Content/Assets/Fonts/final_font/" );
-
-	//TEST
-	mAllPlayers.push_back( mPlayer );
-	mShip.Initialize( 0, XMFLOAT3( 10.0f, 0.0f, 10.0f ), XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
 
 	// Enemies
 	mEnemyAnimationManager = new EnemyAnimationManager();
@@ -746,7 +617,6 @@ void PlayState::Release()
 	}
 
 	mRemotePlayers.clear();
-	mShip.Release();
 
 	for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
 	{

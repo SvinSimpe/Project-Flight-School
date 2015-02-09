@@ -283,6 +283,54 @@ void Player::HandleRevive(float deltaTime)
 	}
 }
 
+void Player::Reset()
+{
+	mEventCapTimer				= 0.0f;
+	mPointLight[0]->position	= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
+
+	mWeaponCoolDown				= 0;
+	mMeleeCoolDown				= 0;
+	mTimeTillattack				= mLoadOut->meleeWeapon->timeTillAttack;
+	mIsMeleeing					= false;
+	mHasMeleeStarted			= false;
+
+	mMaxVelocity				= 7.7f;
+	mCurrentVelocity			= 0.0f;
+	mMaxAcceleration			= 20.0f;;
+	mAcceleration				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+
+	mIsBuffed					= false;
+	mBuffMod					= 1; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
+
+	mPlayerName					= "";
+	mHasName					= false;
+	mTimeTillSpawn				= mSpawnTime;
+	mTimeTillDeath				= mDeathTime;
+	mTimeTillRevive				= mReviveTime;
+	mLastKiller					= 0;
+
+	mLowerBody.position		= XMFLOAT3( 3.0f, 0.0f, 0.0f );
+	
+	mIsAlive				= true;
+	mIsDown					= false;
+	mMaxHp					= 100.0f;
+	mCurrentHp				= mMaxHp;
+	mNrOfDeaths				= 0;
+	mNrOfKills				= 0;
+	mID						= -1;
+	mTeam					= -1;
+
+	mLeftArmAnimationCompleted	= false;
+	mRightArmAnimationCompleted	= false;
+
+	mUpperBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mLowerBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+
+	RenderManager::GetInstance()->AnimationReset( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
+	RenderManager::GetInstance()->AnimationReset( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
+	RenderManager::GetInstance()->AnimationReset( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
+}
+
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
 {
 	HandleInput( deltaTime, remotePlayers );

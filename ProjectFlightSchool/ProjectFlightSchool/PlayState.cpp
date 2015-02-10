@@ -138,59 +138,6 @@ void PlayState::BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float
 	Client::GetInstance()->QueueEvent( E1 );
 }
 
-<<<<<<< HEAD
-void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction )
-{
-	mNrOfProjectilesFired = mNrOfProjectilesFired % MAX_PROJECTILES;
-	mProjectiles[mNrOfProjectilesFired]->SetDirection( id, projectileID, position, direction );
-	//mProjectiles[mNrOfProjectilesFired % MAX_PROJECTILES]->SetIsActive( true );
-	mNrOfProjectilesFired++;
-}
-
-void PlayState::UpdateProjectiles( float deltaTime )
-{
-	if( mNrOfProjectilesFired != 0 )
-	{
-		for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
-		{
-			if( mProjectiles[i]->IsActive() )
-				mProjectiles[i]->Update( deltaTime );
-		}
-	}
-}
-
-void PlayState::RenderProjectiles()
-{
-  	if( mNrOfProjectilesFired != 0 )
-	{
-		for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
-		{
-			if( mProjectiles[i]->IsActive() )
-				mProjectiles[i]->Render();
-		}
-	}
-}
-
-void PlayState::HandleDeveloperCameraInput()
-{
-	// TOGGLE CAM
-	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_RCTRL ) )
-		Graphics::GetInstance()->ChangeCamera();
-	// ZOOM IN
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_DOWN ) )
-		Graphics::GetInstance()->ZoomOutDeveloperCamera();
-	// ZOOM OUT
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_UP) )
-		Graphics::GetInstance()->ZoomInDeveloperCamera();
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_Q ) )
-	{
-		IEventPtr E1( new Event_Reset_Game() );
-		EventManager::GetInstance()->QueueEvent( E1 );
-	}
-}
-
-=======
->>>>>>> development
 void PlayState::CheckPlayerCollision()
 {	
 	if( mRemotePlayers.size() > 0 )

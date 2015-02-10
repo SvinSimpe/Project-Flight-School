@@ -23,6 +23,7 @@ class Client : public Network
 		void	ServerUpdateEnemy( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
+		void	Shutdown( IEventPtr eventPtr );
 		void	SendEvent( IEventPtr eventPtr );
 
 	protected:

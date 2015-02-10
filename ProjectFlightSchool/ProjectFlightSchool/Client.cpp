@@ -64,6 +64,23 @@ void Client::PopEvent()
 	mEventList.pop_back();
 }
 
+void Client::Shutdown( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Shutdown_Client::GUID && mActive)
+	{
+		printf("Received shutdown event.\n");
+		if( mSocketManager )
+			mSocketManager->Release();
+		SAFE_DELETE( mSocketManager );
+		SAFE_DELETE( mNEF );
+		mEventList.clear();
+		mActive = false;
+
+		IEventPtr E1( new Event_Change_State( 0 ) ); // The state definitions should be moved to some global place!
+		EventManager::GetInstance()->QueueEvent( E1 );
+	}
+}
+
 void Client::Update( float deltaTime )
 {
 	if( mActive )
@@ -142,7 +159,14 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Client_Enemy_Attack );
 	EF::REGISTER_EVENT( Event_Remote_Enemy_Attack );
 
+	EF::REGISTER_EVENT( Event_Shutdown_Server );
+	EF::REGISTER_EVENT( Event_Shutdown_Client );
+	EF::REGISTER_EVENT( Event_Reset_Game );
+
+
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
+	EventManager::GetInstance()->AddListener( &Client::Shutdown, this, Event_Shutdown_Client::GUID );
+
 	return true;
 }
 

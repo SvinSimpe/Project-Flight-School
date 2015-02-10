@@ -44,6 +44,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 			else if( data->ID() == mRemotePlayers.at(i)->GetID() )
 			{
 				mRemotePlayers.at(i)->Release();
+				SAFE_DELETE( mRemotePlayers.at(i) );
 				std::swap( mRemotePlayers.at(i), mRemotePlayers.at(mRemotePlayers.size() - 1) );
 				mRemotePlayers.pop_back();
 				break;
@@ -211,6 +212,11 @@ void PlayState::HandleDeveloperCameraInput()
 	// ZOOM OUT
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_UP) )
 		Graphics::GetInstance()->ZoomInDeveloperCamera();
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_Q ) )
+	{
+		IEventPtr E1( new Event_Reset_Game() );
+		EventManager::GetInstance()->QueueEvent( E1 );
+	}
 }
 
 void PlayState::CheckPlayerCollision()

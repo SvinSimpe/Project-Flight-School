@@ -253,14 +253,13 @@ void Server::StartUp( IEventPtr eventPtr )
 	{
 		std::shared_ptr<Event_Start_Server> data = std::static_pointer_cast<Event_Start_Server>( eventPtr );
 		UINT port = data->Port();
-		if( mActive )
-		{
+
+		// Makes sure everything is clean before starting
+		if( mSocketManager )
 			mSocketManager->Release();
-			mClientMap.clear();
-			mTeamDelegate	= 1;
-			mCurrentPID		= 0;
-			mActive			= false;
-		}
+		SAFE_DELETE( mSocketManager );
+		mClientMap.clear();
+
 		if( Connect( port ) )
 		{
 			IEventPtr E1( new Event_Initialize_Success () );
@@ -312,8 +311,7 @@ UINT Server::CurrentPID()
 
 bool Server::Connect( UINT port )
 {
-	if( !mSocketManager )
-		mSocketManager = new SocketManager();
+	mSocketManager = new SocketManager();
 	if( !mSocketManager->Initialize() )
 	{
 		return false;
@@ -322,6 +320,14 @@ bool Server::Connect( UINT port )
 	std::cout << "Server started on port: " << port << std::endl;
 
 	return true;
+}
+
+void Server::Shutdown()
+{
+	mClientMap.clear();
+	mTeamDelegate	= 1;
+	mCurrentPID		= 0;
+	mActive			= false;
 }
 
 void Server::Update( float deltaTime )
@@ -365,7 +371,8 @@ bool Server::Initialize()
 
 void Server::Release()
 {
-	mSocketManager->Release();
+	if( mSocketManager )
+		mSocketManager->Release();
 	SAFE_DELETE( mSocketManager );
 	mClientMap.clear();
 	mTeamDelegate	= 1;

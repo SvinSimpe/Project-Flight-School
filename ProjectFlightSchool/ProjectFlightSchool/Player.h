@@ -17,6 +17,7 @@ class Player: public RemotePlayer
 		float		mTimeTillattack;
 		bool		mIsMeleeing;
 		bool		mHasMeleeStarted;
+		bool		mLock;
 
 		float		mMaxVelocity;
 		float		mCurrentVelocity;
@@ -56,6 +57,8 @@ class Player: public RemotePlayer
 		void		Die();
 		void		Fire();
 		void		AddImpuls( XMFLOAT3 impuls );
+		void		Lock();
+		void		UnLock();
 		void		QueueEvent( IEvent* ptr );
 
 	protected:

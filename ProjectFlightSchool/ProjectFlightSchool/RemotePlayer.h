@@ -129,7 +129,7 @@ class RemotePlayer
 		virtual HRESULT	Update( float deltaTime );
 		virtual HRESULT	Render( int position );
 		virtual HRESULT	Initialize();
-		void			RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID );
+		void			RemoteInit( unsigned int id, int team );
 		void			Release();
 						RemotePlayer();
 		virtual			~RemotePlayer();

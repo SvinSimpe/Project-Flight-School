@@ -380,7 +380,7 @@ HRESULT RemotePlayer::Initialize()
 	return S_OK;
 }
 
-void RemotePlayer::RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID )
+void RemotePlayer::RemoteInit( unsigned int id, int team )
 {
 	mID				= id;
 	mTeam			= team;

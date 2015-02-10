@@ -10,50 +10,32 @@ void MultiplayerMenuState::HandleInput()
 	{	
 		// WARNING, THE STRINGSTREAM HERE MIGHT FUCK SHIT UP
 		std::string port = mPortBox.GetText();
-		std::stringstream sstr;
-		sstr << port << " ";
-		UINT iPort;
-		sstr >> iPort;
-		IEventPtr E1( new Event_Start_Server( iPort ) );
+
+		IEventPtr E1( new Event_Start_Server( port ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
-		IEventPtr E2( new Event_Start_Client( "localhost", iPort ) );
+		IEventPtr E2( new Event_Start_Client( "localhost", port ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
-
-		IEventPtr E3( new Event_Change_State( PLAY_STATE ) );
-		EventManager::GetInstance()->QueueEvent( E3 );
 	}
 	else if( mButtons.at(THREE_VS_THREE)->LeftMousePressed() )
 	{
 		std::string port = mPortBox.GetText();
-		std::stringstream sstr;
-		sstr << port << " ";
-		UINT iPort;
-		sstr >> iPort;
-		IEventPtr E1( new Event_Start_Server( iPort ) );
+
+		IEventPtr E1( new Event_Start_Server( port ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 		
-		IEventPtr E2( new Event_Start_Client( "localhost", iPort ) );
+		IEventPtr E2( new Event_Start_Client( "localhost", port ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
-
-		IEventPtr E3( new Event_Change_State( PLAY_STATE ) );
-		EventManager::GetInstance()->QueueEvent( E3 );
 	}
 	else if( mButtons.at(FOUR_VS_FOUR)->LeftMousePressed() )
 	{
 		std::string port = mPortBox.GetText();
-		std::stringstream sstr;
-		sstr << port << " ";
-		UINT iPort;
-		sstr >> iPort;
-		IEventPtr E1( new Event_Start_Server( iPort ) );
+
+		IEventPtr E1( new Event_Start_Server( port ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 				
-		IEventPtr E2( new Event_Start_Client( "localhost", iPort ) );
+		IEventPtr E2( new Event_Start_Client( "localhost", port ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
-
-		IEventPtr E3( new Event_Change_State( PLAY_STATE ) );
-		EventManager::GetInstance()->QueueEvent( E3 );
 	}
 	else if( mButtons.at(BACK)->LeftMousePressed() )
 	{

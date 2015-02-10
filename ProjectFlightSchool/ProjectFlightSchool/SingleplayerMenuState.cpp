@@ -7,7 +7,7 @@ void SingleplayerMenuState::HandleInput()
 		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
-		IEventPtr E2( new Event_Start_Server( 27015 ) );
+		IEventPtr E2( new Event_Start_Server( "27015" ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
 	}
 	else if( mButtons.at(MEDIUM)->LeftMousePressed() )
@@ -15,7 +15,7 @@ void SingleplayerMenuState::HandleInput()
 		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
-		IEventPtr E2( new Event_Start_Server( 27015 ) );
+		IEventPtr E2( new Event_Start_Server( "27015" ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
 	}
 	else if( mButtons.at(HARD)->LeftMousePressed() )
@@ -23,7 +23,7 @@ void SingleplayerMenuState::HandleInput()
 		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
-		IEventPtr E2( new Event_Start_Server( 27015 ) );
+		IEventPtr E2( new Event_Start_Server( "27015" ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
 	}
 	else if( mButtons.at(BACK)->LeftMousePressed() )

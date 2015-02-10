@@ -14,8 +14,17 @@ void Game::ResetGame( IEventPtr eventPtr )
 		if( mServer )
 		{
 			mServer->BroadcastEvent( E1 );
-			mServer->Shutdown();
+			mServer->Release();
 		}
+	}
+}
+
+void Game::StartPlayState( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Connect_Client_Success::GUID )
+	{
+		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 }
 
@@ -55,6 +64,7 @@ HRESULT Game::Initialize()
 	OutputDebugString( L"----- Game Initialization Complete. -----" );
 
 	EventManager::GetInstance()->AddListener( &Game::ResetGame, this, Event_Reset_Game::GUID );
+	EventManager::GetInstance()->AddListener( &Game::StartPlayState, this, Event_Connect_Client_Success::GUID );
 
 	return S_OK;
 }

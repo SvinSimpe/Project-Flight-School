@@ -252,15 +252,20 @@ void Server::StartUp( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Start_Server::GUID )
 	{
 		std::shared_ptr<Event_Start_Server> data = std::static_pointer_cast<Event_Start_Server>( eventPtr );
-		UINT port = data->Port();
+		std::string port = data->Port();
 
 		// Makes sure everything is clean before starting
 		if( mSocketManager )
 			mSocketManager->Release();
 		SAFE_DELETE( mSocketManager );
 		mClientMap.clear();
+		
+		std::stringstream sstr;
+		sstr << port << " ";
+		UINT iPort;
+		sstr >> iPort;
 
-		if( Connect( port ) )
+		if( Connect( iPort ) )
 		{
 			mActive = true;
 			IEventPtr E1( new Event_Connect_Server_Success () );
@@ -270,6 +275,7 @@ void Server::StartUp( IEventPtr eventPtr )
 		{
 			IEventPtr E1( new Event_Connect_Server_Fail ( "Server failed at connecting!" ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
+			Release();
 		}
 	}
 }
@@ -319,17 +325,6 @@ bool Server::Connect( UINT port )
 	std::cout << "Server started on port: " << port << std::endl;
 
 	return true;
-}
-
-void Server::Shutdown()
-{
-	if( mSocketManager )
-		mSocketManager->Release();
-	SAFE_DELETE( mSocketManager );
-	mClientMap.clear();
-	mTeamDelegate	= 1;
-	mCurrentPID		= 0;
-	mActive			= false;
 }
 
 void Server::Update( float deltaTime )

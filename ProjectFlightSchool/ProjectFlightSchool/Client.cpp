@@ -19,9 +19,15 @@ void Client::StartUp( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Start_Client::GUID )
 	{
 		std::shared_ptr<Event_Start_Client> data = std::static_pointer_cast<Event_Start_Client>( eventPtr );
-		std::string IP	= data->IP();
-		UINT port		= data->Port();
-		if( Connect( IP, port ) )
+		std::string IP		= data->IP();
+		std::string port	= data->Port();
+
+		std::stringstream sstr;
+		sstr << port << " ";
+		UINT iPort;
+		sstr >> iPort;
+
+		if( Connect( IP, iPort ) )
 		{
 			mActive = true;
 			IEventPtr E1( new Event_Connect_Client_Success() );
@@ -31,6 +37,12 @@ void Client::StartUp( IEventPtr eventPtr )
 		{
 			IEventPtr E1( new Event_Connect_Client_Fail( "Client failed at connecting to server!" ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
+			if( mSocketManager )
+				mSocketManager->Release();
+			SAFE_DELETE( mSocketManager );
+			SAFE_DELETE( mNEF );
+			mEventList.clear();
+			mActive = false;
 		}
 	}
 }
@@ -179,5 +191,6 @@ void Client::Release()
 	SAFE_DELETE( mSocketManager );
 	SAFE_DELETE( mNEF );
 	mEventList.clear();
+	mActive = false;
 	SAFE_DELETE( mInstance );
 }

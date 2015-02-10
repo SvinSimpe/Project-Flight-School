@@ -77,7 +77,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		mEnemyListSynced = true;
 	}
-	else if ( newEvent->GetEventType() == Event_Initialize_Success::GUID )
+	else if ( newEvent->GetEventType() == Event_Connect_Server_Success::GUID )
 	{
 		mServerInitialized = true;
 	}
@@ -540,7 +540,7 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Fired_Projectile::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Create_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Enemies_Created::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Initialize_Success::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Connect_Server_Success::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Spawn::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Update_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Set_Enemy_State::GUID );

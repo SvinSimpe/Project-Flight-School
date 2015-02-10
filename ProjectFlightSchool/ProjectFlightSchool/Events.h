@@ -535,7 +535,7 @@ class Event_Change_State : public IEvent
 class Event_Start_Server : public IEvent
 {
 	private:
-		UINT mPort;
+		std::string mPort;
 	protected:
 	public:
 		static const EventType GUID;
@@ -545,9 +545,9 @@ class Event_Start_Server : public IEvent
 	public:
 		Event_Start_Server()
 		{
-			mPort = (UINT)-1;
+			mPort = "";
 		}
-		Event_Start_Server( UINT port )
+		Event_Start_Server( std::string port )
 		{
 			mPort = port;
 		}
@@ -568,7 +568,7 @@ class Event_Start_Server : public IEvent
 		{
 			return IEventPtr( new Event_Start_Server( mPort ) );
 		}
-		UINT Port() const
+		std::string Port() const
 		{
 			return mPort;
 		}
@@ -579,7 +579,7 @@ class Event_Start_Client : public IEvent
 {
 	private:
 		std::string mIP;
-		UINT		mPort;
+		std::string	mPort;
 	protected:
 	public:
 		static const EventType GUID;
@@ -590,9 +590,9 @@ class Event_Start_Client : public IEvent
 		Event_Start_Client()
 		{
 			mIP		= "";
-			mPort	= (UINT)-1;
+			mPort	= "";
 		}
-		Event_Start_Client( std::string IP, UINT port )
+		Event_Start_Client( std::string IP, std::string port )
 		{
 			mIP		= IP;
 			mPort	= port;
@@ -620,7 +620,7 @@ class Event_Start_Client : public IEvent
 		{
 			return mIP;
 		}
-		UINT Port() const
+		std::string Port() const
 		{
 			return mPort;
 		}
@@ -2969,6 +2969,10 @@ class Event_Connect_Server_Fail : public IEvent
 		{
 			return IEventPtr( new Event_Connect_Server_Fail( mErrorMsg ) );
 		}
+		std::string ErrorMsg() const
+		{
+			return mErrorMsg;
+		}
 };
 
 // Event used to let stuff know that the client failed at starting
@@ -3007,6 +3011,10 @@ class Event_Connect_Client_Fail : public IEvent
 		IEventPtr Copy() const
 		{
 			return IEventPtr( new Event_Connect_Client_Fail( mErrorMsg ) );
+		}
+		std::string ErrorMsg() const
+		{
+			return mErrorMsg;
 		}
 };
 #endif

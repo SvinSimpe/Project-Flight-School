@@ -30,9 +30,11 @@ enum Effects
 {
 	EFFECTS_STATIC_VERTEX,
 	EFFECTS_STATIC_INSTANCED,
+	EFFECTS_STATIC_INSTANCED_SHADOW,
 	EFFECTS_2D,
 	EFFECTS_ANIMATED,
 	EFFECTS_ANIMATED_INSTANCED,
+	EFFECTS_ANIMATED_INSTANCED_SHADOW,
 	EFFECTS_DEFERRED,
 	EFFECTS_BILLBOARD,
 	EFFECTS_NODEGRID,
@@ -49,7 +51,9 @@ enum Effects
 enum Buffers
 {
 	BUFFERS_CBUFFER_PER_FRAME,
+	BUFFERS_CBUFFER_PER_FRAME_SHADOW,
 	BUFFERS_CBUFFER_PER_OBJECT,
+	BUFFERS_CBUFFER_PER_OBJECT_2D,
 	BUFFERS_CBUFFER_PER_OBJECT_ANIMATED,
 	BUFFERS_CBUFFER_PER_INSTANCED_ANIMATED,
 	BUFFERS_STATIC3D_PER_INSTANCED_OBJECT,
@@ -70,6 +74,7 @@ enum Cameras
 {
 	CAMERAS_MAIN,
 	CAMERAS_DEV,
+	CAMERAS_SHADOWMAP,
 	//New cameras added above this comment
 	CAMERAS_AMOUNT
 };
@@ -83,6 +88,9 @@ enum Cameras
 #define MAX_BILLBOARD_BATCH			1024
 #define MAX_PARTICLE_BATCH			2048
 #define MAX_SINGLE_STATIC_VERTICES	20000
+
+#define SHADOW_MAP_WIDTH	1024
+#define SHADOW_MAP_HEIGHT	1024
 
 #define SAFE_RELEASE_DELETE( x ) if( x ) { ( x )->Release(); delete x; ( x ) = nullptr; }
 
@@ -116,6 +124,10 @@ class LIBRARY_EXPORT Graphics
 		bool						mIsDeveloperCameraActive;
 		Gbuffer*					mGbuffers[NUM_GBUFFERS];
 
+		ID3D11DepthStencilView*		mShadowMapDSV;
+		ID3D11ShaderResourceView*	mShadowMapSRV;
+		D3D11_VIEWPORT				mShadowView;
+
 		int							mNumPointLights;
 
 		StaticInstance				mStatic3dInstanced[MAX_STATIC3D_INSTANCE_BATCH];
@@ -144,7 +156,7 @@ class LIBRARY_EXPORT Graphics
 		HRESULT LoadAnimationAsset( std::string filePath, std::string fileName, AssetID &assetId );
 
 		void Render( RenderLists& renderLists );
-		void Render2dAsset( AssetID assetId, float x, float y, float width, float height );
+		void Render2dAsset( Object2dInfo* info, UINT sizeOfList );
 		void RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX::XMFLOAT3 y );
 		void RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList );
 		void RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList );
@@ -162,12 +174,15 @@ class LIBRARY_EXPORT Graphics
 		void	ZoomInDeveloperCamera();
 		void	ZoomOutDeveloperCamera();
 
+		void GetViewMatrix( DirectX::XMMATRIX &view );
+		void GetProjectionMatrix( DirectX::XMMATRIX &proj );
+
 		void MapLightStructuredBuffer( LightStructure* lightStructure, int numPointLights );
 		void SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY );
 		void SetInverseViewMatrix( DirectX::XMMATRIX &inverseViewMatrix );
 		void SetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatrix );
-		void SetEyePosition( DirectX::XMFLOAT3 &eyePosition );
-		void SetFocus( DirectX::XMFLOAT3 &focusPoint );
+		void SetEyePosition( Cameras camera, DirectX::XMFLOAT3 &eyePosition );
+		void SetFocus( Cameras camera, DirectX::XMFLOAT3 &focusPoint );
 
 		void	BeginScene();
 		void	GbufferPass();

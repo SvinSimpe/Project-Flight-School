@@ -1,418 +1,373 @@
 #include "Server.h"
 
-///////////////////////////////////////////////////////////////////////////////
-//									PRIVATE
-///////////////////////////////////////////////////////////////////////////////
-void Server::EventListener( IEventPtr newEvent )
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Start of eventlistening functions
+
+void Server::ClientJoined( IEventPtr eventPtr )
 {
-	if ( newEvent->GetEventType() == Event_Game_Started::GUID )
+	if( eventPtr->GetEventType() == Event_Client_Joined::GUID )
 	{
-		mInGame		= true;
-	}
-	else if ( newEvent->GetEventType() == Event_Game_Ended::GUID )
-	{
-		mInGame		= false;
-	}
-	else if( newEvent->GetEventType() == Event_Set_Enemy_State::GUID )
-	{
-		std::shared_ptr<Event_Set_Enemy_State> data = std::static_pointer_cast<Event_Set_Enemy_State>( newEvent );
-		EvSetEnemyState state;
-		state.ID	= data->ID();
-		state.state	= data->State();
-		for ( auto& socket : mClientSockets )
+		std::shared_ptr<Event_Client_Joined> data = std::static_pointer_cast<Event_Client_Joined>( eventPtr );
+		UINT id = data->ID();
+		UINT teamID = CurrentTeamDelegate();
+
+		mClientMap[id].TeamID = teamID;
+		mClientMap[id].NEF.Initialize( id, mSocketManager );
+
+		// Sends necessary information of the newly connected client to the newly connected client
+		IEventPtr E1( new Event_Local_Joined( id, teamID ) );
+		SendEvent( E1, id );
+		//SendEnemies( id );
+
+		printf("Created client with ID: %d\n", id);
+
+		// Sends the incoming ID to the existing remotes
+		IEventPtr E2( new Event_Remote_Joined( id, teamID ) ); 
+		BroadcastEvent( E2, id );
+
+		// Sends the list of existing remotes to the newly connected client
+		for( auto& remote : mClientMap )
 		{
-			if ( socket.s != INVALID_SOCKET )
+			if( remote.first != id )
 			{
-				mConn->SendPkg( socket.s, 0, Net_Event::EV_SET_ENEMY_STATE, state );
-			}
-		}
-	}
-	else if( newEvent->GetEventType() == Event_Enemy_Died::GUID )
-	{
-		std::shared_ptr<Event_Enemy_Died> data = std::static_pointer_cast<Event_Enemy_Died>( newEvent );
-		EvSetEnemyState state;
-		state.ID	= data->Enemy();
-		state.state	= Death;
-		for ( auto& socket : mClientSockets )
-		{
-			if ( socket.s != INVALID_SOCKET )
-			{
-				mConn->SendPkg( socket.s, 0, Net_Event::EV_SET_ENEMY_STATE, state );
+				IEventPtr E3( new Event_Remote_Joined( remote.first, remote.second.TeamID ) ); // The key of the map is the ID of the remote
+				SendEvent( E3, id );
 			}
 		}
 	}
 }
 
-bool Server::AcceptConnection()
+void Server::ClientLeft( IEventPtr eventPtr )
 {
-	SOCKET s = accept( mListenSocket, nullptr, nullptr );
-	if ( s == INVALID_SOCKET )
+	if( eventPtr->GetEventType() == Event_Client_Left::GUID )
 	{
-		printf( "accept failed with error: %d\n", WSAGetLastError() );
-		return false;
-	}
-	else
-	{
-		int flag = 1;
-		mResult = setsockopt( s,            /* socket affected */
-			IPPROTO_TCP,     /* set option at TCP level */
-			TCP_NODELAY,     /* name of option */
-			(char*)&flag,  /* the cast is historical cruft */
-			sizeof(int)) ;    /* length of option value */
-		if ( mResult != 0 )
-		{
-			printf( "setsockopt failed with error: %d\n", WSAGetLastError() );
-			shutdown( s, SD_SEND );
-			closesocket( s );
-			WSACleanup();
-			return false;
-		}
+		std::shared_ptr<Event_Client_Left> data = std::static_pointer_cast<Event_Client_Left>( eventPtr );
+		UINT id = data->ID();
+		mClientMap.erase( id );
 
-		Clientinfo newClient	= { s, mNextTeamDelegation };
-		mNextTeamDelegation		= ( mNrOfTeams - 1 ) - ( mNextTeamDelegation / ( mNrOfTeams - 1 ) );
-
-		EvInitialize toJoining;
-		for ( auto& socket : mClientSockets )
-		{
-			if( socket.s != INVALID_SOCKET )
-			{
-				toJoining.ID	= socket.s;
-				toJoining.team	= socket.team;
-				mConn->SendPkg( s, 0, Net_Event::EV_PLAYER_JOINED, toJoining ); // Sends the ID of the already existing clients to the joining client
-				Sleep( 10 );
-			}
-		}
-		Sleep( 10 );
-
-		mClientSockets.push_back( newClient );
-		EvInitialize msg;
-		msg.ID		= (unsigned int)s;
-		msg.team	= newClient.team;
-		mConn->SendPkg( s, -1, Net_Event::YOUR_ID, msg );
-	}
-	printf( "%d connected.\n", s );
-
-	return true;
-}
-
-bool Server::ReceiveLoop( int index )
-{
-	Package<void*>* p = new Package<void*>[DEFAULT_BUFLEN];
-	while ( mClientSockets.at(index).s != INVALID_SOCKET )
-	{
-		SOCKET savedSocket = mClientSockets.at(index).s; // Used in case of disconnect
-		if ( mConn->ReceivePkg( mClientSockets.at(index).s, *p ) )
-		{
-			if ( p->head.eventType != Net_Event::ERROR_EVENT )
-			{
-				HandlePkg( mClientSockets.at(index).s, p );
-			}
-		}
-		if( mClientSockets.at(index).s == INVALID_SOCKET )
-		{
-			DisconnectClient( savedSocket );
-		}
-	}
-
-	if ( p )
-	{
-		delete[] p;
-	}
-	return true;
-}
-
-void Server::DisconnectClient( SOCKET s )
-{
-	EvPlayerID msg;
-	msg.ID = s;
-	for( auto& to : mClientSockets )
-	{
-		mConn->SendPkg( to.s, 0, Net_Event::EV_PLAYER_LEFT, msg );
+		IEventPtr E1( new Event_Remote_Left( id ) );
+		BroadcastEvent( E1 );
 	}
 }
 
-XMFLOAT3 Server::GetNextSpawn()
+void Server::ClientUpdate( IEventPtr eventPtr )
 {
-	return mSpawners[mNrOfEnemiesSpawned++ % MAX_NR_OF_ENEMY_SPAWNERS]->GetSpawnPosition();
+	if( eventPtr->GetEventType() == Event_Client_Update::GUID )
+	{
+		std::shared_ptr<Event_Client_Update> data = std::static_pointer_cast<Event_Client_Update>( eventPtr );
+		UINT id = data->ID();
+		XMFLOAT3 pos = data->LowerBodyPos();
+		XMFLOAT3 vel = data->Velocity();
+		XMFLOAT3 dir = data->UpperBodyDirection();
+		std::string name = data->Name();
+
+		IEventPtr E1( new Event_Remote_Update( id, pos, vel, dir, name ) );
+		BroadcastEvent( E1, id );
+	}
 }
 
-void Server::AggroCheck()
+void Server::ClientDied( IEventPtr eventPtr )
 {
-	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	if( eventPtr->GetEventType() == Event_Client_Died::GUID )
 	{
-		if( mEnemies[i]->IsAlive() )
+		std::shared_ptr<Event_Client_Died> data = std::static_pointer_cast<Event_Client_Died>( eventPtr );
+		UINT id = data->ID();
+		UINT killerID = data->KillerID();
+
+		IEventPtr E1( new Event_Remote_Died( id, killerID ) );
+		BroadcastEvent( E1, id );
+	}
+}
+
+void Server::ClientDamaged( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Damaged::GUID )
+	{
+		std::shared_ptr<Event_Client_Damaged> data = std::static_pointer_cast<Event_Client_Damaged>( eventPtr );
+		UINT id = data->ID();
+		UINT projectileID = data->ProjectileID();
+
+		IEventPtr E1( new Event_Remote_Damaged( id, projectileID ) );
+		BroadcastEvent( E1 );
+	}
+}
+
+void Server::ClientSpawned( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Spawned::GUID )
+	{
+		std::shared_ptr<Event_Client_Spawned> data = std::static_pointer_cast<Event_Client_Spawned>( eventPtr );
+		UINT id = data->ID();
+
+		IEventPtr E1( new Event_Remote_Spawned( id ) );
+		BroadcastEvent( E1, id );
+	}
+}
+
+void Server::ClientFiredProjectile( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Fired_Projectile::GUID )
+	{
+		std::shared_ptr<Event_Client_Fired_Projectile> data = std::static_pointer_cast<Event_Client_Fired_Projectile>( eventPtr );
+		UINT id = data->ID();
+		UINT pid = CurrentPID();
+		XMFLOAT3 pos = data->BodyPos();
+		XMFLOAT3 dir = data->Direction();
+
+		IEventPtr E1( new Event_Remote_Fired_Projectile( id, pid, pos, dir ) );
+		BroadcastEvent( E1 );
+	}
+}
+
+void Server::ClientUpdateHP( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Update_HP::GUID )
+	{
+		std::shared_ptr<Event_Client_Update_HP> data = std::static_pointer_cast<Event_Client_Update_HP>( eventPtr );
+		UINT id = data->ID();
+		float hp = data->HP();
+
+		IEventPtr E1( new Event_Remote_Update_HP( id, hp ) );
+		BroadcastEvent( E1, id );
+	}
+}
+
+void Server::ClientMeleeHit( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Melee_Hit::GUID )
+	{
+		std::shared_ptr<Event_Client_Melee_Hit> data = std::static_pointer_cast<Event_Client_Melee_Hit>( eventPtr );
+		UINT id = data->ID();
+		float damage = data->Damage();
+		float knockBack = data->KnockBack();
+		XMFLOAT3 dir = data->Direction();
+
+		IEventPtr E1( new Event_Remote_Melee_Hit( id, damage, knockBack, dir ) );
+		BroadcastEvent( E1 );
+	}
+}
+
+//void Server::StateCheck()
+//{
+//	if( mEnemies[i]->IsAlive() )
+//	{
+//		for ( size_t j = 0; j < mNrOfPlayers; j++ )
+//		{
+//			// The players agg circle
+//			mAggCircle->center = mPlayers[j].Position;
+//			mAggCircle->radius = 1.0f;
+//
+//			if( mPlayers[j].IsAlive && mEnemies[i]->GetAttentionCircle()->Intersect( mAggCircle ) && mEnemies[i]->GetEnemyState() != Stunned )
+//			{
+//				if( mEnemies[i]->GetAttackCircle()->Intersect( mAggCircle ) )
+//				{
+//					mEnemies[i]->SetState( Attack );
+//					float attack = mEnemies[i]->HandleAttack();
+//					if( attack != 0.0f )
+//					{
+//						EvEnemyAttackPlayer enemyAtk;
+//						enemyAtk.playerID	= mPlayers[j].ID;
+//						enemyAtk.damage		= attack;
+//						for ( auto& socket : mClientSockets )
+//						{
+//							if ( socket.s != INVALID_SOCKET && mEnemyListSynced )
+//							{
+//								mConn->SendPkg( socket.s, 0, Net_Event::EV_ENEMY_ATTACK_PLAYER, enemyAtk );
+//							}
+//						}
+//					}
+//				}
+//				else
+//				{
+//					mEnemies[i]->SetState( HuntPlayer );
+//					mEnemies[i]->SetHuntedPlayer( mPlayers[j].Position );
+//				}
+//			}
+//			else
+//			{
+//				mEnemies[i]->SetState( Idle );
+//			}
+//		}
+//	}
+//}
+
+void Server::ClientAttack( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Attack::GUID )
+	{
+		std::shared_ptr<Event_Client_Attack> data = std::static_pointer_cast<Event_Client_Attack>( eventPtr );
+		UINT id = data->ID();
+		UINT armID = data->ArmID();
+		UINT anim = data->Animation();
+
+		IEventPtr E1( new Event_Remote_Attack( id, armID, anim ) );
+		BroadcastEvent( E1, id );
+	}
+}
+
+void Server::ClientDown( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Down::GUID )
+	{
+		std::shared_ptr<Event_Client_Down> data = std::static_pointer_cast<Event_Client_Down>( eventPtr );
+		UINT id = data->ID();
+
+		IEventPtr E1( new Event_Remote_Down( id ) );
+		BroadcastEvent( E1, id );
+	}
+}
+
+void Server::ClientUp( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Up::GUID )
+	{
+		std::shared_ptr<Event_Client_Up> data = std::static_pointer_cast<Event_Client_Up>( eventPtr );
+		UINT id = data->ID();
+
+		IEventPtr E1( new Event_Remote_Up( id ) );
+		BroadcastEvent( E1, id );
+	}
+}
+
+void Server::ClientAttemptRevive( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Attempt_Revive::GUID )
+	{
+		std::shared_ptr<Event_Client_Attempt_Revive> data = std::static_pointer_cast<Event_Client_Attempt_Revive>( eventPtr );
+		UINT id = data->ID();
+		UINT downedID = data->DownedID();
+		float deltaTime = data->DeltaTime();
+
+		IEventPtr E1( new Event_Remote_Attempt_Revive( id, downedID, deltaTime ) );
+		BroadcastEvent( E1, id );
+	}
+}
+
+// End of eventlistening functions
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// This is technically also an eventlistening function, but it's special so it can't be with the other ones
+void Server::StartUp( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Start_Server::GUID )
+	{
+		std::shared_ptr<Event_Start_Server> data = std::static_pointer_cast<Event_Start_Server>( eventPtr );
+		UINT port = data->Port();
+		if( Connect( port ) )
 		{
-			for ( size_t j = 0; j < mNrOfPlayers; j++ )
-			{
-				// The players agg circle
-				mAggCircle->center = mPlayers[j].Position;
-				mAggCircle->radius = 1.0f;
+			IEventPtr E1( new Event_Initialize_Success () );
+			EventManager::GetInstance()->QueueEvent( E1 );
 
-				if( mEnemies[i]->GetAttentionCircle()->Intersect( mAggCircle ) )
-				{
-					if( mEnemies[i]->GetAttackCircle()->Intersect( mAggCircle ) )
-					{
-						mEnemies[i]->SetState( Attack );
-						float attack = mEnemies[i]->HandleAttack();
-						if( attack != 0.0f )
-						{
-							EvEnemyAttackPlayer enemyAtk;
-							enemyAtk.playerID	= mPlayers[j].ID;
-							enemyAtk.damage		= attack;
-							for ( auto& socket : mClientSockets )
-							{
-								if ( socket.s != INVALID_SOCKET && mEnemyListSynced )
-								{
-									mConn->SendPkg( socket.s, 0, Net_Event::EV_ENEMY_ATTACK_PLAYER, enemyAtk );
-								}
-							}
-						}
-					}
-					else
-					{
-						mEnemies[i]->SetState( HuntPlayer );
-						mEnemies[i]->SetHuntedPlayer( mPlayers[j].Position );
-					}
-				}
-				else
-				{
-					mEnemies[i]->SetState( Idle );
-				}
-			}
-		}
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//									PUBLIC
-///////////////////////////////////////////////////////////////////////////////
-
-HRESULT Server::Update( float deltaTime )
-{
-	if( mInGame && mSafeUpdate )//&& mFrameCount++ > 2 )
-	{
-		EvUpdateEnemyPosition enemy;
-		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
-		{
-			if( mEnemies[i]->IsAlive() )
-			{
-				mEnemies[i]->Update( deltaTime );
-
-				enemy.ID			= mEnemies[i]->GetID();
-				enemy.position		= mEnemies[i]->GetPosition();
-				enemy.direction		= mEnemies[i]->GetDirection();
-				enemy.isAlive		= mEnemies[i]->IsAlive();
-
-				for ( auto& socket : mClientSockets )
-				{
-					if ( socket.s != INVALID_SOCKET && mEnemyListSynced )
-					{
-						mConn->SendPkg( socket.s, 0, Net_Event::EV_ENEMY_UPDATE_POSITION, enemy ); // Update all enemy positions to all players
-						//Sleep( 1 );
-					}
-				}
-			}
-			else
-			{
-				mEnemies[i]->HandleSpawn( deltaTime, GetNextSpawn() );
-			}
-		}
-
-		//if( mSafeUpdate )
-			AggroCheck();
-
-		mFrameCount = 0;
-	}
-
-	//mFrameCount++;
-
-	return S_OK;
-}
-
-bool Server::Connect()
-{
-	mListenSocket = socket( mAddrResult->ai_family, mAddrResult->ai_socktype, mAddrResult->ai_protocol );
-	if ( mListenSocket == INVALID_SOCKET )
-	{
-		printf( "socket failed with error: %d\n", WSAGetLastError() );
-		freeaddrinfo( mAddrResult );
-		WSACleanup();
-		return false;
-	}
-
-	mResult = bind( mListenSocket, mAddrResult->ai_addr, (int)mAddrResult->ai_addrlen );
-	if ( mResult != 0 )
-	{
-		printf( "bind failed with error: %d\n", WSAGetLastError() );
-		freeaddrinfo( mAddrResult );
-		closesocket( mListenSocket );
-		WSACleanup();
-		return false;
-	}
-	freeaddrinfo( mAddrResult );
-
-	mResult = listen( mListenSocket, SOMAXCONN );
-	if ( mResult == SOCKET_ERROR )
-	{
-		printf( "listen failed with error: %d\n", WSAGetLastError() );
-		mConn->DisconnectSocket( mListenSocket );
-		WSACleanup();
-		return false;
-	}
-	printf( "Server up and running.\n" );
-
-	return true;
-}
-
-bool Server::Run()
-{
-	while ( true )
-	{
-		if ( AcceptConnection() )
-		{
-			printf( "Number of connected clients: %d.\n", mClientSockets.size() );
-			mListenThreads.push_back( std::thread( &Server::ReceiveLoop, this, mClientSockets.size() - 1 ) );
+			mActive = true;
 		}
 		else
 		{
-			break;
+			IEventPtr E1( new Event_Initialize_Fail ( "Failed to start server!" ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 	}
+}
+
+void Server::BroadcastEvent( IEventPtr eventPtr, UINT exception )
+{
+	for( auto& to : mClientMap )
+	{
+		if( to.first != exception )
+		{
+			to.second.NEF.ForwardEvent( eventPtr );
+		}
+	}
+}
+
+void Server::SendEvent( IEventPtr eventPtr, UINT to )
+{
+	mClientMap[to].NEF.ForwardEvent( eventPtr );
+}
+
+UINT Server::CurrentTeamDelegate()
+{
+	UINT currentTeam = mTeamDelegate;
+	mTeamDelegate++;
+	if( mTeamDelegate > MAX_TEAMS )
+		mTeamDelegate = 1;
+	return currentTeam;
+}
+
+UINT Server::CurrentPID()
+{
+	UINT currentPID = mCurrentPID;
+	mCurrentPID++;
+	if( mCurrentPID >= MAX_PROJECTILE_ID )
+		mCurrentPID = 0;
+	return currentPID;
+}
+
+bool Server::Connect( UINT port )
+{
+	mSocketManager = new SocketManager();
+	if( !mSocketManager->Initialize() )
+	{
+		return false;
+	}
+	mSocketManager->AddSocket( new ServerListenSocket( mSocketManager, port ) );
+	std::cout << "Server started on port: " << port << std::endl;
+
 	return true;
 }
 
-bool Server::Initialize( std::string port )
+void Server::Update( float deltaTime )
 {
-	mNextTeamDelegation = 0;
-	mNrOfTeams			= 2;
-
-	WSADATA WSAData = WSADATA();
-	mResult			= WSAStartup( MAKEWORD( 2, 2 ), &WSAData );
-	if ( mResult != 0 )
+	if( mActive )
 	{
-		printf( "WSAStartup failed with error: %d\n", mResult );
-		return false;
+
 	}
+}
 
-	addrinfo hints;
-	ZeroMemory( &hints, sizeof( hints ) );
-	hints.ai_family		= AF_INET;
-	hints.ai_socktype	= SOCK_STREAM;
-	hints.ai_protocol	= 0;
-	hints.ai_flags		= AI_PASSIVE;
-
-	mResult				= getaddrinfo( nullptr, port.c_str(), &hints, &mAddrResult );
-	if ( mResult != 0 )
+void Server::DoSelect( int pauseMicroSecs, bool handleInput )
+{
+	if( mActive )
 	{
-		printf( "getaddrinfo failed with error: %d\n", mResult );
-		WSACleanup();
-		return false;
+		mSocketManager->DoSelect( pauseMicroSecs, handleInput );
 	}
+}
 
-	mConn = new Connection();
-	mConn->Initialize();
+bool Server::Initialize()
+{
+	EventManager::GetInstance()->AddListener( &Server::ClientJoined, this, Event_Client_Joined::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientLeft, this, Event_Client_Left::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientUpdate, this, Event_Client_Update::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientDied, this, Event_Client_Died::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientDamaged, this, Event_Client_Damaged::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientSpawned, this, Event_Client_Spawned::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientFiredProjectile, this, Event_Client_Fired_Projectile::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientUpdateHP, this, Event_Client_Update_HP::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientMeleeHit, this, Event_Client_Melee_Hit::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientAttack, this, Event_Client_Attack::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientDown, this, Event_Client_Down::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientUp, this, Event_Client_Up::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientAttemptRevive, this, Event_Client_Attempt_Revive::GUID );
 
-	// Enemies & Spawners
-	srand( (unsigned int)time( NULL ) );
-	mSpawners	= new EnemySpawn*[MAX_NR_OF_ENEMY_SPAWNERS];
-	for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
-	{
-		// Map size values
-		int negX, negY, posX, posY;
-		negX = rand() % 50;
-		negY = rand() % 50;
-		posX = rand() % 50;
-		posY = rand() % 50;
-		mSpawners[i] = new EnemySpawn();
-		mSpawners[i]->Initilaize( i );
-		mSpawners[i]->SetPosition( XMFLOAT3( (float)(posX - negX), 0.0f, (float)(negY - posY) ) );
-	}
+	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
 
-	mEnemies	= new Enemy*[MAX_NR_OF_ENEMIES];
-	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
-	{
-		mEnemies[i] = new Enemy();
-		mEnemies[i]->Initialize( i );
-		mEnemies[i]->Spawn( GetNextSpawn() );
-		
-		//mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_UPDATE, msg );
-
-		//IEventPtr E1( new Event_Enemy_Created( mEnemies[i]->GetID(), mEnemies[i]->GetPosition(), MAX_NR_OF_ENEMIES) );
-		//EventManager::GetInstance()->QueueEvent( E1 );
-	}
-
-	mEnemyListSynced	= false;
-	mSafeUpdate			= false;
-	mAggCircle			= new BoundingCircle();
-
-	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Game_Started::GUID );
-	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Game_Ended::GUID );
-	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Set_Enemy_State::GUID );
-	EventManager::GetInstance()->AddListener( &Server::EventListener, this, Event_Enemy_Died::GUID );
-
-
-	IEventPtr E1( new Event_Server_Initialized() );
-	EventManager::GetInstance()->QueueEvent( E1 );
-
+	mTeamDelegate	= 1;
+	mCurrentPID		= 0;
 	return true;
 }
 
 void Server::Release()
 {
-	for( auto& s : mClientSockets )
-	{
-		mConn->DisconnectSocket( s.s ); 
-	}
-	for ( auto& t : mListenThreads )
-	{
-		if( t.joinable() )
-			t.join();
-	}
-	mListenThreads.clear();
-	mClientSockets.clear();
-	WSACleanup();
-	mConn->DisconnectSocket( mListenSocket );
-
-	mConn->Release();
-	if( mConn )
-		delete mConn;
-
-	// Enemies
-	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
-		SAFE_DELETE( mEnemies[i] );
-
-	delete [] mEnemies;
-
-	for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
-		SAFE_DELETE( mSpawners[i] );
-
-	delete [] mSpawners;
-
-	SAFE_DELETE( mAggCircle );
+	mSocketManager->Release();
+	SAFE_DELETE( mSocketManager );
+	mClientMap.clear();
 }
 
-Server::Server()
+Server::Server() : Network()
 {
-	mResult			= 0;
-	mAddrResult		= nullptr;
-	mListenSocket	= INVALID_SOCKET;
-	mClientSockets	= std::vector<Clientinfo>( 0 );
-	mConn			= nullptr;
-	mListenThreads	= std::vector<std::thread>( 0 );
-	mNrOfProjectilesFired	= 1;
-	
-	// Enemies
-	mInGame				= false;
-	mEnemies			= nullptr;
-	mSpawners			= nullptr;
-	mNrOfEnemiesSpawned	= 0;
-	mFrameCount			= 0;
-
-	mAggCircle			= nullptr;
-
-	mEnemyListSynced	= false;
-	mSafeUpdate			= false;
-	mNrOfPlayers		= 0;
+	mSocketManager	= nullptr;
+	mClientMap		= std::map<UINT, ClientNEF>();
+	mTeamDelegate	= (UINT)-1;
+	mCurrentPID		= (UINT)-1;
+	mActive			= false;
 }
 
 Server::~Server()

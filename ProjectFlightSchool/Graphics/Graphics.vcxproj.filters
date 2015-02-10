@@ -28,9 +28,6 @@
     <ClCompile Include="AnimationAsset.cpp">
       <Filter>AssetClasses\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Static3dAssetIndexed.cpp">
-      <Filter>AssetClasses\Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Static2dAsset.cpp">
       <Filter>AssetClasses\Source Files</Filter>
     </ClCompile>
@@ -42,6 +39,9 @@
     </ClCompile>
     <ClCompile Include="WICTextureLoader.cpp">
       <Filter>TextureLoader\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Static3dAssetIndexed.cpp">
+      <Filter>AssetClasses\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -186,6 +186,12 @@
     </Text>
     <Text Include="..\Content\Effects\Particle Effects\Smoke_MiniGunEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\Static3dInstancedShadowEffect.hlsl">
+      <Filter>Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\AnimatedInstanced3dShadowEffect.hlsl">
+      <Filter>Effects</Filter>
     </Text>
   </ItemGroup>
 </Project>

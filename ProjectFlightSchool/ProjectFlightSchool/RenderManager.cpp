@@ -51,12 +51,13 @@ void RenderManager::AddObject3dToList( AssetID assetId, DirectX::XMFLOAT4X4 worl
 	mObject3dArray[mNrOfObject3d++] = info;
 }
 
-void RenderManager::AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLeftCorner, DirectX::XMFLOAT2 widthHeight )
+void RenderManager::AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLeftCorner, DirectX::XMFLOAT2 widthHeight, DirectX::XMFLOAT4 color )
 {
 	Object2dInfo info;
 	info.mAssetId		= assetId;
 	info.mTopLeftCorner	= topLeftCorner;
 	info.mWidthHeight	= widthHeight;
+	info.mColor			= color;
 
 	mObject2dArray[mNrOfObject2d++] = info;
 }
@@ -182,6 +183,15 @@ void RenderManager::AnimationStartNew( AnimationTrack &animationTrack, AssetID n
 	animationTrack.mInterpolation		= 0.2f;
 }
 
+void RenderManager::AnimationReset( AnimationTrack &animationTrack, AssetID defaultAnimation )
+{
+	animationTrack.mCurrentAnimation		= defaultAnimation;
+	animationTrack.mCurrentAnimationTime	= 1.0f / 60.0f;
+	animationTrack.mNextAnimation			= defaultAnimation;
+	animationTrack.mNextAnimationTime		= 1.0f / 60.0f;
+	animationTrack.mInterpolation			= 0.0f;
+}
+
 HRESULT RenderManager::Update( float deltaTime )
 {
 	Clear();
@@ -251,10 +261,8 @@ HRESULT RenderManager::Render()
 	Graphics::GetInstance()->ScreenSpacePass();
 
 	//Render screen space located assets
-	for( UINT i = 0; i < mNrOfObject2d; i++ )
-	{
-		Graphics::GetInstance()->Render2dAsset( mObject2dArray[i].mAssetId, mObject2dArray[i].mTopLeftCorner.x, mObject2dArray[i].mTopLeftCorner.y, mObject2dArray[i].mWidthHeight.x, mObject2dArray[i].mWidthHeight.y );
-	}
+	Graphics::GetInstance()->Render2dAsset( mObject2dArray, mNrOfObject2d );
+
 	//Present the scene onto the screen
 	Graphics::GetInstance()->EndScene();
 

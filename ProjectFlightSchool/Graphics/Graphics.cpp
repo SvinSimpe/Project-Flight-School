@@ -123,27 +123,35 @@ void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 	mDeviceContext->OMSetDepthStencilState( mDepthEnabledStencilState, 1 );
 }
 
-void Graphics::Render2dAsset( AssetID assetId, float x, float y, float width, float height )
+void Graphics::Render2dAsset( Object2dInfo* info, UINT sizeOfList )
 {
 	UINT32 vertexSize	= sizeof(StaticVertex);
 	UINT32 offset		= 0;
 
-	float left		= ( ( x / (float)mScreenWidth ) * 2.0f ) - 1.0f;
-	float right		= ( ( ( x + width ) / (float)mScreenWidth ) * 2.0f ) - 1.0f;
-	float bottom	= ( ( ( y + height ) / (float)mScreenHeight ) * -2.0f ) + 1.0f;
-	float top		= ( ( y / (float)mScreenHeight ) * -2.0f ) + 1.0f;
+	for( UINT i = 0; i < sizeOfList; i++ )
+	{
+		float left		= ( ( info[i].mTopLeftCorner.x / (float)mScreenWidth ) * 2.0f ) - 1.0f;
+		float right		= ( ( ( info[i].mTopLeftCorner.x + info[i].mWidthHeight.x ) / (float)mScreenWidth ) * 2.0f ) - 1.0f;
+		float bottom	= ( ( ( info[i].mTopLeftCorner.y + info[i].mWidthHeight.y ) / (float)mScreenHeight ) * -2.0f ) + 1.0f;
+		float top		= ( ( info[i].mTopLeftCorner.y / (float)mScreenHeight ) * -2.0f ) + 1.0f;
 
-	StaticVertex bottomleft		= { left, bottom, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f };
-	StaticVertex topleft		= { left, top, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 0.0f };
-	StaticVertex bottomright	= { right, bottom, 0.0f,	0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	1.0f, 1.0f };
-	StaticVertex topright		= { right, top, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	1.0f, 0.0f };
+		StaticVertex bottomleft		= { left, bottom, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f };
+		StaticVertex topleft		= { left, top, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 0.0f };
+		StaticVertex bottomright	= { right, bottom, 0.0f,	0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	1.0f, 1.0f };
+		StaticVertex topright		= { right, top, 0.0f,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	1.0f, 0.0f };
 
-	StaticVertex vertices[4] = { bottomleft, topleft, bottomright, topright };
-	MapBuffer( mBuffers[BUFFERS_2D], &vertices, sizeof(StaticVertex) * 4 );
-	mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_2D], &vertexSize, &offset );
+		StaticVertex vertices[4] = { bottomleft, topleft, bottomright, topright };
+		MapBuffer( mBuffers[BUFFERS_2D], &vertices, sizeof(StaticVertex) * 4 );
+		mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_2D], &vertexSize, &offset );
 
-	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[assetId] )->mSRV );
-	mDeviceContext->Draw( 4, 0 );
+		CbufferPerObject2D cbuff;
+		cbuff.color = info[i].mColor;
+		MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT_2D], &cbuff, sizeof( CbufferPerObject2D ) );
+		mDeviceContext->PSSetConstantBuffers( 0, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT_2D] );
+
+		mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[info[i].mAssetId] )->mSRV );
+		mDeviceContext->Draw( 4, 0 );
+	}
 }
 
 void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX::XMFLOAT3 y )
@@ -199,10 +207,14 @@ void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->PSSetShader( mEffects[EFFECTS_STATIC_INSTANCED]->GetPixelShader(), nullptr, 0 );
-	
+
 	UINT objectToRender = 0;
-	UINT currAssetID = (UINT)-1;
-	UINT strider = 0;
+	UINT currAssetID	= (UINT)-1;
+	UINT strider		= 0;
+
+	UINT assetIDs[MAX_AMOUNT_OF_OBJECT3D];
+	for( UINT i = 0; i < sizeOfList; i++ )
+		assetIDs[i] = info[i].mAssetId;
 
 	while( true )
 	{
@@ -239,8 +251,7 @@ void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 			//////////////////////////////////////////////////////////////////
 			//						RENDER CALL
 			//////////////////////////////////////////////////////////////////
-			
-			mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+
 			Static3dAsset* model = (Static3dAsset*)mAssetManager->mAssetContainer[currAssetID];
 			
 			for( UINT i = 0; i < model->mMeshes.size(); i++ )
@@ -261,6 +272,77 @@ void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 		}
 		else break;
 	}
+	/////////////////////////
+	//		SHADOWS
+	/////////////////////////
+	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_STATIC_INSTANCED_SHADOW]->GetInputLayout() );
+	mDeviceContext->VSSetShader( mEffects[EFFECTS_STATIC_INSTANCED_SHADOW]->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffects[EFFECTS_STATIC_INSTANCED_SHADOW]->GetPixelShader(), nullptr, 0 );
+
+	ID3D11RenderTargetView* rtvShadow[] = { nullptr };
+	mDeviceContext->OMSetRenderTargets( 1, rtvShadow, mShadowMapDSV );
+	mDeviceContext->RSSetViewports( 1, &mShadowView );
+
+	objectToRender	= 0;
+	currAssetID		= (UINT)-1;
+	strider			= 0;
+
+	while( true )
+	{
+		objectToRender = 0;
+		currAssetID = (UINT)-1;
+		for( UINT i = strider; i < sizeOfList; i++ )
+		{
+			if( assetIDs[i] != (UINT)-1 )
+			{
+				if( currAssetID == (UINT)-1 )
+				{
+					currAssetID = assetIDs[i];
+					strider		= i;
+				}
+
+				if( currAssetID == assetIDs[i] )
+				{
+					
+					mStatic3dInstanced[objectToRender].world = info[i].mWorld;
+	
+					assetIDs[i] = (UINT)-1;
+					objectToRender++;
+
+					if( objectToRender == MAX_ANIM_INSTANCE_BATCH )
+					{
+						break;
+					}
+				}
+			}
+		}
+		
+		if( objectToRender > 0 )
+		{
+			//////////////////////////////////////////////////////////////////
+			//						RENDER CALL
+			//////////////////////////////////////////////////////////////////
+			Static3dAsset* model = (Static3dAsset*)mAssetManager->mAssetContainer[currAssetID];
+			
+			for( UINT i = 0; i < model->mMeshes.size(); i++ )
+			{
+				mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[model->mMeshes[i].mTextures[TEXTURES_DIFFUSE]] )->mSRV );
+
+				MapBuffer( mBuffers[BUFFERS_STATIC3D_PER_INSTANCED_OBJECT], mStatic3dInstanced, ( sizeof( StaticInstance ) * objectToRender ) );
+				ID3D11Buffer* buffersToSet[2] = { model->mMeshes[i].mVertexBuffer, mBuffers[BUFFERS_STATIC3D_PER_INSTANCED_OBJECT] };
+				mDeviceContext->IASetVertexBuffers( 0, 2, buffersToSet, vertexSize, offset );
+
+				mDeviceContext->DrawInstanced( model->mMeshes[i].mVertexCount, objectToRender, 0, 0 );
+			}
+		}
+		else break;
+	}
+
+	ID3D11RenderTargetView* rtvsToSet[NUM_GBUFFERS];
+	for( int i = 0; i < NUM_GBUFFERS; i++)
+		rtvsToSet[i] = mGbuffers[i]->mRenderTargetView;
+	mDeviceContext->OMSetRenderTargets( 3, rtvsToSet, mDepthStencilView );
+	mDeviceContext->RSSetViewports( 1, &mStandardView );
 }
 
 void Graphics::RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList )
@@ -281,6 +363,10 @@ void Graphics::RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList )
 	UINT objectToRender = 0;
 	UINT currAssetID = (UINT)-1;
 	UINT strider = 0;
+
+	UINT assetIDs[MAX_AMOUNT_OF_ANIM3D];
+	for( UINT i = 0; i < sizeOfList; i++ )
+		assetIDs[i] = info[i].mModelId;
 
 	while( true )
 	{
@@ -338,6 +424,86 @@ void Graphics::RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList )
 		}
 		else break;
 	}
+
+	/////////////////////////
+	//		SHADOWS
+	/////////////////////////
+	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_ANIMATED_INSTANCED_SHADOW]->GetInputLayout() );
+	mDeviceContext->VSSetShader( mEffects[EFFECTS_ANIMATED_INSTANCED_SHADOW]->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffects[EFFECTS_ANIMATED_INSTANCED_SHADOW]->GetPixelShader(), nullptr, 0 );
+
+	ID3D11RenderTargetView* rtvShadow[] = { nullptr };
+	mDeviceContext->OMSetRenderTargets( 1, rtvShadow, mShadowMapDSV );
+	mDeviceContext->RSSetViewports( 1, &mShadowView );
+
+	objectToRender	= 0;
+	currAssetID		= (UINT)-1;
+	strider			= 0;
+
+	while( true )
+	{
+		objectToRender = 0;
+		currAssetID = (UINT)-1;
+		for( UINT i = strider; i < sizeOfList; i++ )
+		{
+			if( assetIDs[i] != (UINT)-1 )
+			{
+				if( currAssetID == (UINT)-1 )
+				{
+					currAssetID = assetIDs[i];
+					strider		= i;
+				}
+
+				if( currAssetID == assetIDs[i] )
+				{
+					
+					mAnimInstanced[objectToRender].world = info[i].mWorld;
+					for( int j = 0; j < NUM_SUPPORTED_JOINTS; j++ )
+						mAnimCbufferInstanced[objectToRender].boneTransforms[j] = DirectX::XMLoadFloat4x4( &info[i].mBoneTransforms[j] );
+
+					assetIDs[i] = (UINT)-1;
+					objectToRender++;
+
+					if( objectToRender == MAX_ANIM_INSTANCE_BATCH )
+					{
+						break;
+					}
+				}
+			}
+		}
+
+		if( objectToRender > 0 )
+		{
+			//////////////////////////////////////////////////////////////////
+			//						RENDER CALL
+			//////////////////////////////////////////////////////////////////
+			
+			Animated3dAsset* model = (Animated3dAsset*)mAssetManager->mAssetContainer[currAssetID];
+
+			ID3D11ShaderResourceView* texturesToSet[] = {	( (Static2dAsset*)mAssetManager->mAssetContainer[model->mTextures[TEXTURES_DIFFUSE]] )->mSRV,
+															( (Static2dAsset*)mAssetManager->mAssetContainer[model->mTextures[TEXTURES_NORMAL]] )->mSRV,
+															( (Static2dAsset*)mAssetManager->mAssetContainer[model->mTextures[TEXTURES_SPECULAR]] )->mSRV,
+														};
+
+			mDeviceContext->PSSetShaderResources( 0, TEXTURES_AMOUNT, texturesToSet );
+			MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_INSTANCED_ANIMATED], mAnimCbufferInstanced, ( sizeof( CbufferPerObjectAnimated ) * objectToRender ) );
+			MapBuffer( mBuffers[BUFFERS_STATIC3D_PER_INSTANCED_OBJECT], mAnimInstanced, ( sizeof( AnimatedInstance ) * objectToRender ) );
+			ID3D11Buffer* buffersToSet[2] = { model->mVertexBuffer, mBuffers[BUFFERS_STATIC3D_PER_INSTANCED_OBJECT] };
+
+			mDeviceContext->IASetVertexBuffers( 0, 2, buffersToSet, vertexSize, offset );
+			mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_INSTANCED_ANIMATED] );
+			mDeviceContext->DrawInstanced( model->mVertexCount, objectToRender, 0, 0 );
+		}
+		else break;
+	}
+
+	mDeviceContext->VSSetConstantBuffers( 0, 1, &mBuffers[BUFFERS_CBUFFER_PER_FRAME] );
+
+	ID3D11RenderTargetView* rtvsToSet[NUM_GBUFFERS];
+	for( int i = 0; i < NUM_GBUFFERS; i++)
+		rtvsToSet[i] = mGbuffers[i]->mRenderTargetView;
+	mDeviceContext->OMSetRenderTargets( 3, rtvsToSet, mDepthStencilView );
+	mDeviceContext->RSSetViewports( 1, &mStandardView );
 }
 
 void Graphics::RenderBillboard( BillboardInfo* info, UINT sizeOfList )
@@ -673,6 +839,16 @@ void Graphics::ZoomOutDeveloperCamera()
 	mCamera[CAMERAS_DEV]->ZoomOut();
 }
 
+void Graphics::GetViewMatrix( DirectX::XMMATRIX &view )
+{
+	view = mCamera[CAMERAS_MAIN]->GetViewMatrix();
+}
+
+void Graphics::GetProjectionMatrix( DirectX::XMMATRIX &proj )
+{
+	proj = mCamera[CAMERAS_MAIN]->GetProjMatrix();
+}
+
 void Graphics::MapLightStructuredBuffer( LightStructure* lightStructure, int numPointLights )
 {
 	MapBuffer( mBuffers[BUFFERS_LIGHT], (void*)lightStructure, sizeof( LightStructure ) );
@@ -696,17 +872,31 @@ void Graphics::SetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatr
 	projectionViewMatrix = mCamera[CAMERAS_MAIN]->GetInverseProjectionMatrix();
 }
 
-void Graphics::SetEyePosition( DirectX::XMFLOAT3 &eyePosition )
+void Graphics::SetEyePosition( Cameras camera, DirectX::XMFLOAT3 &eyePosition )
 {
-	mCamera[CAMERAS_MAIN]->SetEyePosition( eyePosition );
-	DirectX::XMFLOAT4 camPos = mCamera[CAMERAS_DEV]->GetPos();
-	mCamera[CAMERAS_DEV]->SetEyePosition( DirectX::XMFLOAT3(  eyePosition.x, camPos.y,  eyePosition.z ) );
+	if( camera == CAMERAS_MAIN )
+	{
+		mCamera[CAMERAS_MAIN]->SetEyePosition( eyePosition );
+		DirectX::XMFLOAT4 camPos = mCamera[CAMERAS_DEV]->GetPos();
+		mCamera[CAMERAS_DEV]->SetEyePosition( DirectX::XMFLOAT3(  eyePosition.x, camPos.y,  eyePosition.z ) );
+	}
+	else if( camera == CAMERAS_SHADOWMAP )
+	{
+		mCamera[CAMERAS_SHADOWMAP]->SetEyePosition( eyePosition );
+	}
 }
 
-void Graphics::SetFocus( DirectX::XMFLOAT3 &focusPoint )
+void Graphics::SetFocus( Cameras camera, DirectX::XMFLOAT3 &focusPoint )
 {
-	mCamera[CAMERAS_MAIN]->SetFocus( focusPoint );
-	mCamera[CAMERAS_DEV]->SetFocus( focusPoint );
+	if( camera == CAMERAS_MAIN )
+	{
+		mCamera[CAMERAS_MAIN]->SetFocus( focusPoint );
+		mCamera[CAMERAS_DEV]->SetFocus( focusPoint );
+	}
+	else if( camera == CAMERAS_SHADOWMAP )
+	{
+		mCamera[CAMERAS_SHADOWMAP]->SetFocus( focusPoint );
+	}
 }
 
 //Clear canvas and prepare for rendering.
@@ -734,11 +924,15 @@ void Graphics::GbufferPass()
 		mCamera[CAMERAS_DEV]->Update();
 	else
 		mCamera[CAMERAS_MAIN]->Update();
+
+	mCamera[CAMERAS_SHADOWMAP]->Update();
+
 	static float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	for( int i = 0; i < NUM_GBUFFERS; i++)
 		mDeviceContext->ClearRenderTargetView( mGbuffers[i]->mRenderTargetView, clearColor );
 	mDeviceContext->ClearDepthStencilView( mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
 
+	mDeviceContext->ClearDepthStencilView( mShadowMapDSV, D3D11_CLEAR_DEPTH, 1.0f, 0 );
 	
 	/////////////////////////////////
 	// Gbuffer generation pass
@@ -768,7 +962,16 @@ void Graphics::GbufferPass()
 	data.numPointLights = mNumPointLights;
 	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_FRAME], &data, sizeof( CbufferPerFrame ) );
 
+	CbufferPerFrameShadow dataShadow;
+	//Map ShadowPerFrame
+	dataShadow.viewMatrix		= mCamera[CAMERAS_SHADOWMAP]->GetViewMatrix();
+	dataShadow.projectionMatrix	= mCamera[CAMERAS_SHADOWMAP]->GetProjMatrix();
+	dataShadow.cameraPosition	= mCamera[CAMERAS_SHADOWMAP]->GetPos();
+
+	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_FRAME_SHADOW], &dataShadow, sizeof( CbufferPerFrameShadow ) );
+
 	mDeviceContext->VSSetConstantBuffers( 0, 1, &mBuffers[BUFFERS_CBUFFER_PER_FRAME] );
+	mDeviceContext->VSSetConstantBuffers( 2, 1, &mBuffers[BUFFERS_CBUFFER_PER_FRAME_SHADOW] );
 	mDeviceContext->PSSetSamplers( 0, 1, &mPointSamplerState );
 	mDeviceContext->PSSetSamplers( 1, 1, &mLinearSamplerState );
 }
@@ -780,6 +983,14 @@ void Graphics::DeferredPass()
 	/////////////////////////////////
 	mDeviceContext->ClearState();
 
+	CbufferPerFrameShadow data;
+	data.viewMatrix			= mCamera[CAMERAS_SHADOWMAP]->GetViewMatrix();
+	data.projectionMatrix	= mCamera[CAMERAS_SHADOWMAP]->GetProjMatrix();
+	data.cameraPosition		= mCamera[CAMERAS_SHADOWMAP]->GetPos();
+
+	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_FRAME_SHADOW], &data, sizeof( CbufferPerFrameShadow ) );
+	mDeviceContext->PSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_FRAME_SHADOW] );
+
 	mDeviceContext->OMSetRenderTargets( 1, &mRenderTargetView, nullptr );
 	mDeviceContext->RSSetViewports( 1, &mStandardView );
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
@@ -787,6 +998,7 @@ void Graphics::DeferredPass()
 	for( int i = 0; i < NUM_GBUFFERS; i++)
 		mDeviceContext->PSSetShaderResources( i, 1, &mGbuffers[i]->mShaderResourceView );
 
+	mDeviceContext->PSSetShaderResources( 4, 1, &mShadowMapSRV );
 	mDeviceContext->PSSetShaderResources( 5, 1, &mLightStructuredBuffer );
 
 	mDeviceContext->VSSetShader( mEffects[EFFECTS_DEFERRED]->GetVertexShader(), nullptr, 0 );
@@ -1234,12 +1446,29 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	if( FAILED( hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mBuffers[BUFFERS_CBUFFER_PER_FRAME] ) ) )
 		return hr;
 
+	//////////////////////////////////
+	// CREATE CBUFFERPERFRAME SHADOW
+	//////////////////////////////////
+
+	bufferDesc.ByteWidth= sizeof( CbufferPerFrameShadow );
+
+	if( FAILED( hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mBuffers[BUFFERS_CBUFFER_PER_FRAME_SHADOW] ) ) )
+		return hr;
+
 	///////////////////////////////
 	// CREATE CBUFFERPEROBJECT
 	///////////////////////////////
 	bufferDesc.ByteWidth = sizeof( CbufferPerObject );
 
 	if( FAILED( hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] ) ) )
+		return hr;
+
+	///////////////////////////////////////
+	// CREATE CBUFFERPEROBJECT2D
+	///////////////////////////////////////
+	bufferDesc.ByteWidth = sizeof( CbufferPerObject2D );
+
+	if( FAILED( hr = mDevice->CreateBuffer( &bufferDesc, nullptr, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT_2D] ) ) )
 		return hr;
 
 	///////////////////////////////////////
@@ -1419,10 +1648,19 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 		return hr;
 	//--------------------------
 
+	//Static instanced effect
+	effectInfo.filePath					= "../Content/Effects/Static3dInstancedShadowEffect.hlsl";
+	effectInfo.fileName					= "Static3dInstancedShadowEffect";
+	effectInfo.vertexType				= STATIC_INSTANCED_VERTEX_TYPE;
+
+	if( FAILED( hr = mEffects[EFFECTS_STATIC_INSTANCED_SHADOW]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
 	//2d effect
-	effectInfo.filePath		= "../Content/Effects/2dEffect.hlsl";
-	effectInfo.fileName		= "2dEffect";
-	effectInfo.vertexType	= STATIC_VERTEX_TYPE;
+	effectInfo.filePath					= "../Content/Effects/2dEffect.hlsl";
+	effectInfo.fileName					= "2dEffect";
+	effectInfo.vertexType				= STATIC_VERTEX_TYPE;
 
 	if( FAILED( hr = mEffects[EFFECTS_2D]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
@@ -1444,6 +1682,16 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	effectInfo.vertexType	= ANIMATED_VERTEX_INSTANCED_TYPE;
 
 	if( FAILED( hr = mEffects[EFFECTS_ANIMATED_INSTANCED]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+
+	//--------------------------
+
+	//Animated instanced shadow effect
+	effectInfo.filePath		= "../Content/Effects/AnimatedInstanced3dShadowEffect.hlsl";
+	effectInfo.fileName		= "AnimatedInstanced3dShadowEffect";
+	effectInfo.vertexType	= ANIMATED_VERTEX_INSTANCED_TYPE;
+
+	if( FAILED( hr = mEffects[EFFECTS_ANIMATED_INSTANCED_SHADOW]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 
 	//--------------------------
@@ -1500,6 +1748,54 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 		mGbuffers[i]->Initialize( mDevice, mScreenWidth, mScreenHeight );
 	}
 
+	////////////////////////////////////
+	//		SHADOW MAP VARIABLES
+	////////////////////////////////////
+
+	ID3D11Texture2D* shadowMap;
+
+	D3D11_TEXTURE2D_DESC texDesc;
+	ZeroMemory( &texDesc, sizeof( texDesc ) );
+	texDesc.Width				= SHADOW_MAP_WIDTH;
+	texDesc.Height				= SHADOW_MAP_HEIGHT;
+	texDesc.MipLevels			= 1;
+	texDesc.ArraySize			= 1;
+	texDesc.Format				= DXGI_FORMAT_R32_TYPELESS;
+	texDesc.SampleDesc.Count	= 1;
+	texDesc.SampleDesc.Quality	= 0;
+	texDesc.Usage				= D3D11_USAGE_DEFAULT;
+	texDesc.BindFlags			= D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+
+	if( FAILED( hr = mDevice->CreateTexture2D( &texDesc, nullptr, &shadowMap ) ) )
+		return hr;
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC depDesc;
+	ZeroMemory( &depDesc, sizeof( depDesc ) );
+	depDesc.Format				= DXGI_FORMAT_D32_FLOAT;
+	depDesc.ViewDimension		= D3D11_DSV_DIMENSION_TEXTURE2D;
+	depDesc.Texture2D.MipSlice	= 0;
+
+	if( FAILED( hr = mDevice->CreateDepthStencilView( shadowMap, &depDesc, &mShadowMapDSV ) ) )
+		return hr;
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaDesc;
+	ZeroMemory( &shaDesc, sizeof( shaDesc ) );
+	shaDesc.Format				= DXGI_FORMAT_R32_FLOAT;
+	shaDesc.ViewDimension		= D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaDesc.Texture2D.MipLevels	= 1;
+
+	if( FAILED( hr = mDevice->CreateShaderResourceView( shadowMap, &shaDesc, &mShadowMapSRV ) ) )
+		return hr;
+
+	SAFE_RELEASE( shadowMap );
+
+	mShadowView.Height		= (float)SHADOW_MAP_HEIGHT;
+	mShadowView.Width		= (float)SHADOW_MAP_WIDTH;
+	mShadowView.MaxDepth	= 1.0f;
+	mShadowView.MinDepth	= 0.0f;
+	mShadowView.TopLeftX	= 0.0f;
+	mShadowView.TopLeftY	= 0.0f;
+
 	//Camera
 	mCamera[CAMERAS_MAIN] = new Camera;
 
@@ -1510,7 +1806,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	cameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
 	cameraInfo.width		= (float)screenWidth;
 	cameraInfo.height		= (float)screenHeight;
-	cameraInfo.foVY			= 0.75f;
+	cameraInfo.foVY			= 3.14159265f * 0.25f;
 	cameraInfo.nearZ		= 0.1f;
 	cameraInfo.farZ			= 1000.0f;
 
@@ -1527,11 +1823,29 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	developerCameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
 	developerCameraInfo.width		= (float)screenWidth;
 	developerCameraInfo.height		= (float)screenHeight;
-	developerCameraInfo.foVY		= 0.75f;
+	developerCameraInfo.foVY		= 3.14159265f * 0.25f;
 	developerCameraInfo.nearZ		= 0.1f;
 	developerCameraInfo.farZ		= 1000.0f;
 
 	hr = mCamera[CAMERAS_DEV]->Initialize( &developerCameraInfo );
+	if( FAILED( hr ) )
+		return hr;
+
+	//ShadowMap Camera
+	mCamera[CAMERAS_SHADOWMAP] = new Camera;
+
+	CameraInfo shadowMapCameraInfo;
+	ZeroMemory( &shadowMapCameraInfo, sizeof( shadowMapCameraInfo ) );
+	shadowMapCameraInfo.eyePos		= DirectX::XMFLOAT4( 0.0f, 30.0f, 0.0f, 1.0f );
+	shadowMapCameraInfo.focusPoint	= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
+	shadowMapCameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 0.0f, 1.0f, 0.0f );
+	shadowMapCameraInfo.width		= (float)SHADOW_MAP_WIDTH;
+	shadowMapCameraInfo.height		= (float)SHADOW_MAP_HEIGHT;
+	shadowMapCameraInfo.foVY		= 3.14159265f * 0.5f;
+	shadowMapCameraInfo.nearZ		= 10.0f;
+	shadowMapCameraInfo.farZ		= 40.0f;
+
+	hr = mCamera[CAMERAS_SHADOWMAP]->Initialize( &shadowMapCameraInfo );
 	if( FAILED( hr ) )
 		return hr;
 
@@ -1622,6 +1936,8 @@ void Graphics::Release()
 	SAFE_RELEASE( mLightStructuredBuffer );
 	SAFE_RELEASE( mPointSamplerState );
 	SAFE_RELEASE( mLinearSamplerState );
+	SAFE_RELEASE( mShadowMapDSV );
+	SAFE_RELEASE( mShadowMapSRV );
 
 	SAFE_RELEASE_DELETE( mAssetManager );
 

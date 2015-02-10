@@ -3,10 +3,10 @@
 
 #include "BaseState.h"
 #include "Input.h"
-#include "EventManager.h"
 #include "Events.h"
 #include "Button.h"
 #include "Font.h"
+#include "InputSquare.h"
 
 class BaseMenuState : public BaseState
 {

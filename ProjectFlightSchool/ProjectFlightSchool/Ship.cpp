@@ -27,6 +27,7 @@ float Ship::GetMaxHull() const
 {
 	return mMaxHull;
 }
+
 float Ship::GetCurrentHull() const
 {
 	return mCurrentHull;
@@ -40,6 +41,30 @@ void Ship::TakeDamage( float damage )
 void Ship::PickTurretTarget( std::vector<RemotePlayer*> targets )
 {
 	mTurret->PickTarget( targets );
+}
+
+void Ship::Reset( int team, XMFLOAT3 pos, XMFLOAT3 dir )
+{
+	mModel = new BodyPart();
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Ship/", "ship.pfs", mModel->model );
+	mModel->pos = pos;
+	mModel->dir = dir;
+
+	SAFE_DELETE(mHitBox);
+	SAFE_DELETE(mBuff);
+	mHitBox = new BoundingCircle( pos, 5.0f );
+	mBuff	= new BoundingCircle( pos, 20.0f );
+	mTeamID = team;
+
+	// Preparing position/rotation for turret
+	pos.x += -1.8f;
+	pos.y += 2.3f;
+	pos.z += 1.0f;
+	dir.y += 24.761f;
+	mTurret->Reset( team, pos, dir );
+
+	mMaxHull = 100.0f;
+	mCurrentHull = mMaxHull;
 }
 
 void Ship::Update( float deltaTime )

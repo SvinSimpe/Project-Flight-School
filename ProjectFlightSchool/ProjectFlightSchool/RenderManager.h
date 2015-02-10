@@ -39,7 +39,7 @@ class RenderManager
 	public:
 		void AddObject3dToList( AssetID assetId, DirectX::XMFLOAT3 position = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), DirectX::XMFLOAT3 rotation = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 		void AddObject3dToList( AssetID assetId, DirectX::XMFLOAT4X4 world );
-		void AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLeftCorner, DirectX::XMFLOAT2 widthHeight );
+		void AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLeftCorner, DirectX::XMFLOAT2 widthHeight, DirectX::XMFLOAT4 color = DirectX::XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		void AddBoxToList( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max );
 		bool AddAnim3dToList( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), DirectX::XMFLOAT3 rotation = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 		void AddPlaneToList( AssetID assetId, DirectX::XMFLOAT3 topTriangle, DirectX::XMFLOAT3 bottomTriangle );
@@ -50,6 +50,7 @@ class RenderManager
 		void AnimationInitialize( AnimationTrack &animationTrack, AssetID model, AssetID defaultAnimation );
 		void AnimationUpdate( AnimationTrack &animationTrack, float deltaTime );
 		void AnimationStartNew( AnimationTrack &animationTrack, AssetID newAnimation );
+		void AnimationReset( AnimationTrack &animationTrack, AssetID defaultAnimation );
 
 		HRESULT Update( float deltaTime );	//Currently clearing the arrays to standard values and reseting number of active objects variable for them in update
 		HRESULT Render();	

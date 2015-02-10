@@ -9,29 +9,59 @@ void JoinMenuState::HandleInput()
 	}
 	else if( mButtons.at(JOIN)->LeftMousePressed() )
 	{
-		std::string ip		= mIPBox.GetText();
-		std::string port	= mPortBox.GetText();
+		std::string ip			= mIPBox.GetText();
+		std::string port		= mPortBox.GetText();
 
-		IEventPtr E1( new Event_Start_Client( ip, port ) );
+		std::stringstream sstr;
+		sstr << port << " ";
+		UINT iPort;
+		sstr >> iPort;
+		 
+		IEventPtr E1( new Event_Start_Client( ip, iPort ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
+
+		IEventPtr E2( new Event_Create_Player_Name( mNameBox.GetText() ) );
+		EventManager::GetInstance()->QueueEvent( E2 );
+
+		IEventPtr E3( new Event_Change_State( PLAY_STATE ) );
+		EventManager::GetInstance()->QueueEvent( E3 );
 	}
 	else if( mButtons.at(MIKAEL)->LeftMousePressed() )
 	{
 		std::string ip		= "192.168.1.88";
 		std::string port	= mPortBox.GetText();
 
-		IEventPtr E1( new Event_Start_Client( ip, port ) );
+		std::stringstream sstr;
+		sstr << port << " ";
+		UINT iPort;
+		sstr >> iPort;
+
+		IEventPtr E1( new Event_Start_Client( ip, iPort ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
+
+		IEventPtr E2( new Event_Create_Player_Name( mNameBox.GetText() ) );
+		EventManager::GetInstance()->QueueEvent( E2 );
+
+		IEventPtr E3( new Event_Change_State( PLAY_STATE ) );
+		EventManager::GetInstance()->QueueEvent( E3 );
 	}
 	else if( mIPBox.LeftMousePressed() )
 	{
 		mIPBox.SwitchActive( true );
 		mPortBox.SwitchActive( false );
+		mNameBox.SwitchActive( false );
 	}
 	else if( mPortBox.LeftMousePressed() )
 	{
 		mIPBox.SwitchActive( false );
 		mPortBox.SwitchActive( true );
+		mNameBox.SwitchActive( false );
+	}
+	else if( mNameBox.LeftMousePressed() )
+	{
+		mIPBox.SwitchActive( false );
+		mPortBox.SwitchActive( false );
+		mNameBox.SwitchActive( true );
 	}
 }
 
@@ -44,6 +74,7 @@ HRESULT JoinMenuState::Update( float deltaTime )
 	}
 	mIPBox.Update( deltaTime );
 	mPortBox.Update( deltaTime );
+	mNameBox.Update( deltaTime );
 
 	return S_OK;
 }
@@ -57,6 +88,7 @@ HRESULT JoinMenuState::Render()
 	}
 	mIPBox.Render();
 	mPortBox.Render();
+	mNameBox.Render();
 
 	RenderManager::GetInstance()->Render();
 	return S_OK;
@@ -86,6 +118,8 @@ void JoinMenuState::Reset()
 	x += w + 20;
 
 	mPortBox.Initialize( "27015", "Port", x, y, w, h );
+
+	mNameBox.Initialize( "mudkipfucker", "IP", Input::GetInstance()->mScreenWidth * 0.5f - (640.0f * 0.5f) * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + (177.0f * 0.5f) *0.5f, 640.0f * 0.5f, 177.0f * 0.5f );
 }
 
 HRESULT JoinMenuState::Initialize()
@@ -126,6 +160,8 @@ HRESULT JoinMenuState::Initialize()
 
 	mPortBox.Initialize( "27015", "Port", x, y, w, h );
 
+	mNameBox.Initialize( "mudkipfucker", "IP", Input::GetInstance()->mScreenWidth * 0.5f - (640.0f * 0.5f) * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + (177.0f * 0.5f) *0.5f, 640.0f * 0.5f, 177.0f * 0.5f );
+
 	return S_OK;
 }
 
@@ -134,6 +170,7 @@ void JoinMenuState::Release()
 	BaseMenuState::Release();
 	mIPBox.Release();
 	mPortBox.Release();
+	mNameBox.Release();
 }
 
 JoinMenuState::JoinMenuState() : BaseMenuState()

@@ -11,6 +11,11 @@ struct CbufferPerObject
 	DirectX::XMMATRIX worldMatrix;
 };
 
+struct CbufferPerObject2D
+{
+	DirectX::XMFLOAT4 color;
+};
+
 struct CbufferPerObjectAnimated
 {
 	DirectX::XMMATRIX boneTransforms[NUM_SUPPORTED_JOINTS];

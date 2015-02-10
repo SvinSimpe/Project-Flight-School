@@ -26,7 +26,6 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Remote_Attack> data = std::static_pointer_cast<Event_Remote_Attack>( newEvent );
 		if( mID == data->ID() )
 		{
-			OutputDebugStringA( "Remote attacked\n" );
 			if( data->ArmID() == LEFT_ARM_ID )
 			{
 				RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, data->Animation() );

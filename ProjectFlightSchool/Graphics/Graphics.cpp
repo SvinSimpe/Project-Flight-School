@@ -1548,7 +1548,7 @@ void Graphics::DeferredPass()
 	mDeviceContext->RSSetViewports( 1, &mStandardView );
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
 	
-	for( int i = 0; i < NUM_GBUFFERS; i++)
+	for( int i = 0; i < NUM_GBUFFERS; i++ )
 		mDeviceContext->PSSetShaderResources( i, 1, &mGbuffers[i]->mShaderResourceView );
 
 	mDeviceContext->PSSetShaderResources( 4, 1, &mShadowMapSRV );

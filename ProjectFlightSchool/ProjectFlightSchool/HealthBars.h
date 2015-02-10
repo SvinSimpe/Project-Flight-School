@@ -37,13 +37,25 @@ class HealthBar
 		AssetID					mAllyHealthFrame;
 		DirectX::XMFLOAT2		mSizeAllyHealthFrame;
 
+		AssetID					mShipHealth;
+		XMFLOAT2				mSizeShipHealth;
+		float					mSizeShipHealthTop;
+		float					mSpaceShipHealth;
+		XMFLOAT2				mStartShipHealth;
+		XMFLOAT2				mEndShipHealth;
+
+		AssetID					mShipHealthBar;
+		XMFLOAT2				mSizeShipHealthBar;
+
+		DirectX::XMFLOAT2		mShipHealthOffset;
+
 	protected:
 	public:
 
 	private:
 	protected:
 	public:
-		HRESULT	Update( int nrOfAllies, float alliesHP[], float playerHP, float playerShield, float playerXp, float shipHP );
+		HRESULT	Update( int nrOfAllies, float alliesHP[], float shipHP );
 		HRESULT	Render();
 		HRESULT	Initialize();
 		void	Release();

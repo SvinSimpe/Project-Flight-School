@@ -253,6 +253,14 @@ void Server::StartUp( IEventPtr eventPtr )
 	{
 		std::shared_ptr<Event_Start_Server> data = std::static_pointer_cast<Event_Start_Server>( eventPtr );
 		UINT port = data->Port();
+		if( mActive )
+		{
+			mSocketManager->Release();
+			mClientMap.clear();
+			mTeamDelegate	= 1;
+			mCurrentPID		= 0;
+			mActive			= false;
+		}
 		if( Connect( port ) )
 		{
 			IEventPtr E1( new Event_Initialize_Success () );
@@ -304,7 +312,8 @@ UINT Server::CurrentPID()
 
 bool Server::Connect( UINT port )
 {
-	mSocketManager = new SocketManager();
+	if( !mSocketManager )
+		mSocketManager = new SocketManager();
 	if( !mSocketManager->Initialize() )
 	{
 		return false;
@@ -359,6 +368,9 @@ void Server::Release()
 	mSocketManager->Release();
 	SAFE_DELETE( mSocketManager );
 	mClientMap.clear();
+	mTeamDelegate	= 1;
+	mCurrentPID		= 0;
+	mActive			= false;
 }
 
 Server::Server() : Network()

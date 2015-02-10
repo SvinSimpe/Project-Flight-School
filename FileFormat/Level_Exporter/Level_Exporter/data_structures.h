@@ -12,6 +12,15 @@ struct Vertex
 	float Normals[3];
 };
 
+struct VolumeLight
+{
+	char name[32];
+	float position[3];
+	float color[3];
+	float intensity;
+	float range;
+};
+
 struct NavVertex
 {
 	float Position[3];

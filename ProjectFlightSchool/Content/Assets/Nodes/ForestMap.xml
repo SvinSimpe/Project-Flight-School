@@ -1,10 +1,12 @@
 <?xml version="1.0" standalone="no" ?>
 <Level>
     <Nodes>
+	    <Node path="../Content/Assets/Nodes/tileLake1.lp" type="AREA_NODE" />
+	    <Node path="../Content/Assets/Nodes/tileBossNestArena.lp" type="AREA_NODE" />
         <Node path="../Content/Assets/Nodes/ShipTile.lp" type="AREA_NODE" />
+		<Node path="../Content/Assets/Nodes/tileForestandStones.lp" type="AREA_NODE" />
         <Node path="../Content/Assets/Nodes/tileALargePuddle.lp" type="AREA_NODE" />
         <Node path="../Content/Assets/Nodes/tileBossNestBoneArena.lp" type="AREA_NODE" />
-        <Node path="../Content/Assets/Nodes/tileBossNestStoneArena.lp" type="AREA_NODE" />
         <Node path="../Content/Assets/Nodes/tileforest.lp" type="AREA_NODE" />
         <Node path="../Content/Assets/Nodes/tileforest2.lp" type="AREA_NODE" />
         <Node path="../Content/Assets/Nodes/tileforest3.lp" type="AREA_NODE" />
@@ -13,7 +15,6 @@
         <Node path="../Content/Assets/Nodes/tilegiantbonesntrees.lp" type="AREA_NODE" />
         <Node path="../Content/Assets/Nodes/tileglade.lp" type="AREA_NODE" />
         <Node path="../Content/Assets/Nodes/tilegrassshroom.lp" type="AREA_NODE" />
-        <Node path="../Content/Assets/Nodes/tileLake1.lp" type="AREA_NODE" />
         <Node path="../Content/Assets/Nodes/tileLake2.lp" type="AREA_NODE" />
         <Node path="../Content/Assets/Nodes/tileMediumForest.lp" type="AREA_NODE" />
         <Node path="../Content/Assets/Nodes/tileMushroomForest.lp" type="AREA_NODE" />

@@ -1,8 +1,8 @@
 #ifndef REMOTEPLAYER_H
 #define REMOTEPLAYER_H
 
+#include "Input.h"
 #include "Graphics.h"
-#include "EventManager.h"
 #include "Events.h"
 #include "BoundingGeometry.h"
 #include "RenderManager.h"
@@ -112,20 +112,12 @@ class RemotePlayer
 		bool			mLeftArmAnimationCompleted;
 		bool			mRightArmAnimationCompleted;
 
-		//Temporary information
-		AssetID			mGreenHPAsset;
-		AssetID			mRedHPAsset;
-		AssetID			mOrangeHPAsset;
-		AssetID			mTeamAsset;
-		AssetID			mColorIDAsset;
-
 	public:
 
 	// Member functions
 	private:
 		HRESULT			InitializeGraphics();
 		void			EventListener( IEventPtr newEvent );
-
 	protected:
 
 	public:
@@ -137,7 +129,7 @@ class RemotePlayer
 		virtual HRESULT	Update( float deltaTime );
 		virtual HRESULT	Render( int position );
 		virtual HRESULT	Initialize();
-		void			RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID );
+		void			RemoteInit( unsigned int id, int team );
 		void			Release();
 						RemotePlayer();
 		virtual			~RemotePlayer();
@@ -160,6 +152,5 @@ class RemotePlayer
 		void			SetHP( float hp );
 		void			SetName( std::string name );
 };
-
 #endif
 

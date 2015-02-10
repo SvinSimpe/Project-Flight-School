@@ -17,7 +17,7 @@ void Map::OnLoadLevel( IEventPtr pEvent )
 	{
 		std::shared_ptr<Event_Load_Level> dataPtr = std::static_pointer_cast<Event_Load_Level>( pEvent );
 
-		MapNodeManager::GetInstance()->LoadLevel( dataPtr->GetFileName() );
+		MapNodeManager::GetInstance()->LoadLevel( dataPtr->FilePath() );
 
 		MapNodePlacer::GetInstance()->Reset();
 

@@ -44,6 +44,70 @@
 #include <map>
 #include <Windows.h>
 
+namespace EF
+{
+	template<class SubClass>
+	IEvent* GenericEventCreationFunction(void) { return new SubClass; }
+
+	class EventFactory
+	{
+		private:
+			typedef IEvent* (*EventCreationFunction)(void);
+			std::map<EventType, EventCreationFunction> mEvents;
+			static EventFactory* mInstance;
+		protected:
+		public:
+
+		private:
+		protected:
+		public:
+			template<class SubClass>
+			bool Register( EventType id )
+			{
+				auto findIt = mEvents.find( id );
+				if( findIt == mEvents.end() )
+				{
+					mEvents[id] = &GenericEventCreationFunction<SubClass>;
+					return true;
+				}
+				return false;
+			}
+
+		private:
+		protected:
+		public:
+			static EventFactory* GetInstance()
+			{
+				if( !mInstance )
+				{
+					mInstance = new EventFactory();
+				}
+				return mInstance;
+			}
+			IEvent* Create( EventType id )
+			{
+				auto findIt = mEvents.find( id );
+				if( findIt != mEvents.end() )
+				{
+					EventCreationFunction obj = findIt->second;
+					return obj();
+				}
+				return nullptr;
+			}
+			void Release()
+			{
+				if( mInstance )
+					delete mInstance;
+			}
+			~EventFactory()
+			{
+			}
+	};
+}
+
+#define REGISTER_EVENT( eventClass ) EventFactory::GetInstance()->Register<eventClass>(eventClass::GUID)
+#define CREATE_EVENT( eventType ) EventFactory::GetInstance()->Create(eventType)
+
 const unsigned int EVENTMANAGER_NUM_QUEUES = 2;
 
 class EventManager : public IEventManager
@@ -58,9 +122,6 @@ class EventManager : public IEventManager
 	int m_activeQueue;  // index of actively processing queue; events enque to the opposing queue
 
 	public:
-		static EventManager* instance;
-
-		explicit EventManager();
 		virtual void Release();
 		virtual ~EventManager();
 
@@ -92,6 +153,8 @@ class EventManager : public IEventManager
 		static EventManager* GetInstance();
 
 	private:
+		static EventManager* mInstance;
+		explicit EventManager();
 		virtual bool AddListener( const EventListenerDelegate& eventDelegate, const EventType& type );
 		virtual bool RemoveListener( const EventListenerDelegate& eventDelegate, const EventType& type );
 };

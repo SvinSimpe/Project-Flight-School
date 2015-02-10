@@ -40,17 +40,20 @@
 #include <functional>
 #include <strstream>
 #include <memory>
+#include <sstream>
+#include <map>
+
 //---------------------------------------------------------------------------------------------------------------------
 // Forward declaration & typedefs
 //---------------------------------------------------------------------------------------------------------------------
 class IEvent;
 
 typedef unsigned long EventType;
-typedef std::shared_ptr< IEvent > IEventPtr;
+typedef std::shared_ptr<IEvent> IEventPtr;
 typedef std::function<void( IEventPtr )> EventListenerDelegate;
 
 //---------------------------------------------------------------------------------------------------------------------
-// IEventData                               - Chapter 11, page 310
+// IEvent                               - Chapter 11, page 310
 // Base type for event object hierarchy, may be used itself for simplest event notifications such as those that do 
 // not carry additional payload data. If any event needs to propagate with payload data it must be defined separately.
 //---------------------------------------------------------------------------------------------------------------------
@@ -58,7 +61,10 @@ class IEvent
 {
 	public:
 		virtual ~IEvent( void ) {}
-		virtual const EventType& GetEventType( void ) const = 0;
+		virtual const EventType& GetEventType() const			= 0;
+		virtual void Serialize( std::ostringstream& out ) const	= 0;
+		virtual void Deserialize( std::istringstream& in  )		= 0;
+		virtual IEventPtr Copy() const							= 0;
 };
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -84,7 +90,6 @@ public:
 
 	// returns true if all messages ready for processing were completed, false otherwise (e.g. timeout )
 	virtual bool Update( unsigned long maxMillis = kINFINITE ) = 0;
-
 
     // Registers a delegate function that will get called when the event type is triggered.  Returns true if 
     // successful, false if not.
@@ -118,8 +123,6 @@ public:
 
 	explicit IEventManager();
 	virtual ~IEventManager( void );
-
-
 };
 
 #endif

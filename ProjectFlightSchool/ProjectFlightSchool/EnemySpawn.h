@@ -2,7 +2,6 @@
 #define ENEMYSPAWN_H
 
 #include "Graphics.h"
-#include "EventManager.h"
 #include "Events.h"
 #include "RenderManager.h"
 

@@ -228,7 +228,7 @@ HRESULT Gui::Initialize()
 	{
 		return result;
 	}
-	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/playerHealth+XP.dds", mPlayerBar );
+	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/playerHealth+XP2.dds", mPlayerBar );
 	if( FAILED( result ) )
 	{
 		return result;

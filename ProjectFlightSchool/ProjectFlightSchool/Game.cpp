@@ -66,7 +66,8 @@ void Game::Release()
 
 	mStateMachine->Release();
 	SAFE_DELETE( mStateMachine );
-	mServer->Release();
+	if( mServer )
+		mServer->Release();
 	SAFE_DELETE( mServer );
 }
 
@@ -77,5 +78,4 @@ Game::Game()
 
 Game::~Game()
 {
-	printf("Destructor for %s\n", __FILE__);
 }

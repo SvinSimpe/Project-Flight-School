@@ -68,7 +68,6 @@ void Client::Shutdown( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Shutdown_Client::GUID && mActive)
 	{
-		printf("Received shutdown event.\n");
 		if( mSocketManager )
 			mSocketManager->Release();
 		SAFE_DELETE( mSocketManager );

@@ -17,9 +17,6 @@ void Server::ClientJoined( IEventPtr eventPtr )
 		// Sends necessary information of the newly connected client to the newly connected client
 		IEventPtr E1( new Event_Local_Joined( id, teamID ) );
 		SendEvent( E1, id );
-		//SendEnemies( id );
-
-		printf("Created client with ID: %d\n", id);
 
 		// Sends the incoming ID to the existing remotes
 		IEventPtr E2( new Event_Remote_Joined( id, teamID ) ); 
@@ -327,6 +324,9 @@ bool Server::Connect( UINT port )
 
 void Server::Shutdown()
 {
+	if( mSocketManager )
+		mSocketManager->Release();
+	SAFE_DELETE( mSocketManager );
 	mClientMap.clear();
 	mTeamDelegate	= 1;
 	mCurrentPID		= 0;

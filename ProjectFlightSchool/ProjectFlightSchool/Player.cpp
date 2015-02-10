@@ -503,8 +503,6 @@ HRESULT Player::Render( float deltaTime, int position )
 		{
 			textToWrite = "NINE";
 		}
-		
-
 
 		mFont.WriteText( textToWrite, 500.0f, 500.0f, 7.8f );
 	}

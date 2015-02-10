@@ -101,6 +101,7 @@ HRESULT CreateMenuState::Initialize()
 void CreateMenuState::Release()
 {
 	BaseMenuState::Release();
+	mNameBox.Release();
 }
 
 CreateMenuState::CreateMenuState() : BaseMenuState()

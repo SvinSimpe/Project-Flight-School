@@ -85,7 +85,7 @@ class Player: public RemotePlayer
 		void		SetPosition( XMVECTOR position );
 
 		std::list<IEventPtr> GetEvents();
-		void		PopEvent();
+		void		ClearEventList();
 };
 #endif
 

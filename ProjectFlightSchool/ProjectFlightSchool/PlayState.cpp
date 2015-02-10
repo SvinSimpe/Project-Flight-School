@@ -14,9 +14,6 @@ void PlayState::EventListener( IEventPtr newEvent )
 			mPlayer->SetID( data->ID() );
 			mPlayer->SetTeam( data->TeamID() );
 
-			printf("My assigned ID is: %d\n", mPlayer->GetID());
-		
-			mCurrentColor++;
 			//TestSound
 			SoundBufferHandler::GetInstance()->Play( mSoundAsset );
 		}
@@ -27,10 +24,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Remote_Joined> data = std::static_pointer_cast<Event_Remote_Joined>( newEvent );
 		mRemotePlayers.push_back( new RemotePlayer() );
 		mRemotePlayers.at(mRemotePlayers.size() - 1)->Initialize();
-		mRemotePlayers.at(mRemotePlayers.size() - 1)->RemoteInit( data->ID(), data->TeamID(), mTeams[data->TeamID()], mColorIDs[mCurrentColor] );
-		mCurrentColor++;
-		printf("Remote with ID: %d connected. Number of remotes online: %d\n", mRemotePlayers.back()->GetID(), mRemotePlayers.size());
-		//printf( "Number of other players online: %d.\n", mRemotePlayers.size() );
+		mRemotePlayers.at(mRemotePlayers.size() - 1)->RemoteInit( data->ID(), data->TeamID() );
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Left::GUID ) // Remove a remote player from the list when they disconnect
 	{
@@ -49,7 +43,6 @@ void PlayState::EventListener( IEventPtr newEvent )
 				break;
 			}
 		}
-		printf( "Number of other players online: %d.\n", mRemotePlayers.size() );
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Damaged::GUID )
 	{
@@ -99,23 +92,6 @@ void PlayState::EventListener( IEventPtr newEvent )
 	}
 }
 
-void PlayState::SetEnemyState( unsigned int id, EnemyState state )
-{
-	if( state == Death )
-	{
-		mEnemies[id]->SetLoopAnimation( false );
-		mEnemies[id]->SetIsAlive( false );
-
-	}
-	else
-	{
-		mEnemies[id]->SetLoopAnimation( true );
-		mEnemies[id]->SetIsAlive( true );
-	}
-
-	mEnemies[id]->SetAnimation( mEnemyAnimationManager->GetAnimation( mEnemies[id]->GetEnemyType(), state ) );
-}
-
 void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction )
 {
 	mEnemyListSynced = false;
@@ -131,28 +107,15 @@ void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XM
 		mEnemyListSynced = true;
 }
 
-void PlayState::UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive )
-{
-	mEnemies[id]->SetPosition( position );
-	mEnemies[id]->SetDirection( direction );
-	mEnemies[id]->SetIsAlive( isAlive );
-}
-
 void PlayState::SyncSpawn( unsigned int id, XMFLOAT3 position )
 {
 	mSpawners[id] = position;
 }
 
 // Tell server that local  player has taken damage
-void PlayState::BroadcastDamage( unsigned int playerID, unsigned int projectileID )
+void PlayState::BroadcastProjectileDamage( unsigned int playerID, unsigned int projectileID )
 {
 	IEventPtr E1( new Event_Client_Damaged( playerID, projectileID ) );
-	Client::GetInstance()->QueueEvent( E1 );
-}
-
-void PlayState::BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage )
-{
-	IEventPtr E1( new Event_Client_Projectile_Damage_Enemy( shooterID, projectileID, enemyID, damage ) );
 	Client::GetInstance()->QueueEvent( E1 );
 }
 
@@ -162,55 +125,16 @@ void PlayState::BroadcastMeleeDamage( unsigned playerID, float damage, float kno
 	Client::GetInstance()->QueueEvent( E1 );
 }
 
+void PlayState::BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage )
+{
+	IEventPtr E1( new Event_Client_Projectile_Damage_Enemy( shooterID, projectileID, enemyID, damage ) );
+	Client::GetInstance()->QueueEvent( E1 );
+}
+
 void PlayState::BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float knockBack, XMFLOAT3 direction )
 {
 	IEventPtr E1( new Event_Client_Enemy_Attack( mPlayer->GetID(), enemyID, damage, knockBack, direction, mPlayer->GetLoadOut()->meleeWeapon->stun ) );
 	Client::GetInstance()->QueueEvent( E1 );
-}
-
-void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction )
-{
-	mNrOfProjectilesFired = mNrOfProjectilesFired % MAX_PROJECTILES;
-	mProjectiles[mNrOfProjectilesFired]->SetDirection( id, projectileID, position, direction );
-	//mProjectiles[mNrOfProjectilesFired % MAX_PROJECTILES]->SetIsActive( true );
-	mNrOfProjectilesFired++;
-}
-
-void PlayState::UpdateProjectiles( float deltaTime )
-{
-	if( mNrOfProjectilesFired != 0 )
-	{
-		for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
-		{
-			if( mProjectiles[i]->IsActive() )
-				mProjectiles[i]->Update( deltaTime );
-		}
-	}
-}
-
-void PlayState::RenderProjectiles()
-{
-  	if( mNrOfProjectilesFired != 0 )
-	{
-		for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
-		{
-			if( mProjectiles[i]->IsActive() )
-				mProjectiles[i]->Render();
-		}
-	}
-}
-
-void PlayState::HandleDeveloperCameraInput()
-{
-	// TOGGLE CAM
-	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_RCTRL ) )
-		Graphics::GetInstance()->ChangeCamera();
-	// ZOOM IN
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_DOWN ) )
-		Graphics::GetInstance()->ZoomOutDeveloperCamera();
-	// ZOOM OUT
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_UP) )
-		Graphics::GetInstance()->ZoomInDeveloperCamera();
 }
 
 void PlayState::CheckPlayerCollision()
@@ -254,7 +178,7 @@ void PlayState::CheckProjectileCollision()
 			{
 				if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() && mProjectiles[i]->GetBoundingCircle()->Intersect( mRemotePlayers[j]->GetBoundingCircle() ) )
 				{
-					BroadcastDamage( mRemotePlayers[j]->GetID(), mProjectiles[i]->GetID() );
+					BroadcastProjectileDamage( mRemotePlayers[j]->GetID(), mProjectiles[i]->GetID() );
 					return;
 				}
 			}
@@ -264,7 +188,7 @@ void PlayState::CheckProjectileCollision()
 			{
 				if( mEnemies[j]->IsAlive() )
 				{
-					if( mProjectiles[i]->GetBoundingCircle()->Intersect( mEnemies[j]->GetBoundingCircle() ) )
+					if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() && mProjectiles[i]->GetBoundingCircle()->Intersect( mEnemies[j]->GetBoundingCircle() ) )
 					{
 						// hit
 						BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mPlayer->GetLoadOut()->rangedWeapon->damage );
@@ -330,6 +254,19 @@ void PlayState::CheckMeeleCollision()
 	}
 }
 
+void PlayState::HandleDeveloperCameraInput()
+{
+	// TOGGLE CAM
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_RCTRL ) )
+		Graphics::GetInstance()->ChangeCamera();
+	// ZOOM IN
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_DOWN ) )
+		Graphics::GetInstance()->ZoomOutDeveloperCamera();
+	// ZOOM OUT
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_UP) )
+		Graphics::GetInstance()->ZoomInDeveloperCamera();
+}
+
 void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID )
 {
 	unsigned int shooter = 0;
@@ -356,6 +293,61 @@ void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int project
 			}
 		}
 	}
+}
+
+void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction )
+{
+	mNrOfProjectilesFired = mNrOfProjectilesFired % MAX_PROJECTILES;
+	mProjectiles[mNrOfProjectilesFired]->SetDirection( id, projectileID, position, direction );
+	mNrOfProjectilesFired++;
+}
+
+void PlayState::UpdateProjectiles( float deltaTime )
+{
+	if( mNrOfProjectilesFired != 0 )
+	{
+		for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
+		{
+			if( mProjectiles[i]->IsActive() )
+				mProjectiles[i]->Update( deltaTime );
+		}
+	}
+}
+
+void PlayState::UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive )
+{
+	mEnemies[id]->SetPosition( position );
+	mEnemies[id]->SetDirection( direction );
+	mEnemies[id]->SetIsAlive( isAlive );
+}
+
+void PlayState::RenderProjectiles()
+{
+  	if( mNrOfProjectilesFired != 0 )
+	{
+		for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
+		{
+			if( mProjectiles[i]->IsActive() )
+				mProjectiles[i]->Render();
+		}
+	}
+}
+
+void PlayState::SetEnemyState( unsigned int id, EnemyState state )
+{
+	if( state == Death )
+	{
+		mEnemies[id]->SetLoopAnimation( false );
+		mEnemies[id]->SetIsAlive( false );
+
+	}
+	else
+	{
+		mEnemies[id]->SetLoopAnimation( true );
+		mEnemies[id]->SetIsAlive( true );
+	}
+
+	mEnemies[id]->SetAnimation( mEnemyAnimationManager->GetAnimation( mEnemies[id]->GetEnemyType(), state ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -483,10 +475,8 @@ HRESULT PlayState::Render()
 	mGui->Render( nrOfAllies, alliesHP, (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)1 ); //Should be changed to shield and Xp
 
 	//RENDER DEVTEXT
-	std::stringstream ss;
-	ss	<< "RemotePlayers\t" << mRemotePlayers.size() << "\n"
-		<< "ProjectilesFired\t" << mNrOfProjectilesFired << "\n";
-	mFont.WriteText( ss.str(), 40.0f, 200.0f, 2.0f );
+	std::string textToWrite = "RemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nProjectilesFired\t" + std::to_string( mNrOfProjectilesFired );
+	mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
 
 	RenderManager::GetInstance()->Render();
 
@@ -515,27 +505,14 @@ HRESULT PlayState::Initialize()
 {
 	mStateType = PLAY_STATE;
 
-//	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Tree/", "tree5.pfs", mTestAsset );
-
-	AssetID model	= 0;
-	AssetID loader	= 0;
+	//AssetID model	= 0;
+	//AssetID loader	= 0;
 
 	/*Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurSkel.Skel", loader );
 	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/Enemies/Blowuposaur/", "blowuposaur.apfs", loader, model );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurIdle.PaMan", loader );*/
 
 	//RenderManager::GetInstance()->AnimationInitialize( mTestAnimation, model, loader );
-
-	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/burger.png", mTest2dAsset );
-	std::string colorIDFileNames[MAX_REMOTE_PLAYERS] = { "../Content/Assets/Textures/FunnyCircles/BlueID.png", "../Content/Assets/Textures/FunnyCircles/CoralID.png", "../Content/Assets/Textures/FunnyCircles/DarkBlueID.png", "../Content/Assets/Textures/FunnyCircles/DarkGreenID.png", "../Content/Assets/Textures/FunnyCircles/DarkPurpleID.png", "../Content/Assets/Textures/FunnyCircles/GreenID.png", "../Content/Assets/Textures/FunnyCircles/GreyID.png", "../Content/Assets/Textures/FunnyCircles/LightBlueID.png", "../Content/Assets/Textures/FunnyCircles/LightGreenID.png", "../Content/Assets/Textures/FunnyCircles/LightPurpleID.png","../Content/Assets/Textures/FunnyCircles/OrangeID.png", "../Content/Assets/Textures/FunnyCircles/PinkID.png", "../Content/Assets/Textures/FunnyCircles/ScreamBlueID.png", "../Content/Assets/Textures/FunnyCircles/YellowID.png" };
-
-	for( int i=0; i<MAX_REMOTE_PLAYERS; i++ )
-	{
-		Graphics::GetInstance()->LoadStatic2dAsset( colorIDFileNames[i], mColorIDs[i] );
-	}
-
-	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/FunnyCircles/WhiteTeam.png", mTeams[0] );
-	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/FunnyCircles/BlackTeam.png", mTeams[1] );
 
 	mPlayer = new Player();
 	mPlayer->Initialize();
@@ -545,9 +522,6 @@ HRESULT PlayState::Initialize()
 
 	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/ForestMap.xml")); 
 	EventManager::GetInstance()->TriggerEvent( E1 );
-
-	//mMapNodeMan = new MapNodeManager();
-	//mMapNodeMan->Initialize( "../Content/Assets/Nodes/gridtest2.lp"  );
 
 	//Fill up on Projectiles, test values
 	mProjectiles	= new Projectile*[MAX_PROJECTILES];
@@ -648,13 +622,13 @@ PlayState::PlayState()
 	mRemotePlayers			= std::vector<RemotePlayer*>( 0 );
 	mRemotePlayers.reserve(MAX_REMOTE_PLAYERS);
 	mEnemyAnimationManager	= nullptr;
-	mFrameCounter		= 0;
-	mProjectiles		= nullptr;
-	mEnemies			= nullptr;
-	mEnemyListSynced	= false;
-	mServerInitialized  = false;
-	mParticleManager	= nullptr;
-	mGui				= nullptr;
+	mFrameCounter			= 0;
+	mProjectiles			= nullptr;
+	mEnemies				= nullptr;
+	mEnemyListSynced		= false;
+	mServerInitialized		= false;
+	mParticleManager		= nullptr;
+	mGui					= nullptr;
 }
 
 PlayState::~PlayState()

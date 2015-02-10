@@ -223,19 +223,6 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device, ID3D11DeviceConte
 	return hr;
 }
 
-//Loads a texture from file, the filename can be expressed as a string put with L prefix e.g L"Hello World", texture and SRV are both optional, size = Maximum size of buffer.
-//HRESULT AssetManager::LoadTextureFromFile ( ID3D11Device* device, ID3D11DeviceContext* dc, const wchar_t* fileName, ID3D11Resource** texture, ID3D11ShaderResourceView** srv, size_t size )
-//{
-//	HRESULT hr = S_OK;
-//	hr = CreateWICTextureFromFile( device, dc, fileName, texture, srv, size );
-//	return hr;
-//}
-
-//std::wstring AssetManager::StringToWstring( std::string fileName )
-//{
-//	return std::wstring( fileName.begin(), fileName.end() );
-//}
-
 HRESULT AssetManager::CreateSRVAssets( ID3D11Device* device, ID3D11DeviceContext* dc, std::string filePath, MeshInfo &meshInfo, AssetID &assetId )
 {
 	//Creating SRVs from the different texture maps in the mesh info.
@@ -476,68 +463,6 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceConte
 	}
 }
 
-HRESULT	AssetManager::LoadStatic3dAssetIndexed( ID3D11Device* device, Indexed3DAssetInfo &info, AssetID &assetId )
-{
-	HRESULT hr = S_OK;
-	
-//If true return to caller because the asset already exist.
-	if( AssetExist( info.assetName, assetId ) )
-	{
-		return hr;
-	}
-	else
-	{
-		UINT vertexSize = sizeof( StaticVertex );
-
-		AssignAssetId( assetId );
-		
-		D3D11_BUFFER_DESC bufferDesc;
-		ZeroMemory( &bufferDesc, sizeof( bufferDesc ) );
-		bufferDesc.BindFlags	= D3D11_BIND_VERTEX_BUFFER;
-		bufferDesc.ByteWidth	= sizeof( StaticVertex ) * info.vertexCount;
-		bufferDesc.Usage		= D3D11_USAGE_DEFAULT;
-
-		D3D11_BUFFER_DESC iBufferDesc;
-		ZeroMemory( &iBufferDesc, sizeof( iBufferDesc ) );
-		iBufferDesc.BindFlags	= D3D11_BIND_INDEX_BUFFER;
-		iBufferDesc.ByteWidth	= sizeof( UINT ) * info.indexCount;
-		iBufferDesc.Usage		= D3D11_USAGE_DEFAULT;
-
-		Static3dAssetIndexed *temp = new Static3dAssetIndexed();
-		temp->mAssetId		= assetId;
-		temp->mFileName		= info.assetName;
-		temp->mIndexCount	= info.indexCount;
-
-		Mesh tempMesh;
-		tempMesh.mVertexCount = info.vertexCount;
-		for( int i = 0; i < 3; i++ )
-			tempMesh.mTextures[i] = 2;
-
-		D3D11_SUBRESOURCE_DATA pData;
-		pData.pSysMem			= info.vertices;
-		
-		hr = device->CreateBuffer( &bufferDesc, &pData, &tempMesh.mVertexBuffer );
-		if( FAILED( hr ) )
-		{
-			return hr;
-		}
-
-		pData.pSysMem			= info.indices;
-		
-		hr = device->CreateBuffer( &iBufferDesc, &pData, &temp->mIndexBuffer );
-		if( FAILED( hr ) )
-		{
-			return hr;
-		}
-
-		mAssetContainer.push_back( temp );
-
-		temp = nullptr;
-
-		return hr;
-	}
-}
-
 HRESULT	AssetManager::LoadAnimated3dAsset( ID3D11Device* device, ID3D11DeviceContext* dc, std::string filePath, std::string fileName, AssetID skeletonId, AssetID &assetId )
 {
 	HRESULT hr = S_OK;
@@ -673,8 +598,6 @@ HRESULT	AssetManager::LoadSkeletonAsset( string filePath, string fileName, Asset
 			file.read( memblock, size );
 			file.close();
 
-			//std::cout << "File read" << std::endl;
-
 			AssignAssetId( assetId );
 			tempSkel			= new SkeletonAsset();
 			tempSkel->mAssetId	= assetId;
@@ -808,7 +731,6 @@ HRESULT	AssetManager::LoadAnimationAsset( string filePath, string fileName, Asse
 
 		//this is how the final code should look!
 		file.open( filePath + fileName, ios::in | ios::binary | ios::ate );
-		//AnimationData tempAnim;
 
 		if( file.is_open() )
 		{
@@ -817,8 +739,6 @@ HRESULT	AssetManager::LoadAnimationAsset( string filePath, string fileName, Asse
 			file.seekg( 0, ios::beg );
 			file.read( memblock, size );
 			file.close();
-
-			//std::cout << "File read" << std::endl;
 
 			AssignAssetId( assetId );
 			tempAnim			= new AnimationAsset();
@@ -972,21 +892,7 @@ void AssetManager::Release()
 	delete mResourceLoader;
 	for( UINT i = 0; i < mAssetContainer.size(); i++ )
 	{
-		mAssetContainer[i]->Release();
-		//if( typeid( *mAssetContainer[i] ) == typeid( Static3dAsset ) )
-		//	( (Static3dAsset*)mAssetContainer[i] )->Release();
-		//else if( typeid( *mAssetContainer[i] ) == typeid( Static3dAssetIndexed ) )
-		//	( (Static3dAssetIndexed*)mAssetContainer[i] )->Release();
-		//else if( typeid( *mAssetContainer[i] ) == typeid( Animated3dAsset ) )
-		//	( (Animated3dAsset*)mAssetContainer[i] )->Release();
-		//else if( typeid( *mAssetContainer[i] ) == typeid( SkeletonAsset ) )
-		//	( (SkeletonAsset*)mAssetContainer[i] )->Release();
-		//else if( typeid( *mAssetContainer[i] ) == typeid( AnimationAsset ) )
-		//	( (AnimationAsset*)mAssetContainer[i] )->Release();
-		//else if( typeid( *mAssetContainer[i] ) == typeid( Static2dAsset ) )
-		//	( (Static2dAsset*)mAssetContainer[i] )->Release();
-
-		SAFE_DELETE( mAssetContainer[i] );
+		SAFE_RELEASE_DELETE( mAssetContainer[i] );
 	}
 	mAssetContainer.clear();
 }

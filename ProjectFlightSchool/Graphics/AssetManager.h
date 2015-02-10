@@ -9,12 +9,9 @@
 #include "AnimationAsset.h"
 #include "Vertex.h"
 #include "ResourceLoader.h"
-//#include "ImporterAnim.h"
-//#include "MapPathImportHandler.h"
 #include <vector>
 #include <fstream>
 #include <iostream>
-//#include <string>
 
 #define PLANE_PLACEHOLDER		0
 #define CUBE_PLACEHOLDER		1
@@ -66,7 +63,6 @@ class AssetManager
 	public:
 		HRESULT			LoadStatic2dAsset( ID3D11Device* device, ID3D11DeviceContext* dc, std::string fileName, AssetID &assetId );
 		HRESULT			LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceContext* dc, std::string filePath, std::string fileName, AssetID &assetId );
-		HRESULT			LoadStatic3dAssetIndexed( ID3D11Device* device, Indexed3DAssetInfo &info, AssetID &assetId );
 		HRESULT			LoadAnimated3dAsset( ID3D11Device* device, ID3D11DeviceContext* dc, std::string filePath, std::string fileName, AssetID skeletonId, AssetID &assetId );
 		HRESULT			LoadSkeletonAsset( std::string filePath, std::string fileName, AssetID &assetId );
 		HRESULT			LoadAnimationAsset( std::string filePath, std::string fileName, AssetID &assetId );

@@ -92,10 +92,10 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 	rayDir = XMVectorSet( unPack.x, unPack.y, 1.0f, 1.0f );
 
 	XMMATRIX viewInverse;
-	Graphics::GetInstance()->SetInverseViewMatrix( viewInverse );
+	Graphics::GetInstance()->GetInverseViewMatrix( viewInverse );
 
 	XMMATRIX projectionInverse;
-	Graphics::GetInstance()->SetInverseProjectionMatrix( projectionInverse );
+	Graphics::GetInstance()->GetInverseProjectionMatrix( projectionInverse );
 
 	XMMATRIX combinedInverse = XMMatrixMultiply( projectionInverse, viewInverse );
 

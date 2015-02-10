@@ -66,18 +66,9 @@ int	System::Run()
 		}
 		else
 		{
-			//RECT r;
-			//GetWindowRect( mHWnd, &r );
-
 			float deltaTime	= mTimer->GetDeltaTime();
 			//float fps		= mTimer->GetFPS();
 
-			//wchar_t title[100];
-			//swprintf( title, sizeof(title), L"ProjectFlightSchool - DTime: %f", deltaTime );//, (int)fps );
-			//swprintf( title, sizeof(title), L"Derp" );
-			//SetWindowText( mHWnd, title );
-
-			//ClipCursor( &r );//		Uncomment this to lock the cursor to the game window
 			Update( deltaTime );
 			Render();
 		}

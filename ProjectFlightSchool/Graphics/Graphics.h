@@ -26,26 +26,6 @@ enum BlendStates
 	//New states added above this comment
 	BLEND_STATES_AMOUNT
 };
-enum Effects
-{
-	EFFECTS_STATIC_VERTEX,
-	EFFECTS_STATIC_INSTANCED,
-	EFFECTS_STATIC_INSTANCED_SHADOW,
-	EFFECTS_2D,
-	EFFECTS_ANIMATED,
-	EFFECTS_ANIMATED_INSTANCED,
-	EFFECTS_ANIMATED_INSTANCED_SHADOW,
-	EFFECTS_DEFERRED,
-	EFFECTS_BILLBOARD,
-	EFFECTS_NODEGRID,
-
-	//Particle Effects
-	EFFECTS_MUZZLEFLASH,
-
-	EFFECTS_DEBUG_BOX,
-	//New effects added above this comment
-	EFFECTS_AMOUNT
-};
 
 enum Buffers
 {
@@ -67,6 +47,43 @@ enum Buffers
 	BUFFERS_DEBUG_BOX_INDICES,
 	//New buffers added above this comment
 	BUFFERS_AMOUNT
+};
+
+enum DepthStencils
+{
+	DEPTHSTENCILS_DISABLED,
+	DEPTHSTENCILS_ENABLED,
+
+	DEPTHSTENCILS_AMOUNT
+};
+
+enum Effects
+{
+	EFFECTS_STATIC_VERTEX,
+	EFFECTS_STATIC_INSTANCED,
+	EFFECTS_STATIC_INSTANCED_SHADOW,
+	EFFECTS_2D,
+	EFFECTS_ANIMATED,
+	EFFECTS_ANIMATED_INSTANCED,
+	EFFECTS_ANIMATED_INSTANCED_SHADOW,
+	EFFECTS_DEFERRED,
+	EFFECTS_BILLBOARD,
+	EFFECTS_NODEGRID,
+
+	//Particle Effects
+	EFFECTS_MUZZLEFLASH,
+
+	EFFECTS_DEBUG_BOX,
+	//New effects added above this comment
+	EFFECTS_AMOUNT
+};
+
+enum Samplers
+{
+	SAMPLERS_POINT,
+	SAMPLERS_LINEAR,
+
+	SAMPLERS_AMOUNT
 };
 
 enum Cameras
@@ -107,15 +124,12 @@ class LIBRARY_EXPORT Graphics
 
 		ID3D11RenderTargetView*		mRenderTargetView;
 		ID3D11DepthStencilView*		mDepthStencilView;
-		ID3D11DepthStencilState*	mDepthDisabledStencilState;
-		ID3D11DepthStencilState*	mDepthEnabledStencilState;
+		ID3D11ShaderResourceView*	mLightStructuredBuffer;
 		D3D11_VIEWPORT				mStandardView;
 		ID3D11Buffer*				mBuffers[BUFFERS_AMOUNT];
-		ID3D11ShaderResourceView*	mLightStructuredBuffer;
-		ID3D11SamplerState*			mPointSamplerState;
-		ID3D11SamplerState*			mLinearSamplerState;
-		ID3D11BlendState*			mBlendState[BLEND_STATES_AMOUNT];
-
+		ID3D11BlendState*			mBlendStates[BLEND_STATES_AMOUNT];
+		ID3D11DepthStencilState*	mDepthStencils[DEPTHSTENCILS_AMOUNT];
+		ID3D11SamplerState*			mSamplerStates[SAMPLERS_AMOUNT];
 
 		AssetManager*				mAssetManager;
 		Effect*						mEffects[EFFECTS_AMOUNT];
@@ -143,55 +157,51 @@ class LIBRARY_EXPORT Graphics
 		Graphics();
 		virtual	~Graphics();
 
+		HRESULT InitializeDepthStencilStates();
+		HRESULT InitializeSamplerStates();
+		HRESULT InitializeBuffers();
+		HRESULT InitializeEffects();
 		HRESULT MapBuffer( ID3D11Buffer* buffer, void* data, int size );
 
 	protected:
 	public:
-		HRESULT LoadStatic2dAsset( std::string fileName, AssetID &assetId );
-		HRESULT LoadStatic3dAsset( std::string filePath, std::string fileName, AssetID &assetId );
-		HRESULT LoadStatic3dAssetIndexed( Indexed3DAssetInfo &info, AssetID &assetId );
-		HRESULT LoadAnimated3dAsset( std::string filePath, std::string fileName, AssetID skeletonId, AssetID &assetId ); 
-		HRESULT LoadSkeletonAsset( std::string filePath, std::string fileName, AssetID &assetId );
-		HRESULT LoadAnimationAsset( std::string filePath, std::string fileName, AssetID &assetId );
+		HRESULT LoadStatic2dAsset	( std::string fileName, AssetID &assetId );
+		HRESULT LoadStatic3dAsset	( std::string filePath, std::string fileName, AssetID &assetId );
+		HRESULT LoadAnimated3dAsset	( std::string filePath, std::string fileName, AssetID skeletonId, AssetID &assetId ); 
+		HRESULT LoadSkeletonAsset	( std::string filePath, std::string fileName, AssetID &assetId );
+		HRESULT LoadAnimationAsset	( std::string filePath, std::string fileName, AssetID &assetId );
 
-		void Render( RenderLists& renderLists );
-		void Render2dAsset( Object2dInfo* info, UINT sizeOfList );
-		void RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX::XMFLOAT3 y );
-		void RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList );
-		void RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList );
-		void RenderBillboard( BillboardInfo* info, UINT sizeOfList );
-		void RenderParticleSystems( ParticleInfo* info, UINT sizeOfList );
-		void RenderNodeGrid( NodeGridInfo* info, UINT sizeOfList );
-		void RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max );
-
+		void Render2dAsset			( Object2dInfo* info, UINT sizeOfList );
+		void RenderPlane2dAsset		( AssetID assetId, DirectX::XMFLOAT3 x, DirectX::XMFLOAT3 y );
+		void RenderStatic3dAsset	( Object3dInfo* info, UINT sizeOfList );
+		void RenderAnimated3dAsset	( Anim3dInfo* info, UINT sizeOfList );
+		void RenderBillboard		( BillboardInfo* info, UINT sizeOfList );
+		void RenderParticleSystems	( ParticleInfo* info, UINT sizeOfList );
+		void RenderNodeGrid			( NodeGridInfo* info, UINT sizeOfList );
+		void RenderDebugBox			( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max );
 
 		DirectX::XMFLOAT4X4	GetRootMatrix( AnimationTrack animTrack );
+		bool				GetAnimationMatrices( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo &info );
 
-		Camera* GetCamera() const;
-		Camera* GetDeveloperCamera() const;
-		void	ChangeCamera();
-		void	ZoomInDeveloperCamera();
-		void	ZoomOutDeveloperCamera();
+		void ChangeCamera();
+		void ZoomInDeveloperCamera();
+		void ZoomOutDeveloperCamera();
 
 		void GetViewMatrix( DirectX::XMMATRIX &view );
+		void GetInverseViewMatrix( DirectX::XMMATRIX &inverseViewMatrix );
 		void GetProjectionMatrix( DirectX::XMMATRIX &proj );
+		void GetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatrix );
 
 		void MapLightStructuredBuffer( LightStructure* lightStructure, int numPointLights );
 		void SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY );
-		void SetInverseViewMatrix( DirectX::XMMATRIX &inverseViewMatrix );
-		void SetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatrix );
 		void SetEyePosition( Cameras camera, DirectX::XMFLOAT3 &eyePosition );
 		void SetFocus( Cameras camera, DirectX::XMFLOAT3 &focusPoint );
 
-		void	BeginScene();
-		void	GbufferPass();
-		void	DeferredPass();
-		void	ScreenSpacePass();
-		void	EndScene();
-
-		bool GetAnimationMatrices( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo &info );
-
-		UINT QueryMemoryUsed();
+		void BeginScene();
+		void GbufferPass();
+		void DeferredPass();
+		void ScreenSpacePass();
+		void EndScene();
 
 		static	Graphics* GetInstance();
 		HRESULT Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight );

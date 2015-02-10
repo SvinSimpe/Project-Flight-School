@@ -388,16 +388,33 @@ HRESULT PlayState::Update( float deltaTime )
 		mFrameCounter++;
 
 	UINT nrOfRadarObj = 0;
+	GuiUpdate guiUpdate;
+	guiUpdate.mPlayerPos				= DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	guiUpdate.mRadarObjects				= nullptr;
+	guiUpdate.mNrOfObjects				= 0;
+	guiUpdate.mRemotePlayerPos			= DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	guiUpdate.mRemotePlayerName			= "";
+	guiUpdate.mRemotePlayerTeamID		= 0;
+	guiUpdate.mRemotePlayerID			= 0;
+	guiUpdate.mPlayerTeamID				= 0;
+	guiUpdate.mUpdateRemotePlayerName	= true;
+
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
 	{
 		if ( mRemotePlayers.at(i) )
 		{
 			mRemotePlayers.at(i)->Update( deltaTime );
-			mGui->Update( DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), nullptr, 0, mRemotePlayers[i]->GetPosition(), mRemotePlayers[i]->GetName(), mRemotePlayers[i]->GetTeam(), i, mPlayer->GetTeam(), true );
+			guiUpdate.mRemotePlayerPos = mRemotePlayers[i]->GetPosition();
+			guiUpdate.mRemotePlayerName = mRemotePlayers[i]->GetName();
+			guiUpdate.mRemotePlayerTeamID = mRemotePlayers[i]->GetTeam();
+			guiUpdate.mRemotePlayerID = i;
+			guiUpdate.mPlayerTeamID = mPlayer->GetTeam();
+			mGui->Update( guiUpdate );
 			mRadarObjects[nrOfRadarObj].mRadarObjectPos = mRemotePlayers[i]->GetPosition();
 			mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
 		}
 	}
+
 	mPlayer->Update( deltaTime, mRemotePlayers );
 
 	HandleDeveloperCameraInput();
@@ -426,8 +443,12 @@ HRESULT PlayState::Update( float deltaTime )
 		}
 	}
 	mParticleManager->Update( deltaTime );
-	
-	mGui->Update( mPlayer->GetPlayerPosition(), mRadarObjects, nrOfRadarObj, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), "", 0, 0, 0, false );
+
+	guiUpdate.mPlayerPos				= mPlayer->GetPlayerPosition();
+	guiUpdate.mRadarObjects				= mRadarObjects;
+	guiUpdate.mNrOfObjects				= nrOfRadarObj;
+	guiUpdate.mUpdateRemotePlayerName	= false;
+	mGui->Update( guiUpdate );
 
 	// Test Anim
 	///////////////////////////////////////////////////////////////////////////

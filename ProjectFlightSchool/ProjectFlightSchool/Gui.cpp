@@ -1,10 +1,10 @@
 #include "Gui.h"
 
-HRESULT Gui::Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjects[], UINT nrOfObjects, DirectX::XMFLOAT3 remotePlayerPos, std::string remotePlayerName, int remotePlayerTeamID, int remotePlayerID, int playerTeamID, bool updateRemotePlayerName )
+HRESULT Gui::Update( GuiUpdate guiUpdate )
 {
 	HRESULT result = S_OK;
 	
-	if( updateRemotePlayerName )
+	if( guiUpdate.mUpdateRemotePlayerName )
 	{
 		//Updating remote player names
 		DirectX::XMMATRIX view, proj;
@@ -13,8 +13,8 @@ HRESULT Gui::Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjects
 		view = DirectX::XMMatrixTranspose( view );
 		proj = DirectX::XMMatrixTranspose( proj );
 
-	
-		DirectX::XMFLOAT4 textPos = XMFLOAT4( remotePlayerPos.x, remotePlayerPos.y + 3.25f, remotePlayerPos.z, 1.0f );
+		
+		DirectX::XMFLOAT4 textPos = XMFLOAT4( guiUpdate.mRemotePlayerPos.x, guiUpdate.mRemotePlayerPos.y + 3.25f, guiUpdate.mRemotePlayerPos.z, 1.0f );
 		DirectX::XMStoreFloat4( &textPos, DirectX::XMVector4Transform( DirectX::XMLoadFloat4( &textPos ), DirectX::XMMatrixMultiply( view, proj ) ) );
 
 		textPos.x /= textPos.w;
@@ -23,28 +23,26 @@ HRESULT Gui::Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjects
 		textPos.x = ( textPos.x + 1.0f ) * ( 0.5f * Input::GetInstance()->mScreenWidth );
 		textPos.y = ( 1.0f - textPos.y ) * ( 0.5f * Input::GetInstance()->mScreenHeight );
 		
-		if( remotePlayerTeamID == playerTeamID )
+		if( guiUpdate.mRemotePlayerTeamID == guiUpdate.mPlayerTeamID )
 		{
-			mPlayerNames[remotePlayerID].SetText( remotePlayerName, COLOR_CYAN );
+			mPlayerNames[guiUpdate.mRemotePlayerID].SetText( guiUpdate.mRemotePlayerName, COLOR_CYAN );
 		}
 		else
 		{
-			mPlayerNames[remotePlayerID].SetText( remotePlayerName, COLOR_RED );
+			mPlayerNames[guiUpdate.mRemotePlayerID].SetText( guiUpdate.mRemotePlayerName, COLOR_RED );
 		}
 
-		mPlayerNames[remotePlayerID].SetPosition( textPos.x - mPlayerNames[remotePlayerID].GetMiddleXPoint( mPlayerNames[remotePlayerID].GetText(), mPlayerNames[remotePlayerID].GetScale() ), textPos.y );
+		mPlayerNames[guiUpdate.mRemotePlayerID].SetPosition( textPos.x - mPlayerNames[guiUpdate.mRemotePlayerID].GetMiddleXPoint( mPlayerNames[guiUpdate.mRemotePlayerID].GetText(), mPlayerNames[guiUpdate.mRemotePlayerID].GetScale() ), textPos.y );
 		//-------------------------------------------------------------
 	}
-
-	result = mRadar->Update( playerPos, radarObjects, nrOfObjects );
+	
+	result = mRadar->Update( guiUpdate.mPlayerPos, guiUpdate.mRadarObjects, guiUpdate.mNrOfObjects );
 	return result;
 
 }
 
 HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP, float playerShield, float playerXp, float shipHP )
 {
-
-	mRadar->Render();
 
 	for( int i = 0; i < MAX_REMOTE_PLAYERS - 1; i++ )
 	{
@@ -55,48 +53,8 @@ HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP, float pla
 	XMFLOAT2 topLeft;
 	XMFLOAT2 widthHeight;
 
-
-	//////////////////////
-	//Allies hp
-	//////////////////////
-	XMFLOAT2	latestAllyHealthTopLeft;
-	XMFLOAT2	latestAllyHealthBottomRight;
-	float		offSetForHealths = mSpaceAllyHealthToBar;
-	int			nrOfHealthsToRender;
-	for ( int i = 0; i < nrOfAllies; i++ )
-	{
-		topLeft.x						= mScreenWidth - mSpaceAllyHealthBarToEdge - mSizeAllyHealthBar.x;
-		topLeft.y						= mScreenHeight - mSpaceAllyHealthBarToEdge - mSizeAllyHealthBar.y;
-		widthHeight						= mSizeAllyHealthBar;
-		latestAllyHealthTopLeft			= topLeft;
-		latestAllyHealthBottomRight.x	= topLeft.x + mSizeAllyHealthBar.x;
-		latestAllyHealthBottomRight.y	= topLeft.y + mSizeAllyHealthBar.y;
-		RenderManager::GetInstance()->AddObject2dToList( mAllyHealthBar, topLeft, widthHeight );
-
-		nrOfHealthsToRender = (int)( 20.0f * alliesHP[i] );
-
-		if ( nrOfHealthsToRender > 0 )
-		{
-			for ( int j = 0; j < nrOfHealthsToRender; j++ )
-			{
-
-				topLeft.x = latestAllyHealthBottomRight.x - offSetForHealths - mSizeAllyHealth.x;
-				topLeft.y = latestAllyHealthBottomRight.y - mSpaceAllyHealthToBar - mSizeAllyHealth.y;
-				widthHeight = mSizeAllyHealth;
-				RenderManager::GetInstance()->AddObject2dToList( mAllyHealth, topLeft, widthHeight );
-				offSetForHealths += mSpaceAllyHealth + mSizeAllyHealth.x;
-			}
-		}
-	}
-
-	if ( nrOfAllies > 0 )
-	{
-		topLeft.x = latestAllyHealthTopLeft.x - mSpaceAllyHealthBar - 4.0f;
-		topLeft.y = latestAllyHealthTopLeft.y - mSpaceAllyHealthBar - 4.0f;
-		widthHeight = mSizeAllyHealthFrame;
-		RenderManager::GetInstance()->AddObject2dToList( mAllyHealthFrame, topLeft, widthHeight );
-	}
-
+	mHealtBar->Update( nrOfAllies, alliesHP, playerHP, playerShield, playerXp, shipHP );
+	mHealtBar->Render();
 	///////////////////
 	//Player hp, shield & xp
 	///////////////////
@@ -152,12 +110,12 @@ HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP, float pla
 	///////////////////////
 	//Ship Bar
 	///////////////////////
-	topLeft.x							= ( mScreenWidth / 2 ) - ( mSizeShipHealthBar.x / 2 );
+	/*topLeft.x							= ( mScreenWidth * 0.5f ) - ( mSizeShipHealthBar.x * 0.5f );
 	topLeft.y							= 0.0f;
 	XMFLOAT2 shipHealthBarTopLeft		= topLeft;
 	RenderManager::GetInstance()->AddObject2dToList( mShipHealthBar, topLeft, mSizeShipHealthBar );
 
-	nrOfHealthsToRender = (int)( 20.0f * shipHP );
+	nrOfHealthsToRender = (int)( mNrOfHealths * shipHP );
 	offSetForHealths	= shipHealthBarTopLeft.x + mEndShipHealth.x;
 
 	if ( nrOfHealthsToRender > 0 )
@@ -170,7 +128,7 @@ HRESULT Gui::Render( int nrOfAllies, float alliesHP[], float playerHP, float pla
 			RenderManager::GetInstance()->AddObject2dToList( mShipHealth, topLeft, widthHeight );
 			offSetForHealths -= ( mSpaceShipHealth + mSizeShipHealthTop );
 		}
-	}
+	}*/
 
 	return result;
 }
@@ -190,16 +148,16 @@ HRESULT Gui::Initialize()
 	{
 		return result;
 	}
+
+	mHealtBar = new HealthBar();
+	if( FAILED( result = mHealtBar->Initialize() ) )
+	{
+		return result;
+	}
+
 	mScreenHeight						= Input::GetInstance()->mScreenHeight;
 	mScreenWidth						= Input::GetInstance()->mScreenWidth;
-	mNrOfHealths						= 20;
-	mSpaceAllyHealthToBar				= 6.0f;
-	mSpaceAllyHealth					= 2.0f;
-	mSpaceAllyHealthBar					= 15.0f;
-	mSpaceAllyHealthBarToEdge			= 27.0f;
-	mSizeAllyHealthBar					= XMFLOAT2( 215.0f, 40.0f );
-	mSizeAllyHealth						= XMFLOAT2( ( ( mSizeAllyHealthBar.x - ( mSpaceAllyHealthToBar * 2 ) - ( ( mNrOfHealths ) * mSpaceAllyHealth ) ) / mNrOfHealths ), ( mSizeAllyHealthBar.y - ( mSpaceAllyHealthToBar * 2 ) ) );
-	mSizeAllyHealthFrame				= XMFLOAT2( 110.0f, 110.0f );
+	
 	mSizePlayerHealthXP					= XMFLOAT2( 440.0f, 280.0f );
 	mSizeLevelUp						= XMFLOAT2( (float)( mSizePlayerHealthXP.x / 2.16f ), (float)( mSizePlayerHealthXP.y / 1.4f ) );
 	mTopLeftCompWithPlayerHealthXP		= XMFLOAT2( (float)( mSizePlayerHealthXP.x / 3.14f ), (float)( mSizeLevelUp.y / 1.45f ) );
@@ -211,23 +169,9 @@ HRESULT Gui::Initialize()
 	mEndShipHealth.y					= (float)( mSizeShipHealthBar.y / 1.55f );
 	mSizeShipHealth.x					= (float)( mSizeShipHealthBar.x / 10.3f );
 	mSizeShipHealth.y					= ( mEndShipHealth.y - mStartShipHealth.y );
-	mSizeShipHealthTop					= ( ( mEndShipHealth.x - mStartShipHealth.x - ( ( mNrOfHealths - 1 ) * mSpaceShipHealth ) ) / mNrOfHealths );
+	mSizeShipHealthTop					= ( ( mEndShipHealth.x - mStartShipHealth.x - ( ( 20 - 1 ) * mSpaceShipHealth ) ) / 20 );
 
-	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/allyhealth.dds", mAllyHealth );
-	if( FAILED( result ) )
-	{
-		return result;
-	}
-	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/allyHealthBar.dds", mAllyHealthBar );
-	if( FAILED( result ) )
-	{
-		return result;
-	}
-	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/allyHealthFrame.dds", mAllyHealthFrame );
-	if( FAILED( result ) )
-	{
-		return result;
-	}
+
 	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/playerHealth+XP2.dds", mPlayerBar );
 	if( FAILED( result ) )
 	{

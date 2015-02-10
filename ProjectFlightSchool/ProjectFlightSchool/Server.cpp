@@ -42,8 +42,6 @@ void Server::ClientLeft( IEventPtr eventPtr )
 		UINT id = data->ID();
 		mClientMap.erase( id );
 
-		printf("Removed client with ID: %d\n", id);
-
 		IEventPtr E1( new Event_Remote_Left( id ) );
 		BroadcastEvent( E1 );
 	}

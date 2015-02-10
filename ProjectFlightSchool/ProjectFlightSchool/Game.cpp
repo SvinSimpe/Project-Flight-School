@@ -78,5 +78,4 @@ Game::Game()
 
 Game::~Game()
 {
-	printf("Destructor for %s\n", __FILE__);
 }

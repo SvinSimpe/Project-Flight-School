@@ -38,6 +38,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 			else if( data->ID() == mRemotePlayers.at(i)->GetID() )
 			{
 				mRemotePlayers.at(i)->Release();
+				SAFE_DELETE( mRemotePlayers.at(i) );
 				std::swap( mRemotePlayers.at(i), mRemotePlayers.at(mRemotePlayers.size() - 1) );
 				mRemotePlayers.pop_back();
 				break;

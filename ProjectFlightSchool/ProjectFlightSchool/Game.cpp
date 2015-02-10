@@ -4,6 +4,21 @@
 //									PRIVATE
 ///////////////////////////////////////////////////////////////////////////////
 
+void Game::ResetGame( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Reset_Game::GUID )
+	{
+		IEventPtr E1( new Event_Shutdown_Client() );
+		EventManager::GetInstance()->QueueEvent( E1 );
+
+		if( mServer )
+		{
+			mServer->BroadcastEvent( E1 );
+			mServer->Shutdown();
+		}
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,7 +34,6 @@ HRESULT Game::Update( float deltaTime )
 
 	Client::GetInstance()->Update( deltaTime );
 	Client::GetInstance()->DoSelect( 0 );
-
 
 	return S_OK;
 }
@@ -40,11 +54,16 @@ HRESULT Game::Initialize()
 
 	OutputDebugString( L"----- Game Initialization Complete. -----" );
 
+	EventManager::GetInstance()->AddListener( &Game::ResetGame, this, Event_Reset_Game::GUID );
+
 	return S_OK;
 }
 
 void Game::Release()
 {
+	IEventPtr E1( new Event_Reset_Game() );
+	EventManager::GetInstance()->TriggerEvent( E1 );
+
 	mStateMachine->Release();
 	SAFE_DELETE( mStateMachine );
 	mServer->Release();

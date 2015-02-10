@@ -2848,4 +2848,94 @@ class Event_Remote_Enemy_Attack : public IEvent
 			return mDirection;
 		}
 };
+
+class Event_Shutdown_Server : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Shutdown_Server()
+		{
+		}
+		~Event_Shutdown_Server() {}
+				const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Shutdown_Server() );
+		}
+};
+
+class Event_Shutdown_Client : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Shutdown_Client()
+		{
+		}
+		~Event_Shutdown_Client() {}
+				const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Shutdown_Client() );
+		}
+};
+
+class Event_Reset_Game : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Reset_Game()
+		{
+		}
+		~Event_Reset_Game() {}
+				const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Reset_Game() );
+		}
+};
 #endif

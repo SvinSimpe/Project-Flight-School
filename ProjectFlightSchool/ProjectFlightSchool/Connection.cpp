@@ -749,9 +749,14 @@ bool SocketManager::Initialize()
 
 void SocketManager::Release()
 {
-	for( auto& socket : mSocketList )
+	SocketList eraseList;
+	for( auto& it : mSocketList )
 	{
-		SAFE_DELETE( socket );
+		eraseList.push_front( it );
+	}
+	for( auto& it : eraseList )
+	{
+		RemoveSocket( it );
 	}
 	mSocketList.clear();
 	mSocketMap.clear();

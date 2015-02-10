@@ -144,6 +144,7 @@ void Player::HandleSpawn( float deltaTime )
 {
 	if( mTimeTillSpawn <= 0.0f )
 	{
+		UnLock();
 		Spawn();
 		QueueEvent( new Event_Client_Spawned( mID ) );
 	}
@@ -157,6 +158,7 @@ void Player::HandleDeath( float deltaTime )
 {
 	if( mTimeTillDeath <= 0.0f )
 	{
+		Lock();
 		Die();
 		BroadcastDeath( mLastKiller );
 	}
@@ -193,6 +195,7 @@ void Player::Move( float deltaTime )
 
 void Player::GoDown( int shooter )
 {
+	Lock();
 	RemotePlayer::GoDown();
 	mTimeTillDeath	= mDeathTime;
 	mTimeTillRevive	= mReviveTime;
@@ -202,6 +205,7 @@ void Player::GoDown( int shooter )
 
 void Player::GoUp()
 {
+	UnLock();
 	RemotePlayer::GoUp();
 	QueueEvent( new Event_Client_Up( mID ) );
 }
@@ -247,6 +251,16 @@ void Player::AddImpuls( XMFLOAT3 impuls )
 {
 	mVelocity.x += impuls.x;
 	mVelocity.z += impuls.z;
+}
+
+void Player::Lock()
+{
+	mLock = true;
+}
+
+void Player::UnLock()
+{
+	mLock = false;
 }
 
 void Player::QueueEvent( IEvent* ptr )
@@ -333,7 +347,10 @@ void Player::Reset()
 
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
 {
-	HandleInput( deltaTime, remotePlayers );
+	if ( !mLock )
+	{
+		HandleInput( deltaTime, remotePlayers );
+	}
 
 	// Mele attack
 	if( mHasMeleeStarted )
@@ -364,7 +381,6 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 			HandleDeath( deltaTime );
 		}
 		
-		
 		float currentVelocity = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) );
 
 		if( currentVelocity < 0.2f )
@@ -393,8 +409,6 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 		RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
 		RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
-
-		//RemotePlayer::Update( deltaTime );
 	}
 	else
 	{
@@ -573,6 +587,7 @@ Player::Player()
 	mMeleeCoolDown		= 0.0f;
 	mTimeTillattack		= 0.0f;
 	mIsMeleeing			= false;
+	mLock				= false;
 
 	mMaxVelocity		= 0.0f;
 	mCurrentVelocity	= 0.0f;

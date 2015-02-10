@@ -143,6 +143,11 @@ void RenderManager::AnimationStartNew( AnimationTrack &animationTrack, AssetID n
 	animationTrack.mInterpolation		= 0.2f;
 }
 
+void RenderManager::ChangeRasterizerState( RasterizerStates rasterState )
+{
+	mRasterState = rasterState;
+}
+
 HRESULT RenderManager::Update( float deltaTime )
 {
 	Clear();
@@ -156,6 +161,7 @@ HRESULT RenderManager::Render()
 	//Reset the scene to default values
 	Graphics::GetInstance()->BeginScene();
 
+	Graphics::GetInstance()->ChangeRasterizerState( mRasterState );
 	//Prepare the scene to be rendered with Gbuffers
 	Graphics::GetInstance()->GbufferPass();
 	SetLightStructuredBuffer();

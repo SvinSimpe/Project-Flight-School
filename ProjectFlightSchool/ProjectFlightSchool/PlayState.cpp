@@ -272,6 +272,12 @@ void PlayState::HandleDeveloperCameraInput()
 	// ZOOM OUT
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_UP) )
 		Graphics::GetInstance()->ZoomInDeveloperCamera();
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_1 ) )
+		RenderManager::GetInstance()->ChangeRasterizerState( CULL_NONE );
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_2 ) )
+		RenderManager::GetInstance()->ChangeRasterizerState( CULL_BACK );
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_3 ) )
+		RenderManager::GetInstance()->ChangeRasterizerState( WIREFRAME );
 }
 
 void PlayState::CheckPlayerCollision()
@@ -464,6 +470,7 @@ HRESULT PlayState::Update( float deltaTime )
 {
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{
+		mWorldMap->IsOnNavMesh( mPlayer->GetPlayerPosition() );
 		CheckPlayerCollision();
 		CheckProjectileCollision();
 
@@ -490,7 +497,7 @@ HRESULT PlayState::Update( float deltaTime )
 	}
 
 	HandleDeveloperCameraInput();
-	mPlayer->Update( deltaTime );
+	mPlayer->UpdateSpecific( deltaTime, mWorldMap );
 
 	UpdateProjectiles( deltaTime );
 
@@ -630,7 +637,7 @@ HRESULT PlayState::Initialize()
 	mPlayer->Initialize();
 
 	mWorldMap = new Map();
-	mWorldMap->Initialize( 8 );
+	mWorldMap->Initialize( 12 );
 
 	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/ForestMap.xml")); 
 	EventManager::GetInstance()->TriggerEvent( E1 );

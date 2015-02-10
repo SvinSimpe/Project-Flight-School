@@ -2,7 +2,14 @@
 #define MAPNODEINSTANCE_H
 #include <DirectXMath.h>
 #include <Windows.h>
+#include <vector>
 #include "BoundingGeometry.h"
+
+struct NavTriangle
+{
+	DirectX::XMFLOAT3 triPoints[3];
+	int adjTri[3];
+};
 
 //forward declaration
 
@@ -19,18 +26,20 @@ public:
 		DirectX::XMFLOAT3 mOrigin;
 		DirectX::XMFLOAT4X4 mWorld;
 
-	protected:
-	public:
-	private:
-		void				SetUpExits();
-		void				SetCorners();
+		NavTriangle* mNavMesh;
+
 	protected:
 	public:
 
+	private:
+		void				GetNavigationData();
+	protected:
+	public:
 
 		HRESULT				Update( float deltaTime );
 		HRESULT				Render( float deltaTime );
 
+		
 		DirectX::XMFLOAT3	GetPos() const;
 		void				SetPos( DirectX::XMFLOAT3 pos );
 

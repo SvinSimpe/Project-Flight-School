@@ -1,10 +1,10 @@
 <?xml version="1.0" standalone="no" ?>
 <Level>
     <Nodes>
-        <Node path="../Content/Assets/Nodes/tileBossNestStoneArena.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileWithPuddles.lp" type="AREA_NODE" />
     </Nodes>
     <Assets>
-		<Asset path="../Content/Assets/PermanentAssets/Ship/Ship.pfs"/>
+		<Asset path="../Content/Assets/PermanentAssets/Ship/ShipWithTripod.pfs"/>
         <Asset path="../Content/Assets/ForestAssets/Tree/tree1.pfs" />
 		    <Asset path="../Content/Assets/ForestAssets/Tree/tree2.pfs" />
 		    <Asset path="../Content/Assets/ForestAssets/Tree/tree3.pfs" />

@@ -592,6 +592,19 @@ void Graphics::ZoomOutDeveloperCamera()
 	mCamera[CAMERAS_DEV]->ZoomOut();
 }
 
+void Graphics::TurnDevCamLeft()
+{
+	mCamera[CAMERAS_DEV]->TurnLeft();
+}
+
+void Graphics::TurnDevCamRight()
+{
+	mCamera[CAMERAS_DEV]->TurnRight();
+}
+void Graphics::ChangeRasterizerState( RasterizerStates rasterState )
+{
+	mDeviceContext->RSSetState( mRasterizerState[rasterState] );
+}
 void Graphics::MapLightStructuredBuffer( LightStructure* lightStructure, int numPointLights )
 {
 	MapBuffer( mBuffers[BUFFERS_LIGHT], (void*)lightStructure, sizeof( LightStructure ) );
@@ -1140,6 +1153,33 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	if( FAILED( hr = mDevice->CreateBlendState( &blendDesc, &mBlendState[BLEND_2D] ) ) )
 		return hr;
 
+	//////////////////////////////
+	// CREATE BLEND STATE
+	//////////////////////////////
+	D3D11_RASTERIZER_DESC rasterizerDesc;
+	ZeroMemory(&rasterizerDesc, sizeof(rasterizerDesc));
+
+	rasterizerDesc.DepthBias			= 1;
+	rasterizerDesc.SlopeScaledDepthBias	= 2.0f;
+	rasterizerDesc.DepthBiasClamp		= 2.0f;
+	rasterizerDesc.DepthClipEnable		= true;
+
+	//No cull
+	rasterizerDesc.CullMode				= D3D11_CULL_NONE;
+	rasterizerDesc.FillMode				= D3D11_FILL_SOLID;
+	if( FAILED( hr = mDevice->CreateRasterizerState( &rasterizerDesc, &mRasterizerState[CULL_NONE] ) ) )
+		return hr;
+
+	//cull back
+	rasterizerDesc.CullMode				= D3D11_CULL_BACK;
+	if( FAILED( hr = mDevice->CreateRasterizerState( &rasterizerDesc, &mRasterizerState[CULL_BACK] ) ) )
+		return hr;
+
+	//wireframe
+	rasterizerDesc.FillMode				= D3D11_FILL_WIREFRAME;
+	if( FAILED( hr = mDevice->CreateRasterizerState( &rasterizerDesc, &mRasterizerState[WIREFRAME] ) ) )
+		return hr;
+
 	///////////////////////////////
 	// CREATE CBUFFERPERFRAME
 	///////////////////////////////
@@ -1535,5 +1575,9 @@ void Graphics::Release()
 	for( int i = 0; i < BLEND_STATES_AMOUNT; i++ )
 	{
 		mBlendState[i]->Release();
+	}
+	for( int i = 0; i < RASTERIZER_STATES_AMOUNT; i++ )
+	{
+		mRasterizerState[i]->Release();
 	}
 }

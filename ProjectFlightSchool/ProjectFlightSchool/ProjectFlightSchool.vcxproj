@@ -89,15 +89,13 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
-
     <ClCompile Include="EnemyAnimationManager.cpp" />
-
-
     <ClCompile Include="Gui.cpp" />
+    <ClCompile Include="HelperFunctions.cpp" />
+    <ClCompile Include="Navmesh.cpp" />
     <ClCompile Include="SoundBufferHandler.cpp" />
     <ClCompile Include="DS3DBuffer.cpp" />
     <ClCompile Include="DSBuffer.cpp" />
-
     <ClCompile Include="EnemySpawn.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="..\Graphics\Font.cpp" />
@@ -147,6 +145,8 @@
     <ClInclude Include="BaseState.h" />
     <ClInclude Include="BoundingGeometry.h" />
     <ClInclude Include="Gui.h" />
+    <ClInclude Include="HelperFunctions.h" />
+    <ClInclude Include="Navmesh.h" />
     <ClInclude Include="SoundBufferHandler.h" />
     <ClInclude Include="DS3DBuffer.h" />
     <ClInclude Include="DSBuffer.h" />

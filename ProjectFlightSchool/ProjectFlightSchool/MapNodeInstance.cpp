@@ -1,6 +1,5 @@
 #include "MapNodeInstance.h"
 #include "MapNode.h"
-#include "BoundingGeometry.h"
 #include "RenderManager.h"
 
 HRESULT MapNodeInstance::Update( float deltaTime )
@@ -17,6 +16,37 @@ HRESULT	MapNodeInstance::Render( float deltaTime )
 	DirectX::XMFLOAT3 max = DirectX::XMFLOAT3( min.x + mNode->GetGridWidth(), 5, min.z + mNode->GetGridHeight() );
 	RenderManager::GetInstance()->AddBoxToList( min, max );
 	return S_OK;
+}
+void MapNodeInstance::GetNavigationData()
+{
+	UINT navVertexCount = mNode->GetNavVertexCount();
+	XMFLOAT3* navPoints	= mNode->GetNavData();
+
+	mNavMesh = new NavTriangle[navVertexCount / 3];
+	UINT count = 0;
+	XMMATRIX world	= DirectX::XMLoadFloat4x4( &mWorld );
+
+	for( UINT i = 0; i < navVertexCount; i += 3 )
+	{
+
+		DirectX::XMFLOAT3 tri1, tri2, tri3;
+		DirectX::XMStoreFloat3( &tri1, DirectX::XMVector3TransformCoord( XMLoadFloat3( &navPoints[i] ), world ) );
+		DirectX::XMStoreFloat3( &tri2, DirectX::XMVector3TransformCoord( XMLoadFloat3( &navPoints[i + 1] ), world ) );
+		DirectX::XMStoreFloat3( &tri3, DirectX::XMVector3TransformCoord( XMLoadFloat3( &navPoints[i + 2] ), world ) );
+
+
+		NavTriangle temp;
+		temp.triPoints[0] = tri1;
+		temp.triPoints[1] = tri2;
+		temp.triPoints[2] = tri3;
+
+		temp.adjTri[0] = -1;
+		temp.adjTri[1] = -1;
+		temp.adjTri[2] = -1;
+
+		mNavMesh[count++] = temp;
+	}
+	//Connect triangles
 }
 DirectX::XMFLOAT3 MapNodeInstance::GetPos()const
 {
@@ -59,10 +89,13 @@ BoundingBox MapNodeInstance::GetBoundingBox()
 }
 HRESULT	MapNodeInstance::Initialize()
 {
+	GetNavigationData();
 	return S_OK;
 }
 void MapNodeInstance::Release()
 {
+	if( mNavMesh )
+		delete[] mNavMesh;
 }
 MapNodeInstance::MapNodeInstance()
 {

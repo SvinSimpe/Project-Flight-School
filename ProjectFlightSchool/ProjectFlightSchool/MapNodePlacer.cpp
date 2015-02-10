@@ -13,7 +13,20 @@ MapNodePlacer* MapNodePlacer::GetInstance()
 	}
 	return instance;
 }
-
+//std::vector<MapNodeInstance*> MapNodePlacer::GetAllNodes() const
+//{
+//	return nullptr;
+//}
+MapNodeInstance* MapNodePlacer::GetNodeInstance( int x, int z )
+{
+	MapNodeInstance* result = nullptr;
+	if( ( x < (int)mMap->GetMapWidth() && 0 <= x ) &&
+		( z < (int)mMap->GetMapHeight() && 0 <= z ) )
+	{
+		result = mBuildMap[x][z];
+	}
+	return result;
+}
 NODE_RETURN_CODE MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNode )
 {
 	int nodeWith   = (int)( ( newNode->GetMapNode()->GetGridWidth() / ( NODE_DIM ) ) );
@@ -23,7 +36,6 @@ NODE_RETURN_CODE MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNo
 	{
 		return NOFIT;
 	}
-
 
 	for( int x = pX; x < (int)( pX + nodeWith ); x++ )
 	{
@@ -41,10 +53,12 @@ NODE_RETURN_CODE MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNo
 		for( int y = pY; y < (int)( pY +  nodeHeight ); y++ )
 		{
 			mBuildMap[x][y] = newNode;
+			//mNodes.push_back( newNode );
 		}
 	}
 	XMFLOAT3 newPos = XMFLOAT3( ((float)pX * NODE_DIM ) - ( mMap->GetMapHalfWidth() * NODE_DIM ), 0, ( (float)pY * NODE_DIM ) - ( mMap->GetMapHalfHeight() * NODE_DIM ) );
 
+	newNode->Initialize();
 	newNode->SetPos( newPos );
 
 	return PLACED;
@@ -53,6 +67,7 @@ void MapNodePlacer::BuildMap( MapNodeInstance** map )
 {
 	NodeMap nodeMap = MapNodeManager::GetInstance()->GetNodes();
 	int count = 0;
+	int nodeMapSize = (int)nodeMap[NodeTypes::AREA_NODE].size();
 
 	for( int x = 0; x < (int)mMap->GetMapDim(); x++ )
 	{
@@ -64,10 +79,9 @@ void MapNodePlacer::BuildMap( MapNodeInstance** map )
 			}
 			bool doLoop = true;
 			//Check "Tier", lastNode, chances of boss arena and/or energy position.
-
+			int randomNode = rand() % nodeMapSize;
 			while( doLoop )
 			{
-				int randomNode = rand() % (int)nodeMap[NodeTypes::AREA_NODE].size();
 				MapNodeInstance* newNode = nodeMap[NodeTypes::AREA_NODE][randomNode]->GetMapNodeInstance();
 				switch( CanPlace( x, y, newNode ) )
 				{
@@ -77,6 +91,16 @@ void MapNodePlacer::BuildMap( MapNodeInstance** map )
 						break;
 					case NOFIT:
 						newNode->ReleaseInstance();
+						count++;
+						if(count < nodeMapSize )
+						{
+							randomNode = (count + randomNode) % nodeMapSize;
+						}
+						else
+						{
+							doLoop = false;
+							OutputDebugStringA("Couldnt find a node that fits.\n");
+						}
 						break;
 					case PLACED:
 						map[mNrOfNodes++] = newNode;

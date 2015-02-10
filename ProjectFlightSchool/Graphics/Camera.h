@@ -53,6 +53,8 @@ class Camera
 
 		void ZoomIn();
 		void ZoomOut();
+		void TurnLeft();
+		void TurnRight();
 		
 
 		//Must be called before GetViewMatrix, GetProjMatrix

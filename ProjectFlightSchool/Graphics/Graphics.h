@@ -26,6 +26,16 @@ enum BlendStates
 	//New states added above this comment
 	BLEND_STATES_AMOUNT
 };
+
+enum RasterizerStates
+{
+	CULL_NONE,
+	CULL_BACK,
+	WIREFRAME,
+
+	RASTERIZER_STATES_AMOUNT
+};
+
 enum Effects
 {
 	EFFECTS_STATIC_VERTEX,
@@ -103,6 +113,7 @@ class LIBRARY_EXPORT Graphics
 		ID3D11SamplerState*			mPointSamplerState;
 		ID3D11SamplerState*			mLinearSamplerState;
 		ID3D11BlendState*			mBlendState[BLEND_STATES_AMOUNT];
+		ID3D11RasterizerState*		mRasterizerState[RASTERIZER_STATES_AMOUNT];
 
 
 		AssetManager*				mAssetManager;
@@ -146,7 +157,7 @@ class LIBRARY_EXPORT Graphics
 		void RenderNodeGrid( NodeGridInfo* info, UINT sizeOfList );
 		void RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max );
 
-
+		
 		DirectX::XMFLOAT4X4	GetRootMatrix( AnimationTrack animTrack );
 
 		Camera* GetCamera() const;
@@ -154,7 +165,10 @@ class LIBRARY_EXPORT Graphics
 		void	ChangeCamera();
 		void	ZoomInDeveloperCamera();
 		void	ZoomOutDeveloperCamera();
+		void	TurnDevCamLeft();
+		void	TurnDevCamRight();
 
+		void ChangeRasterizerState( RasterizerStates rasterState );
 		void MapLightStructuredBuffer( LightStructure* lightStructure, int numPointLights );
 		void SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY );
 		void SetInverseViewMatrix( DirectX::XMMATRIX &inverseViewMatrix );

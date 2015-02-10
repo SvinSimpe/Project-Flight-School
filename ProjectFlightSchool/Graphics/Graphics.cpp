@@ -1480,7 +1480,7 @@ void Graphics::GbufferPass()
 	mCamera[CAMERAS_SHADOWMAP]->Update();
 
 	static float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	for( int i = 0; i < NUM_GBUFFERS; i++)
+	for( int i = 0; i < NUM_GBUFFERS; i++ )
 		mDeviceContext->ClearRenderTargetView( mGbuffers[i]->mRenderTargetView, clearColor );
 	mDeviceContext->ClearDepthStencilView( mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
 
@@ -1490,7 +1490,7 @@ void Graphics::GbufferPass()
 	// Gbuffer generation pass
 	/////////////////////////////////
 	ID3D11RenderTargetView* rtvsToSet[NUM_GBUFFERS];
-	for( int i = 0; i < NUM_GBUFFERS; i++)
+	for( int i = 0; i < NUM_GBUFFERS; i++ )
 		rtvsToSet[i] = mGbuffers[i]->mRenderTargetView;
 	mDeviceContext->OMSetRenderTargets( 3, rtvsToSet, mDepthStencilView );
 	mDeviceContext->RSSetViewports( 1, &mStandardView );

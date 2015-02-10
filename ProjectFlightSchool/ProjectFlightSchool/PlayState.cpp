@@ -601,7 +601,7 @@ void PlayState::Release()
 	SAFE_DELETE( mEnemyAnimationManager );
 
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
-		SAFE_DELETE( mEnemies[i] );
+		SAFE_RELEASE_DELETE( mEnemies[i] );
 
 	delete [] mEnemies;
 

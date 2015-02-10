@@ -21,10 +21,17 @@ void Client::StartUp( IEventPtr eventPtr )
 		std::shared_ptr<Event_Start_Client> data = std::static_pointer_cast<Event_Start_Client>( eventPtr );
 		std::string IP	= data->IP();
 		UINT port		= data->Port();
-		if( !Connect( IP, port ) )
-			std::cout << "Failed to connect client!" << std::endl;
-		else
+		if( Connect( IP, port ) )
+		{
 			mActive = true;
+			IEventPtr E1( new Event_Connect_Client_Success() );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+		else
+		{
+			IEventPtr E1( new Event_Connect_Client_Fail( "Client failed at connecting to server!" ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
 	}
 }
 
@@ -40,7 +47,6 @@ bool Client::Connect( std::string ip, UINT port )
 	{
 		return false;
 	}
-	std::cout << "Client connected to server on IP: " << ip << ", port: " << port << std::endl;
 
 	mNEF = new NetworkEventForwarder();
 	mNEF->Initialize( 0, mSocketManager ); // Always sends to socket 0, the server's socketID
@@ -54,14 +60,9 @@ Client* Client::GetInstance()
 	return mInstance;
 }
 
-void Client::QueueEvent( IEventPtr ptr )
+void Client::FillEventList( std::list<IEventPtr> eventList )
 {
-	mEventList.push_front( IEventPtr( ptr ) );
-}
-
-void Client::PopEvent()
-{
-	mEventList.pop_back();
+	mEventList = eventList;
 }
 
 void Client::Shutdown( IEventPtr eventPtr )
@@ -87,7 +88,7 @@ void Client::Update( float deltaTime )
 		while( !mEventList.empty() )
 		{
 			SendEvent( mEventList.back() );
-			PopEvent();
+			mEventList.pop_back();
 		}
 	}
 }
@@ -150,8 +151,6 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Remote_Up );
 	EF::REGISTER_EVENT( Event_Client_Attempt_Revive );
 	EF::REGISTER_EVENT( Event_Remote_Attempt_Revive );
-	EF::REGISTER_EVENT( Event_Initialize_Success );
-	EF::REGISTER_EVENT( Event_Initialize_Fail );
 	EF::REGISTER_EVENT( Event_Load_Level );
 	EF::REGISTER_EVENT( Event_Create_Player_Name );
 
@@ -162,6 +161,10 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Shutdown_Client );
 	EF::REGISTER_EVENT( Event_Reset_Game );
 
+	EF::REGISTER_EVENT( Event_Connect_Server_Success );
+	EF::REGISTER_EVENT( Event_Connect_Client_Success );
+	EF::REGISTER_EVENT( Event_Connect_Server_Fail );
+	EF::REGISTER_EVENT( Event_Connect_Client_Fail );
 
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	EventManager::GetInstance()->AddListener( &Client::Shutdown, this, Event_Shutdown_Client::GUID );

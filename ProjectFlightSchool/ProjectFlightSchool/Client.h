@@ -24,14 +24,13 @@ class Client : public Network
 
 		void	StartUp( IEventPtr eventPtr );
 		void	Shutdown( IEventPtr eventPtr );
-		void	SendEvent( IEventPtr eventPtr );
 
 	protected:
 		bool	Connect( std::string ip, UINT port );
 	public:
 		static Client* GetInstance();
-		void	QueueEvent( IEventPtr ptr );
-		void	PopEvent();
+		void	SendEvent( IEventPtr eventPtr );
+		void	FillEventList( std::list<IEventPtr> eventList );
 		void	Update( float deltaTime );
 		void	DoSelect( int pauseMicroSecs, bool handleInput = true );
 		bool	Initialize();

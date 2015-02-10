@@ -117,25 +117,25 @@ void PlayState::SyncSpawn( unsigned int id, XMFLOAT3 position )
 void PlayState::BroadcastProjectileDamage( unsigned int playerID, unsigned int projectileID )
 {
 	IEventPtr E1( new Event_Client_Damaged( playerID, projectileID ) );
-	Client::GetInstance()->QueueEvent( E1 );
+	Client::GetInstance()->SendEvent( E1 );
 }
 
 void PlayState::BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction )
 {
 	IEventPtr E1( new Event_Client_Melee_Hit( playerID, damage, knockBack, direction ) );
-	Client::GetInstance()->QueueEvent( E1 );
+	Client::GetInstance()->SendEvent( E1 );
 }
 
 void PlayState::BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage )
 {
 	IEventPtr E1( new Event_Client_Projectile_Damage_Enemy( shooterID, projectileID, enemyID, damage ) );
-	Client::GetInstance()->QueueEvent( E1 );
+	Client::GetInstance()->SendEvent( E1 );
 }
 
 void PlayState::BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float knockBack, XMFLOAT3 direction )
 {
 	IEventPtr E1( new Event_Client_Enemy_Attack( mPlayer->GetID(), enemyID, damage, knockBack, direction, mPlayer->GetLoadOut()->meleeWeapon->stun ) );
-	Client::GetInstance()->QueueEvent( E1 );
+	Client::GetInstance()->SendEvent( E1 );
 }
 
 void PlayState::CheckPlayerCollision()
@@ -362,12 +362,8 @@ void PlayState::SetEnemyState( unsigned int id, EnemyState state )
 
 HRESULT PlayState::Update( float deltaTime )
 {
-	while( !mPlayer->GetEvents().empty() )
-	{
-		IEventPtr e = mPlayer->GetEvents().back();
-		Client::GetInstance()->QueueEvent( e );
-		mPlayer->PopEvent();
-	}
+	Client::GetInstance()->FillEventList( mPlayer->GetEvents() );
+	mPlayer->ClearEventList();
 
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{

@@ -262,14 +262,13 @@ void Server::StartUp( IEventPtr eventPtr )
 
 		if( Connect( port ) )
 		{
-			IEventPtr E1( new Event_Initialize_Success () );
-			EventManager::GetInstance()->QueueEvent( E1 );
-
 			mActive = true;
+			IEventPtr E1( new Event_Connect_Server_Success () );
+			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 		else
 		{
-			IEventPtr E1( new Event_Initialize_Fail ( "Failed to start server!" ) );
+			IEventPtr E1( new Event_Connect_Server_Fail ( "Server failed at connecting!" ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 	}

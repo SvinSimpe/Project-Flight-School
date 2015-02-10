@@ -17,6 +17,7 @@ class Player: public RemotePlayer
 		float		mTimeTillattack;
 		bool		mIsMeleeing;
 		bool		mHasMeleeStarted;
+		bool		mLock;
 
 		float		mMaxVelocity;
 		float		mCurrentVelocity;
@@ -56,13 +57,16 @@ class Player: public RemotePlayer
 		void		Die();
 		void		Fire();
 		void		AddImpuls( XMFLOAT3 impuls );
+		void		Lock();
+		void		UnLock();
 		void		QueueEvent( IEvent* ptr );
 
 	protected:
 	public:
 		void		TakeDamage( float damage, unsigned int shooter );
 		void		HandleRevive( float deltaTime );
-			
+		
+		void		Reset();	
 		HRESULT		Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers );
 		HRESULT		Render( float deltaTime, int position );
 		HRESULT		Initialize();
@@ -77,8 +81,7 @@ class Player: public RemotePlayer
 		void		SetIsMeleeing( bool isMeleeing );
 		void		SetBuffed( bool buffed );
 		void		SetID( unsigned int id );
-		void		SetTeam( int team, AssetID teamColor );
-		void		SetColor( AssetID color );
+		void		SetTeam( int team );
 		void		SetPosition( XMVECTOR position );
 
 		std::list<IEventPtr> GetEvents();

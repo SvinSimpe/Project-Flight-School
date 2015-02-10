@@ -68,18 +68,6 @@ struct BoxInfo
 	DirectX::XMFLOAT3 max;
 };
 
-struct RenderLists
-{
-	Object3dInfo*	object3d;
-	UINT			sizeOfObject3dList;
-	Anim3dInfo&		anim3d;
-	UINT			sizeOfAnim3dList;
-	Object2dInfo*	object2d;
-	UINT			sizeOfObject2dList;
-	PlaneInfo*		plane;
-	UINT			sizeOfPlaneList;
-};
-
 struct AnimationTrack
 {
 	UINT	mModelID;

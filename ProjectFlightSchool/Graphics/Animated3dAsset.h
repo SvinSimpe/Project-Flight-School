@@ -5,11 +5,9 @@
 
 #define NUM_SUPPORTED_JOINTS 32
 
-
-#define	TEXTURES_DIFFUSE 0
-#define	TEXTURES_NORMAL 1
-#define	TEXTURES_SPECULAR 2
-
+#define	TEXTURES_DIFFUSE	0
+#define	TEXTURES_NORMAL		1
+#define	TEXTURES_SPECULAR	2
 
 //Add new items above this comment
 #define	TEXTURES_AMOUNT 3

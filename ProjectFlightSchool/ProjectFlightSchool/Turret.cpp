@@ -104,6 +104,27 @@ void Turret::PickTarget( std::vector<RemotePlayer*> targets )
 	}
 }
 
+void Turret::Reset( int team, XMFLOAT3 pos, XMFLOAT3 dir )
+{
+	mTeamID					= team;
+
+	pos.y					+= 1.6f;
+	mUpperBody->pos			= pos;
+	mUpperBody->dir			= dir;
+
+	pos.y					-= 1.0f;
+	mMiddleBody->pos		= pos;
+	mMiddleBody->dir		= dir;
+
+	pos.y					-= 0.6f;
+	mLowerBody->pos			= pos;
+	mLowerBody->dir			= dir;
+
+	SAFE_DELETE(mBoundingCircle);
+	mBoundingCircle			= new BoundingCircle( mMiddleBody->pos, 10.0f ); // Range of the turret is set here
+	mCurrentMode			= mIdle;
+}
+
 HRESULT Turret::Update( float deltaTime )
 {
 	mDT = deltaTime;

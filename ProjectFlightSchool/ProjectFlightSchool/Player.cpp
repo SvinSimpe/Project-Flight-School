@@ -92,10 +92,10 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 	rayDir = XMVectorSet( unPack.x, unPack.y, 1.0f, 1.0f );
 
 	XMMATRIX viewInverse;
-	Graphics::GetInstance()->SetInverseViewMatrix( viewInverse );
+	Graphics::GetInstance()->GetInverseViewMatrix( viewInverse );
 
 	XMMATRIX projectionInverse;
-	Graphics::GetInstance()->SetInverseProjectionMatrix( projectionInverse );
+	Graphics::GetInstance()->GetInverseProjectionMatrix( projectionInverse );
 
 	XMMATRIX combinedInverse = XMMatrixMultiply( projectionInverse, viewInverse );
 
@@ -144,6 +144,7 @@ void Player::HandleSpawn( float deltaTime )
 {
 	if( mTimeTillSpawn <= 0.0f )
 	{
+		UnLock();
 		Spawn();
 		QueueEvent( new Event_Client_Spawned( mID ) );
 	}
@@ -157,6 +158,7 @@ void Player::HandleDeath( float deltaTime )
 {
 	if( mTimeTillDeath <= 0.0f )
 	{
+		Lock();
 		Die();
 		BroadcastDeath( mLastKiller );
 	}
@@ -193,6 +195,7 @@ void Player::Move( float deltaTime )
 
 void Player::GoDown( int shooter )
 {
+	Lock();
 	RemotePlayer::GoDown();
 	mTimeTillDeath	= mDeathTime;
 	mTimeTillRevive	= mReviveTime;
@@ -202,6 +205,7 @@ void Player::GoDown( int shooter )
 
 void Player::GoUp()
 {
+	UnLock();
 	RemotePlayer::GoUp();
 	QueueEvent( new Event_Client_Up( mID ) );
 }
@@ -249,6 +253,16 @@ void Player::AddImpuls( XMFLOAT3 impuls )
 	mVelocity.z += impuls.z;
 }
 
+void Player::Lock()
+{
+	mLock = true;
+}
+
+void Player::UnLock()
+{
+	mLock = false;
+}
+
 void Player::QueueEvent( IEvent* ptr )
 {
 	mEventList.push_front( IEventPtr( ptr ) );
@@ -283,9 +297,60 @@ void Player::HandleRevive(float deltaTime)
 	}
 }
 
+void Player::Reset()
+{
+	mEventCapTimer				= 0.0f;
+	mPointLight[0]->position	= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
+
+	mWeaponCoolDown				= 0;
+	mMeleeCoolDown				= 0;
+	mTimeTillattack				= mLoadOut->meleeWeapon->timeTillAttack;
+	mIsMeleeing					= false;
+	mHasMeleeStarted			= false;
+
+	mMaxVelocity				= 7.7f;
+	mCurrentVelocity			= 0.0f;
+	mMaxAcceleration			= 20.0f;;
+	mAcceleration				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+
+	mIsBuffed					= false;
+	mBuffMod					= 1; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
+
+	mPlayerName					= "";
+	mHasName					= false;
+	mTimeTillSpawn				= mSpawnTime;
+	mTimeTillDeath				= mDeathTime;
+	mTimeTillRevive				= mReviveTime;
+	mLastKiller					= 0;
+
+	mLowerBody.position		= XMFLOAT3( 3.0f, 0.0f, 0.0f );
+	
+	mIsAlive				= true;
+	mIsDown					= false;
+	mMaxHp					= 100.0f;
+	mCurrentHp				= mMaxHp;
+	mNrOfDeaths				= 0;
+	mNrOfKills				= 0;
+	mID						= -1;
+	mTeam					= -1;
+
+	mLeftArmAnimationCompleted	= false;
+	mRightArmAnimationCompleted	= false;
+
+	mUpperBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mLowerBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+
+	RenderManager::GetInstance()->AnimationReset( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
+	RenderManager::GetInstance()->AnimationReset( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
+	RenderManager::GetInstance()->AnimationReset( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
+}
+
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
 {
-	HandleInput( deltaTime, remotePlayers );
+	if ( !mLock )
+	{
+		HandleInput( deltaTime, remotePlayers );
+	}
 
 	// Mele attack
 	if( mHasMeleeStarted )
@@ -316,7 +381,6 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 			HandleDeath( deltaTime );
 		}
 		
-		
 		float currentVelocity = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) );
 
 		if( currentVelocity < 0.2f )
@@ -345,8 +409,6 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 		RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
 		RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
-
-		//RemotePlayer::Update( deltaTime );
 	}
 	else
 	{
@@ -525,6 +587,7 @@ Player::Player()
 	mMeleeCoolDown		= 0.0f;
 	mTimeTillattack		= 0.0f;
 	mIsMeleeing			= false;
+	mLock				= false;
 
 	mMaxVelocity		= 0.0f;
 	mCurrentVelocity	= 0.0f;
@@ -580,15 +643,9 @@ void Player::SetID( unsigned int id )
 	mID = id;
 }
 
-void Player::SetTeam( int team, AssetID teamColor )
+void Player::SetTeam( int team )
 {
 	mTeam		= team;
-	mTeamAsset	= teamColor;
-}
-
-void Player::SetColor( AssetID color )
-{
-	mColorIDAsset = color;
 }
 
 void Player::SetPosition( XMVECTOR position )

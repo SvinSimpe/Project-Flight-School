@@ -231,15 +231,6 @@ HRESULT RemotePlayer::InitializeGraphics()
 	//			HUD ELEMENTS
 	/////////////////////////////////////
 
-	if( FAILED( Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/GreenHP.png", mGreenHPAsset ) ) )
-		OutputDebugString( L"\nERROR\n" );
-
-	if( FAILED( Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/RedHP.png", mRedHPAsset ) ) )
-		OutputDebugString( L"\nERROR\n" );
-
-	if( FAILED( Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/OrangeHP.png", mOrangeHPAsset ) ) )
-		OutputDebugString( L"\nERROR\n" );
-
 	mFont.Initialize( "../Content/Assets/Fonts/mv_boli_26_red/" );
 	
 	mLeftArmAnimationCompleted				= false;
@@ -361,52 +352,6 @@ HRESULT RemotePlayer::Render( int position )
 													mLowerBody.position,
 													XMFLOAT3( 0.0f, -radians, 0.0f ) );
 
-	DirectX::XMFLOAT3 x;
-	DirectX::XMFLOAT3 y;
-
-	if ( mIsAlive )
-	{
-		float renderHpSize = ( mCurrentHp * 1.5f / mMaxHp ) + 1; //*1.5 and +1 to make it an appropriate size.
-
-		x = { mLowerBody.position.x - renderHpSize * 0.5f, 0.01f, mLowerBody.position.z + renderHpSize * 0.5f };
-		y = { mLowerBody.position.x + renderHpSize * 0.5f, 0.01f, mLowerBody.position.z - renderHpSize * 0.5f };
-
-		if ( mCurrentHp > ( mMaxHp * 0.5f ) )
-			RenderManager::GetInstance()->AddPlaneToList( mGreenHPAsset, x, y );
-		else if ( mCurrentHp < ( mMaxHp * 0.25f ) )
-			RenderManager::GetInstance()->AddPlaneToList( mRedHPAsset, x, y );
-		else
-			RenderManager::GetInstance()->AddPlaneToList( mOrangeHPAsset, x, y );
-	}
-
-	float renderSize;
-	if ( mColorIDAsset )
-	{
-		renderSize = 2.0f + 1;
-		x = { mLowerBody.position.x - renderSize * 0.5f, 0.005f, mLowerBody.position.z + renderSize * 0.5f };
-		y = { mLowerBody.position.x + renderSize * 0.5f, 0.005f, mLowerBody.position.z - renderSize * 0.5f };
-		RenderManager::GetInstance()->AddPlaneToList(mColorIDAsset, x, y);
-	}
-	
-	if ( mTeamAsset )
-	{
-		renderSize = 2.2f + 1;
-		x = { mLowerBody.position.x - renderSize * 0.5f, 0.004f, mLowerBody.position.z + renderSize * 0.5f };
-		y = { mLowerBody.position.x + renderSize * 0.5f, 0.004f, mLowerBody.position.z - renderSize * 0.5f };
-		RenderManager::GetInstance()->AddPlaneToList( mTeamAsset, x, y );
-	}
-
-	if( mColorIDAsset )
-	{
-		DirectX::XMFLOAT2 topLeft	= { 10.0f, 20.0f*(float)position };
-		DirectX::XMFLOAT2 size		= { 10, 10 };
-		RenderManager::GetInstance()->AddObject2dToList( mColorIDAsset, topLeft, size );
-
-		std::string textToWrite = "K " + std::to_string( mNrOfKills );
-		textToWrite += " D " + std::to_string( mNrOfDeaths );
-		mFont.WriteText( textToWrite, 25.0f, ((20.0f*(float)position)-7), 1.95f );
-	}
-
 	return S_OK;
 }
 
@@ -439,8 +384,6 @@ void RemotePlayer::RemoteInit( unsigned int id, int team, AssetID teamColor, Ass
 {
 	mID				= id;
 	mTeam			= team;
-	mTeamAsset		= teamColor;
-	mColorIDAsset	= colorID;
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Update::GUID );
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Attack::GUID );
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Died::GUID );

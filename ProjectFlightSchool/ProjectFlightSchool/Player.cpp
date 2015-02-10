@@ -363,7 +363,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 		//RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
 		//mLeftArmAnimationCompleted		= false;
 
-		QueueEvent( new Event_Client_Attack( mID, LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK]) );
+		//QueueEvent( new Event_Client_Attack( mID, LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK]) );
 
 		mTimeTillattack = mLoadOut->meleeWeapon->timeTillAttack;
 		mHasMeleeStarted		= false;

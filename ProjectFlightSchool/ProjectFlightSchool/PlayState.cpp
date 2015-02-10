@@ -362,6 +362,9 @@ void PlayState::SetEnemyState( unsigned int id, EnemyState state )
 
 HRESULT PlayState::Update( float deltaTime )
 {
+	//Fps update
+	mFPS = mFPS * 0.1f + 0.9f / deltaTime;
+
 	Client::GetInstance()->FillEventList( mPlayer->GetEvents() );
 	mPlayer->ClearEventList();
 
@@ -477,7 +480,7 @@ HRESULT PlayState::Render()
 	mGui->Render( nrOfAllies, alliesHP, (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)1 ); //Should be changed to shield and Xp
 
 	//RENDER DEVTEXT
-	std::string textToWrite = "RemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nProjectilesFired\t" + std::to_string( mNrOfProjectilesFired );
+	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nProjectilesFired\t" + std::to_string( mNrOfProjectilesFired );
 	mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
 
 	RenderManager::GetInstance()->Render();
@@ -620,6 +623,7 @@ void PlayState::Release()
 
 PlayState::PlayState()
 {
+	mFPS					= 0.0f;
 	mPlayer					= nullptr;
 	mRemotePlayers			= std::vector<RemotePlayer*>( 0 );
 	mRemotePlayers.reserve(MAX_REMOTE_PLAYERS);

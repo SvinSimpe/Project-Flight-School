@@ -26,7 +26,8 @@ class PlayState : public BaseState
 {
 	// Class members
 	private:
-		AnimationTrack mTestAnimation;
+		float			mFPS;
+		AnimationTrack	mTestAnimation;
 
 		Map*		mWorldMap;
 

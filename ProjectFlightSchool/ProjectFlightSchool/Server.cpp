@@ -238,8 +238,11 @@ void Server::ClientAttemptRevive( IEventPtr eventPtr )
 		UINT downedID = data->DownedID();
 		float deltaTime = data->DeltaTime();
 
-		IEventPtr E1( new Event_Remote_Attempt_Revive( id, downedID, deltaTime ) );
-		BroadcastEvent( E1, id );
+		if( mClientMap[id].TeamID == mClientMap[downedID].TeamID ) // This IF causes revives to be within teams, might be better to place somewhere else.
+		{
+			IEventPtr E1( new Event_Remote_Attempt_Revive( id, downedID, deltaTime ) );
+			BroadcastEvent( E1, id );
+		}
 	}
 }
 

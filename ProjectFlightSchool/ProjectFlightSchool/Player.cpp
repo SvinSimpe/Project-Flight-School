@@ -309,6 +309,7 @@ void Player::Reset()
 	mHasMeleeStarted			= false;
 
 	mMaxVelocity				= 7.7f;
+	mVelocity					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mCurrentVelocity			= 0.0f;
 	mMaxAcceleration			= 20.0f;;
 	mAcceleration				= XMFLOAT3( 0.0f, 0.0f, 0.0f );

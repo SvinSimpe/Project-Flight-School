@@ -177,6 +177,7 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Connect_Client_Success );
 	EF::REGISTER_EVENT( Event_Connect_Server_Fail );
 	EF::REGISTER_EVENT( Event_Connect_Client_Fail );
+	EF::REGISTER_EVENT( Event_Server_Spawn_Ship );
 
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	EventManager::GetInstance()->AddListener( &Client::Shutdown, this, Event_Shutdown_Client::GUID );

@@ -7,6 +7,9 @@
 class ServerShip
 {
 	private:
+		friend class Server;
+		BoundingCircle* mBuffCircle;	// Don't forget to add an event for turning on/off player buffing
+
 	protected:
 		UINT			mID;
 		UINT			mTeamID;
@@ -14,7 +17,6 @@ class ServerShip
 		XMFLOAT3		mDir;
 		float			mMaxHP;
 		float			mCurrentHP;
-		BoundingCircle* mBuffCircle;
 
 	public:
 
@@ -26,6 +28,7 @@ class ServerShip
 
 	protected:
 	public:
+		virtual bool	Intersect( BoundingCircle* entity ); // Will check for intersects with buffable players
 		virtual void	Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir );
 		virtual void	Update( float deltaTime );
 		virtual void	Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir );

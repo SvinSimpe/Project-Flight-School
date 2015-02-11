@@ -20,6 +20,15 @@ void ServerShip::ClientDamageShip( IEventPtr eventPtr )
 	// Code for handling damaging the ship
 }
 
+bool ServerShip::Intersect( BoundingCircle* entity )
+{
+	if( mBuffCircle->Intersect( entity ) )
+	{
+		return true;
+	}
+	return false;
+}
+
 void ServerShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir )
 {
 	Release();
@@ -32,6 +41,7 @@ void ServerShip::Update( float deltaTime )
 
 void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir )
 {
+	mBuffCircle = new BoundingCircle( pos, 20.0f );
 	mID			= id;
 	mTeamID		= teamID;
 	mPos		= pos;
@@ -39,7 +49,6 @@ void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir )
 	mCurrentHP	= mMaxHP;
 	mMaxHP		= 100.0f;
 	mCurrentHP	= mMaxHP;
-	mBuffCircle = new BoundingCircle( pos, 20.0f );
 }
 
 void ServerShip::Release()
@@ -53,13 +62,13 @@ void ServerShip::Release()
 
 ServerShip::ServerShip()
 {
+	mBuffCircle	= nullptr;
 	mID			= (UINT)-1;
 	mTeamID		= (UINT)-1;
 	mPos		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mDir		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mMaxHP		= 0.0f;
 	mCurrentHP	= 0.0f;
-	mBuffCircle	= nullptr;
 }
 
 ServerShip::~ServerShip()

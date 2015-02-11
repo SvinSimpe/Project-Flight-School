@@ -19,10 +19,12 @@ class ClientShip : public ServerShip
 		void RemoteHullLevel( IEventPtr eventPtr );
 		void RemoteBuffLevel( IEventPtr eventPtr );
 		void RemoteDamageShip( IEventPtr eventPtr );
+		void ServerResetShip( IEventPtr eventPtr ); // An event will be sent from the server when a reset is required
+		void Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir );
 
 	protected:
 	public:
-		void	Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir );
+		bool	Intersect( BoundingCircle* entity ); // Will check for intersects with damaging stuff
 		void	Update( float deltaTime );
 		void	Render();
 		void	Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir );

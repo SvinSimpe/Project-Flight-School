@@ -3017,4 +3017,97 @@ class Event_Connect_Client_Fail : public IEvent
 			return mErrorMsg;
 		}
 };
+
+class Event_Server_Spawn_Ship : public IEvent
+{
+	private:
+		UINT		mID;
+		UINT		mTeamID;
+		XMFLOAT3	mPos;
+		XMFLOAT3	mDir;
+		float		mHP;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Spawn_Ship()
+		{
+			mID		= (UINT)-1;
+			mTeamID = (UINT)-1;
+			mPos	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mDir	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mHP		= -1.0f;
+		}
+		Event_Server_Spawn_Ship( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir, float currentHP )
+		{
+			mID		= id;
+			mTeamID = teamID;
+			mPos	= pos;
+			mDir	= dir;
+			mHP		= currentHP;
+		}
+		~Event_Server_Spawn_Ship() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mTeamID << " ";
+
+			out << mPos.x << " ";
+			out << mPos.y << " ";
+			out << mPos.z << " ";
+
+			out << mDir.x << " ";
+			out << mDir.y << " ";
+			out << mDir.z << " ";
+
+			out << mHP << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mTeamID;
+
+			in >> mPos.x;
+			in >> mPos.y;
+			in >> mPos.z;
+
+			in >> mDir.x;
+			in >> mDir.y;
+			in >> mDir.z;
+
+			in >> mHP;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Spawn_Ship( mID, mTeamID, mPos, mDir, mHP ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT TeamID() const
+		{
+			return mTeamID;
+		}
+		XMFLOAT3 Position() const
+		{
+			return mPos;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDir;
+		}
+		float HP() const
+		{
+			return mHP;
+		}
+};
 #endif

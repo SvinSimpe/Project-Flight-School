@@ -170,7 +170,7 @@ void PlayState::CheckPlayerCollision()
 
 void PlayState::CheckProjectileCollision()
 {
-	for ( size_t i	 = 0; i < MAX_PROJECTILES; i++ )
+	for ( int i	 = 0; i < mNrOfActiveProjectiles; i++ )
 	{
 		// Players
 		if( mProjectiles[i]->IsActive() && mRemotePlayers.size() > 0 )
@@ -276,12 +276,16 @@ void PlayState::HandleDeveloperCameraInput()
 void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID )
 {
 	unsigned int shooter = 0;
-	for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
+	for ( int i = 0; i < mNrOfActiveProjectiles; i++ )
 	{
 		if( mProjectiles[i]->GetID() == projectileID )
 		{
 			shooter = mProjectiles[i]->GetPlayerID();
 			mProjectiles[i]->Reset();
+			Projectile* temp							= mProjectiles[mNrOfActiveProjectiles - 1];
+			mProjectiles[mNrOfActiveProjectiles - 1]	= mProjectiles[i];
+			mProjectiles[i]								= temp;
+			mNrOfActiveProjectiles--;
 		}
 	}
 
@@ -303,19 +307,26 @@ void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int project
 
 void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction )
 {
-	mNrOfProjectilesFired = mNrOfProjectilesFired % MAX_PROJECTILES;
-	mProjectiles[mNrOfProjectilesFired]->SetDirection( id, projectileID, position, direction );
-	mNrOfProjectilesFired++;
+	mProjectiles[mNrOfActiveProjectiles]->SetDirection( id, projectileID, position, direction );
+	mNrOfActiveProjectiles++;
 }
 
 void PlayState::UpdateProjectiles( float deltaTime )
 {
-	if( mNrOfProjectilesFired != 0 )
+	for ( int i = 0; i < mNrOfActiveProjectiles; i++ )
 	{
-		for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
+		if( mProjectiles[i]->IsActive() )
 		{
-			if( mProjectiles[i]->IsActive() )
-				mProjectiles[i]->Update( deltaTime );
+			mProjectiles[i]->Update( deltaTime );
+		}
+		else
+		{
+			Projectile* temp							= mProjectiles[mNrOfActiveProjectiles - 1];
+			mProjectiles[mNrOfActiveProjectiles - 1]	= mProjectiles[i];
+			mProjectiles[i]								= temp;
+			mProjectiles[mNrOfActiveProjectiles - 1]->Reset();
+			mProjectiles[i]->Update( deltaTime );
+			mNrOfActiveProjectiles--;
 		}
 	}
 }
@@ -329,14 +340,12 @@ void PlayState::UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT
 
 void PlayState::RenderProjectiles()
 {
-  	if( mNrOfProjectilesFired != 0 )
+ 
+	for ( int i = 0; i < mNrOfActiveProjectiles; i++ )
 	{
-		for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
-		{
-			if( mProjectiles[i]->IsActive() )
-				mProjectiles[i]->Render();
-		}
+		mProjectiles[i]->Render();
 	}
+
 }
 
 void PlayState::SetEnemyState( unsigned int id, EnemyState state )
@@ -504,7 +513,7 @@ HRESULT PlayState::Render()
 	mGui->Render();
 
 	//RENDER DEVTEXT
-	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nProjectilesFired\t" + std::to_string( mNrOfProjectilesFired );
+	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
 	mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
 
 	RenderManager::GetInstance()->Render();
@@ -559,6 +568,9 @@ HRESULT PlayState::Initialize()
 		mProjectiles[i] = new Projectile();
 		mProjectiles[i]->Initialize();
 	}
+
+	mNrOfActiveProjectiles	= 0;
+	mNrOfProjectilesFired	= 0;
 
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Local_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Joined::GUID );

@@ -1587,7 +1587,7 @@ void Graphics::ScreenSpacePass()
 //Finalize rendering.
 void Graphics::EndScene()
 {
-	mSwapChain->Present( 0, 0 );
+	mSwapChain->Present( 1, 0 );
 }
 
 //Singleton for the Graphics dll.

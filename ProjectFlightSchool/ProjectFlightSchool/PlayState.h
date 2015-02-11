@@ -26,7 +26,8 @@ class PlayState : public BaseState
 {
 	// Class members
 	private:
-		AnimationTrack mTestAnimation;
+		float			mFPS;
+		AnimationTrack	mTestAnimation;
 
 		Map*		mWorldMap;
 
@@ -49,6 +50,7 @@ class PlayState : public BaseState
 		ParticleManager*			mParticleManager;
 
 		RADAR_UPDATE_INFO			mRadarObjects[MAX_RADAR_OBJECTS];
+		float						mAlliesHP[MAX_REMOTE_PLAYERS / 2];
 		Gui*						mGui;
 		
 		//TestSound

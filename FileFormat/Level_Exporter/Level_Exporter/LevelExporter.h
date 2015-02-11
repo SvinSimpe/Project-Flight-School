@@ -13,9 +13,11 @@ private:
 	UINT navvertexCount;
 
 	vector<Matrix> matrices;
+	vector<VolumeLight> lights;
 	
 	GridData gridData;
 	NavMeshData navData;
+
 
 public:
 	LevelExporter();
@@ -37,6 +39,7 @@ private:
 	void ExtractAndConvertGridData(MFnMesh &mesh);
 	bool ExtractGridData(MFnMesh &mesh);
 	bool ExtractNavMesh(MFnMesh &mesh);
+	void ExtractLightData();
 	void ConvertNavMeshData(MFnMesh &mesh, MFloatPointArray &points);
 	void ConvertGridData(MFnMesh &mesh, MFloatPointArray &points, MFloatVectorArray &normals);
 	void GetDimensions(MFnMesh &mesh, UINT* dimensions);

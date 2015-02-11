@@ -17,9 +17,6 @@ void Server::ClientJoined( IEventPtr eventPtr )
 		// Sends necessary information of the newly connected client to the newly connected client
 		IEventPtr E1( new Event_Local_Joined( id, teamID ) );
 		SendEvent( E1, id );
-		//SendEnemies( id );
-
-		printf("Created client with ID: %d\n", id);
 
 		// Sends the incoming ID to the existing remotes
 		IEventPtr E2( new Event_Remote_Joined( id, teamID ) ); 
@@ -238,8 +235,11 @@ void Server::ClientAttemptRevive( IEventPtr eventPtr )
 		UINT downedID = data->DownedID();
 		float deltaTime = data->DeltaTime();
 
-		IEventPtr E1( new Event_Remote_Attempt_Revive( id, downedID, deltaTime ) );
-		BroadcastEvent( E1, id );
+		if( mClientMap[id].TeamID == mClientMap[downedID].TeamID ) // This IF causes revives to be within teams, might be better to place somewhere else.
+		{
+			IEventPtr E1( new Event_Remote_Attempt_Revive( id, downedID, deltaTime ) );
+			BroadcastEvent( E1, id );
+		}
 	}
 }
 
@@ -252,18 +252,30 @@ void Server::StartUp( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Start_Server::GUID )
 	{
 		std::shared_ptr<Event_Start_Server> data = std::static_pointer_cast<Event_Start_Server>( eventPtr );
-		UINT port = data->Port();
-		if( Connect( port ) )
-		{
-			IEventPtr E1( new Event_Initialize_Success () );
-			EventManager::GetInstance()->QueueEvent( E1 );
+		std::string port = data->Port();
 
+		// Makes sure everything is clean before starting
+		if( mSocketManager )
+			mSocketManager->Release();
+		SAFE_DELETE( mSocketManager );
+		mClientMap.clear();
+		
+		std::stringstream sstr;
+		sstr << port << " ";
+		UINT iPort;
+		sstr >> iPort;
+
+		if( Connect( iPort ) )
+		{
 			mActive = true;
+			IEventPtr E1( new Event_Connect_Server_Success () );
+			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 		else
 		{
-			IEventPtr E1( new Event_Initialize_Fail ( "Failed to start server!" ) );
+			IEventPtr E1( new Event_Connect_Server_Fail ( "Server failed at connecting!" ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
+			Release();
 		}
 	}
 }
@@ -356,9 +368,13 @@ bool Server::Initialize()
 
 void Server::Release()
 {
-	mSocketManager->Release();
+	if( mSocketManager )
+		mSocketManager->Release();
 	SAFE_DELETE( mSocketManager );
 	mClientMap.clear();
+	mTeamDelegate	= 1;
+	mCurrentPID		= 0;
+	mActive			= false;
 }
 
 Server::Server() : Network()

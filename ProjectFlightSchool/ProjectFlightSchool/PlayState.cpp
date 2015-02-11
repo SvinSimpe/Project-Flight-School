@@ -38,6 +38,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 			else if( data->ID() == mRemotePlayers.at(i)->GetID() )
 			{
 				mRemotePlayers.at(i)->Release();
+				SAFE_DELETE( mRemotePlayers.at(i) );
 				std::swap( mRemotePlayers.at(i), mRemotePlayers.at(mRemotePlayers.size() - 1) );
 				mRemotePlayers.pop_back();
 				break;
@@ -76,7 +77,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		mEnemyListSynced = true;
 	}
-	else if ( newEvent->GetEventType() == Event_Initialize_Success::GUID )
+	else if ( newEvent->GetEventType() == Event_Connect_Server_Success::GUID )
 	{
 		mServerInitialized = true;
 	}
@@ -116,25 +117,25 @@ void PlayState::SyncSpawn( unsigned int id, XMFLOAT3 position )
 void PlayState::BroadcastProjectileDamage( unsigned int playerID, unsigned int projectileID )
 {
 	IEventPtr E1( new Event_Client_Damaged( playerID, projectileID ) );
-	Client::GetInstance()->QueueEvent( E1 );
+	Client::GetInstance()->SendEvent( E1 );
 }
 
 void PlayState::BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction )
 {
 	IEventPtr E1( new Event_Client_Melee_Hit( playerID, damage, knockBack, direction ) );
-	Client::GetInstance()->QueueEvent( E1 );
+	Client::GetInstance()->SendEvent( E1 );
 }
 
 void PlayState::BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage )
 {
 	IEventPtr E1( new Event_Client_Projectile_Damage_Enemy( shooterID, projectileID, enemyID, damage ) );
-	Client::GetInstance()->QueueEvent( E1 );
+	Client::GetInstance()->SendEvent( E1 );
 }
 
 void PlayState::BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float knockBack, XMFLOAT3 direction )
 {
 	IEventPtr E1( new Event_Client_Enemy_Attack( mPlayer->GetID(), enemyID, damage, knockBack, direction, mPlayer->GetLoadOut()->meleeWeapon->stun ) );
-	Client::GetInstance()->QueueEvent( E1 );
+	Client::GetInstance()->SendEvent( E1 );
 }
 
 void PlayState::CheckPlayerCollision()
@@ -265,6 +266,11 @@ void PlayState::HandleDeveloperCameraInput()
 	// ZOOM OUT
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_UP) )
 		Graphics::GetInstance()->ZoomInDeveloperCamera();
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_Q ) )
+	{
+		IEventPtr E1( new Event_Reset_Game() );
+		EventManager::GetInstance()->QueueEvent( E1 );
+	}
 }
 
 void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID )
@@ -356,12 +362,11 @@ void PlayState::SetEnemyState( unsigned int id, EnemyState state )
 
 HRESULT PlayState::Update( float deltaTime )
 {
-	while( !mPlayer->GetEvents().empty() )
-	{
-		IEventPtr e = mPlayer->GetEvents().back();
-		Client::GetInstance()->QueueEvent( e );
-		mPlayer->PopEvent();
-	}
+	//Fps update
+	mFPS = mFPS * 0.1f + 0.9f / deltaTime;
+
+	Client::GetInstance()->FillEventList( mPlayer->GetEvents() );
+	mPlayer->ClearEventList();
 
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{
@@ -377,9 +382,17 @@ HRESULT PlayState::Update( float deltaTime )
 		mFrameCounter = 0;
 	}
 	else
+	{
 		mFrameCounter++;
+	}
 
+	GuiUpdate guiUpdate;
 	UINT nrOfRadarObj = 0;
+	PlayerName pName[MAX_REMOTE_PLAYERS - 1];
+	int nrOfAllies				= 0;
+	guiUpdate.mNrOfPlayerNames	= (UINT)mRemotePlayers.size();
+	guiUpdate.mPlayerTeamID		= mPlayer->GetTeam();
+
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
 	{
 		if ( mRemotePlayers.at(i) )
@@ -388,13 +401,28 @@ HRESULT PlayState::Update( float deltaTime )
 			std::string remotePlayerName = "";
 			if( mRemotePlayers[i]->IsAlive() )
 			{
-				remotePlayerName = mRemotePlayers[i]->GetName();
+				remotePlayerName							= mRemotePlayers[i]->GetName();
+				mRadarObjects[nrOfRadarObj].mRadarObjectPos = mRemotePlayers[i]->GetPosition();
+				mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::HOSTILE;
 			}
-			mGui->Update( DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), nullptr, 0, mRemotePlayers[i]->GetPosition(), remotePlayerName, mRemotePlayers[i]->GetTeam(), i, mPlayer->GetTeam(), true );
-			mRadarObjects[nrOfRadarObj].mRadarObjectPos = mRemotePlayers[i]->GetPosition();
-			mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
+			pName[i].mRemotePlayerPos		= mRemotePlayers[i]->GetPosition();
+			pName[i].mRemotePlayerName		= remotePlayerName;
+			pName[i].mRemotePlayerTeamID	= mRemotePlayers[i]->GetTeam();
+			pName[i].mRemotePlayerID		= i;
+
+			if( mRemotePlayers[i]->GetTeam() == mPlayer->GetTeam() )
+			{
+				mAlliesHP[nrOfAllies] = (float)( mRemotePlayers[i]->GetHP() / mRemotePlayers[i]->GetMaxHP() );
+				nrOfAllies++;
+			}
 		}
 	}
+
+	guiUpdate.mPlayerNames	= pName;
+	guiUpdate.mNrOfAllies	= nrOfAllies;
+	guiUpdate.mAlliesHP		= mAlliesHP;
+	guiUpdate.mShipHP		= 1.0f;
+
 	mPlayer->Update( deltaTime, mRemotePlayers );
 
 	HandleDeveloperCameraInput();
@@ -423,8 +451,17 @@ HRESULT PlayState::Update( float deltaTime )
 		}
 	}
 	mParticleManager->Update( deltaTime );
+
 	
-	mGui->Update( mPlayer->GetPlayerPosition(), mRadarObjects, nrOfRadarObj, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), "", 0, 0, 0, false );
+	guiUpdate.mRadarObjects	= mRadarObjects;
+	guiUpdate.mNrOfObjects	= nrOfRadarObj;
+	guiUpdate.mPlayerPos	= mPlayer->GetPlayerPosition();	
+
+	guiUpdate.mPlayerHP		= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
+	guiUpdate.mPlayerXP		= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
+	guiUpdate.mPlayerShield	= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
+	
+	mGui->Update( guiUpdate );
 
 	// Test Anim
 	///////////////////////////////////////////////////////////////////////////
@@ -467,20 +504,11 @@ HRESULT PlayState::Render()
 
 	mParticleManager->Render( 0.0f );
 
-	int nrOfAllies = 0;
-	float alliesHP[MAX_REMOTE_PLAYERS];
-	for( auto rp : mRemotePlayers )
-	{
-		if( rp->GetTeam() == mPlayer->GetTeam() )
-		{
-			alliesHP[nrOfAllies] = (float)( rp->GetHP() / rp->GetMaxHP() );
-			nrOfAllies++;
-		}
-	}
-	mGui->Render( nrOfAllies, alliesHP, (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)1 ); //Should be changed to shield and Xp
+	
+	mGui->Render();
 
 	//RENDER DEVTEXT
-	std::string textToWrite = "RemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nProjectilesFired\t" + std::to_string( mNrOfProjectilesFired );
+	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nProjectilesFired\t" + std::to_string( mNrOfProjectilesFired );
 	mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
 
 	RenderManager::GetInstance()->Render();
@@ -543,7 +571,7 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Fired_Projectile::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Create_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Enemies_Created::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Initialize_Success::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Connect_Server_Success::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Spawn::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Update_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Set_Enemy_State::GUID );
@@ -623,6 +651,7 @@ void PlayState::Release()
 
 PlayState::PlayState()
 {
+	mFPS					= 0.0f;
 	mPlayer					= nullptr;
 	mRemotePlayers			= std::vector<RemotePlayer*>( 0 );
 	mRemotePlayers.reserve(MAX_REMOTE_PLAYERS);

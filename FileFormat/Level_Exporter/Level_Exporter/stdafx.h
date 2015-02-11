@@ -25,6 +25,7 @@ using namespace std;
 #include <maya\MDagPath.h>
 #include <maya\MFloatPointArray.h>
 #include <maya\MFnPointLight.h>
+#include <maya\MFnVolumeLight.h>
 
 #include <maya\MFnIkJoint.h>
 #include <maya\MFnSkinCluster.h>

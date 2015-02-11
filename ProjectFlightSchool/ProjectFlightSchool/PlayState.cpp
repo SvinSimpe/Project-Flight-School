@@ -382,19 +382,43 @@ HRESULT PlayState::Update( float deltaTime )
 		mFrameCounter = 0;
 	}
 	else
+	{
 		mFrameCounter++;
+	}
 
+	GuiUpdate guiUpdate;
 	UINT nrOfRadarObj = 0;
+	PlayerName pName[MAX_REMOTE_PLAYERS - 1];
+	int nrOfAllies				= 0;
+	guiUpdate.mNrOfPlayerNames	= (UINT)mRemotePlayers.size();
+	guiUpdate.mPlayerTeamID		= mPlayer->GetTeam();
+
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
 	{
 		if ( mRemotePlayers.at(i) )
 		{
 			mRemotePlayers.at(i)->Update( deltaTime );
-			mGui->Update( DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), nullptr, 0, mRemotePlayers[i]->GetPosition(), mRemotePlayers[i]->GetName(), mRemotePlayers[i]->GetTeam(), i, mPlayer->GetTeam(), true );
+			pName[i].mRemotePlayerPos		= mRemotePlayers[i]->GetPosition();
+			pName[i].mRemotePlayerName		= mRemotePlayers[i]->GetName();
+			pName[i].mRemotePlayerTeamID	= mRemotePlayers[i]->GetTeam();
+			pName[i].mRemotePlayerID		= i;
+			
 			mRadarObjects[nrOfRadarObj].mRadarObjectPos = mRemotePlayers[i]->GetPosition();
-			mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
+			mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::HOSTILE;
+
+			if( mRemotePlayers[i]->GetTeam() == mPlayer->GetTeam() )
+			{
+				mAlliesHP[nrOfAllies] = (float)( mRemotePlayers[i]->GetHP() / mRemotePlayers[i]->GetMaxHP() );
+				nrOfAllies++;
+			}
 		}
 	}
+
+	guiUpdate.mPlayerNames	= pName;
+	guiUpdate.mNrOfAllies	= nrOfAllies;
+	guiUpdate.mAlliesHP		= mAlliesHP;
+	guiUpdate.mShipHP		= 1.0f;
+
 	mPlayer->Update( deltaTime, mRemotePlayers );
 
 	HandleDeveloperCameraInput();
@@ -423,8 +447,17 @@ HRESULT PlayState::Update( float deltaTime )
 		}
 	}
 	mParticleManager->Update( deltaTime );
+
 	
-	mGui->Update( mPlayer->GetPlayerPosition(), mRadarObjects, nrOfRadarObj, DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), "", 0, 0, 0, false );
+	guiUpdate.mRadarObjects	= mRadarObjects;
+	guiUpdate.mNrOfObjects	= nrOfRadarObj;
+	guiUpdate.mPlayerPos	= mPlayer->GetPlayerPosition();	
+
+	guiUpdate.mPlayerHP		= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
+	guiUpdate.mPlayerXP		= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
+	guiUpdate.mPlayerShield	= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
+	
+	mGui->Update( guiUpdate );
 
 	// Test Anim
 	///////////////////////////////////////////////////////////////////////////
@@ -467,17 +500,8 @@ HRESULT PlayState::Render()
 
 	mParticleManager->Render( 0.0f );
 
-	int nrOfAllies = 0;
-	float alliesHP[MAX_REMOTE_PLAYERS];
-	for( auto rp : mRemotePlayers )
-	{
-		if( rp->GetTeam() == mPlayer->GetTeam() )
-		{
-			alliesHP[nrOfAllies] = (float)( rp->GetHP() / rp->GetMaxHP() );
-			nrOfAllies++;
-		}
-	}
-	mGui->Render( nrOfAllies, alliesHP, (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() ), (float)1 ); //Should be changed to shield and Xp
+	
+	mGui->Render();
 
 	//RENDER DEVTEXT
 	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nProjectilesFired\t" + std::to_string( mNrOfProjectilesFired );

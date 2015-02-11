@@ -4,51 +4,70 @@
 #include "Radar.h"
 #include "Text.h"
 #include "Font.h"
+#include "HealthBars.h"
 #define MAX_REMOTE_PLAYERS 14
+
+struct PlayerName
+{
+	DirectX::XMFLOAT3 mRemotePlayerPos;
+	std::string mRemotePlayerName;
+	int mRemotePlayerTeamID;
+	int mRemotePlayerID;
+	
+};
+
+struct GuiUpdate
+{
+	//Radar update info
+	RADAR_UPDATE_INFO* mRadarObjects;
+	UINT mNrOfObjects;
+	DirectX::XMFLOAT3 mPlayerPos;
+	//------------------------------
+
+	//Player names update info
+	PlayerName* mPlayerNames;
+	UINT mNrOfPlayerNames;
+	int mPlayerTeamID;
+	//------------------------------
+
+	//Health bar update info
+	float* mAlliesHP;
+	int mNrOfAllies;
+	float mShipHP;
+	//------------------------------
+
+	//Player update info
+	float mPlayerHP;
+	float mPlayerShield;
+	float mPlayerXP;
+	//------------------------------
+};
 
 class Gui
 {
-
-
 	private:
-		Radar*	mRadar;
+		Radar*		mRadar;
+		HealthBar*	mHealtBar;
 
-		Text	mPlayerNames[MAX_REMOTE_PLAYERS - 1]; //Don't need to store the local player's name
+		Text		mPlayerNames[MAX_REMOTE_PLAYERS - 1]; //Don't need to store the local player's name
 
-		Font					mFont;
-		int						mScreenWidth;
-		int						mScreenHeight;
+		Font		mFont;
 
-		AssetID					mAllyHealth;
-		XMFLOAT2				mSizeAllyHealth;
-		float					mSpaceAllyHealth;
-		float					mSpaceAllyHealthToBar;
-		int						mNrOfHealths;
+		int			mPlayerHP;
+		int			mPlayerXP;
+		int			mPlayerShield;
 
-		AssetID					mAllyHealthBar;
-		XMFLOAT2				mSizeAllyHealthBar;
-		float					mSpaceAllyHealthBar;
-		float					mSpaceAllyHealthBarToEdge;
+		float		mExperience;
 
-		AssetID					mAllyHealthFrame;
-		XMFLOAT2				mSizeAllyHealthFrame;
+		AssetID		mPlayerBar;
+		XMFLOAT2	mPlayerHealthXPTopLeftCorner;
+		XMFLOAT2	mSizePlayerHealthXP;
 
-		AssetID					mPlayerBar;
-		XMFLOAT2				mSizePlayerHealthXP;
+		AssetID		mLevelUp;
+		XMFLOAT2	mSizeLevelUp;
+		XMFLOAT2	mTopLeftCompWithPlayerHealthXP;
 
-		AssetID					mLevelUp;
-		XMFLOAT2				mSizeLevelUp;
-		XMFLOAT2				mTopLeftCompWithPlayerHealthXP;
-
-		AssetID					mShipHealth;
-		XMFLOAT2				mSizeShipHealth;
-		float					mSizeShipHealthTop;
-		float					mSpaceShipHealth;
-		XMFLOAT2				mStartShipHealth;
-		XMFLOAT2				mEndShipHealth;
-
-		AssetID					mShipHealthBar;
-		XMFLOAT2				mSizeShipHealthBar;
+		
 
 	protected:
 	public:
@@ -56,8 +75,9 @@ class Gui
 	private:
 	protected:
 	public:
-		HRESULT	Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjects[], UINT nrOfObjects, DirectX::XMFLOAT3 remotePlayerPos, std::string remotePlayerName, int remotePlayerTeamID, int remotePlayerID, int playerTeamID, bool updateRemotePlayerName );
-		HRESULT	Render( int nrOfAllies, float alliesHP[], float playerHP, float playerShield, float playerXp, float shipHP );
+
+		HRESULT	Update( GuiUpdate guiUpdate );
+		HRESULT	Render();
 		HRESULT	Initialize();
 		void	Release();
 				Gui();

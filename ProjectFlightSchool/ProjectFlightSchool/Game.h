@@ -17,6 +17,8 @@ class Game
 
 		// Class functions
 	private:
+		void	ResetGame( IEventPtr eventPtr );
+		void	StartPlayState( IEventPtr eventPtr );
 	protected:
 	public:
 		HRESULT Update( float deltaTime );

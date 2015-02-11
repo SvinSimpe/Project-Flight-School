@@ -15,10 +15,18 @@ void StateMachine::EventListener( IEventPtr newEvent )
 			ChangeState( eventID );
 		}
 	}
-	else if( newEvent->GetEventType() == Event_Initialize_Fail::GUID )
+	else if( newEvent->GetEventType() == Event_Connect_Client_Fail::GUID )
 	{
-		std::shared_ptr<Event_Initialize_Fail> data = std::static_pointer_cast<Event_Initialize_Fail>( newEvent );
-		std::string msg = data->Message();
+		std::shared_ptr<Event_Connect_Client_Fail> data = std::static_pointer_cast<Event_Connect_Client_Fail>( newEvent );
+		std::string msg = data->ErrorMsg();
+
+		std::cout << msg << std::endl;
+		mStates[mCurrentState]->Reset();
+	}
+	else if( newEvent->GetEventType() == Event_Connect_Server_Fail::GUID )
+	{
+		std::shared_ptr<Event_Connect_Server_Fail> data = std::static_pointer_cast<Event_Connect_Server_Fail>( newEvent );
+		std::string msg = data->ErrorMsg();
 
 		std::cout << msg << std::endl;
 		mStates[mCurrentState]->Reset();
@@ -90,7 +98,9 @@ HRESULT StateMachine::Initialize()
 	}
 
 	EventManager::GetInstance()->AddListener( &StateMachine::EventListener, this, Event_Change_State::GUID );
-	EventManager::GetInstance()->AddListener( &StateMachine::EventListener, this, Event_Initialize_Fail::GUID );
+	EventManager::GetInstance()->AddListener( &StateMachine::EventListener, this, Event_Connect_Client_Fail::GUID );
+	EventManager::GetInstance()->AddListener( &StateMachine::EventListener, this, Event_Connect_Server_Fail::GUID );
+
 
 	return S_OK;
 }

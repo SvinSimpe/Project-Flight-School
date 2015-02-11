@@ -13,19 +13,17 @@ void Server::ClientJoined( IEventPtr eventPtr )
 
 		mClientMap[id].NEF.Initialize( id, mSocketManager );
 		mClientMap[id].TeamID = teamID;
-		mClientMap[id].Circle.radius = 0.5f; // This will be a cause for bugs later, check here if player collision is fucked up
 
 		// Sends necessary information of the newly connected client to the newly connected client
 		IEventPtr E1( new Event_Local_Joined( id, teamID ) );
 		SendEvent( E1, id );
 
 		// Initializes the ships in their current state to the newly connected client
-		for( auto& it : mShips )
-		{
-			ServerShip* s = &it.second;
-			IEventPtr SpawnShip( new Event_Server_Spawn_Ship( s->mID, s->mTeamID, s->mPos, s->mDir, s->mCurrentHP ) );
-			SendEvent( SpawnShip, id );
-		}
+		IEventPtr SpawnShipOne( new Event_Server_Spawn_Ship( mShipOne->mID, mShipOne->mTeamID, mShipOne->mPos, mShipOne->mDir, mShipOne->mCurrentHP ) );
+		SendEvent( SpawnShipOne, id );
+
+		IEventPtr SpawnShipTwo( new Event_Server_Spawn_Ship( mShipTwo->mID, mShipTwo->mTeamID, mShipTwo->mPos, mShipTwo->mDir, mShipTwo->mCurrentHP ) );
+		SendEvent( SpawnShipTwo, id );
 
 		// Sends the incoming ID to the existing remotes
 		IEventPtr E2( new Event_Remote_Joined( id, teamID ) ); 
@@ -66,8 +64,15 @@ void Server::ClientUpdate( IEventPtr eventPtr )
 		XMFLOAT3 vel = data->Velocity();
 		XMFLOAT3 dir = data->UpperBodyDirection();
 		std::string name = data->Name();
+		
+		// Add IsBuffed bool to the ClientUpdate in order to optimize event-sending
+		//if( mShipOne->mTeamID == mClientMap[id].TeamID )
+		//{
 
-		mClientMap[id].Circle.center = pos;
+		//}
+		//else
+		//{
+		//}
 
 		IEventPtr E1( new Event_Remote_Update( id, pos, vel, dir, name ) );
 		BroadcastEvent( E1, id );
@@ -154,50 +159,6 @@ void Server::ClientMeleeHit( IEventPtr eventPtr )
 		BroadcastEvent( E1 );
 	}
 }
-
-//void Server::StateCheck()
-//{
-//	if( mEnemies[i]->IsAlive() )
-//	{
-//		for ( size_t j = 0; j < mNrOfPlayers; j++ )
-//		{
-//			// The players agg circle
-//			mAggCircle->center = mPlayers[j].Position;
-//			mAggCircle->radius = 1.0f;
-//
-//			if( mPlayers[j].IsAlive && mEnemies[i]->GetAttentionCircle()->Intersect( mAggCircle ) && mEnemies[i]->GetEnemyState() != Stunned )
-//			{
-//				if( mEnemies[i]->GetAttackCircle()->Intersect( mAggCircle ) )
-//				{
-//					mEnemies[i]->SetState( Attack );
-//					float attack = mEnemies[i]->HandleAttack();
-//					if( attack != 0.0f )
-//					{
-//						EvEnemyAttackPlayer enemyAtk;
-//						enemyAtk.playerID	= mPlayers[j].ID;
-//						enemyAtk.damage		= attack;
-//						for ( auto& socket : mClientSockets )
-//						{
-//							if ( socket.s != INVALID_SOCKET && mEnemyListSynced )
-//							{
-//								mConn->SendPkg( socket.s, 0, Net_Event::EV_ENEMY_ATTACK_PLAYER, enemyAtk );
-//							}
-//						}
-//					}
-//				}
-//				else
-//				{
-//					mEnemies[i]->SetState( HuntPlayer );
-//					mEnemies[i]->SetHuntedPlayer( mPlayers[j].Position );
-//				}
-//			}
-//			else
-//			{
-//				mEnemies[i]->SetState( Idle );
-//			}
-//		}
-//	}
-//}
 
 void Server::ClientAttack( IEventPtr eventPtr )
 {
@@ -327,12 +288,14 @@ void Server::CreateShips()
 {
 	UINT shipID = 60;
 	float xOffset = -10.0f;
-	for( UINT i = 0; i < MAX_TEAMS; i++ )
-	{
-		mShips[shipID].Initialize( shipID, CurrentTeamDelegate(), XMFLOAT3( xOffset, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
-		shipID++;
-		xOffset += 20.0f;
-	}
+
+	mShipOne = new ServerShip();
+	mShipOne->Initialize( shipID, CurrentTeamDelegate(), XMFLOAT3( xOffset, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
+	shipID++;
+	xOffset += 20.0f;
+
+	mShipTwo = new ServerShip();
+	mShipTwo->Initialize( shipID, CurrentTeamDelegate(), XMFLOAT3( xOffset, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 }
 
 bool Server::Connect( UINT port )
@@ -398,11 +361,13 @@ void Server::Release()
 	mCurrentPID		= 0;
 	mActive			= false;
 
-	for( auto& s : mShips )
-	{
-		if( s.first )
-			s.second.Release();
-	}
+	if( mShipOne )
+		mShipOne->Release();
+	SAFE_DELETE( mShipOne );
+
+	if( mShipTwo )
+		mShipTwo->Release();
+	SAFE_DELETE( mShipTwo );
 }
 
 Server::Server() : Network()
@@ -412,7 +377,8 @@ Server::Server() : Network()
 	mTeamDelegate	= (UINT)-1;
 	mCurrentPID		= (UINT)-1;
 	mActive			= false;
-	mShips			= std::map<UINT, ServerShip>();
+	mShipOne		= nullptr;
+	mShipTwo		= nullptr;
 }
 
 Server::~Server()

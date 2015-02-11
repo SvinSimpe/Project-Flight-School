@@ -9,9 +9,8 @@ class Server : public Network
 	private:
 		struct ClientNEF
 		{
-			NetworkEventForwarder NEF;
-			UINT TeamID;
-			BoundingCircle Circle;
+			NetworkEventForwarder	NEF;
+			UINT					TeamID;
 		};
 		const UINT MAX_TEAMS = 2;
 		const UINT MAX_PROJECTILE_ID = 999;
@@ -21,8 +20,8 @@ class Server : public Network
 		UINT						mTeamDelegate;
 		UINT						mCurrentPID;
 		bool						mActive;
-		std::map<UINT, ServerShip>	mShips;
-
+		ServerShip*					mShipOne;
+		ServerShip*					mShipTwo;
 
 	protected:
 	public:
@@ -49,6 +48,7 @@ class Server : public Network
 		UINT	CurrentTeamDelegate();
 		UINT	CurrentPID();
 		void	CreateShips();
+		void	HandleShipBuffing( XMFLOAT3 pos );
 
 	protected:
 		bool	Connect( UINT port );

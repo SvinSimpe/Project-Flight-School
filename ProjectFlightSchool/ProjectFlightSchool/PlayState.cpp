@@ -91,6 +91,12 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Remote_Set_Enemy_State> data = std::static_pointer_cast<Event_Remote_Set_Enemy_State>( newEvent );
 		SetEnemyState( data->ID(), (EnemyState)data->State() );
 	}
+	else if( newEvent->GetEventType() == Event_Server_Spawn_Ship::GUID )
+	{
+		std::shared_ptr<Event_Server_Spawn_Ship> data = std::static_pointer_cast<Event_Server_Spawn_Ship>( newEvent );
+		mShips.push_back( new ClientShip() );
+		mShips.back()->Initialize( data->ID(), data->TeamID(), data->Position(), data->Direction() );
+	}
 }
 
 void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction )
@@ -464,6 +470,11 @@ HRESULT PlayState::Update( float deltaTime )
 	RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
 	///////////////////////////////////////////////////////////////////////////
 
+	for( auto& s : mShips )
+	{
+		s->Update( deltaTime );
+	}
+
 	return S_OK;
 }
 
@@ -506,6 +517,11 @@ HRESULT PlayState::Render()
 	//RENDER DEVTEXT
 	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nProjectilesFired\t" + std::to_string( mNrOfProjectilesFired );
 	mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
+
+	for( auto& s : mShips )
+	{
+		s->Render();
+	}
 
 	RenderManager::GetInstance()->Render();
 
@@ -571,6 +587,7 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Spawn::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Update_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Set_Enemy_State::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Spawn_Ship::GUID );
 
 	mFont.Initialize( "../Content/Assets/Fonts/final_font/" );
 
@@ -643,6 +660,12 @@ void PlayState::Release()
 	mGui->Release();
 	SAFE_DELETE( mGui );
 
+	for( auto& s : mShips )
+	{
+		if( s )
+			s->Release();
+		SAFE_DELETE( s );
+	}
 }
 
 PlayState::PlayState()
@@ -659,6 +682,7 @@ PlayState::PlayState()
 	mServerInitialized		= false;
 	mParticleManager		= nullptr;
 	mGui					= nullptr;
+	mShips					= std::vector<ClientShip*>( 0 );
 }
 
 PlayState::~PlayState()

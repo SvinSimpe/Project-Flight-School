@@ -2,6 +2,7 @@
 #define SERVER_H
 
 #include "Network.h"
+#include "ServerShip.h"
 
 class Server : public Network
 {
@@ -10,6 +11,7 @@ class Server : public Network
 		{
 			NetworkEventForwarder NEF;
 			UINT TeamID;
+			BoundingCircle Circle;
 		};
 		const UINT MAX_TEAMS = 2;
 		const UINT MAX_PROJECTILE_ID = 999;
@@ -19,6 +21,7 @@ class Server : public Network
 		UINT						mTeamDelegate;
 		UINT						mCurrentPID;
 		bool						mActive;
+		std::map<UINT, ServerShip>	mShips;
 
 
 	protected:
@@ -45,6 +48,7 @@ class Server : public Network
 		void	SendEvent( IEventPtr eventPtr, UINT to );
 		UINT	CurrentTeamDelegate();
 		UINT	CurrentPID();
+		void	CreateShips();
 
 	protected:
 		bool	Connect( UINT port );

@@ -8,7 +8,7 @@
 #include "MapNodeManager.h"
 #include "Font.h"
 #include "Enemy.h"
-#include "Ship.h"
+#include "ClientShip.h"
 #include "Image.h"
 #include "EnemySpawn.h"
 #include "RemoteEnemy.h"
@@ -52,7 +52,9 @@ class PlayState : public BaseState
 		RADAR_UPDATE_INFO			mRadarObjects[MAX_RADAR_OBJECTS];
 		float						mAlliesHP[MAX_REMOTE_PLAYERS / 2];
 		Gui*						mGui;
-		
+
+		std::vector<ClientShip*>	mShips;
+
 		//TestSound
 		int							m3DSoundAsset;
 		int							mSoundAsset;

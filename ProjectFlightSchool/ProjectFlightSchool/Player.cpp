@@ -305,14 +305,17 @@ void Player::HandleRevive(float deltaTime)
 
 void Player::Reset()
 {
-	mEventCapTimer				= 0.0f;
-	mPointLight[0]->position	= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
+	mEventCapTimer					= 0.0f;
+	mPointLight[0]->position		= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
+	mPointLight[0]->colorAndRadius	= DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 17.0f );
 
 	mWeaponCoolDown				= 0;
 	mMeleeCoolDown				= 0;
 	mTimeTillattack				= mLoadOut->meleeWeapon->timeTillAttack;
 	mIsMeleeing					= false;
 	mHasMeleeStarted			= false;
+	mLock						= false;
+	mCloseToPlayer				= false;
 
 	mMaxVelocity				= 7.7f;
 	mCurrentVelocity			= 0.0f;

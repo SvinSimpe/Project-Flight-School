@@ -228,6 +228,9 @@
     <ClCompile Include="EnemyAnimationManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Radar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="DS3DBuffer.cpp">
       <Filter>DirectSound\Source</Filter>
     </ClCompile>
@@ -261,8 +264,8 @@
     <ClCompile Include="HealthBars.cpp">
       <Filter>GUI\Source</Filter>
     </ClCompile>
-    <ClCompile Include="Radar.cpp">
-      <Filter>GUI\Source</Filter>
+    <ClCompile Include="UpgradeShipWindow.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -413,6 +416,9 @@
     <ClInclude Include="EnemyAnimationManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Radar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="DS3DBuffer.h">
       <Filter>DirectSound\Header</Filter>
     </ClInclude>
@@ -452,8 +458,8 @@
     <ClInclude Include="HealthBars.h">
       <Filter>GUI\Header</Filter>
     </ClInclude>
-    <ClInclude Include="Radar.h">
-      <Filter>GUI\Header</Filter>
+    <ClInclude Include="UpgradeShipWindow.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

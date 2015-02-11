@@ -33,7 +33,7 @@ struct ParticleSystem : public ParticleData
 		ParticleData::Initialize( nrOfParticles );
 
 
-		Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/muzzleflash.dds", assetID );
+		Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/testSparkParticle.dds", assetID );
 		// Load asset for particle type
 		// - Shader
 		// - Texture
@@ -78,7 +78,7 @@ struct ParticleSystem : public ParticleData
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{	
-			if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 256, 20.0f );
+			if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 128, 20.0f );
 	}
 
 	virtual void Update( float deltaTime )

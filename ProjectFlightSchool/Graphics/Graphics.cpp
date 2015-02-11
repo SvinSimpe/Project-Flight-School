@@ -4,7 +4,8 @@ Graphics::Graphics()
 {
 	mHWnd			= 0;
 	mScreenWidth	= 0;
-	mScreenHeight	= 0;	
+	mScreenHeight	= 0;
+	mFullscreen		= false;
 
 	mSwapChain		= nullptr;
 	mDevice			= nullptr;
@@ -1590,6 +1591,12 @@ void Graphics::EndScene()
 	mSwapChain->Present( 1, 0 );
 }
 
+void Graphics::ToggleFullscreen()
+{
+	mFullscreen = !mFullscreen;
+	mSwapChain->SetFullscreenState( mFullscreen, NULL );
+}
+
 //Singleton for the Graphics dll.
 Graphics* Graphics::GetInstance()
 {
@@ -1598,11 +1605,12 @@ Graphics* Graphics::GetInstance()
 }
 
 //Initialize graphics interfaces.
-HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
+HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bool fullscreen )
 {
 	mHWnd			= hWnd;
 	mScreenWidth	= screenWidth;
 	mScreenHeight	= screenHeight;
+	mFullscreen		= fullscreen;
 
 	HRESULT hr		= E_FAIL;
 
@@ -1626,7 +1634,9 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight )
 	swapChainDesc.OutputWindow							= hWnd;
 	swapChainDesc.SampleDesc.Count						= 1;
 	swapChainDesc.SampleDesc.Quality					= 0;
-	swapChainDesc.Windowed								= true;
+	swapChainDesc.Windowed								= !mFullscreen;
+	swapChainDesc.Flags									= DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+	swapChainDesc.SwapEffect							= DXGI_SWAP_EFFECT_DISCARD;
 
 	D3D_FEATURE_LEVEL featureLevelsToTry[] = { D3D_FEATURE_LEVEL_11_0 };
 	D3D_FEATURE_LEVEL initiatedFeatureLevel;

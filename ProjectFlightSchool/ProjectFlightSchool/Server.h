@@ -2,6 +2,12 @@
 #define SERVER_H
 
 #include "Network.h"
+#include "Enemy.h"
+#include "EnemySpawn.h"
+#include "RemotePlayer.h"
+#include <stdlib.h>
+#include <time.h>
+#include "RemotePlayer.h"
 
 class Server : public Network
 {
@@ -19,6 +25,15 @@ class Server : public Network
 		UINT						mTeamDelegate;
 		UINT						mCurrentPID;
 		bool						mActive;
+
+		// Game Logic
+		Enemy**						mEnemies;
+		EnemySpawn**				mSpawners;
+		BoundingCircle*				mAggroCircle;
+		ServerPlayer				mPlayers[8];
+		UINT						mNrOfPlayers;
+		UINT						mNrOfEnemiesSpawned;
+		UINT						mNrOfProjectilesFired;
 
 
 	protected:
@@ -39,12 +54,17 @@ class Server : public Network
 		void	ClientDown( IEventPtr eventPtr );
 		void	ClientUp( IEventPtr eventPtr );
 		void	ClientAttemptRevive( IEventPtr eventPtr );
+		void	ClientEnemyProjectileDamage( IEventPtr eventPtr );
+		void	SetEnemyState( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 
 		void	SendEvent( IEventPtr eventPtr, UINT to );
 		UINT	CurrentTeamDelegate();
 		UINT	CurrentPID();
+
+		void		StateCheck();
+		XMFLOAT3	GetNextSpawn();
 
 	protected:
 		bool	Connect( UINT port );
@@ -55,6 +75,7 @@ class Server : public Network
 		void	Update( float deltaTime );
 		void	DoSelect( int pauseMicroSecs, bool handleInput = true );
 		bool	Initialize();
+		void	Reset();
 		void	Release();
 				Server();
 		virtual	~Server();

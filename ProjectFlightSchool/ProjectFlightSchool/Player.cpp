@@ -112,10 +112,25 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		XMVECTOR intersection = XMVectorAdd(rayPosInWorld, rayDirInWorld * t);
 
 
+
+	//== Weapon handling ==
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_LEFT ) && mWeaponCoolDown <= 0.0f )
+	{
+		Fire();
+		mWeaponCoolDown = mLoadOut->rangedWeapon->attackRate;
+		
+		RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] );
+		mRightArmAnimationCompleted		= false;
+		QueueEvent( new Event_Client_Attack( mID, RIGHT_ARM_ID, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] ) );
+	}
+	else
+		mWeaponCoolDown -= deltaTime;
+
 		XMVECTOR playerToCursor = XMVectorSubtract(intersection, XMLoadFloat3(&XMFLOAT3(mLowerBody.position.x, 1.0f, mLowerBody.position.z)));
 		XMStoreFloat3(&unPack, playerToCursor);
 		playerToCursor = XMVector3Normalize(XMVectorSet(unPack.x, 0.0f, unPack.z, 0.0f));
 		XMStoreFloat3(&mUpperBody.direction, playerToCursor);
+
 
 		//== Weapon handling ==
 		if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) && mWeaponCoolDown <= 0.0f)
@@ -246,7 +261,53 @@ void Player::Fire()
 	XMFLOAT3 loadDir;
 	XMStoreFloat3( &loadDir, offset );
 
-	QueueEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mUpperBody.direction ) );
+	if( mLoadOut->rangedWeapon->weaponType == SHOTGUN )
+	{
+		// Fire shotgun
+
+		// middle projectile
+		QueueEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mUpperBody.direction, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+
+		//// projectile 1
+		XMFLOAT3 shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 30.0f ) ) ) );
+		QueueEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+
+		// projectile 2
+		//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -30.0f ) ) ) );
+		QueueEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+
+		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 20.0f ) ) ) );
+		QueueEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+
+		// projectile 2
+		//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -20.0f ) ) ) );
+		QueueEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+
+		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 40.0f ) ) ) );
+		QueueEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+
+		// projectile 2
+		//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -40.0f ) ) ) );
+		QueueEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+	}
+	else
+	{
+		// Set random spread
+		if( mLoadOut->rangedWeapon->spread != 0.0f )
+		{
+			float directionOffset	=  (float)( rand() % 100 ) * 0.001f - mLoadOut->rangedWeapon->spread;
+			mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffset, mUpperBody.direction.y, mUpperBody.direction.z + directionOffset );
+			QueueEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mFireDirection, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range ) );
+		}
+		else
+		{
+			QueueEvent(  new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mUpperBody.direction, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range ) );
+		}
+	}
 }
 
 void Player::AddImpuls( XMFLOAT3 impuls )
@@ -472,9 +533,9 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 	//== Event to sync player with server ==
 	mEventCapTimer += deltaTime;
-	if( mEventCapTimer > 0.03f )
+	if( mEventCapTimer > 0.02f )
 	{
-		QueueEvent( new Event_Client_Update( mID, mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName ) );
+		QueueEvent( new Event_Client_Update( mID, mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName, mIsAlive ) );
 		mEventCapTimer = 0.0f;
 	}
 
@@ -497,6 +558,8 @@ HRESULT Player::Render( float deltaTime, int position )
 HRESULT Player::Initialize()
 {
 	RemotePlayer::Initialize();
+
+	srand( (unsigned int)time( NULL ) );
 
 	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mPlayerName = "";
@@ -571,6 +634,7 @@ Player::Player()
 	mCurrentVelocity	= 0.0f;
 	mMaxAcceleration	= 0.0f;
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mFireDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mIsBuffed			= false;
 	mBuffMod			= 0.0f;
 	mHasMeleeStarted	= false;

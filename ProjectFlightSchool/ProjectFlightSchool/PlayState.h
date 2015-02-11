@@ -57,7 +57,7 @@ class PlayState : public BaseState
 
 		RADAR_UPDATE_INFO			mRadarObjects[MAX_RADAR_OBJECTS];
 		Gui*						mGui;
-
+		
 		//TestSound
 		int							m3DSoundAsset;
 		int							mSoundAsset;

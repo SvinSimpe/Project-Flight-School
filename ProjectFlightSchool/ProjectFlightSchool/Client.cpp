@@ -6,6 +6,7 @@ Client::Client() : Network()
 {
 	mSocketManager			= nullptr;
 	mNEF					= nullptr;
+	mEventList				= std::list<IEventPtr>();
 	mActive					= false;
 }
 
@@ -188,9 +189,6 @@ Client::~Client()
 //=======
 }
 
-// End of eventlistening functions
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void Client::StartUp( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Start_Client::GUID )
@@ -203,6 +201,11 @@ void Client::StartUp( IEventPtr eventPtr )
 		else
 			mActive = true;
 	}
+}
+
+void Client::SendEvent( IEventPtr eventPtr )
+{
+	mNEF->ForwardEvent( eventPtr );
 }
 
 bool Client::Connect( std::string ip, UINT port )
@@ -226,16 +229,25 @@ Client* Client::GetInstance()
 	return mInstance;
 }
 
-void Client::SendEvent( IEventPtr eventPtr )
+void Client::QueueEvent( IEventPtr ptr )
 {
-	mNEF->ForwardEvent( eventPtr );
+	mEventList.push_front( IEventPtr( ptr ) );
+}
+
+void Client::PopEvent()
+{
+	mEventList.pop_back();
 }
 
 void Client::Update( float deltaTime )
 {
 	if( mActive )
 	{
-
+		while( !mEventList.empty() )
+		{
+			SendEvent( mEventList.back() );
+			PopEvent();
+		}
 	}
 }
 
@@ -315,5 +327,6 @@ void Client::Release()
 		mSocketManager->Release();
 	SAFE_DELETE( mSocketManager );
 	SAFE_DELETE( mNEF );
+	mEventList.clear();
 	SAFE_DELETE( mInstance );
 }

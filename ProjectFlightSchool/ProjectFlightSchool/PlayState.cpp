@@ -14,6 +14,8 @@ void PlayState::EventListener( IEventPtr newEvent )
 			mPlayer->SetID( data->ID() );
 			mPlayer->SetTeam( data->TeamID(), mTeams[data->TeamID()] );
 			mPlayer->SetColor( mColorIDs[mCurrentColor] );
+
+			printf("My assigned ID is: %d\n", mPlayer->GetID());
 		
 			mCurrentColor++;
 			//TestSound
@@ -28,7 +30,8 @@ void PlayState::EventListener( IEventPtr newEvent )
 		mRemotePlayers.at(mRemotePlayers.size() - 1)->Initialize();
 		mRemotePlayers.at(mRemotePlayers.size() - 1)->RemoteInit( data->ID(), data->TeamID(), mTeams[data->TeamID()], mColorIDs[mCurrentColor] );
 		mCurrentColor++;
-		printf( "Number of other players online: %d.\n", mRemotePlayers.size() );
+		printf("Remote with ID: %d connected. Number of remotes online: %d\n", mRemotePlayers.back()->GetID(), mRemotePlayers.size());
+		//printf( "Number of other players online: %d.\n", mRemotePlayers.size() );
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Left::GUID ) // Remove a remote player from the list when they disconnect
 	{
@@ -90,9 +93,9 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Server_Sync_Spawn> data = std::static_pointer_cast<Event_Server_Sync_Spawn>( newEvent );
 		SyncSpawn( data->ID(), data->Position() );
 	}
-	else if ( newEvent->GetEventType() == Event_Remote_Set_Enemy_State::GUID )
+	else if ( newEvent->GetEventType() == Event_Server_Sync_Enemy_State::GUID )
 	{
-		std::shared_ptr<Event_Remote_Set_Enemy_State> data = std::static_pointer_cast<Event_Remote_Set_Enemy_State>( newEvent );
+		std::shared_ptr<Event_Server_Sync_Enemy_State> data = std::static_pointer_cast<Event_Server_Sync_Enemy_State>( newEvent );
 		SetEnemyState( data->ID(), (EnemyState)data->State() );
 	}
 }
@@ -144,26 +147,26 @@ void PlayState::SyncSpawn( unsigned int id, XMFLOAT3 position )
 // Tell server that local  player has taken damage
 void PlayState::BroadcastDamage( unsigned int playerID, unsigned int projectileID )
 {
-	IEventPtr dmgEv( new Event_Client_Damaged( playerID, projectileID ) );
-	Client::GetInstance()->SendEvent( dmgEv );
+	IEventPtr E1( new Event_Client_Damaged( playerID, projectileID ) );
+	Client::GetInstance()->QueueEvent( E1 );
 }
 
 void PlayState::BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage )
 {
-	IEventPtr dmgEv( new Event_Client_Projectile_Damage_Enemy( shooterID, projectileID, enemyID, damage ) );
-	Client::GetInstance()->SendEvent( dmgEv );
+	IEventPtr E1( new Event_Client_Projectile_Damage_Enemy( shooterID, projectileID, enemyID, damage ) );
+	Client::GetInstance()->QueueEvent( E1 );
 }
 
 void PlayState::BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction )
 {
-	IEventPtr dmgEv( new Event_Client_Melee_Hit( playerID, damage, knockBack, direction ) );
-	Client::GetInstance()->SendEvent( dmgEv );
+	IEventPtr E1( new Event_Client_Melee_Hit( playerID, damage, knockBack, direction ) );
+	Client::GetInstance()->QueueEvent( E1 );
 }
 
 void PlayState::BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float knockBack, XMFLOAT3 direction )
 {
-	IEventPtr dmgEv( new Event_Client_Enemy_Attack( mPlayer->GetID(), enemyID, damage, knockBack, direction, mPlayer->GetLoadOut()->meleeWeapon->stun ) );
-	Client::GetInstance()->SendEvent( dmgEv );
+	IEventPtr E1( new Event_Client_Enemy_Attack( mPlayer->GetID(), enemyID, damage, knockBack, direction, mPlayer->GetLoadOut()->meleeWeapon->stun ) );
+	Client::GetInstance()->QueueEvent( E1 );
 }
 
 void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range )
@@ -245,21 +248,15 @@ void PlayState::CheckProjectileCollision()
 {
 	for ( size_t i	 = 0; i < MAX_PROJECTILES; i++ )
 	{
-		if( mProjectiles[i]->IsActive() )
+		// Players
+		if( mProjectiles[i]->IsActive() ) //&& mRemotePlayers.size() > 0 )
 		{
-			// Players
-			if( mRemotePlayers.size() > 0 )
+			for ( size_t j = 0; j < mRemotePlayers.size(); j++ )
 			{
-				for ( size_t j = 0; j < mRemotePlayers.size(); j++ )
+				if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() && mProjectiles[i]->GetBoundingCircle()->Intersect( mRemotePlayers[j]->GetBoundingCircle() ) )
 				{
-					if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() )
-					{
-						if( mProjectiles[i]->GetBoundingCircle()->Intersect( mRemotePlayers[j]->GetBoundingCircle() ) )
-						{
-							BroadcastDamage( mRemotePlayers[j]->GetID(), mProjectiles[i]->GetID() );
-							return;
-						}
-					}
+					BroadcastDamage( mRemotePlayers[j]->GetID(), mProjectiles[i]->GetID() );
+					return;
 				}
 			}
 
@@ -341,8 +338,8 @@ void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int project
 	{
 		if( mProjectiles[i]->GetID() == projectileID )
 		{
-				shooter = mProjectiles[i]->GetPlayerID();
-				mProjectiles[i]->Reset();
+			shooter = mProjectiles[i]->GetPlayerID();
+			mProjectiles[i]->Reset();
 		}
 	}
 
@@ -373,7 +370,7 @@ HRESULT PlayState::Update( float deltaTime )
 	while( !mPlayer->GetEvents().empty() )
 	{
 		IEventPtr e = mPlayer->GetEvents().back();
-		Client::GetInstance()->SendEvent( e );
+		Client::GetInstance()->QueueEvent( e );
 		mPlayer->PopEvent();
 	}
 
@@ -409,8 +406,10 @@ HRESULT PlayState::Update( float deltaTime )
 
 	UpdateProjectiles( deltaTime );
 
-	//mRadarObjects[nrOfRadarObj].mRadarObjectPos = mShip.GetPosition();
-	mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_FRIENDLY;
+	//Test radar due to no ship :(
+	mRadarObjects[nrOfRadarObj].mRadarObjectPos = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );//mShip.GetPosition();
+	mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
+	//-------
 
 	// Enemies
 	if( mEnemyListSynced )
@@ -570,7 +569,7 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Initialize_Success::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Spawn::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Update_Enemy::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Set_Enemy_State::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Enemy_State::GUID ); 
 
 	mFont.Initialize( "../Content/Assets/Fonts/final_font/" );
 

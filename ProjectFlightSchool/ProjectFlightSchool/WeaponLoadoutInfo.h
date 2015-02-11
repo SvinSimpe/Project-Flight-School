@@ -20,12 +20,12 @@
 #define MINIGUN_SPEED		30.0f;	// Projectile Speed
 
 // Shotgun
-#define SHOTGUN_AR			1.0f	// Attack Rate
+#define SHOTGUN_AR			0.5f	// Attack Rate
 #define SHOTGUN_DAMAGE		1.0f	// Damage
 #define SHOTGUN_RANGE		1.0f	// Range
 #define SHOTGUN_SPREAD		0.5f	// Spread
 #define SHOTGUN_AOE			0.0f	// Area of effect
-#define SHOTGUN_SPEED		10.0f;	// Projectile Speed
+#define SHOTGUN_SPEED		35.0f;	// Projectile Speed
 
 // Grenade Launcher
 #define GL_AR				1.5f	// Attack Rate

@@ -1,13 +1,13 @@
 #ifndef ENEMY_H
 #define ENEMY_H
 
-#include "Graphics.h"
 #include "Events.h"
+#include "Graphics.h"
 #include "BoundingGeometry.h"
 #include "RenderManager.h"
 #include "Font.h"
 
-#define MAX_NR_OF_ENEMIES		1
+#define MAX_NR_OF_ENEMIES		10
 
 // ---- Define all enemy animations ----
 // Standard

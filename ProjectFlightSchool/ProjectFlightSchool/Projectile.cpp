@@ -34,14 +34,13 @@ HRESULT Projectile::Render( )
 void Projectile::SetDirection( unsigned int playerID, unsigned int id, XMFLOAT3 startPosition, XMFLOAT3 direction, float speed, float range )
 {
 	Reset();
-	mID				= id;
 	mPlayerID		= playerID;
+	mID				= id;
 	mPosition		= startPosition;
-
-	mDirection	= direction;	
-	mSpeed		= speed;
-	mLifeTime	= range;
-	mIsActive	= true;
+	mDirection		= direction;	
+	mSpeed			= speed;
+	mLifeTime		= range;
+	mIsActive		= true;
 }
 
 void Projectile::SetIsActive( bool isActive )

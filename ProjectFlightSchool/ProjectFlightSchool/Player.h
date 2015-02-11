@@ -18,6 +18,7 @@ class Player: public RemotePlayer
 		bool		mIsMeleeing;
 		bool		mHasMeleeStarted;
 		bool		mLock;
+		bool		mCloseToPlayer;
 
 		float		mMaxVelocity;
 		float		mCurrentVelocity;
@@ -28,12 +29,9 @@ class Player: public RemotePlayer
 		float		mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
 
 		std::string		mPlayerName;
-		bool			mHasName;
 		
 		float		mSpawnTime;
 		float		mTimeTillSpawn;
-		float		mDeathTime;
-		float		mTimeTillDeath;
 		float		mReviveTime;
 		float		mTimeTillRevive;
 		int			mLastKiller;

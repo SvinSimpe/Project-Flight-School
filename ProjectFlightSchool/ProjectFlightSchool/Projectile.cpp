@@ -58,7 +58,7 @@ void Projectile::Reset()
 	mPlayerID	= 0;
 	mIsActive	= false;
 	mSpeed		= 20.0f;
-	mLifeTime	= 1.0f;
+	mLifeTime	= 4.0f;
 }
 
 BoundingCircle* Projectile::GetBoundingCircle() const
@@ -79,7 +79,7 @@ unsigned int Projectile::GetID() const
 HRESULT Projectile::Initialize()
 {
 	mSpeed			= 20.0f;
-	mLifeTime		= 1.0f;
+	mLifeTime		= 4.0f;
 	mBoundingCircle = new BoundingCircle( 0.5f );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Bullet/", "bullet.pfs", mProjectileAsset );
 

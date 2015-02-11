@@ -94,6 +94,8 @@ class RemotePlayer
 		float			mMaxHp;
 		int				mNrOfDeaths;
 		int				mNrOfKills;
+		float			mDeathTime;
+		float			mTimeTillDeath;
 		XMFLOAT3		mVelocity;
 		LoadOut*		mLoadOut;
 		BoundingBox*	mBoundingBox;

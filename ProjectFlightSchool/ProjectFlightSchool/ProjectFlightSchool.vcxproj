@@ -141,6 +141,7 @@
     <ClCompile Include="tinyxmlerror.cpp" />
     <ClCompile Include="tinyxmlparser.cpp" />
     <ClCompile Include="Turret.cpp" />
+    <ClCompile Include="UpgradeShipWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Graphics\Font.h" />
@@ -206,6 +207,7 @@
     <ClInclude Include="tinystr.h" />
     <ClInclude Include="tinyxml.h" />
     <ClInclude Include="Turret.h" />
+    <ClInclude Include="UpgradeShipWindow.h" />
     <ClInclude Include="WeaponInfo.h" />
     <ClInclude Include="WeaponLoadoutInfo.h" />
   </ItemGroup>

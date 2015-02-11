@@ -28,7 +28,6 @@ class Player: public RemotePlayer
 		float		mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
 
 		std::string		mPlayerName;
-		bool			mHasName;
 		
 		float		mSpawnTime;
 		float		mTimeTillSpawn;

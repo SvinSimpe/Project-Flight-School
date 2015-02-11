@@ -538,14 +538,12 @@ void PlayState::Reset()
 	mEnemyListSynced		= false;
 	mServerInitialized		= false;
 
-	//for( auto& rp : mRemotePlayers )
-	//{
-	//	rp->Release();
-	//	SAFE_DELETE( rp );
-	//}
-
-	//mRemotePlayers.clear();
-
+	for( auto& rp : mRemotePlayers )
+	{
+		rp->Release();
+		SAFE_DELETE( rp );
+	}
+	mRemotePlayers.clear();
 }
 
 HRESULT PlayState::Initialize()

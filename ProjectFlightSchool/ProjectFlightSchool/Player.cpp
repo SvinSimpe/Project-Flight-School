@@ -317,8 +317,6 @@ void Player::Reset()
 	mIsBuffed					= false;
 	mBuffMod					= 1; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
 
-	mPlayerName					= "";
-	mHasName					= false;
 	mTimeTillSpawn				= mSpawnTime;
 	mTimeTillDeath				= mDeathTime;
 	mTimeTillRevive				= mReviveTime;
@@ -518,7 +516,6 @@ HRESULT Player::Initialize()
 	RemotePlayer::Initialize();
 
 	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
-	mHasName = false;
 	mPlayerName = "";
 	
 	////////////

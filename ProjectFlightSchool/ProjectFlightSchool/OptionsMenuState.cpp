@@ -7,6 +7,11 @@ void OptionsMenuState::HandleInput()
 		IEventPtr E1( new Event_Change_State( START_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
+	if( mButtons.at(FULLSCREEN)->LeftMousePressed() )
+	{
+		IEventPtr E1( new Event_Toggle_Fullscreen() );
+		EventManager::GetInstance()->QueueEvent( E1 );
+	}
 }
 
 HRESULT OptionsMenuState::Update( float deltaTime )
@@ -54,8 +59,8 @@ HRESULT OptionsMenuState::Initialize()
 
 	std::string texts[] = { "Fullscreen", "Sound", "Back" };
 
-	float x	= (float)Input::GetInstance()->mScreenWidth  * 0.30f;
-	float y	= (float)Input::GetInstance()->mScreenHeight * 0.75f;
+	float x	= (float)Input::GetInstance()->mScreenWidth  * 0.35f;
+	float y	= (float)Input::GetInstance()->mScreenHeight * 0.9f;
 	float w	= 200.0f;
 	float h	= 200.0f;
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
@@ -63,13 +68,13 @@ HRESULT OptionsMenuState::Initialize()
 		mButtons.push_back( new Button() );
 		if( texts[i] == "Back" )
 		{
-			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Back.png", x, y, w, h );
+			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Back.png", x - w * 0.5f, y - h * 0.5f, w, h );
 		}
 		else
 		{
-			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Options_Menu_Text/" + texts[i] + ".png", x, y, w, h );
+			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Options_Menu_Text/" + texts[i] + ".png", x - w * 0.5f, y - h * 0.5f, w, h );
 		}
-		x += 200;
+		x += (float)Input::GetInstance()->mScreenWidth  * 0.1f;
 	}
 	return S_OK;
 }

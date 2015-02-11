@@ -144,10 +144,10 @@ void PlayState::CheckPlayerCollision()
 	{
 		if( mRemotePlayers.at(0)->GetID() != 0 )
 		{
-			for (size_t i = 0; i < mRemotePlayers.size(); i++)
+			for ( size_t i = 0; i < mRemotePlayers.size(); i++ )
 			{
 				//if( mPlayer->GetBoundingBox()->Intersect( mRemotePlayers.at(i)->GetBoundingBox() ) )		// BoundingBox
-				if (mPlayer->GetBoundingCircle()->Intersect(mRemotePlayers.at(i)->GetBoundingCircle()))		// BoundingCircle
+				if ( mPlayer->GetBoundingCircle()->Intersect(mRemotePlayers.at(i)->GetBoundingCircle() ) && mRemotePlayers.at(i)->IsAlive() )		// BoundingCircle
 				{
 					//Direction
 					XMVECTOR remoteToPlayerVec = (XMLoadFloat3(&mPlayer->GetBoundingCircle()->center) -

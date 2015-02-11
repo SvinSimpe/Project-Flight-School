@@ -51,6 +51,65 @@ using namespace DirectX;
 
 extern EventType counter; // If you want know what this does, just check Events.cpp :D
 
+class Event_Exit_Game : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Exit_Game()
+		{
+		}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Exit_Game() );
+		}
+};
+
+// A client-local event for switching to fullscreen
+class Event_Toggle_Fullscreen : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Toggle_Fullscreen()
+		{
+		}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Toggle_Fullscreen() );
+		}
+};
+
 // Only used by the server when a new client joins
 class Event_Client_Joined : public IEvent
 {

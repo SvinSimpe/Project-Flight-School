@@ -270,6 +270,9 @@
     <ClCompile Include="ServerShip.cpp">
       <Filter>Network\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="UpgradeShipWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
@@ -466,6 +469,9 @@
     </ClInclude>
     <ClInclude Include="ServerShip.h">
       <Filter>Network\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UpgradeShipWindow.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

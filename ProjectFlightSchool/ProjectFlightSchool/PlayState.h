@@ -16,6 +16,8 @@
 #include "Gui.h"
 #include "ParticleManager.h"
 #include "SoundBufferHandler.h"
+//TestUpgradeWindow
+#include "UpgradeShipWindow.h"
 
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
@@ -38,7 +40,7 @@ class PlayState : public BaseState
 		Player*						mPlayer;
 		std::vector<RemotePlayer*>	mRemotePlayers;
 		Projectile**				mProjectiles;				// A collection of the games projectiles
-		int							mNrOfProjectilesFired;
+		int							mNrOfActiveProjectiles;
 		Font						mFont;
 		EnemyAnimationManager*		mEnemyAnimationManager;
 		RemoteEnemy**				mEnemies;
@@ -58,6 +60,9 @@ class PlayState : public BaseState
 		//TestSound
 		int							m3DSoundAsset;
 		int							mSoundAsset;
+
+		//TestUpgradeWindow
+		UpgradeShipWindow			mWindow;
 	
 	protected:
 	public:

@@ -78,8 +78,8 @@ unsigned int Projectile::GetID() const
 
 HRESULT Projectile::Initialize()
 {
-	mSpeed		= 20.0f;
-	mLifeTime	= 4.0f;
+	mSpeed			= 20.0f;
+	mLifeTime		= 4.0f;
 	mBoundingCircle = new BoundingCircle( 0.5f );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Bullet/", "bullet.pfs", mProjectileAsset );
 

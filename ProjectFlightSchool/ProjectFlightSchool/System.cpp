@@ -4,6 +4,25 @@
 //									PRIVATE
 ///////////////////////////////////////////////////////////////////////////////
 
+void System::EventListener( IEventPtr newEvent )
+{
+	if ( newEvent->GetEventType() == Event_Toggle_Fullscreen::GUID ) // Add a remote player to the list when they connect
+	{
+		Graphics::GetInstance()->ToggleFullscreen();
+		mFullscreen = !mFullscreen;
+
+		InitializeFile initFile;
+		initFile.fullscreen = mFullscreen;
+		std::ofstream out( "init.bin", std::ios::out | std::ios::binary );
+		out.write( (char*)&initFile, sizeof( InitializeFile ) );
+		out.close();
+	}
+	else if( newEvent->GetEventType() == Event_Exit_Game::GUID )
+	{
+		PostQuitMessage( 0 );
+	}
+}
+
 LRESULT CALLBACK System::WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	PAINTSTRUCT paintStruct;
@@ -79,6 +98,23 @@ int	System::Run()
 //Initializes the window and sub-applications. 
 HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 {
+	InitializeFile initFile;
+	ZeroMemory( &initFile, sizeof( InitializeFile ) );
+	std::ifstream in( "init.bin", std::ios::in | std::ios::binary );
+	if( in )
+	{
+		in.read( (char*)&initFile, sizeof( InitializeFile ) );
+	}
+	else
+	{
+		initFile.fullscreen = false;
+		std::ofstream out( "init.bin", std::ios::out | std::ios::binary );
+		out.write( (char*)&initFile, sizeof( InitializeFile ) );
+		out.close();
+	}
+	in.close();
+
+	mFullscreen		= initFile.fullscreen;
 	mScreenWidth	= 1920;
 	mScreenHeight	= 1080;
 
@@ -104,9 +140,11 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 	RECT rect	= { 0, 0, mScreenWidth, mScreenHeight };
 	AdjustWindowRect( &rect, WS_OVERLAPPEDWINDOW, false );
 
+	int dwStyle = ( WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX );
+
 	if( !( mHWnd = CreateWindow( L"Project-Flight-School",
 								L"Project-Flight-School",
-								WS_OVERLAPPEDWINDOW,
+								dwStyle,
 								CW_USEDEFAULT,
 								CW_USEDEFAULT,
 								rect.right - rect.left,
@@ -130,8 +168,13 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
     }
 
 	Client::GetInstance()->Initialize();
-	Graphics::GetInstance()->Initialize( mHWnd, mScreenWidth, mScreenHeight );
+
+	Graphics::GetInstance()->Initialize( mHWnd, mScreenWidth, mScreenHeight, mFullscreen );
+
 	EventManager::GetInstance();
+	EventManager::GetInstance()->AddListener( &System::EventListener, this, Event_Exit_Game::GUID );
+	EventManager::GetInstance()->AddListener( &System::EventListener, this, Event_Toggle_Fullscreen::GUID );
+
 	Input::GetInstance()->Initialize( mScreenWidth, mScreenHeight, mHWnd );
 
 	RenderManager::GetInstance()->Initialize();

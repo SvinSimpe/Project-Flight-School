@@ -9,6 +9,10 @@ float Font::GetMiddleXPoint( std::string toWrite, float scale )
 	for( unsigned int i = 0; i < toWrite.size(); i++ )
 	{
 		char l = toWrite[i];
+
+		if( l > 64 && l < 91 )
+			l = tolower( l );
+
 		if( l == ' ' ) // space
 		{
 			xOffset += SPACE_WIDTH * scale;

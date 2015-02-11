@@ -8,6 +8,11 @@
 #include "Timer.h"
 #include "RenderManager.h"
 
+struct InitializeFile
+{
+	bool fullscreen;
+};
+
 class System
 {
 	//Class members
@@ -16,6 +21,7 @@ class System
 		HWND		mHWnd;
 		UINT		mScreenWidth;
 		UINT		mScreenHeight;
+		bool		mFullscreen;
 		Game*		mGame;
 		Timer*		mTimer;
 
@@ -24,6 +30,7 @@ class System
 
 	//Class functions
 	private:
+		void					EventListener( IEventPtr newEvent );
 		static LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
 		HRESULT					Update( float deltaTime );
 		HRESULT					Render();

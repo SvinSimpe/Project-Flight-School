@@ -7,6 +7,11 @@ void OptionsMenuState::HandleInput()
 		IEventPtr E1( new Event_Change_State( START_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
+	if( mButtons.at(FULLSCREEN)->LeftMousePressed() )
+	{
+		IEventPtr E1( new Event_Toggle_Fullscreen() );
+		EventManager::GetInstance()->QueueEvent( E1 );
+	}
 }
 
 HRESULT OptionsMenuState::Update( float deltaTime )

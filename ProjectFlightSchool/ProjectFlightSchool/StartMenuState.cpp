@@ -21,6 +21,11 @@ void StartMenuState::HandleInput()
 		IEventPtr E1( new Event_Change_State( OPTIONS_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
+	else if( mButtons.at(EXIT)->LeftMousePressed() )
+	{
+		IEventPtr E1( new Event_Exit_Game() );
+		EventManager::GetInstance()->QueueEvent( E1 );
+	}
 }
 
 

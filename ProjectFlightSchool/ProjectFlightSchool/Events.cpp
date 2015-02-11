@@ -43,6 +43,8 @@
 
 EventType counter = 0;
 
+const EventType Event_Exit_Game::GUID( counter++ );
+const EventType Event_Toggle_Fullscreen::GUID( counter++ );
 const EventType Event_Client_Joined::GUID( counter++ );
 const EventType Event_Client_Left::GUID( counter++ );
 const EventType Event_Local_Joined::GUID( counter++ );

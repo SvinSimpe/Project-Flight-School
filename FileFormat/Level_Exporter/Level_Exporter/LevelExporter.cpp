@@ -7,7 +7,6 @@ LevelExporter::LevelExporter()
 	g_AssetPath = "../../Asset/";
 }
 
-
 LevelExporter::~LevelExporter()
 {
 	ReleaseMaya();
@@ -95,7 +94,6 @@ void LevelExporter::RunExporter()
 		SceneManager(file->c_str());
 	}
 
-
 	cout << "\n##### ERRORS #####" << endl << endl;
 
 	if (errorMsg.size() == 0)
@@ -178,6 +176,9 @@ void LevelExporter::ReleaseDataTypes()
 	if (matrices.size() > 0)
 		matrices.clear();
 
+	if (lights.size() > 0)
+		lights.clear();
+
 }
 
 bool LevelExporter::ExtractCurrentSceneRawData()
@@ -223,6 +224,8 @@ bool LevelExporter::ExtractCurrentSceneRawData()
 		}
 		dagIter.next();
 	}
+
+	ExtractLightData();
 
 	return true;
 }
@@ -305,6 +308,46 @@ Matrix LevelExporter::ExtractAndConvertMatrix(MFnMesh &mesh, int fauling)
 		return matrix;
 }
 
+void LevelExporter::ExtractLightData()
+{
+	VolumeLight vLight;
+	MItDag itDag(MItDag::kDepthFirst, MFn::kLight);
+	MDagPath dPath;
+	MSpace::Space wSpace = MSpace::kWorld;
+
+	while (!itDag.isDone())
+	{
+		itDag.getPath(dPath);
+		MFnVolumeLight vl(dPath);
+		MObject temp = vl.parent(0);
+		MDagPath p = MDagPath::getAPathTo(temp);
+		MFnTransform lt(p);
+		double scale[3];
+		lt.getScale(scale);
+		MPoint pos = lt.getTranslation(wSpace);
+
+		if (dPath.apiType() == MFn::kVolumeLight)
+		{
+			
+			sprintf_s(vLight.name, sizeof(vLight.name), "%s", lt.name().asChar());
+			vLight.color[0] = vl.color().r;
+			vLight.color[1] = vl.color().g;
+			vLight.color[2] = vl.color().b;
+
+			vLight.position[0] = pos.x;
+			vLight.position[1] = pos.y;
+			vLight.position[2] = -pos.z;
+
+			vLight.range = scale[0];
+			vLight.intensity = vl.intensity();
+		
+
+		}
+		lights.push_back(vLight);
+		itDag.next();
+	}
+	
+}
 
 bool LevelExporter::ExtractGridData(MFnMesh &mesh)
 {
@@ -441,6 +484,7 @@ void LevelExporter::WriteFileToBinary(const char* fileName)
 
 	cout << "Exporting node to " << fullPath.c_str() << endl << endl;
 	UINT nrOfObjects = matrices.size();
+	UINT nrOfLights  = lights.size();
 
 	fileOut.write((char*)&gridData.dimensions, sizeof(gridData.dimensions));
 	fileOut.write((char*)&vertexCount, sizeof(UINT));
@@ -448,6 +492,13 @@ void LevelExporter::WriteFileToBinary(const char* fileName)
 	fileOut.write((char*)&gridData.matrix, sizeof(Matrix));
 	fileOut.write((char*)&navvertexCount, sizeof(UINT));
 	fileOut.write((char*)navData.vertices, sizeof(NavVertex) * navvertexCount);
+	int a = sizeof(VolumeLight);
+	fileOut.write((char*)&nrOfLights, sizeof(nrOfLights));
+	for (int i = 0; i < lights.size(); i++)
+	{
+		fileOut.write((char*)&lights[i], sizeof(VolumeLight));
+	}
+
 	fileOut.write((char*)&nrOfObjects, sizeof(nrOfObjects));
 	for (int i = 0; i < matrices.size(); i++)
 	{

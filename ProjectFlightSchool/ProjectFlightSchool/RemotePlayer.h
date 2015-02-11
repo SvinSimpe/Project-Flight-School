@@ -94,6 +94,8 @@ class RemotePlayer
 		float			mMaxHp;
 		int				mNrOfDeaths;
 		int				mNrOfKills;
+		float			mDeathTime;
+		float			mTimeTillDeath;
 		XMFLOAT3		mVelocity;
 		LoadOut*		mLoadOut;
 		BoundingBox*	mBoundingBox;
@@ -112,13 +114,6 @@ class RemotePlayer
 		bool			mLeftArmAnimationCompleted;
 		bool			mRightArmAnimationCompleted;
 
-		//Temporary information
-		AssetID			mGreenHPAsset;
-		AssetID			mRedHPAsset;
-		AssetID			mOrangeHPAsset;
-		AssetID			mTeamAsset;
-		AssetID			mColorIDAsset;
-
 	public:
 
 	// Member functions
@@ -136,7 +131,7 @@ class RemotePlayer
 		virtual HRESULT	Update( float deltaTime );
 		virtual HRESULT	Render( int position );
 		virtual HRESULT	Initialize();
-		void			RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID );
+		void			RemoteInit( unsigned int id, int team );
 		void			Release();
 						RemotePlayer();
 		virtual			~RemotePlayer();

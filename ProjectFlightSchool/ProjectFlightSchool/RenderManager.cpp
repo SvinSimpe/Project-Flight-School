@@ -181,6 +181,15 @@ void RenderManager::AnimationStartNew( AnimationTrack &animationTrack, AssetID n
 	animationTrack.mInterpolation		= 0.2f;
 }
 
+void RenderManager::AnimationReset( AnimationTrack &animationTrack, AssetID defaultAnimation )
+{
+	animationTrack.mCurrentAnimation		= defaultAnimation;
+	animationTrack.mCurrentAnimationTime	= 1.0f / 60.0f;
+	animationTrack.mNextAnimation			= defaultAnimation;
+	animationTrack.mNextAnimationTime		= 1.0f / 60.0f;
+	animationTrack.mInterpolation			= 0.0f;
+}
+
 HRESULT RenderManager::Update( float deltaTime )
 {
 	Clear();

@@ -558,7 +558,7 @@ class Event_Change_State : public IEvent
 class Event_Start_Server : public IEvent
 {
 	private:
-		UINT mPort;
+		std::string mPort;
 	protected:
 	public:
 		static const EventType GUID;
@@ -568,9 +568,9 @@ class Event_Start_Server : public IEvent
 	public:
 		Event_Start_Server()
 		{
-			mPort = (UINT)-1;
+			mPort = "";
 		}
-		Event_Start_Server( UINT port )
+		Event_Start_Server( std::string port )
 		{
 			mPort = port;
 		}
@@ -591,7 +591,7 @@ class Event_Start_Server : public IEvent
 		{
 			return IEventPtr( new Event_Start_Server( mPort ) );
 		}
-		UINT Port() const
+		std::string Port() const
 		{
 			return mPort;
 		}
@@ -602,7 +602,7 @@ class Event_Start_Client : public IEvent
 {
 	private:
 		std::string mIP;
-		UINT		mPort;
+		std::string	mPort;
 	protected:
 	public:
 		static const EventType GUID;
@@ -613,9 +613,9 @@ class Event_Start_Client : public IEvent
 		Event_Start_Client()
 		{
 			mIP		= "";
-			mPort	= (UINT)-1;
+			mPort	= "";
 		}
-		Event_Start_Client( std::string IP, UINT port )
+		Event_Start_Client( std::string IP, std::string port )
 		{
 			mIP		= IP;
 			mPort	= port;
@@ -643,7 +643,7 @@ class Event_Start_Client : public IEvent
 		{
 			return mIP;
 		}
-		UINT Port() const
+		std::string Port() const
 		{
 			return mPort;
 		}
@@ -2584,79 +2584,6 @@ class Event_Remote_Attempt_Revive : public IEvent
 		}
 };
 
-// Event used when the server successfully initializes
-class Event_Initialize_Success : public IEvent
-{
-	private:
-	protected:
-	public:
-		static const EventType GUID;
-	
-	private:
-	protected:
-	public:
-		Event_Initialize_Success()
-		{
-		}
-		~Event_Initialize_Success() {}
-		const EventType& GetEventType() const
-		{
-			return GUID;
-		}
-		void Serialize( std::ostringstream& out ) const
-		{
-		}
-		void Deserialize( std::istringstream& in )
-		{
-		}
-		IEventPtr Copy() const
-		{
-			return IEventPtr( new Event_Initialize_Success() );
-		}
-};
-
-// Event used when the server fails at initialization
-class Event_Initialize_Fail : public IEvent
-{
-	private:
-		std::string mMessage;
-	protected:
-	public:
-		static const EventType GUID;
-	
-	private:
-	protected:
-	public:
-		Event_Initialize_Fail()
-		{
-		}
-		Event_Initialize_Fail( std::string message )
-		{
-			mMessage = message;
-		}
-		~Event_Initialize_Fail() {}
-		const EventType& GetEventType() const
-		{
-			return GUID;
-		}
-		void Serialize( std::ostringstream& out ) const
-		{
-			out << mMessage << " ";
-		}
-		void Deserialize( std::istringstream& in )
-		{
-			in >> mMessage;
-		}
-		IEventPtr Copy() const
-		{
-			return IEventPtr( new Event_Initialize_Fail( mMessage ) );
-		}
-		std::string Message() const
-		{
-			return mMessage;
-		}
-};
-
 // Not sure what this is for yet
 class Event_Load_Level : public IEvent
 {
@@ -2741,6 +2668,7 @@ class Event_Create_Player_Name : public IEvent
 		}
 };
 
+// Not sure if the below events are used for when a client attacks an AI or reversed
 class Event_Client_Enemy_Attack : public IEvent
 {
 	private:
@@ -2913,6 +2841,247 @@ class Event_Remote_Enemy_Attack : public IEvent
 		XMFLOAT3 Direction() const
 		{
 			return mDirection;
+		}
+};
+
+// An event used to shut down the server, used when resetting and other stuff
+class Event_Shutdown_Server : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Shutdown_Server()
+		{
+		}
+		~Event_Shutdown_Server() {}
+				const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Shutdown_Server() );
+		}
+};
+
+// An event used to shut down the client, used when losing connection to server
+class Event_Shutdown_Client : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Shutdown_Client()
+		{
+		}
+		~Event_Shutdown_Client() {}
+				const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Shutdown_Client() );
+		}
+};
+
+// An event used to reset the game, listened to by the Game-class, for further info.. just read the code!
+class Event_Reset_Game : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Reset_Game()
+		{
+		}
+		~Event_Reset_Game() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Reset_Game() );
+		}
+};
+
+// Event used to let stuff know that the server successfully started
+class Event_Connect_Server_Success : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Connect_Server_Success()
+		{
+		}
+		~Event_Connect_Server_Success() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Reset_Game() );
+		}
+};
+
+// Event used to let stuff know that the client successfully started
+class Event_Connect_Client_Success : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Connect_Client_Success()
+		{
+		}
+		~Event_Connect_Client_Success() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Connect_Client_Success() );
+		}
+};
+
+// Event used to let stuff know that the server failed at starting
+class Event_Connect_Server_Fail : public IEvent
+{
+	private:
+		std::string mErrorMsg;
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Connect_Server_Fail()
+		{
+			mErrorMsg = "";
+		}
+		Event_Connect_Server_Fail( std::string errorMsg )
+		{
+			mErrorMsg = errorMsg;
+		}
+		~Event_Connect_Server_Fail() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mErrorMsg << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mErrorMsg;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Connect_Server_Fail( mErrorMsg ) );
+		}
+		std::string ErrorMsg() const
+		{
+			return mErrorMsg;
+		}
+};
+
+// Event used to let stuff know that the client failed at starting
+class Event_Connect_Client_Fail : public IEvent
+{
+	private:
+		std::string mErrorMsg;
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Connect_Client_Fail()
+		{
+			mErrorMsg = "";
+		}
+		Event_Connect_Client_Fail( std::string errorMsg )
+		{
+			mErrorMsg = errorMsg;
+		}
+		~Event_Connect_Client_Fail() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mErrorMsg << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mErrorMsg;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Connect_Client_Fail( mErrorMsg ) );
+		}
+		std::string ErrorMsg() const
+		{
+			return mErrorMsg;
 		}
 };
 #endif

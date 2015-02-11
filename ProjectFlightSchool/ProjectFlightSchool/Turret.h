@@ -74,6 +74,7 @@ class Turret
 	protected:
 	public:
 		void				PickTarget( std::vector<RemotePlayer*> targets );
+		void				Reset( int team, XMFLOAT3 pos, XMFLOAT3 dir );
 		HRESULT				Update( float deltaTime );
 		void				Render();
 		void				Initialize( int team, XMFLOAT3 pos, XMFLOAT3 dir );

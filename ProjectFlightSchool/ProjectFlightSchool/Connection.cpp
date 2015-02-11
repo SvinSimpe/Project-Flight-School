@@ -553,8 +553,16 @@ void SocketManager::RemoveSocket( NetSocket* socket )
 	mSocketMap.erase( socket->mID );
 	SAFE_DELETE( socket );
 
+	printf("Removing socket %d.\n", id);
+
 	IEventPtr E1( PFS_NEW Event_Client_Left( id ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
+
+	if( id == 0 )
+	{
+		IEventPtr E2( PFS_NEW Event_Shutdown_Client() );
+		EventManager::GetInstance()->QueueEvent( E2 );
+	}
 }
 
 UINT SocketManager::GetHostByName( const std::string &hostName )
@@ -741,9 +749,14 @@ bool SocketManager::Initialize()
 
 void SocketManager::Release()
 {
-	for( auto& socket : mSocketList )
+	SocketList eraseList;
+	for( auto& it : mSocketList )
 	{
-		SAFE_DELETE( socket );
+		eraseList.push_front( it );
+	}
+	for( auto& it : eraseList )
+	{
+		RemoveSocket( it );
 	}
 	mSocketList.clear();
 	mSocketMap.clear();

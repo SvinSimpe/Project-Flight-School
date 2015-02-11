@@ -59,7 +59,6 @@ class Server : public Network
 
 		void	StartUp( IEventPtr eventPtr );
 
-		void	BroadcastEvent( IEventPtr eventPtr, UINT exception = (UINT)-1 );
 		void	SendEvent( IEventPtr eventPtr, UINT to );
 		UINT	CurrentTeamDelegate();
 		UINT	CurrentPID();
@@ -71,6 +70,8 @@ class Server : public Network
 		bool	Connect( UINT port );
 
 	public:
+		void	BroadcastEvent( IEventPtr eventPtr, UINT exception = (UINT)-1 );
+		void	Shutdown();
 		void	Update( float deltaTime );
 		void	DoSelect( int pauseMicroSecs, bool handleInput = true );
 		bool	Initialize();

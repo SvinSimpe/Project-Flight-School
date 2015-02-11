@@ -93,6 +93,7 @@
   <ItemGroup>
     <ClCompile Include="EnemyAnimationManager.cpp" />
     <ClCompile Include="Gui.cpp" />
+    <ClCompile Include="HealthBars.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="PacketImpl.cpp" />
     <ClCompile Include="SoundBufferHandler.cpp" />
@@ -147,6 +148,7 @@
     <ClInclude Include="BaseState.h" />
     <ClInclude Include="BoundingGeometry.h" />
     <ClInclude Include="Gui.h" />
+    <ClInclude Include="HealthBars.h" />
     <ClInclude Include="IPacket.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="PacketImpl.h" />

@@ -406,7 +406,7 @@ void Server::StateCheck()
 					else
 					{
 						mEnemies[i]->SetState( HuntPlayer );
-						mEnemies[i]->SetHuntedPlayer( mPlayers[j].Position );
+						mEnemies[i]->SetTarget( mPlayers[j].Position );
 					}
 				}
 				else
@@ -463,10 +463,10 @@ bool Server::Initialize()
 	{
 		// Map size values
 		int negX, negY, posX, posY;
-		negX = rand() % 50;
-		negY = rand() % 50;
-		posX = rand() % 50;
-		posY = rand() % 50;
+		negX = rand() % 100;
+		negY = rand() % 100;
+		posX = rand() % 100;
+		posY = rand() % 100;
 		mSpawners[i] = new EnemySpawn();
 		mSpawners[i]->Initialize( i );
 		mSpawners[i]->SetPosition( XMFLOAT3( (float)(posX - negX), 0.0f, (float)(negY - posY) ) );
@@ -485,16 +485,29 @@ bool Server::Initialize()
 	return true;
 }
 
-void Server::Release()
+void Server::Reset()
 {
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	{
+		mEnemies[i]->Reset();
+	}
+
+	mTeamDelegate	= 1;
+	mCurrentPID		= 0;
+	mActive			= false;
+
 	if( mSocketManager )
 		mSocketManager->Release();
+
 	SAFE_DELETE( mSocketManager );
 	mClientMap.clear();
+}
 
+void Server::Release()
+{
 	// Enemies
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
-		SAFE_DELETE( mEnemies[i] );
+		SAFE_RELEASE_DELETE( mEnemies[i] );
 
 	delete [] mEnemies;
 
@@ -508,6 +521,12 @@ void Server::Release()
 	mTeamDelegate	= 1;
 	mCurrentPID		= 0;
 	mActive			= false;
+
+	if( mSocketManager )
+		mSocketManager->Release();
+
+	SAFE_DELETE( mSocketManager );
+	mClientMap.clear();
 }
 
 Server::Server() : Network()

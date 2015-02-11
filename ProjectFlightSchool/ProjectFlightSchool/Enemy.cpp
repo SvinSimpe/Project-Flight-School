@@ -258,7 +258,7 @@ void Enemy::AddImpuls( XMFLOAT3 impuls )
 	mPosition.z += impuls.z;
 }
 
-void Enemy::SetHuntedPlayer( XMFLOAT3 player )
+void Enemy::SetTarget( XMFLOAT3 player )
 {
 	mVelocity.x = player.x - mPosition.x;
 	mVelocity.z = player.z - mPosition.z;
@@ -337,8 +337,9 @@ float Enemy::HandleAttack()
 	{
 		mTimeTillAttack = mAttackRate;
 		mStateTimer		= mAttackRate;
-		if( mCurrentState == Boomer )
+		if( mEnemyType == Boomer )
 			Die();
+
 		return mDamage;
 	}
 	else
@@ -424,6 +425,16 @@ HRESULT Enemy::Initialize( int id )
 	mAttentionRadius	= new BoundingCircle( 1.0f );
 
 	return S_OK;
+}
+
+void Enemy::Reset()
+{
+	mEnemyType		= Standard;
+	mCurrentState	= Idle;
+	mIsAlive		= false;
+	mPosition		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mVelocity		= XMFLOAT3( 0.0f, 0.0f, 0.0f );	
 }
 
 void Enemy::Release()

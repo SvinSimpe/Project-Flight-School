@@ -345,19 +345,6 @@ void PlayState::UpdateProjectiles( float deltaTime )
 	}
 }
 
-//void PlayState::UpdateProjectiles( float deltaTime )
-//{
-//	if( mNrOfActiveProjectiles != 0 )
-//	{
-//		for ( size_t i = 0; i < MAX_PROJECTILES; i++ )
-//		{
-//			if( mProjectiles[i]->IsActive() )
-//				mProjectiles[i]->Update( deltaTime );
-//		}
-//	}
-//
-//}
-
 void PlayState::UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive )
 {
 	mEnemies[id]->SetPosition( position );

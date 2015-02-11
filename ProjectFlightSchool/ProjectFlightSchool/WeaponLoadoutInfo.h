@@ -12,7 +12,7 @@
 // Projectile Speed	Travel speed of projectile. High value gives a fast projectile
 
 // Minigun
-#define MINIGUN_AR			0.2f	// Attack Rate
+#define MINIGUN_AR			0.5f	// Attack Rate
 #define MINIGUN_DAMAGE		1.0f	// Damage
 #define MINIGUN_RANGE		1.0f	// Range
 #define MINIGUN_SPREAD		0.1f	// Spread
@@ -62,9 +62,9 @@
 #define HAMMER_DAMAGE		0.0f	// Damage
 #define HAMMER_RADIUS		5.0f	// Radius
 #define HAMMER_SPREAD		7		// Spread
-#define HAMMER_KB			2.0f	// Knockback
+#define HAMMER_KB			3.0f	// Knockback
 #define HAMMER_TTA			0.95f	// Time till Attack
-#define HAMMER_STUN			2.0f	// Stun
+#define HAMMER_STUN			3.0f	// Stun
 #define HAMMER_REACH		4.0f	// Reach
 
 // Blowtorch

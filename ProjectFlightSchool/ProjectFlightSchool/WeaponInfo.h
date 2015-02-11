@@ -3,6 +3,8 @@
 
 #include "BoundingGeometry.h"
 #include "WeaponLoadoutInfo.h"
+#include <stdlib.h>
+#include <time.h>
 
 enum WeaponType
 {
@@ -30,6 +32,7 @@ struct RangedInfo
 
 	RangedInfo()
 	{
+		srand( (UINT)time( NULL ) );
 		weaponType		= SHOTGUN;
 		level			= 1;
 		attackRate		= 0.0f;
@@ -236,6 +239,11 @@ struct RangedInfo
 			{
 			}
 		}
+	}
+
+	float GetRandomProjectileSpeed()
+	{
+		return projectileSpeed * (1.0f - (float)( rand() % 100 ) * 0.005f);
 	}
 };
 struct MeleeInfo

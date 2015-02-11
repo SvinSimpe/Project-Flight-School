@@ -301,11 +301,11 @@ void Player::Fire()
 		{
 			float directionOffset	=  (float)( rand() % 100 ) * 0.001f - mLoadOut->rangedWeapon->spread;
 			mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffset, mUpperBody.direction.y, mUpperBody.direction.z + directionOffset );
-			QueueEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+			QueueEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mFireDirection, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range ) );
 		}
 		else
 		{
-			QueueEvent(  new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mUpperBody.direction, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+			QueueEvent(  new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mUpperBody.direction, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range ) );
 		}
 	}
 }

@@ -75,6 +75,7 @@ class Server : public Network
 		void	Update( float deltaTime );
 		void	DoSelect( int pauseMicroSecs, bool handleInput = true );
 		bool	Initialize();
+		void	Reset();
 		void	Release();
 				Server();
 		virtual	~Server();

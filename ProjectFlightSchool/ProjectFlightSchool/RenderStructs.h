@@ -9,6 +9,7 @@
 #define MAX_AMOUNT_OF_PLANES	2000
 #define MAX_AMOUNT_OF_BOXES		2000
 #define MAX_AMOUNT_OF_NODEGRIDS	500
+#define MAX_AMOUNT_OF_LINES		10000
 
 struct Object3dInfo
 {
@@ -28,7 +29,7 @@ struct Object2dInfo
 	UINT				mAssetId;
 	DirectX::XMFLOAT2	mTopLeftCorner;
 	DirectX::XMFLOAT2	mWidthHeight;
-
+	DirectX::XMFLOAT4	mColor;
 };
 
 struct BillboardInfo
@@ -39,11 +40,20 @@ struct BillboardInfo
 	float				mHeight;
 };
 
+struct ParticleInfo
+{
+	UINT				mAssetId;
+	UINT				mOffsetToNextParticleType;
+	DirectX::XMFLOAT3	mWorldPosition;
+	float				mLifeTime;
+};
+
 struct NodeGridInfo
 {
 	StaticVertex*		mVertices;
 	UINT				mNrOfVertices;
 	DirectX::XMFLOAT4X4	mWorld;
+
 };
 
 struct PlaneInfo
@@ -52,22 +62,16 @@ struct PlaneInfo
 	DirectX::XMFLOAT3	mTopTriangle;
 	DirectX::XMFLOAT3	mBottomTriangle;
 };
+
 struct BoxInfo
 {
 	DirectX::XMFLOAT3 min;
 	DirectX::XMFLOAT3 max;
 };
-
-struct RenderLists
+struct LineInfo
 {
-	Object3dInfo*	object3d;
-	UINT			sizeOfObject3dList;
-	Anim3dInfo&		anim3d;
-	UINT			sizeOfAnim3dList;
-	Object2dInfo*	object2d;
-	UINT			sizeOfObject2dList;
-	PlaneInfo*		plane;
-	UINT			sizeOfPlaneList;
+	DirectX::XMFLOAT3 start;
+	DirectX::XMFLOAT3 end;
 };
 
 struct AnimationTrack

@@ -1,8 +1,8 @@
 #ifndef REMOTEPLAYER_H
 #define REMOTEPLAYER_H
 
+#include "Input.h"
 #include "Graphics.h"
-#include "EventManager.h"
 #include "Events.h"
 #include "BoundingGeometry.h"
 #include "RenderManager.h"
@@ -16,7 +16,6 @@ enum PLAYER_ANIMATION
 {
 	LEGS_IDLE,
 	LEGS_WALK,
-
 	COUNT,
 };
 
@@ -39,6 +38,7 @@ struct ServerPlayer
 {
 	unsigned int	ID;
 	XMFLOAT3		Position;
+	bool			IsAlive;
 };
 
 struct UpperBody
@@ -86,54 +86,57 @@ class RemotePlayer
 	private:
 	protected:
 		unsigned int	mID;
+		std::string		mPlayerName;
 		int				mTeam;
+		bool			mIsAlive;
+		bool			mIsDown;
+		float			mCurrentHp;
+		float			mMaxHp;
+		int				mNrOfDeaths;
+		int				mNrOfKills;
+		XMFLOAT3		mVelocity;
+		LoadOut*		mLoadOut;
+		BoundingBox*	mBoundingBox;
+		BoundingCircle*	mBoundingCircle;
+		BoundingCircle*	mBoundingCircleAura;
+
+		//Graphics
+		Font			mFont;
+		PointLight*		mPointLightIfDown;
+		AssetID			mAnimations[PLAYER_ANIMATION::COUNT];
+		AssetID			mWeaponModels[WEAPON_COUNT];
+		AssetID			mWeaponAnimations[WEAPON_COUNT][WEAPON_ANIMATION_COUNT];
 		UpperBody		mUpperBody;
 		LowerBody		mLowerBody;
 		Arms			mArms;
 		bool			mLeftArmAnimationCompleted;
 		bool			mRightArmAnimationCompleted;
-		AssetID			mAnimations[PLAYER_ANIMATION::COUNT];
-		AssetID			mWeaponModels[WEAPON_COUNT];
-		AssetID			mWeaponAnimations[WEAPON_COUNT][WEAPON_ANIMATION_COUNT];
-
-		BoundingBox*	mBoundingBox;
-		BoundingCircle*	mBoundingCircle;
-		float			mCurrentHp;
-		float			mMaxHp;
-		bool			mIsAlive;
-		float			mSpawnTime;
-		float			mTimeTillSpawn;
-		AssetID			mGreenHPAsset;
-		AssetID			mRedHPAsset;
-		AssetID			mOrangeHPAsset;
-		AssetID			mTeamAsset;
-		AssetID			mColorIDAsset;
-		int				mNrOfDeaths;
-		int				mNrOfKills;
-		Font			mFont;
-
-		XMFLOAT3	mVelocity;
-		LoadOut*	mLoadOut;
 
 	public:
 
 	// Member functions
 	private:
-		void			RemoteUpdate( IEventPtr newEvent );
-
+		HRESULT			InitializeGraphics();
+		void			EventListener( IEventPtr newEvent );
 	protected:
 
 	public:
-		void			RemoteInit( unsigned int id, int team, AssetID teamColor, AssetID colorID );
-		void			BroadcastDeath( unsigned int shooter );
-
 		virtual void	Die();
-		void			HandleSpawn( float deltaTime );
 		void			Spawn();
-		virtual void	TakeDamage( float damage, unsigned int shooter );
-		void			SetHP( float hp );
 		void			CountUpKills();
+		virtual void	GoDown();
+		virtual void	GoUp();
+		virtual HRESULT	Update( float deltaTime );
+		virtual HRESULT	Render( int position );
+		virtual HRESULT	Initialize();
+		void			RemoteInit( unsigned int id, int team );
+		void			Release();
+						RemotePlayer();
+		virtual			~RemotePlayer();
+
+		//GetSet
 		bool			IsAlive() const;
+		bool			IsDown() const;
 		LoadOut*		GetLoadOut() const;
 		float			GetHP() const;
 		float			GetMaxHP() const;
@@ -141,26 +144,13 @@ class RemotePlayer
 		int				GetTeam() const;
 		BoundingBox*	GetBoundingBox() const;
 		BoundingCircle*	GetBoundingCircle() const;
+		BoundingCircle*	GetBoundingCircleAura() const;
 		XMFLOAT3		GetPosition() const;
 		XMFLOAT3		GetDirection() const;
+		std::string		GetName() const;
 		void			SetDirection( XMFLOAT3 direction );
-		void			AddImpuls( XMFLOAT3 impuls );
-		virtual HRESULT	Update( float deltaTime );
-		virtual HRESULT	Render( int position );
-		virtual HRESULT	Initialize();
-		void			Release();
-						RemotePlayer();
-		virtual			~RemotePlayer();
-
-
-
-
-
-
-
-		////TEST
-		void TakeDamage( float damage );
+		void			SetHP( float hp );
+		void			SetName( std::string name );
 };
-
 #endif
 

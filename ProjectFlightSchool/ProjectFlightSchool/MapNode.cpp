@@ -59,7 +59,6 @@ MapNodeInstance* MapNode::GetMapNodeInstance()
 			result = &mInstances[i];
 			result->SetMapNode( this );
 			result->SetInstanceID( i );
-			result->Initialize();
 			printf( "Instance number: %d\n", i);
 			instanceFound = true;
 		}

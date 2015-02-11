@@ -7,8 +7,21 @@ void LightManager::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Add_Point_Light> data = std::static_pointer_cast<Event_Add_Point_Light>( newEvent );
 		if( mNumActivePointLights < MAX_NUM_POINTLIGHTS )
 		{
-			mPointLights[mNumActivePointLights] = (PointLight*)data->GetPointLight();
-			mNumActivePointLights++;
+			PointLight* cmp	= (PointLight*)data->Light();
+			bool adder		= true;
+			for( int i = 0; i < mNumActivePointLights; i++ )
+			{
+				if (mPointLights[i] == cmp)
+				{
+					adder = false;
+					break;
+				}
+			}
+			if (adder)
+			{
+				mPointLights[mNumActivePointLights] = cmp;
+				mNumActivePointLights++;
+			}
 		}
 	}
 	else if ( newEvent->GetEventType() == Event_Remove_Point_Light::GUID )
@@ -16,8 +29,8 @@ void LightManager::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Remove_Point_Light> data = std::static_pointer_cast<Event_Remove_Point_Light>( newEvent );
 		for( int i = 0; i < MAX_NUM_POINTLIGHTS; i++ )
 		{
-			void* cmp = data->GetPointLight();
-			if( mPointLights[i] == cmp )
+			void* cmp = data->Light();
+			if( cmp != nullptr && mPointLights[i] == cmp )
 			{
 				mNumActivePointLights--;
 				mPointLights[i]						= mPointLights[mNumActivePointLights];

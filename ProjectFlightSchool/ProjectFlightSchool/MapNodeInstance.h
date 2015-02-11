@@ -4,12 +4,8 @@
 #include <Windows.h>
 #include <vector>
 #include "BoundingGeometry.h"
+#include "Navmesh.h"
 
-struct NavTriangle
-{
-	DirectX::XMFLOAT3 triPoints[3];
-	int adjTri[3];
-};
 
 //forward declaration
 
@@ -26,7 +22,9 @@ public:
 		DirectX::XMFLOAT3 mOrigin;
 		DirectX::XMFLOAT4X4 mWorld;
 
-		NavTriangle* mNavMesh;
+		Navmesh* mNavMesh;
+
+		UINT		 mNavTriangleCount;
 
 	protected:
 	public:
@@ -54,13 +52,11 @@ public:
 		MapNode*			GetMapNode() const;
 		void				SetMapNode( MapNode* mapNode );
 
-		BoundingBox			GetBoundingBox();
+		NavTriangle*		IsOnNavMesh( DirectX::XMFLOAT3 pos ) const;			
 
 		HRESULT				Initialize();
 		void				Release();
-		
-		
-
+	
 							MapNodeInstance();
 		virtual				~MapNodeInstance();
 };

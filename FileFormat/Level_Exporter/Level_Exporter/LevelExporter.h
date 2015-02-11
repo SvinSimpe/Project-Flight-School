@@ -6,10 +6,11 @@ private:
 	string g_FilePath;
 	string g_AssetPath;
 
+	vector<string> errorMsg;
+
 	UINT GRIDCOUNT;
 	UINT vertexCount;
 	UINT navvertexCount;
-	char waitingForInput;
 
 	vector<Matrix> matrices;
 	

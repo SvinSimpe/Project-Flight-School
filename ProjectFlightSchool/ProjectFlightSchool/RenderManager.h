@@ -3,6 +3,7 @@
 
 #include "LightManager.h"
 #include "RenderStructs.h"
+#include "ParticleManager.h"
 
 class RenderManager
 {
@@ -12,8 +13,10 @@ class RenderManager
 		Anim3dInfo		mAnim3dArray[MAX_AMOUNT_OF_ANIM3D];
 		PlaneInfo		mPlaneArray[MAX_AMOUNT_OF_PLANES];
 		BillboardInfo	mBillboardArray[MAX_AMOUNT_OF_OBJECT2D];
+		ParticleInfo	mParticleInfoArray[MAX_NR_OF_PARTICLES];
 		NodeGridInfo	mNodeGridArray[MAX_AMOUNT_OF_NODEGRIDS];
 		BoxInfo			mBoxArray[MAX_AMOUNT_OF_BOXES];
+		LineInfo		mLineArray[MAX_AMOUNT_OF_LINES];
 
 		LightManager*	mLightManager;
 		RasterizerStates mRasterState;
@@ -25,8 +28,10 @@ class RenderManager
 		UINT mNrOfObject2d;
 		UINT mNrOfPlane;
 		UINT mNrOfBillboard;
+		UINT mNrOfParticles;
 		UINT mNrOfNodeGrid;
 		UINT mNrOfBoxes;
+		UINT mNrOfLines;
 
 	private:
 		void SetLightStructuredBuffer();
@@ -37,16 +42,19 @@ class RenderManager
 	public:
 		void AddObject3dToList( AssetID assetId, DirectX::XMFLOAT3 position = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), DirectX::XMFLOAT3 rotation = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 		void AddObject3dToList( AssetID assetId, DirectX::XMFLOAT4X4 world );
-		void AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLeftCorner, DirectX::XMFLOAT2 widthHeight );
+		void AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLeftCorner, DirectX::XMFLOAT2 widthHeight, DirectX::XMFLOAT4 color = DirectX::XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		void AddBoxToList( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max );
+		void AddLineToList( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end );
 		bool AddAnim3dToList( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), DirectX::XMFLOAT3 rotation = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 		void AddPlaneToList( AssetID assetId, DirectX::XMFLOAT3 topTriangle, DirectX::XMFLOAT3 bottomTriangle );
 		void AddBillboardToList( AssetID assetId, DirectX::XMFLOAT3 worldPosition, float width, float height );
+		void AddParticleSystemToList( ParticleSystem*** particleSystem,  int* nrOfActiveParticleSystemsPerType );
 		void AddNodeGridToList( StaticVertex* vertices, UINT nrOfVertices, DirectX::XMFLOAT4X4 world );
 
 		void AnimationInitialize( AnimationTrack &animationTrack, AssetID model, AssetID defaultAnimation );
 		void AnimationUpdate( AnimationTrack &animationTrack, float deltaTime );
 		void AnimationStartNew( AnimationTrack &animationTrack, AssetID newAnimation );
+		void AnimationReset( AnimationTrack &animationTrack, AssetID defaultAnimation );
 
 		void ChangeRasterizerState( RasterizerStates rasterState );
 

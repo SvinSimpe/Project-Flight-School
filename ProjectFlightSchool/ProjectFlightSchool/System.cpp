@@ -66,18 +66,9 @@ int	System::Run()
 		}
 		else
 		{
-			//RECT r;
-			//GetWindowRect( mHWnd, &r );
-
 			float deltaTime	= mTimer->GetDeltaTime();
 			//float fps		= mTimer->GetFPS();
 
-			//wchar_t title[100];
-			//swprintf( title, sizeof(title), L"ProjectFlightSchool - DTime: %f", deltaTime );//, (int)fps );
-			//swprintf( title, sizeof(title), L"Derp" );
-			//SetWindowText( mHWnd, title );
-
-			//ClipCursor( &r );//		Uncomment this to lock the cursor to the game window
 			Update( deltaTime );
 			Render();
 		}
@@ -138,6 +129,7 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
       MessageBox( NULL, L"CoInitializeEx failed", L"Error", MB_OK );
     }
 
+	Client::GetInstance()->Initialize();
 	Graphics::GetInstance()->Initialize( mHWnd, mScreenWidth, mScreenHeight );
 	EventManager::GetInstance();
 	Input::GetInstance()->Initialize( mScreenWidth, mScreenHeight, mHWnd );
@@ -154,23 +146,22 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 
 	CoUninitialize();
 	
-
 	return S_OK;
 }
 
 //Release all data used.
 void System::Release()
 {
-	SoundBufferHandler::GetInstance()->Release();
 	SAFE_RELEASE_DELETE( mGame );
 
 	SAFE_RELEASE_DELETE( mTimer );
 
+	Client::GetInstance()->Release();
 	Graphics::GetInstance()->Release();
 	EventManager::GetInstance()->Release();
 	Input::GetInstance()->Release();
 	RenderManager::GetInstance()->Release();
-	
+	SoundBufferHandler::GetInstance()->Release();
 }
 
 System::System()

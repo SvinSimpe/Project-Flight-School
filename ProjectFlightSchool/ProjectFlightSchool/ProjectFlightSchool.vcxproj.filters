@@ -78,6 +78,15 @@
     </Filter>
     <Filter Include="Worldmap\Navigation">
       <UniqueIdentifier>{9139bafa-aede-4c3d-9f90-4bbf22ed172a}</UniqueIdentifier>
+	</Filter>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{36818f75-79e9-4d4e-b2c5-7d440fa0dbab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Header">
+      <UniqueIdentifier>{20ceaf40-bb7b-4c6b-8456-02a92c72fab6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Source">
+      <UniqueIdentifier>{60fa09e6-ee95-426a-90da-62315c9525d0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -162,14 +171,8 @@
     <ClCompile Include="StateMachine.cpp">
       <Filter>GameStates\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Graphics\Font.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="BaseMenuState.cpp">
       <Filter>GameStates\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Text.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CreateMenuState.cpp">
       <Filter>GameStates\Source Files</Filter>
@@ -193,9 +196,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Enemy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Button.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Turret.cpp">
@@ -234,6 +234,7 @@
     <ClCompile Include="Radar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+
     <ClCompile Include="DS3DBuffer.cpp">
       <Filter>DirectSound\Source</Filter>
     </ClCompile>
@@ -243,8 +244,26 @@
     <ClCompile Include="SoundBufferHandler.cpp">
       <Filter>DirectSound\Source</Filter>
     </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>GUI\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Graphics\Font.cpp">
+      <Filter>GUI\Source</Filter>
+    </ClCompile>
     <ClCompile Include="Gui.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>GUI\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Radar.cpp">
+      <Filter>GUI\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Text.cpp">
+      <Filter>GUI\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Network.cpp">
+      <Filter>Network\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PacketImpl.cpp">
+      <Filter>Network\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Navmesh.cpp">
       <Filter>Worldmap\Navigation</Filter>
@@ -267,9 +286,6 @@
       <Filter>Network\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Connection.h">
-      <Filter>Network\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Package.h">
       <Filter>Network\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Server.h">
@@ -295,9 +311,6 @@
     </ClInclude>
     <ClInclude Include="RemotePlayer.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Structs.h">
-      <Filter>Network\Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Projectile.h">
       <Filter>Header Files</Filter>
@@ -344,14 +357,8 @@
     <ClInclude Include="WeaponInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Graphics\Font.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BaseMenuState.h">
       <Filter>GameStates\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Text.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CreateMenuState.h">
       <Filter>GameStates\Header Files</Filter>
@@ -375,9 +382,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Enemy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Button.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Turret.h">
@@ -419,6 +423,7 @@
     <ClInclude Include="Radar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+
     <ClInclude Include="DS3DBuffer.h">
       <Filter>DirectSound\Header</Filter>
     </ClInclude>
@@ -428,7 +433,31 @@
     <ClInclude Include="SoundBufferHandler.h">
       <Filter>DirectSound\Header</Filter>
     </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>GUI\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Graphics\Font.h">
+      <Filter>GUI\Header</Filter>
+    </ClInclude>
     <ClInclude Include="Gui.h">
+      <Filter>GUI\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Radar.h">
+      <Filter>GUI\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Text.h">
+      <Filter>GUI\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="IPacket.h">
+      <Filter>Network\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Network.h">
+      <Filter>Network\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketImpl.h">
+      <Filter>Network\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WeaponLoadoutInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Navmesh.h">

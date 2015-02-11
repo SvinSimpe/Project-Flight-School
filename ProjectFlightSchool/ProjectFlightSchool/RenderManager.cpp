@@ -14,8 +14,10 @@ void RenderManager::Clear()
 	mNrOfAnim3d		= 0;
 	mNrOfPlane		= 0;
 	mNrOfBillboard	= 0;
+	mNrOfParticles	= 0;
 	mNrOfNodeGrid	= 0;
 	mNrOfBoxes		= 0;
+	mNrOfLines		= 0;
 }
 
 RenderManager::RenderManager()
@@ -50,12 +52,13 @@ void RenderManager::AddObject3dToList( AssetID assetId, DirectX::XMFLOAT4X4 worl
 	mObject3dArray[mNrOfObject3d++] = info;
 }
 
-void RenderManager::AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLeftCorner, DirectX::XMFLOAT2 widthHeight )
+void RenderManager::AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLeftCorner, DirectX::XMFLOAT2 widthHeight, DirectX::XMFLOAT4 color )
 {
 	Object2dInfo info;
 	info.mAssetId		= assetId;
 	info.mTopLeftCorner	= topLeftCorner;
 	info.mWidthHeight	= widthHeight;
+	info.mColor			= color;
 
 	mObject2dArray[mNrOfObject2d++] = info;
 }
@@ -67,7 +70,14 @@ void RenderManager::AddBoxToList( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 	info.max = max;
 	mBoxArray[mNrOfBoxes++] = info;
 }
+void RenderManager::AddLineToList( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end )
+{
+	LineInfo info;
+	info.start	= start;
+	info.end	= end;
 
+	mLineArray[mNrOfLines++] = info;
+}
 bool RenderManager::AddAnim3dToList( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation )
 {
     static Anim3dInfo info;
@@ -99,6 +109,42 @@ void RenderManager::AddBillboardToList( AssetID assetId, DirectX::XMFLOAT3 world
 	info.mHeight		= height;
 
 	mBillboardArray[mNrOfBillboard++] = info;
+}
+
+void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, int* nrOfActiveParticleSystemsPerType  )
+{
+	ParticleInfo info;
+	UINT offset = 0;
+	for ( int i = 0; i < NR_OF_PARTICLE_TYPES; i++ )
+	{
+		// Set AssetID per Particle Type
+		info.mAssetId = particleSystem[i][0]->assetID;
+
+		// Calculate offset per Particle Type
+		for ( int l = 0; l < nrOfActiveParticleSystemsPerType[i]; l++ )
+		{
+			offset += particleSystem[i][l]->nrOfParticlesAlive;
+		}
+
+		// Set offset
+		info.mOffsetToNextParticleType = offset;
+
+		// Fill Array with Particle Info
+		for ( int j = 0; j < nrOfActiveParticleSystemsPerType[i]; j++ )
+		{
+
+			for ( int k = 0; k < particleSystem[i][j]->nrOfParticlesAlive; k++ )
+			{
+				info.mWorldPosition.x	= particleSystem[i][j]->xPosition[k];
+				info.mWorldPosition.y	= particleSystem[i][j]->yPosition[k];
+				info.mWorldPosition.z	= particleSystem[i][j]->zPosition[k];
+
+				info.mLifeTime			= particleSystem[i][j]->lifeTime[k];
+
+				mParticleInfoArray[mNrOfParticles++] = info;
+			}
+		}
+	}	
 }
 
 void RenderManager::AddNodeGridToList( StaticVertex* vertices, UINT nrOfVertices, DirectX::XMFLOAT4X4 world )
@@ -147,6 +193,14 @@ void RenderManager::ChangeRasterizerState( RasterizerStates rasterState )
 {
 	mRasterState = rasterState;
 }
+void RenderManager::AnimationReset( AnimationTrack &animationTrack, AssetID defaultAnimation )
+{
+	animationTrack.mCurrentAnimation		= defaultAnimation;
+	animationTrack.mCurrentAnimationTime	= 1.0f / 60.0f;
+	animationTrack.mNextAnimation			= defaultAnimation;
+	animationTrack.mNextAnimationTime		= 1.0f / 60.0f;
+	animationTrack.mInterpolation			= 0.0f;
+}
 
 HRESULT RenderManager::Update( float deltaTime )
 {
@@ -181,6 +235,8 @@ HRESULT RenderManager::Render()
 		Graphics::GetInstance()->RenderDebugBox( mBoxArray[i].min, mBoxArray[i].max );
 	}
 
+	Graphics::GetInstance()->RenderLine( mLineArray, mNrOfLines );
+
 	Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray, mNrOfAnim3d );
 	//------------------------Finished filling the Gbuffers----------------------
 
@@ -211,14 +267,15 @@ HRESULT RenderManager::Render()
 	//Render the scene with deferred
 	Graphics::GetInstance()->DeferredPass();
 
+	//Render the particles
+	Graphics::GetInstance()->RenderParticleSystems( mParticleInfoArray, mNrOfParticles );
+
 	//Prepare the scene to render Screen space located assets
 	Graphics::GetInstance()->ScreenSpacePass();
 
 	//Render screen space located assets
-	for( UINT i = 0; i < mNrOfObject2d; i++ )
-	{
-		Graphics::GetInstance()->Render2dAsset( mObject2dArray[i].mAssetId, mObject2dArray[i].mTopLeftCorner.x, mObject2dArray[i].mTopLeftCorner.y, mObject2dArray[i].mWidthHeight.x, mObject2dArray[i].mWidthHeight.y );
-	}
+	Graphics::GetInstance()->Render2dAsset( mObject2dArray, mNrOfObject2d );
+
 	//Present the scene onto the screen
 	Graphics::GetInstance()->EndScene();
 

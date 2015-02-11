@@ -1,7 +1,6 @@
 #include "Map.h"
 #include "MapNodeManager.h"
 #include "MapNodePlacer.h"
-#include "HelperFunctions.h"
 
 HRESULT Map::Render( float deltaTime, Player* player )
 {
@@ -24,10 +23,10 @@ HRESULT Map::Render( float deltaTime, Player* player )
 		}
 	}
 
-	//for( auto& it : mapNodes )
-	//{
-	//	it->Render( deltaTime );
-	//}
+	for( auto& it : mapNodes )
+	{
+		it->Render( deltaTime );
+	}
 
 
 	//std::vector<MapNodeInstance*> nodes = MapNodePlacer::GetInstance()->GetAllNodes();
@@ -44,7 +43,7 @@ void Map::OnLoadLevel( IEventPtr pEvent )
 	{
 		std::shared_ptr<Event_Load_Level> dataPtr = std::static_pointer_cast<Event_Load_Level>( pEvent );
 
-		MapNodeManager::GetInstance()->LoadLevel( dataPtr->GetFileName() );
+		MapNodeManager::GetInstance()->LoadLevel( dataPtr->FilePath() );
 
 		MapNodePlacer::GetInstance()->Reset();
 
@@ -64,43 +63,47 @@ NavTriangle* Map::IsOnNavMesh( XMFLOAT3 pos )
 	XMFLOAT2 tempPos = XMFLOAT2(pos.x, pos.z);
 	XMFLOAT2 p0, p1, p2;
 
-	//for( auto& it : mNavData )
-	//{
-	//	p0 = XMFLOAT2( it.triPoints[0].x, it.triPoints[0].z );
-	//	p1 = XMFLOAT2( it.triPoints[1].x, it.triPoints[1].z ); 
-	//	p2 = XMFLOAT2( it.triPoints[2].x, it.triPoints[2].z ); 
+	int unitPosX = (int)pos.x;
+	int unitPosZ = (int)pos.z;
 
-	//	if( HelperFunctions::Inside2DTriangle( tempPos, p0, p1, p2 ) )
-	//	{
-	//		OutputDebugStringA("Player is inside bounds.\n");
-	//		return &it;
-	//	}
-	//}
-	OutputDebugStringA("Player is outside of map!\n");
-	return nullptr;
+	int playerX = ( ( (int)GetMapHalfWidth() * NODE_DIM ) + unitPosX ) / NODE_DIM;
+	int playerZ = ( ( (int)GetMapHalfHeight() * NODE_DIM ) + unitPosZ ) / NODE_DIM;
 
+	MapNodeInstance* temp = MapNodePlacer::GetInstance()->GetNodeInstance( playerX, playerZ );
 
-	//p0 = XMFLOAT2( -10, -10 );
-	//p1 = XMFLOAT2( -10, 10 ); 
-	//p2 = XMFLOAT2( 10, 0 ); 
+	if( temp )
+		return temp->IsOnNavMesh( pos );
+	else
+		return nullptr;
+	////for( auto& it : mNavData )
+	////{
+	////	p0 = XMFLOAT2( it.triPoints[0].x, it.triPoints[0].z );
+	////	p1 = XMFLOAT2( it.triPoints[1].x, it.triPoints[1].z ); 
+	////	p2 = XMFLOAT2( it.triPoints[2].x, it.triPoints[2].z ); 
 
-	//if( Inside2DTriangle( tempPos, p0, p1, p2 ) )
-	//{
-	//	OutputDebugStringA("Player is inside bounds.\n");
-	//	return true;
-	//}
+	////	if( HelperFunctions::Inside2DTriangle( tempPos, p0, p1, p2 ) )
+	////	{
+	////		OutputDebugStringA("Player is inside bounds.\n");
+	////		return &it;
+	////	}
+	////}
 	//OutputDebugStringA("Player is outside of map!\n");
-	//return false;
+	//return nullptr;
+
+
+	////p0 = XMFLOAT2( -10, -10 );
+	////p1 = XMFLOAT2( -10, 10 ); 
+	////p2 = XMFLOAT2( 10, 0 ); 
+
+	////if( Inside2DTriangle( tempPos, p0, p1, p2 ) )
+	////{
+	////	OutputDebugStringA("Player is inside bounds.\n");
+	////	return true;
+	////}
+	////OutputDebugStringA("Player is outside of map!\n");
+	////return false;
 }
-//bool Map::Inside2DTriangle( XMFLOAT2 p, XMFLOAT2 p0, XMFLOAT2 p1, XMFLOAT2 p2 )
-//{
-//	float A = (float)1/2 * (-p1.y * p2.x + p0.y * (-p1.x + p2.x) + p0.x * (p1.y - p2.y) + p1.x * p2.y);
-//    int sign = A < 0 ? -1 : 1;
-//    float s = (p0.y * p2.x - p0.x * p2.y + (p2.y - p0.y) * p.x + (p0.x - p2.x) * p.y) * sign;
-//    float t = (p0.x * p1.y - p0.y * p1.x + (p0.y - p1.y) * p.x + (p1.x - p0.x) * p.y) * sign;
-//
-//	return s > 0 && t > 0 && (s + t) < ( 2 * A * sign );
-//}
+
 UINT Map::GetMapDim() const
 {
 	return mMapDim ;//* SECTION_DIM;

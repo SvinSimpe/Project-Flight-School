@@ -3,7 +3,6 @@
 
 #include "DSBuffer.h"
 #include "DS3DBuffer.h"
-#include "EventManager.h"
 #include "Events.h"
 #include <vector>
 

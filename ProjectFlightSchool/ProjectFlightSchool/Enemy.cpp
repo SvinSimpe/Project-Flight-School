@@ -16,12 +16,12 @@ void Enemy::CreateStandard()
 	mMaxHp						= 20.0f;
 	mCurrentHp					= mMaxHp;
 	mDamage						= 10.0f;
-	mSpeed						= 5.0f;
-	mAttackRadius->radius		= 1.0f;
+	mSpeed						= 7.0f;
+	mAttackRadius->radius		= 1.5f;
 	mAttentionRadius->radius	= 10.0f;
 	mXpDrop						= 5;
 	mSpawnTime					= 10.0f;
-	mAttackRate					= 1.0f;
+	mAttackRate					= 1.5f;
 }
 
 void Enemy::CreateRanged()
@@ -77,7 +77,7 @@ void Enemy::CreateTank()
 	mMaxHp		= 100.0f;
 	mCurrentHp	= mMaxHp;
 	mDamage		= 20.0f;
-	mSpeed		= 3.0f;
+	mSpeed		= 1.5f;
 	mAttackRadius->radius		= 1.0f;
 	mAttentionRadius->radius	= 10.0f;
 	mXpDrop						= 15;
@@ -113,6 +113,9 @@ HRESULT Enemy::Update( float deltaTime )
 	mDeltaTime					= deltaTime;
 	mAttackRadius->center		= mPosition;
 	mAttentionRadius->center	= mPosition;
+
+	if( mStateTimer >= 0.0f )
+		mStateTimer -= deltaTime;
 
 	// Update specific enemy logic
 	switch( mEnemyType )
@@ -184,6 +187,19 @@ HRESULT Enemy::Update( float deltaTime )
 		}
 		break;
 
+		case Stunned:
+		{
+			if( mStunTimer <= 0.0f )
+				mCurrentState = Idle;
+			else
+			{
+				mStunTimer -= deltaTime;
+				//mPosition.x += mVelocity.x * deltaTime * 50;
+				//mPosition.z += mVelocity.z * deltaTime * 50;
+			}
+		}
+		break;
+
 		default:
 			OutputDebugStringA( "--Error: No enemy state " );
 	}
@@ -193,19 +209,22 @@ HRESULT Enemy::Update( float deltaTime )
 
 void Enemy::SetState( EnemyState state )
 {
-	if( state != mCurrentState )
+	if ( mStateTimer <= 0.0f && mCurrentState != Stunned )
 	{
-		// If state is an EnemyState set mCurrentState to state
-		if( state == Idle		||
-			state == Run		||
-			state == Attack		||
-			state == Death		||
-			state == MoveToShip ||
-			state == HuntPlayer		)
+		if( state != mCurrentState )
 		{
-			mCurrentState = state;
-			IEventPtr state( new Event_Set_Enemy_State( mID, mCurrentState ) );
-			EventManager::GetInstance()->QueueEvent( state );
+			// If state is an EnemyState set mCurrentState to state
+			if( state == Idle		||
+				state == Run		||
+				state == Attack		||
+				state == Death		||
+				state == MoveToShip ||
+				state == HuntPlayer		)
+			{
+				mCurrentState = state;
+				IEventPtr state( new Event_Set_Enemy_State( mID, mCurrentState ) );
+				EventManager::GetInstance()->QueueEvent( state );
+			}
 		}
 	}
 }
@@ -217,6 +236,24 @@ void Enemy::TakeDamage( float damage )
 	{
 		Die();
 	}
+}
+
+void Enemy::TakeMeleeDamage( float damage, float knockBack, XMFLOAT3 direction, float stun )
+{
+		direction.x *= knockBack;
+		direction.z *= knockBack;
+		AddImpuls( direction );
+		mCurrentState = Stunned;
+		mStunTimer = stun;
+		IEventPtr state( new Event_Set_Enemy_State( mID, Idle ) );
+		EventManager::GetInstance()->QueueEvent( state );
+		TakeDamage( damage );
+}
+
+void Enemy::AddImpuls( XMFLOAT3 impuls )
+{
+	mPosition.x += impuls.x;
+	mPosition.z += impuls.z;
 }
 
 void Enemy::SetHuntedPlayer( XMFLOAT3 player )
@@ -294,6 +331,7 @@ float Enemy::HandleAttack()
 	if( mTimeTillAttack <= 0.0f )
 	{
 		mTimeTillAttack = mAttackRate;
+		mStateTimer		= mAttackRate;
 		return mDamage;
 	}
 	else
@@ -389,23 +427,25 @@ void Enemy::Release()
 
 Enemy::Enemy()
 {
-	mID				= 0;
-	mCurrentHp		= 0.0f;
-	mMaxHp			= 0.0f;
-	mDamage			= 0.0f;
-	mSpeed			= 0.0f;
-	mIsAlive		= false;
-	mPosition		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mVelocity		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mAttackRadius	=  nullptr;
-	mAttentionRadius = nullptr;
-	mCurrentState	= Idle;
-	mXpDrop			= 0;
-	mSpawnTime		= 0.0f;
-	mTimeTillSapwn	= 0.0f;
-	mAttackRate		= 0.0f;
-	mTimeTillAttack	= 0.0f;
+	mID					= 0;
+	mCurrentHp			= 0.0f;
+	mMaxHp				= 0.0f;
+	mDamage				= 0.0f;
+	mSpeed				= 0.0f;
+	mIsAlive			= false;
+	mPosition			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mDirection			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mVelocity			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mAttackRadius		=  nullptr;
+	mAttentionRadius	 = nullptr;
+	mCurrentState		= Idle;
+	mXpDrop				= 0;
+	mSpawnTime			= 0.0f;
+	mTimeTillSapwn		= 0.0f;
+	mAttackRate			= 0.0f;
+	mTimeTillAttack		= 0.0f;
+	mStateTimer			= 0.0f;
+	mStunTimer			= 0.0f;
 }
 
 Enemy::~Enemy()

@@ -1,6 +1,7 @@
 #include "MapNodeInstance.h"
 #include "MapNode.h"
 #include "RenderManager.h"
+#include "HelperFunctions.h"
 
 HRESULT MapNodeInstance::Update( float deltaTime )
 {
@@ -19,33 +20,24 @@ HRESULT	MapNodeInstance::Render( float deltaTime )
 }
 void MapNodeInstance::GetNavigationData()
 {
+	mNavMesh = new Navmesh();
+
 	UINT navVertexCount = mNode->GetNavVertexCount();
 	XMFLOAT3* navPoints	= mNode->GetNavData();
 
-	mNavMesh = new NavTriangle[navVertexCount / 3];
-	UINT count = 0;
+	//Deallocation by navmesh
+	XMFLOAT3* transformedMesh = new XMFLOAT3[navVertexCount];
 	XMMATRIX world	= DirectX::XMLoadFloat4x4( &mWorld );
 
-	for( UINT i = 0; i < navVertexCount; i += 3 )
+	for( UINT i = 0; i < navVertexCount; i++ )
 	{
-
-		DirectX::XMFLOAT3 tri1, tri2, tri3;
+		DirectX::XMFLOAT3 tri1;
 		DirectX::XMStoreFloat3( &tri1, DirectX::XMVector3TransformCoord( XMLoadFloat3( &navPoints[i] ), world ) );
-		DirectX::XMStoreFloat3( &tri2, DirectX::XMVector3TransformCoord( XMLoadFloat3( &navPoints[i + 1] ), world ) );
-		DirectX::XMStoreFloat3( &tri3, DirectX::XMVector3TransformCoord( XMLoadFloat3( &navPoints[i + 2] ), world ) );
 
-
-		NavTriangle temp;
-		temp.triPoints[0] = tri1;
-		temp.triPoints[1] = tri2;
-		temp.triPoints[2] = tri3;
-
-		temp.adjTri[0] = -1;
-		temp.adjTri[1] = -1;
-		temp.adjTri[2] = -1;
-
-		mNavMesh[count++] = temp;
+		transformedMesh[i] = tri1;
 	}
+
+	mNavMesh->Initialize( transformedMesh, navVertexCount );
 	//Connect triangles
 }
 DirectX::XMFLOAT3 MapNodeInstance::GetPos()const
@@ -78,15 +70,30 @@ void MapNodeInstance::SetMapNode( MapNode* mapNode )
 {
 	mNode = mapNode;
 }
-BoundingBox MapNodeInstance::GetBoundingBox()
-{
-	BoundingBox b;
-	b.position	= mPos;
-	b.width		= (float)mNode->GetGridWidth();
-	b.height	= (float)mNode->GetGridHeight();
 
-	return b;
+NavTriangle* MapNodeInstance::IsOnNavMesh( DirectX::XMFLOAT3 pPos ) const
+{
+	//DirectX::XMFLOAT2 pos, p0, p1, p2;
+	//pos = DirectX::XMFLOAT2( pPos.x, pPos.z );
+
+
+	//for(UINT i = 0; i < mNavTriangleCount; i++ )
+	//{
+	//	NavTriangle temp = mNavMesh[i];
+	//	p0 = DirectX::XMFLOAT2( temp.triPoints[0].x, temp.triPoints[0].z );
+	//	p1 = DirectX::XMFLOAT2( temp.triPoints[1].x, temp.triPoints[1].z );
+	//	p2 = DirectX::XMFLOAT2( temp.triPoints[2].x, temp.triPoints[2].z );
+
+	//	if( HelperFunctions::Inside2DTriangle( pos, p0, p1, p2 ) )
+	//	{
+	//		OutputDebugStringA( "Is INSIDE navtriangle. \n" );
+	//		return &mNavMesh[i];
+	//	}
+	//}
+	//OutputDebugStringA( "Is OUTSIDE navtriangle. \n" );
+	return nullptr;
 }
+
 HRESULT	MapNodeInstance::Initialize()
 {
 	GetNavigationData();
@@ -99,6 +106,7 @@ void MapNodeInstance::Release()
 }
 MapNodeInstance::MapNodeInstance()
 {
+	mNavMesh	= nullptr;
 	mNode		= nullptr;
 	mPos		= XMFLOAT3( 0, 0, 0 );
 	mOrigin		= XMFLOAT3( 0, 0, 0 );
@@ -106,4 +114,6 @@ MapNodeInstance::MapNodeInstance()
 }
 MapNodeInstance::~MapNodeInstance()
 {
+	if( mNavMesh )
+		delete[] mNavMesh;
 }

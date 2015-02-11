@@ -5,7 +5,16 @@
 #include "RenderManager.h"
 #include "Input.h"
 
+
+//Full image pixel width and height == 384 pixels
+//Radius from the center of the image == 176 pixels
+//One tile == 24 ingame units
+//Ingame radius == 48 ingame units
+
 #define MAX_RADAR_OBJECTS 100
+#define BASE_SCALE_VALUE 0.15f
+#define BASE_RESOLUTION_VALUE 1920.0f
+#define BASE_VALUE_FOR_RESOLUTION_SCALING ( BASE_RESOLUTION_VALUE * BASE_SCALE_VALUE )
 
 enum RADAR_TYPE
 {
@@ -21,16 +30,6 @@ struct RADAR_UPDATE_INFO
 	XMFLOAT3	mRadarObjectPos;
 	UINT		mType;
 };
-
-static const float HEIGHT			= 12.0f;
-static const float WIDTH			= 12.0f;
-static const float HALF_WIDTH		= WIDTH * 0.5f;
-static const float HALF_HEIGHT		= HEIGHT * 0.5f;
-
-static const float SHIP_HEIGHT		= 18.0f;
-static const float SHIP_WIDTH		= 18.0f;
-static const float SHIP_HALF_HEIGHT	= SHIP_HEIGHT * 0.5f;
-static const float SHIP_HALF_WIDTH	= SHIP_WIDTH * 0.5f;
 
 struct ObjectOnRadar
 {
@@ -51,12 +50,23 @@ class Radar
 		UINT			mNrOfObjects;
 		ObjectOnRadar	mObjects[MAX_RADAR_OBJECTS];
 		float			mRadius;
-		float			mRadarDimXY;
-		float			mRadarCenter;
-		float			mScaleX;
-		float			mScaleY;
-		float			mOffsetX;
-		float			mOffsetY;
+		
+		float			mRadarObjWidth;	
+		float			mRadarObjHeight;
+		float			mRadarShipWidth;	
+		float			mRadarShipHeight;	
+
+		float			mRadarShipOffsetX;
+		float			mRadarShipOffsetY;		
+		float			mRadarShipTranslationX;
+		float			mRadarShipTranslationY;
+
+		float			mRadarObjectOffsetX;		
+		float			mRadarObjectOffsetY;		
+		float			mRadarObjectTranslationX;
+		float			mRadarObjectTranslationY;
+
+
 	protected:
 	public:
 

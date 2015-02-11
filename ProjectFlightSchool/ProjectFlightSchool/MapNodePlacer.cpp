@@ -58,8 +58,8 @@ NODE_RETURN_CODE MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNo
 	}
 	XMFLOAT3 newPos = XMFLOAT3( ((float)pX * NODE_DIM ) - ( mMap->GetMapHalfWidth() * NODE_DIM ), 0, ( (float)pY * NODE_DIM ) - ( mMap->GetMapHalfHeight() * NODE_DIM ) );
 
-	newNode->Initialize();
 	newNode->SetPos( newPos );
+	newNode->Initialize();
 
 	return PLACED;
 }

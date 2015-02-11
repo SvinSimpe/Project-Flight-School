@@ -32,10 +32,10 @@ class Camera
 	
 		void SetUp( DirectX::XMFLOAT4 up );
 
-		DirectX::XMMATRIX GetViewMatrix()		const;
-		DirectX::XMMATRIX GetProjMatrix()		const;	
-		DirectX::XMMATRIX GetInverseViewMatrix() const;
-		DirectX::XMMATRIX GetInverseProjectionMatrix() const;
+		DirectX::XMMATRIX GetViewMatrix()				const;
+		DirectX::XMMATRIX GetProjMatrix()				const;	
+		DirectX::XMMATRIX GetInverseViewMatrix()		const;
+		DirectX::XMMATRIX GetInverseProjectionMatrix()	const;
 
 		DirectX::XMFLOAT4	GetPos()		const;
 		DirectX::XMFLOAT4	GetUp()			const;

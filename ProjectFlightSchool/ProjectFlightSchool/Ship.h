@@ -27,6 +27,7 @@ class Ship
 		float			GetCurrentHull() const;
 		void			TakeDamage( float damage );
 		void			PickTurretTarget( std::vector<RemotePlayer*> targets );
+		void			Reset( int team, XMFLOAT3 pos, XMFLOAT3 dir );
 		void			Update( float deltaTime );
 		void			Render();
 		int				GetTeamID() const;

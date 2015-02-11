@@ -38,7 +38,7 @@ void Turret::Fire()
 {
 	XMFLOAT3 firePos;
 	XMStoreFloat3( &firePos, XMLoadFloat3( &mUpperBody->pos ) + XMLoadFloat3( &mUpperBody->dir ) * 3.0f );
-	IEventPtr E1( new Event_Projectile_Fired( mTeamID, firePos, mUpperBody->dir ) );
+	IEventPtr E1( new Event_Client_Fired_Projectile( 1000, firePos, mUpperBody->dir ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
 	mShootTimer = SHOOTCOOLDOWN;
 }
@@ -104,6 +104,27 @@ void Turret::PickTarget( std::vector<RemotePlayer*> targets )
 	}
 }
 
+void Turret::Reset( int team, XMFLOAT3 pos, XMFLOAT3 dir )
+{
+	mTeamID					= team;
+
+	pos.y					+= 1.6f;
+	mUpperBody->pos			= pos;
+	mUpperBody->dir			= dir;
+
+	pos.y					-= 1.0f;
+	mMiddleBody->pos		= pos;
+	mMiddleBody->dir		= dir;
+
+	pos.y					-= 0.6f;
+	mLowerBody->pos			= pos;
+	mLowerBody->dir			= dir;
+
+	SAFE_DELETE(mBoundingCircle);
+	mBoundingCircle			= new BoundingCircle( mMiddleBody->pos, 10.0f ); // Range of the turret is set here
+	mCurrentMode			= mIdle;
+}
+
 HRESULT Turret::Update( float deltaTime )
 {
 	mDT = deltaTime;
@@ -150,7 +171,7 @@ void Turret::Initialize( int team, XMFLOAT3 pos, XMFLOAT3 dir )
 	mLowerBody->dir			= dir;
 
 	mLoadOut				= new LoadOut();
-	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN, 5.0f, 1.0f, 5.0f, 2, 0 );
+	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN );
 
 	mBoundingCircle			= new BoundingCircle( mMiddleBody->pos, 10.0f ); // Range of the turret is set here
 	mIdle					= new IdleTurret();

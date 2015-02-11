@@ -46,6 +46,7 @@ goblin		/Goblin/
 goliath		/Bosses/
 blowuposaur	/Blowuposaur/
 tank		/Tank/
+Tank		/Tank/
 
 ####################################
 
@@ -59,5 +60,6 @@ Plant		/Plants/
 ice		/Ice/
 ici		/Ice/
 giant		/GiantAssets/
+scrapMetal	/scrapMetal/
 
 ####################################

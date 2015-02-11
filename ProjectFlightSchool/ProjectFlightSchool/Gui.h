@@ -46,6 +46,8 @@ struct GuiUpdate
 class Gui
 {
 	private:
+		UINT		mNrOfRemotePlayer;
+
 		Radar*		mRadar;
 		HealthBar*	mHealtBar;
 

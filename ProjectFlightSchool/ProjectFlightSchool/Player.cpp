@@ -309,6 +309,7 @@ void Player::Reset()
 	mHasMeleeStarted			= false;
 
 	mMaxVelocity				= 7.7f;
+	mVelocity					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mCurrentVelocity			= 0.0f;
 	mMaxAcceleration			= 20.0f;;
 	mAcceleration				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
@@ -316,8 +317,6 @@ void Player::Reset()
 	mIsBuffed					= false;
 	mBuffMod					= 1; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
 
-	mPlayerName					= "";
-	mHasName					= false;
 	mTimeTillSpawn				= mSpawnTime;
 	mTimeTillDeath				= mDeathTime;
 	mTimeTillRevive				= mReviveTime;
@@ -517,7 +516,6 @@ HRESULT Player::Initialize()
 	RemotePlayer::Initialize();
 
 	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
-	mHasName = false;
 	mPlayerName = "";
 	
 	////////////

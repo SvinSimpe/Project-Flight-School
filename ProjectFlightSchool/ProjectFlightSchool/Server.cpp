@@ -255,10 +255,7 @@ void Server::StartUp( IEventPtr eventPtr )
 		std::string port = data->Port();
 
 		// Makes sure everything is clean before starting
-		if( mSocketManager )
-			mSocketManager->Release();
-		SAFE_DELETE( mSocketManager );
-		mClientMap.clear();
+		Release();
 		
 		std::stringstream sstr;
 		sstr << port << " ";

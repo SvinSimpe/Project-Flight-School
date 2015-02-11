@@ -398,13 +398,17 @@ HRESULT PlayState::Update( float deltaTime )
 		if ( mRemotePlayers.at(i) )
 		{
 			mRemotePlayers.at(i)->Update( deltaTime );
+			std::string remotePlayerName = "";
+			if( mRemotePlayers[i]->IsAlive() )
+			{
+				remotePlayerName							= mRemotePlayers[i]->GetName();
+				mRadarObjects[nrOfRadarObj].mRadarObjectPos = mRemotePlayers[i]->GetPosition();
+				mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::HOSTILE;
+			}
 			pName[i].mRemotePlayerPos		= mRemotePlayers[i]->GetPosition();
-			pName[i].mRemotePlayerName		= mRemotePlayers[i]->GetName();
+			pName[i].mRemotePlayerName		= remotePlayerName;
 			pName[i].mRemotePlayerTeamID	= mRemotePlayers[i]->GetTeam();
 			pName[i].mRemotePlayerID		= i;
-			
-			mRadarObjects[nrOfRadarObj].mRadarObjectPos = mRemotePlayers[i]->GetPosition();
-			mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::HOSTILE;
 
 			if( mRemotePlayers[i]->GetTeam() == mPlayer->GetTeam() )
 			{

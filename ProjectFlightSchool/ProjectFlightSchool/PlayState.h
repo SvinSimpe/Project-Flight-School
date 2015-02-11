@@ -38,7 +38,7 @@ class PlayState : public BaseState
 		Player*						mPlayer;
 		std::vector<RemotePlayer*>	mRemotePlayers;
 		Projectile**				mProjectiles;				// A collection of the games projectiles
-		int							mNrOfProjectilesFired;
+		int							mNrOfActiveProjectiles;
 		Font						mFont;
 		EnemyAnimationManager*		mEnemyAnimationManager;
 		RemoteEnemy**				mEnemies;

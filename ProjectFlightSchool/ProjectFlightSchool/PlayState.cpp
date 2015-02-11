@@ -537,6 +537,7 @@ void PlayState::OnExit()
 
 void PlayState::Reset()
 {
+	mNrOfActiveProjectiles = 0;
 }
 
 HRESULT PlayState::Initialize()
@@ -570,7 +571,6 @@ HRESULT PlayState::Initialize()
 	}
 
 	mNrOfActiveProjectiles	= 0;
-	mNrOfProjectilesFired	= 0;
 
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Local_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Joined::GUID );
@@ -666,6 +666,7 @@ PlayState::PlayState()
 	mEnemyAnimationManager	= nullptr;
 	mFrameCounter			= 0;
 	mProjectiles			= nullptr;
+	mNrOfActiveProjectiles	= 0;
 	mEnemies				= nullptr;
 	mEnemyListSynced		= false;
 	mServerInitialized		= false;

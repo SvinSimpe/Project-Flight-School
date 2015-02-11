@@ -16,6 +16,8 @@
 #include "Gui.h"
 #include "ParticleManager.h"
 #include "SoundBufferHandler.h"
+//TestUpgradeWindow
+#include "UpgradeShipWindow.h"
 
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
@@ -56,6 +58,9 @@ class PlayState : public BaseState
 		//TestSound
 		int							m3DSoundAsset;
 		int							mSoundAsset;
+
+		//TestUpgradeWindow
+		UpgradeShipWindow			mWindow;
 	
 	protected:
 	public:

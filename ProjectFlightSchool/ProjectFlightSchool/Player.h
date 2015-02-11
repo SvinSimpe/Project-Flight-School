@@ -18,6 +18,7 @@ class Player: public RemotePlayer
 		bool		mIsMeleeing;
 		bool		mHasMeleeStarted;
 		bool		mLock;
+		bool		mCloseToPlayer;
 
 		float		mMaxVelocity;
 		float		mCurrentVelocity;
@@ -32,8 +33,6 @@ class Player: public RemotePlayer
 		
 		float		mSpawnTime;
 		float		mTimeTillSpawn;
-		float		mDeathTime;
-		float		mTimeTillDeath;
 		float		mReviveTime;
 		float		mTimeTillRevive;
 		int			mLastKiller;

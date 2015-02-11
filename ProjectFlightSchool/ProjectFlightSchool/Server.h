@@ -3,6 +3,7 @@
 
 #include "Network.h"
 #include "ServerShip.h"
+#include <vector>
 
 class Server : public Network
 {
@@ -11,17 +12,18 @@ class Server : public Network
 		{
 			NetworkEventForwarder	NEF;
 			UINT					TeamID;
+			XMFLOAT3				Pos = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			bool					IsBuffed = false;
 		};
 		const UINT MAX_TEAMS = 2;
 		const UINT MAX_PROJECTILE_ID = 999;
 
 		SocketManager*				mSocketManager;
-		std::map<UINT, ClientNEF>	mClientMap;
+		std::map<UINT, ClientNEF*>	mClientMap;
 		UINT						mTeamDelegate;
 		UINT						mCurrentPID;
 		bool						mActive;
-		ServerShip*					mShipOne;
-		ServerShip*					mShipTwo;
+		std::vector<ServerShip*>	mShips;
 
 	protected:
 	public:
@@ -48,7 +50,7 @@ class Server : public Network
 		UINT	CurrentTeamDelegate();
 		UINT	CurrentPID();
 		void	CreateShips();
-		void	HandleShipBuffing( XMFLOAT3 pos );
+		bool	CheckShipBuff( ServerShip* ship, XMFLOAT3 pos );
 
 	protected:
 		bool	Connect( UINT port );

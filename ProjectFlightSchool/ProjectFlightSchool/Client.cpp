@@ -102,6 +102,7 @@ void Client::Update( float deltaTime )
 			SendEvent( mEventList.back() );
 			mEventList.pop_back();
 		}
+		mEventList.clear();
 	}
 }
 
@@ -178,6 +179,7 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Connect_Server_Fail );
 	EF::REGISTER_EVENT( Event_Connect_Client_Fail );
 	EF::REGISTER_EVENT( Event_Server_Spawn_Ship );
+	EF::REGISTER_EVENT( Event_Server_Change_Buff_State );
 
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	EventManager::GetInstance()->AddListener( &Client::Shutdown, this, Event_Shutdown_Client::GUID );

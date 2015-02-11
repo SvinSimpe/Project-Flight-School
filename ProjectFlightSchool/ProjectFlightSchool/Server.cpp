@@ -8,34 +8,38 @@ void Server::ClientJoined( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Client_Joined::GUID )
 	{
 		std::shared_ptr<Event_Client_Joined> data = std::static_pointer_cast<Event_Client_Joined>( eventPtr );
-		UINT id = data->ID();
-		UINT teamID = CurrentTeamDelegate();
-
-		mClientMap[id].NEF.Initialize( id, mSocketManager );
-		mClientMap[id].TeamID = teamID;
-
-		// Sends necessary information of the newly connected client to the newly connected client
-		IEventPtr E1( new Event_Local_Joined( id, teamID ) );
-		SendEvent( E1, id );
-
-		// Initializes the ships in their current state to the newly connected client
-		IEventPtr SpawnShipOne( new Event_Server_Spawn_Ship( mShipOne->mID, mShipOne->mTeamID, mShipOne->mPos, mShipOne->mDir, mShipOne->mCurrentHP ) );
-		SendEvent( SpawnShipOne, id );
-
-		IEventPtr SpawnShipTwo( new Event_Server_Spawn_Ship( mShipTwo->mID, mShipTwo->mTeamID, mShipTwo->mPos, mShipTwo->mDir, mShipTwo->mCurrentHP ) );
-		SendEvent( SpawnShipTwo, id );
-
-		// Sends the incoming ID to the existing remotes
-		IEventPtr E2( new Event_Remote_Joined( id, teamID ) ); 
-		BroadcastEvent( E2, id );
-
-		// Sends the list of existing remotes to the newly connected client
-		for( auto& remote : mClientMap )
+		auto& it = mClientMap.find(data->ID());
+		if( it == mClientMap.end() )
 		{
-			if( remote.first != id )
+			UINT teamID = CurrentTeamDelegate();
+
+			mClientMap[data->ID()] = new ClientNEF();
+			mClientMap[data->ID()]->NEF.Initialize( data->ID(), mSocketManager );
+			mClientMap[data->ID()]->TeamID = teamID;
+
+			// Sends necessary information of the newly connected client to the newly connected client
+			IEventPtr E1( new Event_Local_Joined( data->ID(), teamID ) );
+			SendEvent( E1, data->ID() );
+
+			// Initializes the ships in their current state to the newly connected client
+			for( auto& s : mShips )
 			{
-				IEventPtr E3( new Event_Remote_Joined( remote.first, remote.second.TeamID ) ); // The key of the map is the ID of the remote
-				SendEvent( E3, id );
+				IEventPtr SpawnShip( new Event_Server_Spawn_Ship( s->mID, s->mTeamID, s->mPos, s->mDir, s->mCurrentHP ) );
+				SendEvent( SpawnShip, data->ID() );
+			}
+
+			// Sends the incoming ID to the existing remotes
+			IEventPtr E2( new Event_Remote_Joined( data->ID(), teamID ) ); 
+			BroadcastEvent( E2, data->ID() );
+
+			// Sends the list of existing remotes to the newly connected client
+			for( auto& remote : mClientMap )
+			{
+				if( remote.first != data->ID() )
+				{
+					IEventPtr E3( new Event_Remote_Joined( remote.first, remote.second->TeamID ) ); // The key of the map is the ID of the remote
+					SendEvent( E3, data->ID() );
+				}
 			}
 		}
 	}
@@ -46,11 +50,15 @@ void Server::ClientLeft( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Client_Left::GUID )
 	{
 		std::shared_ptr<Event_Client_Left> data = std::static_pointer_cast<Event_Client_Left>( eventPtr );
-		UINT id = data->ID();
-		mClientMap.erase( id );
+		auto& it = mClientMap.find(data->ID());
+		if( it != mClientMap.end() )
+		{
+			SAFE_DELETE( mClientMap[data->ID()] );
+			mClientMap.erase( data->ID() );
 
-		IEventPtr E1( new Event_Remote_Left( id ) );
-		BroadcastEvent( E1 );
+			IEventPtr E1( new Event_Remote_Left( data->ID() ) );
+			BroadcastEvent( E1 );
+		}
 	}
 }
 
@@ -59,23 +67,18 @@ void Server::ClientUpdate( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Client_Update::GUID )
 	{
 		std::shared_ptr<Event_Client_Update> data = std::static_pointer_cast<Event_Client_Update>( eventPtr );
-		UINT id = data->ID();
-		XMFLOAT3 pos = data->LowerBodyPos();
-		XMFLOAT3 vel = data->Velocity();
-		XMFLOAT3 dir = data->UpperBodyDirection();
-		std::string name = data->Name();
-		
-		// Add IsBuffed bool to the ClientUpdate in order to optimize event-sending
-		//if( mShipOne->mTeamID == mClientMap[id].TeamID )
-		//{
+		auto& it = mClientMap.find(data->ID());
+		if( it != mClientMap.end() )
+		{
+			mClientMap[data->ID()]->Pos = data->LowerBodyPos();
+			XMFLOAT3 vel = data->Velocity();
+			XMFLOAT3 dir = data->UpperBodyDirection();
+			std::string name = data->Name();
+			mClientMap[data->ID()]->IsBuffed = data->IsBuffed();
 
-		//}
-		//else
-		//{
-		//}
-
-		IEventPtr E1( new Event_Remote_Update( id, pos, vel, dir, name ) );
-		BroadcastEvent( E1, id );
+			IEventPtr E1( new Event_Remote_Update( data->ID(), mClientMap[data->ID()]->Pos, vel, dir, name ) );
+			BroadcastEvent( E1, data->ID() );
+		}
 	}
 }
 
@@ -84,11 +87,14 @@ void Server::ClientDied( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Client_Died::GUID )
 	{
 		std::shared_ptr<Event_Client_Died> data = std::static_pointer_cast<Event_Client_Died>( eventPtr );
-		UINT id = data->ID();
-		UINT killerID = data->KillerID();
+		auto& it = mClientMap.find(data->ID());
+		if( it != mClientMap.end() )
+		{
+			UINT killerID = data->KillerID();
 
-		IEventPtr E1( new Event_Remote_Died( id, killerID ) );
-		BroadcastEvent( E1, id );
+			IEventPtr E1( new Event_Remote_Died( data->ID(), killerID ) );
+			BroadcastEvent( E1, data->ID() );
+		}
 	}
 }
 
@@ -97,11 +103,14 @@ void Server::ClientDamaged( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Client_Damaged::GUID )
 	{
 		std::shared_ptr<Event_Client_Damaged> data = std::static_pointer_cast<Event_Client_Damaged>( eventPtr );
-		UINT id = data->ID();
-		UINT projectileID = data->ProjectileID();
+		auto& it = mClientMap.find(data->ID());
+		if( it != mClientMap.end() )
+		{
+			UINT projectileID = data->ProjectileID();
 
-		IEventPtr E1( new Event_Remote_Damaged( id, projectileID ) );
-		BroadcastEvent( E1 );
+			IEventPtr E1( new Event_Remote_Damaged( data->ID(), projectileID ) );
+			BroadcastEvent( E1 );
+		}
 	}
 }
 
@@ -110,10 +119,12 @@ void Server::ClientSpawned( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Client_Spawned::GUID )
 	{
 		std::shared_ptr<Event_Client_Spawned> data = std::static_pointer_cast<Event_Client_Spawned>( eventPtr );
-		UINT id = data->ID();
-
-		IEventPtr E1( new Event_Remote_Spawned( id ) );
-		BroadcastEvent( E1, id );
+		auto& it = mClientMap.find(data->ID());
+		if( it != mClientMap.end() )
+		{
+			IEventPtr E1( new Event_Remote_Spawned( data->ID() ) );
+			BroadcastEvent( E1, data->ID() );
+		}
 	}
 }
 
@@ -122,13 +133,16 @@ void Server::ClientFiredProjectile( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Client_Fired_Projectile::GUID )
 	{
 		std::shared_ptr<Event_Client_Fired_Projectile> data = std::static_pointer_cast<Event_Client_Fired_Projectile>( eventPtr );
-		UINT id = data->ID();
-		UINT pid = CurrentPID();
-		XMFLOAT3 pos = data->BodyPos();
-		XMFLOAT3 dir = data->Direction();
+		auto& it = mClientMap.find(data->ID());
+		if( it != mClientMap.end() )
+		{
+			UINT pid = CurrentPID();
+			XMFLOAT3 pos = data->BodyPos();
+			XMFLOAT3 dir = data->Direction();
 
-		IEventPtr E1( new Event_Remote_Fired_Projectile( id, pid, pos, dir ) );
-		BroadcastEvent( E1 );
+			IEventPtr E1( new Event_Remote_Fired_Projectile( data->ID(), pid, pos, dir ) );
+			BroadcastEvent( E1 );
+		}
 	}
 }
 
@@ -137,11 +151,14 @@ void Server::ClientUpdateHP( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Client_Update_HP::GUID )
 	{
 		std::shared_ptr<Event_Client_Update_HP> data = std::static_pointer_cast<Event_Client_Update_HP>( eventPtr );
-		UINT id = data->ID();
-		float hp = data->HP();
+		auto& it = mClientMap.find(data->ID());
+		if( it != mClientMap.end() )
+		{
+			float hp = data->HP();
 
-		IEventPtr E1( new Event_Remote_Update_HP( id, hp ) );
-		BroadcastEvent( E1, id );
+			IEventPtr E1( new Event_Remote_Update_HP( data->ID(), hp ) );
+			BroadcastEvent( E1, data->ID() );
+		}
 	}
 }
 
@@ -150,13 +167,16 @@ void Server::ClientMeleeHit( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Client_Melee_Hit::GUID )
 	{
 		std::shared_ptr<Event_Client_Melee_Hit> data = std::static_pointer_cast<Event_Client_Melee_Hit>( eventPtr );
-		UINT id = data->ID();
-		float damage = data->Damage();
-		float knockBack = data->KnockBack();
-		XMFLOAT3 dir = data->Direction();
+		auto& it = mClientMap.find(data->ID());
+		if( it != mClientMap.end() )
+		{
+			float damage = data->Damage();
+			float knockBack = data->KnockBack();
+			XMFLOAT3 dir = data->Direction();
 
-		IEventPtr E1( new Event_Remote_Melee_Hit( id, damage, knockBack, dir ) );
-		BroadcastEvent( E1 );
+			IEventPtr E1( new Event_Remote_Melee_Hit( data->ID(), damage, knockBack, dir ) );
+			BroadcastEvent( E1 );
+		}
 	}
 }
 
@@ -165,12 +185,15 @@ void Server::ClientAttack( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Client_Attack::GUID )
 	{
 		std::shared_ptr<Event_Client_Attack> data = std::static_pointer_cast<Event_Client_Attack>( eventPtr );
-		UINT id = data->ID();
-		UINT armID = data->ArmID();
-		UINT anim = data->Animation();
+		auto& it = mClientMap.find(data->ID());
+		if( it != mClientMap.end() )
+		{
+			UINT armID = data->ArmID();
+			UINT anim = data->Animation();
 
-		IEventPtr E1( new Event_Remote_Attack( id, armID, anim ) );
-		BroadcastEvent( E1, id );
+			IEventPtr E1( new Event_Remote_Attack( data->ID(), armID, anim ) );
+			BroadcastEvent( E1, data->ID() );
+		}
 	}
 }
 
@@ -179,10 +202,12 @@ void Server::ClientDown( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Client_Down::GUID )
 	{
 		std::shared_ptr<Event_Client_Down> data = std::static_pointer_cast<Event_Client_Down>( eventPtr );
-		UINT id = data->ID();
-
-		IEventPtr E1( new Event_Remote_Down( id ) );
-		BroadcastEvent( E1, id );
+		auto& it = mClientMap.find(data->ID());
+		if( it != mClientMap.end() )
+		{
+			IEventPtr E1( new Event_Remote_Down( data->ID() ) );
+			BroadcastEvent( E1, data->ID() );
+		}
 	}
 }
 
@@ -191,10 +216,12 @@ void Server::ClientUp( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Client_Up::GUID )
 	{
 		std::shared_ptr<Event_Client_Up> data = std::static_pointer_cast<Event_Client_Up>( eventPtr );
-		UINT id = data->ID();
-
-		IEventPtr E1( new Event_Remote_Up( id ) );
-		BroadcastEvent( E1, id );
+		auto& it = mClientMap.find(data->ID());
+		if( it != mClientMap.end() )
+		{
+			IEventPtr E1( new Event_Remote_Up( data->ID() ) );
+			BroadcastEvent( E1, data->ID() );
+		}
 	}
 }
 
@@ -203,14 +230,17 @@ void Server::ClientAttemptRevive( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Client_Attempt_Revive::GUID )
 	{
 		std::shared_ptr<Event_Client_Attempt_Revive> data = std::static_pointer_cast<Event_Client_Attempt_Revive>( eventPtr );
-		UINT id = data->ID();
-		UINT downedID = data->DownedID();
-		float deltaTime = data->DeltaTime();
-
-		if( mClientMap[id].TeamID == mClientMap[downedID].TeamID ) // This IF causes revives to be within teams, might be better to place somewhere else.
+		auto& it = mClientMap.find(data->ID());
+		if( it != mClientMap.end() )
 		{
-			IEventPtr E1( new Event_Remote_Attempt_Revive( id, downedID, deltaTime ) );
-			BroadcastEvent( E1, id );
+			UINT downedID = data->DownedID();
+			float deltaTime = data->DeltaTime();
+
+			if( mClientMap[data->ID()]->TeamID == mClientMap[downedID]->TeamID ) // This IF causes revives to be within teams, might be better to place somewhere else.
+			{
+				IEventPtr E1( new Event_Remote_Attempt_Revive( data->ID(), downedID, deltaTime ) );
+				BroadcastEvent( E1, data->ID() );
+			}
 		}
 	}
 }
@@ -256,14 +286,14 @@ void Server::BroadcastEvent( IEventPtr eventPtr, UINT exception )
 	{
 		if( to.first != exception )
 		{
-			to.second.NEF.ForwardEvent( eventPtr );
+			to.second->NEF.ForwardEvent( eventPtr );
 		}
 	}
 }
 
 void Server::SendEvent( IEventPtr eventPtr, UINT to )
 {
-	mClientMap[to].NEF.ForwardEvent( eventPtr );
+	mClientMap[to]->NEF.ForwardEvent( eventPtr );
 }
 
 UINT Server::CurrentTeamDelegate()
@@ -289,13 +319,19 @@ void Server::CreateShips()
 	UINT shipID = 60;
 	float xOffset = -10.0f;
 
-	mShipOne = new ServerShip();
-	mShipOne->Initialize( shipID, CurrentTeamDelegate(), XMFLOAT3( xOffset, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
-	shipID++;
-	xOffset += 20.0f;
+	for( UINT i = 0; i < MAX_TEAMS; i++ )
+	{
+		mShips.push_back( new ServerShip() );
+		mShips.back()->Initialize( shipID, CurrentTeamDelegate(), XMFLOAT3( xOffset, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
+		shipID++;
+		xOffset += 20.0f;
+	}
+}
 
-	mShipTwo = new ServerShip();
-	mShipTwo->Initialize( shipID, CurrentTeamDelegate(), XMFLOAT3( xOffset, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
+bool Server::CheckShipBuff( ServerShip* ship, XMFLOAT3 pos )
+{
+	BoundingCircle circle = BoundingCircle( pos, 0.5f );
+	return ship->Intersect( &circle );
 }
 
 bool Server::Connect( UINT port )
@@ -315,7 +351,24 @@ void Server::Update( float deltaTime )
 {
 	if( mActive )
 	{
-
+		bool shipBuff = false;
+		for( auto& c : mClientMap )
+		{
+			UINT id = c.first;
+			for( auto& s : mShips )
+			{
+				if( s->mTeamID == mClientMap[id]->TeamID )
+				{
+					shipBuff = CheckShipBuff( s, mClientMap[id]->Pos );
+					if( shipBuff != mClientMap[id]->IsBuffed )
+					{
+						IEventPtr BuffEvent( new Event_Server_Change_Buff_State( id, shipBuff, s->mBuffMod ) );
+						SendEvent( BuffEvent, id );
+						break;
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -356,29 +409,34 @@ void Server::Release()
 	if( mSocketManager )
 		mSocketManager->Release();
 	SAFE_DELETE( mSocketManager );
+
+	for( auto& c : mClientMap )
+	{
+		SAFE_DELETE( c.second );
+	}
 	mClientMap.clear();
 	mTeamDelegate	= 1;
 	mCurrentPID		= 0;
 	mActive			= false;
 
-	if( mShipOne )
-		mShipOne->Release();
-	SAFE_DELETE( mShipOne );
-
-	if( mShipTwo )
-		mShipTwo->Release();
-	SAFE_DELETE( mShipTwo );
+	for( auto& s : mShips )
+	{
+		if( s )
+			s->Release();
+		SAFE_DELETE( s );
+	}
+	mShips.clear();
 }
 
 Server::Server() : Network()
 {
 	mSocketManager	= nullptr;
-	mClientMap		= std::map<UINT, ClientNEF>();
+	mClientMap		= std::map<UINT, ClientNEF*>();
 	mTeamDelegate	= (UINT)-1;
 	mCurrentPID		= (UINT)-1;
 	mActive			= false;
-	mShipOne		= nullptr;
-	mShipTwo		= nullptr;
+	mShips			= std::vector<ServerShip*>();
+	mShips.reserve( 2 );
 }
 
 Server::~Server()

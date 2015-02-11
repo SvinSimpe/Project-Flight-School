@@ -42,6 +42,19 @@ void Player::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Create_Player_Name> data = std::static_pointer_cast<Event_Create_Player_Name>( newEvent );
 		mPlayerName = data->PlayerName();
 	}
+	else if( newEvent->GetEventType() == Event_Server_Change_Buff_State::GUID )
+	{
+		std::shared_ptr<Event_Server_Change_Buff_State> data = std::static_pointer_cast<Event_Server_Change_Buff_State>( newEvent );
+		if( data->ID() == mID )
+		{
+			mIsBuffed	= data->IsBuffed();
+			mBuffMod	= data->BuffMod();
+			if( mIsBuffed )
+				printf("%d is buffed!\n", mID);
+			else
+				printf("%d is no longer buffed!\n", mID);
+		}
+	}
 }
 
 void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
@@ -471,12 +484,14 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	//mPointLight[4]->position = DirectX::XMFLOAT4( mLowerBody.position.x + 10.0f, mLowerBody.position.y + 0.0f, mLowerBody.position.z - 10.0f, 0.0f );
 
 	//== Event to sync player with server ==
-	mEventCapTimer += deltaTime;
-	if( mEventCapTimer > 0.03f )
-	{
-		QueueEvent( new Event_Client_Update( mID, mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName ) );
-		mEventCapTimer = 0.0f;
-	}
+	QueueEvent( new Event_Client_Update( mID, mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName, mIsBuffed ) );
+
+	//mEventCapTimer += deltaTime;
+	//if( mEventCapTimer > 0.02f )
+	//{
+	//	QueueEvent( new Event_Client_Update( mID, mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName, mIsBuffed ) );
+	//	mEventCapTimer = 0.0f;
+	//}
 
 	return S_OK;
 }
@@ -486,7 +501,7 @@ HRESULT Player::Render( float deltaTime, int position )
 	if( !mIsAlive )
 	{
         std::string textToWrite = std::to_string( (int)mTimeTillSpawn );
-		mFont.WriteText( textToWrite, Input::GetInstance()->mScreenWidth/2, Input::GetInstance()->mScreenHeight/2, 7.8f );
+		mFont.WriteText( textToWrite, (float)Input::GetInstance()->mScreenWidth/2, (float)Input::GetInstance()->mScreenHeight/2, 7.8f );
 	}
 
 	RemotePlayer::Render( position );
@@ -536,6 +551,7 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Enemy_Attack_Player::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Melee_Hit::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Create_Player_Name::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Change_Buff_State::GUID );
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
 	
 	return S_OK;

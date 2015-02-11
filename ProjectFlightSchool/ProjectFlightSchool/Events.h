@@ -297,6 +297,8 @@ class Event_Client_Update : public IEvent
 		XMFLOAT3	mVelocity;
 		XMFLOAT3	mUpperBodyDirection;
 		std::string mName;
+		bool		mIsBuffed;
+
 	protected:
 	public:
 		static const EventType GUID;
@@ -311,14 +313,16 @@ class Event_Client_Update : public IEvent
 			mVelocity				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mUpperBodyDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mName					= "";
+			mIsBuffed				= false;
 		}
-		Event_Client_Update( UINT id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDir, std::string name )
+		Event_Client_Update( UINT id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDir, std::string name, bool isBuffed )
 		{
 			mID						= id;
 			mLowerBodyPos			= lowerBodyPos;
 			mVelocity				= velocity;
 			mUpperBodyDirection		= upperBodyDir;
 			mName					= name;
+			mIsBuffed				= isBuffed;
 		}
 		~Event_Client_Update() {}
 		const EventType& GetEventType() const
@@ -342,6 +346,7 @@ class Event_Client_Update : public IEvent
 			out << mUpperBodyDirection.z << " ";
 
 			out << mName << " ";
+			out << mIsBuffed << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
@@ -360,10 +365,11 @@ class Event_Client_Update : public IEvent
 			in >> mUpperBodyDirection.z;
 
 			in >> mName;
+			in >> mIsBuffed;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Client_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection, mName ) );
+			return IEventPtr( new Event_Client_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection, mName, mIsBuffed ) );
 		}
 		UINT ID() const
 		{
@@ -384,6 +390,10 @@ class Event_Client_Update : public IEvent
 		std::string Name() const
 		{
 			return mName;
+		}
+		bool IsBuffed() const
+		{
+			return mIsBuffed;
 		}
 };
 
@@ -3018,6 +3028,7 @@ class Event_Connect_Client_Fail : public IEvent
 		}
 };
 
+// Event sent from the server to connecting clients to create a ship on the client
 class Event_Server_Spawn_Ship : public IEvent
 {
 	private:
@@ -3108,6 +3119,68 @@ class Event_Server_Spawn_Ship : public IEvent
 		float HP() const
 		{
 			return mHP;
+		}
+};
+
+// Event sent from the server to the affected client whenever a player's buff-state changes
+class Event_Server_Change_Buff_State : public IEvent
+{
+	private:
+		UINT		mID;
+		bool		mIsBuffed;
+		float		mBuffMod; // Buffmodifier
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Change_Buff_State()
+		{
+			mID			= (UINT)-1;
+			mIsBuffed	= false;
+			mBuffMod	= -1.0f;
+		}
+		Event_Server_Change_Buff_State( UINT id, bool isBuffed, float buffMod )
+		{
+			mID			= id;
+			mIsBuffed	= isBuffed;
+			mBuffMod	= buffMod;
+		}
+		~Event_Server_Change_Buff_State() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mIsBuffed << " ";
+			out << mBuffMod << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mIsBuffed;
+			in >> mBuffMod;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Change_Buff_State( mID, mIsBuffed, mBuffMod ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		bool IsBuffed() const
+		{
+			return mIsBuffed;
+		}
+		float BuffMod() const
+		{
+			return mBuffMod;
 		}
 };
 #endif

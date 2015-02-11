@@ -42,6 +42,7 @@ void ServerShip::Update( float deltaTime )
 void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir )
 {
 	mBuffCircle = new BoundingCircle( pos, 20.0f );
+	mBuffMod	= 0.5f;
 	mID			= id;
 	mTeamID		= teamID;
 	mPos		= pos;
@@ -63,6 +64,7 @@ void ServerShip::Release()
 ServerShip::ServerShip()
 {
 	mBuffCircle	= nullptr;
+	mBuffMod	= 0.0f;
 	mID			= (UINT)-1;
 	mTeamID		= (UINT)-1;
 	mPos		= XMFLOAT3( 0.0f, 0.0f, 0.0f );

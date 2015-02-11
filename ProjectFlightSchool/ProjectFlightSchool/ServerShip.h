@@ -9,6 +9,7 @@ class ServerShip
 	private:
 		friend class Server;
 		BoundingCircle* mBuffCircle;	// Don't forget to add an event for turning on/off player buffing
+		float			mBuffMod;		// Also declared in Player.h... look there to see what this does
 
 	protected:
 		UINT			mID;

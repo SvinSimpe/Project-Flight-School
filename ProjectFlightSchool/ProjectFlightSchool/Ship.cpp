@@ -2,16 +2,7 @@
 
 void Ship::BuffPlayer( Player* player )
 {
-	if( mBuff->Intersect( player->GetBoundingCircle() ) && player->GetTeam() == mTeamID )
-	{
-		player->SetBuffed( true );
-	}
-	else
-	{
-		player->SetBuffed( false );
-	}
 }
-
 
 XMFLOAT3 Ship::GetPosition() const
 {

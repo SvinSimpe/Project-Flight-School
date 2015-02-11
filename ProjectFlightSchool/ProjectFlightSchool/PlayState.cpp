@@ -123,25 +123,31 @@ void PlayState::SyncSpawn( unsigned int id, XMFLOAT3 position )
 void PlayState::BroadcastProjectileDamage( unsigned int playerID, unsigned int projectileID )
 {
 	IEventPtr E1( new Event_Client_Damaged( playerID, projectileID ) );
-	Client::GetInstance()->SendEvent( E1 );
+	mPlayer->QueueEvent( E1 );
 }
 
 void PlayState::BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction )
 {
 	IEventPtr E1( new Event_Client_Melee_Hit( playerID, damage, knockBack, direction ) );
-	Client::GetInstance()->SendEvent( E1 );
+	mPlayer->QueueEvent( E1 );
 }
 
 void PlayState::BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage )
 {
 	IEventPtr E1( new Event_Client_Projectile_Damage_Enemy( shooterID, projectileID, enemyID, damage ) );
-	Client::GetInstance()->SendEvent( E1 );
+	mPlayer->QueueEvent( E1 );
 }
 
 void PlayState::BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float knockBack, XMFLOAT3 direction )
 {
 	IEventPtr E1( new Event_Client_Enemy_Attack( mPlayer->GetID(), enemyID, damage, knockBack, direction, mPlayer->GetLoadOut()->meleeWeapon->stun ) );
-	Client::GetInstance()->SendEvent( E1 );
+	mPlayer->QueueEvent( E1 );
+}
+
+void PlayState::BroadcastShipProjectileDamage( UINT shooterID, UINT shipID, float damage )
+{
+	IEventPtr E1( new Event_Client_Ship_Projectile_Damage( shooterID, shipID, damage ) );
+	mPlayer->QueueEvent( E1 );
 }
 
 void PlayState::CheckPlayerCollision()
@@ -186,7 +192,7 @@ void PlayState::CheckProjectileCollision()
 				if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() && mProjectiles[i]->GetBoundingCircle()->Intersect( mRemotePlayers[j]->GetBoundingCircle() ) )
 				{
 					BroadcastProjectileDamage( mRemotePlayers[j]->GetID(), mProjectiles[i]->GetID() );
-					return;
+					break;
 				}
 			}
 
@@ -200,8 +206,23 @@ void PlayState::CheckProjectileCollision()
 						// hit
 						BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mPlayer->GetLoadOut()->rangedWeapon->damage );
 						mProjectiles[i]->Reset();
-						return;
+						break;
 					}
+				}
+			}
+
+			// Ship damage
+			for( size_t j = 0; j < mShips.size(); j++ )
+			{
+				if( mShips.at(j)->Intersect( mProjectiles[i]->GetBoundingCircle() ) )
+				{
+					if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() && mPlayer->GetTeam() != mShips.at(j)->GetTeamID() )
+					{
+						BroadcastShipProjectileDamage( mPlayer->GetID(), mShips.at(j)->GetID(), mPlayer->GetLoadOut()->rangedWeapon->damage );
+						mProjectiles[i]->Reset();
+						break;
+					}
+					mProjectiles[i]->Reset();
 				}
 			}
 		}
@@ -370,14 +391,15 @@ HRESULT PlayState::Update( float deltaTime )
 {
 	//Fps update
 	mFPS = mFPS * 0.1f + 0.9f / deltaTime;
+	CheckProjectileCollision();
 
 	Client::GetInstance()->FillEventList( mPlayer->GetEvents() );
+	//printf("NumEvents: %d\n", mPlayer->GetEvents().size() );
 	mPlayer->ClearEventList();
 
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{
 		CheckPlayerCollision();
-		CheckProjectileCollision();
 
 		if( mPlayer->GetIsMeleeing() )
 		{

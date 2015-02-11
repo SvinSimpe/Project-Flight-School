@@ -43,6 +43,7 @@ class Server : public Network
 		void	ClientDown( IEventPtr eventPtr );
 		void	ClientUp( IEventPtr eventPtr );
 		void	ClientAttemptRevive( IEventPtr eventPtr );
+		void	ClientShipProjectileDamage( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 

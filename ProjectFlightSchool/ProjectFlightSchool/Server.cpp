@@ -245,6 +245,40 @@ void Server::ClientAttemptRevive( IEventPtr eventPtr )
 	}
 }
 
+void Server::ClientShipProjectileDamage( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Ship_Projectile_Damage::GUID )
+	{
+		std::shared_ptr<Event_Client_Ship_Projectile_Damage> data = std::static_pointer_cast<Event_Client_Ship_Projectile_Damage>( eventPtr );
+		auto& it = mClientMap.find(data->ID());
+		if( it != mClientMap.end() )
+		{
+			UINT shipID = data->ShipID();
+			float damage = data->Damage();
+
+			ServerShip* s = nullptr;
+			for( size_t i = 0; i < mShips.size(); i++ )
+			{
+				if( mShips.at(i)->mID == shipID )
+				{
+					s = mShips.at(i);
+				}
+			}
+			if( s )
+			{
+				if( s->TakeDamage( damage ) )
+				{
+					IEventPtr E1( new Event_Remote_Ship_Projectile_Damage( data->ID(), shipID, damage ) );
+					BroadcastEvent( E1 );
+				}
+				else
+				{
+				}
+			}
+		}
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -395,6 +429,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientDown, this, Event_Client_Down::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientUp, this, Event_Client_Up::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientAttemptRevive, this, Event_Client_Attempt_Revive::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientShipProjectileDamage, this, Event_Client_Ship_Projectile_Damage::GUID );
 
 	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
 

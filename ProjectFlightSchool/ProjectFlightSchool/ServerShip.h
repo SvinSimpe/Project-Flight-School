@@ -29,6 +29,10 @@ class ServerShip
 
 	protected:
 	public:
+		UINT			GetID() const;
+		UINT			GetTeamID() const;
+
+		bool			TakeDamage( float damage );
 		virtual bool	Intersect( BoundingCircle* entity ); // Will check for intersects with buffable players
 		virtual void	Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir );
 		virtual void	Update( float deltaTime );

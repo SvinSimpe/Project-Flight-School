@@ -138,7 +138,8 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 
 			RenderManager::GetInstance()->AnimationStartNew(mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK]);
 			mRightArmAnimationCompleted = false;
-			QueueEvent(new Event_Client_Attack(mID, RIGHT_ARM_ID, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK]));
+			IEventPtr E1( new Event_Client_Attack(mID, RIGHT_ARM_ID, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK]) );
+			QueueEvent( E1 );
 		}
 		else
 			mWeaponCoolDown -= deltaTime;
@@ -147,7 +148,8 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		{
 			RenderManager::GetInstance()->AnimationStartNew(mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK]);
 			mLeftArmAnimationCompleted = false;
-			QueueEvent(new Event_Client_Attack(mID, LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK]));
+			IEventPtr E1( new Event_Client_Attack(mID, LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK]) );
+			QueueEvent( E1 );
 			mHasMeleeStarted = true;
 			mMeleeCoolDown = mLoadOut->meleeWeapon->attackRate;
 		}
@@ -162,7 +164,8 @@ void Player::HandleSpawn( float deltaTime )
 	{
 		UnLock();
 		Spawn();
-		QueueEvent( new Event_Client_Spawned( mID ) );
+		IEventPtr E1( new Event_Client_Spawned( mID ) );
+		QueueEvent( E1 );
 	}
 	else
 	{
@@ -215,24 +218,28 @@ void Player::GoDown( int shooter )
 	RemotePlayer::GoDown();
 	mTimeTillRevive	= mReviveTime;
 	mLastKiller		= shooter;
-	QueueEvent( new Event_Client_Down( mID ) );
+	IEventPtr E1( new Event_Client_Down( mID ) );
+	QueueEvent( E1 );
 }
 
 void Player::GoUp()
 {
 	UnLock();
 	RemotePlayer::GoUp();
-	QueueEvent( new Event_Client_Up( mID ) );
+	IEventPtr E1( new Event_Client_Up( mID ) );
+	QueueEvent( E1 );
 }
 
 void Player::ReviveRemotePlayer( int remotePlayerID, float deltaTime )
 {
-	QueueEvent( new Event_Client_Attempt_Revive( mID, remotePlayerID, deltaTime ) );
+	IEventPtr E1( new Event_Client_Attempt_Revive( mID, remotePlayerID, deltaTime ) );
+	QueueEvent( E1 );
 }
 
 void Player::BroadcastDeath( unsigned int shooter )
 {
-	QueueEvent( new Event_Client_Died( mID, shooter ) );
+	IEventPtr E1( new Event_Client_Died( mID, shooter ) );
+	QueueEvent( E1 );
 }
 
 void Player::Revive()
@@ -259,7 +266,8 @@ void Player::Fire()
 	XMFLOAT3 loadDir;
 	XMStoreFloat3( &loadDir, offset );
 
-	QueueEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mUpperBody.direction ) );
+	IEventPtr E1( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mUpperBody.direction ) );
+	QueueEvent( E1 );
 }
 
 void Player::AddImpuls( XMFLOAT3 impuls )
@@ -282,9 +290,9 @@ void Player::UnLock()
 	mLock = false;
 }
 
-void Player::QueueEvent( IEvent* ptr )
+void Player::QueueEvent( IEventPtr ptr )
 {
-	mEventList.push_front( IEventPtr( ptr ) );
+	mEventList.push_front( ptr );
 }
 
 /////Public
@@ -297,7 +305,8 @@ void Player::TakeDamage( float damage, unsigned int shooter )
 		damage -= moddedDmg;
 	}
 	mCurrentHp -= damage;
-	QueueEvent( new Event_Client_Update_HP( mID, mCurrentHp ) );
+	IEventPtr E1( new Event_Client_Update_HP( mID, mCurrentHp ) );
+	QueueEvent( E1 );
 	if ( !mIsDown && mIsAlive && mCurrentHp <= 0.0f )
 	{
 		GoDown( shooter );
@@ -484,7 +493,8 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	//mPointLight[4]->position = DirectX::XMFLOAT4( mLowerBody.position.x + 10.0f, mLowerBody.position.y + 0.0f, mLowerBody.position.z - 10.0f, 0.0f );
 
 	//== Event to sync player with server ==
-	QueueEvent( new Event_Client_Update( mID, mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName, mIsBuffed ) );
+	IEventPtr E1( new Event_Client_Update( mID, mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName, mIsBuffed ) );
+	QueueEvent( E1 );
 
 	//mEventCapTimer += deltaTime;
 	//if( mEventCapTimer > 0.02f )
@@ -625,11 +635,6 @@ XMFLOAT3 Player::GetUpperBodyDirection() const
 void Player::SetIsMeleeing( bool isMeleeing )
 {
 	mIsMeleeing = isMeleeing;
-}
-
-void Player::SetBuffed( bool buffed )
-{
-	mIsBuffed = buffed;
 }
 
 void Player::SetID( unsigned int id )

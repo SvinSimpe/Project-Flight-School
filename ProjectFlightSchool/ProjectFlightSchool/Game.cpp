@@ -34,15 +34,16 @@ void Game::StartPlayState( IEventPtr eventPtr )
 
 HRESULT Game::Update( float deltaTime )
 {
-	mStateMachine->Update( deltaTime );
 	EventManager::GetInstance()->Update();
 	RenderManager::GetInstance()->Update( deltaTime );
+
+	Client::GetInstance()->Update( deltaTime );
+	Client::GetInstance()->DoSelect( 0 );
 
 	mServer->Update( deltaTime );
 	mServer->DoSelect( 0 );
 
-	Client::GetInstance()->Update( deltaTime );
-	Client::GetInstance()->DoSelect( 0 );
+	mStateMachine->Update( deltaTime );
 
 	return S_OK;
 }

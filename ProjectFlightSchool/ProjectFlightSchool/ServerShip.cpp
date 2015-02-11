@@ -20,6 +20,27 @@ void ServerShip::ClientDamageShip( IEventPtr eventPtr )
 	// Code for handling damaging the ship
 }
 
+
+UINT ServerShip::GetID() const
+{
+	return mID;
+}
+
+UINT ServerShip::GetTeamID() const
+{
+	return mTeamID;
+}
+
+bool ServerShip::TakeDamage( float damage )
+{
+	if( mCurrentHP > 0.0f )
+	{
+		mCurrentHP -= damage;
+		return true;
+	}
+	return false;
+}
+
 bool ServerShip::Intersect( BoundingCircle* entity )
 {
 	if( mBuffCircle->Intersect( entity ) )

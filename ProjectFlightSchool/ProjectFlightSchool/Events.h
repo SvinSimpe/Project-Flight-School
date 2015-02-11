@@ -3183,4 +3183,128 @@ class Event_Server_Change_Buff_State : public IEvent
 			return mBuffMod;
 		}
 };
+
+// Event sent by the client when a projectile hits a ship
+class Event_Client_Ship_Projectile_Damage : public IEvent
+{
+	private:
+		UINT	mID;
+		UINT	mShipID;
+		float	mDamage;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Ship_Projectile_Damage()
+		{
+			mID				= (UINT)-1;
+			mShipID			= (UINT)-1;
+			mDamage			= -1.0f;
+		}
+		Event_Client_Ship_Projectile_Damage( UINT id, UINT shipID, float damage )
+		{
+			mID				= id;
+			mShipID			= shipID;
+			mDamage			= damage;
+		}
+		~Event_Client_Ship_Projectile_Damage() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mShipID << " ";
+			out << mDamage << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mShipID;
+			in >> mDamage;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Ship_Projectile_Damage( mID, mShipID, mDamage ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT ShipID() const
+		{
+			return mShipID;
+		}
+		float Damage() const
+		{
+			return mDamage;
+		}
+};
+
+// Event sent by the server when a ship has been hit by a projectile
+class Event_Remote_Ship_Projectile_Damage : public IEvent
+{
+	private:
+		UINT	mID;
+		UINT	mShipID;
+		float	mDamage;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Ship_Projectile_Damage()
+		{
+			mID				= (UINT)-1;
+			mShipID			= (UINT)-1;
+			mDamage			= -1.0f;
+		}
+		Event_Remote_Ship_Projectile_Damage( UINT id, UINT shipID, float damage )
+		{
+			mID				= id;
+			mShipID			= shipID;
+			mDamage			= damage;
+		}
+		~Event_Remote_Ship_Projectile_Damage() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mShipID << " ";
+			out << mDamage << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mShipID;
+			in >> mDamage;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Ship_Projectile_Damage( mID, mShipID, mDamage ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT ShipID() const
+		{
+			return mShipID;
+		}
+		float Damage() const
+		{
+			return mDamage;
+		}
+};
 #endif

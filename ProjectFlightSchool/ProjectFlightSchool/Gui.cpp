@@ -3,7 +3,8 @@
 HRESULT Gui::Update( GuiUpdate guiUpdate )
 {
 	HRESULT result = S_OK;
-	
+
+	mNrOfRemotePlayer = guiUpdate.mNrOfPlayerNames;
 
 	//Updating remote player names
 	DirectX::XMMATRIX view, proj;
@@ -54,7 +55,7 @@ HRESULT Gui::Update( GuiUpdate guiUpdate )
 HRESULT Gui::Render()
 {
 
-	for( int i = 0; i < MAX_REMOTE_PLAYERS - 1; i++ )
+	for( UINT i = 0; i < mNrOfRemotePlayer; i++ )
 	{
 		mPlayerNames[i].Render();
 	}
@@ -103,6 +104,8 @@ HRESULT Gui::Render()
 
 HRESULT Gui::Initialize()
 {
+	mNrOfRemotePlayer = 0;
+
 	mRadar			= new Radar();
 	HRESULT result	= mRadar->Initialize();
 	if( FAILED( result ) )
@@ -168,8 +171,9 @@ void Gui::Release()
 
 Gui::Gui()
 {
-	mRadar		= nullptr;
-	mHealtBar	= nullptr;
+	mNrOfRemotePlayer	= 0;
+	mRadar				= nullptr;
+	mHealtBar			= nullptr;
 }
 
 Gui::~Gui()

@@ -518,6 +518,7 @@ HRESULT PlayState::Render()
 
 void PlayState::OnEnter()
 {
+	Reset();
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Started() );
 	EventManager::GetInstance()->QueueEvent( E1 );
@@ -532,6 +533,21 @@ void PlayState::OnExit()
 
 void PlayState::Reset()
 {
+	mPlayer->Reset();
+	for( size_t i = 0; i < MAX_PROJECTILES; i++ )
+		mProjectiles[i]->Reset();
+
+	mNrOfProjectilesFired = 0;
+
+	mEnemyListSynced		= false;
+	mServerInitialized		= false;
+
+	for( auto& rp : mRemotePlayers )
+	{
+		rp->Release();
+		SAFE_DELETE( rp );
+	}
+	mRemotePlayers.clear();
 }
 
 HRESULT PlayState::Initialize()

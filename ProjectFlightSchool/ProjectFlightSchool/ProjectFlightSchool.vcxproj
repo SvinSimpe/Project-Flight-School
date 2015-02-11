@@ -94,6 +94,7 @@
     <ClCompile Include="EnemyAnimationManager.cpp" />
     <ClCompile Include="Gui.cpp" />
     <ClCompile Include="HealthBars.cpp" />
+    <ClCompile Include="MovingButton.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="PacketImpl.cpp" />
     <ClCompile Include="SoundBufferHandler.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="Gui.h" />
     <ClInclude Include="HealthBars.h" />
     <ClInclude Include="IPacket.h" />
+    <ClInclude Include="MovingButton.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="PacketImpl.h" />
     <ClInclude Include="SoundBufferHandler.h" />

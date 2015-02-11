@@ -118,19 +118,19 @@ HRESULT JoinMenuState::Initialize()
 	float w	= 200.0f;
 	float h	= 200.0f;
 
-	mButtons.push_back( new Button() );
+	mButtons.push_back( new MovingButton() );
 	mButtons.at(JOIN)->Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/Join.png", x, y, w, h );
 
 	x += w + 20;
 
-	mButtons.push_back( new Button() );
+	mButtons.push_back( new MovingButton() );
 	mButtons.at(BACK)->Initialize( "../Content/Assets/Textures/Menu/Back.png", x, y, w, h );
 
 	////// MIKAEL JOINBUTTON
 	x -= ( w + 20 );
 	y -= ( h + 20 );
 
-	mButtons.push_back( new Button() );
+	mButtons.push_back( new MovingButton() );
 	mButtons.at(MIKAEL)->Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/Join.png", x, y, w, h ); 
 
 

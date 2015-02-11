@@ -111,7 +111,7 @@ HRESULT MultiplayerMenuState::Initialize()
 
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
-		mButtons.push_back( new Button() );
+		mButtons.push_back( new MovingButton() );
 		if( texts[i] == "Back" )
 		{
 			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Back.png", x, y, w, h );

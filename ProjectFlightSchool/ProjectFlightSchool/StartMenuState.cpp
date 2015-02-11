@@ -78,7 +78,7 @@ HRESULT StartMenuState::Initialize()
 	float h	= 200.0f;
 	for(int i = 0; i < BUTTON_AMOUNT; i++)
 	{
-		mButtons.push_back( new Button() );
+		mButtons.push_back( new MovingButton() );
 		mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Start_Menu_Text/" + texts[i] + ".png", x, y, w, h );
 		x += 200;
 	}

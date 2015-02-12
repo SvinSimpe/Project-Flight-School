@@ -150,20 +150,6 @@ void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFL
 	mNrOfActiveProjectiles++;
 }
 
-//void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range )
-//{
-//	//mNrOfProjectilesFired = mNrOfProjectilesFired % MAX_PROJECTILES;
-//	mProjectiles[mNrOfActiveProjectiles]->SetDirection( id, projectileID, position, direction, speed, range );
-//	//mProjectiles[mNrOfProjectilesFired % MAX_PROJECTILES]->SetIsActive( true );
-//	//mNrOfProjectilesFired++;
-//}
-
-//void PlayState::BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float knockBack, XMFLOAT3 direction )
-//{
-//	IEventPtr E1( new Event_Client_Enemy_Attack( mPlayer->GetID(), enemyID, damage, knockBack, direction, mPlayer->GetLoadOut()->meleeWeapon->stun ) );
-//	Client::GetInstance()->SendEvent( E1 );
-//}
-
 void PlayState::CheckPlayerCollision()
 {	
 	if( mRemotePlayers.size() > 0 )

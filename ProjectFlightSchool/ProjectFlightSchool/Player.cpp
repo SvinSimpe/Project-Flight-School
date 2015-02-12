@@ -362,7 +362,7 @@ void Player::UnLock()
 
 void Player::QueueEvent( IEventPtr ptr )
 {
-	mEventList.push_front( ptr );
+	gEventList.push_front( ptr );
 }
 
 /////Public
@@ -680,7 +680,7 @@ Player::Player()
 	mTimeTillRevive			= 0.0f;
 	mLastKiller				= 0;
 
-	mEventList				= std::list<IEventPtr>();
+	gEventList				= std::list<IEventPtr>();
 }
 
 Player::~Player()
@@ -721,14 +721,4 @@ void Player::SetTeam( int team )
 void Player::SetPosition( XMVECTOR position )
 {
 	XMStoreFloat3( &mLowerBody.position, position );
-}
-
-std::list<IEventPtr> Player::GetEvents()
-{
-	return mEventList;
-}
-
-void Player::ClearEventList()
-{
-	mEventList.clear();
 }

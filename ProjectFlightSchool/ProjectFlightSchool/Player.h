@@ -40,10 +40,9 @@ class Player: public RemotePlayer
 		float		mTimeTillRevive;
 		int			mLastKiller;
 
-		std::list<IEventPtr> mEventList;
-
 	protected:
 	public:
+		std::list<IEventPtr> gEventList;
 		
 	private:
 		void		EventListener( IEventPtr newEvent );
@@ -85,8 +84,6 @@ class Player: public RemotePlayer
 		void		SetPosition( XMVECTOR position );
 
 		void		QueueEvent( IEventPtr ptr );
-		std::list<IEventPtr> GetEvents();
-		void		ClearEventList();
 };
 #endif
 

@@ -395,14 +395,11 @@ HRESULT PlayState::Update( float deltaTime )
 	mFPS = mFPS * 0.1f + 0.9f / deltaTime;
 	CheckProjectileCollision();
 
-	std::list<IEventPtr> temp = mPlayer->GetEvents();
-	while( !temp.empty() )
+	while( !mPlayer->gEventList.empty() )
 	{
-		Client::GetInstance()->SendEvent( temp.back() );
-		temp.pop_back();
+		Client::GetInstance()->SendEvent( mPlayer->gEventList.back() );
+		mPlayer->gEventList.pop_back();
 	}
-	temp.clear();
-	mPlayer->ClearEventList();
 
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{

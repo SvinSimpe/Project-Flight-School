@@ -52,6 +52,7 @@ struct ButtonStruct
 class UpgradeShipWindow
 {
 private:
+	bool			mIsActive;
 	AssetID			mUpgradeWindow;
 	XMFLOAT2		mTopLeftCorner;
 	XMFLOAT2		mSize;
@@ -67,12 +68,16 @@ private:
 	void	HandleInput();
 protected:
 public:
+	void	Activate();
+	void	DeActivate();
 	void	Update( float deltaTime );
 	void	Render();
 	void	Release();
 	HRESULT	Initialize();
 	UpgradeShipWindow();
 	~UpgradeShipWindow();
+
+	bool	IsActive();
 
 };
 

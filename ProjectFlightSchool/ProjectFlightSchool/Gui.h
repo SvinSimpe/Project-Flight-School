@@ -5,6 +5,8 @@
 #include "Text.h"
 #include "Font.h"
 #include "HealthBars.h"
+#include "UpgradeShipWindow.h"
+
 #define MAX_REMOTE_PLAYERS 14
 
 struct PlayerName
@@ -18,6 +20,8 @@ struct PlayerName
 
 struct GuiUpdate
 {
+	float deltaTime;
+
 	//Radar update info
 	RADAR_UPDATE_INFO* mRadarObjects;
 	UINT mNrOfObjects;
@@ -48,7 +52,9 @@ class Gui
 	private:
 		UINT		mNrOfRemotePlayer;
 
-		Radar*		mRadar;
+		Radar*				mRadar;
+		UpgradeShipWindow	mWindow;
+
 		HealthBar*	mHealtBar;
 
 		Text		mPlayerNames[MAX_REMOTE_PLAYERS - 1]; //Don't need to store the local player's name

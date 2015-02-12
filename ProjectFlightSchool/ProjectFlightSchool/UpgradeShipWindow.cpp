@@ -1,5 +1,15 @@
 #include "UpgradeShipWindow.h"
 
+void UpgradeShipWindow::Activate()
+{
+	mIsActive = true;
+}
+
+void UpgradeShipWindow::DeActivate()
+{
+	mIsActive = false;
+}
+
 void UpgradeShipWindow::Update( float deltaTime )
 {
 	mForceFieldButtons.Update( deltaTime );
@@ -101,6 +111,8 @@ void UpgradeShipWindow::Release()
 
 HRESULT UpgradeShipWindow::Initialize()
 {
+	mIsActive = true;
+
 	HRESULT result;
 
 	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/shipUpgradeMenu.dds", mUpgradeWindow );
@@ -159,4 +171,9 @@ UpgradeShipWindow::UpgradeShipWindow()
 UpgradeShipWindow::~UpgradeShipWindow()
 {
 
+}
+
+bool UpgradeShipWindow::IsActive()
+{
+	return mIsActive;
 }

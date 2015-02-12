@@ -499,6 +499,8 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.mPlayerXP		= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
 	guiUpdate.mPlayerShield	= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
 	
+	guiUpdate.deltaTime = deltaTime;
+
 	mGui->Update( guiUpdate );
 
 
@@ -506,9 +508,6 @@ HRESULT PlayState::Update( float deltaTime )
 	///////////////////////////////////////////////////////////////////////////
 	//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
 	///////////////////////////////////////////////////////////////////////////
-
-	//TestUpgradeWindow
-	mWindow.Update( deltaTime );
 
 	for( auto& s : mShips )
 	{
@@ -551,9 +550,6 @@ HRESULT PlayState::Render()
 
 	mParticleManager->Render( 0.0f );	
 	mGui->Render();
-
-	//TestUpgradeWindow
-	mWindow.Render();
 
 	//RENDER DEVTEXT
 	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
@@ -678,9 +674,6 @@ HRESULT PlayState::Initialize()
 	//TestSound
 	m3DSoundAsset	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav" );
 	mSoundAsset		= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
-
-	//TestUpgradeWindow
-	mWindow.Initialize();
 
 	return S_OK;
 }

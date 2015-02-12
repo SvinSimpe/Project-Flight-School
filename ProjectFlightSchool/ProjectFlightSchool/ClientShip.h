@@ -15,10 +15,7 @@ class ClientShip : public ServerShip
 	public:
 
 	private:
-		// These three functions will calculate the modifiers for each level
-		void CalcTurretLevel();
 		void CalcShieldLevel();
-		void CalcBuffLevel();
 
 		void RemoteUpdateShip( IEventPtr eventPtr );
 		void RemoteChangeShipLevels( IEventPtr eventPtr );

@@ -399,7 +399,7 @@ bool Server::Connect( UINT port )
 
 void Server::Update( float deltaTime )
 {
-	if( mActive )
+	if( this && mActive )
 	{
 		// Handles the client getting buffed by the ship
 		bool shipBuff = false;
@@ -447,13 +447,7 @@ void Server::Update( float deltaTime )
 		{
 			if( s->mWasUpdated )
 			{
-				IEventPtr E1( new Event_Remote_Update_Ship( s->mID, s->mCurrentShield, s->mCurrentHP ) );
-				BroadcastEvent( E1 );
-				s->Update( deltaTime );
-			}
-			if( s->mWasChanged )
-			{
-				IEventPtr E1( new Event_Remote_Change_Ship_Levels( s->mID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel ) );
+				IEventPtr E1( new Event_Server_Update_Ship( s->mID, s->mMaxShield, s->mCurrentShield, s->mCurrentHP ) );
 				BroadcastEvent( E1 );
 				s->Update( deltaTime );
 			}
@@ -589,6 +583,12 @@ void Server::Reset()
 	}
 	mClientMap.clear();
 	mEventList.clear();
+
+	for( auto& s : mShips )
+	{
+		SAFE_RELEASE_DELETE( s );
+	}
+	mShips.clear();
 }
 
 void Server::Release()

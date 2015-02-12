@@ -4,15 +4,23 @@ void ServerShip::ChangeTurretLevel( int change )
 {
 	if( change != 0 )
 	{
-		mTurretLevel += change;
-		if( mTurretLevel < MIN_LEVEL )
+		if( change > 0 )
 		{
-			mTurretLevel = MIN_LEVEL;
+			mTurretLevel++;
+			if( mTurretLevel > MAX_LEVEL )
+			{
+				mTurretLevel = MAX_LEVEL;
+			}
 		}
-		else if( mTurretLevel > MAX_LEVEL )
+		else
 		{
-			mTurretLevel = MAX_LEVEL;
+			mTurretLevel--;
+			if( mTurretLevel < MIN_LEVEL )
+			{
+				mTurretLevel = MIN_LEVEL;
+			}
 		}
+		CalcTurretLevel();
 	}
 }
 
@@ -20,15 +28,23 @@ void ServerShip::ChangeShieldLevel( int change )
 {
 	if( change != 0 )
 	{
-		mShieldLevel += change;
-		if( mShieldLevel < MIN_LEVEL )
+		if( change > 0 )
 		{
-			mShieldLevel = MIN_LEVEL;
+			mShieldLevel++;
+			if( mShieldLevel > MAX_LEVEL )
+			{
+				mShieldLevel = MAX_LEVEL;
+			}
 		}
-		else if( mShieldLevel > MAX_LEVEL )
+		else
 		{
-			mShieldLevel = MAX_LEVEL;
+			mShieldLevel--;
+			if( mShieldLevel < MIN_LEVEL )
+			{
+				mShieldLevel = MIN_LEVEL;
+			}
 		}
+		CalcShieldLevel();
 	}
 }
 
@@ -36,16 +52,41 @@ void ServerShip::ChangeBuffLevel( int change )
 {
 	if( change != 0 )
 	{
-		mTurretLevel += change;
-		if( mBuffLevel < MIN_LEVEL )
+		if( change > 0 )
 		{
-			mBuffLevel = MIN_LEVEL;
+			mBuffLevel++;
+			if( mBuffLevel > MAX_LEVEL )
+			{
+				mBuffLevel = MAX_LEVEL;
+			}
 		}
-		else if( mBuffLevel > MAX_LEVEL )
+		else
 		{
-			mBuffLevel = MAX_LEVEL;
+			mBuffLevel--;
+			if( mBuffLevel < MIN_LEVEL )
+			{
+				mBuffLevel = MIN_LEVEL;
+			}
 		}
+		CalcBuffMod();
 	}
+}
+
+void ServerShip::CalcTurretLevel()
+{
+	// Stuff
+}
+
+void ServerShip::CalcShieldLevel()
+{
+	float mPercent	= PercentShield();
+	mMaxShield		= 100.0f * mShieldLevel;
+	mCurrentShield	= mMaxShield * mPercent;
+}
+
+void ServerShip::CalcBuffMod()
+{
+	mBuffMod = 0.5f + ( 0.2f * (mBuffLevel - 1) );
 }
 
 void ServerShip::ClientUpdateShip( IEventPtr eventPtr )
@@ -54,7 +95,7 @@ void ServerShip::ClientUpdateShip( IEventPtr eventPtr )
 	{
 		std::shared_ptr<Event_Client_Update_Ship> data = std::static_pointer_cast<Event_Client_Update_Ship>( eventPtr );
 
-		if( data->ID() == mID && data->Damage() != 0.0f )
+		if( data->ID() == mID && data->Damage() != 0.0f && !mWasUpdated )
 		{
 			if( !TakeDamage( data->Damage() ) )
 			{
@@ -70,14 +111,24 @@ void ServerShip::ClientChangeShipLevels( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Client_Change_Ship_Levels::GUID )
 	{
 		std::shared_ptr<Event_Client_Change_Ship_Levels> data = std::static_pointer_cast<Event_Client_Change_Ship_Levels>( eventPtr );
-		if( data->ID() == mID )
+		if( data->ID() == mID && !mWasUpdated )
 		{
 			ChangeTurretLevel( data->TurretLevelChange() );
 			ChangeShieldLevel( data->ShieldLevelChange() );
 			ChangeBuffLevel( data->BuffLevelChange() );
-			mWasChanged = true;
+			mWasUpdated = true;
 		}
 	}
+}
+
+float ServerShip::PercentShield() const
+{
+	return mCurrentShield/mMaxShield;
+}
+
+float ServerShip::PercentHP() const
+{
+	return mCurrentHP/mMaxHP;
 }
 
 bool ServerShip::TakeDamage( float damage )
@@ -127,13 +178,11 @@ void ServerShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir )
 void ServerShip::Update( float deltaTime )
 {
 	mWasUpdated = false;
-	mWasChanged = false;
 }
 
 void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir )
 {
 	mBuffCircle		= new BoundingCircle( pos, 20.0f );
-	mBuffMod		= 0.5f;
 	mID				= id;
 	mTeamID			= teamID;
 	mPos			= pos;
@@ -145,6 +194,7 @@ void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir )
 	mCurrentShield	= mMaxShield;
 	mMaxHP			= 100.0f;
 	mCurrentHP		= mMaxHP;
+	mBuffMod		= 0.5f;
 
 	EventManager::GetInstance()->AddListener( &ServerShip::ClientUpdateShip, this, Event_Client_Update_Ship::GUID );
 	EventManager::GetInstance()->AddListener( &ServerShip::ClientChangeShipLevels, this, Event_Client_Change_Ship_Levels::GUID );
@@ -161,14 +211,18 @@ void ServerShip::Release()
 
 ServerShip::ServerShip()
 {
-	mBuffCircle	= nullptr;
-	mBuffMod	= 0.0f;
-	mID			= (UINT)-1;
-	mTeamID		= (UINT)-1;
-	mPos		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mDir		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mMaxHP		= 0.0f;
-	mCurrentHP	= 0.0f;
+	mBuffCircle		= nullptr;
+	mID				= (UINT)-1;
+	mTeamID			= (UINT)-1;
+	mPos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mDir			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mTurretLevel	= 0;
+	mShieldLevel	= 0;
+	mBuffLevel		= 0;
+	mMaxHP			= 0.0f;
+	mCurrentHP		= 0.0f;
+	mBuffMod		= 0.0f;
+	mWasUpdated		= false;
 }
 
 ServerShip::~ServerShip()

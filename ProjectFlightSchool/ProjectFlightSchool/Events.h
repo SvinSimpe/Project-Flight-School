@@ -3307,7 +3307,7 @@ class Event_Server_Change_Buff_State : public IEvent
 		}
 };
 
-// Event sent from the client whenever a ship takes damage
+// Event sent from the client whenever a ship needs an update
 class Event_Client_Update_Ship : public IEvent
 {
 	private:
@@ -3360,11 +3360,12 @@ class Event_Client_Update_Ship : public IEvent
 		}
 };
 
-// Event sent from server when the changes are validated
-class Event_Remote_Update_Ship : public IEvent
+// Event sent from server whenever a ship is updated
+class Event_Server_Update_Ship : public IEvent
 {
 	private:
 		UINT mID;
+		float mMaxShield;
 		float mCurrentShield;
 		float mCurrentHP;
 
@@ -3375,19 +3376,21 @@ class Event_Remote_Update_Ship : public IEvent
 	private:
 	protected:
 	public:
-		Event_Remote_Update_Ship()
+		Event_Server_Update_Ship()
 		{
 			mID				= (UINT)-1;
+			mMaxShield		= -1.0f;
 			mCurrentShield	= -1.0f;
 			mCurrentHP		= -1.0f;
 		}
-		Event_Remote_Update_Ship( UINT id, float currentShield, float currentHP )
+		Event_Server_Update_Ship( UINT id, float maxShield, float currentShield, float currentHP )
 		{
 			mID				= id;
+			mMaxShield		= maxShield;
 			mCurrentShield	= currentShield;
 			mCurrentHP		= currentHP;
 		}
-		~Event_Remote_Update_Ship() {}
+		~Event_Server_Update_Ship() {}
 		const EventType& GetEventType() const
 		{
 			return GUID;
@@ -3395,22 +3398,28 @@ class Event_Remote_Update_Ship : public IEvent
 		void Serialize( std::ostringstream& out ) const
 		{
 			out << mID << " ";
+			out << mMaxShield << " ";
 			out << mCurrentShield << " ";
 			out << mCurrentHP << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
 			in >> mID;
+			in >> mMaxShield;
 			in >> mCurrentShield;
 			in >> mCurrentHP;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Remote_Update_Ship( mID, mCurrentShield, mCurrentHP ) );
+			return IEventPtr( new Event_Server_Update_Ship( mID, mMaxShield, mCurrentShield, mCurrentHP ) );
 		}
 		UINT ID() const
 		{
 			return mID;
+		}
+		float MaxShield() const
+		{
+			return mMaxShield;
 		}
 		float CurrentShield() const
 		{
@@ -3422,6 +3431,7 @@ class Event_Remote_Update_Ship : public IEvent
 		}
 };
 
+// Event sent from a client whenever the ship needs an update in any way
 class Event_Client_Change_Ship_Levels : public IEvent
 {
 	private:
@@ -3489,76 +3499,6 @@ class Event_Client_Change_Ship_Levels : public IEvent
 		int BuffLevelChange() const
 		{
 			return mBuffLevelChange;
-		}
-};
-
-class Event_Remote_Change_Ship_Levels : public IEvent
-{
-	private:
-		UINT mID;
-		UINT mTurretLevel;
-		UINT mShieldLevel;
-		UINT mBuffLevel;
-
-	protected:
-	public:
-		static const EventType GUID;
-
-	private:
-	protected:
-	public:
-		Event_Remote_Change_Ship_Levels()
-		{
-			mID				= (UINT)-1;
-			mTurretLevel	= (UINT)-1;
-			mShieldLevel	= (UINT)-1;
-			mBuffLevel		= (UINT)-1;
-		}
-		Event_Remote_Change_Ship_Levels( UINT id, UINT turretLevel, UINT shieldLevel, UINT buffLevel )
-		{
-			mID				= id;
-			mTurretLevel	= turretLevel;
-			mShieldLevel	= shieldLevel;
-			mBuffLevel		= buffLevel;
-		}
-		~Event_Remote_Change_Ship_Levels() {}
-		const EventType& GetEventType() const
-		{
-			return GUID;
-		}
-		void Serialize( std::ostringstream& out ) const
-		{
-			out << mID << " ";
-			out << mTurretLevel << " ";
-			out << mShieldLevel << " ";
-			out << mBuffLevel << " ";
-		}
-		void Deserialize( std::istringstream& in )
-		{
-			in >> mID;
-			in >> mTurretLevel;
-			in >> mShieldLevel;
-			in >> mBuffLevel;
-		}
-		IEventPtr Copy() const
-		{
-			return IEventPtr( new Event_Remote_Change_Ship_Levels( mID, mTurretLevel, mShieldLevel, mBuffLevel ) );
-		}
-		UINT ID() const
-		{
-			return mID;
-		}
-		int TurretLevel() const
-		{
-			return mTurretLevel;
-		}
-		int ShieldLevel() const
-		{
-			return mShieldLevel;
-		}
-		int BuffLevel() const
-		{
-			return mBuffLevel;
 		}
 };
 #endif

@@ -76,13 +76,12 @@ class PlayState : public BaseState
 		void			BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction );
 		void			BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage );
 		void			BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float knockBack, XMFLOAT3 direction );
-		void			BroadcastShipProjectileDamage( UINT shooterID, UINT shipID, float damage );
+		void			FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range );
 		void			CheckPlayerCollision();
 		void			CheckProjectileCollision();
 		void			CheckMeeleCollision();
 		void			HandleDeveloperCameraInput();
 		void			HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID );
-		void			FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction );
 		void			UpdateProjectiles( float deltaTime );
 		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive );
 		void			RenderProjectiles();

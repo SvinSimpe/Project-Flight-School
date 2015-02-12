@@ -125,10 +125,26 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		XMVECTOR intersection = XMVectorAdd(rayPosInWorld, rayDirInWorld * t);
 
 
+
+	//== Weapon handling ==
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_LEFT ) && mWeaponCoolDown <= 0.0f )
+	{
+		Fire();
+		mWeaponCoolDown = mLoadOut->rangedWeapon->attackRate;
+		
+		RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] );
+		mRightArmAnimationCompleted		= false;
+		IEventPtr E1( new Event_Client_Attack( mID, RIGHT_ARM_ID, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] ) );
+		QueueEvent( E1 );
+	}
+	else
+		mWeaponCoolDown -= deltaTime;
+
 		XMVECTOR playerToCursor = XMVectorSubtract(intersection, XMLoadFloat3(&XMFLOAT3(mLowerBody.position.x, 1.0f, mLowerBody.position.z)));
 		XMStoreFloat3(&unPack, playerToCursor);
 		playerToCursor = XMVector3Normalize(XMVectorSet(unPack.x, 0.0f, unPack.z, 0.0f));
 		XMStoreFloat3(&mUpperBody.direction, playerToCursor);
+
 
 		//== Weapon handling ==
 		if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) && mWeaponCoolDown <= 0.0f)
@@ -266,8 +282,62 @@ void Player::Fire()
 	XMFLOAT3 loadDir;
 	XMStoreFloat3( &loadDir, offset );
 
-	IEventPtr E1( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mUpperBody.direction ) );
-	QueueEvent( E1 );
+	if( mLoadOut->rangedWeapon->weaponType == SHOTGUN )
+	{
+		// Fire shotgun
+
+		// middle projectile
+		IEventPtr E1( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mUpperBody.direction, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		QueueEvent( E1 );
+
+		//// projectile 1
+		XMFLOAT3 shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 30.0f ) ) ) );
+		IEventPtr E2( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		QueueEvent( E2 );
+
+		// projectile 2
+		//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -30.0f ) ) ) );
+		IEventPtr E3( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		QueueEvent( E3 );
+
+		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 20.0f ) ) ) );
+				IEventPtr E4( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		QueueEvent( E4 );
+
+		// projectile 2
+		//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -20.0f ) ) ) );
+		IEventPtr E5( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		QueueEvent( E5 );
+
+		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 40.0f ) ) ) );
+		IEventPtr E6( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		QueueEvent( E6 );
+
+		// projectile 2
+		//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -40.0f ) ) ) );
+		IEventPtr E7( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		QueueEvent( E7 );
+	}
+	else
+	{
+		// Set random spread
+		if( mLoadOut->rangedWeapon->spread != 0.0f )
+		{
+			float directionOffset	=  (float)( rand() % 100 ) * 0.001f - mLoadOut->rangedWeapon->spread;
+			mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffset, mUpperBody.direction.y, mUpperBody.direction.z + directionOffset );
+			IEventPtr E1( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mFireDirection, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range ) );
+			QueueEvent( E1 );
+		}
+		else
+		{
+			IEventPtr E1( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mUpperBody.direction, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range ) );
+			QueueEvent( E1 );
+		}
+	}
 }
 
 void Player::AddImpuls( XMFLOAT3 impuls )
@@ -493,16 +563,14 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	//mPointLight[4]->position = DirectX::XMFLOAT4( mLowerBody.position.x + 10.0f, mLowerBody.position.y + 0.0f, mLowerBody.position.z - 10.0f, 0.0f );
 
 	//== Event to sync player with server ==
-	IEventPtr E1( new Event_Client_Update( mID, mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName, mIsBuffed ) );
-	QueueEvent( E1 );
 
-	//mEventCapTimer += deltaTime;
-	//if( mEventCapTimer > 0.02f )
-	//{
-	//	QueueEvent( new Event_Client_Update( mID, mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName, mIsBuffed ) );
-	//	mEventCapTimer = 0.0f;
-	//}
-
+	mEventCapTimer += deltaTime;
+	if( mEventCapTimer > 0.02f )
+	{
+		IEventPtr E1( new Event_Client_Update( mID, mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName, mIsBuffed, mIsAlive ) );
+		QueueEvent( E1 );
+		mEventCapTimer = 0.0f;
+	}
 	return S_OK;
 }
 
@@ -522,6 +590,8 @@ HRESULT Player::Render( float deltaTime, int position )
 HRESULT Player::Initialize()
 {
 	RemotePlayer::Initialize();
+
+	srand( (unsigned int)time( NULL ) );
 
 	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mPlayerName = "";
@@ -597,6 +667,7 @@ Player::Player()
 	mCurrentVelocity	= 0.0f;
 	mMaxAcceleration	= 0.0f;
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mFireDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mIsBuffed			= false;
 	mBuffMod			= 0.0f;
 	mHasMeleeStarted	= false;

@@ -4,6 +4,8 @@
 #include "Player.h"
 #include <math.h>
 
+#define	TURRET_FIRE_SPEED		15.0f
+#define	TURRET_RANGE			3.0f
 #define SHOOTCOOLDOWN			0.1f
 #define TURRET_ROTATION_SPEED	50.0f
 #define PI						3.14159265f

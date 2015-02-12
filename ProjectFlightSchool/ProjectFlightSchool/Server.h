@@ -3,7 +3,12 @@
 
 #include "Network.h"
 #include "ServerShip.h"
+#include "Enemy.h"
+#include "EnemySpawn.h"
+#include "RemotePlayer.h"
 #include <vector>
+#include <stdlib.h>
+#include <time.h>
 
 class Server : public Network
 {
@@ -14,6 +19,8 @@ class Server : public Network
 			UINT					TeamID;
 			XMFLOAT3				Pos = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			bool					IsBuffed = false;
+			bool					IsAlive = false;
+			bool					IsDown = false;
 		};
 		const UINT MAX_TEAMS = 2;
 		const UINT MAX_PROJECTILE_ID = 999;
@@ -24,6 +31,14 @@ class Server : public Network
 		UINT						mCurrentPID;
 		bool						mActive;
 		std::vector<ServerShip*>	mShips;
+
+		// Game Logic
+		Enemy**						mEnemies;
+		EnemySpawn**				mSpawners;
+		BoundingCircle*				mAggroCircle;
+		UINT						mNrOfPlayers;
+		UINT						mNrOfEnemiesSpawned;
+		UINT						mNrOfProjectilesFired;
 
 	protected:
 	public:
@@ -44,6 +59,8 @@ class Server : public Network
 		void	ClientUp( IEventPtr eventPtr );
 		void	ClientAttemptRevive( IEventPtr eventPtr );
 		void	ClientShipProjectileDamage( IEventPtr eventPtr );
+		void	ClientEnemyProjectileDamage( IEventPtr eventPtr );
+		void	SetEnemyState( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 
@@ -52,6 +69,9 @@ class Server : public Network
 		UINT	CurrentPID();
 		void	CreateShips();
 		bool	CheckShipBuff( ServerShip* ship, XMFLOAT3 pos );
+
+		void		StateCheck();
+		XMFLOAT3	GetNextSpawn();
 
 	protected:
 		bool	Connect( UINT port );
@@ -62,6 +82,7 @@ class Server : public Network
 		void	Update( float deltaTime );
 		void	DoSelect( int pauseMicroSecs, bool handleInput = true );
 		bool	Initialize();
+		void	Reset();
 		void	Release();
 				Server();
 		virtual	~Server();

@@ -3,6 +3,9 @@
 
 #include "Projectile.h"
 #include "RemotePlayer.h"
+#include "Input.h"
+#include <stdlib.h>
+#include <time.h>
 
 #define VELOCITY_FALLOFF 2.0f
 
@@ -24,6 +27,7 @@ class Player: public RemotePlayer
 		float		mCurrentVelocity;
 		float		mMaxAcceleration;
 		XMFLOAT3	mAcceleration;
+		XMFLOAT3	mFireDirection;
 
 		bool		mIsBuffed;
 		float		mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1

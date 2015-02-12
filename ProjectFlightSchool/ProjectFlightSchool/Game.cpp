@@ -14,7 +14,7 @@ void Game::ResetGame( IEventPtr eventPtr )
 		if( mServer )
 		{
 			mServer->BroadcastEvent( E1 );
-			mServer->Release();
+			mServer->Reset();
 		}
 	}
 }

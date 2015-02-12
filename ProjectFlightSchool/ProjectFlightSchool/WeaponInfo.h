@@ -58,12 +58,12 @@ struct RangedInfo
 				spread			=	MINIGUN_SPREAD;
 				areaOfEffect	=	MINIGUN_AOE;
 				projectileSpeed	=	MINIGUN_SPEED;*/
-				attackRate		= 0.03f;
-						damage			= 1.5f;
-						range			= 0.5f;
-						spread			= 0.05f;
-						areaOfEffect	= 0.0f;
-						projectileSpeed	= 40.0f;
+				attackRate		=	MINIGUN_AR;
+				damage			=	MINIGUN_DAMAGE;
+				range			=	MINIGUN_RANGE;
+				spread			=	MINIGUN_SPREAD;
+				areaOfEffect	=	MINIGUN_AOE;
+				projectileSpeed	=	MINIGUN_SPEED;
 			}
 				break;
 

@@ -303,6 +303,14 @@ void PlayState::HandleDeveloperCameraInput()
 		IEventPtr E1( new Event_Reset_Game() );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_1 ) )
+	{
+		for( auto& s : mShips )
+		{
+			IEventPtr E1( new Event_Client_Change_Ship_Levels( s->GetID(), 0, -1, 0 ) );
+			Client::GetInstance()->SendEvent( E1 );
+		}
+	}
 }
 
 void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID )
@@ -597,7 +605,6 @@ void PlayState::OnExit()
 
 void PlayState::Reset()
 {
-	
 	mPlayer->Reset();
 	for( size_t i = 0; i < MAX_PROJECTILES; i++ )
 		mProjectiles[i]->Reset();
@@ -614,6 +621,11 @@ void PlayState::Reset()
 	}
 	mRemotePlayers.clear();
 
+	for( auto& s : mShips )
+	{
+		SAFE_RELEASE_DELETE( s );
+	}
+	mShips.clear();
 }
 
 HRESULT PlayState::Initialize()

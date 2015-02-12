@@ -8,7 +8,7 @@
 #Permanent_Asset
 ship		/Ship/
 robot		/Robot/
-bullet		/BUllets/
+bullet		/Bullets/
 xpOrb		/XPorb/
 battery		/Battery/
 turret		/Turrets/
@@ -26,17 +26,18 @@ sniper		/Sniper/
 
 #Forest_Assets
 bone		/Bones/
+boss		/BossNest/
 nest		/Nests/
 bush		/Bushes/
 plant		/Plants/
 grass		/Grass/
 tree		/Trees/
+Tree		/Trees/
 log		/Trees/
 mushroom 	/Mushrooms/
 stone		/Stones/		
 water		/Water/
 puddle		/Water/
-plane		/Plane/
 
 ####################################
 

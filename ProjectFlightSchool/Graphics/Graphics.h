@@ -73,6 +73,8 @@ enum Effects
 	//Particle Effects
 	EFFECTS_MUZZLEFLASH,
 	EFFECTS_SMOKE_MINIGUN,
+	EFFECTS_TEST_FOUNTAIN,
+
 
 	EFFECTS_DEBUG_BOX,
 	//New effects added above this comment

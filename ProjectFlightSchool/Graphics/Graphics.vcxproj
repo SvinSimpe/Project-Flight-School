@@ -176,7 +176,7 @@
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>
-  <ItemGroup>   
+  <ItemGroup>
     <Text Include="..\Content\Effects\Particle Effects\Smoke_MiniGunEffect.hlsl">
       <FileType>Document</FileType>
     </Text>
@@ -186,6 +186,11 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\Content\Effects\AnimatedInstanced3dShadowEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Content\Effects\Particle Effects\Test_FountainEffect.hlsl">
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>

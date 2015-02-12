@@ -446,6 +446,17 @@ HRESULT Graphics::InitializeEffects()
 	if( FAILED( hr = mEffects[EFFECTS_SMOKE_MINIGUN]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 	//--------------------------
+
+
+	//Test Fountain effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/Test_FountainEffect.hlsl";
+	effectInfo.fileName					= "Test_FountainEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_TEST_FOUNTAIN]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
 	return hr;
 }
 

@@ -9,8 +9,8 @@
 #include <time.h>
 using namespace DirectX;
 
-#define MAX_PARTICLES 5000
-#define NR_OF_PARTICLE_TYPES 6
+#define MAX_PARTICLES 10000
+#define NR_OF_PARTICLE_TYPES 7
 
 enum ParticleType
 {
@@ -19,7 +19,8 @@ enum ParticleType
 	Spark,
 	Blood,
 	MuzzleFlash,
-	Smoke_MiniGun
+	Smoke_MiniGun,
+	Test_Fountain
 };
 
 struct ParticleData
@@ -39,9 +40,7 @@ struct ParticleData
 
 	float*	lifeTime	= nullptr;
 	bool*	isAlive		= nullptr;
-	float*	speed		= nullptr;
 
-	
 	XMFLOAT3 randomDirectionVector[4];
 	int		 nrOfRequestedParticles		= 0;
 
@@ -69,7 +68,6 @@ struct ParticleData
 
 		lifeTime = (float*)_mm_malloc( nrOfParticles * sizeof(float), 16 );
 		isAlive	 = (bool*)_mm_malloc(  nrOfParticles * sizeof(bool),  16 );
-		speed	 = (float*)_mm_malloc( nrOfParticles * sizeof(float), 16 );
 
 		for ( int i = 0; i < nrOfParticles; i += 4 )
 		{
@@ -109,11 +107,6 @@ struct ParticleData
 			isAlive[i+1]	= false;
 			isAlive[i+2]	= false;
 			isAlive[i+3]	= false;
-
-			//========= Initialize speed ===========
-			xmm0 = _mm_load_ps( &speed[i] );
-			xmm0 = _mm_set_ps( 0.0f, 0.0f, 0.0f, 0.0f );
-			_mm_store_ps( &speed[i], xmm0 );
 		}
 
 		for (size_t i = 0; i < 4; i++)
@@ -205,11 +198,21 @@ struct ParticleData
 		{
 			float randomSpreadAngle = (float)( rand() % (int)spreadAngle * 2 ) - spreadAngle;
 		
-			XMVECTOR randomAimingDirection = XMVector3TransformCoord( aimingDirection, XMMatrixRotationY( XMConvertToRadians( randomSpreadAngle ) ) );		
+
+			XMVECTOR randomAimingDirection = XMVectorSet( 0.0f, 0.0f, 0.0f, 0.0f );
+			if( particleType != Test_Fountain )
+				randomAimingDirection = XMVector3TransformCoord( aimingDirection, XMMatrixRotationY( XMConvertToRadians( randomSpreadAngle ) ) );		
+
+			else
+			{
+				randomAimingDirection = XMVector3TransformCoord( aimingDirection, XMMatrixRotationX( XMConvertToRadians( randomSpreadAngle ) ) );
+				randomAimingDirection = XMVector3TransformCoord( randomAimingDirection, XMMatrixRotationZ( XMConvertToRadians( randomSpreadAngle ) ) );
+			}
+
 
 			XMStoreFloat3( &randomDirectionVector[i], randomAimingDirection );
 			
-			if( particleType != Smoke_MiniGun )
+			if( particleType != Test_Fountain )
 			{
 				//Get random elevation
 				float randomElevation = ( (float)( rand() % 20 ) - 10 ) * 0.1f;
@@ -227,7 +230,6 @@ struct ParticleData
 	{
 		//======== this->lifeTime = randLifeTime  ========
 		__declspec( align( 16 ) ) float randomLife[4] = {0.0f};
-		//float randomLife = 0.0f;
 		__m128 xmm0;
 
 		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i += 4 )
@@ -265,6 +267,12 @@ struct ParticleData
  				randomDirectionVector[0].y = yDirection * GetRandomSpeed( 10, 20 );
 				randomDirectionVector[0].z = zDirection * GetRandomSpeed( 10, 20 );		
 			}
+			else if( particleType == Test_Fountain )
+			{
+				randomDirectionVector[0].x = xDirection * GetRandomSpeed( 10, 20 );
+ 				randomDirectionVector[0].y = yDirection * GetRandomSpeed( 10, 20 );
+				randomDirectionVector[0].z = zDirection * GetRandomSpeed( 10, 20 );		
+			}
 
 			GetRandomSpread( spreadAngle );
 
@@ -282,6 +290,8 @@ struct ParticleData
 			xmm0	= _mm_load_ps( &zVelocity[i] );
 			xmm0 = _mm_set_ps( randomDirectionVector[0].z, randomDirectionVector[1].z, randomDirectionVector[2].z, randomDirectionVector[3].z );
 			_mm_store_ps( &zVelocity[i], xmm0 );
+
+			ResetRandomDirectionVector();
 		}
 	}
 
@@ -322,6 +332,12 @@ struct ParticleData
 		}
 	}
 
+	void ResetRandomDirectionVector()
+	{
+		for (size_t i = 0; i < 4; i++)
+			randomDirectionVector[i] = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	}
+
 	void CheckDeadParticles()
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
@@ -344,7 +360,6 @@ struct ParticleData
 
 		_mm_free( lifeTime );
 		_mm_free( isAlive );
-		_mm_free( speed );
 	}
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emiterDirection) = 0;

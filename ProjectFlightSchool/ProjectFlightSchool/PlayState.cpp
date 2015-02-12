@@ -463,6 +463,9 @@ HRESULT PlayState::Update( float deltaTime )
 			}
 		}
 	}
+
+		///Test fountain particle system
+	mParticleManager->RequestParticleSystem( 9999, Test_Fountain, XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
 	mParticleManager->Update( deltaTime );
 	
 	guiUpdate.mRadarObjects	= mRadarObjects;
@@ -480,6 +483,8 @@ HRESULT PlayState::Update( float deltaTime )
 	///////////////////////////////////////////////////////////////////////////
 	//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
 	///////////////////////////////////////////////////////////////////////////
+
+
 
 	return S_OK;
 }

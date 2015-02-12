@@ -3,6 +3,7 @@
 
 #include "Projectile.h"
 #include "RemotePlayer.h"
+#include "EnergyCell.h"
 
 #define VELOCITY_FALLOFF 2.0f
 
@@ -38,6 +39,8 @@ class Player: public RemotePlayer
 
 		std::list<IEventPtr> mEventList;
 
+		UINT		mEnergyCellID;
+
 	protected:
 	public:
 		
@@ -58,6 +61,8 @@ class Player: public RemotePlayer
 		void		Lock();
 		void		UnLock();
 		void		QueueEvent( IEvent* ptr );
+		void		PickUpEnergyCell();
+		void		DropEnergyCell();
 
 	protected:
 	public:
@@ -65,7 +70,7 @@ class Player: public RemotePlayer
 		void		HandleRevive( float deltaTime );
 		
 		void		Reset();	
-		HRESULT		Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers );
+		HRESULT		Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCell );
 		HRESULT		Render( float deltaTime, int position );
 		HRESULT		Initialize();
 		void		Release();
@@ -81,6 +86,8 @@ class Player: public RemotePlayer
 		void		SetID( unsigned int id );
 		void		SetTeam( int team );
 		void		SetPosition( XMVECTOR position );
+		bool		GetIsCarryingEnergyCell() const;
+		void		SetIsCarryingEnergyCell( bool isCarrying );
 
 		std::list<IEventPtr> GetEvents();
 		void		ClearEventList();

@@ -16,11 +16,12 @@
 #include "Gui.h"
 #include "ParticleManager.h"
 #include "SoundBufferHandler.h"
+#include "EnergyCell.h"
 
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
-#define TOSERVER_OFFSET			5000;
+#define TOSERVER_OFFSET			5000
 
 class PlayState : public BaseState
 {
@@ -52,6 +53,8 @@ class PlayState : public BaseState
 		RADAR_UPDATE_INFO			mRadarObjects[MAX_RADAR_OBJECTS];
 		float						mAlliesHP[MAX_REMOTE_PLAYERS / 2];
 		Gui*						mGui;
+
+		EnergyCell*					mEnergyCell[MAX_ENERGY_CELLS];
 		
 		//TestSound
 		int							m3DSoundAsset;

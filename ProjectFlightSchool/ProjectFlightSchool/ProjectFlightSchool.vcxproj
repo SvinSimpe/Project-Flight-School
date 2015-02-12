@@ -92,6 +92,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="EnemyAnimationManager.cpp" />
+    <ClCompile Include="EnergyCell.cpp" />
     <ClCompile Include="Gui.cpp" />
     <ClCompile Include="HealthBars.cpp" />
     <ClCompile Include="Network.cpp" />
@@ -147,6 +148,7 @@
     <ClInclude Include="BaseMenuState.h" />
     <ClInclude Include="BaseState.h" />
     <ClInclude Include="BoundingGeometry.h" />
+    <ClInclude Include="EnergyCell.h" />
     <ClInclude Include="Gui.h" />
     <ClInclude Include="HealthBars.h" />
     <ClInclude Include="IPacket.h" />

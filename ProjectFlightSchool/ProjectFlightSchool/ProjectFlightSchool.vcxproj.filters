@@ -264,6 +264,9 @@
     <ClCompile Include="Radar.cpp">
       <Filter>GUI\Source</Filter>
     </ClCompile>
+    <ClCompile Include="EnergyCell.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
@@ -454,6 +457,9 @@
     </ClInclude>
     <ClInclude Include="Radar.h">
       <Filter>GUI\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="EnergyCell.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

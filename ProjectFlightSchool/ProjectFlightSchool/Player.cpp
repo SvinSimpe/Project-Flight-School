@@ -274,6 +274,16 @@ void Player::QueueEvent( IEvent* ptr )
 	mEventList.push_front( IEventPtr( ptr ) );
 }
 
+void Player::PickUpEnergyCell()
+{
+
+}
+
+void Player::DropEnergyCell()
+{
+
+}
+
 /////Public
 
 void Player::TakeDamage( float damage, unsigned int shooter )
@@ -341,6 +351,7 @@ void Player::Reset()
 	mNrOfKills				= 0;
 	mID						= -1;
 	mTeam					= -1;
+	mEnergyCellID			= (UINT)-1;
 
 	mLeftArmAnimationCompleted	= false;
 	mRightArmAnimationCompleted	= false;
@@ -353,7 +364,7 @@ void Player::Reset()
 	RenderManager::GetInstance()->AnimationReset( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
 }
 
-HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
+HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCell )
 {
 	mCloseToPlayer = false;
 	for( auto rp : remotePlayers )
@@ -429,6 +440,19 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 		RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
 		RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
+
+		for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+		{
+			if( !energyCell[i]->GetPickedUp() && mEnergyCellID >= 0 )
+			{
+				if( energyCell[i]->GetPickUpRadius()->Intersect( mBoundingCircle ) )
+				{
+					energyCell[i]->SetOwnerID( mID );
+					energyCell[i]->SetPickedUp( true );
+					
+				}
+			}
+		}
 	}
 	else
 	{
@@ -526,10 +550,10 @@ HRESULT Player::Initialize()
 
 	mBuffMod			= 0.5f;
 	
-	mSpawnTime				= 10.0f;
-	mReviveTime				= 2.0f;
-	mTimeTillSpawn			= mSpawnTime;
-	mTimeTillRevive			= mReviveTime;
+	mSpawnTime			= 10.0f;
+	mReviveTime			= 2.0f;
+	mTimeTillSpawn		= mSpawnTime;
+	mTimeTillRevive		= mReviveTime;
 
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Died::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Attempt_Revive::GUID );
@@ -537,6 +561,8 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Melee_Hit::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Create_Player_Name::GUID );
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
+
+	mEnergyCellID = (UINT)-1;
 	
 	return S_OK;
 }

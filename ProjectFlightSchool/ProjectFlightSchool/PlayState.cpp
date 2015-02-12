@@ -432,7 +432,7 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.mAlliesHP		= mAlliesHP;
 	guiUpdate.mShipHP		= 1.0f;
 
-	mPlayer->Update( deltaTime, mRemotePlayers );
+	mPlayer->Update( deltaTime, mRemotePlayers, mEnergyCell );
 
 	HandleDeveloperCameraInput();
 
@@ -515,6 +515,14 @@ HRESULT PlayState::Render()
 
 	
 	mGui->Render();
+
+	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+	{
+		if( !mEnergyCell[i]->GetPickedUp() )
+		{
+			mEnergyCell[i]->Render();
+		}
+	}
 
 	//RENDER DEVTEXT
 	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
@@ -629,6 +637,13 @@ HRESULT PlayState::Initialize()
 	mGui = new Gui();
 	mGui->Initialize();
 
+	//Energy cells
+	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+	{
+		mEnergyCell[i] = new EnergyCell();
+		mEnergyCell[i]->Initialize( DirectX::XMFLOAT3( ( -7.0f + i + 2 ), 0.0f, 0.0f ) );
+	}
+
 	//TestSound
 	m3DSoundAsset	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav" );
 	mSoundAsset		= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
@@ -676,6 +691,12 @@ void PlayState::Release()
 	mGui->Release();
 	SAFE_DELETE( mGui );
 
+	//Energy cells
+	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+	{
+		mEnergyCell[i]->Release();
+		SAFE_DELETE( mEnergyCell[i] );
+	}
 }
 
 PlayState::PlayState()
@@ -693,6 +714,7 @@ PlayState::PlayState()
 	mServerInitialized		= false;
 	mParticleManager		= nullptr;
 	mGui					= nullptr;
+
 }
 
 PlayState::~PlayState()

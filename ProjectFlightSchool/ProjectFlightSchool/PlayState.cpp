@@ -62,6 +62,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		
 		// Request Muzzle Flash from Particle Manager
 		mParticleManager->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
+		mParticleManager->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
 	{
@@ -96,6 +97,13 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Server_Spawn_Ship> data = std::static_pointer_cast<Event_Server_Spawn_Ship>( newEvent );
 		mShips.push_back( new ClientShip() );
 		mShips.back()->Initialize( data->ID(), data->TeamID(), data->Position(), data->Direction() );
+	}
+	else if( newEvent->GetEventType() == Event_Remote_Win::GUID )
+	{
+		std::shared_ptr<Event_Remote_Win> data = std::static_pointer_cast<Event_Remote_Win>( newEvent );
+		MessageBox( NULL, L"You Won", L"Allô?", MB_OK );
+		IEventPtr E1( new Event_Reset_Game() );
+		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 }
 
@@ -438,6 +446,7 @@ HRESULT PlayState::Update( float deltaTime )
 		if ( mRemotePlayers.at(i) )
 		{
 			mRemotePlayers.at(i)->Update( deltaTime );
+
 			std::string remotePlayerName = "";
 			if( mRemotePlayers[i]->IsAlive() )
 			{
@@ -469,6 +478,7 @@ HRESULT PlayState::Update( float deltaTime )
 
 	UpdateProjectiles( deltaTime );
 
+
 	//Test radar due to no ship :(
 	mRadarObjects[nrOfRadarObj].mRadarObjectPos = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );//mShip.GetPosition();
 	mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
@@ -482,6 +492,7 @@ HRESULT PlayState::Update( float deltaTime )
 			if( mEnemies[i]->IsSynced() )
 			{
 				mEnemies[i]->Update( deltaTime );
+
 				if( mEnemies[i]->IsAlive() )
 				{
 					mRadarObjects[nrOfRadarObj].mType = RADAR_TYPE::HOSTILE;
@@ -490,8 +501,10 @@ HRESULT PlayState::Update( float deltaTime )
 			}
 		}
 	}
-	mParticleManager->Update( deltaTime );
 
+		///Test fountain particle system
+	mParticleManager->RequestParticleSystem( 9999, Test_Fountain, XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
+	mParticleManager->Update( deltaTime );
 	
 	guiUpdate.mRadarObjects	= mRadarObjects;
 	guiUpdate.mNrOfObjects	= nrOfRadarObj;
@@ -503,14 +516,26 @@ HRESULT PlayState::Update( float deltaTime )
 	
 	mGui->Update( guiUpdate );
 
+
 	// Test Anim
 	///////////////////////////////////////////////////////////////////////////
 	//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
 	///////////////////////////////////////////////////////////////////////////
 
+	//TestUpgradeWindow
+	mWindow.Update( deltaTime );
+
 	for( auto& s : mShips )
 	{
 		s->Update( deltaTime );
+
+		//Test Win
+		if ( s->Intersect( mPlayer->GetBoundingCircle() ) )
+		{
+			MessageBox( NULL, L"Sending Win", L"Allô?", MB_OK );
+			IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
+			Client::GetInstance()->SendEvent(E1);
+		}
 	}
 
 	return S_OK;
@@ -547,9 +572,7 @@ HRESULT PlayState::Render()
 		RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
 	}
 
-	mParticleManager->Render( 0.0f );
-
-	
+	mParticleManager->Render( 0.0f );	
 	mGui->Render();
 
 	//TestUpgradeWindow
@@ -654,6 +677,8 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Set_Enemy_State::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Spawn_Ship::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Enemy_State::GUID ); 
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Win::GUID ); 
+
 
 	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 

@@ -273,6 +273,9 @@
     <ClCompile Include="UpgradeShipWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MovingButton.cpp">
+      <Filter>GUI\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
@@ -472,6 +475,9 @@
     </ClInclude>
     <ClInclude Include="UpgradeShipWindow.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MovingButton.h">
+      <Filter>GUI\Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

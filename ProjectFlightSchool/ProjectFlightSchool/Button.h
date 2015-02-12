@@ -4,32 +4,18 @@
 #include "Image.h"
 #include "RenderManager.h"
 
-#define FRAME_AMOUNT 45
 #define CLICKCOOLDOWN 1.0f
 
 // Hard coded button used by the menus
 class Button : public Image
 {
 	private:
-		struct ActiveAsset
-		{
-			bool	active = false;
-			AssetID asset;
-		};
-
-		const float SPIN_COOLDOWN = 0.04f;
-		ActiveAsset mFrames[FRAME_AMOUNT];
-
-		Image*		mTextImage;
-
-		float		mSpinTimer;
-		int			mFrameIndex;
 	protected:
 		float		mClickTimer;
+
 	public:
 
 	private:
-		void			SpinCircle();
 		bool			MouseInbounds();
 	protected:
 	public:

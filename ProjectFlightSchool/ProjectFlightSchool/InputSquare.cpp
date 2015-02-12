@@ -202,7 +202,7 @@ void InputSquare::Initialize( std::string text, std::string imgName, float x, fl
 
 void InputSquare::Release()
 {
-	Button::Release();
+	MovingButton::Release();
 	mTitle->Release();
 	SAFE_DELETE( mTitle );
 	mText->Release();

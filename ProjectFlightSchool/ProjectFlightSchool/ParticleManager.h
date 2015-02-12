@@ -4,7 +4,6 @@
 #include "ParticleSystem.h"
 
 
-#define NR_OF_PARTICLE_TYPES 5
 #define MAX_NR_OF_PARTICLES  50000
 
 
@@ -18,7 +17,6 @@ class ParticleManager
 		int*				mMaxNrOfParticleSystemsPerType;
 		int*				mNrOfActiveParticleSystemsPerType;
 		
-
 	public:
 		void Update( float deltaTime );
 		void Render( float deltaTime );

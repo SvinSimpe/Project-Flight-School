@@ -286,6 +286,16 @@ void Server::SetEnemyState( IEventPtr eventPtr )
 	}
 }
 
+void Server::ClientWinLose( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Win::GUID )
+	{
+		std::shared_ptr<Event_Client_Win> data = std::static_pointer_cast<Event_Client_Win>( eventPtr );
+		IEventPtr E1( new Event_Remote_Win( data->Team() ) );
+		BroadcastEvent( E1 );
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -524,6 +534,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientAttemptRevive, this, Event_Client_Attempt_Revive::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientEnemyProjectileDamage, this, Event_Client_Projectile_Damage_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &Server::SetEnemyState, this, Event_Set_Enemy_State::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientWinLose, this, Event_Client_Win::GUID );
 
 	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
 

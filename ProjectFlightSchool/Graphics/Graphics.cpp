@@ -1593,6 +1593,8 @@ void Graphics::DeferredPass()
 	mDeviceContext->PSSetConstantBuffers( 0, 1, &mBuffers[BUFFERS_CBUFFER_PER_FRAME] );
 
 	mDeviceContext->Draw( 4, 0 );
+
+	mDeviceContext->OMSetRenderTargets( 1, &mRenderTargetView, mDepthStencilView );
 }
 
 void Graphics::ScreenSpacePass()

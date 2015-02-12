@@ -401,6 +401,7 @@ void Server::Update( float deltaTime )
 {
 	if( mActive )
 	{
+		// Handles the client getting buffed by the ship
 		bool shipBuff = false;
 		for( auto& c : mClientMap )
 		{
@@ -419,6 +420,8 @@ void Server::Update( float deltaTime )
 				}
 			}
 		}
+
+		// Enemy update
 		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 		{
 			if( mEnemies[i]->IsAlive() )
@@ -436,10 +439,27 @@ void Server::Update( float deltaTime )
 				mEnemies[i]->HandleSpawn( deltaTime, GetNextSpawn() );
 			}
 		}
-
 		//if( mSafeUpdate )
 		StateCheck();
 
+		// Ship updates
+		for( auto& s : mShips )
+		{
+			if( s->mWasUpdated )
+			{
+				IEventPtr E1( new Event_Remote_Update_Ship( s->mID, s->mCurrentShield, s->mCurrentHP ) );
+				BroadcastEvent( E1 );
+				s->Update( deltaTime );
+			}
+			if( s->mWasChanged )
+			{
+				IEventPtr E1( new Event_Remote_Change_Ship_Levels( s->mID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel ) );
+				BroadcastEvent( E1 );
+				s->Update( deltaTime );
+			}
+		}
+
+		// Sends the events in the queue to the clients
 		while( !mEventList.empty() )
 		{
 			mClientMap[mEventList.back().ToID]->NEF.ForwardEvent( mEventList.back().EventPtr );

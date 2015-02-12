@@ -1,42 +1,99 @@
 #include "ServerShip.h"
 
-void ServerShip::ClientTurretLevel( IEventPtr eventPtr )
+void ServerShip::ChangeTurretLevel( int change )
 {
-	// Code for handling upgrading/downgrading of turret here
+	if( change != 0 )
+	{
+		mTurretLevel += change;
+		if( mTurretLevel < MIN_LEVEL )
+		{
+			mTurretLevel = MIN_LEVEL;
+		}
+		else if( mTurretLevel > MAX_LEVEL )
+		{
+			mTurretLevel = MAX_LEVEL;
+		}
+	}
 }
 
-void ServerShip::ClientHullLevel( IEventPtr eventPtr )
+void ServerShip::ChangeShieldLevel( int change )
 {
-	// Code for handling upgrading/downgrading of hull here
+	if( change != 0 )
+	{
+		mShieldLevel += change;
+		if( mShieldLevel < MIN_LEVEL )
+		{
+			mShieldLevel = MIN_LEVEL;
+		}
+		else if( mShieldLevel > MAX_LEVEL )
+		{
+			mShieldLevel = MAX_LEVEL;
+		}
+	}
 }
 
-void ServerShip::ClientBuffLevel( IEventPtr eventPtr )
+void ServerShip::ChangeBuffLevel( int change )
 {
-	// Code for handling upgrading/downgrading of 
+	if( change != 0 )
+	{
+		mTurretLevel += change;
+		if( mBuffLevel < MIN_LEVEL )
+		{
+			mBuffLevel = MIN_LEVEL;
+		}
+		else if( mBuffLevel > MAX_LEVEL )
+		{
+			mBuffLevel = MAX_LEVEL;
+		}
+	}
 }
 
-void ServerShip::ClientDamageShip( IEventPtr eventPtr )
+void ServerShip::ClientUpdateShip( IEventPtr eventPtr )
 {
-	// Code for handling damaging the ship
+	if( eventPtr->GetEventType() == Event_Client_Update_Ship::GUID )
+	{
+		std::shared_ptr<Event_Client_Update_Ship> data = std::static_pointer_cast<Event_Client_Update_Ship>( eventPtr );
+
+		if( data->ID() == mID && data->Damage() != 0.0f )
+		{
+			if( !TakeDamage( data->Damage() ) )
+			{
+				// Handle ship dying here
+			}
+			mWasUpdated = true;
+		}
+	}
 }
 
-
-UINT ServerShip::GetID() const
+void ServerShip::ClientChangeShipLevels( IEventPtr eventPtr )
 {
-	return mID;
-}
-
-UINT ServerShip::GetTeamID() const
-{
-	return mTeamID;
+	if( eventPtr->GetEventType() == Event_Client_Change_Ship_Levels::GUID )
+	{
+		std::shared_ptr<Event_Client_Change_Ship_Levels> data = std::static_pointer_cast<Event_Client_Change_Ship_Levels>( eventPtr );
+		if( data->ID() == mID )
+		{
+			ChangeTurretLevel( data->TurretLevelChange() );
+			ChangeShieldLevel( data->ShieldLevelChange() );
+			ChangeBuffLevel( data->BuffLevelChange() );
+			mWasChanged = true;
+		}
+	}
 }
 
 bool ServerShip::TakeDamage( float damage )
 {
-	if( mCurrentHP > 0.0f )
+	if( mCurrentShield > 0.0f )
 	{
-		mCurrentHP -= damage;
+		mCurrentShield -= damage;
 		return true;
+	}
+	else
+	{
+		if( mCurrentHP > 0.0f )
+		{
+			mCurrentHP -= damage;
+			return true;
+		}
 	}
 	return false;
 }
@@ -52,25 +109,45 @@ bool ServerShip::Intersect( BoundingCircle* entity )
 
 void ServerShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir )
 {
-	Release();
-	Initialize( id, teamID, pos, dir );
+	mBuffCircle->center = pos;
+	mBuffMod		= 0.5f;
+	mID				= id;
+	mTeamID			= teamID;
+	mPos			= pos;
+	mDir			= dir;
+	mTurretLevel	= MIN_LEVEL;
+	mShieldLevel	= MIN_LEVEL;
+	mBuffLevel		= MIN_LEVEL;
+	mMaxShield		= 100.0f;
+	mCurrentShield	= mMaxShield;
+	mMaxHP			= 100.0f;
+	mCurrentHP		= mMaxHP;
 }
 
 void ServerShip::Update( float deltaTime )
 {
+	mWasUpdated = false;
+	mWasChanged = false;
 }
 
 void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir )
 {
-	mBuffCircle = new BoundingCircle( pos, 20.0f );
-	mBuffMod	= 0.5f;
-	mID			= id;
-	mTeamID		= teamID;
-	mPos		= pos;
-	mDir		= dir;
-	mCurrentHP	= mMaxHP;
-	mMaxHP		= 100.0f;
-	mCurrentHP	= mMaxHP;
+	mBuffCircle		= new BoundingCircle( pos, 20.0f );
+	mBuffMod		= 0.5f;
+	mID				= id;
+	mTeamID			= teamID;
+	mPos			= pos;
+	mDir			= dir;
+	mTurretLevel	= MIN_LEVEL;
+	mShieldLevel	= MIN_LEVEL;
+	mBuffLevel		= MIN_LEVEL;
+	mMaxShield		= 100.0f;
+	mCurrentShield	= mMaxShield;
+	mMaxHP			= 100.0f;
+	mCurrentHP		= mMaxHP;
+
+	EventManager::GetInstance()->AddListener( &ServerShip::ClientUpdateShip, this, Event_Client_Update_Ship::GUID );
+	EventManager::GetInstance()->AddListener( &ServerShip::ClientChangeShipLevels, this, Event_Client_Change_Ship_Levels::GUID );
 }
 
 void ServerShip::Release()

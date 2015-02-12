@@ -1,34 +1,84 @@
 #include "ClientShip.h"
 
-void ClientShip::RemoteTurretLevel( IEventPtr eventPtr )
+void ClientShip::CalcTurretLevel()
 {
-	// Code for handling upgrading/downgrading of turret here
+	for( UINT i = MIN_LEVEL; i == MAX_LEVEL; i++ )
+	{
+
+	}
 }
 
-void ClientShip::RemoteHullLevel( IEventPtr eventPtr )
+void ClientShip::CalcShieldLevel()
 {
-	// Code for handling upgrading/downgrading of hull here
+	for( UINT i = MIN_LEVEL; i == MAX_LEVEL; i++ )
+	{
+
+	}
 }
 
-void ClientShip::RemoteBuffLevel( IEventPtr eventPtr )
+void ClientShip::CalcBuffLevel()
 {
-	// Code for handling upgrading/downgrading of 
+	for( UINT i = MIN_LEVEL; i == MAX_LEVEL; i++ )
+	{
+
+	}
 }
 
-void ClientShip::RemoteDamageShip( IEventPtr eventPtr )
+void ClientShip::RemoteUpdateShip( IEventPtr eventPtr )
 {
-	// Code for handling damaging the ship
+	if( eventPtr->GetEventType() == Event_Remote_Update_Ship::GUID )
+	{
+		std::shared_ptr<Event_Remote_Update_Ship> data = std::static_pointer_cast<Event_Remote_Update_Ship>( eventPtr );
+		if( data->ID() == mID )
+		{
+			mCurrentShield = data->CurrentShield();
+			mCurrentHP = data->CurrentHP();
+			mWasUpdated = true;
+		}
+	}
 }
 
-void ClientShip::ServerResetShip( IEventPtr eventPtr )
+void ClientShip::RemoteChangeShipLevels( IEventPtr eventPtr )
 {
-	// Event with all the necessary Reset-data here
+	if( eventPtr->GetEventType() == Event_Remote_Change_Ship_Levels::GUID )
+	{
+		std::shared_ptr<Event_Remote_Change_Ship_Levels> data = std::static_pointer_cast<Event_Remote_Change_Ship_Levels>( eventPtr );
+		if( data->ID() == mID )
+		{
+			if( mTurretLevel != data->TurretLevel() )
+			{
+				mTurretLevel = data->TurretLevel();
+				CalcTurretLevel();
+			}
+			if( mShieldLevel != data->ShieldLevel() )
+			{
+				mShieldLevel = data->ShieldLevel();
+				CalcShieldLevel();
+			}
+			if( mBuffLevel != data->BuffLevel() )
+			{
+				mBuffLevel = data->BuffLevel();
+				CalcBuffLevel();
+			}
+			mWasChanged = true;
+		}
+	}
 }
 
 void ClientShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir )
 {
-	Release();
-	Initialize( id, teamID, pos, dir );
+	ServerShip::Reset( id, teamID, pos, dir );
+	mHitCircle->center = pos;
+}
+
+UINT ClientShip::GetID() const
+{
+	return mID;
+}
+
+UINT ClientShip::GetTeamID() const
+{
+	return mTeamID;
 }
 
 bool ClientShip::Intersect( BoundingCircle* entity )
@@ -42,7 +92,8 @@ bool ClientShip::Intersect( BoundingCircle* entity )
 
 void ClientShip::Update( float deltaTime )
 {
-	// Only really updates the turret
+	mWasUpdated = false;
+	mWasChanged = false;
 }
 
 void ClientShip::Render()
@@ -55,6 +106,9 @@ void ClientShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir )
 	ServerShip::Initialize( id, teamID, pos, dir );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Ship/", "ship.pfs", mAssetID );
 	mHitCircle = new BoundingCircle( mPos, 5.0f );
+
+	EventManager::GetInstance()->AddListener( &ClientShip::RemoteUpdateShip, this, Event_Remote_Update_Ship::GUID );
+	EventManager::GetInstance()->AddListener( &ClientShip::RemoteChangeShipLevels, this, Event_Remote_Change_Ship_Levels::GUID );
 }
 
 void ClientShip::Release()

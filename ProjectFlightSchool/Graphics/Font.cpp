@@ -95,7 +95,7 @@ void Font::WriteText( std::string toWrite, float x, float y, float scale, XMFLOA
 
 void Font::Initialize( std::string path )
 {
-	path = "../Content/Assets/Fonts/final_font/";
+	path = "../Content/Assets/GUI/Fonts/final_font/";
 	//Letter UPPER_CASE[] =
 	//{
 	//	Letter( 'A', 49.0f/LETTER_SCALE ),

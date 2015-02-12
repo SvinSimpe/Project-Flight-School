@@ -231,7 +231,7 @@ HRESULT RemotePlayer::InitializeGraphics()
 	//			HUD ELEMENTS
 	/////////////////////////////////////
 
-	mFont.Initialize( "../Content/Assets/Fonts/mv_boli_26_red/" );
+	mFont.Initialize( "../Content/Assets/GUI/Fonts/mv_boli_26_red/" );
 	
 	mLeftArmAnimationCompleted				= false;
 	mRightArmAnimationCompleted				= false;

@@ -121,10 +121,10 @@ HRESULT Gui::Initialize()
 
 	for( int i = 0; i < MAX_REMOTE_PLAYERS - 1; i++ )
 	{
-		mPlayerNames[i].Initialize( "../Content/Assets/Fonts/final_font/", "", 0, 0, 1.5f );
+		mPlayerNames[i].Initialize( "../Content/Assets/GUI/Fonts/final_font/", "", 0, 0, 1.5f );
 	}
 
-	mFont.Initialize( "../Content/Assets/Fonts/final_font/" );
+	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 
 	mPlayerHP		= 0;
 	mPlayerXP		= 0;
@@ -132,13 +132,13 @@ HRESULT Gui::Initialize()
 
 	mExperience		= 0.0f;
 
-	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/playerHealth+XP2.dds", mPlayerBar );
+	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/playerHealth+XP2.dds", mPlayerBar );
 	if( FAILED( result ) )
 	{
 		return result;
 	}
 
-	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/levelUp.dds", mLevelUp );
+	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/levelUp.dds", mLevelUp );
 	if( FAILED( result ) )
 	{
 		return result;

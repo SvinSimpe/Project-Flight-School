@@ -23,7 +23,7 @@ HRESULT UpgradeShipWindow::Initialize()
 {
 	HRESULT result;
 
-	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/shipUpgradeMenu.dds", mUpgradeWindow );
+	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/shipUpgradeMenu.dds", mUpgradeWindow );
 
 	return result;
 }

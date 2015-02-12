@@ -264,6 +264,12 @@
     <ClCompile Include="HealthBars.cpp">
       <Filter>GUI\Source</Filter>
     </ClCompile>
+    <ClCompile Include="ClientShip.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerShip.cpp">
+      <Filter>Network\Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="UpgradeShipWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -457,6 +463,12 @@
     </ClInclude>
     <ClInclude Include="HealthBars.h">
       <Filter>GUI\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientShip.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerShip.h">
+      <Filter>Network\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UpgradeShipWindow.h">
       <Filter>Header Files</Filter>

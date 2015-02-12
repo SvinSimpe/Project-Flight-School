@@ -43,6 +43,9 @@
     <ClCompile Include="Static3dAssetIndexed.cpp">
       <Filter>AssetClasses\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AABBGenerator.cpp">
+      <Filter>AssetClasses\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssetBase.h">
@@ -101,6 +104,9 @@
     </ClInclude>
     <ClInclude Include="DDSTextureLoader.h">
       <Filter>TextureLoader\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AABBGenerator.h">
+      <Filter>AssetClasses\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

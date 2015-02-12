@@ -568,6 +568,34 @@ void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX
 
 void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 {
+	//Maximus debuggus boxus
+	
+	for( UINT i = 0; i < sizeOfList; i++ )
+	{
+		Static3dAsset* derpface = (Static3dAsset*)mAssetManager->mAssetContainer[info[i].mAssetId];
+		//XMMATRIX calcMat	= XMMatrixTranspose( XMLoadFloat4x4( & ) );
+		//XMVECTOR minVec		= XMLoadFloat3( &derpface->mAssetAABB.min );
+		//XMVECTOR maxVec		= XMLoadFloat3( &derpface->mAssetAABB.max );
+
+		//XMFLOAT3 min;
+		//XMFLOAT3 max;
+		//XMStoreFloat3( &min, XMVector3TransformCoord( minVec, calcMat ) );
+		//XMStoreFloat3( &max, XMVector3TransformCoord( maxVec, calcMat ) );
+
+		XMVECTOR rotation;
+		XMVECTOR translate;
+		XMVECTOR lol;
+		XMMatrixDecompose( &lol, &rotation, &translate, XMMatrixTranspose( XMLoadFloat4x4( &info[i].mWorld ) ) );
+		XMFLOAT4 rotationLoad;
+		XMFLOAT4 translateLoad;
+		XMStoreFloat4( &rotationLoad, rotation );
+		XMStoreFloat4( &translateLoad, translate );
+		Graphics::RenderDebugBox( derpface->mAssetAABB.min, derpface->mAssetAABB.max, XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f ), translateLoad );
+	}
+
+	///////////////////////////////
+
+
 	//////////////////////////////////////////////////////////////////
 	//						RENDER CALL
 	//////////////////////////////////////////////////////////////////
@@ -1068,7 +1096,7 @@ void Graphics::RenderNodeGrid( NodeGridInfo* info, UINT sizeOfList )
 
 void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 {
-	mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_DISABLED], 1 );
+	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_DISABLED], 1 );
 
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
 
@@ -1105,7 +1133,50 @@ void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 
 	//mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexCount, 0 );//, 0, 0 );
 	mDeviceContext->DrawIndexed( 24, 0, 0 );
-	mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
+	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
+}
+
+void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, DirectX::XMFLOAT4 rotation, DirectX::XMFLOAT4 translate )
+{
+	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_DISABLED], 1 );
+
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
+
+	UINT32 vertexSize	= sizeof(StaticVertex);
+	UINT32 offset		= 0;
+
+	DirectX::XMFLOAT3 boxSize = DirectX::XMFLOAT3( max.x - min.x, max.y - min.y, max.z - min.z );
+	DirectX::XMFLOAT3 center  = DirectX::XMFLOAT3( ( min.x + max.x ) / 2, ( min.y + max.y ) / 2, ( min.z + max.z ) / 2 );
+
+	ID3D11Buffer* buffersToSet[] = { ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexBuffer };
+	
+	mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_DEBUG_BOX], &vertexSize, &offset );
+	mDeviceContext->IASetIndexBuffer( mBuffers[BUFFERS_DEBUG_BOX_INDICES], DXGI_FORMAT_R32_UINT, 0 );
+
+	//Map CbufferPerObject
+	CbufferPerObject data;
+	DirectX::XMMATRIX rotationMat	= DirectX::XMMatrixTranspose( DirectX::XMMatrixRotationQuaternion( XMLoadFloat4( &rotation ) ) );
+	DirectX::XMMATRIX scaling		= DirectX::XMMatrixScaling( boxSize.x, boxSize.y, boxSize.z );
+	DirectX::XMMATRIX translation	= DirectX::XMMatrixTranslation( center.x + translate.x, center.y + translate.y, center.z + translate.z );
+
+	data.worldMatrix = DirectX::XMMatrixTranspose( rotationMat * scaling * translation );
+	//data.worldMatrix = DirectX::XMMatrixIdentity();
+	
+	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT], &data, sizeof( CbufferPerObject ) );
+
+	mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] );
+	
+	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_DEBUG_BOX]->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetPixelShader(), nullptr, 0 );
+
+	//mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexCount, 0 );//, 0, 0 );
+	mDeviceContext->DrawIndexed( 24, 0, 0 );
+	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
 }
 
 DirectX::XMFLOAT4X4 Graphics::GetRootMatrix( AnimationTrack animTrack )

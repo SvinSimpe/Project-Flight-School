@@ -183,6 +183,7 @@ class LIBRARY_EXPORT Graphics
 		void RenderParticleSystems	( ParticleInfo* info, UINT sizeOfList );
 		void RenderNodeGrid			( NodeGridInfo* info, UINT sizeOfList );
 		void RenderDebugBox			( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max );
+		void RenderDebugBox			( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, DirectX::XMFLOAT4 rotation, DirectX::XMFLOAT4 translate );
 
 		DirectX::XMFLOAT4X4	GetRootMatrix( AnimationTrack animTrack );
 		bool				GetAnimationMatrices( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo &info );

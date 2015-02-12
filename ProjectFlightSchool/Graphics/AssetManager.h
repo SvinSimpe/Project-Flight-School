@@ -9,6 +9,7 @@
 #include "AnimationAsset.h"
 #include "Vertex.h"
 #include "ResourceLoader.h"
+#include "AABBGenerator.h"
 #include <vector>
 #include <fstream>
 #include <iostream>
@@ -45,6 +46,7 @@ class AssetManager
 {
 	private:
 		AssetID mAssetIdCounter;
+		AABBGenerator AABBGen;
 		ResourceLoader* mResourceLoader;
 	protected:
 	public:

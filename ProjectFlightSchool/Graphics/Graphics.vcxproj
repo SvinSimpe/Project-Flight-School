@@ -92,6 +92,7 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AABBGenerator.h" />
     <ClInclude Include="Animated3dAsset.h" />
     <ClInclude Include="AnimationAsset.h" />
     <ClInclude Include="AssetBase.h" />
@@ -115,6 +116,7 @@
     <ClInclude Include="WICTextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AABBGenerator.cpp" />
     <ClCompile Include="Animated3dAsset.cpp" />
     <ClCompile Include="AnimationAsset.cpp" />
     <ClCompile Include="Camera.cpp" />

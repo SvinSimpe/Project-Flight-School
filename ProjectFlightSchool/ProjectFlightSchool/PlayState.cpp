@@ -507,6 +507,9 @@ HRESULT PlayState::Update( float deltaTime )
 	//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
 	///////////////////////////////////////////////////////////////////////////
 
+	//TestUpgradeWindow
+	mWindow.Update( deltaTime );
+
 	for( auto& s : mShips )
 	{
 		s->Update( deltaTime );

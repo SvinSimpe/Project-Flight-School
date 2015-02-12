@@ -1,13 +1,13 @@
 #ifndef INPUTSQUARE_H
 #define INPUTSQUARE_H
 
-#include "Button.h"
+#include "MovingButton.h"
 #include "Font.h"
 #include "Image.h"
 
 #define KEYCOOLDOWN 0.12f;
 
-class InputSquare : public Button
+class InputSquare : public MovingButton
 {
 	private:
 		Image*		mTitle;

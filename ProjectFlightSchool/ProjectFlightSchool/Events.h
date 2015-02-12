@@ -3306,4 +3306,90 @@ class Event_Server_Change_Buff_State : public IEvent
 			return mBuffMod;
 		}
 };
+
+class Event_Remote_Win : public IEvent
+{
+	private:
+		UINT mTeam;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Win()
+		{
+			mTeam		= (UINT)-1;
+		}
+		Event_Remote_Win( UINT team )
+		{
+			mTeam		= team;
+		}
+		~Event_Remote_Win() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mTeam << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mTeam;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Win( mTeam ) );
+		}
+		UINT Team() const
+		{
+			return mTeam;
+		}
+};
+
+class Event_Client_Win : public IEvent
+{
+	private:
+		UINT mTeam;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Win()
+		{
+			mTeam		= (UINT)-1;
+		}
+		Event_Client_Win( UINT team )
+		{
+			mTeam		= team;
+		}
+		~Event_Client_Win() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mTeam << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mTeam;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Win( mTeam ) );
+		}
+		UINT Team() const
+		{
+			return mTeam;
+		}
+};
 #endif

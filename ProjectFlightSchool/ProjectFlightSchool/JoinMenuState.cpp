@@ -118,21 +118,20 @@ HRESULT JoinMenuState::Initialize()
 	float w	= 200.0f;
 	float h	= 200.0f;
 
-	mButtons.push_back( new Button() );
+	mButtons.push_back( new MovingButton() );
 	mButtons.at(JOIN)->Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/Join.png", x - w * 0.5f, y - h * 0.5f, w, h );
 
 	x += (float)Input::GetInstance()->mScreenWidth * 0.1f;
 
-	mButtons.push_back( new Button() );
+	mButtons.push_back( new MovingButton() );
 	mButtons.at(BACK)->Initialize( "../Content/Assets/Textures/Menu/Back.png", x - w * 0.5f, y - h * 0.5f, w, h );
 
 	////// MIKAEL JOINBUTTON
 	x -= (float)Input::GetInstance()->mScreenWidth * 0.1f;
 	y -= (float)Input::GetInstance()->mScreenHeight * 0.2f;
 
-	mButtons.push_back( new Button() );
+	mButtons.push_back( new MovingButton() );
 	mButtons.at(MIKAEL)->Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/Join.png", x - w * 0.5f, y - h * 0.5f, w, h ); 
-
 
 	x = (float)Input::GetInstance()->mScreenWidth  * 0.2f;
 	y = (float)Input::GetInstance()->mScreenHeight * 0.9f;

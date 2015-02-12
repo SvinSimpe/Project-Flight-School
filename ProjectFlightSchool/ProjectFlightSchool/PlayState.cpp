@@ -62,6 +62,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		
 		// Request Muzzle Flash from Particle Manager
 		mParticleManager->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
+		mParticleManager->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
 	{
@@ -90,6 +91,12 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		std::shared_ptr<Event_Server_Sync_Enemy_State> data = std::static_pointer_cast<Event_Server_Sync_Enemy_State>( newEvent );
 		SetEnemyState( data->ID(), (EnemyState)data->State() );
+	}
+	else if( newEvent->GetEventType() == Event_Server_Spawn_Ship::GUID )
+	{
+		std::shared_ptr<Event_Server_Spawn_Ship> data = std::static_pointer_cast<Event_Server_Spawn_Ship>( newEvent );
+		mShips.push_back( new ClientShip() );
+		mShips.back()->Initialize( data->ID(), data->TeamID(), data->Position(), data->Direction() );
 	}
 }
 
@@ -144,20 +151,6 @@ void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFL
 	mNrOfActiveProjectiles++;
 }
 
-//void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range )
-//{
-//	//mNrOfProjectilesFired = mNrOfProjectilesFired % MAX_PROJECTILES;
-//	mProjectiles[mNrOfActiveProjectiles]->SetDirection( id, projectileID, position, direction, speed, range );
-//	//mProjectiles[mNrOfProjectilesFired % MAX_PROJECTILES]->SetIsActive( true );
-//	//mNrOfProjectilesFired++;
-//}
-
-//void PlayState::BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float knockBack, XMFLOAT3 direction )
-//{
-//	IEventPtr E1( new Event_Client_Enemy_Attack( mPlayer->GetID(), enemyID, damage, knockBack, direction, mPlayer->GetLoadOut()->meleeWeapon->stun ) );
-//	Client::GetInstance()->SendEvent( E1 );
-//}
-
 void PlayState::CheckPlayerCollision()
 {	
 	if( mRemotePlayers.size() > 0 )
@@ -200,7 +193,7 @@ void PlayState::CheckProjectileCollision()
 				if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() && mProjectiles[i]->GetBoundingCircle()->Intersect( mRemotePlayers[j]->GetBoundingCircle() ) )
 				{
 					BroadcastProjectileDamage( mRemotePlayers[j]->GetID(), mProjectiles[i]->GetID() );
-					return;
+					break;
 				}
 			}
 
@@ -214,7 +207,19 @@ void PlayState::CheckProjectileCollision()
 						// hit
 						BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mPlayer->GetLoadOut()->rangedWeapon->damage );
 						mProjectiles[i]->Reset();
-						return;
+						break;
+					}
+				}
+			}
+
+			// Ship damage
+			for( size_t j = 0; j < mShips.size(); j++ )
+			{
+				if( mShips.at(j)->Intersect( mProjectiles[i]->GetBoundingCircle() ) )
+				{
+					if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() && mPlayer->GetTeam() != mShips.at(j)->GetTeamID() )
+					{
+						break;
 					}
 				}
 			}
@@ -389,9 +394,13 @@ HRESULT PlayState::Update( float deltaTime )
 
 	//Fps update
 	mFPS = mFPS * 0.1f + 0.9f / deltaTime;
+	CheckProjectileCollision();
 
-	Client::GetInstance()->FillEventList( mPlayer->GetEvents() );
-	mPlayer->ClearEventList();
+	while( !mPlayer->gEventList.empty() )
+	{
+		Client::GetInstance()->SendEvent( mPlayer->gEventList.back() );
+		mPlayer->gEventList.pop_back();
+	}
 
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{
@@ -422,6 +431,7 @@ HRESULT PlayState::Update( float deltaTime )
 		if ( mRemotePlayers.at(i) )
 		{
 			mRemotePlayers.at(i)->Update( deltaTime );
+
 			std::string remotePlayerName = "";
 			if( mRemotePlayers[i]->IsAlive() )
 			{
@@ -453,6 +463,7 @@ HRESULT PlayState::Update( float deltaTime )
 
 	UpdateProjectiles( deltaTime );
 
+
 	//Test radar due to no ship :(
 	mRadarObjects[nrOfRadarObj].mRadarObjectPos = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );//mShip.GetPosition();
 	mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
@@ -466,6 +477,7 @@ HRESULT PlayState::Update( float deltaTime )
 			if( mEnemies[i]->IsSynced() )
 			{
 				mEnemies[i]->Update( deltaTime );
+
 				if( mEnemies[i]->IsAlive() )
 				{
 					mRadarObjects[nrOfRadarObj].mType = RADAR_TYPE::HOSTILE;
@@ -474,8 +486,10 @@ HRESULT PlayState::Update( float deltaTime )
 			}
 		}
 	}
-	mParticleManager->Update( deltaTime );
 
+		///Test fountain particle system
+	mParticleManager->RequestParticleSystem( 9999, Test_Fountain, XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
+	mParticleManager->Update( deltaTime );
 	
 	guiUpdate.mRadarObjects	= mRadarObjects;
 	guiUpdate.mNrOfObjects	= nrOfRadarObj;
@@ -487,10 +501,19 @@ HRESULT PlayState::Update( float deltaTime )
 	
 	mGui->Update( guiUpdate );
 
+
 	// Test Anim
 	///////////////////////////////////////////////////////////////////////////
 	//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
 	///////////////////////////////////////////////////////////////////////////
+
+	//TestUpgradeWindow
+	mWindow.Update( deltaTime );
+
+	for( auto& s : mShips )
+	{
+		s->Update( deltaTime );
+	}
 
 	return S_OK;
 }
@@ -526,9 +549,7 @@ HRESULT PlayState::Render()
 		RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
 	}
 
-	mParticleManager->Render( 0.0f );
-
-	
+	mParticleManager->Render( 0.0f );	
 	mGui->Render();
 
 	//TestUpgradeWindow
@@ -537,6 +558,11 @@ HRESULT PlayState::Render()
 	//RENDER DEVTEXT
 	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
 	mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
+
+	for( auto& s : mShips )
+	{
+		s->Render();
+	}
 
 	RenderManager::GetInstance()->Render();
 
@@ -621,9 +647,11 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Connect_Server_Success::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Spawn::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Update_Enemy::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Set_Enemy_State::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Spawn_Ship::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Enemy_State::GUID ); 
 
-	mFont.Initialize( "../Content/Assets/Fonts/final_font/" );
+	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 
 	// Enemies
 	mEnemyAnimationManager = new EnemyAnimationManager();
@@ -697,6 +725,12 @@ void PlayState::Release()
 	mGui->Release();
 	SAFE_DELETE( mGui );
 
+	for( auto& s : mShips )
+	{
+		if( s )
+			s->Release();
+		SAFE_DELETE( s );
+	}
 }
 
 PlayState::PlayState()
@@ -714,6 +748,7 @@ PlayState::PlayState()
 	mServerInitialized		= false;
 	mParticleManager		= nullptr;
 	mGui					= nullptr;
+	mShips					= std::vector<ClientShip*>( 0 );
 }
 
 PlayState::~PlayState()

@@ -12,181 +12,6 @@ Client::Client() : Network()
 
 Client::~Client()
 {
-//<<<<<<< HEAD
-//	if ( newEvent->GetEventType() == Event_Player_Update::GUID )
-//	{
-//		std::shared_ptr<Event_Player_Update> data = std::static_pointer_cast<Event_Player_Update>( newEvent );
-//		if ( mServerSocket != INVALID_SOCKET )
-//		{
-//			EvPlayerUpdate msg;
-//			msg.id						= mID;
-//			msg.lowerBodyPosition		= data->LowerBodyPos();
-//			msg.velocity				= data->Velocity();
-//			msg.upperBodyDirection		= data->UpperBodyDirection();
-//			msg.isAlive					= data->IsAlive();
-//			msg.playerName				= data->Name();
-//			
-//			if ( mServerSocket != INVALID_SOCKET )
-//			{
-//				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_UPDATE, msg );
-//			}
-//		}
-//	}
-//	else if ( newEvent->GetEventType() == Event_Player_Died::GUID )
-//	{
-//		std::shared_ptr<Event_Player_Died> data = std::static_pointer_cast<Event_Player_Died>( newEvent );
-//		if ( mServerSocket != INVALID_SOCKET )
-//		{
-//			EvKilled msg;
-//			msg.ID			= data->ID();
-//			msg.killerID	= data->KillerID();
-//
-//			if ( mServerSocket != INVALID_SOCKET )
-//			{
-//				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_DIED, msg );
-//			}
-//		}
-//	}
-//	else if ( newEvent->GetEventType() == Event_Player_Damaged::GUID )
-//	{
-//		std::shared_ptr<Event_Player_Damaged> data = std::static_pointer_cast<Event_Player_Damaged>( newEvent );
-//		if ( mServerSocket != INVALID_SOCKET )
-//		{
-//			EvPlayerID msg;
-//			msg.ID = data->ID();
-//			msg.projectileID = data->ProjectileID();
-//
-//			if ( mServerSocket != INVALID_SOCKET )
-//			{
-//				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_DAMAGED, msg );
-//			}
-//		}
-//	}
-//	else if ( newEvent->GetEventType() == Event_Player_Spawned::GUID )
-//	{
-//		std::shared_ptr<Event_Player_Spawned> data = std::static_pointer_cast<Event_Player_Spawned>( newEvent );
-//		if ( mServerSocket != INVALID_SOCKET )
-//		{
-//			EvPlayerID msg;
-//			msg.ID = data->ID();
-//
-//			if ( mServerSocket != INVALID_SOCKET )
-//			{
-//				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_SPAWNED, msg );
-//			}
-//		}
-//	}
-//	else if ( newEvent->GetEventType() == Event_Projectile_Fired::GUID )
-//	{
-//		std::shared_ptr<Event_Projectile_Fired> data = std::static_pointer_cast<Event_Projectile_Fired>( newEvent );
-//		if ( mServerSocket != INVALID_SOCKET )
-//		{
-//			EvProjectileFired msg;
-//			msg.ID			= mID;
-//			msg.position	= data->BodyPos();
-//			msg.direction	= data->Direction();
-//			msg.speed		= data->Speed();
-//			msg.range		= data->Range();
-//
-//			if ( mServerSocket != INVALID_SOCKET )
-//			{
-//				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PROJECTILE_FIRED, msg );
-//			}
-//		}
-//	}
-//	else if ( newEvent->GetEventType() == Event_Player_Update_HP::GUID )
-//	{
-//		std::shared_ptr<Event_Player_Update_HP> data = std::static_pointer_cast<Event_Player_Update_HP>( newEvent );
-//		if ( mServerSocket != INVALID_SOCKET )
-//		{
-//			EvPlayerID msg;
-//			msg.ID	= mID;
-//			msg.HP	= (unsigned int)data->HP();
-//
-//			if ( mServerSocket != INVALID_SOCKET )
-//			{
-//				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_UPDATE_HP, msg );
-//			}
-//		}
-//	}
-//	else if ( newEvent->GetEventType() == Event_Player_Melee_Hit::GUID )
-//	{
-//		std::shared_ptr<Event_Player_Melee_Hit> data = std::static_pointer_cast<Event_Player_Melee_Hit>( newEvent );
-//		if ( mServerSocket != INVALID_SOCKET )
-//		{
-//			EvMeleeHit msg;
-//			msg.ID			= data->ID();
-//			msg.damage		= data->Damage();
-//			msg.knockBack	= data->KnockBack();
-//			msg.direction	= data->Direction();
-//			
-//
-//			if ( mServerSocket != INVALID_SOCKET )
-//			{
-//				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_MELEE_HIT, msg );
-//			}
-//		}
-//	}
-//	else if ( newEvent->GetEventType() == Event_Player_Attack::GUID )
-//	{
-//		std::shared_ptr<Event_Player_Attack> data = std::static_pointer_cast<Event_Player_Attack>( newEvent );
-//		if ( mServerSocket != INVALID_SOCKET )
-//		{
-//			EvPlayerAttack msg;
-//			msg.ID			= mID;
-//			msg.armID		= data->ArmID();
-//			msg.animation	= data->Animation();		
-//
-//			if ( mServerSocket != INVALID_SOCKET )
-//			{
-//				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_PLAYER_ATTACK, msg );
-//			}
-//		}
-//	}
-//	else if ( newEvent->GetEventType() == Event_Projectile_Damage_Enemy::GUID )
-//	{
-//		std::shared_ptr<Event_Projectile_Damage_Enemy> data = std::static_pointer_cast<Event_Projectile_Damage_Enemy>( newEvent );
-//		if ( mServerSocket != INVALID_SOCKET )
-//		{
-//			EvEnemyProjectileDamage msg;
-//			msg.shooterID		= data->Shooter();	
-//			msg.projectileID	= data->Projectile();
-//			msg.enemyID			= data->Enemy();
-//			msg.damage			= data->Damage();
-//
-//			if ( mServerSocket != INVALID_SOCKET )
-//			{
-//				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_ENEMY_PROJECTILE_DAMGAE, msg );
-//			}
-//		}
-//	}
-//	else if ( newEvent->GetEventType() == Event_Enemy_Melee_Hit::GUID )
-//	{
-//		std::shared_ptr<Event_Enemy_Melee_Hit> data = std::static_pointer_cast<Event_Enemy_Melee_Hit>( newEvent );
-//		if ( mServerSocket != INVALID_SOCKET )
-//		{
-//			EvEnemyMeleeHit msg;
-//			msg.ID			= data->Enemy();
-//			msg.damage		= data->Damage();
-//			msg.knockBack	= data->KnockBack();
-//			msg.direction	= data->Direction();
-//			msg.stun		= data->Stun();
-//			
-//
-//			if ( mServerSocket != INVALID_SOCKET )
-//			{
-//				mConn->SendPkg( mServerSocket, 0, Net_Event::EV_ENEMY_MELEE_HIT, msg );
-//			}
-//		}
-//	}
-//	else if ( newEvent->GetEventType() == Event_Player_Down::GUID )
-//	{
-//		std::shared_ptr<Event_Player_Down> data = std::static_pointer_cast<Event_Player_Down>( newEvent );
-//		if ( mServerSocket != INVALID_SOCKET )
-//		{
-//			EvPlayerID msg;
-//			msg.ID = data->Player();
-//=======
 }
 
 void Client::StartUp( IEventPtr eventPtr )
@@ -224,7 +49,7 @@ void Client::StartUp( IEventPtr eventPtr )
 
 void Client::SendEvent( IEventPtr eventPtr )
 {
-	mNEF->ForwardEvent( eventPtr );
+	mEventList.push_front( eventPtr );
 }
 
 bool Client::Connect( std::string ip, UINT port )
@@ -247,11 +72,6 @@ Client* Client::GetInstance()
 	return mInstance;
 }
 
-void Client::FillEventList( std::list<IEventPtr> eventList )
-{
-	mEventList = eventList;
-}
-
 void Client::Shutdown( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Shutdown_Client::GUID && mActive)
@@ -268,23 +88,22 @@ void Client::Shutdown( IEventPtr eventPtr )
 	}
 }
 
+void Client::DoSelect( int pauseMicroSecs, bool handleInput )
+{
+	mSocketManager->DoSelect( pauseMicroSecs, handleInput );
+}
+
 void Client::Update( float deltaTime )
 {
 	if( mActive )
 	{
 		while( !mEventList.empty() )
 		{
-			SendEvent( mEventList.back() );
+			mNEF->ForwardEvent( mEventList.back() );
 			mEventList.pop_back();
 		}
-	}
-}
-
-void Client::DoSelect( int pauseMicroSecs, bool handleInput )
-{
-	if( mActive )
-	{
-		mSocketManager->DoSelect( pauseMicroSecs, handleInput );
+		mEventList.clear();
+		DoSelect( 0 );
 	}
 }
 
@@ -352,6 +171,8 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Connect_Client_Success );
 	EF::REGISTER_EVENT( Event_Connect_Server_Fail );
 	EF::REGISTER_EVENT( Event_Connect_Client_Fail );
+	EF::REGISTER_EVENT( Event_Server_Spawn_Ship );
+	EF::REGISTER_EVENT( Event_Server_Change_Buff_State );
 
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	EventManager::GetInstance()->AddListener( &Client::Shutdown, this, Event_Shutdown_Client::GUID );

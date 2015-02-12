@@ -72,6 +72,9 @@ enum Effects
 
 	//Particle Effects
 	EFFECTS_MUZZLEFLASH,
+	EFFECTS_SMOKE_MINIGUN,
+	EFFECTS_TEST_FOUNTAIN,
+
 
 	EFFECTS_DEBUG_BOX,
 	//New effects added above this comment
@@ -102,7 +105,7 @@ enum Cameras
 #define MAX_ANIM_INSTANCE_BATCH		32
 #define MAX_STATIC3D_INSTANCE_BATCH 512
 #define MAX_BILLBOARD_BATCH			1024
-
+#define MAX_PARTICLE_BATCH			2048
 #define MAX_SINGLE_STATIC_VERTICES	20000
 
 #define SHADOW_MAP_WIDTH	1024
@@ -148,7 +151,7 @@ class LIBRARY_EXPORT Graphics
 		AnimatedInstance			mAnimInstanced[MAX_ANIM_INSTANCE_BATCH];
 		CbufferPerObjectAnimated	mAnimCbufferInstanced[MAX_ANIM_INSTANCE_BATCH];
 		BillboardInstanced			mBillboardInstanced[MAX_BILLBOARD_BATCH];
-		ParticleVertex16			mParticleInstanced[MAX_BILLBOARD_BATCH];
+		ParticleVertex16			mParticleInstanced[MAX_PARTICLE_BATCH];
 
 	protected:
 	public:

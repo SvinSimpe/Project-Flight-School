@@ -91,11 +91,14 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ClientShip.cpp" />
     <ClCompile Include="EnemyAnimationManager.cpp" />
     <ClCompile Include="Gui.cpp" />
     <ClCompile Include="HealthBars.cpp" />
+    <ClCompile Include="MovingButton.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="PacketImpl.cpp" />
+    <ClCompile Include="ServerShip.cpp" />
     <ClCompile Include="SoundBufferHandler.cpp" />
     <ClCompile Include="DS3DBuffer.cpp" />
     <ClCompile Include="DSBuffer.cpp" />
@@ -148,11 +151,14 @@
     <ClInclude Include="BaseMenuState.h" />
     <ClInclude Include="BaseState.h" />
     <ClInclude Include="BoundingGeometry.h" />
+    <ClInclude Include="ClientShip.h" />
     <ClInclude Include="Gui.h" />
     <ClInclude Include="HealthBars.h" />
     <ClInclude Include="IPacket.h" />
+    <ClInclude Include="MovingButton.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="PacketImpl.h" />
+    <ClInclude Include="ServerShip.h" />
     <ClInclude Include="SoundBufferHandler.h" />
     <ClInclude Include="DS3DBuffer.h" />
     <ClInclude Include="DSBuffer.h" />

@@ -423,6 +423,10 @@ HRESULT Graphics::InitializeEffects()
 	if( FAILED( hr = mEffects[EFFECTS_BILLBOARD]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 
+	//=======================================
+	//			PARTICLE EFFECTS			|
+	//=======================================
+
 	//Muzzle Flash effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/MuzzleFlashEffect.hlsl";
 	effectInfo.fileName					= "MuzzleFlashEffect";
@@ -430,6 +434,28 @@ HRESULT Graphics::InitializeEffects()
 	effectInfo.isGeometryShaderIncluded = true;
 
 	if( FAILED( hr = mEffects[EFFECTS_MUZZLEFLASH]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+
+	//Minigun Smoke effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/Smoke_MiniGunEffect.hlsl";
+	effectInfo.fileName					= "Smoke_MiniGunEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_SMOKE_MINIGUN]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+
+	//Test Fountain effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/Test_FountainEffect.hlsl";
+	effectInfo.fileName					= "Test_FountainEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_TEST_FOUNTAIN]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 	//--------------------------
 	return hr;
@@ -941,14 +967,6 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 
 	UINT32 vertexSize[2]			= { sizeof( Vertex12 ), sizeof( ParticleVertex16 ) };
 	UINT32 offset[2]				= { 0, 0 };
-	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_MUZZLEFLASH]->GetInputLayout() );
-
-	mDeviceContext->VSSetShader( mEffects[EFFECTS_MUZZLEFLASH]->GetVertexShader(), nullptr, 0 );
-	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->GSSetShader( mEffects[EFFECTS_MUZZLEFLASH]->GetGeometryShader(), nullptr, 0 );
-	mDeviceContext->PSSetShader( mEffects[EFFECTS_MUZZLEFLASH]->GetPixelShader(), nullptr, 0 );
-
 	mDeviceContext->GSSetConstantBuffers( 0, 1, &mBuffers[BUFFERS_CBUFFER_PER_FRAME] );
 
 	UINT objectToRender = 0;
@@ -967,7 +985,7 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 			if( i == offsetToParticleType )
 			{
 				currAssetID				= info[i].mAssetId;
-				offsetToParticleType	= info[i].mOffsetToNextParticleType;
+				offsetToParticleType	= info[i].mOffsetToNextParticleType;				
 			}
 
 
@@ -982,8 +1000,16 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 
 				objectToRender++;
 				strider++;
-				if( objectToRender == MAX_BILLBOARD_BATCH )
+				if( objectToRender == MAX_PARTICLE_BATCH || strider == offsetToParticleType )
 				{
+					//Test
+					mDeviceContext->IASetInputLayout( mEffects[info[i].mParticleType+6]->GetInputLayout() );
+
+					mDeviceContext->VSSetShader( mEffects[info[i].mParticleType+6]->GetVertexShader(), nullptr, 0 );
+					mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+					mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+					mDeviceContext->GSSetShader( mEffects[info[i].mParticleType+6]->GetGeometryShader(), nullptr, 0 );
+					mDeviceContext->PSSetShader( mEffects[info[i].mParticleType+6]->GetPixelShader(), nullptr, 0 );
 					break;
 				}
 			}
@@ -1567,6 +1593,8 @@ void Graphics::DeferredPass()
 	mDeviceContext->PSSetConstantBuffers( 0, 1, &mBuffers[BUFFERS_CBUFFER_PER_FRAME] );
 
 	mDeviceContext->Draw( 4, 0 );
+
+	mDeviceContext->OMSetRenderTargets( 1, &mRenderTargetView, mDepthStencilView );
 }
 
 void Graphics::ScreenSpacePass()
@@ -1751,6 +1779,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 	mAssetManager->Initialize( mDevice, mDeviceContext );
 
 	if( FAILED( InitializeEffects() ) ) return hr;
+
 
 	//Gbuffers
 	for( int i = 0; i < NUM_GBUFFERS; i++ )

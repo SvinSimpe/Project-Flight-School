@@ -31,6 +31,27 @@ void Server::ClientJoined( IEventPtr eventPtr )
 				SendEvent( E3, id );
 			}
 		}
+
+		// Synchronize list of enemy spawners to connecting player
+		for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+		{
+			IEventPtr EvSpawn( new Event_Server_Sync_Spawn( mSpawners[i]->GetID(), mSpawners[i]->GetPosition() ) );
+			SendEvent( EvSpawn, id );
+		}
+
+		// Synchronize list of enemies to connecting player
+		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+		{
+			IEventPtr EvEnemy( new Event_Server_Create_Enemy(	mEnemies[i]->GetID(), 
+																mEnemies[i]->GetEnemyState(), 
+																mEnemies[i]->GetEnemyType(), 
+																mEnemies[i]->GetPosition(), 
+																mEnemies[i]->GetDirection() ) );
+			SendEvent( EvEnemy, id );
+		}
+
+		// Add connecting player to array of server players
+		mPlayers[mNrOfPlayers++].ID = id;
 	}
 }
 
@@ -58,8 +79,17 @@ void Server::ClientUpdate( IEventPtr eventPtr )
 		XMFLOAT3 dir = data->UpperBodyDirection();
 		std::string name = data->Name();
 
-		IEventPtr E1( new Event_Remote_Update( id, pos, vel, dir, name ) );
+		IEventPtr E1( new Event_Remote_Update( id, pos, vel, dir, name, data->IsAlive() ) );
 		BroadcastEvent( E1, id );
+
+		for ( size_t i = 0; i < mNrOfPlayers; i++ )
+		{
+			if( mPlayers[i].ID == id )
+			{
+				mPlayers[i].Position	= pos;
+				mPlayers[i].IsAlive		= data->IsAlive();
+			}
+		}
 	}
 }
 
@@ -110,8 +140,11 @@ void Server::ClientFiredProjectile( IEventPtr eventPtr )
 		UINT pid = CurrentPID();
 		XMFLOAT3 pos = data->BodyPos();
 		XMFLOAT3 dir = data->Direction();
+		float speed	 = data->Speed();
+		float range	 = data->Range();
 
-		IEventPtr E1( new Event_Remote_Fired_Projectile( id, pid, pos, dir ) );
+		IEventPtr E1( new Event_Remote_Fired_Projectile( id, 0, pos, dir, speed, range ) );
+
 		BroadcastEvent( E1 );
 	}
 }
@@ -144,50 +177,6 @@ void Server::ClientMeleeHit( IEventPtr eventPtr )
 	}
 }
 
-//void Server::StateCheck()
-//{
-//	if( mEnemies[i]->IsAlive() )
-//	{
-//		for ( size_t j = 0; j < mNrOfPlayers; j++ )
-//		{
-//			// The players agg circle
-//			mAggCircle->center = mPlayers[j].Position;
-//			mAggCircle->radius = 1.0f;
-//
-//			if( mPlayers[j].IsAlive && mEnemies[i]->GetAttentionCircle()->Intersect( mAggCircle ) && mEnemies[i]->GetEnemyState() != Stunned )
-//			{
-//				if( mEnemies[i]->GetAttackCircle()->Intersect( mAggCircle ) )
-//				{
-//					mEnemies[i]->SetState( Attack );
-//					float attack = mEnemies[i]->HandleAttack();
-//					if( attack != 0.0f )
-//					{
-//						EvEnemyAttackPlayer enemyAtk;
-//						enemyAtk.playerID	= mPlayers[j].ID;
-//						enemyAtk.damage		= attack;
-//						for ( auto& socket : mClientSockets )
-//						{
-//							if ( socket.s != INVALID_SOCKET && mEnemyListSynced )
-//							{
-//								mConn->SendPkg( socket.s, 0, Net_Event::EV_ENEMY_ATTACK_PLAYER, enemyAtk );
-//							}
-//						}
-//					}
-//				}
-//				else
-//				{
-//					mEnemies[i]->SetState( HuntPlayer );
-//					mEnemies[i]->SetHuntedPlayer( mPlayers[j].Position );
-//				}
-//			}
-//			else
-//			{
-//				mEnemies[i]->SetState( Idle );
-//			}
-//		}
-//	}
-//}
-
 void Server::ClientAttack( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Client_Attack::GUID )
@@ -209,6 +198,12 @@ void Server::ClientDown( IEventPtr eventPtr )
 		std::shared_ptr<Event_Client_Down> data = std::static_pointer_cast<Event_Client_Down>( eventPtr );
 		UINT id = data->ID();
 
+		for ( size_t i = 0; i < mNrOfPlayers; i++ )
+		{
+			if( mPlayers[i].ID == id )
+				mPlayers[i].IsAlive = false;
+		}
+
 		IEventPtr E1( new Event_Remote_Down( id ) );
 		BroadcastEvent( E1, id );
 	}
@@ -220,6 +215,13 @@ void Server::ClientUp( IEventPtr eventPtr )
 	{
 		std::shared_ptr<Event_Client_Up> data = std::static_pointer_cast<Event_Client_Up>( eventPtr );
 		UINT id = data->ID();
+
+		for ( size_t i = 0; i < mNrOfPlayers; i++ )
+		{
+			if( mPlayers[i].ID == id )
+				mPlayers[i].IsAlive = true;
+		}
+
 
 		IEventPtr E1( new Event_Remote_Up( id ) );
 		BroadcastEvent( E1, id );
@@ -240,6 +242,25 @@ void Server::ClientAttemptRevive( IEventPtr eventPtr )
 			IEventPtr E1( new Event_Remote_Attempt_Revive( id, downedID, deltaTime ) );
 			BroadcastEvent( E1, id );
 		}
+	}
+}
+
+void Server::ClientEnemyProjectileDamage( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Projectile_Damage_Enemy::GUID )
+	{
+		std::shared_ptr<Event_Client_Projectile_Damage_Enemy> data = std::static_pointer_cast<Event_Client_Projectile_Damage_Enemy>( eventPtr );
+		mEnemies[data->EnemyID()]->TakeDamage( data->Damage() );	
+	}
+}
+
+void Server::SetEnemyState( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Set_Enemy_State::GUID )
+	{
+		std::shared_ptr<Event_Set_Enemy_State> data = std::static_pointer_cast<Event_Set_Enemy_State>( eventPtr );
+		IEventPtr E1( new Event_Server_Sync_Enemy_State( data->ID(), data->State() ) );
+		BroadcastEvent( E1 );
 	}
 }
 
@@ -327,12 +348,79 @@ bool Server::Connect( UINT port )
 	return true;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//								Game Logic
+///////////////////////////////////////////////////////////////////////////////
+
 void Server::Update( float deltaTime )
 {
 	if( mActive )
 	{
+		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+		{
+			if( mEnemies[i]->IsAlive() )
+			{
+				mEnemies[i]->Update( deltaTime );
 
+				IEventPtr enemy( new Event_Server_Update_Enemy(		mEnemies[i]->GetID(), 
+																	mEnemies[i]->GetPosition(), 
+																	mEnemies[i]->GetDirection(), 
+																	mEnemies[i]->IsAlive() ) );
+				BroadcastEvent( enemy );
+			}
+			else
+			{
+				mEnemies[i]->HandleSpawn( deltaTime, GetNextSpawn() );
+			}
+		}
+
+			//if( mSafeUpdate )
+			StateCheck();
 	}
+}
+
+void Server::StateCheck()
+{
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	{
+		if( mEnemies[i]->IsAlive() )
+		{
+			for ( size_t j = 0; j < mNrOfPlayers; j++ )
+			{
+				// The players agg circle
+				mAggroCircle->center = mPlayers[j].Position;
+				mAggroCircle->radius = 1.0f;
+
+				if( mPlayers[j].IsAlive && mEnemies[i]->GetAttentionCircle()->Intersect( mAggroCircle ) && mEnemies[i]->GetEnemyState() != Stunned )
+				{
+					if( mEnemies[i]->GetAttackCircle()->Intersect( mAggroCircle ) )
+					{
+						mEnemies[i]->SetState( Attack );
+						float attack = mEnemies[i]->HandleAttack();
+						if( attack != 0.0f )
+						{
+							IEventPtr atk( new Event_Server_Enemy_Attack_Player( mEnemies[i]->GetID(), mPlayers[j].ID, attack ) );
+							BroadcastEvent( atk );
+						}
+					}
+					else
+					{
+						mEnemies[i]->SetState( HuntPlayer );
+						mEnemies[i]->SetTarget( mPlayers[j].Position );
+					}
+				}
+				else
+				{
+					mEnemies[i]->SetState( Idle );
+				}
+			}
+		}
+	}
+}
+
+XMFLOAT3 Server::GetNextSpawn()
+{
+	return mSpawners[mNrOfEnemiesSpawned++ % MAX_NR_OF_ENEMY_SPAWNERS]->GetSpawnPosition();
 }
 
 void Server::DoSelect( int pauseMicroSecs, bool handleInput )
@@ -358,23 +446,87 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientDown, this, Event_Client_Down::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientUp, this, Event_Client_Up::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientAttemptRevive, this, Event_Client_Attempt_Revive::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientEnemyProjectileDamage, this, Event_Client_Projectile_Damage_Enemy::GUID );
+	EventManager::GetInstance()->AddListener( &Server::SetEnemyState, this, Event_Set_Enemy_State::GUID );
 
 	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
 
 	mTeamDelegate	= 1;
 	mCurrentPID		= 0;
+
+	//		GAME LOGIC
+	//   Enemies & Spawners
+
+	srand( (UINT)time( NULL ) );
+	mSpawners		= new EnemySpawn*[MAX_NR_OF_ENEMY_SPAWNERS];
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+	{
+		// Map size values
+		int negX, negY, posX, posY;
+		negX = rand() % 100;
+		negY = rand() % 100;
+		posX = rand() % 100;
+		posY = rand() % 100;
+		mSpawners[i] = new EnemySpawn();
+		mSpawners[i]->Initialize( i );
+		mSpawners[i]->SetPosition( XMFLOAT3( (float)(posX - negX), 0.0f, (float)(negY - posY) ) );
+	}
+
+	mEnemies	= new Enemy*[MAX_NR_OF_ENEMIES];
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	{
+		mEnemies[i] = new Enemy();
+		mEnemies[i]->Initialize( i );
+		mEnemies[i]->Spawn( GetNextSpawn() );
+	}
+
+	mAggroCircle	= new BoundingCircle();
+
 	return true;
+}
+
+void Server::Reset()
+{
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	{
+		mEnemies[i]->Reset();
+	}
+
+	mTeamDelegate	= 1;
+	mCurrentPID		= 0;
+	mActive			= false;
+
+	if( mSocketManager )
+		mSocketManager->Release();
+
+	SAFE_DELETE( mSocketManager );
+	mClientMap.clear();
 }
 
 void Server::Release()
 {
-	if( mSocketManager )
-		mSocketManager->Release();
-	SAFE_DELETE( mSocketManager );
-	mClientMap.clear();
+	// Enemies
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+		SAFE_RELEASE_DELETE( mEnemies[i] );
+
+	delete [] mEnemies;
+
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+		SAFE_DELETE( mSpawners[i] );
+
+	delete [] mSpawners;
+
+	SAFE_DELETE( mAggroCircle );
+
 	mTeamDelegate	= 1;
 	mCurrentPID		= 0;
 	mActive			= false;
+
+	if( mSocketManager )
+		mSocketManager->Release();
+
+	SAFE_DELETE( mSocketManager );
+	mClientMap.clear();
 }
 
 Server::Server() : Network()
@@ -384,6 +536,12 @@ Server::Server() : Network()
 	mTeamDelegate	= (UINT)-1;
 	mCurrentPID		= (UINT)-1;
 	mActive			= false;
+	mEnemies		= nullptr;
+	mSpawners		= nullptr;
+	mAggroCircle	= nullptr;
+	mNrOfEnemiesSpawned		= 0;
+	mNrOfPlayers			= 0;
+	mNrOfProjectilesFired	= 0;
 }
 
 Server::~Server()

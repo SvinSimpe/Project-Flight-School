@@ -103,7 +103,7 @@ HRESULT UpgradeShipWindow::Initialize()
 {
 	HRESULT result;
 
-	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/shipUpgradeMenu.dds", mUpgradeWindow );
+	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/shipUpgradeMenu.dds", mUpgradeWindow );
 
 	mSize.x = Input::GetInstance()->mScreenWidth * 0.45f;
 	mSize.y = Input::GetInstance()->mScreenHeight * 0.26f;

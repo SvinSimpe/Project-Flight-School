@@ -55,7 +55,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		// Fire projectile
 		std::shared_ptr<Event_Remote_Fired_Projectile> data = std::static_pointer_cast<Event_Remote_Fired_Projectile>(newEvent);
-		FireProjectile( data->ID(), data->ProjectileID(), data->BodyPos(), data->Direction() );
+		FireProjectile( data->ID(), data->ProjectileID(), data->BodyPos(), data->Direction(), data->Speed(), data->Range() );
 
 		//TestSound
 		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->BodyPos());
@@ -86,9 +86,9 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Server_Sync_Spawn> data = std::static_pointer_cast<Event_Server_Sync_Spawn>( newEvent );
 		SyncSpawn( data->ID(), data->Position() );
 	}
-	else if ( newEvent->GetEventType() == Event_Remote_Set_Enemy_State::GUID )
+	else if ( newEvent->GetEventType() == Event_Server_Sync_Enemy_State::GUID )
 	{
-		std::shared_ptr<Event_Remote_Set_Enemy_State> data = std::static_pointer_cast<Event_Remote_Set_Enemy_State>( newEvent );
+		std::shared_ptr<Event_Server_Sync_Enemy_State> data = std::static_pointer_cast<Event_Server_Sync_Enemy_State>( newEvent );
 		SetEnemyState( data->ID(), (EnemyState)data->State() );
 	}
 }
@@ -126,17 +126,37 @@ void PlayState::BroadcastMeleeDamage( unsigned playerID, float damage, float kno
 	Client::GetInstance()->SendEvent( E1 );
 }
 
+void PlayState::BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float knockBack, XMFLOAT3 direction )
+{
+	IEventPtr E1( new Event_Client_Enemy_Attack( mPlayer->GetID(), enemyID, damage, knockBack, direction, mPlayer->GetLoadOut()->meleeWeapon->stun ) );
+	Client::GetInstance()->SendEvent( E1 );
+}
+
 void PlayState::BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage )
 {
 	IEventPtr E1( new Event_Client_Projectile_Damage_Enemy( shooterID, projectileID, enemyID, damage ) );
 	Client::GetInstance()->SendEvent( E1 );
 }
 
-void PlayState::BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float knockBack, XMFLOAT3 direction )
+void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range )
 {
-	IEventPtr E1( new Event_Client_Enemy_Attack( mPlayer->GetID(), enemyID, damage, knockBack, direction, mPlayer->GetLoadOut()->meleeWeapon->stun ) );
-	Client::GetInstance()->SendEvent( E1 );
+	mProjectiles[mNrOfActiveProjectiles]->SetDirection( id, projectileID, position, direction, speed, range );
+	mNrOfActiveProjectiles++;
 }
+
+//void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range )
+//{
+//	//mNrOfProjectilesFired = mNrOfProjectilesFired % MAX_PROJECTILES;
+//	mProjectiles[mNrOfActiveProjectiles]->SetDirection( id, projectileID, position, direction, speed, range );
+//	//mProjectiles[mNrOfProjectilesFired % MAX_PROJECTILES]->SetIsActive( true );
+//	//mNrOfProjectilesFired++;
+//}
+
+//void PlayState::BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float knockBack, XMFLOAT3 direction )
+//{
+//	IEventPtr E1( new Event_Client_Enemy_Attack( mPlayer->GetID(), enemyID, damage, knockBack, direction, mPlayer->GetLoadOut()->meleeWeapon->stun ) );
+//	Client::GetInstance()->SendEvent( E1 );
+//}
 
 void PlayState::CheckPlayerCollision()
 {	
@@ -144,10 +164,10 @@ void PlayState::CheckPlayerCollision()
 	{
 		if( mRemotePlayers.at(0)->GetID() != 0 )
 		{
-			for (size_t i = 0; i < mRemotePlayers.size(); i++)
+			for ( size_t i = 0; i < mRemotePlayers.size(); i++ )
 			{
 				//if( mPlayer->GetBoundingBox()->Intersect( mRemotePlayers.at(i)->GetBoundingBox() ) )		// BoundingBox
-				if (mPlayer->GetBoundingCircle()->Intersect(mRemotePlayers.at(i)->GetBoundingCircle()))		// BoundingCircle
+				if ( mPlayer->GetBoundingCircle()->Intersect(mRemotePlayers.at(i)->GetBoundingCircle() ) && mRemotePlayers.at(i)->IsAlive() )		// BoundingCircle
 				{
 					//Direction
 					XMVECTOR remoteToPlayerVec = (XMLoadFloat3(&mPlayer->GetBoundingCircle()->center) -
@@ -173,7 +193,7 @@ void PlayState::CheckProjectileCollision()
 	for ( int i	 = 0; i < mNrOfActiveProjectiles; i++ )
 	{
 		// Players
-		if( mProjectiles[i]->IsActive() && mRemotePlayers.size() > 0 )
+		if( mProjectiles[i]->IsActive() ) //&& mRemotePlayers.size() > 0 )
 		{
 			for ( size_t j = 0; j < mRemotePlayers.size(); j++ )
 			{
@@ -305,12 +325,6 @@ void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int project
 	}
 }
 
-void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction )
-{
-	mProjectiles[mNrOfActiveProjectiles]->SetDirection( id, projectileID, position, direction );
-	mNrOfActiveProjectiles++;
-}
-
 void PlayState::UpdateProjectiles( float deltaTime )
 {
 	for ( int i = 0; i < mNrOfActiveProjectiles; i++ )
@@ -371,6 +385,8 @@ void PlayState::SetEnemyState( unsigned int id, EnemyState state )
 
 HRESULT PlayState::Update( float deltaTime )
 {
+	CheckProjectileCollision();
+
 	//Fps update
 	mFPS = mFPS * 0.1f + 0.9f / deltaTime;
 
@@ -380,7 +396,6 @@ HRESULT PlayState::Update( float deltaTime )
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{
 		CheckPlayerCollision();
-		CheckProjectileCollision();
 
 		if( mPlayer->GetIsMeleeing() )
 		{
@@ -609,9 +624,9 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Connect_Server_Success::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Spawn::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Update_Enemy::GUID );
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Set_Enemy_State::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Enemy_State::GUID ); 
 
-	mFont.Initialize( "../Content/Assets/Fonts/final_font/" );
+	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 
 	// Enemies
 	mEnemyAnimationManager = new EnemyAnimationManager();

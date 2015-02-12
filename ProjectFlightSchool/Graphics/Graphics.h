@@ -119,7 +119,8 @@ class LIBRARY_EXPORT Graphics
 	private:
 		HWND						mHWnd;
 		UINT						mScreenWidth;
-		UINT						mScreenHeight;	
+		UINT						mScreenHeight;
+		bool						mFullscreen;
 
 		IDXGISwapChain*				mSwapChain;
 		ID3D11Device*				mDevice;
@@ -206,8 +207,10 @@ class LIBRARY_EXPORT Graphics
 		void ScreenSpacePass();
 		void EndScene();
 
+		void ToggleFullscreen();
+
 		static	Graphics* GetInstance();
-		HRESULT Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight );
+		HRESULT Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bool fullscreen );
 		void	Release();
 };
 #endif

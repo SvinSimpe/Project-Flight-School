@@ -88,8 +88,8 @@ struct ParticleSystem : public ParticleData
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{	
-			if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 32,  25.0f );
-			else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 128, 2.0f );
+			if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 4,  25.0f );
+			else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 16, 2.0f );
 			else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 4, 20.0f );
 	}
 

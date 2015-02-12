@@ -21,6 +21,11 @@ void StartMenuState::HandleInput()
 		IEventPtr E1( new Event_Change_State( OPTIONS_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
+	else if( mButtons.at(EXIT)->LeftMousePressed() )
+	{
+		IEventPtr E1( new Event_Exit_Game() );
+		EventManager::GetInstance()->QueueEvent( E1 );
+	}
 }
 
 
@@ -72,15 +77,15 @@ HRESULT StartMenuState::Initialize()
 
 	std::string texts[] = { "Create", "Join", "Options", "Exit" };
 
-	float x	= (float)Input::GetInstance()->mScreenWidth  * 0.20f;
-	float y	= (float)Input::GetInstance()->mScreenHeight * 0.75f;
+	float x	= (float)Input::GetInstance()->mScreenWidth  * 0.35f;
+	float y	= (float)Input::GetInstance()->mScreenHeight * 0.9f;
 	float w	= 200.0f;
 	float h	= 200.0f;
 	for(int i = 0; i < BUTTON_AMOUNT; i++)
 	{
 		mButtons.push_back( new Button() );
-		mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Start_Menu_Text/" + texts[i] + ".png", x, y, w, h );
-		x += 200;
+		mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Start_Menu_Text/" + texts[i] + ".png", x - w * 0.5f , y - h * 0.5f, w, h );
+		x += (float)Input::GetInstance()->mScreenWidth * 0.1f;
 	}
 
 	return S_OK;

@@ -135,14 +135,14 @@ void ParticleManager::Initialize()
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[MuzzleFlash]; i++ )
 	{
-		mParticleSystems[MuzzleFlash][i]->Initialize( MuzzleFlash, 16.0f, 2000 );
+		mParticleSystems[MuzzleFlash][i]->Initialize( MuzzleFlash, 4.0f, 512 );
 		mNrOfParticleSystemsPerType[MuzzleFlash]++;
 		mNrOfParticleSystems++;
 	}
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Smoke_MiniGun]; i++ )
 	{
-		mParticleSystems[Smoke_MiniGun][i]->Initialize( Smoke_MiniGun, 32.0f, 5000 );
+		mParticleSystems[Smoke_MiniGun][i]->Initialize( Smoke_MiniGun, 32.0f, 2000 );
 		mNrOfParticleSystemsPerType[Smoke_MiniGun]++;
 		mNrOfParticleSystems++;
 	}

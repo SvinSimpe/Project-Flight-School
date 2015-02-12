@@ -62,6 +62,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		
 		// Request Muzzle Flash from Particle Manager
 		mParticleManager->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
+		mParticleManager->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
 	{
@@ -430,6 +431,7 @@ HRESULT PlayState::Update( float deltaTime )
 		if ( mRemotePlayers.at(i) )
 		{
 			mRemotePlayers.at(i)->Update( deltaTime );
+
 			std::string remotePlayerName = "";
 			if( mRemotePlayers[i]->IsAlive() )
 			{
@@ -461,6 +463,7 @@ HRESULT PlayState::Update( float deltaTime )
 
 	UpdateProjectiles( deltaTime );
 
+
 	//Test radar due to no ship :(
 	mRadarObjects[nrOfRadarObj].mRadarObjectPos = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );//mShip.GetPosition();
 	mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
@@ -474,6 +477,7 @@ HRESULT PlayState::Update( float deltaTime )
 			if( mEnemies[i]->IsSynced() )
 			{
 				mEnemies[i]->Update( deltaTime );
+
 				if( mEnemies[i]->IsAlive() )
 				{
 					mRadarObjects[nrOfRadarObj].mType = RADAR_TYPE::HOSTILE;
@@ -482,8 +486,10 @@ HRESULT PlayState::Update( float deltaTime )
 			}
 		}
 	}
-	mParticleManager->Update( deltaTime );
 
+		///Test fountain particle system
+	mParticleManager->RequestParticleSystem( 9999, Test_Fountain, XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
+	mParticleManager->Update( deltaTime );
 	
 	guiUpdate.mRadarObjects	= mRadarObjects;
 	guiUpdate.mNrOfObjects	= nrOfRadarObj;
@@ -494,6 +500,7 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.mPlayerShield	= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
 	
 	mGui->Update( guiUpdate );
+
 
 	// Test Anim
 	///////////////////////////////////////////////////////////////////////////
@@ -539,9 +546,7 @@ HRESULT PlayState::Render()
 		RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
 	}
 
-	mParticleManager->Render( 0.0f );
-
-	
+	mParticleManager->Render( 0.0f );	
 	mGui->Render();
 
 	//TestUpgradeWindow

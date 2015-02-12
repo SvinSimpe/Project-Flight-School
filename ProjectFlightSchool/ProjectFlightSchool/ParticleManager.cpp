@@ -83,23 +83,32 @@ void ParticleManager::Initialize()
 	mMaxNrOfParticleSystemsPerType		= new int[NR_OF_PARTICLE_TYPES];
 	mNrOfActiveParticleSystemsPerType	= new int[NR_OF_PARTICLE_TYPES];
 	
+	// For every new ParticleType initiate values below
+
 	mNrOfParticleSystemsPerType[Smoke]			= 0;
 	mNrOfParticleSystemsPerType[Fire]			= 0;
 	mNrOfParticleSystemsPerType[Spark]			= 0;
 	mNrOfParticleSystemsPerType[Blood]			= 0;
 	mNrOfParticleSystemsPerType[MuzzleFlash]	= 0;
+	mNrOfParticleSystemsPerType[Smoke_MiniGun]	= 0;
+	mNrOfParticleSystemsPerType[Test_Fountain]	= 0; // Below this
+	
 
-	mMaxNrOfParticleSystemsPerType[Smoke]		= 10;
-	mMaxNrOfParticleSystemsPerType[Fire]		= 10;
-	mMaxNrOfParticleSystemsPerType[Spark]		= 10;
-	mMaxNrOfParticleSystemsPerType[Blood]		= 10;
-	mMaxNrOfParticleSystemsPerType[MuzzleFlash]	= 10;
+	mMaxNrOfParticleSystemsPerType[Smoke]			= 10;
+	mMaxNrOfParticleSystemsPerType[Fire]			= 10;
+	mMaxNrOfParticleSystemsPerType[Spark]			= 10;
+	mMaxNrOfParticleSystemsPerType[Blood]			= 10;
+	mMaxNrOfParticleSystemsPerType[MuzzleFlash]		= 10;
+	mMaxNrOfParticleSystemsPerType[Smoke_MiniGun]	= 10;
+	mMaxNrOfParticleSystemsPerType[Test_Fountain]	= 10; // Aswell as this
 
-	mNrOfActiveParticleSystemsPerType[Smoke]		= 0;
-	mNrOfActiveParticleSystemsPerType[Fire]			= 0;
-	mNrOfActiveParticleSystemsPerType[Spark]		= 0;
-	mNrOfActiveParticleSystemsPerType[Blood]		= 0;
-	mNrOfActiveParticleSystemsPerType[MuzzleFlash]	= 0;
+	mNrOfActiveParticleSystemsPerType[Smoke]			= 0;
+	mNrOfActiveParticleSystemsPerType[Fire]				= 0;
+	mNrOfActiveParticleSystemsPerType[Spark]			= 0;
+	mNrOfActiveParticleSystemsPerType[Blood]			= 0;
+	mNrOfActiveParticleSystemsPerType[MuzzleFlash]		= 0;
+	mNrOfActiveParticleSystemsPerType[Smoke_MiniGun]	= 0;
+	mNrOfActiveParticleSystemsPerType[Test_Fountain]	= 0; // And this
 
 	//======= Allocate memory for Particle Systems =======
 	mParticleSystems = new ParticleSystem**[NR_OF_PARTICLE_TYPES];
@@ -112,35 +121,41 @@ void ParticleManager::Initialize()
 
 	//========== Initialize Particle Systems ==========
 	//					-EXAMPLE-
-	//	1. Allocate memory for a new Particle System
-	//		mParticleSystems[Smoke][0] = new ParticleSystem();
 	//
-	//	2. Initialize it with( ParticleType, EmitRate, ParticleCount )
-	//		mParticleSystems[Smoke][0]->Initialize( Smoke, 2.0f, 100 );
+	//	Initialize with ParticleType, Emitrate and ParticleCount
+	//
+	//	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[MuzzleFlash]; i++ )
+	//	{
+	//		mParticleSystems[MuzzleFlash][i]->Initialize( MuzzleFlash, 16.0f, 2000 );
+	//		mNrOfParticleSystemsPerType[MuzzleFlash]++;
 	//		mNrOfParticleSystems++;
+	//	}
 
 
-
-	//mParticleSystems[Smoke][0]->Initialize( Smoke, 2.0f, 10000 );
-	//mNrOfParticleSystemsPerType[Smoke]++;
-	//mNrOfParticleSystems++;
-
-
-	//mParticleSystems[Fire][0]->Initialize( Fire, 2.0f, 10000 );
-	//mNrOfParticleSystemsPerType[Fire]++;
-	//mNrOfParticleSystems++;
-
-
-	//mParticleSystems[Blood][0]->Initialize( Blood, 2.0f, 10000 );
-	//mNrOfParticleSystemsPerType[Blood]++;
-	//mNrOfParticleSystems++;
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[MuzzleFlash]; i++ )
 	{
-		mParticleSystems[MuzzleFlash][i]->Initialize( MuzzleFlash, 32.0f, 1000 );
+		mParticleSystems[MuzzleFlash][i]->Initialize( MuzzleFlash, 4.0f, 512 );
 		mNrOfParticleSystemsPerType[MuzzleFlash]++;
 		mNrOfParticleSystems++;
 	}
+
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Smoke_MiniGun]; i++ )
+	{
+		mParticleSystems[Smoke_MiniGun][i]->Initialize( Smoke_MiniGun, 32.0f, 2000 );
+		mNrOfParticleSystemsPerType[Smoke_MiniGun]++;
+		mNrOfParticleSystems++;
+	}
+
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Test_Fountain]; i++ )
+	{
+		mParticleSystems[Test_Fountain][i]->Initialize( Test_Fountain, 4.0f, 128 );
+		mNrOfParticleSystemsPerType[Test_Fountain]++;
+		mNrOfParticleSystems++;
+	}
+
+	// Place initialize here!
+	//-----------------------
 }
 
 void ParticleManager::Release()

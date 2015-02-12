@@ -38,10 +38,8 @@ HRESULT Game::Update( float deltaTime )
 	RenderManager::GetInstance()->Update( deltaTime );
 
 	Client::GetInstance()->Update( deltaTime );
-	Client::GetInstance()->DoSelect( 0 );
 
 	mServer->Update( deltaTime );
-	mServer->DoSelect( 0 );
 
 	mStateMachine->Update( deltaTime );
 

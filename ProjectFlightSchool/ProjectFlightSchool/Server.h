@@ -22,6 +22,17 @@ class Server : public Network
 			bool					IsAlive = false;
 			bool					IsDown = false;
 		};
+		struct ServerEvent
+		{
+			IEventPtr EventPtr;
+			UINT ToID;
+
+			ServerEvent( IEventPtr eventPtr, UINT toID )
+			{
+				this->EventPtr = eventPtr;
+				this->ToID = toID;
+			}
+		};
 		const UINT MAX_TEAMS = 2;
 		const UINT MAX_PROJECTILE_ID = 999;
 
@@ -31,6 +42,7 @@ class Server : public Network
 		UINT						mCurrentPID;
 		bool						mActive;
 		std::vector<ServerShip*>	mShips;
+		std::list<ServerEvent>		mEventList;
 
 		// Game Logic
 		Enemy**						mEnemies;
@@ -63,6 +75,7 @@ class Server : public Network
 		void	SetEnemyState( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
+		void	DoSelect( int pauseMicroSecs, bool handleInput = true );
 
 		void	SendEvent( IEventPtr eventPtr, UINT to );
 		UINT	CurrentTeamDelegate();
@@ -80,7 +93,6 @@ class Server : public Network
 		void	BroadcastEvent( IEventPtr eventPtr, UINT exception = (UINT)-1 );
 		void	Shutdown();
 		void	Update( float deltaTime );
-		void	DoSelect( int pauseMicroSecs, bool handleInput = true );
 		bool	Initialize();
 		void	Reset();
 		void	Release();

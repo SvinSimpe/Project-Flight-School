@@ -123,13 +123,13 @@ void PlayState::SyncSpawn( unsigned int id, XMFLOAT3 position )
 void PlayState::BroadcastProjectileDamage( unsigned int playerID, unsigned int projectileID )
 {
 	IEventPtr E1( new Event_Client_Damaged( playerID, projectileID ) );
-	mPlayer->QueueEvent( E1 );
+	Client::GetInstance()->SendEvent( E1 );
 }
 
 void PlayState::BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction )
 {
 	IEventPtr E1( new Event_Client_Melee_Hit( playerID, damage, knockBack, direction ) );
-	mPlayer->QueueEvent( E1 );
+	Client::GetInstance()->SendEvent( E1 );
 }
 
 void PlayState::BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float knockBack, XMFLOAT3 direction )
@@ -141,7 +141,7 @@ void PlayState::BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float
 void PlayState::BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage )
 {
 	IEventPtr E1( new Event_Client_Projectile_Damage_Enemy( shooterID, projectileID, enemyID, damage ) );
-	mPlayer->QueueEvent( E1 );
+	Client::GetInstance()->SendEvent( E1 );
 }
 
 void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range )
@@ -395,8 +395,13 @@ HRESULT PlayState::Update( float deltaTime )
 	mFPS = mFPS * 0.1f + 0.9f / deltaTime;
 	CheckProjectileCollision();
 
-	Client::GetInstance()->FillEventList( mPlayer->GetEvents() );
-	//printf("NumEvents: %d\n", mPlayer->GetEvents().size() );
+	std::list<IEventPtr> temp = mPlayer->GetEvents();
+	while( !temp.empty() )
+	{
+		Client::GetInstance()->SendEvent( temp.back() );
+		temp.pop_back();
+	}
+	temp.clear();
 	mPlayer->ClearEventList();
 
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )

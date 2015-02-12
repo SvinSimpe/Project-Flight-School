@@ -49,7 +49,7 @@ void Client::StartUp( IEventPtr eventPtr )
 
 void Client::SendEvent( IEventPtr eventPtr )
 {
-	mNEF->ForwardEvent( eventPtr );
+	mEventList.push_front( eventPtr );
 }
 
 bool Client::Connect( std::string ip, UINT port )
@@ -72,11 +72,6 @@ Client* Client::GetInstance()
 	return mInstance;
 }
 
-void Client::FillEventList( std::list<IEventPtr> eventList )
-{
-	mEventList = eventList;
-}
-
 void Client::Shutdown( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Shutdown_Client::GUID && mActive)
@@ -93,24 +88,22 @@ void Client::Shutdown( IEventPtr eventPtr )
 	}
 }
 
+void Client::DoSelect( int pauseMicroSecs, bool handleInput )
+{
+	mSocketManager->DoSelect( pauseMicroSecs, handleInput );
+}
+
 void Client::Update( float deltaTime )
 {
 	if( mActive )
 	{
 		while( !mEventList.empty() )
 		{
-			SendEvent( mEventList.back() );
+			mNEF->ForwardEvent( mEventList.back() );
 			mEventList.pop_back();
 		}
 		mEventList.clear();
-	}
-}
-
-void Client::DoSelect( int pauseMicroSecs, bool handleInput )
-{
-	if( mActive )
-	{
-		mSocketManager->DoSelect( pauseMicroSecs, handleInput );
+		DoSelect( 0 );
 	}
 }
 

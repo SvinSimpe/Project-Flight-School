@@ -321,20 +321,25 @@ void Server::StartUp( IEventPtr eventPtr )
 	}
 }
 
+void Server::DoSelect( int pauseMicroSecs, bool handleInput )
+{
+	mSocketManager->DoSelect( pauseMicroSecs, handleInput );
+}
+
 void Server::BroadcastEvent( IEventPtr eventPtr, UINT exception )
 {
 	for( auto& to : mClientMap )
 	{
 		if( to.first != exception )
 		{
-			to.second->NEF.ForwardEvent( eventPtr );
+			mEventList.push_front( ServerEvent( eventPtr, to.first ) );
 		}
 	}
 }
 
 void Server::SendEvent( IEventPtr eventPtr, UINT to )
 {
-	mClientMap[to]->NEF.ForwardEvent( eventPtr );
+	mEventList.push_front( ServerEvent( eventPtr, to ) );
 }
 
 UINT Server::CurrentTeamDelegate()
@@ -434,6 +439,13 @@ void Server::Update( float deltaTime )
 
 		//if( mSafeUpdate )
 		StateCheck();
+
+		while( !mEventList.empty() )
+		{
+			mClientMap[mEventList.back().ToID]->NEF.ForwardEvent( mEventList.back().EventPtr );
+			mEventList.pop_back();
+		}
+		DoSelect( 0 );
 	}
 }
 
@@ -479,14 +491,6 @@ void Server::StateCheck()
 XMFLOAT3 Server::GetNextSpawn()
 {
 	return mSpawners[mNrOfEnemiesSpawned++ % MAX_NR_OF_ENEMY_SPAWNERS]->GetSpawnPosition();
-}
-
-void Server::DoSelect( int pauseMicroSecs, bool handleInput )
-{
-	if( mActive )
-	{
-		mSocketManager->DoSelect( pauseMicroSecs, handleInput );
-	}
 }
 
 bool Server::Initialize()
@@ -564,6 +568,7 @@ void Server::Reset()
 		SAFE_DELETE( c.second );
 	}
 	mClientMap.clear();
+	mEventList.clear();
 }
 
 void Server::Release()
@@ -597,6 +602,8 @@ void Server::Release()
 
 	SAFE_DELETE( mSocketManager );
 	mClientMap.clear();
+
+	mEventList.clear();
 }
 
 Server::Server() : Network()
@@ -614,6 +621,7 @@ Server::Server() : Network()
 	mNrOfEnemiesSpawned		= 0;
 	mNrOfPlayers			= 0;
 	mNrOfProjectilesFired	= 0;
+	mEventList		= std::list<ServerEvent>();
 }
 
 Server::~Server()

@@ -17,7 +17,8 @@
 #define MINIGUN_RANGE		1.0f	// Range
 #define MINIGUN_SPREAD		0.1f	// Spread
 #define MINIGUN_AOE			0.0f	// Area of effect
-#define MINIGUN_SPEED		30.0f;	// Projectile Speed
+#define MINIGUN_SPEED		30.0f	// Projectile Speed
+#define MINIGUN_OFFSETS		XMFLOAT3( 0.85f, 0.5f, 1.3f ) // Offsets forward, right, up
 
 // Shotgun
 #define SHOTGUN_AR			0.5f	// Attack Rate
@@ -25,7 +26,8 @@
 #define SHOTGUN_RANGE		1.0f	// Range
 #define SHOTGUN_SPREAD		0.5f	// Spread
 #define SHOTGUN_AOE			0.0f	// Area of effect
-#define SHOTGUN_SPEED		35.0f;	// Projectile Speed
+#define SHOTGUN_SPEED		35.0f	// Projectile Speed
+#define SHOTGUN_OFFSETS		XMFLOAT3( 0.92f, 0.5f, 1.45f ) // Offsets forward, right, up
 
 // Grenade Launcher
 #define GL_AR				1.5f	// Attack Rate
@@ -33,7 +35,8 @@
 #define GL_RANGE			1.0f	// Range
 #define GL_SPREAD			0.0f	// Spread
 #define GL_AOE				0.0f	// Area of effect
-#define GL_SPEED			10.0f;	// Projectile Speed
+#define GL_SPEED			10.0f	// Projectile Speed
+#define GL_OFFSETS			XMFLOAT3( 0.92f, 0.5f, 1.45f ) // Offsets forward, right, up
 
 // Sniper
 #define SNIPER_AR			2.5f	// Attack Rate
@@ -41,7 +44,8 @@
 #define SNIPER_RANGE		5.0f	// Range
 #define SNIPER_SPREAD		0.0f	// Spread
 #define SNIPER_AOE			0.0f	// Area of effect
-#define SNIPER_SPEED		90.0f;	// Projectile Speed
+#define SNIPER_SPEED		90.0f	// Projectile Speed
+#define SNIPER_OFFSETS		XMFLOAT3( 1.15f, 0.45f, 1.9f ) // Offsets forward, right, up
 
 //////////////////////////////////
 //		 MELEE WEAPONS

@@ -61,7 +61,6 @@ class Player: public RemotePlayer
 		void		AddImpuls( XMFLOAT3 impuls );
 		void		Lock();
 		void		UnLock();
-		void		QueueEvent( IEvent* ptr );
 
 	protected:
 	public:
@@ -81,11 +80,11 @@ class Player: public RemotePlayer
 		XMFLOAT3	GetPlayerPosition() const;
 		XMFLOAT3	GetUpperBodyDirection() const;
 		void		SetIsMeleeing( bool isMeleeing );
-		void		SetBuffed( bool buffed );
 		void		SetID( unsigned int id );
 		void		SetTeam( int team );
 		void		SetPosition( XMVECTOR position );
 
+		void		QueueEvent( IEventPtr ptr );
 		std::list<IEventPtr> GetEvents();
 		void		ClearEventList();
 };

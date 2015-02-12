@@ -102,7 +102,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		std::shared_ptr<Event_Remote_Win> data = std::static_pointer_cast<Event_Remote_Win>( newEvent );
 		MessageBox( NULL, L"You Won", L"Allô?", MB_OK );
-		IEventPtr E1( new Event_Change_State( START_MENU_STATE ) );
+		IEventPtr E1( new Event_Reset_Game() );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 }

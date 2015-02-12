@@ -174,6 +174,9 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Server_Spawn_Ship );
 	EF::REGISTER_EVENT( Event_Server_Change_Buff_State );
 
+	EF::REGISTER_EVENT( Event_Client_Update_Ship );
+	EF::REGISTER_EVENT( Event_Server_Update_Ship );
+	EF::REGISTER_EVENT( Event_Client_Change_Ship_Levels );
 	EF::REGISTER_EVENT( Event_Client_Win );
 	EF::REGISTER_EVENT( Event_Remote_Win );
 

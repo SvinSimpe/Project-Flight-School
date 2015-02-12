@@ -103,10 +103,10 @@ void UpgradeShipWindow::Render()
 
 void UpgradeShipWindow::Release()
 {
-	delete [] mTurretButtons.buttons;
-	delete [] mForceFieldButtons.buttons;
-	delete [] mBuffButtons.buttons;
-	delete [] mEngineButtons.buttons;
+	SAFE_DELETE_ARRAY( mTurretButtons.buttons );
+	SAFE_DELETE_ARRAY( mForceFieldButtons.buttons );
+	SAFE_DELETE_ARRAY( mBuffButtons.buttons );
+	SAFE_DELETE_ARRAY( mEngineButtons.buttons );
 }
 
 HRESULT UpgradeShipWindow::Initialize()

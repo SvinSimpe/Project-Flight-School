@@ -40,10 +40,9 @@ class Player: public RemotePlayer
 		float		mTimeTillRevive;
 		int			mLastKiller;
 
-		std::list<IEventPtr> mEventList;
-
 	protected:
 	public:
+		std::list<IEventPtr> gEventList;
 		
 	private:
 		void		EventListener( IEventPtr newEvent );
@@ -61,7 +60,6 @@ class Player: public RemotePlayer
 		void		AddImpuls( XMFLOAT3 impuls );
 		void		Lock();
 		void		UnLock();
-		void		QueueEvent( IEvent* ptr );
 
 	protected:
 	public:
@@ -81,13 +79,11 @@ class Player: public RemotePlayer
 		XMFLOAT3	GetPlayerPosition() const;
 		XMFLOAT3	GetUpperBodyDirection() const;
 		void		SetIsMeleeing( bool isMeleeing );
-		void		SetBuffed( bool buffed );
 		void		SetID( unsigned int id );
 		void		SetTeam( int team );
 		void		SetPosition( XMVECTOR position );
 
-		std::list<IEventPtr> GetEvents();
-		void		ClearEventList();
+		void		QueueEvent( IEventPtr ptr );
 };
 #endif
 

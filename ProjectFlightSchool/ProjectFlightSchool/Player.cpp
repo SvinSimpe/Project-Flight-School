@@ -42,6 +42,19 @@ void Player::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Create_Player_Name> data = std::static_pointer_cast<Event_Create_Player_Name>( newEvent );
 		mPlayerName = data->PlayerName();
 	}
+	else if( newEvent->GetEventType() == Event_Server_Change_Buff_State::GUID )
+	{
+		std::shared_ptr<Event_Server_Change_Buff_State> data = std::static_pointer_cast<Event_Server_Change_Buff_State>( newEvent );
+		if( data->ID() == mID )
+		{
+			mIsBuffed	= data->IsBuffed();
+			mBuffMod	= data->BuffMod();
+			if( mIsBuffed )
+				printf("%d is buffed!\n", mID);
+			else
+				printf("%d is no longer buffed!\n", mID);
+		}
+	}
 }
 
 void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
@@ -121,7 +134,8 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		
 		RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] );
 		mRightArmAnimationCompleted		= false;
-		QueueEvent( new Event_Client_Attack( mID, RIGHT_ARM_ID, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] ) );
+		IEventPtr E1( new Event_Client_Attack( mID, RIGHT_ARM_ID, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] ) );
+		QueueEvent( E1 );
 	}
 	else
 		mWeaponCoolDown -= deltaTime;
@@ -140,7 +154,8 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 
 			RenderManager::GetInstance()->AnimationStartNew(mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK]);
 			mRightArmAnimationCompleted = false;
-			QueueEvent(new Event_Client_Attack(mID, RIGHT_ARM_ID, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK]));
+			IEventPtr E1( new Event_Client_Attack(mID, RIGHT_ARM_ID, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK]) );
+			QueueEvent( E1 );
 		}
 		else
 			mWeaponCoolDown -= deltaTime;
@@ -149,7 +164,8 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		{
 			RenderManager::GetInstance()->AnimationStartNew(mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK]);
 			mLeftArmAnimationCompleted = false;
-			QueueEvent(new Event_Client_Attack(mID, LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK]));
+			IEventPtr E1( new Event_Client_Attack(mID, LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK]) );
+			QueueEvent( E1 );
 			mHasMeleeStarted = true;
 			mMeleeCoolDown = mLoadOut->meleeWeapon->attackRate;
 		}
@@ -164,7 +180,8 @@ void Player::HandleSpawn( float deltaTime )
 	{
 		UnLock();
 		Spawn();
-		QueueEvent( new Event_Client_Spawned( mID ) );
+		IEventPtr E1( new Event_Client_Spawned( mID ) );
+		QueueEvent( E1 );
 	}
 	else
 	{
@@ -217,24 +234,28 @@ void Player::GoDown( int shooter )
 	RemotePlayer::GoDown();
 	mTimeTillRevive	= mReviveTime;
 	mLastKiller		= shooter;
-	QueueEvent( new Event_Client_Down( mID ) );
+	IEventPtr E1( new Event_Client_Down( mID ) );
+	QueueEvent( E1 );
 }
 
 void Player::GoUp()
 {
 	UnLock();
 	RemotePlayer::GoUp();
-	QueueEvent( new Event_Client_Up( mID ) );
+	IEventPtr E1( new Event_Client_Up( mID ) );
+	QueueEvent( E1 );
 }
 
 void Player::ReviveRemotePlayer( int remotePlayerID, float deltaTime )
 {
-	QueueEvent( new Event_Client_Attempt_Revive( mID, remotePlayerID, deltaTime ) );
+	IEventPtr E1( new Event_Client_Attempt_Revive( mID, remotePlayerID, deltaTime ) );
+	QueueEvent( E1 );
 }
 
 void Player::BroadcastDeath( unsigned int shooter )
 {
-	QueueEvent( new Event_Client_Died( mID, shooter ) );
+	IEventPtr E1( new Event_Client_Died( mID, shooter ) );
+	QueueEvent( E1 );
 }
 
 void Player::Revive()
@@ -266,33 +287,40 @@ void Player::Fire()
 		// Fire shotgun
 
 		// middle projectile
-		QueueEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mUpperBody.direction, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		IEventPtr E1( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mUpperBody.direction, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		QueueEvent( E1 );
 
 		//// projectile 1
 		XMFLOAT3 shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 30.0f ) ) ) );
-		QueueEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		IEventPtr E2( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		QueueEvent( E2 );
 
 		// projectile 2
 		//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -30.0f ) ) ) );
-		QueueEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		IEventPtr E3( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		QueueEvent( E3 );
 
 		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 20.0f ) ) ) );
-		QueueEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+				IEventPtr E4( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		QueueEvent( E4 );
 
 		// projectile 2
 		//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -20.0f ) ) ) );
-		QueueEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		IEventPtr E5( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		QueueEvent( E5 );
 
 		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 40.0f ) ) ) );
-		QueueEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		IEventPtr E6( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		QueueEvent( E6 );
 
 		// projectile 2
 		//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -40.0f ) ) ) );
-		QueueEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		IEventPtr E7( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+		QueueEvent( E7 );
 	}
 	else
 	{
@@ -301,11 +329,13 @@ void Player::Fire()
 		{
 			float directionOffset	=  (float)( rand() % 100 ) * 0.001f - mLoadOut->rangedWeapon->spread;
 			mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffset, mUpperBody.direction.y, mUpperBody.direction.z + directionOffset );
-			QueueEvent( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mFireDirection, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range ) );
+			IEventPtr E1( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mFireDirection, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range ) );
+			QueueEvent( E1 );
 		}
 		else
 		{
-			QueueEvent(  new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mUpperBody.direction, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range ) );
+			IEventPtr E1( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mUpperBody.direction, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range ) );
+			QueueEvent( E1 );
 		}
 	}
 }
@@ -330,9 +360,9 @@ void Player::UnLock()
 	mLock = false;
 }
 
-void Player::QueueEvent( IEvent* ptr )
+void Player::QueueEvent( IEventPtr ptr )
 {
-	mEventList.push_front( IEventPtr( ptr ) );
+	gEventList.push_front( ptr );
 }
 
 /////Public
@@ -345,7 +375,8 @@ void Player::TakeDamage( float damage, unsigned int shooter )
 		damage -= moddedDmg;
 	}
 	mCurrentHp -= damage;
-	QueueEvent( new Event_Client_Update_HP( mID, mCurrentHp ) );
+	IEventPtr E1( new Event_Client_Update_HP( mID, mCurrentHp ) );
+	QueueEvent( E1 );
 	if ( !mIsDown && mIsAlive && mCurrentHp <= 0.0f )
 	{
 		GoDown( shooter );
@@ -532,13 +563,14 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	//mPointLight[4]->position = DirectX::XMFLOAT4( mLowerBody.position.x + 10.0f, mLowerBody.position.y + 0.0f, mLowerBody.position.z - 10.0f, 0.0f );
 
 	//== Event to sync player with server ==
+
 	mEventCapTimer += deltaTime;
 	if( mEventCapTimer > 0.02f )
 	{
-		QueueEvent( new Event_Client_Update( mID, mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName, mIsAlive ) );
+		IEventPtr E1( new Event_Client_Update( mID, mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName, mIsBuffed, mIsAlive ) );
+		QueueEvent( E1 );
 		mEventCapTimer = 0.0f;
 	}
-
 	return S_OK;
 }
 
@@ -547,7 +579,7 @@ HRESULT Player::Render( float deltaTime, int position )
 	if( !mIsAlive )
 	{
         std::string textToWrite = std::to_string( (int)mTimeTillSpawn );
-		mFont.WriteText( textToWrite, Input::GetInstance()->mScreenWidth/2, Input::GetInstance()->mScreenHeight/2, 7.8f );
+		mFont.WriteText( textToWrite, (float)Input::GetInstance()->mScreenWidth/2, (float)Input::GetInstance()->mScreenHeight/2, 7.8f );
 	}
 
 	RemotePlayer::Render( position );
@@ -599,6 +631,7 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Enemy_Attack_Player::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Melee_Hit::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Create_Player_Name::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Change_Buff_State::GUID );
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
 	
 	return S_OK;
@@ -647,7 +680,7 @@ Player::Player()
 	mTimeTillRevive			= 0.0f;
 	mLastKiller				= 0;
 
-	mEventList				= std::list<IEventPtr>();
+	gEventList				= std::list<IEventPtr>();
 }
 
 Player::~Player()
@@ -675,11 +708,6 @@ void Player::SetIsMeleeing( bool isMeleeing )
 	mIsMeleeing = isMeleeing;
 }
 
-void Player::SetBuffed( bool buffed )
-{
-	mIsBuffed = buffed;
-}
-
 void Player::SetID( unsigned int id )
 {
 	mID = id;
@@ -693,14 +721,4 @@ void Player::SetTeam( int team )
 void Player::SetPosition( XMVECTOR position )
 {
 	XMStoreFloat3( &mLowerBody.position, position );
-}
-
-std::list<IEventPtr> Player::GetEvents()
-{
-	return mEventList;
-}
-
-void Player::ClearEventList()
-{
-	mEventList.clear();
 }

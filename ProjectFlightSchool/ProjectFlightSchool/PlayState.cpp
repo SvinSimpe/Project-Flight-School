@@ -98,6 +98,13 @@ void PlayState::EventListener( IEventPtr newEvent )
 		mShips.push_back( new ClientShip() );
 		mShips.back()->Initialize( data->ID(), data->TeamID(), data->Position(), data->Direction() );
 	}
+	else if( newEvent->GetEventType() == Event_Remote_Win::GUID )
+	{
+		std::shared_ptr<Event_Remote_Win> data = std::static_pointer_cast<Event_Remote_Win>( newEvent );
+		MessageBox( NULL, L"You Won", L"Allô?", MB_OK );
+		IEventPtr E1( new Event_Reset_Game() );
+		EventManager::GetInstance()->QueueEvent( E1 );
+	}
 }
 
 void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction )
@@ -513,6 +520,14 @@ HRESULT PlayState::Update( float deltaTime )
 	for( auto& s : mShips )
 	{
 		s->Update( deltaTime );
+
+		//Test Win
+		if ( s->Intersect( mPlayer->GetBoundingCircle() ) )
+		{
+			MessageBox( NULL, L"Sending Win", L"Allô?", MB_OK );
+			IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
+			Client::GetInstance()->SendEvent(E1);
+		}
 	}
 
 	return S_OK;
@@ -650,6 +665,8 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Set_Enemy_State::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Spawn_Ship::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Enemy_State::GUID ); 
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Win::GUID ); 
+
 
 	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 

@@ -1,5 +1,15 @@
 #include "Gui.h"
 
+void Gui::ActivateUpgradeShipWindow()
+{
+	mWindow.Activate();
+}
+
+void Gui::DeActivateUpgradeShipWindow()
+{
+	mWindow.DeActivate();
+}
+
 HRESULT Gui::Update( GuiUpdate guiUpdate )
 {
 	HRESULT result = S_OK;
@@ -192,4 +202,9 @@ Gui::Gui()
 Gui::~Gui()
 {
 
+}
+
+bool Gui::UpgradeShipWindowIsActive()
+{
+	return mWindow.IsActive();
 }

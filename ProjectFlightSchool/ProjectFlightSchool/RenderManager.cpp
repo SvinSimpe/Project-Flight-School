@@ -17,10 +17,12 @@ void RenderManager::Clear()
 	mNrOfParticles	= 0;
 	mNrOfNodeGrid	= 0;
 	mNrOfBoxes		= 0;
+	mNrOfLines		= 0;
 }
 
 RenderManager::RenderManager()
 {
+	mParticleManager		= nullptr;
 }
 
 RenderManager::~RenderManager()
@@ -69,7 +71,14 @@ void RenderManager::AddBoxToList( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 	info.max = max;
 	mBoxArray[mNrOfBoxes++] = info;
 }
+void RenderManager::AddLineToList( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end )
+{
+	LineInfo info;
+	info.start	= start;
+	info.end	= end;
 
+	mLineArray[mNrOfLines++] = info;
+}
 bool RenderManager::AddAnim3dToList( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation )
 {
     static Anim3dInfo info;
@@ -141,11 +150,12 @@ void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, i
 	}	
 }
 
-void RenderManager::AddNodeGridToList( StaticVertex* vertices, UINT nrOfVertices, DirectX::XMFLOAT4X4 world )
+void RenderManager::AddNodeGridToList( StaticVertex* vertices, UINT nrOfVertices, AssetID blendMap, DirectX::XMFLOAT4X4 world )
 {
 	NodeGridInfo info;
 	info.mVertices		= vertices;
 	info.mNrOfVertices	= nrOfVertices;
+	info.mBlendMap		= blendMap;
 	DirectX::XMStoreFloat4x4( &info.mWorld, ( DirectX::XMMatrixTranspose( XMLoadFloat4x4( &world ) ) ) );
 
 	mNodeGridArray[mNrOfNodeGrid++] = info;
@@ -183,6 +193,10 @@ void RenderManager::AnimationStartNew( AnimationTrack &animationTrack, AssetID n
 	animationTrack.mInterpolation		= 0.2f;
 }
 
+void RenderManager::ChangeRasterizerState( RasterizerStates rasterState )
+{
+	mRasterState = rasterState;
+}
 void RenderManager::AnimationReset( AnimationTrack &animationTrack, AssetID defaultAnimation )
 {
 	animationTrack.mCurrentAnimation		= defaultAnimation;
@@ -192,10 +206,15 @@ void RenderManager::AnimationReset( AnimationTrack &animationTrack, AssetID defa
 	animationTrack.mInterpolation			= 0.0f;
 }
 
+void RenderManager::RequestParticleSystem( size_t entityID, ParticleType particleType, XMFLOAT3 position, XMFLOAT3 direction )
+{
+	mParticleManager->RequestParticleSystem( entityID, particleType, position, direction );
+}
+
 HRESULT RenderManager::Update( float deltaTime )
 {
 	Clear();
-
+	mParticleManager->Update( deltaTime );
 	return S_OK;
 }
 
@@ -205,6 +224,7 @@ HRESULT RenderManager::Render()
 	//Reset the scene to default values
 	Graphics::GetInstance()->BeginScene();
 
+	Graphics::GetInstance()->ChangeRasterizerState( mRasterState );
 	//Prepare the scene to be rendered with Gbuffers
 	Graphics::GetInstance()->GbufferPass();
 	SetLightStructuredBuffer();
@@ -223,6 +243,8 @@ HRESULT RenderManager::Render()
 	{
 		Graphics::GetInstance()->RenderDebugBox( mBoxArray[i].min, mBoxArray[i].max );
 	}
+
+	Graphics::GetInstance()->RenderLine( mLineArray, mNrOfLines );
 
 	Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray, mNrOfAnim3d );
 	////------------------------Finished filling the Gbuffers----------------------
@@ -255,6 +277,7 @@ HRESULT RenderManager::Render()
 	Graphics::GetInstance()->DeferredPass();
 
 	//Render the particles
+	mParticleManager->Render();
 	Graphics::GetInstance()->RenderParticleSystems( mParticleInfoArray, mNrOfParticles );
 
 	//Prepare the scene to render Screen space located assets
@@ -274,12 +297,16 @@ HRESULT RenderManager::Initialize()
 	Clear();
 	mLightManager = new LightManager;
 	mLightManager->Initialize();
+
+	mParticleManager = new ParticleManager();
+	mParticleManager->Initialize();
 	return S_OK;
 }
 
 void RenderManager::Release()
 {
 	SAFE_RELEASE_DELETE( mLightManager );
+	SAFE_RELEASE_DELETE( mParticleManager );
 }
 
 RenderManager* RenderManager::GetInstance()

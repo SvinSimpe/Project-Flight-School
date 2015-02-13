@@ -18,7 +18,7 @@ void ParticleManager::Update( float deltaTime )
 	}
 }
 
-void ParticleManager::Render( float deltaTime )
+void ParticleManager::Render()
 {
 	RenderManager::GetInstance()->AddParticleSystemToList( mParticleSystems, mNrOfActiveParticleSystemsPerType );
 }
@@ -173,6 +173,12 @@ void ParticleManager::Release()
 	SAFE_DELETE( mNrOfParticleSystemsPerType );
 	SAFE_DELETE( mMaxNrOfParticleSystemsPerType );
 	SAFE_DELETE( mNrOfActiveParticleSystemsPerType );
+}
+
+void ParticleManager::Reset()
+{
+	Release();
+	Initialize();
 }
 
 ParticleManager::ParticleManager()

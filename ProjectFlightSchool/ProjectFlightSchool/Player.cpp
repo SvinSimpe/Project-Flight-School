@@ -1,4 +1,6 @@
 #include "Player.h"
+#include "Map.h"
+#include "HelperFunctions.h"
 
 /////Private
 
@@ -178,8 +180,8 @@ void Player::HandleSpawn( float deltaTime )
 {
 	if( mTimeTillSpawn <= 0.0f )
 	{
-		UnLock();
 		Spawn();
+		UnLock();
 		IEventPtr E1( new Event_Client_Spawned( mID ) );
 		QueueEvent( E1 );
 	}
@@ -224,8 +226,85 @@ void Player::Move( float deltaTime )
 	normalizer				= XMVector3Normalize( XMLoadFloat3( &mLowerBody.direction ) );
 	XMStoreFloat3( &mLowerBody.direction, normalizer );
 
-	mLowerBody.position.x += mVelocity.x * deltaTime;
-	mLowerBody.position.z += mVelocity.z * deltaTime;
+}
+
+HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers )
+{
+	Update( deltaTime, remotePlayers );
+	XMFLOAT2 newDir;
+	XMFLOAT3 newPos;
+	int debug = 0;
+
+	newPos.x = mLowerBody.position.x + mVelocity.x * deltaTime;
+	newPos.z = mLowerBody.position.z + mVelocity.z * deltaTime;
+
+	newDir.x = mVelocity.x * deltaTime;
+	newDir.y = mVelocity.z * deltaTime;
+
+	if( worldMap->IsOnNavMesh( newPos ) == nullptr)
+	{
+		NavTriangle* currTri = worldMap->IsOnNavMesh( mLowerBody.position );
+
+		if( currTri )
+		{
+			DirectX::XMFLOAT2 p, p1, p2, p3, delta;
+			
+			delta = XMFLOAT2( newPos.x - mLowerBody.position.x, newPos.z - mLowerBody.position.z );
+
+			p = DirectX::XMFLOAT2( mLowerBody.position.x, mLowerBody.position.z );
+
+			p1 = XMFLOAT2( currTri->triPoints[0].x, currTri->triPoints[0].z );
+			p2 = XMFLOAT2( currTri->triPoints[1].x, currTri->triPoints[1].z );
+			p3 = XMFLOAT2( currTri->triPoints[2].x, currTri->triPoints[2].z );
+
+
+			XMVECTOR deltaV = XMLoadFloat2( &delta );
+			XMVECTOR dir;
+
+			XMFLOAT2 center = XMFLOAT2( (p1.x + p2.x + p3.x ) / 3.0f, ( p1.y + p2.y + p3.y ) / 3.0f );
+
+			if( HelperFunctions::Inside2DTriangle( p, center, p1, p2 ) )
+			{
+				dir = XMLoadFloat2( &XMFLOAT2( p1.x - p2.x, p1.y - p2.y ) );
+			}
+
+			p1 = XMFLOAT2( currTri->triPoints[1].x, currTri->triPoints[1].z );
+			p2 = XMFLOAT2( currTri->triPoints[2].x, currTri->triPoints[2].z );
+			
+			if( HelperFunctions::Inside2DTriangle( p, center, p1, p2 ) )
+			{
+				debug = 2;
+				dir = XMLoadFloat2( &XMFLOAT2( p1.x - p2.x, p1.y - p2.y ) );
+				
+			}
+
+			p1 = XMFLOAT2( currTri->triPoints[2].x, currTri->triPoints[2].z );
+			p2 = XMFLOAT2( currTri->triPoints[0].x, currTri->triPoints[0].z );
+			
+			if( HelperFunctions::Inside2DTriangle( p, center, p1, p2 ) )
+			{
+				debug = 3;
+				dir = XMLoadFloat2( &XMFLOAT2( p1.x - p2.x, p1.y - p2.y ) );
+			}
+
+
+			dir = XMVector2Normalize( dir );
+
+
+			XMVECTOR scalar = XMVector2Dot( deltaV, dir );
+
+			float s = XMVectorGetX( scalar );
+
+
+			XMStoreFloat2( &newDir, dir );
+
+			newDir.x = newDir.x * s;
+			newDir.y = newDir.y * s;
+		}
+	}
+	mLowerBody.position.x += newDir.x;
+	mLowerBody.position.z += newDir.y;
+	return S_OK;
 }
 
 void Player::GoDown( int shooter )
@@ -240,8 +319,8 @@ void Player::GoDown( int shooter )
 
 void Player::GoUp()
 {
-	UnLock();
 	RemotePlayer::GoUp();
+	UnLock();
 	IEventPtr E1( new Event_Client_Up( mID ) );
 	QueueEvent( E1 );
 }
@@ -350,15 +429,38 @@ void Player::AddImpuls( XMFLOAT3 impuls )
 	}
 }
 
-void Player::Lock()
+void Player::UpgradeBody()
 {
-	mVelocity = XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mLock = true;
+	if( mUpgrades.body < mUpgrades.maxUpgrades )
+	{
+		mUpgrades.body++;
+	}
 }
 
-void Player::UnLock()
+void Player::UpgradeLegs()
 {
-	mLock = false;
+	if( mUpgrades.legs < mUpgrades.maxUpgrades )
+	{
+		mUpgrades.legs++;
+	}
+}
+
+void Player::UpgradeMelee()
+{
+	if( mUpgrades.melee < mUpgrades.maxUpgrades )
+	{
+		mLoadOut->meleeWeapon->LevelUp();
+		mUpgrades.melee++;
+	}
+}
+
+void Player::UpgradeRange()
+{
+	if( mUpgrades.range < mUpgrades.maxUpgrades )
+	{
+		mLoadOut->rangedWeapon->LevelUp();
+		mUpgrades.range++;
+	}
 }
 
 void Player::QueueEvent( IEventPtr ptr )
@@ -375,7 +477,7 @@ void Player::TakeDamage( float damage, unsigned int shooter )
 		float moddedDmg = damage * mBuffMod;
 		damage -= moddedDmg;
 	}
-	mCurrentHp -= damage;
+	mCurrentHp -= damage/mUpgrades.body;
 	IEventPtr E1( new Event_Client_Update_HP( mID, mCurrentHp ) );
 	QueueEvent( E1 );
 	if ( !mIsDown && mIsAlive && mCurrentHp <= 0.0f )
@@ -393,6 +495,20 @@ void Player::HandleRevive(float deltaTime)
 	else
 	{
 		mTimeTillRevive -= deltaTime;
+	}
+}
+
+void Player::Lock()
+{
+	mVelocity = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mLock = true;
+}
+
+void Player::UnLock()
+{
+	if (!mIsDown && mIsAlive)
+	{
+		mLock = false;
 	}
 }
 
@@ -451,7 +567,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	mCloseToPlayer = false;
 	for( auto rp : remotePlayers )
 	{
-		if( mBoundingCircle->Intersect( rp->GetBoundingCircleAura() ) )
+		if( rp->IsAlive() && mBoundingCircle->Intersect( rp->GetBoundingCircleAura() ) )
 		{
 			mCloseToPlayer = true;
 		}
@@ -623,7 +739,7 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Create_Player_Name::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Change_Buff_State::GUID );
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
-	
+
 	return S_OK;
 }
 

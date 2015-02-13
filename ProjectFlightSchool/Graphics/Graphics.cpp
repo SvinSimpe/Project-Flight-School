@@ -1085,15 +1085,7 @@ void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 }
 void Graphics::RenderLine( LineInfo* info, UINT sizeOfList )
 {
-	StaticVertex tempBuff[2];
 
-	tempBuff[0].position[0] = info->start.x;
-	tempBuff[0].position[1] = info->start.y;
-	tempBuff[0].position[2] = info->start.z;
-
-	tempBuff[1].position[0] = info->end.x;
-	tempBuff[1].position[1] = info->end.y;
-	tempBuff[1].position[2] = info->end.z;
 
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
 	
@@ -1109,6 +1101,16 @@ void Graphics::RenderLine( LineInfo* info, UINT sizeOfList )
 
 	for( UINT i = 0; i < sizeOfList; i++ )
 	{
+		StaticVertex tempBuff[2];
+
+		tempBuff[0].position[0] = info[i].start.x;
+		tempBuff[0].position[1] = info[i].start.y;
+		tempBuff[0].position[2] = info[i].start.z;
+
+		tempBuff[1].position[0] = info[i].end.x;
+		tempBuff[1].position[1] = info[i].end.y;
+		tempBuff[1].position[2] = info[i].end.z;
+
 		CbufferPerObject cbuff;
 		cbuff.worldMatrix = DirectX::XMMatrixIdentity();
 		MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT], &cbuff, sizeof( CbufferPerObject ) );

@@ -4,10 +4,18 @@
 #include <DirectXMath.h>
 #include <list>
 
+
+
 struct Portal
 {
 	int points[2];
 	int adjTri;
+	int parent;
+
+
+	float h;
+	float g;
+
 	Portal()
 	{
 	}
@@ -19,6 +27,15 @@ struct Portal
 		adjTri = pAdjTri;
 	}
 };
+
+struct Path
+{
+	int portal;
+	int parent;
+};
+
+typedef std::list<int> PathList;
+
 struct NavTriangle
 {
 	DirectX::XMFLOAT3 triPoints[3];
@@ -40,6 +57,10 @@ class Navmesh
 		Portal* mPortals;
 		DirectX::XMFLOAT3* mMesh;		
 		UINT mNavTriangleCount;
+
+		PathList mOpenList;
+		PathList mClosedList;
+
 	protected:
 	public:
 
@@ -52,7 +73,7 @@ class Navmesh
 		HRESULT Render();
 
 		HRESULT Initialize( DirectX::XMFLOAT3* meshData, UINT vertexCount );
-		std::list<DirectX::XMFLOAT3> Path( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end );
+		std::list<DirectX::XMFLOAT3> FindPath( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end );
 
 		Navmesh();
 		~Navmesh();

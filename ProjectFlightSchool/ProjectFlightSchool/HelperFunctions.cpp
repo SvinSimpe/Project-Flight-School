@@ -16,7 +16,7 @@ float HelperFunctions::DistSquared( DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2 )
 	return powf( p2.x - p1.x, 2.0f ) + powf( p2.y - p1.y, 2.0f ) + powf( p2.z - p1.z, 2.0f );
 }
 
-DirectX::XMFLOAT3 GetCenter( DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, DirectX::XMFLOAT3 p3 )
+DirectX::XMFLOAT3 HelperFunctions::GetCenter( DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, DirectX::XMFLOAT3 p3 )
 {
-	return DirectX::XMFLOAT3( p1.x + p2.x + p3.x, p1.y + p2.y + p3.y, p1.z + p2.z + p3.z );
+	return DirectX::XMFLOAT3( ( p1.x + p2.x + p3.x ) / 3.0f, ( p1.y + p2.y + p3.y ) / 3.0f, ( p1.z + p2.z + p3.z ) / 3.0f );
 }

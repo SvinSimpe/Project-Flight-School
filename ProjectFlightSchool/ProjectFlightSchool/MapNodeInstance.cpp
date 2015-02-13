@@ -16,11 +16,13 @@ HRESULT	MapNodeInstance::Render( float deltaTime )
 	DirectX::XMFLOAT3 min = DirectX::XMFLOAT3( mPos.x - ( mNode->GetGridWidth() * 0.5f ), 0, mPos.z - ( mNode->GetGridHeight() * 0.5f ) );
 	DirectX::XMFLOAT3 max = DirectX::XMFLOAT3( min.x + mNode->GetGridWidth(), 5, min.z + mNode->GetGridHeight() );
 	RenderManager::GetInstance()->AddBoxToList( min, max );
+	//mNavMesh->FindPath( XMFLOAT3(2.0f, 0.0f, 1.0f), XMFLOAT3( 22.0f, 0.0f, 21.0f) );
+	//mNavMesh->Render();
 	return S_OK;
 }
 void MapNodeInstance::GetNavigationData()
 {
-	mNavMesh = new Navmesh();
+	//mNavMesh = new Navmesh();
 
 	UINT navVertexCount = mNode->GetNavVertexCount();
 	XMFLOAT3* navPoints	= mNode->GetNavData();
@@ -37,7 +39,7 @@ void MapNodeInstance::GetNavigationData()
 		transformedMesh[i] = tri1;
 	}
 
-	mNavMesh->Initialize( transformedMesh, navVertexCount );
+//	mNavMesh->Initialize( transformedMesh, navVertexCount );
 	//Connect triangles
 }
 DirectX::XMFLOAT3 MapNodeInstance::GetPos()const

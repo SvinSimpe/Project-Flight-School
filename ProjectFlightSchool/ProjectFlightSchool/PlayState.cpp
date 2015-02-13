@@ -631,6 +631,8 @@ void PlayState::Reset()
 		SAFE_RELEASE_DELETE( s );
 	}
 	mShips.clear();
+
+	RenderManager::GetInstance()->mParticleManager->Reset();
 }
 
 HRESULT PlayState::Initialize()

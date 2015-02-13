@@ -175,6 +175,12 @@ void ParticleManager::Release()
 	SAFE_DELETE( mNrOfActiveParticleSystemsPerType );
 }
 
+void ParticleManager::Reset()
+{
+	Release();
+	Initialize();
+}
+
 ParticleManager::ParticleManager()
 {
 	mParticleSystems					= nullptr;

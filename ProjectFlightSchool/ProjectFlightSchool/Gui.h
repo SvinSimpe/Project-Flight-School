@@ -83,13 +83,16 @@ class Gui
 	private:
 	protected:
 	public:
-
+		void	ActivateUpgradeShipWindow();
+		void	DeActivateUpgradeShipWindow();
 		HRESULT	Update( GuiUpdate guiUpdate );
 		HRESULT	Render();
 		HRESULT	Initialize();
 		void	Release();
 				Gui();
 				~Gui();
+
+		bool	UpgradeShipWindowIsActive();
 };
 
 

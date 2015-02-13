@@ -178,8 +178,8 @@ void Player::HandleSpawn( float deltaTime )
 {
 	if( mTimeTillSpawn <= 0.0f )
 	{
-		UnLock();
 		Spawn();
+		UnLock();
 		IEventPtr E1( new Event_Client_Spawned( mID ) );
 		QueueEvent( E1 );
 	}
@@ -240,8 +240,8 @@ void Player::GoDown( int shooter )
 
 void Player::GoUp()
 {
-	UnLock();
 	RemotePlayer::GoUp();
+	UnLock();
 	IEventPtr E1( new Event_Client_Up( mID ) );
 	QueueEvent( E1 );
 }
@@ -350,17 +350,6 @@ void Player::AddImpuls( XMFLOAT3 impuls )
 	}
 }
 
-void Player::Lock()
-{
-	mVelocity = XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mLock = true;
-}
-
-void Player::UnLock()
-{
-	mLock = false;
-}
-
 void Player::QueueEvent( IEventPtr ptr )
 {
 	gEventList.push_front( ptr );
@@ -393,6 +382,20 @@ void Player::HandleRevive(float deltaTime)
 	else
 	{
 		mTimeTillRevive -= deltaTime;
+	}
+}
+
+void Player::Lock()
+{
+	mVelocity = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mLock = true;
+}
+
+void Player::UnLock()
+{
+	if (!mIsDown && mIsAlive)
+	{
+		mLock = false;
 	}
 }
 

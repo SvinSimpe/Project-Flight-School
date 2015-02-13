@@ -17,6 +17,11 @@ void UpgradeShipWindow::EventListener( IEventPtr eventPtr )
 		std::shared_ptr<Event_Local_Joined> data = std::static_pointer_cast<Event_Local_Joined>( eventPtr );
 		mTeam = data->TeamID();
 	}
+	else if ( eventPtr->GetEventType() == Event_Client_Died::GUID ) // Add a remote player to the list when they connect
+	{
+		std::shared_ptr<Event_Client_Died> data = std::static_pointer_cast<Event_Client_Died>( eventPtr );
+		mIsActive = false;
+	}
 
 }
 
@@ -137,7 +142,7 @@ void UpgradeShipWindow::Release()
 
 HRESULT UpgradeShipWindow::Initialize()
 {
-	mIsActive	= true;
+	mIsActive	= false;
 	mTeam		= -1;
 
 	HRESULT result;

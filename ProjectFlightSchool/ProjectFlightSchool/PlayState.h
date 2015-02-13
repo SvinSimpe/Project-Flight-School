@@ -14,7 +14,6 @@
 #include "RemoteEnemy.h"
 #include "EnemyAnimationManager.h"
 #include "Gui.h"
-#include "ParticleManager.h"
 #include "SoundBufferHandler.h"
 
 
@@ -46,8 +45,6 @@ class PlayState : public BaseState
 		AssetID						mSpawnModel;
 		bool						mEnemyListSynced;
 		bool						mServerInitialized;
-
-		ParticleManager*			mParticleManager;
 
 		RADAR_UPDATE_INFO			mRadarObjects[MAX_RADAR_OBJECTS];
 		float						mAlliesHP[MAX_REMOTE_PLAYERS / 2];

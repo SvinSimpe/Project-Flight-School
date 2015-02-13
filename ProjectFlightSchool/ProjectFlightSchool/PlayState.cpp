@@ -61,8 +61,8 @@ void PlayState::EventListener( IEventPtr newEvent )
 		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->BodyPos());
 		
 		// Request Muzzle Flash from Particle Manager
-		mParticleManager->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
-		mParticleManager->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
 	{
@@ -503,8 +503,7 @@ HRESULT PlayState::Update( float deltaTime )
 	}
 
 		///Test fountain particle system
-	mParticleManager->RequestParticleSystem( 9999, Test_Fountain, XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
-	mParticleManager->Update( deltaTime );
+	RenderManager::GetInstance()->RequestParticleSystem( 9999, Test_Fountain, XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
 	
 	guiUpdate.mRadarObjects	= mRadarObjects;
 	guiUpdate.mNrOfObjects	= nrOfRadarObj;
@@ -571,7 +570,6 @@ HRESULT PlayState::Render()
 		RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
 	}
 
-	mParticleManager->Render( 0.0f );	
 	mGui->Render();
 
 	//RENDER DEVTEXT
@@ -692,11 +690,6 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_2.pfs", mSpawnModel );
 	mSpawners	= new XMFLOAT3[MAX_NR_OF_ENEMY_SPAWNERS];
 
-
-	//ParticleManager
-	mParticleManager = new ParticleManager();
-	mParticleManager->Initialize();
-
 	mGui = new Gui();
 	mGui->Initialize();
 
@@ -742,8 +735,6 @@ void PlayState::Release()
 
 	mFont.Release();
 
-	SAFE_RELEASE_DELETE( mParticleManager );
-
 	mGui->Release();
 	SAFE_DELETE( mGui );
 
@@ -768,7 +759,6 @@ PlayState::PlayState()
 	mEnemies				= nullptr;
 	mEnemyListSynced		= false;
 	mServerInitialized		= false;
-	mParticleManager		= nullptr;
 	mGui					= nullptr;
 	mShips					= std::vector<ClientShip*>( 0 );
 }

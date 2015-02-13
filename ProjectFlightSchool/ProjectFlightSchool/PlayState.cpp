@@ -304,21 +304,18 @@ void PlayState::HandleDeveloperCameraInput()
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_1 ) )
-<<<<<<< HEAD
-		RenderManager::GetInstance()->ChangeRasterizerState( CULL_NONE );
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_2 ) )
-		RenderManager::GetInstance()->ChangeRasterizerState( CULL_BACK );
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_3 ) )
-		RenderManager::GetInstance()->ChangeRasterizerState( WIREFRAME );
-=======
 	{
+		RenderManager::GetInstance()->ChangeRasterizerState( CULL_NONE );
 		for( auto& s : mShips )
 		{
 			IEventPtr E1( new Event_Client_Change_Ship_Levels( s->GetID(), 0, -1, 0 ) );
 			Client::GetInstance()->SendEvent( E1 );
 		}
 	}
->>>>>>> development
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_2 ) )
+		RenderManager::GetInstance()->ChangeRasterizerState( CULL_BACK );
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_3 ) )
+		RenderManager::GetInstance()->ChangeRasterizerState( WIREFRAME );
 }
 
 void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID )
@@ -475,8 +472,6 @@ HRESULT PlayState::Update( float deltaTime )
 			}
 		}
 	}
-<<<<<<< HEAD
-=======
 
 	guiUpdate.mPlayerNames	= pName;
 	guiUpdate.mNrOfAllies	= nrOfAllies;
@@ -484,8 +479,6 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.mShipHP		= 1.0f;
 
 	mPlayer->Update( deltaTime, mRemotePlayers );
-
->>>>>>> development
 	HandleDeveloperCameraInput();
 	mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers );
 
@@ -590,14 +583,10 @@ HRESULT PlayState::Render()
 	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
 	mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
 
-<<<<<<< HEAD
-	RenderManager::GetInstance()->AddLineToList( DirectX::XMFLOAT3( 0.0f, 2.0f, 0.0f ), DirectX::XMFLOAT3( 3.0f, 2.0f, 0.0f) );
-=======
 	for( auto& s : mShips )
 	{
 		s->Render();
 	}
->>>>>>> development
 
 	RenderManager::GetInstance()->Render();
 

@@ -90,7 +90,7 @@ std::list<DirectX::XMFLOAT3> Navmesh::FindPath( DirectX::XMFLOAT3 start, DirectX
 	endVec		= DirectX::XMLoadFloat2( &endPos );
 
 
-	for( int i = 0; i < mNavTriangleCount; i++ )
+	for( int i = 0; i < (int)mNavTriangleCount; i++ )
 	{
 		int k = i * 3;
 		p1 = DirectX::XMFLOAT2( mMesh[k].x, mMesh[k].z );

@@ -130,8 +130,13 @@ void ParticleManager::Initialize()
 	//		mNrOfParticleSystemsPerType[MuzzleFlash]++;
 	//		mNrOfParticleSystems++;
 	//	}
-
-
+	
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Blood]; i++ )
+	{
+		mParticleSystems[Blood][i]->Initialize( Blood, 4.0f, 128 );
+		mNrOfParticleSystemsPerType[Blood]++;
+		mNrOfParticleSystems++;
+	}
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[MuzzleFlash]; i++ )
 	{

@@ -35,10 +35,10 @@ void GS_main( point VS_In input[1], inout TriangleStream<GS_Out> outputStream )
 
 	//Get vertices for the quad
 	float3 vert[4];
-	vert[0]	= input[0].position - rightVec * 0.5f - upVec * 0.5f;
-	vert[1]	= input[0].position - rightVec * 0.5f + upVec * 0.5f;
-	vert[2]	= input[0].position	+ rightVec * 0.5f - upVec * 0.5f;
-	vert[3]	= input[0].position + rightVec * 0.5f + upVec * 0.5f;
+	vert[0]	= input[0].position - rightVec * 1.0f - upVec * 1.0f;
+	vert[1]	= input[0].position - rightVec * 1.0f + upVec * 1.0f;
+	vert[2]	= input[0].position	+ rightVec * 1.0f - upVec * 1.0f;
+	vert[3]	= input[0].position + rightVec * 1.0f + upVec * 1.0f;
 															
 	//Get texture coordinates
 	float2 texCoord[4];

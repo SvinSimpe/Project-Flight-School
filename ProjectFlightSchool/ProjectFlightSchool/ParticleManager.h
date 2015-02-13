@@ -19,7 +19,7 @@ class ParticleManager
 		
 	public:
 		void Update( float deltaTime );
-		void Render( float deltaTime );
+		void Render();
 
 		bool RequestParticleSystem( size_t entityID, ParticleType particleType, XMFLOAT3 position, XMFLOAT3 direction );
 		bool DeactivateParticleSystem( size_t entityID, ParticleType particleType );

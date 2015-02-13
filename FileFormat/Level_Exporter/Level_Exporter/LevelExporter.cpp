@@ -91,7 +91,13 @@ void LevelExporter::RunExporter()
 	//Looping through every file in the list
 	for (auto file = fileNameList.begin(); file != fileNameList.end(); file++)
 	{
+		errorMsg.push_back("\n#### " + string(file->c_str()) + " ####");
+		int nrOfErrors = errorMsg.size();
+
 		SceneManager(file->c_str());
+
+		if(nrOfErrors == errorMsg.size())
+			errorMsg.pop_back();
 	}
 
 	cout << "\n##### ERRORS #####" << endl << endl;
@@ -243,6 +249,7 @@ void LevelExporter::GetDimensions(MFnMesh &mesh, UINT* dimensions)
 	dimensions[0] = tempDimension[0];
 	dimensions[1] = tempDimension[1];
 }
+
 Matrix LevelExporter::ExtractAndConvertMatrix(MFnMesh &mesh, int fauling)
 {
 	Matrix matrix;
@@ -374,8 +381,55 @@ bool LevelExporter::ExtractGridData(MFnMesh &mesh)
 		return false;
 	}
 
+	GetNodePath(mesh);
 	ConvertGridData(mesh, points, normals);
 
+}
+
+void LevelExporter::GetNodePath(MFnMesh &mesh)
+{
+	MObjectArray nodes;
+	MIntArray nodeIndex;
+
+	mesh.getConnectedShaders(0, nodes, nodeIndex);
+	MFnDependencyNode findNode(nodes[0]);
+	MPlugArray shaderConnections;
+
+	MPlug surfaceShader = findNode.findPlug("surfaceShader");
+	surfaceShader.connectedTo(shaderConnections, TRUE, TRUE);
+
+	// Get texture, normalmap and specularmap for a mesh
+	GetTexture(shaderConnections);
+}
+
+void LevelExporter::GetTexture(MPlugArray &shaderConnections)
+{
+	MObject materialNode = shaderConnections[0].node();
+	MFnDependencyNode ColorPlug(materialNode);
+	MPlug materialPlug = ColorPlug.findPlug("color");
+	MPlugArray materialConnection;
+	materialPlug.connectedTo(materialConnection, TRUE, TRUE);
+
+	MObject textureFile;
+
+	for (unsigned int i = 0; i < materialConnection.length(); i++)
+	{
+		textureFile = materialConnection[i].node();
+
+		if (textureFile.hasFn(MFn::kFileTexture))
+		{
+			MFnDependencyNode textureNode(textureFile);
+			MPlug ftn = textureNode.findPlug("ftn");
+			MString diffuseMapName = ftn.asString(MDGContext::fsNormal);
+			string src = diffuseMapName.asChar();
+
+			unsigned found = src.find_last_of("\\/");
+			string name = src.substr(found + 1);
+			
+			sprintf_s(gridData.blendMap, sizeof(gridData.blendMap), "%s", name.c_str());
+			int a = 0;
+		}
+	}
 }
 
 bool LevelExporter::ExtractNavMesh(MFnMesh &mesh)
@@ -486,6 +540,7 @@ void LevelExporter::WriteFileToBinary(const char* fileName)
 	UINT nrOfObjects = matrices.size();
 	UINT nrOfLights  = lights.size();
 
+	fileOut.write((char*)gridData.blendMap, sizeof(gridData.blendMap));
 	fileOut.write((char*)&gridData.dimensions, sizeof(gridData.dimensions));
 	fileOut.write((char*)&vertexCount, sizeof(UINT));
 	fileOut.write((char*)gridData.vertices, sizeof(Vertex) * vertexCount);

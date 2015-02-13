@@ -13,7 +13,7 @@ class Player: public RemotePlayer
 {
 	private:
 		float			mEventCapTimer;
-		PointLight*		mPointLight[5];
+		PointLight*		mPointLight;
 
 		float		mWeaponCoolDown;
 		float		mMeleeCoolDown;
@@ -57,6 +57,7 @@ class Player: public RemotePlayer
 		void		Revive();
 		void		Die();
 		void		Fire();
+		void		FireShotgun( XMFLOAT3* spawnPoint );
 		void		AddImpuls( XMFLOAT3 impuls );
 		void		Lock();
 		void		UnLock();

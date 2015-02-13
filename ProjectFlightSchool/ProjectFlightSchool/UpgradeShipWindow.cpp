@@ -1,5 +1,15 @@
 #include "UpgradeShipWindow.h"
 
+void UpgradeShipWindow::Activate()
+{
+	mIsActive = true;
+}
+
+void UpgradeShipWindow::DeActivate()
+{
+	mIsActive = false;
+}
+
 void UpgradeShipWindow::Update( float deltaTime )
 {
 	mForceFieldButtons.Update( deltaTime );
@@ -93,14 +103,16 @@ void UpgradeShipWindow::Render()
 
 void UpgradeShipWindow::Release()
 {
-	delete [] mTurretButtons.buttons;
-	delete [] mForceFieldButtons.buttons;
-	delete [] mBuffButtons.buttons;
-	delete [] mEngineButtons.buttons;
+	SAFE_DELETE_ARRAY( mTurretButtons.buttons );
+	SAFE_DELETE_ARRAY( mForceFieldButtons.buttons );
+	SAFE_DELETE_ARRAY( mBuffButtons.buttons );
+	SAFE_DELETE_ARRAY( mEngineButtons.buttons );
 }
 
 HRESULT UpgradeShipWindow::Initialize()
 {
+	mIsActive = true;
+
 	HRESULT result;
 
 	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/shipUpgradeMenu.dds", mUpgradeWindow );
@@ -159,4 +171,9 @@ UpgradeShipWindow::UpgradeShipWindow()
 UpgradeShipWindow::~UpgradeShipWindow()
 {
 
+}
+
+bool UpgradeShipWindow::IsActive()
+{
+	return mIsActive;
 }

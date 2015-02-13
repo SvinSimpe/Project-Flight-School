@@ -98,6 +98,13 @@ void PlayState::EventListener( IEventPtr newEvent )
 		mShips.push_back( new ClientShip() );
 		mShips.back()->Initialize( data->ID(), data->TeamID(), data->Position(), data->Direction() );
 	}
+	else if( newEvent->GetEventType() == Event_Remote_Win::GUID )
+	{
+		std::shared_ptr<Event_Remote_Win> data = std::static_pointer_cast<Event_Remote_Win>( newEvent );
+		MessageBox( NULL, L"You Won", L"Allô?", MB_OK );
+		IEventPtr E1( new Event_Reset_Game() );
+		EventManager::GetInstance()->QueueEvent( E1 );
+	}
 }
 
 void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction )
@@ -295,6 +302,14 @@ void PlayState::HandleDeveloperCameraInput()
 	{
 		IEventPtr E1( new Event_Reset_Game() );
 		EventManager::GetInstance()->QueueEvent( E1 );
+	}
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_1 ) )
+	{
+		for( auto& s : mShips )
+		{
+			IEventPtr E1( new Event_Client_Change_Ship_Levels( s->GetID(), 0, -1, 0 ) );
+			Client::GetInstance()->SendEvent( E1 );
+		}
 	}
 }
 
@@ -498,6 +513,8 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.mPlayerXP		= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
 	guiUpdate.mPlayerShield	= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
 	
+	guiUpdate.deltaTime = deltaTime;
+
 	mGui->Update( guiUpdate );
 
 
@@ -506,12 +523,17 @@ HRESULT PlayState::Update( float deltaTime )
 	//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
 	///////////////////////////////////////////////////////////////////////////
 
-	//TestUpgradeWindow
-	mWindow.Update( deltaTime );
-
 	for( auto& s : mShips )
 	{
 		s->Update( deltaTime );
+
+		//Test Win
+		if ( s->Intersect( mPlayer->GetBoundingCircle() ) )
+		{
+			MessageBox( NULL, L"Sending Win", L"Allô?", MB_OK );
+			IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
+			Client::GetInstance()->SendEvent(E1);
+		}
 	}
 
 	return S_OK;
@@ -550,9 +572,6 @@ HRESULT PlayState::Render()
 
 	mGui->Render();
 
-	//TestUpgradeWindow
-	mWindow.Render();
-
 	//RENDER DEVTEXT
 	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
 	mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
@@ -584,7 +603,6 @@ void PlayState::OnExit()
 
 void PlayState::Reset()
 {
-	
 	mPlayer->Reset();
 	for( size_t i = 0; i < MAX_PROJECTILES; i++ )
 		mProjectiles[i]->Reset();
@@ -601,6 +619,11 @@ void PlayState::Reset()
 	}
 	mRemotePlayers.clear();
 
+	for( auto& s : mShips )
+	{
+		SAFE_RELEASE_DELETE( s );
+	}
+	mShips.clear();
 }
 
 HRESULT PlayState::Initialize()
@@ -648,6 +671,8 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Set_Enemy_State::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Spawn_Ship::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Enemy_State::GUID ); 
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Win::GUID ); 
+
 
 	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 
@@ -671,9 +696,6 @@ HRESULT PlayState::Initialize()
 	//TestSound
 	m3DSoundAsset	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav" );
 	mSoundAsset		= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
-
-	//TestUpgradeWindow
-	mWindow.Initialize();
 
 	return S_OK;
 }

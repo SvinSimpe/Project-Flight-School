@@ -27,6 +27,9 @@ Graphics::Graphics()
 	for( int i = 0; i < DEPTHSTENCILS_AMOUNT; i++ )
 		mDepthStencils[i] = nullptr;
 
+	for( int i = 0; i < RASTERIZER_STATES_AMOUNT; i++ )
+		mRasterizerState[i] = nullptr;
+
 	for( int i = 0; i < EFFECTS_AMOUNT; i++ )
 		mEffects[i] = nullptr;
 
@@ -341,7 +344,7 @@ HRESULT Graphics::InitializeEffects()
 
 	if( FAILED( hr = mEffects[EFFECTS_DEBUG_BOX]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
-	
+
 	//Static instanced effect
 	effectInfo.filePath		= "../Content/Effects/Static3dInstancedEffect.hlsl";
 	effectInfo.fileName		= "Static3dInstancedEffect";
@@ -1003,13 +1006,13 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 				if( objectToRender == MAX_PARTICLE_BATCH || strider == offsetToParticleType )
 				{
 					//Test
-					mDeviceContext->IASetInputLayout( mEffects[info[i].mParticleType+6]->GetInputLayout() );
+					mDeviceContext->IASetInputLayout( mEffects[info[i].mParticleType]->GetInputLayout() );
 
-					mDeviceContext->VSSetShader( mEffects[info[i].mParticleType+6]->GetVertexShader(), nullptr, 0 );
+					mDeviceContext->VSSetShader( mEffects[info[i].mParticleType]->GetVertexShader(), nullptr, 0 );
 					mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
 					mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
-					mDeviceContext->GSSetShader( mEffects[info[i].mParticleType+6]->GetGeometryShader(), nullptr, 0 );
-					mDeviceContext->PSSetShader( mEffects[info[i].mParticleType+6]->GetPixelShader(), nullptr, 0 );
+					mDeviceContext->GSSetShader( mEffects[info[i].mParticleType]->GetGeometryShader(), nullptr, 0 );
+					mDeviceContext->PSSetShader( mEffects[info[i].mParticleType]->GetPixelShader(), nullptr, 0 );
 					break;
 				}
 			}
@@ -1106,6 +1109,49 @@ void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 	//mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexCount, 0 );//, 0, 0 );
 	mDeviceContext->DrawIndexed( 24, 0, 0 );
 	mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
+}
+void Graphics::RenderLine( LineInfo* info, UINT sizeOfList )
+{
+
+
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
+	
+	UINT32 vertexSize	= sizeof( StaticVertex );
+	UINT32 offset		= 0;
+	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_DEBUG_BOX]->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetPixelShader(), nullptr, 0 );
+
+	for( UINT i = 0; i < sizeOfList; i++ )
+	{
+		StaticVertex tempBuff[2];
+
+		tempBuff[0].position[0] = info[i].start.x;
+		tempBuff[0].position[1] = info[i].start.y;
+		tempBuff[0].position[2] = info[i].start.z;
+
+		tempBuff[1].position[0] = info[i].end.x;
+		tempBuff[1].position[1] = info[i].end.y;
+		tempBuff[1].position[2] = info[i].end.z;
+
+		CbufferPerObject cbuff;
+		cbuff.worldMatrix = DirectX::XMMatrixIdentity();
+		MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT], &cbuff, sizeof( CbufferPerObject ) );
+		mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] );
+
+		MapBuffer( mBuffers[BUFFERS_SINGLE_STATIC_VERTEX], tempBuff, sizeof(StaticVertex) * 2 );
+		mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_SINGLE_STATIC_VERTEX], &vertexSize, &offset );
+
+		mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[DIFFUSE_PLACEHOLDER] )->mSRV );
+		mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[NORMAL_PLACEHOLDER] )->mSRV );
+		mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
+		mDeviceContext->Draw( 2, 0 );
+
+	}
 }
 
 DirectX::XMFLOAT4X4 Graphics::GetRootMatrix( AnimationTrack animTrack )
@@ -1436,6 +1482,11 @@ void Graphics::GetProjectionMatrix( DirectX::XMMATRIX &proj )
 void Graphics::GetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatrix )
 {
 	projectionViewMatrix = mCamera[CAMERAS_MAIN]->GetInverseProjectionMatrix();
+}
+
+void Graphics::ChangeRasterizerState( RasterizerStates rasterState )
+{
+	mDeviceContext->RSSetState( mRasterizerState[rasterState] );
 }
 
 void Graphics::MapLightStructuredBuffer( LightStructure* lightStructure, int numPointLights )
@@ -1770,6 +1821,32 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 	blendDesc.RenderTarget[0].RenderTargetWriteMask	= D3D11_COLOR_WRITE_ENABLE_ALL;
 
 	if( FAILED( hr = mDevice->CreateBlendState( &blendDesc, &mBlendStates[BLEND_2D] ) ) )
+		return hr;
+	//////////////////////////////
+	// CREATE BLEND STATE
+	//////////////////////////////
+	D3D11_RASTERIZER_DESC rasterizerDesc;
+	ZeroMemory(&rasterizerDesc, sizeof(rasterizerDesc));
+
+	rasterizerDesc.DepthBias			= 1;
+	rasterizerDesc.SlopeScaledDepthBias	= 2.0f;
+	rasterizerDesc.DepthBiasClamp		= 2.0f;
+	rasterizerDesc.DepthClipEnable		= true;
+
+	//No cull
+	rasterizerDesc.CullMode				= D3D11_CULL_NONE;
+	rasterizerDesc.FillMode				= D3D11_FILL_SOLID;
+	if( FAILED( hr = mDevice->CreateRasterizerState( &rasterizerDesc, &mRasterizerState[CULL_NONE] ) ) )
+		return hr;
+
+	//cull back
+	rasterizerDesc.CullMode				= D3D11_CULL_BACK;
+	if( FAILED( hr = mDevice->CreateRasterizerState( &rasterizerDesc, &mRasterizerState[CULL_BACK] ) ) )
+		return hr;
+
+	//wireframe
+	rasterizerDesc.FillMode				= D3D11_FILL_WIREFRAME;
+	if( FAILED( hr = mDevice->CreateRasterizerState( &rasterizerDesc, &mRasterizerState[WIREFRAME] ) ) )
 		return hr;
 
 	if( FAILED( InitializeBuffers() ) ) return hr;

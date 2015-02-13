@@ -18,7 +18,7 @@ void ParticleManager::Update( float deltaTime )
 	}
 }
 
-void ParticleManager::Render( float deltaTime )
+void ParticleManager::Render()
 {
 	RenderManager::GetInstance()->AddParticleSystemToList( mParticleSystems, mNrOfActiveParticleSystemsPerType );
 }

@@ -245,6 +245,12 @@ void Input::RawRead( LPARAM lParam )
 				case VK_DOWN:
 					KeyChecker( KEYS::KEYS_DOWN, raw->data.keyboard.Flags );
 					break;
+				case VK_LEFT:
+					KeyChecker( KEYS::KEYS_LEFT, raw->data.keyboard.Flags );
+					break;
+				case VK_RIGHT:
+					KeyChecker( KEYS::KEYS_RIGHT, raw->data.keyboard.Flags );
+					break;
 			}
 			break;
 		case RIM_TYPEHID:

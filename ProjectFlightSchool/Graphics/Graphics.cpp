@@ -1061,9 +1061,10 @@ void Graphics::RenderNodeGrid( NodeGridInfo* info, UINT sizeOfList )
 		MapBuffer( mBuffers[BUFFERS_SINGLE_STATIC_VERTEX], info[i].mVertices, sizeof(StaticVertex) * info[i].mNrOfVertices );
 		mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_SINGLE_STATIC_VERTEX], &vertexSize, &offset );
 
-		mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[DIFFUSE_PLACEHOLDER] )->mSRV );
-		mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[NORMAL_PLACEHOLDER] )->mSRV );
-		mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
+		mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[MUD_BLENDMAP] )->mSRV );
+		mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[GRASS_BLENDMAP] )->mSRV );
+		mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SAND_BLENDMAP] )->mSRV );
+		mDeviceContext->PSSetShaderResources( 3, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[info[i].mBlendMap] )->mSRV );
 		mDeviceContext->Draw( info[i].mNrOfVertices, 0 );
 
 	}

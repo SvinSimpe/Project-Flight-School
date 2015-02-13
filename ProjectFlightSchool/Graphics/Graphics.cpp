@@ -1006,13 +1006,13 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 				if( objectToRender == MAX_PARTICLE_BATCH || strider == offsetToParticleType )
 				{
 					//Test
-					mDeviceContext->IASetInputLayout( mEffects[info[i].mParticleType+6]->GetInputLayout() );
+					mDeviceContext->IASetInputLayout( mEffects[info[i].mParticleType]->GetInputLayout() );
 
-					mDeviceContext->VSSetShader( mEffects[info[i].mParticleType+6]->GetVertexShader(), nullptr, 0 );
+					mDeviceContext->VSSetShader( mEffects[info[i].mParticleType]->GetVertexShader(), nullptr, 0 );
 					mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
 					mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
-					mDeviceContext->GSSetShader( mEffects[info[i].mParticleType+6]->GetGeometryShader(), nullptr, 0 );
-					mDeviceContext->PSSetShader( mEffects[info[i].mParticleType+6]->GetPixelShader(), nullptr, 0 );
+					mDeviceContext->GSSetShader( mEffects[info[i].mParticleType]->GetGeometryShader(), nullptr, 0 );
+					mDeviceContext->PSSetShader( mEffects[info[i].mParticleType]->GetPixelShader(), nullptr, 0 );
 					break;
 				}
 			}

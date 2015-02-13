@@ -94,6 +94,8 @@
     <ClCompile Include="ClientShip.cpp" />
     <ClCompile Include="EnemyAnimationManager.cpp" />
     <ClCompile Include="Gui.cpp" />
+    <ClCompile Include="HelperFunctions.cpp" />
+    <ClCompile Include="Navmesh.cpp" />
     <ClCompile Include="HealthBars.cpp" />
     <ClCompile Include="MovingButton.cpp" />
     <ClCompile Include="Network.cpp" />
@@ -153,6 +155,8 @@
     <ClInclude Include="BoundingGeometry.h" />
     <ClInclude Include="ClientShip.h" />
     <ClInclude Include="Gui.h" />
+    <ClInclude Include="HelperFunctions.h" />
+    <ClInclude Include="Navmesh.h" />
     <ClInclude Include="HealthBars.h" />
     <ClInclude Include="IPacket.h" />
     <ClInclude Include="MovingButton.h" />

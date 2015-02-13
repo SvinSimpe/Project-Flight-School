@@ -61,8 +61,8 @@ void PlayState::EventListener( IEventPtr newEvent )
 		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->BodyPos());
 		
 		// Request Muzzle Flash from Particle Manager
-		mParticleManager->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
-		mParticleManager->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
 	{
@@ -305,12 +305,17 @@ void PlayState::HandleDeveloperCameraInput()
 	}
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_1 ) )
 	{
+		RenderManager::GetInstance()->ChangeRasterizerState( CULL_NONE );
 		for( auto& s : mShips )
 		{
 			IEventPtr E1( new Event_Client_Change_Ship_Levels( s->GetID(), 0, -1, 0 ) );
 			Client::GetInstance()->SendEvent( E1 );
 		}
 	}
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_2 ) )
+		RenderManager::GetInstance()->ChangeRasterizerState( CULL_BACK );
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_3 ) )
+		RenderManager::GetInstance()->ChangeRasterizerState( WIREFRAME );
 }
 
 void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID )
@@ -419,6 +424,7 @@ HRESULT PlayState::Update( float deltaTime )
 
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{
+		mWorldMap->IsOnNavMesh( mPlayer->GetPlayerPosition() );
 		CheckPlayerCollision();
 
 		if( mPlayer->GetIsMeleeing() )
@@ -473,8 +479,9 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.mShipHP		= 1.0f;
 
 	mPlayer->Update( deltaTime, mRemotePlayers );
-
 	HandleDeveloperCameraInput();
+	mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers );
+
 
 	UpdateProjectiles( deltaTime );
 
@@ -503,8 +510,7 @@ HRESULT PlayState::Update( float deltaTime )
 	}
 
 		///Test fountain particle system
-	mParticleManager->RequestParticleSystem( 9999, Test_Fountain, XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
-	mParticleManager->Update( deltaTime );
+	RenderManager::GetInstance()->RequestParticleSystem( 9999, Test_Fountain, XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
 	
 	guiUpdate.mRadarObjects	= mRadarObjects;
 	guiUpdate.mNrOfObjects	= nrOfRadarObj;
@@ -571,7 +577,6 @@ HRESULT PlayState::Render()
 		RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
 	}
 
-	mParticleManager->Render( 0.0f );	
 	mGui->Render();
 
 	//RENDER DEVTEXT
@@ -645,6 +650,7 @@ HRESULT PlayState::Initialize()
 	mPlayer->Initialize();
 
 	mWorldMap = new Map();
+
 	mWorldMap->Initialize( 4 );
 
 	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/testMap.xml")); 
@@ -692,11 +698,6 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_2.pfs", mSpawnModel );
 	mSpawners	= new XMFLOAT3[MAX_NR_OF_ENEMY_SPAWNERS];
 
-
-	//ParticleManager
-	mParticleManager = new ParticleManager();
-	mParticleManager->Initialize();
-
 	mGui = new Gui();
 	mGui->Initialize();
 
@@ -742,8 +743,6 @@ void PlayState::Release()
 
 	mFont.Release();
 
-	SAFE_RELEASE_DELETE( mParticleManager );
-
 	mGui->Release();
 	SAFE_DELETE( mGui );
 
@@ -768,7 +767,6 @@ PlayState::PlayState()
 	mEnemies				= nullptr;
 	mEnemyListSynced		= false;
 	mServerInitialized		= false;
-	mParticleManager		= nullptr;
 	mGui					= nullptr;
 	mShips					= std::vector<ClientShip*>( 0 );
 }

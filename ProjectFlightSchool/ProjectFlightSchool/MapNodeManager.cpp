@@ -98,34 +98,51 @@ MapNode* MapNodeManager::CreateNode( const char* fileName )
 	UINT nrOfObjects = 0;
 
 
-	//First read dimension, TODO: remove dimZ, needed atm, read vertexCount
+	//--------------------------Read gridData-------------------------------------------
+
 	inFile.read( (char*)&initInfo.gridWidth, sizeof( UINT ) );
 	inFile.read( (char*)&initInfo.gridHeight, sizeof( UINT ) );
 	inFile.read( (char*)&initInfo.vertexCount, sizeof( UINT ) );
+
+	//This is copied into the grid itself, using regular vertex struct.
 	initInfo.grid = new Vertex24[initInfo.vertexCount];
+
 	inFile.read( (char*)initInfo.grid, sizeof( Vertex24 ) * initInfo.vertexCount ) ;
 
+	//--------------------------Read gridData-------------------------------------------
+
+
+	//--------------------------Read actual gridObject ---------------------------------
+
 	JMatrix gridMat;
-	//inFile.read( (char*)derpSOMFAN, 50 );
-	//inFile.read( (char*)derpface, 128 );
+	
 	inFile.read( (char*)&gridMat, sizeof(gridMat) );
 
-	//initInfo.anchor = gridMat.pos;
-	//initInfo.anchor = gridMat.transformation;
+	//Maya magic, writes out doubles, this converts them into floats
+
 	ConvertToFloat( initInfo.anchor, gridMat.transformation );
+
+	//--------------------------Read actual gridObject ---------------------------------
+
+	//--------------------------Read navigation Data -----------------------------------
 
 	UINT navVertexCount = 0;
 	
 	inFile.read( (char*)&navVertexCount, sizeof( UINT ) );
 
+	//Deallocated by the node
 	XMFLOAT3* navVertices = new XMFLOAT3[navVertexCount];
 
 	inFile.read( (char*)navVertices, sizeof( DirectX::XMFLOAT3 ) * navVertexCount );
 
+	initInfo.navVertexCount = navVertexCount;
+	initInfo.navData		= navVertices;
+
+	//--------------------------Read navigation Data -----------------------------------
+
+	//--------------------------Read object Data ---------------------------------------
+
 	inFile.read( (char*)&nrOfObjects, sizeof( UINT ) );
-	//Read all the objects associated with the node
-	writeToLog( "\n -----------------------------------------------------\n" );
-	writeToLog( fileName );
 	for( int i = 0; i < (int)nrOfObjects; i++ )
 	{
 		GameObject ob;
@@ -140,6 +157,8 @@ MapNode* MapNodeManager::CreateNode( const char* fileName )
 		ob.Initialize( obInfo, assetID );
 		staticObjects.push_back( ob );
 		#ifdef _DEBUG
+				writeToLog( "\n -----------------------------------------------------\n" );
+				writeToLog( fileName );
 				char log[400];
 				sprintf_s(log,"Timestamp: %s\nCount: %d\nGameObject allocated with:\nPos: (%f,%f,%f)\nRotation:  (%f,%f,%f)\nScale:  (%f,%f,%f)\nAssetID: %d\nName: %s\n\n\n",__TIME__, i,
 				ob.GetPos().x,ob.GetPos().y, ob.GetPos().z,
@@ -149,7 +168,11 @@ MapNode* MapNodeManager::CreateNode( const char* fileName )
 			writeToLog(log);
 		#endif
 	}
+
+	//--------------------------Read object Data ---------------------------------------
+
 	inFile.close();
+	//--------------------------Copy object Data ---------------------------------------
 
 	//Mapnode handles deallocation of this object
 	initInfo.staticAssetCount = staticObjects.size();
@@ -161,10 +184,12 @@ MapNode* MapNodeManager::CreateNode( const char* fileName )
 	}
 
 	MapNode* temp = new MapNode;
+	initInfo.name = fileName;
 	temp->Initialize( initInfo );
 
+	//--------------------------Copy object Data ---------------------------------------
+
 	delete [] initInfo.grid;
-	delete [] navVertices;
 
 	return temp;
 }

@@ -8,7 +8,7 @@
 #include <time.h>
 
 #define VELOCITY_FALLOFF 2.0f
-
+class Map;
 class Player: public RemotePlayer
 {
 	private:
@@ -64,6 +64,7 @@ class Player: public RemotePlayer
 
 	protected:
 	public:
+		HRESULT		UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers );
 		void		TakeDamage( float damage, unsigned int shooter );
 		void		HandleRevive( float deltaTime );
 		

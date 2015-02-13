@@ -568,7 +568,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	mCloseToPlayer = false;
 	for( auto rp : remotePlayers )
 	{
-		if( mBoundingCircle->Intersect( rp->GetBoundingCircleAura() ) )
+		if( rp->IsAlive() && mBoundingCircle->Intersect( rp->GetBoundingCircleAura() ) )
 		{
 			mCloseToPlayer = true;
 		}

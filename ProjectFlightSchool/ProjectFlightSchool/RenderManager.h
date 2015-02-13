@@ -20,7 +20,7 @@ class RenderManager
 
 		RasterizerStates mRasterState;
 		LightManager*		mLightManager;
-		ParticleManager*	mParticleManager;
+		
 
 	protected:
 	public:
@@ -33,6 +33,7 @@ class RenderManager
 		UINT mNrOfNodeGrid;
 		UINT mNrOfBoxes;
 		UINT mNrOfLines;
+		ParticleManager*	mParticleManager;
 
 	private:
 		void SetLightStructuredBuffer();

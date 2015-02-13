@@ -26,6 +26,7 @@ class ParticleManager
 
 		void Initialize();
 		void Release();
+		void Reset();
 
 		ParticleManager();
 		~ParticleManager();

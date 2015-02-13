@@ -513,7 +513,7 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.mAlliesHP		= mAlliesHP;
 	guiUpdate.mShipHP		= 1.0f;
 
-	mPlayer->Update( deltaTime, mRemotePlayers );
+	//mPlayer->Update( deltaTime, mRemotePlayers );
 	HandleDeveloperCameraInput();
 	mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers );
 

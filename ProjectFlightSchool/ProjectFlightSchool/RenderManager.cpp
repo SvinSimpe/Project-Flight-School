@@ -21,6 +21,7 @@ void RenderManager::Clear()
 
 RenderManager::RenderManager()
 {
+	mParticleManager		= nullptr;
 }
 
 RenderManager::~RenderManager()
@@ -192,10 +193,15 @@ void RenderManager::AnimationReset( AnimationTrack &animationTrack, AssetID defa
 	animationTrack.mInterpolation			= 0.0f;
 }
 
+void RenderManager::RequestParticleSystem( size_t entityID, ParticleType particleType, XMFLOAT3 position, XMFLOAT3 direction )
+{
+	mParticleManager->RequestParticleSystem( entityID, particleType, position, direction );
+}
+
 HRESULT RenderManager::Update( float deltaTime )
 {
 	Clear();
-
+	mParticleManager->Update( deltaTime );
 	return S_OK;
 }
 
@@ -255,6 +261,7 @@ HRESULT RenderManager::Render()
 	Graphics::GetInstance()->DeferredPass();
 
 	//Render the particles
+	mParticleManager->Render();
 	Graphics::GetInstance()->RenderParticleSystems( mParticleInfoArray, mNrOfParticles );
 
 	//Prepare the scene to render Screen space located assets
@@ -274,12 +281,16 @@ HRESULT RenderManager::Initialize()
 	Clear();
 	mLightManager = new LightManager;
 	mLightManager->Initialize();
+
+	mParticleManager = new ParticleManager();
+	mParticleManager->Initialize();
 	return S_OK;
 }
 
 void RenderManager::Release()
 {
 	SAFE_RELEASE_DELETE( mLightManager );
+	SAFE_RELEASE_DELETE( mParticleManager );
 }
 
 RenderManager* RenderManager::GetInstance()

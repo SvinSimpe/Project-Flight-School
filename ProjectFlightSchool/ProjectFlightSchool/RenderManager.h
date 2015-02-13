@@ -17,7 +17,8 @@ class RenderManager
 		NodeGridInfo	mNodeGridArray[MAX_AMOUNT_OF_NODEGRIDS];
 		BoxInfo			mBoxArray[MAX_AMOUNT_OF_BOXES];
 
-		LightManager*	mLightManager;
+		LightManager*		mLightManager;
+		ParticleManager*	mParticleManager;
 
 	protected:
 	public:
@@ -51,6 +52,8 @@ class RenderManager
 		void AnimationUpdate( AnimationTrack &animationTrack, float deltaTime );
 		void AnimationStartNew( AnimationTrack &animationTrack, AssetID newAnimation );
 		void AnimationReset( AnimationTrack &animationTrack, AssetID defaultAnimation );
+
+		void RequestParticleSystem( size_t entityID, ParticleType particleType, XMFLOAT3 position, XMFLOAT3 direction );
 
 		HRESULT Update( float deltaTime );	//Currently clearing the arrays to standard values and reseting number of active objects variable for them in update
 		HRESULT Render();	

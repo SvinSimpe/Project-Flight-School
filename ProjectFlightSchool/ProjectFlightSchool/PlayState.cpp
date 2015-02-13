@@ -101,7 +101,6 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if( newEvent->GetEventType() == Event_Remote_Win::GUID )
 	{
 		std::shared_ptr<Event_Remote_Win> data = std::static_pointer_cast<Event_Remote_Win>( newEvent );
-		MessageBox( NULL, L"You Won", L"Allô?", MB_OK );
 		IEventPtr E1( new Event_Reset_Game() );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
@@ -531,7 +530,6 @@ HRESULT PlayState::Update( float deltaTime )
 		//Test Win
 		if ( s->Intersect( mPlayer->GetBoundingCircle() ) )
 		{
-			MessageBox( NULL, L"Sending Win", L"Allô?", MB_OK );
 			IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
 			Client::GetInstance()->SendEvent(E1);
 		}

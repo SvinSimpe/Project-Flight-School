@@ -104,8 +104,8 @@ HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 		mGrid[i].tangent[1]	= 1.0f;
 		mGrid[i].tangent[2]	= 1.0f;
 
-		mGrid[i].uv[0] = 1.0f;
-		mGrid[i].uv[1] = 1.0f;
+		mGrid[i].uv[0] = mGrid[i].position[0] / (float)mGridWidth + 0.5f;
+		mGrid[i].uv[1] = -mGrid[i].position[2] / (float)mGridHeight + 0.5f;
 	}
 	return S_OK;
 }

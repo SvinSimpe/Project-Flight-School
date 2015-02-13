@@ -141,11 +141,12 @@ void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, i
 	}	
 }
 
-void RenderManager::AddNodeGridToList( StaticVertex* vertices, UINT nrOfVertices, DirectX::XMFLOAT4X4 world )
+void RenderManager::AddNodeGridToList( StaticVertex* vertices, UINT nrOfVertices, AssetID blendMap, DirectX::XMFLOAT4X4 world )
 {
 	NodeGridInfo info;
 	info.mVertices		= vertices;
 	info.mNrOfVertices	= nrOfVertices;
+	info.mBlendMap		= blendMap;
 	DirectX::XMStoreFloat4x4( &info.mWorld, ( DirectX::XMMatrixTranspose( XMLoadFloat4x4( &world ) ) ) );
 
 	mNodeGridArray[mNrOfNodeGrid++] = info;

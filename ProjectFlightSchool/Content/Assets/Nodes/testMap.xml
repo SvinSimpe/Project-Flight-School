@@ -1,7 +1,7 @@
 <?xml version="1.0" standalone="no" ?>
 <Level>
     <Nodes>
-        <Node path="../Content/Assets/Nodes/tileBossNestStoneArena.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileglade.lp" type="AREA_NODE" />
     </Nodes>
     <Assets>
 		<Asset path="../Content/Assets/PermanentAssets/Ship/Ship.pfs"/>

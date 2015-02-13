@@ -35,6 +35,7 @@ class MapNode
 		UINT			mNodeDim;
 		GameObject*		mStaticAssets;
 		UINT			mStaticAssetCount;
+		AssetID			blendMap;
 
 		MapNodeInstance mInstances[150];
 

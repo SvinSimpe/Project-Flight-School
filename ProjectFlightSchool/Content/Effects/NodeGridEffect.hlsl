@@ -53,27 +53,18 @@ struct PS_Out
 	float4 worldPosition	: SV_Target2;
 };
 
-Texture2D<float4> diffuseTexture	: register( t0 );
-Texture2D<float4> normalTexture		: register( t1 );
-Texture2D<float4> specularTexture	: register( t2 );
+Texture2D<float4> mudBlendMap		: register( t0 );
+Texture2D<float4> grassBlendMap		: register( t1 );
+Texture2D<float4> sandBlendMap		: register( t2 );
+Texture2D<float4> blendMapWeights	: register( t3 );
 SamplerState pointSampler			: register( s0 );
 SamplerState linearSampler			: register( s1 );
 PS_Out PS_main( VS_Out input )
 {	
 	PS_Out output = (PS_Out)0;
-
-	clip ( diffuseTexture.Sample( linearSampler, input.uv ).w < 0.7f ? -1:1 );
-
-	//======== NORMAL MAPPING ==========
-	float4 bumpNormal	= normalTexture.Sample( linearSampler, input.uv.xy );
-	bumpNormal			= ( 2.0f * bumpNormal ) - 1.0f;
-	input.tangent		= normalize( input.tangent - dot( input.tangent, input.normal ) * input.normal );
-	float3 biTangent	= cross( input.normal.xyz, input.tangent.xyz );
-	float3x3 texSpace	= float3x3( input.tangent.xyz, biTangent, input.normal.xyz );
-	input.normal		+= mul( bumpNormal.xyz, texSpace );
 	
 	output.normal			= float4( normalize( input.normal ), 0.0f );
-	output.albedoSpec		= float4( diffuseTexture.Sample( linearSampler, input.uv ).xyz, specularTexture.Sample( linearSampler, input.uv ).x );
+	output.albedoSpec		= float4( grassBlendMap.Sample( linearSampler, input.uv ).xyz, 0.0f );
 	output.worldPosition	= float4( input.worldPosition, 1.0f );
 	return output;
 }

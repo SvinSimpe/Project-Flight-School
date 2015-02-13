@@ -59,14 +59,14 @@ class Player: public RemotePlayer
 		void		Fire();
 		void		FireShotgun( XMFLOAT3* spawnPoint );
 		void		AddImpuls( XMFLOAT3 impuls );
-		void		Lock();
-		void		UnLock();
 
 	protected:
 	public:
 		HRESULT		UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers );
 		void		TakeDamage( float damage, unsigned int shooter );
 		void		HandleRevive( float deltaTime );
+		void		Lock();
+		void		UnLock();
 		
 		void		Reset();	
 		HRESULT		Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers );

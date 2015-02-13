@@ -3587,4 +3587,74 @@ class Event_Client_Change_Ship_Levels : public IEvent
 			return mBuffLevelChange;
 		}
 };
+
+class Event_Server_Change_Ship_Levels : public IEvent
+{
+	private:
+		UINT mID;
+		int mTurretLevel;
+		int mShieldLevel;
+		int mBuffLevel;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Change_Ship_Levels()
+		{
+			mID				= (UINT)-1;
+			mTurretLevel	= 0;
+			mShieldLevel	= 0;
+			mBuffLevel		= 0;
+		}
+		Event_Server_Change_Ship_Levels( UINT id, int turretLevel, int shieldLevel, int buffLevel )
+		{
+			mID				= id;
+			mTurretLevel	= turretLevel;
+			mShieldLevel	= shieldLevel;
+			mBuffLevel		= buffLevel;
+		}
+		~Event_Server_Change_Ship_Levels() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mTurretLevel << " ";
+			out << mShieldLevel << " ";
+			out << mBuffLevel << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mTurretLevel;
+			in >> mShieldLevel;
+			in >> mBuffLevel;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Change_Ship_Levels( mID, mTurretLevel, mShieldLevel, mBuffLevel ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		int TurretLevelChange() const
+		{
+			return mTurretLevel;
+		}
+		int ShieldLevelChange() const
+		{
+			return mShieldLevel;
+		}
+		int BuffLevelChange() const
+		{
+			return mBuffLevel;
+		}
+};
 #endif

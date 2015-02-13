@@ -11,9 +11,6 @@ class ServerShip
 		const UINT MIN_LEVEL = 1;
 		const UINT MAX_LEVEL = 3;
 		// Since buff and turret are handled by the server, these modifiers and such are calculated here
-		UINT			mTurretLevel;
-		UINT			mBuffLevel;
-		UINT			mShieldLevel;
 
 		float			mBuffMod;		// Also declared in Player.h... look there to see what this does
 		BoundingCircle* mBuffCircle;	// Don't forget to add an event for turning on/off player buffing
@@ -27,6 +24,10 @@ class ServerShip
 		float			mCurrentShield;
 		float			mMaxHP;
 		float			mCurrentHP;
+
+		UINT			mTurretLevel;
+		UINT			mBuffLevel;
+		UINT			mShieldLevel;
 
 		bool			mWasUpdated;
 
@@ -43,12 +44,13 @@ class ServerShip
 		void			CalcBuffMod();
 
 		void			ClientUpdateShip( IEventPtr eventPtr );
-		void			ClientChangeShipLevels( IEventPtr eventPtr );
 
 	protected:
 	public:
 		float			PercentShield() const;
 		float			PercentHP() const;
+		
+		void			ClientChangeShipLevels( int changeTurretLevel, int changeShieldLevel, int changeBuffLevel );
 
 		virtual bool	TakeDamage( float damage );
 		virtual bool	Intersect( BoundingCircle* entity ); // Will check for intersects with buffable players

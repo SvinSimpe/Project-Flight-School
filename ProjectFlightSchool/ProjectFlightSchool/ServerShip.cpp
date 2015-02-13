@@ -106,21 +106,6 @@ void ServerShip::ClientUpdateShip( IEventPtr eventPtr )
 	}
 }
 
-void ServerShip::ClientChangeShipLevels( IEventPtr eventPtr )
-{
-	if( eventPtr->GetEventType() == Event_Client_Change_Ship_Levels::GUID )
-	{
-		std::shared_ptr<Event_Client_Change_Ship_Levels> data = std::static_pointer_cast<Event_Client_Change_Ship_Levels>( eventPtr );
-		if( data->ID() == mID && !mWasUpdated )
-		{
-			ChangeTurretLevel( data->TurretLevelChange() );
-			ChangeShieldLevel( data->ShieldLevelChange() );
-			ChangeBuffLevel( data->BuffLevelChange() );
-			mWasUpdated = true;
-		}
-	}
-}
-
 float ServerShip::PercentShield() const
 {
 	return mCurrentShield/mMaxShield;
@@ -129,6 +114,17 @@ float ServerShip::PercentShield() const
 float ServerShip::PercentHP() const
 {
 	return mCurrentHP/mMaxHP;
+}
+
+void ServerShip::ClientChangeShipLevels( int changeTurretLevel, int changeShieldLevel, int changeBuffLevel )
+{
+	if ( !mWasUpdated )
+	{
+		ChangeTurretLevel( changeTurretLevel );
+		ChangeShieldLevel( changeShieldLevel );
+		ChangeBuffLevel( changeBuffLevel );
+		mWasUpdated = true;
+	}
 }
 
 bool ServerShip::TakeDamage( float damage )
@@ -197,7 +193,6 @@ void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir )
 	mBuffMod		= 0.5f;
 
 	EventManager::GetInstance()->AddListener( &ServerShip::ClientUpdateShip, this, Event_Client_Update_Ship::GUID );
-	EventManager::GetInstance()->AddListener( &ServerShip::ClientChangeShipLevels, this, Event_Client_Change_Ship_Levels::GUID );
 }
 
 void ServerShip::Release()

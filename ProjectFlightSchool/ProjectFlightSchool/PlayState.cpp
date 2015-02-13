@@ -101,7 +101,14 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if( newEvent->GetEventType() == Event_Remote_Win::GUID )
 	{
 		std::shared_ptr<Event_Remote_Win> data = std::static_pointer_cast<Event_Remote_Win>( newEvent );
-		MessageBox( NULL, L"You Won", L"Allô?", MB_OK );
+		if( data->Team() == mPlayer->GetTeam() )
+		{
+			MessageBox( NULL, L"You Won", L"Congratulations", MB_OK );
+		}
+		else
+		{
+			MessageBox( NULL, L"You Lost", L"Sorry", MB_OK );
+		}
 		IEventPtr E1( new Event_Reset_Game() );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
@@ -302,6 +309,34 @@ void PlayState::HandleDeveloperCameraInput()
 	{
 		IEventPtr E1( new Event_Reset_Game() );
 		EventManager::GetInstance()->QueueEvent( E1 );
+	}
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_O ) )
+	{
+		for( auto& s : mShips )
+		{
+			//Test Win
+			if ( mPlayer->GetTeam() == s->GetTeamID() && s->Intersect( mPlayer->GetBoundingCircle() ) )
+			{
+				IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
+				Client::GetInstance()->SendEvent(E1);
+			}
+		}
+	}
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_U ) )
+	{
+		for( auto& s : mShips )
+		{
+			if( mPlayer->GetTeam() == s->GetTeamID() && s->Intersect( mPlayer->GetBoundingCircle() ) && mGui->UpgradeShipWindowIsActive() )
+			{
+				mPlayer->UnLock();
+				mGui->DeActivateUpgradeShipWindow();
+			}
+			else if( mPlayer->GetTeam() == s->GetTeamID() && s->Intersect( mPlayer->GetBoundingCircle() ) && mPlayer->IsAlive() )
+			{
+				mPlayer->Lock();
+				mGui->ActivateUpgradeShipWindow();
+			}
+		}
 	}
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_1 ) )
 	{
@@ -533,14 +568,6 @@ HRESULT PlayState::Update( float deltaTime )
 	for( auto& s : mShips )
 	{
 		s->Update( deltaTime );
-
-		//Test Win
-		if ( s->Intersect( mPlayer->GetBoundingCircle() ) )
-		{
-			MessageBox( NULL, L"Sending Win", L"Allô?", MB_OK );
-			IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
-			Client::GetInstance()->SendEvent(E1);
-		}
 	}
 
 	return S_OK;

@@ -103,12 +103,12 @@ HRESULT	Radar::Initialize()
 	float radarCenter	= radarDimXY * 0.5f;
 	mRadius				= 48.0f;
 
-	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/PlaceHolderTextures/diffuse.png", mEnemyAssetID );
-	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/PlaceHolderTextures/diffuse.png", mObjectAssetID );
-	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/PlaceHolderTextures/diffuse.png", mFriendlyAssetID );
-	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Radar/radarShip.dds", mFriendlyShipAssetID );
-	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Radar/radarEnemyShipTest.dds", mHostileShipAssetID );
-	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Radar/radar2.dds", mRadarAssetID );
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/Radar/radarEnemy.dds", mEnemyAssetID );
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/Radar/radarBattery.dds", mObjectAssetID );
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/Radar/radarFriendly.dds", mFriendlyAssetID );
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/Radar/radarShip.dds", mFriendlyShipAssetID );
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/Radar/radarEnemyShipTest.dds", mHostileShipAssetID );
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/Radar/radar2.dds", mRadarAssetID );
 	
 	mObjects[0].mAssetId			= mRadarAssetID;
 	mObjects[0].mTopLeftCorner.x	= Input::GetInstance()->mScreenWidth - radarDimXY;

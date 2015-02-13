@@ -81,12 +81,12 @@ void MultiplayerMenuState::Reset()
 {
 	mPortBox.Release();
 
-	float x = (float)Input::GetInstance()->mScreenWidth  * 0.10f;
-	float y = (float)Input::GetInstance()->mScreenHeight * 0.80f;
-	float w = 640.0f/2;
-	float h = 177.0f/2;
+	float x = (float)Input::GetInstance()->mScreenWidth  * 0.2f;
+	float y = (float)Input::GetInstance()->mScreenHeight * 0.9f;
+	float w = 640.0f * 0.5f;
+	float h = 177.0f * 0.5f;
 
-	mPortBox.Initialize( "27015", "Port", x, y, w, h );
+	mPortBox.Initialize( "27015", "Port", x - w * 0.5f, y - h * 0.5f, w, h );
 }
 
 HRESULT MultiplayerMenuState::Initialize()
@@ -97,30 +97,30 @@ HRESULT MultiplayerMenuState::Initialize()
 
 	std::string texts[] = { "2vs2", "3vs3", "4vs4", "Back" };
 
-	float x = (float)Input::GetInstance()->mScreenWidth  * 0.10f;
-	float y = (float)Input::GetInstance()->mScreenHeight * 0.80f;
+	float x = (float)Input::GetInstance()->mScreenWidth  * 0.1f;
+	float y = (float)Input::GetInstance()->mScreenHeight * 0.9f;
 	float w = 640.0f/2;
 	float h = 177.0f/2;
 
-	mPortBox.Initialize( "27015", "Port", x, y, w, h );
-	x += w;
+	mPortBox.Initialize( "27015", "Port", x - w * 0.5f, y - h * 0.5f, w, h );
 
-	y	= (float)Input::GetInstance()->mScreenHeight * 0.75f;
+	x	= (float)Input::GetInstance()->mScreenWidth  * 0.35f;
+	y	= (float)Input::GetInstance()->mScreenHeight * 0.9f;
 	w	= 200.0f;
 	h	= 200.0f;
 
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
-		mButtons.push_back( new Button() );
+		mButtons.push_back( new MovingButton() );
 		if( texts[i] == "Back" )
 		{
-			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Back.png", x, y, w, h );
+			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Back.png", x - w * 0.5f, y - h * 0.5f, w, h );
 		}
 		else
 		{
-			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Multi_Menu_Text/" + texts[i] + ".png", x, y, w, h );
+			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Multi_Menu_Text/" + texts[i] + ".png", x - w * 0.5f, y - h * 0.5f, w, h );
 		}
-		x += w;
+		x += (float)Input::GetInstance()->mScreenWidth  * 0.1f;
 	}
 
 	return S_OK;

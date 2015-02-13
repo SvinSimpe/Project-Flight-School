@@ -3,6 +3,9 @@
 
 #include "Projectile.h"
 #include "RemotePlayer.h"
+#include "Input.h"
+#include <stdlib.h>
+#include <time.h>
 
 #define VELOCITY_FALLOFF 2.0f
 class Map;
@@ -10,7 +13,7 @@ class Player: public RemotePlayer
 {
 	private:
 		float			mEventCapTimer;
-		PointLight*		mPointLight[5];
+		PointLight*		mPointLight;
 
 		float		mWeaponCoolDown;
 		float		mMeleeCoolDown;
@@ -18,30 +21,28 @@ class Player: public RemotePlayer
 		bool		mIsMeleeing;
 		bool		mHasMeleeStarted;
 		bool		mLock;
+		bool		mCloseToPlayer;
 
 		float		mMaxVelocity;
 		float		mCurrentVelocity;
 		float		mMaxAcceleration;
 		XMFLOAT3	mAcceleration;
+		XMFLOAT3	mFireDirection;
 
 		bool		mIsBuffed;
 		float		mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
 
 		std::string		mPlayerName;
-		bool			mHasName;
 		
 		float		mSpawnTime;
 		float		mTimeTillSpawn;
-		float		mDeathTime;
-		float		mTimeTillDeath;
 		float		mReviveTime;
 		float		mTimeTillRevive;
 		int			mLastKiller;
 
-		std::list<IEventPtr> mEventList;
-
 	protected:
 	public:
+		std::list<IEventPtr> gEventList;
 		
 	private:
 		void		EventListener( IEventPtr newEvent );
@@ -56,10 +57,10 @@ class Player: public RemotePlayer
 		void		Revive();
 		void		Die();
 		void		Fire();
+		void		FireShotgun( XMFLOAT3* spawnPoint );
 		void		AddImpuls( XMFLOAT3 impuls );
 		void		Lock();
 		void		UnLock();
-		void		QueueEvent( IEvent* ptr );
 
 	protected:
 	public:
@@ -80,13 +81,11 @@ class Player: public RemotePlayer
 		XMFLOAT3	GetPlayerPosition() const;
 		XMFLOAT3	GetUpperBodyDirection() const;
 		void		SetIsMeleeing( bool isMeleeing );
-		void		SetBuffed( bool buffed );
 		void		SetID( unsigned int id );
 		void		SetTeam( int team );
 		void		SetPosition( XMVECTOR position );
 
-		std::list<IEventPtr> GetEvents();
-		void		ClearEventList();
+		void		QueueEvent( IEventPtr ptr );
 };
 #endif
 

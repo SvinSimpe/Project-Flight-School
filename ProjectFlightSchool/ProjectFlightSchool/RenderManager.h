@@ -18,8 +18,9 @@ class RenderManager
 		BoxInfo			mBoxArray[MAX_AMOUNT_OF_BOXES];
 		LineInfo		mLineArray[MAX_AMOUNT_OF_LINES];
 
-		LightManager*	mLightManager;
 		RasterizerStates mRasterState;
+		LightManager*		mLightManager;
+		ParticleManager*	mParticleManager;
 
 	protected:
 	public:
@@ -57,6 +58,7 @@ class RenderManager
 		void AnimationReset( AnimationTrack &animationTrack, AssetID defaultAnimation );
 
 		void ChangeRasterizerState( RasterizerStates rasterState );
+		void RequestParticleSystem( size_t entityID, ParticleType particleType, XMFLOAT3 position, XMFLOAT3 direction );
 
 		HRESULT Update( float deltaTime );	//Currently clearing the arrays to standard values and reseting number of active objects variable for them in update
 		HRESULT Render();	

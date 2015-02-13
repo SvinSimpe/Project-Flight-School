@@ -22,6 +22,7 @@ void RenderManager::Clear()
 
 RenderManager::RenderManager()
 {
+	mParticleManager		= nullptr;
 }
 
 RenderManager::~RenderManager()
@@ -129,10 +130,12 @@ void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, i
 		// Set offset
 		info.mOffsetToNextParticleType = offset;
 
+		// Set Particle Type
+		info.mParticleType = particleSystem[i][0]->particleType;
+
 		// Fill Array with Particle Info
 		for ( int j = 0; j < nrOfActiveParticleSystemsPerType[i]; j++ )
 		{
-
 			for ( int k = 0; k < particleSystem[i][j]->nrOfParticlesAlive; k++ )
 			{
 				info.mWorldPosition.x	= particleSystem[i][j]->xPosition[k];
@@ -202,10 +205,15 @@ void RenderManager::AnimationReset( AnimationTrack &animationTrack, AssetID defa
 	animationTrack.mInterpolation			= 0.0f;
 }
 
+void RenderManager::RequestParticleSystem( size_t entityID, ParticleType particleType, XMFLOAT3 position, XMFLOAT3 direction )
+{
+	mParticleManager->RequestParticleSystem( entityID, particleType, position, direction );
+}
+
 HRESULT RenderManager::Update( float deltaTime )
 {
 	Clear();
-
+	mParticleManager->Update( deltaTime );
 	return S_OK;
 }
 
@@ -238,36 +246,37 @@ HRESULT RenderManager::Render()
 	Graphics::GetInstance()->RenderLine( mLineArray, mNrOfLines );
 
 	Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray, mNrOfAnim3d );
-	//------------------------Finished filling the Gbuffers----------------------
+	////------------------------Finished filling the Gbuffers----------------------
 
-	//Test data for billboarding
+	////Test data for billboarding
 	mBillboardArray[0].mWorldPosition = DirectX::XMFLOAT3( 0, 0, 0 );
 	mBillboardArray[0].mAssetId = DIFFUSE_PLACEHOLDER;
 	mBillboardArray[0].mWidth = 2.3f;
 	mBillboardArray[0].mHeight = 1.3f;
-	//mBillboardArray[1].mWorldPosition = DirectX::XMFLOAT3( 3, 1, 6 );
-	//mBillboardArray[1].mAssetId = DIFFUSE_PLACEHOLDER;
-	//mBillboardArray[2].mWorldPosition = DirectX::XMFLOAT3( -2, 1, -4 );
-	//mBillboardArray[2].mAssetId = DIFFUSE_PLACEHOLDER;
-	//mBillboardArray[3].mWorldPosition = DirectX::XMFLOAT3( 7, 1, 0 );
-	//mBillboardArray[3].mAssetId = DIFFUSE_PLACEHOLDER;
-	//mBillboardArray[4].mWorldPosition = DirectX::XMFLOAT3( 0, 1, 0 );
-	//mBillboardArray[4].mAssetId = DIFFUSE_PLACEHOLDER;
-	//mBillboardArray[5].mWorldPosition = DirectX::XMFLOAT3( -6, 1, 0 );
-	//mBillboardArray[5].mAssetId = DIFFUSE_PLACEHOLDER;
+	////mBillboardArray[1].mWorldPosition = DirectX::XMFLOAT3( 3, 1, 6 );
+	////mBillboardArray[1].mAssetId = DIFFUSE_PLACEHOLDER;
+	////mBillboardArray[2].mWorldPosition = DirectX::XMFLOAT3( -2, 1, -4 );
+	////mBillboardArray[2].mAssetId = DIFFUSE_PLACEHOLDER;
+	////mBillboardArray[3].mWorldPosition = DirectX::XMFLOAT3( 7, 1, 0 );
+	////mBillboardArray[3].mAssetId = DIFFUSE_PLACEHOLDER;
+	////mBillboardArray[4].mWorldPosition = DirectX::XMFLOAT3( 0, 1, 0 );
+	////mBillboardArray[4].mAssetId = DIFFUSE_PLACEHOLDER;
+	////mBillboardArray[5].mWorldPosition = DirectX::XMFLOAT3( -6, 1, 0 );
+	////mBillboardArray[5].mAssetId = DIFFUSE_PLACEHOLDER;
 
-	//for( int i = 1; i < 6; i++)
-	//{
-	//	mBillboardArray[i].mHeight = 1.0f;
-	//	mBillboardArray[i].mWidth	= 1.0f;
-	//}
-	//---------------------------------------------------
+	////for( int i = 1; i < 6; i++)
+	////{
+	////	mBillboardArray[i].mHeight = 1.0f;
+	////	mBillboardArray[i].mWidth	= 1.0f;
+	////}
+	////---------------------------------------------------
 	Graphics::GetInstance()->RenderBillboard( mBillboardArray, 1 );
 
-	//Render the scene with deferred
+	////Render the scene with deferred
 	Graphics::GetInstance()->DeferredPass();
 
 	//Render the particles
+	mParticleManager->Render();
 	Graphics::GetInstance()->RenderParticleSystems( mParticleInfoArray, mNrOfParticles );
 
 	//Prepare the scene to render Screen space located assets
@@ -287,12 +296,16 @@ HRESULT RenderManager::Initialize()
 	Clear();
 	mLightManager = new LightManager;
 	mLightManager->Initialize();
+
+	mParticleManager = new ParticleManager();
+	mParticleManager->Initialize();
 	return S_OK;
 }
 
 void RenderManager::Release()
 {
 	SAFE_RELEASE_DELETE( mLightManager );
+	SAFE_RELEASE_DELETE( mParticleManager );
 }
 
 RenderManager* RenderManager::GetInstance()

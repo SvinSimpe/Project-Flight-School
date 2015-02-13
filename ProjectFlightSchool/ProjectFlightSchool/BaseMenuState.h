@@ -4,7 +4,7 @@
 #include "BaseState.h"
 #include "Input.h"
 #include "Events.h"
-#include "Button.h"
+#include "MovingButton.h"
 #include "Font.h"
 #include "InputSquare.h"
 
@@ -12,9 +12,9 @@ class BaseMenuState : public BaseState
 {
 	private:
 	protected:
-		AssetID					mBackground;
-		std::vector<Button*>	mButtons;
-		Font					mText;
+		AssetID						mBackground;
+		std::vector<MovingButton*>	mButtons;
+		Font						mText;
 
 	public:
 

@@ -93,18 +93,18 @@ void JoinMenuState::Reset()
 	mPortBox.Release();
 	mNameBox.Release();
 
-	float x = (float)Input::GetInstance()->mScreenWidth  * 0.10f;
-	float y = (float)Input::GetInstance()->mScreenHeight * 0.80f;
-	float w = 640.0f/2;
-	float h = 177.0f/2;
+	float x = (float)Input::GetInstance()->mScreenWidth  * 0.2f;
+	float y = (float)Input::GetInstance()->mScreenHeight * 0.9f;
+	float w = 640.0f * 0.5f;
+	float h = 177.0f * 0.5f;
 
-	mIPBox.Initialize( "localhost", "IP", x, y, w, h );
+	mIPBox.Initialize( "localhost", "IP", x - w * 0.5f, y - h * 0.5f, w, h );
 
-	x += w + 20;
+	x += (float)Input::GetInstance()->mScreenWidth  * 0.2f;
 
-	mPortBox.Initialize( "27015", "Port", x, y, w, h );
+	mPortBox.Initialize( "27015", "Port", x - w * 0.5f, y - h * 0.5f, w, h );
 
-	mNameBox.Initialize( "mudkipfucker", "IP", Input::GetInstance()->mScreenWidth * 0.5f - (640.0f * 0.5f) * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + (177.0f * 0.5f) *0.5f, 640.0f * 0.5f, 177.0f * 0.5f );
+	mNameBox.Initialize( "mudkipfucker", "IP", Input::GetInstance()->mScreenWidth * 0.3f - w * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + h *0.5f, w, h );
 }
 
 HRESULT JoinMenuState::Initialize()
@@ -113,39 +113,38 @@ HRESULT JoinMenuState::Initialize()
 	mStateType = JOIN_MENU_STATE;
 	mButtons.reserve( BUTTON_AMOUNT );
 
-	float x	= (float)Input::GetInstance()->mScreenWidth  * 0.65f;
-	float y	= (float)Input::GetInstance()->mScreenHeight * 0.75f;
+	float x	= (float)Input::GetInstance()->mScreenWidth  * 0.55f;
+	float y	= (float)Input::GetInstance()->mScreenHeight * 0.9f;
 	float w	= 200.0f;
 	float h	= 200.0f;
 
-	mButtons.push_back( new Button() );
-	mButtons.at(JOIN)->Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/Join.png", x, y, w, h );
+	mButtons.push_back( new MovingButton() );
+	mButtons.at(JOIN)->Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/Join.png", x - w * 0.5f, y - h * 0.5f, w, h );
 
-	x += w + 20;
+	x += (float)Input::GetInstance()->mScreenWidth * 0.1f;
 
-	mButtons.push_back( new Button() );
-	mButtons.at(BACK)->Initialize( "../Content/Assets/Textures/Menu/Back.png", x, y, w, h );
+	mButtons.push_back( new MovingButton() );
+	mButtons.at(BACK)->Initialize( "../Content/Assets/Textures/Menu/Back.png", x - w * 0.5f, y - h * 0.5f, w, h );
 
 	////// MIKAEL JOINBUTTON
-	x -= ( w + 20 );
-	y -= ( h + 20 );
+	x -= (float)Input::GetInstance()->mScreenWidth * 0.1f;
+	y -= (float)Input::GetInstance()->mScreenHeight * 0.2f;
 
-	mButtons.push_back( new Button() );
-	mButtons.at(MIKAEL)->Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/Join.png", x, y, w, h ); 
+	mButtons.push_back( new MovingButton() );
+	mButtons.at(MIKAEL)->Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/Join.png", x - w * 0.5f, y - h * 0.5f, w, h ); 
 
+	x = (float)Input::GetInstance()->mScreenWidth  * 0.2f;
+	y = (float)Input::GetInstance()->mScreenHeight * 0.9f;
+	w = 640.0f * 0.5f;
+	h = 177.0f * 0.5f;
 
-	x = (float)Input::GetInstance()->mScreenWidth  * 0.10f;
-	y = (float)Input::GetInstance()->mScreenHeight * 0.80f;
-	w = 640.0f/2;
-	h = 177.0f/2;
+	mIPBox.Initialize( "localhost", "IP", x - w * 0.5f, y - h * 0.5f, w, h );
 
-	mIPBox.Initialize( "localhost", "IP", x, y, w, h );
+	x += (float)Input::GetInstance()->mScreenWidth  * 0.2f;
 
-	x += w + 20;
+	mPortBox.Initialize( "27015", "Port", x - w * 0.5f, y - h * 0.5f, w, h );
 
-	mPortBox.Initialize( "27015", "Port", x, y, w, h );
-
-	mNameBox.Initialize( "mudkipfucker", "IP", Input::GetInstance()->mScreenWidth * 0.5f - (640.0f * 0.5f) * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + (177.0f * 0.5f) *0.5f, 640.0f * 0.5f, 177.0f * 0.5f );
+	mNameBox.Initialize( "mudkipfucker", "IP", Input::GetInstance()->mScreenWidth * 0.3f - w * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + h *0.5f, w, h );
 
 	return S_OK;
 }

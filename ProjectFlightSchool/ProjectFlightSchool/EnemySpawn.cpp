@@ -39,11 +39,11 @@ void EnemySpawn::SetSapwnPosition( XMFLOAT3 position )
 	mSpawnPosition = position;
 }
 
-HRESULT EnemySpawn::Initilaize( unsigned int id )
+HRESULT EnemySpawn::Initialize( unsigned int id )
 {
 	mID			= id;
 
-	HRESULT hr	= Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_2.pfs", mModel );
+	HRESULT hr	= Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest1.pfs", mModel );
 	
 	mSpawnPosition = mPosition;
 	mSpawnPosition.x -= 1.0f;

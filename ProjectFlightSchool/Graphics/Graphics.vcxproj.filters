@@ -184,11 +184,17 @@
     <Text Include="..\Content\Effects\NodeGridEffect.hlsl">
       <Filter>Effects</Filter>
     </Text>
+    <Text Include="..\Content\Effects\Particle Effects\Smoke_MiniGunEffect.hlsl">
+      <Filter>Effects\Particle Effects</Filter>
+    </Text>
     <Text Include="..\Content\Effects\Static3dInstancedShadowEffect.hlsl">
       <Filter>Effects</Filter>
     </Text>
     <Text Include="..\Content\Effects\AnimatedInstanced3dShadowEffect.hlsl">
       <Filter>Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\Particle Effects\Test_FountainEffect.hlsl">
+      <Filter>Effects\Particle Effects</Filter>
     </Text>
   </ItemGroup>
 </Project>

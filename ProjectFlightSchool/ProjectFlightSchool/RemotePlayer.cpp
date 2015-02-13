@@ -231,7 +231,7 @@ HRESULT RemotePlayer::InitializeGraphics()
 	//			HUD ELEMENTS
 	/////////////////////////////////////
 
-	mFont.Initialize( "../Content/Assets/Fonts/mv_boli_26_red/" );
+	mFont.Initialize( "../Content/Assets/GUI/Fonts/mv_boli_26_red/" );
 	
 	mLeftArmAnimationCompleted				= false;
 	mRightArmAnimationCompleted				= false;
@@ -271,12 +271,13 @@ void RemotePlayer::CountUpKills()
 
 void RemotePlayer::GoDown()
 {
+	mTimeTillDeath				= mDeathTime;
 	mIsDown						= true;
 	mPointLightIfDown			= new PointLight;
 	mPointLightIfDown->position	= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
 	IEventPtr reg( new Event_Add_Point_Light( mPointLightIfDown ) );
 	EventManager::GetInstance()->QueueEvent( reg );
-	mPointLightIfDown->colorAndRadius = DirectX::XMFLOAT4( 0.6f, 0.2f, 0.6f, 8.0f );
+	mPointLightIfDown->colorAndRadius = DirectX::XMFLOAT4( 0.6f, 0.2f, 0.6f, mTimeTillDeath );
 }
 
 void RemotePlayer::GoUp()
@@ -320,38 +321,46 @@ HRESULT RemotePlayer::Update( float deltaTime )
 	RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
 	RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
 
+	if( mIsDown )
+	{
+		mTimeTillDeath -= deltaTime;
+		mPointLightIfDown->colorAndRadius = DirectX::XMFLOAT4( 0.6f, 0.2f, 0.6f, mTimeTillDeath );
+	}
+
 	return S_OK;
 }
 
 HRESULT RemotePlayer::Render( int position )
 {
-	XMFLOAT4X4 upperMatrix	= Graphics::GetInstance()->GetRootMatrix( mLowerBody.playerModel );
-	XMFLOAT3 offsetPos		= XMFLOAT3( upperMatrix._41 + mLowerBody.position.x, upperMatrix._42, upperMatrix._43 + mLowerBody.position.z );
+	if (mIsAlive)
+	{
+		XMFLOAT4X4 upperMatrix = Graphics::GetInstance()->GetRootMatrix(mLowerBody.playerModel);
+		XMFLOAT3 offsetPos = XMFLOAT3(upperMatrix._41 + mLowerBody.position.x, upperMatrix._42, upperMatrix._43 + mLowerBody.position.z);
 
-	//Render upper body
-	float radians = atan2f( mUpperBody.direction.z, mUpperBody.direction.x );
-	RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, offsetPos, XMFLOAT3( 0.0f, -radians, 0.0f ) );
+		//Render upper body
+		float radians = atan2f(mUpperBody.direction.z, mUpperBody.direction.x);
+		RenderManager::GetInstance()->AddObject3dToList(mUpperBody.playerModel, offsetPos, XMFLOAT3(0.0f, -radians, 0.0f));
 
-	//Render Arms
-	if( RenderManager::GetInstance()->AddAnim3dToList(	mArms.leftArm,
-														ANIMATION_PLAY_ONCE,
-														offsetPos,
-														XMFLOAT3( 0.0f, -radians, 0.0f ) ) )
-		mLeftArmAnimationCompleted = true;
+		//Render Arms
+		if (RenderManager::GetInstance()->AddAnim3dToList(mArms.leftArm,
+			ANIMATION_PLAY_ONCE,
+			offsetPos,
+			XMFLOAT3(0.0f, -radians, 0.0f)))
+			mLeftArmAnimationCompleted = true;
 
-	if( RenderManager::GetInstance()->AddAnim3dToList(	mArms.rightArm,
-														ANIMATION_PLAY_ONCE,
-														offsetPos, 
-														XMFLOAT3( 0.0f, -radians, 0.0f ) ) )
-		mRightArmAnimationCompleted = true;
+		if (RenderManager::GetInstance()->AddAnim3dToList(mArms.rightArm,
+			ANIMATION_PLAY_ONCE,
+			offsetPos,
+			XMFLOAT3(0.0f, -radians, 0.0f)))
+			mRightArmAnimationCompleted = true;
 
-	//Render lower body
-	radians = atan2f( mLowerBody.direction.z, mLowerBody.direction.x );
-	RenderManager::GetInstance()->AddAnim3dToList(	mLowerBody.playerModel,
-													ANIMATION_PLAY_LOOPED,
-													mLowerBody.position,
-													XMFLOAT3( 0.0f, -radians, 0.0f ) );
-
+		//Render lower body
+		radians = atan2f(mLowerBody.direction.z, mLowerBody.direction.x);
+		RenderManager::GetInstance()->AddAnim3dToList(mLowerBody.playerModel,
+			ANIMATION_PLAY_LOOPED,
+			mLowerBody.position,
+			XMFLOAT3(0.0f, -radians, 0.0f));
+	}
 	return S_OK;
 }
 
@@ -369,6 +378,9 @@ HRESULT RemotePlayer::Initialize()
 	mCurrentHp				= mMaxHp;
 	mNrOfDeaths				= 0;
 	mNrOfKills				= 0;
+
+	mDeathTime				= 8.0f;
+	mTimeTillDeath			= mDeathTime;
 
 	//Weapon Initialization
 	mLoadOut				= new LoadOut();

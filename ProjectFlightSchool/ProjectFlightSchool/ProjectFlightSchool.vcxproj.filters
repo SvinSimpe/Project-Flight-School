@@ -234,7 +234,6 @@
     <ClCompile Include="Radar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="DS3DBuffer.cpp">
       <Filter>DirectSound\Source</Filter>
     </ClCompile>
@@ -270,6 +269,21 @@
     </ClCompile>
     <ClCompile Include="HelperFunctions.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HealthBars.cpp">
+      <Filter>GUI\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientShip.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerShip.cpp">
+      <Filter>Network\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MovingButton.cpp">
+      <Filter>GUI\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="UpgradeShipWindow.cpp">
+      <Filter>GUI\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -423,7 +437,6 @@
     <ClInclude Include="Radar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-
     <ClInclude Include="DS3DBuffer.h">
       <Filter>DirectSound\Header</Filter>
     </ClInclude>
@@ -465,6 +478,21 @@
     </ClInclude>
     <ClInclude Include="HelperFunctions.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HealthBars.h">
+      <Filter>GUI\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientShip.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerShip.h">
+      <Filter>Network\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MovingButton.h">
+      <Filter>GUI\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="UpgradeShipWindow.h">
+      <Filter>GUI\Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

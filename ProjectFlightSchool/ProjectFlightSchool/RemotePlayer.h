@@ -34,13 +34,6 @@ enum WEAPON_ANIMATION
 	WEAPON_ANIMATION_COUNT,
 };
 
-struct ServerPlayer
-{
-	unsigned int	ID;
-	XMFLOAT3		Position;
-	bool			IsAlive;
-};
-
 struct UpperBody
 {
 	AssetID		playerModel;
@@ -94,6 +87,8 @@ class RemotePlayer
 		float			mMaxHp;
 		int				mNrOfDeaths;
 		int				mNrOfKills;
+		float			mDeathTime;
+		float			mTimeTillDeath;
 		XMFLOAT3		mVelocity;
 		LoadOut*		mLoadOut;
 		BoundingBox*	mBoundingBox;

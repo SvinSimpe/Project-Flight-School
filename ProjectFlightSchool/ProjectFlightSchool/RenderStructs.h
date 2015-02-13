@@ -44,6 +44,7 @@ struct ParticleInfo
 {
 	UINT				mAssetId;
 	UINT				mOffsetToNextParticleType;
+	UINT				mParticleType;
 	DirectX::XMFLOAT3	mWorldPosition;
 	float				mLifeTime;
 };

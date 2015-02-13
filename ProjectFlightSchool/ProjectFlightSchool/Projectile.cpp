@@ -31,13 +31,15 @@ HRESULT Projectile::Render( )
 	return S_OK;
 }
 
-void Projectile::SetDirection( unsigned int playerID, unsigned int id, XMFLOAT3 startPosition, XMFLOAT3 direction )
+void Projectile::SetDirection( unsigned int playerID, unsigned int id, XMFLOAT3 startPosition, XMFLOAT3 direction, float speed, float range )
 {
 	Reset();
 	mPlayerID		= playerID;
 	mID				= id;
 	mPosition		= startPosition;
 	mDirection		= direction;	
+	mSpeed			= speed;
+	mLifeTime		= range;
 	mIsActive		= true;
 }
 
@@ -78,10 +80,10 @@ unsigned int Projectile::GetID() const
 
 HRESULT Projectile::Initialize()
 {
-	mSpeed		= 20.0f;
-	mLifeTime	= 4.0f;
+	mSpeed			= 20.0f;
+	mLifeTime		= 4.0f;
 	mBoundingCircle = new BoundingCircle( 0.5f );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Bullet/", "bullet.pfs", mProjectileAsset );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Bullet/", "bullet2.pfs", mProjectileAsset );
 
 	return S_OK;
 }

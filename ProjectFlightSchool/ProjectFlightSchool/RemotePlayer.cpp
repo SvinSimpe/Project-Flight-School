@@ -368,7 +368,7 @@ HRESULT RemotePlayer::Initialize()
 {
 	mLowerBody.position		= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 
-	mBoundingBox			= new BoundingBox( 1.5f, 1.5f );
+	mBoundingBox			= new BoundingRectangle( 1.5f, 1.5f );
 	mBoundingCircle			= new BoundingCircle( 0.5f );
 	mBoundingCircleAura		= new BoundingCircle( 1.0f );
 	
@@ -483,7 +483,7 @@ int RemotePlayer::GetTeam() const
 	return mTeam;
 }
 
-BoundingBox* RemotePlayer::GetBoundingBox() const
+BoundingRectangle* RemotePlayer::GetBoundingBox() const
 {
 	return mBoundingBox;
 }

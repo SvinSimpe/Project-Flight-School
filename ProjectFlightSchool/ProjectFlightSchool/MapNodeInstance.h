@@ -45,7 +45,7 @@ public:
 		MapNode*			GetMapNode() const;
 		void				SetMapNode( MapNode* mapNode );
 
-		BoundingBox			GetBoundingBox();
+		BoundingRectangle			GetBoundingBox();
 
 		HRESULT				Initialize();
 		void				Release();

@@ -582,15 +582,7 @@ void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 		//XMStoreFloat3( &min, XMVector3TransformCoord( minVec, calcMat ) );
 		//XMStoreFloat3( &max, XMVector3TransformCoord( maxVec, calcMat ) );
 
-		XMVECTOR rotation;
-		XMVECTOR translate;
-		XMVECTOR lol;
-		XMMatrixDecompose( &lol, &rotation, &translate, XMMatrixTranspose( XMLoadFloat4x4( &info[i].mWorld ) ) );
-		XMFLOAT4 rotationLoad;
-		XMFLOAT4 translateLoad;
-		XMStoreFloat4( &rotationLoad, rotation );
-		XMStoreFloat4( &translateLoad, translate );
-		Graphics::RenderDebugBox( derpface->mAssetAABB.min, derpface->mAssetAABB.max, XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f ), translateLoad );
+		Graphics::RenderDebugBox( derpface->mAssetAABB.min, derpface->mAssetAABB.max, info[i].mWorld );
 	}
 
 	///////////////////////////////
@@ -1136,7 +1128,7 @@ void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
 }
 
-void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, DirectX::XMFLOAT4 rotation, DirectX::XMFLOAT4 translate )
+void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, DirectX::XMFLOAT4X4 world )
 {
 	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_DISABLED], 1 );
 
@@ -1155,11 +1147,11 @@ void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, Dir
 
 	//Map CbufferPerObject
 	CbufferPerObject data;
-	DirectX::XMMATRIX rotationMat	= DirectX::XMMatrixTranspose( DirectX::XMMatrixRotationQuaternion( XMLoadFloat4( &rotation ) ) );
+	DirectX::XMMATRIX worldMat		= DirectX::XMLoadFloat4x4( &world );
 	DirectX::XMMATRIX scaling		= DirectX::XMMatrixScaling( boxSize.x, boxSize.y, boxSize.z );
-	DirectX::XMMATRIX translation	= DirectX::XMMatrixTranslation( center.x + translate.x, center.y + translate.y, center.z + translate.z );
+	DirectX::XMMATRIX translation	= DirectX::XMMatrixTranslation( center.x, center.y, center.z );
 
-	data.worldMatrix = DirectX::XMMatrixTranspose( rotationMat * scaling * translation );
+	data.worldMatrix = worldMat * DirectX::XMMatrixTranspose( scaling * translation );
 	//data.worldMatrix = DirectX::XMMatrixIdentity();
 	
 	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT], &data, sizeof( CbufferPerObject ) );

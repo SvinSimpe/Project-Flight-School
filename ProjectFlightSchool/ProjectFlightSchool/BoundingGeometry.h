@@ -4,13 +4,13 @@
 #include <DirectXMath.h>
 using namespace DirectX;
 
-struct BoundingBox
+struct BoundingRectangle
 {
 	XMFLOAT3	position;
 	float		width;
 	float		height;
 
-	BoundingBox()
+	BoundingRectangle()
 	{
 		position	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 		width		= 1.0f;
@@ -18,21 +18,21 @@ struct BoundingBox
 	}
 
 	//Use for moving objects, update position frame by frame
-	BoundingBox( float width, float height )
+	BoundingRectangle( float width, float height )
 	{
 		this->width		= width;
 		this->height	= height;
 	}
 
 	//Use for static objects
-	BoundingBox( XMFLOAT3 position, float width, float height )
+	BoundingRectangle( XMFLOAT3 position, float width, float height )
 	{
 		this->position	= position;
 		this->width		= width;
 		this->height	= height;	
 	}
 
-	bool Intersect( BoundingBox* inBox ) 
+	bool Intersect( BoundingRectangle* inBox ) 
 	{
 		return ( ( position.x < inBox->position.x + inBox->width  ) && ( position.x + width  > inBox->position.x ) &&
 				 ( position.z < inBox->position.z + inBox->height ) && ( position.z + height > inBox->position.z ) );		

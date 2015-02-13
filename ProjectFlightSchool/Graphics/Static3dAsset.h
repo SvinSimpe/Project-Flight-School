@@ -2,7 +2,7 @@
 #define STATIC3DASSET_H
 
 #include "AssetBase.h"
-#include "AABBGenerator.h"
+#include "BoxGenerator.h"
 
 #define	TEXTURES_DIFFUSE 0
 #define	TEXTURES_NORMAL 1

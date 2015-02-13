@@ -416,7 +416,6 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceConte
 		}
 
 		myFile.close();
-
 		////////////////TA kod
 		vector<StaticVertex> vertexInput;
 		for( UINT i = 0; i < nrOfMeshes; i++ )
@@ -425,7 +424,9 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceConte
 				vertexInput.push_back( vertices[i][j] );
 		}
 		AABB meshAABB;
-		meshAABB  = AABBGen.CreateAABBFromVerts( &vertexInput );
+		meshAABB  = BoxGen.CreateAABBFromVerts( &vertexInput );
+		OctTree meshOct;
+		meshOct = BoxGen.GenerateOctTree( &vertexInput, &meshAABB, 3, 0);
 
 		////////////////
 

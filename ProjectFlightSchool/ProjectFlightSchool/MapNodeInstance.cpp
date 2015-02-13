@@ -48,9 +48,9 @@ void MapNodeInstance::SetMapNode( MapNode* mapNode )
 {
 	mNode = mapNode;
 }
-BoundingBox MapNodeInstance::GetBoundingBox()
+BoundingRectangle MapNodeInstance::GetBoundingBox()
 {
-	BoundingBox b;
+	BoundingRectangle b;
 	b.position	= mPos;
 	b.width		= (float)mNode->GetGridWidth();
 	b.height	= (float)mNode->GetGridHeight();

@@ -398,11 +398,17 @@ HRESULT AssetManager::LoadStatic2dAsset( ID3D11Device* device, ID3D11DeviceConte
 	{	 
 		ID3D11ShaderResourceView* srv = nullptr;
 		ID3D11Texture2D* texture = nullptr;
-		AssignAssetId( assetId );
 
 		hr = mResourceLoader->LoadResource( device, dc, fileName, (ID3D11Resource**)texture, &srv );
-		if(FAILED ( hr ) ) return hr;
+		if( FAILED ( hr ) )
+		{	
+			assetId = DIFFUSE_PLACEHOLDER;
+			OutputDebugStringA( "Texture failed to load!\n" );
+			return hr;
+		}
 		
+		AssignAssetId( assetId );
+
 		Static2dAsset* temp;
 		temp				= new Static2dAsset();
 		temp->mAssetId		= assetId;

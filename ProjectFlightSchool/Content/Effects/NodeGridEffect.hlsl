@@ -63,8 +63,15 @@ PS_Out PS_main( VS_Out input )
 {	
 	PS_Out output = (PS_Out)0;
 	
+	float2 mapUv = float2( frac( input.worldPosition.x * 0.06f ), frac( input.worldPosition.z * 0.06f ) );
+
+	float3 weights = normalize( blendMapWeights.Sample( linearSampler, input.uv ).xyz );
+	float3 diffuse = mudBlendMap.Sample( linearSampler, mapUv ).xyz * weights.x;
+	diffuse		  += grassBlendMap.Sample( linearSampler, mapUv ).xyz * weights.y;
+	diffuse		  += sandBlendMap.Sample( linearSampler, mapUv ).xyz * weights.z;
+
 	output.normal			= float4( normalize( input.normal ), 0.0f );
-	output.albedoSpec		= float4( grassBlendMap.Sample( linearSampler, input.uv ).xyz, 0.0f );
+	output.albedoSpec		= float4( diffuse, 0.0f );
 	output.worldPosition	= float4( input.worldPosition, 1.0f );
 	return output;
 }

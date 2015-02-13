@@ -2,6 +2,7 @@
 <Level>
     <Nodes>
         <Node path="../Content/Assets/Nodes/tileglade.lp" type="AREA_NODE" />
+	<Node path="../Content/Assets/Nodes/tileALargePuddle.lp" type="AREA_NODE" />
 
     </Nodes>
     <Assets>

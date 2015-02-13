@@ -478,7 +478,7 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.mAlliesHP		= mAlliesHP;
 	guiUpdate.mShipHP		= 1.0f;
 
-	mPlayer->Update( deltaTime, mRemotePlayers );
+	//mPlayer->Update( deltaTime, mRemotePlayers );
 	HandleDeveloperCameraInput();
 	mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers );
 
@@ -651,7 +651,7 @@ HRESULT PlayState::Initialize()
 
 	mWorldMap = new Map();
 
-	mWorldMap->Initialize( 4 );
+	mWorldMap->Initialize( 16 );
 
 	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/testMap.xml")); 
 	EventManager::GetInstance()->TriggerEvent( E1 );

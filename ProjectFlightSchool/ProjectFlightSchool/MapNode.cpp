@@ -4,13 +4,21 @@
 
 HRESULT	MapNode::Render( float deltaTime, XMFLOAT4X4 parentWorld )
 {
-	RenderManager::GetInstance()->AddNodeGridToList( mGrid, mVertexCount, parentWorld );
+	RenderManager::GetInstance()->AddNodeGridToList( mGrid, mNavVertexCount, parentWorld );
 
 	for( int i = 0; i < (int)mStaticAssetCount; i++ )
 	{
 		mStaticAssets[i].Render( deltaTime, parentWorld );
 	}
 	return S_OK;
+}
+XMFLOAT3* MapNode::GetNavData() const
+{
+	return mNavData;
+}
+UINT MapNode::GetNavVertexCount() const
+{
+	return mNavVertexCount;
 }
 StaticVertex* MapNode::GetGrid() const
 {
@@ -51,7 +59,6 @@ MapNodeInstance* MapNode::GetMapNodeInstance()
 			result = &mInstances[i];
 			result->SetMapNode( this );
 			result->SetInstanceID( i );
-			result->Initialize();
 			printf( "Instance number: %d\n", i);
 			instanceFound = true;
 		}
@@ -72,7 +79,9 @@ HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 {
 	mGrid				= new StaticVertex[initInfo.vertexCount];
 	//BUGHAXX
-
+	mName				= initInfo.name;
+	mNavData			= initInfo.navData;
+	mNavVertexCount		= initInfo.navVertexCount;
 	mGridWidth			= initInfo.gridWidth;
 	mGridHeight			= initInfo.gridHeight;
 	//Handles deleting assets
@@ -90,15 +99,23 @@ HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 
 	mOrigin.z = -mOrigin.z;
 
-	for( int i = 0; i < (int)mVertexCount; i++ )
+	for( int i = 0; i < (int)mNavVertexCount; i++ )
 	{
-		mGrid[i].position[0]	= initInfo.grid[i].position[0];
-		mGrid[i].position[1]	= initInfo.grid[i].position[1];
-		mGrid[i].position[2]	= initInfo.grid[i].position[2];
+		//mGrid[i].position[0]	= initInfo.grid[i].position[0];
+		//mGrid[i].position[1]	= initInfo.grid[i].position[1];
+		//mGrid[i].position[2]	= initInfo.grid[i].position[2];
 
-		mGrid[i].normal[0]	= initInfo.grid[i].normal[0];
-		mGrid[i].normal[1]	= initInfo.grid[i].normal[1];
-		mGrid[i].normal[2]	= initInfo.grid[i].normal[2];
+		mGrid[i].position[0]	= mNavData[i].x;
+		mGrid[i].position[1]	= mNavData[i].y;
+		mGrid[i].position[2]	= mNavData[i].z;
+
+		//mGrid[i].normal[0]	= initInfo.grid[i].normal[0];
+		//mGrid[i].normal[1]	= initInfo.grid[i].normal[1];
+		//mGrid[i].normal[2]	= initInfo.grid[i].normal[2];
+
+		mGrid[i].normal[0]	= 1.0f;
+		mGrid[i].normal[1]	= 1.0f;
+		mGrid[i].normal[2]	= 1.0f;
 
 		mGrid[i].tangent[0]	= 1.0f;
 		mGrid[i].tangent[1]	= 1.0f;
@@ -111,8 +128,16 @@ HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 }
 void MapNode::Release()
 {
-	delete[] mGrid;
-	delete[] mStaticAssets;
+	if( mNavData )
+		delete[] mNavData;
+	if( mGrid )
+		delete[] mGrid;
+	if( mStaticAssets )
+		delete[] mStaticAssets;
+	for( int i = 0; i < INSTANCE_COUNT; i++ )
+	{
+		mInstances[i].Release();
+	}
 }
 MapNode::MapNode()
 {

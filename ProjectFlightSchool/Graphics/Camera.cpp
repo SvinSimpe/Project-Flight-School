@@ -106,6 +106,15 @@ void Camera::ZoomOut()
 	mPos.z -= 0.5f;
 }
 
+void Camera::TurnLeft()
+{
+	DirectX::XMStoreFloat4( &mPos, DirectX::XMVector3TransformCoord(DirectX::XMLoadFloat4( &mPos ), DirectX::XMMatrixRotationY( 0.5f ) ) );
+}
+
+void Camera::TurnRight()
+{
+	DirectX::XMStoreFloat4( &mPos, DirectX::XMVector3TransformCoord(DirectX::XMLoadFloat4( &mPos ), DirectX::XMMatrixRotationY( -0.5f ) ) );
+}
 HRESULT Camera::Initialize( CameraInfo* cameraInfo )
 {
 	mPos			= cameraInfo->eyePos;

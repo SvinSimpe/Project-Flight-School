@@ -9,6 +9,7 @@
 #define MAX_AMOUNT_OF_PLANES	2000
 #define MAX_AMOUNT_OF_BOXES		2000
 #define MAX_AMOUNT_OF_NODEGRIDS	500
+#define MAX_AMOUNT_OF_LINES		10000
 
 struct Object3dInfo
 {
@@ -67,6 +68,11 @@ struct BoxInfo
 {
 	DirectX::XMFLOAT3 min;
 	DirectX::XMFLOAT3 max;
+};
+struct LineInfo
+{
+	DirectX::XMFLOAT3 start;
+	DirectX::XMFLOAT3 end;
 };
 
 struct AnimationTrack

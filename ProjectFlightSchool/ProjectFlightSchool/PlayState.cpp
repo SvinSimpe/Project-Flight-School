@@ -305,12 +305,17 @@ void PlayState::HandleDeveloperCameraInput()
 	}
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_1 ) )
 	{
+		RenderManager::GetInstance()->ChangeRasterizerState( CULL_NONE );
 		for( auto& s : mShips )
 		{
 			IEventPtr E1( new Event_Client_Change_Ship_Levels( s->GetID(), 0, -1, 0 ) );
 			Client::GetInstance()->SendEvent( E1 );
 		}
 	}
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_2 ) )
+		RenderManager::GetInstance()->ChangeRasterizerState( CULL_BACK );
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_3 ) )
+		RenderManager::GetInstance()->ChangeRasterizerState( WIREFRAME );
 }
 
 void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID )
@@ -419,6 +424,7 @@ HRESULT PlayState::Update( float deltaTime )
 
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{
+		mWorldMap->IsOnNavMesh( mPlayer->GetPlayerPosition() );
 		CheckPlayerCollision();
 
 		if( mPlayer->GetIsMeleeing() )
@@ -473,8 +479,9 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.mShipHP		= 1.0f;
 
 	mPlayer->Update( deltaTime, mRemotePlayers );
-
 	HandleDeveloperCameraInput();
+	mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers );
+
 
 	UpdateProjectiles( deltaTime );
 
@@ -643,9 +650,9 @@ HRESULT PlayState::Initialize()
 	mPlayer->Initialize();
 
 	mWorldMap = new Map();
-	mWorldMap->Initialize( 8 );
+	mWorldMap->Initialize( 1 );
 
-	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/ForestMap.xml")); 
+	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/testMap.xml")); 
 	EventManager::GetInstance()->TriggerEvent( E1 );
 
 	//Fill up on Projectiles, test values

@@ -57,6 +57,15 @@ enum DepthStencils
 	DEPTHSTENCILS_AMOUNT
 };
 
+enum RasterizerStates
+{
+	CULL_NONE,
+	CULL_BACK,
+	WIREFRAME,
+
+	RASTERIZER_STATES_AMOUNT
+};
+
 enum Effects
 {
 	//Particle Effects
@@ -137,6 +146,7 @@ class LIBRARY_EXPORT Graphics
 		ID3D11BlendState*			mBlendStates[BLEND_STATES_AMOUNT];
 		ID3D11DepthStencilState*	mDepthStencils[DEPTHSTENCILS_AMOUNT];
 		ID3D11SamplerState*			mSamplerStates[SAMPLERS_AMOUNT];
+		ID3D11RasterizerState*		mRasterizerState[RASTERIZER_STATES_AMOUNT];
 
 		AssetManager*				mAssetManager;
 		Effect*						mEffects[EFFECTS_AMOUNT];
@@ -186,6 +196,7 @@ class LIBRARY_EXPORT Graphics
 		void RenderParticleSystems	( ParticleInfo* info, UINT sizeOfList );
 		void RenderNodeGrid			( NodeGridInfo* info, UINT sizeOfList );
 		void RenderDebugBox			( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max );
+		void RenderLine				( LineInfo* info, UINT sizeOfList );
 
 		DirectX::XMFLOAT4X4	GetRootMatrix( AnimationTrack animTrack );
 		bool				GetAnimationMatrices( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo &info );
@@ -199,6 +210,7 @@ class LIBRARY_EXPORT Graphics
 		void GetProjectionMatrix( DirectX::XMMATRIX &proj );
 		void GetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatrix );
 
+		void ChangeRasterizerState( RasterizerStates rasterState );
 		void MapLightStructuredBuffer( LightStructure* lightStructure, int numPointLights );
 		void SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY );
 		void SetEyePosition( Cameras camera, DirectX::XMFLOAT3 &eyePosition );

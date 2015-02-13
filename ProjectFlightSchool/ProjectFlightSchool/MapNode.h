@@ -2,7 +2,8 @@
 #define MAPNODE_H
 #include "GameObject.h"
 #include "MapNodeInstance.h"
-#define INSTANCE_COUNT 150
+#include "Text.h"
+#define INSTANCE_COUNT 100
 
 using namespace DirectX;
 
@@ -11,19 +12,25 @@ struct MapNodeInfo
 {
 		Vertex24*		grid;
 		UINT			vertexCount;
+		XMFLOAT3*		navData;
+		UINT			navVertexCount;
 		UINT			gridWidth;
 		UINT			gridHeight;
 		XMFLOAT4X4		anchor;
 		UINT			nodeDim;
 		GameObject*		staticAssets;
 		UINT			staticAssetCount;
+		std::string		name;
 };
 
 class MapNode
 {
 	private:
+		std::string		mName;
 		StaticVertex*	mGrid;
+		XMFLOAT3*		mNavData;
 
+		UINT			mNavVertexCount;
 		UINT			mVertexCount;
 		UINT			mGridDim;
 
@@ -36,7 +43,7 @@ class MapNode
 		GameObject*		mStaticAssets;
 		UINT			mStaticAssetCount;
 
-		MapNodeInstance mInstances[150];
+		MapNodeInstance mInstances[INSTANCE_COUNT];
 
 	protected:
 	public:
@@ -50,6 +57,7 @@ class MapNode
 		StaticVertex*		GetGrid() const;
 
 		UINT				GetVertexCount() const;
+		UINT				GetNavVertexCount() const;
 
 		UINT				GetGridDim() const;
 
@@ -57,6 +65,7 @@ class MapNode
 		UINT				GetGridHeight() const;
 
 		XMFLOAT3			GetOrigin() const;
+		XMFLOAT3*			GetNavData() const;
 
 		GameObject*			GetStaticAssets() const;
 

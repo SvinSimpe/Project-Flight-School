@@ -17,6 +17,7 @@ void RenderManager::Clear()
 	mNrOfParticles	= 0;
 	mNrOfNodeGrid	= 0;
 	mNrOfBoxes		= 0;
+	mNrOfLines		= 0;
 }
 
 RenderManager::RenderManager()
@@ -70,7 +71,14 @@ void RenderManager::AddBoxToList( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 	info.max = max;
 	mBoxArray[mNrOfBoxes++] = info;
 }
+void RenderManager::AddLineToList( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end )
+{
+	LineInfo info;
+	info.start	= start;
+	info.end	= end;
 
+	mLineArray[mNrOfLines++] = info;
+}
 bool RenderManager::AddAnim3dToList( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation )
 {
     static Anim3dInfo info;
@@ -184,6 +192,10 @@ void RenderManager::AnimationStartNew( AnimationTrack &animationTrack, AssetID n
 	animationTrack.mInterpolation		= 0.2f;
 }
 
+void RenderManager::ChangeRasterizerState( RasterizerStates rasterState )
+{
+	mRasterState = rasterState;
+}
 void RenderManager::AnimationReset( AnimationTrack &animationTrack, AssetID defaultAnimation )
 {
 	animationTrack.mCurrentAnimation		= defaultAnimation;
@@ -211,6 +223,7 @@ HRESULT RenderManager::Render()
 	//Reset the scene to default values
 	Graphics::GetInstance()->BeginScene();
 
+	Graphics::GetInstance()->ChangeRasterizerState( mRasterState );
 	//Prepare the scene to be rendered with Gbuffers
 	Graphics::GetInstance()->GbufferPass();
 	SetLightStructuredBuffer();
@@ -229,6 +242,8 @@ HRESULT RenderManager::Render()
 	{
 		Graphics::GetInstance()->RenderDebugBox( mBoxArray[i].min, mBoxArray[i].max );
 	}
+
+	Graphics::GetInstance()->RenderLine( mLineArray, mNrOfLines );
 
 	Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray, mNrOfAnim3d );
 	////------------------------Finished filling the Gbuffers----------------------

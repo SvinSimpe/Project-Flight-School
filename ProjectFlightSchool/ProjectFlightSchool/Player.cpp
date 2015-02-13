@@ -441,7 +441,6 @@ void Player::UpgradeLegs()
 {
 	if( mUpgrades.legs < mUpgrades.maxUpgrades )
 	{
-		mMaxAcceleration += mMaxAcceleration/mUpgrades.legs;
 		mUpgrades.legs++;
 	}
 }

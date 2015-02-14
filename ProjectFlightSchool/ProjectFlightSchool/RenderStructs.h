@@ -53,6 +53,7 @@ struct NodeGridInfo
 {
 	StaticVertex*		mVertices;
 	UINT				mNrOfVertices;
+	AssetID				mBlendMap;
 	DirectX::XMFLOAT4X4	mWorld;
 
 };

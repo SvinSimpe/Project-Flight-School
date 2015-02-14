@@ -442,6 +442,40 @@ void Player::AddImpuls( XMFLOAT3 impuls )
 	}
 }
 
+void Player::UpgradeBody()
+{
+	if( mUpgrades.body < mUpgrades.maxUpgrades )
+	{
+		mUpgrades.body++;
+	}
+}
+
+void Player::UpgradeLegs()
+{
+	if( mUpgrades.legs < mUpgrades.maxUpgrades )
+	{
+		mUpgrades.legs++;
+	}
+}
+
+void Player::UpgradeMelee()
+{
+	if( mUpgrades.melee < mUpgrades.maxUpgrades )
+	{
+		mLoadOut->meleeWeapon->LevelUp();
+		mUpgrades.melee++;
+	}
+}
+
+void Player::UpgradeRange()
+{
+	if( mUpgrades.range < mUpgrades.maxUpgrades )
+	{
+		mLoadOut->rangedWeapon->LevelUp();
+		mUpgrades.range++;
+	}
+}
+
 void Player::QueueEvent( IEventPtr ptr )
 {
 	gEventList.push_front( ptr );
@@ -456,7 +490,7 @@ void Player::TakeDamage( float damage, unsigned int shooter )
 		float moddedDmg = damage * mBuffMod;
 		damage -= moddedDmg;
 	}
-	mCurrentHp -= damage;
+	mCurrentHp -= damage/mUpgrades.body;
 	IEventPtr E1( new Event_Client_Update_HP( mID, mCurrentHp ) );
 	QueueEvent( E1 );
 	if ( !mIsDown && mIsAlive && mCurrentHp <= 0.0f )
@@ -546,7 +580,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	mCloseToPlayer = false;
 	for( auto rp : remotePlayers )
 	{
-		if( mBoundingCircle->Intersect( rp->GetBoundingCircleAura() ) )
+		if( rp->IsAlive() && mBoundingCircle->Intersect( rp->GetBoundingCircleAura() ) )
 		{
 			mCloseToPlayer = true;
 		}
@@ -719,7 +753,7 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Change_Buff_State::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_New_Player_Spawn_Position::GUID );
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
-	
+
 	return S_OK;
 }
 

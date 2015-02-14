@@ -1,7 +1,9 @@
 <?xml version="1.0" standalone="no" ?>
 <Level>
     <Nodes>
-        <Node path="../Content/Assets/Nodes/testnavmesh.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileglade.lp" type="AREA_NODE" />
+	<Node path="../Content/Assets/Nodes/tileALargePuddle.lp" type="AREA_NODE" />
+
     </Nodes>
     <Assets>
 		<Asset path="../Content/Assets/PermanentAssets/Ship/ShipWithTripod.pfs"/>

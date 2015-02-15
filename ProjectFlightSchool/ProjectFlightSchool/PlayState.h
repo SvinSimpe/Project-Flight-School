@@ -14,10 +14,7 @@
 #include "RemoteEnemy.h"
 #include "EnemyAnimationManager.h"
 #include "Gui.h"
-#include "ParticleManager.h"
 #include "SoundBufferHandler.h"
-//TestUpgradeWindow
-#include "UpgradeShipWindow.h"
 
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
@@ -49,8 +46,6 @@ class PlayState : public BaseState
 		bool						mEnemyListSynced;
 		bool						mServerInitialized;
 
-		ParticleManager*			mParticleManager;
-
 		RADAR_UPDATE_INFO			mRadarObjects[MAX_RADAR_OBJECTS];
 		float						mAlliesHP[MAX_REMOTE_PLAYERS / 2];
 		Gui*						mGui;
@@ -60,9 +55,6 @@ class PlayState : public BaseState
 		//TestSound
 		int							m3DSoundAsset;
 		int							mSoundAsset;
-
-		//TestUpgradeWindow
-		UpgradeShipWindow			mWindow;
 	
 	protected:
 	public:

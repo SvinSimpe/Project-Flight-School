@@ -1,5 +1,15 @@
 #include "Gui.h"
 
+void Gui::ActivateUpgradeShipWindow()
+{
+	mWindow.Activate();
+}
+
+void Gui::DeActivateUpgradeShipWindow()
+{
+	mWindow.DeActivate();
+}
+
 HRESULT Gui::Update( GuiUpdate guiUpdate )
 {
 	HRESULT result = S_OK;
@@ -47,6 +57,11 @@ HRESULT Gui::Update( GuiUpdate guiUpdate )
 	mPlayerXP		= (int)( guiUpdate.mPlayerXP * 100 );
 	mPlayerShield	= (int)( guiUpdate.mPlayerShield * 100 );
 	mExperience		= guiUpdate.mPlayerXP;
+
+	if ( mWindow.IsActive() )
+	{
+		mWindow.Update( guiUpdate.deltaTime );
+	}
 
 	return result;
 
@@ -99,6 +114,11 @@ HRESULT Gui::Render()
 		mFont.WriteText( renderText, (mTopLeftCompWithPlayerHealthXP.x + 75.0f ), ( mTopLeftCompWithPlayerHealthXP.y + 66.0f ), 4.8f );
 	}
 
+	if ( mWindow.IsActive() )
+	{
+		mWindow.Render();
+	}
+
 	return result;
 }
 
@@ -149,8 +169,9 @@ HRESULT Gui::Initialize()
 	mSizeLevelUp						= XMFLOAT2( (float)( mSizePlayerHealthXP.x / 2.16f ), (float)( mSizePlayerHealthXP.y / 1.4f ) );
 	mTopLeftCompWithPlayerHealthXP		= XMFLOAT2( (float)( mSizePlayerHealthXP.x / 3.14f ), ( mPlayerHealthXPTopLeftCorner.y - (float)( mSizeLevelUp.y / 1.45f ) ) );
 
-	return result;
+	mWindow.Initialize();
 
+	return result;
 }
 
 void Gui::Release()
@@ -167,6 +188,8 @@ void Gui::Release()
 	}
 
 	mFont.Release();
+
+	mWindow.Release();
 }
 
 Gui::Gui()
@@ -179,4 +202,9 @@ Gui::Gui()
 Gui::~Gui()
 {
 
+}
+
+bool Gui::UpgradeShipWindowIsActive()
+{
+	return mWindow.IsActive();
 }

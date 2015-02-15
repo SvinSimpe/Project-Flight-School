@@ -27,6 +27,8 @@ void Server::ClientJoined( IEventPtr eventPtr )
 			{
 				IEventPtr SpawnShip( new Event_Server_Spawn_Ship( s->mID, s->mTeamID, s->mPos, s->mDir, s->mCurrentHP ) );
 				SendEvent( SpawnShip, data->ID() );
+				IEventPtr E1( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel ) );
+				SendEvent( E1, data->ID() );
 			}
 
 			// Sends the incoming ID to the existing remotes
@@ -297,6 +299,33 @@ void Server::BroadcastEnemyAttackToClients( IEventPtr eventPtr )
 	}
 }
 
+void Server::ClientWinLose( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Win::GUID )
+	{
+		std::shared_ptr<Event_Client_Win> data = std::static_pointer_cast<Event_Client_Win>( eventPtr );
+		IEventPtr E1( new Event_Remote_Win( data->Team() ) );
+		BroadcastEvent( E1 );
+	}
+}
+
+void Server::ClientChangeShipLevels( IEventPtr eventPtr )
+{
+	if ( eventPtr->GetEventType() == Event_Client_Change_Ship_Levels::GUID )
+	{
+		std::shared_ptr<Event_Client_Change_Ship_Levels> data = std::static_pointer_cast<Event_Client_Change_Ship_Levels>( eventPtr );
+		for( auto s : mShips )
+		{
+			if ( s->mTeamID == data->ID() )
+			{
+				s->ClientChangeShipLevels( data->TurretLevelChange(), data->ShieldLevelChange(), data->BuffLevelChange() );
+				IEventPtr E1( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel ) );
+				BroadcastEvent( E1 );
+			}
+		}
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -410,8 +439,9 @@ bool Server::Connect( UINT port )
 
 void Server::Update( float deltaTime )
 {
-	if( mActive )
+	if( this && mActive )
 	{
+		// Handles the client getting buffed by the ship
 		bool shipBuff = false;
 		for( auto& c : mClientMap )
 		{
@@ -430,6 +460,8 @@ void Server::Update( float deltaTime )
 				}
 			}
 		}
+
+		// Enemy update
 		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 		{
 			if( mEnemies[i]->IsAlive() )
@@ -447,10 +479,21 @@ void Server::Update( float deltaTime )
 				mEnemies[i]->HandleSpawn( deltaTime, GetNextSpawn() );
 			}
 		}
-
 		//if( mSafeUpdate )
 		StateCheck();
 
+		// Ship updates
+		for( auto& s : mShips )
+		{
+			if( s->mWasUpdated )
+			{
+				IEventPtr E1( new Event_Server_Update_Ship( s->mID, s->mMaxShield, s->mCurrentShield, s->mCurrentHP ) );
+				BroadcastEvent( E1 );
+				s->Update( deltaTime );
+			}
+		}
+
+		// Sends the events in the queue to the clients
 		while( !mEventList.empty() )
 		{
 			mClientMap[mEventList.back().ToID]->NEF.ForwardEvent( mEventList.back().EventPtr );
@@ -515,7 +558,8 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientEnemyProjectileDamage, this, Event_Client_Projectile_Damage_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &Server::SetEnemyState, this, Event_Set_Enemy_State::GUID );
 	EventManager::GetInstance()->AddListener( &Server::BroadcastEnemyAttackToClients, this, Event_Tell_Server_Enemy_Attack_Player::GUID );
-
+	EventManager::GetInstance()->AddListener( &Server::ClientWinLose, this, Event_Client_Win::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientChangeShipLevels, this, Event_Client_Change_Ship_Levels::GUID );
 	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
 
 	mTeamDelegate	= 1;
@@ -574,6 +618,12 @@ void Server::Reset()
 	}
 	mClientMap.clear();
 	mEventList.clear();
+
+	for( auto& s : mShips )
+	{
+		SAFE_RELEASE_DELETE( s );
+	}
+	mShips.clear();
 }
 
 void Server::Release()

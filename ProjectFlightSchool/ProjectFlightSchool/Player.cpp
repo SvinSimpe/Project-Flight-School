@@ -1,4 +1,6 @@
 #include "Player.h"
+#include "Map.h"
+#include "HelperFunctions.h"
 
 /////Private
 
@@ -178,8 +180,8 @@ void Player::HandleSpawn( float deltaTime )
 {
 	if( mTimeTillSpawn <= 0.0f )
 	{
-		UnLock();
 		Spawn();
+		UnLock();
 		IEventPtr E1( new Event_Client_Spawned( mID ) );
 		QueueEvent( E1 );
 	}
@@ -224,8 +226,85 @@ void Player::Move( float deltaTime )
 	normalizer				= XMVector3Normalize( XMLoadFloat3( &mLowerBody.direction ) );
 	XMStoreFloat3( &mLowerBody.direction, normalizer );
 
-	mLowerBody.position.x += mVelocity.x * deltaTime;
-	mLowerBody.position.z += mVelocity.z * deltaTime;
+}
+
+HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers )
+{
+	Update( deltaTime, remotePlayers );
+	XMFLOAT2 newDir;
+	XMFLOAT3 newPos;
+	int debug = 0;
+
+	newPos.x = mLowerBody.position.x + mVelocity.x * deltaTime;
+	newPos.z = mLowerBody.position.z + mVelocity.z * deltaTime;
+
+	newDir.x = mVelocity.x * deltaTime;
+	newDir.y = mVelocity.z * deltaTime;
+
+	if( worldMap->IsOnNavMesh( newPos ) == nullptr)
+	{
+		NavTriangle* currTri = worldMap->IsOnNavMesh( mLowerBody.position );
+
+		if( currTri )
+		{
+			DirectX::XMFLOAT2 p, p1, p2, p3, delta;
+			
+			delta = XMFLOAT2( newPos.x - mLowerBody.position.x, newPos.z - mLowerBody.position.z );
+
+			p = DirectX::XMFLOAT2( mLowerBody.position.x, mLowerBody.position.z );
+
+			p1 = XMFLOAT2( currTri->triPoints[0].x, currTri->triPoints[0].z );
+			p2 = XMFLOAT2( currTri->triPoints[1].x, currTri->triPoints[1].z );
+			p3 = XMFLOAT2( currTri->triPoints[2].x, currTri->triPoints[2].z );
+
+
+			XMVECTOR deltaV = XMLoadFloat2( &delta );
+			XMVECTOR dir;
+
+			XMFLOAT2 center = XMFLOAT2( (p1.x + p2.x + p3.x ) / 3.0f, ( p1.y + p2.y + p3.y ) / 3.0f );
+
+			if( HelperFunctions::Inside2DTriangle( p, center, p1, p2 ) )
+			{
+				dir = XMLoadFloat2( &XMFLOAT2( p1.x - p2.x, p1.y - p2.y ) );
+			}
+
+			p1 = XMFLOAT2( currTri->triPoints[1].x, currTri->triPoints[1].z );
+			p2 = XMFLOAT2( currTri->triPoints[2].x, currTri->triPoints[2].z );
+			
+			if( HelperFunctions::Inside2DTriangle( p, center, p1, p2 ) )
+			{
+				debug = 2;
+				dir = XMLoadFloat2( &XMFLOAT2( p1.x - p2.x, p1.y - p2.y ) );
+				
+			}
+
+			p1 = XMFLOAT2( currTri->triPoints[2].x, currTri->triPoints[2].z );
+			p2 = XMFLOAT2( currTri->triPoints[0].x, currTri->triPoints[0].z );
+			
+			if( HelperFunctions::Inside2DTriangle( p, center, p1, p2 ) )
+			{
+				debug = 3;
+				dir = XMLoadFloat2( &XMFLOAT2( p1.x - p2.x, p1.y - p2.y ) );
+			}
+
+
+			dir = XMVector2Normalize( dir );
+
+
+			XMVECTOR scalar = XMVector2Dot( deltaV, dir );
+
+			float s = XMVectorGetX( scalar );
+
+
+			XMStoreFloat2( &newDir, dir );
+
+			newDir.x = newDir.x * s;
+			newDir.y = newDir.y * s;
+		}
+	}
+	mLowerBody.position.x += newDir.x;
+	mLowerBody.position.z += newDir.y;
+	return S_OK;
 }
 
 void Player::GoDown( int shooter )
@@ -240,8 +319,8 @@ void Player::GoDown( int shooter )
 
 void Player::GoUp()
 {
-	UnLock();
 	RemotePlayer::GoUp();
+	UnLock();
 	IEventPtr E1( new Event_Client_Up( mID ) );
 	QueueEvent( E1 );
 }
@@ -271,56 +350,25 @@ void Player::Die()
 
 void Player::Fire()
 {
-	//Hardcoded to match shotgun
+	//Offset calcs
+	XMFLOAT3 weaponOffsets =	mLoadOut->rangedWeapon->weaponType == MINIGUN			? MINIGUN_OFFSETS : 
+								mLoadOut->rangedWeapon->weaponType == SHOTGUN			? SHOTGUN_OFFSETS :
+								mLoadOut->rangedWeapon->weaponType == GRENADELAUNCHER	? GL_OFFSETS :
+								mLoadOut->rangedWeapon->weaponType == SNIPER			? SNIPER_OFFSETS : XMFLOAT3( 0.0f, 0.0f, 1.0f );
+
 	XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
 	XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
-	XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, 1.0f, mLowerBody.position.z ) );
+	XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, weaponOffsets.z, mLowerBody.position.z ) );
 	
-	offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * 0.5f;
-	offset += direction * 1.8f;
+	offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * weaponOffsets.y;
+	offset += direction * weaponOffsets.x;
 
 	XMFLOAT3 loadDir;
 	XMStoreFloat3( &loadDir, offset );
 
 	if( mLoadOut->rangedWeapon->weaponType == SHOTGUN )
 	{
-		// Fire shotgun
-
-		// middle projectile
-		IEventPtr E1( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mUpperBody.direction, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
-		QueueEvent( E1 );
-
-		//// projectile 1
-		XMFLOAT3 shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
-		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 30.0f ) ) ) );
-		IEventPtr E2( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
-		QueueEvent( E2 );
-
-		// projectile 2
-		//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
-		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -30.0f ) ) ) );
-		IEventPtr E3( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
-		QueueEvent( E3 );
-
-		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 20.0f ) ) ) );
-				IEventPtr E4( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
-		QueueEvent( E4 );
-
-		// projectile 2
-		//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
-		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -20.0f ) ) ) );
-		IEventPtr E5( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
-		QueueEvent( E5 );
-
-		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 40.0f ) ) ) );
-		IEventPtr E6( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
-		QueueEvent( E6 );
-
-		// projectile 2
-		//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
-		XMStoreFloat3( &shotDir, XMVector3TransformCoord( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -40.0f ) ) ) );
-		IEventPtr E7( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
-		QueueEvent( E7 );
+		FireShotgun( &loadDir );
 	}
 	else
 	{
@@ -329,15 +377,47 @@ void Player::Fire()
 		{
 			float directionOffset	=  (float)( rand() % 100 ) * 0.001f - mLoadOut->rangedWeapon->spread;
 			mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffset, mUpperBody.direction.y, mUpperBody.direction.z + directionOffset );
-			IEventPtr E1( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mFireDirection, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range ) );
-			QueueEvent( E1 );
+			QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, loadDir, mFireDirection, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range ) );
 		}
 		else
 		{
-			IEventPtr E1( new Event_Client_Fired_Projectile( mID, XMFLOAT3( loadDir ), mUpperBody.direction, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range ) );
-			QueueEvent( E1 );
+			QueueEvent(  (IEventPtr)new Event_Client_Fired_Projectile( mID, loadDir, mUpperBody.direction, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range ) );
 		}
 	}
+}
+
+void Player::FireShotgun( XMFLOAT3* spawnPoint )
+{
+	// Fire shotgun
+
+	// middle projectile
+	QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, *spawnPoint, mUpperBody.direction, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+
+	//// projectile 1
+	XMFLOAT3 shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 30.0f ) ) ) );
+	QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+
+	// projectile 2
+	//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -30.0f ) ) ) );
+	QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+
+	XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 20.0f ) ) ) );
+	QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+
+	// projectile 2
+	//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -20.0f ) ) ) );
+	QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+
+	XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 40.0f ) ) ) );
+	QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+
+	// projectile 2
+	//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -40.0f ) ) ) );
+	QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
 }
 
 void Player::AddImpuls( XMFLOAT3 impuls )
@@ -349,15 +429,38 @@ void Player::AddImpuls( XMFLOAT3 impuls )
 	}
 }
 
-void Player::Lock()
+void Player::UpgradeBody()
 {
-	mVelocity = XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mLock = true;
+	if( mUpgrades.body < mUpgrades.maxUpgrades )
+	{
+		mUpgrades.body++;
+	}
 }
 
-void Player::UnLock()
+void Player::UpgradeLegs()
 {
-	mLock = false;
+	if( mUpgrades.legs < mUpgrades.maxUpgrades )
+	{
+		mUpgrades.legs++;
+	}
+}
+
+void Player::UpgradeMelee()
+{
+	if( mUpgrades.melee < mUpgrades.maxUpgrades )
+	{
+		mLoadOut->meleeWeapon->LevelUp();
+		mUpgrades.melee++;
+	}
+}
+
+void Player::UpgradeRange()
+{
+	if( mUpgrades.range < mUpgrades.maxUpgrades )
+	{
+		mLoadOut->rangedWeapon->LevelUp();
+		mUpgrades.range++;
+	}
 }
 
 void Player::QueueEvent( IEventPtr ptr )
@@ -374,7 +477,7 @@ void Player::TakeDamage( float damage, unsigned int shooter )
 		float moddedDmg = damage * mBuffMod;
 		damage -= moddedDmg;
 	}
-	mCurrentHp -= damage;
+	mCurrentHp -= damage/mUpgrades.body;
 	IEventPtr E1( new Event_Client_Update_HP( mID, mCurrentHp ) );
 	QueueEvent( E1 );
 	if ( !mIsDown && mIsAlive && mCurrentHp <= 0.0f )
@@ -395,11 +498,25 @@ void Player::HandleRevive(float deltaTime)
 	}
 }
 
+void Player::Lock()
+{
+	mVelocity = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mLock = true;
+}
+
+void Player::UnLock()
+{
+	if (!mIsDown && mIsAlive)
+	{
+		mLock = false;
+	}
+}
+
 void Player::Reset()
 {
 	mEventCapTimer					= 0.0f;
-	mPointLight[0]->position		= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
-	mPointLight[0]->colorAndRadius	= DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 17.0f );
+	mPointLight->position		= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
+	mPointLight->colorAndRadius	= DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 17.0f );
 
 	mWeaponCoolDown				= 0;
 	mMeleeCoolDown				= 0;
@@ -450,7 +567,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	mCloseToPlayer = false;
 	for( auto rp : remotePlayers )
 	{
-		if( mBoundingCircle->Intersect( rp->GetBoundingCircleAura() ) )
+		if( rp->IsAlive() && mBoundingCircle->Intersect( rp->GetBoundingCircleAura() ) )
 		{
 			mCloseToPlayer = true;
 		}
@@ -459,11 +576,11 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	//Temp visual aid to know that you're close to another player. Used to know if you can revive.
 	if( mCloseToPlayer )
 	{
-		mPointLight[0]->colorAndRadius = DirectX::XMFLOAT4( 0.8f, 0.6f, 0.8f, 17.0f );
+		mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.8f, 0.6f, 0.8f, 17.0f );
 	}
 	else
 	{
-		mPointLight[0]->colorAndRadius = DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 17.0f );
+		mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 17.0f );
 	}
 
 	if ( !mLock )
@@ -556,11 +673,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	mLoadOut->meleeWeapon->boundingCircle->center		= mLowerBody.position;
 
 	//Update Light
-	mPointLight[0]->position = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 5.0f, mLowerBody.position.z, 0.0f );
-	//mPointLight[1]->position = DirectX::XMFLOAT4( mLowerBody.position.x - 10.0f, mLowerBody.position.y + 0.0f, mLowerBody.position.z + 10.0f, 0.0f );
-	//mPointLight[2]->position = DirectX::XMFLOAT4( mLowerBody.position.x + 10.0f, mLowerBody.position.y + 0.0f, mLowerBody.position.z + 10.0f, 0.0f );
-	//mPointLight[3]->position = DirectX::XMFLOAT4( mLowerBody.position.x - 10.0f, mLowerBody.position.y + 0.0f, mLowerBody.position.z - 10.0f, 0.0f );
-	//mPointLight[4]->position = DirectX::XMFLOAT4( mLowerBody.position.x + 10.0f, mLowerBody.position.y + 0.0f, mLowerBody.position.z - 10.0f, 0.0f );
+	mPointLight->position = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 5.0f, mLowerBody.position.z, 0.0f );
 
 	//== Event to sync player with server ==
 
@@ -599,19 +712,12 @@ HRESULT Player::Initialize()
 	////////////
 	// Light
 	////////////
-	for( int i = 0; i < 1; i++ )
-	{
-		mPointLight[i]						= new PointLight;
-		mPointLight[i]->position			= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
-		IEventPtr reg( new Event_Add_Point_Light( mPointLight[i] ) );
-		EventManager::GetInstance()->QueueEvent( reg );
-	}
+	mPointLight				= new PointLight;
+	mPointLight->position	= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
+	IEventPtr reg( new Event_Add_Point_Light( mPointLight ) );
+	EventManager::GetInstance()->QueueEvent( reg );
 
-	mPointLight[0]->colorAndRadius		= DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 17.0f );
-	//mPointLight[1]->colorAndRadius		= DirectX::XMFLOAT4( 0.6f, 0.2f, 0.2f, 20.0f );
-	//mPointLight[2]->colorAndRadius		= DirectX::XMFLOAT4( 0.2f, 0.6f, 0.2f, 10.0f );
-	//mPointLight[3]->colorAndRadius		= DirectX::XMFLOAT4( 0.2f, 0.2f, 0.6f, 10.0f );
-	//mPointLight[4]->colorAndRadius		= DirectX::XMFLOAT4( 0.6f, 0.6f, 0.2f, 10.0f );
+	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 17.0f );
 
 	mMaxVelocity		= 7.7f;
 	mCurrentVelocity	= 0.0f;
@@ -633,19 +739,17 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Create_Player_Name::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Change_Buff_State::GUID );
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
-	
+
 	return S_OK;
 }
 
 void Player::Release()
 {
 	RemotePlayer::Release();
-	for( int i = 0; i < 5; i++ )
-	{
-		IEventPtr reg( new Event_Remove_Point_Light( mPointLight[0] ) );
-		EventManager::GetInstance()->QueueEvent( reg );
-		SAFE_DELETE( mPointLight[i] );
-	}
+
+	IEventPtr reg( new Event_Remove_Point_Light( mPointLight ) );
+	EventManager::GetInstance()->QueueEvent( reg );
+	SAFE_DELETE( mPointLight );
 }
 
 Player::Player()
@@ -653,8 +757,7 @@ Player::Player()
 {
 	mEventCapTimer		= 0.0f;
 
-	for( int i = 0; i < 5; i++ )
-		mPointLight[i]	= nullptr;
+	mPointLight			= nullptr;
 
 	mWeaponCoolDown		= 0.0f;
 	mMeleeCoolDown		= 0.0f;

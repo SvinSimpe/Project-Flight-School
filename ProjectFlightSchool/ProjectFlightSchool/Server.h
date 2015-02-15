@@ -75,6 +75,8 @@ class Server : public Network
 		void	ClientEnemyProjectileDamage( IEventPtr eventPtr );
 		void	SetEnemyState( IEventPtr eventPtr );
 		void	BroadcastEnemyAttackToClients( IEventPtr eventPtr );
+		void	ClientWinLose( IEventPtr eventPtr );
+		void	ClientChangeShipLevels( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 		void	DoSelect( int pauseMicroSecs, bool handleInput = true );

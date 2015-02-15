@@ -15,15 +15,17 @@ class ClientShip : public ServerShip
 	public:
 
 	private:
-		void RemoteTurretLevel( IEventPtr eventPtr );
-		void RemoteHullLevel( IEventPtr eventPtr );
-		void RemoteBuffLevel( IEventPtr eventPtr );
-		void RemoteDamageShip( IEventPtr eventPtr );
-		void ServerResetShip( IEventPtr eventPtr ); // An event will be sent from the server when a reset is required
+		void CalcShieldLevel();
+
+		void RemoteUpdateShip( IEventPtr eventPtr );
+		void RemoteChangeShipLevels( IEventPtr eventPtr );
+
 		void Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir );
 
 	protected:
 	public:
+		UINT	GetID() const;
+		UINT	GetTeamID() const;
 
 		bool	Intersect( BoundingCircle* entity ); // Will check for intersects with damaging stuff
 		void	Update( float deltaTime );

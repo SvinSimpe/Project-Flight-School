@@ -7,7 +7,9 @@
 #include "RenderManager.h"
 #include "Font.h"
 
-#define MAX_NR_OF_ENEMIES		40
+class Enemy;
+
+#define MAX_NR_OF_ENEMIES		5
 
 // ---- Define all enemy animations ----
 // Standard
@@ -33,8 +35,166 @@
 
 #define ENEMY_ANIMATION_COUNT	16
 //----------------------------------------
+
 enum EnemyType { Standard, Ranged, Boomer, Tank };
-enum EnemyState { Idle, Run, Attack, Death, MoveToShip, HuntPlayer, Stunned };
+enum EnemyState { Idle, HuntPlayer, MoveToShip, TakeDamage, Attack, Death, Stunned, };
+
+#pragma region Behaviors
+///////////////////////////////////////////////////////////////////////////////
+//								Behaviors
+///////////////////////////////////////////////////////////////////////////////
+
+const int IDLE_BEHAVIOR				= 0;
+const int HUNT_PLAYER_BEHAVIOR		= 1;
+const int MOVE_TO_SHIP_BEHAVIOR		= 2;
+const int ATTACK_BEHAVIOR			= 3;
+const int TAKE_DAMAGE_BEHAVIOR		= 4;
+const int STUNNED_BEHAVIOR			= 5;
+const int DEAD_BEHAVIOR				= 6;
+const int NR_OF_ENEMY_BEHAVIORS		= 7;
+
+class IEnemyBehavior
+{
+	// Class members
+	protected:
+		Enemy*			mEnemy;
+		EnemyState		mBehavior;	
+		float			mStateTimer;
+
+	// Class functions
+	public:
+		virtual HRESULT Update( float deltaTime )		= 0;
+		virtual void	OnEnter()						= 0;
+		virtual void	OnExit()						= 0;
+		virtual void	Reset()							= 0;
+		EnemyState		GetBehavior() const;
+		virtual HRESULT	Initialize( Enemy* enemy )		= 0;
+		virtual void	Release()						= 0;
+						IEnemyBehavior();
+		virtual		   ~IEnemyBehavior();
+};
+
+class IdleBehavior : public IEnemyBehavior
+{
+	// Class members
+	private:
+
+	// Class functions
+	public:
+		virtual HRESULT	Update( float deltaTime );
+		virtual	void	OnEnter();
+		virtual void	OnExit();
+		virtual void	Reset();
+		virtual HRESULT	Initialize( Enemy* enemy );
+		virtual void	Release();
+						IdleBehavior();
+					   ~IdleBehavior();
+};
+
+class HuntPlayerBehavior : public IEnemyBehavior
+{
+	// Class members
+	private:
+
+	// Class functions
+	public:
+		virtual HRESULT	Update( float deltaTime );
+		virtual	void	OnEnter();
+		virtual void	OnExit();
+		virtual void	Reset();
+		virtual HRESULT	Initialize( Enemy* enemy );
+		virtual void	Release();
+						HuntPlayerBehavior();
+					   ~HuntPlayerBehavior();
+};
+
+class MoveToShipBehavior : public IEnemyBehavior
+{
+	// Class members
+	private:
+
+	// Class functions
+	public:
+		virtual HRESULT	Update( float deltaTime );
+		virtual	void	OnEnter();
+		virtual void	OnExit();
+		virtual void	Reset();
+		virtual HRESULT	Initialize( Enemy* enemy );
+		virtual void	Release();
+						MoveToShipBehavior();
+					   ~MoveToShipBehavior();
+};
+
+class AttackBehavior : public IEnemyBehavior
+{
+	// Class members
+	private:
+		float			mTimeTillAttack;
+	// Class functions
+	public:
+		virtual HRESULT	Update( float deltaTime );
+		virtual	void	OnEnter();
+		virtual void	OnExit();
+		virtual void	Reset();
+		virtual HRESULT	Initialize( Enemy* enemy );
+		virtual void	Release();
+						AttackBehavior();
+					   ~AttackBehavior();
+};
+
+class TakeDamageBehavior : public IEnemyBehavior
+{
+	// Class members
+	private:
+
+	// Class functions
+	public:
+		virtual HRESULT	Update( float deltaTime );
+		virtual	void	OnEnter();
+		virtual void	OnExit();
+		virtual void	Reset();
+		virtual HRESULT	Initialize( Enemy* enemy );
+		virtual void	Release();
+						TakeDamageBehavior();
+					   ~TakeDamageBehavior();
+};
+
+class StunnedBehavior : public IEnemyBehavior
+{
+	// Class members
+	private:
+
+	// Class functions
+	public:
+		virtual HRESULT	Update( float deltaTime );
+		virtual	void	OnEnter();
+		virtual void	OnExit();
+		virtual void	Reset();
+		virtual HRESULT	Initialize( Enemy* enemy );
+		virtual void	Release();
+						StunnedBehavior();
+					   ~StunnedBehavior();
+};
+
+class DeadBehavior : public IEnemyBehavior
+{
+	// Class members
+	private:
+
+	// Class functions
+	public:
+		virtual HRESULT	Update( float deltaTime );
+		virtual	void	OnEnter();
+		virtual void	OnExit();
+		virtual void	Reset();
+		virtual HRESULT	Initialize( Enemy* enemy );
+		virtual void	Release();
+						DeadBehavior();
+					   ~DeadBehavior();
+};
+
+#pragma endregion
+
 
 class Enemy
 {
@@ -54,6 +214,9 @@ class Enemy
 		BoundingCircle*		mAttackRadius;
 		BoundingCircle*		mAttentionRadius;
 		unsigned int		mXpDrop;
+		bool				mHasAggro;
+		XMFLOAT3			mAggroTarget;
+		UINT				mTargetID;
 
 		// Timers
 		float				mSpawnTime;
@@ -63,6 +226,10 @@ class Enemy
 		float				mDeltaTime;
 		float				mStateTimer;
 		float				mStunTimer;
+
+		// Behaviors
+		IEnemyBehavior**	mBehaviors;
+		int					mCurrentBehavior;
 
 	protected:
 	public:
@@ -82,11 +249,24 @@ class Enemy
 	protected:
 	public:
 		HRESULT				Update( float deltaTime );
+		void				SetAggro( bool isAggro, XMFLOAT3 target );		
+		bool				IsAggro() const;
+		void				ChangeBehavior( const int NEW_BEHAVIOR );
+		void				ResetBehavior( const int BEHAVIOR );
+		XMFLOAT3			GetTarget() const;
+		float				GetAttackRate() const;
+
 		void				SetState( EnemyState state );
 		void				TakeDamage( float damage );
 		void				TakeMeleeDamage( float damage, float knockBack, XMFLOAT3 direction, float stun );
 		void				AddImpuls( XMFLOAT3 impuls );
 		void				SetTarget( XMFLOAT3 player );
+		void				SetVelocity( XMFLOAT3 velocity );
+		void				Hunt( float deltaTime );
+		void				Attack( XMFLOAT3 target, UINT id );
+		float				GetDamage() const;
+		UINT				GetTargetID() const;
+
 		void				HandleSpawn( float deltaTime, XMFLOAT3 spawnPos );
 		void				Spawn( XMFLOAT3 spawnPos );
 		BoundingCircle*		GetAttackCircle()	 const;

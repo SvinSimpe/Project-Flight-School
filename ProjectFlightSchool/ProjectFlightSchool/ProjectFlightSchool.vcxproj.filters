@@ -85,6 +85,15 @@
     <Filter Include="GUI\Source">
       <UniqueIdentifier>{60fa09e6-ee95-426a-90da-62315c9525d0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Enemy">
+      <UniqueIdentifier>{24f52cce-4226-4087-a7b9-23974058879a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Enemy\Header Files">
+      <UniqueIdentifier>{7917f9ff-2ac5-4b5b-a9c1-b15967f60e8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Enemy\Source Files">
+      <UniqueIdentifier>{b0dd3b13-a57d-4caa-bf01-3b5fa2a82752}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -192,9 +201,6 @@
     <ClCompile Include="InputSquare.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Enemy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Turret.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -218,15 +224,6 @@
     </ClCompile>
     <ClCompile Include="tinyxmlparser.cpp">
       <Filter>TinyXML\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EnemySpawn.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RemoteEnemy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EnemyAnimationManager.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Radar.cpp">
       <Filter>Source Files</Filter>
@@ -275,6 +272,21 @@
     </ClCompile>
     <ClCompile Include="MovingButton.cpp">
       <Filter>GUI\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="RemoteEnemy.cpp">
+      <Filter>Enemy\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy.cpp">
+      <Filter>Enemy\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyBehavior.cpp">
+      <Filter>Enemy\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyAnimationManager.cpp">
+      <Filter>Enemy\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemySpawn.cpp">
+      <Filter>Enemy\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -386,9 +398,6 @@
     <ClInclude Include="InputSquare.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Enemy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Turret.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -415,15 +424,6 @@
     </ClInclude>
     <ClInclude Include="NodeTypes.h">
       <Filter>Worldmap\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemySpawn.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RemoteEnemy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyAnimationManager.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Radar.h">
       <Filter>Header Files</Filter>
@@ -478,6 +478,18 @@
     </ClInclude>
     <ClInclude Include="MovingButton.h">
       <Filter>GUI\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>Enemy\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RemoteEnemy.h">
+      <Filter>Enemy\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyAnimationManager.h">
+      <Filter>Enemy\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemySpawn.h">
+      <Filter>Enemy\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -16,6 +16,7 @@ class Server : public Network
 		struct ClientNEF
 		{
 			NetworkEventForwarder	NEF;
+			UINT					ID;
 			UINT					TeamID;
 			XMFLOAT3				Pos = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			bool					IsBuffed = false;
@@ -73,6 +74,7 @@ class Server : public Network
 		void	ClientShipProjectileDamage( IEventPtr eventPtr );
 		void	ClientEnemyProjectileDamage( IEventPtr eventPtr );
 		void	SetEnemyState( IEventPtr eventPtr );
+		void	BroadcastEnemyAttackToClients( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 		void	DoSelect( int pauseMicroSecs, bool handleInput = true );

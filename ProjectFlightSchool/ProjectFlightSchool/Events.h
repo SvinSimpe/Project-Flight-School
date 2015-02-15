@@ -3306,4 +3306,67 @@ class Event_Server_Change_Buff_State : public IEvent
 			return mBuffMod;
 		}
 };
+
+// Event sent from Enemy Behavior to server to broadcast attack
+class Event_Tell_Server_Enemy_Attack_Player : public IEvent
+{
+	private:
+		UINT	mID;
+		UINT	mPlayerID;
+		float	mDamage;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Tell_Server_Enemy_Attack_Player()
+		{
+			mID			= (UINT)-1;
+			mPlayerID	= (UINT)-1;
+			mDamage		= -1.0f;
+		}
+		Event_Tell_Server_Enemy_Attack_Player( UINT id, UINT playerID, float damage )
+		{
+			mID			= id;
+			mPlayerID	= playerID;
+			mDamage		= damage;
+		}
+		~Event_Tell_Server_Enemy_Attack_Player() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mPlayerID << " ";
+			out << mDamage << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mPlayerID;
+			in >> mDamage;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Tell_Server_Enemy_Attack_Player( mID, mPlayerID, mDamage ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT PlayerID() const
+		{
+			return mPlayerID;
+		}		
+		float Damage() const
+		{
+			return mDamage;
+		}
+};
+
 #endif

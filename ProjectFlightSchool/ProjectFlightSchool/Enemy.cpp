@@ -17,7 +17,7 @@ void Enemy::CreateStandard()
 	mCurrentHp					= mMaxHp;
 	mDamage						= 10.0f;
 	mSpeed						= 5.0f;
-	mAttackRadius->radius		= 1.5f;
+	mAttackRadius->radius		= 0.5f;
 	mAttentionRadius->radius	= 10.0f;
 	mXpDrop						= 5;
 	mSpawnTime					= 10.0f;
@@ -84,7 +84,7 @@ void Enemy::CreateTank()
 	mAttentionRadius->radius	= 10.0f;
 	mXpDrop						= 15;
 	mSpawnTime					= 10.0f;
-	mAttackRate					= 3.0f;
+	mAttackRate					= 1.8f;
 }
 
 void Enemy::StandardLogic( float deltaTime )
@@ -118,6 +118,8 @@ HRESULT Enemy::Update( float deltaTime )
 
 	if( mStateTimer >= 0.0f )
 		mStateTimer -= deltaTime;
+
+	mBehaviors[mCurrentBehavior]->Update( deltaTime );
 
 	// Update specific enemy logic
 	switch( mEnemyType )
@@ -153,54 +155,49 @@ HRESULT Enemy::Update( float deltaTime )
 	// Update enemy state
 	switch( mCurrentState )
 	{
-		case Idle:
-		{
-		}
-		break;
+		//case Idle:
+		//{
+		//}
+		//break;
 
-		case Run:
-		{
-		}
-		break;
+		//case Attack:
+		//{
+		//}
+		//break;
 
-		case Attack:
-		{
-		}
-		break;
+		//case Death:
+		//{
+		//}
+		//break;
 
-		case Death:
-		{
-		}
-		break;
+		//case MoveToShip:
+		//{
+		//	mPosition.x += mVelocity.x * mSpeed * deltaTime;
+		//	mPosition.z += mVelocity.z * mSpeed * deltaTime;
+		//	mDirection = mVelocity;
+		//}
+		//break;
 
-		case MoveToShip:
-		{
-			mPosition.x += mVelocity.x * mSpeed * deltaTime;
-			mPosition.z += mVelocity.z * mSpeed * deltaTime;
-			mDirection = mVelocity;
-		}
-		break;
+		//case HuntPlayer:
+		//{
+		//	mPosition.x += mVelocity.x * mSpeed * deltaTime;
+		//	mPosition.z += mVelocity.z * mSpeed * deltaTime;
+		//	mDirection = mVelocity;
+		//}
+		//break;
 
-		case HuntPlayer:
-		{
-			mPosition.x += mVelocity.x * mSpeed * deltaTime;
-			mPosition.z += mVelocity.z * mSpeed * deltaTime;
-			mDirection = mVelocity;
-		}
-		break;
-
-		case Stunned:
-		{
-			if( mStunTimer <= 0.0f )
-				mCurrentState = Idle;
-			else
-			{
-				mStunTimer -= deltaTime;
-				//mPosition.x += mVelocity.x * deltaTime * 50;
-				//mPosition.z += mVelocity.z * deltaTime * 50;
-			}
-		}
-		break;
+		//case Stunned:
+		//{
+		//	if( mStunTimer <= 0.0f )
+		//		mCurrentState = Idle;
+		//	else
+		//	{
+		//		mStunTimer -= deltaTime;
+		//		//mPosition.x += mVelocity.x * deltaTime * 50;
+		//		//mPosition.z += mVelocity.z * deltaTime * 50;
+		//	}
+		//}
+		//break;
 
 		default:
 			OutputDebugStringA( "--Error: No enemy state " );
@@ -209,26 +206,109 @@ HRESULT Enemy::Update( float deltaTime )
 	return S_OK;
 }
 
+void Enemy::SetAggro( bool isAggro, XMFLOAT3 target )
+{
+	mHasAggro	= isAggro;
+	if( mHasAggro )
+	{
+		mAggroTarget = target;
+		mVelocity.x = target.x - mPosition.x;
+		mVelocity.z = target.z - mPosition.z;
+		XMStoreFloat3( &mVelocity, XMVector3Normalize( XMLoadFloat3( &mVelocity ) ) );
+		mDirection = mVelocity;
+	}
+}
+
+bool Enemy::IsAggro() const
+{
+	return mHasAggro;
+}
+
+void Enemy::ChangeBehavior( const int NEW_BEHAVIOR )
+{
+	if( mCurrentBehavior != NEW_BEHAVIOR )
+	{
+		mBehaviors[mCurrentBehavior]->OnExit();
+		mCurrentBehavior		= NEW_BEHAVIOR;
+		mBehaviors[mCurrentBehavior]->OnEnter();
+	}
+}
+
+void Enemy::ResetBehavior( const int BEHAVIOR )
+{
+	mBehaviors[BEHAVIOR]->Reset();
+}
+
+XMFLOAT3 Enemy::GetTarget() const
+{
+	return mAggroTarget;
+}
+
+void Enemy::SetTarget( XMFLOAT3 player )
+{
+	//mVelocity.x = player.x - mPosition.x;
+	//mVelocity.z = player.z - mPosition.z;
+	//XMStoreFloat3( &mVelocity, XMVector3Normalize( XMLoadFloat3( &mVelocity ) ) );
+}
+
+void Enemy::SetVelocity( XMFLOAT3 velocity )
+{
+	mVelocity = velocity;
+}
+
+void Enemy::Hunt( float deltaTime )
+{
+	mPosition.x += mVelocity.x * mSpeed * deltaTime;
+	mPosition.z += mVelocity.z * mSpeed * deltaTime;
+	mDirection = mVelocity;
+}
+
+void Enemy::Attack( XMFLOAT3 target, UINT targetID )
+{
+	mAggroTarget	= target;
+	mTargetID		= targetID;
+	ChangeBehavior( ATTACK_BEHAVIOR );
+}
+
+float Enemy::GetAttackRate() const
+{
+	return mAttackRate;
+}
+
+float Enemy::GetDamage() const
+{
+	return mDamage;
+}
+
+UINT Enemy::GetTargetID() const
+{
+	return mTargetID;
+}
+
+
+
+
 void Enemy::SetState( EnemyState state )
 {
-	if ( mStateTimer <= 0.0f && mCurrentState != Stunned )
-	{
-		if( state != mCurrentState )
-		{
-			// If state is an EnemyState set mCurrentState to state
-			if( state == Idle		||
-				state == Run		||
-				state == Attack		||
-				state == Death		||
-				state == MoveToShip ||
-				state == HuntPlayer		)
-			{
-				mCurrentState = state;
-				IEventPtr state( new Event_Set_Enemy_State( mID, mCurrentState ) );
-				EventManager::GetInstance()->QueueEvent( state );
-			}
-		}
-	}
+	mCurrentState		= state;
+
+	//if ( mStateTimer <= 0.0f && mCurrentState != Stunned )
+	//{
+	//	if( state != mCurrentState )
+	//	{
+	//		// If state is an EnemyState set mCurrentState to state
+	//		if( state == Idle		||
+	//			state == Attack		||
+	//			state == Death		||
+	//			state == MoveToShip ||
+	//			state == HuntPlayer		)
+	//		{
+	//			mCurrentState = state;
+	//			IEventPtr state( new Event_Set_Enemy_State( mID, mCurrentState ) );
+	//			EventManager::GetInstance()->QueueEvent( state );
+	//		}
+	//	}
+	//}
 }
 
 void Enemy::TakeDamage( float damage )
@@ -256,13 +336,6 @@ void Enemy::AddImpuls( XMFLOAT3 impuls )
 {
 	mPosition.x += impuls.x;
 	mPosition.z += impuls.z;
-}
-
-void Enemy::SetTarget( XMFLOAT3 player )
-{
-	mVelocity.x = player.x - mPosition.x;
-	mVelocity.z = player.z - mPosition.z;
-	XMStoreFloat3( &mVelocity, XMVector3Normalize( XMLoadFloat3( &mVelocity ) ) );
 }
 
 void Enemy::HandleSpawn( float deltaTime, XMFLOAT3 spawnPos )
@@ -423,6 +496,26 @@ HRESULT Enemy::Initialize( int id )
 
 	mAttackRadius		= new BoundingCircle( 1.0f );
 	mAttentionRadius	= new BoundingCircle( 1.0f );
+	
+	mBehaviors			= new IEnemyBehavior*[NR_OF_ENEMY_BEHAVIORS];
+
+	for ( size_t i = 0; i < NR_OF_ENEMY_BEHAVIORS; i++ )
+	{
+		mBehaviors[i] = nullptr;
+	}
+
+	mBehaviors[IDLE_BEHAVIOR]			= new IdleBehavior();
+	mBehaviors[HUNT_PLAYER_BEHAVIOR]	= new HuntPlayerBehavior();
+	mBehaviors[MOVE_TO_SHIP_BEHAVIOR]	= new MoveToShipBehavior();
+	mBehaviors[ATTACK_BEHAVIOR]			= new AttackBehavior();
+	mBehaviors[TAKE_DAMAGE_BEHAVIOR]	= new TakeDamageBehavior();
+	mBehaviors[STUNNED_BEHAVIOR]		= new StunnedBehavior();
+	mBehaviors[DEAD_BEHAVIOR]			= new DeadBehavior();
+
+	for ( size_t i = 0; i < NR_OF_ENEMY_BEHAVIORS; i++ )
+	{
+		mBehaviors[i]->Initialize( this );
+	}
 
 	return S_OK;
 }
@@ -441,6 +534,16 @@ void Enemy::Release()
 {
 	SAFE_DELETE( mAttackRadius );
 	SAFE_DELETE( mAttentionRadius );
+	
+	mCurrentBehavior	= 0;
+	
+	for ( size_t i = 0; i < NR_OF_ENEMY_BEHAVIORS; i++ )
+	{
+		mBehaviors[i]->Release();
+		SAFE_DELETE( mBehaviors[i] );
+	}
+
+	delete [] mBehaviors;
 }
 
 Enemy::Enemy()

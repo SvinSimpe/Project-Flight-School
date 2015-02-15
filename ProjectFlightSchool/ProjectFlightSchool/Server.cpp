@@ -13,9 +13,10 @@ void Server::ClientJoined( IEventPtr eventPtr )
 		{
 			UINT teamID = CurrentTeamDelegate();
 
-			mClientMap[data->ID()] = new ClientNEF();
+			mClientMap[data->ID()]			= new ClientNEF();
 			mClientMap[data->ID()]->NEF.Initialize( data->ID(), mSocketManager );
-			mClientMap[data->ID()]->TeamID = teamID;
+			mClientMap[data->ID()]->TeamID	= teamID;
+			mClientMap[data->ID()]->ID		= data->ID();
 
 			// Sends necessary information of the newly connected client to the newly connected client
 			IEventPtr E1( new Event_Local_Joined( data->ID(), teamID ) );
@@ -286,6 +287,16 @@ void Server::SetEnemyState( IEventPtr eventPtr )
 	}
 }
 
+void Server::BroadcastEnemyAttackToClients( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Tell_Server_Enemy_Attack_Player::GUID )
+	{
+		std::shared_ptr<Event_Tell_Server_Enemy_Attack_Player> data = std::static_pointer_cast<Event_Tell_Server_Enemy_Attack_Player>( eventPtr );
+		IEventPtr E1( new Event_Server_Enemy_Attack_Player( data->ID(), data->PlayerID(), data->Damage() ) );
+		BroadcastEvent( E1 );
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -465,18 +476,11 @@ void Server::StateCheck()
 				{
 					if( mEnemies[i]->GetAttackCircle()->Intersect( mAggroCircle ) )
 					{
-						mEnemies[i]->SetState( Attack );
-						float attack = mEnemies[i]->HandleAttack();
-						if( attack != 0.0f )
-						{
-							IEventPtr E1( new Event_Server_Enemy_Attack_Player( mEnemies[i]->GetID(), cm.first, attack ) );
-							BroadcastEvent( E1 );
-						}
+						mEnemies[i]->Attack( c->Pos, c->ID );
 					}
 					else
 					{
-						mEnemies[i]->SetState( HuntPlayer );
-						mEnemies[i]->SetTarget( c->Pos );
+						mEnemies[i]->SetAggro( true, c->Pos );
 					}
 				}
 				else
@@ -510,6 +514,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientAttemptRevive, this, Event_Client_Attempt_Revive::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientEnemyProjectileDamage, this, Event_Client_Projectile_Damage_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &Server::SetEnemyState, this, Event_Set_Enemy_State::GUID );
+	EventManager::GetInstance()->AddListener( &Server::BroadcastEnemyAttackToClients, this, Event_Tell_Server_Enemy_Attack_Player::GUID );
 
 	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
 

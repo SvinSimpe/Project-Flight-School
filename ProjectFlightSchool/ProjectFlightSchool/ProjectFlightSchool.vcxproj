@@ -93,6 +93,7 @@
   <ItemGroup>
     <ClCompile Include="ClientShip.cpp" />
     <ClCompile Include="EnemyAnimationManager.cpp" />
+    <ClCompile Include="EnemyBehavior.cpp" />
     <ClCompile Include="Gui.cpp" />
     <ClCompile Include="HealthBars.cpp" />
     <ClCompile Include="MovingButton.cpp" />

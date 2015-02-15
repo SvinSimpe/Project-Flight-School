@@ -102,3 +102,4 @@ const EventType Event_Connect_Server_Fail::GUID( counter++ );
 const EventType Event_Connect_Client_Fail::GUID( counter++ );
 const EventType Event_Server_Spawn_Ship::GUID( counter++ );
 const EventType Event_Server_Change_Buff_State::GUID( counter++ );
+const EventType Event_Tell_Server_Enemy_Attack_Player::GUID( counter++ );

@@ -347,7 +347,7 @@ void PlayState::HandleDeveloperCameraInput()
 				mPlayer->UnLock();
 				mGui->DeActivateUpgradePlayerWindow();
 			}
-			else if( mPlayer->GetTeam() == s->GetTeamID() && s->Intersect( mPlayer->GetBoundingCircle() ) && mPlayer->IsAlive() )
+			else if( mPlayer->GetTeam() == s->GetTeamID() && s->Intersect( mPlayer->GetBoundingCircle() ) && mPlayer->IsAlive() && mPlayer->Upgradable() >= 1 )
 			{
 				mPlayer->Lock();
 				mGui->ActivateUpgradePlayerWindow();
@@ -563,13 +563,20 @@ HRESULT PlayState::Update( float deltaTime )
 		///Test fountain particle system
 	RenderManager::GetInstance()->RequestParticleSystem( 9999, Test_Fountain, XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
 	
+	if( mPlayer->Upgradable() < 1 )
+	{
+		mPlayer->UnLock();
+		mGui->DeActivateUpgradePlayerWindow();
+	}
+
 	guiUpdate.mRadarObjects	= mRadarObjects;
 	guiUpdate.mNrOfObjects	= nrOfRadarObj;
 	guiUpdate.mPlayerPos	= mPlayer->GetPlayerPosition();	
 
 	guiUpdate.mPlayerHP		= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
-	guiUpdate.mPlayerXP		= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
+	guiUpdate.mPlayerXP		= mPlayer->GetXPToNext();
 	guiUpdate.mPlayerShield	= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
+	guiUpdate.mLevel		= mPlayer->Upgradable();
 	
 	guiUpdate.deltaTime = deltaTime;
 

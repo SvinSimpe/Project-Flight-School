@@ -42,9 +42,10 @@ struct GuiUpdate
 	//------------------------------
 
 	//Player update info
-	float mPlayerHP;
-	float mPlayerShield;
-	float mPlayerXP;
+	float	mPlayerHP;
+	float	mPlayerShield;
+	float	mPlayerXP;
+	int		mLevel;
 	//------------------------------
 };
 
@@ -67,7 +68,7 @@ class Gui
 		int			mPlayerXP;
 		int			mPlayerShield;
 
-		float		mExperience;
+		int			mExperience;
 
 		AssetID		mPlayerBar;
 		XMFLOAT2	mPlayerHealthXPTopLeftCorner;

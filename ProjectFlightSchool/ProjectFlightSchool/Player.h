@@ -12,7 +12,6 @@ class Map;
 
 struct Upgrades
 {
-	const int maxUpgrades	= 5;
 	int melee				= 1;
 	int range				= 1;
 	int legs				= 1;
@@ -35,6 +34,7 @@ class Player: public RemotePlayer
 		bool		mCloseToPlayer;
 		int			mXP;
 		int			mNextLevelXP;
+		int			mCurrentUpgrades;
 
 		float		mMaxVelocity;
 		float		mCurrentVelocity;
@@ -97,6 +97,7 @@ class Player: public RemotePlayer
 		bool		GetIsMeleeing()	const;
 		XMFLOAT3	GetPlayerPosition() const;
 		XMFLOAT3	GetUpperBodyDirection() const;
+		float		GetXPToNext() const;
 		int			Upgradable() const;
 		void		SetIsMeleeing( bool isMeleeing );
 		void		SetID( unsigned int id );

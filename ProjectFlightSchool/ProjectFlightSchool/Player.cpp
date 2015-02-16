@@ -57,6 +57,30 @@ void Player::EventListener( IEventPtr newEvent )
 				printf("%d is no longer buffed!\n", mID);
 		}
 	}
+	else if( newEvent->GetEventType() == Event_Upgrade_Player::GUID )
+	{
+		std::shared_ptr<Event_Upgrade_Player> data = std::static_pointer_cast<Event_Upgrade_Player>( newEvent );
+		if( data->Speed() != 0 )
+		{
+			UpgradeLegs();
+			mCurrentUpgrades--;
+		}
+		else if( data->Health() != 0 )
+		{
+			UpgradeBody();
+			mCurrentUpgrades--;
+		}
+		else if( data->Melee() != 0 )
+		{
+			UpgradeMelee();
+			mCurrentUpgrades--;
+		}
+		else if( data->Range() != 0 )
+		{
+			UpgradeRange();
+			mCurrentUpgrades--;
+		}
+	}
 	else if( newEvent->GetEventType() == Event_New_Player_Spawn_Position::GUID )
 	{
 		std::shared_ptr<Event_New_Player_Spawn_Position> data = std::static_pointer_cast<Event_New_Player_Spawn_Position>( newEvent );
@@ -73,7 +97,6 @@ void Player::EventListener( IEventPtr newEvent )
 			mXP += data->XP();
 		}
 	}
-
 }
 
 void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
@@ -452,36 +475,25 @@ void Player::AddImpuls( XMFLOAT3 impuls )
 
 void Player::UpgradeBody()
 {
-	if( mUpgrades.body < mUpgrades.maxUpgrades )
-	{
-		mUpgrades.body++;
-	}
+	mUpgrades.body++;
 }
 
 void Player::UpgradeLegs()
 {
-	if( mUpgrades.legs < mUpgrades.maxUpgrades )
-	{
-		mUpgrades.legs++;
-	}
+	mMaxAcceleration += mMaxAcceleration/mUpgrades.legs;
+	mUpgrades.legs++;
 }
 
 void Player::UpgradeMelee()
 {
-	if( mUpgrades.melee < mUpgrades.maxUpgrades )
-	{
-		mLoadOut->meleeWeapon->LevelUp();
-		mUpgrades.melee++;
-	}
+	mLoadOut->meleeWeapon->LevelUp();
+	mUpgrades.melee++;
 }
 
 void Player::UpgradeRange()
 {
-	if( mUpgrades.range < mUpgrades.maxUpgrades )
-	{
-		mLoadOut->rangedWeapon->LevelUp();
-		mUpgrades.range++;
-	}
+	mLoadOut->rangedWeapon->LevelUp();
+	mUpgrades.range++;
 }
 
 void Player::QueueEvent( IEventPtr ptr )
@@ -585,6 +597,12 @@ void Player::Reset()
 
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
 {
+	if( ( mXP / mNextLevelXP ) >= 1 )
+	{
+		mCurrentUpgrades++;
+		mXP -= mNextLevelXP;
+	}
+
 	mCloseToPlayer = false;
 	for( auto rp : remotePlayers )
 	{
@@ -747,6 +765,9 @@ HRESULT Player::Initialize()
 	mVelocity			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
 	mBuffMod			= 0.5f;
+
+	mNextLevelXP		= 10;
+	mCurrentUpgrades	= 0;
 	
 	mSpawnTime				= 10.0f;
 	mReviveTime				= 2.0f;
@@ -759,6 +780,7 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Melee_Hit::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Create_Player_Name::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Change_Buff_State::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Upgrade_Player::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_New_Player_Spawn_Position::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_XP::GUID );
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
@@ -798,7 +820,7 @@ Player::Player()
 	mBuffMod			= 0.0f;
 	mHasMeleeStarted	= false;
 	mXP					= 0;
-	mNextLevelXP		= 2;
+	mNextLevelXP		= 0;
 	
 	mSpawnTime				= 0.0f;
 	mTimeTillSpawn			= 0.0f;
@@ -831,9 +853,14 @@ XMFLOAT3 Player::GetUpperBodyDirection() const
 	return mUpperBody.direction;
 }
 
+float Player::GetXPToNext() const
+{
+	return (float)( (float)mXP / (float)mNextLevelXP );
+}
+
 int Player::Upgradable() const
 {
-	return mXP / mNextLevelXP;
+	return mCurrentUpgrades;
 }
 
 void Player::SetIsMeleeing( bool isMeleeing )

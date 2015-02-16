@@ -581,6 +581,40 @@ void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX
 
 void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 {
+	///////////////////////////////Code for rendering Oct tree boxes, DO NOT REMOVE!
+	/*for( UINT i = 0; i < sizeOfList; i++ )
+	{
+		Static3dAsset* derpface = (Static3dAsset*)mAssetManager->mAssetContainer[info[i].mAssetId];
+		if(derpface->mFileName != "NO PATHCUBE")
+		{
+			for(UINT j = 0; j < 8; j++)
+			{
+				for(UINT k = 0; k < 8; k++)
+				{
+					for(UINT l = 0; l < 8; l++)
+					{
+						DirectX::XMFLOAT4X4 ident;
+						DirectX::XMStoreFloat4x4( &ident, DirectX::XMMatrixIdentity() );
+						if(derpface->mOctTree.childrenCollides[j])
+						{
+							if(derpface->mOctTree.children[j]->childrenCollides[k])
+							{
+								if(derpface->mOctTree.children[j]->children[k]->childrenCollides[l])
+								{
+									Graphics::RenderDebugBox( derpface->mOctTree.children[j]->children[k]->children[l]->boundingBox.min, 
+																derpface->mOctTree.children[j]->children[k]->children[l]->boundingBox.max,
+																	info[i].mWorld );
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}*/
+	///////////////////////////////
+
+
 	//////////////////////////////////////////////////////////////////
 	//						RENDER CALL
 	//////////////////////////////////////////////////////////////////
@@ -1082,7 +1116,7 @@ void Graphics::RenderNodeGrid( NodeGridInfo* info, UINT sizeOfList )
 
 void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 {
-	mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_DISABLED], 1 );
+	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_DISABLED], 1 );
 
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
 
@@ -1119,7 +1153,50 @@ void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 
 	//mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexCount, 0 );//, 0, 0 );
 	mDeviceContext->DrawIndexed( 24, 0, 0 );
-	mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
+	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
+}
+
+void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, DirectX::XMFLOAT4X4 world )
+{
+	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_DISABLED], 1 );
+
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
+
+	UINT32 vertexSize	= sizeof(StaticVertex);
+	UINT32 offset		= 0;
+
+	DirectX::XMFLOAT3 boxSize = DirectX::XMFLOAT3( max.x - min.x, max.y - min.y, max.z - min.z );
+	DirectX::XMFLOAT3 center  = DirectX::XMFLOAT3( ( min.x + max.x ) / 2, ( min.y + max.y ) / 2, ( min.z + max.z ) / 2 );
+
+	ID3D11Buffer* buffersToSet[] = { ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexBuffer };
+	
+	mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_DEBUG_BOX], &vertexSize, &offset );
+	mDeviceContext->IASetIndexBuffer( mBuffers[BUFFERS_DEBUG_BOX_INDICES], DXGI_FORMAT_R32_UINT, 0 );
+
+	//Map CbufferPerObject
+	CbufferPerObject data;
+	DirectX::XMMATRIX worldMat		= DirectX::XMLoadFloat4x4( &world );
+	DirectX::XMMATRIX scaling		= DirectX::XMMatrixScaling( boxSize.x, boxSize.y, boxSize.z );
+	DirectX::XMMATRIX translation	= DirectX::XMMatrixTranslation( center.x, center.y, center.z );
+
+	data.worldMatrix = worldMat * DirectX::XMMatrixTranspose( scaling * translation );
+	//data.worldMatrix = DirectX::XMMatrixIdentity();
+	
+	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT], &data, sizeof( CbufferPerObject ) );
+
+	mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] );
+	
+	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_DEBUG_BOX]->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetPixelShader(), nullptr, 0 );
+
+	//mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexCount, 0 );//, 0, 0 );
+	mDeviceContext->DrawIndexed( 24, 0, 0 );
+	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
 }
 void Graphics::RenderLine( LineInfo* info, UINT sizeOfList )
 {
@@ -1565,7 +1642,7 @@ void Graphics::GbufferPass()
 
 	mCamera[CAMERAS_SHADOWMAP]->Update();
 
-	static float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	static float clearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	for( int i = 0; i < NUM_GBUFFERS; i++ )
 		mDeviceContext->ClearRenderTargetView( mGbuffers[i]->mRenderTargetView, clearColor );
 	mDeviceContext->ClearDepthStencilView( mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );

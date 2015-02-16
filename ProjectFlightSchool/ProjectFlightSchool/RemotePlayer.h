@@ -95,7 +95,7 @@ class RemotePlayer
 		float			mTimeTillDeath;
 		XMFLOAT3		mVelocity;
 		LoadOut*		mLoadOut;
-		BoundingBox*	mBoundingBox;
+		BoundingRectangle*	mBoundingBox;
 		BoundingCircle*	mBoundingCircle;
 		BoundingCircle*	mBoundingCircleAura;
 		XMFLOAT3		mSpawnPosition;
@@ -143,7 +143,7 @@ class RemotePlayer
 		float			GetMaxHP() const;
 		int				GetID() const;
 		int				GetTeam() const;
-		BoundingBox*	GetBoundingBox() const;
+		BoundingRectangle*	GetBoundingBox() const;
 		BoundingCircle*	GetBoundingCircle() const;
 		BoundingCircle*	GetBoundingCircleAura() const;
 		XMFLOAT3		GetPosition() const;

@@ -442,7 +442,7 @@ void PlayState::RenderProjectiles()
 
 void PlayState::SetEnemyState( unsigned int id, EnemyState state )
 {
-	if( state == Death )
+	if( state == Death || state == Attack )
 	{
 		mEnemies[id]->SetLoopAnimation( false );
 		mEnemies[id]->SetIsAlive( false );

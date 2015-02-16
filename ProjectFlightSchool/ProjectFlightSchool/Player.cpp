@@ -57,6 +57,15 @@ void Player::EventListener( IEventPtr newEvent )
 				printf("%d is no longer buffed!\n", mID);
 		}
 	}
+	else if( newEvent->GetEventType() == Event_New_Player_Spawn_Position::GUID )
+	{
+		std::shared_ptr<Event_New_Player_Spawn_Position> data = std::static_pointer_cast<Event_New_Player_Spawn_Position>( newEvent );
+		if( data->PlayerID() == mID )
+		{
+			mSpawnPosition = XMFLOAT3( data->SpawnPosition().x, 0.0f, data->SpawnPosition().y );
+		}
+	}
+
 }
 
 void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
@@ -344,6 +353,10 @@ void Player::Revive()
 
 void Player::Die()
 {
+	// Queue spawn position request
+	IEventPtr E1( new Event_Request_Player_Spawn_Position( mID, mTeam ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
+
 	RemotePlayer::Die();
 	mTimeTillSpawn	= mSpawnTime;
 }
@@ -749,6 +762,7 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Melee_Hit::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Create_Player_Name::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Change_Buff_State::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_New_Player_Spawn_Position::GUID );
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
 
 	return S_OK;

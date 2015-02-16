@@ -44,6 +44,9 @@ private:
 	void ConvertGridData(MFnMesh &mesh, MFloatPointArray &points, MFloatVectorArray &normals);
 	void GetDimensions(MFnMesh &mesh, UINT* dimensions);
 
+	void GetNodePath(MFnMesh &mesh);
+	void GetTexture(MPlugArray &shaderConnection);
+
 	string CreateExportFile(string fileName, string fileEnding);
 	void WriteStaticMeshToFileBinary(const char* fileName);
 

@@ -33,6 +33,8 @@ class Player: public RemotePlayer
 		bool		mHasMeleeStarted;
 		bool		mLock;
 		bool		mCloseToPlayer;
+		int			mXP;
+		int			mNextLevelXP;
 
 		float		mMaxVelocity;
 		float		mCurrentVelocity;
@@ -95,6 +97,7 @@ class Player: public RemotePlayer
 		bool		GetIsMeleeing()	const;
 		XMFLOAT3	GetPlayerPosition() const;
 		XMFLOAT3	GetUpperBodyDirection() const;
+		int			Upgradable() const;
 		void		SetIsMeleeing( bool isMeleeing );
 		void		SetID( unsigned int id );
 		void		SetTeam( int team );

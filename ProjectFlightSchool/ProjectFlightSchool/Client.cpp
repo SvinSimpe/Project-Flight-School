@@ -180,6 +180,8 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Server_Change_Ship_Levels );
 	EF::REGISTER_EVENT( Event_Client_Win );
 	EF::REGISTER_EVENT( Event_Remote_Win );
+	EF::REGISTER_EVENT( Event_Server_XP );
+	
 
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	EventManager::GetInstance()->AddListener( &Client::Shutdown, this, Event_Shutdown_Client::GUID );

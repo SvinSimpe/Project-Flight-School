@@ -552,7 +552,7 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.mPlayerPos	= mPlayer->GetPlayerPosition();	
 
 	guiUpdate.mPlayerHP		= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
-	guiUpdate.mPlayerXP		= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
+	guiUpdate.mPlayerXP		= mPlayer->Upgradable();
 	guiUpdate.mPlayerShield	= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
 	
 	guiUpdate.deltaTime = deltaTime;

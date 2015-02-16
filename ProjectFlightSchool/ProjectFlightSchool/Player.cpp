@@ -65,6 +65,14 @@ void Player::EventListener( IEventPtr newEvent )
 			mSpawnPosition = XMFLOAT3( data->SpawnPosition().x, 0.0f, data->SpawnPosition().y );
 		}
 	}
+	else if( newEvent->GetEventType() == Event_Server_XP::GUID )
+	{
+		std::shared_ptr<Event_Server_XP> data = std::static_pointer_cast<Event_Server_XP>( newEvent );
+		if( data->PlayerID() == mID )
+		{
+			mXP += data->XP();
+		}
+	}
 
 }
 
@@ -752,6 +760,7 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Create_Player_Name::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Change_Buff_State::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_New_Player_Spawn_Position::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_XP::GUID );
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
 
 	return S_OK;
@@ -788,6 +797,8 @@ Player::Player()
 	mIsBuffed			= false;
 	mBuffMod			= 0.0f;
 	mHasMeleeStarted	= false;
+	mXP					= 0;
+	mNextLevelXP		= 2;
 	
 	mSpawnTime				= 0.0f;
 	mTimeTillSpawn			= 0.0f;
@@ -818,6 +829,11 @@ XMFLOAT3 Player::GetPlayerPosition() const
 XMFLOAT3 Player::GetUpperBodyDirection() const
 {
 	return mUpperBody.direction;
+}
+
+int Player::Upgradable() const
+{
+	return mXP / mNextLevelXP;
 }
 
 void Player::SetIsMeleeing( bool isMeleeing )

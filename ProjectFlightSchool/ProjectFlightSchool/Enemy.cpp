@@ -21,7 +21,7 @@ void Enemy::CreateStandard()
 	mAttentionRadius->radius	= 10.0f;
 	mXpDrop						= 5;
 	mSpawnTime					= 10.0f;
-	mAttackRate					= 1.5f;
+	mAttackRate					= 1.2f;
 }
 
 void Enemy::CreateRanged()
@@ -110,11 +110,13 @@ void Enemy::TankLogic( float deltaTime )
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
-HRESULT Enemy::Update( float deltaTime )
+HRESULT Enemy::Update( float deltaTime, ServerPlayer** players, UINT NrOfPlayers )
 {
 	mDeltaTime					= deltaTime;
 	mAttackRadius->center		= mPosition;
 	mAttentionRadius->center	= mPosition;
+	mPlayers					= players;
+	mNrOfPlayers				= NrOfPlayers;
 
 	if( mStateTimer >= 0.0f )
 		mStateTimer -= deltaTime;
@@ -152,77 +154,9 @@ HRESULT Enemy::Update( float deltaTime )
 			OutputDebugStringA( "\n--Error: No enemy type " );
 	}
 
-	// Update enemy state
-	switch( mCurrentState )
-	{
-		//case Idle:
-		//{
-		//}
-		//break;
-
-		//case Attack:
-		//{
-		//}
-		//break;
-
-		//case Death:
-		//{
-		//}
-		//break;
-
-		//case MoveToShip:
-		//{
-		//	mPosition.x += mVelocity.x * mSpeed * deltaTime;
-		//	mPosition.z += mVelocity.z * mSpeed * deltaTime;
-		//	mDirection = mVelocity;
-		//}
-		//break;
-
-		//case HuntPlayer:
-		//{
-		//	mPosition.x += mVelocity.x * mSpeed * deltaTime;
-		//	mPosition.z += mVelocity.z * mSpeed * deltaTime;
-		//	mDirection = mVelocity;
-		//}
-		//break;
-
-		//case Stunned:
-		//{
-		//	if( mStunTimer <= 0.0f )
-		//		mCurrentState = Idle;
-		//	else
-		//	{
-		//		mStunTimer -= deltaTime;
-		//		//mPosition.x += mVelocity.x * deltaTime * 50;
-		//		//mPosition.z += mVelocity.z * deltaTime * 50;
-		//	}
-		//}
-		//break;
-
-		default:
-			OutputDebugStringA( "--Error: No enemy state " );
-	}
-
 	return S_OK;
 }
 
-void Enemy::SetAggro( bool isAggro, XMFLOAT3 target )
-{
-	mHasAggro	= isAggro;
-	if( mHasAggro )
-	{
-		mAggroTarget = target;
-		mVelocity.x = target.x - mPosition.x;
-		mVelocity.z = target.z - mPosition.z;
-		XMStoreFloat3( &mVelocity, XMVector3Normalize( XMLoadFloat3( &mVelocity ) ) );
-		mDirection = mVelocity;
-	}
-}
-
-bool Enemy::IsAggro() const
-{
-	return mHasAggro;
-}
 
 void Enemy::ChangeBehavior( const int NEW_BEHAVIOR )
 {
@@ -244,71 +178,28 @@ XMFLOAT3 Enemy::GetTarget() const
 	return mAggroTarget;
 }
 
-void Enemy::SetTarget( XMFLOAT3 player )
+void Enemy::SetTarget( UINT id )
 {
-	//mVelocity.x = player.x - mPosition.x;
-	//mVelocity.z = player.z - mPosition.z;
-	//XMStoreFloat3( &mVelocity, XMVector3Normalize( XMLoadFloat3( &mVelocity ) ) );
-}
-
-void Enemy::SetVelocity( XMFLOAT3 velocity )
-{
-	mVelocity = velocity;
+	mTargetID	= id;
+	for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
+	{
+		if( mPlayers[i] != nullptr )
+		{
+			if( mPlayers[i]->ID == id )
+				mTargetIndex = i;
+		}
+	}
 }
 
 void Enemy::Hunt( float deltaTime )
 {
+	mVelocity.x = mPlayers[mTargetIndex]->Pos.x - mPosition.x;
+	mVelocity.z = mPlayers[mTargetIndex]->Pos.z - mPosition.z;
+	XMStoreFloat3( &mVelocity, XMVector3Normalize( XMLoadFloat3( &mVelocity ) ) );
+
 	mPosition.x += mVelocity.x * mSpeed * deltaTime;
 	mPosition.z += mVelocity.z * mSpeed * deltaTime;
 	mDirection = mVelocity;
-}
-
-void Enemy::Attack( XMFLOAT3 target, UINT targetID )
-{
-	mAggroTarget	= target;
-	mTargetID		= targetID;
-	ChangeBehavior( ATTACK_BEHAVIOR );
-}
-
-float Enemy::GetAttackRate() const
-{
-	return mAttackRate;
-}
-
-float Enemy::GetDamage() const
-{
-	return mDamage;
-}
-
-UINT Enemy::GetTargetID() const
-{
-	return mTargetID;
-}
-
-
-
-
-void Enemy::SetState( EnemyState state )
-{
-	mCurrentState		= state;
-
-	//if ( mStateTimer <= 0.0f && mCurrentState != Stunned )
-	//{
-	//	if( state != mCurrentState )
-	//	{
-	//		// If state is an EnemyState set mCurrentState to state
-	//		if( state == Idle		||
-	//			state == Attack		||
-	//			state == Death		||
-	//			state == MoveToShip ||
-	//			state == HuntPlayer		)
-	//		{
-	//			mCurrentState = state;
-	//			IEventPtr state( new Event_Set_Enemy_State( mID, mCurrentState ) );
-	//			EventManager::GetInstance()->QueueEvent( state );
-	//		}
-	//	}
-	//}
 }
 
 void Enemy::TakeDamage( float damage )
@@ -383,16 +274,6 @@ void Enemy::Spawn( XMFLOAT3 spawnPos )
 	EventManager::GetInstance()->QueueEvent( state );
 }
 
-BoundingCircle* Enemy::GetAttackCircle() const
-{
-	return mAttackRadius;
-}
-
-BoundingCircle* Enemy::GetAttentionCircle() const
-{
-	return mAttentionRadius;
-}
-
 void Enemy::Die()
 {
 	mIsAlive		= false;
@@ -402,24 +283,6 @@ void Enemy::Die()
 	// Send dieEv
 	IEventPtr state( new Event_Set_Enemy_State( mID, Death ) );
 	EventManager::GetInstance()->QueueEvent( state );
-}
-
-float Enemy::HandleAttack()
-{
-	if( mTimeTillAttack <= 0.0f )
-	{
-		mTimeTillAttack = mAttackRate;
-		mStateTimer		= mAttackRate;
-		if( mEnemyType == Boomer )
-			Die();
-
-		return mDamage;
-	}
-	else
-	{
-		mTimeTillAttack -= mDeltaTime;
-		return 0.0f;
-	}
 }
 
 unsigned int Enemy::GetID() const
@@ -443,24 +306,9 @@ EnemyState Enemy::GetEnemyState() const
 	return mCurrentState;
 }
 
-float Enemy::GetHP() const
-{
-	return mCurrentHp;
-}
-
-void Enemy::SetHP( float hp )
-{
-	mCurrentHp	= hp;
-}
-
 bool Enemy::IsAlive() const
 {
 	return mIsAlive;
-}
-
-void Enemy::SetIsAlive( bool isAlive )
-{
-	mIsAlive = isAlive;
 }
 
 XMFLOAT3 Enemy::GetPosition() const
@@ -468,24 +316,16 @@ XMFLOAT3 Enemy::GetPosition() const
 	return mPosition;
 }
 
-void Enemy::SetPosition( XMFLOAT3 position )
-{
-	mPosition = position;
-}
-
 XMFLOAT3 Enemy::GetDirection() const
 {
 	return mDirection;
 }
 
-void Enemy::SetDirection( XMFLOAT3 direction )
-{
-	mDirection = direction;
-}
-
-HRESULT Enemy::Initialize( int id )
+HRESULT Enemy::Initialize( int id, ServerPlayer** players, UINT NrOfPlayers )
 {
 	mID				= id;
+	mPlayers		= players;
+	mNrOfPlayers	= NrOfPlayers;
 	mMaxHp			= 100.0f;
 	mCurrentHp		= mMaxHp;
 	mDamage			= 0.0f;
@@ -567,8 +407,113 @@ Enemy::Enemy()
 	mTimeTillAttack		= 0.0f;
 	mStateTimer			= 0.0f;
 	mStunTimer			= 0.0f;
+	mTargetIndex		= 0;
+	mTargetID			= 0;
+	mPlayers			= nullptr;
 }
 
 Enemy::~Enemy()
 {
 }
+
+/////////////////////////////////////////////
+//				CLEAN UP
+/////////////////////////////////////////////
+
+//void Enemy::SetDirection( XMFLOAT3 direction )
+//{
+//	mDirection = direction;
+//}
+
+//void Enemy::SetIsAlive( bool isAlive )
+//{
+//	mIsAlive = isAlive;
+//}
+
+//float Enemy::GetHP() const
+//{
+//	return mCurrentHp;
+//}
+//
+//void Enemy::SetHP( float hp )
+//{
+//	mCurrentHp	= hp;
+//}
+
+//float Enemy::HandleAttack()
+//{
+//	if( mTimeTillAttack <= 0.0f )
+//	{
+//		mTimeTillAttack = mAttackRate;
+//		mStateTimer		= mAttackRate;
+//		if( mEnemyType == Boomer )
+//			Die();
+//
+//		return mDamage;
+//	}
+//	else
+//	{
+//		mTimeTillAttack -= mDeltaTime;
+//		return 0.0f;
+//	}
+//}
+
+//BoundingCircle* Enemy::GetAttackCircle() const
+//{
+//	return mAttackRadius;
+//}
+//
+//BoundingCircle* Enemy::GetAttentionCircle() const
+//{
+//	return mAttentionRadius;
+//}
+
+//void Enemy::Attack( XMFLOAT3 target, UINT targetID )
+//{
+//	mAggroTarget	= target;
+//	mTargetID		= targetID;
+//	ChangeBehavior( ATTACK_BEHAVIOR );
+//}
+
+//float Enemy::GetAttackRate() const
+//{
+//	return mAttackRate;
+//}
+
+//UINT Enemy::GetTargetID() const
+//{
+//	return mTargetID;
+//}
+
+//void Enemy::SetState( EnemyState state )
+//{
+//	mCurrentState		= state;
+//
+//	//if ( mStateTimer <= 0.0f && mCurrentState != Stunned )
+//	//{
+//	//	if( state != mCurrentState )
+//	//	{
+//	//		// If state is an EnemyState set mCurrentState to state
+//	//		if( state == Idle		||
+//	//			state == Attack		||
+//	//			state == Death		||
+//	//			state == MoveToShip ||
+//	//			state == HuntPlayer		)
+//	//		{
+//	//			mCurrentState = state;
+//	//			IEventPtr state( new Event_Set_Enemy_State( mID, mCurrentState ) );
+//	//			EventManager::GetInstance()->QueueEvent( state );
+//	//		}
+//	//	}
+//	//}
+//}
+
+//void Enemy::SetVelocity( XMFLOAT3 velocity )
+//{
+//	mVelocity = velocity;
+//}
+
+//void Enemy::SetPosition( XMFLOAT3 position )
+//{
+//	mPosition = position;
+//}

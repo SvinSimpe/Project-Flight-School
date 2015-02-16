@@ -78,7 +78,7 @@
     </Filter>
     <Filter Include="Worldmap\Navigation">
       <UniqueIdentifier>{9139bafa-aede-4c3d-9f90-4bbf22ed172a}</UniqueIdentifier>
-	</Filter>
+    </Filter>
     <Filter Include="GUI">
       <UniqueIdentifier>{36818f75-79e9-4d4e-b2c5-7d440fa0dbab}</UniqueIdentifier>
     </Filter>
@@ -279,33 +279,24 @@
     <ClCompile Include="MovingButton.cpp">
       <Filter>GUI\Source</Filter>
     </ClCompile>
-
-
-
     <ClCompile Include="RemoteEnemy.cpp">
       <Filter>Enemy\Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="Enemy.cpp">
       <Filter>Enemy\Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="EnemyBehavior.cpp">
       <Filter>Enemy\Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="EnemyAnimationManager.cpp">
       <Filter>Enemy\Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="EnemySpawn.cpp">
       <Filter>Enemy\Source Files</Filter>
-	</ClCompile>
-
+    </ClCompile>
     <ClCompile Include="UpgradeShipWindow.cpp">
       <Filter>GUI\Source</Filter>
- </ClCompile>
-
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
@@ -500,27 +491,21 @@
     <ClInclude Include="MovingButton.h">
       <Filter>GUI\Header</Filter>
     </ClInclude>
-
     <ClInclude Include="Enemy.h">
       <Filter>Enemy\Header Files</Filter>
     </ClInclude>
-
     <ClInclude Include="RemoteEnemy.h">
       <Filter>Enemy\Header Files</Filter>
     </ClInclude>
-
     <ClInclude Include="EnemyAnimationManager.h">
       <Filter>Enemy\Header Files</Filter>
     </ClInclude>
-
     <ClInclude Include="EnemySpawn.h">
       <Filter>Enemy\Header Files</Filter>
-	</ClInclude>
-
+    </ClInclude>
     <ClInclude Include="UpgradeShipWindow.h">
       <Filter>GUI\Header</Filter>
     </ClInclude>
-
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

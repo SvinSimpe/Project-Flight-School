@@ -22,16 +22,28 @@ IEnemyBehavior::~IEnemyBehavior()
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT IdleBehavior::Update( float deltaTime )
 {
-	if( mEnemy->IsAggro() )
-		mEnemy->ChangeBehavior( HUNT_PLAYER_BEHAVIOR );
+	if( mEnemy->mIsAlive )
+	{
+		for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
+		{
+			if( mEnemy->mPlayers[i] != nullptr )
+			{
+				if( mEnemy->mPlayers[i]->IsAlive && mEnemy->mAttentionRadius->Intersect( mEnemy->mPlayers[i]->AggroCircle ) )
+				{
+					mEnemy->SetTarget( mEnemy->mPlayers[i]->ID );
+					mEnemy->ChangeBehavior( HUNT_PLAYER_BEHAVIOR );
+				}
+			}
+		}
+	}
 
 	return S_OK;
 }
 
 void IdleBehavior::OnEnter()
 {
-	mEnemy->SetState( Idle );
-	mEnemy->SetVelocity( XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
+	mEnemy->mCurrentState	= Idle;
+	mEnemy->mVelocity = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), Idle ) );
 	EventManager::GetInstance()->QueueEvent( state );
 }
@@ -74,8 +86,24 @@ IdleBehavior::~IdleBehavior()
 HRESULT HuntPlayerBehavior::Update( float deltaTime )
 {
 	mEnemy->Hunt( deltaTime );
-	if( mEnemy->GetEnemyState() == Attack )
-		mEnemy->ChangeBehavior( ATTACK_BEHAVIOR );
+
+	// If enemy lost track of target, go back to Idle
+	if( mEnemy->mPlayers[mEnemy->mTargetIndex] != nullptr )
+	{
+		if( !mEnemy->mPlayers[mEnemy->mTargetIndex]->IsAlive || !mEnemy->mAttentionRadius->Intersect( mEnemy->mPlayers[mEnemy->mTargetIndex]->AggroCircle ) )
+		{
+			mEnemy->ChangeBehavior( IDLE_BEHAVIOR );
+		}
+	}
+
+	// If enemy is in attack range of target, go to Attack
+	if( mEnemy->mPlayers[mEnemy->mTargetIndex] != nullptr )
+	{
+		if( mEnemy->mPlayers[mEnemy->mTargetIndex]->IsAlive && mEnemy->mAttackRadius->Intersect( mEnemy->mPlayers[mEnemy->mTargetIndex]->AggroCircle ) )
+		{
+			mEnemy->ChangeBehavior( ATTACK_BEHAVIOR );
+		}
+	}
 
 	return S_OK;
 }
@@ -170,10 +198,11 @@ HRESULT AttackBehavior::Update( float deltaTime )
 	mStateTimer -= deltaTime;
 	mTimeTillAttack -= deltaTime;
 
-	if( mTimeTillAttack <= 0.0f )
+	if( mTimeTillAttack <= 0.0f &&  !mEnemy->mPlayers[mEnemy->mTargetIndex]->IsDown )
 	{
-		IEventPtr state( new Event_Tell_Server_Enemy_Attack_Player( mEnemy->GetID(), mEnemy->GetTargetID(), mEnemy->GetDamage() ) );
+		IEventPtr state( new Event_Tell_Server_Enemy_Attack_Player( mEnemy->mID, mEnemy->mTargetID, mEnemy->mDamage ) );
 		EventManager::GetInstance()->QueueEvent( state );
+		mTimeTillAttack	= mEnemy->mAttackRate;
 	}
 
 	if( mStateTimer <= 0.0f )
@@ -184,12 +213,12 @@ HRESULT AttackBehavior::Update( float deltaTime )
 
 void AttackBehavior::OnEnter()
 {
-	mTimeTillAttack	= mEnemy->GetAttackRate();
+	mTimeTillAttack	= mEnemy->mAttackRate;
 
-	switch( mEnemy->GetEnemyType() )
+	switch( mEnemy->mEnemyType )
 	{
 		case Standard:
-			mStateTimer = 2.0f;
+			mStateTimer = 1.6f;
 			break;
 
 		case Ranged:
@@ -223,7 +252,7 @@ HRESULT AttackBehavior::Initialize( Enemy* enemy )
 {
 	mEnemy			= enemy;
 	mBehavior		= Attack;
-	mTimeTillAttack	= mEnemy->GetAttackRate();
+	mTimeTillAttack	= mEnemy->mAttackRate;
 	
 	return S_OK;
 }
@@ -345,7 +374,11 @@ HRESULT DeadBehavior::Update( float deltaTime )
 
 void DeadBehavior::OnEnter()
 {
-	IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), Death ) );
+	mEnemy->mIsAlive		= false;
+	mEnemy->mCurrentHp		= 0.0f;
+	mEnemy->mTimeTillSapwn	= mEnemy->mSpawnTime;
+	
+	IEventPtr state( new Event_Set_Enemy_State( mEnemy->mID, Death ) );
 	EventManager::GetInstance()->QueueEvent( state );
 }
 

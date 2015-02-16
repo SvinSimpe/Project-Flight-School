@@ -6,10 +6,11 @@
 #include "BoundingGeometry.h"
 #include "RenderManager.h"
 #include "Font.h"
+#include "RemotePlayer.h"
 
 class Enemy;
 
-#define MAX_NR_OF_ENEMIES		5
+#define MAX_NR_OF_ENEMIES		20
 
 // ---- Define all enemy animations ----
 // Standard
@@ -130,6 +131,7 @@ class AttackBehavior : public IEnemyBehavior
 	// Class members
 	private:
 		float			mTimeTillAttack;
+
 	// Class functions
 	public:
 		virtual HRESULT	Update( float deltaTime );
@@ -195,11 +197,21 @@ class DeadBehavior : public IEnemyBehavior
 
 #pragma endregion
 
-
 class Enemy
 {
 	// Member variables
 	private:
+#pragma region Friends
+		friend class		IEnemyBehavior; 
+		friend class		IdleBehavior;
+		friend class		HuntPlayerBehavior;
+		friend class		MoveToShipBehavior; 
+		friend class		AttackBehavior;
+		friend class		TakeDamageBehavior;
+		friend class		StunnedBehavior;
+		friend class		DeadBehavior;
+#pragma endregion
+
 		unsigned int		mID;
 		EnemyType			mEnemyType;
 		EnemyState			mCurrentState;
@@ -217,6 +229,10 @@ class Enemy
 		bool				mHasAggro;
 		XMFLOAT3			mAggroTarget;
 		UINT				mTargetID;
+		UINT				mTargetIndex;
+
+		ServerPlayer**		mPlayers;
+		UINT				mNrOfPlayers;
 
 		// Timers
 		float				mSpawnTime;
@@ -248,48 +264,60 @@ class Enemy
 
 	protected:
 	public:
-		HRESULT				Update( float deltaTime );
-		void				SetAggro( bool isAggro, XMFLOAT3 target );		
-		bool				IsAggro() const;
+		HRESULT				Update( float deltaTime, ServerPlayer** players, UINT NrOfPlayers );
+		//void				SetAggro( bool isAggro, XMFLOAT3 target );		
+		//bool				IsAggro() const;
 		void				ChangeBehavior( const int NEW_BEHAVIOR );
 		void				ResetBehavior( const int BEHAVIOR );
 		XMFLOAT3			GetTarget() const;
-		float				GetAttackRate() const;
 
-		void				SetState( EnemyState state );
 		void				TakeDamage( float damage );
 		void				TakeMeleeDamage( float damage, float knockBack, XMFLOAT3 direction, float stun );
 		void				AddImpuls( XMFLOAT3 impuls );
-		void				SetTarget( XMFLOAT3 player );
-		void				SetVelocity( XMFLOAT3 velocity );
+		void				SetTarget( UINT id );
+		
 		void				Hunt( float deltaTime );
-		void				Attack( XMFLOAT3 target, UINT id );
-		float				GetDamage() const;
-		UINT				GetTargetID() const;
+		
 
 		void				HandleSpawn( float deltaTime, XMFLOAT3 spawnPos );
 		void				Spawn( XMFLOAT3 spawnPos );
-		BoundingCircle*		GetAttackCircle()	 const;
-		BoundingCircle*		GetAttentionCircle() const;
+		
 		void				Die();
-		float				HandleAttack();
+		
 		unsigned int		GetID() const;
 		void				SetID( unsigned int id );
 		EnemyType			GetEnemyType() const;
 		EnemyState			GetEnemyState() const;
-		float				GetHP() const;
-		void				SetHP( float hp );
+		
 		bool				IsAlive() const;
-		void				SetIsAlive( bool isAlive );
 		XMFLOAT3			GetPosition() const;
-		void				SetPosition( XMFLOAT3 position );
 		XMFLOAT3			GetDirection() const;
-		void				SetDirection( XMFLOAT3 direction );
-		HRESULT				Initialize( int id );
+		
+
+		HRESULT				Initialize( int id, ServerPlayer** players, UINT NrOfPlayers );
 		void				Reset();
 		void				Release();
 							Enemy();
 							~Enemy();
+
+		/////////////////////////////////////////////
+		//				CLEAN UP
+		/////////////////////////////////////////////
+
+		//float				GetAttackRate() const;
+		//void				SetState( EnemyState state );
+		//void				SetVelocity( XMFLOAT3 velocity );
+		//void				Attack( XMFLOAT3 target, UINT id );
+		//float				GetDamage() const;
+		//UINT				GetTargetID() const;
+		/*BoundingCircle*		GetAttackCircle()	 const;
+		BoundingCircle*		GetAttentionCircle() const;*/
+		//float				HandleAttack();
+		//float				GetHP() const;
+		//void				SetHP( float hp );
+		//void				SetIsAlive( bool isAlive );
+		//void				SetDirection( XMFLOAT3 direction );
+		//void				SetPosition( XMFLOAT3 position );
 };
 
 #endif

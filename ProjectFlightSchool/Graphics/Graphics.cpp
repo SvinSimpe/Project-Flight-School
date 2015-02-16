@@ -1282,7 +1282,7 @@ DirectX::XMFLOAT4X4 Graphics::GetRootMatrix( AnimationTrack animTrack )
 	return output;
 }
 
-bool Graphics::GetAnimationMatrices( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo &info )
+bool Graphics::GetAnimationMatrices( AnimationTrack &animTrack, int playType, Anim3dInfo &info )
 {
 	Animated3dAsset*	model		= (Animated3dAsset*)mAssetManager->mAssetContainer[animTrack.mModelID];
 	Skeleton*			skeleton	= &( (SkeletonAsset*)mAssetManager->mAssetContainer[model->mSkeletonId] )->mSkeleton;
@@ -1442,9 +1442,6 @@ bool Graphics::GetAnimationMatrices( AnimationTrack &animTrack, int playType, Di
 																				DirectX::XMVectorLerp( nextComp[2], currComp[2], blendInterpolation ) );
 		}
 	}
-
-	DirectX::XMStoreFloat4x4( &info.mWorld, DirectX::XMMatrixTranspose( DirectX::XMMatrixRotationRollPitchYaw( rotation.x, rotation.y, rotation.z ) *										
-											DirectX::XMMatrixTranslation( position.x, position.y, position.z ) ) );
 
 	for( int i = 0; i < NUM_SUPPORTED_JOINTS; i++ )
 		DirectX::XMStoreFloat4x4( &info.mBoneTransforms[i], DirectX::XMMatrixIdentity() );

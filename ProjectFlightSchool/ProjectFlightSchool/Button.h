@@ -28,5 +28,7 @@ class Button : public Image
 		void			Release();
 						Button();
 		virtual			~Button();
+
+		XMFLOAT2		GetPosition() const;
 };
 #endif

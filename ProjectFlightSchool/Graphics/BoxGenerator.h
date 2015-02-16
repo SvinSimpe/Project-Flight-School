@@ -28,6 +28,7 @@ struct OctTree
 {
 	//int			levels;
 	AABB		boundingBox;
+	bool		childrenCollides[8];
 	OctTree*	children[8];
 };
 //struct OctDivision

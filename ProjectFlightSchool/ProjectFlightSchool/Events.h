@@ -3158,7 +3158,8 @@ class Event_Server_Spawn_Ship : public IEvent
 		UINT		mID;
 		UINT		mTeamID;
 		XMFLOAT3	mPos;
-		XMFLOAT3	mDir;
+		XMFLOAT4	mRot;
+		XMFLOAT3	mScale;
 		float		mHP;
 
 	protected:
@@ -3173,15 +3174,17 @@ class Event_Server_Spawn_Ship : public IEvent
 			mID		= (UINT)-1;
 			mTeamID = (UINT)-1;
 			mPos	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-			mDir	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mRot	= XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f );
+			mScale	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mHP		= -1.0f;
 		}
-		Event_Server_Spawn_Ship( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir, float currentHP )
+		Event_Server_Spawn_Ship( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, float currentHP )
 		{
 			mID		= id;
 			mTeamID = teamID;
 			mPos	= pos;
-			mDir	= dir;
+			mRot	= rot;
+			mScale	= scale;
 			mHP		= currentHP;
 		}
 		~Event_Server_Spawn_Ship() {}
@@ -3198,9 +3201,14 @@ class Event_Server_Spawn_Ship : public IEvent
 			out << mPos.y << " ";
 			out << mPos.z << " ";
 
-			out << mDir.x << " ";
-			out << mDir.y << " ";
-			out << mDir.z << " ";
+			out << mRot.x << " ";
+			out << mRot.y << " ";
+			out << mRot.z << " ";
+			out << mRot.w << " ";
+
+			out << mScale.x << " ";
+			out << mScale.y << " ";
+			out << mScale.z << " ";
 
 			out << mHP << " ";
 		}
@@ -3213,15 +3221,20 @@ class Event_Server_Spawn_Ship : public IEvent
 			in >> mPos.y;
 			in >> mPos.z;
 
-			in >> mDir.x;
-			in >> mDir.y;
-			in >> mDir.z;
+			in >> mRot.x;
+			in >> mRot.y;
+			in >> mRot.z;
+			in >> mRot.w;
+
+			in >> mScale.x;
+			in >> mScale.y;
+			in >> mScale.z;
 
 			in >> mHP;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Server_Spawn_Ship( mID, mTeamID, mPos, mDir, mHP ) );
+			return IEventPtr( new Event_Server_Spawn_Ship( mID, mTeamID, mPos, mRot, mScale, mHP ) );
 		}
 		UINT ID() const
 		{
@@ -3235,9 +3248,13 @@ class Event_Server_Spawn_Ship : public IEvent
 		{
 			return mPos;
 		}
-		XMFLOAT3 Direction() const
+		XMFLOAT4 Rotation() const
 		{
-			return mDir;
+			return mRot;
+		}
+		XMFLOAT3 Scale() const
+		{
+			return mScale;
 		}
 		float HP() const
 		{
@@ -3763,5 +3780,165 @@ class Event_New_Player_Spawn_Position : public IEvent
 			return mSpawnPosition;
 		}
 
+};
+
+// Sent from the client when the turret wants to shoot something
+class Event_Client_Turret_Fire : public IEvent
+{
+	private:
+		UINT mID;
+		UINT mTeamID; 
+		// No need for more variables since the client will know where the turret is and where it's facing
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Turret_Fire()
+		{
+			mID		= (UINT)-1;
+			mTeamID	= (UINT)-1;
+		}
+		Event_Client_Turret_Fire( UINT playerID, UINT teamID )
+		{
+			mID		= playerID;
+			mTeamID	= teamID;
+		}
+		~Event_Client_Turret_Fire() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mTeamID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mTeamID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Turret_Fire( mID, mTeamID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT TeamID() const
+		{
+			return mID;
+		}
+};
+
+class Event_Remote_Turret_Fire : public IEvent
+{
+	private:
+		UINT		mID;
+		UINT		mTeamID; 
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Turret_Fire()
+		{
+			mID		= (UINT)-1;
+			mTeamID	= (UINT)-1;
+		}
+		Event_Remote_Turret_Fire( UINT playerID, UINT teamID )
+		{
+			mID		= playerID;
+			mTeamID	= teamID;
+		}
+		~Event_Remote_Turret_Fire() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mTeamID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mTeamID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Turret_Fire( mID, mTeamID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT TeamID() const
+		{
+			return mID;
+		}
+};
+
+// Event sent from the server whenever a turret levels up/down
+class Event_Server_Turret_Level_Update : public IEvent
+{
+	private:
+		UINT mID;
+		UINT mNewLevel; 
+		// No need for more variables since the client will know where the turret is and where it's facing
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Turret_Level_Update()
+		{
+			mID			= (UINT)-1;
+			mNewLevel	= (UINT)-1;
+		}
+		Event_Server_Turret_Level_Update( UINT playerID, UINT newLevel )
+		{
+			mID			= playerID;
+			mNewLevel	= newLevel;
+		}
+		~Event_Server_Turret_Level_Update() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mNewLevel << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mNewLevel;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Turret_Fire( mID, mNewLevel ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT NewLevel() const
+		{
+			return mID;
+		}
 };
 #endif

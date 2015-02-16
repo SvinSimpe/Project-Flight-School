@@ -24,7 +24,7 @@ void Server::ClientJoined( IEventPtr eventPtr )
 			// Initializes the ships in their current state to the newly connected client
 			for( auto& s : mShips )
 			{
-				IEventPtr SpawnShip( new Event_Server_Spawn_Ship( s->mID, s->mTeamID, s->mPos, s->mDir, s->mCurrentHP ) );
+				IEventPtr SpawnShip( new Event_Server_Spawn_Ship( s->mID, s->mTeamID, s->mPos, s->mRot, s->mScale, s->mCurrentHP ) );
 				SendEvent( SpawnShip, data->ID() );
 				IEventPtr E1( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel ) );
 				SendEvent( E1, data->ID() );
@@ -397,7 +397,7 @@ void Server::CreateShips()
 	for( UINT i = 0; i < MAX_TEAMS; i++ )
 	{
 		mShips.push_back( new ServerShip() );
-		mShips.back()->Initialize( shipID, CurrentTeamDelegate(), XMFLOAT3( xOffset, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
+		mShips.back()->Initialize( shipID, CurrentTeamDelegate(), XMFLOAT3( xOffset, 0.0f, 0.0f ), XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 		shipID++;
 		xOffset += 20.0f;
 	}

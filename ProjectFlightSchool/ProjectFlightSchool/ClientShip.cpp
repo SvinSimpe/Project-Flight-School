@@ -15,12 +15,6 @@ void ClientShip::RemoteUpdateShip( IEventPtr eventPtr )
 	}
 }
 
-void ClientShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir )
-{
-	ServerShip::Reset( id, teamID, pos, dir );
-	mHitCircle->center = pos;
-}
-
 UINT ClientShip::GetID() const
 {
 	return mID;
@@ -48,8 +42,8 @@ void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 				float zMin = mBuffCircle->center.z - 10.0f;
 				float zMax = mBuffCircle->center.z + 10.0f;
 
-				int randX = (int)xMax*2 - xMin;
-				int randZ = (int)zMax*2 - zMin;
+				int randX = (int)( xMax*2 - xMin );
+				int randZ = (int)( zMax*2 - zMin );
 
 				spawnX = (float)( rand() % randX );
 				spawnZ = (float)( rand() % randZ );
@@ -64,6 +58,13 @@ void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 	}
 }
 
+void ClientShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale )
+{
+	ServerShip::Reset( id, teamID, pos, rot, scale );
+	mHitCircle->center = pos;
+	mClientTurret->Reset( id, teamID, pos, rot, scale );
+}
+
 bool ClientShip::Intersect( BoundingCircle* entity )
 {
 	if( mHitCircle->Intersect( entity ) )
@@ -76,18 +77,24 @@ bool ClientShip::Intersect( BoundingCircle* entity )
 void ClientShip::Update( float deltaTime )
 {
 	ServerShip::Update( deltaTime );
+	mClientTurret->Update( deltaTime );
 }
 
-void ClientShip::Render()
+void ClientShip::Render( float deltaTime, DirectX::XMFLOAT4X4 parentWorld )
 {
 	RenderManager::GetInstance()->AddObject3dToList( mAssetID, mPos );
+	mClientTurret->Render( deltaTime, parentWorld);
 }
 
-void ClientShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir )
+void ClientShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale )
 {
-	ServerShip::Initialize( id, teamID, pos, dir );
+	ServerShip::Initialize( id, teamID, pos, rot, scale );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Ship/", "ship.pfs", mAssetID );
 	mHitCircle = new BoundingCircle( mPos, 5.0f );
+
+	SAFE_RELEASE_DELETE( mServerTurret ); // This is kinda ugly, but needs to be done in order for events to work
+	mClientTurret = new ClientTurret();
+	mClientTurret->Initialize( mID, mTeamID, mPos, mRot, mScale );
 
 	EventManager::GetInstance()->AddListener( &ClientShip::RemoteUpdateShip, this, Event_Server_Update_Ship::GUID );
 	EventManager::GetInstance()->AddListener( &ClientShip::CalculatePlayerRespawnPosition, this, Event_Request_Player_Spawn_Position::GUID );
@@ -97,13 +104,15 @@ void ClientShip::Release()
 {
 	ServerShip::Release();
 	SAFE_DELETE( mHitCircle );
+	SAFE_RELEASE_DELETE( mClientTurret );
 }
 
 ClientShip::ClientShip() : ServerShip()
 {
-	mAssetID	= CUBE_PLACEHOLDER;
-	mHitCircle	= nullptr;
-	mWasUpdated = false;
+	mAssetID		= CUBE_PLACEHOLDER;
+	mHitCircle		= nullptr;
+	mWasUpdated		= false;
+	mClientTurret	= nullptr;
 }
 
 ClientShip::~ClientShip()

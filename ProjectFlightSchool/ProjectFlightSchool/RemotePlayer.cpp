@@ -87,12 +87,12 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 
 HRESULT RemotePlayer::InitializeGraphics()
 {
-	////////////////
-	//Animations
-	// BODY
+	// Animations Body
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotLegsIdle.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_IDLE] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotLegsWalk.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_WALK] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotLegsDeath.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DEATH] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	//BLOWTORCH
@@ -330,37 +330,39 @@ HRESULT RemotePlayer::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT RemotePlayer::Render( int position )
+HRESULT RemotePlayer::Render()
 {
-	if (mIsAlive)
-	{
-		XMFLOAT4X4 upperMatrix = Graphics::GetInstance()->GetRootMatrix(mLowerBody.playerModel);
-		XMFLOAT3 offsetPos = XMFLOAT3(upperMatrix._41 + mLowerBody.position.x, upperMatrix._42, upperMatrix._43 + mLowerBody.position.z);
+	XMFLOAT4X4 upperMatrix = Graphics::GetInstance()->GetRootMatrix( mLowerBody.playerModel );
+	XMMATRIX loadedMat	= XMLoadFloat4x4( &upperMatrix );
+	XMMATRIX translate	= XMMatrixTranslation( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z );
 
-		//Render upper body
-		float radians = atan2f(mUpperBody.direction.z, mUpperBody.direction.x);
-		RenderManager::GetInstance()->AddObject3dToList(mUpperBody.playerModel, offsetPos, XMFLOAT3(0.0f, -radians, 0.0f));
+	float yaw = -atan2f( mUpperBody.direction.z, mUpperBody.direction.x );
 
-		//Render Arms
-		if (RenderManager::GetInstance()->AddAnim3dToList(mArms.leftArm,
-			ANIMATION_PLAY_ONCE,
-			offsetPos,
-			XMFLOAT3(0.0f, -radians, 0.0f)))
-			mLeftArmAnimationCompleted = true;
+	XMMATRIX rotate	= XMMatrixRotationRollPitchYaw( 0.0f, yaw, 0.0 );
 
-		if (RenderManager::GetInstance()->AddAnim3dToList(mArms.rightArm,
-			ANIMATION_PLAY_ONCE,
-			offsetPos,
-			XMFLOAT3(0.0f, -radians, 0.0f)))
-			mRightArmAnimationCompleted = true;
+	XMStoreFloat4x4( &upperMatrix, loadedMat * rotate * translate );
 
-		//Render lower body
-		radians = atan2f(mLowerBody.direction.z, mLowerBody.direction.x);
-		RenderManager::GetInstance()->AddAnim3dToList(mLowerBody.playerModel,
-			ANIMATION_PLAY_LOOPED,
-			mLowerBody.position,
-			XMFLOAT3(0.0f, -radians, 0.0f));
-	}
+	//Render upper body
+	RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, upperMatrix );
+
+	//Render Arms
+	if ( RenderManager::GetInstance()->AddAnim3dToList( mArms.leftArm,
+		ANIMATION_PLAY_ONCE,
+		&upperMatrix ) )
+		mLeftArmAnimationCompleted = true;
+
+	if ( RenderManager::GetInstance()->AddAnim3dToList( mArms.rightArm,
+		ANIMATION_PLAY_ONCE,
+		&upperMatrix ) )
+		mRightArmAnimationCompleted = true;
+
+	//Render lower body
+	yaw = -atan2f( mLowerBody.direction.z, mLowerBody.direction.x );
+	RenderManager::GetInstance()->AddAnim3dToList( mLowerBody.playerModel,
+		mIsAlive ? ANIMATION_PLAY_LOOPED : ANIMATION_PLAY_ONCE,
+		mLowerBody.position,
+		XMFLOAT3( 0.0f, yaw, 0.0f ) );
+
 	return S_OK;
 }
 

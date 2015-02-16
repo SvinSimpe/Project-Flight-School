@@ -583,7 +583,7 @@ HRESULT PlayState::Render()
 	{
 		if ( mRemotePlayers.at(i) )
 		{
-			mRemotePlayers.at(i)->Render( i + 2 );
+			mRemotePlayers.at(i)->Render();
 		}
 	}
 
@@ -682,7 +682,7 @@ HRESULT PlayState::Initialize()
 
 	mWorldMap->Initialize( 16 );
 
-	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/testMap.xml")); 
+	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/testMap.xml" ) ); 
 	EventManager::GetInstance()->TriggerEvent( E1 );
 
 	//Fill up on Projectiles, test values

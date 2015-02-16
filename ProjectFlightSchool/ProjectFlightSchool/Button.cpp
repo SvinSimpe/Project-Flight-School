@@ -77,3 +77,8 @@ Button::Button()
 Button::~Button()
 {
 }
+
+XMFLOAT2 Button::GetPosition() const
+{
+	return XMFLOAT2( mUpperLeft.x, mUpperLeft.y );
+}

@@ -57,6 +57,26 @@ void Player::EventListener( IEventPtr newEvent )
 				printf("%d is no longer buffed!\n", mID);
 		}
 	}
+	else if( newEvent->GetEventType() == Event_Upgrade_Player::GUID )
+	{
+		std::shared_ptr<Event_Upgrade_Player> data = std::static_pointer_cast<Event_Upgrade_Player>( newEvent );
+		if( data->Speed() != 0 )
+		{
+			UpgradeLegs();
+		}
+		else if( data->Health() != 0 )
+		{
+			UpgradeBody();
+		}
+		else if( data->Melee() != 0 )
+		{
+			UpgradeMelee();
+		}
+		else if( data->Range() != 0 )
+		{
+			UpgradeRange();
+		}
+	}
 }
 
 void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
@@ -431,37 +451,25 @@ void Player::AddImpuls( XMFLOAT3 impuls )
 
 void Player::UpgradeBody()
 {
-	if( mUpgrades.body < mUpgrades.maxUpgrades )
-	{
-		mUpgrades.body++;
-	}
+	mUpgrades.body++;
 }
 
 void Player::UpgradeLegs()
 {
-	if( mUpgrades.legs < mUpgrades.maxUpgrades )
-	{
-		mMaxAcceleration += mMaxAcceleration/mUpgrades.legs;
-		mUpgrades.legs++;
-	}
+	mMaxAcceleration += mMaxAcceleration/mUpgrades.legs;
+	mUpgrades.legs++;
 }
 
 void Player::UpgradeMelee()
 {
-	if( mUpgrades.melee < mUpgrades.maxUpgrades )
-	{
-		mLoadOut->meleeWeapon->LevelUp();
-		mUpgrades.melee++;
-	}
+	mLoadOut->meleeWeapon->LevelUp();
+	mUpgrades.melee++;
 }
 
 void Player::UpgradeRange()
 {
-	if( mUpgrades.range < mUpgrades.maxUpgrades )
-	{
-		mLoadOut->rangedWeapon->LevelUp();
-		mUpgrades.range++;
-	}
+	mLoadOut->rangedWeapon->LevelUp();
+	mUpgrades.range++;
 }
 
 void Player::QueueEvent( IEventPtr ptr )
@@ -739,6 +747,7 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Melee_Hit::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Create_Player_Name::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Change_Buff_State::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Upgrade_Player::GUID );
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
 
 	return S_OK;

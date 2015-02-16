@@ -12,7 +12,6 @@ class Map;
 
 struct Upgrades
 {
-	const int maxUpgrades	= 5;
 	int melee				= 1;
 	int range				= 1;
 	int legs				= 1;

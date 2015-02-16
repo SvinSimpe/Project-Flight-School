@@ -108,3 +108,4 @@ const EventType Event_Client_Change_Ship_Levels::GUID( counter++ );
 const EventType Event_Server_Change_Ship_Levels::GUID( counter++ );
 const EventType Event_Remote_Win::GUID( counter++ );
 const EventType Event_Client_Win::GUID( counter++ );
+const EventType Event_Upgrade_Player::GUID( counter++ );

@@ -3657,4 +3657,74 @@ class Event_Server_Change_Ship_Levels : public IEvent
 			return mBuffLevel;
 		}
 };
+
+class Event_Upgrade_Player : public IEvent
+{
+	private:
+		int mSpeed;
+		int mHealth;
+		int mMelee;
+		int mRange;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Upgrade_Player()
+		{
+			mSpeed	= 0;
+			mHealth	= 0;
+			mMelee	= 0;
+			mRange	= 0;
+		}
+		Event_Upgrade_Player( int speed, int health, int melee, int range )
+		{
+			mSpeed	= speed;
+			mHealth	= health;
+			mMelee	= melee;
+			mRange	= range;
+		}
+		~Event_Upgrade_Player() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mSpeed << " ";
+			out << mHealth << " ";
+			out << mMelee << " ";
+			out << mRange << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mSpeed;
+			in >> mHealth;
+			in >> mMelee;
+			in >> mRange;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Upgrade_Player( mSpeed, mHealth, mMelee, mRange ) );
+		}
+		int Speed() const
+		{
+			return mSpeed;
+		}
+		int Health() const
+		{
+			return mHealth;
+		}
+		int Melee() const
+		{
+			return mMelee;
+		}
+		int Range() const
+		{
+			return mRange;
+		}
+};
 #endif

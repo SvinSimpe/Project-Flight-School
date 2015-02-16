@@ -57,13 +57,12 @@ void ClientTurret::Reset( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 
 	mLoadOut->rangedWeapon->Reset();
 
-	mPos				= pos;
-	mRot				= rot;
-	mScale				= scale;
+	mPos.y					+= 2.0f;
 
-	mTurretHead->pos	= pos;
-	mTurretHead->rot	= rot;
-	mTurretHead->scale	= scale;
+	mTurretHead->pos		= mPos;
+	mTurretHead->pos.y		+= 2.0f;
+	mTurretHead->rot		= mRot;
+	mTurretHead->scale		= mScale;
 }
 
 void ClientTurret::Initialize( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale )
@@ -77,11 +76,13 @@ void ClientTurret::Initialize( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, X
 	mLoadOut				= new LoadOut();
 	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN );
 
+	mPos.y					+= 2.0f;
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Turret/", "turretBase2.pfs", mAssetID );
 
 	mTurretHead				= new TurretPart();
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Turret/", "turret.pfs", mTurretHead->model );
 	mTurretHead->pos		= mPos;
+	mTurretHead->pos.y		+= 2.0f;
 	mTurretHead->rot		= mRot;
 	mTurretHead->scale		= mScale;
 }

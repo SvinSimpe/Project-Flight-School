@@ -82,6 +82,7 @@ void ClientShip::Update( float deltaTime )
 
 void ClientShip::Render( float deltaTime, DirectX::XMFLOAT4X4 parentWorld )
 {
+	GameObject::Render( deltaTime, parentWorld );
 	RenderManager::GetInstance()->AddObject3dToList( mAssetID, mPos );
 	mClientTurret->Render( deltaTime, parentWorld);
 }
@@ -89,6 +90,8 @@ void ClientShip::Render( float deltaTime, DirectX::XMFLOAT4X4 parentWorld )
 void ClientShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale )
 {
 	ServerShip::Initialize( id, teamID, pos, rot, scale );
+	mID	= id;
+	mTeamID = teamID;
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Ship/", "ship.pfs", mAssetID );
 	mHitCircle = new BoundingCircle( mPos, 5.0f );
 

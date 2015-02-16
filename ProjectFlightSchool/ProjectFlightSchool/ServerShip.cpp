@@ -190,8 +190,11 @@ void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 	mServerTurret	= new ServerTurret();
 	mBuffCircle		= new BoundingCircle( 20.0f );
 
-	mServerTurret->Initialize( id, teamID, pos, rot, scale, assetID ); 
-	Reset( id, teamID, mPos, mRot, mScale );
+	mID				= id;
+	mTeamID			= teamID;
+
+	mServerTurret->Initialize( id, teamID, pos, rot, scale, assetID );
+
 	EventManager::GetInstance()->AddListener( &ServerShip::ClientUpdateShip, this, Event_Client_Update_Ship::GUID );
 }
 
@@ -202,7 +205,7 @@ void ServerShip::Initialize( UINT id, UINT teamID, GameObjectInfo gameObjectInfo
 	mBuffCircle		= new BoundingCircle( 20.0f );
 
 	mServerTurret->Initialize( id, teamID, gameObjectInfo ); // Actually sends the pos/dir of the ship, not the turret. The turret's pos/dir is calculated in the turret
-	Reset( id, teamID, mPos, mRot, mScale );
+
 	EventManager::GetInstance()->AddListener( &ServerShip::ClientUpdateShip, this, Event_Client_Update_Ship::GUID );
 }
 

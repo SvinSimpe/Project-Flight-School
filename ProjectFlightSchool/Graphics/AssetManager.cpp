@@ -475,7 +475,7 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceConte
 		AABB meshAABB;
 		meshAABB  = BoxGen.CreateAABBFromVerts( &vertexInput );
 		OctTree meshOct;
-		meshOct = BoxGen.GenerateOctTree( &vertexInput, &meshAABB, 4, 0);
+		BoxGen.GenerateOctTree( &vertexInput, &meshAABB, 4, 0, &meshOct);
 
 		////////////////
 
@@ -485,6 +485,7 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceConte
 		temp->mAssetId		= assetId;
 		temp->mFileName		= fileName;
 		temp->mAssetAABB	= meshAABB;
+		temp->mOctTree		= meshOct;
 		
 		mAssetContainer.push_back( temp );
 

@@ -26,17 +26,12 @@ struct AABB
 
 struct OctTree
 {
-	//int			levels;
 	AABB		boundingBox;
 	bool		childrenCollides[8];
+	bool		collides;
+	bool		lastLevel;
 	OctTree*	children[8];
 };
-//struct OctDivision
-//{
-//	AABB		boundingBox;
-//	bool		collides;
-//	OctDivision *children[8];
-//};
 
 class BoxGenerator
 {
@@ -51,7 +46,7 @@ class BoxGenerator
 	public:
 		HRESULT		Initialize();
 		AABB		CreateAABBFromVerts(vector<StaticVertex>* vertices);
-		OctTree		GenerateOctTree(vector<StaticVertex>* vertices, AABB* boundingAABB, int maxLevel, int currentLevel);
+		void		GenerateOctTree(vector<StaticVertex>* vertices, AABB* boundingAABB, int maxLevel, int currentLevel, OctTree* inOct);
 		bool		CheckIntersectionTriangleVSAABB(vector<StaticVertex>* vertices, AABB* collisionBox);
 		void		Release();
 					BoxGenerator();

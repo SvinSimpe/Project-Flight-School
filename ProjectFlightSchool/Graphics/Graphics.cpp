@@ -571,23 +571,29 @@ void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX
 
 void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 {
+	//DirectX::XMMatrixIdentity
 	//Maximus debuggus boxus
-	
 	for( UINT i = 0; i < sizeOfList; i++ )
 	{
 		Static3dAsset* derpface = (Static3dAsset*)mAssetManager->mAssetContainer[info[i].mAssetId];
-		//XMMATRIX calcMat	= XMMatrixTranspose( XMLoadFloat4x4( & ) );
-		//XMVECTOR minVec		= XMLoadFloat3( &derpface->mAssetAABB.min );
-		//XMVECTOR maxVec		= XMLoadFloat3( &derpface->mAssetAABB.max );
-
-		//XMFLOAT3 min;
-		//XMFLOAT3 max;
-		//XMStoreFloat3( &min, XMVector3TransformCoord( minVec, calcMat ) );
-		//XMStoreFloat3( &max, XMVector3TransformCoord( maxVec, calcMat ) );
-
-		Graphics::RenderDebugBox( derpface->mAssetAABB.min, derpface->mAssetAABB.max, info[i].mWorld );
+		if(derpface->mFileName != "NO PATHCUBE")
+		{
+			for(UINT j = 0; j < 8; j++)
+			{
+				for(UINT k = 0; k < 8; k++)
+				{
+					DirectX::XMFLOAT4X4 ident;
+					DirectX::XMStoreFloat4x4( &ident, DirectX::XMMatrixIdentity() );
+					if(derpface->mOctTree.children[j]->children[k]->collides)
+					{
+						Graphics::RenderDebugBox( derpface->mOctTree.children[j]->children[k]->boundingBox.min, 
+													derpface->mOctTree.children[j]->children[k]->boundingBox.max,
+														info[i].mWorld );
+					}
+				}
+			}
+		}
 	}
-
 	///////////////////////////////
 
 

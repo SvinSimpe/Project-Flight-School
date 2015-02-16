@@ -10,8 +10,9 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 		if( mID == data->ID() )
 		{
 			mLowerBody.position								= data->LowerBodyPos();
-			XMStoreFloat3( &mLowerBody.direction, XMVector3Normalize( XMLoadFloat3( &data->Velocity() ) ) );
 			mVelocity										= data->Velocity();
+			if( XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) ) > 0.05f )
+				XMStoreFloat3( &mLowerBody.direction, XMVector3Normalize( XMLoadFloat3( &data->Velocity() ) ) );
 			mUpperBody.direction							= data->UpperBodyDirection();
 			mPlayerName										= data->Name();
 
@@ -292,34 +293,51 @@ void RemotePlayer::GoUp()
 HRESULT RemotePlayer::Update( float deltaTime )
 {
 	// Update Animation
-	float currentVelocity = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) );
-
-	if( currentVelocity < 0.2f )
+	if( mIsAlive )
 	{
-		if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE] )
+		float currentVelocity = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) );
+
+		if( currentVelocity < 0.2f )
 		{
-			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
+			if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE] )
+			{
+				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
+			}
 		}
+		else
+		{
+			if(	mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK] )
+			{
+				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_WALK] );
+			}
+		}
+
+		RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, 
+			mLowerBody.playerModel.mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK] ? deltaTime * currentVelocity / 1.1f : deltaTime );
+
+		if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] )
+			RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
+
+		if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] )
+			RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
+
+		RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
+		RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
 	}
 	else
-	{
-		if(	mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK] )
-		{
-			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_WALK] );
-		}
+	{		
+		if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DEATH] )
+			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_DEATH] );
+		RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, deltaTime );
+
+		/////////////////////////////////////////////////
+		// interpolate upper to face lower direction
+		XMVECTOR upLoad		= XMLoadFloat3( &mUpperBody.direction );
+		XMVECTOR lowLoad	= XMLoadFloat3( &mLowerBody.direction );
+		float change		= min( 1.0f, 6.0f * deltaTime );
+		XMStoreFloat3( &mUpperBody.direction, upLoad * ( 1.0f - change ) + lowLoad * change );
+		/////////////////////////////////////////////////
 	}
-
-	RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, 
-		mLowerBody.playerModel.mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK] ? deltaTime * currentVelocity / 1.1f : deltaTime );
-
-	if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] )
-		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
-
-	if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] )
-		RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
-
-	RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
-	RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
 
 	if( mIsDown )
 	{

@@ -7,7 +7,7 @@ HRESULT MapNodeInstance::Update( float deltaTime )
 {
 	return S_OK;
 }
-HRESULT	MapNodeInstance::Render( float deltaTime )
+HRESULT	MapNodeInstance::Render( float deltaTime  )
 {
 	if( mNode != nullptr )
 	{
@@ -16,13 +16,18 @@ HRESULT	MapNodeInstance::Render( float deltaTime )
 	DirectX::XMFLOAT3 min = DirectX::XMFLOAT3( mPos.x - ( mNode->GetGridWidth() * 0.5f ), 0, mPos.z - ( mNode->GetGridHeight() * 0.5f ) );
 	DirectX::XMFLOAT3 max = DirectX::XMFLOAT3( min.x + mNode->GetGridWidth(), 5, min.z + mNode->GetGridHeight() );
 	RenderManager::GetInstance()->AddBoxToList( min, max );
-	//mNavMesh->FindPath( XMFLOAT3(2.0f, 0.0f, 1.0f), XMFLOAT3( 22.0f, 0.0f, 21.0f) );
-	//mNavMesh->Render();
+
+	mNavMesh->Render();
 	return S_OK;
+}
+
+Navmesh* MapNodeInstance::GetNavMesh() const
+{
+	return mNavMesh;
 }
 void MapNodeInstance::GetNavigationData()
 {
-	//mNavMesh = new Navmesh();
+	mNavMesh = new Navmesh();
 
 	UINT navVertexCount = mNode->GetNavVertexCount();
 	XMFLOAT3* navPoints	= mNode->GetNavData();
@@ -39,8 +44,7 @@ void MapNodeInstance::GetNavigationData()
 		transformedMesh[i] = tri1;
 	}
 
-//	mNavMesh->Initialize( transformedMesh, navVertexCount );
-	//Connect triangles
+	mNavMesh->Initialize( transformedMesh, navVertexCount );
 }
 DirectX::XMFLOAT3 MapNodeInstance::GetPos()const
 {
@@ -73,29 +77,6 @@ void MapNodeInstance::SetMapNode( MapNode* mapNode )
 	mNode = mapNode;
 }
 
-NavTriangle* MapNodeInstance::IsOnNavMesh( DirectX::XMFLOAT3 pPos ) const
-{
-	//DirectX::XMFLOAT2 pos, p0, p1, p2;
-	//pos = DirectX::XMFLOAT2( pPos.x, pPos.z );
-
-
-	//for(UINT i = 0; i < mNavTriangleCount; i++ )
-	//{
-	//	NavTriangle temp = mNavMesh[i];
-	//	p0 = DirectX::XMFLOAT2( temp.triPoints[0].x, temp.triPoints[0].z );
-	//	p1 = DirectX::XMFLOAT2( temp.triPoints[1].x, temp.triPoints[1].z );
-	//	p2 = DirectX::XMFLOAT2( temp.triPoints[2].x, temp.triPoints[2].z );
-
-	//	if( HelperFunctions::Inside2DTriangle( pos, p0, p1, p2 ) )
-	//	{
-	//		OutputDebugStringA( "Is INSIDE navtriangle. \n" );
-	//		return &mNavMesh[i];
-	//	}
-	//}
-	//OutputDebugStringA( "Is OUTSIDE navtriangle. \n" );
-	return nullptr;
-}
-
 HRESULT	MapNodeInstance::Initialize()
 {
 	GetNavigationData();
@@ -103,8 +84,7 @@ HRESULT	MapNodeInstance::Initialize()
 }
 void MapNodeInstance::Release()
 {
-	if( mNavMesh )
-		delete[] mNavMesh;
+	SAFE_RELEASE_DELETE( mNavMesh );
 }
 MapNodeInstance::MapNodeInstance()
 {
@@ -116,6 +96,4 @@ MapNodeInstance::MapNodeInstance()
 }
 MapNodeInstance::~MapNodeInstance()
 {
-	if( mNavMesh )
-		delete[] mNavMesh;
 }

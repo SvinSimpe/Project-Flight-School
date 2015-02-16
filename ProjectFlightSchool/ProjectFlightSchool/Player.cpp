@@ -78,18 +78,43 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 	else
 	{
 		mAcceleration = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
 		if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_W) && !Input::GetInstance()->IsKeyDown(KEYS::KEYS_S))
+		{
+			mFollowPath = false;
 			mAcceleration.z = mMaxAcceleration;
+		}
 
 		if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_A) && !Input::GetInstance()->IsKeyDown(KEYS::KEYS_D))
+		{
+			mFollowPath = false;
 			mAcceleration.x = -mMaxAcceleration;
+		}
 
 		if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_S) && !Input::GetInstance()->IsKeyDown(KEYS::KEYS_W))
+		{
+			mFollowPath = false;
 			mAcceleration.z = -mMaxAcceleration;
+		}
 
 		if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_D) && !Input::GetInstance()->IsKeyDown(KEYS::KEYS_A))
+		{
+			mFollowPath = false;
 			mAcceleration.x = mMaxAcceleration;
+		}
 
+		if( mFollowPath && !currentPath.empty() )
+		{
+			if( currStep != currentPath.end() )
+			{
+				mAcceleration = XMFLOAT3( ( (*currStep).x - mLowerBody.position.x ) * mMaxAcceleration, 0, ( (*currStep).y - mLowerBody.position.z ) * mMaxAcceleration );
+				XMFLOAT3 step = XMFLOAT3( (*currStep).x, 0, (*currStep).y );
+				if( HelperFunctions::Dist3Squared( step, mLowerBody.position  ) < 1.0f )
+				{
+					currStep = currentPath.erase(currStep);		
+				}
+			}
+		}
 
 		//Normalize acceleration 
 		XMVECTOR normalizer = XMVector3Length(XMLoadFloat3(&mAcceleration));
@@ -126,8 +151,13 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		XMStoreFloat(&t, result);
 		XMVECTOR intersection = XMVectorAdd(rayPosInWorld, rayDirInWorld * t);
 
+		
 
 
+	if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
+	{
+		XMStoreFloat3( &mPick, intersection );
+	}
 	//== Weapon handling ==
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_LEFT ) && mWeaponCoolDown <= 0.0f )
 	{
@@ -231,79 +261,17 @@ void Player::Move( float deltaTime )
 HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers )
 {
 	Update( deltaTime, remotePlayers );
-	XMFLOAT2 newDir;
-	XMFLOAT3 newPos;
-	int debug = 0;
-
-	newPos.x = mLowerBody.position.x + mVelocity.x * deltaTime;
-	newPos.z = mLowerBody.position.z + mVelocity.z * deltaTime;
-
-	newDir.x = mVelocity.x * deltaTime;
-	newDir.y = mVelocity.z * deltaTime;
-
-	if( worldMap->IsOnNavMesh( newPos ) == nullptr)
+	
+	
+	if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
 	{
-		NavTriangle* currTri = worldMap->IsOnNavMesh( mLowerBody.position );
-
-		if( currTri )
-		{
-			DirectX::XMFLOAT2 p, p1, p2, p3, delta;
-			
-			delta = XMFLOAT2( newPos.x - mLowerBody.position.x, newPos.z - mLowerBody.position.z );
-
-			p = DirectX::XMFLOAT2( mLowerBody.position.x, mLowerBody.position.z );
-
-			p1 = XMFLOAT2( currTri->triPoints[0].x, currTri->triPoints[0].z );
-			p2 = XMFLOAT2( currTri->triPoints[1].x, currTri->triPoints[1].z );
-			p3 = XMFLOAT2( currTri->triPoints[2].x, currTri->triPoints[2].z );
-
-
-			XMVECTOR deltaV = XMLoadFloat2( &delta );
-			XMVECTOR dir;
-
-			XMFLOAT2 center = XMFLOAT2( (p1.x + p2.x + p3.x ) / 3.0f, ( p1.y + p2.y + p3.y ) / 3.0f );
-
-			if( HelperFunctions::Inside2DTriangle( p, center, p1, p2 ) )
-			{
-				dir = XMLoadFloat2( &XMFLOAT2( p1.x - p2.x, p1.y - p2.y ) );
-			}
-
-			p1 = XMFLOAT2( currTri->triPoints[1].x, currTri->triPoints[1].z );
-			p2 = XMFLOAT2( currTri->triPoints[2].x, currTri->triPoints[2].z );
-			
-			if( HelperFunctions::Inside2DTriangle( p, center, p1, p2 ) )
-			{
-				debug = 2;
-				dir = XMLoadFloat2( &XMFLOAT2( p1.x - p2.x, p1.y - p2.y ) );
-				
-			}
-
-			p1 = XMFLOAT2( currTri->triPoints[2].x, currTri->triPoints[2].z );
-			p2 = XMFLOAT2( currTri->triPoints[0].x, currTri->triPoints[0].z );
-			
-			if( HelperFunctions::Inside2DTriangle( p, center, p1, p2 ) )
-			{
-				debug = 3;
-				dir = XMLoadFloat2( &XMFLOAT2( p1.x - p2.x, p1.y - p2.y ) );
-			}
-
-
-			dir = XMVector2Normalize( dir );
-
-
-			XMVECTOR scalar = XMVector2Dot( deltaV, dir );
-
-			float s = XMVectorGetX( scalar );
-
-
-			XMStoreFloat2( &newDir, dir );
-
-			newDir.x = newDir.x * s;
-			newDir.y = newDir.y * s;
-		}
+		mFollowPath = true;
+		currentPath = worldMap->GetPath( mLowerBody.position, mPick  );
+		currStep = currentPath.begin();
 	}
-	mLowerBody.position.x += newDir.x;
-	mLowerBody.position.z += newDir.y;
+
+	mLowerBody.position.x += mVelocity.x * deltaTime;
+	mLowerBody.position.z += mVelocity.z * deltaTime;
 	return S_OK;
 }
 
@@ -658,6 +626,16 @@ HRESULT Player::Render( float deltaTime, int position )
 		mFont.WriteText( textToWrite, (float)Input::GetInstance()->mScreenWidth/2, (float)Input::GetInstance()->mScreenHeight/2, 7.8f );
 	}
 
+	if( !currentPath.empty() )
+	{
+		for( UINT i = 0; i < currentPath.size() - 1; i++ )
+		{
+			XMFLOAT3 start = XMFLOAT3( currentPath[i].x, 0, currentPath[i].y );
+			XMFLOAT3 end = XMFLOAT3( currentPath[i + 1].x, 0, currentPath[i + 1].y );
+			RenderManager::GetInstance()->AddLineToList( start, end );
+		}
+	}
+
 	RemotePlayer::Render( position );
 
 	return S_OK;
@@ -666,6 +644,8 @@ HRESULT Player::Render( float deltaTime, int position )
 HRESULT Player::Initialize()
 {
 	RemotePlayer::Initialize();
+
+	mFollowPath = false;
 
 	srand( (unsigned int)time( NULL ) );
 
@@ -702,6 +682,8 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Create_Player_Name::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Change_Buff_State::GUID );
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
+
+	mPick = XMFLOAT3( 0, 0, 0 );
 	
 	return S_OK;
 }

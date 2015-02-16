@@ -28,11 +28,15 @@ class Player: public RemotePlayer
 		float		mMaxAcceleration;
 		XMFLOAT3	mAcceleration;
 		XMFLOAT3	mFireDirection;
+		XMFLOAT3	mPick;
+		std::vector<DirectX::XMFLOAT2>::iterator	currStep;
+		bool		mFollowPath;
 
 		bool		mIsBuffed;
 		float		mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
 
 		std::string		mPlayerName;
+		std::vector<DirectX::XMFLOAT2> currentPath;
 		
 		float		mSpawnTime;
 		float		mTimeTillSpawn;

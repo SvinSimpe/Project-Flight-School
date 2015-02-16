@@ -58,50 +58,23 @@ void Map::OnLoadLevel( IEventPtr pEvent )
 	}
 }
 
-NavTriangle* Map::IsOnNavMesh( XMFLOAT3 pos )
+std::vector<DirectX::XMFLOAT2> Map::GetPath( XMFLOAT3 start, XMFLOAT3 goal )
 {
-	XMFLOAT2 tempPos = XMFLOAT2(pos.x, pos.z);
-	XMFLOAT2 p0, p1, p2;
+	std::vector<DirectX::XMFLOAT2> path;
 
-	int unitPosX = (int)pos.x;
-	int unitPosZ = (int)pos.z;
+	int startX = (int)( (GetMapHalfWidth() * NODE_DIM )  + start.x ) / NODE_DIM;
+	int startZ = (int)( (GetMapHalfHeight() * NODE_DIM )  + start.z ) / NODE_DIM;
 
-	int playerX = ( ( (int)GetMapHalfWidth() * NODE_DIM ) + unitPosX ) / NODE_DIM;
-	int playerZ = ( ( (int)GetMapHalfHeight() * NODE_DIM ) + unitPosZ ) / NODE_DIM;
-
-	MapNodeInstance* temp = MapNodePlacer::GetInstance()->GetNodeInstance( playerX, playerZ );
+	MapNodeInstance* temp = MapNodePlacer::GetInstance()->GetNodeInstance( startX, startZ );
 
 	if( temp )
-		return temp->IsOnNavMesh( pos );
-	else
-		return nullptr;
-	////for( auto& it : mNavData )
-	////{
-	////	p0 = XMFLOAT2( it.triPoints[0].x, it.triPoints[0].z );
-	////	p1 = XMFLOAT2( it.triPoints[1].x, it.triPoints[1].z ); 
-	////	p2 = XMFLOAT2( it.triPoints[2].x, it.triPoints[2].z ); 
+	{
+		Navmesh* navMesh = temp->GetNavMesh();
 
-	////	if( HelperFunctions::Inside2DTriangle( tempPos, p0, p1, p2 ) )
-	////	{
-	////		OutputDebugStringA("Player is inside bounds.\n");
-	////		return &it;
-	////	}
-	////}
-	//OutputDebugStringA("Player is outside of map!\n");
-	//return nullptr;
+		path = navMesh->FindPath( start, goal );
+	}
 
-
-	////p0 = XMFLOAT2( -10, -10 );
-	////p1 = XMFLOAT2( -10, 10 ); 
-	////p2 = XMFLOAT2( 10, 0 ); 
-
-	////if( Inside2DTriangle( tempPos, p0, p1, p2 ) )
-	////{
-	////	OutputDebugStringA("Player is inside bounds.\n");
-	////	return true;
-	////}
-	////OutputDebugStringA("Player is outside of map!\n");
-	////return false;
+	return path;
 }
 
 UINT Map::GetMapDim() const
@@ -136,16 +109,11 @@ HRESULT Map::Initialize( UINT mapDim )
 	MapNodePlacer::GetInstance()->Initialize( this );
 
 	EventManager::GetInstance()->AddListener( &Map::OnLoadLevel, this, Event_Load_Level::GUID );
-	//MapNodeManager::GetInstance()->CreateNode( "../Content/Assets/Nodes/testTile.lp" );
 	
 	return S_OK;
 }
 void Map::Release()
 {
-	for( UINT i = 0; i < mNrOfNodes; i++ )
-	{
-
-	}
 	MapNodePlacer::GetInstance()->Release();
 	MapNodeManager::GetInstance()->Release();
 }

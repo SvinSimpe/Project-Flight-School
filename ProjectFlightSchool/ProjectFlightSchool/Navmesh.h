@@ -3,23 +3,27 @@
 #include <Windows.h>
 #include <DirectXMath.h>
 #include <list>
-
+#include <vector>
 
 
 struct Portal
 {
-	int points[2];
+	DirectX::XMFLOAT3 center;
+	int portalID;
+	DirectX::XMFLOAT3 points[2];
 	int adjTri;
-	int parent;
-
 
 	float h;
 	float g;
 
 	Portal()
 	{
+		adjTri		= -1;
+
+		h = 0;
+		g = 0;
 	}
-	Portal( int p1, int p2, int pAdjTri = -1 )
+	Portal( DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, int pAdjTri = -1 )
 	{
 		points[0] = p1;
 		points[1] = p2;
@@ -30,11 +34,22 @@ struct Portal
 
 struct Path
 {
-	int portal;
-	int parent;
+	Portal* portal;
+	Path* parent;
+
+	Path()
+	{
+		portal = nullptr;
+		parent = nullptr;
+	}
+
+	bool operator==( Portal const& p1 )
+	{
+		return portal->portalID == p1.portalID;
+	}
 };
 
-typedef std::list<int> PathList;
+typedef std::list<Path*> PathList;
 
 struct NavTriangle
 {
@@ -48,18 +63,19 @@ struct NavTriangle
 		triPoints[0] = p1;
 		triPoints[1] = p2;
 		triPoints[2] = p3;
+
 	}
 	Portal portals[3];
 };
 class Navmesh
 {
 	private:
+		Path*	mPath;
+		//NavTriangle* mNavTri;
 		Portal* mPortals;
 		DirectX::XMFLOAT3* mMesh;		
 		UINT mNavTriangleCount;
-
-		PathList mOpenList;
-		PathList mClosedList;
+		UINT mMaxPathLength;
 
 	protected:
 	public:
@@ -67,13 +83,14 @@ class Navmesh
 	private:
 		bool IsTriangleAdj( Portal t1, Portal t2 );
 		bool BuildAdjacencyInfo();
-		void FunnelPath();
+		std::vector<DirectX::XMFLOAT2> FunnelPath( std::vector<Portal>& path );
 	protected:
 	public:
 		HRESULT Render();
-
+		
 		HRESULT Initialize( DirectX::XMFLOAT3* meshData, UINT vertexCount );
-		std::list<DirectX::XMFLOAT3> FindPath( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end );
+		std::vector<DirectX::XMFLOAT2> FindPath( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end );
+		void Release();
 
 		Navmesh();
 		~Navmesh();

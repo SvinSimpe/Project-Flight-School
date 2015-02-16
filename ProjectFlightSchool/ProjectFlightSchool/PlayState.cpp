@@ -424,7 +424,6 @@ HRESULT PlayState::Update( float deltaTime )
 
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{
-		mWorldMap->IsOnNavMesh( mPlayer->GetPlayerPosition() );
 		CheckPlayerCollision();
 
 		if( mPlayer->GetIsMeleeing() )
@@ -478,7 +477,7 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.mAlliesHP		= mAlliesHP;
 	guiUpdate.mShipHP		= 1.0f;
 
-	mPlayer->Update( deltaTime, mRemotePlayers );
+	//mPlayer->Update( deltaTime, mRemotePlayers );
 	HandleDeveloperCameraInput();
 	mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers );
 
@@ -492,22 +491,22 @@ HRESULT PlayState::Update( float deltaTime )
 	//-------
 
 	// Enemies
-	if( mEnemyListSynced )
-	{
-		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
-		{
-			if( mEnemies[i]->IsSynced() )
-			{
-				mEnemies[i]->Update( deltaTime );
+	//if( mEnemyListSynced )
+	//{
+	//	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	//	{
+	//		if( mEnemies[i]->IsSynced() )
+	//		{
+	//			mEnemies[i]->Update( deltaTime );
 
-				if( mEnemies[i]->IsAlive() )
-				{
-					mRadarObjects[nrOfRadarObj].mType = RADAR_TYPE::HOSTILE;
-					mRadarObjects[nrOfRadarObj++].mRadarObjectPos = mEnemies[i]->GetPosition();
-				}
-			}
-		}
-	}
+	//			if( mEnemies[i]->IsAlive() )
+	//			{
+	//				mRadarObjects[nrOfRadarObj].mType = RADAR_TYPE::HOSTILE;
+	//				mRadarObjects[nrOfRadarObj++].mRadarObjectPos = mEnemies[i]->GetPosition();
+	//			}
+	//		}
+	//	}
+	//}
 
 		///Test fountain particle system
 	RenderManager::GetInstance()->RequestParticleSystem( 9999, Test_Fountain, XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
@@ -530,18 +529,18 @@ HRESULT PlayState::Update( float deltaTime )
 	//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
 	///////////////////////////////////////////////////////////////////////////
 
-	for( auto& s : mShips )
-	{
-		s->Update( deltaTime );
+	//for( auto& s : mShips )
+	//{
+	//	s->Update( deltaTime );
 
-		//Test Win
-		if ( s->Intersect( mPlayer->GetBoundingCircle() ) )
-		{
-			MessageBox( NULL, L"Sending Win", L"Allô?", MB_OK );
-			IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
-			Client::GetInstance()->SendEvent(E1);
-		}
-	}
+	//	//Test Win
+	//	if ( s->Intersect( mPlayer->GetBoundingCircle() ) )
+	//	{
+	//		MessageBox( NULL, L"Sending Win", L"Allô?", MB_OK );
+	//		IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
+	//		Client::GetInstance()->SendEvent(E1);
+	//	}
+	//}
 
 	return S_OK;
 }
@@ -583,10 +582,10 @@ HRESULT PlayState::Render()
 	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
 	mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
 
-	for( auto& s : mShips )
-	{
-		s->Render();
-	}
+	//for( auto& s : mShips )
+	//{
+	//	s->Render();
+	//}
 
 	RenderManager::GetInstance()->Render();
 
@@ -650,9 +649,9 @@ HRESULT PlayState::Initialize()
 	mPlayer->Initialize();
 
 	mWorldMap = new Map();
-	mWorldMap->Initialize( 1 );
+	mWorldMap->Initialize( 12 );
 
-	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/testMap.xml")); 
+	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/ForestMap.xml")); 
 	EventManager::GetInstance()->TriggerEvent( E1 );
 
 	//Fill up on Projectiles, test values

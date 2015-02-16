@@ -31,8 +31,7 @@ class Map
 		HRESULT Render( float deltaTime, Player* player );
 		void GenerateGrid();
 		void OnLoadLevel( IEventPtr E1 );
-		NavTriangle* IsOnNavMesh( XMFLOAT3 pos );
-		//bool Inside2DTriangle( XMFLOAT2 p, XMFLOAT2 p0, XMFLOAT2 p1, XMFLOAT2 p2 );
+		std::vector<DirectX::XMFLOAT2> GetPath( XMFLOAT3 start, XMFLOAT3 goal );
 
 		UINT GetMapDim() const;
 		UINT GetMapWidth() const;

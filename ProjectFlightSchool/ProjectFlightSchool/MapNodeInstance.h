@@ -37,7 +37,8 @@ public:
 		HRESULT				Update( float deltaTime );
 		HRESULT				Render( float deltaTime );
 
-		
+		Navmesh*			GetNavMesh() const;
+
 		DirectX::XMFLOAT3	GetPos() const;
 		void				SetPos( DirectX::XMFLOAT3 pos );
 

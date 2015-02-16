@@ -27,7 +27,7 @@ class PlayState : public BaseState
 	private:
 		float			mFPS;
 		AnimationTrack	mTestAnimation;
-
+		AssetID			mTestStaticAsset;
 		Map*		mWorldMap;
 
 		//Collision

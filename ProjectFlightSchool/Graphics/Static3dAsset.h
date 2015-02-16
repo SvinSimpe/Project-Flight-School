@@ -2,6 +2,7 @@
 #define STATIC3DASSET_H
 
 #include "AssetBase.h"
+#include "BoxGenerator.h"
 
 #define	TEXTURES_DIFFUSE 0
 #define	TEXTURES_NORMAL 1
@@ -22,7 +23,9 @@ struct Static3dAsset : public AssetBase
 	private:
 	protected:
 	public:
-		std::vector<Mesh> mMeshes;
+		std::vector<Mesh>	mMeshes;
+		AABB				mAssetAABB;
+		OctTree				*mOctTree;
 
 	private:
 	protected:

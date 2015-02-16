@@ -268,8 +268,8 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	newPos.x = mLowerBody.position.x + mVelocity.x * deltaTime;
 	newPos.z = mLowerBody.position.z + mVelocity.z * deltaTime;
 
-	newDir.x = mVelocity.x * deltaTime;
-	newDir.y = mVelocity.z * deltaTime;
+	newDir.x = mVelocity.x * deltaTime * mUpgrades.legs;
+	newDir.y = mVelocity.z * deltaTime * mUpgrades.legs;
 
 	if( worldMap->IsOnNavMesh( newPos ) == nullptr)
 	{
@@ -470,7 +470,6 @@ void Player::UpgradeBody()
 
 void Player::UpgradeLegs()
 {
-	mMaxAcceleration += mMaxAcceleration/mUpgrades.legs;
 	mUpgrades.legs++;
 }
 
@@ -537,7 +536,7 @@ void Player::UnLock()
 
 void Player::Reset()
 {
-	mEventCapTimer					= 0.0f;
+	mEventCapTimer				= 0.0f;
 	mPointLight->position		= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
 	mPointLight->colorAndRadius	= DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 17.0f );
 

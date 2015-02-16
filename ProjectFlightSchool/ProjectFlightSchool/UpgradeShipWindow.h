@@ -81,7 +81,7 @@ public:
 	UpgradeShipWindow();
 	~UpgradeShipWindow();
 
-	bool	IsActive();
+	bool	IsActive() const;
 };
 
 #endif // !UPGRADESHIPWINDOW_H

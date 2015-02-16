@@ -199,7 +199,7 @@ class LIBRARY_EXPORT Graphics
 		void RenderLine				( LineInfo* info, UINT sizeOfList );
 
 		DirectX::XMFLOAT4X4	GetRootMatrix( AnimationTrack animTrack );
-		bool				GetAnimationMatrices( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo &info );
+		bool				GetAnimationMatrices( AnimationTrack &animTrack, int playType, Anim3dInfo &info );
 
 		void ChangeCamera();
 		void ZoomInDeveloperCamera();

@@ -61,8 +61,10 @@ void PlayState::EventListener( IEventPtr newEvent )
 		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->BodyPos());
 		
 		// Request Muzzle Flash from Particle Manager
+		
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
+		//RenderManager::GetInstance()->RequestParticleSystem( 9999, Blood, XMFLOAT3( 2.0f, 3.0f, 0.0f ) , XMFLOAT3( 0.0f, 1.0f, 1.0f ) );
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
 	{
@@ -338,6 +340,22 @@ void PlayState::HandleDeveloperCameraInput()
 			}
 		}
 	}
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_Y ) )
+	{
+		for( auto& s : mShips )
+		{
+			if( mPlayer->GetTeam() == s->GetTeamID() && s->Intersect( mPlayer->GetBoundingCircle() ) && mGui->UpgradePlayerWindowIsActive() )
+			{
+				mPlayer->UnLock();
+				mGui->DeActivateUpgradePlayerWindow();
+			}
+			else if( mPlayer->GetTeam() == s->GetTeamID() && s->Intersect( mPlayer->GetBoundingCircle() ) && mPlayer->IsAlive() && mPlayer->Upgradable() >= 1 )
+			{
+				mPlayer->Lock();
+				mGui->ActivateUpgradePlayerWindow();
+			}
+		}
+	}
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_1 ) )
 	{
 		RenderManager::GetInstance()->ChangeRasterizerState( CULL_NONE );
@@ -545,15 +563,23 @@ HRESULT PlayState::Update( float deltaTime )
 	}
 
 		///Test fountain particle system
+	
 	RenderManager::GetInstance()->RequestParticleSystem( 9999, Test_Fountain, XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
 	
+	if( mPlayer->Upgradable() < 1 )
+	{
+		mPlayer->UnLock();
+		mGui->DeActivateUpgradePlayerWindow();
+	}
+
 	guiUpdate.mRadarObjects	= mRadarObjects;
 	guiUpdate.mNrOfObjects	= nrOfRadarObj;
 	guiUpdate.mPlayerPos	= mPlayer->GetPlayerPosition();	
 
 	guiUpdate.mPlayerHP		= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
-	guiUpdate.mPlayerXP		= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
+	guiUpdate.mPlayerXP		= mPlayer->GetXPToNext();
 	guiUpdate.mPlayerShield	= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
+	guiUpdate.mLevel		= mPlayer->Upgradable();
 	
 	guiUpdate.deltaTime = deltaTime;
 
@@ -583,7 +609,7 @@ HRESULT PlayState::Render()
 	{
 		if ( mRemotePlayers.at(i) )
 		{
-			mRemotePlayers.at(i)->Render( i + 2 );
+			mRemotePlayers.at(i)->Render();
 		}
 	}
 
@@ -682,7 +708,7 @@ HRESULT PlayState::Initialize()
 
 	mWorldMap->Initialize( 16 );
 
-	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/testMap.xml")); 
+	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/ForestMap.xml" ) ); 
 	EventManager::GetInstance()->TriggerEvent( E1 );
 
 	//Fill up on Projectiles, test values

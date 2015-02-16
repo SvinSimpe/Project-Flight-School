@@ -8,6 +8,7 @@
 #include "Font.h"
 #include "RemotePlayer.h"
 
+
 class Enemy;
 
 #define MAX_NR_OF_ENEMIES		20
@@ -265,14 +266,19 @@ class Enemy
 		HRESULT				Update( float deltaTime, ServerPlayer** players, UINT NrOfPlayers );
 		void				ChangeBehavior( const int NEW_BEHAVIOR );
 		void				ResetBehavior( const int BEHAVIOR );
-		void				TakeDamage( float damage );
-		void				TakeMeleeDamage( float damage, float knockBack, XMFLOAT3 direction, float stun );
+		void				TakeDamage( float damage, UINT killer );
+		void				TakeMeleeDamage( float damage, float knockBack, XMFLOAT3 direction, float stun, UINT killer );
+
 		void				AddImpuls( XMFLOAT3 impuls );
 		void				SetTarget( UINT id );
 		void				Hunt( float deltaTime );
 		void				HandleSpawn( float deltaTime, XMFLOAT3 spawnPos );
 		void				Spawn( XMFLOAT3 spawnPos );
-		void				Die();
+		BoundingCircle*		GetAttackCircle()	 const;
+		BoundingCircle*		GetAttentionCircle() const;
+		void				Die( UINT killer );
+		float				HandleAttack();
+
 		unsigned int		GetID() const;
 		void				SetID( unsigned int id );
 		EnemyType			GetEnemyType() const;

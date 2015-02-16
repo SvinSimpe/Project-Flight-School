@@ -13,9 +13,9 @@ class ServerShip
 		// Since buff and turret are handled by the server, these modifiers and such are calculated here
 
 		float			mBuffMod;		// Also declared in Player.h... look there to see what this does
-		BoundingCircle* mBuffCircle;	// Don't forget to add an event for turning on/off player buffing
 
 	protected:
+		BoundingCircle* mBuffCircle;	// Don't forget to add an event for turning on/off player buffing
 		UINT			mID;
 		UINT			mTeamID;
 		XMFLOAT3		mPos;

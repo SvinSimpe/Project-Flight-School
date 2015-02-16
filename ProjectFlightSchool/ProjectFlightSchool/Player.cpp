@@ -57,6 +57,46 @@ void Player::EventListener( IEventPtr newEvent )
 				printf("%d is no longer buffed!\n", mID);
 		}
 	}
+	else if( newEvent->GetEventType() == Event_Upgrade_Player::GUID )
+	{
+		std::shared_ptr<Event_Upgrade_Player> data = std::static_pointer_cast<Event_Upgrade_Player>( newEvent );
+		if( data->Speed() != 0 )
+		{
+			UpgradeLegs();
+			mCurrentUpgrades--;
+		}
+		else if( data->Health() != 0 )
+		{
+			UpgradeBody();
+			mCurrentUpgrades--;
+		}
+		else if( data->Melee() != 0 )
+		{
+			UpgradeMelee();
+			mCurrentUpgrades--;
+		}
+		else if( data->Range() != 0 )
+		{
+			UpgradeRange();
+			mCurrentUpgrades--;
+		}
+	}
+	else if( newEvent->GetEventType() == Event_New_Player_Spawn_Position::GUID )
+	{
+		std::shared_ptr<Event_New_Player_Spawn_Position> data = std::static_pointer_cast<Event_New_Player_Spawn_Position>( newEvent );
+		if( data->PlayerID() == mID )
+		{
+			mSpawnPosition = XMFLOAT3( data->SpawnPosition().x, 0.0f, data->SpawnPosition().y );
+		}
+	}
+	else if( newEvent->GetEventType() == Event_Server_XP::GUID )
+	{
+		std::shared_ptr<Event_Server_XP> data = std::static_pointer_cast<Event_Server_XP>( newEvent );
+		if( data->PlayerID() == mID )
+		{
+			mXP += data->XP();
+		}
+	}
 }
 
 void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
@@ -220,12 +260,14 @@ void Player::Move( float deltaTime )
 		XMStoreFloat3( &mVelocity, normalizer );
 	}
 
-	mLowerBody.direction.x	= mVelocity.x;
-	mLowerBody.direction.y	= 0.0f;
-	mLowerBody.direction.z	= mVelocity.z;
-	normalizer				= XMVector3Normalize( XMLoadFloat3( &mLowerBody.direction ) );
-	XMStoreFloat3( &mLowerBody.direction, normalizer );
-
+	if( mCurrentVelocity > 0.05f )
+	{
+		mLowerBody.direction.x	= mVelocity.x;
+		mLowerBody.direction.y	= 0.0f;
+		mLowerBody.direction.z	= mVelocity.z;
+		normalizer				= XMVector3Normalize( XMLoadFloat3( &mLowerBody.direction ) );
+		XMStoreFloat3( &mLowerBody.direction, normalizer );
+	}
 }
 
 HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers )
@@ -238,8 +280,8 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	newPos.x = mLowerBody.position.x + mVelocity.x * deltaTime;
 	newPos.z = mLowerBody.position.z + mVelocity.z * deltaTime;
 
-	newDir.x = mVelocity.x * deltaTime;
-	newDir.y = mVelocity.z * deltaTime;
+	newDir.x = mVelocity.x * deltaTime * mUpgrades.legs;
+	newDir.y = mVelocity.z * deltaTime * mUpgrades.legs;
 
 	if( worldMap->IsOnNavMesh( newPos ) == nullptr)
 	{
@@ -344,6 +386,10 @@ void Player::Revive()
 
 void Player::Die()
 {
+	// Queue spawn position request
+	IEventPtr E1( new Event_Request_Player_Spawn_Position( mID, mTeam ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
+
 	RemotePlayer::Die();
 	mTimeTillSpawn	= mSpawnTime;
 }
@@ -431,36 +477,24 @@ void Player::AddImpuls( XMFLOAT3 impuls )
 
 void Player::UpgradeBody()
 {
-	if( mUpgrades.body < mUpgrades.maxUpgrades )
-	{
-		mUpgrades.body++;
-	}
+	mUpgrades.body++;
 }
 
 void Player::UpgradeLegs()
 {
-	if( mUpgrades.legs < mUpgrades.maxUpgrades )
-	{
-		mUpgrades.legs++;
-	}
+	mUpgrades.legs++;
 }
 
 void Player::UpgradeMelee()
 {
-	if( mUpgrades.melee < mUpgrades.maxUpgrades )
-	{
-		mLoadOut->meleeWeapon->LevelUp();
-		mUpgrades.melee++;
-	}
+	mLoadOut->meleeWeapon->LevelUp();
+	mUpgrades.melee++;
 }
 
 void Player::UpgradeRange()
 {
-	if( mUpgrades.range < mUpgrades.maxUpgrades )
-	{
-		mLoadOut->rangedWeapon->LevelUp();
-		mUpgrades.range++;
-	}
+	mLoadOut->rangedWeapon->LevelUp();
+	mUpgrades.range++;
 }
 
 void Player::QueueEvent( IEventPtr ptr )
@@ -477,7 +511,7 @@ void Player::TakeDamage( float damage, unsigned int shooter )
 		float moddedDmg = damage * mBuffMod;
 		damage -= moddedDmg;
 	}
-	mCurrentHp -= damage/mUpgrades.body;
+	mCurrentHp -= damage / (float)mUpgrades.body;
 	IEventPtr E1( new Event_Client_Update_HP( mID, mCurrentHp ) );
 	QueueEvent( E1 );
 	if ( !mIsDown && mIsAlive && mCurrentHp <= 0.0f )
@@ -514,7 +548,7 @@ void Player::UnLock()
 
 void Player::Reset()
 {
-	mEventCapTimer					= 0.0f;
+	mEventCapTimer				= 0.0f;
 	mPointLight->position		= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
 	mPointLight->colorAndRadius	= DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 17.0f );
 
@@ -564,6 +598,12 @@ void Player::Reset()
 
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
 {
+	if( ( mXP / mNextLevelXP ) >= 1 )
+	{
+		mCurrentUpgrades++;
+		mXP -= mNextLevelXP;
+	}
+
 	mCloseToPlayer = false;
 	for( auto rp : remotePlayers )
 	{
@@ -608,47 +648,72 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 	// If player is alive, update position. If hp <= 0 kill player
 
-	if( mIsAlive )
+	if( !mIsDown )
 	{
-		float currentVelocity = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) );
-
-		if( currentVelocity < 0.2f )
+		if( mIsAlive )
 		{
-			if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE] )
+			float currentVelocity = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) );
+
+			if( currentVelocity < 0.2f )
 			{
-				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
+				if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE] )
+				{
+					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
+				}
 			}
+			else
+			{
+				if(	mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK] )
+				{
+					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_WALK] );
+				}
+			}
+
+			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, 
+				mLowerBody.playerModel.mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK] ? deltaTime * currentVelocity / 1.1f : deltaTime );
+
+			if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] )
+				RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
+
+			if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] )
+				RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
+
+			RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
+			RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
 		}
 		else
 		{
-			if(	mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK] )
-			{
-				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_WALK] );
-			}
+			if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DEATH] )
+				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_DEATH] );
+			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, deltaTime );
+
+			/////////////////////////////////////////////////
+			// interpolate upper to face lower direction
+			XMVECTOR upLoad		= XMLoadFloat3( &mUpperBody.direction );
+			XMVECTOR lowLoad	= XMLoadFloat3( &mLowerBody.direction );
+			float change		= min( 1.0f, 3.0f * deltaTime );
+			XMStoreFloat3( &mUpperBody.direction, upLoad * ( 1.0f - change ) + lowLoad * change );
+			/////////////////////////////////////////////////
+
+			HandleSpawn( deltaTime );
 		}
-
-		RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, 
-			mLowerBody.playerModel.mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK] ? deltaTime * currentVelocity / 1.1f : deltaTime );
-
-		if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] )
-			RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
-
-		if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] )
-			RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
-
-		RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
-		RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
 	}
 	else
 	{
-		HandleSpawn( deltaTime );
-	}
-	
-	if( mIsDown )
-	{
+		if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DOWN] )
+			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_DOWN] );
+		RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, deltaTime );
+
+		/////////////////////////////////////////////////
+		// interpolate upper to face lower direction
+		XMVECTOR upLoad		= XMLoadFloat3( &mUpperBody.direction );
+		XMVECTOR lowLoad	= XMLoadFloat3( &mLowerBody.direction );
+		float change		= min( 1.0f, 3.0f * deltaTime );
+		XMStoreFloat3( &mUpperBody.direction, upLoad * ( 1.0f - change ) + lowLoad * change );
+		/////////////////////////////////////////////////
+
 		HandleDeath( deltaTime );
 	}
-	
 
 	///Lock camera position to player
 	XMFLOAT3 cameraPosition;
@@ -695,7 +760,7 @@ HRESULT Player::Render( float deltaTime, int position )
 		mFont.WriteText( textToWrite, (float)Input::GetInstance()->mScreenWidth/2, (float)Input::GetInstance()->mScreenHeight/2, 7.8f );
 	}
 
-	RemotePlayer::Render( position );
+	RemotePlayer::Render();
 
 	return S_OK;
 }
@@ -726,6 +791,9 @@ HRESULT Player::Initialize()
 	mVelocity			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
 	mBuffMod			= 0.5f;
+
+	mNextLevelXP		= 10;
+	mCurrentUpgrades	= 0;
 	
 	mSpawnTime				= 10.0f;
 	mReviveTime				= 2.0f;
@@ -738,6 +806,9 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Melee_Hit::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Create_Player_Name::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Change_Buff_State::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Upgrade_Player::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_New_Player_Spawn_Position::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_XP::GUID );
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
 
 	return S_OK;
@@ -774,6 +845,8 @@ Player::Player()
 	mIsBuffed			= false;
 	mBuffMod			= 0.0f;
 	mHasMeleeStarted	= false;
+	mXP					= 0;
+	mNextLevelXP		= 0;
 	
 	mSpawnTime				= 0.0f;
 	mTimeTillSpawn			= 0.0f;
@@ -804,6 +877,16 @@ XMFLOAT3 Player::GetPlayerPosition() const
 XMFLOAT3 Player::GetUpperBodyDirection() const
 {
 	return mUpperBody.direction;
+}
+
+float Player::GetXPToNext() const
+{
+	return (float)( (float)mXP / (float)mNextLevelXP );
+}
+
+int Player::Upgradable() const
+{
+	return mCurrentUpgrades;
 }
 
 void Player::SetIsMeleeing( bool isMeleeing )

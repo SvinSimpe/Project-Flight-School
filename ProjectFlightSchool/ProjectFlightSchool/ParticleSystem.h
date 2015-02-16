@@ -69,19 +69,15 @@ struct ParticleSystem : public ParticleData
 		// Check if there is enough particles to meet request
 		if( ( particleCount + nrOfParticlesAlive ) > MAX_PARTICLES )
 			particleCount = MAX_PARTICLES - nrOfParticlesAlive;
-
-		// Particlecount must be multiple of 4
-		while( particleCount % 4 != 0 )
-			particleCount--;
 		
 		///==================
 		// Use emitterDirection as base and randomize a different direction vector with a maximum spread angle deviation
 		SetDirection( emitterDirection.x, emitterDirection.y, emitterDirection.z, particleCount, spreadAngle );
 		SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
 		
-		if( particleType == MuzzleFlash )	SetLifeTime( 1, 2, particleCount );
-		else if( particleType == Smoke_MiniGun )	SetLifeTime( 1, 6, particleCount );
-		else if( particleType == Test_Fountain )	SetLifeTime( 1, 18, particleCount );
+		if( particleType == MuzzleFlash )	SetRandomDeathTime( 1, 2, particleCount );
+		else if( particleType == Smoke_MiniGun )	SetRandomDeathTime( 1, 6, particleCount );
+		else if( particleType == Test_Fountain )	SetRandomDeathTime( 1, 18, particleCount );
 
 		nrOfRequestedParticles += particleCount;
 	}
@@ -90,7 +86,7 @@ struct ParticleSystem : public ParticleData
 	{	
 			if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 4,  25.0f );
 			else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 16, 2.0f );
-			else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 4, 20.0f );
+			else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 32, 20.0f );
 	}
 
 	virtual void Update( float deltaTime )
@@ -156,18 +152,6 @@ struct ParticleSystem : public ParticleData
 	
 			if( nrOfNewParticles > MAX_PARTICLES)
 				return;
-
-			// Check if Particle count is a multiple of 4 and is available
-			while( nrOfNewParticles % 4 != 0 &&  nrOfNewParticles <= nrOfRequestedParticles )
-			{
-				nrOfNewParticles--;
-				if( nrOfNewParticles <= 0 )
-				{
-					nrOfNewParticles		= 0;
-					nrOfRequestedParticles	= 0;
-					return;
-				}
-			}
 		
 			// Wake Particles
 			size_t endID = nrOfParticlesAlive + nrOfNewParticles;
@@ -189,7 +173,7 @@ struct ParticleSystem : public ParticleData
 
 	void Smoke_MiniGunLogic( float deltaTime )
 	{
-		IncrementValueY();
+		IncrementValueY( 2.0f );
 	}
 
 	void Test_FountainLogic( float deltaTime )

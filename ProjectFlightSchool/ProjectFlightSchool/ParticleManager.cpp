@@ -29,14 +29,6 @@ bool ParticleManager::RequestParticleSystem( size_t entityID, ParticleType parti
 	if( mNrOfActiveParticleSystems == mNrOfParticleSystems )
 		OutputDebugStringA( "-- Maximum number of allocated Particle system reached --\n" );
 
-
-	// Check if there is any available Particle System of requested type
-	if( mNrOfActiveParticleSystemsPerType[particleType] == mMaxNrOfParticleSystemsPerType[particleType] )
-	{
-		OutputDebugStringA( "-- Maximum number of Particle type reached --\n" );
-		return false;
-	}
-
 	// Check if entity already has a particle system of request type connected to it
 	for ( int i = 0; i < mNrOfActiveParticleSystemsPerType[particleType]; i++ )
 	{
@@ -94,13 +86,13 @@ void ParticleManager::Initialize()
 	mNrOfParticleSystemsPerType[Test_Fountain]	= 0; // Below this
 	
 
-	mMaxNrOfParticleSystemsPerType[Smoke]			= 10;
-	mMaxNrOfParticleSystemsPerType[Fire]			= 10;
-	mMaxNrOfParticleSystemsPerType[Spark]			= 10;
-	mMaxNrOfParticleSystemsPerType[Blood]			= 10;
-	mMaxNrOfParticleSystemsPerType[MuzzleFlash]		= 10;
-	mMaxNrOfParticleSystemsPerType[Smoke_MiniGun]	= 10;
-	mMaxNrOfParticleSystemsPerType[Test_Fountain]	= 10; // Aswell as this
+	mMaxNrOfParticleSystemsPerType[Smoke]			= 1;
+	mMaxNrOfParticleSystemsPerType[Fire]			= 1;
+	mMaxNrOfParticleSystemsPerType[Spark]			= 1;
+	mMaxNrOfParticleSystemsPerType[Blood]			= 1;
+	mMaxNrOfParticleSystemsPerType[MuzzleFlash]		= 1;
+	mMaxNrOfParticleSystemsPerType[Smoke_MiniGun]	= 1;
+	mMaxNrOfParticleSystemsPerType[Test_Fountain]	= 100; // Aswell as this
 
 	mNrOfActiveParticleSystemsPerType[Smoke]			= 0;
 	mNrOfActiveParticleSystemsPerType[Fire]				= 0;
@@ -149,7 +141,7 @@ void ParticleManager::Initialize()
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Test_Fountain]; i++ )
 	{
-		mParticleSystems[Test_Fountain][i]->Initialize( Test_Fountain, 4.0f, 128 );
+		mParticleSystems[Test_Fountain][i]->Initialize( Test_Fountain, 32.0f, 512 );
 		mNrOfParticleSystemsPerType[Test_Fountain]++;
 		mNrOfParticleSystems++;
 	}

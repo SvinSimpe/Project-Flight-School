@@ -13,10 +13,10 @@ void Enemy::CreateStandard()
 		Med atkrate
 	*/
 	mEnemyType					= Standard;
-	mMaxHp						= 20.0f;
+	mMaxHp						= 30.0f;
 	mCurrentHp					= mMaxHp;
 	mDamage						= 10.0f;
-	mSpeed						= 7.0f;
+	mSpeed						= 5.0f;
 	mAttackRadius->radius		= 1.5f;
 	mAttentionRadius->radius	= 10.0f;
 	mXpDrop						= 5;
@@ -37,6 +37,7 @@ void Enemy::CreateRanged()
 	mMaxHp						= 20.0f;
 	mCurrentHp					= mMaxHp;
 	mDamage						= 10.0f;
+	mSpeed						= 7.0f;
 	mAttackRadius->radius		= 5.0f;
 	mAttentionRadius->radius	= 10.0f;
 	mXpDrop						= 5;
@@ -56,7 +57,8 @@ void Enemy::CreateBoomer()
 	mEnemyType					= Boomer;
 	mMaxHp						= 20.0f;
 	mCurrentHp					= mMaxHp;
-	mDamage						= 10.0f;
+	mDamage						= 40.0f;
+	mSpeed						= 8.0f;
 	mAttackRadius->radius		= 1.0f;
 	mAttentionRadius->radius	= 10.0f;
 	mXpDrop						= 5;
@@ -73,11 +75,11 @@ void Enemy::CreateTank()
 		Low spd
 		Med atkrate
 	*/
-	mEnemyType	= Tank;
-	mMaxHp		= 100.0f;
-	mCurrentHp	= mMaxHp;
-	mDamage		= 20.0f;
-	mSpeed		= 1.5f;
+	mEnemyType					= Tank;
+	mMaxHp						= 300.0f;
+	mCurrentHp					= mMaxHp;
+	mDamage						= 20.0f;
+	mSpeed						= 1.5f;
 	mAttackRadius->radius		= 1.0f;
 	mAttentionRadius->radius	= 10.0f;
 	mXpDrop						= 15;
@@ -256,7 +258,7 @@ void Enemy::AddImpuls( XMFLOAT3 impuls )
 	mPosition.z += impuls.z;
 }
 
-void Enemy::SetHuntedPlayer( XMFLOAT3 player )
+void Enemy::SetTarget( XMFLOAT3 player )
 {
 	mVelocity.x = player.x - mPosition.x;
 	mVelocity.z = player.z - mPosition.z;
@@ -277,7 +279,7 @@ void Enemy::HandleSpawn( float deltaTime, XMFLOAT3 spawnPos )
 
 void Enemy::Spawn( XMFLOAT3 spawnPos )
 {
-	switch( mID % 3 )
+	switch( mID % 4 )
 	{
 	case 0:
 		CreateStandard();
@@ -286,12 +288,15 @@ void Enemy::Spawn( XMFLOAT3 spawnPos )
 		CreateRanged();
 		break;
 	case 2:
-		CreateRanged();
 		//CreateBoomer();
+		CreateStandard();
+		break;
+	case 3:
+		CreateTank();
 		break;
 	}
 
-	CreateStandard();
+	//CreateStandard();
 	//CreateRanged();
 	//CreateBoomer();
 	//CreateTank();
@@ -332,6 +337,9 @@ float Enemy::HandleAttack()
 	{
 		mTimeTillAttack = mAttackRate;
 		mStateTimer		= mAttackRate;
+		if( mEnemyType == Boomer )
+			Die();
+
 		return mDamage;
 	}
 	else
@@ -417,6 +425,16 @@ HRESULT Enemy::Initialize( int id )
 	mAttentionRadius	= new BoundingCircle( 1.0f );
 
 	return S_OK;
+}
+
+void Enemy::Reset()
+{
+	mEnemyType		= Standard;
+	mCurrentState	= Idle;
+	mIsAlive		= false;
+	mPosition		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mVelocity		= XMFLOAT3( 0.0f, 0.0f, 0.0f );	
 }
 
 void Enemy::Release()

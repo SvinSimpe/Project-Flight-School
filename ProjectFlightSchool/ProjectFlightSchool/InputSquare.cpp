@@ -197,12 +197,12 @@ void InputSquare::Initialize( std::string text, std::string imgName, float x, fl
 	mTitle = new Image();
 	mTitle->Initialize( "../Content/Assets/Textures/Menu/" + imgName + ".png", x, y, width, height );
 	mText = new Font();
-	mText->Initialize( "../Content/Assets/Fonts/final_font/" );
+	mText->Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 }
 
 void InputSquare::Release()
 {
-	Button::Release();
+	MovingButton::Release();
 	mTitle->Release();
 	SAFE_DELETE( mTitle );
 	mText->Release();

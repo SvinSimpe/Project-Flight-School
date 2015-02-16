@@ -1,13 +1,13 @@
 #ifndef ENEMY_H
 #define ENEMY_H
 
-#include "Graphics.h"
 #include "Events.h"
+#include "Graphics.h"
 #include "BoundingGeometry.h"
 #include "RenderManager.h"
 #include "Font.h"
 
-#define MAX_NR_OF_ENEMIES		1
+#define MAX_NR_OF_ENEMIES		0
 
 // ---- Define all enemy animations ----
 // Standard
@@ -86,7 +86,7 @@ class Enemy
 		void				TakeDamage( float damage );
 		void				TakeMeleeDamage( float damage, float knockBack, XMFLOAT3 direction, float stun );
 		void				AddImpuls( XMFLOAT3 impuls );
-		void				SetHuntedPlayer( XMFLOAT3 player );
+		void				SetTarget( XMFLOAT3 player );
 		void				HandleSpawn( float deltaTime, XMFLOAT3 spawnPos );
 		void				Spawn( XMFLOAT3 spawnPos );
 		BoundingCircle*		GetAttackCircle()	 const;
@@ -106,6 +106,7 @@ class Enemy
 		XMFLOAT3			GetDirection() const;
 		void				SetDirection( XMFLOAT3 direction );
 		HRESULT				Initialize( int id );
+		void				Reset();
 		void				Release();
 							Enemy();
 							~Enemy();

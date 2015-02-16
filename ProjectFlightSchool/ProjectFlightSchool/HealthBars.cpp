@@ -124,27 +124,27 @@ HRESULT	HealthBar::Initialize()
 
 	mShipHealthOffset					= DirectX::XMFLOAT2( ( Input::GetInstance()->mScreenWidth * 0.5f ) - ( mSizeShipHealthBar.x * 0.5f ), 0.0f );
 	HRESULT hr; 
-	if( FAILED( hr = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/allyhealth.dds", mAllyHealth ) ) )
+	if( FAILED( hr = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/allyhealth.dds", mAllyHealth ) ) )
 	{
 		return hr;
 	}
 
-	if( FAILED( hr = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/allyHealthBar.dds", mAllyHealthBar ) ) )
+	if( FAILED( hr = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/allyHealthBar.dds", mAllyHealthBar ) ) )
 	{
 		return hr;
 	}
 
-	if( FAILED( hr = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/allyHealthFrame.dds", mAllyHealthFrame ) ) )
+	if( FAILED( hr = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/allyHealthFrame.dds", mAllyHealthFrame ) ) )
 	{
 		return hr;
 	}
 
-	if( FAILED( hr = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/shipHealth.dds", mShipHealth ) ) )
+	if( FAILED( hr = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/shipHealth.dds", mShipHealth ) ) )
 	{
 		return hr;
 	}
 	
-	if( FAILED( hr = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/HUD/shipHealthBar.dds", mShipHealthBar ) ) )
+	if( FAILED( hr = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/shipHealthBar.dds", mShipHealthBar ) ) )
 	{
 		return hr;
 	}

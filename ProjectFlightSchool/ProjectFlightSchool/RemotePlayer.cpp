@@ -231,7 +231,7 @@ HRESULT RemotePlayer::InitializeGraphics()
 	//			HUD ELEMENTS
 	/////////////////////////////////////
 
-	mFont.Initialize( "../Content/Assets/Fonts/mv_boli_26_red/" );
+	mFont.Initialize( "../Content/Assets/GUI/Fonts/mv_boli_26_red/" );
 	
 	mLeftArmAnimationCompleted				= false;
 	mRightArmAnimationCompleted				= false;
@@ -366,7 +366,7 @@ HRESULT RemotePlayer::Render( int position )
 
 HRESULT RemotePlayer::Initialize()
 {
-	mLowerBody.position		= XMFLOAT3( 3.0f, 0.0f, 0.0f );
+	mLowerBody.position		= XMFLOAT3( 3.0f, 0.0f, 6.0f );
 
 	mBoundingBox			= new BoundingBox( 1.5f, 1.5f );
 	mBoundingCircle			= new BoundingCircle( 0.5f );

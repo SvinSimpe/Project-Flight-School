@@ -77,22 +77,22 @@ HRESULT SingleplayerMenuState::Initialize()
 
 	std::string texts[] = { "Easy", "Medium", "Hard", "Back" };
 
-	float x	= (float)Input::GetInstance()->mScreenWidth  * 0.20f;
-	float y	= (float)Input::GetInstance()->mScreenHeight * 0.75f;
+	float x	= (float)Input::GetInstance()->mScreenWidth  * 0.35f;
+	float y	= (float)Input::GetInstance()->mScreenHeight * 0.9f;
 	float w	= 200.0f;
 	float h	= 200.0f;
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
-		mButtons.push_back( new Button() );
+		mButtons.push_back( new MovingButton() );
 		if( texts[i] == "Back" )
 		{
-			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Back.png", x, y, w, h );
+			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Back.png", x - w * 0.5f, y - h * 0.5f, w, h );
 		}
 		else
 		{
-			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Single_Menu_Text/" + texts[i] + ".png", x, y, w, h );
+			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Single_Menu_Text/" + texts[i] + ".png", x - w * 0.5f, y - h * 0.5f, w, h );
 		}
-		x += 200;
+		x += (float)Input::GetInstance()->mScreenWidth  * 0.1f;
 	}
 	return S_OK;
 }

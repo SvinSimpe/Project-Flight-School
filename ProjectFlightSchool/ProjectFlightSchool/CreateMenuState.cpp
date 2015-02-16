@@ -75,25 +75,25 @@ HRESULT CreateMenuState::Initialize()
 
 	std::string texts[] = { "SinglePlayer", "MultiPlayer", "Back" };
 
-	float x	= (float)Input::GetInstance()->mScreenWidth  * 0.30f;
-	float y	= (float)Input::GetInstance()->mScreenHeight * 0.75f;
+	float x	= (float)Input::GetInstance()->mScreenWidth  * 0.35f;
+	float y	= (float)Input::GetInstance()->mScreenHeight * 0.9f;
 	float w	= 200.0f;
 	float h	= 200.0f;
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
-		mButtons.push_back( new Button() );
+		mButtons.push_back( new MovingButton() );
 		if( texts[i] == "Back" )
 		{
-			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Back.png", x, y, w, h );
+			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Back.png", x - w * 0.5f, y - h * 0.5f, w, h );
 		}
 		else
 		{
-			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Create_Menu_Text/" + texts[i] + ".png", x, y, w, h );
+			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Create_Menu_Text/" + texts[i] + ".png", x - w * 0.5f, y - h * 0.5f, w, h );
 		}
-		x += 200;
+		x += (float)Input::GetInstance()->mScreenWidth * 0.1f;
 	}
 
-	mNameBox.Initialize( "mudkipfucker", "IP", Input::GetInstance()->mScreenWidth * 0.5f - (640.0f * 0.5f) * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + (177.0f * 0.5f) *0.5f, 640.0f * 0.5f, 177.0f * 0.5f );
+	mNameBox.Initialize( "mudkipfucker", "IP", Input::GetInstance()->mScreenWidth * 0.3f - (640.0f * 0.5f) * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + (177.0f * 0.5f) *0.5f, 640.0f * 0.5f, 177.0f * 0.5f );
 
 	return S_OK;
 }

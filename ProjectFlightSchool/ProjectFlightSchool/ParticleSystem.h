@@ -2,29 +2,23 @@
 #define _PARTICLESYSTEM_H_
 
 #include "ParticleData.h"
-
 #include <Graphics.h>
 #include <limits>
 
-
-
 struct ParticleSystem : public ParticleData
 {
-#pragma region Members
+	#pragma region Members
 
 	size_t		entityParentID				= std::numeric_limits<unsigned int>::infinity();
-	size_t		particleType				= std::numeric_limits<unsigned int>::infinity();
-	int			nrOfRequestedParticles		= 0;
 	XMFLOAT3	emitterPosition				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	XMFLOAT3	emitterDirection			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	bool		isEmitting					= false;
 	float		emitRate					= 0.0f;
 	AssetID		assetID;
 
+	#pragma endregion
 
-#pragma endregion
-
-#pragma region Functions
+	#pragma region Functions
 
 	void Initialize( ParticleType particleType, float emitRate, size_t nrOfParticles )
 	{
@@ -32,13 +26,26 @@ struct ParticleSystem : public ParticleData
 		this->emitRate			= emitRate;
 		ParticleData::Initialize( nrOfParticles );
 
-
-		Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/muzzleflash.dds", assetID );
-		// Load asset for particle type
-		// - Shader
-		// - Texture
-		// - etc.
-		//Graphics::
+		switch ( particleType )
+		{
+			case MuzzleFlash:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireSprite.dds", assetID );
+				break;
+			}
+			case Smoke_MiniGun:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/whiteSmoke.dds", assetID );
+				break;
+			}
+			case Test_Fountain:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/whiteSmoke.dds", assetID );
+				break;
+			}
+			default:
+				break;
+		}
 	}
 
 	void Activate( size_t entityParentID, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
@@ -71,26 +78,31 @@ struct ParticleSystem : public ParticleData
 		// Use emitterDirection as base and randomize a different direction vector with a maximum spread angle deviation
 		SetDirection( emitterDirection.x, emitterDirection.y, emitterDirection.z, particleCount, spreadAngle );
 		SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
-		SetLifeTime( 1, 2, particleCount );
+		
+		if( particleType == MuzzleFlash )	SetLifeTime( 1, 2, particleCount );
+		else if( particleType == Smoke_MiniGun )	SetLifeTime( 1, 6, particleCount );
+		else if( particleType == Test_Fountain )	SetLifeTime( 1, 18, particleCount );
 
 		nrOfRequestedParticles += particleCount;
 	}
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{	
-			if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 256, 20.0f );
+			if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 4,  25.0f );
+			else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 16, 2.0f );
+			else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 4, 20.0f );
 	}
 
 	virtual void Update( float deltaTime )
 	{
-		if( deltaTime  > 0.0116370535f )
-			deltaTime = 0.0116370535f;
-
 		// First instruction
 		UpdateLifeTime( deltaTime );
 
 		// Check for dead particles
 		CheckDeadParticles();
+
+		// Wake particles based on emission rate
+		SpellCasterLifeMaster();
 
 		// Update logic based on Particle type
 		switch( particleType )
@@ -98,6 +110,19 @@ struct ParticleSystem : public ParticleData
 			case MuzzleFlash: 
 			{
 				// Update MuzzleFlash logic here
+				MuzzleFlashLogic( deltaTime );
+				break;
+			}
+			case Smoke_MiniGun:
+			{
+				// Update Smoke_MiniGun logic here
+				Smoke_MiniGunLogic( deltaTime );
+				break;
+			}
+			case Test_Fountain:
+			{
+				// Update Smoke_MiniGun logic here
+				Test_FountainLogic( deltaTime );
 				break;
 			}
 			default:
@@ -106,41 +131,6 @@ struct ParticleSystem : public ParticleData
 				break;
 			}
 		}
-
-		// Check if new Particles is requested
- 		if( nrOfRequestedParticles >= 4 )
-		{
-			// Calculate Particle count for this frame
-			int nrOfNewParticles = (int)( emitRate );// * deltaTime);
-			
-			if( nrOfNewParticles > MAX_PARTICLES)
-				return;
-
-			// Check if Particle count is a multiple of 4 and is available
-			while( nrOfNewParticles % 4 != 0 &&  nrOfNewParticles <= nrOfRequestedParticles )
-			{
-				nrOfNewParticles--;
-				if( nrOfNewParticles <= 0 )
-				{
-					nrOfNewParticles		= 0;
-					nrOfRequestedParticles	= 0;
-					return;
-				}
-			}
-
-			
-			//// Wake Particles
-			size_t endID = nrOfParticlesAlive + nrOfNewParticles;
-			for ( size_t i = nrOfParticlesAlive; i < endID; i++ )
-				Wake( i );
-
-			nrOfRequestedParticles -= nrOfNewParticles;
-			if( nrOfRequestedParticles < 0 )
-				nrOfRequestedParticles = 0;
-		}
-		else
-			nrOfRequestedParticles = 0;
-
 
 		// Last instruction
 		UpdatePosition( deltaTime );
@@ -156,7 +146,57 @@ struct ParticleSystem : public ParticleData
 		ParticleData::Release();
 	}
 
-#pragma endregion
-};
+	void SpellCasterLifeMaster()
+	{
+		// Check if new Particles is requested
+ 		if( nrOfRequestedParticles >= 4 )
+		{
+			// Calculate Particle count for this frame
+			int nrOfNewParticles = (int)emitRate;
+	
+			if( nrOfNewParticles > MAX_PARTICLES)
+				return;
 
+			// Check if Particle count is a multiple of 4 and is available
+			while( nrOfNewParticles % 4 != 0 &&  nrOfNewParticles <= nrOfRequestedParticles )
+			{
+				nrOfNewParticles--;
+				if( nrOfNewParticles <= 0 )
+				{
+					nrOfNewParticles		= 0;
+					nrOfRequestedParticles	= 0;
+					return;
+				}
+			}
+		
+			// Wake Particles
+			size_t endID = nrOfParticlesAlive + nrOfNewParticles;
+			for ( size_t i = nrOfParticlesAlive; i < endID; i++ )
+				Wake( i );
+
+			nrOfRequestedParticles -= nrOfNewParticles;
+			if( nrOfRequestedParticles < 0 )
+				nrOfRequestedParticles = 0;
+		}
+		else
+			nrOfRequestedParticles = 0;	
+	}
+
+	void MuzzleFlashLogic( float deltaTime )
+	{
+		
+	}
+
+	void Smoke_MiniGunLogic( float deltaTime )
+	{
+		IncrementValueY();
+	}
+
+	void Test_FountainLogic( float deltaTime )
+	{
+
+	}
+
+	#pragma endregion
+};
 #endif

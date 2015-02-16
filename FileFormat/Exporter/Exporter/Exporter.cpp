@@ -614,8 +614,25 @@ bool Exporter::ExtractMeshData(MFnMesh &mesh)
 	command = "makeIdentity -apply true " + transform.name();
 	if (!MGlobal::executeCommand(command))
 	{
-		g_ErrorMessages.push_back("\t" + string(mesh.name().asChar()) + " - Couldn't freeze transformation for mesh: ");
-		//return false;
+		MItDependencyNodes iter(MFn::kInvalid);
+		MStatus stat;
+		int skinAttached = 0;
+
+		while (!iter.isDone() || skinAttached == 0) 
+		{
+			MObject object = iter.item();
+			if (object.apiType() == MFn::kSkinClusterFilter)
+				skinAttached = 1;
+
+			iter.next();
+		}
+
+		if(skinAttached == 0)
+		{
+			g_ErrorMessages.push_back("\t" + string(mesh.name().asChar()) + " - Couldn't freeze transformation for mesh: ");
+			return false;
+		}
+			
 	}
 
 	//Extractic mesh raw data

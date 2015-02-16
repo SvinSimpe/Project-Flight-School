@@ -2,7 +2,7 @@
 #define SINGLEPLAYERMENUSTATE_H
 
 #include "BaseMenuState.h"
-#include "Button.h"
+#include "MovingButton.h"
 #include "Image.h"
 
 class SingleplayerMenuState : public BaseMenuState

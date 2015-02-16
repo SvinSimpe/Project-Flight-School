@@ -4,6 +4,9 @@
 #include "Projectile.h"
 #include "RemotePlayer.h"
 #include "EnergyCell.h"
+#include "Input.h"
+#include <stdlib.h>
+#include <time.h>
 
 #define VELOCITY_FALLOFF 2.0f
 
@@ -25,6 +28,7 @@ class Player: public RemotePlayer
 		float		mCurrentVelocity;
 		float		mMaxAcceleration;
 		XMFLOAT3	mAcceleration;
+		XMFLOAT3	mFireDirection;
 
 		bool		mIsBuffed;
 		float		mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
@@ -43,6 +47,7 @@ class Player: public RemotePlayer
 
 	protected:
 	public:
+		std::list<IEventPtr> gEventList;
 		
 	private:
 		void		EventListener( IEventPtr newEvent );
@@ -61,8 +66,8 @@ class Player: public RemotePlayer
 		void		Lock();
 		void		UnLock();
 		void		QueueEvent( IEvent* ptr );
-		void		PickUpEnergyCell();
-		void		DropEnergyCell();
+		void		PickUpEnergyCell( EnergyCell** energyCell );
+		void		DropEnergyCell( EnergyCell** energyCells );
 
 	protected:
 	public:
@@ -70,7 +75,7 @@ class Player: public RemotePlayer
 		void		HandleRevive( float deltaTime );
 		
 		void		Reset();	
-		HRESULT		Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCell );
+		HRESULT		Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells );
 		HRESULT		Render( float deltaTime, int position );
 		HRESULT		Initialize();
 		void		Release();
@@ -82,15 +87,13 @@ class Player: public RemotePlayer
 		XMFLOAT3	GetPlayerPosition() const;
 		XMFLOAT3	GetUpperBodyDirection() const;
 		void		SetIsMeleeing( bool isMeleeing );
-		void		SetBuffed( bool buffed );
 		void		SetID( unsigned int id );
 		void		SetTeam( int team );
 		void		SetPosition( XMVECTOR position );
 		bool		GetIsCarryingEnergyCell() const;
 		void		SetIsCarryingEnergyCell( bool isCarrying );
 
-		std::list<IEventPtr> GetEvents();
-		void		ClearEventList();
+		void		QueueEvent( IEventPtr ptr );
 };
 #endif
 

@@ -3657,4 +3657,111 @@ class Event_Server_Change_Ship_Levels : public IEvent
 			return mBuffLevel;
 		}
 };
+
+class Event_Request_Player_Spawn_Position : public IEvent
+{
+	private:
+		UINT mPlayerID;
+		UINT mTeamID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Request_Player_Spawn_Position()
+		{
+			mPlayerID		= (UINT)-1;
+			mTeamID			= (UINT)-1;
+		}
+		Event_Request_Player_Spawn_Position( UINT playerID, UINT teamID )
+		{
+			mPlayerID	= playerID;
+			mTeamID		= teamID;
+		}
+		~Event_Request_Player_Spawn_Position() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mPlayerID	 << " ";
+			out << mTeamID		 << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mPlayerID;
+			in >> mTeamID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Request_Player_Spawn_Position( mPlayerID, mTeamID ) );
+		}
+		UINT PlayerID() const
+		{
+			return mPlayerID;
+		}
+		int TeamID() const
+		{
+			return mTeamID;
+		}
+};
+
+class Event_New_Player_Spawn_Position : public IEvent
+{
+	private:
+		UINT		mPlayerID;
+		XMFLOAT2	mSpawnPosition;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_New_Player_Spawn_Position()
+		{
+			mPlayerID		= (UINT)-1;
+			mSpawnPosition	= XMFLOAT2( 0.0f ,0.0f );
+		}
+		Event_New_Player_Spawn_Position( UINT playerID, XMFLOAT2 spawnPosition )
+		{
+			mPlayerID		= playerID;
+			mSpawnPosition	= spawnPosition;
+		}
+		~Event_New_Player_Spawn_Position() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mPlayerID	 << " ";
+			out << mSpawnPosition.x	 << " ";
+			out << mSpawnPosition.y	 << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mPlayerID;
+			in >> mSpawnPosition.x;
+			in >> mSpawnPosition.y;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_New_Player_Spawn_Position( mPlayerID, mSpawnPosition ) );
+		}
+		UINT PlayerID() const
+		{
+			return mPlayerID;
+		}
+		XMFLOAT2 SpawnPosition() const
+		{
+			return mSpawnPosition;
+		}
+
+};
 #endif

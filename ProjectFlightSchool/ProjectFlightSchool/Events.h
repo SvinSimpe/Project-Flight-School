@@ -3675,6 +3675,76 @@ class Event_Server_Change_Ship_Levels : public IEvent
 		}
 };
 
+class Event_Upgrade_Player : public IEvent
+{
+	private:
+		int mSpeed;
+		int mHealth;
+		int mMelee;
+		int mRange;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Upgrade_Player()
+		{
+			mSpeed	= 0;
+			mHealth	= 0;
+			mMelee	= 0;
+			mRange	= 0;
+		}
+		Event_Upgrade_Player( int speed, int health, int melee, int range )
+		{
+			mSpeed	= speed;
+			mHealth	= health;
+			mMelee	= melee;
+			mRange	= range;
+		}
+		~Event_Upgrade_Player() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mSpeed << " ";
+			out << mHealth << " ";
+			out << mMelee << " ";
+			out << mRange << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mSpeed;
+			in >> mHealth;
+			in >> mMelee;
+			in >> mRange;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Upgrade_Player( mSpeed, mHealth, mMelee, mRange ) );
+		}
+		int Speed() const
+		{
+			return mSpeed;
+		}
+		int Health() const
+		{
+			return mHealth;
+		}
+		int Melee() const
+		{
+			return mMelee;
+		}
+		int Range() const
+		{
+			return mRange;
+		}
+};
+
 class Event_Request_Player_Spawn_Position : public IEvent
 {
 	private:
@@ -3699,6 +3769,7 @@ class Event_Request_Player_Spawn_Position : public IEvent
 			mTeamID		= teamID;
 		}
 		~Event_Request_Player_Spawn_Position() {}
+
 		const EventType& GetEventType() const
 		{
 			return GUID;
@@ -3778,6 +3849,58 @@ class Event_New_Player_Spawn_Position : public IEvent
 		XMFLOAT2 SpawnPosition() const
 		{
 			return mSpawnPosition;
+		}
+};
+
+class Event_Server_XP : public IEvent
+{
+	private:
+		UINT		mPlayerID;
+		int			mXP;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_XP()
+		{
+			mPlayerID	= (UINT)-1;
+			mXP			= 0;
+		}
+		Event_Server_XP( UINT playerID, int XP )
+		{
+			mPlayerID	= playerID;
+			mXP			= XP;
+		}
+		~Event_Server_XP() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mPlayerID	 << " ";
+			out << mXP			 << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mPlayerID;
+			in >> mXP;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_XP( mPlayerID, mXP ) );
+		}
+		UINT PlayerID() const
+		{
+			return mPlayerID;
+		}
+		int XP() const
+		{
+			return mXP;
 		}
 
 };

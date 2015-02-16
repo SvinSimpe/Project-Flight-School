@@ -212,7 +212,7 @@ struct ParticleData
 
 			XMStoreFloat3( &randomDirectionVector[i], randomAimingDirection );
 			
-			if( particleType != Test_Fountain )
+			if( particleType != Test_Fountain && particleType != Blood )
 			{
 				//Get random elevation
 				float randomElevation = ( (float)( rand() % 20 ) - 10 ) * 0.1f;
@@ -257,9 +257,9 @@ struct ParticleData
 
 			if( particleType == Blood )
 			{
-				randomDirectionVector[0].x = xDirection * GetRandomSpeed( 10, 20 );
- 				randomDirectionVector[0].y = yDirection * GetRandomSpeed( 10, 20 );
-				randomDirectionVector[0].z = zDirection * GetRandomSpeed( 10, 20 );		
+				randomDirectionVector[0].x = xDirection * GetRandomSpeed( 1, 10 );
+ 				randomDirectionVector[0].y = yDirection * GetRandomSpeed( 1, 10 );
+				randomDirectionVector[0].z = zDirection * GetRandomSpeed( 1, 10 );		
 			}
 			else if( particleType == MuzzleFlash )
 			{

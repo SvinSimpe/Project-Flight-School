@@ -338,6 +338,22 @@ void PlayState::HandleDeveloperCameraInput()
 			}
 		}
 	}
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_Y ) )
+	{
+		for( auto& s : mShips )
+		{
+			if( mPlayer->GetTeam() == s->GetTeamID() && s->Intersect( mPlayer->GetBoundingCircle() ) && mGui->UpgradePlayerWindowIsActive() )
+			{
+				mPlayer->UnLock();
+				mGui->DeActivateUpgradePlayerWindow();
+			}
+			else if( mPlayer->GetTeam() == s->GetTeamID() && s->Intersect( mPlayer->GetBoundingCircle() ) && mPlayer->IsAlive() )
+			{
+				mPlayer->Lock();
+				mGui->ActivateUpgradePlayerWindow();
+			}
+		}
+	}
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_1 ) )
 	{
 		RenderManager::GetInstance()->ChangeRasterizerState( CULL_NONE );

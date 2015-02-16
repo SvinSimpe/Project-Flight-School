@@ -6,6 +6,7 @@
 #include "Font.h"
 #include "HealthBars.h"
 #include "UpgradeShipWindow.h"
+#include "UpgradePlayerWindow.h"
 
 #define MAX_REMOTE_PLAYERS 14
 
@@ -53,7 +54,8 @@ class Gui
 		UINT		mNrOfRemotePlayer;
 
 		Radar*				mRadar;
-		UpgradeShipWindow	mWindow;
+		UpgradeShipWindow	mShipWindow;
+		UpgradePlayerWindow	mPlayerWindow;
 
 		HealthBar*	mHealtBar;
 
@@ -74,9 +76,7 @@ class Gui
 		AssetID		mLevelUp;
 		XMFLOAT2	mSizeLevelUp;
 		XMFLOAT2	mTopLeftCompWithPlayerHealthXP;
-
 		
-
 	protected:
 	public:
 
@@ -85,6 +85,8 @@ class Gui
 	public:
 		void	ActivateUpgradeShipWindow();
 		void	DeActivateUpgradeShipWindow();
+		void	ActivateUpgradePlayerWindow();
+		void	DeActivateUpgradePlayerWindow();
 		HRESULT	Update( GuiUpdate guiUpdate );
 		HRESULT	Render();
 		HRESULT	Initialize();
@@ -93,6 +95,7 @@ class Gui
 				~Gui();
 
 		bool	UpgradeShipWindowIsActive();
+		bool	UpgradePlayerWindowIsActive();
 };
 
 

@@ -78,7 +78,7 @@
     </Filter>
     <Filter Include="Worldmap\Navigation">
       <UniqueIdentifier>{9139bafa-aede-4c3d-9f90-4bbf22ed172a}</UniqueIdentifier>
-	</Filter>
+    </Filter>
     <Filter Include="GUI">
       <UniqueIdentifier>{36818f75-79e9-4d4e-b2c5-7d440fa0dbab}</UniqueIdentifier>
     </Filter>
@@ -290,6 +290,9 @@
     </ClCompile>
     <ClCompile Include="ServerTurret.cpp">
       <Filter>Network\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UpgradePlayerWindow.cpp">
+      <Filter>GUI\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -505,6 +508,9 @@
     </ClInclude>
     <ClInclude Include="ServerTurret.h">
       <Filter>Network\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UpgradePlayerWindow.h">
+      <Filter>GUI\Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

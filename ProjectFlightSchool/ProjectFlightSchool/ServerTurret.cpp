@@ -20,9 +20,9 @@ void ServerTurret::Initialize( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, X
 {
 	GameObject::Initialize( pos, rot, scale, assetID );
 	XMFLOAT3 turretPos = mPos;
-	//turretPos.x += -1.8f;
-	//turretPos.y += 2.3f;
-	//turretPos.z += 1.0f;
+	turretPos.x += -1.8f;
+	turretPos.y += 2.3f;
+	turretPos.z += 1.0f;
 	XMFLOAT4 turretRot = mRot;
 	//turretRot.y += 24.761f;
 
@@ -37,9 +37,9 @@ void ServerTurret::Initialize( UINT id, UINT team, GameObjectInfo gameObjectInfo
 	GameObject::Initialize( gameObjectInfo, assetID );
 
 	XMFLOAT3 turretPos = mPos;
-	//turretPos.x += -1.8f;
-	//turretPos.y += 2.3f;
-	//turretPos.z += 1.0f;
+	turretPos.x += -1.8f;
+	turretPos.y += 2.3f;
+	turretPos.z += 1.0f;
 	XMFLOAT4 turretRot = mRot;
 	//turretRot.y += 24.761f;
 

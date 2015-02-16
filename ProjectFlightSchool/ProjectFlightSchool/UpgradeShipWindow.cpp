@@ -208,7 +208,7 @@ UpgradeShipWindow::~UpgradeShipWindow()
 
 }
 
-bool UpgradeShipWindow::IsActive()
+bool UpgradeShipWindow::IsActive() const
 {
 	return mIsActive;
 }

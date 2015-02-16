@@ -274,7 +274,7 @@ void Server::ClientEnemyProjectileDamage( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Client_Projectile_Damage_Enemy::GUID )
 	{
 		std::shared_ptr<Event_Client_Projectile_Damage_Enemy> data = std::static_pointer_cast<Event_Client_Projectile_Damage_Enemy>( eventPtr );
-		mEnemies[data->EnemyID()]->TakeDamage( data->Damage() );	
+		mEnemies[data->EnemyID()]->TakeDamage( data->Damage(), data->ID() );	
 	}
 }
 

@@ -90,6 +90,7 @@ void Ship::Initialize( int team, XMFLOAT3 pos, XMFLOAT3 dir )
 
 	mMaxHull = 100.0f;
 	mCurrentHull = mMaxHull;
+
 }
 
 void Ship::Release()

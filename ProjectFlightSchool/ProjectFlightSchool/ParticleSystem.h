@@ -28,6 +28,12 @@ struct ParticleSystem : public ParticleData
 
 		switch ( particleType )
 		{
+
+			case Blood:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/bloodParticle.dds", assetID );
+				break;
+			}
 			case MuzzleFlash:
 			{
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireSprite.dds", assetID );
@@ -79,7 +85,8 @@ struct ParticleSystem : public ParticleData
 		SetDirection( emitterDirection.x, emitterDirection.y, emitterDirection.z, particleCount, spreadAngle );
 		SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
 		
-		if( particleType == MuzzleFlash )	SetLifeTime( 1, 2, particleCount );
+		if( particleType == Blood )	SetLifeTime( 1, 5, particleCount );
+		else if( particleType == MuzzleFlash )	SetLifeTime( 1, 2, particleCount );
 		else if( particleType == Smoke_MiniGun )	SetLifeTime( 1, 6, particleCount );
 		else if( particleType == Test_Fountain )	SetLifeTime( 1, 18, particleCount );
 
@@ -88,7 +95,8 @@ struct ParticleSystem : public ParticleData
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{	
-			if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 4,  25.0f );
+			if( particleType == Blood )	Generate( emitterPosition, emitterDirection, 64,  360.0f );
+			else if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 4,  25.0f );
 			else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 16, 2.0f );
 			else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 4, 20.0f );
 	}
@@ -107,6 +115,13 @@ struct ParticleSystem : public ParticleData
 		// Update logic based on Particle type
 		switch( particleType )
 		{
+
+			case Blood: 
+			{
+				// Update Blood logic here
+				BloodLogic( deltaTime );
+				break;
+			}
 			case MuzzleFlash: 
 			{
 				// Update MuzzleFlash logic here
@@ -180,6 +195,18 @@ struct ParticleSystem : public ParticleData
 		}
 		else
 			nrOfRequestedParticles = 0;	
+	}
+		
+	void BloodLogic( float deltaTime )
+	{
+		const __m128 acceleration = _mm_set1_ps( 0.1f );
+
+		for ( int i = 0; i < nrOfParticlesAlive; i += 4 )
+		{
+			__m128 xmm0				= _mm_load_ps( &yVelocity[i] );
+			xmm0 = _mm_sub_ps( xmm0, acceleration );
+			_mm_store_ps( &yVelocity[i], xmm0 );
+		}
 	}
 
 	void MuzzleFlashLogic( float deltaTime )

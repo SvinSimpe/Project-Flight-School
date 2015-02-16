@@ -66,7 +66,7 @@ HRESULT Gui::Update( GuiUpdate guiUpdate )
 	mPlayerHP		= (int)( guiUpdate.mPlayerHP * 100 );
 	mPlayerXP		= (int)( guiUpdate.mPlayerXP * 100 );
 	mPlayerShield	= (int)( guiUpdate.mPlayerShield * 100 );
-	mExperience		= guiUpdate.mPlayerXP;
+	mExperience		= guiUpdate.mLevel;
 
 	if ( mShipWindow.IsActive() )
 	{

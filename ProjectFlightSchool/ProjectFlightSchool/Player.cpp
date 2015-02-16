@@ -63,18 +63,22 @@ void Player::EventListener( IEventPtr newEvent )
 		if( data->Speed() != 0 )
 		{
 			UpgradeLegs();
+			mCurrentUpgrades--;
 		}
 		else if( data->Health() != 0 )
 		{
 			UpgradeBody();
+			mCurrentUpgrades--;
 		}
 		else if( data->Melee() != 0 )
 		{
 			UpgradeMelee();
+			mCurrentUpgrades--;
 		}
 		else if( data->Range() != 0 )
 		{
 			UpgradeRange();
+			mCurrentUpgrades--;
 		}
 	}
 	else if( newEvent->GetEventType() == Event_New_Player_Spawn_Position::GUID )
@@ -83,6 +87,14 @@ void Player::EventListener( IEventPtr newEvent )
 		if( data->PlayerID() == mID )
 		{
 			mSpawnPosition = XMFLOAT3( data->SpawnPosition().x, 0.0f, data->SpawnPosition().y );
+		}
+	}
+	else if( newEvent->GetEventType() == Event_Server_XP::GUID )
+	{
+		std::shared_ptr<Event_Server_XP> data = std::static_pointer_cast<Event_Server_XP>( newEvent );
+		if( data->PlayerID() == mID )
+		{
+			mXP += data->XP();
 		}
 	}
 }
@@ -587,6 +599,12 @@ void Player::Reset()
 
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
 {
+	if( ( mXP / mNextLevelXP ) >= 1 )
+	{
+		mCurrentUpgrades++;
+		mXP -= mNextLevelXP;
+	}
+
 	mCloseToPlayer = false;
 	for( auto rp : remotePlayers )
 	{
@@ -761,6 +779,9 @@ HRESULT Player::Initialize()
 	mVelocity			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
 	mBuffMod			= 0.5f;
+
+	mNextLevelXP		= 10;
+	mCurrentUpgrades	= 0;
 	
 	mSpawnTime				= 10.0f;
 	mReviveTime				= 2.0f;
@@ -775,6 +796,7 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Change_Buff_State::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Upgrade_Player::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_New_Player_Spawn_Position::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_XP::GUID );
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
 
 	return S_OK;
@@ -811,6 +833,8 @@ Player::Player()
 	mIsBuffed			= false;
 	mBuffMod			= 0.0f;
 	mHasMeleeStarted	= false;
+	mXP					= 0;
+	mNextLevelXP		= 0;
 	
 	mSpawnTime				= 0.0f;
 	mTimeTillSpawn			= 0.0f;
@@ -841,6 +865,16 @@ XMFLOAT3 Player::GetPlayerPosition() const
 XMFLOAT3 Player::GetUpperBodyDirection() const
 {
 	return mUpperBody.direction;
+}
+
+float Player::GetXPToNext() const
+{
+	return (float)( (float)mXP / (float)mNextLevelXP );
+}
+
+int Player::Upgradable() const
+{
+	return mCurrentUpgrades;
 }
 
 void Player::SetIsMeleeing( bool isMeleeing )

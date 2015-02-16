@@ -231,16 +231,16 @@ void Enemy::SetState( EnemyState state )
 	}
 }
 
-void Enemy::TakeDamage( float damage )
+void Enemy::TakeDamage( float damage, UINT killer )
 {
 	mCurrentHp -= damage;
 	if( mCurrentHp <= 0.0f )
 	{
-		Die();
+		Die( killer );
 	}
 }
 
-void Enemy::TakeMeleeDamage( float damage, float knockBack, XMFLOAT3 direction, float stun )
+void Enemy::TakeMeleeDamage( float damage, float knockBack, XMFLOAT3 direction, float stun, UINT killer )
 {
 		direction.x *= knockBack;
 		direction.z *= knockBack;
@@ -249,7 +249,7 @@ void Enemy::TakeMeleeDamage( float damage, float knockBack, XMFLOAT3 direction, 
 		mStunTimer = stun;
 		IEventPtr state( new Event_Set_Enemy_State( mID, Idle ) );
 		EventManager::GetInstance()->QueueEvent( state );
-		TakeDamage( damage );
+		TakeDamage( damage, killer );
 }
 
 void Enemy::AddImpuls( XMFLOAT3 impuls )
@@ -320,7 +320,7 @@ BoundingCircle* Enemy::GetAttentionCircle() const
 	return mAttentionRadius;
 }
 
-void Enemy::Die()
+void Enemy::Die( UINT killer )
 {
 	mIsAlive		= false;
 	mCurrentHp		= 0.0f;
@@ -329,6 +329,8 @@ void Enemy::Die()
 	// Send dieEv
 	IEventPtr state( new Event_Set_Enemy_State( mID, Death ) );
 	EventManager::GetInstance()->QueueEvent( state );
+	IEventPtr E1( new Event_Server_XP( killer, mXpDrop ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 float Enemy::HandleAttack()
@@ -338,7 +340,7 @@ float Enemy::HandleAttack()
 		mTimeTillAttack = mAttackRate;
 		mStateTimer		= mAttackRate;
 		if( mEnemyType == Boomer )
-			Die();
+			Die( -1 );
 
 		return mDamage;
 	}

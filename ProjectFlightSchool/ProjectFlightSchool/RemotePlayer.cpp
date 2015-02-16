@@ -261,7 +261,7 @@ void RemotePlayer::Spawn()
 {
 	mIsAlive			= true;
 	mCurrentHp			= mMaxHp;
-	mLowerBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
+	mLowerBody.position = mSpawnPosition;
 }
 
 void RemotePlayer::CountUpKills()
@@ -441,6 +441,7 @@ RemotePlayer::RemotePlayer()
 	mBoundingCircleAura		= nullptr;
 	mLoadOut				= nullptr;
 	mPointLightIfDown		= nullptr;
+	mSpawnPosition			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 }
 
 RemotePlayer::~RemotePlayer()

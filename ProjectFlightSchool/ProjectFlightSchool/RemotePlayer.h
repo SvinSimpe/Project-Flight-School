@@ -94,6 +94,7 @@ class RemotePlayer
 		BoundingRectangle*	mBoundingBox;
 		BoundingCircle*	mBoundingCircle;
 		BoundingCircle*	mBoundingCircleAura;
+		XMFLOAT3		mSpawnPosition;
 
 		//Graphics
 		Font			mFont;

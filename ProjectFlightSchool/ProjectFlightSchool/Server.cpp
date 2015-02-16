@@ -26,6 +26,8 @@ void Server::ClientJoined( IEventPtr eventPtr )
 			{
 				IEventPtr SpawnShip( new Event_Server_Spawn_Ship( s->mID, s->mTeamID, s->mPos, s->mDir, s->mCurrentHP ) );
 				SendEvent( SpawnShip, data->ID() );
+				IEventPtr E1( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel ) );
+				SendEvent( E1, data->ID() );
 			}
 
 			// Sends the incoming ID to the existing remotes
@@ -296,6 +298,23 @@ void Server::ClientWinLose( IEventPtr eventPtr )
 	}
 }
 
+void Server::ClientChangeShipLevels( IEventPtr eventPtr )
+{
+	if ( eventPtr->GetEventType() == Event_Client_Change_Ship_Levels::GUID )
+	{
+		std::shared_ptr<Event_Client_Change_Ship_Levels> data = std::static_pointer_cast<Event_Client_Change_Ship_Levels>( eventPtr );
+		for( auto s : mShips )
+		{
+			if ( s->mTeamID == data->ID() )
+			{
+				s->ClientChangeShipLevels( data->TurretLevelChange(), data->ShieldLevelChange(), data->BuffLevelChange() );
+				IEventPtr E1( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel ) );
+				BroadcastEvent( E1 );
+			}
+		}
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -535,7 +554,8 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientEnemyProjectileDamage, this, Event_Client_Projectile_Damage_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &Server::SetEnemyState, this, Event_Set_Enemy_State::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientWinLose, this, Event_Client_Win::GUID );
-
+	EventManager::GetInstance()->AddListener( &Server::ClientChangeShipLevels, this, Event_Client_Change_Ship_Levels::GUID );
+	
 	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
 
 	mTeamDelegate	= 1;

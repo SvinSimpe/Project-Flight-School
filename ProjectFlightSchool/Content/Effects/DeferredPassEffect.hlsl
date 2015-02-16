@@ -185,12 +185,12 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 
 	//Water hotfix?
 	if( worldSample.y < -0.5f )
-		albedoSample = ( albedoSample * 0.3 + float3( 0.6f, 0.6f, 0.7f ) * 0.7f ) * saturate( ( 1 + ( worldSample.y + 0.5f ) * 0.3f ) );
+		albedoSample = ( albedoSample * 0.3 + float3( 0.6f, 0.6f, 0.7f ) * 0.7f ) * max( 0.4f, saturate( ( 1 + ( worldSample.y + 0.5f ) * 0.3f ) ) );
 
 	//return float4( ambient * ssao, 1.0f );
 	//return float4( specular, 1.0f );
 	//return float4( normalSample, 1.0f );
 	//return float4( shadowFactor, 0.0f, 0.0f, 1.0f );
 
-	return float4( finalColor *	albedoSample, 1.0f );
+	return float4( finalColor * ( shadowFactor * 0.4f + 0.6f ) * albedoSample, 1.0f );
 }

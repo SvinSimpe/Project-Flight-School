@@ -16,6 +16,7 @@ enum PLAYER_ANIMATION
 {
 	LEGS_IDLE,
 	LEGS_WALK,
+	LEGS_DEATH,
 	COUNT,
 };
 
@@ -107,6 +108,7 @@ class RemotePlayer
 		Arms			mArms;
 		bool			mLeftArmAnimationCompleted;
 		bool			mRightArmAnimationCompleted;
+		bool			mLegsAnimationCompleted;
 
 	public:
 
@@ -123,7 +125,7 @@ class RemotePlayer
 		virtual void	GoDown();
 		virtual void	GoUp();
 		virtual HRESULT	Update( float deltaTime );
-		virtual HRESULT	Render( int position );
+		virtual HRESULT	Render();
 		virtual HRESULT	Initialize();
 		void			RemoteInit( unsigned int id, int team );
 		void			Release();

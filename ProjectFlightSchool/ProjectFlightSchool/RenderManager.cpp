@@ -71,6 +71,7 @@ void RenderManager::AddBoxToList( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 	info.max = max;
 	mBoxArray[mNrOfBoxes++] = info;
 }
+
 void RenderManager::AddLineToList( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end )
 {
 	LineInfo info;
@@ -79,12 +80,28 @@ void RenderManager::AddLineToList( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 en
 
 	mLineArray[mNrOfLines++] = info;
 }
+
 bool RenderManager::AddAnim3dToList( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation )
 {
     static Anim3dInfo info;
 	info.mModelId = animTrack.mModelID;
+	DirectX::XMStoreFloat4x4( &info.mWorld, DirectX::XMMatrixTranspose( DirectX::XMMatrixRotationRollPitchYaw( rotation.x, rotation.y, rotation.z ) *										
+											DirectX::XMMatrixTranslation( position.x, position.y, position.z ) ) );
 
-	bool localReturn = Graphics::GetInstance()->GetAnimationMatrices( animTrack, playType, position, rotation, info ); 
+	bool localReturn = Graphics::GetInstance()->GetAnimationMatrices( animTrack, playType, info ); 
+
+	mAnim3dArray[mNrOfAnim3d++] = info;
+
+	return localReturn;
+}
+
+bool RenderManager::AddAnim3dToList( AnimationTrack &animTrack, int playType, XMFLOAT4X4* world )
+{
+	static Anim3dInfo info;
+	info.mModelId = animTrack.mModelID;
+	DirectX::XMStoreFloat4x4( &info.mWorld, DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( world ) ) );
+
+	bool localReturn = Graphics::GetInstance()->GetAnimationMatrices( animTrack, playType, info ); 
 
 	mAnim3dArray[mNrOfAnim3d++] = info;
 

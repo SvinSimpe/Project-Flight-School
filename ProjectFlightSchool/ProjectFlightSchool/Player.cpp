@@ -260,12 +260,14 @@ void Player::Move( float deltaTime )
 		XMStoreFloat3( &mVelocity, normalizer );
 	}
 
-	mLowerBody.direction.x	= mVelocity.x;
-	mLowerBody.direction.y	= 0.0f;
-	mLowerBody.direction.z	= mVelocity.z;
-	normalizer				= XMVector3Normalize( XMLoadFloat3( &mLowerBody.direction ) );
-	XMStoreFloat3( &mLowerBody.direction, normalizer );
-
+	if( mCurrentVelocity > 0.05f )
+	{
+		mLowerBody.direction.x	= mVelocity.x;
+		mLowerBody.direction.y	= 0.0f;
+		mLowerBody.direction.z	= mVelocity.z;
+		normalizer				= XMVector3Normalize( XMLoadFloat3( &mLowerBody.direction ) );
+		XMStoreFloat3( &mLowerBody.direction, normalizer );
+	}
 }
 
 HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers )
@@ -680,6 +682,18 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	}
 	else
 	{
+		if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DEATH] )
+			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_DEATH] );
+		RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, deltaTime );
+
+		/////////////////////////////////////////////////
+		// interpolate upper to face lower direction
+		XMVECTOR upLoad		= XMLoadFloat3( &mUpperBody.direction );
+		XMVECTOR lowLoad	= XMLoadFloat3( &mLowerBody.direction );
+		float change		= min( 1.0f, 6.0f * deltaTime );
+		XMStoreFloat3( &mUpperBody.direction, upLoad * ( 1.0f - change ) + lowLoad * change );
+		/////////////////////////////////////////////////
+
 		HandleSpawn( deltaTime );
 	}
 	
@@ -734,7 +748,7 @@ HRESULT Player::Render( float deltaTime, int position )
 		mFont.WriteText( textToWrite, (float)Input::GetInstance()->mScreenWidth/2, (float)Input::GetInstance()->mScreenHeight/2, 7.8f );
 	}
 
-	RemotePlayer::Render( position );
+	RemotePlayer::Render();
 
 	return S_OK;
 }

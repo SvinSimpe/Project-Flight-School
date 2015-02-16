@@ -571,9 +571,8 @@ void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX
 
 void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 {
-	//DirectX::XMMatrixIdentity
-	//Maximus debuggus boxus
-	for( UINT i = 0; i < sizeOfList; i++ )
+	///////////////////////////////Code for rendering Oct tree boxes, DO NOT REMOVE!
+	/*for( UINT i = 0; i < sizeOfList; i++ )
 	{
 		Static3dAsset* derpface = (Static3dAsset*)mAssetManager->mAssetContainer[info[i].mAssetId];
 		if(derpface->mFileName != "NO PATHCUBE")
@@ -582,18 +581,27 @@ void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 			{
 				for(UINT k = 0; k < 8; k++)
 				{
-					DirectX::XMFLOAT4X4 ident;
-					DirectX::XMStoreFloat4x4( &ident, DirectX::XMMatrixIdentity() );
-					if(derpface->mOctTree.children[j]->children[k]->collides)
+					for(UINT l = 0; l < 8; l++)
 					{
-						Graphics::RenderDebugBox( derpface->mOctTree.children[j]->children[k]->boundingBox.min, 
-													derpface->mOctTree.children[j]->children[k]->boundingBox.max,
-														info[i].mWorld );
+						DirectX::XMFLOAT4X4 ident;
+						DirectX::XMStoreFloat4x4( &ident, DirectX::XMMatrixIdentity() );
+						if(derpface->mOctTree.childrenCollides[j])
+						{
+							if(derpface->mOctTree.children[j]->childrenCollides[k])
+							{
+								if(derpface->mOctTree.children[j]->children[k]->childrenCollides[l])
+								{
+									Graphics::RenderDebugBox( derpface->mOctTree.children[j]->children[k]->children[l]->boundingBox.min, 
+																derpface->mOctTree.children[j]->children[k]->children[l]->boundingBox.max,
+																	info[i].mWorld );
+								}
+							}
+						}
 					}
 				}
 			}
 		}
-	}
+	}*/
 	///////////////////////////////
 
 
@@ -1624,7 +1632,7 @@ void Graphics::GbufferPass()
 
 	mCamera[CAMERAS_SHADOWMAP]->Update();
 
-	static float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	static float clearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	for( int i = 0; i < NUM_GBUFFERS; i++ )
 		mDeviceContext->ClearRenderTargetView( mGbuffers[i]->mRenderTargetView, clearColor );
 	mDeviceContext->ClearDepthStencilView( mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );

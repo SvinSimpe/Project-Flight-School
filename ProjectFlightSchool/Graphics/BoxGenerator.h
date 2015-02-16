@@ -31,6 +31,13 @@ struct OctTree
 	bool		collides;
 	bool		lastLevel;
 	OctTree*	children[8];
+	OctTree()
+	{
+		for(UINT i = 0; i < 8 ; i++)
+		{
+			children[i] = nullptr;
+		}
+	}
 };
 
 class BoxGenerator
@@ -41,14 +48,14 @@ class BoxGenerator
 		
 
 	private:
-		AABB		Subdivide(AABB* originalBox, int witchBox);
+		AABB		Subdivide( AABB* originalBox, int witchBox );
 	protected:
 	public:
 		HRESULT		Initialize();
-		AABB		CreateAABBFromVerts(vector<StaticVertex>* vertices);
-		void		GenerateOctTree(vector<StaticVertex>* vertices, AABB* boundingAABB, int maxLevel, int currentLevel, OctTree* inOct);
-		bool		CheckIntersectionTriangleVSAABB(vector<StaticVertex>* vertices, AABB* collisionBox);
-		void		Release();
+		AABB		CreateAABBFromVerts( vector<StaticVertex>* vertices );
+		void		GenerateOctTree( vector<StaticVertex>* vertices, AABB* boundingAABB, int maxLevel, int currentLevel, OctTree* inOct );
+		bool		CheckIntersectionTriangleVSAABB( vector<StaticVertex>* vertices, AABB* collisionBox );
+		void		Release( OctTree* killMe );
 					BoxGenerator();
 		virtual		~BoxGenerator();
 };

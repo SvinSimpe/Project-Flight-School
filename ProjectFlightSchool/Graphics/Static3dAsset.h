@@ -25,7 +25,7 @@ struct Static3dAsset : public AssetBase
 	public:
 		std::vector<Mesh>	mMeshes;
 		AABB				mAssetAABB;
-		OctTree				mOctTree;
+		OctTree				*mOctTree;
 
 	private:
 	protected:

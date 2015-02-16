@@ -69,36 +69,6 @@ void Ship::Render()
 	mTurret->Render();
 }
 
-void Ship::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
-{
-	if ( eventPtr->GetEventType() == Event_Request_Player_Spawn_Position::GUID )
-	{
-		std::shared_ptr<Event_Request_Player_Spawn_Position> data = std::static_pointer_cast<Event_Request_Player_Spawn_Position>( eventPtr );
-		if ( data->TeamID() == mTeamID )
-		{
-			float spawnX = 0.0f;
-			float spawnZ = 0.0f;
-			do
-			{
-				float xMin = mBuff->center.x - 10.0f;
-				float xMax = mBuff->center.x + 10.0f;
-
-				float zMin = mBuff->center.z - 10.0f;
-				float zMax = mBuff->center.z + 10.0f;
-
-				spawnX = (float)( rand() % (int)xMax*2 - xMin );
-				spawnZ = (float)( rand() % (int)zMax*2 - zMin );
-			}
-			while( spawnX > mBuff->center.x - 5.0f && spawnX < mBuff->center.x + 5.0f &&
-				   spawnZ > mBuff->center.z - 5.0f && spawnZ < mBuff->center.z + 5.0f );
-
-
-			IEventPtr E1( new Event_New_Player_Spawn_Position( data->PlayerID(), XMFLOAT2( spawnX, spawnZ ) ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-		}
-	}
-}
-
 void Ship::Initialize( int team, XMFLOAT3 pos, XMFLOAT3 dir )
 {
 	mModel = new BodyPart();
@@ -121,7 +91,6 @@ void Ship::Initialize( int team, XMFLOAT3 pos, XMFLOAT3 dir )
 	mMaxHull = 100.0f;
 	mCurrentHull = mMaxHull;
 
-	EventManager::GetInstance()->AddListener( &Ship::CalculatePlayerRespawnPosition, this, Event_Request_Player_Spawn_Position::GUID );
 }
 
 void Ship::Release()

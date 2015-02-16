@@ -68,7 +68,7 @@ class Gui
 		int			mPlayerXP;
 		int			mPlayerShield;
 
-		float		mExperience;
+		int			mExperience;
 
 		AssetID		mPlayerBar;
 		XMFLOAT2	mPlayerHealthXPTopLeftCorner;

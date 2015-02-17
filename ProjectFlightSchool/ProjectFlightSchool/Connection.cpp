@@ -180,6 +180,7 @@ bool NetSocket::HandleInput()
 			mRecvBegin = 0;
 		}
 	}
+	SetBlocking( true );
 	return pktReceived;
 }
 

@@ -119,8 +119,8 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 
 	float depth = posLightH.z / posLightH.w;
 
-	float dx = 1.0f / 1024.0f;
-	float dy = 1.0f / 1024.0f;
+	float dx = 1.0f / 512.0f;
+	float dy = 1.0f / 512.0f;
 	smTex	-= float2( dx * 0.5f, dy * 0.5f );
 
 	//25 samples

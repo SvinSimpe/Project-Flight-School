@@ -156,14 +156,13 @@ bool ServerShip::Intersect( BoundingCircle* entity )
 
 void ServerShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID )
 {
+	GameObject::Initialize( pos, rot, scale, assetID );
+
 	mBuffMod		= 0.5f;
 	mBuffCircle->center = pos;
 	mID				= id;
 	mTeamID			= teamID;
 
-	mPos			= pos;
-	mRot			= rot;
-	mScale			= scale;
 	mTurretLevel	= MIN_LEVEL;
 	mShieldLevel	= MIN_LEVEL;
 	mBuffLevel		= MIN_LEVEL;
@@ -172,7 +171,7 @@ void ServerShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 	mMaxHP			= 100.0f;
 	mCurrentHP		= mMaxHP;
 
-	mServerTurret->Reset( id, teamID, mPos, mRot, mScale );
+	mServerTurret->Reset( id, teamID, pos, rot, scale );
 	for( UINT i = 0; i < MAX_LEVEL; i++ )
 	{
 		ClientChangeShipLevels( -1, -1, -1 );
@@ -216,7 +215,22 @@ void ServerShip::Initialize( UINT id, UINT teamID, GameObjectInfo gameObjectInfo
 	mServerTurret	= new ServerTurret();
 	mBuffCircle		= new BoundingCircle( 20.0f );
 
-	mServerTurret->Initialize( id, teamID, gameObjectInfo ); // Actually sends the pos/dir of the ship, not the turret. The turret's pos/dir is calculated in the turret
+	mID				= id;
+	mTeamID			= teamID;
+	mTurretLevel	= MIN_LEVEL;
+	mShieldLevel	= MIN_LEVEL;
+	mBuffLevel		= MIN_LEVEL;
+	mMaxShield		= 100.0f;
+	mCurrentShield	= mMaxShield;
+	mMaxHP			= 100.0f;
+	mCurrentHP		= mMaxHP;
+
+	for( UINT i = 0; i < MAX_LEVEL; i++ )
+	{
+		ClientChangeShipLevels( -1, -1, -1 );
+	}
+
+	mServerTurret->Initialize( id, teamID, gameObjectInfo );
 
 	EventManager::GetInstance()->AddListener( &ServerShip::ClientUpdateShip, this, Event_Client_Update_Ship::GUID );
 }

@@ -56,10 +56,14 @@ void GameObject::SetAssetID(AssetID assetID)
 
 void GameObject::Initialize( XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID )
 {
-	mPos		= pos;
-	mRot		= rot;
-	mScale		= scale;
-	mAssetID	= assetID;
+	DirectX::XMMATRIX translation	= XMMatrixTranslation( pos.x, pos.y, pos.z );
+	DirectX::XMMATRIX rotation		= XMMatrixRotationRollPitchYaw( rot.x, rot.y, rot.z );
+	DirectX::XMMATRIX scalemat		= XMMatrixScaling( scale.x, scale.y, scale.z );
+
+	GameObjectInfo goi;
+	DirectX::XMStoreFloat4x4( &goi.transformation, scalemat * rotation * translation ); // think about the order here, might be reversed
+
+	Initialize( goi, assetID );
 }
 
 void GameObject::Initialize( GameObjectInfo gameObjectInfo, AssetID assetID )

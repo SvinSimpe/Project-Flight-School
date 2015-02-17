@@ -92,7 +92,7 @@ void ParticleManager::Initialize()
 	mMaxNrOfParticleSystemsPerType[Blood]			= 1;
 	mMaxNrOfParticleSystemsPerType[MuzzleFlash]		= 1;
 	mMaxNrOfParticleSystemsPerType[Smoke_MiniGun]	= 1;
-	mMaxNrOfParticleSystemsPerType[Test_Fountain]	= 100; // Aswell as this
+	mMaxNrOfParticleSystemsPerType[Test_Fountain]	= 5; // Aswell as this
 
 	mNrOfActiveParticleSystemsPerType[Smoke]			= 0;
 	mNrOfActiveParticleSystemsPerType[Fire]				= 0;
@@ -141,7 +141,7 @@ void ParticleManager::Initialize()
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Test_Fountain]; i++ )
 	{
-		mParticleSystems[Test_Fountain][i]->Initialize( Test_Fountain, 32.0f, 512 );
+		mParticleSystems[Test_Fountain][i]->Initialize( Test_Fountain, 1.0f, 16 );
 		mNrOfParticleSystemsPerType[Test_Fountain]++;
 		mNrOfParticleSystems++;
 	}

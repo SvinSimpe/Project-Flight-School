@@ -27,6 +27,7 @@ struct ParticleData
 {
 	#pragma region Members
 
+	int capacity = 0;
 	int	nrOfParticlesAlive = 0;
 	size_t		particleType				= std::numeric_limits<unsigned int>::infinity();
 
@@ -53,6 +54,7 @@ struct ParticleData
 	{
 		srand( (unsigned int)time( NULL ) );
 
+		capacity = nrOfParticles;
 		nrOfParticlesAlive = 0;
 
 		if( nrOfParticles > MAX_PARTICLES )
@@ -135,6 +137,7 @@ struct ParticleData
 		std::swap( zVelocity[a], zVelocity[b] );
 
 		std::swap( lifeTime[a], lifeTime[b] );
+		std::swap( deathTime[a], deathTime[b] );
 		std::swap( isAlive[a], isAlive[b] );
 	}
 
@@ -152,11 +155,25 @@ struct ParticleData
 	{
 		if( nrOfParticlesAlive > 0 )
 		{
-			isAlive[id] = false;
-			lifeTime[id] = 0.0f;
+			ResetParticle( id );
 			SwapData( id, nrOfParticlesAlive - 1 );
 			nrOfParticlesAlive--;
 		}
+	}
+
+	void ResetParticle( size_t id )
+	{
+		xPosition[id] = 0.0f;
+		zPosition[id] = 0.0f;
+		yPosition[id] = 0.0f;
+				 
+		xVelocity[id] = 0.0f;
+		yVelocity[id] = 0.0f;
+		zVelocity[id] = 0.0f;
+
+		lifeTime[id]  = 0.0f;
+		deathTime[id] = 0.0f;
+		isAlive[id]	  = false;
 	}
 
 	void UpdatePosition( float deltaTime )
@@ -173,7 +190,7 @@ struct ParticleData
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
 		{
-			lifeTime[i] += deltaTime;
+			lifeTime[i] += 0.01;//deltaTime;
 		}
 	}
 
@@ -237,9 +254,9 @@ struct ParticleData
 			}
 			else if( particleType == Test_Fountain )
 			{
-				randomDirectionVector.x = xDirection * GetRandomSpeed( 10, 80 );
- 				randomDirectionVector.y = yDirection * GetRandomSpeed( 10, 80 );
-				randomDirectionVector.z = zDirection * GetRandomSpeed( 10, 80 );		
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 10, 20 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 10, 20 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 10, 20 );		
 			}
 
 			GetRandomSpread( spreadAngle );
@@ -296,6 +313,7 @@ struct ParticleData
 		delete [] zVelocity;
 
 		delete [] lifeTime;
+		delete [] deathTime;
 		delete [] isAlive;
 	}
 
@@ -307,5 +325,4 @@ struct ParticleData
 
 	#pragma endregion
 };
-
 #endif

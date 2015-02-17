@@ -15,7 +15,6 @@ void ServerTurret::Reset( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 	mTeamID	= team;
 	mPos	= turretPos;
 	mRot	= turretRot;
-	mScale	= scale;
 }
 
 void ServerTurret::Initialize( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID )
@@ -33,7 +32,6 @@ void ServerTurret::Initialize( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, X
 	mTeamID = team;
 	mPos	= turretPos;
 	mRot	= turretRot;
-	mScale	= scale;
 }
 
 void ServerTurret::Initialize( UINT id, UINT team, GameObjectInfo gameObjectInfo, AssetID assetID )

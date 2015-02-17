@@ -188,10 +188,22 @@ void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 {
 	GameObject::Initialize( pos, rot, scale, assetID );
 	mServerTurret	= new ServerTurret();
-	mBuffCircle		= new BoundingCircle( 20.0f );
+	mBuffCircle		= new BoundingCircle( mPos, 20.0f );
 
 	mID				= id;
 	mTeamID			= teamID;
+	mTurretLevel	= MIN_LEVEL;
+	mShieldLevel	= MIN_LEVEL;
+	mBuffLevel		= MIN_LEVEL;
+	mMaxShield		= 100.0f;
+	mCurrentShield	= mMaxShield;
+	mMaxHP			= 100.0f;
+	mCurrentHP		= mMaxHP;
+
+	for( UINT i = 0; i < MAX_LEVEL; i++ )
+	{
+		ClientChangeShipLevels( -1, -1, -1 );
+	}
 
 	mServerTurret->Initialize( id, teamID, pos, rot, scale, assetID );
 

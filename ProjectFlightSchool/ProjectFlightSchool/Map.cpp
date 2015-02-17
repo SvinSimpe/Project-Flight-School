@@ -1,6 +1,7 @@
 #include "Map.h"
 #include "MapNodeManager.h"
 #include "MapNodePlacer.h"
+#include "NodeGraph.h"
 
 HRESULT Map::Render( float deltaTime, Player* player )
 {
@@ -11,9 +12,9 @@ HRESULT Map::Render( float deltaTime, Player* player )
 	int playerX = ( ( (int)GetMapHalfWidth() * NODE_DIM ) + playerPosX ) / NODE_DIM;
 	int playerZ = ( ( (int)GetMapHalfHeight() * NODE_DIM ) + playerPosY ) / NODE_DIM;
 
-	for( int x = playerX - 1; x < playerX + 2; x++ )
+	for( int x = playerX - 5; x < playerX + 6; x++ )
 	{
-		for( int z = playerZ - 1; z < playerZ + 2; z++ )
+		for( int z = playerZ - 5; z < playerZ + 6; z++ )
 		{
 			MapNodeInstance* temp = GetNodeInstance( x, z );
 			if( temp && std::find( mapNodes.begin(), mapNodes.end(), temp ) == mapNodes.end() )
@@ -28,6 +29,7 @@ HRESULT Map::Render( float deltaTime, Player* player )
 		it->Render( deltaTime );
 	}
 
+	nodeGraph->Render();
 
 	//std::vector<MapNodeInstance*> nodes = MapNodePlacer::GetInstance()->GetAllNodes();
 	//for( auto& it : nodes )
@@ -55,6 +57,9 @@ void Map::OnLoadLevel( IEventPtr pEvent )
 			delete mMapSection;
 		}
 		mNrOfNodes = MapNodePlacer::GetInstance()->GetNrOfNodes();
+
+		nodeGraph = new NodeGraph();
+		nodeGraph->Initialize( this );
 	}
 }
 
@@ -121,6 +126,8 @@ MapNodeInstance* Map::GetNodeInstance( int x, int z )
 HRESULT Map::Initialize( UINT mapDim )
 {
 	//Map size is mapDim* mapDim
+	
+
 	mMapDim = mapDim;
 	MapNodeManager::GetInstance()->Initialize();
 	MapNodePlacer::GetInstance()->Initialize( this );

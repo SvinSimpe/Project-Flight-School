@@ -196,7 +196,7 @@ class LIBRARY_EXPORT Graphics
 		void RenderBillboard		( BillboardInfo* info, UINT sizeOfList );
 		void RenderParticleSystems	( ParticleInfo* info, UINT sizeOfList );
 		void RenderNodeGrid			( NodeGridInfo* info, UINT sizeOfList );
-		void RenderDebugBox			( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max );
+		void RenderDebugBox			( BoxInfo* info, UINT sizeOfList );
 		void RenderDebugBox			( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, DirectX::XMFLOAT4X4 world );
 		void RenderLine				( LineInfo* info, UINT sizeOfList );
 

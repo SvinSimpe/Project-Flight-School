@@ -35,6 +35,7 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device, ID3D11DeviceConte
 	//////////////////////////
 	Static3dAsset* plane;
 	plane				= new Static3dAsset;
+	plane->Initialize();
 	plane->mAssetId		= 0;
 	plane->mFileName	= "NO PATHPLANE"; //ADD CORRECT FILENAME HERE
 
@@ -83,6 +84,7 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device, ID3D11DeviceConte
 	//////////////////////////
 	Static3dAsset* cube;
 	cube = new Static3dAsset;
+	cube->Initialize();
 	cube->mAssetId		= 1;
 	cube->mFileName		= "NO PATHCUBE"; //ADD CORRECT FILENAME HERE
 
@@ -484,6 +486,7 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceConte
 		AssignAssetId( assetId );
 		Static3dAsset* temp;
 		temp				= new Static3dAsset();
+		temp->Initialize();
 		temp->mAssetId		= assetId;
 		temp->mFileName		= fileName;
 		temp->mAssetAABB	= meshAABB;

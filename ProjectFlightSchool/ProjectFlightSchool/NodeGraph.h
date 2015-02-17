@@ -4,15 +4,22 @@
 
 #include <Windows.h>
 #include <vector>
+#include <DirectXMath.h>
 
 
+class Map;
 class Node;
-class MapNodeInstance;
 
 struct TilePosition
 {
 	int x;
 	int y;
+	TilePosition()
+	{
+		x = -1;
+		y = -1;
+	}
+
 	TilePosition( int pX, int pY )
 	{
 		x = pX;
@@ -31,6 +38,7 @@ class Edge
 	private:
 	protected:
 	public:
+		HRESULT Render();
 		HRESULT Initialize( Node* A, Node* B );
 		Edge();
 		~Edge();
@@ -45,6 +53,7 @@ class Node
 
 	protected:
 	public:
+		DirectX::XMFLOAT3 centerPoint;
 		int mNodeID;
 		TilePosition mNodePos;
 		float g;
@@ -54,8 +63,10 @@ class Node
 	private:
 	protected:
 	public:
+		HRESULT Render();
 		HRESULT Initialize( TilePosition nodePos, int nodeID );
-		bool AddEdge( Node* A, Node* B );
+		bool AddEdge( Node* To );
+		void Release();
 		Node();
 		~Node();
 };
@@ -68,11 +79,16 @@ class NodeGraph
 	public:
 
 	private:
+		void BuildGraph( Map* map );
+		int FindNodeByID( int nodeID );
+
 	protected:
 	public:
+		HRESULT Render();
 		HRESULT Initialize( Map* map );
 
 		void FindPath( TilePosition start, TilePosition end );
+		void Release();
 		NodeGraph();
 		~NodeGraph();
 };

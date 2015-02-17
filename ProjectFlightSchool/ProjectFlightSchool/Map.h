@@ -2,6 +2,7 @@
 #define MAP_H
 #include "MapSection.h"
 #include "BoundingGeometry.h"
+#include "NodeGraph.h"
 #define MAX_NODES 1000
 
 static enum MapSize
@@ -19,6 +20,7 @@ class Map
 		float mVertexSpacing;
 		UINT mNrOfNodes;
 		UINT mMapId;
+		NodeGraph* nodeGraph;
 
 		std::vector<NavTriangle> mNavData;
 

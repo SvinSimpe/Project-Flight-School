@@ -55,7 +55,7 @@ class BoxGenerator
 		AABB		CreateAABBFromVerts( vector<StaticVertex>* vertices );
 		void		GenerateOctTree( vector<StaticVertex>* vertices, AABB* boundingAABB, int maxLevel, int currentLevel, OctTree* inOct );
 		bool		CheckIntersectionTriangleVSAABB( vector<StaticVertex>* vertices, AABB* collisionBox );
-		void		Release( OctTree* killMe );
+		void		Release( OctTree*& killMe );
 					BoxGenerator();
 		virtual		~BoxGenerator();
 };

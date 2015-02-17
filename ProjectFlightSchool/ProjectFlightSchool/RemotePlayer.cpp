@@ -89,11 +89,13 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 HRESULT RemotePlayer::InitializeGraphics()
 {
 	// Animations Body
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotLegsIdle.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_IDLE] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotIdle.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_IDLE] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotLegsWalk.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_WALK] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotWalk.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_WALK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotLegsDeath.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DEATH] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotDeath.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DEATH] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotDown.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DOWN] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	//BLOWTORCH
@@ -293,54 +295,68 @@ void RemotePlayer::GoUp()
 HRESULT RemotePlayer::Update( float deltaTime )
 {
 	// Update Animation
-	if( mIsAlive )
+	if( !mIsDown )
 	{
-		float currentVelocity = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) );
-
-		if( currentVelocity < 0.2f )
+		if( mIsAlive )
 		{
-			if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE] )
+			float currentVelocity = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) );
+
+			if( currentVelocity < 0.2f )
 			{
-				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
+				if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE] )
+				{
+					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
+				}
 			}
+			else
+			{
+				if(	mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK] )
+				{
+					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_WALK] );
+				}
+			}
+
+			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, 
+				mLowerBody.playerModel.mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK] ? deltaTime * currentVelocity / 1.1f : deltaTime );
+
+			if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] )
+				RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
+
+			if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] )
+				RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
+
+			RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
+			RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
 		}
 		else
-		{
-			if(	mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK] )
-			{
-				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_WALK] );
-			}
+		{		
+			if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DEATH] )
+				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_DEATH] );
+			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, deltaTime );
+
+			/////////////////////////////////////////////////
+			// interpolate upper to face lower direction
+			XMVECTOR upLoad		= XMLoadFloat3( &mUpperBody.direction );
+			XMVECTOR lowLoad	= XMLoadFloat3( &mLowerBody.direction );
+			float change		= min( 1.0f, 6.0f * deltaTime );
+			XMStoreFloat3( &mUpperBody.direction, upLoad * ( 1.0f - change ) + lowLoad * change );
+			/////////////////////////////////////////////////
 		}
-
-		RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, 
-			mLowerBody.playerModel.mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK] ? deltaTime * currentVelocity / 1.1f : deltaTime );
-
-		if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] )
-			RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
-
-		if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] )
-			RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
-
-		RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
-		RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
 	}
 	else
-	{		
-		if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DEATH] )
-			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_DEATH] );
-		RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, deltaTime );
-
-		/////////////////////////////////////////////////
-		// interpolate upper to face lower direction
-		XMVECTOR upLoad		= XMLoadFloat3( &mUpperBody.direction );
-		XMVECTOR lowLoad	= XMLoadFloat3( &mLowerBody.direction );
-		float change		= min( 1.0f, 6.0f * deltaTime );
-		XMStoreFloat3( &mUpperBody.direction, upLoad * ( 1.0f - change ) + lowLoad * change );
-		/////////////////////////////////////////////////
-	}
-
-	if( mIsDown )
 	{
+		if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DOWN] )
+				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_DOWN] );
+			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, deltaTime );
+
+			/////////////////////////////////////////////////
+			// interpolate upper to face lower direction
+			XMVECTOR upLoad		= XMLoadFloat3( &mUpperBody.direction );
+			XMVECTOR lowLoad	= XMLoadFloat3( &mLowerBody.direction );
+			float change		= min( 1.0f, 6.0f * deltaTime );
+			XMStoreFloat3( &mUpperBody.direction, upLoad * ( 1.0f - change ) + lowLoad * change );
+			/////////////////////////////////////////////////
+
 		mTimeTillDeath -= deltaTime;
 		mPointLightIfDown->colorAndRadius = DirectX::XMFLOAT4( 0.6f, 0.2f, 0.6f, mTimeTillDeath );
 	}
@@ -388,7 +404,7 @@ HRESULT RemotePlayer::Initialize()
 {
 	mLowerBody.position		= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 
-	mBoundingBox			= new BoundingBox( 1.5f, 1.5f );
+	mBoundingBox			= new BoundingRectangle( 1.5f, 1.5f );
 	mBoundingCircle			= new BoundingCircle( 0.5f );
 	mBoundingCircleAura		= new BoundingCircle( 1.0f );
 	
@@ -504,7 +520,7 @@ int RemotePlayer::GetTeam() const
 	return mTeam;
 }
 
-BoundingBox* RemotePlayer::GetBoundingBox() const
+BoundingRectangle* RemotePlayer::GetBoundingBox() const
 {
 	return mBoundingBox;
 }

@@ -17,6 +17,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
 	// 1555131 1555130 1555129 1555128
 	//_CrtSetBreakAlloc(1141); // Break at specific memory allocation point
 
+
 #endif
 	// Console window code
 	//if( AllocConsole() )

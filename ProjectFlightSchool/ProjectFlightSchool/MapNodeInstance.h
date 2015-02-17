@@ -52,6 +52,8 @@ public:
 		MapNode*			GetMapNode() const;
 		void				SetMapNode( MapNode* mapNode );
 
+		BoundingRectangle			GetBoundingBox();
+
 		NavTriangle*		IsOnNavMesh( DirectX::XMFLOAT3 pos ) const;			
 
 		HRESULT				Initialize();

@@ -2,11 +2,17 @@
 
 HRESULT Static3dAsset::Initialize()
 {
+	mOctTree = nullptr;
 	return S_OK;
 }
 
 void Static3dAsset::Release()
 {
+	BoxGenerator killer;
+	if( mOctTree )
+	{
+		killer.Release( mOctTree );
+	}
 	for( int i = 0; i < (int)mMeshes.size(); i++ )
 		SAFE_RELEASE( mMeshes[i].mVertexBuffer );
 	mMeshes.clear();

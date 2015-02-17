@@ -31,6 +31,12 @@ struct ParticleSystem : public ParticleData
 
 		switch ( particleType )
 		{
+
+			case Blood:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/bloodParticle.dds", assetID );
+				break;
+			}
 			case MuzzleFlash:
 			{
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireSprite.dds", assetID );
@@ -87,7 +93,7 @@ struct ParticleSystem : public ParticleData
 
 		nrOfRequestedParticles += particleCount;
 
-		SpellCasterLifeMaster( 0.0f );
+		SpellCasterLifeMaster();
 	}
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
@@ -111,6 +117,13 @@ struct ParticleSystem : public ParticleData
 		// Update logic based on Particle type
 		switch( particleType )
 		{
+
+			case Blood: 
+			{
+				// Update Blood logic here
+				BloodLogic( deltaTime );
+				break;
+			}
 			case MuzzleFlash: 
 			{
 				// Update MuzzleFlash logic here
@@ -150,7 +163,7 @@ struct ParticleSystem : public ParticleData
 		ParticleData::Release();
 	}
 
-	void SpellCasterLifeMaster( float deltaTime )
+	void SpellCasterLifeMaster()
 	{
 		if( nrOfParticlesAlive < capacity )
 		{
@@ -172,6 +185,18 @@ struct ParticleSystem : public ParticleData
 
 			else
 				nrOfRequestedParticles = 0;	
+		}
+	}
+		
+	void BloodLogic( float deltaTime )
+	{
+		const __m128 acceleration = _mm_set1_ps( 0.1f );
+
+		for ( int i = 0; i < nrOfParticlesAlive; i += 4 )
+		{
+			__m128 xmm0				= _mm_load_ps( &yVelocity[i] );
+			xmm0 = _mm_sub_ps( xmm0, acceleration );
+			_mm_store_ps( &yVelocity[i], xmm0 );
 		}
 	}
 

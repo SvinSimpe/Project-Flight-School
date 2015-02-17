@@ -72,6 +72,14 @@ void MapNodeInstance::SetMapNode( MapNode* mapNode )
 {
 	mNode = mapNode;
 }
+BoundingRectangle MapNodeInstance::GetBoundingBox()
+{
+	BoundingRectangle b;
+	b.position	= mPos;
+	b.width		= (float)mNode->GetGridWidth();
+	b.height	= (float)mNode->GetGridHeight();
+	return b;
+}
 
 NavTriangle* MapNodeInstance::IsOnNavMesh( DirectX::XMFLOAT3 pPos ) const
 {

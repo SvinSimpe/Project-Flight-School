@@ -25,6 +25,16 @@ void ParticleManager::Render()
 
 bool ParticleManager::RequestParticleSystem( size_t entityID, ParticleType particleType, XMFLOAT3 position, XMFLOAT3 direction )
 {
+	// Check if there is any available Particle System
+	if( mNrOfActiveParticleSystems == mNrOfParticleSystems )
+		OutputDebugStringA( "-- Maximum number of allocated Particle system reached --\n" );
+
+
+	// Check if there is any available Particle System of requested type
+	if( mNrOfActiveParticleSystemsPerType[particleType] == mMaxNrOfParticleSystemsPerType[particleType] )
+	{
+		OutputDebugStringA( "-- Maximum number of Particle type reached --\n" );
+	}
 
 	// Check if entity already has a particle system of request type connected to it
 	for ( int i = 0; i < mNrOfActiveParticleSystemsPerType[particleType]; i++ )
@@ -118,7 +128,13 @@ void ParticleManager::Initialize()
 	//		mNrOfParticleSystems++;
 	//	}
 
-
+	
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Blood]; i++ )
+	{
+		mParticleSystems[Blood][i]->Initialize( Blood, 64.0f, 288 );
+		mNrOfParticleSystemsPerType[Blood]++;
+		mNrOfParticleSystems++;
+	}
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[MuzzleFlash]; i++ )
 	{

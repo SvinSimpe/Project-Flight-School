@@ -180,6 +180,7 @@ bool NetSocket::HandleInput()
 			mRecvBegin = 0;
 		}
 	}
+	SetBlocking( true );
 	return pktReceived;
 }
 
@@ -287,8 +288,7 @@ void NetListenSocket::InitScan( int portNum_min, int portNum_max )
 	}
 
 	SetBlocking( false );
-
-	if( listen( mSocket, 8 ) == SOCKET_ERROR )
+	if( listen( mSocket, SOMAXCONN ) == SOCKET_ERROR )
 	{
 		closesocket( mSocket );
 		mSocket = INVALID_SOCKET;
@@ -351,7 +351,7 @@ void NetListenSocket::Initialize( int portNum )
 	}
 
 	SetBlocking( false );
-	if( listen( mSocket, 256 ) == SOCKET_ERROR )
+	if( listen( mSocket, SOMAXCONN ) == SOCKET_ERROR )
 	{
 		closesocket( mSocket );
 		mSocket = INVALID_SOCKET;
@@ -386,7 +386,14 @@ bool ServerListenSocket::HandleInput()
 	SOCKET newSocket = AcceptConnection( &ipAddr );
 
 	int value = 1;
-	setsockopt( newSocket, SOL_SOCKET, SO_DONTLINGER, (char*)value, sizeof( value ) );
+	try
+	{
+		throw setsockopt( newSocket, IPPROTO_TCP, SO_DONTLINGER, (char*)value, sizeof( value ) );
+	}
+	catch( int e )
+	{
+		printf( "Exception thrown in ServerListenSocket::HandleInput: %d\n", e );
+	}
 	if( newSocket != INVALID_SOCKET )
 	{
 		RemoteEventSocket* socket = PFS_NEW RemoteEventSocket( mSocketManager, newSocket, ipAddr );

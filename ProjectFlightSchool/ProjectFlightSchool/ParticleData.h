@@ -211,7 +211,6 @@ struct ParticleData
 			randomAimingDirection = XMVector3TransformCoord( randomAimingDirection, XMMatrixRotationZ( XMConvertToRadians( randomSpreadAngle ) ) );
 		}
 
-
 		XMStoreFloat3( &randomDirectionVector, randomAimingDirection );
 		
 		if( particleType != Test_Fountain )
@@ -241,6 +240,7 @@ struct ParticleData
 		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
 		{
 			if( particleType == MuzzleFlash )
+
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 10, 80 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 10, 80 );

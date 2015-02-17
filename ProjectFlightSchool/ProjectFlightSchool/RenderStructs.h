@@ -85,6 +85,7 @@ struct AnimationTrack
 	UINT	mNextAnimation;
 	float	mNextAnimationTime;
 	float	mInterpolation;
+	bool	mBlendWithCurrent;
 };
 
 #endif

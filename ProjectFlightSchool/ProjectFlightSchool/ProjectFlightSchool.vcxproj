@@ -94,6 +94,7 @@
     <ClCompile Include="ClientShip.cpp" />
     <ClCompile Include="ClientTurret.cpp" />
     <ClCompile Include="EnemyAnimationManager.cpp" />
+    <ClCompile Include="EnemyBehavior.cpp" />
     <ClCompile Include="Gui.cpp" />
     <ClCompile Include="HelperFunctions.cpp" />
     <ClCompile Include="Navmesh.cpp" />

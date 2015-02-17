@@ -12,12 +12,12 @@
 // Projectile Speed	Travel speed of projectile. High value gives a fast projectile
 
 // Minigun
-#define MINIGUN_AR			0.5f	// Attack Rate
+#define MINIGUN_AR			0.05f	// Attack Rate
 #define MINIGUN_DAMAGE		1.0f	// Damage
 #define MINIGUN_RANGE		1.0f	// Range
 #define MINIGUN_SPREAD		0.1f	// Spread
 #define MINIGUN_AOE			0.0f	// Area of effect
-#define MINIGUN_SPEED		30.0f	// Projectile Speed 30
+#define MINIGUN_SPEED		40.0f	// Projectile Speed 30
 #define MINIGUN_OFFSETS		XMFLOAT3( 0.75f, 0.5f, 1.3f ) // Offsets forward, right, up
 
 // Shotgun

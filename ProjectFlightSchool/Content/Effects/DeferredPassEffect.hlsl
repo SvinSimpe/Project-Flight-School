@@ -77,7 +77,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	float3	albedoSample	= albedoSpecBuffer.Sample( pointSampler, input.uv ).xyz;
 	float	specularSample	= albedoSpecBuffer.Sample( pointSampler, input.uv ).w;
 	float3	normalSample	= normalBuffer.Sample( pointSampler, input.uv ).xyz;
-	float3	worldSample		= worldPositionBuffer.Sample( pointSampler, input.uv).xyz;
+	float3	worldSample		= worldPositionBuffer.Sample( linearSampler, input.uv).xyz;
 
 	//========== Screen Space Ambient Occlusion =============
 	// USED FOR TESTING SSAO ONLY, SUCKY VERSION, JOCKE PLEZ HALP
@@ -109,7 +109,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	//-------------------------------------------------------------------------------------------------
 	float SHADOW_BIAS = 0.001f;
 
-	float shadowSample[4];
+	float shadowSamples = 0.0f;
 
 	float4 posLightH	= mul( float4( worldSample, 1.0f ), shadowViewMatrix );
 	posLightH			= mul( posLightH, shadowProjectionMatrix );
@@ -121,20 +121,18 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 
 	float dx = 1.0f / 1024.0f;
 	float dy = 1.0f / 1024.0f;
-	shadowSample[0] = shadowMap.Sample( linearSampler, smTex ).r + SHADOW_BIAS < depth ? 0.0f : 1.0f;
-	shadowSample[1] = shadowMap.Sample( linearSampler, smTex + float2( dx	, 0.0f	) ).r + SHADOW_BIAS < depth ? 0.0f : 1.0f;
-	shadowSample[2] = shadowMap.Sample( linearSampler, smTex + float2( 0.0f	, dy	) ).r + SHADOW_BIAS < depth ? 0.0f : 1.0f;
-	shadowSample[3] = shadowMap.Sample( linearSampler, smTex + float2( dx	, dy	) ).r + SHADOW_BIAS < depth ? 0.0f : 1.0f;
+	smTex	-= float2( dx * 0.5f, dy * 0.5f );
 
-	float2 lerps = frac( input.uv );
+	//25 samples
+	for( int i = -2; i < 3; i++ )
+		for( int j = -2; j < 3; j++ )
+			shadowSamples += shadowMap.Sample( linearSampler, smTex + float2( dx * i, dy * j ) ).r + SHADOW_BIAS < depth ? 0.0f : 1.0f;
 
-	float shadowFactor = lerp(	lerp( shadowSample[0], shadowSample[1], lerps.x ),
-								lerp( shadowSample[2], shadowSample[3], lerps.x ),
-								lerps.y );
+	float shadowFactor = shadowSamples / 25.0f;
 
 	//======== SHADOW MAP POINTLIGHT ===========
-	float3 ambient		= float3( 0.3f, 0.3f,  0.3f );
-	float3 color		= float3( 0.3f, 0.2f,  0.2f );
+	float3 ambient		= float3( 0.8f, 0.8f,  0.8f );
+	float3 color		= float3( 0.4f, 0.3f,  0.3f );
 
 	float3 lightDirection	= worldSample - shadowCameraPosition.xyz;
 	float dShadow			= length( lightDirection );
@@ -188,9 +186,9 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 		albedoSample = ( albedoSample * 0.3 + float3( 0.6f, 0.6f, 0.7f ) * 0.7f ) * max( 0.4f, saturate( ( 1 + ( worldSample.y + 0.5f ) * 0.3f ) ) );
 
 	//return float4( ambient * ssao, 1.0f );
-	//return float4( specular, 1.0f );
+	//return float4( specularSample, specularSample, specularSample, 1.0f );
 	//return float4( normalSample, 1.0f );
 	//return float4( shadowFactor, 0.0f, 0.0f, 1.0f );
 
-	return float4( finalColor * ( shadowFactor * 0.4f + 0.6f ) * albedoSample, 1.0f );
+	return float4( finalColor * ( shadowFactor * 0.3f + 0.7f ) * albedoSample, 1.0f );
 }

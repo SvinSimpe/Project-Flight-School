@@ -55,6 +55,7 @@ class PlayState : public BaseState
 		//TestSound
 		int							m3DSoundAsset;
 		int							mSoundAsset;
+		int							mStreamSoundAsset;
 	
 	protected:
 	public:

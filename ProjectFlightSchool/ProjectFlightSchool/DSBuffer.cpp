@@ -28,7 +28,7 @@ HRESULT DSBuffer::CreateBasicBuffer( LPDIRECTSOUND8 lpDirectSound, WaveHeaderTyp
 	memset( &dsbdesc, 0, sizeof(DSBUFFERDESC) );
 	dsbdesc.dwSize			= sizeof(DSBUFFERDESC);
 	dsbdesc.dwFlags			=
-		DSBCAPS_CTRLPAN | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY //DSBCAPS_CTRL3D och DSBCAPS_CTRLPAN kan inte användas samtidigt. PAN är höger/vänster och tror inte att det kommer att behövas. Antingen 3D eller inget låter vettigt.
+		DSBCAPS_CTRL3D | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY //DSBCAPS_CTRL3D och DSBCAPS_CTRLPAN kan inte användas samtidigt. PAN är höger/vänster och tror inte att det kommer att behövas. Antingen 3D eller inget låter vettigt.
 		| DSBCAPS_GLOBALFOCUS; //Fortsätter spela trots att andra fönster är i fokus
 	dsbdesc.dwBufferBytes	= waveFileHeader.dataSize;//3 * wfx.nAvgBytesPerSec; //storlek på 3 sekunders streamingdata
 	dsbdesc.lpwfxFormat		= &wfx;
@@ -130,7 +130,7 @@ bool DSBuffer::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName )
 	memset( &dsbdesc, 0, sizeof(DSBUFFERDESC) );
 	dsbdesc.dwSize			= sizeof(DSBUFFERDESC);
 	dsbdesc.dwFlags			=
-		DSBCAPS_CTRLPAN | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY //DSBCAPS_CTRL3D och DSBCAPS_CTRLPAN can't be used at the same time. PAN is left/right.
+		DSBCAPS_CTRL3D | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY //DSBCAPS_CTRL3D och DSBCAPS_CTRLPAN can't be used at the same time. PAN is left/right.
 		| DSBCAPS_GLOBALFOCUS; //Continue playing no matter which window is used.
 	dsbdesc.dwBufferBytes	= waveFileHeader.dataSize;//3 * wfx.nAvgBytesPerSec; //3 seconds size
 	dsbdesc.lpwfxFormat		= &wfx;

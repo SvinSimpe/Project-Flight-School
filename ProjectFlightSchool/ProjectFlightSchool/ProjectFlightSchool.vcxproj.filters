@@ -294,6 +294,9 @@
     <ClCompile Include="UpgradePlayerWindow.cpp">
       <Filter>GUI\Source</Filter>
     </ClCompile>
+    <ClCompile Include="DSBufferStream.cpp">
+      <Filter>DirectSound\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
@@ -511,6 +514,9 @@
     </ClInclude>
     <ClInclude Include="UpgradePlayerWindow.h">
       <Filter>GUI\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="DSBufferStream.h">
+      <Filter>DirectSound\Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

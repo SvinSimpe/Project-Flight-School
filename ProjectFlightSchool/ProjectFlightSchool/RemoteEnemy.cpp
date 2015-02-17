@@ -59,10 +59,10 @@ void RemoteEnemy::SetModelID( AssetID model, AssetID defaultAnimation )
 	RenderManager::GetInstance()->AnimationInitialize( mAnimationTrack, model, defaultAnimation );
 }
 
-void RemoteEnemy::SetAnimation( AssetID animation )
+void RemoteEnemy::SetAnimation( AssetID animation, bool blendWithCurrent )
 {
 	if( mAnimationTrack.mNextAnimation != animation )
-		RenderManager::GetInstance()->AnimationStartNew( mAnimationTrack, animation );
+		RenderManager::GetInstance()->AnimationStartNew( mAnimationTrack, animation, blendWithCurrent );
 }
 
 void RemoteEnemy::SetPosition( XMFLOAT3 position )

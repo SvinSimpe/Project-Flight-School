@@ -98,7 +98,9 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		std::shared_ptr<Event_Server_Spawn_Ship> data = std::static_pointer_cast<Event_Server_Spawn_Ship>( newEvent );
 		mShips.push_back( new ClientShip() );
-		mShips.back()->Initialize( data->ID(), data->TeamID(), data->Position(), data->Direction() );
+		mShips.back()->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
+		if( data->TeamID() == mPlayer->GetID() )
+			mMyShip = mShips.back();
 	}
 	else if( newEvent->GetEventType() == Event_Remote_Win::GUID )
 	{
@@ -529,7 +531,10 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.mPlayerNames	= pName;
 	guiUpdate.mNrOfAllies	= nrOfAllies;
 	guiUpdate.mAlliesHP		= mAlliesHP;
-	guiUpdate.mShipHP		= 1.0f;
+	if( mMyShip )
+		guiUpdate.mShipHP	= mMyShip->PercentHP();
+	else
+		guiUpdate.mShipHP	= 1.0f;
 
 	//mPlayer->Update( deltaTime, mRemotePlayers );
 	HandleDeveloperCameraInput();
@@ -562,7 +567,7 @@ HRESULT PlayState::Update( float deltaTime )
 		}
 	}
 
-		///Test fountain particle system
+	///Test fountain particle system
 	
 	RenderManager::GetInstance()->RequestParticleSystem( 9999, Test_Fountain, XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
 	
@@ -585,16 +590,16 @@ HRESULT PlayState::Update( float deltaTime )
 
 	mGui->Update( guiUpdate );
 
+	for( auto& s : mShips )
+	{
+		s->Update( deltaTime );
+	}
+
 
 	// Test Anim
 	///////////////////////////////////////////////////////////////////////////
 	//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
 	///////////////////////////////////////////////////////////////////////////
-
-	for( auto& s : mShips )
-	{
-		s->Update( deltaTime );
-	}
 
 	return S_OK;
 }
@@ -638,9 +643,11 @@ HRESULT PlayState::Render()
 	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
 	mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
 
+	XMFLOAT4X4 identity;
+	XMStoreFloat4x4( &identity, XMMatrixIdentity() );
 	for( auto& s : mShips )
 	{
-		s->Render();
+		s->Render( 0.0f, identity );
 	}
 
 	RenderManager::GetInstance()->Render();
@@ -758,6 +765,9 @@ HRESULT PlayState::Initialize()
 
 	mGui = new Gui();
 	mGui->Initialize();
+
+	mShips			= std::vector<ClientShip*>();
+	mMyShip			= nullptr;
 
 	//TestSound
 	m3DSoundAsset	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav" );

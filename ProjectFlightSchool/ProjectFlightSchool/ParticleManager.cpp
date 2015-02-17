@@ -93,13 +93,13 @@ void ParticleManager::Initialize()
 	mNrOfParticleSystemsPerType[Test_Fountain]	= 0; // Below this
 	
 
-	mMaxNrOfParticleSystemsPerType[Smoke]			= 1;
-	mMaxNrOfParticleSystemsPerType[Fire]			= 1;
-	mMaxNrOfParticleSystemsPerType[Spark]			= 1;
-	mMaxNrOfParticleSystemsPerType[Blood]			= 1;
-	mMaxNrOfParticleSystemsPerType[MuzzleFlash]		= 1;
-	mMaxNrOfParticleSystemsPerType[Smoke_MiniGun]	= 1;
-	mMaxNrOfParticleSystemsPerType[Test_Fountain]	= 1; // Aswell as this
+	mMaxNrOfParticleSystemsPerType[Smoke]			= 10;
+	mMaxNrOfParticleSystemsPerType[Fire]			= 10;
+	mMaxNrOfParticleSystemsPerType[Spark]			= 10;
+	mMaxNrOfParticleSystemsPerType[Blood]			= 10;
+	mMaxNrOfParticleSystemsPerType[MuzzleFlash]		= 10;
+	mMaxNrOfParticleSystemsPerType[Smoke_MiniGun]	= 10;
+	mMaxNrOfParticleSystemsPerType[Test_Fountain]	= 10; // Aswell as this
 
 	mNrOfActiveParticleSystemsPerType[Smoke]			= 0;
 	mNrOfActiveParticleSystemsPerType[Fire]				= 0;

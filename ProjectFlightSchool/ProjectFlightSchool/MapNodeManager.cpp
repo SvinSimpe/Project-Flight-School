@@ -17,9 +17,9 @@ void MapNodeManager::ConvertToFloat( XMFLOAT4X4& dest, double* values )
 }
 void MapNodeManager::writeToLog( const std::string &text )
 {
-    std::ofstream log_file(
-        "mapNodeLog.jocke", std::ios_base::out | std::ios_base::app );
-    log_file << text << std::endl;
+    //std::ofstream log_file(
+    //    "mapNodeLog.jocke", std::ios_base::out | std::ios_base::app );
+    //log_file << text << std::endl;
 }
 void MapNodeManager::LoadLevel( std::string filePath ) 
 {

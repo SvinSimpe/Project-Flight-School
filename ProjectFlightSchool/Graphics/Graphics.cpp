@@ -1504,7 +1504,18 @@ bool Graphics::GetAnimationMatrices( AnimationTrack &animTrack, int playType, An
 
 	if( isAnimationBlending )
 	{
-		float blendInterpolation = animTrack.mInterpolation / 0.2f;
+		float blendInterpolation = animTrack.mInterpolation / ( animTrack.mBlendWithCurrent ? 0.2f : 0.2f );
+
+	/*	if( animTrack.mBlendWithCurrent )
+		{
+			blendInterpolation *= 2.0f;
+			if( blendInterpolation > 1.0f )
+			{
+				blendInterpolation -= 1.0f;
+				blendInterpolation = 1.0f - blendInterpolation;
+			}
+		}*/
+
 		DirectX::XMVECTOR currComp[3];
 		DirectX::XMVECTOR nextComp[3];
 

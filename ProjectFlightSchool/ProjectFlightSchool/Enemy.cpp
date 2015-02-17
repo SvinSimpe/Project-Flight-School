@@ -13,7 +13,7 @@ void Enemy::CreateStandard()
 		Med atkrate
 	*/
 	mEnemyType					= Standard;
-	mMaxHp						= 30.0f;
+	mMaxHp						= 300.0f;
 	mCurrentHp					= mMaxHp;
 	mDamage						= 10.0f;
 	mSpeed						= 5.0f;
@@ -205,6 +205,7 @@ void Enemy::TakeDamage( float damage, UINT killer )
 	{
 		Die( killer );
 	}
+	mTakingDamage	= true;
 }
 
 void Enemy::TakeMeleeDamage( float damage, float knockBack, XMFLOAT3 direction, float stun, UINT killer )
@@ -256,7 +257,7 @@ void Enemy::Spawn( XMFLOAT3 spawnPos )
 		break;
 	}
 
-	//CreateStandard();
+	CreateStandard();
 	//CreateRanged();
 	//CreateBoomer();
 	//CreateTank();
@@ -415,9 +416,11 @@ Enemy::Enemy()
 	mTimeTillAttack		= 0.0f;
 	mStateTimer			= 0.0f;
 	mStunTimer			= 0.0f;
+	mTakingDamageTimer	= 0.0f;
 	mTargetIndex		= 0;
 	mTargetID			= 0;
 	mPlayers			= nullptr;
+	mTakingDamage		= false;
 }
 
 Enemy::~Enemy()

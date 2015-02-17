@@ -114,9 +114,6 @@ struct ParticleSystem : public ParticleData
 		// Check for dead particles
 		CheckDeadParticles();
 
-		// Wake particles based on emission rate
-		//SpellCasterLifeMaster( deltaTime );
-
 		// Update logic based on Particle type
 		switch( particleType )
 		{
@@ -173,7 +170,7 @@ struct ParticleSystem : public ParticleData
 			// Calculate Particle count for this frame
 			int nrOfNewParticles = (int)emitRate;
 	
-			if( nrOfNewParticles > capacity)
+			if( nrOfNewParticles > capacity )
 				return;
 
 			// Wake Particles

@@ -228,7 +228,7 @@ struct ParticleData
 
 	void SetRandomDeathTime( size_t lowerBound, size_t upperBound, size_t particleCount ) // If 2.0f is upperBound, send 20
 	{
-		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++)
+		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
 		{
 			float randomDeathTime = (float)( rand() % upperBound + (float)lowerBound ) * 0.1f;
 			deathTime[i] = randomDeathTime;
@@ -317,13 +317,13 @@ struct ParticleData
 		delete [] isAlive;
 	}
 
-	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emiterDirection) = 0;
+	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emiterDirection ) = 0;
 
 	virtual void Update( float deltaTime ) = 0;
 
 	virtual void Render( float deltaTime ) = 0;
 
-	void GenerateCirclePosition(float xPosition, float yPosition, float zPosition, float radius, size_t particleCount )
+	void GenerateCirclePosition( float xPosition, float yPosition, float zPosition, float radius, size_t particleCount )
 	{
 		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
 		{

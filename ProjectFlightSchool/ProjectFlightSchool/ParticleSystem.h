@@ -85,7 +85,10 @@ struct ParticleSystem : public ParticleData
 		///==================
 		// Use emitterDirection as base and randomize a different direction vector with a maximum spread angle deviation
 		SetDirection( emitterDirection.x, emitterDirection.y, emitterDirection.z, particleCount, spreadAngle );
-		SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+		if( particleType == Test_Fountain )
+			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 3.0f, particleCount );
+		else
+			SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
 		
 		if( particleType == MuzzleFlash )	SetRandomDeathTime( 1, 2, particleCount );
 		else if( particleType == Smoke_MiniGun )	SetRandomDeathTime( 1, 6, particleCount );
@@ -100,7 +103,7 @@ struct ParticleSystem : public ParticleData
 	{	
 			if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 4,  25.0f );
 			else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 8, 2.0f );
-			else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 4, 20.0f );
+			else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 32, 20.0f );
 	}
 
 	virtual void Update( float deltaTime )
@@ -172,7 +175,7 @@ struct ParticleSystem : public ParticleData
 	
 			if( nrOfNewParticles > capacity)
 				return;
-		
+
 			// Wake Particles
 			size_t endID = nrOfParticlesAlive + nrOfNewParticles;
 			for ( size_t i = nrOfParticlesAlive; i < endID; i++ )

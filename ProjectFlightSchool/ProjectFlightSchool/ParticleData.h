@@ -190,7 +190,7 @@ struct ParticleData
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
 		{
-			lifeTime[i] += 0.01;//deltaTime;
+			lifeTime[i] += 0.01f;//deltaTime;
 		}
 	}
 
@@ -322,6 +322,26 @@ struct ParticleData
 	virtual void Update( float deltaTime ) = 0;
 
 	virtual void Render( float deltaTime ) = 0;
+
+	void GenerateCirclePosition(float xPosition, float yPosition, float zPosition, float radius, size_t particleCount )
+	{
+		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
+		{
+			float randomAngle = (float)( rand() % 360 + 1 );
+			float randomRadius = (float)( rand() % (int)radius + 1 );
+
+			XMVECTOR randomDirection = XMVector3TransformCoord( XMVectorSet( 1.0f, 0.0f, 0.0f, 0.0f ), XMMatrixRotationY( XMConvertToRadians( randomAngle ) ) );
+
+			randomDirection *= randomRadius;
+
+			XMFLOAT3 temp = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			XMStoreFloat3( &temp, XMLoadFloat3( &XMFLOAT3( xPosition, yPosition, zPosition ) ) + randomDirection );
+
+			this->xPosition[i] = temp.x;
+			this->yPosition[i] = temp.y;
+			this->zPosition[i] = temp.z;
+		}
+	}
 
 	#pragma endregion
 };

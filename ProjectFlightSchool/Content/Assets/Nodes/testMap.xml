@@ -1,7 +1,13 @@
 <?xml version="1.0" standalone="no" ?>
 <Level>
     <Nodes>
+<<<<<<< HEAD
         <Node path="../Content/Assets/Nodes/tileMediumForest.lp" type="AREA_NODE" />
+=======
+        <Node path="../Content/Assets/Nodes/tileglade.lp" type="AREA_NODE" />
+	<Node path="../Content/Assets/Nodes/tileALargePuddle.lp" type="AREA_NODE" />
+
+>>>>>>> development
     </Nodes>
     <Assets>
 		<Asset path="../Content/Assets/PermanentAssets/Ship/ShipWithTripod.pfs"/>

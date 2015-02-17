@@ -1,5 +1,30 @@
 #include "UpgradeShipWindow.h"
 
+void UpgradeShipWindow::EventListener( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Server_Change_Ship_Levels::GUID )
+	{
+		std::shared_ptr<Event_Server_Change_Ship_Levels> data = std::static_pointer_cast<Event_Server_Change_Ship_Levels>( eventPtr );
+		if( data->ID() == mTeam )
+		{
+			mForceFieldButtons.nrOfFilled	= data->ShieldLevelChange();
+			mTurretButtons.nrOfFilled		= data->TurretLevelChange();
+			mBuffButtons.nrOfFilled			= data->BuffLevelChange();
+		}
+	}
+	else if ( eventPtr->GetEventType() == Event_Local_Joined::GUID ) // Add a remote player to the list when they connect
+	{
+		std::shared_ptr<Event_Local_Joined> data = std::static_pointer_cast<Event_Local_Joined>( eventPtr );
+		mTeam = data->TeamID();
+	}
+	else if ( eventPtr->GetEventType() == Event_Client_Died::GUID ) // Add a remote player to the list when they connect
+	{
+		std::shared_ptr<Event_Client_Died> data = std::static_pointer_cast<Event_Client_Died>( eventPtr );
+		mIsActive = false;
+	}
+
+}
+
 void UpgradeShipWindow::Activate()
 {
 	mIsActive = true;
@@ -22,11 +47,13 @@ void UpgradeShipWindow::Update( float deltaTime )
 	{
 		if( pressed == 1 )
 		{
-			MessageBox( NULL, L"Level up ForceField", L"Error", MB_OK );
+			IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, 1, 0 ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 		else
 		{
-			MessageBox( NULL, L"Level down ForceField", L"Error", MB_OK );
+			IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, -1, 0 ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 	}
 	else
@@ -36,11 +63,13 @@ void UpgradeShipWindow::Update( float deltaTime )
 		{
 			if ( pressed == 1 )
 			{
-				MessageBox( NULL, L"Level up Turret", L"Error", MB_OK );
+				IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 1, 0, 0 ) );
+				EventManager::GetInstance()->QueueEvent( E1 );
 			}
 			else
 			{
-				MessageBox( NULL, L"Level down Turret", L"Error", MB_OK );
+				IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, -1, 0, 0 ) );
+				EventManager::GetInstance()->QueueEvent( E1 );
 			}
 		}
 		else
@@ -50,11 +79,13 @@ void UpgradeShipWindow::Update( float deltaTime )
 			{
 				if ( pressed == 1 )
 				{
-					MessageBox( NULL, L"Level up Buff", L"Error", MB_OK );
+					IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, 0, 1 ) );
+					EventManager::GetInstance()->QueueEvent( E1 );
 				}
 				else
 				{
-					MessageBox( NULL, L"Level down Buff", L"Error", MB_OK );
+					IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, 0, -1 ) );
+					EventManager::GetInstance()->QueueEvent( E1 );
 				}
 			}
 			else
@@ -111,7 +142,8 @@ void UpgradeShipWindow::Release()
 
 HRESULT UpgradeShipWindow::Initialize()
 {
-	mIsActive = true;
+	mIsActive	= false;
+	mTeam		= -1;
 
 	HRESULT result;
 
@@ -160,6 +192,9 @@ HRESULT UpgradeShipWindow::Initialize()
 		mEngineButtons.buttons[i].Initialize( "../Content/Assets/HUD/checkedCheckBox.dds", engineButtonTopLeft.x + stillNotUsed[i].x, engineButtonTopLeft.y + stillNotUsed[i].y, sizeBox, sizeBox );
 	}
 
+	EventManager::GetInstance()->AddListener( &UpgradeShipWindow::EventListener, this, Event_Local_Joined::GUID );
+	EventManager::GetInstance()->AddListener( &UpgradeShipWindow::EventListener, this, Event_Server_Change_Ship_Levels::GUID ); 
+
 	return result;
 }
 
@@ -173,7 +208,7 @@ UpgradeShipWindow::~UpgradeShipWindow()
 
 }
 
-bool UpgradeShipWindow::IsActive()
+bool UpgradeShipWindow::IsActive() const
 {
 	return mIsActive;
 }

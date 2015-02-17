@@ -151,6 +151,7 @@ class LIBRARY_EXPORT Graphics
 		AssetManager*				mAssetManager;
 		Effect*						mEffects[EFFECTS_AMOUNT];
 		Camera*						mCamera[CAMERAS_AMOUNT];
+		Cameras						mCurrentCamera;
 		bool						mIsDeveloperCameraActive;
 		Gbuffer*					mGbuffers[NUM_GBUFFERS];
 
@@ -196,10 +197,11 @@ class LIBRARY_EXPORT Graphics
 		void RenderParticleSystems	( ParticleInfo* info, UINT sizeOfList );
 		void RenderNodeGrid			( NodeGridInfo* info, UINT sizeOfList );
 		void RenderDebugBox			( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max );
+		void RenderDebugBox			( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, DirectX::XMFLOAT4X4 world );
 		void RenderLine				( LineInfo* info, UINT sizeOfList );
 
 		DirectX::XMFLOAT4X4	GetRootMatrix( AnimationTrack animTrack );
-		bool				GetAnimationMatrices( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo &info );
+		bool				GetAnimationMatrices( AnimationTrack &animTrack, int playType, Anim3dInfo &info );
 
 		void ChangeCamera();
 		void ZoomInDeveloperCamera();

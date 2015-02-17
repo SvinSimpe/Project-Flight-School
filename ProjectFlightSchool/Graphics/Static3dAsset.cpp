@@ -7,6 +7,8 @@ HRESULT Static3dAsset::Initialize()
 
 void Static3dAsset::Release()
 {
+	BoxGenerator killer;
+	killer.Release( mOctTree );
 	for( int i = 0; i < (int)mMeshes.size(); i++ )
 		SAFE_RELEASE( mMeshes[i].mVertexBuffer );
 	mMeshes.clear();

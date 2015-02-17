@@ -10,8 +10,9 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 		if( mID == data->ID() )
 		{
 			mLowerBody.position								= data->LowerBodyPos();
-			XMStoreFloat3( &mLowerBody.direction, XMVector3Normalize( XMLoadFloat3( &data->Velocity() ) ) );
 			mVelocity										= data->Velocity();
+			if( XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) ) > 0.05f )
+				XMStoreFloat3( &mLowerBody.direction, XMVector3Normalize( XMLoadFloat3( &data->Velocity() ) ) );
 			mUpperBody.direction							= data->UpperBodyDirection();
 			mPlayerName										= data->Name();
 
@@ -87,12 +88,14 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 
 HRESULT RemotePlayer::InitializeGraphics()
 {
-	////////////////
-	//Animations
-	// BODY
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotLegsIdle.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_IDLE] ) ) )
+	// Animations Body
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotIdle.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_IDLE] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotLegsWalk.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_WALK] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotWalk.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_WALK] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotDeath.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DEATH] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotDown.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DOWN] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	//BLOWTORCH
@@ -261,7 +264,7 @@ void RemotePlayer::Spawn()
 {
 	mIsAlive			= true;
 	mCurrentHp			= mMaxHp;
-	mLowerBody.position = XMFLOAT3( 10.0f, 0.0f, 10.0f ); // Change to ship position + random offset
+	mLowerBody.position = mSpawnPosition;
 }
 
 void RemotePlayer::CountUpKills()
@@ -292,37 +295,68 @@ void RemotePlayer::GoUp()
 HRESULT RemotePlayer::Update( float deltaTime )
 {
 	// Update Animation
-	float currentVelocity = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) );
-
-	if( currentVelocity < 0.2f )
+	if( !mIsDown )
 	{
-		if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE] )
+		if( mIsAlive )
 		{
-			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
+			float currentVelocity = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) );
+
+			if( currentVelocity < 0.2f )
+			{
+				if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE] )
+				{
+					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
+				}
+			}
+			else
+			{
+				if(	mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK] )
+				{
+					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_WALK] );
+				}
+			}
+
+			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, 
+				mLowerBody.playerModel.mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK] ? deltaTime * currentVelocity / 1.1f : deltaTime );
+
+			if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] )
+				RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
+
+			if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] )
+				RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
+
+			RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
+			RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
+		}
+		else
+		{		
+			if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DEATH] )
+				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_DEATH] );
+			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, deltaTime );
+
+			/////////////////////////////////////////////////
+			// interpolate upper to face lower direction
+			XMVECTOR upLoad		= XMLoadFloat3( &mUpperBody.direction );
+			XMVECTOR lowLoad	= XMLoadFloat3( &mLowerBody.direction );
+			float change		= min( 1.0f, 6.0f * deltaTime );
+			XMStoreFloat3( &mUpperBody.direction, upLoad * ( 1.0f - change ) + lowLoad * change );
+			/////////////////////////////////////////////////
 		}
 	}
 	else
 	{
-		if(	mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK] )
-		{
-			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_WALK] );
-		}
-	}
+		if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DOWN] )
+				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_DOWN] );
+			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, deltaTime );
 
-	RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, 
-		mLowerBody.playerModel.mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK] ? deltaTime * currentVelocity / 1.1f : deltaTime );
+			/////////////////////////////////////////////////
+			// interpolate upper to face lower direction
+			XMVECTOR upLoad		= XMLoadFloat3( &mUpperBody.direction );
+			XMVECTOR lowLoad	= XMLoadFloat3( &mLowerBody.direction );
+			float change		= min( 1.0f, 6.0f * deltaTime );
+			XMStoreFloat3( &mUpperBody.direction, upLoad * ( 1.0f - change ) + lowLoad * change );
+			/////////////////////////////////////////////////
 
-	if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] )
-		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
-
-	if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] )
-		RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
-
-	RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
-	RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
-
-	if( mIsDown )
-	{
 		mTimeTillDeath -= deltaTime;
 		mPointLightIfDown->colorAndRadius = DirectX::XMFLOAT4( 0.6f, 0.2f, 0.6f, mTimeTillDeath );
 	}
@@ -330,37 +364,39 @@ HRESULT RemotePlayer::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT RemotePlayer::Render( int position )
+HRESULT RemotePlayer::Render()
 {
-	if (mIsAlive)
-	{
-		XMFLOAT4X4 upperMatrix = Graphics::GetInstance()->GetRootMatrix(mLowerBody.playerModel);
-		XMFLOAT3 offsetPos = XMFLOAT3(upperMatrix._41 + mLowerBody.position.x, upperMatrix._42, upperMatrix._43 + mLowerBody.position.z);
+	XMFLOAT4X4 upperMatrix = Graphics::GetInstance()->GetRootMatrix( mLowerBody.playerModel );
+	XMMATRIX loadedMat	= XMLoadFloat4x4( &upperMatrix );
+	XMMATRIX translate	= XMMatrixTranslation( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z );
 
-		//Render upper body
-		float radians = atan2f(mUpperBody.direction.z, mUpperBody.direction.x);
-		RenderManager::GetInstance()->AddObject3dToList(mUpperBody.playerModel, offsetPos, XMFLOAT3(0.0f, -radians, 0.0f));
+	float yaw = -atan2f( mUpperBody.direction.z, mUpperBody.direction.x );
 
-		//Render Arms
-		if (RenderManager::GetInstance()->AddAnim3dToList(mArms.leftArm,
-			ANIMATION_PLAY_ONCE,
-			offsetPos,
-			XMFLOAT3(0.0f, -radians, 0.0f)))
-			mLeftArmAnimationCompleted = true;
+	XMMATRIX rotate	= XMMatrixRotationRollPitchYaw( 0.0f, yaw, 0.0 );
 
-		if (RenderManager::GetInstance()->AddAnim3dToList(mArms.rightArm,
-			ANIMATION_PLAY_ONCE,
-			offsetPos,
-			XMFLOAT3(0.0f, -radians, 0.0f)))
-			mRightArmAnimationCompleted = true;
+	XMStoreFloat4x4( &upperMatrix, loadedMat * rotate * translate );
 
-		//Render lower body
-		radians = atan2f(mLowerBody.direction.z, mLowerBody.direction.x);
-		RenderManager::GetInstance()->AddAnim3dToList(mLowerBody.playerModel,
-			ANIMATION_PLAY_LOOPED,
-			mLowerBody.position,
-			XMFLOAT3(0.0f, -radians, 0.0f));
-	}
+	//Render upper body
+	RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, upperMatrix );
+
+	//Render Arms
+	if ( RenderManager::GetInstance()->AddAnim3dToList( mArms.leftArm,
+		ANIMATION_PLAY_ONCE,
+		&upperMatrix ) )
+		mLeftArmAnimationCompleted = true;
+
+	if ( RenderManager::GetInstance()->AddAnim3dToList( mArms.rightArm,
+		ANIMATION_PLAY_ONCE,
+		&upperMatrix ) )
+		mRightArmAnimationCompleted = true;
+
+	//Render lower body
+	yaw = -atan2f( mLowerBody.direction.z, mLowerBody.direction.x );
+	RenderManager::GetInstance()->AddAnim3dToList( mLowerBody.playerModel,
+		mIsAlive ? ANIMATION_PLAY_LOOPED : ANIMATION_PLAY_ONCE,
+		mLowerBody.position,
+		XMFLOAT3( 0.0f, yaw, 0.0f ) );
+
 	return S_OK;
 }
 
@@ -368,7 +404,7 @@ HRESULT RemotePlayer::Initialize()
 {
 	mLowerBody.position		= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 
-	mBoundingBox			= new BoundingBox( 1.5f, 1.5f );
+	mBoundingBox			= new BoundingRectangle( 1.5f, 1.5f );
 	mBoundingCircle			= new BoundingCircle( 0.5f );
 	mBoundingCircleAura		= new BoundingCircle( 1.0f );
 	
@@ -441,6 +477,7 @@ RemotePlayer::RemotePlayer()
 	mBoundingCircleAura		= nullptr;
 	mLoadOut				= nullptr;
 	mPointLightIfDown		= nullptr;
+	mSpawnPosition			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 }
 
 RemotePlayer::~RemotePlayer()
@@ -483,7 +520,7 @@ int RemotePlayer::GetTeam() const
 	return mTeam;
 }
 
-BoundingBox* RemotePlayer::GetBoundingBox() const
+BoundingRectangle* RemotePlayer::GetBoundingBox() const
 {
 	return mBoundingBox;
 }

@@ -431,6 +431,16 @@ HRESULT Graphics::InitializeEffects()
 	//=======================================
 
 	//Muzzle Flash effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/bloodEffect.hlsl";
+	effectInfo.fileName					= "bloodEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_BLOOD]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Muzzle Flash effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/MuzzleFlashEffect.hlsl";
 	effectInfo.fileName					= "MuzzleFlashEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
@@ -571,6 +581,40 @@ void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX
 
 void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 {
+	///////////////////////////////Code for rendering Oct tree boxes, DO NOT REMOVE!
+	/*for( UINT i = 0; i < sizeOfList; i++ )
+	{
+		Static3dAsset* derpface = (Static3dAsset*)mAssetManager->mAssetContainer[info[i].mAssetId];
+		if(derpface->mFileName != "NO PATHCUBE")
+		{
+			for(UINT j = 0; j < 8; j++)
+			{
+				for(UINT k = 0; k < 8; k++)
+				{
+					for(UINT l = 0; l < 8; l++)
+					{
+						DirectX::XMFLOAT4X4 ident;
+						DirectX::XMStoreFloat4x4( &ident, DirectX::XMMatrixIdentity() );
+						if(derpface->mOctTree.childrenCollides[j])
+						{
+							if(derpface->mOctTree.children[j]->childrenCollides[k])
+							{
+								if(derpface->mOctTree.children[j]->children[k]->childrenCollides[l])
+								{
+									Graphics::RenderDebugBox( derpface->mOctTree.children[j]->children[k]->children[l]->boundingBox.min, 
+																derpface->mOctTree.children[j]->children[k]->children[l]->boundingBox.max,
+																	info[i].mWorld );
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}*/
+	///////////////////////////////
+
+
 	//////////////////////////////////////////////////////////////////
 	//						RENDER CALL
 	//////////////////////////////////////////////////////////////////
@@ -1061,9 +1105,10 @@ void Graphics::RenderNodeGrid( NodeGridInfo* info, UINT sizeOfList )
 		MapBuffer( mBuffers[BUFFERS_SINGLE_STATIC_VERTEX], info[i].mVertices, sizeof(StaticVertex) * info[i].mNrOfVertices );
 		mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_SINGLE_STATIC_VERTEX], &vertexSize, &offset );
 
-		mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[DIFFUSE_PLACEHOLDER] )->mSRV );
-		mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[NORMAL_PLACEHOLDER] )->mSRV );
-		mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
+		mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[MUD_BLENDMAP] )->mSRV );
+		mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[GRASS_BLENDMAP] )->mSRV );
+		mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SAND_BLENDMAP] )->mSRV );
+		mDeviceContext->PSSetShaderResources( 3, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[info[i].mBlendMap] )->mSRV );
 		mDeviceContext->Draw( info[i].mNrOfVertices, 0 );
 
 	}
@@ -1071,7 +1116,7 @@ void Graphics::RenderNodeGrid( NodeGridInfo* info, UINT sizeOfList )
 
 void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 {
-	mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_DISABLED], 1 );
+	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_DISABLED], 1 );
 
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
 
@@ -1108,7 +1153,50 @@ void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 
 	//mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexCount, 0 );//, 0, 0 );
 	mDeviceContext->DrawIndexed( 24, 0, 0 );
-	mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
+	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
+}
+
+void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, DirectX::XMFLOAT4X4 world )
+{
+	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_DISABLED], 1 );
+
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
+
+	UINT32 vertexSize	= sizeof(StaticVertex);
+	UINT32 offset		= 0;
+
+	DirectX::XMFLOAT3 boxSize = DirectX::XMFLOAT3( max.x - min.x, max.y - min.y, max.z - min.z );
+	DirectX::XMFLOAT3 center  = DirectX::XMFLOAT3( ( min.x + max.x ) / 2, ( min.y + max.y ) / 2, ( min.z + max.z ) / 2 );
+
+	ID3D11Buffer* buffersToSet[] = { ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexBuffer };
+	
+	mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_DEBUG_BOX], &vertexSize, &offset );
+	mDeviceContext->IASetIndexBuffer( mBuffers[BUFFERS_DEBUG_BOX_INDICES], DXGI_FORMAT_R32_UINT, 0 );
+
+	//Map CbufferPerObject
+	CbufferPerObject data;
+	DirectX::XMMATRIX worldMat		= DirectX::XMLoadFloat4x4( &world );
+	DirectX::XMMATRIX scaling		= DirectX::XMMatrixScaling( boxSize.x, boxSize.y, boxSize.z );
+	DirectX::XMMATRIX translation	= DirectX::XMMatrixTranslation( center.x, center.y, center.z );
+
+	data.worldMatrix = worldMat * DirectX::XMMatrixTranspose( scaling * translation );
+	//data.worldMatrix = DirectX::XMMatrixIdentity();
+	
+	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT], &data, sizeof( CbufferPerObject ) );
+
+	mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] );
+	
+	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_DEBUG_BOX]->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetPixelShader(), nullptr, 0 );
+
+	//mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexCount, 0 );//, 0, 0 );
+	mDeviceContext->DrawIndexed( 24, 0, 0 );
+	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
 }
 void Graphics::RenderLine( LineInfo* info, UINT sizeOfList )
 {
@@ -1271,7 +1359,7 @@ DirectX::XMFLOAT4X4 Graphics::GetRootMatrix( AnimationTrack animTrack )
 	return output;
 }
 
-bool Graphics::GetAnimationMatrices( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation, Anim3dInfo &info )
+bool Graphics::GetAnimationMatrices( AnimationTrack &animTrack, int playType, Anim3dInfo &info )
 {
 	Animated3dAsset*	model		= (Animated3dAsset*)mAssetManager->mAssetContainer[animTrack.mModelID];
 	Skeleton*			skeleton	= &( (SkeletonAsset*)mAssetManager->mAssetContainer[model->mSkeletonId] )->mSkeleton;
@@ -1432,9 +1520,6 @@ bool Graphics::GetAnimationMatrices( AnimationTrack &animTrack, int playType, Di
 		}
 	}
 
-	DirectX::XMStoreFloat4x4( &info.mWorld, DirectX::XMMatrixTranspose( DirectX::XMMatrixRotationRollPitchYaw( rotation.x, rotation.y, rotation.z ) *										
-											DirectX::XMMatrixTranslation( position.x, position.y, position.z ) ) );
-
 	for( int i = 0; i < NUM_SUPPORTED_JOINTS; i++ )
 		DirectX::XMStoreFloat4x4( &info.mBoneTransforms[i], DirectX::XMMatrixIdentity() );
 	for( int i = 0; i < skeleton->nrOfJoints; i++ )
@@ -1446,9 +1531,16 @@ bool Graphics::GetAnimationMatrices( AnimationTrack &animTrack, int playType, Di
 void Graphics::ChangeCamera()
 {
 	if( mIsDeveloperCameraActive )
+	{
 		mIsDeveloperCameraActive = false;
+		mCurrentCamera = CAMERAS_MAIN;
+	}
+
 	else
+	{
 		mIsDeveloperCameraActive = true;
+		mCurrentCamera = CAMERAS_DEV;
+	}
 }
 
 void Graphics::ZoomInDeveloperCamera()
@@ -1466,22 +1558,22 @@ void Graphics::ZoomOutDeveloperCamera()
 
 void Graphics::GetViewMatrix( DirectX::XMMATRIX &view )
 {
-	view = mCamera[CAMERAS_MAIN]->GetViewMatrix();
+	view = mCamera[mCurrentCamera]->GetViewMatrix();
 }
 
 void Graphics::GetInverseViewMatrix( DirectX::XMMATRIX &inverseViewMatrix )
 {
-	inverseViewMatrix = mCamera[CAMERAS_MAIN]->GetInverseViewMatrix();
+	inverseViewMatrix = mCamera[mCurrentCamera]->GetInverseViewMatrix();
 }
 
 void Graphics::GetProjectionMatrix( DirectX::XMMATRIX &proj )
 {
-	proj = mCamera[CAMERAS_MAIN]->GetProjMatrix();
+	proj = mCamera[mCurrentCamera]->GetProjMatrix();
 }
 
 void Graphics::GetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatrix )
 {
-	projectionViewMatrix = mCamera[CAMERAS_MAIN]->GetInverseProjectionMatrix();
+	projectionViewMatrix = mCamera[mCurrentCamera]->GetInverseProjectionMatrix();
 }
 
 void Graphics::ChangeRasterizerState( RasterizerStates rasterState )
@@ -1550,14 +1642,11 @@ void Graphics::BeginScene()
 void Graphics::GbufferPass()
 {
 
-	if( mIsDeveloperCameraActive )
-		mCamera[CAMERAS_DEV]->Update();
-	else
-		mCamera[CAMERAS_MAIN]->Update();
+	mCamera[mCurrentCamera]->Update();
 
 	mCamera[CAMERAS_SHADOWMAP]->Update();
 
-	static float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	static float clearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	for( int i = 0; i < NUM_GBUFFERS; i++ )
 		mDeviceContext->ClearRenderTargetView( mGbuffers[i]->mRenderTargetView, clearColor );
 	mDeviceContext->ClearDepthStencilView( mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
@@ -1576,18 +1665,10 @@ void Graphics::GbufferPass()
 	//Map CbufferPerFrame
 	CbufferPerFrame data;
 
-	if( mIsDeveloperCameraActive )
-	{
-		data.viewMatrix			= mCamera[CAMERAS_DEV]->GetViewMatrix();
-		data.projectionMatrix	= mCamera[CAMERAS_DEV]->GetProjMatrix();
-		data.cameraPosition		= mCamera[CAMERAS_DEV]->GetPos();
-	}
-	else
-	{
-		data.viewMatrix			= mCamera[CAMERAS_MAIN]->GetViewMatrix();
-		data.projectionMatrix	= mCamera[CAMERAS_MAIN]->GetProjMatrix();
-		data.cameraPosition		= mCamera[CAMERAS_MAIN]->GetPos();
-	}
+
+	data.viewMatrix			= mCamera[mCurrentCamera]->GetViewMatrix();
+	data.projectionMatrix	= mCamera[mCurrentCamera]->GetProjMatrix();
+	data.cameraPosition		= mCamera[mCurrentCamera]->GetPos();
 	
 	data.numPointLights = mNumPointLights;
 	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_FRAME], &data, sizeof( CbufferPerFrame ) );
@@ -1690,6 +1771,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 	mScreenWidth	= screenWidth;
 	mScreenHeight	= screenHeight;
 	mFullscreen		= fullscreen;
+	mCurrentCamera	= CAMERAS_MAIN;
 
 	HRESULT hr		= E_FAIL;
 

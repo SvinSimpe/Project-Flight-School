@@ -3307,6 +3307,69 @@ class Event_Server_Change_Buff_State : public IEvent
 		}
 };
 
+// Event sent from Enemy Behavior to server to broadcast attack
+class Event_Tell_Server_Enemy_Attack_Player : public IEvent
+{
+	private:
+		UINT	mID;
+		UINT	mPlayerID;
+		float	mDamage;
+	
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Tell_Server_Enemy_Attack_Player()
+		{
+			mID			= (UINT)-1;
+			mPlayerID	= (UINT)-1;
+			mDamage		= -1.0f;
+		}
+		Event_Tell_Server_Enemy_Attack_Player( UINT id, UINT playerID, float damage )
+		{
+			mID			= id;
+			mPlayerID	= playerID;
+			mDamage		= damage;
+		}
+		~Event_Tell_Server_Enemy_Attack_Player() {}	
+				const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mPlayerID << " ";
+			out << mDamage << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mPlayerID;
+			in >> mDamage;
+		}
+
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Tell_Server_Enemy_Attack_Player( mID, mPlayerID, mDamage ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT PlayerID() const
+		{
+			return mPlayerID;
+		}		
+		float Damage() const
+		{
+			return mDamage;
+		}
+};
+
 class Event_Remote_Win : public IEvent
 {
 	private:
@@ -3419,6 +3482,7 @@ class Event_Client_Update_Ship : public IEvent
 			mDamage	= damage;
 		}
 		~Event_Client_Update_Ship() {}
+
 		const EventType& GetEventType() const
 		{
 			return GUID;
@@ -3433,6 +3497,7 @@ class Event_Client_Update_Ship : public IEvent
 			in >> mID;
 			in >> mDamage;
 		}
+		
 		IEventPtr Copy() const
 		{
 			return IEventPtr( new Event_Client_Update_Ship( mID, mDamage ) );
@@ -3586,5 +3651,305 @@ class Event_Client_Change_Ship_Levels : public IEvent
 		{
 			return mBuffLevelChange;
 		}
+};
+
+class Event_Server_Change_Ship_Levels : public IEvent
+{
+	private:
+		UINT mID;
+		int mTurretLevel;
+		int mShieldLevel;
+		int mBuffLevel;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Change_Ship_Levels()
+		{
+			mID				= (UINT)-1;
+			mTurretLevel	= 0;
+			mShieldLevel	= 0;
+			mBuffLevel		= 0;
+		}
+		Event_Server_Change_Ship_Levels( UINT id, int turretLevel, int shieldLevel, int buffLevel )
+		{
+			mID				= id;
+			mTurretLevel	= turretLevel;
+			mShieldLevel	= shieldLevel;
+			mBuffLevel		= buffLevel;
+		}
+		~Event_Server_Change_Ship_Levels() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mTurretLevel << " ";
+			out << mShieldLevel << " ";
+			out << mBuffLevel << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mTurretLevel;
+			in >> mShieldLevel;
+			in >> mBuffLevel;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Change_Ship_Levels( mID, mTurretLevel, mShieldLevel, mBuffLevel ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		int TurretLevelChange() const
+		{
+			return mTurretLevel;
+		}
+		int ShieldLevelChange() const
+		{
+			return mShieldLevel;
+		}
+		int BuffLevelChange() const
+		{
+			return mBuffLevel;
+		}
+};
+
+class Event_Upgrade_Player : public IEvent
+{
+	private:
+		int mSpeed;
+		int mHealth;
+		int mMelee;
+		int mRange;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Upgrade_Player()
+		{
+			mSpeed	= 0;
+			mHealth	= 0;
+			mMelee	= 0;
+			mRange	= 0;
+		}
+		Event_Upgrade_Player( int speed, int health, int melee, int range )
+		{
+			mSpeed	= speed;
+			mHealth	= health;
+			mMelee	= melee;
+			mRange	= range;
+		}
+		~Event_Upgrade_Player() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mSpeed << " ";
+			out << mHealth << " ";
+			out << mMelee << " ";
+			out << mRange << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mSpeed;
+			in >> mHealth;
+			in >> mMelee;
+			in >> mRange;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Upgrade_Player( mSpeed, mHealth, mMelee, mRange ) );
+		}
+		int Speed() const
+		{
+			return mSpeed;
+		}
+		int Health() const
+		{
+			return mHealth;
+		}
+		int Melee() const
+		{
+			return mMelee;
+		}
+		int Range() const
+		{
+			return mRange;
+		}
+};
+
+class Event_Request_Player_Spawn_Position : public IEvent
+{
+	private:
+		UINT mPlayerID;
+		UINT mTeamID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Request_Player_Spawn_Position()
+		{
+			mPlayerID		= (UINT)-1;
+			mTeamID			= (UINT)-1;
+		}
+		Event_Request_Player_Spawn_Position( UINT playerID, UINT teamID )
+		{
+			mPlayerID	= playerID;
+			mTeamID		= teamID;
+		}
+		~Event_Request_Player_Spawn_Position() {}
+
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mPlayerID	 << " ";
+			out << mTeamID		 << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mPlayerID;
+			in >> mTeamID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Request_Player_Spawn_Position( mPlayerID, mTeamID ) );
+		}
+		UINT PlayerID() const
+		{
+			return mPlayerID;
+		}
+		int TeamID() const
+		{
+			return mTeamID;
+		}
+};
+
+class Event_New_Player_Spawn_Position : public IEvent
+{
+	private:
+		UINT		mPlayerID;
+		XMFLOAT2	mSpawnPosition;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_New_Player_Spawn_Position()
+		{
+			mPlayerID		= (UINT)-1;
+			mSpawnPosition	= XMFLOAT2( 0.0f ,0.0f );
+		}
+		Event_New_Player_Spawn_Position( UINT playerID, XMFLOAT2 spawnPosition )
+		{
+			mPlayerID		= playerID;
+			mSpawnPosition	= spawnPosition;
+		}
+		~Event_New_Player_Spawn_Position() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mPlayerID	 << " ";
+			out << mSpawnPosition.x	 << " ";
+			out << mSpawnPosition.y	 << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mPlayerID;
+			in >> mSpawnPosition.x;
+			in >> mSpawnPosition.y;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_New_Player_Spawn_Position( mPlayerID, mSpawnPosition ) );
+		}
+		UINT PlayerID() const
+		{
+			return mPlayerID;
+		}
+		XMFLOAT2 SpawnPosition() const
+		{
+			return mSpawnPosition;
+		}
+};
+
+class Event_Server_XP : public IEvent
+{
+	private:
+		UINT		mPlayerID;
+		int			mXP;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_XP()
+		{
+			mPlayerID	= (UINT)-1;
+			mXP			= 0;
+		}
+		Event_Server_XP( UINT playerID, int XP )
+		{
+			mPlayerID	= playerID;
+			mXP			= XP;
+		}
+		~Event_Server_XP() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mPlayerID	 << " ";
+			out << mXP			 << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mPlayerID;
+			in >> mXP;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_XP( mPlayerID, mXP ) );
+		}
+		UINT PlayerID() const
+		{
+			return mPlayerID;
+		}
+		int XP() const
+		{
+			return mXP;
+		}
+
 };
 #endif

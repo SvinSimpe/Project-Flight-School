@@ -6,6 +6,7 @@
 #include "Font.h"
 #include "HealthBars.h"
 #include "UpgradeShipWindow.h"
+#include "UpgradePlayerWindow.h"
 
 #define MAX_REMOTE_PLAYERS 14
 
@@ -41,9 +42,10 @@ struct GuiUpdate
 	//------------------------------
 
 	//Player update info
-	float mPlayerHP;
-	float mPlayerShield;
-	float mPlayerXP;
+	float	mPlayerHP;
+	float	mPlayerShield;
+	float	mPlayerXP;
+	int		mLevel;
 	//------------------------------
 };
 
@@ -53,7 +55,8 @@ class Gui
 		UINT		mNrOfRemotePlayer;
 
 		Radar*				mRadar;
-		UpgradeShipWindow	mWindow;
+		UpgradeShipWindow	mShipWindow;
+		UpgradePlayerWindow	mPlayerWindow;
 
 		HealthBar*	mHealtBar;
 
@@ -65,7 +68,7 @@ class Gui
 		int			mPlayerXP;
 		int			mPlayerShield;
 
-		float		mExperience;
+		int			mExperience;
 
 		AssetID		mPlayerBar;
 		XMFLOAT2	mPlayerHealthXPTopLeftCorner;
@@ -74,22 +77,26 @@ class Gui
 		AssetID		mLevelUp;
 		XMFLOAT2	mSizeLevelUp;
 		XMFLOAT2	mTopLeftCompWithPlayerHealthXP;
-
 		
-
 	protected:
 	public:
 
 	private:
 	protected:
 	public:
-
+		void	ActivateUpgradeShipWindow();
+		void	DeActivateUpgradeShipWindow();
+		void	ActivateUpgradePlayerWindow();
+		void	DeActivateUpgradePlayerWindow();
 		HRESULT	Update( GuiUpdate guiUpdate );
 		HRESULT	Render();
 		HRESULT	Initialize();
 		void	Release();
 				Gui();
 				~Gui();
+
+		bool	UpgradeShipWindowIsActive();
+		bool	UpgradePlayerWindowIsActive();
 };
 
 

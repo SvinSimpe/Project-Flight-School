@@ -9,6 +9,7 @@
 #include "AnimationAsset.h"
 #include "Vertex.h"
 #include "ResourceLoader.h"
+#include "BoxGenerator.h"
 #include <vector>
 #include <fstream>
 #include <iostream>
@@ -18,8 +19,11 @@
 #define DIFFUSE_PLACEHOLDER		2
 #define SPECULAR_PLACEHOLDER	3
 #define NORMAL_PLACEHOLDER		4
+#define MUD_BLENDMAP			5
+#define GRASS_BLENDMAP			6
+#define SAND_BLENDMAP			7
 
-#define NUM_PLACEHOLDER_ASSETS	5
+#define NUM_PLACEHOLDER_ASSETS	8
 
 struct MeshInfo
 {
@@ -45,6 +49,7 @@ class AssetManager
 {
 	private:
 		AssetID mAssetIdCounter;
+		BoxGenerator BoxGen;
 		ResourceLoader* mResourceLoader;
 	protected:
 	public:

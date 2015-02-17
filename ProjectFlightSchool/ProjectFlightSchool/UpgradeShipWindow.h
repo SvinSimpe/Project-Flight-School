@@ -3,6 +3,8 @@
 
 #include "Button.h"
 #include "RenderManager.h"
+#include "Events.h"
+#include "EventManager.h"
 
 #define	MAX_NR_OF_UPGRADES 3
 
@@ -52,6 +54,7 @@ struct ButtonStruct
 class UpgradeShipWindow
 {
 private:
+	int				mTeam;
 	bool			mIsActive;
 	AssetID			mUpgradeWindow;
 	XMFLOAT2		mTopLeftCorner;
@@ -68,6 +71,7 @@ private:
 	void	HandleInput();
 protected:
 public:
+	void	EventListener( IEventPtr eventPtr );
 	void	Activate();
 	void	DeActivate();
 	void	Update( float deltaTime );
@@ -77,8 +81,7 @@ public:
 	UpgradeShipWindow();
 	~UpgradeShipWindow();
 
-	bool	IsActive();
-
+	bool	IsActive() const;
 };
 
 #endif // !UPGRADESHIPWINDOW_H

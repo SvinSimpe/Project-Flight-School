@@ -1,27 +1,43 @@
+
 #ifndef SERVER_H
 #define SERVER_H
 
 #include "Network.h"
 #include "ServerShip.h"
-#include "Enemy.h"
 #include "EnemySpawn.h"
 #include "RemotePlayer.h"
 #include <vector>
 #include <stdlib.h>
 #include <time.h>
+#pragma once
+
+class Enemy;
 
 class Server : public Network
 {
 	private:
-		struct ClientNEF
+		#pragma region Friends
+		friend class		IEnemyBehavior; 
+		friend class		IdleBehavior;
+		friend class		HuntPlayerBehavior;
+		friend class		MoveToShipBehavior; 
+		friend class		AttackBehavior;
+		friend class		TakeDamageBehavior;
+		friend class		StunnedBehavior;
+		friend class		DeadBehavior;
+		#pragma endregion
+
+		struct ClientNEF // Server player
 		{
 			NetworkEventForwarder	NEF;
+			UINT					ID;
 			UINT					TeamID;
 			XMFLOAT3				Pos = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			bool					IsBuffed = false;
 			bool					IsAlive = false;
 			bool					IsDown = false;
 		};
+
 		struct ServerEvent
 		{
 			IEventPtr EventPtr;
@@ -38,16 +54,17 @@ class Server : public Network
 
 		SocketManager*				mSocketManager;
 		std::map<UINT, ClientNEF*>	mClientMap;
-		UINT						mTeamDelegate;
 		UINT						mCurrentPID;
 		bool						mActive;
 		std::vector<ServerShip*>	mShips;
 		std::list<ServerEvent>		mEventList;
 
 		// Game Logic
+		ServerPlayer**				mPlayers;
+		UINT						mTeamDelegate;
 		Enemy**						mEnemies;
 		EnemySpawn**				mSpawners;
-		BoundingCircle*				mAggroCircle;
+		
 		UINT						mNrOfPlayers;
 		UINT						mNrOfEnemiesSpawned;
 		UINT						mNrOfProjectilesFired;
@@ -73,7 +90,9 @@ class Server : public Network
 		void	ClientShipProjectileDamage( IEventPtr eventPtr );
 		void	ClientEnemyProjectileDamage( IEventPtr eventPtr );
 		void	SetEnemyState( IEventPtr eventPtr );
+		void	BroadcastEnemyAttackToClients( IEventPtr eventPtr );
 		void	ClientWinLose( IEventPtr eventPtr );
+		void	ClientChangeShipLevels( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 		void	DoSelect( int pauseMicroSecs, bool handleInput = true );
@@ -84,7 +103,6 @@ class Server : public Network
 		void	CreateShips();
 		bool	CheckShipBuff( ServerShip* ship, XMFLOAT3 pos );
 
-		void		StateCheck();
 		XMFLOAT3	GetNextSpawn();
 
 	protected:

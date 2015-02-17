@@ -15,7 +15,7 @@ class Map
 {
 	private:
 		MapSection *mMapSection;
-		MapNodeInstance* mNodes[MAX_NODES];
+		MapNodeInstance*** mBuildMap;
 		float mVertexSpacing;
 		UINT mNrOfNodes;
 		UINT mMapId;
@@ -41,6 +41,9 @@ class Map
 		UINT GetMapHalfHeight() const;
 
 		UINT GetNrOfNodes() const;
+
+		MapNodeInstance*** GetNodeMap() const;
+		MapNodeInstance* GetNodeInstance( int x, int z );
 
 		HRESULT Initialize( UINT mapDim );
 		void Release();

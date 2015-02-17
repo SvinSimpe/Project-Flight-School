@@ -71,9 +71,9 @@ class Navmesh
 {
 	private:
 		Path*	mPath;
-		//NavTriangle* mNavTri;
 		Portal* mPortals;
-		DirectX::XMFLOAT3* mMesh;		
+		DirectX::XMFLOAT3* mMesh;	
+
 		UINT mNavTriangleCount;
 		UINT mMaxPathLength;
 

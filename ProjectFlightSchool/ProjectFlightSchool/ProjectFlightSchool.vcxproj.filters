@@ -78,7 +78,7 @@
     </Filter>
     <Filter Include="Worldmap\Navigation">
       <UniqueIdentifier>{9139bafa-aede-4c3d-9f90-4bbf22ed172a}</UniqueIdentifier>
-	</Filter>
+    </Filter>
     <Filter Include="GUI">
       <UniqueIdentifier>{36818f75-79e9-4d4e-b2c5-7d440fa0dbab}</UniqueIdentifier>
     </Filter>
@@ -87,6 +87,15 @@
     </Filter>
     <Filter Include="GUI\Source">
       <UniqueIdentifier>{60fa09e6-ee95-426a-90da-62315c9525d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Enemy">
+      <UniqueIdentifier>{24f52cce-4226-4087-a7b9-23974058879a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Enemy\Header Files">
+      <UniqueIdentifier>{7917f9ff-2ac5-4b5b-a9c1-b15967f60e8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Enemy\Source Files">
+      <UniqueIdentifier>{b0dd3b13-a57d-4caa-bf01-3b5fa2a82752}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -195,9 +204,6 @@
     <ClCompile Include="InputSquare.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Enemy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Turret.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -221,15 +227,6 @@
     </ClCompile>
     <ClCompile Include="tinyxmlparser.cpp">
       <Filter>TinyXML\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EnemySpawn.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RemoteEnemy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EnemyAnimationManager.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Radar.cpp">
       <Filter>Source Files</Filter>
@@ -273,17 +270,47 @@
     <ClCompile Include="HealthBars.cpp">
       <Filter>GUI\Source</Filter>
     </ClCompile>
-    <ClCompile Include="ClientShip.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ServerShip.cpp">
       <Filter>Network\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UpgradeShipWindow.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MovingButton.cpp">
       <Filter>GUI\Source</Filter>
     </ClCompile>
+    <ClCompile Include="RemoteEnemy.cpp">
+      <Filter>Enemy\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy.cpp">
+      <Filter>Enemy\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyBehavior.cpp">
+      <Filter>Enemy\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyAnimationManager.cpp">
+      <Filter>Enemy\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemySpawn.cpp">
+      <Filter>Enemy\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientShip.cpp">
+      <Filter>Network\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientTurret.cpp">
+      <Filter>Network\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerTurret.cpp">
+      <Filter>Network\Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="UpgradeShipWindow.cpp">
       <Filter>GUI\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="UpgradePlayerWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeGraph.cpp">
+      <Filter>Worldmap\Navigation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -395,9 +422,6 @@
     <ClInclude Include="InputSquare.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Enemy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Turret.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -424,15 +448,6 @@
     </ClInclude>
     <ClInclude Include="NodeTypes.h">
       <Filter>Worldmap\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemySpawn.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RemoteEnemy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyAnimationManager.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Radar.h">
       <Filter>Header Files</Filter>
@@ -482,17 +497,44 @@
     <ClInclude Include="HealthBars.h">
       <Filter>GUI\Header</Filter>
     </ClInclude>
-    <ClInclude Include="ClientShip.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ServerShip.h">
       <Filter>Network\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UpgradeShipWindow.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MovingButton.h">
       <Filter>GUI\Header</Filter>
     </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>Enemy\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RemoteEnemy.h">
+      <Filter>Enemy\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyAnimationManager.h">
+      <Filter>Enemy\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemySpawn.h">
+      <Filter>Enemy\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientTurret.h">
+      <Filter>Network\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientShip.h">
+      <Filter>Network\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerTurret.h">
+      <Filter>Network\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UpgradePlayerWindow.h">
+      <Filter>GUI\Header</Filter>
+    </ClInclude>
     <ClInclude Include="UpgradeShipWindow.h">
       <Filter>GUI\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeGraph.h">
+      <Filter>Worldmap\Navigation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -167,9 +167,9 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device, ID3D11DeviceConte
 
 
 
-	ID3D11ShaderResourceView* srv[3];
-	ID3D10Texture2D* tex[3];
-	for( int i = 0; i < 3; i++ )
+	ID3D11ShaderResourceView* srv[6];
+	ID3D10Texture2D* tex[6];
+	for( int i = 0; i < 6; i++ )
 	{
 		srv[i] = nullptr;
 		tex[i] = nullptr;
@@ -196,29 +196,72 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device, ID3D11DeviceConte
 		return hr;
 	}
 
+	hr = mResourceLoader->LoadResource( device, dc, "../Content/Assets/Textures/BlendMaps/R_blendMud.dds", (ID3D11Resource**)tex[3], &srv[3] );
+	if( FAILED( hr ) )
+	{	
+		//Failed to create the mud blend map
+		return hr;
+	}
+
+	hr = mResourceLoader->LoadResource( device, dc, "../Content/Assets/Textures/BlendMaps/G_blendGrass.dds", (ID3D11Resource**)tex[4], &srv[4] );
+	if( FAILED( hr ) )
+	{	
+		//Failed to create the grass blend map
+		return hr;
+	}
+
+	hr = mResourceLoader->LoadResource( device, dc, "../Content/Assets/Textures/BlendMaps/B_blendSand.dds", (ID3D11Resource**)tex[5], &srv[5] );
+	if( FAILED( hr ) )
+	{	
+		//Failed to create the normal placeholder SRV
+		return hr;
+	}
+
 	Static2dAsset* diffuseTexture;
 	diffuseTexture				= new Static2dAsset;
-	diffuseTexture->mAssetId	= 2;
+	diffuseTexture->mAssetId	= DIFFUSE_PLACEHOLDER;
 	diffuseTexture->mFileName	= "PLACEHOLDER DIFFUSE";
 	diffuseTexture->mSRV		= srv[0];
 
-	mAssetContainer[2] = diffuseTexture;
+	mAssetContainer[DIFFUSE_PLACEHOLDER] = diffuseTexture;
 
 	Static2dAsset* specularTexture;
 	specularTexture				= new Static2dAsset;
-	specularTexture->mAssetId	= 3;
+	specularTexture->mAssetId	= SPECULAR_PLACEHOLDER;
 	specularTexture->mFileName	= "PLACEHOLDER SPECULAR";
 	specularTexture->mSRV		= srv[1];
 
-	mAssetContainer[3] = specularTexture;
+	mAssetContainer[SPECULAR_PLACEHOLDER] = specularTexture;
 
 	Static2dAsset* normalTexture;
 	normalTexture				= new Static2dAsset;
-	normalTexture->mAssetId		= 4;
+	normalTexture->mAssetId		= NORMAL_PLACEHOLDER;
 	normalTexture->mFileName	= "PLACEHOLDER NORMAL";
 	normalTexture->mSRV			= srv[2];
 
-	mAssetContainer[4] = normalTexture;
+	mAssetContainer[NORMAL_PLACEHOLDER] = normalTexture;
+
+	Static2dAsset* blendTexture;
+	blendTexture				= new Static2dAsset;
+	blendTexture->mAssetId		= MUD_BLENDMAP;
+	blendTexture->mFileName		= "BLEND MUD";
+	blendTexture->mSRV			= srv[3];
+
+	mAssetContainer[MUD_BLENDMAP] = blendTexture;
+
+	blendTexture				= new Static2dAsset;
+	blendTexture->mAssetId		= GRASS_BLENDMAP;
+	blendTexture->mFileName		= "BLEND GRASS";
+	blendTexture->mSRV			= srv[4];
+
+	mAssetContainer[GRASS_BLENDMAP] = blendTexture;
+
+	blendTexture				= new Static2dAsset;
+	blendTexture->mAssetId		= SAND_BLENDMAP;
+	blendTexture->mFileName		= "BLEND SAND";
+	blendTexture->mSRV			= srv[5];
+
+	mAssetContainer[SAND_BLENDMAP] = blendTexture;
 
 	return hr;
 }
@@ -355,11 +398,17 @@ HRESULT AssetManager::LoadStatic2dAsset( ID3D11Device* device, ID3D11DeviceConte
 	{	 
 		ID3D11ShaderResourceView* srv = nullptr;
 		ID3D11Texture2D* texture = nullptr;
-		AssignAssetId( assetId );
 
 		hr = mResourceLoader->LoadResource( device, dc, fileName, (ID3D11Resource**)texture, &srv );
-		if(FAILED ( hr ) ) return hr;
+		if( FAILED ( hr ) )
+		{	
+			assetId = DIFFUSE_PLACEHOLDER;
+			OutputDebugStringA( "Texture failed to load!\n" );
+			return hr;
+		}
 		
+		AssignAssetId( assetId );
+
 		Static2dAsset* temp;
 		temp				= new Static2dAsset();
 		temp->mAssetId		= assetId;
@@ -416,12 +465,29 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceConte
 		}
 
 		myFile.close();
+		////////////////TA kod
+		////////////////Creates boxes and octrees around static assets and saves it into Static3DAsset struct, 
+		////////////////Creating too many levels will cause the loading times to go through the roof
+		vector<StaticVertex> vertexInput;
+		for( UINT i = 0; i < nrOfMeshes; i++ )
+		{
+			for( UINT j = 0; j < meshInfo[i].nrOfVertices; j++ )
+				vertexInput.push_back( vertices[i][j] );
+		}
+		AABB meshAABB;
+		meshAABB  = BoxGen.CreateAABBFromVerts( &vertexInput );
+		OctTree* meshOct = new OctTree();
+		BoxGen.GenerateOctTree( &vertexInput, &meshAABB, 4, 0, meshOct);
+
+		////////////////
 
 		AssignAssetId( assetId );
 		Static3dAsset* temp;
 		temp				= new Static3dAsset();
 		temp->mAssetId		= assetId;
 		temp->mFileName		= fileName;
+		temp->mAssetAABB	= meshAABB;
+		temp->mOctTree		= meshOct;
 		
 		mAssetContainer.push_back( temp );
 

@@ -20,6 +20,7 @@ struct MapNodeInfo
 		UINT			nodeDim;
 		GameObject*		staticAssets;
 		UINT			staticAssetCount;
+		AssetID			blendMap;
 		std::string		name;
 };
 
@@ -42,6 +43,7 @@ class MapNode
 		UINT			mNodeDim;
 		GameObject*		mStaticAssets;
 		UINT			mStaticAssetCount;
+		AssetID			mBlendMap;
 
 		MapNodeInstance mInstances[INSTANCE_COUNT];
 

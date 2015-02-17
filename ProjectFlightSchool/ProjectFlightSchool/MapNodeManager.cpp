@@ -99,7 +99,8 @@ MapNode* MapNodeManager::CreateNode( const char* fileName )
 
 
 	//--------------------------Read gridData-------------------------------------------
-
+	char blendFile[32];
+	inFile.read( (char*)&blendFile, sizeof( char ) * 32 );
 	inFile.read( (char*)&initInfo.gridWidth, sizeof( UINT ) );
 	inFile.read( (char*)&initInfo.gridHeight, sizeof( UINT ) );
 	inFile.read( (char*)&initInfo.vertexCount, sizeof( UINT ) );
@@ -111,6 +112,12 @@ MapNode* MapNodeManager::CreateNode( const char* fileName )
 
 	//--------------------------Read gridData-------------------------------------------
 
+	//-------------------------------Load blendMap--------------------------------------
+
+	std::string folder	= "../Content/Assets/Nodes/BlendMaps/";
+	Graphics::GetInstance()->LoadStatic2dAsset( folder + blendFile, initInfo.blendMap ); 
+
+	//-------------------------------Load blendMap-------------------------------------
 
 	//--------------------------Read actual gridObject ---------------------------------
 

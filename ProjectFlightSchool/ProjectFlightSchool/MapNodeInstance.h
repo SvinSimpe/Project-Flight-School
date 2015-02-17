@@ -16,6 +16,8 @@ public:
 
 	private:
 		int mInstanceID;
+		int mNodeID;
+
 		MapNode* mNode;
 
 		DirectX::XMFLOAT3 mPos;
@@ -23,6 +25,7 @@ public:
 		DirectX::XMFLOAT4X4 mWorld;
 
 		Navmesh* mNavMesh;
+		std::vector<DirectX::XMFLOAT3*> mEdgePoints;
 
 		UINT		 mNavTriangleCount;
 
@@ -42,6 +45,9 @@ public:
 		DirectX::XMFLOAT3	GetPos() const;
 		void				SetPos( DirectX::XMFLOAT3 pos );
 
+		void				SetNodeID( int ID );
+		int					GetNodeID() const;
+
 		void				SetInstanceID( int ID );
 		int					GetInstanceID() const;
 
@@ -52,6 +58,8 @@ public:
 		
 		MapNode*			GetMapNode() const;
 		void				SetMapNode( MapNode* mapNode );
+
+		BoundingRectangle			GetBoundingBox();
 
 		NavTriangle*		IsOnNavMesh( DirectX::XMFLOAT3 pos ) const;			
 

@@ -9,11 +9,21 @@
 
 #define VELOCITY_FALLOFF 2.0f
 class Map;
+
+struct Upgrades
+{
+	int melee				= 1;
+	int range				= 1;
+	int legs				= 1;
+	int body				= 1;
+};
+
 class Player: public RemotePlayer
 {
 	private:
 		float			mEventCapTimer;
 		PointLight*		mPointLight;
+		Upgrades		mUpgrades;
 
 		float		mWeaponCoolDown;
 		float		mMeleeCoolDown;
@@ -22,6 +32,9 @@ class Player: public RemotePlayer
 		bool		mHasMeleeStarted;
 		bool		mLock;
 		bool		mCloseToPlayer;
+		int			mXP;
+		int			mNextLevelXP;
+		int			mCurrentUpgrades;
 
 		float		mMaxVelocity;
 		float		mCurrentVelocity;
@@ -63,14 +76,18 @@ class Player: public RemotePlayer
 		void		Fire();
 		void		FireShotgun( XMFLOAT3* spawnPoint );
 		void		AddImpuls( XMFLOAT3 impuls );
-		void		Lock();
-		void		UnLock();
+		void		UpgradeBody();
+		void		UpgradeLegs();
+		void		UpgradeMelee();
+		void		UpgradeRange();
 
 	protected:
 	public:
 		HRESULT		UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers );
 		void		TakeDamage( float damage, unsigned int shooter );
 		void		HandleRevive( float deltaTime );
+		void		Lock();
+		void		UnLock();
 		
 		void		Reset();	
 		HRESULT		Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers );
@@ -84,6 +101,8 @@ class Player: public RemotePlayer
 		bool		GetIsMeleeing()	const;
 		XMFLOAT3	GetPlayerPosition() const;
 		XMFLOAT3	GetUpperBodyDirection() const;
+		float		GetXPToNext() const;
+		int			Upgradable() const;
 		void		SetIsMeleeing( bool isMeleeing );
 		void		SetID( unsigned int id );
 		void		SetTeam( int team );

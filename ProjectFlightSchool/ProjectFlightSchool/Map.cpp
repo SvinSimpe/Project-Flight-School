@@ -15,7 +15,7 @@ HRESULT Map::Render( float deltaTime, Player* player )
 	{
 		for( int z = playerZ - 1; z < playerZ + 2; z++ )
 		{
-			MapNodeInstance* temp = MapNodePlacer::GetInstance()->GetNodeInstance( x, z );
+			MapNodeInstance* temp = GetNodeInstance( x, z );
 			if( temp && std::find( mapNodes.begin(), mapNodes.end(), temp ) == mapNodes.end() )
 			{
 				mapNodes.push_back( temp );
@@ -47,7 +47,7 @@ void Map::OnLoadLevel( IEventPtr pEvent )
 
 		MapNodePlacer::GetInstance()->Reset();
 
-		MapNodePlacer::GetInstance()->BuildMap( mNodes );
+		MapNodePlacer::GetInstance()->BuildMap( mBuildMap );
 
 		if( mMapSection )
 		{
@@ -65,7 +65,7 @@ std::vector<DirectX::XMFLOAT2> Map::GetPath( XMFLOAT3 start, XMFLOAT3 goal )
 	int startX = (int)( (GetMapHalfWidth() * NODE_DIM )  + start.x ) / NODE_DIM;
 	int startZ = (int)( (GetMapHalfHeight() * NODE_DIM )  + start.z ) / NODE_DIM;
 
-	MapNodeInstance* temp = MapNodePlacer::GetInstance()->GetNodeInstance( startX, startZ );
+	MapNodeInstance* temp = GetNodeInstance( startX, startZ );
 
 	if( temp )
 	{
@@ -101,6 +101,23 @@ UINT Map::GetNrOfNodes() const
 {
 	return mNrOfNodes;
 }
+
+MapNodeInstance*** Map::GetNodeMap() const
+{
+	return mBuildMap;
+}
+
+MapNodeInstance* Map::GetNodeInstance( int x, int z )
+{
+	MapNodeInstance* result = nullptr;
+	if( ( x < (int)mMapDim && 0 <= x ) &&
+		( z < (int)mMapDim && 0 <= z ) )
+	{
+		result = mBuildMap[x][z];
+	}
+	return result;
+}
+
 HRESULT Map::Initialize( UINT mapDim )
 {
 	//Map size is mapDim* mapDim

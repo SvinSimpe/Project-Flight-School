@@ -8,7 +8,6 @@
 #include "Font.h"
 #include "RemotePlayer.h"
 
-
 class Enemy;
 
 #define MAX_NR_OF_ENEMIES		20

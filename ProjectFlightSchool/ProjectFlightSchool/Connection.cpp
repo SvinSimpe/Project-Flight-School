@@ -180,7 +180,6 @@ bool NetSocket::HandleInput()
 			mRecvBegin = 0;
 		}
 	}
-	SetBlocking( true );
 	return pktReceived;
 }
 
@@ -231,7 +230,6 @@ NetSocket::NetSocket( SocketManager* socketManager, SOCKET socket, UINT ip )
 	mSocket			= socket;
 	mIPAddr			= ip;
 	mInternal		= mSocketManager->IsInternal(mIPAddr);
-	setsockopt( mSocket, SOL_SOCKET, SO_DONTLINGER, nullptr, 0 );
 }
 
 NetSocket::~NetSocket()
@@ -288,7 +286,7 @@ void NetListenSocket::InitScan( int portNum_min, int portNum_max )
 	}
 
 	SetBlocking( false );
-	if( listen( mSocket, SOMAXCONN ) == SOCKET_ERROR )
+	if( listen( mSocket, 8 ) == SOCKET_ERROR )
 	{
 		closesocket( mSocket );
 		mSocket = INVALID_SOCKET;
@@ -351,7 +349,7 @@ void NetListenSocket::Initialize( int portNum )
 	}
 
 	SetBlocking( false );
-	if( listen( mSocket, SOMAXCONN ) == SOCKET_ERROR )
+	if( listen( mSocket, 256 ) == SOCKET_ERROR )
 	{
 		closesocket( mSocket );
 		mSocket = INVALID_SOCKET;
@@ -388,7 +386,7 @@ bool ServerListenSocket::HandleInput()
 	int value = 1;
 	try
 	{
-		throw setsockopt( newSocket, IPPROTO_TCP, SO_DONTLINGER, (char*)value, sizeof( value ) );
+		throw setsockopt( newSocket, SOL_SOCKET, SO_DONTLINGER, (char*)value, sizeof( value ) );
 	}
 	catch( int e )
 	{
@@ -835,7 +833,8 @@ void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 
 	std::shared_ptr<BinaryPacket> msg(PFS_NEW BinaryPacket( out.str().c_str(), (u_long)out.str().length()));
 
-	mSocketManager->Send( mSocketID, msg );
+	if( this )
+		mSocketManager->Send( mSocketID, msg );
 }
 
 void NetworkEventForwarder::Initialize( UINT socketID, SocketManager* sm )

@@ -18,7 +18,8 @@ struct BillboardInstanced
 struct ParticleVertex16
 {
 	float position[3];
-	float lifeTime;
+	float age;
+	float timeTillDeath;
 };
 
 struct Vertex24

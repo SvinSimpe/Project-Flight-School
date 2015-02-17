@@ -159,7 +159,8 @@ void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, i
 				info.mWorldPosition.y	= particleSystem[i][j]->yPosition[k];
 				info.mWorldPosition.z	= particleSystem[i][j]->zPosition[k];
 
-				info.mLifeTime			= particleSystem[i][j]->lifeTime[k];
+				info.mAge				= particleSystem[i][j]->lifeTime[k];
+				info.mTimeTillDeath		= particleSystem[i][j]->deathTime[k] - particleSystem[i][j]->lifeTime[k];
 
 				mParticleInfoArray[mNrOfParticles++] = info;
 			}

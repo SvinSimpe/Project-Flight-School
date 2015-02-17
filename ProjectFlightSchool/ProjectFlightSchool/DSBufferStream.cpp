@@ -1,12 +1,12 @@
 #include "DSBufferStream.h"
 
-void CALLBACK TimerProcess(UINT uTimerID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2)
+void CALLBACK TimerProcess( UINT uTimerID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2 )
 {
 	DSBufferStream* ptr = (DSBufferStream*)dwUser;
 	ptr->TimerCallBack();
 }
 
-void CALLBACK TimerProcessLoop(UINT uTimerID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2)
+void CALLBACK TimerProcessLoop( UINT uTimerID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2 )
 {
 	DSBufferStream* ptr = (DSBufferStream*)dwUser;
 	ptr->TimerCallBackLoop();
@@ -108,7 +108,7 @@ bool DSBufferStream::ReFillBuffer1Loop()
 	if ( count != mDataSize )
 	{
 		printf( "Wrapping wav file\n" );
-		fseek(mFileptr, sizeof(WaveHeaderType), SEEK_SET);
+		fseek( mFileptr, sizeof(WaveHeaderType), SEEK_SET );
 		unsigned char* waveData2 = new unsigned char[mDataSize - count];
 		fread( waveData2, 1, mDataSize - count, mFileptr );
 		for( int i = 0; i < mDataSize - count; i++ )
@@ -155,7 +155,7 @@ bool DSBufferStream::ReFillBuffer2Loop()
 	if ( count != mDataSize )
 	{
 		printf( "Wrapping wav file\n" );
-		fseek(mFileptr, sizeof(WaveHeaderType), SEEK_SET);
+		fseek( mFileptr, sizeof(WaveHeaderType), SEEK_SET );
 		unsigned char* waveData2 = new unsigned char[mDataSize - count];
 		fread( waveData2, 1, mDataSize - count, mFileptr );
 		for( int i = 0; i < mDataSize - count; i++ )

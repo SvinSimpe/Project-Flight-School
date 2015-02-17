@@ -35,7 +35,7 @@ class RemoteEnemy
 		void				SetLoopAnimation( bool loop );
 		void				SetEnemyType( EnemyType type );
 		void				SetModelID( AssetID model, AssetID defaultAnimation );
-		void				SetAnimation( AssetID animation );
+		void				SetAnimation( AssetID animation, bool blendWithCurrent = false );
 		void				SetPosition( XMFLOAT3 position );
 		void				SetDirection( XMFLOAT3 direction );
 		void				SetSynced( bool isSynced );

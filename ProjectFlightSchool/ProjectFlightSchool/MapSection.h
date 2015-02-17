@@ -12,7 +12,7 @@ class Map;
 class MapSection
 {
 	private:
-		BoundingBox mBoundingBox;
+		BoundingRectangle mBoundingBox;
 		MapSection* mParent;
 		MapSection*	mChildren[4];
 		std::vector<MapNodeInstance*> mInstances;
@@ -26,7 +26,7 @@ class MapSection
 		HRESULT Initialize( UINT sectionID,  float vertexSpacing, UINT mapDim );
 		HRESULT Initialize( Map* map, MapSection* parent, MapNodeInstance** mMapNodes, int childID );
 		bool	AddNodeToSection( MapNodeInstance* node );
-		bool	GetSectionContainingUnit( MapSection** container, int& sectionCount, BoundingBox* unit );
+		bool	GetSectionContainingUnit( MapSection** container, int& sectionCount, BoundingRectangle* unit );
 		int		GetSections();
 
 		void Release();

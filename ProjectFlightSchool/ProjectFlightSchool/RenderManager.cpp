@@ -159,7 +159,8 @@ void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, i
 				info.mWorldPosition.y	= particleSystem[i][j]->yPosition[k];
 				info.mWorldPosition.z	= particleSystem[i][j]->zPosition[k];
 
-				info.mLifeTime			= particleSystem[i][j]->lifeTime[k];
+				info.mAge				= particleSystem[i][j]->lifeTime[k];
+				info.mTimeTillDeath		= particleSystem[i][j]->deathTime[k] - particleSystem[i][j]->lifeTime[k];
 
 				mParticleInfoArray[mNrOfParticles++] = info;
 			}
@@ -186,6 +187,7 @@ void RenderManager::AnimationInitialize( AnimationTrack &animationTrack, AssetID
 	animationTrack.mNextAnimation			= defaultAnimation;
 	animationTrack.mNextAnimationTime		= 1.0f / 60.0f;
 	animationTrack.mInterpolation			= 0.0f;
+	animationTrack.mBlendWithCurrent		= false;
 }
 
 void RenderManager::AnimationUpdate( AnimationTrack &animationTrack, float deltaTime )
@@ -197,23 +199,38 @@ void RenderManager::AnimationUpdate( AnimationTrack &animationTrack, float delta
 		animationTrack.mInterpolation		-= deltaTime;
 		if( animationTrack.mInterpolation <= 0.0f )
 		{
-			animationTrack.mCurrentAnimation		= animationTrack.mNextAnimation;
-			animationTrack.mCurrentAnimationTime	= animationTrack.mNextAnimationTime;
+		/*	if( animationTrack.mBlendWithCurrent )
+				animationTrack.mBlendWithCurrent = false;
+			else
+			{*/
+				animationTrack.mCurrentAnimation		= animationTrack.mNextAnimation;
+				animationTrack.mCurrentAnimationTime	= animationTrack.mNextAnimationTime;
+			//}
 		}
 	}
 }
 
-void RenderManager::AnimationStartNew( AnimationTrack &animationTrack, AssetID newAnimation )
+void RenderManager::AnimationStartNew( AnimationTrack &animationTrack, AssetID newAnimation, bool blendWithCurrent )
 {
 	animationTrack.mNextAnimation		= newAnimation;
-	animationTrack.mNextAnimationTime	= 1.0f / 60.0f;
-	animationTrack.mInterpolation		= 0.2f;
+	animationTrack.mBlendWithCurrent	= blendWithCurrent;
+	if( blendWithCurrent )
+	{
+		animationTrack.mNextAnimationTime	= animationTrack.mCurrentAnimationTime;
+		animationTrack.mInterpolation		= 0.2f;
+	}
+	else
+	{
+		animationTrack.mNextAnimationTime	= 1.0f / 60.0f;
+		animationTrack.mInterpolation		= 0.2f;
+	}
 }
 
 void RenderManager::ChangeRasterizerState( RasterizerStates rasterState )
 {
 	mRasterState = rasterState;
 }
+
 void RenderManager::AnimationReset( AnimationTrack &animationTrack, AssetID defaultAnimation )
 {
 	animationTrack.mCurrentAnimation		= defaultAnimation;
@@ -221,6 +238,7 @@ void RenderManager::AnimationReset( AnimationTrack &animationTrack, AssetID defa
 	animationTrack.mNextAnimation			= defaultAnimation;
 	animationTrack.mNextAnimationTime		= 1.0f / 60.0f;
 	animationTrack.mInterpolation			= 0.0f;
+	animationTrack.mBlendWithCurrent		= false;
 }
 
 void RenderManager::RequestParticleSystem( size_t entityID, ParticleType particleType, XMFLOAT3 position, XMFLOAT3 direction )

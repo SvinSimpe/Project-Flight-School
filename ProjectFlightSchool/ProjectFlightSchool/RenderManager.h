@@ -56,7 +56,7 @@ class RenderManager
 
 		void AnimationInitialize( AnimationTrack &animationTrack, AssetID model, AssetID defaultAnimation );
 		void AnimationUpdate( AnimationTrack &animationTrack, float deltaTime );
-		void AnimationStartNew( AnimationTrack &animationTrack, AssetID newAnimation );
+		void AnimationStartNew( AnimationTrack &animationTrack, AssetID newAnimation, bool blendWithCurrent = false );
 		void AnimationReset( AnimationTrack &animationTrack, AssetID defaultAnimation );
 
 		void ChangeRasterizerState( RasterizerStates rasterState );

@@ -112,6 +112,74 @@ struct RangedInfo
 		}
 	}
 
+	void Reset()
+	{
+		level	= 1;
+
+		switch( weaponType )
+		{
+			case MINIGUN:
+			{
+				/*attackRate		=	MINIGUN_AR;
+				damage			=	MINIGUN_DAMAGE;
+				range			=	MINIGUN_RANGE;
+				spread			=	MINIGUN_SPREAD;
+				areaOfEffect	=	MINIGUN_AOE;
+				projectileSpeed	=	MINIGUN_SPEED;*/
+				attackRate		=	MINIGUN_AR;
+				damage			=	MINIGUN_DAMAGE;
+				range			=	MINIGUN_RANGE;
+				spread			=	MINIGUN_SPREAD;
+				areaOfEffect	=	MINIGUN_AOE;
+				projectileSpeed	=	MINIGUN_SPEED;
+			}
+				break;
+
+			case SHOTGUN:
+			{
+				attackRate		=	SHOTGUN_AR;
+				damage			=	SHOTGUN_DAMAGE;
+				range			=	SHOTGUN_RANGE;
+				spread			=	SHOTGUN_SPREAD;
+				areaOfEffect	=	SHOTGUN_AOE;
+				projectileSpeed	=	SHOTGUN_SPEED;
+			}
+				break;
+
+			case GRENADELAUNCHER:
+			{
+				attackRate		=	GL_AR;
+				damage			=	GL_DAMAGE;
+				range			=	GL_RANGE;
+				spread			=	GL_SPREAD;
+				areaOfEffect	=	GL_AOE;
+				projectileSpeed	=	GL_SPEED;
+			}
+				break;
+
+			case SNIPER:
+			{
+				attackRate		=	SNIPER_AR;
+				damage			=	SNIPER_DAMAGE;
+				range			=	SNIPER_RANGE;
+				spread			=	SNIPER_SPREAD;
+				areaOfEffect	=	SNIPER_AOE;
+				projectileSpeed	=	SNIPER_SPEED;
+			}
+				break;
+
+			default:
+			{
+				attackRate		=	MINIGUN_AR;
+				damage			=	MINIGUN_DAMAGE;
+				range			=	MINIGUN_RANGE;
+				spread			=	MINIGUN_SPREAD;
+				areaOfEffect	=	MINIGUN_AOE;
+				projectileSpeed	=	MINIGUN_SPEED;
+			}
+		}
+	}
+
 	void LevelUp()
 	{
 		level++;
@@ -273,7 +341,79 @@ struct MeleeInfo
 		stun			= 0.0f;
 	}
 
-	MeleeInfo( WeaponType weaponType )
+	void Reset()
+	{
+		level	= 1;
+
+		switch( weaponType )
+		{
+			case CLAYMORE:
+			{
+				attackRate		= CLAYMORE_AR;
+				damage			= CLAYMORE_DAMAGE;
+				radius			= CLAYMORE_RADIUS;
+				spread			= CLAYMORE_SPREAD;
+				knockBack		= CLAYMORE_KB;
+				boundingCircle	= new BoundingCircle( CLAYMORE_REACH );
+				timeTillAttack	= CLAYMORE_TTA;
+				stun			= CLAYMORE_STUN;
+			}
+				break;
+
+			case HAMMER:
+			{
+				attackRate		= HAMMER_AR;
+				damage			= HAMMER_DAMAGE;
+				radius			= HAMMER_RADIUS;
+				spread			= HAMMER_SPREAD;
+				knockBack		= HAMMER_KB;
+				boundingCircle	= new BoundingCircle( HAMMER_REACH );
+				timeTillAttack	= HAMMER_TTA;
+				stun			= HAMMER_STUN;
+			}
+				break;
+
+			case BLOWTORCH:
+			{
+				attackRate		= BLOWTORCH_AR;
+				damage			= BLOWTORCH_DAMAGE;
+				radius			= BLOWTORCH_RADIUS;
+				spread			= BLOWTORCH_SPREAD;
+				knockBack		= BLOWTORCH_KB;
+				boundingCircle	= new BoundingCircle( BLOWTORCH_REACH );
+				timeTillAttack	= BLOWTORCH_TTA;
+				stun			= BLOWTORCH_STUN;
+			}
+				break;
+
+			case SAW:
+			{
+				attackRate		= SAW_AR;
+				damage			= SAW_DAMAGE;
+				radius			= SAW_RADIUS;
+				spread			= SAW_SPREAD;
+				knockBack		= SAW_KB;
+				boundingCircle	= new BoundingCircle( SAW_REACH );
+				timeTillAttack	= SAW_TTA;
+				stun			= SAW_STUN;
+			}
+				break;
+
+			default:
+			{
+				attackRate		= HAMMER_AR;
+				damage			= HAMMER_DAMAGE;
+				radius			= HAMMER_RADIUS;
+				spread			= HAMMER_SPREAD;
+				knockBack		= HAMMER_KB;
+				boundingCircle	= new BoundingCircle( HAMMER_REACH );
+				timeTillAttack	= HAMMER_TTA;
+				stun			= HAMMER_STUN;
+			}
+		}
+	}
+
+		MeleeInfo( WeaponType weaponType )
 	{
 		this->weaponType		= weaponType;
 		level					= 1;
@@ -466,6 +606,32 @@ struct MeleeInfo
 			default:
 			{
 			}
+		}
+	}
+};
+
+struct LoadOut
+{
+	RangedInfo*	rangedWeapon;
+	MeleeInfo*	meleeWeapon;
+
+	LoadOut()
+	{
+		rangedWeapon	= nullptr;
+		meleeWeapon		= nullptr;
+	}
+
+	void Release()
+	{
+		if( rangedWeapon )
+		{
+			delete rangedWeapon;
+		}
+		if( meleeWeapon )
+		{
+			if( meleeWeapon->boundingCircle )
+				delete meleeWeapon->boundingCircle;
+			delete meleeWeapon;
 		}
 	}
 };

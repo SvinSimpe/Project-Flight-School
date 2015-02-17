@@ -43,6 +43,9 @@
     <ClCompile Include="Static3dAssetIndexed.cpp">
       <Filter>AssetClasses\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BoxGenerator.cpp">
+      <Filter>AssetClasses\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssetBase.h">
@@ -101,6 +104,9 @@
     </ClInclude>
     <ClInclude Include="DDSTextureLoader.h">
       <Filter>TextureLoader\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BoxGenerator.h">
+      <Filter>AssetClasses\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -194,6 +200,9 @@
       <Filter>Effects</Filter>
     </Text>
     <Text Include="..\Content\Effects\Particle Effects\Test_FountainEffect.hlsl">
+      <Filter>Effects\Particle Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\Particle Effects\bloodEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
   </ItemGroup>

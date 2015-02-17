@@ -27,7 +27,7 @@ class PlayState : public BaseState
 	private:
 		float			mFPS;
 		AnimationTrack	mTestAnimation;
-
+		AssetID			mTestStaticAsset;
 		Map*		mWorldMap;
 
 		//Collision
@@ -51,6 +51,7 @@ class PlayState : public BaseState
 		Gui*						mGui;
 
 		std::vector<ClientShip*>	mShips;
+		ClientShip*					mMyShip;	// A pointer to the Client's own ship, used to show the remaining HP of it
 
 		//TestSound
 		int							m3DSoundAsset;

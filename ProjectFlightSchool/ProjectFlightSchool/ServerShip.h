@@ -3,23 +3,23 @@
 
 #include "BoundingGeometry.h"
 #include "Events.h"
+#include "ServerTurret.h"
+#include "GameObject.h"
 
-class ServerShip
+class ServerShip : public GameObject
 {
 	private:
 		friend class Server;
 		const UINT MIN_LEVEL = 1;
 		const UINT MAX_LEVEL = 3;
-		// Since buff and turret are handled by the server, these modifiers and such are calculated here
-
 		float			mBuffMod;		// Also declared in Player.h... look there to see what this does
 
 	protected:
-		BoundingCircle* mBuffCircle;	// Don't forget to add an event for turning on/off player buffing
+		ServerTurret*	mServerTurret;
+		BoundingCircle* mBuffCircle;
 		UINT			mID;
 		UINT			mTeamID;
-		XMFLOAT3		mPos;
-		XMFLOAT3		mDir;
+		XMFLOAT4X4		mWorld;
 		float			mMaxShield;
 		float			mCurrentShield;
 		float			mMaxHP;
@@ -34,7 +34,7 @@ class ServerShip
 	public:
 
 	private:
-		// Calculates the new level dependant on the change factor sent by the client
+		// Calculates the new level dependent on the change factor sent by the client
 		void			ChangeTurretLevel( int change );
 		void			ChangeShieldLevel( int change );
 		void			ChangeBuffLevel( int change );
@@ -54,9 +54,10 @@ class ServerShip
 
 		virtual bool	TakeDamage( float damage );
 		virtual bool	Intersect( BoundingCircle* entity ); // Will check for intersects with buffable players
-		virtual void	Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir );
+		virtual void	Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID = CUBE_PLACEHOLDER );
 		virtual void	Update( float deltaTime );
-		virtual void	Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir );
+		virtual void	Initialize( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID = CUBE_PLACEHOLDER );
+		virtual void	Initialize( UINT id, UINT teamID, GameObjectInfo gameObjectInfo, AssetID assetID = CUBE_PLACEHOLDER );
 		virtual void	Release();
 						ServerShip();
 		virtual			~ServerShip();

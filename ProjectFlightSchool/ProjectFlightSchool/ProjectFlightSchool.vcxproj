@@ -95,6 +95,7 @@
     <ClCompile Include="ClientTurret.cpp" />
     <ClCompile Include="DSBufferStream.cpp" />
     <ClCompile Include="EnemyAnimationManager.cpp" />
+    <ClCompile Include="EnemyBehavior.cpp" />
     <ClCompile Include="Gui.cpp" />
     <ClCompile Include="HelperFunctions.cpp" />
     <ClCompile Include="Navmesh.cpp" />
@@ -238,6 +239,9 @@
     <ClInclude Include="Events.h" />
     <ClInclude Include="IEventManager.h" />
     <ClInclude Include="System.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

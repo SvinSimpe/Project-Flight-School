@@ -9,14 +9,17 @@
 #include "Font.h"
 #include "WeaponInfo.h"
 
-#define LEFT_ARM_ID		0
-#define RIGHT_ARM_ID	1
+#define MAX_NR_OF_PLAYERS	8
+
+#define LEFT_ARM_ID			0
+#define RIGHT_ARM_ID		1
 
 enum PLAYER_ANIMATION
 {
 	LEGS_IDLE,
 	LEGS_WALK,
 	LEGS_DEATH,
+	LEGS_DOWN,
 	COUNT,
 };
 
@@ -54,26 +57,6 @@ struct Arms
 	AnimationTrack rightArm;
 };
 
-struct LoadOut
-{
-	RangedInfo*	rangedWeapon;
-	MeleeInfo*	meleeWeapon;
-
-	LoadOut()
-	{
-		rangedWeapon	= nullptr;
-		meleeWeapon		= nullptr;
-	}
-
-	void Release()
-	{
-		SAFE_DELETE( rangedWeapon );
-		if( meleeWeapon )
-			SAFE_DELETE( meleeWeapon->boundingCircle );
-		SAFE_DELETE( meleeWeapon );
-	}
-};
-
 class RemotePlayer
 {
 	// Member variables
@@ -92,7 +75,7 @@ class RemotePlayer
 		float			mTimeTillDeath;
 		XMFLOAT3		mVelocity;
 		LoadOut*		mLoadOut;
-		BoundingBox*	mBoundingBox;
+		BoundingRectangle*	mBoundingBox;
 		BoundingCircle*	mBoundingCircle;
 		BoundingCircle*	mBoundingCircleAura;
 		XMFLOAT3		mSpawnPosition;
@@ -140,7 +123,7 @@ class RemotePlayer
 		float			GetMaxHP() const;
 		int				GetID() const;
 		int				GetTeam() const;
-		BoundingBox*	GetBoundingBox() const;
+		BoundingRectangle*	GetBoundingBox() const;
 		BoundingCircle*	GetBoundingCircle() const;
 		BoundingCircle*	GetBoundingCircleAura() const;
 		XMFLOAT3		GetPosition() const;
@@ -150,5 +133,23 @@ class RemotePlayer
 		void			SetHP( float hp );
 		void			SetName( std::string name );
 };
+
+// Server player
+struct ServerPlayer
+{
+		UINT					ID;
+		UINT					TeamID;
+		XMFLOAT3				Pos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		bool					IsBuffed	= false;
+		bool					IsAlive		= false;
+		bool					IsDown		= false;
+		BoundingCircle*			AggroCircle;
+
+		~ServerPlayer()
+		{
+			SAFE_DELETE( AggroCircle );
+		}
+};
+
 #endif
 

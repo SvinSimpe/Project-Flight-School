@@ -280,8 +280,8 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	newPos.x = mLowerBody.position.x + mVelocity.x * deltaTime;
 	newPos.z = mLowerBody.position.z + mVelocity.z * deltaTime;
 
-	newDir.x = mVelocity.x * deltaTime;
-	newDir.y = mVelocity.z * deltaTime;
+	newDir.x = mVelocity.x * deltaTime * mUpgrades.legs;
+	newDir.y = mVelocity.z * deltaTime * mUpgrades.legs;
 
 	if( worldMap->IsOnNavMesh( newPos ) == nullptr)
 	{
@@ -482,7 +482,6 @@ void Player::UpgradeBody()
 
 void Player::UpgradeLegs()
 {
-	mMaxAcceleration += mMaxAcceleration/mUpgrades.legs;
 	mUpgrades.legs++;
 }
 
@@ -512,7 +511,7 @@ void Player::TakeDamage( float damage, unsigned int shooter )
 		float moddedDmg = damage * mBuffMod;
 		damage -= moddedDmg;
 	}
-	mCurrentHp -= damage/mUpgrades.body;
+	mCurrentHp -= damage / (float)mUpgrades.body;
 	IEventPtr E1( new Event_Client_Update_HP( mID, mCurrentHp ) );
 	QueueEvent( E1 );
 	if ( !mIsDown && mIsAlive && mCurrentHp <= 0.0f )
@@ -549,7 +548,7 @@ void Player::UnLock()
 
 void Player::Reset()
 {
-	mEventCapTimer					= 0.0f;
+	mEventCapTimer				= 0.0f;
 	mPointLight->position		= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
 	mPointLight->colorAndRadius	= DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 17.0f );
 
@@ -649,59 +648,72 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 	// If player is alive, update position. If hp <= 0 kill player
 
-	if( mIsAlive )
+	if( !mIsDown )
 	{
-		float currentVelocity = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) );
-
-		if( currentVelocity < 0.2f )
+		if( mIsAlive )
 		{
-			if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE] )
+			float currentVelocity = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) );
+
+			if( currentVelocity < 0.2f )
 			{
-				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
+				if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE] )
+				{
+					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
+				}
 			}
+			else
+			{
+				if(	mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK] )
+				{
+					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_WALK] );
+				}
+			}
+
+			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, 
+				mLowerBody.playerModel.mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK] ? deltaTime * currentVelocity / 1.1f : deltaTime );
+
+			if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] )
+				RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
+
+			if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] )
+				RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
+
+			RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
+			RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
 		}
 		else
 		{
-			if(	mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK] )
-			{
-				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_WALK] );
-			}
+			if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DEATH] )
+				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_DEATH] );
+			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, deltaTime );
+
+			/////////////////////////////////////////////////
+			// interpolate upper to face lower direction
+			XMVECTOR upLoad		= XMLoadFloat3( &mUpperBody.direction );
+			XMVECTOR lowLoad	= XMLoadFloat3( &mLowerBody.direction );
+			float change		= min( 1.0f, 3.0f * deltaTime );
+			XMStoreFloat3( &mUpperBody.direction, upLoad * ( 1.0f - change ) + lowLoad * change );
+			/////////////////////////////////////////////////
+
+			HandleSpawn( deltaTime );
 		}
-
-		RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, 
-			mLowerBody.playerModel.mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK] ? deltaTime * currentVelocity / 1.1f : deltaTime );
-
-		if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] )
-			RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
-
-		if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] )
-			RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
-
-		RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
-		RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
 	}
 	else
 	{
-		if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DEATH] )
-			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_DEATH] );
+		if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DOWN] )
+			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_DOWN] );
 		RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, deltaTime );
 
 		/////////////////////////////////////////////////
 		// interpolate upper to face lower direction
 		XMVECTOR upLoad		= XMLoadFloat3( &mUpperBody.direction );
 		XMVECTOR lowLoad	= XMLoadFloat3( &mLowerBody.direction );
-		float change		= min( 1.0f, 6.0f * deltaTime );
+		float change		= min( 1.0f, 3.0f * deltaTime );
 		XMStoreFloat3( &mUpperBody.direction, upLoad * ( 1.0f - change ) + lowLoad * change );
 		/////////////////////////////////////////////////
 
-		HandleSpawn( deltaTime );
-	}
-	
-	if( mIsDown )
-	{
 		HandleDeath( deltaTime );
 	}
-	
 
 	///Lock camera position to player
 	XMFLOAT3 cameraPosition;

@@ -92,6 +92,7 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BoxGenerator.h" />
     <ClInclude Include="Animated3dAsset.h" />
     <ClInclude Include="AnimationAsset.h" />
     <ClInclude Include="AssetBase.h" />
@@ -115,6 +116,7 @@
     <ClInclude Include="WICTextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BoxGenerator.cpp" />
     <ClCompile Include="Animated3dAsset.cpp" />
     <ClCompile Include="AnimationAsset.cpp" />
     <ClCompile Include="Camera.cpp" />
@@ -191,6 +193,11 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\Content\Effects\Particle Effects\Test_FountainEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Content\Effects\Particle Effects\bloodEffect.hlsl">
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>

@@ -70,7 +70,7 @@ bool MapSection::AddNodeToSection( MapNodeInstance* node )
 	//}
 	return result;
 }
-bool MapSection::GetSectionContainingUnit( MapSection** container, int& sectionCount, BoundingBox* unit )
+bool MapSection::GetSectionContainingUnit( MapSection** container, int& sectionCount, BoundingRectangle* unit )
 {
 	if( mBoundingBox.Intersect( unit ) )
 	{

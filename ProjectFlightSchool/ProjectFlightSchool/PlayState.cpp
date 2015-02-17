@@ -61,8 +61,10 @@ void PlayState::EventListener( IEventPtr newEvent )
 		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->BodyPos());
 		
 		// Request Muzzle Flash from Particle Manager
+		
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
+		//RenderManager::GetInstance()->RequestParticleSystem( 9999, Blood, XMFLOAT3( 2.0f, 3.0f, 0.0f ) , XMFLOAT3( 0.0f, 1.0f, 1.0f ) );
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
 	{
@@ -96,7 +98,9 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		std::shared_ptr<Event_Server_Spawn_Ship> data = std::static_pointer_cast<Event_Server_Spawn_Ship>( newEvent );
 		mShips.push_back( new ClientShip() );
-		mShips.back()->Initialize( data->ID(), data->TeamID(), data->Position(), data->Direction() );
+		mShips.back()->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
+		if( data->TeamID() == mPlayer->GetID() )
+			mMyShip = mShips.back();
 	}
 	else if( newEvent->GetEventType() == Event_Remote_Win::GUID )
 	{
@@ -440,7 +444,7 @@ void PlayState::RenderProjectiles()
 
 void PlayState::SetEnemyState( unsigned int id, EnemyState state )
 {
-	if( state == Death )
+	if( state == Death || state == Attack )
 	{
 		mEnemies[id]->SetLoopAnimation( false );
 		mEnemies[id]->SetIsAlive( false );
@@ -452,7 +456,7 @@ void PlayState::SetEnemyState( unsigned int id, EnemyState state )
 		mEnemies[id]->SetIsAlive( true );
 	}
 
-	mEnemies[id]->SetAnimation( mEnemyAnimationManager->GetAnimation( mEnemies[id]->GetEnemyType(), state ) );
+	mEnemies[id]->SetAnimation( mEnemyAnimationManager->GetAnimation( mEnemies[id]->GetEnemyType(), state ), state == TakeDamage );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -527,7 +531,10 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.mPlayerNames	= pName;
 	guiUpdate.mNrOfAllies	= nrOfAllies;
 	guiUpdate.mAlliesHP		= mAlliesHP;
-	guiUpdate.mShipHP		= 1.0f;
+	if( mMyShip )
+		guiUpdate.mShipHP	= mMyShip->PercentHP();
+	else
+		guiUpdate.mShipHP	= 1.0f;
 
 	//mPlayer->Update( deltaTime, mRemotePlayers );
 	HandleDeveloperCameraInput();
@@ -560,8 +567,11 @@ HRESULT PlayState::Update( float deltaTime )
 		}
 	}
 
-		///Test fountain particle system
-	RenderManager::GetInstance()->RequestParticleSystem( 9999, Test_Fountain, XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
+	///Test fountain particle system
+	for (size_t i = 0; i < 5; i++)
+	{
+		RenderManager::GetInstance()->RequestParticleSystem( 999 + i, Test_Fountain, XMFLOAT3( (float)(i * 20), 0.0f, (float)(i * 20) ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
+	}
 	
 	if( mPlayer->Upgradable() < 1 )
 	{
@@ -582,22 +592,23 @@ HRESULT PlayState::Update( float deltaTime )
 
 	mGui->Update( guiUpdate );
 
+	for( auto& s : mShips )
+	{
+		s->Update( deltaTime );
+	}
 
 	// Test Anim
 	///////////////////////////////////////////////////////////////////////////
 	//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
 	///////////////////////////////////////////////////////////////////////////
 
-	for( auto& s : mShips )
-	{
-		s->Update( deltaTime );
-	}
-
 	return S_OK;
 }
 
 HRESULT PlayState::Render()
 {
+	//Test asset, currently a tree
+	//RenderManager::GetInstance()->AddObject3dToList(mTestStaticAsset);
 	mPlayer->Render( 0.0f, 1 );
 
 	mWorldMap->Render( 0.0f , mPlayer );
@@ -633,9 +644,11 @@ HRESULT PlayState::Render()
 	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
 	mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
 
+	XMFLOAT4X4 identity;
+	XMStoreFloat4x4( &identity, XMMatrixIdentity() );
 	for( auto& s : mShips )
 	{
-		s->Render();
+		s->Render( 0.0f, identity );
 	}
 
 	RenderManager::GetInstance()->Render();
@@ -691,7 +704,7 @@ HRESULT PlayState::Initialize()
 {
 	mStateType = PLAY_STATE;
 
-	//AssetID model	= 0;
+	//AssetID model		= 0;
 	//AssetID loader	= 0;
 
 	/*Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurSkel.Skel", loader );
@@ -699,6 +712,7 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurIdle.PaMan", loader );*/
 
 	//RenderManager::GetInstance()->AnimationInitialize( mTestAnimation, model, loader );
+	//Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/ForestAssets/Trees/", "tree5.pfs", mTestStaticAsset );
 
 	mPlayer = new Player();
 	mPlayer->Initialize();
@@ -754,6 +768,9 @@ HRESULT PlayState::Initialize()
 
 	mGui = new Gui();
 	mGui->Initialize();
+
+	mShips			= std::vector<ClientShip*>();
+	mMyShip			= nullptr;
 
 	//TestSound
 	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav" );

@@ -1042,7 +1042,8 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 				mParticleInstanced[objectToRender].position[1]  = info[i].mWorldPosition.y;
 				mParticleInstanced[objectToRender].position[2]  = info[i].mWorldPosition.z;
 
-				mParticleInstanced[objectToRender].lifeTime		= info[i].mLifeTime;
+				mParticleInstanced[objectToRender].age				= info[i].mAge;
+				mParticleInstanced[objectToRender].timeTillDeath	= info[i].mTimeTillDeath;
 
 
 				objectToRender++;

@@ -93,7 +93,7 @@ struct ParticleSystem : public ParticleData
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{	
 			if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 4,  25.0f );
-			else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 16, 2.0f );
+			else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 8, 2.0f );
 			else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 4, 20.0f );
 	}
 
@@ -182,7 +182,7 @@ struct ParticleSystem : public ParticleData
 
 	void Smoke_MiniGunLogic( float deltaTime )
 	{
-		IncrementValueY( 2.0f );
+		IncrementValueY( 0.02f );
 	}
 
 	void Test_FountainLogic( float deltaTime )

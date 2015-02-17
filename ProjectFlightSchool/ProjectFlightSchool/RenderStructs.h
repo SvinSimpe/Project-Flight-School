@@ -46,7 +46,8 @@ struct ParticleInfo
 	UINT				mOffsetToNextParticleType;
 	UINT				mParticleType;
 	DirectX::XMFLOAT3	mWorldPosition;
-	float				mLifeTime;
+	float				mAge;
+	float				mTimeTillDeath;
 };
 
 struct NodeGridInfo

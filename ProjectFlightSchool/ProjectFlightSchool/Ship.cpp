@@ -1,5 +1,10 @@
 #include "Ship.h"
 
+void Ship::AddEnergyCell( UINT energyCellID )
+{
+	mEnergyCells[mNrOfEnergyCells++] = energyCellID;
+}
+
 void Ship::BuffPlayer( Player* player )
 {
 }
@@ -56,6 +61,13 @@ void Ship::Reset( int team, XMFLOAT3 pos, XMFLOAT3 dir )
 
 	mMaxHull = 100.0f;
 	mCurrentHull = mMaxHull;
+
+	for( UINT i = 0; i < mNrOfEnergyCells; i++ )
+	{
+		mEnergyCells[i] = (UINT)-1;
+	}
+	
+	mNrOfEnergyCells = 0;
 }
 
 void Ship::Update( float deltaTime )
@@ -90,6 +102,13 @@ void Ship::Initialize( int team, XMFLOAT3 pos, XMFLOAT3 dir )
 
 	mMaxHull = 100.0f;
 	mCurrentHull = mMaxHull;
+
+	for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
+	{
+		mEnergyCells[i] = (UINT)-1;
+	}
+	
+	mNrOfEnergyCells = 0;
 }
 
 void Ship::Release()
@@ -107,6 +126,7 @@ Ship::Ship()
 	mHitBox = nullptr;
 	mTeamID	= 0;
 	mTurret	= nullptr;
+	mNrOfEnergyCells = 0;
 }
 
 Ship::~Ship()

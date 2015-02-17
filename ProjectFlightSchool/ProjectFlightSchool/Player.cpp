@@ -733,6 +733,11 @@ XMFLOAT3 Player::GetUpperBodyDirection() const
 	return mUpperBody.direction;
 }
 
+UINT Player::GetEnergyCellID() const
+{
+	return mEnergyCellID;
+}
+
 void Player::SetIsMeleeing( bool isMeleeing )
 {
 	mIsMeleeing = isMeleeing;
@@ -751,4 +756,9 @@ void Player::SetTeam( int team )
 void Player::SetPosition( XMVECTOR position )
 {
 	XMStoreFloat3( &mLowerBody.position, position );
+}
+
+void Player::SetEnergyCellID( UINT energyCellID )
+{
+	mEnergyCellID = energyCellID;
 }

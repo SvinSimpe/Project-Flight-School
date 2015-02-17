@@ -86,12 +86,13 @@ class Player: public RemotePlayer
 		bool		GetIsMeleeing()	const;
 		XMFLOAT3	GetPlayerPosition() const;
 		XMFLOAT3	GetUpperBodyDirection() const;
+		UINT		GetEnergyCellID() const;
 		void		SetIsMeleeing( bool isMeleeing );
 		void		SetID( unsigned int id );
 		void		SetTeam( int team );
 		void		SetPosition( XMVECTOR position );
-		bool		GetIsCarryingEnergyCell() const;
-		void		SetIsCarryingEnergyCell( bool isCarrying );
+		void		SetEnergyCellID( UINT energyCellID );
+
 
 		void		QueueEvent( IEventPtr ptr );
 };

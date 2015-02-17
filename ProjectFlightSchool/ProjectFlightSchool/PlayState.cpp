@@ -459,6 +459,19 @@ HRESULT PlayState::Update( float deltaTime )
 
 	mPlayer->Update( deltaTime, mRemotePlayers, mEnergyCells );
 
+	if( mPlayer->GetEnergyCellID() != (UINT)-1 )
+	{
+		for( int i = 0; i < mShips.size(); i++ )
+		{
+			if( mShips[i]->GetTeamID() == mPlayer->GetTeam() && mShips[i]->Intersect( mPlayer->GetBoundingCircle ) )
+			{
+				mShips[i]->AddEnergyCell( mPlayer->GetEnergyCellID() );
+				mEnergyCells[mPlayer->GetEnergyCellID()]->SetOwnerID( mShips[i]->GetID() );
+				mPlayer->SetEnergyCellID( (UINT)-1 );
+			}
+		}
+	}
+
 	HandleDeveloperCameraInput();
 
 	UpdateProjectiles( deltaTime );

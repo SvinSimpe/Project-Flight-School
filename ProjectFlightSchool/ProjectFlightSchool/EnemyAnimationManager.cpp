@@ -7,10 +7,11 @@ AssetID EnemyAnimationManager::GetAnimation( EnemyType enemy, EnemyState state )
 		case Standard:
 		{
 			if( state == MoveToShip || 
-				state == HuntPlayer )	return mAnimations[ENEMY_ANIMATION_STANDARD_RUN];
-			else if( state == Idle )	return mAnimations[ENEMY_ANIMATION_STANDARD_IDLE];			
-			else if( state == Attack )	return mAnimations[ENEMY_ANIMATION_STANDARD_ATTACK];
-			else if( state == Death  )	return mAnimations[ENEMY_ANIMATION_STANDARD_DEATH];
+				state == HuntPlayer )		return mAnimations[ENEMY_ANIMATION_STANDARD_RUN];
+			else if( state == TakeDamage )	return mAnimations[ENEMY_ANIMATION_STANDARD_RUN_DAMAGED];
+			else if( state == Idle )		return mAnimations[ENEMY_ANIMATION_STANDARD_IDLE];			
+			else if( state == Attack )		return mAnimations[ENEMY_ANIMATION_STANDARD_ATTACK];
+			else if( state == Death  )		return mAnimations[ENEMY_ANIMATION_STANDARD_DEATH];
 			else OutputDebugStringA( "--Error getting Standard animation" );
 
 		}
@@ -116,6 +117,7 @@ HRESULT EnemyAnimationManager::Initialize()
 	// Load Standard Animations
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Raptor/Animations/", "raptorIdle.PaMan",	mAnimations[ENEMY_ANIMATION_STANDARD_IDLE] );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Raptor/Animations/", "raptorRun.PaMan",	mAnimations[ENEMY_ANIMATION_STANDARD_RUN] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Raptor/Animations/", "raptorRunDamaged.PaMan",	mAnimations[ENEMY_ANIMATION_STANDARD_RUN_DAMAGED] );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Raptor/Animations/", "raptorAttack1.PaMan", mAnimations[ENEMY_ANIMATION_STANDARD_ATTACK] );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Raptor/Animations/", "raptorDeath2(fix(fix)).PaMan",	mAnimations[ENEMY_ANIMATION_STANDARD_DEATH] );
 

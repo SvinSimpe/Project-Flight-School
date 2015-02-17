@@ -87,6 +87,18 @@ HRESULT HuntPlayerBehavior::Update( float deltaTime )
 {
 	mEnemy->Hunt( deltaTime );
 
+	// If enemy damaged check if we need to go to take Damage
+	mEnemy->mTakingDamageTimer += deltaTime;
+	if( mEnemy->mTakingDamage )
+	{	
+		if( mEnemy->mTakingDamageTimer > 0.5f )
+		{
+			mEnemy->ChangeBehavior( TAKE_DAMAGE_BEHAVIOR );
+			mEnemy->mTakingDamageTimer = 0.0f;
+		}
+		mEnemy->mTakingDamage = false;
+	}
+
 	// If enemy lost track of target, go back to Idle
 	if( mEnemy->mPlayers[mEnemy->mTargetIndex] != nullptr )
 	{
@@ -277,11 +289,17 @@ AttackBehavior::~AttackBehavior()
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT TakeDamageBehavior::Update( float deltaTime )
 {
+	mStateTimer -= deltaTime;
+	if( mStateTimer >= 0.0f )
+		mEnemy->Hunt( deltaTime );
+	else
+		mEnemy->ChangeBehavior( HUNT_PLAYER_BEHAVIOR );
 	return S_OK;
 }
 
 void TakeDamageBehavior::OnEnter()
 {
+	mStateTimer				= 0.8f;
 	IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), TakeDamage ) );
 	EventManager::GetInstance()->QueueEvent( state );
 }

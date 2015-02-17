@@ -454,7 +454,7 @@ void PlayState::SetEnemyState( unsigned int id, EnemyState state )
 		mEnemies[id]->SetIsAlive( true );
 	}
 
-	mEnemies[id]->SetAnimation( mEnemyAnimationManager->GetAnimation( mEnemies[id]->GetEnemyType(), state ) );
+	mEnemies[id]->SetAnimation( mEnemyAnimationManager->GetAnimation( mEnemies[id]->GetEnemyType(), state ), state == TakeDamage );
 }
 
 ///////////////////////////////////////////////////////////////////////////////

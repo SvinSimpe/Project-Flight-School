@@ -3,6 +3,7 @@
 
 #include "BoundingGeometry.h"
 #include "Events.h"
+#include "EnergyCell.h"
 
 class ServerShip
 {
@@ -18,6 +19,8 @@ class ServerShip
 		XMFLOAT3		mDir;
 		float			mMaxHP;
 		float			mCurrentHP;
+		UINT			mNrOfEnergyCells;
+		UINT			mEnergyCells[MAX_ENERGY_CELLS];
 
 	public:
 
@@ -29,6 +32,8 @@ class ServerShip
 
 	protected:
 	public:
+		void			AddEnergyCell( UINT energyCellID );
+
 		UINT			GetID() const;
 		UINT			GetTeamID() const;
 

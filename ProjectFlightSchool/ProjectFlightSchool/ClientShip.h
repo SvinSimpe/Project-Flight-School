@@ -11,6 +11,7 @@ class ClientShip : public ServerShip
 		AssetID mAssetID;
 		BoundingCircle* mHitCircle;
 
+
 	protected:
 	public:
 
@@ -24,7 +25,7 @@ class ClientShip : public ServerShip
 
 	protected:
 	public:
-
+		void	AddEnergyCell( UINT energyCellID );
 		bool	Intersect( BoundingCircle* entity ); // Will check for intersects with damaging stuff
 		void	Update( float deltaTime );
 		void	Render();

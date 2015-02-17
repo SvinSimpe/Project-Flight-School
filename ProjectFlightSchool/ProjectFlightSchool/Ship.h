@@ -14,8 +14,7 @@ class Ship
 		Turret*			mTurret;
 		float			mMaxHull;
 		float			mCurrentHull;
-		UINT			mNrOfEnergyCells;
-		UINT			mEnergyCells[MAX_ENERGY_CELLS];
+
 
 	protected:
 	public:
@@ -23,7 +22,6 @@ class Ship
 	private:
 	protected:
 	public:
-		void			AddEnergyCell( UINT energyCellID );
 		void			BuffPlayer( Player* player );
 		XMFLOAT3		GetPosition() const;
 		BoundingCircle* GetHitBox() const;

@@ -13,7 +13,7 @@ void Enemy::CreateStandard()
 		Med atkrate
 	*/
 	mEnemyType					= Standard;
-	mMaxHp						= 30.0f;
+	mMaxHp						= 60.0f;
 	mCurrentHp					= mMaxHp;
 	mDamage						= 10.0f;
 	mSpeed						= 5.0f;
@@ -34,7 +34,7 @@ void Enemy::CreateRanged()
 		Hign atkrate
 	*/
 	mEnemyType					= Ranged;
-	mMaxHp						= 20.0f;
+	mMaxHp						= 50.0f;
 	mCurrentHp					= mMaxHp;
 	mDamage						= 10.0f;
 	mSpeed						= 7.0f;
@@ -76,7 +76,7 @@ void Enemy::CreateTank()
 		Med atkrate
 	*/
 	mEnemyType					= Tank;
-	mMaxHp						= 300.0f;
+	mMaxHp						= 400.0f;
 	mCurrentHp					= mMaxHp;
 	mDamage						= 20.0f;
 	mSpeed						= 1.5f;

@@ -6,8 +6,7 @@ AssetID EnemyAnimationManager::GetAnimation( EnemyType enemy, EnemyState state )
 	{
 		case Standard:
 		{
-			if( state == Run || 
-				state == MoveToShip || 
+			if( state == MoveToShip || 
 				state == HuntPlayer )	return mAnimations[ENEMY_ANIMATION_STANDARD_RUN];
 			else if( state == Idle )	return mAnimations[ENEMY_ANIMATION_STANDARD_IDLE];			
 			else if( state == Attack )	return mAnimations[ENEMY_ANIMATION_STANDARD_ATTACK];
@@ -18,8 +17,7 @@ AssetID EnemyAnimationManager::GetAnimation( EnemyType enemy, EnemyState state )
 		break;
 		case Ranged:
 		{
-			if( state == Run || 
-				state == MoveToShip || 
+			if( state == MoveToShip || 
 				state == HuntPlayer )	return mAnimations[ENEMY_ANIMATION_RANGED_RUN];
 			else if( state == Idle )	return mAnimations[ENEMY_ANIMATION_RANGED_IDLE];	
 			else if( state == Attack )	return mAnimations[ENEMY_ANIMATION_RANGED_ATTACK];
@@ -29,8 +27,7 @@ AssetID EnemyAnimationManager::GetAnimation( EnemyType enemy, EnemyState state )
 		break;
 		case Boomer:
 		{
-			if( state == Run || 
-				state == MoveToShip || 
+			if( state == MoveToShip || 
 				state == HuntPlayer )	return mAnimations[ENEMY_ANIMATION_BOOMER_RUN];
 			else if( state == Idle )	return mAnimations[ENEMY_ANIMATION_BOOMER_IDLE];	
 			else if( state == Attack )	return mAnimations[ENEMY_ANIMATION_BOOMER_ATTACK];
@@ -40,8 +37,7 @@ AssetID EnemyAnimationManager::GetAnimation( EnemyType enemy, EnemyState state )
 		break;
 		case Tank:
 		{
-			if( state == Run || 
-				state == MoveToShip || 
+			if( state == MoveToShip || 
 				state == HuntPlayer )	return mAnimations[ENEMY_ANIMATION_TANK_RUN];
 			else if( state == Idle )	return mAnimations[ENEMY_ANIMATION_TANK_IDLE];	
 			else if( state == Attack )	return mAnimations[ENEMY_ANIMATION_TANK_ATTACK];
@@ -143,7 +139,7 @@ HRESULT EnemyAnimationManager::Initialize()
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Tank/Animations/", "tankIdle.PaMan",		mAnimations[ENEMY_ANIMATION_TANK_IDLE] );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Tank/Animations/", "tankWalk.PaMan",		mAnimations[ENEMY_ANIMATION_TANK_RUN] );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Tank/Animations/", "tankAttack.PaMan",		mAnimations[ENEMY_ANIMATION_TANK_ATTACK] );
-	//Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Tank/Animations/", "blowuposaurDeath.PaMan",		mAnimations[ENEMY_ANIMATION_BOOMER_DEATH] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Tank/Animations/", "tankDeath.PaMan",		mAnimations[ENEMY_ANIMATION_TANK_DEATH] );
 	return S_OK;
 }
 

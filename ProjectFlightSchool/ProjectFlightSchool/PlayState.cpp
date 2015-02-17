@@ -442,7 +442,7 @@ void PlayState::RenderProjectiles()
 
 void PlayState::SetEnemyState( unsigned int id, EnemyState state )
 {
-	if( state == Death )
+	if( state == Death || state == Attack )
 	{
 		mEnemies[id]->SetLoopAnimation( false );
 		mEnemies[id]->SetIsAlive( false );
@@ -601,6 +601,8 @@ HRESULT PlayState::Update( float deltaTime )
 
 HRESULT PlayState::Render()
 {
+	//Test asset, currently a tree
+	//RenderManager::GetInstance()->AddObject3dToList(mTestStaticAsset);
 	mPlayer->Render( 0.0f, 1 );
 
 	mWorldMap->Render( 0.0f , mPlayer );
@@ -694,7 +696,7 @@ HRESULT PlayState::Initialize()
 {
 	mStateType = PLAY_STATE;
 
-	//AssetID model	= 0;
+	//AssetID model		= 0;
 	//AssetID loader	= 0;
 
 	/*Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurSkel.Skel", loader );
@@ -702,6 +704,7 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/Enemies/Blowuposaur/Animations/", "blowuposaurIdle.PaMan", loader );*/
 
 	//RenderManager::GetInstance()->AnimationInitialize( mTestAnimation, model, loader );
+	//Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/ForestAssets/Trees/", "tree5.pfs", mTestStaticAsset );
 
 	mPlayer = new Player();
 	mPlayer->Initialize();

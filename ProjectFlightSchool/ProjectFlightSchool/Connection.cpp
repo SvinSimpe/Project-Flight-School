@@ -55,7 +55,7 @@ void NetSocket::Send( std::shared_ptr<IPacket> pkt, bool clearTimeOut )
 	mOutList.push_back( pkt );
 }
 
-int NetSocket::HasOutput()
+bool NetSocket::HasOutput()
 {
 	return !mOutList.empty();
 }
@@ -65,7 +65,7 @@ void NetSocket::HandleOutput()
 	int fSent = 0;
 	do
 	{
-		PFS_ASSERT( !mOutList.empty() );
+		PFS_ASSERT( HasOutput() );
 		PacketList::iterator i			= mOutList.begin();
 		std::shared_ptr<IPacket> pkt	= *i;
 		const char* buf					= pkt->GetData();
@@ -94,7 +94,7 @@ void NetSocket::HandleOutput()
 			mSendOfs = 0;
 		}
 		
-	} while( fSent && !mOutList.empty() );
+	} while( fSent && HasOutput() );
 }
 
 bool NetSocket::HandleInput()
@@ -102,6 +102,7 @@ bool NetSocket::HandleInput()
 	bool pktReceived = false;
 	u_long packetSize = 0;
 	SetBlocking( false );
+
 	int rc = recv( mSocket, mRecvBuf + mRecvBegin + mRecvOfs, RECV_BUFFER_SIZE - ( mRecvBegin + mRecvOfs ), 0 );
 	//printf( "Incoming %6d bytes. Begin %6d offset %4d\n", rc, mRecvBegin, mRecvOfs );
 
@@ -438,7 +439,7 @@ void RemoteEventSocket::CreateEvent( std::istringstream &in )
 
 bool RemoteEventSocket::HandleInput()
 {
-	while( NetSocket::HandleInput() );
+	NetSocket::HandleInput();
 
 	while( !mInList.empty() )
 	{

@@ -170,7 +170,7 @@ HRESULT Gui::Initialize()
 	mPlayerXP		= 0;
 	mPlayerShield	= 0;
 
-	mExperience		= 0.0f;
+	mExperience		= 0;
 
 	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/playerHealth+XP2.dds", mPlayerBar );
 	if( FAILED( result ) )

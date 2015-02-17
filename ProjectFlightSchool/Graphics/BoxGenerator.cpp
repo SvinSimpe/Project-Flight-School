@@ -272,14 +272,18 @@ AABB	BoxGenerator::Subdivide( AABB* originalBox, int witchBox )
 void	BoxGenerator::Release( OctTree* killMe )
 {
 	//Delete the children and then their parents, then sacrifice them to satan
-	for(UINT i = 0; i < 8; i++)
+	if( killMe != nullptr )
 	{
-		if( killMe->children[i] != nullptr )
+		for(UINT i = 0; i < 8; i++)
 		{
-			Release( killMe->children[i] );
-			delete killMe->children[i];
+			if( killMe->children[i] != nullptr )
+			{
+				Release( killMe->children[i] );
+				delete killMe->children[i];
+			}
 		}
 	}
+
 }
 
 

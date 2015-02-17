@@ -1,46 +1,29 @@
 #ifndef SERVERTURRET_H
 #define SERVERTURRET_H
 
-class ServerTurret
+#include "Events.h"
+#include "WeaponInfo.h"
+#include "GameObject.h"
+#include <vector>
+
+class ServerTurret : public GameObject
 {
 	private:
-		enum class TurretMode
-		{
-			Idle,
-			Attack,
-		};
-
-		class ITurretMode
-		{
-		public:
-			virtual void Action( ServerTurret* t ) = 0;
-					ITurretMode() {}
-			virtual ~ITurretMode() {}
-		};
-
-		class IdleTurret : public ITurretMode
-		{
-		public:
-			void Action( ServerTurret* t );
-			IdleTurret() : ITurretMode() {}
-			~IdleTurret() {}
-		};
-
-		class AttackingTurret : public ITurretMode
-		{
-		public:
-			void Action( ServerTurret* t );
-			AttackingTurret() : ITurretMode() {}
-			~AttackingTurret() {}
-		};
-
+		friend class Server;
 	protected:
+		UINT			mID;
+		UINT			mTeamID;
+
 	public:
 
 	private:
 	protected:
 	public:
-		ServerTurret();
-		virtual ~ServerTurret();
+		virtual void	Reset( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale );
+		virtual void	Initialize( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID = CUBE_PLACEHOLDER );
+		virtual void	Initialize( UINT id, UINT team, GameObjectInfo gameObjectInfo, AssetID assetID = CUBE_PLACEHOLDER );
+		virtual void	Release();
+						ServerTurret();
+		virtual			~ServerTurret();
 };
 #endif

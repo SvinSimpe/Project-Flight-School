@@ -1042,7 +1042,8 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 				mParticleInstanced[objectToRender].position[1]  = info[i].mWorldPosition.y;
 				mParticleInstanced[objectToRender].position[2]  = info[i].mWorldPosition.z;
 
-				mParticleInstanced[objectToRender].lifeTime		= info[i].mLifeTime;
+				mParticleInstanced[objectToRender].age				= info[i].mAge;
+				mParticleInstanced[objectToRender].timeTillDeath	= info[i].mTimeTillDeath;
 
 
 				objectToRender++;
@@ -1504,7 +1505,18 @@ bool Graphics::GetAnimationMatrices( AnimationTrack &animTrack, int playType, An
 
 	if( isAnimationBlending )
 	{
-		float blendInterpolation = animTrack.mInterpolation / 0.2f;
+		float blendInterpolation = animTrack.mInterpolation / ( animTrack.mBlendWithCurrent ? 0.2f : 0.2f );
+
+	/*	if( animTrack.mBlendWithCurrent )
+		{
+			blendInterpolation *= 2.0f;
+			if( blendInterpolation > 1.0f )
+			{
+				blendInterpolation -= 1.0f;
+				blendInterpolation = 1.0f - blendInterpolation;
+			}
+		}*/
+
 		DirectX::XMVECTOR currComp[3];
 		DirectX::XMVECTOR nextComp[3];
 

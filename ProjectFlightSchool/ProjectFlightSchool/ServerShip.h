@@ -32,8 +32,6 @@ class ServerShip
 
 	protected:
 	public:
-		void			AddEnergyCell( UINT energyCellID );
-
 		UINT			GetID() const;
 		UINT			GetTeamID() const;
 

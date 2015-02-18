@@ -6,7 +6,7 @@
 #include "BoundingGeometry.h"
 #include "RenderManager.h"
 
-#define MAX_ENERGY_CELLS 10	
+#define MAX_ENERGY_CELLS 1	
 
 class EnergyCell
 {
@@ -33,6 +33,7 @@ class EnergyCell
 
 		HRESULT				Update( float deltaTime );
 		HRESULT				Render();
+		void				Reset();
 		HRESULT				Initialize( DirectX::XMFLOAT3 position );
 		void				Release();
 							EnergyCell();

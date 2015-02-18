@@ -174,6 +174,9 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Server_Spawn_Ship );
 	EF::REGISTER_EVENT( Event_Server_Change_Buff_State );
 
+	EF::REGISTER_EVENT( Event_Client_Sync_Energy_Cell );
+	EF::REGISTER_EVENT( Event_Server_Sync_Energy_Cell );
+
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	EventManager::GetInstance()->AddListener( &Client::Shutdown, this, Event_Shutdown_Client::GUID );
 

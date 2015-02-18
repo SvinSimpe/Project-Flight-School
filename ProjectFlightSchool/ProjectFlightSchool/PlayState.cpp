@@ -98,6 +98,14 @@ void PlayState::EventListener( IEventPtr newEvent )
 		mShips.push_back( new ClientShip() );
 		mShips.back()->Initialize( data->ID(), data->TeamID(), data->Position(), data->Direction() );
 	}
+	else if( newEvent->GetEventType() == Event_Server_Sync_Energy_Cell::GUID )
+	{
+		std::shared_ptr<Event_Server_Sync_Energy_Cell> data = std::static_pointer_cast<Event_Server_Sync_Energy_Cell>( newEvent );
+		
+		mEnergyCells[data->EnergyCellID()]->SetOwnerID( data->OwnerID() );
+		mEnergyCells[data->EnergyCellID()]->SetPosition( data->Position() );
+		mEnergyCells[data->EnergyCellID()]->SetPickedUp( data->PickedUp() );
+	}
 }
 
 void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction )
@@ -463,11 +471,22 @@ HRESULT PlayState::Update( float deltaTime )
 	{
 		for( int i = 0; i < mShips.size(); i++ )
 		{
-			if( mShips[i]->GetTeamID() == mPlayer->GetTeam() && mShips[i]->Intersect( mPlayer->GetBoundingCircle ) )
+			if( mShips[i]->GetTeamID() == mPlayer->GetTeam() && mShips[i]->Intersect( mPlayer->GetBoundingCircle() ) )
 			{
 				mShips[i]->AddEnergyCell( mPlayer->GetEnergyCellID() );
 				mEnergyCells[mPlayer->GetEnergyCellID()]->SetOwnerID( mShips[i]->GetID() );
 				mPlayer->SetEnergyCellID( (UINT)-1 );
+			}
+		}
+	}
+	else
+	{
+		for( int i = 0; i < mShips.size(); i++ )
+		{
+			if( mShips[i]->GetTeamID() != mPlayer->GetTeam() && mShips[i]->Intersect( mPlayer->GetBoundingCircle() ) )
+			{
+				mPlayer->SetEnergyCellID( mShips[i]->RemoveEnergyCell() );
+				mEnergyCells[mPlayer->GetEnergyCellID()]->SetOwnerID( mPlayer->GetID() );
 			}
 		}
 	}
@@ -671,6 +690,7 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Set_Enemy_State::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Spawn_Ship::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Enemy_State::GUID ); 
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Energy_Cell::GUID ); 
 
 	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 
@@ -701,7 +721,7 @@ HRESULT PlayState::Initialize()
 	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
 	{
 		mEnergyCells[i] = new EnergyCell();
-		mEnergyCells[i]->Initialize( DirectX::XMFLOAT3( ( -7.0f + i + 2 ), 0.0f, 0.0f ) );
+		mEnergyCells[i]->Initialize( DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 	}
 
 	//TestSound

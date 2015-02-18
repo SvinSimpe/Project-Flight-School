@@ -91,6 +91,7 @@ class PlayState : public BaseState
 		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive );
 		void			RenderProjectiles();
 		void			SetEnemyState( unsigned int id, EnemyState state );
+	
 
 	protected:
 	public:

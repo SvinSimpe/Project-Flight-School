@@ -369,13 +369,17 @@ void Player::PickUpEnergyCell( EnergyCell** energyCells )
 {
 	for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
 		{
-			if( !energyCells[i]->GetPickedUp() && mEnergyCellID == (UINT)-1 )
+		if( !energyCells[i]->GetPickedUp() && mEnergyCellID == (UINT)-1 )
 			{
 				if( energyCells[i]->GetPickUpRadius()->Intersect( mBoundingCircle ) )
 				{
 					energyCells[i]->SetOwnerID( mID );
 					energyCells[i]->SetPickedUp( true );
+					energyCells[i]->SetPosition( mLowerBody.position );
 					mEnergyCellID = i;
+
+					IEventPtr E1( new Event_Client_Sync_Energy_Cell( i, mID, mLowerBody.position, true ) );
+					QueueEvent( E1 );
 				}
 			}
 		}
@@ -383,10 +387,18 @@ void Player::PickUpEnergyCell( EnergyCell** energyCells )
 
 void Player::DropEnergyCell( EnergyCell** energyCells )
 {
-	energyCells[mEnergyCellID]->SetPosition( mLowerBody.position );
-	energyCells[mEnergyCellID]->SetOwnerID( (UINT)-1 );
-	energyCells[mEnergyCellID]->SetPickedUp( false );
-	mEnergyCellID = (UINT)-1;
+	if( mEnergyCellID != (UINT)-1 )
+	{
+		energyCells[mEnergyCellID]->SetPosition( mLowerBody.position );
+		energyCells[mEnergyCellID]->SetOwnerID( (UINT)-1 );
+		energyCells[mEnergyCellID]->SetPickedUp( false );
+	
+
+		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, (UINT)-1, mLowerBody.position, false ) );
+		QueueEvent( E1 );
+
+		mEnergyCellID = (UINT)-1;
+	}
 }
 
 /////Public
@@ -547,7 +559,10 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 		RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
 		RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
 
-		PickUpEnergyCell( energyCells );
+		if( !mIsDown )
+		{
+			PickUpEnergyCell( energyCells );
+		}
 
 	}
 	else

@@ -26,6 +26,7 @@ class ClientShip : public ServerShip
 	protected:
 	public:
 		void	AddEnergyCell( UINT energyCellID );
+		UINT	RemoveEnergyCell();
 		bool	Intersect( BoundingCircle* entity ); // Will check for intersects with damaging stuff
 		void	Update( float deltaTime );
 		void	Render();

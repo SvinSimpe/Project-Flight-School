@@ -30,6 +30,11 @@ void ClientShip::AddEnergyCell( UINT energyCellID )
 	mEnergyCells[mNrOfEnergyCells++] = energyCellID;
 }
 
+UINT ClientShip::RemoveEnergyCell()
+{
+	return mEnergyCells[mNrOfEnergyCells--];
+}
+
 void ClientShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir )
 {
 	Release();

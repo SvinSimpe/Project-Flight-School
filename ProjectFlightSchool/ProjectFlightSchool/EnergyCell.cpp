@@ -2,10 +2,7 @@
 
 void EnergyCell::SetOwnerID( UINT id )
 {
-	if( !mPickedUp )
-	{
-		mOwnerID = id;
-	}
+	mOwnerID = id;
 }
 
 void EnergyCell::SetPosition( DirectX::XMFLOAT3 position )
@@ -50,18 +47,27 @@ HRESULT EnergyCell::Render()
 	return S_OK;
 }
 
+void EnergyCell::Reset()
+{
+	mAssetID		= (UINT)-1;
+	mOwnerID		= (UINT)-1;
+	mPickedUp		= false;
+	SAFE_DELETE( mPickUpRadius );
+	mPickUpRadius	= nullptr;
+}
+
 HRESULT EnergyCell::Initialize( DirectX::XMFLOAT3 position )
 {
 	HRESULT hr = S_OK;
 
-	if( FAILED( hr = Graphics::GetInstance()->LoadStatic3dAsset( "TBD", "TBD", mAssetID ) ) )
-	{
-		return hr;
-	}
-
 	mPickedUp				= false;
 	mPickUpRadius			= new BoundingCircle( 1.0f );
 	mPickUpRadius->center	= position;
+
+	/*if( FAILED( hr = Graphics::GetInstance()->LoadStatic3dAsset( "TBD", "TBD", mAssetID ) ) )
+	{
+		return hr;
+	}*/
 
 	return hr;
 }

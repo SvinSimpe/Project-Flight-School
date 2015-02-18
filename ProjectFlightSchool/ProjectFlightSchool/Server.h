@@ -9,6 +9,7 @@
 #include <vector>
 #include <stdlib.h>
 #include <time.h>
+#include "EnergyCell.h"
 
 class Server : public Network
 {
@@ -52,6 +53,8 @@ class Server : public Network
 		UINT						mNrOfEnemiesSpawned;
 		UINT						mNrOfProjectilesFired;
 
+		EnergyCell**				mEnergyCells;
+
 	protected:
 	public:
 
@@ -73,6 +76,8 @@ class Server : public Network
 		void	ClientShipProjectileDamage( IEventPtr eventPtr );
 		void	ClientEnemyProjectileDamage( IEventPtr eventPtr );
 		void	SetEnemyState( IEventPtr eventPtr );
+
+		void	ClientInteractEnergyCell( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 		void	DoSelect( int pauseMicroSecs, bool handleInput = true );

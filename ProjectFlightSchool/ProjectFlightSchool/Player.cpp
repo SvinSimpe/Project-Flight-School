@@ -97,6 +97,14 @@ void Player::EventListener( IEventPtr newEvent )
 			mXP += data->XP();
 		}
 	}
+	else if( newEvent->GetEventType() == Event_Server_Switch_Team::GUID )
+	{
+		std::shared_ptr<Event_Server_Switch_Team> data = std::static_pointer_cast<Event_Server_Switch_Team>( newEvent );
+		if( data->ID() == mID )
+		{
+			mTeam = data->TeamID();
+		}
+	}
 }
 
 void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
@@ -809,6 +817,7 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Upgrade_Player::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_New_Player_Spawn_Position::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_XP::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Switch_Team::GUID );
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
 
 	return S_OK;

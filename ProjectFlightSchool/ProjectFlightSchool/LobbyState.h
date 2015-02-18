@@ -5,12 +5,16 @@
 #include "Font.h"
 #include "Events.h"
 #include "EventManager.h"
+#include "MovingButton.h"
+#include "Button.h"
+#include "Client.h"
 
 struct LobbyPlayer
 {
-	int			ID;
-	std::string	name;
-	int			team;
+	int				ID;
+	std::string		name;
+	int				team;
+	MovingButton	button;
 };
 
 class LobbyState : public BaseState
@@ -19,6 +23,7 @@ class LobbyState : public BaseState
 	private:
 		std::vector<LobbyPlayer>	mPlayers;
 		Font						mFont;
+		MovingButton				mStartButton;
 
 	protected:
 	public:
@@ -26,6 +31,7 @@ class LobbyState : public BaseState
 	// Class functions
 	private:
 		void	EventListener( IEventPtr newEvent );
+		void	HandleInput();
 
 	protected:
 	public:

@@ -84,6 +84,14 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 			GoUp();
 		}
 	}
+	else if( newEvent->GetEventType() == Event_Server_Switch_Team::GUID )
+	{
+		std::shared_ptr<Event_Server_Switch_Team> data = std::static_pointer_cast<Event_Server_Switch_Team>( newEvent );
+		if( mID == data->ID() )
+		{
+			mTeam = data->TeamID();
+		}
+	}
 }
 
 HRESULT RemotePlayer::InitializeGraphics()
@@ -439,6 +447,7 @@ void RemotePlayer::RemoteInit( unsigned int id, int team )
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Update_HP::GUID );
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Down::GUID );
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Up::GUID );
+	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Server_Switch_Team::GUID );
 }
 
 void RemotePlayer::Release()

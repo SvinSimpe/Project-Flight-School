@@ -69,6 +69,8 @@ class Server : public Network
 		UINT						mNrOfEnemiesSpawned;
 		UINT						mNrOfProjectilesFired;
 
+		bool						mStopAccept;
+
 	protected:
 	public:
 
@@ -94,6 +96,8 @@ class Server : public Network
 		void	ClientWinLose( IEventPtr eventPtr );
 		void	ClientChangeShipLevels( IEventPtr eventPtr );
 		void	LobbyPlayer( IEventPtr eventPtr );
+		void	StopLobby( IEventPtr eventPtr );
+		void	SwitchTeam( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 		void	DoSelect( int pauseMicroSecs, bool handleInput = true );

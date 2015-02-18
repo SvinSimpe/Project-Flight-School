@@ -34,7 +34,7 @@ void GS_main( point VS_In input[1], inout TriangleStream<GS_Out> outputStream )
 	float3 rightVec = float3( 1.0f, 0.0f, 0.0f );
 	float3 upVec = normalize( cross( vecToCam, rightVec ) );
 
-	float size = input[0].age * 0.2f;
+	float size = input[0].age * 0.1f;
 
 	//Get vertices for the quad
 	float3 vert[4];

@@ -288,7 +288,7 @@ class Enemy
 		bool				IsAlive() const;
 		XMFLOAT3			GetPosition() const;
 		XMFLOAT3			GetDirection() const;
-		
+		float				GetHP() const;
 
 		HRESULT				Initialize( int id, ServerPlayer** players, UINT NrOfPlayers );
 		void				Reset();

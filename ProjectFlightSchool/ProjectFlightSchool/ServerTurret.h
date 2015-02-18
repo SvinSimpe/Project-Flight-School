@@ -42,7 +42,7 @@ class ServerTurret : public GameObject
 
 		UINT			mCurrentMode;
 		ITurretMode*	mModes[MODE_AMOUNT];
-		BoundingCircle*	mTarget;				// Defines the circle of the current target, is newer initialized on its own
+		BoundingCircle*	mTarget;				// Defines the circle of the current target, is never initialized on its own
 		BoundingCircle* mScanCircle;			// Defines the area where the turret will be looking for targets
 
 	protected:

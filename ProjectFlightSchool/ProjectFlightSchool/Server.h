@@ -30,9 +30,10 @@ class Server : public Network
 		struct ClientNEF // Server player
 		{
 			NetworkEventForwarder	NEF;
+			float					HP;
 			UINT					ID;
 			UINT					TeamID;
-			XMFLOAT3				Pos = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			BoundingCircle			Pos = BoundingCircle( XMFLOAT3( 0.0f, 0.0f, 0.0f ), 1.0f );
 			bool					IsBuffed = false;
 			bool					IsAlive = false;
 			bool					IsDown = false;
@@ -102,6 +103,7 @@ class Server : public Network
 		UINT	CurrentPID();
 		void	CreateShips();
 		bool	CheckShipBuff( ServerShip* ship, XMFLOAT3 pos );
+		void	UpdateShip( float deltaTime, ServerShip* s );
 
 		XMFLOAT3	GetNextSpawn();
 

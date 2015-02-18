@@ -330,6 +330,11 @@ XMFLOAT3 Enemy::GetDirection() const
 	return mDirection;
 }
 
+float Enemy::GetHP() const
+{
+	return mCurrentHp;
+}
+
 HRESULT Enemy::Initialize( int id, ServerPlayer** players, UINT NrOfPlayers )
 {
 	mID				= id;

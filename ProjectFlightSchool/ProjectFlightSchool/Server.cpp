@@ -111,14 +111,14 @@ void Server::ClientUpdate( IEventPtr eventPtr )
 				}
 			}
 
-			mClientMap[data->ID()]->Pos = data->LowerBodyPos();
+			mClientMap[data->ID()]->Pos.center = data->LowerBodyPos();
 			XMFLOAT3 vel = data->Velocity();
 			XMFLOAT3 dir = data->UpperBodyDirection();
 			std::string name = data->Name();
 			mClientMap[data->ID()]->IsBuffed = data->IsBuffed();
 			mClientMap[data->ID()]->IsAlive = data->IsAlive();
 
-			IEventPtr E1( new Event_Remote_Update( data->ID(), mClientMap[data->ID()]->Pos, vel, dir, name, data->IsAlive() ) );
+			IEventPtr E1( new Event_Remote_Update( data->ID(), mClientMap[data->ID()]->Pos.center, vel, dir, name, data->IsAlive() ) );
 			BroadcastEvent( E1, data->ID() );
 		}
 	}
@@ -207,9 +207,9 @@ void Server::ClientUpdateHP( IEventPtr eventPtr )
 		auto& it = mClientMap.find(data->ID());
 		if( it != mClientMap.end() )
 		{
-			float hp = data->HP();
+			mClientMap[data->ID()]->HP = data->HP();
 
-			IEventPtr E1( new Event_Remote_Update_HP( data->ID(), hp ) );
+			IEventPtr E1( new Event_Remote_Update_HP( data->ID(), data->HP() ) );
 			BroadcastEvent( E1, data->ID() );
 		}
 	}
@@ -472,6 +472,39 @@ bool Server::CheckShipBuff( ServerShip* ship, XMFLOAT3 pos )
 	return ship->Intersect( &circle );
 }
 
+void Server::UpdateShip( float deltaTime, ServerShip* s )
+{
+	if( s->mWasUpdated )
+	{
+		IEventPtr E1( new Event_Server_Update_Ship( s->mID, s->mMaxShield, s->mCurrentShield, s->mCurrentHP ) );
+		BroadcastEvent( E1 );
+	}
+
+	std::vector<BoundingCircle*> enemyCircles;
+	for( UINT i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	{
+		if( mEnemies[i]->IsAlive() )
+		{
+			enemyCircles.push_back( mEnemies[i]->GetAttackCircle() );
+		}
+	}
+
+	for( auto& cm : mClientMap )
+	{
+		ClientNEF* c = cm.second;
+		if( s->mTeamID != c->TeamID && c->HP > 0.0f)
+		{
+			enemyCircles.push_back( &c->Pos );
+		}
+	}
+	
+	s->FindTurretTarget( enemyCircles );
+
+	s->Update( deltaTime );
+	IEventPtr E1( new Event_Server_Update_Turret( s->mServerTurret->mID, s->mServerTurret->mTurretHead->rot ) );
+	BroadcastEvent( E1 );
+}
+
 bool Server::Connect( UINT port )
 {
 	mSocketManager = new SocketManager();
@@ -546,14 +579,7 @@ void Server::Update( float deltaTime )
 		// Ship updates
 		for( auto& s : mShips )
 		{
-			if( s->mWasUpdated )
-			{
-				IEventPtr E1( new Event_Server_Update_Ship( s->mID, s->mMaxShield, s->mCurrentShield, s->mCurrentHP ) );
-				BroadcastEvent( E1 );
-			}
-			s->Update( deltaTime );
-			IEventPtr E1( new Event_Server_Update_Turret( s->mServerTurret->mID, s->mServerTurret->mTurretHead->rot ) );
-			BroadcastEvent( E1 );
+			UpdateShip( deltaTime, s );
 		}
 
 		// Sends the events in the queue to the clients

@@ -4,7 +4,7 @@
 #include "ParticleSystem.h"
 
 
-#define MAX_NR_OF_PARTICLES  50000
+#define MAX_NR_OF_PARTICLES  500000
 
 
 class ParticleManager

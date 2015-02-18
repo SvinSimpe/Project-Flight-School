@@ -116,12 +116,12 @@ enum Cameras
 #define NUM_GBUFFERS				3
 #define MAX_ANIM_INSTANCE_BATCH		32
 #define MAX_STATIC3D_INSTANCE_BATCH 512
-#define MAX_BILLBOARD_BATCH			1024
-#define MAX_PARTICLE_BATCH			2048
+#define MAX_BILLBOARD_BATCH			100000 // Used to be 1024
+#define MAX_PARTICLE_BATCH			100000
 #define MAX_SINGLE_STATIC_VERTICES	20000
 
-#define SHADOW_MAP_WIDTH	1024
-#define SHADOW_MAP_HEIGHT	1024
+#define SHADOW_MAP_WIDTH	512
+#define SHADOW_MAP_HEIGHT	512
 
 #define SAFE_RELEASE_DELETE( x ) if( x ) { ( x )->Release(); delete x; ( x ) = nullptr; }
 

@@ -568,8 +568,10 @@ HRESULT PlayState::Update( float deltaTime )
 	}
 
 	///Test fountain particle system
-	
-	RenderManager::GetInstance()->RequestParticleSystem( 9999, Test_Fountain, XMFLOAT3( 0.0f, 0.0f, 0.0f ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
+	for (size_t i = 0; i < 5; i++)
+	{
+		RenderManager::GetInstance()->RequestParticleSystem( 999 + i, Test_Fountain, XMFLOAT3( (float)(i * 20), 0.0f, (float)(i * 20) ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
+	}
 	
 	if( mPlayer->Upgradable() < 1 )
 	{
@@ -594,7 +596,6 @@ HRESULT PlayState::Update( float deltaTime )
 	{
 		s->Update( deltaTime );
 	}
-
 
 	// Test Anim
 	///////////////////////////////////////////////////////////////////////////
@@ -661,6 +662,8 @@ void PlayState::OnEnter()
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Started() );
 	EventManager::GetInstance()->QueueEvent( E1 );
+
+	SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
 }
 
 void PlayState::OnExit()
@@ -770,8 +773,9 @@ HRESULT PlayState::Initialize()
 	mMyShip			= nullptr;
 
 	//TestSound
-	m3DSoundAsset	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav" );
-	mSoundAsset		= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
+	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav" );
+	mSoundAsset			= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
+	mStreamSoundAsset	= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav" );
 
 	return S_OK;
 }

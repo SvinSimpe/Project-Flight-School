@@ -1042,7 +1042,8 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 				mParticleInstanced[objectToRender].position[1]  = info[i].mWorldPosition.y;
 				mParticleInstanced[objectToRender].position[2]  = info[i].mWorldPosition.z;
 
-				mParticleInstanced[objectToRender].lifeTime		= info[i].mLifeTime;
+				mParticleInstanced[objectToRender].age				= info[i].mAge;
+				mParticleInstanced[objectToRender].timeTillDeath	= info[i].mTimeTillDeath;
 
 
 				objectToRender++;
@@ -2047,8 +2048,8 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 	shadowMapCameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 0.0f, 1.0f, 0.0f );
 	shadowMapCameraInfo.width		= (float)SHADOW_MAP_WIDTH;
 	shadowMapCameraInfo.height		= (float)SHADOW_MAP_HEIGHT;
-	shadowMapCameraInfo.foVY		= 3.14159265f * 0.5f;
-	shadowMapCameraInfo.nearZ		= 10.0f;
+	shadowMapCameraInfo.foVY		= 3.14159265f * 0.4f;
+	shadowMapCameraInfo.nearZ		= 15.0f;
 	shadowMapCameraInfo.farZ		= 40.0f;
 
 	hr = mCamera[CAMERAS_SHADOWMAP]->Initialize( &shadowMapCameraInfo );

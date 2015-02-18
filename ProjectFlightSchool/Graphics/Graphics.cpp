@@ -431,8 +431,8 @@ HRESULT Graphics::InitializeEffects()
 	//=======================================
 
 	//Muzzle Flash effect
-	effectInfo.filePath					= "../Content/Effects/Particle Effects/bloodEffect.hlsl";
-	effectInfo.fileName					= "bloodEffect";
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/BloodEffect.hlsl";
+	effectInfo.fileName					= "BloodEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
 	effectInfo.isGeometryShaderIncluded = true;
 

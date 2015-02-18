@@ -131,7 +131,7 @@ void ParticleManager::Initialize()
 	
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Blood]; i++ )
 	{
-		mParticleSystems[Blood][i]->Initialize( Blood, 64.0f, 288 );
+		mParticleSystems[Blood][i]->Initialize( Blood, 8.0f, 144 );
 		mNrOfParticleSystemsPerType[Blood]++;
 		mNrOfParticleSystems++;
 	}

@@ -190,7 +190,7 @@ struct ParticleData
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
 		{
-			lifeTime[i] += 0.01;//deltaTime;
+			lifeTime[i] += 0.01f;//deltaTime;
 		}
 	}
 
@@ -239,7 +239,14 @@ struct ParticleData
 	{
 		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
 		{
-			if( particleType == MuzzleFlash )
+
+			if( particleType == Blood )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 40 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 10 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 40 );		
+			}
+			else if( particleType == MuzzleFlash )
 
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 10, 80 );

@@ -31,6 +31,11 @@ struct ParticleSystem : public ParticleData
 
 		switch ( particleType )
 		{
+			case Spark:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/sparks.dds", assetID );
+				break;
+			}
 			case Blood:
 			{
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/blood.dds", assetID );
@@ -84,12 +89,14 @@ struct ParticleSystem : public ParticleData
 		///==================
 		// Use emitterDirection as base and randomize a different direction vector with a maximum spread angle deviation
 		SetDirection( emitterDirection.x, emitterDirection.y, emitterDirection.z, particleCount, spreadAngle );
+		
 		if( particleType == Test_Fountain )
 			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 3.0f, particleCount );
 		else
 			SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
 		
-		if( particleType == Blood )	SetRandomDeathTime( 1, 2, particleCount );
+		if( particleType == Spark )	SetRandomDeathTime( 1, 2, particleCount );
+		else if( particleType == Blood )	SetRandomDeathTime( 1, 2, particleCount );
 		else if( particleType == MuzzleFlash )	SetRandomDeathTime( 1, 2, particleCount );
 		else if( particleType == Smoke_MiniGun )	SetRandomDeathTime( 1, 6, particleCount );
 		else if( particleType == Test_Fountain )	SetRandomDeathTime( 1, 100, particleCount );
@@ -101,10 +108,11 @@ struct ParticleSystem : public ParticleData
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{	
-			if( particleType == Blood )	Generate( emitterPosition, emitterDirection, 8, 25.0f );
-			else if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 4,  25.0f );
-			else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 8, 2.0f );
-			else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 32, 20.0f );
+		if( particleType == Spark )	Generate( emitterPosition, emitterDirection, 8, 25.0f );	
+		else if( particleType == Blood )	Generate( emitterPosition, emitterDirection, 8, 25.0f );
+		else if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 4,  25.0f );
+		else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 8, 2.0f );
+		else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 32, 20.0f );
 	}
 
 	virtual void Update( float deltaTime )
@@ -118,6 +126,12 @@ struct ParticleSystem : public ParticleData
 		// Update logic based on Particle type
 		switch( particleType )
 		{
+			case Spark: 
+			{
+				// Update Spark logic here
+				SparkLogic( deltaTime );
+				break;
+			}
 			case Blood: 
 			{
 				// Update Blood logic here
@@ -187,7 +201,12 @@ struct ParticleSystem : public ParticleData
 				nrOfRequestedParticles = 0;	
 		}
 	}
-		
+	
+	void SparkLogic( float deltaTime ) 
+	{
+
+	}
+
 	void BloodLogic( float deltaTime )
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )

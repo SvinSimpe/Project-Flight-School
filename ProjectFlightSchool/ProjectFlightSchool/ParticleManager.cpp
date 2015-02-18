@@ -128,7 +128,12 @@ void ParticleManager::Initialize()
 	//		mNrOfParticleSystems++;
 	//	}
 
-
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Spark]; i++ )
+	{
+		mParticleSystems[Spark][i]->Initialize( Spark, 8.0f, 144 );
+		mNrOfParticleSystemsPerType[Spark]++;
+		mNrOfParticleSystems++;
+	}
 	
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Blood]; i++ )
 	{

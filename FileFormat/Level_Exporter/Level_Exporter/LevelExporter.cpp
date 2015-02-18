@@ -548,11 +548,11 @@ void LevelExporter::WriteFileToBinary(const char* fileName)
 	fileOut.write((char*)&navvertexCount, sizeof(UINT));
 	fileOut.write((char*)navData.vertices, sizeof(NavVertex) * navvertexCount);
 	int a = sizeof(VolumeLight);
-	fileOut.write((char*)&nrOfLights, sizeof(nrOfLights));
-	for (int i = 0; i < lights.size(); i++)
-	{
-		fileOut.write((char*)&lights[i], sizeof(VolumeLight));
-	}
+	//fileOut.write((char*)&nrOfLights, sizeof(nrOfLights));
+	//for (int i = 0; i < lights.size(); i++)
+	//{
+	//	fileOut.write((char*)&lights[i], sizeof(VolumeLight));
+	//}
 
 	fileOut.write((char*)&nrOfObjects, sizeof(nrOfObjects));
 	for (int i = 0; i < matrices.size(); i++)

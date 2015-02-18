@@ -211,8 +211,13 @@ struct ParticleData
 		}
 
 		XMStoreFloat3( &randomDirectionVector, randomAimingDirection );
-		
-		if( particleType != Test_Fountain )
+		if ( particleType == Spark )
+		{
+			//Elevation for Spark effect
+			SparkElevationY( 1.0f, 5.0f );
+		}
+
+		if( particleType != Test_Fountain && particleType != Spark )
 		{
 			//Get random elevation
 			float randomElevation = ( (float)( rand() % 20 ) - 10 ) * 0.1f;
@@ -238,7 +243,13 @@ struct ParticleData
 	{
 		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
 		{
-
+			
+			if( particleType == Spark )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 100 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 80 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 100 );		
+			}
 			if( particleType == Blood )
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 40 );
@@ -246,7 +257,6 @@ struct ParticleData
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 40 );		
 			}
 			else if( particleType == MuzzleFlash )
-
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 10, 80 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 10, 80 );
@@ -291,6 +301,12 @@ struct ParticleData
 		{
 			yVelocity[i] += value;
 		}
+	}
+
+	void SparkElevationY( float lowerBound, float upperBound )
+	{
+		float randomElevation = (float)( rand() % (int)upperBound ) - lowerBound;
+		randomDirectionVector.y = randomElevation;
 	}
 
 	void ResetRandomDirectionVector()

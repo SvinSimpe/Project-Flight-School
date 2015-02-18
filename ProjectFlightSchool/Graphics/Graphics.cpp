@@ -430,7 +430,17 @@ HRESULT Graphics::InitializeEffects()
 	//			PARTICLE EFFECTS			|
 	//=======================================
 
-	//Muzzle Flash effect
+	//Spark effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/SparkEffect.hlsl";
+	effectInfo.fileName					= "SparkEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_SPARK]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Blood effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/BloodEffect.hlsl";
 	effectInfo.fileName					= "BloodEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;

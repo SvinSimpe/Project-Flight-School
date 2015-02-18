@@ -8,6 +8,7 @@
 #include "OptionsMenuState.h"
 #include "SingleplayerMenuState.h"
 #include "PlayState.h"
+#include "LobbyState.h"
 
 class StateMachine
 {

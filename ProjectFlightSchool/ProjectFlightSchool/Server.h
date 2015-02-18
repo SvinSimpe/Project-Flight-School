@@ -93,6 +93,7 @@ class Server : public Network
 		void	BroadcastEnemyAttackToClients( IEventPtr eventPtr );
 		void	ClientWinLose( IEventPtr eventPtr );
 		void	ClientChangeShipLevels( IEventPtr eventPtr );
+		void	LobbyPlayer( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 		void	DoSelect( int pauseMicroSecs, bool handleInput = true );

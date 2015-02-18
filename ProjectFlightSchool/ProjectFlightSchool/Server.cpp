@@ -376,6 +376,16 @@ void Server::ClientChangeShipLevels( IEventPtr eventPtr )
 	}
 }
 
+void Server::LobbyPlayer( IEventPtr eventPtr )
+{
+	if ( eventPtr->GetEventType() == Event_Client_Initialize_LobbyPlayer::GUID )
+	{
+		std::shared_ptr<Event_Client_Initialize_LobbyPlayer> data = std::static_pointer_cast<Event_Client_Initialize_LobbyPlayer>( eventPtr );
+		IEventPtr E1( new Event_Server_Initialize_LobbyPlayer( data->ID(), data->TeamID(), data->Name() ) );
+		BroadcastEvent( E1 );
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -589,6 +599,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientWinLose, this, Event_Client_Win::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientChangeShipLevels, this, Event_Client_Change_Ship_Levels::GUID );
 	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
+	EventManager::GetInstance()->AddListener( &Server::LobbyPlayer, this, Event_Client_Initialize_LobbyPlayer::GUID );
 
 	mTeamDelegate	= 1;
 	mCurrentPID		= 0;

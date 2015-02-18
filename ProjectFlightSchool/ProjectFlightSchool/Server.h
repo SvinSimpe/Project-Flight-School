@@ -30,7 +30,7 @@ class Server : public Network
 		struct ClientNEF // Server player
 		{
 			NetworkEventForwarder	NEF;
-			float					HP;
+			float					HP = 100.0f;
 			UINT					ID;
 			UINT					TeamID;
 			BoundingCircle			Pos = BoundingCircle( XMFLOAT3( 0.0f, 0.0f, 0.0f ), 1.0f );

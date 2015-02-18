@@ -15,16 +15,16 @@ class ClientShip : public ServerShip
 	public:
 
 	private:
-		void	CalcShieldLevel();
-
 		void	RemoteUpdateShip( IEventPtr eventPtr );
 		void	RemoteChangeShipLevels( IEventPtr eventPtr );
+
 
 	protected:
 	public:
 		UINT	GetID() const;
 		UINT	GetTeamID() const;
 
+		void	FindTurretTarget( std::vector<BoundingCircle*> enemies );
 		void	CalculatePlayerRespawnPosition( IEventPtr eventPtr );
 		void	Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale );
 		bool	Intersect( BoundingCircle* entity ); // Will check for intersects with damaging stuff

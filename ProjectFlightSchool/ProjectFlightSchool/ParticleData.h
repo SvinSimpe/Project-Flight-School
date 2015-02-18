@@ -190,7 +190,7 @@ struct ParticleData
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
 		{
-			lifeTime[i] += 0.01;//deltaTime;
+			lifeTime[i] += 0.01f;//deltaTime;
 		}
 	}
 

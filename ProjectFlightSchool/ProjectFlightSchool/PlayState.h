@@ -50,8 +50,8 @@ class PlayState : public BaseState
 		float						mAlliesHP[MAX_REMOTE_PLAYERS / 2];
 		Gui*						mGui;
 
-		std::vector<ClientShip*>	mShips;
-		ClientShip*					mMyShip;	// A pointer to the Client's own ship, used to show the remaining HP of it
+		ClientShip*					mFriendShip;	// A pointer to the Client's own ship, used to show the remaining HP of it
+		ClientShip*					mEnemyShip;		// A pointer to the other team's ship, used for interaction with that
 
 		//TestSound
 		int							m3DSoundAsset;
@@ -80,6 +80,7 @@ class PlayState : public BaseState
 		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive );
 		void			RenderProjectiles();
 		void			SetEnemyState( unsigned int id, EnemyState state );
+		void			FindShipTargets();
 
 	protected:
 	public:

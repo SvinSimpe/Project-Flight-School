@@ -58,6 +58,14 @@ void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 	}
 }
 
+void ClientShip::FindTurretTarget( std::vector<BoundingCircle*> enemies )
+{
+	for( auto& enemy : enemies )
+	{
+		mClientTurret->FindTarget( enemy );
+	}
+}
+
 void ClientShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale )
 {
 	ServerShip::Reset( id, teamID, pos, rot, scale );

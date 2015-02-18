@@ -47,7 +47,7 @@ class ClientTurret : public ServerTurret
 
 		int				mCurrentMode;
 		ITurretMode*	mModes[MODE_AMOUNT];
-		BoundingCircle*	mTargetCircle; // Defines the circle of the current target
+		BoundingCircle*	mTarget; // Defines the circle of the current target
 		BoundingCircle* mScanCircle; // Defines the area where the turret will be looking for targets
 		LoadOut*		mLoadOut;
 		TurretPart*		mTurretHead;
@@ -58,10 +58,11 @@ class ClientTurret : public ServerTurret
 
 	private:
 		void	SwitchMode( int mode );
+		int		CheckMode() const;
 
 	protected:
 	public:
-		void	FindTarget( BoundingCircle* targetCircle );
+		void	FindTarget( BoundingCircle* enemy );
 		void	Render( float deltaTime, DirectX::XMFLOAT4X4 parentWorld );
 		void	Update( float deltaTime );
 		void	Reset( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale );

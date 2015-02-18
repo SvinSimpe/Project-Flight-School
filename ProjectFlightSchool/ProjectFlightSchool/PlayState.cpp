@@ -97,10 +97,17 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if( newEvent->GetEventType() == Event_Server_Spawn_Ship::GUID )
 	{
 		std::shared_ptr<Event_Server_Spawn_Ship> data = std::static_pointer_cast<Event_Server_Spawn_Ship>( newEvent );
-		mShips.push_back( new ClientShip() );
-		mShips.back()->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
-		if( data->TeamID() == mPlayer->GetID() )
-			mMyShip = mShips.back();
+
+		if( data->TeamID() == mPlayer->GetTeam() )
+		{
+			mFriendShip = new ClientShip();
+			mFriendShip->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
+		}
+		else
+		{
+			mEnemyShip = new ClientShip();
+			mEnemyShip->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
+		}
 	}
 	else if( newEvent->GetEventType() == Event_Remote_Win::GUID )
 	{
@@ -229,18 +236,6 @@ void PlayState::CheckProjectileCollision()
 					}
 				}
 			}
-
-			// Ship damage
-			for( size_t j = 0; j < mShips.size(); j++ )
-			{
-				if( mShips.at(j)->Intersect( mProjectiles[i]->GetBoundingCircle() ) )
-				{
-					if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() && mPlayer->GetTeam() != mShips.at(j)->GetTeamID() )
-					{
-						break;
-					}
-				}
-			}
 		}
 	}
 }
@@ -316,26 +311,22 @@ void PlayState::HandleDeveloperCameraInput()
 	}
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_O ) )
 	{
-		for( auto& s : mShips )
+		if( mFriendShip->Intersect( mPlayer->GetBoundingCircle() ) )
 		{
-			//Test Win
-			if ( mPlayer->GetTeam() == s->GetTeamID() && s->Intersect( mPlayer->GetBoundingCircle() ) )
-			{
-				IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
-				Client::GetInstance()->SendEvent(E1);
-			}
+			IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
+			Client::GetInstance()->SendEvent( E1 );
 		}
 	}
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_U ) )
 	{
-		for( auto& s : mShips )
+		if( mFriendShip->Intersect( mPlayer->GetBoundingCircle() ) )
 		{
-			if( mPlayer->GetTeam() == s->GetTeamID() && s->Intersect( mPlayer->GetBoundingCircle() ) && mGui->UpgradeShipWindowIsActive() )
+			if( mGui->UpgradeShipWindowIsActive() )
 			{
 				mPlayer->UnLock();
 				mGui->DeActivateUpgradeShipWindow();
 			}
-			else if( mPlayer->GetTeam() == s->GetTeamID() && s->Intersect( mPlayer->GetBoundingCircle() ) && mPlayer->IsAlive() )
+			else if( mPlayer->IsAlive() )
 			{
 				mPlayer->Lock();
 				mGui->ActivateUpgradeShipWindow();
@@ -344,14 +335,14 @@ void PlayState::HandleDeveloperCameraInput()
 	}
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_Y ) )
 	{
-		for( auto& s : mShips )
+		if( mFriendShip->Intersect( mPlayer->GetBoundingCircle() ) )
 		{
-			if( mPlayer->GetTeam() == s->GetTeamID() && s->Intersect( mPlayer->GetBoundingCircle() ) && mGui->UpgradePlayerWindowIsActive() )
+			if( mGui->UpgradePlayerWindowIsActive() )
 			{
 				mPlayer->UnLock();
 				mGui->DeActivateUpgradePlayerWindow();
 			}
-			else if( mPlayer->GetTeam() == s->GetTeamID() && s->Intersect( mPlayer->GetBoundingCircle() ) && mPlayer->IsAlive() && mPlayer->Upgradable() >= 1 )
+			else if( mPlayer->IsAlive() && ( mPlayer->Upgradable() >= 1 ) )
 			{
 				mPlayer->Lock();
 				mGui->ActivateUpgradePlayerWindow();
@@ -361,11 +352,9 @@ void PlayState::HandleDeveloperCameraInput()
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_1 ) )
 	{
 		RenderManager::GetInstance()->ChangeRasterizerState( CULL_NONE );
-		for( auto& s : mShips )
-		{
-			IEventPtr E1( new Event_Client_Change_Ship_Levels( s->GetID(), 0, -1, 0 ) );
-			Client::GetInstance()->SendEvent( E1 );
-		}
+
+		IEventPtr E1( new Event_Client_Change_Ship_Levels( mFriendShip->GetID(), 0, -1, 0 ) );
+		Client::GetInstance()->SendEvent( E1 );
 	}
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_2 ) )
 		RenderManager::GetInstance()->ChangeRasterizerState( CULL_BACK );
@@ -459,6 +448,37 @@ void PlayState::SetEnemyState( unsigned int id, EnemyState state )
 	mEnemies[id]->SetAnimation( mEnemyAnimationManager->GetAnimation( mEnemies[id]->GetEnemyType(), state ), state == TakeDamage );
 }
 
+void PlayState::FindShipTargets()
+{
+	if( mFriendShip )
+	{
+		std::vector<BoundingCircle*> targets;
+
+		targets.push_back( mPlayer->GetBoundingCircle() );
+
+		for( auto& rp : mRemotePlayers )
+		{
+			if( rp->GetTeam() == mFriendShip->GetTeamID() && rp->IsAlive() && !rp->IsDown() )
+			{
+				targets.push_back( rp->GetBoundingCircle() );
+			}
+		}
+
+		for( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+		{
+			if( mEnemies[i]->IsAlive() )
+			{
+				targets.push_back( mEnemies[i]->GetBoundingCircle() );
+			}
+		}
+
+		mFriendShip->FindTurretTarget( targets );
+	}
+	if( mEnemyShip )
+	{
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
@@ -466,6 +486,8 @@ void PlayState::SetEnemyState( unsigned int id, EnemyState state )
 HRESULT PlayState::Update( float deltaTime )
 {
 	CheckProjectileCollision();
+
+	FindShipTargets();
 
 	//Fps update
 	mFPS = mFPS * 0.1f + 0.9f / deltaTime;
@@ -531,8 +553,8 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.mPlayerNames	= pName;
 	guiUpdate.mNrOfAllies	= nrOfAllies;
 	guiUpdate.mAlliesHP		= mAlliesHP;
-	if( mMyShip )
-		guiUpdate.mShipHP	= mMyShip->PercentHP();
+	if( mFriendShip )
+		guiUpdate.mShipHP	= mFriendShip->PercentHP();
 	else
 		guiUpdate.mShipHP	= 1.0f;
 
@@ -592,10 +614,10 @@ HRESULT PlayState::Update( float deltaTime )
 
 	mGui->Update( guiUpdate );
 
-	for( auto& s : mShips )
-	{
-		s->Update( deltaTime );
-	}
+	if( mFriendShip )
+		mFriendShip->Update( deltaTime );
+	if( mEnemyShip )
+		mEnemyShip->Update( deltaTime );
 
 	// Test Anim
 	///////////////////////////////////////////////////////////////////////////
@@ -646,10 +668,11 @@ HRESULT PlayState::Render()
 
 	XMFLOAT4X4 identity;
 	XMStoreFloat4x4( &identity, XMMatrixIdentity() );
-	for( auto& s : mShips )
-	{
-		s->Render( 0.0f, identity );
-	}
+
+	if( mFriendShip )
+		mFriendShip->Render( 0.0f, identity );
+	if( mEnemyShip )
+		mEnemyShip->Render( 0.0f, identity );
 
 	RenderManager::GetInstance()->Render();
 
@@ -691,11 +714,8 @@ void PlayState::Reset()
 	}
 	mRemotePlayers.clear();
 
-	for( auto& s : mShips )
-	{
-		SAFE_RELEASE_DELETE( s );
-	}
-	mShips.clear();
+	SAFE_RELEASE_DELETE( mFriendShip );
+	SAFE_RELEASE_DELETE( mEnemyShip );
 
 	RenderManager::GetInstance()->mParticleManager->Reset();
 }
@@ -769,9 +789,6 @@ HRESULT PlayState::Initialize()
 	mGui = new Gui();
 	mGui->Initialize();
 
-	mShips			= std::vector<ClientShip*>();
-	mMyShip			= nullptr;
-
 	//TestSound
 	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav" );
 	mSoundAsset			= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
@@ -818,12 +835,8 @@ void PlayState::Release()
 	mGui->Release();
 	SAFE_DELETE( mGui );
 
-	for( auto& s : mShips )
-	{
-		if( s )
-			s->Release();
-		SAFE_DELETE( s );
-	}
+	SAFE_RELEASE_DELETE( mFriendShip );
+	SAFE_RELEASE_DELETE( mEnemyShip );
 }
 
 PlayState::PlayState()
@@ -840,7 +853,8 @@ PlayState::PlayState()
 	mEnemyListSynced		= false;
 	mServerInitialized		= false;
 	mGui					= nullptr;
-	mShips					= std::vector<ClientShip*>( 0 );
+	mFriendShip				= nullptr;
+	mEnemyShip				= nullptr;
 }
 
 PlayState::~PlayState()

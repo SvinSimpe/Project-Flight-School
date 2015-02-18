@@ -289,17 +289,12 @@ AttackBehavior::~AttackBehavior()
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT TakeDamageBehavior::Update( float deltaTime )
 {
-	//mStateTimer -= deltaTime;
-	//if( mStateTimer >= 0.0f )
-	//	mEnemy->Hunt( deltaTime );
-	//else
 	mEnemy->ChangeBehavior( HUNT_PLAYER_BEHAVIOR );
 	return S_OK;
 }
 
 void TakeDamageBehavior::OnEnter()
 {
-	//mStateTimer				= 0.2f;
 	IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), TakeDamage ) );
 	EventManager::GetInstance()->QueueEvent( state );
 }

@@ -371,6 +371,25 @@ void Server::ClientChangeShipLevels( IEventPtr eventPtr )
 				s->ClientChangeShipLevels( data->TurretLevelChange(), data->ShieldLevelChange(), data->BuffLevelChange() );
 				IEventPtr E1( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel ) );
 				BroadcastEvent( E1 );
+				break;
+			}
+		}
+	}
+}
+
+void Server::TurretFiredProjectile( IEventPtr eventPtr )
+{
+	if ( eventPtr->GetEventType() == Event_Turret_Fired_Projectile::GUID )
+	{
+		std::shared_ptr<Event_Turret_Fired_Projectile> data = std::static_pointer_cast<Event_Turret_Fired_Projectile>( eventPtr );
+		for( auto s : mShips )
+		{
+			ServerTurret* t = s->mServerTurret;
+			if( t->mID == data->ID() )
+			{
+				IEventPtr E1( new Event_Server_Turret_Fired_Projectile( data->ID(), CurrentPID(), t->mTurretHead->pos, data->Direction(), data->Speed(), data->Range() ));
+				BroadcastEvent( E1 );
+				break;
 			}
 		}
 	}
@@ -618,6 +637,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientWinLose, this, Event_Client_Win::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientChangeShipLevels, this, Event_Client_Change_Ship_Levels::GUID );
 	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
+	EventManager::GetInstance()->AddListener( &Server::TurretFiredProjectile, this, Event_Turret_Fired_Projectile::GUID );
 
 	mTeamDelegate	= 1;
 	mCurrentPID		= 0;

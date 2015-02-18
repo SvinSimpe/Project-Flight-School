@@ -183,6 +183,8 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Remote_Win );
 	EF::REGISTER_EVENT( Event_Server_XP );
 	EF::REGISTER_EVENT( Event_Server_Update_Turret );
+	EF::REGISTER_EVENT( Event_Turret_Fired_Projectile );
+	EF::REGISTER_EVENT( Event_Server_Turret_Fired_Projectile );
 	
 
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );

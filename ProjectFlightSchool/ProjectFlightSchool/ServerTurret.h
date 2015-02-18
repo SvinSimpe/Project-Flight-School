@@ -63,6 +63,7 @@ class ServerTurret : public GameObject
 
 	private:
 		void			SwitchMode( UINT mode );
+		void			Fire();
 
 	protected:
 	public:

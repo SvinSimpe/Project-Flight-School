@@ -202,7 +202,7 @@
     <Text Include="..\Content\Effects\Particle Effects\Test_FountainEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
-    <Text Include="..\Content\Effects\Particle Effects\bloodEffect.hlsl">
+    <Text Include="..\Content\Effects\Particle Effects\BloodEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
   </ItemGroup>

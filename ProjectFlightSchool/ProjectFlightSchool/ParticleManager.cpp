@@ -128,10 +128,11 @@ void ParticleManager::Initialize()
 	//		mNrOfParticleSystems++;
 	//	}
 
+
 	
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Blood]; i++ )
 	{
-		mParticleSystems[Blood][i]->Initialize( Blood, 64.0f, 288 );
+		mParticleSystems[Blood][i]->Initialize( Blood, 8.0f, 144 );
 		mNrOfParticleSystemsPerType[Blood]++;
 		mNrOfParticleSystems++;
 	}
@@ -152,7 +153,7 @@ void ParticleManager::Initialize()
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Test_Fountain]; i++ )
 	{
-		mParticleSystems[Test_Fountain][i]->Initialize( Test_Fountain, 1.0f, 16 );
+		mParticleSystems[Test_Fountain][i]->Initialize( Test_Fountain, 2.0f, 2000 );
 		mNrOfParticleSystemsPerType[Test_Fountain]++;
 		mNrOfParticleSystems++;
 	}

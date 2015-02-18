@@ -4129,4 +4129,294 @@ class Event_Server_Turret_Level_Update : public IEvent
 			return mID;
 		}
 };
+
+class Event_Client_Initialize_LobbyPlayer : public IEvent
+{
+	private:
+		UINT		mID;
+		UINT		mTeamID;
+		std::string	mName;
+
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Initialize_LobbyPlayer()
+		{
+			mID		= (UINT)-1;
+			mTeamID = (UINT)-1;
+			mName	= "";
+		}
+		Event_Client_Initialize_LobbyPlayer( UINT id, UINT teamID, std::string name )
+		{
+			mID		= id;
+			mTeamID = teamID;
+			mName	= name;
+		}
+		~Event_Client_Initialize_LobbyPlayer() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mTeamID << " ";
+			out << mName << "";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mTeamID;
+			in >> mName;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Initialize_LobbyPlayer( mID, mTeamID, mName ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT TeamID() const
+		{
+			return mTeamID;
+		}
+
+		std::string Name() const
+		{
+			return mName;
+		}
+};
+
+class Event_Server_Initialize_LobbyPlayer : public IEvent
+{
+	private:
+		UINT		mID;
+		UINT		mTeamID;
+		std::string	mName;
+
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Initialize_LobbyPlayer()
+		{
+			mID		= (UINT)-1;
+			mTeamID = (UINT)-1;
+			mName	= "";
+		}
+		Event_Server_Initialize_LobbyPlayer( UINT id, UINT teamID, std::string name )
+		{
+			mID		= id;
+			mTeamID = teamID;
+			mName	= name;
+		}
+		~Event_Server_Initialize_LobbyPlayer() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mTeamID << " ";
+			out << mName << "";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mTeamID;
+			in >> mName;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Initialize_LobbyPlayer( mID, mTeamID, mName ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT TeamID() const
+		{
+			return mTeamID;
+		}
+
+		std::string Name() const
+		{
+			return mName;
+		}
+};
+
+class Event_Client_Lobby_Finished : public IEvent
+{
+	private:
+
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Lobby_Finished()
+		{
+
+		}
+		~Event_Client_Lobby_Finished() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+
+		}
+		void Deserialize( std::istringstream& in )
+		{
+
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Lobby_Finished() );
+		}
+};
+
+class Event_Server_Lobby_Finished : public IEvent
+{
+	private:
+
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Lobby_Finished()
+		{
+
+		}
+		~Event_Server_Lobby_Finished() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+
+		}
+		void Deserialize( std::istringstream& in )
+		{
+
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Lobby_Finished() );
+		}
+};
+
+class Event_Client_Switch_Team : public IEvent
+{
+	private:
+		UINT		mID;
+		UINT		mTeamID;
+
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Switch_Team()
+		{
+			mID		= (UINT)-1;
+			mTeamID = (UINT)-1;
+		}
+		Event_Client_Switch_Team( UINT id, UINT teamID )
+		{
+			mID		= id;
+			mTeamID = teamID;
+		}
+		~Event_Client_Switch_Team() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mTeamID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mTeamID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Switch_Team( mID, mTeamID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT TeamID() const
+		{
+			return mTeamID;
+		}
+};
+
+class Event_Server_Switch_Team : public IEvent
+{
+	private:
+		UINT		mID;
+		UINT		mTeamID;
+
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Switch_Team()
+		{
+			mID		= (UINT)-1;
+			mTeamID = (UINT)-1;
+		}
+		Event_Server_Switch_Team( UINT id, UINT teamID )
+		{
+			mID		= id;
+			mTeamID = teamID;
+		}
+		~Event_Server_Switch_Team() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mTeamID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mTeamID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Switch_Team( mID, mTeamID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT TeamID() const
+		{
+			return mTeamID;
+		}
+};
 #endif

@@ -51,10 +51,6 @@ void Player::EventListener( IEventPtr newEvent )
 		{
 			mIsBuffed	= data->IsBuffed();
 			mBuffMod	= data->BuffMod();
-			if( mIsBuffed )
-				printf("%d is buffed!\n", mID);
-			else
-				printf("%d is no longer buffed!\n", mID);
 		}
 	}
 	else if( newEvent->GetEventType() == Event_Upgrade_Player::GUID )
@@ -95,6 +91,15 @@ void Player::EventListener( IEventPtr newEvent )
 		if( data->PlayerID() == mID )
 		{
 			mXP += data->XP();
+		}
+	}
+	else if( newEvent->GetEventType() == Event_Server_Switch_Team::GUID )
+	{
+		std::shared_ptr<Event_Server_Switch_Team> data = std::static_pointer_cast<Event_Server_Switch_Team>( newEvent );
+		if( data->ID() == mID )
+		{
+			mTeam = data->TeamID();
+			printf( "Player:: Spelare: %d, blev lag %d\n", mID, mTeam );
 		}
 	}
 }
@@ -809,6 +814,7 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Upgrade_Player::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_New_Player_Spawn_Position::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_XP::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Switch_Team::GUID );
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
 
 	return S_OK;

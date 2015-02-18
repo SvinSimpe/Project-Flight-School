@@ -16,6 +16,9 @@ void PlayState::EventListener( IEventPtr newEvent )
 
 			//TestSound
 			SoundBufferHandler::GetInstance()->Play( mSoundAsset );
+
+			IEventPtr E1( new Event_Client_Initialize_LobbyPlayer( mPlayer->GetID(), mPlayer->GetTeam(), mPlayer->GetName() ) );
+			Client::GetInstance()->SendEvent( E1 );
 		}
 	}
 
@@ -25,6 +28,9 @@ void PlayState::EventListener( IEventPtr newEvent )
 		mRemotePlayers.push_back( new RemotePlayer() );
 		mRemotePlayers.at(mRemotePlayers.size() - 1)->Initialize();
 		mRemotePlayers.at(mRemotePlayers.size() - 1)->RemoteInit( data->ID(), data->TeamID() );
+
+		IEventPtr E1( new Event_Client_Initialize_LobbyPlayer( mPlayer->GetID(), mPlayer->GetTeam(), mPlayer->GetName() ) );
+		Client::GetInstance()->SendEvent( E1 );
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Left::GUID ) // Remove a remote player from the list when they disconnect
 	{
@@ -659,7 +665,6 @@ HRESULT PlayState::Render()
 
 void PlayState::OnEnter()
 {
-	Reset();
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Started() );
 	EventManager::GetInstance()->QueueEvent( E1 );
@@ -669,6 +674,7 @@ void PlayState::OnEnter()
 
 void PlayState::OnExit()
 {
+	Reset();
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Ended() );
 	EventManager::GetInstance()->QueueEvent( E1 );

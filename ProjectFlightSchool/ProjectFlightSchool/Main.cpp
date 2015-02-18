@@ -16,8 +16,6 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 	// 1555131 1555130 1555129 1555128
 	//_CrtSetBreakAlloc(1141); // Break at specific memory allocation point
-
-
 #endif
 	// Console window code
 	//if( AllocConsole() )

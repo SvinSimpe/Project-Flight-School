@@ -448,37 +448,6 @@ void PlayState::SetEnemyState( unsigned int id, EnemyState state )
 	mEnemies[id]->SetAnimation( mEnemyAnimationManager->GetAnimation( mEnemies[id]->GetEnemyType(), state ), state == TakeDamage );
 }
 
-void PlayState::FindShipTargets()
-{
-	if( mFriendShip )
-	{
-		std::vector<BoundingCircle*> targets;
-
-		targets.push_back( mPlayer->GetBoundingCircle() );
-
-		for( auto& rp : mRemotePlayers )
-		{
-			if( rp->GetTeam() == mFriendShip->GetTeamID() && rp->IsAlive() && !rp->IsDown() )
-			{
-				targets.push_back( rp->GetBoundingCircle() );
-			}
-		}
-
-		for( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
-		{
-			if( mEnemies[i]->IsAlive() )
-			{
-				targets.push_back( mEnemies[i]->GetBoundingCircle() );
-			}
-		}
-
-		mFriendShip->FindTurretTarget( targets );
-	}
-	if( mEnemyShip )
-	{
-	}
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
@@ -486,8 +455,6 @@ void PlayState::FindShipTargets()
 HRESULT PlayState::Update( float deltaTime )
 {
 	CheckProjectileCollision();
-
-	FindShipTargets();
 
 	//Fps update
 	mFPS = mFPS * 0.1f + 0.9f / deltaTime;

@@ -58,14 +58,6 @@ void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 	}
 }
 
-void ClientShip::FindTurretTarget( std::vector<BoundingCircle*> enemies )
-{
-	for( auto& enemy : enemies )
-	{
-		mClientTurret->FindTarget( enemy );
-	}
-}
-
 void ClientShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale )
 {
 	ServerShip::Reset( id, teamID, pos, rot, scale );
@@ -85,7 +77,6 @@ bool ClientShip::Intersect( BoundingCircle* entity )
 void ClientShip::Update( float deltaTime )
 {
 	ServerShip::Update( deltaTime );
-	mClientTurret->Update( deltaTime );
 }
 
 void ClientShip::Render( float deltaTime, DirectX::XMFLOAT4X4 parentWorld )
@@ -101,9 +92,8 @@ void ClientShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Ship/", "ShipWithTripod.pfs", mAssetID );
 	mHitCircle = new BoundingCircle( mPos, 5.0f );
 
-	SAFE_RELEASE_DELETE( mServerTurret ); // This is kinda ugly, but needs to be done in order for events to work
 	mClientTurret = new ClientTurret();
-	mClientTurret->Initialize( mID, mTeamID, mPos, mRot, mScale );
+	mClientTurret->Initialize( id + 10, teamID, pos, rot, scale );
 
 	EventManager::GetInstance()->AddListener( &ClientShip::RemoteUpdateShip, this, Event_Server_Update_Ship::GUID );
 	EventManager::GetInstance()->AddListener( &ClientShip::CalculatePlayerRespawnPosition, this, Event_Request_Player_Spawn_Position::GUID );

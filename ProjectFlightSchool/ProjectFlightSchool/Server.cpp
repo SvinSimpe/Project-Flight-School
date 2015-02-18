@@ -460,7 +460,6 @@ void Server::CreateShips()
 	for( UINT i = 0; i < MAX_TEAMS; i++ )
 	{
 		mShips.push_back( new ServerShip() );
-
 		mShips.back()->Initialize( shipID, CurrentTeamDelegate(), XMFLOAT3( xOffset, 0.0f, 0.0f ), XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 		shipID++;
 		xOffset += 20.0f;
@@ -551,8 +550,10 @@ void Server::Update( float deltaTime )
 			{
 				IEventPtr E1( new Event_Server_Update_Ship( s->mID, s->mMaxShield, s->mCurrentShield, s->mCurrentHP ) );
 				BroadcastEvent( E1 );
-				s->Update( deltaTime );
 			}
+			s->Update( deltaTime );
+			IEventPtr E1( new Event_Server_Update_Turret( s->mServerTurret->mID, s->mServerTurret->mTurretHead->rot ) );
+			BroadcastEvent( E1 );
 		}
 
 		// Sends the events in the queue to the clients

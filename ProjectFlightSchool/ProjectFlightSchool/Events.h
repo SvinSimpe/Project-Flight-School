@@ -4129,4 +4129,65 @@ class Event_Server_Turret_Level_Update : public IEvent
 			return mID;
 		}
 };
+
+// Event sent from the server whenever the turret is updated
+class Event_Server_Update_Turret : public IEvent
+{
+	private:
+		UINT mID;
+		XMFLOAT4 mRotation;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Update_Turret()
+		{
+			mID			= (UINT)-1;
+			mRotation	= XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f );
+		}
+		Event_Server_Update_Turret( UINT playerID, XMFLOAT4 rotation )
+		{
+			mID			= playerID;
+			mRotation	= rotation;
+		}
+		~Event_Server_Update_Turret() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+
+			out << mRotation.x << " ";
+			out << mRotation.y << " ";
+			out << mRotation.z << " ";
+			out << mRotation.w << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+
+			in >> mRotation.x;
+			in >> mRotation.y;
+			in >> mRotation.z;
+			in >> mRotation.w;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Update_Turret( mID, mRotation ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		XMFLOAT4 Rotation() const
+		{
+			return mRotation;
+		}
+};
 #endif

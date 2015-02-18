@@ -24,7 +24,6 @@ class ClientShip : public ServerShip
 		UINT	GetID() const;
 		UINT	GetTeamID() const;
 
-		void	FindTurretTarget( std::vector<BoundingCircle*> enemies );
 		void	CalculatePlayerRespawnPosition( IEventPtr eventPtr );
 		void	Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale );
 		bool	Intersect( BoundingCircle* entity ); // Will check for intersects with damaging stuff

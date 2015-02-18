@@ -31,7 +31,6 @@ struct ParticleSystem : public ParticleData
 
 		switch ( particleType )
 		{
-
 			case Blood:
 			{
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/blood.dds", assetID );
@@ -119,7 +118,6 @@ struct ParticleSystem : public ParticleData
 		// Update logic based on Particle type
 		switch( particleType )
 		{
-
 			case Blood: 
 			{
 				// Update Blood logic here

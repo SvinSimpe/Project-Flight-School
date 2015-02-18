@@ -199,9 +199,8 @@ struct ParticleData
 		XMVECTOR aimingDirection = XMLoadFloat3( &randomDirectionVector );
 
 		float randomSpreadAngle = (float)( rand() % (int)spreadAngle * 2 ) - spreadAngle;
-	
-
 		XMVECTOR randomAimingDirection = XMVectorSet( 0.0f, 0.0f, 0.0f, 0.0f );
+
 		if( particleType != Test_Fountain )
 			randomAimingDirection = XMVector3TransformCoord( aimingDirection, XMMatrixRotationY( XMConvertToRadians( randomSpreadAngle ) ) );		
 

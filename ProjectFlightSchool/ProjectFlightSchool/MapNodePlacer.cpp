@@ -70,6 +70,18 @@ void MapNodePlacer::BuildMap( MapNodeInstance** map )
 	int nodeMapSize = (int)nodeMap[NodeTypes::AREA_NODE].size();
 	int randomNode = 0;
 
+
+	//Hardcoding Ships
+	CanPlace( mMap->GetMapHalfWidth() - 1, mMap->GetMapHalfHeight(), nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance() );
+	map[mNrOfNodes++] = nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance();
+	count++;
+	////////////////
+	//Hardcoding Ships
+	CanPlace( mMap->GetMapHalfWidth() + 1, mMap->GetMapHalfHeight(), nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance() );
+	map[mNrOfNodes++] = nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance();
+	count++;
+	////////////////
+
 	for( int x = 0; x < (int)mMap->GetMapDim(); x++ )
 	{
 		for( int y = 0; y < (int)mMap->GetMapDim(); y++ )

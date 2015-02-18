@@ -150,6 +150,7 @@ MapNode* MapNodeManager::CreateNode( const char* fileName )
 	//--------------------------Read object Data ---------------------------------------
 
 	inFile.read( (char*)&nrOfObjects, sizeof( UINT ) );
+
 	for( int i = 0; i < (int)nrOfObjects; i++ )
 	{
 		GameObject ob;

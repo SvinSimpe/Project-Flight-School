@@ -90,6 +90,7 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 		if( mID == data->ID() )
 		{
 			mTeam = data->TeamID();
+			printf( "RemotePlayer:: Spelare: %d, blev lag %d\n", mID, mTeam );
 		}
 	}
 }

@@ -51,10 +51,6 @@ void Player::EventListener( IEventPtr newEvent )
 		{
 			mIsBuffed	= data->IsBuffed();
 			mBuffMod	= data->BuffMod();
-			if( mIsBuffed )
-				printf("%d is buffed!\n", mID);
-			else
-				printf("%d is no longer buffed!\n", mID);
 		}
 	}
 	else if( newEvent->GetEventType() == Event_Upgrade_Player::GUID )
@@ -103,6 +99,7 @@ void Player::EventListener( IEventPtr newEvent )
 		if( data->ID() == mID )
 		{
 			mTeam = data->TeamID();
+			printf( "Player:: Spelare: %d, blev lag %d\n", mID, mTeam );
 		}
 	}
 }

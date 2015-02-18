@@ -21,7 +21,7 @@ class LobbyState : public BaseState
 {
 	// Class members
 	private:
-		std::vector<LobbyPlayer>	mPlayers;
+		std::vector<LobbyPlayer*>	mPlayers;
 		Font						mFont;
 		MovingButton				mStartButton;
 

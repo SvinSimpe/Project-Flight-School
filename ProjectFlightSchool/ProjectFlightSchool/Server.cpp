@@ -407,10 +407,18 @@ void Server::SwitchTeam( IEventPtr eventPtr )
 			if( mPlayers[i]->ID == data->ID() )
 			{
 				mPlayers[i]->TeamID = data->TeamID();
+				printf( "Server:: Spelare: %d, blev lag %d\n", mPlayers[i]->ID, mPlayers[i]->TeamID );
+				IEventPtr E1( new Event_Server_Switch_Team( mPlayers[i]->ID, mPlayers[i]->TeamID ) );
+				BroadcastEvent( E1 );
 			}
 		}
-		IEventPtr E1( new Event_Server_Switch_Team( data->ID(), data->TeamID() ) );
-		BroadcastEvent( E1 );
+		for( auto& remote : mClientMap )
+		{
+			if( remote.first == data->ID() )
+			{
+				remote.second->TeamID = data->TeamID();
+			}
+		}
 	}
 }
 

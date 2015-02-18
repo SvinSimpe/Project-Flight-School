@@ -8,7 +8,7 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 		bool add = true;
 		for( auto p : mPlayers )
 		{
-			if( p.ID == data->ID() )
+			if( p->ID == data->ID() )
 			{
 				add = false;
 			}
@@ -16,17 +16,18 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 
 		if( add )
 		{
-			LobbyPlayer player;
-			player.ID		= data->ID();
-			player.team		= data->TeamID();
-			player.name		= data->Name();
+			LobbyPlayer* player = new LobbyPlayer;
+			player->ID		= data->ID();
+			player->team		= data->TeamID();
+			player->name		= data->Name();
 			XMFLOAT2 pos	= XMFLOAT2( 70.0f, 130.0f );
 			if( mPlayers.size() > 0 )
 			{
-				pos = XMFLOAT2( mPlayers[mPlayers.size() - 1].button.GetPosition().x, mPlayers[mPlayers.size() - 1].button.GetPosition().y + 30 );
+				pos = XMFLOAT2( mPlayers[mPlayers.size() - 1]->button.GetPosition().x, mPlayers[mPlayers.size() - 1]->button.GetPosition().y + 30 );
 			}
-			player.button.Initialize( "../Content/Assets/Textures/Menu/Create_Menu_Text/MultiPlayer.png", pos.x, pos.y, 20.0f, 20.0f );
+			player->button.Initialize( "../Content/Assets/Textures/Menu/Create_Menu_Text/MultiPlayer.png", pos.x, pos.y, 20.0f, 20.0f );
 			mPlayers.push_back( player );
+			printf( "Lobby:: Ny Spelare: %d, blev lag %d\n", player->ID, player->team );
 		}
 	}
 	else if( newEvent->GetEventType() == Event_Server_Switch_Team::GUID )
@@ -34,9 +35,10 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 		std::shared_ptr<Event_Server_Switch_Team> data = std::static_pointer_cast<Event_Server_Switch_Team>( newEvent );
 		for( size_t i = 0; i < mPlayers.size(); i++ )
 		{
-			if( data->ID() == mPlayers[i].ID )
+			if( data->ID() == mPlayers[i]->ID )
 			{
-				mPlayers[i].team = data->TeamID();
+				mPlayers[i]->team = data->TeamID();
+				printf( "Lobby:: Spelare: %d, blev lag %d\n", mPlayers[i]->ID, mPlayers[i]->team );
 			}
 		}
 	}
@@ -46,23 +48,37 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
+	else if( newEvent->GetEventType() == Event_Remote_Left::GUID )
+	{
+		std::shared_ptr<Event_Remote_Left> data = std::static_pointer_cast<Event_Remote_Left>( newEvent );
+		for( size_t i = 0; i < mPlayers.size(); i++ )
+		{
+			if( mPlayers[i]->ID == data->ID() )
+			{
+				mPlayers.at(i)->button.Release();
+				SAFE_DELETE( mPlayers.at(i) );
+				std::swap( mPlayers.at(i), mPlayers.at(mPlayers.size() - 1) );
+				mPlayers.pop_back();
+			}
+		}
+	}
 }
 
 void LobbyState::HandleInput()
 {
 	for( size_t i = 0; i < mPlayers.size(); i++ )
 	{
-		if( mPlayers[i].button.LeftMousePressed() )
+		if( mPlayers[i]->button.LeftMousePressed() )
 		{
-			if( mPlayers[i].team == 1 )
+			if( mPlayers[i]->team == 1 )
 			{
-				mPlayers[i].team = 2;
+				mPlayers[i]->team = 2;
 			}
 			else
 			{
-				mPlayers[i].team = 1;
+				mPlayers[i]->team = 1;
 			}
-			IEventPtr E1( new Event_Client_Switch_Team( mPlayers[i].ID, mPlayers[i].team ) );
+			IEventPtr E1( new Event_Client_Switch_Team( mPlayers[i]->ID, mPlayers[i]->team ) );
 			Client::GetInstance()->SendEvent( E1 );
 		}
 	}
@@ -80,7 +96,7 @@ HRESULT LobbyState::Update( float deltaTime )
 
 	for( size_t i = 0; i < mPlayers.size(); i++ )
 	{
-		mPlayers[i].button.Update( deltaTime );
+		mPlayers[i]->button.Update( deltaTime );
 	}
 
 	mStartButton.Update( deltaTime );
@@ -99,18 +115,18 @@ HRESULT LobbyState::Render()
 
 	for( auto p : mPlayers )
 	{
-		textToWrite = p.name;
+		textToWrite = p->name;
 		
-		mFont.WriteText( textToWrite, p.button.GetPosition().x + 30.0f, p.button.GetPosition().y, 2 );
+		mFont.WriteText( textToWrite, p->button.GetPosition().x + 30.0f, p->button.GetPosition().y, 2 );
 	}
 
 	textToWrite = "Team\n";
 	mFont.WriteText( textToWrite, 360.0f, 100.0f, 2 );
 	for( auto p : mPlayers )
 	{
-		textToWrite = std::to_string( p.team );
+		textToWrite = std::to_string( p->team );
 		
-		mFont.WriteText( textToWrite, 360.0f, p.button.GetPosition().y, 2 );
+		mFont.WriteText( textToWrite, 360.0f, p->button.GetPosition().y, 2 );
 	}
 
 
@@ -118,7 +134,7 @@ HRESULT LobbyState::Render()
 
 	for( auto p : mPlayers )
 	{
-		p.button.Render();
+		p->button.Render();
 	}
 
 	RenderManager::GetInstance()->Render();
@@ -134,10 +150,19 @@ void LobbyState::OnEnter()
 void LobbyState::OnExit()
 {
 	mStartButton.SetExitCooldown();
+	for( size_t i = 0; i < mPlayers.size(); i++ )
+	{
+		mPlayers[i]->button.SetExitCooldown();
+	}
 }
 
 void LobbyState::Reset()
 {
+	for( size_t i = 0; i < mPlayers.size(); i++ )
+	{
+		mPlayers[i]->button.Release();
+		SAFE_DELETE( mPlayers[i] );
+	}
 	mPlayers.clear();
 }
 
@@ -151,6 +176,7 @@ HRESULT LobbyState::Initialize()
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Initialize_LobbyPlayer::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Switch_Team::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Lobby_Finished::GUID );
+	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Remote_Left::GUID );
 
 	mStartButton.Initialize( "../Content/Assets/Textures/Menu/Create_Menu_Text/MultiPlayer.png", 1600, 700, 200, 200 );
 
@@ -162,14 +188,15 @@ void LobbyState::Release()
 	mStartButton.Release();
 	for( size_t i = 0; i < mPlayers.size(); i++ )
 	{
-		mPlayers[i].button.Release();
+		mPlayers[i]->button.Release();
+		SAFE_DELETE( mPlayers[i] );
 	}
 	mPlayers.clear();
 }
 
 LobbyState::LobbyState()
 {
-	mPlayers = std::vector<LobbyPlayer>( 0 );
+	mPlayers = std::vector<LobbyPlayer*>( 0 );
 }
 
 LobbyState::~LobbyState()

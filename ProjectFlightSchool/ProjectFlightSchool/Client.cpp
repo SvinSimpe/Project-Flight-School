@@ -49,8 +49,8 @@ void Client::StartUp( IEventPtr eventPtr )
 
 void Client::SendEvent( IEventPtr eventPtr )
 {
-	mNEF->ForwardEvent( eventPtr );
-	//mEventList.push_front( eventPtr );
+	//mNEF->ForwardEvent( eventPtr );
+	mEventList.push_front( eventPtr );
 }
 
 bool Client::Connect( std::string ip, UINT port )

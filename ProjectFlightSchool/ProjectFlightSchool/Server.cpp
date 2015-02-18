@@ -422,16 +422,16 @@ void Server::BroadcastEvent( IEventPtr eventPtr, UINT exception )
 	{
 		if( to.first != exception )
 		{
-			mClientMap[to.first]->NEF.ForwardEvent( eventPtr );
-			//mEventList.push_front( ServerEvent( eventPtr, to.first ) );
+			//mClientMap[to.first]->NEF.ForwardEvent( eventPtr );
+			mEventList.push_front( ServerEvent( eventPtr, to.first ) );
 		}
 	}
 }
 
 void Server::SendEvent( IEventPtr eventPtr, UINT to )
 {
-	mClientMap[to]->NEF.ForwardEvent( eventPtr );
-	//mEventList.push_front( ServerEvent( eventPtr, to ) );
+	//mClientMap[to]->NEF.ForwardEvent( eventPtr );
+	mEventList.push_front( ServerEvent( eventPtr, to ) );
 }
 
 UINT Server::CurrentTeamDelegate()

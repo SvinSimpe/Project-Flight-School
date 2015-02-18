@@ -199,30 +199,37 @@ void RenderManager::AnimationUpdate( AnimationTrack &animationTrack, float delta
 		animationTrack.mInterpolation		-= deltaTime;
 		if( animationTrack.mInterpolation <= 0.0f )
 		{
-		/*	if( animationTrack.mBlendWithCurrent )
-				animationTrack.mBlendWithCurrent = false;
+			if( animationTrack.mBlendWithCurrent )
+			{
+				animationTrack.mBlendWithCurrent	= false;
+				animationTrack.mNextAnimation		= animationTrack.mCurrentAnimation;
+				animationTrack.mNextAnimationTime	= animationTrack.mCurrentAnimationTime;
+			}
 			else
-			{*/
+			{
 				animationTrack.mCurrentAnimation		= animationTrack.mNextAnimation;
 				animationTrack.mCurrentAnimationTime	= animationTrack.mNextAnimationTime;
-			//}
+			}
 		}
 	}
 }
 
 void RenderManager::AnimationStartNew( AnimationTrack &animationTrack, AssetID newAnimation, bool blendWithCurrent )
 {
-	animationTrack.mNextAnimation		= newAnimation;
-	animationTrack.mBlendWithCurrent	= blendWithCurrent;
-	if( blendWithCurrent )
+	if( newAnimation != animationTrack.mCurrentAnimation )
 	{
-		animationTrack.mNextAnimationTime	= animationTrack.mCurrentAnimationTime;
-		animationTrack.mInterpolation		= 0.2f;
-	}
-	else
-	{
-		animationTrack.mNextAnimationTime	= 1.0f / 60.0f;
-		animationTrack.mInterpolation		= 0.2f;
+		animationTrack.mNextAnimation		= newAnimation;
+		animationTrack.mBlendWithCurrent	= blendWithCurrent;
+		if( blendWithCurrent )
+		{
+			animationTrack.mNextAnimationTime	= animationTrack.mCurrentAnimationTime;
+			animationTrack.mInterpolation		= 0.2f;
+		}
+		else
+		{
+			animationTrack.mNextAnimationTime	= 1.0f / 60.0f;
+			animationTrack.mInterpolation		= 0.2f;
+		}
 	}
 }
 

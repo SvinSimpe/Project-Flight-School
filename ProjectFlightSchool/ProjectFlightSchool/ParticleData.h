@@ -199,9 +199,8 @@ struct ParticleData
 		XMVECTOR aimingDirection = XMLoadFloat3( &randomDirectionVector );
 
 		float randomSpreadAngle = (float)( rand() % (int)spreadAngle * 2 ) - spreadAngle;
-	
-
 		XMVECTOR randomAimingDirection = XMVectorSet( 0.0f, 0.0f, 0.0f, 0.0f );
+
 		if( particleType != Test_Fountain )
 			randomAimingDirection = XMVector3TransformCoord( aimingDirection, XMMatrixRotationY( XMConvertToRadians( randomSpreadAngle ) ) );		
 
@@ -239,7 +238,14 @@ struct ParticleData
 	{
 		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
 		{
-			if( particleType == MuzzleFlash )
+
+			if( particleType == Blood )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 40 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 10 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 40 );		
+			}
+			else if( particleType == MuzzleFlash )
 
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 10, 80 );

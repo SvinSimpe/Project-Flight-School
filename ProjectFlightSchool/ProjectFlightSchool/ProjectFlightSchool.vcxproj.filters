@@ -316,7 +316,9 @@
 	<ClCompile Include="UpgradeShipWindow.cpp">
 	<Filter>GUI\Source</Filter>     
     </ClCompile>
-
+    <ClCompile Include="DSBufferStream.cpp">
+      <Filter>DirectSound\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
@@ -548,7 +550,9 @@
 <ClInclude Include="UpgradeShipWindow.h">
       <Filter>GUI\Header</Filter>
     </ClInclude>
-
+    <ClInclude Include="DSBufferStream.h">
+      <Filter>DirectSound\Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

@@ -93,6 +93,7 @@
   <ItemGroup>
     <ClCompile Include="ClientShip.cpp" />
     <ClCompile Include="ClientTurret.cpp" />
+    <ClCompile Include="DSBufferStream.cpp" />
     <ClCompile Include="EnemyAnimationManager.cpp" />
     <ClCompile Include="EnemyBehavior.cpp" />
     <ClCompile Include="Gui.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="BoundingGeometry.h" />
     <ClInclude Include="ClientShip.h" />
     <ClInclude Include="ClientTurret.h" />
+    <ClInclude Include="DSBufferStream.h" />
     <ClInclude Include="Gui.h" />
     <ClInclude Include="HelperFunctions.h" />
     <ClInclude Include="Navmesh.h" />

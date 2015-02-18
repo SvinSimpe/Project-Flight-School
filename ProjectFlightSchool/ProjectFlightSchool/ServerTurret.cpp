@@ -23,9 +23,10 @@ void ServerTurret::AttackingTurret::Action( ServerTurret* t, float dt )
 
 	float dot = XMVectorGetY( XMVector3Dot( XMLoadFloat4( &t->mTurretHead->rot ), homingVec ) );
 
-	if( dot > 0.9f )
+	if( dot > 0.8f && t->mWeaponCooldown <= 0.0f )
 	{
 		t->Fire();
+		t->mWeaponCooldown = t->mLoadOut->rangedWeapon->attackRate;
 	}
 }
 
@@ -126,6 +127,7 @@ void ServerTurret::FindTarget( BoundingCircle* enemy )
 // Send an update event to the clients after every update here
 void ServerTurret::Update( float deltaTime )
 {
+	mWeaponCooldown -= deltaTime;
 	mModes[mCurrentMode]->Action( this, deltaTime );
 }
 
@@ -227,6 +229,7 @@ void ServerTurret::Release()
 
 ServerTurret::ServerTurret() : GameObject()
 {
+	mWeaponCooldown	= 0.0f;
 	mCurrentMode	= (UINT)-1;
 	for( UINT i = 0; i < MODE_AMOUNT; i++ )
 	{

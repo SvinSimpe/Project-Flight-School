@@ -438,7 +438,6 @@ void PlayState::UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT
 
 void PlayState::RenderProjectiles()
 {
- 
 	for ( int i = 0; i < mNrOfActiveProjectiles; i++ )
 	{
 		mProjectiles[i]->Render();
@@ -469,8 +468,6 @@ void PlayState::SetEnemyState( unsigned int id, EnemyState state )
 
 HRESULT PlayState::Update( float deltaTime )
 {
-	CheckProjectileCollision();
-
 	//Fps update
 	mFPS = mFPS * 0.1f + 0.9f / deltaTime;
 	CheckProjectileCollision();

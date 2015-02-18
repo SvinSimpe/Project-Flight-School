@@ -40,6 +40,7 @@ class ServerTurret : public GameObject
 			~AttackingTurret() {}
 		};
 
+		float			mWeaponCooldown;
 		UINT			mCurrentMode;
 		ITurretMode*	mModes[MODE_AMOUNT];
 		BoundingCircle*	mTarget;				// Defines the circle of the current target, is never initialized on its own

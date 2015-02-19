@@ -71,6 +71,7 @@ class Server : public Network
 		UINT						mNrOfProjectilesFired;
 
 		EnergyCell**				mEnergyCells;
+		bool						mStopAccept;
 
 	protected:
 	public:
@@ -96,6 +97,9 @@ class Server : public Network
 		void	BroadcastEnemyAttackToClients( IEventPtr eventPtr );
 		void	ClientWinLose( IEventPtr eventPtr );
 		void	ClientChangeShipLevels( IEventPtr eventPtr );
+		void	LobbyPlayer( IEventPtr eventPtr );
+		void	StopLobby( IEventPtr eventPtr );
+		void	SwitchTeam( IEventPtr eventPtr );
 
 		void	ClientInteractEnergyCell( IEventPtr eventPtr );
 

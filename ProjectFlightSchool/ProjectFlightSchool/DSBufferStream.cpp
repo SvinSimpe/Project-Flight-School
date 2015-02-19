@@ -107,7 +107,6 @@ bool DSBufferStream::ReFillBuffer1Loop()
 	int count = fread( waveData, 1, mDataSize, mFileptr );
 	if ( count != mDataSize )
 	{
-		printf( "Wrapping wav file\n" );
 		fseek( mFileptr, sizeof(WaveHeaderType), SEEK_SET );
 		unsigned char* waveData2 = new unsigned char[mDataSize - count];
 		fread( waveData2, 1, mDataSize - count, mFileptr );
@@ -154,7 +153,6 @@ bool DSBufferStream::ReFillBuffer2Loop()
 	int count = fread( waveData, 1, mDataSize, mFileptr );
 	if ( count != mDataSize )
 	{
-		printf( "Wrapping wav file\n" );
 		fseek( mFileptr, sizeof(WaveHeaderType), SEEK_SET );
 		unsigned char* waveData2 = new unsigned char[mDataSize - count];
 		fread( waveData2, 1, mDataSize - count, mFileptr );
@@ -360,13 +358,11 @@ void DSBufferStream::TimerCallBack()
 	//Switch buffers
 	if( mCurrentBuffer == 1 )
 	{
-		printf( "Switch to 2\n" );
 		mCurrentBuffer = 2;
 		ReFillBuffer1();
 	}
 	else
 	{
-		printf( "Switch to 1\n" );
 		mCurrentBuffer = 1;
 		ReFillBuffer2();
 	}
@@ -377,13 +373,11 @@ void DSBufferStream::TimerCallBackLoop()
 	//Switch buffers
 	if( mCurrentBuffer == 1 )
 	{
-		printf( "Switch to 2\n" );
 		mCurrentBuffer = 2;
 		ReFillBuffer1Loop();
 	}
 	else
 	{
-		printf( "Switch to 1\n" );
 		mCurrentBuffer = 1;
 		ReFillBuffer2Loop();
 	}

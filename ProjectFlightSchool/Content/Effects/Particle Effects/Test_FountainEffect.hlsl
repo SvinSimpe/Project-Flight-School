@@ -34,7 +34,7 @@ void GS_main( point VS_In input[1], inout TriangleStream<GS_Out> outputStream )
 	float3 rightVec = float3( 1.0f, 0.0f, 0.0f );
 	float3 upVec = normalize( cross( vecToCam, rightVec ) );
 
-	float size = input[0].age * 0.2f;
+	float size = input[0].age * 0.5f;
 
 	//Get vertices for the quad
 	float3 vert[4];
@@ -68,6 +68,11 @@ SamplerState linearSampler			: register( s1 );
 float4 PS_main(GS_Out input) : SV_TARGET0
 {	
 
-	clip( diffuseTexture.Sample( linearSampler, input.uv ).w < 0.7f ? -1:1 );
-	return float4( diffuseTexture.Sample( linearSampler, input.uv ).xyz, input.timeTillDeath );
+	//clip( diffuseTexture.Sample( linearSampler, input.uv ).w < 0.7f ? -1:1 );
+	//return float4( diffuseTexture.Sample( linearSampler, input.uv ) );
+	float4 diffuse = float4( diffuseTexture.Sample( linearSampler, input.uv ) );
+
+	diffuse.w = diffuse.w * input.timeTillDeath;
+
+	return diffuse;
 }

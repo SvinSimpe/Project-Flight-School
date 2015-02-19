@@ -285,41 +285,38 @@
     <ClCompile Include="RemoteEnemy.cpp">
       <Filter>Enemy\Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="Enemy.cpp">
       <Filter>Enemy\Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="EnemyBehavior.cpp">
       <Filter>Enemy\Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="EnemyAnimationManager.cpp">
       <Filter>Enemy\Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="EnemySpawn.cpp">
       <Filter>Enemy\Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="ClientShip.cpp">
       <Filter>Network\Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="ClientTurret.cpp">
       <Filter>Network\Source Files</Filter>
     </ClCompile>
-
     <ClCompile Include="ServerTurret.cpp">
       <Filter>Network\Source Files</Filter>
     </ClCompile>
-
-
-	<ClCompile Include="UpgradeShipWindow.cpp">
-	<Filter>GUI\Source</Filter>     
+    <ClCompile Include="UpgradeShipWindow.cpp">
+      <Filter>GUI\Source</Filter>
     </ClCompile>
     <ClCompile Include="DSBufferStream.cpp">
       <Filter>DirectSound\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="UpgradePlayerWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LobbyState.cpp">
+      <Filter>GameStates\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -518,45 +515,38 @@
     <ClInclude Include="EnergyCell.h">
       <Filter>Header Files</Filter>
 	</ClInclude>
-
     <ClInclude Include="Enemy.h">
       <Filter>Enemy\Header Files</Filter>
     </ClInclude>
-
     <ClInclude Include="RemoteEnemy.h">
       <Filter>Enemy\Header Files</Filter>
     </ClInclude>
-
     <ClInclude Include="EnemyAnimationManager.h">
       <Filter>Enemy\Header Files</Filter>
     </ClInclude>
-
     <ClInclude Include="EnemySpawn.h">
       <Filter>Enemy\Header Files</Filter>
     </ClInclude>
-
     <ClInclude Include="ClientTurret.h">
       <Filter>Network\Header Files</Filter>
     </ClInclude>
-
     <ClInclude Include="ClientShip.h">
       <Filter>Network\Header Files</Filter>
     </ClInclude>
-
     <ClInclude Include="ServerTurret.h">
       <Filter>Network\Header Files</Filter>
     </ClInclude>
-
     <ClInclude Include="UpgradePlayerWindow.h">
-<Filter>GUI\Header</Filter>
+      <Filter>GUI\Header</Filter>
     </ClInclude>
-
-
-<ClInclude Include="UpgradeShipWindow.h">
+    <ClInclude Include="UpgradeShipWindow.h">
       <Filter>GUI\Header</Filter>
     </ClInclude>
     <ClInclude Include="DSBufferStream.h">
       <Filter>DirectSound\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="LobbyState.h">
+      <Filter>GameStates\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

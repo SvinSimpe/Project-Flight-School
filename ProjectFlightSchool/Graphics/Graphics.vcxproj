@@ -197,7 +197,7 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\Content\Effects\Particle Effects\bloodEffect.hlsl">
+    <Text Include="..\Content\Effects\Particle Effects\BloodEffect.hlsl">
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>

@@ -431,8 +431,8 @@ HRESULT Graphics::InitializeEffects()
 	//=======================================
 
 	//Muzzle Flash effect
-	effectInfo.filePath					= "../Content/Effects/Particle Effects/bloodEffect.hlsl";
-	effectInfo.fileName					= "bloodEffect";
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/BloodEffect.hlsl";
+	effectInfo.fileName					= "BloodEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
 	effectInfo.isGeometryShaderIncluded = true;
 
@@ -1507,15 +1507,15 @@ bool Graphics::GetAnimationMatrices( AnimationTrack &animTrack, int playType, An
 	{
 		float blendInterpolation = animTrack.mInterpolation / ( animTrack.mBlendWithCurrent ? 0.2f : 0.2f );
 
-	/*	if( animTrack.mBlendWithCurrent )
+		if( animTrack.mBlendWithCurrent )
 		{
 			blendInterpolation *= 2.0f;
-			if( blendInterpolation > 1.0f )
+			if( blendInterpolation < 1.0f )
 			{
-				blendInterpolation -= 1.0f;
-				blendInterpolation = 1.0f - blendInterpolation;
+				blendInterpolation = 2.0f - blendInterpolation;
 			}
-		}*/
+			blendInterpolation -= 1.0f;
+		}
 
 		DirectX::XMVECTOR currComp[3];
 		DirectX::XMVECTOR nextComp[3];

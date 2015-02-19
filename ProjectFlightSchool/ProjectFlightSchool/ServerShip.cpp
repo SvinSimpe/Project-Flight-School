@@ -106,6 +106,14 @@ void ServerShip::ClientUpdateShip( IEventPtr eventPtr )
 	}
 }
 
+void ServerShip::AddEnergyCell( UINT energyCellOwnerID )
+{
+	if( energyCellOwnerID == mID )
+	{
+		mNrOfEnergyCells++;
+	}
+}
+
 float ServerShip::PercentShield() const
 {
 	return mCurrentShield/mMaxShield;

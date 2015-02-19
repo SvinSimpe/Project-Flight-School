@@ -275,9 +275,72 @@ void Player::Move( float deltaTime )
 	}
 }
 
-HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers )
+void Player::PickUpEnergyCell( EnergyCell** energyCells )
 {
-	Update( deltaTime, remotePlayers );
+	for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
+		{
+		if( !energyCells[i]->GetPickedUp() && mEnergyCellID == (UINT)-1 )
+			{
+				if( energyCells[i]->GetPickUpRadius()->Intersect( mBoundingCircle ) )
+				{
+					energyCells[i]->SetOwnerID( mID );
+					energyCells[i]->SetPickedUp( true );
+					energyCells[i]->SetPosition( mLowerBody.position );
+					mEnergyCellID = i;
+
+					IEventPtr E1( new Event_Client_Sync_Energy_Cell( i, mID, mLowerBody.position, true ) );
+					QueueEvent( E1 );
+
+					IEventPtr reg( new Event_Add_Point_Light( mEnergyCellLight ) );
+					EventManager::GetInstance()->QueueEvent( reg );
+				}
+			}
+		}
+}
+
+void Player::DropEnergyCell( EnergyCell** energyCells )
+{
+	if( mEnergyCellID != (UINT)-1 )
+	{
+		energyCells[mEnergyCellID]->SetPosition( mLowerBody.position );
+		energyCells[mEnergyCellID]->SetOwnerID( (UINT)-1 );
+		energyCells[mEnergyCellID]->SetPickedUp( false );
+	
+
+		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, (UINT)-1, mLowerBody.position, false ) );
+		QueueEvent( E1 );
+
+		IEventPtr reg( new Event_Remove_Point_Light( mEnergyCellLight ) );
+		EventManager::GetInstance()->QueueEvent( reg );
+
+		mEnergyCellID	= (UINT)-1;
+		mPickUpCooldown	= 3.0f;
+	}
+}
+
+void Player::GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, DirectX::XMFLOAT3 shipPos )
+{
+	if( mEnergyCellID != (UINT)-1 )
+	{
+		energyCells[mEnergyCellID]->SetPosition( shipPos );
+		energyCells[mEnergyCellID]->SetOwnerID( shipID );
+		energyCells[mEnergyCellID]->SetPickedUp( true );
+	
+
+		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, shipID, shipPos, true ) );
+		QueueEvent( E1 );
+
+		IEventPtr reg( new Event_Remove_Point_Light( mEnergyCellLight ) );
+		EventManager::GetInstance()->QueueEvent( reg );
+
+		mEnergyCellID	= (UINT)-1;
+		mPickUpCooldown = 3.0f;
+	}
+}
+
+HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
+{
+	Update( deltaTime, remotePlayers, energyCells );
 	XMFLOAT2 newDir;
 	XMFLOAT3 newPos;
 	int debug = 0;
@@ -554,6 +617,7 @@ void Player::UnLock()
 void Player::Reset()
 {
 	mEventCapTimer				= 0.0f;
+
 	mPointLight->position		= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
 	mPointLight->colorAndRadius	= DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 17.0f );
 
@@ -579,7 +643,7 @@ void Player::Reset()
 	mTimeTillRevive				= mReviveTime;
 	mLastKiller					= 0;
 
-	mLowerBody.position		= XMFLOAT3( 3.0f, 0.0f, 0.0f );
+	mLowerBody.position				= XMFLOAT3( 3.0f, 0.0f, 6.0f );
 	
 	mIsAlive				= true;
 	mIsDown					= false;
@@ -589,6 +653,8 @@ void Player::Reset()
 	mNrOfKills				= 0;
 	mID						= -1;
 	mTeam					= -1;
+	mEnergyCellID			= (UINT)-1;
+	mPickUpCooldown			= 0.0f;
 
 	mLeftArmAnimationCompleted	= false;
 	mRightArmAnimationCompleted	= false;
@@ -601,7 +667,7 @@ void Player::Reset()
 	RenderManager::GetInstance()->AnimationReset( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
 }
 
-HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
+HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
 {
 	if( ( mXP / mNextLevelXP ) >= 1 )
 	{
@@ -657,6 +723,10 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	{
 		if( mIsAlive )
 		{
+
+
+			//////////////////////////////////
+			//ANIMATIONS
 			float currentVelocity = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) );
 
 			if( currentVelocity < 0.2f )
@@ -685,11 +755,52 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 			RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
 			RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
+			////////////////////////////////////
+			//ENERGY CELLS
+			if( mPickUpCooldown <= 0.0f )
+			{
+				PickUpEnergyCell( energyCells );
+			}
+			else
+			{
+				mPickUpCooldown -= deltaTime;
+			}
+
+			if( mEnergyCellID != (UINT)-1 )
+			{
+				mEnergyCellLight->position = DirectX::XMFLOAT4( mLowerBody.position.x, 4.0f, mLowerBody.position.z, 0.0f );
+			}
+			//////////////////////////////////////////
+			// IF LEAVING AREA
+			if( XMVectorGetX( XMVector3LengthSq( XMLoadFloat3( &mLowerBody.position ) ) ) > MAX_ROBOT_RANGE ) // calculated from origo, not intended behaviour i guess.
+			{
+				if( mIsOutSideZone )
+				{
+					mLeavingAreaTime -= deltaTime;
+					if( mLeavingAreaTime < 0.0f )
+					{
+						Lock();
+						Die();
+						BroadcastDeath( 0 );
+						mIsOutSideZone = false;
+					}
+				}
+				else
+				{
+					mIsOutSideZone		= true;
+					mLeavingAreaTime	= LEAVING_AREA_TIME;
+				}
+			}
+			else if( mIsOutSideZone )
+			{
+				mIsOutSideZone = false;
+			}
+			
 		}
 		else
 		{
 			if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DEATH] )
-				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_DEATH] );
+			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_DEATH] );
 			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, deltaTime );
 
 			/////////////////////////////////////////////////
@@ -705,6 +816,8 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	}
 	else
 	{
+		DropEnergyCell( energyCells );
+
 		if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DOWN] )
 			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_DOWN] );
 		RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, deltaTime );
@@ -765,6 +878,13 @@ HRESULT Player::Render( float deltaTime, int position )
 		mFont.WriteText( textToWrite, (float)Input::GetInstance()->mScreenWidth/2, (float)Input::GetInstance()->mScreenHeight/2, 7.8f );
 	}
 
+	if( mIsOutSideZone )
+	{
+        std::string textToWrite = "Robot losing connection get back!\n" + std::to_string( (int)mLeavingAreaTime );
+		float offset = mFont.GetMiddleXPoint( "Robot losing connection get back!", 3.8f );
+		mFont.WriteText( textToWrite, (float)Input::GetInstance()->mScreenWidth/2 - offset, (float)Input::GetInstance()->mScreenHeight/4, 3.8f, COLOR_RED );
+	}
+
 	RemotePlayer::Render();
 
 	return S_OK;
@@ -776,7 +896,6 @@ HRESULT Player::Initialize()
 
 	srand( (unsigned int)time( NULL ) );
 
-	mLowerBody.position	= XMFLOAT3( 3.0f, 0.0f, 0.0f );
 	mPlayerName = "";
 	
 	////////////
@@ -789,6 +908,10 @@ HRESULT Player::Initialize()
 
 	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 17.0f );
 
+	mEnergyCellLight					= new PointLight;
+	mEnergyCellLight->position			= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f );
+	mEnergyCellLight->colorAndRadius	= DirectX::XMFLOAT4( 2.0f, 3.0f, 8.0f, 1.0f );
+
 	mMaxVelocity		= 7.7f;
 	mCurrentVelocity	= 0.0f;
 	mMaxAcceleration	= 20.0f;
@@ -800,10 +923,10 @@ HRESULT Player::Initialize()
 	mNextLevelXP		= 10;
 	mCurrentUpgrades	= 0;
 	
-	mSpawnTime				= 10.0f;
-	mReviveTime				= 2.0f;
-	mTimeTillSpawn			= mSpawnTime;
-	mTimeTillRevive			= mReviveTime;
+	mSpawnTime			= 10.0f;
+	mReviveTime			= 2.0f;
+	mTimeTillSpawn		= mSpawnTime;
+	mTimeTillRevive		= mReviveTime;
 
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Died::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Attempt_Revive::GUID );
@@ -817,6 +940,9 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Switch_Team::GUID );
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
 
+	mEnergyCellID	= (UINT)-1;
+	mPickUpCooldown = 0.0f;
+	
 	return S_OK;
 }
 
@@ -835,6 +961,7 @@ Player::Player()
 	mEventCapTimer		= 0.0f;
 
 	mPointLight			= nullptr;
+	mEnergyCellLight	= nullptr;
 
 	mWeaponCoolDown		= 0.0f;
 	mMeleeCoolDown		= 0.0f;
@@ -849,6 +976,7 @@ Player::Player()
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mFireDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mIsBuffed			= false;
+	mIsOutSideZone		= false;
 	mBuffMod			= 0.0f;
 	mHasMeleeStarted	= false;
 	mXP					= 0;
@@ -860,6 +988,7 @@ Player::Player()
 	mTimeTillDeath			= 0.0f;
 	mReviveTime				= 0.0f;
 	mTimeTillRevive			= 0.0f;
+	mLeavingAreaTime		= 0.0f;
 	mLastKiller				= 0;
 
 	gEventList				= std::list<IEventPtr>();
@@ -883,6 +1012,11 @@ XMFLOAT3 Player::GetPlayerPosition() const
 XMFLOAT3 Player::GetUpperBodyDirection() const
 {
 	return mUpperBody.direction;
+}
+
+UINT Player::GetEnergyCellID() const
+{
+	return mEnergyCellID;
 }
 
 float Player::GetXPToNext() const
@@ -914,3 +1048,9 @@ void Player::SetPosition( XMVECTOR position )
 {
 	XMStoreFloat3( &mLowerBody.position, position );
 }
+
+void Player::SetEnergyCellID( UINT energyCellID )
+{
+	mEnergyCellID = energyCellID;
+}
+

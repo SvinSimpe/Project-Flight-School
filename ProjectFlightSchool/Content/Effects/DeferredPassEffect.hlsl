@@ -132,7 +132,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 
 	//======== SHADOW MAP POINTLIGHT ===========
 	float3 ambient		= float3( 0.8f, 0.8f,  0.8f );
-	float3 color		= float3( 0.4f, 0.3f,  0.3f );
+	float3 color		= float3( 0.6f, 0.3f,  0.6f );
 
 	float3 lightDirection	= worldSample - shadowCameraPosition.xyz;
 	float dShadow			= length( lightDirection );

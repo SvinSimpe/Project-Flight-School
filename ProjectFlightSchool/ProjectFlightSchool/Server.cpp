@@ -602,10 +602,10 @@ bool Server::Initialize()
 	{
 		// Map size values
 		int negX, negY, posX, posY;
-		negX = rand() % 100;
-		negY = rand() % 100;
-		posX = rand() % 100;
-		posY = rand() % 100;
+		negX = rand() % 200;
+		negY = rand() % 200;
+		posX = rand() % 200;
+		posY = rand() % 200;
 		mSpawners[i] = new EnemySpawn();
 		mSpawners[i]->Initialize( i );
 		mSpawners[i]->SetPosition( XMFLOAT3( (float)(posX - negX), 0.0f, (float)(negY - posY) ) );

@@ -79,7 +79,7 @@ void Enemy::CreateTank()
 	mMaxHp						= 400.0f;
 	mCurrentHp					= mMaxHp;
 	mDamage						= 20.0f;
-	mSpeed						= 1.5f;
+	mSpeed						= 2.0f;
 	mAttackRadius->radius		= 1.0f;
 	mAttentionRadius->radius	= 10.0f;
 	mXpDrop						= 15;
@@ -328,6 +328,16 @@ XMFLOAT3 Enemy::GetPosition() const
 XMFLOAT3 Enemy::GetDirection() const
 {
 	return mDirection;
+}
+
+float Enemy::GetSpeed() const
+{
+	return mSpeed;
+}
+
+XMFLOAT3 Enemy::GetVelocity() const
+{
+	return mVelocity;
 }
 
 HRESULT Enemy::Initialize( int id, ServerPlayer** players, UINT NrOfPlayers )

@@ -2,6 +2,7 @@
 #define SHIP_H
 
 #include "Turret.h"
+#include "EnergyCell.h"
 
 class Ship
 {
@@ -13,6 +14,7 @@ class Ship
 		Turret*			mTurret;
 		float			mMaxHull;
 		float			mCurrentHull;
+
 
 	protected:
 	public:

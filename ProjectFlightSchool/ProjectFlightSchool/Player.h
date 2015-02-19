@@ -24,6 +24,7 @@ class Player: public RemotePlayer
 	private:
 		float			mEventCapTimer;
 		PointLight*		mPointLight;
+		PointLight*		mEnergyCellLight;
 		Upgrades		mUpgrades;
 
 		float		mWeaponCoolDown;

@@ -290,6 +290,9 @@ void Player::PickUpEnergyCell( EnergyCell** energyCells )
 
 					IEventPtr E1( new Event_Client_Sync_Energy_Cell( i, mID, mLowerBody.position, true ) );
 					QueueEvent( E1 );
+
+					IEventPtr reg( new Event_Add_Point_Light( mEnergyCellLight ) );
+					EventManager::GetInstance()->QueueEvent( reg );
 				}
 			}
 		}
@@ -307,6 +310,9 @@ void Player::DropEnergyCell( EnergyCell** energyCells )
 		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, (UINT)-1, mLowerBody.position, false ) );
 		QueueEvent( E1 );
 
+		IEventPtr reg( new Event_Remove_Point_Light( mEnergyCellLight ) );
+		EventManager::GetInstance()->QueueEvent( reg );
+
 		mEnergyCellID	= (UINT)-1;
 		mPickUpCooldown	= 3.0f;
 	}
@@ -323,6 +329,9 @@ void Player::GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, Direct
 
 		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, shipID, shipPos, true ) );
 		QueueEvent( E1 );
+
+		IEventPtr reg( new Event_Remove_Point_Light( mEnergyCellLight ) );
+		EventManager::GetInstance()->QueueEvent( reg );
 
 		mEnergyCellID	= (UINT)-1;
 		mPickUpCooldown = 3.0f;
@@ -752,6 +761,10 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 			mPickUpCooldown -= deltaTime;
 		}
 
+		if( mEnergyCellID != (UINT)-1 )
+		{
+			mEnergyCellLight->position = DirectX::XMFLOAT4( mLowerBody.position.x, 4.0f, mLowerBody.position.z, 0.0f );
+		}
 
 		}
 		else
@@ -858,6 +871,10 @@ HRESULT Player::Initialize()
 
 	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 17.0f );
 
+	mEnergyCellLight					= new PointLight;
+	mEnergyCellLight->position			= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f );
+	mEnergyCellLight->colorAndRadius	= DirectX::XMFLOAT4( 2.0f, 3.0f, 8.0f, 1.0f );
+
 	mMaxVelocity		= 7.7f;
 	mCurrentVelocity	= 0.0f;
 	mMaxAcceleration	= 20.0f;
@@ -907,6 +924,7 @@ Player::Player()
 	mEventCapTimer		= 0.0f;
 
 	mPointLight			= nullptr;
+	mEnergyCellLight	= nullptr;
 
 	mWeaponCoolDown		= 0.0f;
 	mMeleeCoolDown		= 0.0f;

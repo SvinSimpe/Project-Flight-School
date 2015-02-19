@@ -575,11 +575,8 @@ HRESULT PlayState::Update( float deltaTime )
 
 
 	///Test fountain particle system
-	for ( size_t i = 0; i < 5; i++ )
-	{
-		RenderManager::GetInstance()->RequestParticleSystem( 999 + i, Test_Fountain, XMFLOAT3( (float)(i * 20), 0.0f, (float)(i * 20) ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
-	}
-	
+	RenderManager::GetInstance()->RequestParticleSystem( 999, Test_Fountain, XMFLOAT3( 0.0f, 3.0f, 5.0f ), XMFLOAT3( 0.5f, 1.0f, 0.5f ) );
+
 	if( mPlayer->Upgradable() < 1 )
 	{
 		mPlayer->UnLock();

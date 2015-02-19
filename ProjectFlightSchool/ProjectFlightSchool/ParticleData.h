@@ -238,8 +238,13 @@ struct ParticleData
 	{
 		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
 		{
-
-			if( particleType == Blood )
+			if( particleType == Fire )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 50 );	//---------------------random speed of particles
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 20 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 50 );		
+			}
+			else if( particleType == Blood )
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 40 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 10 );

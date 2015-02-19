@@ -576,6 +576,8 @@ HRESULT PlayState::Update( float deltaTime )
 
 	///Test fountain particle system
 	RenderManager::GetInstance()->RequestParticleSystem( 999, Test_Fountain, XMFLOAT3( 0.0f, 3.0f, 5.0f ), XMFLOAT3( 0.5f, 1.0f, 0.5f ) );
+	RenderManager::GetInstance()->RequestParticleSystem( 9989, Fire, XMFLOAT3( 1.0f, 2.0f, 15.0f ), XMFLOAT3( 0.5f, 1.0f, 0.5f ) );	//-----------id, effect, position, direction
+
 
 	if( mPlayer->Upgradable() < 1 )
 	{

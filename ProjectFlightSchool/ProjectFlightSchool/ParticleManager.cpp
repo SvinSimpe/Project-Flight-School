@@ -92,7 +92,7 @@ void ParticleManager::Initialize()
 	
 
 	mMaxNrOfParticleSystemsPerType[Smoke]			= 1;
-	mMaxNrOfParticleSystemsPerType[Fire]			= 1;
+	mMaxNrOfParticleSystemsPerType[Fire]			= 6; //-----------------------------------------------------------number of particle systems
 	mMaxNrOfParticleSystemsPerType[Spark]			= 1;
 	mMaxNrOfParticleSystemsPerType[Blood]			= 1;
 	mMaxNrOfParticleSystemsPerType[MuzzleFlash]		= 8;
@@ -128,7 +128,12 @@ void ParticleManager::Initialize()
 	//		mNrOfParticleSystems++;
 	//	}
 
-
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Fire]; i++ )
+	{
+		mParticleSystems[Fire][i]->Initialize( Fire, 20.0f, 256 );	//-------------------------------------------------emitter rate and particle count
+		mNrOfParticleSystemsPerType[Fire]++;
+		mNrOfParticleSystems++;
+	}
 	
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Blood]; i++ )
 	{

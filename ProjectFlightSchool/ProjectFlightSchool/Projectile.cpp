@@ -31,7 +31,7 @@ HRESULT Projectile::Render( )
 	return S_OK;
 }
 
-void Projectile::SetDirection( unsigned int playerID, unsigned int id, XMFLOAT3 startPosition, XMFLOAT3 direction, float speed, float range, int damage )
+void Projectile::SetDirection( unsigned int playerID, unsigned int id, XMFLOAT3 startPosition, XMFLOAT3 direction, float speed, float range, float damage )
 {
 	Reset();
 	mPlayerID		= playerID;
@@ -62,7 +62,7 @@ void Projectile::Reset()
 	mIsActive	= false;
 	mSpeed		= 20.0f;
 	mLifeTime	= 4.0f;
-	mDamage		= 0;
+	mDamage		= 0.0f;
 }
 
 BoundingCircle* Projectile::GetBoundingCircle() const
@@ -80,7 +80,7 @@ unsigned int Projectile::GetID() const
 	return mID;
 }
 
-unsigned int Projectile::GetDamage() const
+float Projectile::GetDamage() const
 {
 	return mDamage;
 }
@@ -110,7 +110,7 @@ Projectile::Projectile()
 	mIsActive		= false;
 	mLifeTime		= 0.0f;
 	mBoundingCircle	= nullptr;	
-	mDamage			= 0;
+	mDamage			= 0.0f;
 }
 
 Projectile::~Projectile()

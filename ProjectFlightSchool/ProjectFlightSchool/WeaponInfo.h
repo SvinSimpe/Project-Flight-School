@@ -218,7 +218,7 @@ struct RangedInfo
 						range			= 2.0f;
 						spread			= 0.15f;
 						areaOfEffect	= 0.0f;
-						projectileSpeed	= 70.0f;
+						projectileSpeed	= 60.0f;
 					}
 						break;
 
@@ -236,7 +236,7 @@ struct RangedInfo
 						range			= 2.0f;
 						spread			= 0.15f;
 						areaOfEffect	= 0.0f;
-						projectileSpeed	= 100.0f;
+						projectileSpeed	= 60.0f;
 					}
 						break;
 

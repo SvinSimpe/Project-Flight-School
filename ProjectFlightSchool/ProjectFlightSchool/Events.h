@@ -1086,7 +1086,7 @@ class Event_Client_Fired_Projectile : public IEvent
 		XMFLOAT3	mDirection;
 		float		mSpeed;
 		float		mRange;
-		int			mDamage;
+		float		mDamage;
 
 	protected:
 	public:
@@ -1102,10 +1102,10 @@ class Event_Client_Fired_Projectile : public IEvent
 			mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mSpeed			= 0.0f;
 			mRange			= 0.0f;
-			mDamage			= 0;
+			mDamage			= 0.0f;
 		}
 
-		Event_Client_Fired_Projectile( unsigned int id, XMFLOAT3 bodyPos, XMFLOAT3 direction, float speed, float range, int damage )
+		Event_Client_Fired_Projectile( unsigned int id, XMFLOAT3 bodyPos, XMFLOAT3 direction, float speed, float range, float damage )
 		{
 			mID				= id;
 			mBodyPos		= bodyPos;
@@ -1176,7 +1176,7 @@ class Event_Client_Fired_Projectile : public IEvent
 		{
 			return mRange;
 		}
-		int Damage() const
+		float Damage() const
 		{
 			return mDamage;
 		}
@@ -1192,7 +1192,7 @@ class Event_Remote_Fired_Projectile : public IEvent
 		XMFLOAT3	mDirection;
 		float		mSpeed;
 		float		mRange;
-		int			mDamage;
+		float		mDamage;
 
 	protected:
 	public:
@@ -1209,10 +1209,10 @@ class Event_Remote_Fired_Projectile : public IEvent
 			mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mSpeed			= 0.0f;
 			mRange			= 0.0f;
-			mDamage			= 0;
+			mDamage			= 0.0;
 		}
 
-		Event_Remote_Fired_Projectile( UINT id, UINT projectileID, XMFLOAT3 bodyPos, XMFLOAT3 direction, float speed, float range, int damage )
+		Event_Remote_Fired_Projectile( UINT id, UINT projectileID, XMFLOAT3 bodyPos, XMFLOAT3 direction, float speed, float range, float damage )
 		{
 			mID				= id;
 			mProjectileID	= projectileID;
@@ -1291,7 +1291,7 @@ class Event_Remote_Fired_Projectile : public IEvent
 		{
 			return mRange;
 		}
-		int Damage() const
+		float Damage() const
 		{
 			return mDamage;
 		}

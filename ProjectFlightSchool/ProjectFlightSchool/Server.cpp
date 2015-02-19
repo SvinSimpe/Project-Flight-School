@@ -192,7 +192,7 @@ void Server::ClientFiredProjectile( IEventPtr eventPtr )
 			XMFLOAT3 dir	= data->Direction();
 			float speed		= data->Speed();
 			float range		= data->Range();
-			int damage		= data->Damage();
+			float damage	= data->Damage();
 
 			IEventPtr E1( new Event_Remote_Fired_Projectile( data->ID(), pid, pos, dir, speed, range, damage ) );
 			BroadcastEvent( E1 );

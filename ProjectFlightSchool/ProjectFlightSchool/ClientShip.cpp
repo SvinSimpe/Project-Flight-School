@@ -1,76 +1,112 @@
 #include "ClientShip.h"
 
-void ClientShip::RemoteTurretLevel( IEventPtr eventPtr )
+void ClientShip::RemoteUpdateShip( IEventPtr eventPtr )
 {
-	// Code for handling upgrading/downgrading of turret here
+	if( eventPtr->GetEventType() == Event_Server_Update_Ship::GUID )
+	{
+		std::shared_ptr<Event_Server_Update_Ship> data = std::static_pointer_cast<Event_Server_Update_Ship>( eventPtr );
+		if( data->ID() == mID )
+		{
+			mMaxShield = data->MaxShield();
+			mCurrentShield = data->CurrentShield();
+			mCurrentHP = data->CurrentHP();
+			mWasUpdated = true;
+		}
+	}
 }
 
-void ClientShip::RemoteHullLevel( IEventPtr eventPtr )
+UINT ClientShip::GetID() const
 {
-	// Code for handling upgrading/downgrading of hull here
+	return mID;
 }
 
-void ClientShip::RemoteBuffLevel( IEventPtr eventPtr )
+UINT ClientShip::GetTeamID() const
 {
-	// Code for handling upgrading/downgrading of 
+	return mTeamID;
 }
 
-void ClientShip::RemoteDamageShip( IEventPtr eventPtr )
+UINT ClientShip::GetNrOfEnergyCells() const
 {
-	// Code for handling damaging the ship
+	return mNrOfEnergyCells;
 }
 
-void ClientShip::ServerResetShip( IEventPtr eventPtr )
+void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 {
-	// Event with all the necessary Reset-data here
+	if ( eventPtr->GetEventType() == Event_Request_Player_Spawn_Position::GUID )
+	{
+		std::shared_ptr<Event_Request_Player_Spawn_Position> data = std::static_pointer_cast<Event_Request_Player_Spawn_Position>( eventPtr );
+		if ( data->TeamID() == mTeamID )
+		{
+			float spawnX = 0.0f;
+			float spawnZ = 0.0f;
+			do
+			{
+				float xMin = mBuffCircle->center.x - 10.0f;
+				float xMax = mBuffCircle->center.x + 10.0f;
+
+				float zMin = mBuffCircle->center.z - 10.0f;
+				float zMax = mBuffCircle->center.z + 10.0f;
+
+				int randX = (int)( xMax*2 - xMin );
+				int randZ = (int)( zMax*2 - zMin );
+
+				spawnX = (float)( rand() % randX );
+				spawnZ = (float)( rand() % randZ );
+			}
+			while( spawnX > mBuffCircle->center.x - 5.0f && spawnX < mBuffCircle->center.x + 5.0f &&
+				   spawnZ > mBuffCircle->center.z - 5.0f && spawnZ < mBuffCircle->center.z + 5.0f );
+
+
+			IEventPtr E1( new Event_New_Player_Spawn_Position( data->PlayerID(), XMFLOAT2( spawnX, spawnZ ) ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+	}
 }
 
-void ClientShip::AddEnergyCell( UINT energyCellID )
+void ClientShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale )
 {
-	mEnergyCells[mNrOfEnergyCells++] = energyCellID;
-}
+	ServerShip::Reset( id, teamID, pos, rot, scale );
+	mHitCircle->center = pos;
+	mClientTurret->Reset( id, teamID, pos, rot, scale );
 
-UINT ClientShip::RemoveEnergyCell()
-{
-	return mEnergyCells[mNrOfEnergyCells--];
-}
-
-void ClientShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir )
-{
-	Release();
-	Initialize( id, teamID, pos, dir );
-
-	for( UINT i = 0; i < mNrOfEnergyCells; i++ )
+	for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
 	{
 		mEnergyCells[i] = (UINT)-1;
 	}
-	
+
 	mNrOfEnergyCells = 0;
 }
 
 bool ClientShip::Intersect( BoundingCircle* entity )
 {
-	if( mHitCircle->Intersect( entity ) )
+	if( mHitCircle != nullptr )
 	{
-		return true;
+		if( mHitCircle->Intersect( entity ) )
+		{
+			return true;
+		}
+		else return false;
 	}
 	return false;
 }
 
 void ClientShip::Update( float deltaTime )
 {
-	// Only really updates the turret
+	ServerShip::Update( deltaTime );
+	mClientTurret->Update( deltaTime );
 }
 
-void ClientShip::Render()
+void ClientShip::Render( float deltaTime, DirectX::XMFLOAT4X4 parentWorld )
 {
-	RenderManager::GetInstance()->AddObject3dToList( mAssetID, mPos );
+	GameObject::Render( deltaTime, parentWorld );
+	mClientTurret->Render( deltaTime, parentWorld);
 }
 
-void ClientShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir )
+void ClientShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale )
 {
-	ServerShip::Initialize( id, teamID, pos, dir );
-	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Ship/", "ship.pfs", mAssetID );
+	ServerShip::Initialize( id, teamID, pos, rot, scale );
+
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Ship/", "ShipWithTripod.pfs", mAssetID );
 	mHitCircle = new BoundingCircle( mPos, 5.0f );
 
 	for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
@@ -79,20 +115,32 @@ void ClientShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir )
 	}
 	
 	mNrOfEnergyCells = 0;
+
+	SAFE_RELEASE_DELETE( mServerTurret ); // This is kinda ugly, but needs to be done in order for events to work
+	mClientTurret = new ClientTurret();
+	mClientTurret->Initialize( mID, mTeamID, mPos, mRot, mScale );
+
+	EventManager::GetInstance()->AddListener( &ClientShip::RemoteUpdateShip, this, Event_Server_Update_Ship::GUID );
+	EventManager::GetInstance()->AddListener( &ClientShip::CalculatePlayerRespawnPosition, this, Event_Request_Player_Spawn_Position::GUID );
+
 }
 
 void ClientShip::Release()
 {
 	ServerShip::Release();
 	SAFE_DELETE( mHitCircle );
+	SAFE_RELEASE_DELETE( mClientTurret );
 }
 
 ClientShip::ClientShip() : ServerShip()
 {
-	mAssetID			= CUBE_PLACEHOLDER;
-	mHitCircle			= nullptr;
-	mNrOfEnergyCells	= 0;
-	
+
+	mAssetID		= CUBE_PLACEHOLDER;
+	mHitCircle		= nullptr;
+	mWasUpdated		= false;
+	mClientTurret	= nullptr;
+	mNrOfEnergyCells	= 0;	
+
 }
 
 ClientShip::~ClientShip()

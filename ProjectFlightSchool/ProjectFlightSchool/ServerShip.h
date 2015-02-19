@@ -4,42 +4,64 @@
 #include "BoundingGeometry.h"
 #include "Events.h"
 #include "EnergyCell.h"
+#include "ServerTurret.h"
+#include "GameObject.h"
 
-class ServerShip
+class ServerShip : public GameObject
 {
 	private:
 		friend class Server;
-		BoundingCircle* mBuffCircle;	// Don't forget to add an event for turning on/off player buffing
+		const UINT MIN_LEVEL = 1;
+		const UINT MAX_LEVEL = 3;
 		float			mBuffMod;		// Also declared in Player.h... look there to see what this does
 
 	protected:
+		ServerTurret*	mServerTurret;
+		BoundingCircle* mBuffCircle;
 		UINT			mID;
 		UINT			mTeamID;
-		XMFLOAT3		mPos;
-		XMFLOAT3		mDir;
+		XMFLOAT4X4		mWorld;
+		float			mMaxShield;
+		float			mCurrentShield;
 		float			mMaxHP;
 		float			mCurrentHP;
 		UINT			mNrOfEnergyCells;
 		UINT			mEnergyCells[MAX_ENERGY_CELLS];
 
+		UINT			mTurretLevel;
+		UINT			mBuffLevel;
+		UINT			mShieldLevel;
+
+		bool			mWasUpdated;
+
 	public:
 
 	private:
-		void ClientTurretLevel( IEventPtr eventPtr );
-		void ClientHullLevel( IEventPtr eventPtr );
-		void ClientBuffLevel( IEventPtr eventPtr );
-		void ClientDamageShip( IEventPtr eventPtr );
+		// Calculates the new level dependent on the change factor sent by the client
+		void			ChangeTurretLevel( int change );
+		void			ChangeShieldLevel( int change );
+		void			ChangeBuffLevel( int change );
+
+		void			CalcTurretLevel();
+		void			CalcShieldLevel();
+		void			CalcBuffMod();
+
+		void			ClientUpdateShip( IEventPtr eventPtr );
 
 	protected:
 	public:
-		UINT			GetID() const;
-		UINT			GetTeamID() const;
+		void			AddEnergyCell( UINT energyCellOwnerID );
+		float			PercentShield() const;
+		float			PercentHP() const;
+		
+		void			ClientChangeShipLevels( int changeTurretLevel, int changeShieldLevel, int changeBuffLevel );
 
-		bool			TakeDamage( float damage );
+		virtual bool	TakeDamage( float damage );
 		virtual bool	Intersect( BoundingCircle* entity ); // Will check for intersects with buffable players
-		virtual void	Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir );
+		virtual void	Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID = CUBE_PLACEHOLDER );
 		virtual void	Update( float deltaTime );
-		virtual void	Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir );
+		virtual void	Initialize( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID = CUBE_PLACEHOLDER );
+		virtual void	Initialize( UINT id, UINT teamID, GameObjectInfo gameObjectInfo, AssetID assetID = CUBE_PLACEHOLDER );
 		virtual void	Release();
 						ServerShip();
 		virtual			~ServerShip();

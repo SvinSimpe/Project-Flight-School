@@ -14,13 +14,11 @@
 #include "RemoteEnemy.h"
 #include "EnemyAnimationManager.h"
 #include "Gui.h"
-#include "ParticleManager.h"
 #include "SoundBufferHandler.h"
 #include "EnergyCell.h"
 
 //TestUpgradeWindow
 #include "UpgradeShipWindow.h"
-
 
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
@@ -33,7 +31,7 @@ class PlayState : public BaseState
 	private:
 		float			mFPS;
 		AnimationTrack	mTestAnimation;
-
+		AssetID			mTestStaticAsset;
 		Map*		mWorldMap;
 
 		//Collision
@@ -52,8 +50,6 @@ class PlayState : public BaseState
 		bool						mEnemyListSynced;
 		bool						mServerInitialized;
 
-		ParticleManager*			mParticleManager;
-
 		RADAR_UPDATE_INFO			mRadarObjects[MAX_RADAR_OBJECTS];
 		float						mAlliesHP[MAX_REMOTE_PLAYERS / 2];
 		Gui*						mGui;
@@ -61,13 +57,12 @@ class PlayState : public BaseState
 		EnergyCell**				mEnergyCells;
 		
 		std::vector<ClientShip*>	mShips;
+		ClientShip*					mMyShip;	// A pointer to the Client's own ship, used to show the remaining HP of it
 
 		//TestSound
 		int							m3DSoundAsset;
 		int							mSoundAsset;
-
-		//TestUpgradeWindow
-		UpgradeShipWindow			mWindow;
+		int							mStreamSoundAsset;
 	
 	protected:
 	public:

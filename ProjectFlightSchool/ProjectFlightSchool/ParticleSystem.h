@@ -16,6 +16,9 @@ struct ParticleSystem : public ParticleData
 	float		emitRate					= 0.0f;
 	AssetID		assetID;
 
+	int currCount = 0;
+	int prevCount = 0;
+
 	#pragma endregion
 
 	#pragma region Functions
@@ -28,6 +31,11 @@ struct ParticleSystem : public ParticleData
 
 		switch ( particleType )
 		{
+			case Blood:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/blood.dds", assetID );
+				break;
+			}
 			case MuzzleFlash:
 			{
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireSprite.dds", assetID );
@@ -40,7 +48,7 @@ struct ParticleSystem : public ParticleData
 			}
 			case Test_Fountain:
 			{
-				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/whiteSmoke.dds", assetID );
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/plutten.dds", assetID );
 				break;
 			}
 			default:
@@ -67,30 +75,36 @@ struct ParticleSystem : public ParticleData
 	void Generate( XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection, int particleCount, float spreadAngle )
 	{
 		// Check if there is enough particles to meet request
-		if( ( particleCount + nrOfParticlesAlive ) > MAX_PARTICLES )
-			particleCount = MAX_PARTICLES - nrOfParticlesAlive;
-
-		// Particlecount must be multiple of 4
-		while( particleCount % 4 != 0 )
-			particleCount--;
+		if( ( particleCount + nrOfParticlesAlive ) > capacity )
+		{
+			particleCount = capacity - nrOfParticlesAlive;
+			return;
+		}
 		
 		///==================
 		// Use emitterDirection as base and randomize a different direction vector with a maximum spread angle deviation
 		SetDirection( emitterDirection.x, emitterDirection.y, emitterDirection.z, particleCount, spreadAngle );
-		SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+		if( particleType == Test_Fountain )
+			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 3.0f, particleCount );
+		else
+			SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
 		
-		if( particleType == MuzzleFlash )	SetLifeTime( 1, 2, particleCount );
-		else if( particleType == Smoke_MiniGun )	SetLifeTime( 1, 6, particleCount );
-		else if( particleType == Test_Fountain )	SetLifeTime( 1, 18, particleCount );
+		if( particleType == Blood )	SetRandomDeathTime( 1, 2, particleCount );
+		else if( particleType == MuzzleFlash )	SetRandomDeathTime( 1, 2, particleCount );
+		else if( particleType == Smoke_MiniGun )	SetRandomDeathTime( 1, 6, particleCount );
+		else if( particleType == Test_Fountain )	SetRandomDeathTime( 1, 100, particleCount );
 
 		nrOfRequestedParticles += particleCount;
+
+		SpellCasterLifeMaster();
 	}
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{	
-			if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 4,  25.0f );
-			else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 16, 2.0f );
-			else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 4, 20.0f );
+			if( particleType == Blood )	Generate( emitterPosition, emitterDirection, 8, 25.0f );
+			else if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 4,  25.0f );
+			else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 8, 2.0f );
+			else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 32, 20.0f );
 	}
 
 	virtual void Update( float deltaTime )
@@ -101,12 +115,15 @@ struct ParticleSystem : public ParticleData
 		// Check for dead particles
 		CheckDeadParticles();
 
-		// Wake particles based on emission rate
-		SpellCasterLifeMaster();
-
 		// Update logic based on Particle type
 		switch( particleType )
 		{
+			case Blood: 
+			{
+				// Update Blood logic here
+				BloodLogic( deltaTime );
+				break;
+			}
 			case MuzzleFlash: 
 			{
 				// Update MuzzleFlash logic here
@@ -148,38 +165,35 @@ struct ParticleSystem : public ParticleData
 
 	void SpellCasterLifeMaster()
 	{
-		// Check if new Particles is requested
- 		if( nrOfRequestedParticles >= 4 )
+		if( nrOfParticlesAlive < capacity )
 		{
 			// Calculate Particle count for this frame
 			int nrOfNewParticles = (int)emitRate;
 	
-			if( nrOfNewParticles > MAX_PARTICLES)
+			if( nrOfNewParticles > capacity )
 				return;
 
-			// Check if Particle count is a multiple of 4 and is available
-			while( nrOfNewParticles % 4 != 0 &&  nrOfNewParticles <= nrOfRequestedParticles )
-			{
-				nrOfNewParticles--;
-				if( nrOfNewParticles <= 0 )
-				{
-					nrOfNewParticles		= 0;
-					nrOfRequestedParticles	= 0;
-					return;
-				}
-			}
-		
 			// Wake Particles
 			size_t endID = nrOfParticlesAlive + nrOfNewParticles;
 			for ( size_t i = nrOfParticlesAlive; i < endID; i++ )
 				Wake( i );
 
 			nrOfRequestedParticles -= nrOfNewParticles;
+
 			if( nrOfRequestedParticles < 0 )
 				nrOfRequestedParticles = 0;
+
+			else
+				nrOfRequestedParticles = 0;	
 		}
-		else
-			nrOfRequestedParticles = 0;	
+	}
+		
+	void BloodLogic( float deltaTime )
+	{
+		for ( int i = 0; i < nrOfParticlesAlive; i++ )
+		{
+			yVelocity[i] -= 0.1f;
+		}
 	}
 
 	void MuzzleFlashLogic( float deltaTime )
@@ -189,12 +203,20 @@ struct ParticleSystem : public ParticleData
 
 	void Smoke_MiniGunLogic( float deltaTime )
 	{
-		IncrementValueY();
+		IncrementValueY( 0.02f );
 	}
 
 	void Test_FountainLogic( float deltaTime )
 	{
-
+		currCount = nrOfParticlesAlive;
+		if( currCount > prevCount )
+		{
+			prevCount = currCount;
+			currCount = 0;
+		}
+		
+		if( currCount == prevCount )
+			int k = 4;
 	}
 
 	#pragma endregion

@@ -9,6 +9,7 @@
 #define MAX_AMOUNT_OF_PLANES	2000
 #define MAX_AMOUNT_OF_BOXES		2000
 #define MAX_AMOUNT_OF_NODEGRIDS	500
+#define MAX_AMOUNT_OF_LINES		10000
 
 struct Object3dInfo
 {
@@ -45,13 +46,15 @@ struct ParticleInfo
 	UINT				mOffsetToNextParticleType;
 	UINT				mParticleType;
 	DirectX::XMFLOAT3	mWorldPosition;
-	float				mLifeTime;
+	float				mAge;
+	float				mTimeTillDeath;
 };
 
 struct NodeGridInfo
 {
 	StaticVertex*		mVertices;
 	UINT				mNrOfVertices;
+	AssetID				mBlendMap;
 	DirectX::XMFLOAT4X4	mWorld;
 
 };
@@ -68,6 +71,11 @@ struct BoxInfo
 	DirectX::XMFLOAT3 min;
 	DirectX::XMFLOAT3 max;
 };
+struct LineInfo
+{
+	DirectX::XMFLOAT3 start;
+	DirectX::XMFLOAT3 end;
+};
 
 struct AnimationTrack
 {
@@ -77,6 +85,7 @@ struct AnimationTrack
 	UINT	mNextAnimation;
 	float	mNextAnimationTime;
 	float	mInterpolation;
+	bool	mBlendWithCurrent;
 };
 
 #endif

@@ -33,8 +33,10 @@ class Ship
 		void			Update( float deltaTime );
 		void			Render();
 		int				GetTeamID() const;
+
 		void			Initialize( int team, XMFLOAT3 pos, XMFLOAT3 dir );
 		void			Release();
+
 						Ship();
 		virtual			~Ship();
 };

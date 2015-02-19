@@ -28,6 +28,7 @@ struct NavVertex
 
 struct GridData
 {
+	char blendMap[32];
 	UINT dimensions[2];
 	Vertex* vertices;
 	Matrix matrix;

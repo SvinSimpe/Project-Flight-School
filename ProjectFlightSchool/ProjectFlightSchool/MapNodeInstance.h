@@ -2,7 +2,10 @@
 #define MAPNODEINSTANCE_H
 #include <DirectXMath.h>
 #include <Windows.h>
+#include <vector>
 #include "BoundingGeometry.h"
+#include "Navmesh.h"
+
 
 //forward declaration
 
@@ -19,18 +22,22 @@ public:
 		DirectX::XMFLOAT3 mOrigin;
 		DirectX::XMFLOAT4X4 mWorld;
 
-	protected:
-	public:
-	private:
-		void				SetUpExits();
-		void				SetCorners();
+		Navmesh* mNavMesh;
+
+		UINT		 mNavTriangleCount;
+
 	protected:
 	public:
 
+	private:
+		void				GetNavigationData();
+	protected:
+	public:
 
 		HRESULT				Update( float deltaTime );
 		HRESULT				Render( float deltaTime );
 
+		
 		DirectX::XMFLOAT3	GetPos() const;
 		void				SetPos( DirectX::XMFLOAT3 pos );
 
@@ -45,13 +52,13 @@ public:
 		MapNode*			GetMapNode() const;
 		void				SetMapNode( MapNode* mapNode );
 
-		BoundingBox			GetBoundingBox();
+		BoundingRectangle			GetBoundingBox();
+
+		NavTriangle*		IsOnNavMesh( DirectX::XMFLOAT3 pos ) const;			
 
 		HRESULT				Initialize();
 		void				Release();
-		
-		
-
+	
 							MapNodeInstance();
 		virtual				~MapNodeInstance();
 };

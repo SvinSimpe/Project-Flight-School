@@ -3,34 +3,36 @@
 
 #include "RenderManager.h"
 #include "ServerShip.h"
+#include "ClientTurret.h"
 
 class ClientShip : public ServerShip
 {
 	private:
-		// Turret? Buffcircle?
-		AssetID mAssetID;
 		BoundingCircle* mHitCircle;
+		ClientTurret* mClientTurret;
 
 
 	protected:
 	public:
 
 	private:
-		void RemoteTurretLevel( IEventPtr eventPtr );
-		void RemoteHullLevel( IEventPtr eventPtr );
-		void RemoteBuffLevel( IEventPtr eventPtr );
-		void RemoteDamageShip( IEventPtr eventPtr );
-		void ServerResetShip( IEventPtr eventPtr ); // An event will be sent from the server when a reset is required
-		void Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir );
+		void	CalcShieldLevel();
+
+		void	RemoteUpdateShip( IEventPtr eventPtr );
+		void	RemoteChangeShipLevels( IEventPtr eventPtr );
 
 	protected:
 	public:
-		void	AddEnergyCell( UINT energyCellID );
-		UINT	RemoveEnergyCell();
+		UINT	GetID() const;
+		UINT	GetTeamID() const;
+		UINT	GetNrOfEnergyCells() const;
+
+		void	CalculatePlayerRespawnPosition( IEventPtr eventPtr );
+		void	Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale );
 		bool	Intersect( BoundingCircle* entity ); // Will check for intersects with damaging stuff
 		void	Update( float deltaTime );
-		void	Render();
-		void	Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT3 dir );
+		void	Render( float deltaTime, DirectX::XMFLOAT4X4 parentWorld );
+		void	Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale );
 		void	Release();
 				ClientShip();
 		virtual	~ClientShip();

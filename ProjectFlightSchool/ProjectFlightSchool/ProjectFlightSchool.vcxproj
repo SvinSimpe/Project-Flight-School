@@ -92,14 +92,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ClientShip.cpp" />
+    <ClCompile Include="ClientTurret.cpp" />
+    <ClCompile Include="DSBufferStream.cpp" />
     <ClCompile Include="EnemyAnimationManager.cpp" />
     <ClCompile Include="EnergyCell.cpp" />
+    <ClCompile Include="EnemyBehavior.cpp" />
     <ClCompile Include="Gui.cpp" />
+    <ClCompile Include="HelperFunctions.cpp" />
+    <ClCompile Include="Navmesh.cpp" />
     <ClCompile Include="HealthBars.cpp" />
     <ClCompile Include="MovingButton.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="PacketImpl.cpp" />
     <ClCompile Include="ServerShip.cpp" />
+    <ClCompile Include="ServerTurret.cpp" />
     <ClCompile Include="SoundBufferHandler.cpp" />
     <ClCompile Include="DS3DBuffer.cpp" />
     <ClCompile Include="DSBuffer.cpp" />
@@ -145,6 +151,7 @@
     <ClCompile Include="tinyxmlerror.cpp" />
     <ClCompile Include="tinyxmlparser.cpp" />
     <ClCompile Include="Turret.cpp" />
+    <ClCompile Include="UpgradePlayerWindow.cpp" />
     <ClCompile Include="UpgradeShipWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -154,13 +161,18 @@
     <ClInclude Include="BoundingGeometry.h" />
     <ClInclude Include="EnergyCell.h" />
     <ClInclude Include="ClientShip.h" />
+    <ClInclude Include="ClientTurret.h" />
+    <ClInclude Include="DSBufferStream.h" />
     <ClInclude Include="Gui.h" />
+    <ClInclude Include="HelperFunctions.h" />
+    <ClInclude Include="Navmesh.h" />
     <ClInclude Include="HealthBars.h" />
     <ClInclude Include="IPacket.h" />
     <ClInclude Include="MovingButton.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="PacketImpl.h" />
     <ClInclude Include="ServerShip.h" />
+    <ClInclude Include="ServerTurret.h" />
     <ClInclude Include="SoundBufferHandler.h" />
     <ClInclude Include="DS3DBuffer.h" />
     <ClInclude Include="DSBuffer.h" />
@@ -215,6 +227,7 @@
     <ClInclude Include="tinystr.h" />
     <ClInclude Include="tinyxml.h" />
     <ClInclude Include="Turret.h" />
+    <ClInclude Include="UpgradePlayerWindow.h" />
     <ClInclude Include="UpgradeShipWindow.h" />
     <ClInclude Include="WeaponInfo.h" />
     <ClInclude Include="WeaponLoadoutInfo.h" />
@@ -228,6 +241,9 @@
     <ClInclude Include="Events.h" />
     <ClInclude Include="IEventManager.h" />
     <ClInclude Include="System.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

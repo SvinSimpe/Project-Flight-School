@@ -1,5 +1,25 @@
 #include "Gui.h"
 
+void Gui::ActivateUpgradeShipWindow()
+{
+	mShipWindow.Activate();
+}
+
+void Gui::DeActivateUpgradeShipWindow()
+{
+	mShipWindow.DeActivate();
+}
+
+void Gui::ActivateUpgradePlayerWindow()
+{
+	mPlayerWindow.Activate();
+}
+
+void Gui::DeActivateUpgradePlayerWindow()
+{
+	mPlayerWindow.DeActivate();
+}
+
 HRESULT Gui::Update( GuiUpdate guiUpdate )
 {
 	HRESULT result = S_OK;
@@ -46,7 +66,17 @@ HRESULT Gui::Update( GuiUpdate guiUpdate )
 	mPlayerHP		= (int)( guiUpdate.mPlayerHP * 100 );
 	mPlayerXP		= (int)( guiUpdate.mPlayerXP * 100 );
 	mPlayerShield	= (int)( guiUpdate.mPlayerShield * 100 );
-	mExperience		= guiUpdate.mPlayerXP;
+	mExperience		= guiUpdate.mLevel;
+
+	if ( mShipWindow.IsActive() )
+	{
+		mShipWindow.Update( guiUpdate.deltaTime );
+	}
+
+	if ( mPlayerWindow.IsActive() )
+	{
+		mPlayerWindow.Update( guiUpdate.deltaTime );
+	}
 
 	return result;
 
@@ -99,6 +129,16 @@ HRESULT Gui::Render()
 		mFont.WriteText( renderText, (mTopLeftCompWithPlayerHealthXP.x + 75.0f ), ( mTopLeftCompWithPlayerHealthXP.y + 66.0f ), 4.8f );
 	}
 
+	if ( mShipWindow.IsActive() )
+	{
+		mShipWindow.Render();
+	}
+
+	if ( mPlayerWindow.IsActive() )
+	{
+		mPlayerWindow.Render();
+	}
+
 	return result;
 }
 
@@ -130,7 +170,7 @@ HRESULT Gui::Initialize()
 	mPlayerXP		= 0;
 	mPlayerShield	= 0;
 
-	mExperience		= 0.0f;
+	mExperience		= 0;
 
 	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/playerHealth+XP2.dds", mPlayerBar );
 	if( FAILED( result ) )
@@ -149,8 +189,10 @@ HRESULT Gui::Initialize()
 	mSizeLevelUp						= XMFLOAT2( (float)( mSizePlayerHealthXP.x / 2.16f ), (float)( mSizePlayerHealthXP.y / 1.4f ) );
 	mTopLeftCompWithPlayerHealthXP		= XMFLOAT2( (float)( mSizePlayerHealthXP.x / 3.14f ), ( mPlayerHealthXPTopLeftCorner.y - (float)( mSizeLevelUp.y / 1.45f ) ) );
 
-	return result;
+	mShipWindow.Initialize();
+	mPlayerWindow.Initialize();
 
+	return result;
 }
 
 void Gui::Release()
@@ -167,6 +209,9 @@ void Gui::Release()
 	}
 
 	mFont.Release();
+
+	mShipWindow.Release();
+	mPlayerWindow.Release();
 }
 
 Gui::Gui()
@@ -179,4 +224,14 @@ Gui::Gui()
 Gui::~Gui()
 {
 
+}
+
+bool Gui::UpgradeShipWindowIsActive()
+{
+	return mShipWindow.IsActive();
+}
+
+bool Gui::UpgradePlayerWindowIsActive()
+{
+	return mPlayerWindow.IsActive();
 }

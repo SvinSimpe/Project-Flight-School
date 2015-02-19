@@ -42,7 +42,7 @@ HRESULT EnergyCell::Update( float deltaTime )
 
 HRESULT EnergyCell::Render()
 {
-	RenderManager::GetInstance()->AddObject3dToList( CUBE_PLACEHOLDER, mPickUpRadius->center );
+	RenderManager::GetInstance()->AddObject3dToList( mAssetID, mPickUpRadius->center );
 
 	return S_OK;
 }
@@ -64,10 +64,10 @@ HRESULT EnergyCell::Initialize( DirectX::XMFLOAT3 position )
 	mPickUpRadius			= new BoundingCircle( 1.0f );
 	mPickUpRadius->center	= position;
 
-	/*if( FAILED( hr = Graphics::GetInstance()->LoadStatic3dAsset( "TBD", "TBD", mAssetID ) ) )
+	if( FAILED( hr = Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Battery/", "battery.pfs", mAssetID ) ) )
 	{
 		return hr;
-	}*/
+	}
 
 	return hr;
 }

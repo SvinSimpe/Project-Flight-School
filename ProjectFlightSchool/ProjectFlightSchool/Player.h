@@ -9,12 +9,22 @@
 #include <time.h>
 
 #define VELOCITY_FALLOFF 2.0f
+class Map;
+
+struct Upgrades
+{
+	int melee				= 1;
+	int range				= 1;
+	int legs				= 1;
+	int body				= 1;
+};
 
 class Player: public RemotePlayer
 {
 	private:
 		float			mEventCapTimer;
-		PointLight*		mPointLight[5];
+		PointLight*		mPointLight;
+		Upgrades		mUpgrades;
 
 		float		mWeaponCoolDown;
 		float		mMeleeCoolDown;
@@ -23,6 +33,9 @@ class Player: public RemotePlayer
 		bool		mHasMeleeStarted;
 		bool		mLock;
 		bool		mCloseToPlayer;
+		int			mXP;
+		int			mNextLevelXP;
+		int			mCurrentUpgrades;
 
 		float		mMaxVelocity;
 		float		mCurrentVelocity;
@@ -44,6 +57,7 @@ class Player: public RemotePlayer
 		std::list<IEventPtr> mEventList;
 
 		UINT		mEnergyCellID;
+		float		mPickUpCooldown;
 
 	protected:
 	public:
@@ -62,17 +76,24 @@ class Player: public RemotePlayer
 		void		Revive();
 		void		Die();
 		void		Fire();
+		void		FireShotgun( XMFLOAT3* spawnPoint );
 		void		AddImpuls( XMFLOAT3 impuls );
-		void		Lock();
-		void		UnLock();
 		void		QueueEvent( IEvent* ptr );
-		void		PickUpEnergyCell( EnergyCell** energyCell );
-		void		DropEnergyCell( EnergyCell** energyCells );
+		void		UpgradeBody();
+		void		UpgradeLegs();
+		void		UpgradeMelee();
+		void		UpgradeRange();
 
 	protected:
 	public:
+		void		PickUpEnergyCell( EnergyCell** energyCell );
+		void		DropEnergyCell( EnergyCell** energyCells );
+		void		GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, DirectX::XMFLOAT3 shipPos );
+		HRESULT		UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells );
 		void		TakeDamage( float damage, unsigned int shooter );
 		void		HandleRevive( float deltaTime );
+		void		Lock();
+		void		UnLock();
 		
 		void		Reset();	
 		HRESULT		Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells );
@@ -87,6 +108,8 @@ class Player: public RemotePlayer
 		XMFLOAT3	GetPlayerPosition() const;
 		XMFLOAT3	GetUpperBodyDirection() const;
 		UINT		GetEnergyCellID() const;
+		float		GetXPToNext() const;
+		int			Upgradable() const;
 		void		SetIsMeleeing( bool isMeleeing );
 		void		SetID( unsigned int id );
 		void		SetTeam( int team );

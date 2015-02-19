@@ -17,10 +17,12 @@ void RenderManager::Clear()
 	mNrOfParticles	= 0;
 	mNrOfNodeGrid	= 0;
 	mNrOfBoxes		= 0;
+	mNrOfLines		= 0;
 }
 
 RenderManager::RenderManager()
 {
+	mParticleManager		= nullptr;
 }
 
 RenderManager::~RenderManager()
@@ -70,12 +72,36 @@ void RenderManager::AddBoxToList( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
 	mBoxArray[mNrOfBoxes++] = info;
 }
 
+void RenderManager::AddLineToList( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end )
+{
+	LineInfo info;
+	info.start	= start;
+	info.end	= end;
+
+	mLineArray[mNrOfLines++] = info;
+}
+
 bool RenderManager::AddAnim3dToList( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation )
 {
     static Anim3dInfo info;
 	info.mModelId = animTrack.mModelID;
+	DirectX::XMStoreFloat4x4( &info.mWorld, DirectX::XMMatrixTranspose( DirectX::XMMatrixRotationRollPitchYaw( rotation.x, rotation.y, rotation.z ) *										
+											DirectX::XMMatrixTranslation( position.x, position.y, position.z ) ) );
 
-	bool localReturn = Graphics::GetInstance()->GetAnimationMatrices( animTrack, playType, position, rotation, info ); 
+	bool localReturn = Graphics::GetInstance()->GetAnimationMatrices( animTrack, playType, info ); 
+
+	mAnim3dArray[mNrOfAnim3d++] = info;
+
+	return localReturn;
+}
+
+bool RenderManager::AddAnim3dToList( AnimationTrack &animTrack, int playType, XMFLOAT4X4* world )
+{
+	static Anim3dInfo info;
+	info.mModelId = animTrack.mModelID;
+	DirectX::XMStoreFloat4x4( &info.mWorld, DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( world ) ) );
+
+	bool localReturn = Graphics::GetInstance()->GetAnimationMatrices( animTrack, playType, info ); 
 
 	mAnim3dArray[mNrOfAnim3d++] = info;
 
@@ -133,7 +159,8 @@ void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, i
 				info.mWorldPosition.y	= particleSystem[i][j]->yPosition[k];
 				info.mWorldPosition.z	= particleSystem[i][j]->zPosition[k];
 
-				info.mLifeTime			= particleSystem[i][j]->lifeTime[k];
+				info.mAge				= particleSystem[i][j]->lifeTime[k];
+				info.mTimeTillDeath		= particleSystem[i][j]->deathTime[k] - particleSystem[i][j]->lifeTime[k];
 
 				mParticleInfoArray[mNrOfParticles++] = info;
 			}
@@ -141,11 +168,12 @@ void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, i
 	}	
 }
 
-void RenderManager::AddNodeGridToList( StaticVertex* vertices, UINT nrOfVertices, DirectX::XMFLOAT4X4 world )
+void RenderManager::AddNodeGridToList( StaticVertex* vertices, UINT nrOfVertices, AssetID blendMap, DirectX::XMFLOAT4X4 world )
 {
 	NodeGridInfo info;
 	info.mVertices		= vertices;
 	info.mNrOfVertices	= nrOfVertices;
+	info.mBlendMap		= blendMap;
 	DirectX::XMStoreFloat4x4( &info.mWorld, ( DirectX::XMMatrixTranspose( XMLoadFloat4x4( &world ) ) ) );
 
 	mNodeGridArray[mNrOfNodeGrid++] = info;
@@ -159,6 +187,7 @@ void RenderManager::AnimationInitialize( AnimationTrack &animationTrack, AssetID
 	animationTrack.mNextAnimation			= defaultAnimation;
 	animationTrack.mNextAnimationTime		= 1.0f / 60.0f;
 	animationTrack.mInterpolation			= 0.0f;
+	animationTrack.mBlendWithCurrent		= false;
 }
 
 void RenderManager::AnimationUpdate( AnimationTrack &animationTrack, float deltaTime )
@@ -170,17 +199,43 @@ void RenderManager::AnimationUpdate( AnimationTrack &animationTrack, float delta
 		animationTrack.mInterpolation		-= deltaTime;
 		if( animationTrack.mInterpolation <= 0.0f )
 		{
-			animationTrack.mCurrentAnimation		= animationTrack.mNextAnimation;
-			animationTrack.mCurrentAnimationTime	= animationTrack.mNextAnimationTime;
+			if( animationTrack.mBlendWithCurrent )
+			{
+				animationTrack.mBlendWithCurrent	= false;
+				animationTrack.mNextAnimation		= animationTrack.mCurrentAnimation;
+				animationTrack.mNextAnimationTime	= animationTrack.mCurrentAnimationTime;
+			}
+			else
+			{
+				animationTrack.mCurrentAnimation		= animationTrack.mNextAnimation;
+				animationTrack.mCurrentAnimationTime	= animationTrack.mNextAnimationTime;
+			}
 		}
 	}
 }
 
-void RenderManager::AnimationStartNew( AnimationTrack &animationTrack, AssetID newAnimation )
+void RenderManager::AnimationStartNew( AnimationTrack &animationTrack, AssetID newAnimation, bool blendWithCurrent )
 {
-	animationTrack.mNextAnimation		= newAnimation;
-	animationTrack.mNextAnimationTime	= 1.0f / 60.0f;
-	animationTrack.mInterpolation		= 0.2f;
+	if( newAnimation != animationTrack.mCurrentAnimation )
+	{
+		animationTrack.mNextAnimation		= newAnimation;
+		animationTrack.mBlendWithCurrent	= blendWithCurrent;
+		if( blendWithCurrent )
+		{
+			animationTrack.mNextAnimationTime	= animationTrack.mCurrentAnimationTime;
+			animationTrack.mInterpolation		= 0.2f;
+		}
+		else
+		{
+			animationTrack.mNextAnimationTime	= 1.0f / 60.0f;
+			animationTrack.mInterpolation		= 0.2f;
+		}
+	}
+}
+
+void RenderManager::ChangeRasterizerState( RasterizerStates rasterState )
+{
+	mRasterState = rasterState;
 }
 
 void RenderManager::AnimationReset( AnimationTrack &animationTrack, AssetID defaultAnimation )
@@ -190,12 +245,18 @@ void RenderManager::AnimationReset( AnimationTrack &animationTrack, AssetID defa
 	animationTrack.mNextAnimation			= defaultAnimation;
 	animationTrack.mNextAnimationTime		= 1.0f / 60.0f;
 	animationTrack.mInterpolation			= 0.0f;
+	animationTrack.mBlendWithCurrent		= false;
+}
+
+void RenderManager::RequestParticleSystem( size_t entityID, ParticleType particleType, XMFLOAT3 position, XMFLOAT3 direction )
+{
+	mParticleManager->RequestParticleSystem( entityID, particleType, position, direction );
 }
 
 HRESULT RenderManager::Update( float deltaTime )
 {
 	Clear();
-
+	mParticleManager->Update( deltaTime );
 	return S_OK;
 }
 
@@ -205,6 +266,7 @@ HRESULT RenderManager::Render()
 	//Reset the scene to default values
 	Graphics::GetInstance()->BeginScene();
 
+	Graphics::GetInstance()->ChangeRasterizerState( mRasterState );
 	//Prepare the scene to be rendered with Gbuffers
 	Graphics::GetInstance()->GbufferPass();
 	SetLightStructuredBuffer();
@@ -224,37 +286,16 @@ HRESULT RenderManager::Render()
 		Graphics::GetInstance()->RenderDebugBox( mBoxArray[i].min, mBoxArray[i].max );
 	}
 
+	Graphics::GetInstance()->RenderLine( mLineArray, mNrOfLines );
+
 	Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray, mNrOfAnim3d );
 	////------------------------Finished filling the Gbuffers----------------------
-
-	////Test data for billboarding
-	mBillboardArray[0].mWorldPosition = DirectX::XMFLOAT3( 0, 0, 0 );
-	mBillboardArray[0].mAssetId = DIFFUSE_PLACEHOLDER;
-	mBillboardArray[0].mWidth = 2.3f;
-	mBillboardArray[0].mHeight = 1.3f;
-	////mBillboardArray[1].mWorldPosition = DirectX::XMFLOAT3( 3, 1, 6 );
-	////mBillboardArray[1].mAssetId = DIFFUSE_PLACEHOLDER;
-	////mBillboardArray[2].mWorldPosition = DirectX::XMFLOAT3( -2, 1, -4 );
-	////mBillboardArray[2].mAssetId = DIFFUSE_PLACEHOLDER;
-	////mBillboardArray[3].mWorldPosition = DirectX::XMFLOAT3( 7, 1, 0 );
-	////mBillboardArray[3].mAssetId = DIFFUSE_PLACEHOLDER;
-	////mBillboardArray[4].mWorldPosition = DirectX::XMFLOAT3( 0, 1, 0 );
-	////mBillboardArray[4].mAssetId = DIFFUSE_PLACEHOLDER;
-	////mBillboardArray[5].mWorldPosition = DirectX::XMFLOAT3( -6, 1, 0 );
-	////mBillboardArray[5].mAssetId = DIFFUSE_PLACEHOLDER;
-
-	////for( int i = 1; i < 6; i++)
-	////{
-	////	mBillboardArray[i].mHeight = 1.0f;
-	////	mBillboardArray[i].mWidth	= 1.0f;
-	////}
-	////---------------------------------------------------
-	Graphics::GetInstance()->RenderBillboard( mBillboardArray, 1 );
 
 	////Render the scene with deferred
 	Graphics::GetInstance()->DeferredPass();
 
 	//Render the particles
+	mParticleManager->Render();
 	Graphics::GetInstance()->RenderParticleSystems( mParticleInfoArray, mNrOfParticles );
 
 	//Prepare the scene to render Screen space located assets
@@ -274,12 +315,16 @@ HRESULT RenderManager::Initialize()
 	Clear();
 	mLightManager = new LightManager;
 	mLightManager->Initialize();
+
+	mParticleManager = new ParticleManager();
+	mParticleManager->Initialize();
 	return S_OK;
 }
 
 void RenderManager::Release()
 {
 	SAFE_RELEASE_DELETE( mLightManager );
+	SAFE_RELEASE_DELETE( mParticleManager );
 }
 
 RenderManager* RenderManager::GetInstance()

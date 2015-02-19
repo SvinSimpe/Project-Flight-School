@@ -202,7 +202,7 @@ struct ParticleData
 	
 
 		XMVECTOR randomAimingDirection = XMVectorSet( 0.0f, 0.0f, 0.0f, 0.0f );
-		if( particleType != Test_Fountain )
+		if( particleType == Test_Fountain )
 			randomAimingDirection = XMVector3TransformCoord( aimingDirection, XMMatrixRotationY( XMConvertToRadians( randomSpreadAngle ) ) );		
 
 		else
@@ -254,9 +254,9 @@ struct ParticleData
 			}
 			else if( particleType == Test_Fountain )
 			{
-				randomDirectionVector.x = xDirection * GetRandomSpeed( 10, 20 );
- 				randomDirectionVector.y = yDirection * GetRandomSpeed( 10, 20 );
-				randomDirectionVector.z = zDirection * GetRandomSpeed( 10, 20 );		
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 2, 3 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 3, 10 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 2, 3 );		
 			}
 
 			GetRandomSpread( spreadAngle );

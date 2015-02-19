@@ -49,7 +49,7 @@ struct ParticleSystem : public ParticleData
 			}
 			case Test_Fountain:
 			{
-				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/plutten.dds", assetID );
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/smokeParticle1.dds", assetID );
 				break;
 			}
 			default:
@@ -89,7 +89,7 @@ struct ParticleSystem : public ParticleData
 		
 		if( particleType == MuzzleFlash )	SetRandomDeathTime( 1, 2, particleCount );
 		else if( particleType == Smoke_MiniGun )	SetRandomDeathTime( 1, 6, particleCount );
-		else if( particleType == Test_Fountain )	SetRandomDeathTime( 1, 100, particleCount );
+		else if( particleType == Test_Fountain )	SetRandomDeathTime( 1, 8, particleCount );
 
 		nrOfRequestedParticles += particleCount;
 
@@ -100,7 +100,7 @@ struct ParticleSystem : public ParticleData
 	{	
 			if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 4,  25.0f );
 			else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 8, 2.0f );
-			else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 4, 20.0f );
+			else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 8, 360.0f );
 	}
 
 	virtual void Update( float deltaTime )

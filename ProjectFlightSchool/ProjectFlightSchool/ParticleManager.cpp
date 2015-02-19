@@ -33,7 +33,7 @@ bool ParticleManager::RequestParticleSystem( size_t entityID, ParticleType parti
 	// Check if there is any available Particle System of requested type
 	if( mNrOfActiveParticleSystemsPerType[particleType] == mMaxNrOfParticleSystemsPerType[particleType] )
 	{
-		OutputDebugStringA( "-- Maximum number of Particle type reached --\n" );
+		//OutputDebugStringA( "-- Maximum number of Particle type reached --\n" );
 	}
 
 	// Check if entity already has a particle system of request type connected to it

@@ -637,10 +637,10 @@ HRESULT PlayState::Render()
 		}
 	}
 
-	for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
-	{
-		RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
-	}
+	//for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
+	//{
+	//	RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
+	//}
 
 	mGui->Render();
 
@@ -650,10 +650,10 @@ HRESULT PlayState::Render()
 
 	XMFLOAT4X4 identity;
 	XMStoreFloat4x4( &identity, XMMatrixIdentity() );
-	for( auto& s : mShips )
-	{
-		s->Render( 0.0f, identity );
-	}
+	//for( auto& s : mShips )
+	//{
+	//	s->Render( 0.0f, identity );
+	//}
 
 	RenderManager::GetInstance()->Render();
 
@@ -723,9 +723,9 @@ HRESULT PlayState::Initialize()
 
 	mWorldMap = new Map();
 
-	mWorldMap->Initialize( 16 );
+	mWorldMap->Initialize( 7 );
 
-	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/ForestMap.xml" ) ); 
+	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/HardMap.xml" ) ); 
 	EventManager::GetInstance()->TriggerEvent( E1 );
 
 	//Fill up on Projectiles, test values

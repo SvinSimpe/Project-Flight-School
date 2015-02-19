@@ -190,7 +190,7 @@ struct ParticleData
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
 		{
-			lifeTime[i] += 0.01;//deltaTime;
+			lifeTime[i] += 0.01f;//deltaTime;
 		}
 	}
 
@@ -199,17 +199,16 @@ struct ParticleData
 		XMVECTOR aimingDirection = XMLoadFloat3( &randomDirectionVector );
 
 		float randomSpreadAngle = (float)( rand() % (int)spreadAngle * 2 ) - spreadAngle;
-	
-
 		XMVECTOR randomAimingDirection = XMVectorSet( 0.0f, 0.0f, 0.0f, 0.0f );
-		if( particleType != Test_Fountain )
-			randomAimingDirection = XMVector3TransformCoord( aimingDirection, XMMatrixRotationY( XMConvertToRadians( randomSpreadAngle ) ) );		
 
-		else
+		if( particleType == Test_Fountain )
 		{
 			randomAimingDirection = XMVector3TransformCoord( aimingDirection, XMMatrixRotationX( XMConvertToRadians( randomSpreadAngle ) ) );
-			randomAimingDirection = XMVector3TransformCoord( randomAimingDirection, XMMatrixRotationZ( XMConvertToRadians( randomSpreadAngle ) ) );
+			randomAimingDirection = XMVector3TransformCoord( randomAimingDirection, XMMatrixRotationZ( XMConvertToRadians( randomSpreadAngle ) ) );	
 		}
+	
+		else
+			randomAimingDirection = XMVector3TransformCoord( aimingDirection, XMMatrixRotationY( XMConvertToRadians( randomSpreadAngle ) ) );
 
 		XMStoreFloat3( &randomDirectionVector, randomAimingDirection );
 		
@@ -228,7 +227,7 @@ struct ParticleData
 
 	void SetRandomDeathTime( size_t lowerBound, size_t upperBound, size_t particleCount ) // If 2.0f is upperBound, send 20
 	{
-		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++)
+		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
 		{
 			float randomDeathTime = (float)( rand() % upperBound + (float)lowerBound ) * 0.1f;
 			deathTime[i] = randomDeathTime;
@@ -239,7 +238,14 @@ struct ParticleData
 	{
 		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
 		{
-			if( particleType == MuzzleFlash )
+
+			if( particleType == Blood )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 40 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 10 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 40 );		
+			}
+			else if( particleType == MuzzleFlash )
 
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 10, 80 );
@@ -254,9 +260,9 @@ struct ParticleData
 			}
 			else if( particleType == Test_Fountain )
 			{
-				randomDirectionVector.x = xDirection * GetRandomSpeed( 10, 20 );
- 				randomDirectionVector.y = yDirection * GetRandomSpeed( 10, 20 );
-				randomDirectionVector.z = zDirection * GetRandomSpeed( 10, 20 );		
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 2, 3 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 3, 10 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 2, 3 );		
 			}
 
 			GetRandomSpread( spreadAngle );
@@ -317,11 +323,31 @@ struct ParticleData
 		delete [] isAlive;
 	}
 
-	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emiterDirection) = 0;
+	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emiterDirection ) = 0;
 
 	virtual void Update( float deltaTime ) = 0;
 
 	virtual void Render( float deltaTime ) = 0;
+
+	void GenerateCirclePosition( float xPosition, float yPosition, float zPosition, float radius, size_t particleCount )
+	{
+		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
+		{
+			float randomAngle = (float)( rand() % 360 + 1 );
+			float randomRadius = (float)( rand() % (int)radius + 1 );
+
+			XMVECTOR randomDirection = XMVector3TransformCoord( XMVectorSet( 1.0f, 0.0f, 0.0f, 0.0f ), XMMatrixRotationY( XMConvertToRadians( randomAngle ) ) );
+
+			randomDirection *= randomRadius;
+
+			XMFLOAT3 temp = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			XMStoreFloat3( &temp, XMLoadFloat3( &XMFLOAT3( xPosition, yPosition, zPosition ) ) + randomDirection );
+
+			this->xPosition[i] = temp.x;
+			this->yPosition[i] = temp.y;
+			this->zPosition[i] = temp.z;
+		}
+	}
 
 	#pragma endregion
 };

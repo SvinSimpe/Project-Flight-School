@@ -81,7 +81,16 @@ HRESULT Graphics::InitializeDepthStencilStates()
 	////////////////////////////////////
 	depthStencilDesc.DepthEnable					= true;
 
-	return hr = mDevice->CreateDepthStencilState( &depthStencilDesc, &mDepthStencils[DEPTHSTENCILS_ENABLED] );
+	if ( FAILED( hr =mDevice->CreateDepthStencilState( &depthStencilDesc, &mDepthStencils[DEPTHSTENCILS_ENABLED] ) ) )
+		return hr;
+
+	////////////////////////////////////
+	// CREATE DEPTHSTENCILSTATE MASK_DISABLED
+	////////////////////////////////////
+	depthStencilDesc.DepthWriteMask					= D3D11_DEPTH_WRITE_MASK_ZERO;
+
+	if ( FAILED( hr = mDevice->CreateDepthStencilState( &depthStencilDesc, &mDepthStencils[DEPTHSTENCILS_MASK_DISABLED] ) ) )
+		return hr;
 }
 
 HRESULT Graphics::InitializeSamplerStates()
@@ -431,8 +440,8 @@ HRESULT Graphics::InitializeEffects()
 	//=======================================
 
 	//Muzzle Flash effect
-	effectInfo.filePath					= "../Content/Effects/Particle Effects/bloodEffect.hlsl";
-	effectInfo.fileName					= "bloodEffect";
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/BloodEffect.hlsl";
+	effectInfo.fileName					= "BloodEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
 	effectInfo.isGeometryShaderIncluded = true;
 
@@ -1005,13 +1014,14 @@ void Graphics::RenderBillboard( BillboardInfo* info, UINT sizeOfList )
 
 void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 {
+
+
 	//////////////////////////////////////////////////////////////////
 	//						RENDER CALL
 	//////////////////////////////////////////////////////////////////
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_POINTLIST );
+	mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_MASK_DISABLED], 1 );
 	
-	mDeviceContext->OMSetBlendState( mBlendStates[BLEND_2D], 0, 0xFFFFFFFF );
-
 	UINT32 vertexSize[2]			= { sizeof( Vertex12 ), sizeof( ParticleVertex16 ) };
 	UINT32 offset[2]				= { 0, 0 };
 	mDeviceContext->GSSetConstantBuffers( 0, 1, &mBuffers[BUFFERS_CBUFFER_PER_FRAME] );
@@ -1045,13 +1055,19 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 				mParticleInstanced[objectToRender].age				= info[i].mAge;
 				mParticleInstanced[objectToRender].timeTillDeath	= info[i].mTimeTillDeath;
 
-
 				objectToRender++;
 				strider++;
 				if( objectToRender == MAX_PARTICLE_BATCH || strider == offsetToParticleType )
 				{
 					//Test
 					mDeviceContext->IASetInputLayout( mEffects[info[i].mParticleType]->GetInputLayout() );
+
+					// Add particletype you want to apply additive blending on
+					if( info[i].mParticleType == EFFECTS_TEST_FOUNTAIN )
+						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
+
+					else
+						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_NORMAL], 0, 0xFFFFFFFF );
 
 					mDeviceContext->VSSetShader( mEffects[info[i].mParticleType]->GetVertexShader(), nullptr, 0 );
 					mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
@@ -1080,6 +1096,8 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 		}
 		else break;
 	}
+
+	mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
 }
 
 void Graphics::RenderNodeGrid( NodeGridInfo* info, UINT sizeOfList )
@@ -1507,15 +1525,15 @@ bool Graphics::GetAnimationMatrices( AnimationTrack &animTrack, int playType, An
 	{
 		float blendInterpolation = animTrack.mInterpolation / ( animTrack.mBlendWithCurrent ? 0.2f : 0.2f );
 
-	/*	if( animTrack.mBlendWithCurrent )
+		if( animTrack.mBlendWithCurrent )
 		{
 			blendInterpolation *= 2.0f;
-			if( blendInterpolation > 1.0f )
+			if( blendInterpolation < 1.0f )
 			{
-				blendInterpolation -= 1.0f;
-				blendInterpolation = 1.0f - blendInterpolation;
+				blendInterpolation = 2.0f - blendInterpolation;
 			}
-		}*/
+			blendInterpolation -= 1.0f;
+		}
 
 		DirectX::XMVECTOR currComp[3];
 		DirectX::XMVECTOR nextComp[3];
@@ -1750,7 +1768,7 @@ void Graphics::ScreenSpacePass()
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
 	mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_DISABLED], 1 );
 	static float blend[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	mDeviceContext->OMSetBlendState( mBlendStates[BLEND_2D], blend, 0xffffffff );
+	mDeviceContext->OMSetBlendState( mBlendStates[BLEND_NORMAL], blend, 0xffffffff );
 
 	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_2D]->GetInputLayout() );
 
@@ -1917,8 +1935,24 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 	blendDesc.RenderTarget[0].BlendOpAlpha			= D3D11_BLEND_OP_ADD;
 	blendDesc.RenderTarget[0].RenderTargetWriteMask	= D3D11_COLOR_WRITE_ENABLE_ALL;
 
-	if( FAILED( hr = mDevice->CreateBlendState( &blendDesc, &mBlendStates[BLEND_2D] ) ) )
+	if( FAILED( hr = mDevice->CreateBlendState( &blendDesc, &mBlendStates[BLEND_NORMAL] ) ) )
 		return hr;
+
+	//Additive blend state
+	blendDesc.AlphaToCoverageEnable					= FALSE;
+	blendDesc.IndependentBlendEnable				= TRUE;
+	blendDesc.RenderTarget[0].BlendEnable			= TRUE;
+	blendDesc.RenderTarget[0].SrcBlend				= D3D11_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend				= D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].BlendOp				= D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha			= D3D11_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlendAlpha		= D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].BlendOpAlpha			= D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask	= D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	if( FAILED( hr = mDevice->CreateBlendState( &blendDesc, &mBlendStates[BLEND_ADD] ) ) )
+		return hr;
+
 	//////////////////////////////
 	// CREATE BLEND STATE
 	//////////////////////////////
@@ -2033,6 +2067,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 	cameraInfo.eyePos		= DirectX::XMFLOAT4( 0.0f, 50.0f, -50.0f, 0.0f );
 	cameraInfo.focusPoint	= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
 	cameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
+	cameraInfo.farZ			= 1000.0f;
 
 	hr = mCamera[CAMERAS_DEV]->Initialize( &cameraInfo );
 	if( FAILED( hr ) )
@@ -2048,8 +2083,8 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 	shadowMapCameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 0.0f, 1.0f, 0.0f );
 	shadowMapCameraInfo.width		= (float)SHADOW_MAP_WIDTH;
 	shadowMapCameraInfo.height		= (float)SHADOW_MAP_HEIGHT;
-	shadowMapCameraInfo.foVY		= 3.14159265f * 0.5f;
-	shadowMapCameraInfo.nearZ		= 10.0f;
+	shadowMapCameraInfo.foVY		= 3.14159265f * 0.4f;
+	shadowMapCameraInfo.nearZ		= 15.0f;
 	shadowMapCameraInfo.farZ		= 40.0f;
 
 	hr = mCamera[CAMERAS_SHADOWMAP]->Initialize( &shadowMapCameraInfo );

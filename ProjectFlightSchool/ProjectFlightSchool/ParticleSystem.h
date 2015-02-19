@@ -31,10 +31,9 @@ struct ParticleSystem : public ParticleData
 
 		switch ( particleType )
 		{
-
 			case Blood:
 			{
-				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/bloodParticle.dds", assetID );
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/blood.dds", assetID );
 				break;
 			}
 			case MuzzleFlash:
@@ -49,7 +48,7 @@ struct ParticleSystem : public ParticleData
 			}
 			case Test_Fountain:
 			{
-				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/plutten.dds", assetID );
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/smokeParticle1.dds", assetID );
 				break;
 			}
 			default:
@@ -85,11 +84,15 @@ struct ParticleSystem : public ParticleData
 		///==================
 		// Use emitterDirection as base and randomize a different direction vector with a maximum spread angle deviation
 		SetDirection( emitterDirection.x, emitterDirection.y, emitterDirection.z, particleCount, spreadAngle );
-		SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+		if( particleType == Test_Fountain )
+			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 3.0f, particleCount );
+		else
+			SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
 		
-		if( particleType == MuzzleFlash )	SetRandomDeathTime( 1, 2, particleCount );
+		if( particleType == Blood )	SetRandomDeathTime( 1, 2, particleCount );
+		else if( particleType == MuzzleFlash )	SetRandomDeathTime( 1, 2, particleCount );
 		else if( particleType == Smoke_MiniGun )	SetRandomDeathTime( 1, 6, particleCount );
-		else if( particleType == Test_Fountain )	SetRandomDeathTime( 1, 100, particleCount );
+		else if( particleType == Test_Fountain )	SetRandomDeathTime( 1, 8, particleCount );
 
 		nrOfRequestedParticles += particleCount;
 
@@ -98,9 +101,10 @@ struct ParticleSystem : public ParticleData
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{	
-			if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 4,  25.0f );
+			if( particleType == Blood )	Generate( emitterPosition, emitterDirection, 8, 25.0f );
+			else if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 4,  25.0f );
 			else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 8, 2.0f );
-			else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 4, 20.0f );
+			else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 8, 360.0f );
 	}
 
 	virtual void Update( float deltaTime )
@@ -111,13 +115,9 @@ struct ParticleSystem : public ParticleData
 		// Check for dead particles
 		CheckDeadParticles();
 
-		// Wake particles based on emission rate
-		//SpellCasterLifeMaster( deltaTime );
-
 		// Update logic based on Particle type
 		switch( particleType )
 		{
-
 			case Blood: 
 			{
 				// Update Blood logic here
@@ -170,9 +170,9 @@ struct ParticleSystem : public ParticleData
 			// Calculate Particle count for this frame
 			int nrOfNewParticles = (int)emitRate;
 	
-			if( nrOfNewParticles > capacity)
+			if( nrOfNewParticles > capacity )
 				return;
-		
+
 			// Wake Particles
 			size_t endID = nrOfParticlesAlive + nrOfNewParticles;
 			for ( size_t i = nrOfParticlesAlive; i < endID; i++ )
@@ -190,13 +190,9 @@ struct ParticleSystem : public ParticleData
 		
 	void BloodLogic( float deltaTime )
 	{
-		const __m128 acceleration = _mm_set1_ps( 0.1f );
-
-		for ( int i = 0; i < nrOfParticlesAlive; i += 4 )
+		for ( int i = 0; i < nrOfParticlesAlive; i++ )
 		{
-			__m128 xmm0				= _mm_load_ps( &yVelocity[i] );
-			xmm0 = _mm_sub_ps( xmm0, acceleration );
-			_mm_store_ps( &yVelocity[i], xmm0 );
+			yVelocity[i] -= 0.1f;
 		}
 	}
 

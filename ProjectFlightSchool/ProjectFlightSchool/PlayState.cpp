@@ -16,6 +16,9 @@ void PlayState::EventListener( IEventPtr newEvent )
 
 			//TestSound
 			SoundBufferHandler::GetInstance()->Play( mSoundAsset );
+
+			IEventPtr E1( new Event_Client_Initialize_LobbyPlayer( mPlayer->GetID(), mPlayer->GetTeam(), mPlayer->GetName() ) );
+			Client::GetInstance()->SendEvent( E1 );
 		}
 	}
 
@@ -25,6 +28,9 @@ void PlayState::EventListener( IEventPtr newEvent )
 		mRemotePlayers.push_back( new RemotePlayer() );
 		mRemotePlayers.at(mRemotePlayers.size() - 1)->Initialize();
 		mRemotePlayers.at(mRemotePlayers.size() - 1)->RemoteInit( data->ID(), data->TeamID() );
+
+		IEventPtr E1( new Event_Client_Initialize_LobbyPlayer( mPlayer->GetID(), mPlayer->GetTeam(), mPlayer->GetName() ) );
+		Client::GetInstance()->SendEvent( E1 );
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Left::GUID ) // Remove a remote player from the list when they disconnect
 	{
@@ -64,7 +70,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
-		//RenderManager::GetInstance()->RequestParticleSystem( 9999, Blood, XMFLOAT3( 2.0f, 3.0f, 0.0f ) , XMFLOAT3( 0.0f, 1.0f, 1.0f ) );
+		RenderManager::GetInstance()->RequestParticleSystem( 9999, Blood, XMFLOAT3( 2.0f, 3.0f, 0.0f ) , XMFLOAT3( -data->Direction().x, data->Direction().y, -data->Direction().z )  );
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
 	{
@@ -567,12 +573,10 @@ HRESULT PlayState::Update( float deltaTime )
 		}
 	}
 
+
 	///Test fountain particle system
-	for (size_t i = 0; i < 5; i++)
-	{
-		RenderManager::GetInstance()->RequestParticleSystem( 999 + i, Test_Fountain, XMFLOAT3( (float)(i * 20), 0.0f, (float)(i * 20) ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
-	}
-	
+	RenderManager::GetInstance()->RequestParticleSystem( 999, Test_Fountain, XMFLOAT3( 0.0f, 3.0f, 5.0f ), XMFLOAT3( 0.5f, 1.0f, 0.5f ) );
+
 	if( mPlayer->Upgradable() < 1 )
 	{
 		mPlayer->UnLock();
@@ -633,10 +637,10 @@ HRESULT PlayState::Render()
 		}
 	}
 
-	for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
-	{
-		RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
-	}
+	//for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
+	//{
+	//	RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
+	//}
 
 	mGui->Render();
 
@@ -646,10 +650,10 @@ HRESULT PlayState::Render()
 
 	XMFLOAT4X4 identity;
 	XMStoreFloat4x4( &identity, XMMatrixIdentity() );
-	for( auto& s : mShips )
-	{
-		s->Render( 0.0f, identity );
-	}
+	//for( auto& s : mShips )
+	//{
+	//	s->Render( 0.0f, identity );
+	//}
 
 	RenderManager::GetInstance()->Render();
 
@@ -658,14 +662,16 @@ HRESULT PlayState::Render()
 
 void PlayState::OnEnter()
 {
-	Reset();
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Started() );
 	EventManager::GetInstance()->QueueEvent( E1 );
+
+	SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
 }
 
 void PlayState::OnExit()
 {
+	Reset();
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Ended() );
 	EventManager::GetInstance()->QueueEvent( E1 );
@@ -717,9 +723,9 @@ HRESULT PlayState::Initialize()
 
 	mWorldMap = new Map();
 
-	mWorldMap->Initialize( 16 );
+	mWorldMap->Initialize( 7 );
 
-	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/ForestMap.xml" ) ); 
+	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/HardMap.xml" ) ); 
 	EventManager::GetInstance()->TriggerEvent( E1 );
 
 	//Fill up on Projectiles, test values
@@ -771,8 +777,9 @@ HRESULT PlayState::Initialize()
 	mMyShip			= nullptr;
 
 	//TestSound
-	m3DSoundAsset	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav" );
-	mSoundAsset		= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
+	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav" );
+	mSoundAsset			= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
+	mStreamSoundAsset	= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav" );
 
 	return S_OK;
 }

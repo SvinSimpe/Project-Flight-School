@@ -3,6 +3,7 @@
 
 #include "BoundingGeometry.h"
 #include "Events.h"
+#include "EnergyCell.h"
 #include "ServerTurret.h"
 #include "GameObject.h"
 
@@ -24,6 +25,8 @@ class ServerShip : public GameObject
 		float			mCurrentShield;
 		float			mMaxHP;
 		float			mCurrentHP;
+		UINT			mNrOfEnergyCells;
+		UINT			mEnergyCells[MAX_ENERGY_CELLS];
 
 		UINT			mTurretLevel;
 		UINT			mBuffLevel;
@@ -47,6 +50,7 @@ class ServerShip : public GameObject
 
 	protected:
 	public:
+		void			AddEnergyCell( UINT energyCellOwnerID );
 		float			PercentShield() const;
 		float			PercentHP() const;
 		

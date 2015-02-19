@@ -1073,7 +1073,7 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 					mDeviceContext->IASetInputLayout( mEffects[info[i].mParticleType]->GetInputLayout() );
 
 					// Add particletype you want to apply additive blending on
-					if( info[i].mParticleType == EFFECTS_TEST_FOUNTAIN )
+					if( info[i].mParticleType == EFFECTS_TEST_FOUNTAIN || info[i].mParticleType == EFFECTS_SPARK )
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
 
 					else

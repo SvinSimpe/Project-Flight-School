@@ -32,7 +32,7 @@ NODE_RETURN_CODE MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNo
 	int nodeWith   = (int)( ( newNode->GetMapNode()->GetGridWidth() / ( NODE_DIM ) ) );
 	int nodeHeight = (int)( ( newNode->GetMapNode()->GetGridHeight() / ( NODE_DIM ) ) );
 
-	if( (int)mMap->GetMapWidth() < ( pX + nodeWith ) || (int)mMap->GetMapWidth() < ( pY + nodeHeight ) )
+	if( (int)mMap->GetMapWidth() < ( pX + nodeWith ) || (int)mMap->GetMapHeight() < ( pY + nodeHeight ) )
 	{
 		return NOFIT;
 	}
@@ -74,12 +74,10 @@ void MapNodePlacer::BuildMap( MapNodeInstance** map )
 	//Hardcoding Ships
 	CanPlace( mMap->GetMapHalfWidth() - 1, mMap->GetMapHalfHeight(), nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance() );
 	map[mNrOfNodes++] = nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance();
-	count++;
 	////////////////
 	//Hardcoding Ships
 	CanPlace( mMap->GetMapHalfWidth() + 1, mMap->GetMapHalfHeight(), nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance() );
 	map[mNrOfNodes++] = nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance();
-	count++;
 	////////////////
 
 	for( int x = 0; x < (int)mMap->GetMapDim(); x++ )
@@ -100,14 +98,22 @@ void MapNodePlacer::BuildMap( MapNodeInstance** map )
 				switch( CanPlace( x, y, newNode ) )
 				{
 					case OCCUPIED:
-						doLoop = false;
 						newNode->ReleaseInstance();
+						if( count < nodeMapSize )
+						{
+							count++;
+							randomNode = (count + randomNode) % nodeMapSize;
+						}
+						else
+						{
+							doLoop = false;
+						}
 						break;
 					case NOFIT:
 						newNode->ReleaseInstance();
-						count++;
-						if(count < nodeMapSize )
+						if( count < nodeMapSize )
 						{
+							count++;
 							randomNode = (count + randomNode) % nodeMapSize;
 						}
 						else
@@ -118,7 +124,7 @@ void MapNodePlacer::BuildMap( MapNodeInstance** map )
 						break;
 					case PLACED:
 						map[mNrOfNodes++] = newNode;
-						count++;
+						count = 0;
 						doLoop = false;
 						break;
 				}

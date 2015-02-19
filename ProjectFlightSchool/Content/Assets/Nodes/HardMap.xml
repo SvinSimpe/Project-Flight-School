@@ -2,10 +2,15 @@
 <Level>
     <Nodes>
         <Node path="../Content/Assets/Nodes/ShipTile.lp" type="SHIP_NODE" />
- 	<--<Node path="../Content/Assets/Nodes/tileforest.lp" type="AREA_NODE" />BLEND NEEDED -->
-	<--<Node path="../Content/Assets/Nodes/tileforest2.lp" type="AREA_NODE" />BLEND NEEDED -->
-	<--<Node path="../Content/Assets/Nodes/tileforest3.lp" type="AREA_NODE" />BLEND NEEDED -->
+	<--<Node path="../Content/Assets/Nodes/tileALargePuddle.lp" type="AREA_NODE" />-->
+	<--<Node path="../Content/Assets/Nodes/tileBossNestBoneArena.lp" type="AREA_NODE" />BLEND NEEDED-->
+	<--<Node path="../Content/Assets/Nodes/tileBossNestStoneArena.lp" type="AREA_NODE" />BLEND NEEDED-->
+ 	<--<Node path="../Content/Assets/Nodes/tileforest.lp" type="AREA_NODE" />BLEND NEEDED-->
+	<--<Node path="../Content/Assets/Nodes/tileforest2.lp" type="AREA_NODE" />BLEND NEEDED-->
+	<--<Node path="../Content/Assets/Nodes/tileforest3.lp" type="AREA_NODE" />BLEND NEEDED-->
 	<Node path="../Content/Assets/Nodes/tileforest4.lp" type="AREA_NODE" />
+	<Node path="../Content/Assets/Nodes/tileFungusForest.lp" type="AREA_NODE" />
+	
 	
     </Nodes>
     <Assets>

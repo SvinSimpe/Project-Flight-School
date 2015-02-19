@@ -162,6 +162,13 @@ MapNode* MapNodeManager::CreateNode( const char* fileName )
 		
 		
 		Graphics::GetInstance()->LoadStatic3dAsset( "", gridMat.name, assetID );
+		if( assetID == CUBE_PLACEHOLDER )
+		{
+			OutputDebugStringA( "Missing model: " );
+			OutputDebugStringA( gridMat.name );
+			OutputDebugStringA( "\n" );
+		}
+
 		ob.Initialize( obInfo, assetID );
 		staticObjects.push_back( ob );
 		#ifdef _DEBUG

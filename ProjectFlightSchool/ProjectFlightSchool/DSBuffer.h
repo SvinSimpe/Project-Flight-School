@@ -30,18 +30,18 @@ struct WaveHeaderType
 class DSBuffer
 {
 private:
+
+protected:
 	LPDIRECTSOUNDBUFFER8	mBuffer;
 	char*					mFileName;
 	int						mID;
 
-protected:
-
 public:
 
 private:
-	HRESULT CreateBasicBuffer( LPDIRECTSOUND8 lpDirectSound, WaveHeaderType waveFileHeader );
 
 protected:
+	HRESULT CreateBasicBuffer( LPDIRECTSOUND8 lpDirectSound, WaveHeaderType waveFileHeader );
 
 public:
 	void		PlayBuffer();

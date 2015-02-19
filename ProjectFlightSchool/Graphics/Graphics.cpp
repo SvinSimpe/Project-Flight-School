@@ -440,8 +440,8 @@ HRESULT Graphics::InitializeEffects()
 	//=======================================
 
 	//Muzzle Flash effect
-	effectInfo.filePath					= "../Content/Effects/Particle Effects/bloodEffect.hlsl";
-	effectInfo.fileName					= "bloodEffect";
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/BloodEffect.hlsl";
+	effectInfo.fileName					= "BloodEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
 	effectInfo.isGeometryShaderIncluded = true;
 
@@ -1525,15 +1525,15 @@ bool Graphics::GetAnimationMatrices( AnimationTrack &animTrack, int playType, An
 	{
 		float blendInterpolation = animTrack.mInterpolation / ( animTrack.mBlendWithCurrent ? 0.2f : 0.2f );
 
-	/*	if( animTrack.mBlendWithCurrent )
+		if( animTrack.mBlendWithCurrent )
 		{
 			blendInterpolation *= 2.0f;
-			if( blendInterpolation > 1.0f )
+			if( blendInterpolation < 1.0f )
 			{
-				blendInterpolation -= 1.0f;
-				blendInterpolation = 1.0f - blendInterpolation;
+				blendInterpolation = 2.0f - blendInterpolation;
 			}
-		}*/
+			blendInterpolation -= 1.0f;
+		}
 
 		DirectX::XMVECTOR currComp[3];
 		DirectX::XMVECTOR nextComp[3];
@@ -2082,8 +2082,8 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 	shadowMapCameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 0.0f, 1.0f, 0.0f );
 	shadowMapCameraInfo.width		= (float)SHADOW_MAP_WIDTH;
 	shadowMapCameraInfo.height		= (float)SHADOW_MAP_HEIGHT;
-	shadowMapCameraInfo.foVY		= 3.14159265f * 0.5f;
-	shadowMapCameraInfo.nearZ		= 10.0f;
+	shadowMapCameraInfo.foVY		= 3.14159265f * 0.4f;
+	shadowMapCameraInfo.nearZ		= 15.0f;
 	shadowMapCameraInfo.farZ		= 40.0f;
 
 	hr = mCamera[CAMERAS_SHADOWMAP]->Initialize( &shadowMapCameraInfo );

@@ -6,7 +6,7 @@
 
 void Server::ClientJoined( IEventPtr eventPtr )
 {
-	if( eventPtr->GetEventType() == Event_Client_Joined::GUID )
+	if( eventPtr->GetEventType() == Event_Client_Joined::GUID && !mStopAccept )
 	{
 		std::shared_ptr<Event_Client_Joined> data = std::static_pointer_cast<Event_Client_Joined>( eventPtr );
 		auto& it = mClientMap.find(data->ID());
@@ -376,6 +376,52 @@ void Server::ClientChangeShipLevels( IEventPtr eventPtr )
 	}
 }
 
+void Server::LobbyPlayer( IEventPtr eventPtr )
+{
+	if ( eventPtr->GetEventType() == Event_Client_Initialize_LobbyPlayer::GUID )
+	{
+		std::shared_ptr<Event_Client_Initialize_LobbyPlayer> data = std::static_pointer_cast<Event_Client_Initialize_LobbyPlayer>( eventPtr );
+		IEventPtr E1( new Event_Server_Initialize_LobbyPlayer( data->ID(), data->TeamID(), data->Name() ) );
+		BroadcastEvent( E1 );
+	}
+}
+
+void Server::StopLobby( IEventPtr eventPtr )
+{
+	if ( eventPtr->GetEventType() == Event_Client_Lobby_Finished::GUID )
+	{
+		std::shared_ptr<Event_Client_Lobby_Finished> data = std::static_pointer_cast<Event_Client_Lobby_Finished>( eventPtr );
+		mStopAccept = true;
+		IEventPtr E1( new Event_Server_Lobby_Finished() );
+		BroadcastEvent( E1 );
+	}
+}
+
+void Server::SwitchTeam( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Switch_Team::GUID )
+	{
+		std::shared_ptr<Event_Client_Switch_Team> data = std::static_pointer_cast<Event_Client_Switch_Team>( eventPtr );
+		for( size_t i = 0; i < mNrOfPlayers; i++ )
+		{
+			if( mPlayers[i]->ID == data->ID() )
+			{
+				mPlayers[i]->TeamID = data->TeamID();
+				printf( "Server:: Spelare: %d, blev lag %d\n", mPlayers[i]->ID, mPlayers[i]->TeamID );
+				IEventPtr E1( new Event_Server_Switch_Team( mPlayers[i]->ID, mPlayers[i]->TeamID ) );
+				BroadcastEvent( E1 );
+			}
+		}
+		for( auto& remote : mClientMap )
+		{
+			if( remote.first == data->ID() )
+			{
+				remote.second->TeamID = data->TeamID();
+			}
+		}
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -570,6 +616,8 @@ XMFLOAT3 Server::GetNextSpawn()
 
 bool Server::Initialize()
 {
+	mStopAccept = false;
+
 	EventManager::GetInstance()->AddListener( &Server::ClientJoined, this, Event_Client_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientLeft, this, Event_Client_Left::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientUpdate, this, Event_Client_Update::GUID );
@@ -589,6 +637,9 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientWinLose, this, Event_Client_Win::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientChangeShipLevels, this, Event_Client_Change_Ship_Levels::GUID );
 	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
+	EventManager::GetInstance()->AddListener( &Server::LobbyPlayer, this, Event_Client_Initialize_LobbyPlayer::GUID );
+	EventManager::GetInstance()->AddListener( &Server::StopLobby, this, Event_Client_Lobby_Finished::GUID );
+	EventManager::GetInstance()->AddListener( &Server::SwitchTeam, this, Event_Client_Switch_Team::GUID );
 
 	mTeamDelegate	= 1;
 	mCurrentPID		= 0;
@@ -626,6 +677,7 @@ bool Server::Initialize()
 
 void Server::Reset()
 {
+	mStopAccept = false;
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 	{
 		mEnemies[i]->Reset();

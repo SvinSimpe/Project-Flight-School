@@ -32,6 +32,22 @@ int SoundBufferHandler::LoadBuffer( char* fileName )
 	return id;
 }
 
+int SoundBufferHandler::LoadStreamBuffer( char* fileName )
+{
+	for ( auto s : mStreamSoundAssets )
+	{
+		if ( s.GetFileName() == fileName )
+		{
+			return s.GetID();
+		}
+	}
+	DSBufferStream buffer;
+	int id = mStreamSoundAssets.size();
+	buffer.Initialize( mDSDevice, fileName, id );
+	mStreamSoundAssets.push_back( buffer );
+	return id;
+}
+
 void SoundBufferHandler::Play( int SoundID )
 {
 	mSoundAssets.at(SoundID).PlayBuffer();
@@ -45,6 +61,21 @@ void SoundBufferHandler::Loop( int SoundID )
 void SoundBufferHandler::StopLoop( int SoundID )
 {
 	mSoundAssets.at(SoundID).StopBuffer();
+}
+
+void SoundBufferHandler::PlayStream( int SoundID )
+{
+	mStreamSoundAssets.at(SoundID).PlayBuffer();
+}
+
+void SoundBufferHandler::LoopStream( int SoundID )
+{
+	mStreamSoundAssets.at(SoundID).PlayBufferLoop();
+}
+
+void SoundBufferHandler::StopLoopStream( int SoundID )
+{
+	mStreamSoundAssets.at(SoundID).StopBuffer();
 }
 
 void SoundBufferHandler::Play3D( int SoundID, XMFLOAT3 pos )
@@ -84,6 +115,11 @@ void SoundBufferHandler::Release()
 		s.Release();
 	}
 	mSoundAssets.clear();
+	for ( auto& s : mStreamSoundAssets )
+	{
+		s.Release();
+	}
+	mStreamSoundAssets.clear();
 	for ( auto& s : m3DSoundAssets )
 	{
 		s.Release();
@@ -94,6 +130,11 @@ void SoundBufferHandler::Release()
 		s.Release();
 	}
 	mActiveSounds.clear();
+	for ( auto& s : mActiveStreamSounds )
+	{
+		s.Release();
+	}
+	mActiveStreamSounds.clear();
 	for ( auto& s : mActive3DSounds )
 	{
 		s.Release();
@@ -108,6 +149,8 @@ SoundBufferHandler::SoundBufferHandler()
 	mDSDevice		= nullptr;
 	mSoundAssets	= std::vector<DSBuffer>(0);
 	mActiveSounds	= std::vector<DSBuffer>(0);
+	mStreamSoundAssets	= std::vector<DSBufferStream>(0);
+	mActiveStreamSounds	= std::vector<DSBufferStream>(0);
 	m3DSoundAssets	= std::vector<DS3DBuffer>(0);
 	mActive3DSounds = std::vector<DS3DBuffer>(0);
 	mDSListener		= nullptr;

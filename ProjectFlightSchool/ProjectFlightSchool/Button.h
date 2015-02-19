@@ -30,5 +30,6 @@ class Button : public Image
 		virtual			~Button();
 
 		XMFLOAT2		GetPosition() const;
+		void			SetPosition( XMFLOAT2 pos );
 };
 #endif

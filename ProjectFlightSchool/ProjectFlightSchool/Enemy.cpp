@@ -13,12 +13,12 @@ void Enemy::CreateStandard()
 		Med atkrate
 	*/
 	mEnemyType					= Standard;
-	mMaxHp						= 300.0f;
+	mMaxHp						= 30.0f;
 	mCurrentHp					= mMaxHp;
 	mDamage						= 10.0f;
 	mSpeed						= 5.0f;
 	mAttackRadius->radius		= 0.5f;
-	mAttentionRadius->radius	= 10.0f;
+	mAttentionRadius->radius	= 15.0f;
 	mXpDrop						= 5;
 	mSpawnTime					= 10.0f;
 	mAttackRate					= 1.2f;
@@ -36,10 +36,10 @@ void Enemy::CreateRanged()
 	mEnemyType					= Ranged;
 	mMaxHp						= 20.0f;
 	mCurrentHp					= mMaxHp;
-	mDamage						= 10.0f;
+	mDamage						= 5.0f;
 	mSpeed						= 7.0f;
-	mAttackRadius->radius		= 5.0f;
-	mAttentionRadius->radius	= 10.0f;
+	mAttackRadius->radius		= 3.0f;
+	mAttentionRadius->radius	= 15.0f;
 	mXpDrop						= 5;
 	mSpawnTime					= 10.0f;
 	mAttackRate					= 1.0f;
@@ -60,7 +60,7 @@ void Enemy::CreateBoomer()
 	mDamage						= 40.0f;
 	mSpeed						= 8.0f;
 	mAttackRadius->radius		= 1.0f;
-	mAttentionRadius->radius	= 10.0f;
+	mAttentionRadius->radius	= 15.0f;
 	mXpDrop						= 5;
 	mSpawnTime					= 10.0f;
 	mAttackRate					= 1.0f;
@@ -81,7 +81,7 @@ void Enemy::CreateTank()
 	mDamage						= 20.0f;
 	mSpeed						= 1.5f;
 	mAttackRadius->radius		= 1.0f;
-	mAttentionRadius->radius	= 10.0f;
+	mAttentionRadius->radius	= 15.0f;
 	mXpDrop						= 15;
 	mSpawnTime					= 10.0f;
 	mAttackRate					= 1.8f;
@@ -257,7 +257,7 @@ void Enemy::Spawn( XMFLOAT3 spawnPos )
 		break;
 	}
 
-	CreateStandard();
+	//CreateStandard();
 	//CreateRanged();
 	//CreateBoomer();
 	//CreateTank();

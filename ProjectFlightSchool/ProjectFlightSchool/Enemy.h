@@ -134,6 +134,7 @@ class AttackBehavior : public IEnemyBehavior
 	// Class members
 	private:
 		float			mTimeTillAttack;
+		bool			mHasAttacked;
 
 	// Class functions
 	public:
@@ -290,6 +291,8 @@ class Enemy
 		bool				IsAlive() const;
 		XMFLOAT3			GetPosition() const;
 		XMFLOAT3			GetDirection() const;
+		float				GetSpeed() const;
+		XMFLOAT3			GetVelocity() const;
 		
 
 		HRESULT				Initialize( int id, ServerPlayer** players, UINT NrOfPlayers );

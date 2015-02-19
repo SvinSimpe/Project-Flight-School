@@ -1851,7 +1851,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 			&mDevice,
 			&initiatedFeatureLevel,
 			&mDeviceContext );
-
+	
 	if( FAILED( hr ) )
 		return hr;
 	

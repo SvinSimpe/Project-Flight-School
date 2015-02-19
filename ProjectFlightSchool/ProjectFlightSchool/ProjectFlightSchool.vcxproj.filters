@@ -279,6 +279,9 @@
     <ClCompile Include="MovingButton.cpp">
       <Filter>GUI\Source</Filter>
     </ClCompile>
+    <ClCompile Include="EnergyCell.cpp">
+      <Filter>Source Files</Filter>
+	</ClCompile>
     <ClCompile Include="RemoteEnemy.cpp">
       <Filter>Enemy\Source Files</Filter>
     </ClCompile>
@@ -525,6 +528,9 @@
     <ClInclude Include="MovingButton.h">
       <Filter>GUI\Header</Filter>
     </ClInclude>
+    <ClInclude Include="EnergyCell.h">
+      <Filter>Header Files</Filter>
+	</ClInclude>
     <ClInclude Include="Enemy.h">
       <Filter>Enemy\Header Files</Filter>
     </ClInclude>

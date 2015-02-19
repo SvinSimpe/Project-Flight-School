@@ -21,18 +21,20 @@ class Projectile
 		bool			mIsActive;
 		float			mLifeTime;
 		BoundingCircle*	mBoundingCircle;
+		int				mDamage;
 
 	public:
 		HRESULT			Update( float deltaTime );
 		HRESULT			Render();
 
-		void			SetDirection( unsigned int playerID, unsigned int id, XMFLOAT3 startPosition, XMFLOAT3 direction, float speed, float range );
+		void			SetDirection( unsigned int playerID, unsigned int id, XMFLOAT3 startPosition, XMFLOAT3 direction, float speed, float range, int damage );
 		void			SetIsActive( bool isActive );
 		bool			IsActive() const;
 		void			Reset();
 		BoundingCircle*	GetBoundingCircle() const;
 		unsigned int	GetPlayerID() const;
 		unsigned int	GetID() const;
+		unsigned int	GetDamage() const;
 
 		HRESULT			Initialize();
 		void			Release();

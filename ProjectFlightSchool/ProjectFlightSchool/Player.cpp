@@ -285,8 +285,8 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	newPos.x = mLowerBody.position.x + mVelocity.x * deltaTime;
 	newPos.z = mLowerBody.position.z + mVelocity.z * deltaTime;
 
-	newDir.x = mVelocity.x * deltaTime * mUpgrades.legs;
-	newDir.y = mVelocity.z * deltaTime * mUpgrades.legs;
+	newDir.x = mVelocity.x * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f );
+	newDir.y = mVelocity.z * deltaTime *( 0.8f + (float)mUpgrades.legs / 5.0f );
 
 	if( worldMap->IsOnNavMesh( newPos ) == nullptr)
 	{
@@ -428,11 +428,11 @@ void Player::Fire()
 		{
 			float directionOffset	=  (float)( rand() % 100 ) * 0.001f - mLoadOut->rangedWeapon->spread;
 			mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffset, mUpperBody.direction.y, mUpperBody.direction.z + directionOffset );
-			QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, loadDir, mFireDirection, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range ) );
+			QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, loadDir, mFireDirection, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage ) );
 		}
 		else
 		{
-			QueueEvent(  (IEventPtr)new Event_Client_Fired_Projectile( mID, loadDir, mUpperBody.direction, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range ) );
+			QueueEvent(  (IEventPtr)new Event_Client_Fired_Projectile( mID, loadDir, mUpperBody.direction, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage ) );
 		}
 	}
 }
@@ -442,33 +442,33 @@ void Player::FireShotgun( XMFLOAT3* spawnPoint )
 	// Fire shotgun
 
 	// middle projectile
-	QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, *spawnPoint, mUpperBody.direction, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+	QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, *spawnPoint, mUpperBody.direction, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage ) );
 
 	//// projectile 1
 	XMFLOAT3 shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 30.0f ) ) ) );
-	QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+	QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage ) );
 
 	// projectile 2
 	//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -30.0f ) ) ) );
-	QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+	QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage ) );
 
 	XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 20.0f ) ) ) );
-	QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+	QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage ) );
 
 	// projectile 2
 	//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -20.0f ) ) ) );
-	QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+	QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage ) );
 
 	XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 40.0f ) ) ) );
-	QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+	QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage ) );
 
 	// projectile 2
 	//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -40.0f ) ) ) );
-	QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range ) );
+	QueueEvent( (IEventPtr)new Event_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage ) );
 }
 
 void Player::AddImpuls( XMFLOAT3 impuls )
@@ -603,6 +603,7 @@ void Player::Reset()
 
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
 {
+	mXP++;
 	if( ( mXP / mNextLevelXP ) >= 1 )
 	{
 		mCurrentUpgrades++;

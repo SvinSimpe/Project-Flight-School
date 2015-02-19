@@ -188,12 +188,13 @@ void Server::ClientFiredProjectile( IEventPtr eventPtr )
 		if( it != mClientMap.end() )
 		{
 			UINT pid = CurrentPID();
-			XMFLOAT3 pos = data->BodyPos();
-			XMFLOAT3 dir = data->Direction();
-			float speed	 = data->Speed();
-			float range	 = data->Range();
+			XMFLOAT3 pos	= data->BodyPos();
+			XMFLOAT3 dir	= data->Direction();
+			float speed		= data->Speed();
+			float range		= data->Range();
+			int damage		= data->Damage();
 
-			IEventPtr E1( new Event_Remote_Fired_Projectile( data->ID(), pid, pos, dir, speed, range ) );
+			IEventPtr E1( new Event_Remote_Fired_Projectile( data->ID(), pid, pos, dir, speed, range, damage ) );
 			BroadcastEvent( E1 );
 		}
 	}

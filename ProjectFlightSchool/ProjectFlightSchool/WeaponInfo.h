@@ -191,27 +191,52 @@ struct RangedInfo
 				{
 					case 2:
 					{
+						attackRate		= 0.1f;
+						damage			= 1.5f;
+						range			= 1.0f;
+						spread			= 0.15f;
+						areaOfEffect	= 0.0f;
+						projectileSpeed	= 60.0f;
 					}
 						break;
 
 					case 3:
 					{
+						attackRate		= 0.15f;
+						damage			= 2.0f;
+						range			= 1.5f;
+						spread			= 0.15f;
+						areaOfEffect	= 0.0f;
+						projectileSpeed	= 60.0f;
 					}
 						break;
 
 					case 4:
 					{
+						attackRate		= 0.2f;
+						damage			= 2.8f;
+						range			= 2.0f;
+						spread			= 0.15f;
+						areaOfEffect	= 0.0f;
+						projectileSpeed	= 70.0f;
 					}
 						break;
 
 					case 5:
 					{
-						attackRate		= 0.01f;
-						damage			= 3.0f;
-						range			= 0.5f;
-						spread			= 0.2f;
+						//attackRate		= 0.01f;
+						//damage			= 3.0f;
+						//range			= 0.5f;
+						//spread			= 0.2f;
+						//areaOfEffect	= 0.0f;
+						//projectileSpeed	= 60.0f;
+
+						attackRate		= 0.3f;
+						damage			= 4.0f;
+						range			= 2.0f;
+						spread			= 0.15f;
 						areaOfEffect	= 0.0f;
-						projectileSpeed	= 60.0f;
+						projectileSpeed	= 100.0f;
 					}
 						break;
 

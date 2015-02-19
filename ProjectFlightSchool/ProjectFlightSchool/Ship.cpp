@@ -1,5 +1,6 @@
 #include "Ship.h"
 
+
 void Ship::BuffPlayer( Player* player )
 {
 }

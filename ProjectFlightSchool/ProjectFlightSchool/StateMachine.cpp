@@ -90,6 +90,7 @@ HRESULT StateMachine::Initialize()
 	mStates[OPTIONS_MENU_STATE]		= new OptionsMenuState();
 	mStates[SINGLE_MENU_STATE]		= new SingleplayerMenuState();
 	mStates[PLAY_STATE]				= new PlayState();
+	mStates[LOBBY_STATE]			= new LobbyState();
 	mCurrentState					= START_MENU_STATE;
 
 	for( int i = 0; i < NR_OF_STATES; i++ )

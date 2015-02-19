@@ -78,5 +78,4 @@ float4 PS_main(GS_Out input) : SV_TARGET0
 		alpha = input.timeTillDeath;
 	
 	return float4( diffuseTexture.Sample( linearSampler, input.uv ).xyz, alpha );
-
 }

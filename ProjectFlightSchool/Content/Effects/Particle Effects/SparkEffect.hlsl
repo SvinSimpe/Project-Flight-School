@@ -70,13 +70,17 @@ SamplerState linearSampler			: register( s1 );
 float4 PS_main(GS_Out input) : SV_TARGET0
 {	
 
-	clip( diffuseTexture.Sample( linearSampler, input.uv ).w < 0.1f ? -1:1 );
+	//clip( diffuseTexture.Sample( linearSampler, input.uv ).w < 0.1f ? -1:1 );
 
 
-	float alpha = 1.0f;
-	if( input.timeTillDeath <= 0.05f )
-		alpha = input.timeTillDeath;
+	//float alpha = 1.0f;
+	//if( input.timeTillDeath <= 0.05f )
+		//alpha = input.timeTillDeath;
 	
-	return float4( diffuseTexture.Sample( linearSampler, input.uv ).xyz, alpha );
+	float4 diffuse = float4( diffuseTexture.Sample( linearSampler, input.uv ) );
+
+	diffuse.w = diffuse.w * input.timeTillDeath;
+
+	return diffuse;
 
 }

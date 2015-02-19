@@ -246,9 +246,9 @@ struct ParticleData
 			
 			if( particleType == Spark )
 			{
-				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 100 );
- 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 80 );
-				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 100 );		
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 40 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 10 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 40 );		
 			}
 			if( particleType == Blood )
 			{

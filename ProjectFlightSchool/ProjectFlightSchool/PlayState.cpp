@@ -16,6 +16,9 @@ void PlayState::EventListener( IEventPtr newEvent )
 
 			//TestSound
 			SoundBufferHandler::GetInstance()->Play( mSoundAsset );
+
+			IEventPtr E1( new Event_Client_Initialize_LobbyPlayer( mPlayer->GetID(), mPlayer->GetTeam(), mPlayer->GetName() ) );
+			Client::GetInstance()->SendEvent( E1 );
 		}
 	}
 
@@ -25,6 +28,9 @@ void PlayState::EventListener( IEventPtr newEvent )
 		mRemotePlayers.push_back( new RemotePlayer() );
 		mRemotePlayers.at(mRemotePlayers.size() - 1)->Initialize();
 		mRemotePlayers.at(mRemotePlayers.size() - 1)->RemoteInit( data->ID(), data->TeamID() );
+
+		IEventPtr E1( new Event_Client_Initialize_LobbyPlayer( mPlayer->GetID(), mPlayer->GetTeam(), mPlayer->GetName() ) );
+		Client::GetInstance()->SendEvent( E1 );
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Left::GUID ) // Remove a remote player from the list when they disconnect
 	{
@@ -116,6 +122,14 @@ void PlayState::EventListener( IEventPtr newEvent )
 		}
 		IEventPtr E1( new Event_Reset_Game() );
 		EventManager::GetInstance()->QueueEvent( E1 );
+	}
+	else if( newEvent->GetEventType() == Event_Server_Sync_Energy_Cell::GUID )
+	{
+		std::shared_ptr<Event_Server_Sync_Energy_Cell> data = std::static_pointer_cast<Event_Server_Sync_Energy_Cell>( newEvent );
+		
+		mEnergyCells[data->EnergyCellID()]->SetOwnerID( data->OwnerID() );
+		mEnergyCells[data->EnergyCellID()]->SetPosition( data->Position() );
+		mEnergyCells[data->EnergyCellID()]->SetPickedUp( data->PickedUp() );
 	}
 }
 
@@ -532,14 +546,39 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.mPlayerNames	= pName;
 	guiUpdate.mNrOfAllies	= nrOfAllies;
 	guiUpdate.mAlliesHP		= mAlliesHP;
+	guiUpdate.mShipHP		= 1.0f;
+
+	HandleDeveloperCameraInput();
+	
+	if( mPlayer->GetEnergyCellID() != (UINT)-1 )
+	{
+		if( mMyShip->GetTeamID() == mPlayer->GetTeam() && mMyShip->Intersect( mPlayer->GetBoundingCircle() ) )
+		{
+			UINT temp = mPlayer->GetEnergyCellID();
+			mPlayer->GiveEnergyCellToShip( mEnergyCells, mMyShip->GetID(), mMyShip->GetPos() );
+		}
+	}
+
+	mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers, mEnergyCells );
+	/*else
+	{
+		for( int i = 0; i < mShips.size(); i++ )
+		{
+			if( mShips[i]->GetTeamID() != mPlayer->GetTeam() && mShips[i]->Intersect( mPlayer->GetBoundingCircle() ) )
+			{
+				if( mShips[i]->GetNrOfEnergyCells() > 0 )
+				{
+					mPlayer->SetEnergyCellID( mShips[i]->RemoveEnergyCell() );
+					mEnergyCells[mPlayer->GetEnergyCellID()]->SetOwnerID( mPlayer->GetID() );
+				}
+			}
+		}
+	}*/
+
 	if( mMyShip )
 		guiUpdate.mShipHP	= mMyShip->PercentHP();
 	else
 		guiUpdate.mShipHP	= 1.0f;
-
-	//mPlayer->Update( deltaTime, mRemotePlayers );
-	HandleDeveloperCameraInput();
-	mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers );
 
 
 	UpdateProjectiles( deltaTime );
@@ -570,11 +609,8 @@ HRESULT PlayState::Update( float deltaTime )
 
 
 	///Test fountain particle system
-	//for ( size_t i = 0; i < 5; i++ )
-	//{
-	//	RenderManager::GetInstance()->RequestParticleSystem( 999 + i, Test_Fountain, XMFLOAT3( (float)(i * 20), 0.0f, (float)(i * 20) ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
-	//}
-	
+	RenderManager::GetInstance()->RequestParticleSystem( 999, Test_Fountain, XMFLOAT3( 0.0f, 3.0f, 5.0f ), XMFLOAT3( 0.5f, 1.0f, 0.5f ) );
+
 	if( mPlayer->Upgradable() < 1 )
 	{
 		mPlayer->UnLock();
@@ -635,16 +671,32 @@ HRESULT PlayState::Render()
 		}
 	}
 
-	for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
-	{
-		RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
-	}
+	//for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
+	//{
+	//	RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
+	//}
 
 	mGui->Render();
+
+	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+	{
+		if( !mEnergyCells[i]->GetPickedUp() )
+		{
+			mEnergyCells[i]->Render();
+		}
+	}
+
+	//TestUpgradeWindow
+	//mWindow.Render();
 
 	//RENDER DEVTEXT
 	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
 	mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
+
+	//for( auto& s : mShips )
+	//{
+	//	s->Render();
+	//}
 
 	XMFLOAT4X4 identity;
 	XMStoreFloat4x4( &identity, XMMatrixIdentity() );
@@ -660,7 +712,6 @@ HRESULT PlayState::Render()
 
 void PlayState::OnEnter()
 {
-	Reset();
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Started() );
 	EventManager::GetInstance()->QueueEvent( E1 );
@@ -670,6 +721,7 @@ void PlayState::OnEnter()
 
 void PlayState::OnExit()
 {
+	Reset();
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Ended() );
 	EventManager::GetInstance()->QueueEvent( E1 );
@@ -721,9 +773,9 @@ HRESULT PlayState::Initialize()
 
 	mWorldMap = new Map();
 
-	mWorldMap->Initialize( 16 );
+	mWorldMap->Initialize( 7 );
 
-	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/ForestMap.xml" ) ); 
+	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/HardMap.xml" ) ); 
 	EventManager::GetInstance()->TriggerEvent( E1 );
 
 	//Fill up on Projectiles, test values
@@ -749,8 +801,9 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Set_Enemy_State::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Spawn_Ship::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Enemy_State::GUID ); 
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Win::GUID ); 
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Energy_Cell::GUID ); 
 
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Win::GUID ); 
 
 	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 
@@ -770,6 +823,18 @@ HRESULT PlayState::Initialize()
 
 	mGui = new Gui();
 	mGui->Initialize();
+
+	//Energy cells
+	mEnergyCells = new EnergyCell*[MAX_ENERGY_CELLS];
+	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+	{
+		mEnergyCells[i] = new EnergyCell();
+		mEnergyCells[i]->Initialize( DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
+	}
+
+	//TestSound
+	m3DSoundAsset	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav" );
+	mSoundAsset		= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
 
 	mShips			= std::vector<ClientShip*>();
 	mMyShip			= nullptr;
@@ -820,6 +885,15 @@ void PlayState::Release()
 	mGui->Release();
 	SAFE_DELETE( mGui );
 
+	//Energy cells
+	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+	{
+		mEnergyCells[i]->Release();
+		SAFE_DELETE( mEnergyCells[i] );
+	}
+
+	delete [] mEnergyCells;
+
 	for( auto& s : mShips )
 	{
 		if( s )
@@ -842,6 +916,7 @@ PlayState::PlayState()
 	mEnemyListSynced		= false;
 	mServerInitialized		= false;
 	mGui					= nullptr;
+	mEnergyCells			= nullptr;
 	mShips					= std::vector<ClientShip*>( 0 );
 }
 

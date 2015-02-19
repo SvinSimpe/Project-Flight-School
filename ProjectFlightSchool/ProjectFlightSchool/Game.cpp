@@ -23,7 +23,7 @@ void Game::StartPlayState( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Connect_Client_Success::GUID )
 	{
-		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
+		IEventPtr E1( new Event_Change_State( LOBBY_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 }

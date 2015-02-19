@@ -275,11 +275,10 @@ Matrix LevelExporter::ExtractAndConvertMatrix(MFnMesh &mesh, int fauling)
 	}
 
 	//Gets parent name and saves it to "name"
-	if (fauling == 0)
+	if (fauling == 0 && mesh.name() != "GridShape")
+	{
 		sprintf_s(matrix.name, sizeof(matrix.name), "%s%s", id.c_str(), ".pfs");
-
-	if (fauling == 1)
-		sprintf_s(matrix.name, sizeof(matrix.name), "%s", mayaTransform.name().asChar());
+	}
 
 	MVector translate;
 	MQuaternion rotate;
@@ -308,7 +307,7 @@ Matrix LevelExporter::ExtractAndConvertMatrix(MFnMesh &mesh, int fauling)
 	//matrix.scale[2] = scale[2];
 
 
-	if (fauling == 0)
+	if (fauling == 0 && mesh.name() != "GridShape")
 		matrices.push_back(matrix);
 
 	if (fauling == 1)
@@ -491,7 +490,6 @@ void LevelExporter::ConvertGridData(MFnMesh &mesh, MFloatPointArray &points, MFl
 	MItMeshPolygon polygon_iter(meshPath);
 
 	GetDimensions(mesh, gridData.dimensions);
-	gridData.matrix = ExtractAndConvertMatrix(mesh, 1);
 
 	vertexCount = polygon_iter.count() * 3;
 	gridData.vertices = new Vertex[vertexCount];
@@ -544,7 +542,6 @@ void LevelExporter::WriteFileToBinary(const char* fileName)
 	fileOut.write((char*)&gridData.dimensions, sizeof(gridData.dimensions));
 	fileOut.write((char*)&vertexCount, sizeof(UINT));
 	fileOut.write((char*)gridData.vertices, sizeof(Vertex) * vertexCount);
-	fileOut.write((char*)&gridData.matrix, sizeof(Matrix));
 	fileOut.write((char*)&navvertexCount, sizeof(UINT));
 	fileOut.write((char*)navData.vertices, sizeof(NavVertex) * navvertexCount);
 

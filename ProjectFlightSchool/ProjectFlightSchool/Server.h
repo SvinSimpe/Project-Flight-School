@@ -9,8 +9,9 @@
 #include <vector>
 #include <stdlib.h>
 #include <time.h>
-#pragma once
+#include "EnergyCell.h"
 
+#pragma once
 class Enemy;
 
 class Server : public Network
@@ -69,6 +70,9 @@ class Server : public Network
 		UINT						mNrOfEnemiesSpawned;
 		UINT						mNrOfProjectilesFired;
 
+		EnergyCell**				mEnergyCells;
+		bool						mStopAccept;
+
 	protected:
 	public:
 
@@ -93,6 +97,11 @@ class Server : public Network
 		void	BroadcastEnemyAttackToClients( IEventPtr eventPtr );
 		void	ClientWinLose( IEventPtr eventPtr );
 		void	ClientChangeShipLevels( IEventPtr eventPtr );
+		void	LobbyPlayer( IEventPtr eventPtr );
+		void	StopLobby( IEventPtr eventPtr );
+		void	SwitchTeam( IEventPtr eventPtr );
+
+		void	ClientInteractEnergyCell( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 		void	DoSelect( int pauseMicroSecs, bool handleInput = true );

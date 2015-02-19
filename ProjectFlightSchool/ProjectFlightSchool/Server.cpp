@@ -6,7 +6,7 @@
 
 void Server::ClientJoined( IEventPtr eventPtr )
 {
-	if( eventPtr->GetEventType() == Event_Client_Joined::GUID )
+	if( eventPtr->GetEventType() == Event_Client_Joined::GUID && !mStopAccept )
 	{
 		std::shared_ptr<Event_Client_Joined> data = std::static_pointer_cast<Event_Client_Joined>( eventPtr );
 		auto& it = mClientMap.find(data->ID());
@@ -68,6 +68,15 @@ void Server::ClientJoined( IEventPtr eventPtr )
 																	mEnemies[i]->GetPosition(), 
 																	mEnemies[i]->GetDirection() ) );
 				SendEvent( EvEnemy, data->ID() );
+			}
+
+			for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+			{
+				IEventPtr EvEnergyCell( new Event_Server_Sync_Energy_Cell(	i,
+																			mEnergyCells[i]->GetOwnerID(),
+																			mEnergyCells[i]->GetPosition(),
+																			mEnergyCells[i]->GetPickedUp() ) );
+				SendEvent( EvEnergyCell, data->ID() );
 			}
 		}
 	}
@@ -339,6 +348,29 @@ void Server::SetEnemyState( IEventPtr eventPtr )
 	}
 }
 
+void Server::ClientInteractEnergyCell( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Sync_Energy_Cell::GUID )
+	{
+		std::shared_ptr<Event_Client_Sync_Energy_Cell> data = std::static_pointer_cast<Event_Client_Sync_Energy_Cell>( eventPtr );
+		IEventPtr E1( new Event_Server_Sync_Energy_Cell( data->EnergyCellID(), data->OwnerID(), data->Position(), data->PickedUp() ) );
+		BroadcastEvent( E1, data->OwnerID() );
+
+		mEnergyCells[data->EnergyCellID()]->SetOwnerID( data->OwnerID() );
+		mEnergyCells[data->EnergyCellID()]->SetPickedUp( data->PickedUp() );
+		mEnergyCells[data->EnergyCellID()]->SetPosition( data->Position() );
+
+		for( UINT i = 0; i < mShips.size(); i++ )
+		{
+			for( int j = 0; j < MAX_ENERGY_CELLS; j++ )
+			{
+				mShips[i]->AddEnergyCell( mEnergyCells[j]->GetOwnerID() );
+			}
+		}
+
+	}
+}
+
 void Server::BroadcastEnemyAttackToClients( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Tell_Server_Enemy_Attack_Player::GUID )
@@ -371,6 +403,52 @@ void Server::ClientChangeShipLevels( IEventPtr eventPtr )
 				s->ClientChangeShipLevels( data->TurretLevelChange(), data->ShieldLevelChange(), data->BuffLevelChange() );
 				IEventPtr E1( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel ) );
 				BroadcastEvent( E1 );
+			}
+		}
+	}
+}
+
+void Server::LobbyPlayer( IEventPtr eventPtr )
+{
+	if ( eventPtr->GetEventType() == Event_Client_Initialize_LobbyPlayer::GUID )
+	{
+		std::shared_ptr<Event_Client_Initialize_LobbyPlayer> data = std::static_pointer_cast<Event_Client_Initialize_LobbyPlayer>( eventPtr );
+		IEventPtr E1( new Event_Server_Initialize_LobbyPlayer( data->ID(), data->TeamID(), data->Name() ) );
+		BroadcastEvent( E1 );
+	}
+}
+
+void Server::StopLobby( IEventPtr eventPtr )
+{
+	if ( eventPtr->GetEventType() == Event_Client_Lobby_Finished::GUID )
+	{
+		std::shared_ptr<Event_Client_Lobby_Finished> data = std::static_pointer_cast<Event_Client_Lobby_Finished>( eventPtr );
+		mStopAccept = true;
+		IEventPtr E1( new Event_Server_Lobby_Finished() );
+		BroadcastEvent( E1 );
+	}
+}
+
+void Server::SwitchTeam( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Switch_Team::GUID )
+	{
+		std::shared_ptr<Event_Client_Switch_Team> data = std::static_pointer_cast<Event_Client_Switch_Team>( eventPtr );
+		for( size_t i = 0; i < mNrOfPlayers; i++ )
+		{
+			if( mPlayers[i]->ID == data->ID() )
+			{
+				mPlayers[i]->TeamID = data->TeamID();
+				printf( "Server:: Spelare: %d, blev lag %d\n", mPlayers[i]->ID, mPlayers[i]->TeamID );
+				IEventPtr E1( new Event_Server_Switch_Team( mPlayers[i]->ID, mPlayers[i]->TeamID ) );
+				BroadcastEvent( E1 );
+			}
+		}
+		for( auto& remote : mClientMap )
+		{
+			if( remote.first == data->ID() )
+			{
+				remote.second->TeamID = data->TeamID();
 			}
 		}
 	}
@@ -542,6 +620,8 @@ void Server::Update( float deltaTime )
 			}
 		}
 
+		//if( mSafeUpdate )
+		//StateCheck();
 		// Ship updates
 		for( auto& s : mShips )
 		{
@@ -570,6 +650,8 @@ XMFLOAT3 Server::GetNextSpawn()
 
 bool Server::Initialize()
 {
+	mStopAccept = false;
+
 	EventManager::GetInstance()->AddListener( &Server::ClientJoined, this, Event_Client_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientLeft, this, Event_Client_Left::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientUpdate, this, Event_Client_Update::GUID );
@@ -585,10 +667,15 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientAttemptRevive, this, Event_Client_Attempt_Revive::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientEnemyProjectileDamage, this, Event_Client_Projectile_Damage_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &Server::SetEnemyState, this, Event_Set_Enemy_State::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientInteractEnergyCell, this, Event_Client_Sync_Energy_Cell::GUID );
 	EventManager::GetInstance()->AddListener( &Server::BroadcastEnemyAttackToClients, this, Event_Tell_Server_Enemy_Attack_Player::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientWinLose, this, Event_Client_Win::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientChangeShipLevels, this, Event_Client_Change_Ship_Levels::GUID );
+
 	EventManager::GetInstance()->AddListener( &Server::StartUp, this, Event_Start_Server::GUID );
+	EventManager::GetInstance()->AddListener( &Server::LobbyPlayer, this, Event_Client_Initialize_LobbyPlayer::GUID );
+	EventManager::GetInstance()->AddListener( &Server::StopLobby, this, Event_Client_Lobby_Finished::GUID );
+	EventManager::GetInstance()->AddListener( &Server::SwitchTeam, this, Event_Client_Switch_Team::GUID );
 
 	mTeamDelegate	= 1;
 	mCurrentPID		= 0;
@@ -621,11 +708,24 @@ bool Server::Initialize()
 
 	//mAggroCircle	= new BoundingCircle();
 
+	//Energy cells
+	mEnergyCells = new EnergyCell*[MAX_ENERGY_CELLS];
+	mEnergyCells[0] = new EnergyCell();
+	mEnergyCells[0]->Initialize( DirectX::XMFLOAT3( 1000000.0f, 0.0f, 10000000.0f ) ); //Gfx drivers bug makes us not render the first one so this is an incredible ugly hack around that problem
+	for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
+	{
+		mEnergyCells[i] = new EnergyCell();
+		mEnergyCells[i]->Initialize( DirectX::XMFLOAT3( ( -2.0f + ( i * 2 ) ), 0.0f, -30.0f ) );
+	}
+
 	return true;
 }
 
 void Server::Reset()
 {
+	
+	mStopAccept = false;
+
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 	{
 		mEnemies[i]->Reset();
@@ -647,11 +747,17 @@ void Server::Reset()
 	mClientMap.clear();
 	mEventList.clear();
 
+	/*for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
+	{
+		mEnergyCells[i]->Reset();
+	}*/
+
 	for( auto& s : mShips )
 	{
 		SAFE_RELEASE_DELETE( s );
 	}
 	mShips.clear();
+
 }
 
 void Server::Release()
@@ -692,20 +798,31 @@ void Server::Release()
 	mClientMap.clear();
 
 	mEventList.clear();
+
+	//Energy cells
+	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+	{
+		mEnergyCells[i]->Release();
+		SAFE_DELETE( mEnergyCells[i] );
+	}
+
+	delete [] mEnergyCells;
 }
 
 Server::Server() : Network()
 {
-	mSocketManager	= nullptr;
-	mClientMap		= std::map<UINT, ClientNEF*>();
-	mTeamDelegate	= (UINT)-1;
-	mCurrentPID		= (UINT)-1;
-	mActive			= false;
-	mShips			= std::vector<ServerShip*>();
+	mSocketManager			= nullptr;
+	mClientMap				= std::map<UINT, ClientNEF*>();
+	mTeamDelegate			= (UINT)-1;
+	mCurrentPID				= (UINT)-1;
+	mActive					= false;
+	mShips					= std::vector<ServerShip*>();
 	mShips.reserve( 2 );
-	mEnemies		= nullptr;
-	mSpawners		= nullptr;
-	//mAggroCircle	= nullptr;
+	mEventList				= std::list<ServerEvent>();
+	mEnergyCells			= nullptr;
+	mEnemies				= nullptr;
+	mSpawners				= nullptr;
+	//mAggroCircle			= nullptr;
 	mNrOfEnemiesSpawned		= 0;
 	mNrOfPlayers			= 0;
 	mNrOfProjectilesFired	= 0;

@@ -91,7 +91,7 @@ HRESULT HuntPlayerBehavior::Update( float deltaTime )
 	mEnemy->mTakingDamageTimer += deltaTime;
 	if( mEnemy->mTakingDamage )
 	{	
-		if( mEnemy->mTakingDamageTimer > 0.5f )
+		if( mEnemy->mTakingDamageTimer > 0.4f )
 		{
 			mEnemy->ChangeBehavior( TAKE_DAMAGE_BEHAVIOR );
 			mEnemy->mTakingDamageTimer = 0.0f;
@@ -289,17 +289,12 @@ AttackBehavior::~AttackBehavior()
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT TakeDamageBehavior::Update( float deltaTime )
 {
-	mStateTimer -= deltaTime;
-	if( mStateTimer >= 0.0f )
-		mEnemy->Hunt( deltaTime );
-	else
-		mEnemy->ChangeBehavior( HUNT_PLAYER_BEHAVIOR );
+	mEnemy->ChangeBehavior( HUNT_PLAYER_BEHAVIOR );
 	return S_OK;
 }
 
 void TakeDamageBehavior::OnEnter()
 {
-	mStateTimer				= 0.8f;
 	IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), TakeDamage ) );
 	EventManager::GetInstance()->QueueEvent( state );
 }

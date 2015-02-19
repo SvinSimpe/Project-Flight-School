@@ -34,6 +34,7 @@ class Edge
 	public:
 		Node* From;
 		Node* To;
+		int mEdgeID;
 
 	private:
 	protected:
@@ -42,7 +43,7 @@ class Edge
 		HRESULT Initialize( Node* A, Node* B );
 		Edge();
 		~Edge();
-		bool operator==( const Edge& origObj ) const;
+		bool operator==( const Edge* origObj ) const;
 };
 
 class Node
@@ -56,9 +57,10 @@ class Node
 		DirectX::XMFLOAT3 centerPoint;
 		int mNodeID;
 		TilePosition mNodePos;
+		std::vector<Edge*> mEdges;
+
 		float g;
 		float h;
-		std::vector<Edge*> mEdges;
 
 	private:
 	protected:
@@ -71,10 +73,19 @@ class Node
 		~Node();
 };
 
+struct NodePath
+{
+	Node* current;
+	NodePath* parent;
+};
+
 class NodeGraph
 {
 	private:
 		std::vector<Node*> mNodes;
+		std::vector<Node*> mFinishedPath;
+		NodePath mPath[1000];
+
 	protected:
 	public:
 
@@ -87,7 +98,7 @@ class NodeGraph
 		HRESULT Render();
 		HRESULT Initialize( Map* map );
 
-		void FindPath( TilePosition start, TilePosition end );
+		std::vector<Node*> FindPath( int startNodeID, int endNodeID );
 		void Release();
 		NodeGraph();
 		~NodeGraph();

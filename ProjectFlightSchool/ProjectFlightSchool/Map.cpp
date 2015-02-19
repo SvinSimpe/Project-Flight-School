@@ -29,13 +29,7 @@ HRESULT Map::Render( float deltaTime, Player* player )
 		it->Render( deltaTime );
 	}
 
-	nodeGraph->Render();
-
-	//std::vector<MapNodeInstance*> nodes = MapNodePlacer::GetInstance()->GetAllNodes();
-	//for( auto& it : nodes )
-	//{
-	//	it->Render( deltaTime );
-	//}
+	//nodeGraph->Render();
 
 	return S_OK;
 }
@@ -58,28 +52,71 @@ void Map::OnLoadLevel( IEventPtr pEvent )
 		}
 		mNrOfNodes = MapNodePlacer::GetInstance()->GetNrOfNodes();
 
-		nodeGraph = new NodeGraph();
-		nodeGraph->Initialize( this );
+		//nodeGraph = new NodeGraph();
+		//nodeGraph->Initialize( this );
 	}
 }
 
 std::vector<DirectX::XMFLOAT2> Map::GetPath( XMFLOAT3 start, XMFLOAT3 goal )
 {
-	std::vector<DirectX::XMFLOAT2> path;
+	std::vector<Node*> path;
+	std::vector<DirectX::XMFLOAT2> path1;
+	std::vector<DirectX::XMFLOAT2> temp;
+	MapNodeInstance* currentNode;
+	MapNodeInstance* nextNode;
+	Navmesh* currentNavMesh;
+
+	DirectX::XMFLOAT3 newStart, newEnd;
 
 	int startX = (int)( (GetMapHalfWidth() * NODE_DIM )  + start.x ) / NODE_DIM;
 	int startZ = (int)( (GetMapHalfHeight() * NODE_DIM )  + start.z ) / NODE_DIM;
 
-	MapNodeInstance* temp = GetNodeInstance( startX, startZ );
+	int goalX = (int)( (GetMapHalfWidth() * NODE_DIM )  + goal.x ) / NODE_DIM;
+	int goalZ = (int)( (GetMapHalfHeight() * NODE_DIM )  + goal.z ) / NODE_DIM;
 
-	if( temp )
-	{
-		Navmesh* navMesh = temp->GetNavMesh();
+	MapNodeInstance* startNode = GetNodeInstance( startX, startZ );
+	MapNodeInstance* goalNode = GetNodeInstance( goalX, goalZ );
 
-		path = navMesh->FindPath( start, goal );
-	}
+	newStart = start;
+	path1.push_back( DirectX::XMFLOAT2( start.x, start.z ) );
 
-	return path;
+	//if( startNode && goalNode )
+	//{
+
+	//	path = nodeGraph->FindPath( startNode->GetNodeID(), goalNode->GetNodeID() );
+
+	//	for( int i = 0; i < (int)path.size() - 1; i++ )
+	//	{
+	//		currentNode = GetNodeInstance( path[i]->mNodePos.x, path[i]->mNodePos.y );
+	//		
+	//		currentNavMesh = currentNode->GetNavMesh();
+
+	//		newEnd = currentNode->GetClosestEdgePoint( path[i + 1]->centerPoint );
+
+	//		temp = currentNavMesh->FindPath( newStart, newEnd );
+
+	//		for( auto& it : temp )
+	//		{
+	//			path1.push_back( it );
+	//		}
+	//		newStart = newEnd;
+	//	}
+
+	//	//Last subpath
+	//	currentNode = GetNodeInstance( path.back()->mNodePos.x, path.back()->mNodePos.y );
+	//	currentNavMesh = currentNode->GetNavMesh();
+	//	
+	//	temp = currentNavMesh->FindPath( newStart, goal );
+
+	//	for( auto& it : temp )
+	//	{
+	//		path1.push_back( it );
+	//	}
+
+	//
+	//}
+
+	return path1;
 }
 
 UINT Map::GetMapDim() const

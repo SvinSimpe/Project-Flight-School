@@ -17,6 +17,8 @@ public:
 	private:
 		int mInstanceID;
 		int mNodeID;
+		int mSizeX;
+		int mSizeY;
 
 		MapNode* mNode;
 
@@ -25,7 +27,7 @@ public:
 		DirectX::XMFLOAT4X4 mWorld;
 
 		Navmesh* mNavMesh;
-		std::vector<DirectX::XMFLOAT3*> mEdgePoints;
+		std::vector<DirectX::XMFLOAT3> mEdgePoints;
 
 		UINT		 mNavTriangleCount;
 
@@ -42,8 +44,12 @@ public:
 
 		Navmesh*			GetNavMesh() const;
 
+		DirectX::XMFLOAT3	GetClosestEdgePoint( DirectX::XMFLOAT3 pos );
 		DirectX::XMFLOAT3	GetPos() const;
 		void				SetPos( DirectX::XMFLOAT3 pos );
+
+		int					GetNodeSizeX();
+		int					GetNodeSizeY();
 
 		void				SetNodeID( int ID );
 		int					GetNodeID() const;

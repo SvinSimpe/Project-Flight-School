@@ -40,6 +40,7 @@ std::vector<DirectX::XMFLOAT2> Navmesh::FindPath( DirectX::XMFLOAT3 start, Direc
 {
 	PathList mOpenList;
 	PathList mClosedList;
+
 	Portal startPortal	= Portal( start, start );
 	Portal endPortal	= Portal( end, end );
 

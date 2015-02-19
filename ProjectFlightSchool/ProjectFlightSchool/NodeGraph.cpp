@@ -1,7 +1,7 @@
 #include "NodeGraph.h"
 #include "Map.h"
 #include "RenderManager.h"
-
+#include "HelperFunctions.h"
 //---------------------Edge-----------------------
 
 HRESULT Edge::Render()
@@ -10,6 +10,8 @@ HRESULT Edge::Render()
 	DirectX::XMFLOAT3 end = To->centerPoint;
 
 	RenderManager::GetInstance()->AddLineToList( start, end );
+
+
 
 	return S_OK;
 }
@@ -30,6 +32,10 @@ Edge::Edge()
 
 Edge::~Edge()
 {
+}
+bool Edge::operator==( const Edge* origObj ) const
+{
+	return ( mEdgeID == origObj->mEdgeID );
 }
 
 //---------------------Node-----------------------
@@ -95,46 +101,75 @@ void NodeGraph::BuildGraph( Map* map )
 		//Find neighbours to current node
 		int x = it->mNodePos.x;
 		int y = it->mNodePos.y;
+		MapNodeInstance* currentNode = map->GetNodeInstance( x, y );
 
 		MapNodeInstance* top;
 		MapNodeInstance* left;
 		MapNodeInstance* bottom;
 		MapNodeInstance* right;
 
-		top = map->GetNodeInstance( x, y + 1 );
-		if( top != nullptr )
+		//calculate node size
+		int sizeX = currentNode->GetNodeSizeX();
+		int sizeY = currentNode->GetNodeSizeY();
+
+		for( int i = 0; i < sizeX; i++ )
 		{
-			int index = FindNodeByID( top->GetNodeID() );
+			for( int j = 0; j < sizeY; j++ )
+			{
+				//int xP = ( ( x + i ) - 1 );
+				//int yP = ( ( y + j ) - 1 );
+				//Box-filter
+				//for( int p = 0; p < 3; p++ )
+				//{
+				//	for( int q = 0; q < 3; q++ )
+				//	{
+				//		bottom = map->GetNodeInstance( xP + p, yP + q );
+				//		if( bottom != nullptr )
+				//		{
+				//			int index = FindNodeByID( bottom->GetNodeID() );
+				//			it->AddEdge( mNodes[index] );
+				//			mNodes[index]->AddEdge( it );		
+				//		}
+				//	}
+				//}
 
-			it->AddEdge( mNodes[index] );
-			mNodes[index]->AddEdge( it );		
-		}
+				//South, West, North, East
+				bottom = map->GetNodeInstance( x + i, ( y + j ) + 1 );
+				if( bottom != nullptr )
+				{
+					int index = FindNodeByID( bottom->GetNodeID() );
 
-		left = map->GetNodeInstance( x - 1, y );
-		if( left != nullptr )
-		{
-			int index = FindNodeByID( left->GetNodeID() );
+					it->AddEdge( mNodes[index] );
+					mNodes[index]->AddEdge( it );		
+				}
 
-			it->AddEdge( mNodes[index] );
-			mNodes[index]->AddEdge( it );		
-		}
+				left = map->GetNodeInstance( ( x + i ) - 1, y + j );
+				if( left != nullptr )
+				{
+					int index = FindNodeByID( left->GetNodeID() );
 
-		bottom = map->GetNodeInstance( x, y - 1);
-		if( bottom != nullptr )
-		{
-			int index = FindNodeByID( bottom->GetNodeID() );
+					it->AddEdge( mNodes[index] );
+					mNodes[index]->AddEdge( it );		
+				}
 
-			it->AddEdge( mNodes[index] );
-			mNodes[index]->AddEdge( it );		
-		}
+				top = map->GetNodeInstance( x + i, ( y + j ) - 1 );
+				if( top != nullptr )
+				{
+					int index = FindNodeByID( top->GetNodeID() );
 
-		right = map->GetNodeInstance( x + 1, y );
-		if( right != nullptr )
-		{
-			int index = FindNodeByID( right->GetNodeID() );
+					it->AddEdge( mNodes[index] );
+					mNodes[index]->AddEdge( it );		
+				}
 
-			it->AddEdge( mNodes[index] );
-			mNodes[index]->AddEdge( it );		
+				right = map->GetNodeInstance( ( x + i ) + 1, y + j );
+				if( right != nullptr )
+				{
+					int index = FindNodeByID( right->GetNodeID() );
+
+					it->AddEdge( mNodes[index] );
+					mNodes[index]->AddEdge( it );		
+				}
+			}
 		}
 	}
 }
@@ -150,9 +185,17 @@ int NodeGraph::FindNodeByID( int nodeID )
 }
 HRESULT NodeGraph::Render()
 {
-	for( auto& it : mNodes )
+	//for( auto& it : mNodes )
+	//{
+	//	it->Render();
+	//}
+
+	if( !mFinishedPath.empty() )
 	{
-		it->Render();
+		for( int i = 0; i < (int)mFinishedPath.size() - 1; i++ )
+		{
+			RenderManager::GetInstance()->AddLineToList( mFinishedPath[i]->centerPoint, mFinishedPath[i+1]->centerPoint );
+		}
 	}
 	return S_OK;
 }
@@ -189,6 +232,110 @@ HRESULT NodeGraph::Initialize( Map* map )
 	}
 	BuildGraph( map );
 	return S_OK;
+}
+
+std::vector<Node*> NodeGraph::FindPath( int startNodeID, int endNodeID )
+{
+	mFinishedPath.clear();
+	std::list<NodePath*> mOpenList;
+	std::list<NodePath*> mClosedList;
+
+	Node* startNode	= mNodes[FindNodeByID( startNodeID )];
+	Node* endNode	= mNodes[FindNodeByID( endNodeID )];
+
+	Node* currentNode = startNode;
+	Node* newNode = nullptr;
+
+	int count = 0;
+
+	NodePath* currentPath = &mPath[count++];
+
+	currentPath->current = startNode;
+	currentPath->parent	= nullptr;
+
+	TilePosition start	= startNode->mNodePos;
+	TilePosition end	= endNode->mNodePos;
+	TilePosition next;
+
+	std::list<NodePath*>::iterator findIt;
+	float minF = 100000.0f;
+
+
+	while( currentNode->mNodeID != endNode->mNodeID )
+	{
+		minF = 100000.0f;
+		for( int i = 0; i < (int)currentNode->mEdges.size(); i++ )
+		{
+			newNode = currentNode->mEdges[i]->To;
+			findIt = mOpenList.end();
+
+			for( auto it = mOpenList.begin(); it != mOpenList.end(); it++ )
+			{
+				if( (*it)->current->mNodeID == newNode->mNodeID )
+				{
+					findIt = it;
+					break;
+				}
+			}
+			if( findIt == mOpenList.end() )
+			{
+				findIt = mClosedList.end();
+				for( auto it = mClosedList.begin(); it != mClosedList.end(); it++ )
+				{
+					if( (*it)->current->mNodeID == newNode->mNodeID )
+					{
+						findIt = it;
+						break;
+					}
+				}
+				if( findIt == mClosedList.end() )
+				{
+					next = newNode->mNodePos;
+					newNode->g = (float)( abs( start.x - next.x ) + abs( start.y - next.y ) );
+					newNode->h = (float)( abs( next.x - end.x ) + abs( next.y - end.y ) );
+
+					NodePath* temp = &mPath[count++];
+
+					temp->current	= newNode;
+					temp->parent	= currentPath;
+
+					mOpenList.push_back( temp );
+				}
+			}
+		}
+
+		findIt = mOpenList.end();
+
+		for( auto it = mOpenList.begin(); it != mOpenList.end(); it++ )
+		{
+			float newF = (*it)->current->g + (*it)->current->h;
+			if( newF < minF )
+			{
+				findIt = it;
+				minF = newF;
+			}
+		}
+
+		if( findIt == mOpenList.end() )
+		{
+			OutputDebugStringA("No path available!\n");
+		}
+		
+		currentNode = (*findIt)->current;
+		currentPath = (*findIt);
+		mClosedList.push_back( (*findIt) );
+		mOpenList.erase( findIt );
+	}
+
+	while( currentPath != nullptr )
+	{
+		mFinishedPath.push_back( currentPath->current );
+		currentPath = currentPath->parent;
+	}
+
+	std::reverse( mFinishedPath.begin(), mFinishedPath.end() );
+
+	return mFinishedPath;
 }
 
 void NodeGraph::Release()

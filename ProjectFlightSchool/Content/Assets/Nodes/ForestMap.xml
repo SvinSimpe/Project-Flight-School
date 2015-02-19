@@ -3,7 +3,7 @@
     <Nodes>
 	    <Node path="../Content/Assets/Nodes/tileLake1.lp" type="AREA_NODE" />
 	    <Node path="../Content/Assets/Nodes/tileBossNestArena.lp" type="AREA_NODE" />
-        <Node path="../Content/Assets/Nodes/ShipTile.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/ShipTile.lp" type="SHIP_NODE" />
 		<Node path="../Content/Assets/Nodes/tileForestandStones.lp" type="AREA_NODE" />
         <Node path="../Content/Assets/Nodes/tileALargePuddle.lp" type="AREA_NODE" />
         <Node path="../Content/Assets/Nodes/tileBossNestBoneArena.lp" type="AREA_NODE" />

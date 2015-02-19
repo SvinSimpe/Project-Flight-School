@@ -650,10 +650,10 @@ HRESULT PlayState::Render()
 
 	XMFLOAT4X4 identity;
 	XMStoreFloat4x4( &identity, XMMatrixIdentity() );
-	//for( auto& s : mShips )
-	//{
-	//	s->Render( 0.0f, identity );
-	//}
+	for( auto& s : mShips )
+	{
+		s->Render( 0.0f, identity );
+	}
 
 	RenderManager::GetInstance()->Render();
 
@@ -723,7 +723,7 @@ HRESULT PlayState::Initialize()
 
 	mWorldMap = new Map();
 
-	mWorldMap->Initialize( 7 );
+	mWorldMap->Initialize( 21 );
 
 	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/HardMap.xml" ) ); 
 	EventManager::GetInstance()->TriggerEvent( E1 );

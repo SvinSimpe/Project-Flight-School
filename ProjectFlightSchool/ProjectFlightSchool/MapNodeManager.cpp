@@ -58,7 +58,9 @@ void MapNodeManager::LoadLevel( std::string filePath )
 		hr = Graphics::GetInstance()->LoadStatic3dAsset( it->substr( 0, found + 1 ), it->substr( found + 1 ), id );
 		if( id == CUBE_PLACEHOLDER )
 		{
-			OutputDebugStringA( "Model not found! Maybe path is wrong? \n");
+			OutputDebugStringA( "Model not found:" );
+			OutputDebugStringA( it->substr( found + 1 ).c_str() );
+			OutputDebugStringA( " Maybe path is wrong? \n" );
 		}
 	}
 
@@ -99,8 +101,8 @@ MapNode* MapNodeManager::CreateNode( const char* fileName )
 
 
 	//--------------------------Read gridData-------------------------------------------
-	char blendFile[32];
-	inFile.read( (char*)&blendFile, sizeof( char ) * 32 );
+	char blendFile[64];
+	inFile.read( (char*)&blendFile, sizeof( char ) * 64 );
 	inFile.read( (char*)&initInfo.gridWidth, sizeof( UINT ) );
 	inFile.read( (char*)&initInfo.gridHeight, sizeof( UINT ) );
 	inFile.read( (char*)&initInfo.vertexCount, sizeof( UINT ) );
@@ -123,7 +125,7 @@ MapNode* MapNodeManager::CreateNode( const char* fileName )
 
 	JMatrix gridMat;
 	
-	inFile.read( (char*)&gridMat, sizeof(gridMat) );
+	//inFile.read( (char*)&gridMat, sizeof(gridMat) );
 
 	//Maya magic, writes out doubles, this converts them into floats
 
@@ -166,7 +168,9 @@ MapNode* MapNodeManager::CreateNode( const char* fileName )
 		{
 			OutputDebugStringA( "Missing model: " );
 			OutputDebugStringA( gridMat.name );
-			OutputDebugStringA( "\n" );
+			OutputDebugStringA( " on the tile " );
+			OutputDebugStringA( fileName );
+			OutputDebugStringA( ".\n" );
 		}
 
 		ob.Initialize( obInfo, assetID );

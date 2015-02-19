@@ -82,7 +82,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	//========== Screen Space Ambient Occlusion =============
 	// USED FOR TESTING SSAO ONLY, SUCKY VERSION, JOCKE PLEZ HALP
 	float ssao	= 0.0f;
-	float rad	= 0.008f;
+	float rad	= 0.08f;
 
 	float2 vec[8] = {	float2( 1.0f, 0.0f ), float2( -1.0f, 0.0f ),
 						float2( 0.0f, 1.0f ), float2( 0.0f, -1.0f ),
@@ -95,10 +95,10 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 		for( float k = 0.0f; k < 1.01f; k += 0.5f )
 		{
 			float3 dif	= worldPositionBuffer.Sample( pointSampler, input.uv + vec[j] * rad * k ).xyz - worldSample;
-			float l		= length( dif ) * 2.0f;
+			float l		= length( dif ) * 0.5f;
 			dif			= normalize( dif );
 		
-			ssao +=	max( 0.0f, dot( normalSample, dif ) - 0.01f ) * 1.0f / ( 1.0f + l ) * 5.0f;
+			ssao +=	max( 0.0f, dot( normalSample, dif ) - 0.01f ) * 1.0f / ( 1.0f + l ) * 1.0f;
 		}
 	}
 
@@ -188,7 +188,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	//return float4( albedoSample, 1.0f );
 	//return float4( specularSample, specularSample, specularSample, 1.0f );
 	//return float4( normalSample, 1.0f );
-	//return float4( shadowFactor, 0.0f, 0.0f, 1.0f );
+	//return float4( ssao, 0.0f, 0.0f, 1.0f );
 
 	return float4( finalColor * ( shadowFactor * 0.3f + 0.7f ) * albedoSample, 1.0f );
 }

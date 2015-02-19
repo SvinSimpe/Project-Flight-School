@@ -139,7 +139,6 @@
     <ClCompile Include="RemoteEnemy.cpp" />
     <ClCompile Include="RemotePlayer.cpp" />
     <ClCompile Include="RenderManager.cpp" />
-    <ClCompile Include="Ship.cpp" />
     <ClCompile Include="SingleplayerMenuState.cpp" />
     <ClCompile Include="StartMenuState.cpp" />
     <ClCompile Include="StateMachine.cpp" />
@@ -149,7 +148,6 @@
     <ClCompile Include="tinyxml.cpp" />
     <ClCompile Include="tinyxmlerror.cpp" />
     <ClCompile Include="tinyxmlparser.cpp" />
-    <ClCompile Include="Turret.cpp" />
     <ClCompile Include="UpgradePlayerWindow.cpp" />
     <ClCompile Include="UpgradeShipWindow.cpp" />
   </ItemGroup>
@@ -208,7 +206,6 @@
     <ClInclude Include="RemotePlayer.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="RenderStructs.h" />
-    <ClInclude Include="Ship.h" />
     <ClInclude Include="SingleplayerMenuState.h" />
     <ClInclude Include="StartMenuState.h" />
     <ClInclude Include="StateMachine.h" />
@@ -224,7 +221,6 @@
     <ClInclude Include="Timer.h" />
     <ClInclude Include="tinystr.h" />
     <ClInclude Include="tinyxml.h" />
-    <ClInclude Include="Turret.h" />
     <ClInclude Include="UpgradePlayerWindow.h" />
     <ClInclude Include="UpgradeShipWindow.h" />
     <ClInclude Include="WeaponInfo.h" />

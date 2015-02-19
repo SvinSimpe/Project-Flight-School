@@ -49,6 +49,7 @@ class Player: public RemotePlayer
 		float		mTimeTillSpawn;
 		float		mReviveTime;
 		float		mTimeTillRevive;
+		float		mLeavingAreaTime;
 		int			mLastKiller;
 
 	protected:

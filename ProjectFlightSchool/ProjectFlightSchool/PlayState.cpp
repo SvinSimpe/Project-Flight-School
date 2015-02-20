@@ -70,7 +70,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
-		RenderManager::GetInstance()->RequestParticleSystem( 9999, Blood, XMFLOAT3( 2.0f, 3.0f, 0.0f ) , XMFLOAT3( -data->Direction().x, data->Direction().y, -data->Direction().z )  );
+		//RenderManager::GetInstance()->RequestParticleSystem( 9999, Blood, XMFLOAT3( 2.0f, 3.0f, 0.0f ) , XMFLOAT3( -data->Direction().x, data->Direction().y, -data->Direction().z )  );
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
 	{
@@ -340,7 +340,7 @@ void PlayState::HandleDeveloperCameraInput()
 			}
 		}
 	}
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_U ) )
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_U ) )
 	{
 		for( auto& s : mShips )
 		{
@@ -356,7 +356,7 @@ void PlayState::HandleDeveloperCameraInput()
 			}
 		}
 	}
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_Y ) )
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_Y ) )
 	{
 		for( auto& s : mShips )
 		{

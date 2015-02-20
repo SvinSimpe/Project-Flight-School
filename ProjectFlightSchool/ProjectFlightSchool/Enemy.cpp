@@ -245,8 +245,7 @@ void Enemy::Spawn( XMFLOAT3 spawnPos )
 		break;
 	case 1:
 		//CreateRanged();
-		CreateTank();
-		//CreateStandard();
+		CreateStandard();
 		break;
 	case 2:
 		//CreateBoomer();

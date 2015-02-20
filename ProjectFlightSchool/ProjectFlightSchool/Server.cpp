@@ -701,8 +701,8 @@ bool Server::Initialize()
 	{
 		// Map size values
 		int X, Y;
-		X = ( rand() % 300 ) - 150;
-		Y = ( rand() % 300 ) - 150;
+		X = ( rand() % 150 ) - 75;
+		Y = ( rand() % 150 ) - 75;
 		mSpawners[i] = new EnemySpawn();
 		mSpawners[i]->Initialize( i );
 		mSpawners[i]->SetPosition( XMFLOAT3( (float)(X), 0.0f, (float)(Y) ) );

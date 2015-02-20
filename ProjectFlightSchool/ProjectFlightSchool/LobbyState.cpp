@@ -144,7 +144,7 @@ HRESULT LobbyState::Render()
 
 void LobbyState::OnEnter()
 {
-
+	Reset();
 }
 
 void LobbyState::OnExit()

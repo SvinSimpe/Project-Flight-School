@@ -10,8 +10,7 @@
 
 class Enemy;
 
-
-#define MAX_NR_OF_ENEMIES		30
+#define MAX_NR_OF_ENEMIES		40
 
 // ---- Define all enemy animations ----
 // Standard

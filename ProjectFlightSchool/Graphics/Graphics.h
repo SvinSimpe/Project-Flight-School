@@ -21,7 +21,8 @@
 
 enum BlendStates
 {
-	BLEND_2D,
+	BLEND_NORMAL,
+	BLEND_ADD,
 
 	//New states added above this comment
 	BLEND_STATES_AMOUNT
@@ -53,6 +54,7 @@ enum DepthStencils
 {
 	DEPTHSTENCILS_DISABLED,
 	DEPTHSTENCILS_ENABLED,
+	DEPTHSTENCILS_MASK_DISABLED,
 
 	DEPTHSTENCILS_AMOUNT
 };

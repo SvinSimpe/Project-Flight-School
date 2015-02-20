@@ -42,12 +42,15 @@ class Map
 		UINT GetMapHalfWidth() const;
 		UINT GetMapHalfHeight() const;
 
+		float GetHeight( DirectX::XMFLOAT3 pos );
+
 		UINT GetNrOfNodes() const;
 
 		MapNodeInstance*** GetNodeMap() const;
 		MapNodeInstance* GetNodeInstance( int x, int z );
 
 		HRESULT Initialize( UINT mapDim );
+		
 		void Release();
 		Map();
 		~Map();

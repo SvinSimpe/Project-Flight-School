@@ -104,7 +104,7 @@ void JoinMenuState::Reset()
 
 	mPortBox.Initialize( "27015", "Port", x - w * 0.5f, y - h * 0.5f, w, h );
 
-	mNameBox.Initialize( "mudkipfucker", "IP", Input::GetInstance()->mScreenWidth * 0.3f - w * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + h *0.5f, w, h );
+	mNameBox.Initialize( "playername", "IP", Input::GetInstance()->mScreenWidth * 0.3f - w * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + h *0.5f, w, h );
 }
 
 HRESULT JoinMenuState::Initialize()
@@ -144,7 +144,7 @@ HRESULT JoinMenuState::Initialize()
 
 	mPortBox.Initialize( "27015", "Port", x - w * 0.5f, y - h * 0.5f, w, h );
 
-	mNameBox.Initialize( "mudkipfucker", "IP", Input::GetInstance()->mScreenWidth * 0.3f - w * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + h *0.5f, w, h );
+	mNameBox.Initialize( "playername", "IP", Input::GetInstance()->mScreenWidth * 0.3f - w * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + h *0.5f, w, h );
 
 	return S_OK;
 }

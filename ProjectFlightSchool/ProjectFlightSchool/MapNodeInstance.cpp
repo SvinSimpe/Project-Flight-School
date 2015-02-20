@@ -15,9 +15,7 @@ HRESULT	MapNodeInstance::Render( float deltaTime  )
 	}
 	DirectX::XMFLOAT3 min = DirectX::XMFLOAT3( mPos.x - ( mNode->GetGridWidth() * 0.5f ), 0, mPos.z - ( mNode->GetGridHeight() * 0.5f ) );
 	DirectX::XMFLOAT3 max = DirectX::XMFLOAT3( min.x + mNode->GetGridWidth(), 5, min.z + mNode->GetGridHeight() );
-	RenderManager::GetInstance()->AddBoxToList( min, max );
 
-	mNavMesh->Render();
 	return S_OK;
 }
 

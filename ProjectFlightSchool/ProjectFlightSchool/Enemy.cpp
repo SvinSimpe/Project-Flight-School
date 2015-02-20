@@ -13,7 +13,7 @@ void Enemy::CreateStandard()
 		Med atkrate
 	*/
 	mEnemyType					= Standard;
-	mMaxHp						= 30.0f;
+	mMaxHp						= 60.0f;
 	mCurrentHp					= mMaxHp;
 	mDamage						= 10.0f;
 	mSpeed						= 5.0f;
@@ -21,7 +21,7 @@ void Enemy::CreateStandard()
 	mAttentionRadius->radius	= 15.0f;
 	mXpDrop						= 5;
 	mSpawnTime					= 10.0f;
-	mAttackRate					= 1.2f;
+	mAttackRate					= 0.8f;
 }
 
 void Enemy::CreateRanged()
@@ -34,7 +34,7 @@ void Enemy::CreateRanged()
 		Hign atkrate
 	*/
 	mEnemyType					= Ranged;
-	mMaxHp						= 20.0f;
+	mMaxHp						= 50.0f;
 	mCurrentHp					= mMaxHp;
 	mDamage						= 5.0f;
 	mSpeed						= 7.0f;
@@ -76,15 +76,15 @@ void Enemy::CreateTank()
 		Med atkrate
 	*/
 	mEnemyType					= Tank;
-	mMaxHp						= 300.0f;
+	mMaxHp						= 400.0f;
 	mCurrentHp					= mMaxHp;
-	mDamage						= 20.0f;
-	mSpeed						= 1.5f;
+	mDamage						= 30.0f;
+	mSpeed						= 2.0f;
 	mAttackRadius->radius		= 1.0f;
 	mAttentionRadius->radius	= 15.0f;
 	mXpDrop						= 15;
 	mSpawnTime					= 10.0f;
-	mAttackRate					= 1.8f;
+	mAttackRate					= 1.1f;
 }
 
 void Enemy::StandardLogic( float deltaTime )
@@ -157,7 +157,6 @@ HRESULT Enemy::Update( float deltaTime, ServerPlayer** players, UINT NrOfPlayers
 	return S_OK;
 }
 
-
 void Enemy::ChangeBehavior( const int NEW_BEHAVIOR )
 {
 	if( mCurrentBehavior != NEW_BEHAVIOR )
@@ -172,7 +171,6 @@ void Enemy::ResetBehavior( const int BEHAVIOR )
 {
 	mBehaviors[BEHAVIOR]->Reset();
 }
-
 
 void Enemy::SetTarget( UINT id )
 {
@@ -246,7 +244,8 @@ void Enemy::Spawn( XMFLOAT3 spawnPos )
 		CreateStandard();
 		break;
 	case 1:
-		CreateRanged();
+		//CreateRanged();
+		CreateStandard();
 		break;
 	case 2:
 		//CreateBoomer();
@@ -328,6 +327,16 @@ XMFLOAT3 Enemy::GetPosition() const
 XMFLOAT3 Enemy::GetDirection() const
 {
 	return mDirection;
+}
+
+float Enemy::GetSpeed() const
+{
+	return mSpeed;
+}
+
+XMFLOAT3 Enemy::GetVelocity() const
+{
+	return mVelocity;
 }
 
 HRESULT Enemy::Initialize( int id, ServerPlayer** players, UINT NrOfPlayers )

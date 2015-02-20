@@ -13,9 +13,9 @@ HRESULT Map::Render( float deltaTime, Player* player )
 	int playerX = ( ( (int)GetMapHalfWidth() * NODE_DIM ) + playerPosX ) / NODE_DIM;
 	int playerZ = ( ( (int)GetMapHalfHeight() * NODE_DIM ) + playerPosY ) / NODE_DIM;
 
-	for( int x = playerX - 5; x < playerX + 6; x++ )
+	for( int x = playerX - 1; x < playerX + 2; x++ )
 	{
-		for( int z = playerZ - 5; z < playerZ + 6; z++ )
+		for( int z = playerZ - 1; z < playerZ + 2; z++ )
 		{
 			MapNodeInstance* temp = GetNodeInstance( x, z );
 			if( temp && std::find( mapNodes.begin(), mapNodes.end(), temp ) == mapNodes.end() )
@@ -64,7 +64,8 @@ std::vector<DirectX::XMFLOAT2> Map::GetPath( XMFLOAT3 start, XMFLOAT3 goal )
 	std::vector<DirectX::XMFLOAT2> path1;
 	std::vector<DirectX::XMFLOAT2> temp;
 	MapNodeInstance* currentNode;
-	MapNodeInstance* nextNode;
+//	MapNodeInstance* nextNode;
+
 	Navmesh* currentNavMesh;
 
 	DirectX::XMFLOAT3 newStart, newEnd, newCenter;
@@ -167,6 +168,29 @@ UINT Map::GetMapHalfHeight() const
 {
 	return mMapDim / 2;
 }
+
+float Map::GetHeight( DirectX::XMFLOAT3 pos )
+{
+	float x = ( pos.x + GetMapHalfWidth() * NODE_DIM );
+	float z = ( pos.z + GetMapHalfWidth() * NODE_DIM );
+
+	DirectX::XMFLOAT3 nodeSpace;
+
+	nodeSpace.x = x;
+	nodeSpace.z = z;
+
+	int pX = (int)floorf( nodeSpace.x / NODE_DIM );
+	int pZ = (int)floorf( nodeSpace.z / NODE_DIM );
+
+	MapNodeInstance* temp = GetNodeInstance( pX, pZ );
+	if( temp )
+	{
+		temp->GetMapNode()->GetHeight( nodeSpace );
+	}
+
+	return 0.0f;
+}
+
 UINT Map::GetNrOfNodes() const
 {
 	return mNrOfNodes;

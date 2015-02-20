@@ -3,11 +3,15 @@
 
 #include "Projectile.h"
 #include "RemotePlayer.h"
+#include "EnergyCell.h"
 #include "Input.h"
 #include <stdlib.h>
 #include <time.h>
 
 #define VELOCITY_FALLOFF 2.0f
+
+#define MAX_ROBOT_RANGE		40000.0f   //Squared distance here.
+#define LEAVING_AREA_TIME	10.0f
 class Map;
 
 struct Upgrades
@@ -23,6 +27,7 @@ class Player: public RemotePlayer
 	private:
 		float			mEventCapTimer;
 		PointLight*		mPointLight;
+		PointLight*		mEnergyCellLight;
 		Upgrades		mUpgrades;
 
 		float		mWeaponCoolDown;
@@ -46,6 +51,7 @@ class Player: public RemotePlayer
 		bool		mFollowPath;
 
 		bool		mIsBuffed;
+		bool		mIsOutSideZone;
 		float		mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
 		std::vector<DirectX::XMFLOAT2> currentPath;
 		
@@ -53,7 +59,13 @@ class Player: public RemotePlayer
 		float		mTimeTillSpawn;
 		float		mReviveTime;
 		float		mTimeTillRevive;
+		float		mLeavingAreaTime;
 		int			mLastKiller;
+
+		std::list<IEventPtr> mEventList;
+
+		UINT		mEnergyCellID;
+		float		mPickUpCooldown;
 
 	protected:
 	public:
@@ -74,6 +86,7 @@ class Player: public RemotePlayer
 		void		Fire();
 		void		FireShotgun( XMFLOAT3* spawnPoint );
 		void		AddImpuls( XMFLOAT3 impuls );
+		void		QueueEvent( IEvent* ptr );
 		void		UpgradeBody();
 		void		UpgradeLegs();
 		void		UpgradeMelee();
@@ -81,14 +94,17 @@ class Player: public RemotePlayer
 
 	protected:
 	public:
-		HRESULT		UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers );
+		void		PickUpEnergyCell( EnergyCell** energyCell );
+		void		DropEnergyCell( EnergyCell** energyCells );
+		void		GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, DirectX::XMFLOAT3 shipPos );
+		HRESULT		UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells );
 		void		TakeDamage( float damage, unsigned int shooter );
 		void		HandleRevive( float deltaTime );
 		void		Lock();
 		void		UnLock();
 		
 		void		Reset();	
-		HRESULT		Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers );
+		HRESULT		Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells );
 		HRESULT		Render( float deltaTime, int position );
 		HRESULT		Initialize();
 		void		Release();
@@ -99,12 +115,15 @@ class Player: public RemotePlayer
 		bool		GetIsMeleeing()	const;
 		XMFLOAT3	GetPlayerPosition() const;
 		XMFLOAT3	GetUpperBodyDirection() const;
+		UINT		GetEnergyCellID() const;
 		float		GetXPToNext() const;
 		int			Upgradable() const;
 		void		SetIsMeleeing( bool isMeleeing );
 		void		SetID( unsigned int id );
 		void		SetTeam( int team );
 		void		SetPosition( XMVECTOR position );
+		void		SetEnergyCellID( UINT energyCellID );
+
 
 		void		QueueEvent( IEventPtr ptr );
 };

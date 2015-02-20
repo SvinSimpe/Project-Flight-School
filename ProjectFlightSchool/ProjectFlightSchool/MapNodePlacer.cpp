@@ -23,7 +23,7 @@ NODE_RETURN_CODE MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNo
 	int nodeWith   = (int)( ( newNode->GetMapNode()->GetGridWidth() / ( NODE_DIM ) ) );
 	int nodeHeight = (int)( ( newNode->GetMapNode()->GetGridHeight() / ( NODE_DIM ) ) );
 
-	if( (int)mMap->GetMapWidth() < ( pX + nodeWith ) || (int)mMap->GetMapWidth() < ( pY + nodeHeight ) )
+	if( (int)mMap->GetMapWidth() < ( pX + nodeWith ) || (int)mMap->GetMapHeight() < ( pY + nodeHeight ) )
 	{
 		return NOFIT;
 	}
@@ -73,6 +73,16 @@ void MapNodePlacer::BuildMap( MapNodeInstance***& buildMap )
 	int nodeMapSize = (int)nodeMap[NodeTypes::AREA_NODE].size();
 	int randomNode = 0;
 
+
+	//Hardcoding Ships
+	//CanPlace( mMap->GetMapHalfWidth() - 1, mMap->GetMapHalfHeight(), nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance(), buildMap );
+	////map[mNrOfNodes++] = nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance();
+	//////////////////
+	////Hardcoding Ships
+	//CanPlace( mMap->GetMapHalfWidth() + 1, mMap->GetMapHalfHeight(), nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance(), buildMap );
+	//map[mNrOfNodes++] = nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance();
+	////////////////
+
 	for( int x = 0; x < (int)mMap->GetMapDim(); x++ )
 	{
 		for( int y = 0; y < (int)mMap->GetMapDim(); y++ )
@@ -91,14 +101,22 @@ void MapNodePlacer::BuildMap( MapNodeInstance***& buildMap )
 				switch( CanPlace( x, y, newNode, buildMap ) )
 				{
 					case OCCUPIED:
-						doLoop = false;
 						newNode->ReleaseInstance();
+						if( count < nodeMapSize )
+						{
+							count++;
+							randomNode = (count + randomNode) % nodeMapSize;
+						}
+						else
+						{
+							doLoop = false;
+						}
 						break;
 					case NOFIT:
 						newNode->ReleaseInstance();
-						count++;
-						if(count < nodeMapSize )
+						if( count < nodeMapSize )
 						{
+							count++;
 							randomNode = (count + randomNode) % nodeMapSize;
 						}
 						else
@@ -108,8 +126,9 @@ void MapNodePlacer::BuildMap( MapNodeInstance***& buildMap )
 						}
 						break;
 					case PLACED:
-						count++;
-						newNode->SetNodeID( nodeID++ );
+						//map[mNrOfNodes++] = newNode;
+						count = 0;
+
 						doLoop = false;
 						break;
 				}

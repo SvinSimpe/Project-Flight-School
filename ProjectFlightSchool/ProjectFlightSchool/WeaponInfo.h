@@ -191,7 +191,7 @@ struct RangedInfo
 				{
 					case 2:
 					{
-						attackRate		= 0.1f;
+						attackRate		= 0.04f;
 						damage			= 1.5f;
 						range			= 1.0f;
 						spread			= 0.15f;
@@ -202,7 +202,7 @@ struct RangedInfo
 
 					case 3:
 					{
-						attackRate		= 0.15f;
+						attackRate		= 0.03f;
 						damage			= 2.0f;
 						range			= 1.5f;
 						spread			= 0.15f;
@@ -213,7 +213,7 @@ struct RangedInfo
 
 					case 4:
 					{
-						attackRate		= 0.2f;
+						attackRate		= 0.02f;
 						damage			= 2.8f;
 						range			= 2.0f;
 						spread			= 0.15f;
@@ -231,7 +231,7 @@ struct RangedInfo
 						//areaOfEffect	= 0.0f;
 						//projectileSpeed	= 60.0f;
 
-						attackRate		= 0.3f;
+						attackRate		= 0.02f;
 						damage			= 4.0f;
 						range			= 2.0f;
 						spread			= 0.15f;
@@ -516,7 +516,7 @@ struct MeleeInfo
 		level++;
 		switch( weaponType )
 		{
-			case MINIGUN:
+			case CLAYMORE:
 			{
 				switch( level )
 				{
@@ -544,7 +544,63 @@ struct MeleeInfo
 			}
 				break;
 
-			case SHOTGUN:
+			case HAMMER:
+			{
+				switch( level )
+				{
+					case 2:
+					{
+						attackRate		= 2.80f;
+						damage			= 15.0f;
+						radius			= 5.0f;
+						spread			= 7;
+						knockBack		= 3.2f;
+						boundingCircle	= new BoundingCircle( HAMMER_REACH );
+						stun			= 3.3f;
+					}
+						break;
+
+					case 3:
+					{
+						attackRate		= 2.80f;
+						damage			= 18.0f;
+						radius			= 5.0f;
+						spread			= 7;
+						knockBack		= 3.5f;
+						boundingCircle	= new BoundingCircle( HAMMER_REACH );
+						stun			= 3.5f;
+					}
+						break;
+
+					case 4:
+					{
+						attackRate		= 2.80f;
+						damage			= 24.0f;
+						radius			= 5.0f;
+						spread			= 7;
+						knockBack		= 3.8f;
+						boundingCircle	= new BoundingCircle( HAMMER_REACH );
+						stun			= 3.5f;
+					}
+						break;
+
+					case 5:
+					{
+						attackRate		= 2.80f;
+						damage			= 40.0f;
+						radius			= 5.0f;
+						spread			= 7;
+						knockBack		= 4.0f;
+						boundingCircle	= new BoundingCircle( HAMMER_REACH );
+						stun			= 3.5f;
+					}
+						break;
+
+				}
+			}
+				break;
+
+			case BLOWTORCH:
 			{
 				switch( level )
 				{
@@ -572,35 +628,7 @@ struct MeleeInfo
 			}
 				break;
 
-			case GRENADELAUNCHER:
-			{
-				switch( level )
-				{
-					case 2:
-					{
-					}
-						break;
-
-					case 3:
-					{
-					}
-						break;
-
-					case 4:
-					{
-					}
-						break;
-
-					case 5:
-					{
-					}
-						break;
-
-				}
-			}
-				break;
-
-			case SNIPER:
+			case SAW:
 			{
 				switch( level )
 				{

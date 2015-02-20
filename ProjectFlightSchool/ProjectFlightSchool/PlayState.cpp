@@ -61,7 +61,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		// Fire projectile
 		std::shared_ptr<Event_Remote_Fired_Projectile> data = std::static_pointer_cast<Event_Remote_Fired_Projectile>(newEvent);
-		FireProjectile( data->ID(), data->ProjectileID(), data->BodyPos(), data->Direction(), data->Speed(), data->Range() );
+		FireProjectile( data->ID(), data->ProjectileID(), data->BodyPos(), data->Direction(), data->Speed(), data->Range(), data->Damage() );
 
 		//TestSound
 		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->BodyPos());
@@ -177,9 +177,9 @@ void PlayState::BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned
 	Client::GetInstance()->SendEvent( E1 );
 }
 
-void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range )
+void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range, float damage )
 {
-	mProjectiles[mNrOfActiveProjectiles]->SetDirection( id, projectileID, position, direction, speed, range );
+	mProjectiles[mNrOfActiveProjectiles]->SetDirection( id, projectileID, position, direction, speed, range, damage );
 	mNrOfActiveProjectiles++;
 }
 
@@ -360,12 +360,12 @@ void PlayState::HandleDeveloperCameraInput()
 	{
 		for( auto& s : mShips )
 		{
-			if( mPlayer->GetTeam() == s->GetTeamID() && s->Intersect( mPlayer->GetBoundingCircle() ) && mGui->UpgradePlayerWindowIsActive() )
+			if( mPlayer->GetTeam() == s->GetTeamID() && mGui->UpgradePlayerWindowIsActive() )
 			{
 				mPlayer->UnLock();
 				mGui->DeActivateUpgradePlayerWindow();
 			}
-			else if( mPlayer->GetTeam() == s->GetTeamID() && s->Intersect( mPlayer->GetBoundingCircle() ) && mPlayer->IsAlive() && mPlayer->Upgradable() >= 1 )
+			else if( mPlayer->GetTeam() == s->GetTeamID() && mPlayer->IsAlive() && mPlayer->Upgradable() >= 1 )
 			{
 				mPlayer->Lock();
 				mGui->ActivateUpgradePlayerWindow();
@@ -389,12 +389,14 @@ void PlayState::HandleDeveloperCameraInput()
 
 void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID )
 {
-	unsigned int shooter = 0;
+	unsigned int	shooter = 0;
+	float			damage	= 0.0f;
 	for ( int i = 0; i < mNrOfActiveProjectiles; i++ )
 	{
 		if( mProjectiles[i]->GetID() == projectileID )
 		{
 			shooter = mProjectiles[i]->GetPlayerID();
+			damage	= mProjectiles[i]->GetDamage();
 			mProjectiles[i]->Reset();
 			Projectile* temp							= mProjectiles[mNrOfActiveProjectiles - 1];
 			mProjectiles[mNrOfActiveProjectiles - 1]	= mProjectiles[i];
@@ -412,7 +414,7 @@ void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int project
 			{
 				if( mRemotePlayers.at(i)->GetTeam() != mPlayer->GetTeam() )
 				{
-					mPlayer->TakeDamage( mRemotePlayers.at(i)->GetLoadOut()->rangedWeapon->damage, shooter );
+					mPlayer->TakeDamage( damage, shooter );
 				}
 			}
 		}
@@ -710,7 +712,7 @@ void PlayState::OnEnter()
 	IEventPtr E1( new Event_Game_Started() );
 	EventManager::GetInstance()->QueueEvent( E1 );
 
-	SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
+	//SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
 }
 
 void PlayState::OnExit()

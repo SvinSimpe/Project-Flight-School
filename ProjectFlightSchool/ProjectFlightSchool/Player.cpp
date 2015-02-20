@@ -667,7 +667,6 @@ void Player::Reset()
 
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
 {
-	mXP++;
 	if( ( mXP / mNextLevelXP ) >= 1 )
 	{
 		mCurrentUpgrades++;

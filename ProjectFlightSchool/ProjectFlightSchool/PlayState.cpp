@@ -365,7 +365,7 @@ void PlayState::HandleDeveloperCameraInput()
 				mPlayer->UnLock();
 				mGui->DeActivateUpgradePlayerWindow();
 			}
-			else if( mPlayer->GetTeam() == s->GetTeamID() && mPlayer->IsAlive() && mPlayer->Upgradable() >= 1 )
+			else if( mPlayer->GetTeam() == s->GetTeamID() && mPlayer->IsAlive() && mPlayer->Upgradable() >= 1 && s->Intersect( mPlayer->GetBoundingCircle() ) )
 			{
 				mPlayer->Lock();
 				mGui->ActivateUpgradePlayerWindow();

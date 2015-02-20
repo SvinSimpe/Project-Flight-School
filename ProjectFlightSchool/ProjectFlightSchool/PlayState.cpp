@@ -549,12 +549,6 @@ HRESULT PlayState::Update( float deltaTime )
 
 	UpdateProjectiles( deltaTime );
 
-
-	//Test radar due to no ship :(
-	mRadarObjects[nrOfRadarObj].mRadarObjectPos = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );//mShip.GetPosition();
-	mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
-	//-------
-
 	// Enemies
 	if( mEnemyListSynced )
 	{
@@ -566,8 +560,8 @@ HRESULT PlayState::Update( float deltaTime )
 
 				if( mEnemies[i]->IsAlive() )
 				{
-					mRadarObjects[nrOfRadarObj].mType = RADAR_TYPE::HOSTILE;
-					mRadarObjects[nrOfRadarObj++].mRadarObjectPos = mEnemies[i]->GetPosition();
+					mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnemies[i]->GetPosition();
+					mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
 				}
 			}
 		}
@@ -599,6 +593,16 @@ HRESULT PlayState::Update( float deltaTime )
 	for( auto& s : mShips )
 	{
 		s->Update( deltaTime );
+		if( s->GetTeamID() != mPlayer->GetTeam() )
+		{
+			mRadarObjects[nrOfRadarObj].mRadarObjectPos = s->GetPos();
+			mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_HOSTILE;
+		}
+		else
+		{
+			mRadarObjects[nrOfRadarObj].mRadarObjectPos = s->GetPos();
+			mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_FRIENDLY;
+		}
 	}
 
 	// Test Anim

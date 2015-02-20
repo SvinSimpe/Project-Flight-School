@@ -71,7 +71,7 @@ HRESULT	Radar::Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjec
 			if( vecLength <= mRadius )
 			{
 				radarObjects[i].mRadarObjectPos.x = mRadarObjectOffsetX + ( radarObjects[i].mRadarObjectPos.x - playerPos.x ) * mRadarObjectTranslationX;
-				radarObjects[i].mRadarObjectPos.y = mRadarObjectOffsetY - radarObjects[i].mRadarObjectPos.z + playerPos.z * mRadarObjectTranslationY;
+				radarObjects[i].mRadarObjectPos.y = mRadarObjectOffsetY + ( ( radarObjects[i].mRadarObjectPos.z + playerPos.z ) * mRadarObjectTranslationY );
 				//radarObjects[i].mRadarObjectPos.x = ( mOffsetX + ( ( mRadarDimXY * 0.5f ) - mRadarObjHalfWidth - ( mRadarObjWidth * 0.2f ) ) ) + ( radarObjects[i].mRadarObjectPos.x - playerPos.x ) * ( ( mRadarDimXY / mRadarRadius ) * BASE_SCALE_VALUE ) * ( mRadarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) );
 				//radarObjects[i].mRadarObjectPos.y = ( ( mRadarDimXY * 0.5f ) - mRadarObjHalfWidth - ( mRadarObjWidth * 0.1f ) ) - radarObjects[i].mRadarObjectPos.z + playerPos.z * ( ( ( mRadarDimXY / mRadarRadius ) * BASE_SCALE_VALUE ) * ( mRadarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) ) );
 
@@ -99,6 +99,7 @@ HRESULT	Radar::Initialize()
 	
 	mNrOfObjects		= 1;
 	float radarDimXY	= Input::GetInstance()->mScreenWidth * BASE_SCALE_VALUE;
+	float radarDimY		= Input::GetInstance()->mScreenHeight * BASE_SCALE_VALUE;
 	float radarRadius	= radarDimXY * 0.092f;
 	float radarCenter	= radarDimXY * 0.5f;
 	mRadius				= 48.0f;
@@ -117,7 +118,7 @@ HRESULT	Radar::Initialize()
 	mObjects[0].mWidthHeight.y		= radarDimXY;
 
 	mRadarObjWidth					= radarDimXY * 0.055f;
-	mRadarObjHeight					= radarDimXY * 0.055f;
+	mRadarObjHeight					= radarDimY * 0.055f;
 	float radarObjHalfWidth			= mRadarObjWidth * 0.5f;
 	float radarObjHalfHeight		= mRadarObjHeight * 0.5f;
 
@@ -132,9 +133,9 @@ HRESULT	Radar::Initialize()
 	mRadarShipTranslationY			= ( ( ( radarDimXY / radarRadius ) * BASE_SCALE_VALUE ) * ( radarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) ) );
 
 	mRadarObjectOffsetX				= ( ( Input::GetInstance()->mScreenWidth - radarDimXY ) + ( ( radarDimXY * 0.5f ) - radarObjHalfWidth - ( mRadarObjWidth * 0.1f ) ) );
-	mRadarObjectOffsetY				= ( ( radarDimXY * 0.5f ) - radarObjHalfWidth - ( mRadarObjHeight * 0.05f ) );
+	mRadarObjectOffsetY				= ( ( radarDimY * 0.5f ) - radarObjHalfWidth - ( mRadarObjHeight * 0.05f ) );
 	mRadarObjectTranslationX		= ( ( radarDimXY / radarRadius ) * BASE_SCALE_VALUE ) * ( radarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) );
-	mRadarObjectTranslationY		= ( ( ( radarDimXY / radarRadius ) * BASE_SCALE_VALUE ) * ( radarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) ) );
+	mRadarObjectTranslationY		= ( ( ( radarDimY / radarRadius ) * BASE_SCALE_VALUE ) * ( radarDimY / ( BASE_VALUE_FOR_RESOLUTION_SCALING_Y ) ) );
 
 	return S_OK;
 }

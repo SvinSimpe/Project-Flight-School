@@ -228,9 +228,6 @@
     <ClCompile Include="tinyxmlparser.cpp">
       <Filter>TinyXML\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Radar.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DS3DBuffer.cpp">
       <Filter>DirectSound\Source</Filter>
     </ClCompile>
@@ -314,6 +311,9 @@
     </ClCompile>
     <ClCompile Include="LobbyState.cpp">
       <Filter>GameStates\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Radar.cpp">
+      <Filter>GUI\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -452,9 +452,6 @@
     <ClInclude Include="NodeTypes.h">
       <Filter>Worldmap\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Radar.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DS3DBuffer.h">
       <Filter>DirectSound\Header</Filter>
     </ClInclude>
@@ -541,6 +538,9 @@
     </ClInclude>
     <ClInclude Include="LobbyState.h">
       <Filter>GameStates\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Radar.h">
+      <Filter>GUI\Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

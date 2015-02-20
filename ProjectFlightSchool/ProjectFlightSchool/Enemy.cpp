@@ -120,7 +120,7 @@ HRESULT Enemy::Update( float deltaTime, ServerPlayer** players, UINT NrOfPlayers
 
 	if( mStateTimer >= 0.0f )
 		mStateTimer -= deltaTime;
-
+	mDamage = 0.0f;
 	mBehaviors[mCurrentBehavior]->Update( deltaTime );
 
 	// Update specific enemy logic

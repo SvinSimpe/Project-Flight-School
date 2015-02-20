@@ -618,9 +618,6 @@ void Player::Reset()
 {
 	mEventCapTimer				= 0.0f;
 
-	mPointLight->position		= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
-	mPointLight->colorAndRadius	= DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 17.0f );
-
 	mWeaponCoolDown				= 0;
 	mMeleeCoolDown				= 0;
 	mTimeTillattack				= mLoadOut->meleeWeapon->timeTillAttack;
@@ -687,11 +684,11 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	//Temp visual aid to know that you're close to another player. Used to know if you can revive.
 	if( mCloseToPlayer )
 	{
-		mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.8f, 0.6f, 0.8f, 17.0f );
+		mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.6f, 0.8f, 0.6f, 30.0f );
 	}
 	else
 	{
-		mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 17.0f );
+		mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 30.0f );
 	}
 
 	if ( !mLock )
@@ -856,7 +853,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	mLoadOut->meleeWeapon->boundingCircle->center		= mLowerBody.position;
 
 	//Update Light
-	mPointLight->position = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 5.0f, mLowerBody.position.z, 0.0f );
+	mPointLight->position = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 1.0f, mLowerBody.position.z, 0.0f );
 
 	//== Event to sync player with server ==
 
@@ -906,7 +903,7 @@ HRESULT Player::Initialize()
 	IEventPtr reg( new Event_Add_Point_Light( mPointLight ) );
 	EventManager::GetInstance()->QueueEvent( reg );
 
-	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 17.0f );
+	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.0f, 0.0f, 1.0f, 5.0f );
 
 	mEnergyCellLight					= new PointLight;
 	mEnergyCellLight->position			= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f );

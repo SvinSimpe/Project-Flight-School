@@ -52,18 +52,19 @@ struct RangedInfo
 		{
 			case MINIGUN:
 			{
-				/*attackRate		=	MINIGUN_AR;
-				damage			=	MINIGUN_DAMAGE;
-				range			=	MINIGUN_RANGE;
-				spread			=	MINIGUN_SPREAD;
-				areaOfEffect	=	MINIGUN_AOE;
-				projectileSpeed	=	MINIGUN_SPEED;*/
+
 				attackRate		=	MINIGUN_AR;
 				damage			=	MINIGUN_DAMAGE;
 				range			=	MINIGUN_RANGE;
 				spread			=	MINIGUN_SPREAD;
 				areaOfEffect	=	MINIGUN_AOE;
 				projectileSpeed	=	MINIGUN_SPEED;
+				/*attackRate		= 0.005f;
+				damage			= 2.0f;
+				range			= 0.1f;
+				spread			= 0.2f;
+				areaOfEffect	= 0.0f;
+				projectileSpeed	= 60.0f;*/
 			}
 				break;
 

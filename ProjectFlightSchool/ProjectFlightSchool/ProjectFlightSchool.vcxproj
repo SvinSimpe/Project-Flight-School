@@ -95,6 +95,7 @@
     <ClCompile Include="ClientTurret.cpp" />
     <ClCompile Include="DSBufferStream.cpp" />
     <ClCompile Include="EnemyAnimationManager.cpp" />
+    <ClCompile Include="EnergyCell.cpp" />
     <ClCompile Include="EnemyBehavior.cpp" />
     <ClCompile Include="Gui.cpp" />
     <ClCompile Include="HelperFunctions.cpp" />
@@ -144,6 +145,8 @@
     <ClCompile Include="SingleplayerMenuState.cpp" />
     <ClCompile Include="StartMenuState.cpp" />
     <ClCompile Include="StateMachine.cpp" />
+    <ClCompile Include="SteeringBehavior.cpp" />
+    <ClCompile Include="SteeringBehaviorManager.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="tinystr.cpp" />
@@ -159,6 +162,7 @@
     <ClInclude Include="BaseMenuState.h" />
     <ClInclude Include="BaseState.h" />
     <ClInclude Include="BoundingGeometry.h" />
+    <ClInclude Include="EnergyCell.h" />
     <ClInclude Include="ClientShip.h" />
     <ClInclude Include="ClientTurret.h" />
     <ClInclude Include="DSBufferStream.h" />
@@ -222,6 +226,8 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="System.cpp" />
+    <ClInclude Include="SteeringBehavior.h" />
+    <ClInclude Include="SteeringBehaviorManager.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="tinystr.h" />

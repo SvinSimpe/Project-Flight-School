@@ -93,7 +93,7 @@ HRESULT CreateMenuState::Initialize()
 		x += (float)Input::GetInstance()->mScreenWidth * 0.1f;
 	}
 
-	mNameBox.Initialize( "mudkipfucker", "IP", Input::GetInstance()->mScreenWidth * 0.3f - (640.0f * 0.5f) * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + (177.0f * 0.5f) *0.5f, 640.0f * 0.5f, 177.0f * 0.5f );
+	mNameBox.Initialize( "PlayerName", "IP", Input::GetInstance()->mScreenWidth * 0.3f - (640.0f * 0.5f) * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + (177.0f * 0.5f) *0.5f, 640.0f * 0.5f, 177.0f * 0.5f );
 
 	return S_OK;
 }

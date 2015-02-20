@@ -3341,6 +3341,90 @@ class Event_Server_Change_Buff_State : public IEvent
 		}
 };
 
+
+class Event_Server_Sync_Energy_Cell : public IEvent
+{
+	private:
+		UINT				mEnergyCellID;
+		UINT				mOwnerID;
+		DirectX::XMFLOAT3	mPosition;
+		bool				mPickedUp;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Sync_Energy_Cell()
+		{
+			mEnergyCellID	= (UINT)-1;
+			mOwnerID		= (UINT)-1;
+			mPosition		= DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mPickedUp		= false;
+		}
+
+		Event_Server_Sync_Energy_Cell( UINT energyCellID, UINT ownerID, DirectX::XMFLOAT3 position, bool pickedUp )
+		{
+			mEnergyCellID	= energyCellID;
+			mOwnerID		= ownerID;
+			mPosition		= position;
+			mPickedUp		= pickedUp;
+		}
+
+		~Event_Server_Sync_Energy_Cell() {}
+
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mEnergyCellID << " ";
+			out << mOwnerID << " ";
+			out << mPosition.x << " ";
+			out << mPosition.y << " ";
+			out << mPosition.z << " ";
+			out << mPickedUp << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mEnergyCellID;
+			in >> mOwnerID;
+			in >> mPosition.x;
+			in >> mPosition.y;
+			in >> mPosition.z;
+			in >> mPickedUp;
+		}
+
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Sync_Energy_Cell( mEnergyCellID, mOwnerID, mPosition, mPickedUp ) );
+		}
+
+		UINT EnergyCellID() const
+		{
+			return mEnergyCellID;
+		}
+
+		UINT OwnerID() const
+		{
+			return mOwnerID;
+		}
+
+		DirectX::XMFLOAT3 Position() const
+		{
+			return mPosition;
+		}
+
+		bool PickedUp() const
+		{
+			return mPickedUp;
+		}
+};
+
 // Event sent from Enemy Behavior to server to broadcast attack
 class Event_Tell_Server_Enemy_Attack_Player : public IEvent
 {
@@ -3369,7 +3453,7 @@ class Event_Tell_Server_Enemy_Attack_Player : public IEvent
 			mDamage		= damage;
 		}
 		~Event_Tell_Server_Enemy_Attack_Player() {}	
-				const EventType& GetEventType() const
+		const EventType& GetEventType() const
 		{
 			return GUID;
 		}
@@ -3425,10 +3509,12 @@ class Event_Remote_Win : public IEvent
 			mTeam		= team;
 		}
 		~Event_Remote_Win() {}
+
 		const EventType& GetEventType() const
 		{
 			return GUID;
 		}
+
 		void Serialize( std::ostringstream& out ) const
 		{
 			out << mTeam << " ";
@@ -3444,6 +3530,90 @@ class Event_Remote_Win : public IEvent
 		UINT Team() const
 		{
 			return mTeam;
+		}
+};
+	
+
+class Event_Client_Sync_Energy_Cell : public IEvent
+{
+	private:
+		UINT				mEnergyCellID;
+		UINT				mOwnerID;
+		DirectX::XMFLOAT3	mPosition;
+		bool				mPickedUp;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Sync_Energy_Cell()
+		{
+			mEnergyCellID	= (UINT)-1;
+			mOwnerID		= (UINT)-1;
+			mPosition		= DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mPickedUp		= false;
+		}
+
+		Event_Client_Sync_Energy_Cell( UINT energyCellID, UINT ownerID, DirectX::XMFLOAT3 position, bool pickedUp )
+		{
+			mEnergyCellID	= energyCellID;
+			mOwnerID		= ownerID;
+			mPosition		= position;
+			mPickedUp		= pickedUp;
+		}
+
+		~Event_Client_Sync_Energy_Cell() {}
+
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mEnergyCellID << " ";
+			out << mOwnerID << " ";
+			out << mPosition.x << " ";
+			out << mPosition.y << " ";
+			out << mPosition.z << " ";
+			out << mPickedUp << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mEnergyCellID;
+			in >> mOwnerID;
+			in >> mPosition.x;
+			in >> mPosition.y;
+			in >> mPosition.z;
+			in >> mPickedUp;
+		}
+
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Sync_Energy_Cell( mEnergyCellID, mOwnerID, mPosition, mPickedUp ) );
+		}
+
+		UINT EnergyCellID() const
+		{
+			return mEnergyCellID;
+		}
+
+		UINT OwnerID() const
+		{
+			return mOwnerID;
+		}
+
+		DirectX::XMFLOAT3 Position() const
+		{
+			return mPosition;
+		}
+
+		bool PickedUp() const
+		{
+			return mPickedUp;
 		}
 };
 
@@ -3554,6 +3724,7 @@ class Event_Server_Update_Ship : public IEvent
 		float mMaxShield;
 		float mCurrentShield;
 		float mCurrentHP;
+
 	protected:
 	public:
 		static const EventType GUID;
@@ -3717,10 +3888,12 @@ class Event_Server_Change_Ship_Levels : public IEvent
 			mBuffLevel		= buffLevel;
 		}
 		~Event_Server_Change_Ship_Levels() {}
+
 		const EventType& GetEventType() const
 		{
 			return GUID;
 		}
+
 		void Serialize( std::ostringstream& out ) const
 		{
 			out << mID << " ";

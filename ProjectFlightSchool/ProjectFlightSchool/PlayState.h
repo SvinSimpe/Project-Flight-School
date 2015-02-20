@@ -15,11 +15,15 @@
 #include "EnemyAnimationManager.h"
 #include "Gui.h"
 #include "SoundBufferHandler.h"
+#include "EnergyCell.h"
+
+//TestUpgradeWindow
+#include "UpgradeShipWindow.h"
 
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
-#define TOSERVER_OFFSET			5000;
+#define TOSERVER_OFFSET			5000
 
 class PlayState : public BaseState
 {
@@ -50,6 +54,8 @@ class PlayState : public BaseState
 		float						mAlliesHP[MAX_REMOTE_PLAYERS / 2];
 		Gui*						mGui;
 
+		EnergyCell**				mEnergyCells;
+		
 		std::vector<ClientShip*>	mShips;
 		ClientShip*					mMyShip;	// A pointer to the Client's own ship, used to show the remaining HP of it
 
@@ -80,6 +86,7 @@ class PlayState : public BaseState
 		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive );
 		void			RenderProjectiles();
 		void			SetEnemyState( unsigned int id, EnemyState state );
+	
 
 	protected:
 	public:

@@ -550,7 +550,6 @@ struct MeleeInfo
 				{
 					case 2:
 					{
-						attackRate		= 2.80f;
 						damage			= 15.0f;
 						radius			= 5.0f;
 						spread			= 7;
@@ -562,7 +561,6 @@ struct MeleeInfo
 
 					case 3:
 					{
-						attackRate		= 2.80f;
 						damage			= 18.0f;
 						radius			= 5.0f;
 						spread			= 7;
@@ -574,7 +572,6 @@ struct MeleeInfo
 
 					case 4:
 					{
-						attackRate		= 2.80f;
 						damage			= 24.0f;
 						radius			= 5.0f;
 						spread			= 7;
@@ -586,7 +583,6 @@ struct MeleeInfo
 
 					case 5:
 					{
-						attackRate		= 2.80f;
 						damage			= 40.0f;
 						radius			= 5.0f;
 						spread			= 7;

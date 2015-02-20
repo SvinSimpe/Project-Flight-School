@@ -207,13 +207,14 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		else
 			mWeaponCoolDown -= deltaTime;
 
-		if ( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_RIGHT ) && mMeleeCoolDown <= 0.0f && !mHasMeleeStarted &&!mIsMeleeing )
+		if ( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_RIGHT ) && mMeleeCoolDown <= 0.0f )
 		{
 			RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
 			mLeftArmAnimationCompleted = false;
 			IEventPtr E1( new Event_Client_Attack( mID, LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] ) );
 			QueueEvent( E1 );
-			mHasMeleeStarted = true;
+			mHasMeleeStarted	= true;
+			mMeleeCoolDown		= mLoadOut->meleeWeapon->attackRate;
 		}
 		else
 			mMeleeCoolDown -= deltaTime;

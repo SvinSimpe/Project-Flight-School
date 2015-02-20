@@ -62,12 +62,12 @@
 #define CLAYMORE_REACH		3.0f	// Reach
 
 // Hammer
-#define HAMMER_AR			2.80f	// Attack Rate Can't be lower than 2.80f
+#define HAMMER_AR			3.5f	// Attack Rate Can't be lower than 3.5f
 #define HAMMER_DAMAGE		5.0f	// Damage
 #define HAMMER_RADIUS		5.0f	// Radius
 #define HAMMER_SPREAD		7		// Spread
 #define HAMMER_KB			3.0f	// Knockback
-#define HAMMER_TTA			0.95f	// Time till Attack Can't be changed
+#define HAMMER_TTA			0.6f	// Time till Attack Can't be changed
 #define HAMMER_STUN			3.0f	// Stun
 #define HAMMER_REACH		4.0f	// Reach
 

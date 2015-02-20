@@ -87,6 +87,18 @@ HRESULT HuntPlayerBehavior::Update( float deltaTime )
 {
 	mEnemy->Hunt( deltaTime );
 
+	// If enemy damaged check if we need to go to take Damage
+	mEnemy->mTakingDamageTimer += deltaTime;
+	if( mEnemy->mTakingDamage )
+	{	
+		if( mEnemy->mTakingDamageTimer > 0.4f )
+		{
+			mEnemy->ChangeBehavior( TAKE_DAMAGE_BEHAVIOR );
+			mEnemy->mTakingDamageTimer = 0.0f;
+		}
+		mEnemy->mTakingDamage = false;
+	}
+
 	// If enemy lost track of target, go back to Idle
 	if( mEnemy->mPlayers[mEnemy->mTargetIndex] != nullptr )
 	{
@@ -277,6 +289,7 @@ AttackBehavior::~AttackBehavior()
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT TakeDamageBehavior::Update( float deltaTime )
 {
+	mEnemy->ChangeBehavior( HUNT_PLAYER_BEHAVIOR );
 	return S_OK;
 }
 

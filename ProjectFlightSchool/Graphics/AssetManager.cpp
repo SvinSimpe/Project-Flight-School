@@ -38,6 +38,7 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device, ID3D11DeviceConte
 	plane->Initialize();
 	plane->mAssetId		= 0;
 	plane->mFileName	= "NO PATHPLANE"; //ADD CORRECT FILENAME HERE
+	
 
 	Mesh planeMesh;
 	planeMesh.mVertexCount	= 6;

@@ -47,8 +47,6 @@ class Player: public RemotePlayer
 
 		bool		mIsBuffed;
 		float		mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
-
-		std::string		mPlayerName;
 		std::vector<DirectX::XMFLOAT2> currentPath;
 		
 		float		mSpawnTime;

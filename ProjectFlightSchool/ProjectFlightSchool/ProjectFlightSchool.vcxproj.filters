@@ -311,6 +311,15 @@
     </ClCompile>
     <ClCompile Include="NodeGraph.cpp">
       <Filter>Worldmap\Navigation</Filter>
+	</ClCompile>
+    <ClCompile Include="DSBufferStream.cpp">
+      <Filter>DirectSound\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="UpgradePlayerWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LobbyState.cpp">
+      <Filter>GameStates\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -535,6 +544,12 @@
     </ClInclude>
     <ClInclude Include="NodeGraph.h">
       <Filter>Worldmap\Navigation</Filter>
+	</ClInclude>
+    <ClInclude Include="DSBufferStream.h">
+      <Filter>DirectSound\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="LobbyState.h">
+      <Filter>GameStates\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -565,5 +580,8 @@
     <ClInclude Include="KeyDefines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
 </Project>

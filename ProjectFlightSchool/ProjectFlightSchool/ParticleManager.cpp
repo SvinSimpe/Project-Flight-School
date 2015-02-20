@@ -41,20 +41,18 @@ bool ParticleManager::RequestParticleSystem( size_t entityID, ParticleType parti
 	{
 		if( mParticleSystems[particleType][i]->entityParentID == entityID )
 		{
-			//OutputDebugStringA( "-- Entity already has a Particle system of request type connected to it --\n" );
-			//OutputDebugStringA( "-- Sending new burst from emitter --\n" );
 			mParticleSystems[particleType][i]->Emitter( particleType, position, direction );
 			return true;
 		}
 	}
 
+	if( mNrOfActiveParticleSystemsPerType[particleType] == mMaxNrOfParticleSystemsPerType[particleType])
+		return false;
+
 	// Activate requested Particle System type and connect entityID to it
 	mParticleSystems[particleType][mNrOfActiveParticleSystemsPerType[particleType]++]->Activate( entityID, position, direction );
 	mNrOfActiveParticleSystems++;
 	mParticleSystems[particleType][mNrOfActiveParticleSystemsPerType[particleType] - 1 ]->Emitter( particleType, position, direction );
-
-	// Request granted!
-	OutputDebugStringA( "-- ACTIVATED: Particle System connected to entity --\n" );
 
 	return true;
 }
@@ -97,9 +95,9 @@ void ParticleManager::Initialize()
 	mMaxNrOfParticleSystemsPerType[Fire]			= 1;
 	mMaxNrOfParticleSystemsPerType[Spark]			= 1;
 	mMaxNrOfParticleSystemsPerType[Blood]			= 1;
-	mMaxNrOfParticleSystemsPerType[MuzzleFlash]		= 1;
-	mMaxNrOfParticleSystemsPerType[Smoke_MiniGun]	= 1;
-	mMaxNrOfParticleSystemsPerType[Test_Fountain]	= 1; // Aswell as this
+	mMaxNrOfParticleSystemsPerType[MuzzleFlash]		= 8;
+	mMaxNrOfParticleSystemsPerType[Smoke_MiniGun]	= 8;
+	mMaxNrOfParticleSystemsPerType[Test_Fountain]	= 5; // Aswell as this
 
 	mNrOfActiveParticleSystemsPerType[Smoke]			= 0;
 	mNrOfActiveParticleSystemsPerType[Fire]				= 0;
@@ -130,31 +128,32 @@ void ParticleManager::Initialize()
 	//		mNrOfParticleSystems++;
 	//	}
 
+
 	
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Blood]; i++ )
 	{
-		mParticleSystems[Blood][i]->Initialize( Blood, 64.0f, 288 );
+		mParticleSystems[Blood][i]->Initialize( Blood, 8.0f, 144 );
 		mNrOfParticleSystemsPerType[Blood]++;
 		mNrOfParticleSystems++;
 	}
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[MuzzleFlash]; i++ )
 	{
-		mParticleSystems[MuzzleFlash][i]->Initialize( MuzzleFlash, 4.0f, 512 );
+		mParticleSystems[MuzzleFlash][i]->Initialize( MuzzleFlash, 1.0f, 64 );
 		mNrOfParticleSystemsPerType[MuzzleFlash]++;
 		mNrOfParticleSystems++;
 	}
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Smoke_MiniGun]; i++ )
 	{
-		mParticleSystems[Smoke_MiniGun][i]->Initialize( Smoke_MiniGun, 32.0f, 2000 );
+		mParticleSystems[Smoke_MiniGun][i]->Initialize( Smoke_MiniGun, 4.0f, 64 );
 		mNrOfParticleSystemsPerType[Smoke_MiniGun]++;
 		mNrOfParticleSystems++;
 	}
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Test_Fountain]; i++ )
 	{
-		mParticleSystems[Test_Fountain][i]->Initialize( Test_Fountain, 4.0f, 128 );
+		mParticleSystems[Test_Fountain][i]->Initialize( Test_Fountain, 2.0f, 2000 );
 		mNrOfParticleSystemsPerType[Test_Fountain]++;
 		mNrOfParticleSystems++;
 	}

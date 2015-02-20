@@ -2,6 +2,7 @@
 #include "MapNodeManager.h"
 #include "MapNodePlacer.h"
 #include "NodeGraph.h"
+#include "HelperFunctions.h"
 
 HRESULT Map::Render( float deltaTime, Player* player )
 {
@@ -29,7 +30,7 @@ HRESULT Map::Render( float deltaTime, Player* player )
 		it->Render( deltaTime );
 	}
 
-	//nodeGraph->Render();
+	nodeGraph->Render();
 
 	return S_OK;
 }
@@ -52,8 +53,8 @@ void Map::OnLoadLevel( IEventPtr pEvent )
 		}
 		mNrOfNodes = MapNodePlacer::GetInstance()->GetNrOfNodes();
 
-		//nodeGraph = new NodeGraph();
-		//nodeGraph->Initialize( this );
+		nodeGraph = new NodeGraph();
+		nodeGraph->Initialize( this );
 	}
 }
 
@@ -66,7 +67,7 @@ std::vector<DirectX::XMFLOAT2> Map::GetPath( XMFLOAT3 start, XMFLOAT3 goal )
 	MapNodeInstance* nextNode;
 	Navmesh* currentNavMesh;
 
-	DirectX::XMFLOAT3 newStart, newEnd;
+	DirectX::XMFLOAT3 newStart, newEnd, newCenter;
 
 	int startX = (int)( (GetMapHalfWidth() * NODE_DIM )  + start.x ) / NODE_DIM;
 	int startZ = (int)( (GetMapHalfHeight() * NODE_DIM )  + start.z ) / NODE_DIM;
@@ -74,47 +75,74 @@ std::vector<DirectX::XMFLOAT2> Map::GetPath( XMFLOAT3 start, XMFLOAT3 goal )
 	int goalX = (int)( (GetMapHalfWidth() * NODE_DIM )  + goal.x ) / NODE_DIM;
 	int goalZ = (int)( (GetMapHalfHeight() * NODE_DIM )  + goal.z ) / NODE_DIM;
 
+	int currX = startX;
+	int currZ = startZ;
+
 	MapNodeInstance* startNode = GetNodeInstance( startX, startZ );
 	MapNodeInstance* goalNode = GetNodeInstance( goalX, goalZ );
 
 	newStart = start;
 	path1.push_back( DirectX::XMFLOAT2( start.x, start.z ) );
 
-	//if( startNode && goalNode )
-	//{
+	currentNode = GetNodeInstance( startX, startZ );
 
-	//	path = nodeGraph->FindPath( startNode->GetNodeID(), goalNode->GetNodeID() );
+	if( startNode && goalNode )
+	{
+		path = nodeGraph->FindPath( start, goal, startNode->GetNodeID(), goalNode->GetNodeID() );
 
-	//	for( int i = 0; i < (int)path.size() - 1; i++ )
-	//	{
-	//		currentNode = GetNodeInstance( path[i]->mNodePos.x, path[i]->mNodePos.y );
-	//		
-	//		currentNavMesh = currentNode->GetNavMesh();
+		//for( int i = 0; i < (int)path.size() - 1; i++ )
+		//{
+		while( currentNode->GetNodeID() != goalNode->GetNodeID() )
+		{
+			//currentNode = GetNodeInstance( path[i]->mNodePos.x, path[i]->mNodePos.y );
 
-	//		newEnd = currentNode->GetClosestEdgePoint( path[i + 1]->centerPoint );
+			if( currentNode )
+			{
+				currentNavMesh = currentNode->GetNavMesh();
 
-	//		temp = currentNavMesh->FindPath( newStart, newEnd );
+				//newCenter = HelperFunctions::GetLineCenter( start, goal );
 
-	//		for( auto& it : temp )
-	//		{
-	//			path1.push_back( it );
-	//		}
-	//		newStart = newEnd;
-	//	}
+				newEnd = currentNode->GetClosestEdgePoint( newStart, goal );
 
-	//	//Last subpath
-	//	currentNode = GetNodeInstance( path.back()->mNodePos.x, path.back()->mNodePos.y );
-	//	currentNavMesh = currentNode->GetNavMesh();
-	//	
-	//	temp = currentNavMesh->FindPath( newStart, goal );
+				temp = currentNavMesh->FindPath( newStart, newEnd );
 
-	//	for( auto& it : temp )
-	//	{
-	//		path1.push_back( it );
-	//	}
+				for( auto& it : temp )
+				{
+					path1.push_back( it );
+				}
+				newStart = newEnd;
 
-	//
-	//}
+				
+				currX = (int)( (GetMapHalfWidth() * NODE_DIM )  + newStart.x ) / NODE_DIM;
+				currZ = (int)( (GetMapHalfHeight() * NODE_DIM )  + newStart.z ) / NODE_DIM;
+
+				currentNode = GetNodeInstance( currX, currZ );
+			}
+			else
+			{
+				break;
+			}
+		}
+		//}
+
+		//Last subpath
+		currX = (int)( (GetMapHalfWidth() * NODE_DIM )  + newStart.x ) / NODE_DIM;
+		currZ = (int)( (GetMapHalfHeight() * NODE_DIM )  + newStart.z ) / NODE_DIM;
+
+		currentNode = GetNodeInstance( currX, currZ );
+
+		if( currentNode )
+		{
+			currentNavMesh = currentNode->GetNavMesh();
+		
+			temp = currentNavMesh->FindPath( newStart, goal );
+
+			for( auto& it : temp )
+			{
+				path1.push_back( it );
+			}
+		}
+	}
 
 	return path1;
 }

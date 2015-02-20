@@ -98,7 +98,7 @@ class NodeGraph
 		HRESULT Render();
 		HRESULT Initialize( Map* map );
 
-		std::vector<Node*> FindPath( int startNodeID, int endNodeID );
+		std::vector<Node*> FindPath( DirectX::XMFLOAT3 startPos, DirectX::XMFLOAT3 endPos, int startNodeID, int endNodeID );
 		void Release();
 		NodeGraph();
 		~NodeGraph();

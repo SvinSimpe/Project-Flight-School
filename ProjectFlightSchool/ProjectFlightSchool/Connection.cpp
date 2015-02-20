@@ -230,7 +230,6 @@ NetSocket::NetSocket( SocketManager* socketManager, SOCKET socket, UINT ip )
 	mSocket			= socket;
 	mIPAddr			= ip;
 	mInternal		= mSocketManager->IsInternal(mIPAddr);
-	setsockopt( mSocket, SOL_SOCKET, SO_DONTLINGER, nullptr, 0 );
 }
 
 NetSocket::~NetSocket()
@@ -287,7 +286,6 @@ void NetListenSocket::InitScan( int portNum_min, int portNum_max )
 	}
 
 	SetBlocking( false );
-
 	if( listen( mSocket, 8 ) == SOCKET_ERROR )
 	{
 		closesocket( mSocket );
@@ -386,7 +384,14 @@ bool ServerListenSocket::HandleInput()
 	SOCKET newSocket = AcceptConnection( &ipAddr );
 
 	int value = 1;
-	setsockopt( newSocket, SOL_SOCKET, SO_DONTLINGER, (char*)value, sizeof( value ) );
+	try
+	{
+		throw setsockopt( newSocket, SOL_SOCKET, SO_DONTLINGER, (char*)value, sizeof( value ) );
+	}
+	catch( int e )
+	{
+		printf( "Exception thrown in ServerListenSocket::HandleInput: %d\n", e );
+	}
 	if( newSocket != INVALID_SOCKET )
 	{
 		RemoteEventSocket* socket = PFS_NEW RemoteEventSocket( mSocketManager, newSocket, ipAddr );
@@ -828,7 +833,8 @@ void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 
 	std::shared_ptr<BinaryPacket> msg(PFS_NEW BinaryPacket( out.str().c_str(), (u_long)out.str().length()));
 
-	mSocketManager->Send( mSocketID, msg );
+	if( this )
+		mSocketManager->Send( mSocketID, msg );
 }
 
 void NetworkEventForwarder::Initialize( UINT socketID, SocketManager* sm )

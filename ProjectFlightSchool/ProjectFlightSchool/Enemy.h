@@ -14,27 +14,30 @@ class Enemy;
 
 // ---- Define all enemy animations ----
 // Standard
-#define ENEMY_ANIMATION_STANDARD_IDLE	0
-#define ENEMY_ANIMATION_STANDARD_RUN	1
-#define ENEMY_ANIMATION_STANDARD_ATTACK	2
-#define ENEMY_ANIMATION_STANDARD_DEATH	3
+#define ENEMY_ANIMATION_STANDARD_IDLE			0
+#define ENEMY_ANIMATION_STANDARD_RUN			1
+#define ENEMY_ANIMATION_STANDARD_RUN_DAMAGED	2
+#define ENEMY_ANIMATION_STANDARD_ATTACK			3
+#define ENEMY_ANIMATION_STANDARD_DEATH			4
 // Ranged
-#define ENEMY_ANIMATION_RANGED_IDLE		4
-#define ENEMY_ANIMATION_RANGED_RUN		5
-#define ENEMY_ANIMATION_RANGED_ATTACK	6
-#define ENEMY_ANIMATION_RANGED_DEATH	7
+#define ENEMY_ANIMATION_RANGED_IDLE				5
+#define ENEMY_ANIMATION_RANGED_RUN				6
+#define ENEMY_ANIMATION_RANGED_RUN_DAMAGED		7
+#define ENEMY_ANIMATION_RANGED_ATTACK			8
+#define ENEMY_ANIMATION_RANGED_DEATH			9
 // Boomer
-#define ENEMY_ANIMATION_BOOMER_IDLE		8
-#define ENEMY_ANIMATION_BOOMER_RUN		9
-#define ENEMY_ANIMATION_BOOMER_ATTACK	10
-#define ENEMY_ANIMATION_BOOMER_DEATH	11
+#define ENEMY_ANIMATION_BOOMER_IDLE				10
+#define ENEMY_ANIMATION_BOOMER_RUN				11
+#define ENEMY_ANIMATION_BOOMER_RUN_DAMAGED		12
+#define ENEMY_ANIMATION_BOOMER_ATTACK			13
+#define ENEMY_ANIMATION_BOOMER_DEATH			14
 // Tank
-#define ENEMY_ANIMATION_TANK_IDLE		12
-#define ENEMY_ANIMATION_TANK_RUN		13
-#define ENEMY_ANIMATION_TANK_ATTACK		14
-#define ENEMY_ANIMATION_TANK_DEATH		15
+#define ENEMY_ANIMATION_TANK_IDLE				15
+#define ENEMY_ANIMATION_TANK_RUN				16
+#define ENEMY_ANIMATION_TANK_ATTACK				17
+#define ENEMY_ANIMATION_TANK_DEATH				18
 
-#define ENEMY_ANIMATION_COUNT	16
+#define ENEMY_ANIMATION_COUNT					19
 //----------------------------------------
 
 enum EnemyType { Standard, Ranged, Boomer, Tank };
@@ -228,6 +231,7 @@ class Enemy
 		unsigned int		mXpDrop;
 		UINT				mTargetID;
 		UINT				mTargetIndex;
+		bool				mTakingDamage;
 
 		ServerPlayer**		mPlayers;
 		UINT				mNrOfPlayers;
@@ -240,6 +244,7 @@ class Enemy
 		float				mDeltaTime;
 		float				mStateTimer;
 		float				mStunTimer;
+		float				mTakingDamageTimer;
 
 		// Behaviors
 		IEnemyBehavior**	mBehaviors;

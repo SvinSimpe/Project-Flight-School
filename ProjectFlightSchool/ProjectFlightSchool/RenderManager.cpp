@@ -159,7 +159,8 @@ void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, i
 				info.mWorldPosition.y	= particleSystem[i][j]->yPosition[k];
 				info.mWorldPosition.z	= particleSystem[i][j]->zPosition[k];
 
-				info.mLifeTime			= particleSystem[i][j]->lifeTime[k];
+				info.mAge				= particleSystem[i][j]->lifeTime[k];
+				info.mTimeTillDeath		= particleSystem[i][j]->deathTime[k] - particleSystem[i][j]->lifeTime[k];
 
 				mParticleInfoArray[mNrOfParticles++] = info;
 			}
@@ -186,6 +187,7 @@ void RenderManager::AnimationInitialize( AnimationTrack &animationTrack, AssetID
 	animationTrack.mNextAnimation			= defaultAnimation;
 	animationTrack.mNextAnimationTime		= 1.0f / 60.0f;
 	animationTrack.mInterpolation			= 0.0f;
+	animationTrack.mBlendWithCurrent		= false;
 }
 
 void RenderManager::AnimationUpdate( AnimationTrack &animationTrack, float deltaTime )
@@ -197,23 +199,45 @@ void RenderManager::AnimationUpdate( AnimationTrack &animationTrack, float delta
 		animationTrack.mInterpolation		-= deltaTime;
 		if( animationTrack.mInterpolation <= 0.0f )
 		{
-			animationTrack.mCurrentAnimation		= animationTrack.mNextAnimation;
-			animationTrack.mCurrentAnimationTime	= animationTrack.mNextAnimationTime;
+			if( animationTrack.mBlendWithCurrent )
+			{
+				animationTrack.mBlendWithCurrent	= false;
+				animationTrack.mNextAnimation		= animationTrack.mCurrentAnimation;
+				animationTrack.mNextAnimationTime	= animationTrack.mCurrentAnimationTime;
+			}
+			else
+			{
+				animationTrack.mCurrentAnimation		= animationTrack.mNextAnimation;
+				animationTrack.mCurrentAnimationTime	= animationTrack.mNextAnimationTime;
+			}
 		}
 	}
 }
 
-void RenderManager::AnimationStartNew( AnimationTrack &animationTrack, AssetID newAnimation )
+void RenderManager::AnimationStartNew( AnimationTrack &animationTrack, AssetID newAnimation, bool blendWithCurrent )
 {
-	animationTrack.mNextAnimation		= newAnimation;
-	animationTrack.mNextAnimationTime	= 1.0f / 60.0f;
-	animationTrack.mInterpolation		= 0.2f;
+	if( newAnimation != animationTrack.mCurrentAnimation )
+	{
+		animationTrack.mNextAnimation		= newAnimation;
+		animationTrack.mBlendWithCurrent	= blendWithCurrent;
+		if( blendWithCurrent )
+		{
+			animationTrack.mNextAnimationTime	= animationTrack.mCurrentAnimationTime;
+			animationTrack.mInterpolation		= 0.2f;
+		}
+		else
+		{
+			animationTrack.mNextAnimationTime	= 1.0f / 60.0f;
+			animationTrack.mInterpolation		= 0.2f;
+		}
+	}
 }
 
 void RenderManager::ChangeRasterizerState( RasterizerStates rasterState )
 {
 	mRasterState = rasterState;
 }
+
 void RenderManager::AnimationReset( AnimationTrack &animationTrack, AssetID defaultAnimation )
 {
 	animationTrack.mCurrentAnimation		= defaultAnimation;
@@ -221,6 +245,7 @@ void RenderManager::AnimationReset( AnimationTrack &animationTrack, AssetID defa
 	animationTrack.mNextAnimation			= defaultAnimation;
 	animationTrack.mNextAnimationTime		= 1.0f / 60.0f;
 	animationTrack.mInterpolation			= 0.0f;
+	animationTrack.mBlendWithCurrent		= false;
 }
 
 void RenderManager::RequestParticleSystem( size_t entityID, ParticleType particleType, XMFLOAT3 position, XMFLOAT3 direction )
@@ -262,30 +287,6 @@ HRESULT RenderManager::Render()
 
 	Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray, mNrOfAnim3d );
 	////------------------------Finished filling the Gbuffers----------------------
-
-	////Test data for billboarding
-	mBillboardArray[0].mWorldPosition = DirectX::XMFLOAT3( 0, 0, 0 );
-	mBillboardArray[0].mAssetId = DIFFUSE_PLACEHOLDER;
-	mBillboardArray[0].mWidth = 2.3f;
-	mBillboardArray[0].mHeight = 1.3f;
-	////mBillboardArray[1].mWorldPosition = DirectX::XMFLOAT3( 3, 1, 6 );
-	////mBillboardArray[1].mAssetId = DIFFUSE_PLACEHOLDER;
-	////mBillboardArray[2].mWorldPosition = DirectX::XMFLOAT3( -2, 1, -4 );
-	////mBillboardArray[2].mAssetId = DIFFUSE_PLACEHOLDER;
-	////mBillboardArray[3].mWorldPosition = DirectX::XMFLOAT3( 7, 1, 0 );
-	////mBillboardArray[3].mAssetId = DIFFUSE_PLACEHOLDER;
-	////mBillboardArray[4].mWorldPosition = DirectX::XMFLOAT3( 0, 1, 0 );
-	////mBillboardArray[4].mAssetId = DIFFUSE_PLACEHOLDER;
-	////mBillboardArray[5].mWorldPosition = DirectX::XMFLOAT3( -6, 1, 0 );
-	////mBillboardArray[5].mAssetId = DIFFUSE_PLACEHOLDER;
-
-	////for( int i = 1; i < 6; i++)
-	////{
-	////	mBillboardArray[i].mHeight = 1.0f;
-	////	mBillboardArray[i].mWidth	= 1.0f;
-	////}
-	////---------------------------------------------------
-	Graphics::GetInstance()->RenderBillboard( mBillboardArray, 1 );
 
 	////Render the scene with deferred
 	Graphics::GetInstance()->DeferredPass();

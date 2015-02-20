@@ -42,10 +42,10 @@ float HelperFunctions::TriArea2( DirectX::XMFLOAT2 p1, DirectX::XMFLOAT2 p2, Dir
 
 bool HelperFunctions::Float3Equal( DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2 )
 {
-	return Dist3Squared( p1, p2 ) < 0.001f;
+	return Dist3Squared( p1, p2 ) < 0.01f;
 }
 
 bool HelperFunctions::Float2Equal( DirectX::XMFLOAT2 p1, DirectX::XMFLOAT2 p2 )
 {
-	return Dist2Squared( p1, p2 ) < 0.001f;
+	return Dist2Squared( p1, p2 ) < 0.01f;
 }

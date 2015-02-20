@@ -71,6 +71,7 @@ void MapNodePlacer::BuildMap( MapNodeInstance***& buildMap )
 	int nodeID	= 0;
 
 	int nodeMapSize = (int)nodeMap[NodeTypes::AREA_NODE].size();
+	int randomNode = 0;
 
 	for( int x = 0; x < (int)mMap->GetMapDim(); x++ )
 	{
@@ -82,7 +83,8 @@ void MapNodePlacer::BuildMap( MapNodeInstance***& buildMap )
 			}
 			bool doLoop = true;
 			//Check "Tier", lastNode, chances of boss arena and/or energy position.
-			int randomNode = rand() % nodeMapSize;
+			
+			randomNode = (randomNode + 1) % nodeMapSize;
 			while( doLoop )
 			{
 				MapNodeInstance* newNode = nodeMap[NodeTypes::AREA_NODE][randomNode]->GetMapNodeInstance();

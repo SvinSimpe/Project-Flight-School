@@ -118,7 +118,7 @@ void NodeGraph::BuildGraph( Map* map )
 			{
 				//int xP = ( ( x + i ) - 1 );
 				//int yP = ( ( y + j ) - 1 );
-				//Box-filter
+				////Box-filter
 				//for( int p = 0; p < 3; p++ )
 				//{
 				//	for( int q = 0; q < 3; q++ )
@@ -234,7 +234,7 @@ HRESULT NodeGraph::Initialize( Map* map )
 	return S_OK;
 }
 
-std::vector<Node*> NodeGraph::FindPath( int startNodeID, int endNodeID )
+std::vector<Node*> NodeGraph::FindPath( DirectX::XMFLOAT3 startPos, DirectX::XMFLOAT3 endPos, int startNodeID, int endNodeID )
 {
 	mFinishedPath.clear();
 	std::list<NodePath*> mOpenList;
@@ -256,6 +256,12 @@ std::vector<Node*> NodeGraph::FindPath( int startNodeID, int endNodeID )
 	TilePosition start	= startNode->mNodePos;
 	TilePosition end	= endNode->mNodePos;
 	TilePosition next;
+
+	DirectX::XMVECTOR newVec, startVec, endVec, vecDist;
+
+	startVec	= DirectX::XMLoadFloat3( &startPos );
+	endVec		= DirectX::XMLoadFloat3( &endPos );
+
 
 	std::list<NodePath*>::iterator findIt;
 	float minF = 100000.0f;
@@ -290,9 +296,16 @@ std::vector<Node*> NodeGraph::FindPath( int startNodeID, int endNodeID )
 				}
 				if( findIt == mClosedList.end() )
 				{
-					next = newNode->mNodePos;
-					newNode->g = (float)( abs( start.x - next.x ) + abs( start.y - next.y ) );
-					newNode->h = (float)( abs( next.x - end.x ) + abs( next.y - end.y ) );
+					//next = newNode->mNodePos;
+					newVec = DirectX::XMLoadFloat3( &newNode->centerPoint );
+
+					vecDist = newVec - startVec;
+
+					newNode->g = DirectX::XMVectorGetX( DirectX::XMVector3LengthEst( vecDist ) );
+
+					vecDist = endVec - newVec;
+
+					newNode->h = DirectX::XMVectorGetX( DirectX::XMVector3LengthEst( vecDist ) );
 
 					NodePath* temp = &mPath[count++];
 

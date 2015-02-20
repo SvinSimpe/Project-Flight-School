@@ -51,10 +51,12 @@ class PlayState : public BaseState
 		Gui*						mGui;
 
 		std::vector<ClientShip*>	mShips;
+		ClientShip*					mMyShip;	// A pointer to the Client's own ship, used to show the remaining HP of it
 
 		//TestSound
 		int							m3DSoundAsset;
 		int							mSoundAsset;
+		int							mStreamSoundAsset;
 	
 	protected:
 	public:

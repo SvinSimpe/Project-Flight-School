@@ -57,26 +57,6 @@ struct Arms
 	AnimationTrack rightArm;
 };
 
-struct LoadOut
-{
-	RangedInfo*	rangedWeapon;
-	MeleeInfo*	meleeWeapon;
-
-	LoadOut()
-	{
-		rangedWeapon	= nullptr;
-		meleeWeapon		= nullptr;
-	}
-
-	void Release()
-	{
-		SAFE_DELETE( rangedWeapon );
-		if( meleeWeapon )
-			SAFE_DELETE( meleeWeapon->boundingCircle );
-		SAFE_DELETE( meleeWeapon );
-	}
-};
-
 class RemotePlayer
 {
 	// Member variables

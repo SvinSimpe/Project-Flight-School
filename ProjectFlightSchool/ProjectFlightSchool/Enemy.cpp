@@ -18,7 +18,7 @@ void Enemy::CreateStandard()
 	mDamage						= 10.0f;
 	mSpeed						= 5.0f;
 	mAttackRadius->radius		= 0.5f;
-	mAttentionRadius->radius	= 10.0f;
+	mAttentionRadius->radius	= 15.0f;
 	mXpDrop						= 5;
 	mSpawnTime					= 10.0f;
 	mAttackRate					= 1.2f;
@@ -36,10 +36,10 @@ void Enemy::CreateRanged()
 	mEnemyType					= Ranged;
 	mMaxHp						= 20.0f;
 	mCurrentHp					= mMaxHp;
-	mDamage						= 10.0f;
+	mDamage						= 5.0f;
 	mSpeed						= 7.0f;
-	mAttackRadius->radius		= 5.0f;
-	mAttentionRadius->radius	= 10.0f;
+	mAttackRadius->radius		= 3.0f;
+	mAttentionRadius->radius	= 15.0f;
 	mXpDrop						= 5;
 	mSpawnTime					= 10.0f;
 	mAttackRate					= 1.0f;
@@ -60,7 +60,7 @@ void Enemy::CreateBoomer()
 	mDamage						= 40.0f;
 	mSpeed						= 8.0f;
 	mAttackRadius->radius		= 1.0f;
-	mAttentionRadius->radius	= 10.0f;
+	mAttentionRadius->radius	= 15.0f;
 	mXpDrop						= 5;
 	mSpawnTime					= 10.0f;
 	mAttackRate					= 1.0f;
@@ -81,7 +81,7 @@ void Enemy::CreateTank()
 	mDamage						= 20.0f;
 	mSpeed						= 1.5f;
 	mAttackRadius->radius		= 1.0f;
-	mAttentionRadius->radius	= 10.0f;
+	mAttentionRadius->radius	= 15.0f;
 	mXpDrop						= 15;
 	mSpawnTime					= 10.0f;
 	mAttackRate					= 1.8f;
@@ -205,6 +205,7 @@ void Enemy::TakeDamage( float damage, UINT killer )
 	{
 		Die( killer );
 	}
+	mTakingDamage	= true;
 }
 
 void Enemy::TakeMeleeDamage( float damage, float knockBack, XMFLOAT3 direction, float stun, UINT killer )
@@ -415,9 +416,11 @@ Enemy::Enemy()
 	mTimeTillAttack		= 0.0f;
 	mStateTimer			= 0.0f;
 	mStunTimer			= 0.0f;
+	mTakingDamageTimer	= 0.0f;
 	mTargetIndex		= 0;
 	mTargetID			= 0;
 	mPlayers			= nullptr;
+	mTakingDamage		= false;
 }
 
 Enemy::~Enemy()

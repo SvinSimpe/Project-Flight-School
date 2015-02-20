@@ -17,9 +17,9 @@ void MapNodeManager::ConvertToFloat( XMFLOAT4X4& dest, double* values )
 }
 void MapNodeManager::writeToLog( const std::string &text )
 {
-    std::ofstream log_file(
-        "mapNodeLog.jocke", std::ios_base::out | std::ios_base::app );
-    log_file << text << std::endl;
+    //std::ofstream log_file(
+    //    "mapNodeLog.jocke", std::ios_base::out | std::ios_base::app );
+    //log_file << text << std::endl;
 }
 void MapNodeManager::LoadLevel( std::string filePath ) 
 {
@@ -99,8 +99,8 @@ MapNode* MapNodeManager::CreateNode( const char* fileName )
 
 
 	//--------------------------Read gridData-------------------------------------------
-	char blendFile[32];
-	inFile.read( (char*)&blendFile, sizeof( char ) * 32 );
+	char blendFile[64];
+	inFile.read( (char*)&blendFile, sizeof( char ) * 64 );
 	inFile.read( (char*)&initInfo.gridWidth, sizeof( UINT ) );
 	inFile.read( (char*)&initInfo.gridHeight, sizeof( UINT ) );
 	inFile.read( (char*)&initInfo.vertexCount, sizeof( UINT ) );
@@ -123,7 +123,7 @@ MapNode* MapNodeManager::CreateNode( const char* fileName )
 
 	JMatrix gridMat;
 	
-	inFile.read( (char*)&gridMat, sizeof(gridMat) );
+	//inFile.read( (char*)&gridMat, sizeof(gridMat) );
 
 	//Maya magic, writes out doubles, this converts them into floats
 

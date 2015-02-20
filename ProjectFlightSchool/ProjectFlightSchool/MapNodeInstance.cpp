@@ -17,7 +17,7 @@ HRESULT	MapNodeInstance::Render( float deltaTime  )
 	DirectX::XMFLOAT3 max = DirectX::XMFLOAT3( min.x + mNode->GetGridWidth(), 5, min.z + mNode->GetGridHeight() );
 	RenderManager::GetInstance()->AddBoxToList( min, max );
 
-	//mNavMesh->Render();
+	mNavMesh->Render();
 	return S_OK;
 }
 
@@ -26,16 +26,19 @@ Navmesh* MapNodeInstance::GetNavMesh() const
 	return mNavMesh;
 }
 
-DirectX::XMFLOAT3	MapNodeInstance::GetClosestEdgePoint( DirectX::XMFLOAT3 pos )
+DirectX::XMFLOAT3	MapNodeInstance::GetClosestEdgePoint( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 goal )
 {
 	DirectX::XMFLOAT3 result;
-	float dist = 10000.0f;
+	float dist = 100000.0f;
 	for( auto& it : mEdgePoints )
 	{
-		float newDist = HelperFunctions::Dist3Squared( pos, it );
-		if( newDist < dist )
+		float g = HelperFunctions::Dist3Squared( start, it ) * 0.9f;
+		float h = HelperFunctions::Dist3Squared( goal, it );
+
+		float f = g + h;
+		if( f < dist )
 		{
-			dist = newDist;
+			dist = f;
 			result = it;
 		}
 	}
@@ -45,61 +48,46 @@ DirectX::XMFLOAT3	MapNodeInstance::GetClosestEdgePoint( DirectX::XMFLOAT3 pos )
 
 void MapNodeInstance::GetNavigationData()
 {
-	float edgeMinX = ( -(float)mNode->GetGridWidth() * 0.5f );
-	float edgeMaxX = ( (float)mNode->GetGridWidth() * 0.5f );
+	float edgeMinX = ( -(float)mNode->GetGridWidth() * 0.5f ) + 1;
+	float edgeMaxX = ( (float)mNode->GetGridWidth() * 0.5f ) - 1;
 
-	float edgeMinZ = ( -(float)mNode->GetGridHeight() * 0.5f );
-	float edgeMaxZ = ( (float)mNode->GetGridHeight() * 0.5f );
+	float edgeMinZ = ( -(float)mNode->GetGridHeight() * 0.5f ) + 1;
+	float edgeMaxZ = ( (float)mNode->GetGridHeight() * 0.5f ) - 1;
 
-	//mNavMesh = new Navmesh();
+	mNavMesh = new Navmesh();
 
 	UINT navVertexCount = mNode->GetNavVertexCount();
 	XMFLOAT3* navPoints	= mNode->GetNavData();
 
+	DirectX::XMFLOAT3 p1, p2, p3, c;
+
 	int nrOfExits = 0;
 
 	//Deallocation by navmesh
-	//XMFLOAT3* transformedMesh = new XMFLOAT3[navVertexCount];
+	XMFLOAT3* transformedMesh = new XMFLOAT3[navVertexCount];
 	XMMATRIX world	= DirectX::XMLoadFloat4x4( &mWorld );
 
-	//for( UINT i = 0; i < navVertexCount; i++ )
-	//{
-	//	bool edge = false;
-	//	DirectX::XMFLOAT3 tri1 =  navPoints[i];
-	//	DirectX::XMStoreFloat3( &tri1, DirectX::XMVector3TransformCoord( XMLoadFloat3( &tri1 ), world ) );
-	//	transformedMesh[i] = tri1;
+	for( UINT i = 0; i < navVertexCount; i += 3 )
+	{
+		bool edge = false;
+		DirectX::XMStoreFloat3( &p1, DirectX::XMVector3TransformCoord( XMLoadFloat3( &navPoints[i] ), world ) );
+		DirectX::XMStoreFloat3( &p2, DirectX::XMVector3TransformCoord( XMLoadFloat3( &navPoints[i + 1] ), world ) );
+		DirectX::XMStoreFloat3( &p3, DirectX::XMVector3TransformCoord( XMLoadFloat3( &navPoints[i + 2] ), world ) );
 
-	//	if( navPoints[i].x < edgeMinX )
-	//	{
-	//		tri1.x += 0.1f;
-	//		edge = true;
-	//	}
+		transformedMesh[i] = p1;
+		transformedMesh[i + 1] = p2;
+		transformedMesh[i + 2] = p3;
 
-	//	else if( edgeMaxX < navPoints[i].x )
-	//	{
-	//		tri1.x -= 0.1f;
-	//		edge = true;
-	//	}
+		c = HelperFunctions::GetTriCenter( navPoints[i], navPoints[i + 1], navPoints[i + 2] );
 
-	//	if( navPoints[i].z < edgeMinZ )
-	//	{
-	//		tri1.z += 0.1f;
-	//		edge = true;
-	//	}
+		if( ( c.x < edgeMinX || edgeMaxX < c.x )  || ( c.z < edgeMinZ || edgeMaxZ < c.z ) )
+		{
+			c = HelperFunctions::GetTriCenter( p1, p2, p3 );
+			mEdgePoints.push_back( c );
+		}
+	}
 
-	//	else if( edgeMaxZ < navPoints[i].z )
-	//	{
-	//		tri1.z -= 0.1f;
-	//		edge = true;
-	//	}
-
-	//	if( edge )
-	//	{
-	//		mEdgePoints.push_back( tri1 );
-	//	}
-	//}
-
-	//mNavMesh->Initialize( transformedMesh, navVertexCount );
+	mNavMesh->Initialize( transformedMesh, navVertexCount );
 }
 DirectX::XMFLOAT3 MapNodeInstance::GetPos()const
 {

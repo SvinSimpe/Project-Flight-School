@@ -46,7 +46,8 @@ struct ParticleInfo
 	UINT				mOffsetToNextParticleType;
 	UINT				mParticleType;
 	DirectX::XMFLOAT3	mWorldPosition;
-	float				mLifeTime;
+	float				mAge;
+	float				mTimeTillDeath;
 };
 
 struct NodeGridInfo
@@ -84,6 +85,7 @@ struct AnimationTrack
 	UINT	mNextAnimation;
 	float	mNextAnimationTime;
 	float	mInterpolation;
+	bool	mBlendWithCurrent;
 };
 
 #endif

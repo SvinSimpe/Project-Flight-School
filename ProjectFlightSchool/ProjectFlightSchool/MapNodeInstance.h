@@ -44,7 +44,7 @@ public:
 
 		Navmesh*			GetNavMesh() const;
 
-		DirectX::XMFLOAT3	GetClosestEdgePoint( DirectX::XMFLOAT3 pos );
+		DirectX::XMFLOAT3	GetClosestEdgePoint( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 goal );
 		DirectX::XMFLOAT3	GetPos() const;
 		void				SetPos( DirectX::XMFLOAT3 pos );
 

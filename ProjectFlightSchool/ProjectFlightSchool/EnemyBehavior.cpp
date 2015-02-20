@@ -210,12 +210,17 @@ HRESULT AttackBehavior::Update( float deltaTime )
 	mStateTimer -= deltaTime;
 	mTimeTillAttack -= deltaTime;
 
+	// If player is not dead or downed and attackTimer < 0.0f...
 	if(	( !mHasAttacked && mTimeTillAttack <= 0.0f ) && (!mEnemy->mPlayers[mEnemy->mTargetIndex]->IsDown && mEnemy->mPlayers[mEnemy->mTargetIndex]->IsAlive ) )
 	{
-		mHasAttacked = true;
-		IEventPtr state( new Event_Tell_Server_Enemy_Attack_Player( mEnemy->mID, mEnemy->mTargetID, mEnemy->mDamage ) );
-		EventManager::GetInstance()->QueueEvent( state );
-		mTimeTillAttack	= mEnemy->mAttackRate;
+		// ... and player intersects the enemy's attack radius
+		if( mEnemy->mAttackRadius->Intersect( mEnemy->mPlayers[mEnemy->mTargetIndex]->AggroCircle ) )
+		{
+			mHasAttacked = true;
+			IEventPtr state( new Event_Tell_Server_Enemy_Attack_Player( mEnemy->mID, mEnemy->mTargetID, mEnemy->mDamage ) );
+			EventManager::GetInstance()->QueueEvent( state );
+			mTimeTillAttack	= mEnemy->mAttackRate;
+		}
 	}
 
 	if( mStateTimer <= 0.0f )

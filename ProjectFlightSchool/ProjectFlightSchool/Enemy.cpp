@@ -84,7 +84,7 @@ void Enemy::CreateTank()
 	mAttentionRadius->radius	= 15.0f;
 	mXpDrop						= 15;
 	mSpawnTime					= 10.0f;
-	mAttackRate					= 2.1f;
+	mAttackRate					= 1.1f;
 }
 
 void Enemy::StandardLogic( float deltaTime )
@@ -245,7 +245,8 @@ void Enemy::Spawn( XMFLOAT3 spawnPos )
 		break;
 	case 1:
 		//CreateRanged();
-		CreateStandard();
+		CreateTank();
+		//CreateStandard();
 		break;
 	case 2:
 		//CreateBoomer();

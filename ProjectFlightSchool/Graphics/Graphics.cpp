@@ -91,6 +91,8 @@ HRESULT Graphics::InitializeDepthStencilStates()
 
 	if ( FAILED( hr = mDevice->CreateDepthStencilState( &depthStencilDesc, &mDepthStencils[DEPTHSTENCILS_MASK_DISABLED] ) ) )
 		return hr;
+
+	return hr;
 }
 
 HRESULT Graphics::InitializeSamplerStates()

@@ -723,6 +723,10 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	{
 		if( mIsAlive )
 		{
+
+
+			//////////////////////////////////
+			//ANIMATIONS
 			float currentVelocity = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) );
 
 			if( currentVelocity < 0.2f )
@@ -749,23 +753,49 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 			if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] )
 				RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
 
-		RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
-		RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
+			RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
+			RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
+			////////////////////////////////////
+			//ENERGY CELLS
+			if( mPickUpCooldown <= 0.0f )
+			{
+				PickUpEnergyCell( energyCells );
+			}
+			else
+			{
+				mPickUpCooldown -= deltaTime;
+			}
 
-		if( mPickUpCooldown <= 0.0f )
-		{
-			PickUpEnergyCell( energyCells );
-		}
-		else
-		{
-			mPickUpCooldown -= deltaTime;
-		}
-
-		if( mEnergyCellID != (UINT)-1 )
-		{
-			mEnergyCellLight->position = DirectX::XMFLOAT4( mLowerBody.position.x, 4.0f, mLowerBody.position.z, 0.0f );
-		}
-
+			if( mEnergyCellID != (UINT)-1 )
+			{
+				mEnergyCellLight->position = DirectX::XMFLOAT4( mLowerBody.position.x, 4.0f, mLowerBody.position.z, 0.0f );
+			}
+			//////////////////////////////////////////
+			// IF LEAVING AREA
+			if( XMVectorGetX( XMVector3LengthSq( XMLoadFloat3( &mLowerBody.position ) ) ) > MAX_ROBOT_RANGE ) // calculated from origo, not intended behaviour i guess.
+			{
+				if( mIsOutSideZone )
+				{
+					mLeavingAreaTime -= deltaTime;
+					if( mLeavingAreaTime < 0.0f )
+					{
+						Lock();
+						Die();
+						BroadcastDeath( 0 );
+						mIsOutSideZone = false;
+					}
+				}
+				else
+				{
+					mIsOutSideZone		= true;
+					mLeavingAreaTime	= LEAVING_AREA_TIME;
+				}
+			}
+			else if( mIsOutSideZone )
+			{
+				mIsOutSideZone = false;
+			}
+			
 		}
 		else
 		{
@@ -846,6 +876,13 @@ HRESULT Player::Render( float deltaTime, int position )
 	{
         std::string textToWrite = std::to_string( (int)mTimeTillSpawn );
 		mFont.WriteText( textToWrite, (float)Input::GetInstance()->mScreenWidth/2, (float)Input::GetInstance()->mScreenHeight/2, 7.8f );
+	}
+
+	if( mIsOutSideZone )
+	{
+        std::string textToWrite = "Robot losing connection get back!\n" + std::to_string( (int)mLeavingAreaTime );
+		float offset = mFont.GetMiddleXPoint( "Robot losing connection get back!", 3.8f );
+		mFont.WriteText( textToWrite, (float)Input::GetInstance()->mScreenWidth/2 - offset, (float)Input::GetInstance()->mScreenHeight/4, 3.8f, COLOR_RED );
 	}
 
 	RemotePlayer::Render();
@@ -939,6 +976,7 @@ Player::Player()
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mFireDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mIsBuffed			= false;
+	mIsOutSideZone		= false;
 	mBuffMod			= 0.0f;
 	mHasMeleeStarted	= false;
 	mXP					= 0;
@@ -950,6 +988,7 @@ Player::Player()
 	mTimeTillDeath			= 0.0f;
 	mReviveTime				= 0.0f;
 	mTimeTillRevive			= 0.0f;
+	mLeavingAreaTime		= 0.0f;
 	mLastKiller				= 0;
 
 	gEventList				= std::list<IEventPtr>();

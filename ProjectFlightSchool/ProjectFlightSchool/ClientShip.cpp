@@ -50,8 +50,8 @@ void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 				int randX = (int)( xMax*2 - xMin );
 				int randZ = (int)( zMax*2 - zMin );
 
-				spawnX = (float)( rand() % randX );
-				spawnZ = (float)( rand() % randZ );
+				spawnX = (float)( rand() % 20 - 10 );
+				spawnZ = (float)( rand() % 20 - 10 );
 			}
 			while( spawnX > mBuffCircle->center.x - 5.0f && spawnX < mBuffCircle->center.x + 5.0f &&
 				   spawnZ > mBuffCircle->center.z - 5.0f && spawnZ < mBuffCircle->center.z + 5.0f );

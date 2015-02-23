@@ -155,10 +155,10 @@ HRESULT UpgradeShipWindow::Initialize()
 	mTopLeftCorner.x = (float)( Input::GetInstance()->mScreenWidth / 2.0f ) - (float)( mSize.x / 2.0f );
 	mTopLeftCorner.y = Input::GetInstance()->mScreenHeight - mSize.y;
 	
-	mTurretButtons.nrOfFilled		= 2;
-	mForceFieldButtons.nrOfFilled	= 2;
-	mBuffButtons.nrOfFilled			= 2;
-	mEngineButtons.nrOfFilled		= 2;
+	mTurretButtons.nrOfFilled		= 1;
+	mForceFieldButtons.nrOfFilled	= 1;
+	mBuffButtons.nrOfFilled			= 1;
+	mEngineButtons.nrOfFilled		= 0;
 
 	mTurretButtons.nrOfButtons		= MAX_NR_OF_UPGRADES;
 	mForceFieldButtons.nrOfButtons	= MAX_NR_OF_UPGRADES;

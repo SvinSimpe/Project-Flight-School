@@ -72,6 +72,23 @@ void ServerShip::ChangeBuffLevel( int change )
 	}
 }
 
+void ServerShip::ChangeEngineLevel( int change )
+{
+	if( change != 0 )
+	{
+		if( change > 0 && mEngineLevel != MAX_LEVEL * 2 && mNrOfAvailableEnergyCells > 0 )
+		{
+			mEngineLevel++;
+			mNrOfAvailableEnergyCells--;
+		}
+		else
+		{
+			mEngineLevel--;
+			mNrOfAvailableEnergyCells++;
+		}
+	}
+}
+
 void ServerShip::CalcTurretLevel()
 {
 	// Stuff
@@ -125,13 +142,14 @@ float ServerShip::PercentHP() const
 	return mCurrentHP/mMaxHP;
 }
 
-void ServerShip::ClientChangeShipLevels( int changeTurretLevel, int changeShieldLevel, int changeBuffLevel )
+void ServerShip::ClientChangeShipLevels( int changeTurretLevel, int changeShieldLevel, int changeBuffLevel, int changeEngineLevel )
 {
 	if ( !mWasUpdated )
 	{
 		ChangeTurretLevel( changeTurretLevel );
 		ChangeShieldLevel( changeShieldLevel );
 		ChangeBuffLevel( changeBuffLevel );
+		ChangeEngineLevel( changeEngineLevel );
 		mWasUpdated = true;
 	}
 }
@@ -189,18 +207,19 @@ void ServerShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 	mTurretLevel				= MIN_LEVEL;
 	mShieldLevel				= MIN_LEVEL;
 	mBuffLevel					= MIN_LEVEL;
+	mEngineLevel				= 0;
 	mMaxShield					= 100.0f;
 	mCurrentShield				= mMaxShield;
 	mMaxHP						= 100.0f;
 	mCurrentHP					= mMaxHP;
 	mNrOfEnergyCells			= 0;
 	mNrOfAvailableEnergyCells	= 0;
+	mWasUpdated					= false;
 
 	mServerTurret->Reset( id + 10, teamID, pos, rot, scale );
-	for( UINT i = 0; i < MAX_LEVEL; i++ )
-	{
-		ClientChangeShipLevels( -1, -1, -1 );
-	}
+	float percent	= PercentShield();
+	mMaxShield		= 100.0f * mShieldLevel;
+	mCurrentShield	= mMaxShield * percent;
 }
 
 void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID )
@@ -209,6 +228,7 @@ void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 	mServerTurret	= new ServerTurret();
 	mBuffCircle		= new BoundingCircle( mPos, 20.0f );
 
+	mBuffMod		= 0.5f;
 	mID				= id;
 	mTeamID			= teamID;
 	mTurretLevel	= MIN_LEVEL;
@@ -219,10 +239,9 @@ void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 	mMaxHP			= 100.0f;
 	mCurrentHP		= mMaxHP;
 
-	for( UINT i = 0; i < MAX_LEVEL; i++ )
-	{
-		ClientChangeShipLevels( -1, -1, -1 );
-	}
+	float percent	= PercentShield();
+	mMaxShield		= 100.0f * mShieldLevel;
+	mCurrentShield	= mMaxShield * percent;
 
 	mServerTurret->Initialize( id + 10, teamID, pos, rot, scale, assetID );
 
@@ -235,6 +254,7 @@ void ServerShip::Initialize( UINT id, UINT teamID, GameObjectInfo gameObjectInfo
 	mServerTurret	= new ServerTurret();
 	mBuffCircle		= new BoundingCircle( 20.0f );
 
+	mBuffMod		= 0.5f;
 	mID				= id;
 	mTeamID			= teamID;
 	mTurretLevel	= MIN_LEVEL;
@@ -245,10 +265,9 @@ void ServerShip::Initialize( UINT id, UINT teamID, GameObjectInfo gameObjectInfo
 	mMaxHP			= 100.0f;
 	mCurrentHP		= mMaxHP;
 
-	for( UINT i = 0; i < MAX_LEVEL; i++ )
-	{
-		ClientChangeShipLevels( -1, -1, -1 );
-	}
+	float percent	= PercentShield();
+	mMaxShield		= 100.0f * mShieldLevel;
+	mCurrentShield	= mMaxShield * percent;
 
 	mServerTurret->Initialize( id, teamID, gameObjectInfo );
 
@@ -280,6 +299,7 @@ ServerShip::ServerShip() : GameObject()
 	mTurretLevel				= 0;
 	mShieldLevel				= 0;
 	mBuffLevel					= 0;
+	mEngineLevel				= 0;
 	mMaxHP						= 0.0f;
 	mCurrentHP					= 0.0f;
 	mWasUpdated					= false;

@@ -63,7 +63,7 @@ PS_Out PS_main( VS_Out input )
 {	
 	PS_Out output = (PS_Out)0;
 	
-	float2 mapUv = float2( frac( input.worldPosition.x * 0.06f ), frac( input.worldPosition.z * 0.06f ) );
+	float2 mapUv = float2( frac( input.worldPosition.x * 0.058f ), frac( input.worldPosition.z * 0.058f ) );
 
 	float3 weights = normalize( blendMapWeights.Sample( linearSampler, input.uv ).xyz );
 	float3 diffuse = mudBlendMap.Sample( linearSampler, mapUv ).xyz * weights.x;

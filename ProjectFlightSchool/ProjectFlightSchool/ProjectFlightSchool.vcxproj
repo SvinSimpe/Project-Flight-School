@@ -95,9 +95,11 @@
     <ClCompile Include="ClientTurret.cpp" />
     <ClCompile Include="DSBufferStream.cpp" />
     <ClCompile Include="EnemyAnimationManager.cpp" />
+    <ClCompile Include="EnergyCell.cpp" />
     <ClCompile Include="EnemyBehavior.cpp" />
     <ClCompile Include="Gui.cpp" />
     <ClCompile Include="HelperFunctions.cpp" />
+    <ClCompile Include="LobbyState.cpp" />
     <ClCompile Include="Navmesh.cpp" />
     <ClCompile Include="HealthBars.cpp" />
     <ClCompile Include="MovingButton.cpp" />
@@ -139,17 +141,17 @@
     <ClCompile Include="RemoteEnemy.cpp" />
     <ClCompile Include="RemotePlayer.cpp" />
     <ClCompile Include="RenderManager.cpp" />
-    <ClCompile Include="Ship.cpp" />
     <ClCompile Include="SingleplayerMenuState.cpp" />
     <ClCompile Include="StartMenuState.cpp" />
     <ClCompile Include="StateMachine.cpp" />
+    <ClCompile Include="SteeringBehavior.cpp" />
+    <ClCompile Include="SteeringBehaviorManager.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="tinystr.cpp" />
     <ClCompile Include="tinyxml.cpp" />
     <ClCompile Include="tinyxmlerror.cpp" />
     <ClCompile Include="tinyxmlparser.cpp" />
-    <ClCompile Include="Turret.cpp" />
     <ClCompile Include="UpgradePlayerWindow.cpp" />
     <ClCompile Include="UpgradeShipWindow.cpp" />
   </ItemGroup>
@@ -158,11 +160,13 @@
     <ClInclude Include="BaseMenuState.h" />
     <ClInclude Include="BaseState.h" />
     <ClInclude Include="BoundingGeometry.h" />
+    <ClInclude Include="EnergyCell.h" />
     <ClInclude Include="ClientShip.h" />
     <ClInclude Include="ClientTurret.h" />
     <ClInclude Include="DSBufferStream.h" />
     <ClInclude Include="Gui.h" />
     <ClInclude Include="HelperFunctions.h" />
+    <ClInclude Include="LobbyState.h" />
     <ClInclude Include="Navmesh.h" />
     <ClInclude Include="HealthBars.h" />
     <ClInclude Include="IPacket.h" />
@@ -208,7 +212,6 @@
     <ClInclude Include="RemotePlayer.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="RenderStructs.h" />
-    <ClInclude Include="Ship.h" />
     <ClInclude Include="SingleplayerMenuState.h" />
     <ClInclude Include="StartMenuState.h" />
     <ClInclude Include="StateMachine.h" />
@@ -220,11 +223,12 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="System.cpp" />
+    <ClInclude Include="SteeringBehavior.h" />
+    <ClInclude Include="SteeringBehaviorManager.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="tinystr.h" />
     <ClInclude Include="tinyxml.h" />
-    <ClInclude Include="Turret.h" />
     <ClInclude Include="UpgradePlayerWindow.h" />
     <ClInclude Include="UpgradeShipWindow.h" />
     <ClInclude Include="WeaponInfo.h" />

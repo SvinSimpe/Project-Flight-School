@@ -199,17 +199,16 @@ struct ParticleData
 		XMVECTOR aimingDirection = XMLoadFloat3( &randomDirectionVector );
 
 		float randomSpreadAngle = (float)( rand() % (int)spreadAngle * 2 ) - spreadAngle;
-	
-
 		XMVECTOR randomAimingDirection = XMVectorSet( 0.0f, 0.0f, 0.0f, 0.0f );
-		if( particleType != Test_Fountain )
-			randomAimingDirection = XMVector3TransformCoord( aimingDirection, XMMatrixRotationY( XMConvertToRadians( randomSpreadAngle ) ) );		
 
-		else
+		if( particleType == Test_Fountain )
 		{
 			randomAimingDirection = XMVector3TransformCoord( aimingDirection, XMMatrixRotationX( XMConvertToRadians( randomSpreadAngle ) ) );
-			randomAimingDirection = XMVector3TransformCoord( randomAimingDirection, XMMatrixRotationZ( XMConvertToRadians( randomSpreadAngle ) ) );
+			randomAimingDirection = XMVector3TransformCoord( randomAimingDirection, XMMatrixRotationZ( XMConvertToRadians( randomSpreadAngle ) ) );	
 		}
+	
+		else
+			randomAimingDirection = XMVector3TransformCoord( aimingDirection, XMMatrixRotationY( XMConvertToRadians( randomSpreadAngle ) ) );
 
 		XMStoreFloat3( &randomDirectionVector, randomAimingDirection );
 		
@@ -239,7 +238,14 @@ struct ParticleData
 	{
 		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
 		{
-			if( particleType == MuzzleFlash )
+
+			if( particleType == Blood )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 40 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 10 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 40 );		
+			}
+			else if( particleType == MuzzleFlash )
 
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 10, 80 );
@@ -254,9 +260,9 @@ struct ParticleData
 			}
 			else if( particleType == Test_Fountain )
 			{
-				randomDirectionVector.x = xDirection * GetRandomSpeed( 10, 20 );
- 				randomDirectionVector.y = yDirection * GetRandomSpeed( 10, 20 );
-				randomDirectionVector.z = zDirection * GetRandomSpeed( 10, 20 );		
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 2, 3 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 3, 10 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 2, 3 );		
 			}
 
 			GetRandomSpread( spreadAngle );

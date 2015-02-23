@@ -10,7 +10,7 @@
 
 class Enemy;
 
-#define MAX_NR_OF_ENEMIES		0
+#define MAX_NR_OF_ENEMIES		40
 
 // ---- Define all enemy animations ----
 // Standard
@@ -22,20 +22,22 @@ class Enemy;
 // Ranged
 #define ENEMY_ANIMATION_RANGED_IDLE				5
 #define ENEMY_ANIMATION_RANGED_RUN				6
-#define ENEMY_ANIMATION_RANGED_ATTACK			7
-#define ENEMY_ANIMATION_RANGED_DEATH			8
+#define ENEMY_ANIMATION_RANGED_RUN_DAMAGED		7
+#define ENEMY_ANIMATION_RANGED_ATTACK			8
+#define ENEMY_ANIMATION_RANGED_DEATH			9
 // Boomer
-#define ENEMY_ANIMATION_BOOMER_IDLE				9
-#define ENEMY_ANIMATION_BOOMER_RUN				10
-#define ENEMY_ANIMATION_BOOMER_ATTACK			11
-#define ENEMY_ANIMATION_BOOMER_DEATH			12
+#define ENEMY_ANIMATION_BOOMER_IDLE				10
+#define ENEMY_ANIMATION_BOOMER_RUN				11
+#define ENEMY_ANIMATION_BOOMER_RUN_DAMAGED		12
+#define ENEMY_ANIMATION_BOOMER_ATTACK			13
+#define ENEMY_ANIMATION_BOOMER_DEATH			14
 // Tank
-#define ENEMY_ANIMATION_TANK_IDLE				13
-#define ENEMY_ANIMATION_TANK_RUN				14
-#define ENEMY_ANIMATION_TANK_ATTACK				15
-#define ENEMY_ANIMATION_TANK_DEATH				16
+#define ENEMY_ANIMATION_TANK_IDLE				15
+#define ENEMY_ANIMATION_TANK_RUN				16
+#define ENEMY_ANIMATION_TANK_ATTACK				17
+#define ENEMY_ANIMATION_TANK_DEATH				18
 
-#define ENEMY_ANIMATION_COUNT					17
+#define ENEMY_ANIMATION_COUNT					19
 //----------------------------------------
 
 enum EnemyType { Standard, Ranged, Boomer, Tank };
@@ -132,6 +134,7 @@ class AttackBehavior : public IEnemyBehavior
 	// Class members
 	private:
 		float			mTimeTillAttack;
+		bool			mHasAttacked;
 
 	// Class functions
 	public:
@@ -288,7 +291,9 @@ class Enemy
 		bool				IsAlive() const;
 		XMFLOAT3			GetPosition() const;
 		XMFLOAT3			GetDirection() const;
-		
+		float				GetHP() const;
+		float				GetSpeed() const;
+		XMFLOAT3			GetVelocity() const;
 
 		HRESULT				Initialize( int id, ServerPlayer** players, UINT NrOfPlayers );
 		void				Reset();

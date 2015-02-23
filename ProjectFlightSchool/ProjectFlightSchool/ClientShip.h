@@ -11,19 +11,20 @@ class ClientShip : public ServerShip
 		BoundingCircle* mHitCircle;
 		ClientTurret* mClientTurret;
 
+
 	protected:
 	public:
 
 	private:
-		void	CalcShieldLevel();
-
 		void	RemoteUpdateShip( IEventPtr eventPtr );
 		void	RemoteChangeShipLevels( IEventPtr eventPtr );
+
 
 	protected:
 	public:
 		UINT	GetID() const;
 		UINT	GetTeamID() const;
+		UINT	GetNrOfEnergyCells() const;
 
 		void	CalculatePlayerRespawnPosition( IEventPtr eventPtr );
 		void	Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale );

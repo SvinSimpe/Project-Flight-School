@@ -106,6 +106,8 @@
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="NodeGraph.cpp" />
     <ClCompile Include="PacketImpl.cpp" />
+    <ClCompile Include="Pathfinder.cpp" />
+    <ClCompile Include="Paths.cpp" />
     <ClCompile Include="ServerShip.cpp" />
     <ClCompile Include="ServerTurret.cpp" />
     <ClCompile Include="SoundBufferHandler.cpp" />
@@ -177,6 +179,8 @@
     <ClInclude Include="Network.h" />
     <ClInclude Include="NodeGraph.h" />
     <ClInclude Include="PacketImpl.h" />
+    <ClInclude Include="Pathfinder.h" />
+    <ClInclude Include="Paths.h" />
     <ClInclude Include="ServerShip.h" />
     <ClInclude Include="ServerTurret.h" />
     <ClInclude Include="SoundBufferHandler.h" />

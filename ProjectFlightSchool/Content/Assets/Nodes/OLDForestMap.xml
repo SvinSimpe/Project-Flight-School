@@ -2,54 +2,31 @@
 <Level>
     <Nodes>
 	    <Node path="../Content/Assets/Nodes/tileLake1.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileBigOpenAreaWithFourTreeGrooves.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileBigOpenAreaWithManyNests.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileBigOpenAreaWithOneNest.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileBossArenaBigTreeLine.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileBossArenaPuddleStomper.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileBossArenaWaterPools.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileGlade.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tilePassageWithANest.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileRatherOpenArea1.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileRatherOpenArea2.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileRatherOpenArea3.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileRatherOpenArea4.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileThreeTrees.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/TwoIslandsOfTrees.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileWithAfricaLakeAndIsland.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileWithBigTreeAndOneNest.lp" type="AREA_NODE" />
 	    <Node path="../Content/Assets/Nodes/tileBossNestArena.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileShip.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileALargePuddle.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileBossNestBoneArena.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileforest.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileforest2.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileforest3.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileforest4.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileFungusForest.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileGiantBonesAndTrees.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileGrassShroom.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileLake2.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileMediumForest.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileMushroomForest.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileShroomPuddle.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileSmallForest.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileSomeNests.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileWithFourTinyLakes.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileWithGrassSea.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileWithMediumLake.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileWithNests.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileWithNests2.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileWithPuddles.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileWithTinyLakeInCorner.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileWithTinyLakeInCorner2.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileWithTinyLakeInCorner3.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileWithTriforceLakes.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileWithTwoLakesAndAMudPile.lp" type="AREA_NODE" />
-      <Node path="../Content/Assets/Nodes/tileWithTwoPuddlesAndADeadTree.lp" type="AREA_NODE" />
-      <-- <Node path="../Content/Assets/Nodes/tileTreeForest.lp" type="AREA_NODE" /> -->
+        <Node path="../Content/Assets/Nodes/ShipTile.lp" type="SHIP_NODE" />
+		<Node path="../Content/Assets/Nodes/tileForestandStones.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileALargePuddle.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileBossNestBoneArena.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileforest.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileforest2.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileforest3.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileforest4.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileFungusForest.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tilegiantbonesntrees.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tilegrassshroom.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileLake2.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileMediumForest.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileMushroomForest.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileshroompuddle.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileSmallForest.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileSomeNests.lp" type="AREA_NODE" />
+        <-- <Node path="../Content/Assets/Nodes/tiletreeforest.lp" type="AREA_NODE" /> -->
+        <Node path="../Content/Assets/Nodes/tileWithnests.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileWithNests2.lp" type="AREA_NODE" />
+        <Node path="../Content/Assets/Nodes/tileWithPuddles.lp" type="AREA_NODE" />
     </Nodes>
     <Assets>
+		<Asset path="../Content/Assets/PermanentAssets/Ship/ShipWithTripod.pfs"/>
         <Asset path="../Content/Assets/ForestAssets/Trees/tree1.pfs" />
 		    <Asset path="../Content/Assets/ForestAssets/Trees/tree2.pfs" />
 		    <Asset path="../Content/Assets/ForestAssets/Trees/tree3.pfs" />
@@ -68,7 +45,6 @@
         <Asset path="../Content/Assets/ForestAssets/Trees/pinktree1.pfs" />
         <Asset path="../Content/Assets/ForestAssets/Trees/pinktree2.pfs" />
 		<Asset path="../Content/Assets/ForestAssets/Trees/log1.pfs" />
-      <Asset path="../Content/Assets/ForestAssets/Hill/muddyhill.pfs" />
         <Asset path="../Content/Assets/ForestAssets/Stones/greaystone1.pfs" />
 		    <Asset path="../Content/Assets/ForestAssets/Stones/greaystone2.pfs" />
 		    <Asset path="../Content/Assets/ForestAssets/Stones/greaystone3.pfs" />

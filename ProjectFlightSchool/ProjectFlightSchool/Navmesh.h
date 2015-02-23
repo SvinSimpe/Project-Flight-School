@@ -1,5 +1,6 @@
 #ifndef NAVMESH_H
 #define NAVMESH_H
+
 #include <Windows.h>
 #include <DirectXMath.h>
 #include <list>
@@ -32,12 +33,12 @@ struct Portal
 	}
 };
 
-struct Path
+struct PortalPath
 {
 	Portal* portal;
-	Path* parent;
+	PortalPath* parent;
 
-	Path()
+	PortalPath()
 	{
 		portal = nullptr;
 		parent = nullptr;
@@ -49,7 +50,7 @@ struct Path
 	}
 };
 
-typedef std::list<Path*> PathList;
+typedef std::list<PortalPath*> PathList;
 
 struct NavTriangle
 {
@@ -70,12 +71,14 @@ struct NavTriangle
 class Navmesh
 {
 	private:
-		Path*	mPath;
+		PortalPath*	mPath;
 		Portal* mPortals;
 		DirectX::XMFLOAT3* mMesh;	
 
 		UINT mNavTriangleCount;
 		UINT mMaxPathLength;
+
+		std::vector<DirectX::XMFLOAT3> mEdgePoints;
 
 	protected:
 	public:
@@ -88,8 +91,9 @@ class Navmesh
 	public:
 		HRESULT Render();
 		
-		HRESULT Initialize( DirectX::XMFLOAT3* meshData, UINT vertexCount );
+		HRESULT Initialize( DirectX::XMFLOAT3* meshData, UINT vertexCount, std::vector<DirectX::XMFLOAT3>& edgePoints );
 		std::vector<DirectX::XMFLOAT2> FindPath( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end );
+		DirectX::XMFLOAT3 GetClosestEdgePoint( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 goal );
 		void Release();
 
 		Navmesh();

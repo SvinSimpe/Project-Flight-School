@@ -7,12 +7,13 @@ HRESULT Navmesh::Render()
 {
 	return S_OK;
 }
-HRESULT Navmesh::Initialize( DirectX::XMFLOAT3* meshData, UINT vertexCount )
+HRESULT Navmesh::Initialize( DirectX::XMFLOAT3* meshData, UINT vertexCount, std::vector<DirectX::XMFLOAT3>& edgePoints )
 {
+	mEdgePoints = edgePoints;
 	mNavTriangleCount = vertexCount / 3;
 	mMaxPathLength = mNavTriangleCount;
 
-	mPath = new Path[vertexCount * 2];
+	mPath = new PortalPath[vertexCount * 2];
 
 	mMesh = meshData;
 	mPortals = new Portal[vertexCount];
@@ -50,11 +51,13 @@ std::vector<DirectX::XMFLOAT2> Navmesh::FindPath( DirectX::XMFLOAT3 start, Direc
 	endPortal.points[0] = end;
 	endPortal.points[1] = end;
 
+	float cost_so_far = 10000.0f;
+
 	std::vector<DirectX::XMFLOAT2> unFinishedPath;
 
 	std::vector<Portal> finishedPath;
 
-	Path* currentPath = nullptr;
+	PortalPath* currentPath = nullptr;
 
 	int startTri		= -1;
 	int endTri			= -1;
@@ -143,7 +146,7 @@ std::vector<DirectX::XMFLOAT2> Navmesh::FindPath( DirectX::XMFLOAT3 start, Direc
 					mPortals[currentPortal + i].h = DirectX::XMVectorGetX( DirectX::XMVector2LengthEst( vecDist ) );
 
 					//Calculate f for portal
-					Path* temp = &mPath[pathIndex++];
+					PortalPath* temp = &mPath[pathIndex++];
 					char buf[20];
 					sprintf_s(buf, "PathIndex: %d\n", pathIndex );
 					OutputDebugStringA( buf );
@@ -156,7 +159,7 @@ std::vector<DirectX::XMFLOAT2> Navmesh::FindPath( DirectX::XMFLOAT3 start, Direc
 			}
 		}
 
-		std::list<Path*>::iterator removeIt = mOpenList.end();
+		std::list<PortalPath*>::iterator removeIt = mOpenList.end();
 		for( auto it = mOpenList.begin(); it != mOpenList.end(); it++ )
 		{
 			float newF = (*it)->portal->g + (*it)->portal->h;
@@ -196,6 +199,25 @@ std::vector<DirectX::XMFLOAT2> Navmesh::FindPath( DirectX::XMFLOAT3 start, Direc
 	unFinishedPath = FunnelPath( finishedPath );
 
 	return unFinishedPath;
+}
+
+DirectX::XMFLOAT3 Navmesh::GetClosestEdgePoint( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 goal )
+{
+	DirectX::XMFLOAT3 result;
+	float dist = 100000.0f;
+	for( auto& it : mEdgePoints )
+	{
+		float g = HelperFunctions::Dist3Squared( start, it ) * 0.9f;
+		float h = HelperFunctions::Dist3Squared( goal, it );
+
+		float f = g + h;
+		if( f < dist )
+		{
+			dist = f;
+			result = it;
+		}
+	}
+	return result;
 }
 
 bool Navmesh::IsTriangleAdj( Portal t1, Portal t2 )

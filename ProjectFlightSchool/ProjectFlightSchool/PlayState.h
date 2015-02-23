@@ -16,6 +16,7 @@
 #include "Gui.h"
 #include "SoundBufferHandler.h"
 #include "EnergyCell.h"
+#include "Pathfinder.h"
 
 //TestUpgradeWindow
 #include "UpgradeShipWindow.h"
@@ -24,6 +25,9 @@
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
 #define TOSERVER_OFFSET			5000
+
+
+Pathfinder* PathFinder = nullptr;
 
 class PlayState : public BaseState
 {

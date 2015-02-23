@@ -51,6 +51,7 @@ NODE_RETURN_CODE MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNo
 
 	newNode->SetPos( newPos );
 	newNode->Initialize();
+	newNode->SetNodeID( mNrOfNodes++ );
 
 	return PLACED;
 }

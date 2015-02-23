@@ -85,7 +85,7 @@ void MapNodeInstance::GetNavigationData()
 		}
 	}
 
-	mNavMesh->Initialize( transformedMesh, navVertexCount );
+	mNavMesh->Initialize( transformedMesh, navVertexCount, mEdgePoints );
 }
 DirectX::XMFLOAT3 MapNodeInstance::GetPos()const
 {

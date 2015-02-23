@@ -12,7 +12,9 @@
 
 #define MAX_ROBOT_RANGE		40000.0f   //Squared distance here.
 #define LEAVING_AREA_TIME	10.0f
+
 class Map;
+class Path;
 
 struct Upgrades
 {
@@ -53,6 +55,8 @@ class Player: public RemotePlayer
 		bool		mIsBuffed;
 		bool		mIsOutSideZone;
 		float		mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
+
+		Path*		currentPath1;
 		std::vector<DirectX::XMFLOAT2> currentPath;
 		
 		float		mSpawnTime;

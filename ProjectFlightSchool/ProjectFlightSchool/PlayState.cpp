@@ -751,6 +751,7 @@ HRESULT PlayState::Initialize()
 {
 	mStateType = PLAY_STATE;
 
+
 	//AssetID model		= 0;
 	//AssetID loader	= 0;
 
@@ -766,9 +767,9 @@ HRESULT PlayState::Initialize()
 
 	mWorldMap = new Map();
 
-	mWorldMap->Initialize( 1 );
+	mWorldMap->Initialize( 12 );
 
-	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/HardMap.xml" ) ); 
+	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/ForestMap.xml" ) ); 
 
 	EventManager::GetInstance()->TriggerEvent( E1 );
 
@@ -837,6 +838,10 @@ HRESULT PlayState::Initialize()
 	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav" );
 	mSoundAsset			= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
 	mStreamSoundAsset	= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav" );
+
+
+	PathFinder = new Pathfinder();
+	PathFinder->Initialize( mWorldMap );
 
 	return S_OK;
 }

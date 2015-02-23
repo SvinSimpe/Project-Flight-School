@@ -26,9 +26,6 @@
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
 #define TOSERVER_OFFSET			5000
 
-
-Pathfinder* PathFinder = nullptr;
-
 class PlayState : public BaseState
 {
 	// Class members

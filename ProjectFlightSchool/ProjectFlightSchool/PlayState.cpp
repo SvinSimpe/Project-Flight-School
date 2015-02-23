@@ -839,9 +839,7 @@ HRESULT PlayState::Initialize()
 	mSoundAsset			= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
 	mStreamSoundAsset	= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav" );
 
-
-	PathFinder = new Pathfinder();
-	PathFinder->Initialize( mWorldMap );
+	Pathfinder::GetInstance()->Initialize( mWorldMap );
 
 	return S_OK;
 }

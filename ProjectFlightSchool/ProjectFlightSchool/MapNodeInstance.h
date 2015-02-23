@@ -5,6 +5,7 @@
 #include <vector>
 #include "BoundingGeometry.h"
 #include "Navmesh.h"
+#include "Pathfinder.h"
 
 
 //forward declaration

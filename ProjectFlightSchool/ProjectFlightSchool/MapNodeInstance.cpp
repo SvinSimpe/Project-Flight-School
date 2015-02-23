@@ -24,7 +24,7 @@ Navmesh* MapNodeInstance::GetNavMesh() const
 	return mNavMesh;
 }
 
-DirectX::XMFLOAT3	MapNodeInstance::GetClosestEdgePoint( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 goal )
+DirectX::XMFLOAT3 MapNodeInstance::GetClosestEdgePoint( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 goal )
 {
 	DirectX::XMFLOAT3 result;
 	float dist = 100000.0f;

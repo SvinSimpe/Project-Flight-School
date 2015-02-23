@@ -1,6 +1,8 @@
 #include "Pathfinder.h"
 #include "Map.h"
 
+Pathfinder* Pathfinder::instance = nullptr;
+
 HRESULT Pathfinder::Initialize( Map* map )
 {
 	mMap = map;
@@ -8,14 +10,14 @@ HRESULT Pathfinder::Initialize( Map* map )
 	mMapWidth = mMap->GetMapWidth();
 	mMapHeight = mMap->GetMapHeight();
 
-	MapNodeInstance*** temp = mMap->GetNodeMap(); 
-
 	mNavmeshMap = new Navmesh*[mMapWidth * mMapHeight];
 	for( int i = 0; i < mMapWidth; i++ )
 	{
 		for( int j = 0; j < mMapHeight; j++ )
 		{
-			mNavmeshMap[( i * mMapHeight ) + j] = temp[i][j]->GetNavMesh();
+			MapNodeInstance* current = mMap->GetNodeInstance( i, j );
+			if( current )
+				mNavmeshMap[( i * mMapHeight ) + j] = current->GetNavMesh();
 		}
 	}
 	return S_OK;
@@ -38,7 +40,7 @@ Path* Pathfinder::RequestPath( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end )
 	int currIndex	= ( currentX * mMapWidth ) + currentZ;
 	int goalIndex	= ( goalX * mMapHeight ) + goalZ;
 
-	Path temp;
+	Path* temp = &mPaths[mNrOfPaths++];
 
 
 	while( goalIndex != currIndex )
@@ -46,7 +48,7 @@ Path* Pathfinder::RequestPath( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end )
 		if( currIndex < ( mMapWidth * mMapHeight ) && goalIndex < ( mMapWidth * mMapHeight ) )
 		{
 			currEnd = mNavmeshMap[currIndex]->GetClosestEdgePoint( currStart, end );
-			temp.AddSubPath( currStart, currEnd, currIndex );
+			temp->AddSubPath( currStart, currEnd, currIndex );
 
 			currentX = (int)( (mMapWidth * NODE_DIM )  + currEnd.x ) / NODE_DIM;
 			currentZ = (int)( (mMapHeight * NODE_DIM )  + currEnd.z ) / NODE_DIM;
@@ -61,7 +63,7 @@ Path* Pathfinder::RequestPath( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end )
 		}
 	}
 
-	return nullptr;
+	return temp;
 }
 
 bool Pathfinder::CalculateSubPath( Path& path, int nrOfSteps )
@@ -83,6 +85,15 @@ bool Pathfinder::CalculateSubPath( Path& path, int nrOfSteps )
 	return true;
 }
 
+Pathfinder* Pathfinder::GetInstance()
+{
+	if( instance == nullptr )
+	{
+		instance = new Pathfinder();
+	}
+	return instance;
+}
+
 Pathfinder::Pathfinder()
 {
 		mNavmeshMap = nullptr;
@@ -91,6 +102,11 @@ Pathfinder::Pathfinder()
 		mNrOfPaths = 0;
 }
 
+void Pathfinder::Release()
+{
+	if( instance )
+		delete instance;
+}
 
 Pathfinder::~Pathfinder()
 {

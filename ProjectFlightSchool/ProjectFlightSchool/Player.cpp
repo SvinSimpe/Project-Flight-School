@@ -1,7 +1,7 @@
 #include "Player.h"
 #include "HelperFunctions.h"
 #include "Map.h"
-#include "PlayState.h"
+#include "Pathfinder.h"
 
 /////Private
 
@@ -379,7 +379,7 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
 	{
 		mFollowPath = true;
-	//	currentPath1 = PathFinder->RequestPath( mLowerBody.position, mPick  );
+		currentPath1 = Pathfinder::GetInstance()->RequestPath( mLowerBody.position, mPick  );
 		currStep = currentPath.begin();
 	}
 	mLowerBody.position.y = worldMap->GetHeight( mLowerBody.position );

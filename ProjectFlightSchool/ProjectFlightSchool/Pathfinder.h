@@ -23,14 +23,17 @@ class Pathfinder
 	public:
 	
 	private:
+		Pathfinder();
 	protected:
 	public:
+		static Pathfinder* instance;
 		HRESULT Initialize( Map* map );
 
 		Path* RequestPath( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end );
 		//If nrOfSteps left at 0, whole path will be calculated
 		bool CalculateSubPath( Path& path, int nrOfSteps = 0 );
-		Pathfinder();
+		static Pathfinder* GetInstance();
+		void Release();
 		~Pathfinder();
 };
 #endif

@@ -432,7 +432,7 @@ void Server::TurretFiredProjectile( IEventPtr eventPtr )
 			ServerTurret* t = s->mServerTurret;
 			if( t->mID == data->ID() )
 			{
-				IEventPtr E1( new Event_Server_Turret_Fired_Projectile( data->ID(), t->mTeamID, CurrentPID(), t->mTurretHead->pos, data->Direction(), data->Speed(), data->Range() ));
+				IEventPtr E1( new Event_Server_Turret_Fired_Projectile( data->ID(), t->mTeamID, CurrentPID(), data->Position(), data->Direction(), data->Speed(), data->Range() ));
 				BroadcastEvent( E1 );
 				break;
 			}

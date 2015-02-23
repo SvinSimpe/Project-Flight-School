@@ -31,6 +31,11 @@ struct ParticleSystem : public ParticleData
 
 		switch ( particleType )
 		{
+			case Explosion:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireSprite.dds", assetID );
+				break;
+			}
 			case Blood:
 			{
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/blood.dds", assetID );
@@ -88,8 +93,9 @@ struct ParticleSystem : public ParticleData
 			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 3.0f, particleCount );
 		else
 			SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
-		
-		if( particleType == Blood )	SetRandomDeathTime( 1, 2, particleCount );
+
+		if( particleType == Explosion )	SetRandomDeathTime( 1, 3, particleCount );
+		else if( particleType == Blood )	SetRandomDeathTime( 1, 2, particleCount );
 		else if( particleType == MuzzleFlash )	SetRandomDeathTime( 1, 2, particleCount );
 		else if( particleType == Smoke_MiniGun )	SetRandomDeathTime( 1, 6, particleCount );
 		else if( particleType == Test_Fountain )	SetRandomDeathTime( 1, 8, particleCount );
@@ -101,7 +107,8 @@ struct ParticleSystem : public ParticleData
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{	
-			if( particleType == Blood )	Generate( emitterPosition, emitterDirection, 8, 25.0f );
+			if( particleType == Explosion )	Generate( emitterPosition, emitterDirection, 150,  360.0f );
+			else if( particleType == Blood )	Generate( emitterPosition, emitterDirection, 8, 25.0f );
 			else if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 4,  25.0f );
 			else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 8, 2.0f );
 			else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 8, 360.0f );
@@ -118,6 +125,12 @@ struct ParticleSystem : public ParticleData
 		// Update logic based on Particle type
 		switch( particleType )
 		{
+			case Explosion: 
+			{
+				// Update Blood logic here
+				ExplosionLogic( deltaTime );
+				break;
+			}
 			case Blood: 
 			{
 				// Update Blood logic here
@@ -187,7 +200,19 @@ struct ParticleSystem : public ParticleData
 				nrOfRequestedParticles = 0;	
 		}
 	}
-		
+	float damping = 1.0;
+	void ExplosionLogic( float deltaTime )
+	{
+		for ( int i = 0; i < nrOfParticlesAlive; i++ )
+		{
+			//yVelocity[i] += 0.1f;
+			//yVelocity[i] -= 0.1f;
+			//xVelocity[i] = 30.0 * damping;
+			//zVelocity[i] = 30.0 * damping;
+		}
+		if(damping > 0)
+			damping -= 0.01;
+	}
 	void BloodLogic( float deltaTime )
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )

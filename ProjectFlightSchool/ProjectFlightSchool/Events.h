@@ -4599,6 +4599,7 @@ class Event_Server_Turret_Fired_Projectile : public IEvent
 {
 	private:
 		UINT		mID;
+		UINT		mTeamID;
 		UINT		mProjectileID;
 		XMFLOAT3	mPosition;
 		XMFLOAT3	mDirection;
@@ -4615,15 +4616,17 @@ class Event_Server_Turret_Fired_Projectile : public IEvent
 		Event_Server_Turret_Fired_Projectile()
 		{
 			mID				= (UINT)-1;
+			mTeamID			= (UINT)-1;
 			mProjectileID	= (UINT)-1;
 			mPosition		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mSpeed			= 0.0f;
 			mRange			= 0.0f;
 		}
-		Event_Server_Turret_Fired_Projectile( UINT id, UINT projectileID, XMFLOAT3 position, XMFLOAT3 rotation, float speed, float range )
+		Event_Server_Turret_Fired_Projectile( UINT id, UINT teamID, UINT projectileID, XMFLOAT3 position, XMFLOAT3 rotation, float speed, float range )
 		{
 			mID				= id;
+			mTeamID			= teamID;
 			mProjectileID	= projectileID;
 			mPosition		= position;
 			mDirection		= rotation;
@@ -4638,6 +4641,7 @@ class Event_Server_Turret_Fired_Projectile : public IEvent
 		void Serialize( std::ostringstream& out ) const
 		{
 			out << mID << " ";
+			out << mTeamID << " ";
 			out << mProjectileID << " ";
 
 			out << mPosition.x << " ";
@@ -4654,6 +4658,7 @@ class Event_Server_Turret_Fired_Projectile : public IEvent
 		void Deserialize( std::istringstream& in )
 		{
 			in >> mID;
+			in >> mTeamID;
 			in >> mProjectileID;
 
 			in >> mPosition.x;
@@ -4669,11 +4674,15 @@ class Event_Server_Turret_Fired_Projectile : public IEvent
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Server_Turret_Fired_Projectile( mID, mProjectileID, mPosition, mDirection, mSpeed, mRange ) );
+			return IEventPtr( new Event_Server_Turret_Fired_Projectile( mID, mTeamID, mProjectileID, mPosition, mDirection, mSpeed, mRange ) );
 		}
 		UINT ID() const
 		{
 			return mID;
+		}
+		UINT TeamID() const
+		{
+			return mTeamID;
 		}
 		UINT ProjectileID() const
 		{

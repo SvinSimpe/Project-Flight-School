@@ -486,7 +486,6 @@ HRESULT PlayState::Update( float deltaTime )
 {
 	//Fps update
 	mFPS = mFPS * 0.1f + 0.9f / deltaTime;
-	CheckProjectileCollision();
 
 	while( !mPlayer->gEventList.empty() )
 	{
@@ -616,6 +615,8 @@ HRESULT PlayState::Update( float deltaTime )
 		mFriendShip->Update( deltaTime );
 	if( mEnemyShip )
 		mEnemyShip->Update( deltaTime );
+
+	CheckProjectileCollision();
 
 	// Test Anim
 	///////////////////////////////////////////////////////////////////////////

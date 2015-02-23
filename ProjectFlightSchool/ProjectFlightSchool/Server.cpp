@@ -35,7 +35,7 @@ void Server::ClientJoined( IEventPtr eventPtr )
 			{
 				IEventPtr SpawnShip( new Event_Server_Spawn_Ship( s->mID, s->mTeamID, s->mPos, s->mRot, s->mScale, s->mCurrentHP ) );
 				SendEvent( SpawnShip, data->ID() );
-				IEventPtr E1( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel ) );
+				IEventPtr E1( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel, s->mEngineLevel ) );
 				SendEvent( E1, data->ID() );
 			}
 
@@ -147,14 +147,13 @@ void Server::ClientDied( IEventPtr eventPtr )
 			BroadcastEvent( E1, data->ID() );
 		}
 		for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
+		{
+			if( mPlayers[i] != nullptr )
 			{
-				if( mPlayers[i] != nullptr )
-				{
-					if( mPlayers[i]->ID == data->ID() )
-						mPlayers[i]->IsAlive		= false;
-				}
+				if( mPlayers[i]->ID == data->ID() )
+					mPlayers[i]->IsAlive		= false;
 			}
-
+		}
 	}
 }
 
@@ -377,7 +376,10 @@ void Server::ClientInteractEnergyCell( IEventPtr eventPtr )
 		{
 			for( int j = 0; j < MAX_ENERGY_CELLS; j++ )
 			{
-				mShips[i]->AddEnergyCell( mEnergyCells[j]->GetOwnerID() );
+				if( mShips[i]->Intersect( mEnergyCells[j]->GetPickUpRadius() ) )
+				{
+					mShips[i]->AddEnergyCell( mEnergyCells[j]->GetOwnerID() );
+				}
 			}
 		}
 
@@ -413,8 +415,8 @@ void Server::ClientChangeShipLevels( IEventPtr eventPtr )
 		{
 			if ( s->mTeamID == data->ID() )
 			{
-				s->ClientChangeShipLevels( data->TurretLevelChange(), data->ShieldLevelChange(), data->BuffLevelChange() );
-				IEventPtr E1( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel ) );
+				s->ClientChangeShipLevels( data->TurretLevelChange(), data->ShieldLevelChange(), data->BuffLevelChange(), data->EngineLevelChange() );
+				IEventPtr E1( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel, s->mEngineLevel ) );
 				BroadcastEvent( E1 );
 				break;
 			}
@@ -432,7 +434,7 @@ void Server::TurretFiredProjectile( IEventPtr eventPtr )
 			ServerTurret* t = s->mServerTurret;
 			if( t->mID == data->ID() )
 			{
-				IEventPtr E1( new Event_Server_Turret_Fired_Projectile( data->ID(), t->mTeamID, CurrentPID(), t->mTurretHead->pos, data->Direction(), data->Speed(), data->Range() ));
+				IEventPtr E1( new Event_Server_Turret_Fired_Projectile( data->ID(), t->mTeamID, CurrentPID(), data->Position(), data->Direction(), data->Speed(), data->Range() ));
 				BroadcastEvent( E1 );
 				break;
 			}
@@ -485,6 +487,16 @@ void Server::SwitchTeam( IEventPtr eventPtr )
 	}
 }
 
+void Server::XP( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_XP::GUID )
+	{
+		std::shared_ptr<Event_XP> data = std::static_pointer_cast<Event_XP>( eventPtr );
+		IEventPtr E1( new Event_Server_XP( data->PlayerID(), data->XP() ) );
+		BroadcastEvent( E1 );
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -513,6 +525,7 @@ void Server::StartUp( IEventPtr eventPtr )
 		}
 		else
 		{
+			mActive = false;
 			IEventPtr E1( new Event_Connect_Server_Fail ( "Server failed at connecting!" ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 			Release();
@@ -523,6 +536,11 @@ void Server::StartUp( IEventPtr eventPtr )
 void Server::DoSelect( int pauseMicroSecs, bool handleInput )
 {
 	mSocketManager->DoSelect( pauseMicroSecs, handleInput );
+}
+
+bool Server::IsActive() const
+{
+	return mActive;
 }
 
 void Server::BroadcastEvent( IEventPtr eventPtr, UINT exception )
@@ -601,7 +619,7 @@ void Server::UpdateShip( float deltaTime, ServerShip* s )
 	for( auto& cm : mClientMap )
 	{
 		ClientNEF* c = cm.second;
-		if( s->mTeamID != c->TeamID && c->HP > 0.0f)
+		if( s->mTeamID != c->TeamID && c->HP > 0.0f )
 		{
 			enemyCircles.push_back( &c->Pos );
 		}
@@ -635,6 +653,7 @@ void Server::Update( float deltaTime )
 {
 	if( this && mActive )
 	{
+		DoSelect( 0 );
 		// Handles the client getting buffed by the ship
 		bool shipBuff = false;
 
@@ -699,7 +718,6 @@ void Server::Update( float deltaTime )
 			mClientMap[mEventList.back().ToID]->NEF.ForwardEvent( mEventList.back().EventPtr );
 			mEventList.pop_back();
 		}
-		DoSelect( 0 );
 	}
 }
 
@@ -737,6 +755,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::LobbyPlayer, this, Event_Client_Initialize_LobbyPlayer::GUID );
 	EventManager::GetInstance()->AddListener( &Server::StopLobby, this, Event_Client_Lobby_Finished::GUID );
 	EventManager::GetInstance()->AddListener( &Server::SwitchTeam, this, Event_Client_Switch_Team::GUID );
+	EventManager::GetInstance()->AddListener( &Server::XP, this, Event_XP::GUID );
 
 	mTeamDelegate	= 1;
 	mCurrentPID		= 0;
@@ -815,7 +834,6 @@ void Server::Reset()
 		SAFE_RELEASE_DELETE( s );
 	}
 	mShips.clear();
-
 }
 
 void Server::Release()

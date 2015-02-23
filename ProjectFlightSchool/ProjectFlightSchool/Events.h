@@ -3795,6 +3795,7 @@ class Event_Client_Change_Ship_Levels : public IEvent
 		int mTurretLevelChange;
 		int mShieldLevelChange;
 		int mBuffLevelChange;
+		int mEngineLevelChange;
 
 	protected:
 	public:
@@ -3809,13 +3810,15 @@ class Event_Client_Change_Ship_Levels : public IEvent
 			mTurretLevelChange	= 0;
 			mShieldLevelChange	= 0;
 			mBuffLevelChange	= 0;
+			mEngineLevelChange	= 0;
 		}
-		Event_Client_Change_Ship_Levels( UINT id, int turretLevelChange, int shieldLevelChange, int buffLevelChange )
+		Event_Client_Change_Ship_Levels( UINT id, int turretLevelChange, int shieldLevelChange, int buffLevelChange, int engineLevelChange )
 		{
 			mID					= id;
 			mTurretLevelChange	= turretLevelChange;
 			mShieldLevelChange	= shieldLevelChange;
 			mBuffLevelChange	= buffLevelChange;
+			mEngineLevelChange	= engineLevelChange;
 		}
 		~Event_Client_Change_Ship_Levels() {}
 		const EventType& GetEventType() const
@@ -3828,6 +3831,7 @@ class Event_Client_Change_Ship_Levels : public IEvent
 			out << mTurretLevelChange << " ";
 			out << mShieldLevelChange << " ";
 			out << mBuffLevelChange << " ";
+			out << mEngineLevelChange << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
@@ -3835,10 +3839,11 @@ class Event_Client_Change_Ship_Levels : public IEvent
 			in >> mTurretLevelChange;
 			in >> mShieldLevelChange;
 			in >> mBuffLevelChange;
+			in >> mEngineLevelChange;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Client_Change_Ship_Levels( mID, mTurretLevelChange, mShieldLevelChange, mBuffLevelChange ) );
+			return IEventPtr( new Event_Client_Change_Ship_Levels( mID, mTurretLevelChange, mShieldLevelChange, mBuffLevelChange, mEngineLevelChange ) );
 		}
 		UINT ID() const
 		{
@@ -3856,6 +3861,10 @@ class Event_Client_Change_Ship_Levels : public IEvent
 		{
 			return mBuffLevelChange;
 		}
+		int EngineLevelChange() const
+		{
+			return mEngineLevelChange;
+		}
 };
 
 class Event_Server_Change_Ship_Levels : public IEvent
@@ -3865,6 +3874,7 @@ class Event_Server_Change_Ship_Levels : public IEvent
 		int mTurretLevel;
 		int mShieldLevel;
 		int mBuffLevel;
+		int mEngineLevel;
 
 	protected:
 	public:
@@ -3879,13 +3889,15 @@ class Event_Server_Change_Ship_Levels : public IEvent
 			mTurretLevel	= 0;
 			mShieldLevel	= 0;
 			mBuffLevel		= 0;
+			mEngineLevel	= 0;
 		}
-		Event_Server_Change_Ship_Levels( UINT id, int turretLevel, int shieldLevel, int buffLevel )
+		Event_Server_Change_Ship_Levels( UINT id, int turretLevel, int shieldLevel, int buffLevel, int engineLevel )
 		{
 			mID				= id;
 			mTurretLevel	= turretLevel;
 			mShieldLevel	= shieldLevel;
 			mBuffLevel		= buffLevel;
+			mEngineLevel	= engineLevel;
 		}
 		~Event_Server_Change_Ship_Levels() {}
 
@@ -3900,6 +3912,7 @@ class Event_Server_Change_Ship_Levels : public IEvent
 			out << mTurretLevel << " ";
 			out << mShieldLevel << " ";
 			out << mBuffLevel << " ";
+			out << mEngineLevel << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
@@ -3907,10 +3920,11 @@ class Event_Server_Change_Ship_Levels : public IEvent
 			in >> mTurretLevel;
 			in >> mShieldLevel;
 			in >> mBuffLevel;
+			in >> mEngineLevel;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Server_Change_Ship_Levels( mID, mTurretLevel, mShieldLevel, mBuffLevel ) );
+			return IEventPtr( new Event_Server_Change_Ship_Levels( mID, mTurretLevel, mShieldLevel, mBuffLevel, mEngineLevel ) );
 		}
 		UINT ID() const
 		{
@@ -3927,6 +3941,10 @@ class Event_Server_Change_Ship_Levels : public IEvent
 		int BuffLevelChange() const
 		{
 			return mBuffLevel;
+		}
+		int EngineLevelChange() const
+		{
+			return mEngineLevel;
 		}
 };
 
@@ -4148,6 +4166,59 @@ class Event_Server_XP : public IEvent
 		IEventPtr Copy() const
 		{
 			return IEventPtr( new Event_Server_XP( mPlayerID, mXP ) );
+		}
+		UINT PlayerID() const
+		{
+			return mPlayerID;
+		}
+		int XP() const
+		{
+			return mXP;
+		}
+
+};
+
+class Event_XP : public IEvent
+{
+	private:
+		UINT		mPlayerID;
+		int			mXP;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_XP()
+		{
+			mPlayerID	= (UINT)-1;
+			mXP			= 0;
+		}
+		Event_XP( UINT playerID, int XP )
+		{
+			mPlayerID	= playerID;
+			mXP			= XP;
+		}
+		~Event_XP() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mPlayerID	 << " ";
+			out << mXP			 << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mPlayerID;
+			in >> mXP;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_XP( mPlayerID, mXP ) );
 		}
 		UINT PlayerID() const
 		{

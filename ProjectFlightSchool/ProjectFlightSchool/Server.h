@@ -101,6 +101,7 @@ class Server : public Network
 		void	LobbyPlayer( IEventPtr eventPtr );
 		void	StopLobby( IEventPtr eventPtr );
 		void	SwitchTeam( IEventPtr eventPtr );
+		void	XP( IEventPtr eventPtr );
 
 		void	ClientInteractEnergyCell( IEventPtr eventPtr );
 
@@ -120,6 +121,7 @@ class Server : public Network
 		bool	Connect( UINT port );
 
 	public:
+		bool	IsActive() const;
 		void	BroadcastEvent( IEventPtr eventPtr, UINT exception = (UINT)-1 );
 		void	Shutdown();
 		void	Update( float deltaTime );

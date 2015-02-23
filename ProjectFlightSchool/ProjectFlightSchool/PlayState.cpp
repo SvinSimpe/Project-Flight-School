@@ -61,7 +61,16 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		// Fire projectile
 		std::shared_ptr<Event_Remote_Fired_Projectile> data = std::static_pointer_cast<Event_Remote_Fired_Projectile>(newEvent);
-		FireProjectile( data->ID(), data->ProjectileID(), data->BodyPos(), data->Direction(), data->Speed(), data->Range(), data->Damage() );
+		UINT teamID = (UINT)-1;
+		for( UINT i = 0; i < mRemotePlayers.size(); i++ )
+		{
+			if( mRemotePlayers.at(i)->GetID() == data->ID() )
+			{
+				teamID = mRemotePlayers.at(i)->GetTeam();
+				break;
+			}
+		}
+		FireProjectile( data->ID(), data->ProjectileID(), teamID, data->BodyPos(), data->Direction(), data->Speed(), data->Range(), data->Damage() );
 
 		//TestSound
 		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->BodyPos());
@@ -133,7 +142,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		// Fire projectile
 		std::shared_ptr<Event_Server_Turret_Fired_Projectile> data = std::static_pointer_cast<Event_Server_Turret_Fired_Projectile>(newEvent);
-		FireProjectile( data->ID(), data->ProjectileID(), data->Position(), data->Direction(), data->Speed(), data->Range(), 1.0f ); // Don't know where to get damage from yet
+		FireProjectile( data->ID(), data->ProjectileID(), data->TeamID(), data->Position(), data->Direction(), data->Speed(), data->Range(), 1.0f ); // Don't know where to get damage from yet
 
 		//TestSound
 		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->Position());
@@ -199,9 +208,9 @@ void PlayState::BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned
 	Client::GetInstance()->SendEvent( E1 );
 }
 
-void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range, float damage )
+void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, unsigned int teamID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range, float damage )
 {
-	mProjectiles[mNrOfActiveProjectiles]->SetDirection( id, projectileID, position, direction, speed, range, damage );
+	mProjectiles[mNrOfActiveProjectiles]->SetDirection( id, projectileID, teamID, position, direction, speed, range, damage );
 	mNrOfActiveProjectiles++;
 }
 
@@ -242,12 +251,23 @@ void PlayState::CheckProjectileCollision()
 		// Players
 		if( mProjectiles[i]->IsActive() ) //&& mRemotePlayers.size() > 0 )
 		{
+			if( mPlayer->IsAlive() &&
+				( mProjectiles[i]->GetPlayerID() == 70 || mProjectiles[i]->GetPlayerID() == 71 ) && 
+				mPlayer->GetTeam() != mProjectiles[i]->GetTeamID() &&
+				mProjectiles[i]->GetBoundingCircle()->Intersect( mPlayer->GetBoundingCircle() ) )
+			{
+				mPlayer->TakeDamage( mProjectiles[i]->GetDamage(), mProjectiles[i]->GetPlayerID() );
+			}
 			for ( size_t j = 0; j < mRemotePlayers.size(); j++ )
 			{
-				if( mRemotePlayers[j]->IsAlive() && mProjectiles[i]->GetPlayerID() == mPlayer->GetID() && mProjectiles[i]->GetBoundingCircle()->Intersect( mRemotePlayers[j]->GetBoundingCircle() ) )
+				if( mRemotePlayers[j]->IsAlive() )
 				{
-					BroadcastProjectileDamage( mRemotePlayers[j]->GetID(), mProjectiles[i]->GetID() );
-					break;
+					if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() &&
+						mProjectiles[i]->GetBoundingCircle()->Intersect( mRemotePlayers[j]->GetBoundingCircle() ) )
+					{
+						BroadcastProjectileDamage( mRemotePlayers[j]->GetID(), mProjectiles[i]->GetID() );
+						break;
+					}
 				}
 			}
 
@@ -256,10 +276,21 @@ void PlayState::CheckProjectileCollision()
 			{
 				if( mEnemies[j]->IsAlive() )
 				{
-					if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() && mProjectiles[i]->GetBoundingCircle()->Intersect( mEnemies[j]->GetBoundingCircle() ) )
+					if( mPlayer->GetID() == 1 &&
+						( mProjectiles[i]->GetPlayerID() == 70 || mProjectiles[i]->GetPlayerID() == 71 ) &&
+						mProjectiles[i]->GetBoundingCircle()->Intersect( mEnemies[j]->GetBoundingCircle() ) )
 					{
 						// hit
-						BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mPlayer->GetLoadOut()->rangedWeapon->damage );
+						BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
+						mProjectiles[i]->Reset();
+						break;
+					}
+
+					if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() &&
+						mProjectiles[i]->GetBoundingCircle()->Intersect( mEnemies[j]->GetBoundingCircle() ) )
+					{
+						// hit
+						BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
 						mProjectiles[i]->Reset();
 						break;
 					}
@@ -382,7 +413,7 @@ void PlayState::HandleDeveloperCameraInput()
 	{
 		RenderManager::GetInstance()->ChangeRasterizerState( CULL_NONE );
 
-		IEventPtr E1( new Event_Client_Change_Ship_Levels( mFriendShip->GetID(), 0, -1, 0 ) );
+		IEventPtr E1( new Event_Client_Change_Ship_Levels( mFriendShip->GetID(), 0, -1, 0, 0 ) );
 		Client::GetInstance()->SendEvent( E1 );
 	}
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_2 ) )
@@ -590,7 +621,7 @@ HRESULT PlayState::Update( float deltaTime )
 
 
 	///Test fountain particle system
-	RenderManager::GetInstance()->RequestParticleSystem( 999, Test_Fountain, XMFLOAT3( 0.0f, 3.0f, 5.0f ), XMFLOAT3( 0.5f, 1.0f, 0.5f ) );
+	RenderManager::GetInstance()->RequestParticleSystem( 997, Test_Fountain, XMFLOAT3( 0.0f, 20.0f, 0.0f ), XMFLOAT3( 0.0f, -1.0f, 0.0f ) );
 
 	if( mPlayer->Upgradable() < 1 )
 	{

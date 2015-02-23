@@ -416,6 +416,11 @@ void Server::ClientChangeShipLevels( IEventPtr eventPtr )
 			if ( s->mTeamID == data->ID() )
 			{
 				s->ClientChangeShipLevels( data->TurretLevelChange(), data->ShieldLevelChange(), data->BuffLevelChange(), data->EngineLevelChange() );
+				if( s->mEngineLevel == 6 )
+				{
+					IEventPtr E1( new Event_Remote_Win( s->mTeamID ) );
+					BroadcastEvent( E1 );
+				}
 				IEventPtr E1( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel, s->mEngineLevel ) );
 				BroadcastEvent( E1 );
 				break;

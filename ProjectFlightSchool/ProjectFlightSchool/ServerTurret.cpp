@@ -40,44 +40,23 @@ void ServerTurret::SwitchMode( UINT mode )
 
 void ServerTurret::Fire()
 {
-	XMFLOAT3 weaponOffsets =	mLoadOut->rangedWeapon->weaponType == MINIGUN			? MINIGUN_OFFSETS : 
-								mLoadOut->rangedWeapon->weaponType == SHOTGUN			? SHOTGUN_OFFSETS :
-								mLoadOut->rangedWeapon->weaponType == GRENADELAUNCHER	? GL_OFFSETS :
-								mLoadOut->rangedWeapon->weaponType == SNIPER			? SNIPER_OFFSETS : XMFLOAT3( 0.0f, 0.0f, 1.0f );
-
 	XMVECTOR pos = XMLoadFloat3( &mTurretHead->pos );
-	XMVECTOR dir = XMLoadFloat3( &XMFLOAT3( mTurretHead->pos.x, mTurretHead->pos.y, mTurretHead->pos.z ) );
-	XMVECTOR off = XMLoadFloat3( &XMFLOAT3( mTurretHead->pos.x, weaponOffsets.z, mTurretHead->pos.z ) );
+	XMVECTOR dir = XMLoadFloat3( &XMFLOAT3( mTurretHead->rot.x, mTurretHead->rot.y, mTurretHead->rot.z ) );
 
-	off += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), dir ) ) * weaponOffsets.y;
-	off += dir * weaponOffsets.x;
+	pos += dir * 2.15f;
 
-	XMFLOAT3 loadDir;
-	XMStoreFloat3( &loadDir, off );
+	XMFLOAT3 loadPos;
+	XMStoreFloat3( &loadPos, pos );
 
-	XMFLOAT3 rot3 = XMFLOAT3( mRot.x, mRot.y, mRot.z );
-
-	if( mLoadOut->rangedWeapon->spread != 0.0f )
-	{
-		float dirOff = (float)( rand() % 100 ) * 0.001f - mLoadOut->rangedWeapon->spread;
-		XMFLOAT3 fireDir = XMFLOAT3( rot3.x + dirOff, rot3.y, rot3.z + dirOff );
-		IEventPtr E1( new Event_Turret_Fired_Projectile( 
-			mID, 
-			loadDir, 
-			fireDir, 
-			mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), 
-			mLoadOut->rangedWeapon->range ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
-	}
-	else
-	{
-		IEventPtr E1( new Event_Turret_Fired_Projectile( mID, 
-			loadDir, 
-			rot3, 
-			mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), 
-			mLoadOut->rangedWeapon->range ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
-	}
+	float dirOff = (float)( rand() % 100 ) * 0.001f - mLoadOut->rangedWeapon->spread;
+	XMFLOAT3 fireDir = XMFLOAT3( mTurretHead->rot.x + dirOff, mTurretHead->rot.y, mTurretHead->rot.z + dirOff );
+	IEventPtr E1( new Event_Turret_Fired_Projectile( 
+		mID, 
+		loadPos, 
+		fireDir, 
+		mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), 
+		mLoadOut->rangedWeapon->range ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 UINT ServerTurret::CheckMode() const

@@ -26,6 +26,7 @@ class ServerShip : public GameObject
 		float			mMaxHP;
 		float			mCurrentHP;
 		UINT			mNrOfEnergyCells;
+		UINT			mNrOfAvailableEnergyCells;
 		UINT			mEnergyCells[MAX_ENERGY_CELLS];
 
 		UINT			mTurretLevel;

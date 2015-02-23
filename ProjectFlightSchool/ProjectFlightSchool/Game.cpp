@@ -24,7 +24,7 @@ void Game::StartPlayState( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Connect_Client_Success::GUID )
 	{
 		IEventPtr E1( new Event_Change_State( LOBBY_STATE ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
+		EventManager::GetInstance()->TriggerEvent( E1 );
 	}
 }
 
@@ -34,14 +34,14 @@ void Game::StartPlayState( IEventPtr eventPtr )
 
 HRESULT Game::Update( float deltaTime )
 {
+	mServer->Update( deltaTime );
+	Client::GetInstance()->Update( deltaTime );
+
 	EventManager::GetInstance()->Update();
 	RenderManager::GetInstance()->Update( deltaTime );
 
-	Client::GetInstance()->Update( deltaTime );
-
-	mServer->Update( deltaTime );
-
 	mStateMachine->Update( deltaTime );
+
 
 	return S_OK;
 }

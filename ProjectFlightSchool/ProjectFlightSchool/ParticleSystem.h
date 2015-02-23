@@ -90,7 +90,7 @@ struct ParticleSystem : public ParticleData
 		// Use emitterDirection as base and randomize a different direction vector with a maximum spread angle deviation
 		SetDirection( emitterDirection.x, emitterDirection.y, emitterDirection.z, particleCount, spreadAngle );
 		if( particleType == Test_Fountain )
-			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 3.0f, particleCount );
+			GeneratePlanePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 60, 60, particleCount );
 		else
 			SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
 
@@ -98,7 +98,7 @@ struct ParticleSystem : public ParticleData
 		else if( particleType == Blood )	SetRandomDeathTime( 1, 2, particleCount );
 		else if( particleType == MuzzleFlash )	SetRandomDeathTime( 1, 2, particleCount );
 		else if( particleType == Smoke_MiniGun )	SetRandomDeathTime( 1, 6, particleCount );
-		else if( particleType == Test_Fountain )	SetRandomDeathTime( 1, 8, particleCount );
+		else if( particleType == Test_Fountain )	SetRandomDeathTime( 1, 50, particleCount );
 
 		//Add Random Rotation
 		SetRandomRotation( particleCount ); 
@@ -114,7 +114,7 @@ struct ParticleSystem : public ParticleData
 			else if( particleType == Blood )	Generate( emitterPosition, emitterDirection, 8, 25.0f );
 			else if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 4,  25.0f );
 			else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 8, 2.0f );
-			else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 8, 360.0f );
+			else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 320, 20.0f );
 	}
 
 	virtual void Update( float deltaTime )

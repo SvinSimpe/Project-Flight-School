@@ -31,11 +31,6 @@ struct ParticleSystem : public ParticleData
 
 		switch ( particleType )
 		{
-			case Spark:
-			{
-				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/sparks.dds", assetID );
-				break;
-			}
 			case Blood:
 			{
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/blood.dds", assetID );
@@ -44,6 +39,11 @@ struct ParticleSystem : public ParticleData
 			case MuzzleFlash:
 			{
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireSprite.dds", assetID );
+				break;
+			}
+			case Spark:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/sparks.dds", assetID );
 				break;
 			}
 			case Smoke_MiniGun:
@@ -108,7 +108,7 @@ struct ParticleSystem : public ParticleData
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{	
-		if( particleType == Spark )	Generate( emitterPosition, emitterDirection, 1, 25.0f );	
+		if( particleType == Spark )	Generate( emitterPosition, emitterDirection, 8, 25.0f );	
 		else if( particleType == Blood )	Generate( emitterPosition, emitterDirection, 8, 25.0f );
 		else if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 4,  25.0f );
 		else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 8, 2.0f );

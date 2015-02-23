@@ -130,7 +130,7 @@ void ParticleManager::Initialize()
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Spark]; i++ )
 	{
-		mParticleSystems[Spark][i]->Initialize( Spark, 1.0f, 64 );
+		mParticleSystems[Spark][i]->Initialize( Spark, 8.0f, 144 );
 		mNrOfParticleSystemsPerType[Spark]++;
 		mNrOfParticleSystems++;
 	}

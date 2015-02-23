@@ -214,7 +214,7 @@ struct ParticleData
 		if ( particleType == Spark )
 		{
 			//Elevation for Spark effect
-			SparkElevationY( 1.0f, 5.0f );
+			SparkElevationY( 1.0f, 2.0f );
 		}
 
 		if( particleType != Test_Fountain && particleType != Spark )
@@ -246,9 +246,9 @@ struct ParticleData
 			
 			if( particleType == Spark )
 			{
-				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 40 );
- 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 10 );
-				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 40 );		
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 20, 80 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 5 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 20, 80 );		
 			}
 			if( particleType == Blood )
 			{

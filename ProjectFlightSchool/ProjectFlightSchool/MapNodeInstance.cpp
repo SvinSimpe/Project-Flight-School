@@ -28,16 +28,16 @@ void MapNodeInstance::GetNavigationData()
 	XMFLOAT3* navPoints	= mNode->GetNavData();
 
 	//Deallocation by navmesh
-	XMFLOAT3* transformedMesh = new XMFLOAT3[navVertexCount];
-	XMMATRIX world	= DirectX::XMLoadFloat4x4( &mWorld );
+	//XMFLOAT3* transformedMesh = new XMFLOAT3[navVertexCount];
+	//XMMATRIX world	= DirectX::XMLoadFloat4x4( &mWorld );
 
-	for( UINT i = 0; i < navVertexCount; i++ )
-	{
-		DirectX::XMFLOAT3 tri1;
-		DirectX::XMStoreFloat3( &tri1, DirectX::XMVector3TransformCoord( XMLoadFloat3( &navPoints[i] ), world ) );
+	//for( UINT i = 0; i < navVertexCount; i++ )
+	//{
+	//	DirectX::XMFLOAT3 tri1;
+	//	DirectX::XMStoreFloat3( &tri1, DirectX::XMVector3TransformCoord( XMLoadFloat3( &navPoints[i] ), world ) );
 
-		transformedMesh[i] = tri1;
-	}
+	//	transformedMesh[i] = tri1;
+	//}
 
 //	mNavMesh->Initialize( transformedMesh, navVertexCount );
 	//Connect triangles

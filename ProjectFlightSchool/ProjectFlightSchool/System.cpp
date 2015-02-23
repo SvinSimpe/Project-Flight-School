@@ -200,11 +200,11 @@ void System::Release()
 	SAFE_RELEASE_DELETE( mTimer );
 
 	Client::GetInstance()->Release();
-	Graphics::GetInstance()->Release();
 	EventManager::GetInstance()->Release();
 	Input::GetInstance()->Release();
 	RenderManager::GetInstance()->Release();
 	SoundBufferHandler::GetInstance()->Release();
+	Graphics::GetInstance()->Release();
 }
 
 System::System()

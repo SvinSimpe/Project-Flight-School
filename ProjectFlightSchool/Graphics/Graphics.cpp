@@ -1674,7 +1674,7 @@ void Graphics::GbufferPass()
 
 	mCamera[CAMERAS_SHADOWMAP]->Update();
 
-	static float clearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	static float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	for( int i = 0; i < NUM_GBUFFERS; i++ )
 		mDeviceContext->ClearRenderTargetView( mGbuffers[i]->mRenderTargetView, clearColor );
 	mDeviceContext->ClearDepthStencilView( mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
@@ -2102,6 +2102,9 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 //Release all the stuff.
 void Graphics::Release()
 {
+	//ID3D11Debug* debug;
+	//mDevice->QueryInterface( __uuidof( ID3D11Debug ), reinterpret_cast<void**>( &debug ) );
+
 	SAFE_RELEASE( mSwapChain );
 	SAFE_RELEASE( mDevice );
 	SAFE_RELEASE( mDeviceContext );
@@ -2142,9 +2145,15 @@ void Graphics::Release()
 	{
 		SAFE_RELEASE( mSamplerStates[i] );
 	}
+	for( int i = 0; i < RASTERIZER_STATES_AMOUNT; i++ )
+	{
+		SAFE_RELEASE( mRasterizerState[i] );
+	}
 
 	for( int i = 0; i < NUM_GBUFFERS; i++ )
 	{
 		SAFE_RELEASE_DELETE( mGbuffers[i] );
 	}
+
+	//debug->ReportLiveDeviceObjects( D3D11_RLDO_DETAIL );
 }

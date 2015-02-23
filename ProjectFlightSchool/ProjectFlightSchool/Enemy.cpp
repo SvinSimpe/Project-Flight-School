@@ -198,12 +198,15 @@ void Enemy::Hunt( float deltaTime )
 
 void Enemy::TakeDamage( float damage, UINT killer )
 {
-	mCurrentHp -= damage;
-	if( mCurrentHp <= 0.0f )
+	if( mIsAlive )
 	{
-		Die( killer );
+		mCurrentHp -= damage;
+		if( mCurrentHp <= 0.0f )
+		{
+			Die( killer );
+		}
+		mTakingDamage	= true;
 	}
-	mTakingDamage	= true;
 }
 
 void Enemy::TakeMeleeDamage( float damage, float knockBack, XMFLOAT3 direction, float stun, UINT killer )
@@ -289,7 +292,7 @@ void Enemy::Die( UINT killer )
 	// Send dieEv
 	IEventPtr state( new Event_Set_Enemy_State( mID, Death ) );
 	EventManager::GetInstance()->QueueEvent( state );
-	IEventPtr E1( new Event_Server_XP( killer, mXpDrop ) );
+	IEventPtr E1( new Event_XP( killer, mXpDrop ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
 }
 

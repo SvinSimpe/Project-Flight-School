@@ -115,6 +115,7 @@ const EventType Event_Upgrade_Player::GUID( counter++ );
 const EventType Event_Request_Player_Spawn_Position::GUID( counter++ );
 const EventType Event_New_Player_Spawn_Position::GUID( counter++ );
 const EventType Event_Server_XP::GUID( counter++ );
+const EventType Event_XP::GUID( counter++ );
 const EventType Event_Client_Initialize_LobbyPlayer::GUID( counter++ );
 const EventType Event_Server_Initialize_LobbyPlayer::GUID( counter++ );
 const EventType Event_Client_Lobby_Finished::GUID( counter++ );

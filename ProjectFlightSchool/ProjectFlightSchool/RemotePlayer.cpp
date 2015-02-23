@@ -179,7 +179,7 @@ HRESULT RemotePlayer::InitializeGraphics()
 	/////////////////////////////////////
 	AssetID model		= 0;
 	AssetID skeleton	= 0;
-	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Robot/", "robotUpperbody.pfs", mUpperBody.playerModel ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Robot/", "robotUpperBodyTeamA.pfs", mUpperBody.playerModel ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotLegs.Skel", skeleton ) ) //Skeleton for legs
@@ -392,7 +392,10 @@ HRESULT RemotePlayer::Render()
 	if ( RenderManager::GetInstance()->AddAnim3dToList( mArms.leftArm,
 		ANIMATION_PLAY_ONCE,
 		&upperMatrix ) )
+	{
 		mLeftArmAnimationCompleted = true;
+		OutputDebugStringA(" animComplete\n" );
+	}
 
 	if ( RenderManager::GetInstance()->AddAnim3dToList( mArms.rightArm,
 		ANIMATION_PLAY_ONCE,

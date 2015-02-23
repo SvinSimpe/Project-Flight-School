@@ -471,7 +471,6 @@ void Server::SwitchTeam( IEventPtr eventPtr )
 			if( mPlayers[i]->ID == data->ID() )
 			{
 				mPlayers[i]->TeamID = data->TeamID();
-				printf( "Server:: Spelare: %d, blev lag %d\n", mPlayers[i]->ID, mPlayers[i]->TeamID );
 				IEventPtr E1( new Event_Server_Switch_Team( mPlayers[i]->ID, mPlayers[i]->TeamID ) );
 				BroadcastEvent( E1 );
 			}
@@ -783,7 +782,6 @@ bool Server::Initialize()
 
 void Server::Reset()
 {
-	
 	mStopAccept = false;
 
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
@@ -807,10 +805,10 @@ void Server::Reset()
 	mClientMap.clear();
 	mEventList.clear();
 
-	/*for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
+	for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
 	{
 		mEnergyCells[i]->Reset();
-	}*/
+	}
 
 	for( auto& s : mShips )
 	{
@@ -824,12 +822,18 @@ void Server::Release()
 {
 	// Enemies
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
-		SAFE_RELEASE_DELETE( mEnemies[i] );
+	{
+		mEnemies[i]->Release();
+		SAFE_DELETE( mEnemies[i] );
+	}
 
 	delete [] mEnemies;
 
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+	{
+		mSpawners[i]->Release();
 		SAFE_DELETE( mSpawners[i] );
+	}
 
 	delete [] mSpawners;
 

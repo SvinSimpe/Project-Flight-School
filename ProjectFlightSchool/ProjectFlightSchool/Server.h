@@ -1,5 +1,6 @@
 #ifndef SERVER_H
 #define SERVER_H
+#pragma once
 
 #include "Network.h"
 #include "ServerShip.h"
@@ -10,7 +11,6 @@
 #include <time.h>
 #include "EnergyCell.h"
 
-#pragma once
 class Enemy;
 
 class Server : public Network

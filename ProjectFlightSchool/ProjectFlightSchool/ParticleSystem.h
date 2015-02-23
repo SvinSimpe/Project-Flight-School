@@ -100,6 +100,9 @@ struct ParticleSystem : public ParticleData
 		else if( particleType == Smoke_MiniGun )	SetRandomDeathTime( 1, 6, particleCount );
 		else if( particleType == Test_Fountain )	SetRandomDeathTime( 1, 8, particleCount );
 
+		//Add Random Rotation
+		SetRandomRotation( particleCount ); 
+
 		nrOfRequestedParticles += particleCount;
 
 		SpellCasterLifeMaster();
@@ -107,7 +110,7 @@ struct ParticleSystem : public ParticleData
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{	
-			if( particleType == Explosion )	Generate( emitterPosition, emitterDirection, 150,  360.0f );
+			if( particleType == Explosion )	Generate( emitterPosition, emitterDirection, 50,  360.0f );
 			else if( particleType == Blood )	Generate( emitterPosition, emitterDirection, 8, 25.0f );
 			else if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 4,  25.0f );
 			else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 8, 2.0f );
@@ -200,19 +203,15 @@ struct ParticleSystem : public ParticleData
 				nrOfRequestedParticles = 0;	
 		}
 	}
-	float damping = 1.0;
+	
 	void ExplosionLogic( float deltaTime )
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
 		{
-			//yVelocity[i] += 0.1f;
-			//yVelocity[i] -= 0.1f;
-			//xVelocity[i] = 30.0 * damping;
-			//zVelocity[i] = 30.0 * damping;
+			yVelocity[i] += 0.01f;
 		}
-		if(damping > 0)
-			damping -= 0.01;
 	}
+	
 	void BloodLogic( float deltaTime )
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )

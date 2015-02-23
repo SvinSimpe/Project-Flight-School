@@ -161,6 +161,7 @@ void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, i
 
 				info.mAge				= particleSystem[i][j]->lifeTime[k];
 				info.mTimeTillDeath		= particleSystem[i][j]->deathTime[k] - particleSystem[i][j]->lifeTime[k];
+				info.mRandomRotation	= particleSystem[i][j]->randRot[k];
 
 				mParticleInfoArray[mNrOfParticles++] = info;
 			}

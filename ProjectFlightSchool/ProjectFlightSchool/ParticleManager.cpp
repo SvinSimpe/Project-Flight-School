@@ -133,7 +133,7 @@ void ParticleManager::Initialize()
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Explosion]; i++ )
 	{
-		mParticleSystems[Explosion][i]->Initialize( Explosion, 50.0f, 50 );
+		mParticleSystems[Explosion][i]->Initialize( Explosion, 50.0f, 1000 );
 		mNrOfParticleSystemsPerType[Explosion]++;
 		mNrOfParticleSystems++;
 	}

@@ -1066,6 +1066,7 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 
 				mParticleInstanced[objectToRender].age				= info[i].mAge;
 				mParticleInstanced[objectToRender].timeTillDeath	= info[i].mTimeTillDeath;
+				mParticleInstanced[objectToRender].randomRotation	= info[i].mRandomRotation;
 
 				objectToRender++;
 				strider++;

@@ -44,6 +44,7 @@ struct ParticleData
 	float*	deathTime	= nullptr;
 	bool*	isAlive		= nullptr;
 	float*	randRot		= nullptr;
+	float*	damping		= nullptr;
 
 	XMFLOAT3 randomDirectionVector;
 	int		 nrOfRequestedParticles		= 0;
@@ -75,6 +76,7 @@ struct ParticleData
 		deathTime	= new float[nrOfParticles];
 		isAlive		= new bool[nrOfParticles];
 		randRot		= new float[nrOfParticles];
+		damping		= new float[nrOfParticles];
 
 		for ( int i = 0; i < nrOfParticles; i += 4 )
 		{
@@ -129,6 +131,11 @@ struct ParticleData
 			randRot[i+1]	= 0.0f;
 			randRot[i+2]	= 0.0f;
 			randRot[i+3]	= 0.0f;
+
+			damping[i]		= 1.0f;
+			damping[i+1]	= 1.0f;
+			damping[i+2]	= 1.0f;
+			damping[i+3]	= 1.0f;
 		}
 
 			randomDirectionVector = XMFLOAT3( 0.0f, 0.0f, 0.0f );
@@ -148,6 +155,7 @@ struct ParticleData
 		std::swap( deathTime[a], deathTime[b] );
 		std::swap( isAlive[a], isAlive[b] );
 		std::swap( randRot[a], randRot[b] );
+		std::swap( damping[a], damping[b] );
 	}
 
 	void Wake( size_t id )
@@ -255,9 +263,9 @@ struct ParticleData
 		{
 			if( particleType == Explosion )
 			{
-				randomDirectionVector.x = xDirection * GetRandomSpeed( 20, 80 );
- 				randomDirectionVector.y = yDirection * GetRandomSpeed( 3, 10 );
-				randomDirectionVector.z = zDirection * GetRandomSpeed( 20, 80 );		
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 60, 120 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 3, 30 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 60, 120 );		
 			}
 			else if( particleType == Blood )
 			{
@@ -352,6 +360,7 @@ struct ParticleData
 		delete [] deathTime;
 		delete [] isAlive;
 		delete [] randRot;
+		delete [] damping;
 	}
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emiterDirection ) = 0;

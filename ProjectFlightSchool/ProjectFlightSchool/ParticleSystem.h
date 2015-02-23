@@ -208,8 +208,13 @@ struct ParticleSystem : public ParticleData
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
 		{
-			yVelocity[i] += 0.01f;
+			if(damping[i] > 0)
+				damping[i] -= 0.02;
+
+			xVelocity[i] = xVelocity[i] * damping[i];
+			zVelocity[i] = zVelocity[i] * damping[i];
 		}
+
 	}
 	
 	void BloodLogic( float deltaTime )

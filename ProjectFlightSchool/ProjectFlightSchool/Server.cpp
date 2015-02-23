@@ -485,6 +485,16 @@ void Server::SwitchTeam( IEventPtr eventPtr )
 	}
 }
 
+void Server::XP( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_XP::GUID )
+	{
+		std::shared_ptr<Event_XP> data = std::static_pointer_cast<Event_XP>( eventPtr );
+		IEventPtr E1( new Event_Server_XP( data->PlayerID(), data->XP() ) );
+		BroadcastEvent( E1 );
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -737,6 +747,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::LobbyPlayer, this, Event_Client_Initialize_LobbyPlayer::GUID );
 	EventManager::GetInstance()->AddListener( &Server::StopLobby, this, Event_Client_Lobby_Finished::GUID );
 	EventManager::GetInstance()->AddListener( &Server::SwitchTeam, this, Event_Client_Switch_Team::GUID );
+	EventManager::GetInstance()->AddListener( &Server::XP, this, Event_XP::GUID );
 
 	mTeamDelegate	= 1;
 	mCurrentPID		= 0;

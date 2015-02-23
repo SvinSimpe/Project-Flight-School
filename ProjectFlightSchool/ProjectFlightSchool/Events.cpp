@@ -115,6 +115,7 @@ const EventType Event_Upgrade_Player::GUID( counter++ );
 const EventType Event_Request_Player_Spawn_Position::GUID( counter++ );
 const EventType Event_New_Player_Spawn_Position::GUID( counter++ );
 const EventType Event_Server_XP::GUID( counter++ );
+const EventType Event_XP::GUID( counter++ );
 const EventType Event_Server_Update_Turret::GUID( counter++ );
 const EventType Event_Turret_Fired_Projectile::GUID( counter++ );
 const EventType Event_Server_Turret_Fired_Projectile::GUID( counter++ );

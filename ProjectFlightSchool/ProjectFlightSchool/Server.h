@@ -101,6 +101,7 @@ class Server : public Network
 		void	LobbyPlayer( IEventPtr eventPtr );
 		void	StopLobby( IEventPtr eventPtr );
 		void	SwitchTeam( IEventPtr eventPtr );
+		void	XP( IEventPtr eventPtr );
 
 		void	ClientInteractEnergyCell( IEventPtr eventPtr );
 

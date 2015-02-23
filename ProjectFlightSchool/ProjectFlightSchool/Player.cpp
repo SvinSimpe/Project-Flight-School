@@ -340,7 +340,6 @@ void Player::GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, Direct
 
 HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
 {
-	Update( deltaTime, remotePlayers, energyCells );
 	XMFLOAT2 newDir;
 	XMFLOAT3 newPos;
 	int debug = 0;
@@ -414,6 +413,8 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	}
 	mLowerBody.position.x += newDir.x;
 	mLowerBody.position.z += newDir.y;
+
+	Update( deltaTime, remotePlayers, energyCells );
 	return S_OK;
 }
 

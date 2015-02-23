@@ -12,6 +12,7 @@ void Static3dAsset::Release()
 	if( mOctTree )
 	{
 		killer.Release( mOctTree );
+		delete mOctTree;
 	}
 	for( int i = 0; i < (int)mMeshes.size(); i++ )
 		SAFE_RELEASE( mMeshes[i].mVertexBuffer );

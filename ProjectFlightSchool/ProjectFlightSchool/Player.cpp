@@ -951,6 +951,7 @@ void Player::Release()
 	IEventPtr reg( new Event_Remove_Point_Light( mPointLight ) );
 	EventManager::GetInstance()->QueueEvent( reg );
 	SAFE_DELETE( mPointLight );
+	SAFE_DELETE( mEnergyCellLight );
 }
 
 Player::Player()

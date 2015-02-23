@@ -37,6 +37,8 @@ class Projectile
 		unsigned int	GetTeamID() const;
 		unsigned int	GetPlayerID() const;
 		float			GetDamage() const;
+		XMFLOAT3		GetDirection() const;
+		XMFLOAT3		GetPosition() const;
 
 		HRESULT			Initialize();
 		void			Release();

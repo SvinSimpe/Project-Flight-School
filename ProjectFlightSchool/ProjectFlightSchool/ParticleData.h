@@ -252,9 +252,9 @@ struct ParticleData
 			}
 			if( particleType == Blood )
 			{
-				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 40 );
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 20, 80 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 10 );
-				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 40 );		
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 20, 80 );		
 			}
 			else if( particleType == MuzzleFlash )
 			{

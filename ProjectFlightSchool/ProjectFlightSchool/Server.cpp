@@ -35,7 +35,7 @@ void Server::ClientJoined( IEventPtr eventPtr )
 			{
 				IEventPtr SpawnShip( new Event_Server_Spawn_Ship( s->mID, s->mTeamID, s->mPos, s->mRot, s->mScale, s->mCurrentHP ) );
 				SendEvent( SpawnShip, data->ID() );
-				IEventPtr E1( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel ) );
+				IEventPtr E1( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel, s->mEngineLevel ) );
 				SendEvent( E1, data->ID() );
 			}
 
@@ -389,7 +389,10 @@ void Server::ClientInteractEnergyCell( IEventPtr eventPtr )
 		{
 			for( int j = 0; j < MAX_ENERGY_CELLS; j++ )
 			{
-				mShips[i]->AddEnergyCell( mEnergyCells[j]->GetOwnerID() );
+				if( mShips[i]->Intersect( mEnergyCells[j]->GetPickUpRadius() ) )
+				{
+					mShips[i]->AddEnergyCell( mEnergyCells[j]->GetOwnerID() );
+				}
 			}
 		}
 
@@ -425,8 +428,13 @@ void Server::ClientChangeShipLevels( IEventPtr eventPtr )
 		{
 			if ( s->mTeamID == data->ID() )
 			{
-				s->ClientChangeShipLevels( data->TurretLevelChange(), data->ShieldLevelChange(), data->BuffLevelChange() );
-				IEventPtr E1( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel ) );
+				s->ClientChangeShipLevels( data->TurretLevelChange(), data->ShieldLevelChange(), data->BuffLevelChange(), data->EngineLevelChange() );
+				if( s->mEngineLevel == 6 )
+				{
+					IEventPtr E1( new Event_Remote_Win( s->mTeamID ) );
+					BroadcastEvent( E1 );
+				}
+				IEventPtr E1( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel, s->mEngineLevel ) );
 				BroadcastEvent( E1 );
 				break;
 			}

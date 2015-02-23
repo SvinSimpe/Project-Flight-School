@@ -455,8 +455,10 @@ bool RemoteEventSocket::HandleInput()
 			std::istringstream in( buf + sizeof( u_long ), (size - sizeof( u_long ) ) );
 
 			CreateEvent( in );
+
 			in.str( std::string() );
 			in.clear();
+
 		}
 		else if( packet->GetType() == BinaryPacket::GUID )
 		{

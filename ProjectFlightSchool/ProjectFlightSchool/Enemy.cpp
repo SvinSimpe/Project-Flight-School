@@ -329,6 +329,11 @@ XMFLOAT3 Enemy::GetDirection() const
 	return mDirection;
 }
 
+float Enemy::GetHP() const
+{
+	return mCurrentHp;
+}
+
 float Enemy::GetSpeed() const
 {
 	return mSpeed;

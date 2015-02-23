@@ -162,6 +162,20 @@ bool ServerShip::Intersect( BoundingCircle* entity )
 	return false;
 }
 
+void ServerShip::Update( float deltaTime )
+{
+	mWasUpdated = false;
+	mServerTurret->Update( deltaTime );
+}
+
+void ServerShip::FindTurretTarget( std::vector<BoundingCircle*> enemies )
+{
+	for( auto& enemy : enemies )
+	{
+		mServerTurret->FindTarget( enemy );
+	}
+}
+
 void ServerShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID )
 {
 	GameObject::Initialize( pos, rot, scale, assetID );
@@ -179,16 +193,11 @@ void ServerShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 	mMaxHP			= 100.0f;
 	mCurrentHP		= mMaxHP;
 
-	mServerTurret->Reset( id, teamID, pos, rot, scale );
+	mServerTurret->Reset( id + 10, teamID, pos, rot, scale );
 	for( UINT i = 0; i < MAX_LEVEL; i++ )
 	{
 		ClientChangeShipLevels( -1, -1, -1 );
 	}
-}
-
-void ServerShip::Update( float deltaTime )
-{
-	mWasUpdated = false;
 }
 
 void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID )
@@ -212,7 +221,7 @@ void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 		ClientChangeShipLevels( -1, -1, -1 );
 	}
 
-	mServerTurret->Initialize( id, teamID, pos, rot, scale, assetID );
+	mServerTurret->Initialize( id + 10, teamID, pos, rot, scale, assetID );
 
 	EventManager::GetInstance()->AddListener( &ServerShip::ClientUpdateShip, this, Event_Client_Update_Ship::GUID );
 }

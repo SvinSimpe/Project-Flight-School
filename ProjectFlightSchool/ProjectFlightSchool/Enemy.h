@@ -291,9 +291,9 @@ class Enemy
 		bool				IsAlive() const;
 		XMFLOAT3			GetPosition() const;
 		XMFLOAT3			GetDirection() const;
+		float				GetHP() const;
 		float				GetSpeed() const;
 		XMFLOAT3			GetVelocity() const;
-		
 
 		HRESULT				Initialize( int id, ServerPlayer** players, UINT NrOfPlayers );
 		void				Reset();

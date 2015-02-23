@@ -4,20 +4,20 @@ void ServerShip::ChangeTurretLevel( int change )
 {
 	if( change != 0 )
 	{
-		if( change > 0 )
+		if( change > 0 && mNrOfAvailableEnergyCells > 0 )
 		{
-			mTurretLevel++;
-			if( mTurretLevel > MAX_LEVEL )
+			if( mTurretLevel != MAX_LEVEL )
 			{
-				mTurretLevel = MAX_LEVEL;
+				mTurretLevel++;
+				mNrOfAvailableEnergyCells--;
 			}
 		}
 		else
 		{
-			mTurretLevel--;
-			if( mTurretLevel < MIN_LEVEL )
+			if( mTurretLevel != MIN_LEVEL )
 			{
-				mTurretLevel = MIN_LEVEL;
+				mTurretLevel--;
+				mNrOfAvailableEnergyCells++;
 			}
 		}
 		CalcTurretLevel();
@@ -28,20 +28,20 @@ void ServerShip::ChangeShieldLevel( int change )
 {
 	if( change != 0 )
 	{
-		if( change > 0 )
+		if( change > 0 && mNrOfAvailableEnergyCells > 0 )
 		{
-			mShieldLevel++;
-			if( mShieldLevel > MAX_LEVEL )
+			if( mShieldLevel != MAX_LEVEL )
 			{
-				mShieldLevel = MAX_LEVEL;
+				mShieldLevel++;
+				mNrOfAvailableEnergyCells--;
 			}
 		}
 		else
 		{
-			mShieldLevel--;
-			if( mShieldLevel < MIN_LEVEL )
+			if( mShieldLevel != MIN_LEVEL )
 			{
-				mShieldLevel = MIN_LEVEL;
+				mShieldLevel--;
+				mNrOfAvailableEnergyCells++;
 			}
 		}
 		CalcShieldLevel();
@@ -52,20 +52,20 @@ void ServerShip::ChangeBuffLevel( int change )
 {
 	if( change != 0 )
 	{
-		if( change > 0 )
+		if( change > 0 && mNrOfAvailableEnergyCells > 0 )
 		{
-			mBuffLevel++;
-			if( mBuffLevel > MAX_LEVEL )
+			if( mBuffLevel != MAX_LEVEL )
 			{
-				mBuffLevel = MAX_LEVEL;
+				mBuffLevel++;
+				mNrOfAvailableEnergyCells--;
 			}
 		}
 		else
 		{
-			mBuffLevel--;
-			if( mBuffLevel < MIN_LEVEL )
+			if( mBuffLevel != MIN_LEVEL )
 			{
-				mBuffLevel = MIN_LEVEL;
+				mBuffLevel--;
+				mNrOfAvailableEnergyCells++;
 			}
 		}
 		CalcBuffMod();
@@ -111,6 +111,7 @@ void ServerShip::AddEnergyCell( UINT energyCellOwnerID )
 	if( energyCellOwnerID == mID )
 	{
 		mNrOfEnergyCells++;
+		mNrOfAvailableEnergyCells++;
 	}
 }
 
@@ -185,13 +186,15 @@ void ServerShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 	mID				= id;
 	mTeamID			= teamID;
 
-	mTurretLevel	= MIN_LEVEL;
-	mShieldLevel	= MIN_LEVEL;
-	mBuffLevel		= MIN_LEVEL;
-	mMaxShield		= 100.0f;
-	mCurrentShield	= mMaxShield;
-	mMaxHP			= 100.0f;
-	mCurrentHP		= mMaxHP;
+	mTurretLevel				= MIN_LEVEL;
+	mShieldLevel				= MIN_LEVEL;
+	mBuffLevel					= MIN_LEVEL;
+	mMaxShield					= 100.0f;
+	mCurrentShield				= mMaxShield;
+	mMaxHP						= 100.0f;
+	mCurrentHP					= mMaxHP;
+	mNrOfEnergyCells			= 0;
+	mNrOfAvailableEnergyCells	= 0;
 
 	mServerTurret->Reset( id + 10, teamID, pos, rot, scale );
 	for( UINT i = 0; i < MAX_LEVEL; i++ )
@@ -269,17 +272,19 @@ void ServerShip::Release()
 
 ServerShip::ServerShip() : GameObject()
 {
-	mBuffMod		= 0.0f;
-	mServerTurret	= nullptr;
-	mBuffCircle		= nullptr;
-	mID				= (UINT)-1;
-	mTeamID			= (UINT)-1;
-	mTurretLevel	= 0;
-	mShieldLevel	= 0;
-	mBuffLevel		= 0;
-	mMaxHP			= 0.0f;
-	mCurrentHP		= 0.0f;
-	mWasUpdated		= false;
+	mBuffMod					= 0.0f;
+	mServerTurret				= nullptr;
+	mBuffCircle					= nullptr;
+	mID							= (UINT)-1;
+	mTeamID						= (UINT)-1;
+	mTurretLevel				= 0;
+	mShieldLevel				= 0;
+	mBuffLevel					= 0;
+	mMaxHP						= 0.0f;
+	mCurrentHP					= 0.0f;
+	mWasUpdated					= false;
+	mNrOfEnergyCells			= 0;
+	mNrOfAvailableEnergyCells	= 0;
 }
 
 ServerShip::~ServerShip()

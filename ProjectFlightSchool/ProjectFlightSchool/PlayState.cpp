@@ -458,7 +458,6 @@ void PlayState::RenderProjectiles()
 	{
 		mProjectiles[i]->Render();
 	}
-
 }
 
 void PlayState::SetEnemyState( unsigned int id, EnemyState state )
@@ -486,6 +485,7 @@ HRESULT PlayState::Update( float deltaTime )
 {
 	//Fps update
 	mFPS = mFPS * 0.1f + 0.9f / deltaTime;
+	HandleDeveloperCameraInput();
 
 	while( !mPlayer->gEventList.empty() )
 	{

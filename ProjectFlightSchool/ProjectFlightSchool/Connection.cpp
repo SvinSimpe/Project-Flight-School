@@ -453,20 +453,9 @@ bool RemoteEventSocket::HandleInput()
 
 			std::istringstream in( buf + sizeof( u_long ), (size - sizeof( u_long ) ) );
 
-			int type;
-			in >> type;
-			switch( type ) // This is where we will put the input logic to the client
-			{
-			case NetMsg_Event:
-				{
-					CreateEvent( in );
-				}
-				break;
-			default:
-				{
-					std::cout << "Unknown message type." << std::endl;
-				}
-			}
+			CreateEvent( in );
+			in.str( std::string() );
+			in.clear();
 		}
 		else if( packet->GetType() == BinaryPacket::GUID )
 		{
@@ -827,7 +816,6 @@ void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 {
 	std::ostringstream out;
 
-	out << static_cast<int>( RemoteEventSocket::NetMsg_Event ) << " ";
 	out << eventPtr->GetEventType() << " ";
 	eventPtr->Serialize( out );
 	out << "\r\n";
@@ -836,6 +824,9 @@ void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 
 	if( this )
 		mSocketManager->Send( mSocketID, msg );
+
+	out.str( std::string() );
+	out.clear();
 }
 
 void NetworkEventForwarder::Initialize( UINT socketID, SocketManager* sm )

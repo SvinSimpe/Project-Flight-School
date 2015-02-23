@@ -70,14 +70,14 @@ void Server::ClientJoined( IEventPtr eventPtr )
 				SendEvent( EvEnemy, data->ID() );
 			}
 
-			//for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
-			//{
-			//	IEventPtr EvEnergyCell( new Event_Server_Sync_Energy_Cell(	i,
-			//																mEnergyCells[i]->GetOwnerID(),
-			//																mEnergyCells[i]->GetPosition(),
-			//																mEnergyCells[i]->GetPickedUp() ) );
-			//	SendEvent( EvEnergyCell, data->ID() );
-			//}
+			for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+			{
+				IEventPtr EvEnergyCell( new Event_Server_Sync_Energy_Cell(	i,
+																			mEnergyCells[i]->GetOwnerID(),
+																			mEnergyCells[i]->GetPosition(),
+																			mEnergyCells[i]->GetPickedUp() ) );
+				SendEvent( EvEnergyCell, data->ID() );
+			}
 		}
 	}
 }
@@ -805,10 +805,10 @@ void Server::Reset()
 	mClientMap.clear();
 	mEventList.clear();
 
-	for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
-	{
-		mEnergyCells[i]->Reset();
-	}
+	//for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
+	//{
+	//	mEnergyCells[i]->Reset();
+	//}
 
 	for( auto& s : mShips )
 	{

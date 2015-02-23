@@ -365,26 +365,19 @@ struct ParticleData
 	void GeneratePlanePosition( float xPosition, float yPosition, float zPosition, int width, int height, size_t particleCount )
 	{
 		float randX, randZ = 0;
-		float xMin = ( xPosition - width  ) * 1000.0f;
-		float xMax = ( xPosition + width  ) * 1000.0f;
-		float zMin = ( zPosition - height ) * 1000.0f;
-		float zMax = ( zPosition + height ) * 1000.0f;
+		float xMin = ( xPosition - width  ) * 100.0f;
+		float xMax = ( xPosition + width  ) * 100.0f;
+		float zMin = ( zPosition - height ) * 100.0f;
+		float zMax = ( zPosition + height ) * 100.0f;
 
 
 		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
 		{
-			if( xMin < 0.0f && xMax < 0.0f )
-				randX = ( xMin + ( rand() % (int)( xMax - xMin + 1 ) ) );
-			else
-				randX = ( xMin + ( rand() % (int)( xMax - xMin + 1 ) ) );
+			randX = ( xMin + ( rand() % (int)( xMax - xMin + 1 ) ) );
+			randZ = ( zMin + ( rand() % (int)( zMax - zMin + 1 ) ) );
 
-			if( zMin < 0.0f && zMax < 0.0f )
-				randZ = ( zMin + ( rand() % (int)( zMax - zMin + 1 ) ) );
-			else
-				randZ = ( zMin + ( rand() % (int)( zMax - zMin + 1 ) ) );
-
-			randX *= 0.001f;
-			randZ *= 0.001f;
+			randX *= 0.01f;
+			randZ *= 0.01f;
 
 			this->xPosition[i] = (float)randX;
 			this->yPosition[i] = yPosition;

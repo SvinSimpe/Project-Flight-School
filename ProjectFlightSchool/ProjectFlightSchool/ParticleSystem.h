@@ -86,7 +86,7 @@ struct ParticleSystem : public ParticleData
 		// Use emitterDirection as base and randomize a different direction vector with a maximum spread angle deviation
 		SetDirection( emitterDirection.x, emitterDirection.y, emitterDirection.z, particleCount, spreadAngle );
 		if( particleType == Test_Fountain )
-			GenerateCircleEdgePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 10, particleCount );
+			GeneratePlanePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 60, 60, particleCount );
 		else
 			SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
 		

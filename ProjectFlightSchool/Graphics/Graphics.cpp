@@ -91,6 +91,8 @@ HRESULT Graphics::InitializeDepthStencilStates()
 
 	if ( FAILED( hr = mDevice->CreateDepthStencilState( &depthStencilDesc, &mDepthStencils[DEPTHSTENCILS_MASK_DISABLED] ) ) )
 		return hr;
+
+	return hr;
 }
 
 HRESULT Graphics::InitializeSamplerStates()
@@ -446,6 +448,16 @@ HRESULT Graphics::InitializeEffects()
 	effectInfo.isGeometryShaderIncluded = true;
 
 	if( FAILED( hr = mEffects[EFFECTS_FIRE]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Muzzle Flash effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/ExplosionEffect.hlsl";
+	effectInfo.fileName					= "ExplosionEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_EXPLOSION]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 	//--------------------------
 
@@ -1064,6 +1076,7 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 
 				mParticleInstanced[objectToRender].age				= info[i].mAge;
 				mParticleInstanced[objectToRender].timeTillDeath	= info[i].mTimeTillDeath;
+				mParticleInstanced[objectToRender].randomRotation	= info[i].mRandomRotation;
 
 				objectToRender++;
 				strider++;
@@ -1861,7 +1874,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 			&mDevice,
 			&initiatedFeatureLevel,
 			&mDeviceContext );
-
+	
 	if( FAILED( hr ) )
 		return hr;
 	
@@ -2077,6 +2090,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 	cameraInfo.eyePos		= DirectX::XMFLOAT4( 0.0f, 50.0f, -50.0f, 0.0f );
 	cameraInfo.focusPoint	= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
 	cameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
+	cameraInfo.farZ			= 1000.0f;
 
 	hr = mCamera[CAMERAS_DEV]->Initialize( &cameraInfo );
 	if( FAILED( hr ) )

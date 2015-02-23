@@ -204,12 +204,6 @@
     <ClCompile Include="InputSquare.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Turret.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Ship.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ParticleManager.cpp">
       <Filter>Particle System\Source</Filter>
     </ClCompile>
@@ -273,11 +267,11 @@
     <ClCompile Include="ServerShip.cpp">
       <Filter>Network\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UpgradeShipWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MovingButton.cpp">
       <Filter>GUI\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="EnergyCell.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RemoteEnemy.cpp">
       <Filter>Enemy\Source Files</Filter>
@@ -306,6 +300,12 @@
     <ClCompile Include="UpgradeShipWindow.cpp">
       <Filter>GUI\Source</Filter>
     </ClCompile>
+    <ClCompile Include="SteeringBehavior.cpp">
+      <Filter>Enemy\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SteeringBehaviorManager.cpp">
+      <Filter>Enemy\Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="DSBufferStream.cpp">
       <Filter>DirectSound\Source</Filter>
     </ClCompile>
@@ -314,6 +314,12 @@
     </ClCompile>
     <ClCompile Include="LobbyState.cpp">
       <Filter>GameStates\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UpgradePlayerWindow.cpp">
+      <Filter>GUI\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="UpgradeShipWindow.cpp">
+      <Filter>GUI\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -425,12 +431,6 @@
     <ClInclude Include="InputSquare.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Turret.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Ship.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleData.h">
       <Filter>Particle System\Header</Filter>
     </ClInclude>
@@ -503,11 +503,11 @@
     <ClInclude Include="ServerShip.h">
       <Filter>Network\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UpgradeShipWindow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MovingButton.h">
       <Filter>GUI\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="EnergyCell.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Enemy.h">
       <Filter>Enemy\Header Files</Filter>
@@ -536,11 +536,20 @@
     <ClInclude Include="UpgradeShipWindow.h">
       <Filter>GUI\Header</Filter>
     </ClInclude>
+    <ClInclude Include="SteeringBehavior.h">
+      <Filter>Enemy\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SteeringBehaviorManager.h">
+      <Filter>Enemy\Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="DSBufferStream.h">
       <Filter>DirectSound\Header</Filter>
     </ClInclude>
     <ClInclude Include="LobbyState.h">
       <Filter>GameStates\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UpgradeShipWindow.h">
+      <Filter>GUI\Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

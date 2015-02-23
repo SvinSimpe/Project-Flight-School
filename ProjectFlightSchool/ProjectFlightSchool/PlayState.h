@@ -15,11 +15,15 @@
 #include "EnemyAnimationManager.h"
 #include "Gui.h"
 #include "SoundBufferHandler.h"
+#include "EnergyCell.h"
+
+//TestUpgradeWindow
+#include "UpgradeShipWindow.h"
 
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
-#define TOSERVER_OFFSET			5000;
+#define TOSERVER_OFFSET			5000
 
 class PlayState : public BaseState
 {
@@ -50,8 +54,9 @@ class PlayState : public BaseState
 		float						mAlliesHP[MAX_REMOTE_PLAYERS / 2];
 		Gui*						mGui;
 
-		std::vector<ClientShip*>	mShips;
-		ClientShip*					mMyShip;	// A pointer to the Client's own ship, used to show the remaining HP of it
+		ClientShip*					mFriendShip;	// A pointer to the Client's own ship, used to show the remaining HP of it
+		ClientShip*					mEnemyShip;		// A pointer to the other team's ship, used for interaction with that
+		EnergyCell**				mEnergyCells;
 
 		//TestSound
 		int							m3DSoundAsset;
@@ -70,7 +75,7 @@ class PlayState : public BaseState
 		void			BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction );
 		void			BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage );
 		void			BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float knockBack, XMFLOAT3 direction );
-		void			FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range );
+		void			FireProjectile( unsigned int id, unsigned int projectileID, unsigned int teamID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range, float damage );
 		void			CheckPlayerCollision();
 		void			CheckProjectileCollision();
 		void			CheckMeeleCollision();
@@ -80,6 +85,7 @@ class PlayState : public BaseState
 		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive );
 		void			RenderProjectiles();
 		void			SetEnemyState( unsigned int id, EnemyState state );
+	
 
 	protected:
 	public:

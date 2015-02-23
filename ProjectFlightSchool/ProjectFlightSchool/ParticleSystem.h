@@ -36,6 +36,11 @@ struct ParticleSystem : public ParticleData
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireParticle.dds", assetID );
 				break;
 			}
+			case Explosion:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireSprite.dds", assetID );
+				break;
+			}
 			case Blood:
 			{
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/blood.dds", assetID );
@@ -90,18 +95,22 @@ struct ParticleSystem : public ParticleData
 		// Use emitterDirection as base and randomize a different direction vector with a maximum spread angle deviation
 		SetDirection( emitterDirection.x, emitterDirection.y, emitterDirection.z, particleCount, spreadAngle );
 		if( particleType == Test_Fountain )
-			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 3.0f, particleCount );
-
+			GeneratePlanePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 60, 60, particleCount );
 		else if( particleType == Fire )
 			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 1.5f, particleCount );	//-----------------circle spawn instead of point
 		else
-			SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
-		
-		if( particleType == Fire )	SetRandomDeathTime( 1, 8, particleCount );	//---------------------------------------------------------random lifetime
+			SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );	
+
+		if( particleType == Explosion )	SetRandomDeathTime( 1, 3, particleCount );
+		else if( particleType == Fire )	SetRandomDeathTime( 1, 8, particleCount );	//---------------------------------------------------------random lifetime
 		else if( particleType == Blood )	SetRandomDeathTime( 1, 2, particleCount );
 		else if( particleType == MuzzleFlash )	SetRandomDeathTime( 1, 2, particleCount );
 		else if( particleType == Smoke_MiniGun )	SetRandomDeathTime( 1, 6, particleCount );
-		else if( particleType == Test_Fountain )	SetRandomDeathTime( 1, 8, particleCount );
+		else if( particleType == Test_Fountain )	SetRandomDeathTime( 1, 50, particleCount );
+
+		//Add Random Rotation
+		if(particleType == Fire)
+			SetRandomRotation( particleCount ); 
 
 		nrOfRequestedParticles += particleCount;
 
@@ -111,10 +120,11 @@ struct ParticleSystem : public ParticleData
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{	
 			if ( particleType == Fire )	Generate( emitterPosition, emitterDirection, 8, 35.0f );
+			else if( particleType == Explosion )	Generate( emitterPosition, emitterDirection, 50,  360.0f );
 			else if( particleType == Blood )	Generate( emitterPosition, emitterDirection, 8, 25.0f );
 			else if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 4,  25.0f );
 			else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 8, 2.0f );
-			else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 8, 360.0f );
+			else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 320, 20.0f );
 	}
 
 	virtual void Update( float deltaTime )
@@ -128,10 +138,17 @@ struct ParticleSystem : public ParticleData
 		// Update logic based on Particle type
 		switch( particleType )
 		{
+
 			case Fire: 
 			{
 				// Update Fire logic here
 				FireLogic( deltaTime );
+				break;
+			}
+			case Explosion: 
+			{
+				// Update Blood logic here
+				ExplosionLogic( deltaTime );
 				break;
 			}
 			case Blood: 
@@ -203,13 +220,26 @@ struct ParticleSystem : public ParticleData
 				nrOfRequestedParticles = 0;	
 		}
 	}
-	
+
 	void FireLogic( float deltaTime )
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
 		{
 			
 		}
+	}
+
+	void ExplosionLogic( float deltaTime )
+	{
+		for ( int i = 0; i < nrOfParticlesAlive; i++ )
+		{
+			if(damping[i] > 0)
+				damping[i] -= 0.02;
+
+			xVelocity[i] = xVelocity[i] * damping[i];
+			zVelocity[i] = zVelocity[i] * damping[i];
+		}
+
 	}
 
 	void BloodLogic( float deltaTime )

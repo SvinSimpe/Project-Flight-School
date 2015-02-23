@@ -96,15 +96,15 @@ void Client::DoSelect( int pauseMicroSecs, bool handleInput )
 
 void Client::Update( float deltaTime )
 {
-	if( mActive )
+	if( this && mActive )
 	{
+		DoSelect( 0 );
 		while( !mEventList.empty() )
 		{
 			mNEF->ForwardEvent( mEventList.back() );
 			mEventList.pop_back();
 		}
 		mEventList.clear();
-		DoSelect( 0 );
 	}
 }
 

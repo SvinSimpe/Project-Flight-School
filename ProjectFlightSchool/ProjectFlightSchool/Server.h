@@ -120,6 +120,7 @@ class Server : public Network
 		bool	Connect( UINT port );
 
 	public:
+		bool	IsActive() const;
 		void	BroadcastEvent( IEventPtr eventPtr, UINT exception = (UINT)-1 );
 		void	Shutdown();
 		void	Update( float deltaTime );

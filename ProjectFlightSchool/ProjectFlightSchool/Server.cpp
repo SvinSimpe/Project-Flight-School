@@ -147,14 +147,13 @@ void Server::ClientDied( IEventPtr eventPtr )
 			BroadcastEvent( E1, data->ID() );
 		}
 		for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
+		{
+			if( mPlayers[i] != nullptr )
 			{
-				if( mPlayers[i] != nullptr )
-				{
-					if( mPlayers[i]->ID == data->ID() )
-						mPlayers[i]->IsAlive		= false;
-				}
+				if( mPlayers[i]->ID == data->ID() )
+					mPlayers[i]->IsAlive		= false;
 			}
-
+		}
 	}
 }
 
@@ -513,6 +512,7 @@ void Server::StartUp( IEventPtr eventPtr )
 		}
 		else
 		{
+			mActive = false;
 			IEventPtr E1( new Event_Connect_Server_Fail ( "Server failed at connecting!" ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 			Release();
@@ -523,6 +523,11 @@ void Server::StartUp( IEventPtr eventPtr )
 void Server::DoSelect( int pauseMicroSecs, bool handleInput )
 {
 	mSocketManager->DoSelect( pauseMicroSecs, handleInput );
+}
+
+bool Server::IsActive() const
+{
+	return mActive;
 }
 
 void Server::BroadcastEvent( IEventPtr eventPtr, UINT exception )
@@ -601,7 +606,7 @@ void Server::UpdateShip( float deltaTime, ServerShip* s )
 	for( auto& cm : mClientMap )
 	{
 		ClientNEF* c = cm.second;
-		if( s->mTeamID != c->TeamID && c->HP > 0.0f)
+		if( s->mTeamID != c->TeamID && c->HP > 0.0f )
 		{
 			enemyCircles.push_back( &c->Pos );
 		}
@@ -635,6 +640,7 @@ void Server::Update( float deltaTime )
 {
 	if( this && mActive )
 	{
+		DoSelect( 0 );
 		// Handles the client getting buffed by the ship
 		bool shipBuff = false;
 
@@ -699,7 +705,6 @@ void Server::Update( float deltaTime )
 			mClientMap[mEventList.back().ToID]->NEF.ForwardEvent( mEventList.back().EventPtr );
 			mEventList.pop_back();
 		}
-		DoSelect( 0 );
 	}
 }
 
@@ -815,7 +820,6 @@ void Server::Reset()
 		SAFE_RELEASE_DELETE( s );
 	}
 	mShips.clear();
-
 }
 
 void Server::Release()

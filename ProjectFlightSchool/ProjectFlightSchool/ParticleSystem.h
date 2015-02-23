@@ -91,7 +91,7 @@ struct ParticleSystem : public ParticleData
 		SetDirection( emitterDirection.x, emitterDirection.y, emitterDirection.z, particleCount, spreadAngle );
 		
 		if( particleType == Test_Fountain )
-			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 3.0f, particleCount );
+			GeneratePlanePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 60, 60, particleCount );
 		else
 			SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
 		
@@ -99,7 +99,7 @@ struct ParticleSystem : public ParticleData
 		else if( particleType == Blood )	SetRandomDeathTime( 1, 2, particleCount );
 		else if( particleType == MuzzleFlash )	SetRandomDeathTime( 1, 2, particleCount );
 		else if( particleType == Smoke_MiniGun )	SetRandomDeathTime( 1, 6, particleCount );
-		else if( particleType == Test_Fountain )	SetRandomDeathTime( 1, 8, particleCount );
+		else if( particleType == Test_Fountain )	SetRandomDeathTime( 1, 50, particleCount );
 
 		nrOfRequestedParticles += particleCount;
 

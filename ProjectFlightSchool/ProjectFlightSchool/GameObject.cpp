@@ -56,9 +56,9 @@ void GameObject::SetAssetID(AssetID assetID)
 
 void GameObject::Initialize( XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID )
 {
-	DirectX::XMMATRIX translation	= XMMatrixTranslation( pos.x, pos.y, pos.z );
-	DirectX::XMMATRIX rotation		= XMMatrixRotationRollPitchYaw( rot.x, rot.y, rot.z );
 	DirectX::XMMATRIX scalemat		= XMMatrixScaling( scale.x, scale.y, scale.z );
+	DirectX::XMMATRIX rotation		= XMMatrixRotationRollPitchYaw( rot.x, rot.y, rot.z );
+	DirectX::XMMATRIX translation	= XMMatrixTranslation( pos.x, pos.y, pos.z );
 
 	GameObjectInfo goi;
 	DirectX::XMStoreFloat4x4( &goi.transformation, scalemat * rotation * translation ); // think about the order here, might be reversed
@@ -78,10 +78,10 @@ void GameObject::Initialize( GameObjectInfo gameObjectInfo, AssetID assetID )
 	XMStoreFloat4( &mRot, rotation );
 	XMStoreFloat3( &mPos, translation );
 
-	mPos.z = -mPos.z;
-
 	mRot.x = -mRot.x;
 	mRot.y = -mRot.y;
+
+	mPos.z = -mPos.z;
 
 	mAssetID = assetID;
 }

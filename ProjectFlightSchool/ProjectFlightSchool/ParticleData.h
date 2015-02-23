@@ -365,6 +365,48 @@ struct ParticleData
 		}
 	}
 
+	void GenerateCircleEdgePosition( float xPosition, float yPosition, float zPosition, float radius, size_t particleCount )
+	{
+		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
+		{
+			float randomAngle = (float)( rand() % 360 + 1 );
+
+			XMVECTOR randomDirection = XMVector3TransformCoord( XMVectorSet( 1.0f, 0.0f, 0.0f, 0.0f ), XMMatrixRotationY( XMConvertToRadians( randomAngle ) ) );
+
+			randomDirection *= radius;
+
+			XMFLOAT3 temp = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			XMStoreFloat3( &temp, XMLoadFloat3( &XMFLOAT3( xPosition, yPosition, zPosition ) ) + randomDirection );
+
+			this->xPosition[i] = temp.x;
+			this->yPosition[i] = temp.y;
+			this->zPosition[i] = temp.z;
+		}
+	}
+
+	void GeneratePlanePosition( float xPosition, float yPosition, float zPosition, int width, int height, size_t particleCount )
+	{
+		float randX, randZ = 0;
+		float xMin = ( xPosition - width  ) * 100.0f;
+		float xMax = ( xPosition + width  ) * 100.0f;
+		float zMin = ( zPosition - height ) * 100.0f;
+		float zMax = ( zPosition + height ) * 100.0f;
+
+
+		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
+		{
+			randX = ( xMin + ( rand() % (int)( xMax - xMin + 1 ) ) );
+			randZ = ( zMin + ( rand() % (int)( zMax - zMin + 1 ) ) );
+
+			randX *= 0.01f;
+			randZ *= 0.01f;
+
+			this->xPosition[i] = (float)randX;
+			this->yPosition[i] = yPosition;
+			this->zPosition[i] = (float)randZ;
+		}
+	}
+
 	#pragma endregion
 };
 #endif

@@ -26,6 +26,7 @@ class ServerShip : public GameObject
 		float			mMaxHP;
 		float			mCurrentHP;
 		UINT			mNrOfEnergyCells;
+		UINT			mNrOfAvailableEnergyCells;
 		UINT			mEnergyCells[MAX_ENERGY_CELLS];
 
 		UINT			mTurretLevel;
@@ -58,8 +59,9 @@ class ServerShip : public GameObject
 
 		virtual bool	TakeDamage( float damage );
 		virtual bool	Intersect( BoundingCircle* entity ); // Will check for intersects with buffable players
-		virtual void	Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID = CUBE_PLACEHOLDER );
 		virtual void	Update( float deltaTime );
+		void			FindTurretTarget( std::vector<BoundingCircle*> enemies );
+		virtual void	Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID = CUBE_PLACEHOLDER );
 		virtual void	Initialize( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID = CUBE_PLACEHOLDER );
 		virtual void	Initialize( UINT id, UINT teamID, GameObjectInfo gameObjectInfo, AssetID assetID = CUBE_PLACEHOLDER );
 		virtual void	Release();

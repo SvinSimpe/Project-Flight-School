@@ -158,7 +158,7 @@ void ParticleManager::Initialize()
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Test_Fountain]; i++ )
 	{
-		mParticleSystems[Test_Fountain][i]->Initialize( Test_Fountain, 8.0f, 1024 );
+		mParticleSystems[Test_Fountain][i]->Initialize( Test_Fountain, 320.0f, 10000 );
 		mNrOfParticleSystemsPerType[Test_Fountain]++;
 		mNrOfParticleSystems++;
 	}

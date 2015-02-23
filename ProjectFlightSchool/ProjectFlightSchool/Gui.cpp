@@ -119,7 +119,7 @@ HRESULT Gui::Render()
 	////////////////
 	//Level up
 	////////////////
-	if( mExperience >= 1 )
+	if( mExperience >= 1 && !mPlayerWindow.IsActive() )
 	{
 
 		RenderManager::GetInstance()->AddObject2dToList( mLevelUp, mTopLeftCompWithPlayerHealthXP, mSizeLevelUp );

@@ -4160,6 +4160,59 @@ class Event_Server_XP : public IEvent
 
 };
 
+class Event_XP : public IEvent
+{
+	private:
+		UINT		mPlayerID;
+		int			mXP;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_XP()
+		{
+			mPlayerID	= (UINT)-1;
+			mXP			= 0;
+		}
+		Event_XP( UINT playerID, int XP )
+		{
+			mPlayerID	= playerID;
+			mXP			= XP;
+		}
+		~Event_XP() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mPlayerID	 << " ";
+			out << mXP			 << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mPlayerID;
+			in >> mXP;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_XP( mPlayerID, mXP ) );
+		}
+		UINT PlayerID() const
+		{
+			return mPlayerID;
+		}
+		int XP() const
+		{
+			return mXP;
+		}
+
+};
+
 // Sent from the client when the turret wants to shoot something
 class Event_Client_Turret_Fire : public IEvent
 {

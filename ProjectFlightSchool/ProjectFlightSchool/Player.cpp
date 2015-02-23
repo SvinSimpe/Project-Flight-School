@@ -197,7 +197,7 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		if ( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_LEFT ) && mWeaponCoolDown <= 0.0f )
 		{
 			Fire();
-			mWeaponCoolDown = 0.1f;
+			mWeaponCoolDown = mLoadOut->rangedWeapon->attackRate;
 
 			RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] );
 			mRightArmAnimationCompleted = false;

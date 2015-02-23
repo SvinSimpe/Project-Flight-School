@@ -59,6 +59,12 @@ void ServerTurret::Fire()
 	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
+void ServerTurret::ClearTarget()
+{
+	mTarget = nullptr;
+	SwitchMode( IDLE_MODE );
+}
+
 UINT ServerTurret::CheckMode() const
 {
 	return mCurrentMode;
@@ -97,8 +103,7 @@ void ServerTurret::FindTarget( BoundingCircle* enemy )
 		}
 		else if( !mTarget->Intersect( mScanCircle ) )
 		{
-			mTarget = nullptr;
-			SwitchMode( IDLE_MODE );
+			ClearTarget();
 		}
 	}
 }

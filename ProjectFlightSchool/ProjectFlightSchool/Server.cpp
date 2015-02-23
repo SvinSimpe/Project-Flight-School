@@ -143,15 +143,21 @@ void Server::ClientDied( IEventPtr eventPtr )
 		{
 			UINT killerID = data->KillerID();
 
+			for( auto& s : mShips )
+			{
+				s->mServerTurret->ClearTarget();
+			}
+
 			IEventPtr E1( new Event_Remote_Died( data->ID(), killerID ) );
 			BroadcastEvent( E1, data->ID() );
-		}
-		for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
-		{
-			if( mPlayers[i] != nullptr )
+
+			for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
 			{
-				if( mPlayers[i]->ID == data->ID() )
-					mPlayers[i]->IsAlive		= false;
+				if( mPlayers[i] != nullptr )
+				{
+					if( mPlayers[i]->ID == data->ID() )
+						mPlayers[i]->IsAlive		= false;
+				}
 			}
 		}
 	}
@@ -346,7 +352,14 @@ void Server::ClientEnemyProjectileDamage( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Client_Projectile_Damage_Enemy::GUID )
 	{
 		std::shared_ptr<Event_Client_Projectile_Damage_Enemy> data = std::static_pointer_cast<Event_Client_Projectile_Damage_Enemy>( eventPtr );
-		mEnemies[data->EnemyID()]->TakeDamage( data->Damage(), data->ID() );	
+		mEnemies[data->EnemyID()]->TakeDamage( data->Damage(), data->ID() );
+		if( !mEnemies[data->EnemyID()]->IsAlive() )
+		{
+			for( auto& s : mShips )
+			{
+				s->mServerTurret->ClearTarget();
+			}
+		}
 	}
 }
 

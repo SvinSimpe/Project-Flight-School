@@ -185,6 +185,18 @@ void Server::ClientSpawned( IEventPtr eventPtr )
 			IEventPtr E1( new Event_Remote_Spawned( data->ID() ) );
 			BroadcastEvent( E1, data->ID() );
 		}
+
+		for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
+			{
+				if( mPlayers[i] != nullptr )
+				{
+					if( mPlayers[i]->ID == data->ID() )
+					{
+						mPlayers[i]->IsAlive		= true;
+						mPlayers[i]->IsDown			= false;
+					}
+				}
+			}
 	}
 }
 
@@ -197,12 +209,13 @@ void Server::ClientFiredProjectile( IEventPtr eventPtr )
 		if( it != mClientMap.end() )
 		{
 			UINT pid = CurrentPID();
-			XMFLOAT3 pos = data->BodyPos();
-			XMFLOAT3 dir = data->Direction();
-			float speed	 = data->Speed();
-			float range	 = data->Range();
+			XMFLOAT3 pos	= data->BodyPos();
+			XMFLOAT3 dir	= data->Direction();
+			float speed		= data->Speed();
+			float range		= data->Range();
+			float damage	= data->Damage();
 
-			IEventPtr E1( new Event_Remote_Fired_Projectile( data->ID(), pid, pos, dir, speed, range ) );
+			IEventPtr E1( new Event_Remote_Fired_Projectile( data->ID(), pid, pos, dir, speed, range, damage ) );
 			BroadcastEvent( E1 );
 		}
 	}
@@ -531,7 +544,7 @@ UINT Server::CurrentPID()
 void Server::CreateShips()
 {
 	UINT shipID = 60;
-	float xOffset = -10.0f;
+	float xOffset = -30.0f;
 
 	for( UINT i = 0; i < MAX_TEAMS; i++ )
 	{
@@ -539,7 +552,7 @@ void Server::CreateShips()
 
 		mShips.back()->Initialize( shipID, CurrentTeamDelegate(), XMFLOAT3( xOffset, 0.0f, 0.0f ), XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 		shipID++;
-		xOffset += 20.0f;
+		xOffset += 60.0f;
 	}
 }
 
@@ -688,14 +701,12 @@ bool Server::Initialize()
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
 	{
 		// Map size values
-		int negX, negY, posX, posY;
-		negX = rand() % 100;
-		negY = rand() % 100;
-		posX = rand() % 100;
-		posY = rand() % 100;
+		int X, Y;
+		X = ( rand() % 150 ) - 75;
+		Y = ( rand() % 150 ) - 75;
 		mSpawners[i] = new EnemySpawn();
 		mSpawners[i]->Initialize( i );
-		mSpawners[i]->SetPosition( XMFLOAT3( (float)(posX - negX), 0.0f, (float)(negY - posY) ) );
+		mSpawners[i]->SetPosition( XMFLOAT3( (float)(X), 0.0f, (float)(Y) ) );
 	}
 
 	mEnemies	= new Enemy*[MAX_NR_OF_ENEMIES];

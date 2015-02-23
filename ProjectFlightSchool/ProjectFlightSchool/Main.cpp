@@ -42,8 +42,8 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
 	system->Initialize( hInstance, nCmdShow );
 	localReturn = system->Run();
 
-	system->Release();
-	SAFE_DELETE(system);
+	//system->Release();	// TESTING ONLY, THIS IS NOT GOOD, DERP!
+	//SAFE_DELETE(system); // THIS TOO!
 
 	return localReturn;
 }

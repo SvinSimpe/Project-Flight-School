@@ -9,6 +9,9 @@
 #include <time.h>
 
 #define VELOCITY_FALLOFF 2.0f
+
+#define MAX_ROBOT_RANGE		40000.0f   //Squared distance here.
+#define LEAVING_AREA_TIME	10.0f
 class Map;
 
 struct Upgrades
@@ -45,12 +48,14 @@ class Player: public RemotePlayer
 		XMFLOAT3	mFireDirection;
 
 		bool		mIsBuffed;
+		bool		mIsOutSideZone;
 		float		mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
 				
 		float		mSpawnTime;
 		float		mTimeTillSpawn;
 		float		mReviveTime;
 		float		mTimeTillRevive;
+		float		mLeavingAreaTime;
 		int			mLastKiller;
 
 		std::list<IEventPtr> mEventList;

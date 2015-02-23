@@ -28,7 +28,7 @@ HRESULT IdleBehavior::Update( float deltaTime )
 		{
 			if( mEnemy->mPlayers[i] != nullptr )
 			{
-				if( mEnemy->mPlayers[i]->IsAlive && mEnemy->mAttentionRadius->Intersect( mEnemy->mPlayers[i]->AggroCircle ) )
+				if( ( !mEnemy->mPlayers[i]->IsDown && mEnemy->mPlayers[i]->IsAlive ) && mEnemy->mAttentionRadius->Intersect( mEnemy->mPlayers[i]->AggroCircle ) )
 				{
 					mEnemy->SetTarget( mEnemy->mPlayers[i]->ID );
 					mEnemy->ChangeBehavior( HUNT_PLAYER_BEHAVIOR );
@@ -87,7 +87,7 @@ HRESULT HuntPlayerBehavior::Update( float deltaTime )
 {
 	mEnemy->Hunt( deltaTime );
 
-	// If enemy damaged check if we need to go to take Damage
+	// If enemy damaged check, go to take Damage
 	mEnemy->mTakingDamageTimer += deltaTime;
 	if( mEnemy->mTakingDamage )
 	{	
@@ -210,11 +210,17 @@ HRESULT AttackBehavior::Update( float deltaTime )
 	mStateTimer -= deltaTime;
 	mTimeTillAttack -= deltaTime;
 
-	if( mTimeTillAttack <= 0.0f &&  !mEnemy->mPlayers[mEnemy->mTargetIndex]->IsDown )
+	// If player is not dead or downed and attackTimer < 0.0f...
+	if(	( !mHasAttacked && mTimeTillAttack <= 0.0f ) && (!mEnemy->mPlayers[mEnemy->mTargetIndex]->IsDown && mEnemy->mPlayers[mEnemy->mTargetIndex]->IsAlive ) )
 	{
-		IEventPtr state( new Event_Tell_Server_Enemy_Attack_Player( mEnemy->mID, mEnemy->mTargetID, mEnemy->mDamage ) );
-		EventManager::GetInstance()->QueueEvent( state );
-		mTimeTillAttack	= mEnemy->mAttackRate;
+		// ... and player intersects the enemy's attack radius
+		if( mEnemy->mAttackRadius->Intersect( mEnemy->mPlayers[mEnemy->mTargetIndex]->AggroCircle ) )
+		{
+			mHasAttacked = true;
+			IEventPtr state( new Event_Tell_Server_Enemy_Attack_Player( mEnemy->mID, mEnemy->mTargetID, mEnemy->mDamage ) );
+			EventManager::GetInstance()->QueueEvent( state );
+			mTimeTillAttack	= mEnemy->mAttackRate;
+		}
 	}
 
 	if( mStateTimer <= 0.0f )
@@ -226,6 +232,7 @@ HRESULT AttackBehavior::Update( float deltaTime )
 void AttackBehavior::OnEnter()
 {
 	mTimeTillAttack	= mEnemy->mAttackRate;
+	mHasAttacked	= false;
 
 	switch( mEnemy->mEnemyType )
 	{
@@ -242,7 +249,7 @@ void AttackBehavior::OnEnter()
 			break;
 
 		case Tank:
-			mStateTimer = 2.0f;
+			mStateTimer = 2.5f;
 			break;
 	}
 

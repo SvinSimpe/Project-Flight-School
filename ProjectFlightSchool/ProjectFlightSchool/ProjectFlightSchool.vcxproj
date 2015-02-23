@@ -145,6 +145,8 @@
     <ClCompile Include="SingleplayerMenuState.cpp" />
     <ClCompile Include="StartMenuState.cpp" />
     <ClCompile Include="StateMachine.cpp" />
+    <ClCompile Include="SteeringBehavior.cpp" />
+    <ClCompile Include="SteeringBehaviorManager.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="tinystr.cpp" />
@@ -224,6 +226,8 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="System.cpp" />
+    <ClInclude Include="SteeringBehavior.h" />
+    <ClInclude Include="SteeringBehaviorManager.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="tinystr.h" />

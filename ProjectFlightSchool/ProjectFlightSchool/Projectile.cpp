@@ -25,7 +25,7 @@ HRESULT Projectile::Render( )
 					XMVector3AngleBetweenVectors( 
 					XMLoadFloat3( &XMFLOAT3( mDirection.x, 0.0f, mDirection.z ) ),
 					XMLoadFloat3( &mDirection ) ) );
-
+	
 	RenderManager::GetInstance()->AddObject3dToList( mProjectileAsset, mPosition, XMFLOAT3( 0.0f, yaw, roll ) );
 
 	return S_OK;

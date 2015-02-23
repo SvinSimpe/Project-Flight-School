@@ -54,10 +54,9 @@ class PlayState : public BaseState
 		float						mAlliesHP[MAX_REMOTE_PLAYERS / 2];
 		Gui*						mGui;
 
+		ClientShip*					mFriendShip;	// A pointer to the Client's own ship, used to show the remaining HP of it
+		ClientShip*					mEnemyShip;		// A pointer to the other team's ship, used for interaction with that
 		EnergyCell**				mEnergyCells;
-		
-		std::vector<ClientShip*>	mShips;
-		ClientShip*					mMyShip;	// A pointer to the Client's own ship, used to show the remaining HP of it
 
 		//TestSound
 		int							m3DSoundAsset;

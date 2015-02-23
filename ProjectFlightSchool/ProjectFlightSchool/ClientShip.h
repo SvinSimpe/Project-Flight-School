@@ -16,10 +16,9 @@ class ClientShip : public ServerShip
 	public:
 
 	private:
-		void	CalcShieldLevel();
-
 		void	RemoteUpdateShip( IEventPtr eventPtr );
 		void	RemoteChangeShipLevels( IEventPtr eventPtr );
+
 
 	protected:
 	public:

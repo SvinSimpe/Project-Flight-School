@@ -413,7 +413,7 @@ void PlayState::HandleDeveloperCameraInput()
 	{
 		RenderManager::GetInstance()->ChangeRasterizerState( CULL_NONE );
 
-		IEventPtr E1( new Event_Client_Change_Ship_Levels( mFriendShip->GetID(), 0, -1, 0 ) );
+		IEventPtr E1( new Event_Client_Change_Ship_Levels( mFriendShip->GetID(), 0, -1, 0, 0 ) );
 		Client::GetInstance()->SendEvent( E1 );
 	}
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_2 ) )

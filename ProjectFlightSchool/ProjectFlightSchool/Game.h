@@ -19,6 +19,9 @@ class Game
 	private:
 		void	ResetGame( IEventPtr eventPtr );
 		void	StartPlayState( IEventPtr eventPtr );
+		void	StartNetworkUpdate( IEventPtr eventPtr );
+		void	UpdateServer();
+
 	protected:
 	public:
 		HRESULT Update( float deltaTime );

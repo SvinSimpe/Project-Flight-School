@@ -101,6 +101,7 @@ bool NetSocket::HandleInput()
 {
 	bool pktReceived = false;
 	u_long packetSize = 0;
+	SetBlocking( false );
 
 	int rc = recv( mSocket, mRecvBuf + mRecvBegin + mRecvOfs, RECV_BUFFER_SIZE - ( mRecvBegin + mRecvOfs ), 0 );
 	printf( "Incoming %6d bytes. Begin %6d offset %4d\n", rc, mRecvBegin, mRecvOfs );
@@ -439,7 +440,7 @@ void RemoteEventSocket::CreateEvent( std::istringstream &in )
 
 bool RemoteEventSocket::HandleInput()
 {
-	NetSocket::HandleInput();
+	while( NetSocket::HandleInput() );
 
 	while( !mInList.empty() )
 	{

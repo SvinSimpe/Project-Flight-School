@@ -11,10 +11,10 @@ void CreateMenuState::HandleInput()
 	}
 	else if( mButtons.at(MULTIPLAYER)->LeftMousePressed() )
 	{
+		IEventPtr E2( new Event_Create_Player_Name( mNameBox.GetText() ) );
+		EventManager::GetInstance()->TriggerEvent( E2 );
 		IEventPtr E1( new Event_Change_State( MULTI_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
-		IEventPtr E2( new Event_Create_Player_Name( mNameBox.GetText() ) );
-		EventManager::GetInstance()->QueueEvent( E2 );
 	}
 	else if( mButtons.at(BACK)->LeftMousePressed() )
 	{
@@ -93,7 +93,7 @@ HRESULT CreateMenuState::Initialize()
 		x += (float)Input::GetInstance()->mScreenWidth * 0.1f;
 	}
 
-	mNameBox.Initialize( "mudkipfucker", "IP", Input::GetInstance()->mScreenWidth * 0.3f - (640.0f * 0.5f) * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + (177.0f * 0.5f) *0.5f, 640.0f * 0.5f, 177.0f * 0.5f );
+	mNameBox.Initialize( "PlayerName", "IP", Input::GetInstance()->mScreenWidth * 0.3f - (640.0f * 0.5f) * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + (177.0f * 0.5f) *0.5f, 640.0f * 0.5f, 177.0f * 0.5f );
 
 	return S_OK;
 }

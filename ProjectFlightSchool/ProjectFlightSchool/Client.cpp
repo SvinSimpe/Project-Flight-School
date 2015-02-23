@@ -175,6 +175,9 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Server_Spawn_Ship );
 	EF::REGISTER_EVENT( Event_Server_Change_Buff_State );
 
+	EF::REGISTER_EVENT( Event_Client_Sync_Energy_Cell );
+	EF::REGISTER_EVENT( Event_Server_Sync_Energy_Cell );
+
 	EF::REGISTER_EVENT( Event_Client_Update_Ship );
 	EF::REGISTER_EVENT( Event_Server_Update_Ship );
 	EF::REGISTER_EVENT( Event_Client_Change_Ship_Levels );
@@ -185,7 +188,12 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Server_Update_Turret );
 	EF::REGISTER_EVENT( Event_Turret_Fired_Projectile );
 	EF::REGISTER_EVENT( Event_Server_Turret_Fired_Projectile );
-	
+	EF::REGISTER_EVENT( Event_Client_Initialize_LobbyPlayer );
+	EF::REGISTER_EVENT( Event_Server_Initialize_LobbyPlayer );
+	EF::REGISTER_EVENT( Event_Client_Lobby_Finished );
+	EF::REGISTER_EVENT( Event_Server_Lobby_Finished );
+	EF::REGISTER_EVENT( Event_Client_Switch_Team );
+	EF::REGISTER_EVENT( Event_Server_Switch_Team );
 
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	EventManager::GetInstance()->AddListener( &Client::Shutdown, this, Event_Shutdown_Client::GUID );

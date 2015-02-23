@@ -32,6 +32,8 @@ Who you gonna call? SvinSimpe!!
 
 12. Request effect with:   RenderManager::GetInstance()->RequestParticleSystem
 
+13. Add Particle type in Graphics::RenderParticleSystem if you want Additive Blending
+
 
 ------------------------------------------------
 --------------- QUESTIONS??? ---------------

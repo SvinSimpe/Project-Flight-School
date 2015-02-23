@@ -33,7 +33,7 @@ bool ParticleManager::RequestParticleSystem( size_t entityID, ParticleType parti
 	// Check if there is any available Particle System of requested type
 	if( mNrOfActiveParticleSystemsPerType[particleType] == mMaxNrOfParticleSystemsPerType[particleType] )
 	{
-		OutputDebugStringA( "-- Maximum number of Particle type reached --\n" );
+		//OutputDebugStringA( "-- Maximum number of Particle type reached --\n" );
 	}
 
 	// Check if entity already has a particle system of request type connected to it
@@ -153,7 +153,7 @@ void ParticleManager::Initialize()
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Test_Fountain]; i++ )
 	{
-		mParticleSystems[Test_Fountain][i]->Initialize( Test_Fountain, 2.0f, 2000 );
+		mParticleSystems[Test_Fountain][i]->Initialize( Test_Fountain, 8.0f, 1024 );
 		mNrOfParticleSystemsPerType[Test_Fountain]++;
 		mNrOfParticleSystems++;
 	}

@@ -1086,6 +1086,7 @@ class Event_Client_Fired_Projectile : public IEvent
 		XMFLOAT3	mDirection;
 		float		mSpeed;
 		float		mRange;
+		float		mDamage;
 
 	protected:
 	public:
@@ -1101,16 +1102,17 @@ class Event_Client_Fired_Projectile : public IEvent
 			mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mSpeed			= 0.0f;
 			mRange			= 0.0f;
+			mDamage			= 0.0f;
 		}
 
-		Event_Client_Fired_Projectile( unsigned int id, XMFLOAT3 bodyPos, XMFLOAT3 direction, float speed, float range )
+		Event_Client_Fired_Projectile( unsigned int id, XMFLOAT3 bodyPos, XMFLOAT3 direction, float speed, float range, float damage )
 		{
 			mID				= id;
 			mBodyPos		= bodyPos;
 			mDirection		= direction;
 			mSpeed			= speed;
 			mRange			= range;
-
+			mDamage			= damage;
 		}
 
 		~Event_Client_Fired_Projectile() {}
@@ -1132,6 +1134,7 @@ class Event_Client_Fired_Projectile : public IEvent
 
 			out <<	mSpeed	<< " ";
 			out	<<	mRange	<< " ";
+			out << mDamage << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
@@ -1147,10 +1150,11 @@ class Event_Client_Fired_Projectile : public IEvent
 
 			in >> mSpeed;
 			in >> mRange;
+			in >> mDamage;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Client_Fired_Projectile( mID, mBodyPos, mDirection, mSpeed, mRange ) );
+			return IEventPtr( new Event_Client_Fired_Projectile( mID, mBodyPos, mDirection, mSpeed, mRange, mDamage ) );
 		}
 		UINT ID() const
 		{
@@ -1172,6 +1176,10 @@ class Event_Client_Fired_Projectile : public IEvent
 		{
 			return mRange;
 		}
+		float Damage() const
+		{
+			return mDamage;
+		}
 };
 
 // An event sent from the server to the other clients whenever a client fires a projectile
@@ -1184,6 +1192,7 @@ class Event_Remote_Fired_Projectile : public IEvent
 		XMFLOAT3	mDirection;
 		float		mSpeed;
 		float		mRange;
+		float		mDamage;
 
 	protected:
 	public:
@@ -1200,9 +1209,10 @@ class Event_Remote_Fired_Projectile : public IEvent
 			mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mSpeed			= 0.0f;
 			mRange			= 0.0f;
+			mDamage			= 0.0;
 		}
 
-		Event_Remote_Fired_Projectile( UINT id, UINT projectileID, XMFLOAT3 bodyPos, XMFLOAT3 direction, float speed, float range )
+		Event_Remote_Fired_Projectile( UINT id, UINT projectileID, XMFLOAT3 bodyPos, XMFLOAT3 direction, float speed, float range, float damage )
 		{
 			mID				= id;
 			mProjectileID	= projectileID;
@@ -1210,6 +1220,7 @@ class Event_Remote_Fired_Projectile : public IEvent
 			mDirection		= direction;
 			mSpeed			= speed;
 			mRange			= range;
+			mDamage			= damage;
 
 		}
 
@@ -1233,6 +1244,7 @@ class Event_Remote_Fired_Projectile : public IEvent
 
 			out <<	mSpeed	<< " ";
 			out	<<	mRange	<< " ";
+			out << mDamage << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
@@ -1249,10 +1261,11 @@ class Event_Remote_Fired_Projectile : public IEvent
 
 			in >> mSpeed;
 			in >> mRange;
+			in >> mDamage;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Remote_Fired_Projectile( mID, mProjectileID, mBodyPos, mDirection, mSpeed, mRange ) );
+			return IEventPtr( new Event_Remote_Fired_Projectile( mID, mProjectileID, mBodyPos, mDirection, mSpeed, mRange, mDamage ) );
 		}
 		UINT ID() const
 		{
@@ -1277,6 +1290,10 @@ class Event_Remote_Fired_Projectile : public IEvent
 		float Range() const
 		{
 			return mRange;
+		}
+		float Damage() const
+		{
+			return mDamage;
 		}
 };
 
@@ -3324,6 +3341,90 @@ class Event_Server_Change_Buff_State : public IEvent
 		}
 };
 
+
+class Event_Server_Sync_Energy_Cell : public IEvent
+{
+	private:
+		UINT				mEnergyCellID;
+		UINT				mOwnerID;
+		DirectX::XMFLOAT3	mPosition;
+		bool				mPickedUp;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Sync_Energy_Cell()
+		{
+			mEnergyCellID	= (UINT)-1;
+			mOwnerID		= (UINT)-1;
+			mPosition		= DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mPickedUp		= false;
+		}
+
+		Event_Server_Sync_Energy_Cell( UINT energyCellID, UINT ownerID, DirectX::XMFLOAT3 position, bool pickedUp )
+		{
+			mEnergyCellID	= energyCellID;
+			mOwnerID		= ownerID;
+			mPosition		= position;
+			mPickedUp		= pickedUp;
+		}
+
+		~Event_Server_Sync_Energy_Cell() {}
+
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mEnergyCellID << " ";
+			out << mOwnerID << " ";
+			out << mPosition.x << " ";
+			out << mPosition.y << " ";
+			out << mPosition.z << " ";
+			out << mPickedUp << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mEnergyCellID;
+			in >> mOwnerID;
+			in >> mPosition.x;
+			in >> mPosition.y;
+			in >> mPosition.z;
+			in >> mPickedUp;
+		}
+
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Sync_Energy_Cell( mEnergyCellID, mOwnerID, mPosition, mPickedUp ) );
+		}
+
+		UINT EnergyCellID() const
+		{
+			return mEnergyCellID;
+		}
+
+		UINT OwnerID() const
+		{
+			return mOwnerID;
+		}
+
+		DirectX::XMFLOAT3 Position() const
+		{
+			return mPosition;
+		}
+
+		bool PickedUp() const
+		{
+			return mPickedUp;
+		}
+};
+
 // Event sent from Enemy Behavior to server to broadcast attack
 class Event_Tell_Server_Enemy_Attack_Player : public IEvent
 {
@@ -3352,7 +3453,7 @@ class Event_Tell_Server_Enemy_Attack_Player : public IEvent
 			mDamage		= damage;
 		}
 		~Event_Tell_Server_Enemy_Attack_Player() {}	
-				const EventType& GetEventType() const
+		const EventType& GetEventType() const
 		{
 			return GUID;
 		}
@@ -3408,10 +3509,12 @@ class Event_Remote_Win : public IEvent
 			mTeam		= team;
 		}
 		~Event_Remote_Win() {}
+
 		const EventType& GetEventType() const
 		{
 			return GUID;
 		}
+
 		void Serialize( std::ostringstream& out ) const
 		{
 			out << mTeam << " ";
@@ -3427,6 +3530,90 @@ class Event_Remote_Win : public IEvent
 		UINT Team() const
 		{
 			return mTeam;
+		}
+};
+	
+
+class Event_Client_Sync_Energy_Cell : public IEvent
+{
+	private:
+		UINT				mEnergyCellID;
+		UINT				mOwnerID;
+		DirectX::XMFLOAT3	mPosition;
+		bool				mPickedUp;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Sync_Energy_Cell()
+		{
+			mEnergyCellID	= (UINT)-1;
+			mOwnerID		= (UINT)-1;
+			mPosition		= DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mPickedUp		= false;
+		}
+
+		Event_Client_Sync_Energy_Cell( UINT energyCellID, UINT ownerID, DirectX::XMFLOAT3 position, bool pickedUp )
+		{
+			mEnergyCellID	= energyCellID;
+			mOwnerID		= ownerID;
+			mPosition		= position;
+			mPickedUp		= pickedUp;
+		}
+
+		~Event_Client_Sync_Energy_Cell() {}
+
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mEnergyCellID << " ";
+			out << mOwnerID << " ";
+			out << mPosition.x << " ";
+			out << mPosition.y << " ";
+			out << mPosition.z << " ";
+			out << mPickedUp << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mEnergyCellID;
+			in >> mOwnerID;
+			in >> mPosition.x;
+			in >> mPosition.y;
+			in >> mPosition.z;
+			in >> mPickedUp;
+		}
+
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Sync_Energy_Cell( mEnergyCellID, mOwnerID, mPosition, mPickedUp ) );
+		}
+
+		UINT EnergyCellID() const
+		{
+			return mEnergyCellID;
+		}
+
+		UINT OwnerID() const
+		{
+			return mOwnerID;
+		}
+
+		DirectX::XMFLOAT3 Position() const
+		{
+			return mPosition;
+		}
+
+		bool PickedUp() const
+		{
+			return mPickedUp;
 		}
 };
 
@@ -3537,6 +3724,7 @@ class Event_Server_Update_Ship : public IEvent
 		float mMaxShield;
 		float mCurrentShield;
 		float mCurrentHP;
+
 	protected:
 	public:
 		static const EventType GUID;
@@ -3700,10 +3888,12 @@ class Event_Server_Change_Ship_Levels : public IEvent
 			mBuffLevel		= buffLevel;
 		}
 		~Event_Server_Change_Ship_Levels() {}
+
 		const EventType& GetEventType() const
 		{
 			return GUID;
 		}
+
 		void Serialize( std::ostringstream& out ) const
 		{
 			out << mID << " ";
@@ -4130,13 +4320,74 @@ class Event_Server_Turret_Level_Update : public IEvent
 		}
 };
 
+class Event_Client_Initialize_LobbyPlayer : public IEvent
+{
+	private:
+		UINT		mID;
+		UINT		mTeamID;
+		std::string	mName;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Initialize_LobbyPlayer()
+		{
+			mID		= (UINT)-1;
+			mTeamID = (UINT)-1;
+			mName	= "";
+		}
+		Event_Client_Initialize_LobbyPlayer( UINT id, UINT teamID, std::string name )
+		{
+			mID		= id;
+			mTeamID = teamID;
+			mName	= name;
+		}
+		~Event_Client_Initialize_LobbyPlayer() {}
+
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mTeamID << " ";
+			out << mName << "";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mTeamID;
+			in >> mName;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Initialize_LobbyPlayer( mID, mTeamID, mName ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT TeamID() const
+		{
+			return mTeamID;
+		}
+		std::string Name() const
+		{
+			return mName;
+		}
+};
+
 // Event sent from the server whenever the turret is updated
 class Event_Server_Update_Turret : public IEvent
 {
 	private:
 		UINT mID;
 		XMFLOAT4 mRotation;
-
 	protected:
 	public:
 		static const EventType GUID;
@@ -4162,7 +4413,6 @@ class Event_Server_Update_Turret : public IEvent
 		void Serialize( std::ostringstream& out ) const
 		{
 			out << mID << " ";
-
 			out << mRotation.x << " ";
 			out << mRotation.y << " ";
 			out << mRotation.z << " ";
@@ -4171,7 +4421,6 @@ class Event_Server_Update_Turret : public IEvent
 		void Deserialize( std::istringstream& in )
 		{
 			in >> mID;
-
 			in >> mRotation.x;
 			in >> mRotation.y;
 			in >> mRotation.z;
@@ -4216,7 +4465,6 @@ class Event_Turret_Fired_Projectile : public IEvent
 			mSpeed			= 0.0f;
 			mRange			= 0.0f;
 		}
-
 		Event_Turret_Fired_Projectile( UINT id, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range )
 		{
 			mID				= id;
@@ -4225,7 +4473,6 @@ class Event_Turret_Fired_Projectile : public IEvent
 			mSpeed			= speed;
 			mRange			= range;
 		}
-
 		~Event_Turret_Fired_Projectile() {}
 		const EventType& GetEventType() const
 		{
@@ -4249,7 +4496,7 @@ class Event_Turret_Fired_Projectile : public IEvent
 		void Deserialize( std::istringstream& in )
 		{
 			in >> mID;
-
+			
 			in >> mPosition.x;
 			in >> mPosition.y;
 			in >> mPosition.z;
@@ -4287,6 +4534,66 @@ class Event_Turret_Fired_Projectile : public IEvent
 		}
 };
 
+class Event_Server_Initialize_LobbyPlayer : public IEvent
+{
+	private:
+		UINT		mID;
+		UINT		mTeamID;
+		std::string	mName;
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Initialize_LobbyPlayer()
+		{
+			mID		= (UINT)-1;
+			mTeamID = (UINT)-1;
+			mName	= "";
+		}
+		Event_Server_Initialize_LobbyPlayer( UINT id, UINT teamID, std::string name )
+		{
+			mID		= id;
+			mTeamID = teamID;
+			mName	= name;
+		}
+		~Event_Server_Initialize_LobbyPlayer() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mTeamID << " ";
+			out << mName << "";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mTeamID;
+			in >> mName;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Initialize_LobbyPlayer( mID, mTeamID, mName ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT TeamID() const
+		{
+			return mTeamID;
+		}
+		std::string Name() const
+		{
+			return mName;
+		}
+};
+
 // Event sent to the clients whenever a turret fires a projectile
 class Event_Server_Turret_Fired_Projectile : public IEvent
 {
@@ -4314,7 +4621,6 @@ class Event_Server_Turret_Fired_Projectile : public IEvent
 			mSpeed			= 0.0f;
 			mRange			= 0.0f;
 		}
-
 		Event_Server_Turret_Fired_Projectile( UINT id, UINT projectileID, XMFLOAT3 position, XMFLOAT3 rotation, float speed, float range )
 		{
 			mID				= id;
@@ -4324,7 +4630,6 @@ class Event_Server_Turret_Fired_Projectile : public IEvent
 			mSpeed			= speed;
 			mRange			= range;
 		}
-
 		~Event_Server_Turret_Fired_Projectile() {}
 		const EventType& GetEventType() const
 		{
@@ -4389,6 +4694,174 @@ class Event_Server_Turret_Fired_Projectile : public IEvent
 		float Range() const
 		{
 			return mRange;
+		}
+};
+
+class Event_Client_Lobby_Finished : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Lobby_Finished()
+		{
+
+		}
+		~Event_Client_Lobby_Finished() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+
+		}
+		void Deserialize( std::istringstream& in )
+		{
+
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Lobby_Finished() );
+		}
+};
+
+class Event_Server_Lobby_Finished : public IEvent
+{
+	private:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Lobby_Finished()
+		{
+
+		}
+		~Event_Server_Lobby_Finished() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+
+		}
+		void Deserialize( std::istringstream& in )
+		{
+
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Lobby_Finished() );
+		}
+};
+
+class Event_Client_Switch_Team : public IEvent
+{
+	private:
+		UINT		mID;
+		UINT		mTeamID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Switch_Team()
+		{
+			mID		= (UINT)-1;
+			mTeamID = (UINT)-1;
+		}
+		Event_Client_Switch_Team( UINT id, UINT teamID )
+		{
+			mID		= id;
+			mTeamID = teamID;
+		}
+		~Event_Client_Switch_Team() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mTeamID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mTeamID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Switch_Team( mID, mTeamID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT TeamID() const
+		{
+			return mTeamID;
+		}
+};
+
+class Event_Server_Switch_Team : public IEvent
+{
+	private:
+		UINT		mID;
+		UINT		mTeamID;
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Switch_Team()
+		{
+			mID		= (UINT)-1;
+			mTeamID = (UINT)-1;
+		}
+		Event_Server_Switch_Team( UINT id, UINT teamID )
+		{
+			mID		= id;
+			mTeamID = teamID;
+		}
+		~Event_Server_Switch_Team() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mTeamID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mTeamID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Switch_Team( mID, mTeamID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		UINT TeamID() const
+		{
+			return mTeamID;
 		}
 };
 #endif

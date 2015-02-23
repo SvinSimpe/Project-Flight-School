@@ -16,6 +16,9 @@ void PlayState::EventListener( IEventPtr newEvent )
 
 			//TestSound
 			SoundBufferHandler::GetInstance()->Play( mSoundAsset );
+
+			IEventPtr E1( new Event_Client_Initialize_LobbyPlayer( mPlayer->GetID(), mPlayer->GetTeam(), mPlayer->GetName() ) );
+			Client::GetInstance()->SendEvent( E1 );
 		}
 	}
 
@@ -25,6 +28,9 @@ void PlayState::EventListener( IEventPtr newEvent )
 		mRemotePlayers.push_back( new RemotePlayer() );
 		mRemotePlayers.at(mRemotePlayers.size() - 1)->Initialize();
 		mRemotePlayers.at(mRemotePlayers.size() - 1)->RemoteInit( data->ID(), data->TeamID() );
+
+		IEventPtr E1( new Event_Client_Initialize_LobbyPlayer( mPlayer->GetID(), mPlayer->GetTeam(), mPlayer->GetName() ) );
+		Client::GetInstance()->SendEvent( E1 );
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Left::GUID ) // Remove a remote player from the list when they disconnect
 	{
@@ -55,7 +61,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		// Fire projectile
 		std::shared_ptr<Event_Remote_Fired_Projectile> data = std::static_pointer_cast<Event_Remote_Fired_Projectile>(newEvent);
-		FireProjectile( data->ID(), data->ProjectileID(), data->BodyPos(), data->Direction(), data->Speed(), data->Range() );
+		FireProjectile( data->ID(), data->ProjectileID(), data->BodyPos(), data->Direction(), data->Speed(), data->Range(), data->Damage() );
 
 		//TestSound
 		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->BodyPos());
@@ -64,7 +70,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
-		RenderManager::GetInstance()->RequestParticleSystem( 9999, Blood, XMFLOAT3( 2.0f, 3.0f, 0.0f ) , XMFLOAT3( -data->Direction().x, data->Direction().y, -data->Direction().z )  );
+		//RenderManager::GetInstance()->RequestParticleSystem( 9999, Blood, XMFLOAT3( 2.0f, 3.0f, 0.0f ) , XMFLOAT3( -data->Direction().x, data->Direction().y, -data->Direction().z )  );
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
 	{
@@ -127,7 +133,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		// Fire projectile
 		std::shared_ptr<Event_Server_Turret_Fired_Projectile> data = std::static_pointer_cast<Event_Server_Turret_Fired_Projectile>(newEvent);
-		FireProjectile( data->ID(), data->ProjectileID(), data->Position(), data->Direction(), data->Speed(), data->Range() );
+		FireProjectile( data->ID(), data->ProjectileID(), data->Position(), data->Direction(), data->Speed(), data->Range(), 1.0f ); // Don't know where to get damage from yet
 
 		//TestSound
 		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->Position());
@@ -137,6 +143,14 @@ void PlayState::EventListener( IEventPtr newEvent )
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->Position(), data->Direction() );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->Position(), data->Direction() );
 		//RenderManager::GetInstance()->RequestParticleSystem( 9999, Blood, XMFLOAT3( 2.0f, 3.0f, 0.0f ) , XMFLOAT3( 0.0f, 1.0f, 1.0f ) );
+	}
+	else if( newEvent->GetEventType() == Event_Server_Sync_Energy_Cell::GUID )
+	{
+		std::shared_ptr<Event_Server_Sync_Energy_Cell> data = std::static_pointer_cast<Event_Server_Sync_Energy_Cell>( newEvent );
+		
+		mEnergyCells[data->EnergyCellID()]->SetOwnerID( data->OwnerID() );
+		mEnergyCells[data->EnergyCellID()]->SetPosition( data->Position() );
+		mEnergyCells[data->EnergyCellID()]->SetPickedUp( data->PickedUp() );
 	}
 }
 
@@ -185,9 +199,9 @@ void PlayState::BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned
 	Client::GetInstance()->SendEvent( E1 );
 }
 
-void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range )
+void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range, float damage )
 {
-	mProjectiles[mNrOfActiveProjectiles]->SetDirection( id, projectileID, position, direction, speed, range );
+	mProjectiles[mNrOfActiveProjectiles]->SetDirection( id, projectileID, position, direction, speed, range, damage );
 	mNrOfActiveProjectiles++;
 }
 
@@ -332,7 +346,7 @@ void PlayState::HandleDeveloperCameraInput()
 			Client::GetInstance()->SendEvent( E1 );
 		}
 	}
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_U ) )
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_U ) )
 	{
 		if( mFriendShip->Intersect( mPlayer->GetBoundingCircle() ) )
 		{
@@ -348,7 +362,7 @@ void PlayState::HandleDeveloperCameraInput()
 			}
 		}
 	}
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_Y ) )
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_Y ) )
 	{
 		if( mFriendShip->Intersect( mPlayer->GetBoundingCircle() ) )
 		{
@@ -379,12 +393,14 @@ void PlayState::HandleDeveloperCameraInput()
 
 void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID )
 {
-	unsigned int shooter = 0;
+	unsigned int	shooter = 0;
+	float			damage	= 0.0f;
 	for ( int i = 0; i < mNrOfActiveProjectiles; i++ )
 	{
 		if( mProjectiles[i]->GetID() == projectileID )
 		{
 			shooter = mProjectiles[i]->GetPlayerID();
+			damage	= mProjectiles[i]->GetDamage();
 			mProjectiles[i]->Reset();
 			Projectile* temp							= mProjectiles[mNrOfActiveProjectiles - 1];
 			mProjectiles[mNrOfActiveProjectiles - 1]	= mProjectiles[i];
@@ -402,7 +418,7 @@ void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int project
 			{
 				if( mRemotePlayers.at(i)->GetTeam() != mPlayer->GetTeam() )
 				{
-					mPlayer->TakeDamage( mRemotePlayers.at(i)->GetLoadOut()->rangedWeapon->damage, shooter );
+					mPlayer->TakeDamage( damage, shooter );
 				}
 			}
 		}
@@ -532,18 +548,23 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.mPlayerNames	= pName;
 	guiUpdate.mNrOfAllies	= nrOfAllies;
 	guiUpdate.mAlliesHP		= mAlliesHP;
+
 	if( mFriendShip )
 		guiUpdate.mShipHP	= mFriendShip->PercentHP();
 	else
 		guiUpdate.mShipHP	= 1.0f;
 
-	//mPlayer->Update( deltaTime, mRemotePlayers );
-	HandleDeveloperCameraInput();
-	mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers );
-
+	if( mPlayer->GetEnergyCellID() != (UINT)-1 )
+	{
+		if( mFriendShip->Intersect( mPlayer->GetBoundingCircle() ) )
+		{
+			UINT temp = mPlayer->GetEnergyCellID();
+			mPlayer->GiveEnergyCellToShip( mEnergyCells, mFriendShip->GetID(), mFriendShip->GetPos() );
+		}
+	}
+	mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers, mEnergyCells );
 
 	UpdateProjectiles( deltaTime );
-
 
 	//Test radar due to no ship :(
 	mRadarObjects[nrOfRadarObj].mRadarObjectPos = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );//mShip.GetPosition();
@@ -570,11 +591,8 @@ HRESULT PlayState::Update( float deltaTime )
 
 
 	///Test fountain particle system
-	for ( size_t i = 0; i < 5; i++ )
-	{
-		RenderManager::GetInstance()->RequestParticleSystem( 999 + i, Test_Fountain, XMFLOAT3( (float)(i * 20), 0.0f, (float)(i * 20) ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
-	}
-	
+	RenderManager::GetInstance()->RequestParticleSystem( 999, Test_Fountain, XMFLOAT3( 0.0f, 3.0f, 5.0f ), XMFLOAT3( 0.5f, 1.0f, 0.5f ) );
+
 	if( mPlayer->Upgradable() < 1 )
 	{
 		mPlayer->UnLock();
@@ -635,12 +653,23 @@ HRESULT PlayState::Render()
 		}
 	}
 
-	for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
-	{
-		RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
-	}
+	//for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
+	//{
+	//	RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
+	//}
 
 	mGui->Render();
+
+	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+	{
+		if( !mEnergyCells[i]->GetPickedUp() )
+		{
+			mEnergyCells[i]->Render();
+		}
+	}
+
+	//TestUpgradeWindow
+	//mWindow.Render();
 
 	//RENDER DEVTEXT
 	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
@@ -661,16 +690,16 @@ HRESULT PlayState::Render()
 
 void PlayState::OnEnter()
 {
-	Reset();
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Started() );
 	EventManager::GetInstance()->QueueEvent( E1 );
 
-	SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
+	//SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
 }
 
 void PlayState::OnExit()
 {
+	Reset();
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Ended() );
 	EventManager::GetInstance()->QueueEvent( E1 );
@@ -719,9 +748,9 @@ HRESULT PlayState::Initialize()
 
 	mWorldMap = new Map();
 
-	mWorldMap->Initialize( 16 );
+	mWorldMap->Initialize( 21 );
 
-	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/ForestMap.xml" ) ); 
+	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/HardMap.xml" ) ); 
 	EventManager::GetInstance()->TriggerEvent( E1 );
 
 	//Fill up on Projectiles, test values
@@ -749,7 +778,9 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Enemy_State::GUID ); 
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Win::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Turret_Fired_Projectile::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Energy_Cell::GUID ); 
 
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Win::GUID ); 
 
 	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 
@@ -769,6 +800,18 @@ HRESULT PlayState::Initialize()
 
 	mGui = new Gui();
 	mGui->Initialize();
+
+	//Energy cells
+	mEnergyCells = new EnergyCell*[MAX_ENERGY_CELLS];
+	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+	{
+		mEnergyCells[i] = new EnergyCell();
+		mEnergyCells[i]->Initialize( DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
+	}
+
+	//TestSound
+	m3DSoundAsset	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav" );
+	mSoundAsset		= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
 
 	//TestSound
 	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav" );
@@ -818,6 +861,15 @@ void PlayState::Release()
 
 	SAFE_RELEASE_DELETE( mFriendShip );
 	SAFE_RELEASE_DELETE( mEnemyShip );
+
+	//Energy cells
+	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+	{
+		mEnergyCells[i]->Release();
+		SAFE_DELETE( mEnergyCells[i] );
+	}
+
+	delete [] mEnergyCells;
 }
 
 PlayState::PlayState()

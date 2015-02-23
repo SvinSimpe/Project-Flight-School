@@ -13,7 +13,8 @@ const int MULTI_MENU_STATE		= 3;
 const int OPTIONS_MENU_STATE	= 4;
 const int SINGLE_MENU_STATE		= 5;
 const int PLAY_STATE			= 6;
-const int NR_OF_STATES			= 7;
+const int LOBBY_STATE			= 7;
+const int NR_OF_STATES			= 8;
 
 class BaseState
 {

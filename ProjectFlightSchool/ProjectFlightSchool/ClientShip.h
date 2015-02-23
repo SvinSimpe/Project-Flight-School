@@ -11,6 +11,7 @@ class ClientShip : public ServerShip
 		BoundingCircle* mHitCircle;
 		ClientTurret* mClientTurret;
 
+
 	protected:
 	public:
 
@@ -23,6 +24,7 @@ class ClientShip : public ServerShip
 	public:
 		UINT	GetID() const;
 		UINT	GetTeamID() const;
+		UINT	GetNrOfEnergyCells() const;
 
 		void	CalculatePlayerRespawnPosition( IEventPtr eventPtr );
 		void	Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale );

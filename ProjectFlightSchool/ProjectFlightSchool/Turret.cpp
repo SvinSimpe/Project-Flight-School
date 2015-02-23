@@ -39,7 +39,7 @@ void Turret::Fire()
 	XMFLOAT3 firePos;
 	XMStoreFloat3( &firePos, XMLoadFloat3( &mUpperBody->pos ) + XMLoadFloat3( &mUpperBody->dir ) * 3.0f );
 
-	IEventPtr E1( new Event_Client_Fired_Projectile( mTeamID, firePos, mUpperBody->dir, TURRET_FIRE_SPEED, TURRET_RANGE ) );
+	IEventPtr E1( new Event_Client_Fired_Projectile( mTeamID, firePos, mUpperBody->dir, TURRET_FIRE_SPEED, TURRET_RANGE, 5 ) );
 
 	EventManager::GetInstance()->QueueEvent( E1 );
 	mShootTimer = SHOOTCOOLDOWN;

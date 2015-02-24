@@ -95,8 +95,8 @@ void ParticleManager::Initialize()
 
 	mMaxNrOfParticleSystemsPerType[Smoke]			= 1;
 	mMaxNrOfParticleSystemsPerType[Fire]			= 1;
-	mMaxNrOfParticleSystemsPerType[Spark]			= 1;
-	mMaxNrOfParticleSystemsPerType[Blood]			= 1;
+	mMaxNrOfParticleSystemsPerType[Spark]			= 10;
+	mMaxNrOfParticleSystemsPerType[Blood]			= 10;
 	mMaxNrOfParticleSystemsPerType[MuzzleFlash]		= 8;
 	mMaxNrOfParticleSystemsPerType[Smoke_MiniGun]	= 8;
 	mMaxNrOfParticleSystemsPerType[Test_Fountain]	= 5;
@@ -143,6 +143,13 @@ void ParticleManager::Initialize()
 	{
 		mParticleSystems[Explosion][i]->Initialize( Explosion, 20.0f, 1000 );
 		mNrOfParticleSystemsPerType[Explosion]++;
+		mNrOfParticleSystems++;
+	}
+
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Spark]; i++ )
+	{
+		mParticleSystems[Spark][i]->Initialize( Spark, 8.0f, 144 );
+		mNrOfParticleSystemsPerType[Spark]++;
 		mNrOfParticleSystems++;
 	}
 	

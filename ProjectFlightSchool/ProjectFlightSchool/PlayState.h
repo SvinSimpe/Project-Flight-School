@@ -32,7 +32,7 @@ class PlayState : public BaseState
 		float			mFPS;
 		AnimationTrack	mTestAnimation;
 		AssetID			mTestStaticAsset;
-		Map*		mWorldMap;
+		Map*			mWorldMap;
 
 		//Collision
 		unsigned int	mFrameCounter;

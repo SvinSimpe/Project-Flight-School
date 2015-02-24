@@ -394,7 +394,7 @@ HRESULT RemotePlayer::Render()
 		&upperMatrix ) )
 	{
 		mLeftArmAnimationCompleted = true;
-		OutputDebugStringA(" animComplete\n" );
+		//OutputDebugStringA(" animComplete\n" );
 	}
 
 	if ( RenderManager::GetInstance()->AddAnim3dToList( mArms.rightArm,

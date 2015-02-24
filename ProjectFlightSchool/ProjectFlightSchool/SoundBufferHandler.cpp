@@ -93,6 +93,45 @@ void SoundBufferHandler::StopLoop3D( int SoundID )
 	m3DSoundAssets.at(SoundID).StopBuffer();
 }
 
+void SoundBufferHandler::SoundOn()
+{
+	for ( auto s : mStreamSoundAssets )
+	{
+		s.SoundOn();
+	}
+	for ( auto s : m3DSoundAssets )
+	{
+		s.SoundOn();
+	}
+	for ( auto s : mSoundAssets )
+	{
+		s.SoundOn();
+	}
+	mSoundOn = true;
+}
+
+void SoundBufferHandler::SoundOff()
+{
+	for ( auto s : mStreamSoundAssets )
+	{
+		s.SoundOff();
+	}
+	for ( auto s : m3DSoundAssets )
+	{
+		s.SoundOff();
+	}
+	for ( auto s : mSoundAssets )
+	{
+		s.SoundOff();
+	}
+	mSoundOn = false;
+}
+
+bool SoundBufferHandler::SoundIsOn() const
+{
+	return mSoundOn;
+}
+
 bool SoundBufferHandler::Initialize()
 {
 	EventManager::GetInstance()->AddListener( &SoundBufferHandler::EventListener, this, Event_Client_Update::GUID );
@@ -105,6 +144,7 @@ bool SoundBufferHandler::Initialize()
 	{
 		MessageBox( NULL, L"GetListener failed", L"Error", MB_OK );
 	}
+	mSoundOn = true;
 	return result;
 }
 
@@ -154,6 +194,7 @@ SoundBufferHandler::SoundBufferHandler()
 	m3DSoundAssets	= std::vector<DS3DBuffer>(0);
 	mActive3DSounds = std::vector<DS3DBuffer>(0);
 	mDSListener		= nullptr;
+	mSoundOn		= true;
 }
 
 SoundBufferHandler::~SoundBufferHandler()

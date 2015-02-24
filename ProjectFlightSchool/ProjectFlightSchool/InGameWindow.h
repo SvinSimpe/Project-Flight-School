@@ -4,8 +4,10 @@
 #include "Button.h"
 #include "RenderManager.h"
 #include "Font.h"
+#include "SoundBufferHandler.h"
 
-#define	NR_OF_BUTTONS 3
+#define	NR_OF_BUTTONS 4
+#define NR_OF_OPTION_BUTTONS 3
 
 struct MenuButtonStruct
 {
@@ -39,9 +41,11 @@ class InGameWindow
 {
 private:
 	bool				mIsActive;
+	bool				mInOptions;
 	Font				mFont;
 	AssetID				mBackground;
 	MenuButtonStruct	mButtons[NR_OF_BUTTONS];
+	MenuButtonStruct	mOptionButtons[NR_OF_OPTION_BUTTONS];
 
 protected:
 public:

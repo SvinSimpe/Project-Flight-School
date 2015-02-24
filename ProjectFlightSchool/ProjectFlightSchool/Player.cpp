@@ -99,7 +99,6 @@ void Player::EventListener( IEventPtr newEvent )
 		if( data->ID() == mID )
 		{
 			mTeam = data->TeamID();
-			printf( "Player:: Spelare: %d, blev lag %d\n", mID, mTeam );
 		}
 	}
 }
@@ -197,7 +196,7 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		if ( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_LEFT ) && mWeaponCoolDown <= 0.0f )
 		{
 			Fire();
-			mWeaponCoolDown = mLoadOut->rangedWeapon->attackRate;
+			mWeaponCoolDown = 1.0f;
 
 			RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] );
 			mRightArmAnimationCompleted = false;
@@ -494,6 +493,8 @@ void Player::Fire()
 			mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffset, mUpperBody.direction.y, mUpperBody.direction.z + directionOffset );
 			IEventPtr E1( new Event_Client_Fired_Projectile( mID, loadDir, mFireDirection, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage ) );
 			QueueEvent( E1 );
+			// Firing projectile here
+			HelperFunctions::StartCounter();
 		}
 		else
 		{

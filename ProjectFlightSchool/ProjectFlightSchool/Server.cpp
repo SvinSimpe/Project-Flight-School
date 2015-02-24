@@ -205,11 +205,13 @@ void Server::ClientSpawned( IEventPtr eventPtr )
 	}
 }
 
+#include "HelperFunctions.h"
 void Server::ClientFiredProjectile( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Client_Fired_Projectile::GUID )
 	{
 		std::shared_ptr<Event_Client_Fired_Projectile> data = std::static_pointer_cast<Event_Client_Fired_Projectile>( eventPtr );
+		HelperFunctions::PrintCounter( "Server::ClientFiredProjectile() received event after:" );
 		auto& it = mClientMap.find(data->ID());
 		if( it != mClientMap.end() )
 		{

@@ -62,6 +62,8 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		// Fire projectile
 		std::shared_ptr<Event_Remote_Fired_Projectile> data = std::static_pointer_cast<Event_Remote_Fired_Projectile>(newEvent);
+		HelperFunctions::PrintCounter( "PlayState::EventListener() received event after:" );
+		OutputDebugStringA("-----------------------------------\n");
 		UINT teamID = (UINT)-1;
 		for( UINT i = 0; i < mRemotePlayers.size(); i++ )
 		{

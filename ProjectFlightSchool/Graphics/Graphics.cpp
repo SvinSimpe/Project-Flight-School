@@ -440,6 +440,25 @@ HRESULT Graphics::InitializeEffects()
 	//=======================================
 	//			PARTICLE EFFECTS			|
 	//=======================================
+	//Explosion smoke effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/ExplosionSmoke.hlsl";
+	effectInfo.fileName					= "ExplosionSmoke";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_EXPLOSION_SMOKE]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Explosion effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/ExplosionEffect.hlsl";
+	effectInfo.fileName					= "ExplosionEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_EXPLOSION]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
 
 	//Spark effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/SparkEffect.hlsl";
@@ -1066,6 +1085,7 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 
 				mParticleInstanced[objectToRender].age				= info[i].mAge;
 				mParticleInstanced[objectToRender].timeTillDeath	= info[i].mTimeTillDeath;
+				mParticleInstanced[objectToRender].randomRotation	= info[i].mRandomRotation;
 
 				objectToRender++;
 				strider++;
@@ -1077,7 +1097,12 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 					// Add particletype you want to apply additive blending on
 					if( info[i].mParticleType == EFFECTS_TEST_FOUNTAIN || info[i].mParticleType == EFFECTS_SPARK )
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
-
+					else if( info[i].mParticleType == EFFECTS_EXPLOSION )
+						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
+					
+					/*else if( info[i].mParticleType == EFFECTS_EXPLOSION_SMOKE )
+						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
+*/
 					else
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_NORMAL], 0, 0xFFFFFFFF );
 

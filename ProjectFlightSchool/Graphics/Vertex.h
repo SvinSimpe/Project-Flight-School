@@ -20,6 +20,7 @@ struct ParticleVertex16
 	float position[3];
 	float age;
 	float timeTillDeath;
+	float randomRotation;
 };
 
 struct Vertex24

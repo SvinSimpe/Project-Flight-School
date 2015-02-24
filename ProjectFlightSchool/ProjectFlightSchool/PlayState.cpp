@@ -1,4 +1,5 @@
 #include "PlayState.h"
+#include "HelperFunctions.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //									PRIVATE
@@ -493,7 +494,8 @@ void PlayState::RenderProjectiles()
 {
 	for ( int i = 0; i < mNrOfActiveProjectiles; i++ )
 	{
-		mProjectiles[i]->Render();
+		if( CullEntity( mProjectiles[i]->GetPosition() ) )
+			mProjectiles[i]->Render();
 	}
 }
 
@@ -512,6 +514,11 @@ void PlayState::SetEnemyState( unsigned int id, EnemyState state )
 	}
 
 	mEnemies[id]->SetAnimation( mEnemyAnimationManager->GetAnimation( mEnemies[id]->GetEnemyType(), state ), state == TakeDamage );
+}
+
+bool PlayState::CullEntity( XMFLOAT3 entityPos )
+{
+	return HelperFunctions::DistSquared( mPlayer->GetPosition() , entityPos  ) <= ENTITY_CULLDISTANCE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -667,13 +674,14 @@ HRESULT PlayState::Render()
 {
 	//Test asset, currently a tree
 	//RenderManager::GetInstance()->AddObject3dToList(mTestStaticAsset);
+
 	mPlayer->Render( 0.0f, 1 );
 
 	mWorldMap->Render( 0.0f , mPlayer );
 
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
 	{
-		if ( mRemotePlayers.at(i) )
+		if ( mRemotePlayers.at(i) && CullEntity( mRemotePlayers.at(i)->GetPosition() ) )
 		{
 			mRemotePlayers.at(i)->Render();
 		}
@@ -686,7 +694,7 @@ HRESULT PlayState::Render()
 	{
 		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 		{
-			if( mEnemies[i]->IsSynced() )
+			if( mEnemies[i]->IsSynced() && CullEntity( mEnemies[i]->GetPosition() ) )
 				mEnemies[i]->Render();
 		}
 	}
@@ -700,7 +708,7 @@ HRESULT PlayState::Render()
 
 	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
 	{
-		if( !mEnergyCells[i]->GetPickedUp() )
+		if( !mEnergyCells[i]->GetPickedUp() && CullEntity( mEnergyCells[i]->GetPosition() ) )
 		{
 			mEnergyCells[i]->Render();
 		}
@@ -716,9 +724,9 @@ HRESULT PlayState::Render()
 	XMFLOAT4X4 identity;
 	XMStoreFloat4x4( &identity, XMMatrixIdentity() );
 
-	if( mFriendShip )
+	if( mFriendShip && CullEntity( mFriendShip->GetPos() ) )
 		mFriendShip->Render( 0.0f, identity );
-	if( mEnemyShip )
+	if( mEnemyShip && CullEntity( mEnemyShip->GetPos() ) )
 		mEnemyShip->Render( 0.0f, identity );
 
 	RenderManager::GetInstance()->Render();

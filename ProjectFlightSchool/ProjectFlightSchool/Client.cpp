@@ -91,14 +91,14 @@ void Client::Shutdown( IEventPtr eventPtr )
 
 void Client::DoSelect( int pauseMicroSecs, bool handleInput )
 {
-	mSocketManager->DoSelect( pauseMicroSecs, handleInput );
+	if( this && mActive )
+		mSocketManager->DoSelect( pauseMicroSecs, handleInput );
 }
 
 void Client::Update( float deltaTime )
 {
 	if( this && mActive )
 	{
-		DoSelect( 0 );
 		while( !mEventList.empty() )
 		{
 			mNEF->ForwardEvent( mEventList.back() );

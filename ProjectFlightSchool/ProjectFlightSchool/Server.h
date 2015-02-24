@@ -106,7 +106,6 @@ class Server : public Network
 		void	ClientInteractEnergyCell( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
-		void	DoSelect( int pauseMicroSecs, bool handleInput = true );
 
 		void	SendEvent( IEventPtr eventPtr, UINT to );
 		UINT	CurrentTeamDelegate();
@@ -121,7 +120,7 @@ class Server : public Network
 		bool	Connect( UINT port );
 
 	public:
-		bool	IsActive() const;
+		void	DoSelect( int pauseMicroSecs, bool handleInput = true );
 		void	BroadcastEvent( IEventPtr eventPtr, UINT exception = (UINT)-1 );
 		void	Shutdown();
 		void	Update( float deltaTime );

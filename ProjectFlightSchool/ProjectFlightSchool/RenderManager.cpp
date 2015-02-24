@@ -262,13 +262,14 @@ HRESULT RenderManager::Update( float deltaTime )
 
 HRESULT RenderManager::Render()
 {
-	
 	//Reset the scene to default values
 	Graphics::GetInstance()->BeginScene();
 
 	Graphics::GetInstance()->ChangeRasterizerState( mRasterState );
+
 	//Prepare the scene to be rendered with Gbuffers
 	Graphics::GetInstance()->GbufferPass();
+	
 	SetLightStructuredBuffer();
 
 	//------------------------Fill the Gbuffers with data----------------------
@@ -295,7 +296,7 @@ HRESULT RenderManager::Render()
 	Graphics::GetInstance()->DeferredPass();
 
 	//Render the particles
-	mParticleManager->Render();
+	mParticleManager->Render(); // Check these separately?
 	Graphics::GetInstance()->RenderParticleSystems( mParticleInfoArray, mNrOfParticles );
 
 	//Prepare the scene to render Screen space located assets

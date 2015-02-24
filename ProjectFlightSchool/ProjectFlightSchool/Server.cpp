@@ -553,12 +553,8 @@ void Server::StartUp( IEventPtr eventPtr )
 
 void Server::DoSelect( int pauseMicroSecs, bool handleInput )
 {
-	mSocketManager->DoSelect( pauseMicroSecs, handleInput );
-}
-
-bool Server::IsActive() const
-{
-	return mActive;
+	if ( this && mActive )
+		mSocketManager->DoSelect( pauseMicroSecs, handleInput );
 }
 
 void Server::BroadcastEvent( IEventPtr eventPtr, UINT exception )
@@ -671,7 +667,6 @@ void Server::Update( float deltaTime )
 {
 	if( this && mActive )
 	{
-		DoSelect( 0 );
 		// Handles the client getting buffed by the ship
 		bool shipBuff = false;
 

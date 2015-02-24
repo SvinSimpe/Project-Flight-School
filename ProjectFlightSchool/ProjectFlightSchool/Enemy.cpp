@@ -115,12 +115,13 @@ HRESULT Enemy::Update( float deltaTime, ServerPlayer** players, UINT NrOfPlayers
 	mDeltaTime					= deltaTime;
 	mAttackRadius->center		= mPosition;
 	mAttentionRadius->center	= mPosition;
+	mEvadeRadius->center		= mPosition;
 	mPlayers					= players;
 	mNrOfPlayers				= NrOfPlayers;
 
 	if( mStateTimer >= 0.0f )
 		mStateTimer -= deltaTime;
-
+		
 	mBehaviors[mCurrentBehavior]->Update( deltaTime );
 
 	// Update specific enemy logic
@@ -187,13 +188,27 @@ void Enemy::SetTarget( UINT id )
 
 void Enemy::Hunt( float deltaTime )
 {
-	mVelocity.x = mPlayers[mTargetIndex]->Pos.x - mPosition.x;
+	XMFLOAT3 totalSteeringForce = mSteeringBehaviorManager->GetFinalSteeringForce();
+
+	/*mVelocity.x = mPlayers[mTargetIndex]->Pos.x - mPosition.x;
 	mVelocity.z = mPlayers[mTargetIndex]->Pos.z - mPosition.z;
+	XMStoreFloat3( &mVelocity, XMVector3Normalize( XMLoadFloat3( &mVelocity ) ) );
+	*/
+
+	mVelocity.x += totalSteeringForce.x;
+	mVelocity.z += totalSteeringForce.z;
+	mVelocity.y += totalSteeringForce.y;
+
 	XMStoreFloat3( &mVelocity, XMVector3Normalize( XMLoadFloat3( &mVelocity ) ) );
 
 	mPosition.x += mVelocity.x * mSpeed * deltaTime;
 	mPosition.z += mVelocity.z * mSpeed * deltaTime;
 	mDirection = mVelocity;
+
+	/*mPosition.x	 += totalSteeringForce.x * mSpeed * deltaTime;
+	mPosition.z	 += totalSteeringForce.z * mSpeed * deltaTime;
+	mPosition.y	 += totalSteeringForce.y * mSpeed * deltaTime;
+	mDirection = mVelocity;	*/			 
 }
 
 void Enemy::TakeDamage( float damage, UINT killer )
@@ -340,11 +355,12 @@ XMFLOAT3 Enemy::GetVelocity() const
 	return mVelocity;
 }
 
-HRESULT Enemy::Initialize( int id, ServerPlayer** players, UINT NrOfPlayers )
+HRESULT Enemy::Initialize( int id, ServerPlayer** players, UINT NrOfPlayers, Enemy** otherEnemies )
 {
 	mID				= id;
 	mPlayers		= players;
 	mNrOfPlayers	= NrOfPlayers;
+	mOtherEnemies	= otherEnemies;
 	mMaxHp			= 100.0f;
 	mCurrentHp		= mMaxHp;
 	mDamage			= 0.0f;
@@ -355,6 +371,7 @@ HRESULT Enemy::Initialize( int id, ServerPlayer** players, UINT NrOfPlayers )
 
 	mAttackRadius		= new BoundingCircle( 1.0f );
 	mAttentionRadius	= new BoundingCircle( 1.0f );
+	mEvadeRadius		= new BoundingCircle( 1.5f );
 	
 	mBehaviors			= new IEnemyBehavior*[NR_OF_ENEMY_BEHAVIORS];
 
@@ -376,6 +393,13 @@ HRESULT Enemy::Initialize( int id, ServerPlayer** players, UINT NrOfPlayers )
 		mBehaviors[i]->Initialize( this );
 	}
 
+	mSteeringBehaviorManager			  = new SteeringBehaviorManager();
+	mSteeringBehaviorManager->Initialize(	this );
+	mSteeringBehaviorManager->AddBehavior(  new SteerApproach( this ) );
+	mSteeringBehaviorManager->AddBehavior(  new SteerEvade( this ) );
+	mSteeringBehaviorManager->SetUpBehavior( 0, 4.0f, 1.0f );
+	mSteeringBehaviorManager->SetUpBehavior( 1, 4.0f, 1.0f );
+
 	return S_OK;
 }
 
@@ -393,6 +417,7 @@ void Enemy::Release()
 {
 	SAFE_DELETE( mAttackRadius );
 	SAFE_DELETE( mAttentionRadius );
+	SAFE_DELETE( mEvadeRadius );
 	
 	mCurrentBehavior	= 0;
 	
@@ -401,36 +426,40 @@ void Enemy::Release()
 		mBehaviors[i]->Release();
 		SAFE_DELETE( mBehaviors[i] );
 	}
-
 	delete [] mBehaviors;
+
+	SAFE_DELETE( mSteeringBehaviorManager );
 }
 
 Enemy::Enemy()
 {
-	mID					= 0;
-	mCurrentHp			= 0.0f;
-	mMaxHp				= 0.0f;
-	mDamage				= 0.0f;
-	mSpeed				= 0.0f;
-	mIsAlive			= false;
-	mPosition			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mDirection			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mVelocity			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mAttackRadius		=  nullptr;
-	mAttentionRadius	 = nullptr;
-	mCurrentState		= Idle;
-	mXpDrop				= 0;
-	mSpawnTime			= 0.0f;
-	mTimeTillSapwn		= 0.0f;
-	mAttackRate			= 0.0f;
-	mTimeTillAttack		= 0.0f;
-	mStateTimer			= 0.0f;
-	mStunTimer			= 0.0f;
-	mTakingDamageTimer	= 0.0f;
-	mTargetIndex		= 0;
-	mTargetID			= 0;
-	mPlayers			= nullptr;
-	mTakingDamage		= false;
+	mID							= 0;
+	mCurrentHp					= 0.0f;
+	mMaxHp						= 0.0f;
+	mDamage						= 0.0f;
+	mSpeed						= 0.0f;
+	mIsAlive					= false;
+	mPosition					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mDirection					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mVelocity					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mAttackRadius				=  nullptr;
+	mAttentionRadius			= nullptr;
+	mEvadeRadius				= nullptr;
+	mCurrentState				= Idle;
+	mXpDrop						= 0;
+	mSpawnTime					= 0.0f;
+	mTimeTillSapwn				= 0.0f;
+	mAttackRate					= 0.0f;
+	mTimeTillAttack				= 0.0f;
+	mStateTimer					= 0.0f;
+	mStunTimer					= 0.0f;
+	mTakingDamageTimer			= 0.0f;
+	mTargetIndex				= 0;
+	mTargetID					= 0;
+	mPlayers					= nullptr;
+	mOtherEnemies				= nullptr;
+	mTakingDamage				= false;
+	mSteeringBehaviorManager	= nullptr;
 }
 
 Enemy::~Enemy()

@@ -1,4 +1,8 @@
-#include "SteeringBehavior.h"
+#include "Enemy.h"
+
+////////////////////////////////////////////////////////////////////
+//					Steering Behavior Base
+////////////////////////////////////////////////////////////////////
 
 bool SteeringBehavior::Update(float deltaTime, XMFLOAT3& totalForce )
 {
@@ -53,16 +57,6 @@ void SteeringBehavior::SteerAway( XMFLOAT3& target, XMFLOAT3& result )
 		XMStoreFloat3( &result, XMVectorZero() );
 }
 
-HRESULT SteeringBehavior::Initialize( Enemy* enemy )
-{
-	mEnemy			= enemy;
-	mDisable		= false;
-	mWeight			= 0.0f;
-	mProbability	= 0.0f;
-
-	return S_OK;
-}
-
 void SteeringBehavior::Reset()
 {
 }
@@ -71,9 +65,9 @@ void SteeringBehavior::Release()
 {
 }
 
-SteeringBehavior::SteeringBehavior()
+SteeringBehavior::SteeringBehavior( Enemy* enemy )
 {
-	mEnemy			= nullptr;
+	mEnemy			= enemy;
 	mDisable		= false;
 	mWeight			= 0.0f;
 	mProbability	= 0.0f;
@@ -83,3 +77,82 @@ SteeringBehavior::~SteeringBehavior()
 {
 
 }
+
+////////////////////////////////////////////////////////////////////
+//						Steer Approach
+////////////////////////////////////////////////////////////////////
+
+bool SteerApproach::Update( float deltaTime, XMFLOAT3& totalForce )
+{
+	XMFLOAT3 steeringForce = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	SteerTowards( mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos, steeringForce );
+	totalForce.x	+= steeringForce.x;
+	totalForce.z	+= steeringForce.z;
+	totalForce.y	 = 0.0f;
+
+	return true;
+}
+
+SteerApproach::SteerApproach( Enemy* enemy ) : SteeringBehavior( enemy ) { }
+
+SteerApproach::~SteerApproach() { }
+
+////////////////////////////////////////////////////////////////////
+//						Steer Pursuit
+////////////////////////////////////////////////////////////////////
+
+bool SteerPursuit::Update( float deltatime, XMFLOAT3& totalForce )
+{
+	bool retVal		= false;
+	bool found		= FindTarget();
+
+	if( found )
+	{
+		XMFLOAT3 steeringForce = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		SteerTowards( mEnemy->mPlayers[mEnemy->mTargetID]->Pos, steeringForce );
+		totalForce.x	+= steeringForce.x;
+		totalForce.z	+= steeringForce.z;
+		totalForce.y	 = 0.0f;
+
+		retVal = true;
+	}
+
+	return retVal;
+}
+
+bool SteerPursuit::FindTarget()
+{
+	bool retVal		= false;
+
+	// If the player is in the enemies path, just approach, 
+	// otherwise try to predict player movement and head him off
+	return retVal;
+}
+
+////////////////////////////////////////////////////////////////////
+//						Steer Evade
+////////////////////////////////////////////////////////////////////
+
+bool SteerEvade::Update( float deltaTime, XMFLOAT3& totalForce )
+{
+	bool adjustment		= false;
+
+	// Move away from the nearest object ( for now just other enemies )
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	{
+		if( mEnemy->GetAttackCircle()->Intersect( mEnemy->mOtherEnemies[i]->GetAttackCircle() ) )
+		{
+			XMFLOAT3 steeringForce = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			SteerAway( mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos, steeringForce );
+			totalForce.x	+= steeringForce.x;
+			totalForce.z	+= steeringForce.z;
+			totalForce.y	 = 0.0f;
+		}
+	}
+
+	return adjustment;
+}
+
+SteerEvade::SteerEvade( Enemy* enemy ) : SteeringBehavior( enemy ) {}
+
+SteerEvade::~SteerEvade() { }

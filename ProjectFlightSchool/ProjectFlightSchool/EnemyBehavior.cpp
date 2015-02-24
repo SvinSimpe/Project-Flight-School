@@ -85,6 +85,7 @@ IdleBehavior::~IdleBehavior()
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT HuntPlayerBehavior::Update( float deltaTime )
 {
+	mEnemy->mSteeringBehaviorManager->Update( deltaTime );
 	mEnemy->Hunt( deltaTime );
 
 	// If enemy damaged check, go to take Damage

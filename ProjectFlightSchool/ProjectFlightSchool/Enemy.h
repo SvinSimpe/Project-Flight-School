@@ -7,10 +7,11 @@
 #include "RenderManager.h"
 #include "Font.h"
 #include "RemotePlayer.h"
+#include "SteeringBehaviorManager.h"
 
 class Enemy;
 
-#define MAX_NR_OF_ENEMIES		10
+#define MAX_NR_OF_ENEMIES		20
 
 // ---- Define all enemy animations ----
 // Standard
@@ -43,10 +44,10 @@ class Enemy;
 enum EnemyType { Standard, Ranged, Boomer, Tank };
 enum EnemyState { Idle, HuntPlayer, MoveToShip, TakeDamage, Attack, Death, Stunned, };
 
-#pragma region Behaviors
 ///////////////////////////////////////////////////////////////////////////////
 //								Behaviors
 ///////////////////////////////////////////////////////////////////////////////
+#pragma region Behaviors
 
 const int IDLE_BEHAVIOR				= 0;
 const int HUNT_PLAYER_BEHAVIOR		= 1;
@@ -64,6 +65,8 @@ class IEnemyBehavior
 		Enemy*			mEnemy;
 		EnemyState		mBehavior;	
 		float			mStateTimer;
+
+		//SteeringBehaviorManager**	mSteeringBehaviors;
 
 	// Class functions
 	public:
@@ -201,11 +204,108 @@ class DeadBehavior : public IEnemyBehavior
 
 #pragma endregion
 
+///////////////////////////////////////////////////////////////////////////////
+//							Steering Behaviors
+///////////////////////////////////////////////////////////////////////////////
+#pragma region Steering Behaviors
+
+class SteeringBehavior
+{
+	// Class members
+	private:
+	public:
+		Enemy*		mEnemy;
+		float		mWeight;
+		float		mProbability;
+		bool		mDisable;
+
+	// Class functions
+	public:
+		virtual bool	Update( float deltaTime, XMFLOAT3& totalForce );
+		virtual void	SteerTowards( XMFLOAT3& target, XMFLOAT3& result );
+		virtual void	SteerAway( XMFLOAT3& target, XMFLOAT3& result );
+		
+		virtual void	Reset();
+		virtual void	Release();
+						SteeringBehavior( Enemy* enemy );
+		virtual		   ~SteeringBehavior();
+
+};
+
+class SteerApproach : public SteeringBehavior
+{
+	public:
+		virtual bool	Update( float deltaTime, XMFLOAT3& totalForce );
+						SteerApproach( Enemy* enemy );
+		virtual		   ~SteerApproach();
+};
+
+class SteerPursuit : public SteeringBehavior
+{
+	private:
+		bool			FindTarget();
+
+	public:
+		virtual bool	Update( float deltaTime, XMFLOAT3& totalForce );
+						SteerPursuit( Enemy* enemy );
+		virtual		   ~SteerPursuit();
+};
+
+class SteerEvade : public SteeringBehavior
+{
+	public:
+		virtual bool	Update( float deltaTime, XMFLOAT3& totalForce );
+						SteerEvade( Enemy* enemy );
+		virtual		   ~SteerEvade();
+};
+
+#pragma endregion
+
+///////////////////////////////////////////////////////////////////////////////
+//						Steering Behaviors Manager
+///////////////////////////////////////////////////////////////////////////////
+#pragma region Steering Behavior Manager
+class SteeringBehaviorManager
+{
+	// Class members
+	protected:
+		std::vector<SteeringBehavior*>		mBehaviors;
+		std::vector<SteeringBehavior*>		mActive;
+		std::vector<float>					mActiveForce;
+		int									mNumberOfBehaviors;
+		Enemy*								mEnemy;
+		XMFLOAT3							mTotalSteeringForce;
+		float								mMaxSteeringForce;
+
+	// Class functions
+	public:
+		virtual HRESULT		Update( float deltaTime );
+		virtual void		AddBehavior( SteeringBehavior* behavior );
+		virtual void		DisableBehavior( int index );
+		virtual void		SetUpBehavior( int behaviorIndex, float weight, float probability, bool disable = false );
+		virtual bool		CombinedForceWeighted( XMFLOAT3& steeringForce, float weight );
+		virtual bool		CombineForcePrioritySum( XMFLOAT3& steeringForce );
+		virtual XMFLOAT3	GetFinalSteeringForce() const;
+
+		virtual HRESULT		Initialize( Enemy* enemy = nullptr );
+		virtual void		Release();
+		virtual void		Reset();
+							SteeringBehaviorManager();
+						   ~SteeringBehaviorManager();
+
+};
+
+#pragma endregion
+
+///////////////////////////////////////////////////////////////////////////////
+//									Enemy
+///////////////////////////////////////////////////////////////////////////////
 class Enemy
 {
 	// Member variables
 	private:
 #pragma region Friends
+		// Behaviors
 		friend class		IEnemyBehavior; 
 		friend class		IdleBehavior;
 		friend class		HuntPlayerBehavior;
@@ -214,6 +314,13 @@ class Enemy
 		friend class		TakeDamageBehavior;
 		friend class		StunnedBehavior;
 		friend class		DeadBehavior;
+		// Steering Behaviors
+		friend class		SteeringBehavior;
+		friend class		SteerApproach;
+		friend class		SteerPursuit;
+		friend class		SteerEvade;
+		friend class		SteeringBehaviorManager;
+
 #pragma endregion
 
 		unsigned int		mID;
@@ -229,6 +336,7 @@ class Enemy
 		XMFLOAT3			mVelocity;
 		BoundingCircle*		mAttackRadius;
 		BoundingCircle*		mAttentionRadius;
+		BoundingCircle*		mEvadeRadius;
 		unsigned int		mXpDrop;
 		UINT				mTargetID;
 		UINT				mTargetIndex;
@@ -236,6 +344,7 @@ class Enemy
 
 		ServerPlayer**		mPlayers;
 		UINT				mNrOfPlayers;
+		Enemy**				mOtherEnemies;
 
 		// Timers
 		float				mSpawnTime;
@@ -248,8 +357,10 @@ class Enemy
 		float				mTakingDamageTimer;
 
 		// Behaviors
-		IEnemyBehavior**	mBehaviors;
-		int					mCurrentBehavior;
+		IEnemyBehavior**			mBehaviors;
+		int							mCurrentBehavior;
+
+		SteeringBehaviorManager*	mSteeringBehaviorManager;
 
 	protected:
 	public:
@@ -295,7 +406,7 @@ class Enemy
 		XMFLOAT3			GetVelocity() const;
 		
 
-		HRESULT				Initialize( int id, ServerPlayer** players, UINT NrOfPlayers );
+		HRESULT				Initialize( int id, ServerPlayer** players, UINT NrOfPlayers, Enemy** otherEnemies );
 		void				Reset();
 		void				Release();
 							Enemy();

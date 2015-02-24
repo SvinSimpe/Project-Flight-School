@@ -827,8 +827,7 @@ void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 
 	if( this )
 		mSocketManager->Send( mSocketID, msg );
-	else
-		OutputDebugString( L"Failat i ForwardEvent()" );
+
 	out.str( std::string() );
 	out.clear();
 }

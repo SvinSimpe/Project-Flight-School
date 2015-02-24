@@ -125,6 +125,7 @@ void ServerShip::ClientUpdateShip( IEventPtr eventPtr )
 
 void ServerShip::AddEnergyCell( UINT energyCellOwnerID )
 {
+	OutputDebugString( L"AddEnergyCell in ServerShip\n" );
 	if( energyCellOwnerID == mID )
 	{
 		mNrOfEnergyCells++;

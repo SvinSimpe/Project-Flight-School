@@ -80,6 +80,7 @@ class Gui
 		
 	protected:
 	public:
+		std::list<IEventPtr>	gEventList;
 
 	private:
 	protected:

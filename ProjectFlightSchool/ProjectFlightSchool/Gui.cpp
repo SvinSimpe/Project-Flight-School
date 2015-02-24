@@ -78,6 +78,12 @@ HRESULT Gui::Update( GuiUpdate guiUpdate )
 		mPlayerWindow.Update( guiUpdate.deltaTime );
 	}
 
+	while( !mShipWindow.gEventList.empty() )
+	{
+		gEventList.push_front( mShipWindow.gEventList.back() );
+		mShipWindow.gEventList.pop_back();
+	}
+
 	return result;
 
 }

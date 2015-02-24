@@ -78,6 +78,8 @@ enum Effects
 	EFFECTS_MUZZLEFLASH,
 	EFFECTS_SMOKE_MINIGUN,
 	EFFECTS_TEST_FOUNTAIN,
+	EFFECTS_LEVEL_UP,
+	EFFECTS_LEVEL_INNER,
 	EFFECTS_EXPLOSION,
 	EFFECTS_EXPLOSION_SMOKE,
 
@@ -155,6 +157,7 @@ class LIBRARY_EXPORT Graphics
 		AssetManager*				mAssetManager;
 		Effect*						mEffects[EFFECTS_AMOUNT];
 		Camera*						mCamera[CAMERAS_AMOUNT];
+		Cameras						mCurrentCamera;
 		bool						mIsDeveloperCameraActive;
 		Gbuffer*					mGbuffers[NUM_GBUFFERS];
 
@@ -199,7 +202,7 @@ class LIBRARY_EXPORT Graphics
 		void RenderBillboard		( BillboardInfo* info, UINT sizeOfList );
 		void RenderParticleSystems	( ParticleInfo* info, UINT sizeOfList );
 		void RenderNodeGrid			( NodeGridInfo* info, UINT sizeOfList );
-		void RenderDebugBox			( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max );
+		void RenderDebugBox			( BoxInfo* info, UINT sizeOfList );
 		void RenderDebugBox			( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, DirectX::XMFLOAT4X4 world );
 		void RenderLine				( LineInfo* info, UINT sizeOfList );
 

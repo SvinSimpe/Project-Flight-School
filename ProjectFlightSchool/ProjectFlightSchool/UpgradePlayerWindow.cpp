@@ -90,6 +90,8 @@ void UpgradePlayerWindow::Release()
 	mSpeedButton.button.Release();
 	mMeleeButton.button.Release();
 	mRangeButton.button.Release();
+
+	mFont.Release();
 }
 
 HRESULT UpgradePlayerWindow::Initialize()

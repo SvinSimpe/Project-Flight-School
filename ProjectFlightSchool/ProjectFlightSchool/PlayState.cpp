@@ -79,9 +79,10 @@ void PlayState::EventListener( IEventPtr newEvent )
 		
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
+		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Level_Up, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.0f, 1.0f, 0.0f ) ); //both of these calls are needed for levelup effect.
+		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Level_Inner, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.1f, 0.1f, 0.1f ) ); //both of these calls are needed for levelup effect.
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Explosion, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), ExplosionSmoke, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-
 		//RenderManager::GetInstance()->RequestParticleSystem( 9999, Blood, XMFLOAT3( 2.0f, 3.0f, 0.0f ) , XMFLOAT3( -data->Direction().x, data->Direction().y, -data->Direction().z ) );
 		//RenderManager::GetInstance()->RequestParticleSystem( 8999, Spark, XMFLOAT3( -2.0f, 2.0f, 0.0f ), XMFLOAT3( -data->Direction().x, data->Direction().y, -data->Direction().z ) );
 	}
@@ -156,6 +157,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->Position(), data->Direction() );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->Position(), data->Direction() );
 		//RenderManager::GetInstance()->RequestParticleSystem( 9999, Blood, XMFLOAT3( 2.0f, 3.0f, 0.0f ) , XMFLOAT3( 0.0f, 1.0f, 1.0f ) );
+		
 	}
 	else if( newEvent->GetEventType() == Event_Server_Sync_Energy_Cell::GUID )
 	{
@@ -417,6 +419,19 @@ void PlayState::HandleDeveloperCameraInput()
 			}
 		}
 	}
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_ENTER ) )
+	{
+		if( mGui->InGameWindowIsActive() )
+		{
+			mPlayer->UnLock();
+			mGui->DeActivateInGameWindow();
+		}
+		else
+		{
+			mPlayer->Lock();
+			mGui->ActivateInGameWindow();
+		}
+	}
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_1 ) )
 	{
 		RenderManager::GetInstance()->ChangeRasterizerState( CULL_NONE );
@@ -540,7 +555,6 @@ HRESULT PlayState::Update( float deltaTime )
 
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{
-		mWorldMap->IsOnNavMesh( mPlayer->GetPlayerPosition() );
 		CheckPlayerCollision();
 
 		if( mPlayer->GetIsMeleeing() )
@@ -610,11 +624,6 @@ HRESULT PlayState::Update( float deltaTime )
 
 	UpdateProjectiles( deltaTime );
 
-	//Test radar due to no ship :(
-	mRadarObjects[nrOfRadarObj].mRadarObjectPos = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );//mShip.GetPosition();
-	mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
-	//-------
-
 	// Enemies
 	if( mEnemyListSynced )
 	{
@@ -626,8 +635,8 @@ HRESULT PlayState::Update( float deltaTime )
 
 				if( mEnemies[i]->IsAlive() )
 				{
-					mRadarObjects[nrOfRadarObj].mType = RADAR_TYPE::HOSTILE;
-					mRadarObjects[nrOfRadarObj++].mRadarObjectPos = mEnemies[i]->GetPosition();
+					mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnemies[i]->GetPosition();
+					mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
 				}
 			}
 		}
@@ -643,6 +652,20 @@ HRESULT PlayState::Update( float deltaTime )
 		mGui->DeActivateUpgradePlayerWindow();
 	}
 
+	if( mFriendShip )
+	{
+		mFriendShip->Update( deltaTime );
+		mRadarObjects[nrOfRadarObj].mRadarObjectPos = mFriendShip->GetPos();
+		mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_FRIENDLY;
+	}
+
+	if( mEnemyShip )
+	{
+		mEnemyShip->Update( deltaTime );
+		mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnemyShip->GetPos();
+		mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_HOSTILE;
+	}
+
 	guiUpdate.mRadarObjects	= mRadarObjects;
 	guiUpdate.mNrOfObjects	= nrOfRadarObj;
 	guiUpdate.mPlayerPos	= mPlayer->GetPlayerPosition();	
@@ -656,25 +679,13 @@ HRESULT PlayState::Update( float deltaTime )
 
 	mGui->Update( guiUpdate );
 
-	if( mFriendShip )
-		mFriendShip->Update( deltaTime );
-	if( mEnemyShip )
-		mEnemyShip->Update( deltaTime );
-
 	CheckProjectileCollision();
-
-	// Test Anim
-	///////////////////////////////////////////////////////////////////////////
-	//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
-	///////////////////////////////////////////////////////////////////////////
 
 	return S_OK;
 }
 
 HRESULT PlayState::Render()
 {
-	//Test asset, currently a tree
-	//RenderManager::GetInstance()->AddObject3dToList(mTestStaticAsset);
 	mPlayer->Render( 0.0f, 1 );
 
 	mWorldMap->Render( 0.0f , mPlayer );
@@ -699,10 +710,10 @@ HRESULT PlayState::Render()
 		}
 	}
 
-	//for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
-	//{
-	//	RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
-	//}
+	for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
+	{
+		RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
+	}
 
 	mGui->Render();
 
@@ -779,6 +790,7 @@ HRESULT PlayState::Initialize()
 {
 	mStateType = PLAY_STATE;
 
+
 	//AssetID model		= 0;
 	//AssetID loader	= 0;
 
@@ -794,9 +806,10 @@ HRESULT PlayState::Initialize()
 
 	mWorldMap = new Map();
 
-	mWorldMap->Initialize( 21 );
+	mWorldMap->Initialize( 12 );
 
-	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/HardMap.xml" ) ); 
+	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/ForestMap.xml" ) ); 
+
 	EventManager::GetInstance()->TriggerEvent( E1 );
 
 	//Fill up on Projectiles, test values
@@ -864,11 +877,15 @@ HRESULT PlayState::Initialize()
 	mSoundAsset			= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
 	mStreamSoundAsset	= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav" );
 
+	Pathfinder::GetInstance()->Initialize( mWorldMap );
+
 	return S_OK;
 }
 
 void PlayState::Release()
 {	
+
+	Pathfinder::GetInstance()->Release();
 	mWorldMap->Release();
 	SAFE_DELETE( mWorldMap );
 

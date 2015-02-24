@@ -20,6 +20,16 @@ void Gui::DeActivateUpgradePlayerWindow()
 	mPlayerWindow.DeActivate();
 }
 
+void Gui::ActivateInGameWindow()
+{
+	mInGameWindow.Activate();
+}
+
+void Gui::DeActivateInGameWindow()
+{
+	mInGameWindow.DeActivate();
+}
+
 HRESULT Gui::Update( GuiUpdate guiUpdate )
 {
 	HRESULT result = S_OK;
@@ -76,6 +86,11 @@ HRESULT Gui::Update( GuiUpdate guiUpdate )
 	if ( mPlayerWindow.IsActive() )
 	{
 		mPlayerWindow.Update( guiUpdate.deltaTime );
+	}
+
+	if ( mInGameWindow.IsActive() )
+	{
+		mInGameWindow.Update( guiUpdate.deltaTime );
 	}
 
 	while( !mShipWindow.gEventList.empty() )
@@ -145,6 +160,11 @@ HRESULT Gui::Render()
 		mPlayerWindow.Render();
 	}
 
+	if ( mInGameWindow.IsActive() )
+	{
+		mInGameWindow.Render();
+	}
+
 	return result;
 }
 
@@ -197,6 +217,7 @@ HRESULT Gui::Initialize()
 
 	mShipWindow.Initialize();
 	mPlayerWindow.Initialize();
+	mInGameWindow.Initialize();
 
 	return result;
 }
@@ -240,4 +261,9 @@ bool Gui::UpgradeShipWindowIsActive()
 bool Gui::UpgradePlayerWindowIsActive()
 {
 	return mPlayerWindow.IsActive();
+}
+
+bool Gui::InGameWindowIsActive()
+{
+	return mInGameWindow.IsActive();
 }

@@ -25,6 +25,11 @@ UINT ClientShip::GetTeamID() const
 	return mTeamID;
 }
 
+UINT ClientShip::GetNrOfEnergyCells() const
+{
+	return mNrOfEnergyCells;
+}
+
 void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 {
 	if ( eventPtr->GetEventType() == Event_Request_Player_Spawn_Position::GUID )
@@ -32,27 +37,42 @@ void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 		std::shared_ptr<Event_Request_Player_Spawn_Position> data = std::static_pointer_cast<Event_Request_Player_Spawn_Position>( eventPtr );
 		if ( data->TeamID() == mTeamID )
 		{
-			float spawnX = 0.0f;
-			float spawnZ = 0.0f;
+			int width	= 15;
+			int height	= 15;
+			int xMin	= 0;
+			int xMax	= 0;
+			int zMin	= 0;
+			int zMax	= 0;
+
+			int spawnX, spawnZ = 0;
+
+
+			xMin = (int)mBuffCircle->center.x - width;
+			xMax = (int)mBuffCircle->center.x + width;
+			zMin = (int)mBuffCircle->center.z - height;
+			zMax = (int)mBuffCircle->center.z + height;
+
+			//Check if min OR max is origo
+			if( xMin == 0 || xMax == 0 || zMin == 0 || zMax == 0 )
+			{
+				width++;
+				height++;
+
+				xMin = (int)mBuffCircle->center.x - width;
+				xMax = (int)mBuffCircle->center.x + width;
+				zMin = (int)mBuffCircle->center.z - height;
+				zMax = (int)mBuffCircle->center.z + height;
+			}
+
 			do
 			{
-				float xMin = mBuffCircle->center.x - 10.0f;
-				float xMax = mBuffCircle->center.x + 10.0f;
-
-				float zMin = mBuffCircle->center.z - 10.0f;
-				float zMax = mBuffCircle->center.z + 10.0f;
-
-				int randX = (int)( xMax*2 - xMin );
-				int randZ = (int)( zMax*2 - zMin );
-
-				spawnX = (float)( rand() % randX );
-				spawnZ = (float)( rand() % randZ );
+				spawnX = ( xMin + ( rand() % (int)( xMax - xMin + 1 ) ) );
+				spawnZ = ( zMin + ( rand() % (int)( zMax - zMin + 1 ) ) );
 			}
-			while( spawnX > mBuffCircle->center.x - 5.0f && spawnX < mBuffCircle->center.x + 5.0f &&
-				   spawnZ > mBuffCircle->center.z - 5.0f && spawnZ < mBuffCircle->center.z + 5.0f );
+			while( spawnX > mBuffCircle->center.x - 12.0f && spawnX < mBuffCircle->center.x + 12.0f &&
+				   spawnZ > mBuffCircle->center.z - 12.0f && spawnZ < mBuffCircle->center.z + 12.0f );
 
-
-			IEventPtr E1( new Event_New_Player_Spawn_Position( data->PlayerID(), XMFLOAT2( spawnX, spawnZ ) ) );
+			IEventPtr E1( new Event_New_Player_Spawn_Position( data->PlayerID(), XMFLOAT2( (float)spawnX, (float)spawnZ ) ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 	}
@@ -63,13 +83,24 @@ void ClientShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 	ServerShip::Reset( id, teamID, pos, rot, scale );
 	mHitCircle->center = pos;
 	mClientTurret->Reset( id, teamID, pos, rot, scale );
+
+	for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
+	{
+		mEnergyCells[i] = (UINT)-1;
+	}
+
+	mNrOfEnergyCells = 0;
 }
 
 bool ClientShip::Intersect( BoundingCircle* entity )
 {
-	if( mHitCircle->Intersect( entity ) )
+	if( mHitCircle != nullptr )
 	{
-		return true;
+		if( mHitCircle->Intersect( entity ) )
+		{
+			return true;
+		}
+		else return false;
 	}
 	return false;
 }
@@ -77,7 +108,6 @@ bool ClientShip::Intersect( BoundingCircle* entity )
 void ClientShip::Update( float deltaTime )
 {
 	ServerShip::Update( deltaTime );
-	mClientTurret->Update( deltaTime );
 }
 
 void ClientShip::Render( float deltaTime, DirectX::XMFLOAT4X4 parentWorld )
@@ -93,12 +123,19 @@ void ClientShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Ship/", "ShipWithTripod.pfs", mAssetID );
 	mHitCircle = new BoundingCircle( mPos, 5.0f );
 
-	SAFE_RELEASE_DELETE( mServerTurret ); // This is kinda ugly, but needs to be done in order for events to work
+	for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
+	{
+		mEnergyCells[i] = (UINT)-1;
+	}
+	
+	mNrOfEnergyCells = 0;
+
 	mClientTurret = new ClientTurret();
-	mClientTurret->Initialize( mID, mTeamID, mPos, mRot, mScale );
+	mClientTurret->Initialize( id + 10, teamID, pos, rot, scale );
 
 	EventManager::GetInstance()->AddListener( &ClientShip::RemoteUpdateShip, this, Event_Server_Update_Ship::GUID );
 	EventManager::GetInstance()->AddListener( &ClientShip::CalculatePlayerRespawnPosition, this, Event_Request_Player_Spawn_Position::GUID );
+
 }
 
 void ClientShip::Release()
@@ -110,10 +147,13 @@ void ClientShip::Release()
 
 ClientShip::ClientShip() : ServerShip()
 {
+
 	mAssetID		= CUBE_PLACEHOLDER;
 	mHitCircle		= nullptr;
 	mWasUpdated		= false;
 	mClientTurret	= nullptr;
+	mNrOfEnergyCells	= 0;	
+
 }
 
 ClientShip::~ClientShip()

@@ -10,6 +10,7 @@ void UpgradeShipWindow::EventListener( IEventPtr eventPtr )
 			mForceFieldButtons.nrOfFilled	= data->ShieldLevelChange();
 			mTurretButtons.nrOfFilled		= data->TurretLevelChange();
 			mBuffButtons.nrOfFilled			= data->BuffLevelChange();
+			mEngineButtons.nrOfFilled		= data->EngineLevelChange();
 		}
 	}
 	else if ( eventPtr->GetEventType() == Event_Local_Joined::GUID ) // Add a remote player to the list when they connect
@@ -47,13 +48,13 @@ void UpgradeShipWindow::Update( float deltaTime )
 	{
 		if( pressed == 1 )
 		{
-			IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, 1, 0 ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
+			IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, 1, 0, 0 ) );
+			gEventList.push_front( E1 );
 		}
 		else
 		{
-			IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, -1, 0 ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
+			IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, -1, 0, 0 ) );
+			gEventList.push_front( E1 );
 		}
 	}
 	else
@@ -63,13 +64,13 @@ void UpgradeShipWindow::Update( float deltaTime )
 		{
 			if ( pressed == 1 )
 			{
-				IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 1, 0, 0 ) );
-				EventManager::GetInstance()->QueueEvent( E1 );
+				IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 1, 0, 0, 0 ) );
+				gEventList.push_front( E1 );
 			}
 			else
 			{
-				IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, -1, 0, 0 ) );
-				EventManager::GetInstance()->QueueEvent( E1 );
+				IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, -1, 0, 0, 0 ) );
+				gEventList.push_front( E1 );
 			}
 		}
 		else
@@ -79,13 +80,13 @@ void UpgradeShipWindow::Update( float deltaTime )
 			{
 				if ( pressed == 1 )
 				{
-					IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, 0, 1 ) );
-					EventManager::GetInstance()->QueueEvent( E1 );
+					IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, 0, 1, 0 ) );
+					gEventList.push_front( E1 );
 				}
 				else
 				{
-					IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, 0, -1 ) );
-					EventManager::GetInstance()->QueueEvent( E1 );
+					IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, 0, -1, 0 ) );
+					gEventList.push_front( E1 );
 				}
 			}
 			else
@@ -95,11 +96,13 @@ void UpgradeShipWindow::Update( float deltaTime )
 				{
 					if ( pressed == 1 )
 					{
-						MessageBox( NULL, L"Level up Engine", L"Error", MB_OK );
+						IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, 0, 0, 1 ) );
+						gEventList.push_front( E1 );
 					}
 					else
 					{
-						MessageBox( NULL, L"Level down Engine", L"Error", MB_OK );
+						IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, 0, 0, -1 ) );
+						gEventList.push_front( E1 );
 					}
 				}
 			}
@@ -142,6 +145,7 @@ void UpgradeShipWindow::Release()
 
 HRESULT UpgradeShipWindow::Initialize()
 {
+	gEventList	= std::list<IEventPtr>();
 	mIsActive	= false;
 	mTeam		= -1;
 
@@ -155,10 +159,10 @@ HRESULT UpgradeShipWindow::Initialize()
 	mTopLeftCorner.x = (float)( Input::GetInstance()->mScreenWidth / 2.0f ) - (float)( mSize.x / 2.0f );
 	mTopLeftCorner.y = Input::GetInstance()->mScreenHeight - mSize.y;
 	
-	mTurretButtons.nrOfFilled		= 2;
-	mForceFieldButtons.nrOfFilled	= 2;
-	mBuffButtons.nrOfFilled			= 2;
-	mEngineButtons.nrOfFilled		= 2;
+	mTurretButtons.nrOfFilled		= 1;
+	mForceFieldButtons.nrOfFilled	= 1;
+	mBuffButtons.nrOfFilled			= 1;
+	mEngineButtons.nrOfFilled		= 0;
 
 	mTurretButtons.nrOfButtons		= MAX_NR_OF_UPGRADES;
 	mForceFieldButtons.nrOfButtons	= MAX_NR_OF_UPGRADES;

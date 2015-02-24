@@ -49,7 +49,8 @@ void Client::StartUp( IEventPtr eventPtr )
 
 void Client::SendEvent( IEventPtr eventPtr )
 {
-	mEventList.push_front( eventPtr );
+	mNEF->ForwardEvent( eventPtr );
+	//mEventList.push_front( eventPtr );
 }
 
 bool Client::Connect( std::string ip, UINT port )
@@ -95,15 +96,15 @@ void Client::DoSelect( int pauseMicroSecs, bool handleInput )
 
 void Client::Update( float deltaTime )
 {
-	if( mActive )
+	if( this && mActive )
 	{
+		DoSelect( 0 );
 		while( !mEventList.empty() )
 		{
 			mNEF->ForwardEvent( mEventList.back() );
 			mEventList.pop_back();
 		}
 		mEventList.clear();
-		DoSelect( 0 );
 	}
 }
 
@@ -174,6 +175,9 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Server_Spawn_Ship );
 	EF::REGISTER_EVENT( Event_Server_Change_Buff_State );
 
+	EF::REGISTER_EVENT( Event_Client_Sync_Energy_Cell );
+	EF::REGISTER_EVENT( Event_Server_Sync_Energy_Cell );
+
 	EF::REGISTER_EVENT( Event_Client_Update_Ship );
 	EF::REGISTER_EVENT( Event_Server_Update_Ship );
 	EF::REGISTER_EVENT( Event_Client_Change_Ship_Levels );
@@ -181,6 +185,9 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Client_Win );
 	EF::REGISTER_EVENT( Event_Remote_Win );
 	EF::REGISTER_EVENT( Event_Server_XP );
+	EF::REGISTER_EVENT( Event_Server_Update_Turret );
+	EF::REGISTER_EVENT( Event_Turret_Fired_Projectile );
+	EF::REGISTER_EVENT( Event_Server_Turret_Fired_Projectile );
 	EF::REGISTER_EVENT( Event_Client_Initialize_LobbyPlayer );
 	EF::REGISTER_EVENT( Event_Server_Initialize_LobbyPlayer );
 	EF::REGISTER_EVENT( Event_Client_Lobby_Finished );

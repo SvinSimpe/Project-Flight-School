@@ -13,8 +13,8 @@
 
 // Minigun
 #define MINIGUN_AR			0.05f	// Attack Rate
-#define MINIGUN_DAMAGE		1.0f	// Damage
-#define MINIGUN_RANGE		1.0f	// Range
+#define MINIGUN_DAMAGE		0.6f	// Damage
+#define MINIGUN_RANGE		0.8f	// Range
 #define MINIGUN_SPREAD		0.1f	// Spread
 #define MINIGUN_AOE			0.0f	// Area of effect
 #define MINIGUN_SPEED		40.0f	// Projectile Speed 30
@@ -62,12 +62,12 @@
 #define CLAYMORE_REACH		3.0f	// Reach
 
 // Hammer
-#define HAMMER_AR			2.80f	// Attack Rate
-#define HAMMER_DAMAGE		0.0f	// Damage
+#define HAMMER_AR			3.5f	// Attack Rate Can't be lower than 3.5f
+#define HAMMER_DAMAGE		5.0f	// Damage
 #define HAMMER_RADIUS		5.0f	// Radius
 #define HAMMER_SPREAD		7		// Spread
 #define HAMMER_KB			3.0f	// Knockback
-#define HAMMER_TTA			0.95f	// Time till Attack
+#define HAMMER_TTA			0.6f	// Time till Attack Can't be changed
 #define HAMMER_STUN			3.0f	// Stun
 #define HAMMER_REACH		4.0f	// Reach
 

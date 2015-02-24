@@ -11,9 +11,9 @@ HRESULT Map::Render( float deltaTime, Player* player )
 	int playerX = ( ( (int)GetMapHalfWidth() * NODE_DIM ) + playerPosX ) / NODE_DIM;
 	int playerZ = ( ( (int)GetMapHalfHeight() * NODE_DIM ) + playerPosY ) / NODE_DIM;
 
-	for( int x = playerX - 5; x < playerX + 6; x++ )
+	for( int x = playerX - 1; x < playerX + 2; x++ )
 	{
-		for( int z = playerZ - 5; z < playerZ + 6; z++ )
+		for( int z = playerZ - 1; z < playerZ + 2; z++ )
 		{
 			MapNodeInstance* temp = MapNodePlacer::GetInstance()->GetNodeInstance( x, z );
 			if( temp && std::find( mapNodes.begin(), mapNodes.end(), temp ) == mapNodes.end() )

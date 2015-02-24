@@ -269,7 +269,7 @@ AABB	BoxGenerator::Subdivide( AABB* originalBox, int witchBox )
 	}
 	return outBox;
 }
-void	BoxGenerator::Release( OctTree* killMe )
+void BoxGenerator::Release( OctTree* killMe )
 {
 	//Delete the children and then their parents, then sacrifice them to satan
 	if( killMe != nullptr )
@@ -280,6 +280,7 @@ void	BoxGenerator::Release( OctTree* killMe )
 			{
 				Release( killMe->children[i] );
 				delete killMe->children[i];
+				killMe->children[i] = nullptr;
 			}
 		}
 	}

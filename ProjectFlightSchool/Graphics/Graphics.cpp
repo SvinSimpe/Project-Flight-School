@@ -440,8 +440,37 @@ HRESULT Graphics::InitializeEffects()
 	//=======================================
 	//			PARTICLE EFFECTS			|
 	//=======================================
+	//Explosion smoke effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/ExplosionSmoke.hlsl";
+	effectInfo.fileName					= "ExplosionSmoke";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
 
-	//Muzzle Flash effect
+	if( FAILED( hr = mEffects[EFFECTS_EXPLOSION_SMOKE]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Explosion effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/ExplosionEffect.hlsl";
+	effectInfo.fileName					= "ExplosionEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_EXPLOSION]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Spark effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/SparkEffect.hlsl";
+	effectInfo.fileName					= "SparkEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_SPARK]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Blood effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/BloodEffect.hlsl";
 	effectInfo.fileName					= "BloodEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
@@ -1056,6 +1085,7 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 
 				mParticleInstanced[objectToRender].age				= info[i].mAge;
 				mParticleInstanced[objectToRender].timeTillDeath	= info[i].mTimeTillDeath;
+				mParticleInstanced[objectToRender].randomRotation	= info[i].mRandomRotation;
 
 				objectToRender++;
 				strider++;
@@ -1065,9 +1095,14 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 					mDeviceContext->IASetInputLayout( mEffects[info[i].mParticleType]->GetInputLayout() );
 
 					// Add particletype you want to apply additive blending on
-					if( info[i].mParticleType == EFFECTS_TEST_FOUNTAIN )
+					if( info[i].mParticleType == EFFECTS_TEST_FOUNTAIN || info[i].mParticleType == EFFECTS_SPARK )
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
-
+					else if( info[i].mParticleType == EFFECTS_EXPLOSION )
+						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
+					
+					/*else if( info[i].mParticleType == EFFECTS_EXPLOSION_SMOKE )
+						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
+*/
 					else
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_NORMAL], 0, 0xFFFFFFFF );
 
@@ -1674,7 +1709,7 @@ void Graphics::GbufferPass()
 
 	mCamera[CAMERAS_SHADOWMAP]->Update();
 
-	static float clearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	static float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	for( int i = 0; i < NUM_GBUFFERS; i++ )
 		mDeviceContext->ClearRenderTargetView( mGbuffers[i]->mRenderTargetView, clearColor );
 	mDeviceContext->ClearDepthStencilView( mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
@@ -1853,7 +1888,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 			&mDevice,
 			&initiatedFeatureLevel,
 			&mDeviceContext );
-
+	
 	if( FAILED( hr ) )
 		return hr;
 	
@@ -2102,6 +2137,9 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 //Release all the stuff.
 void Graphics::Release()
 {
+	//ID3D11Debug* debug;
+	//mDevice->QueryInterface( __uuidof( ID3D11Debug ), reinterpret_cast<void**>( &debug ) );
+
 	SAFE_RELEASE( mSwapChain );
 	SAFE_RELEASE( mDevice );
 	SAFE_RELEASE( mDeviceContext );
@@ -2142,9 +2180,15 @@ void Graphics::Release()
 	{
 		SAFE_RELEASE( mSamplerStates[i] );
 	}
+	for( int i = 0; i < RASTERIZER_STATES_AMOUNT; i++ )
+	{
+		SAFE_RELEASE( mRasterizerState[i] );
+	}
 
 	for( int i = 0; i < NUM_GBUFFERS; i++ )
 	{
 		SAFE_RELEASE_DELETE( mGbuffers[i] );
 	}
+
+	//debug->ReportLiveDeviceObjects( D3D11_RLDO_DETAIL );
 }

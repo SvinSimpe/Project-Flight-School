@@ -222,9 +222,6 @@
     <ClCompile Include="tinyxmlparser.cpp">
       <Filter>TinyXML\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Radar.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DS3DBuffer.cpp">
       <Filter>DirectSound\Source</Filter>
     </ClCompile>
@@ -330,10 +327,18 @@
     <ClCompile Include="LobbyState.cpp">
       <Filter>GameStates\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Radar.cpp">
+    </ClCompile>
     <ClCompile Include="UpgradePlayerWindow.cpp">
       <Filter>GUI\Source</Filter>
     </ClCompile>
     <ClCompile Include="UpgradeShipWindow.cpp">
+      <Filter>GUI\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="InGameWindow.cpp">
+      <Filter>GUI\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="UpgradePlayerWindow.cpp">
       <Filter>GUI\Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -467,9 +472,6 @@
     <ClInclude Include="NodeTypes.h">
       <Filter>Worldmap\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Radar.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DS3DBuffer.h">
       <Filter>DirectSound\Header</Filter>
     </ClInclude>
@@ -572,7 +574,12 @@
     <ClInclude Include="Pathfinder.h">
       <Filter>Worldmap\Navigation</Filter>
     </ClInclude>
+    <ClInclude Include="Radar.h">
+    </ClInclude>
     <ClInclude Include="UpgradeShipWindow.h">
+      <Filter>GUI\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="InGameWindow.h">
       <Filter>GUI\Header</Filter>
     </ClInclude>
   </ItemGroup>

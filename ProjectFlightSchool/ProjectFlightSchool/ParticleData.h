@@ -10,7 +10,7 @@
 using namespace DirectX;
 
 #define MAX_PARTICLES 10000
-#define NR_OF_PARTICLE_TYPES 9
+#define NR_OF_PARTICLE_TYPES 11
 
 enum ParticleType
 {
@@ -21,6 +21,8 @@ enum ParticleType
 	MuzzleFlash,
 	Smoke_MiniGun,
 	Test_Fountain,
+	Level_Up,
+	Level_Inner,
 	Explosion,
 	ExplosionSmoke
 };
@@ -238,7 +240,7 @@ struct ParticleData
 			SparkElevationY( 1.0f, 2.0f );
 		}
 
-		if( particleType != Test_Fountain && particleType != Spark && particleType != Explosion )
+		if( particleType != Test_Fountain && particleType != Spark  && particleType != Level_Up && particleType != Level_Inner && particleType != Explosion )
 		{
 			//Get random elevation
 			float randomElevation = ( (float)( rand() % 20 ) - 10 ) * 0.1f;
@@ -310,6 +312,18 @@ struct ParticleData
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 2, 3 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 3, 10 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 2, 3 );		
+			}
+			else if( particleType == Level_Up )
+			{
+				//randomDirectionVector.x = xDirection * GetRandomSpeed( 2, 3 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 20, 40 );
+				//randomDirectionVector.z = zDirection * GetRandomSpeed( 2, 3 );		
+			}
+			else if( particleType == Level_Inner )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 2, 10 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 5 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 2, 10 );		
 			}
 
 			GetRandomSpread( spreadAngle );
@@ -399,7 +413,8 @@ struct ParticleData
 		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
 		{
 			float randomAngle = (float)( rand() % 360 + 1 );
-			float randomRadius = (float)( rand() % (int)radius + 1 );
+			float randomRadius = (float)( rand() % (int)( radius * 100.0f ) + 1 );
+			randomRadius *= 0.01f;
 
 			XMVECTOR randomDirection = XMVector3TransformCoord( XMVectorSet( 1.0f, 0.0f, 0.0f, 0.0f ), XMMatrixRotationY( XMConvertToRadians( randomAngle ) ) );
 

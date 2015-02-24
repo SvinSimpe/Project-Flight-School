@@ -16,6 +16,7 @@
 #include "Gui.h"
 #include "SoundBufferHandler.h"
 #include "EnergyCell.h"
+#include "Pathfinder.h"
 
 //TestUpgradeWindow
 #include "UpgradeShipWindow.h"

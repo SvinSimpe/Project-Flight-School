@@ -387,13 +387,15 @@ void Server::ClientInteractEnergyCell( IEventPtr eventPtr )
 		mEnergyCells[data->EnergyCellID()]->SetPickedUp( data->PickedUp() );
 		mEnergyCells[data->EnergyCellID()]->SetPosition( data->Position() );
 
-		for( UINT i = 0; i < mShips.size(); i++ )
+		for( auto s :mShips )
 		{
 			for( int j = 0; j < MAX_ENERGY_CELLS; j++ )
 			{
-				if( mShips[i]->Intersect( mEnergyCells[j]->GetPickUpRadius() ) )
+				if( !mEnergyCells[j]->GetSecured() && s->Intersect( mEnergyCells[j]->GetPickUpRadius() ) )
 				{
-					mShips[i]->AddEnergyCell( mEnergyCells[j]->GetOwnerID() );
+					OutputDebugString( L"Going to add Energy Cell in Server" );
+					mEnergyCells[j]->SetSecured( true );
+					s->AddEnergyCell( mEnergyCells[j]->GetOwnerID() );
 				}
 			}
 		}

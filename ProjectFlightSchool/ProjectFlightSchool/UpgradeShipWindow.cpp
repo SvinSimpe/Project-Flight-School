@@ -49,12 +49,12 @@ void UpgradeShipWindow::Update( float deltaTime )
 		if( pressed == 1 )
 		{
 			IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, 1, 0, 0 ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
+			gEventList.push_front( E1 );
 		}
 		else
 		{
 			IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, -1, 0, 0 ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
+			gEventList.push_front( E1 );
 		}
 	}
 	else
@@ -65,12 +65,12 @@ void UpgradeShipWindow::Update( float deltaTime )
 			if ( pressed == 1 )
 			{
 				IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 1, 0, 0, 0 ) );
-				EventManager::GetInstance()->QueueEvent( E1 );
+				gEventList.push_front( E1 );
 			}
 			else
 			{
 				IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, -1, 0, 0, 0 ) );
-				EventManager::GetInstance()->QueueEvent( E1 );
+				gEventList.push_front( E1 );
 			}
 		}
 		else
@@ -81,12 +81,12 @@ void UpgradeShipWindow::Update( float deltaTime )
 				if ( pressed == 1 )
 				{
 					IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, 0, 1, 0 ) );
-					EventManager::GetInstance()->QueueEvent( E1 );
+					gEventList.push_front( E1 );
 				}
 				else
 				{
 					IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, 0, -1, 0 ) );
-					EventManager::GetInstance()->QueueEvent( E1 );
+					gEventList.push_front( E1 );
 				}
 			}
 			else
@@ -97,12 +97,12 @@ void UpgradeShipWindow::Update( float deltaTime )
 					if ( pressed == 1 )
 					{
 						IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, 0, 0, 1 ) );
-						EventManager::GetInstance()->QueueEvent( E1 );
+						gEventList.push_front( E1 );
 					}
 					else
 					{
 						IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, 0, 0, -1 ) );
-						EventManager::GetInstance()->QueueEvent( E1 );
+						gEventList.push_front( E1 );
 					}
 				}
 			}
@@ -145,6 +145,7 @@ void UpgradeShipWindow::Release()
 
 HRESULT UpgradeShipWindow::Initialize()
 {
+	gEventList	= std::list<IEventPtr>();
 	mIsActive	= false;
 	mTeam		= -1;
 

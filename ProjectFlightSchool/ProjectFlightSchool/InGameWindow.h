@@ -10,9 +10,9 @@
 struct MenuButtonStruct
 {
 	Button		button;
-	std::string	text;
-	XMFLOAT2	textPos;
-	float		scale;
+	std::string	text	= "";
+	XMFLOAT2	textPos	= XMFLOAT2( 0.0f, 0.0f );
+	float		scale	= 0.0f;
 
 	bool Pressed()
 	{

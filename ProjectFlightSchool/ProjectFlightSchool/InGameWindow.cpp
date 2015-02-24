@@ -30,11 +30,24 @@ void InGameWindow::Update( float deltaTime )
 	switch ( pressed )
 	{
 	case 0:
+	{
+		DeActivate();
 		break;
+	}
 	case 1:
+	{
+		DeActivate();
+		IEventPtr E1( new Event_Reset_Game() );
+		EventManager::GetInstance()->QueueEvent( E1 );
 		break;
+	}
 	case 2:
+	{
+		DeActivate();
+		IEventPtr E1( new Event_Exit_Game() );
+		EventManager::GetInstance()->QueueEvent( E1 );
 		break;
+	}
 	default:
 		break;
 	}
@@ -97,7 +110,8 @@ HRESULT InGameWindow::Initialize()
 
 InGameWindow::InGameWindow()
 {
-
+	mIsActive	= false;
+	mBackground	= 0;
 }
 
 InGameWindow::~InGameWindow()

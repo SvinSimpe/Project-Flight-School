@@ -2112,7 +2112,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 	cameraInfo.height		= (float)screenHeight;
 	cameraInfo.foVY			= 3.14159265f * 0.25f;
 	cameraInfo.nearZ		= 0.1f;
-	cameraInfo.farZ			= 1000.0f;
+	cameraInfo.farZ			= 100.0f;
 
 	if( FAILED( hr = mCamera[CAMERAS_MAIN]->Initialize( &cameraInfo ) ) )
 		return hr;
@@ -2123,7 +2123,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 	cameraInfo.eyePos		= DirectX::XMFLOAT4( 0.0f, 50.0f, -50.0f, 0.0f );
 	cameraInfo.focusPoint	= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
 	cameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
-	cameraInfo.farZ			= 1000.0f;
+	cameraInfo.farZ			= 100.0f;
 
 	hr = mCamera[CAMERAS_DEV]->Initialize( &cameraInfo );
 	if( FAILED( hr ) )

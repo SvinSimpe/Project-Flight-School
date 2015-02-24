@@ -51,6 +51,8 @@ public:
 	bool		FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName );
 	char*		GetFileName();
 	int			GetID();
+	void		SoundOn();
+	void		SoundOff();
 	bool		Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID );
 	void		Release();
 				DSBuffer();

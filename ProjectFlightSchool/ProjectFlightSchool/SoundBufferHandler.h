@@ -18,6 +18,7 @@ private:
 	std::vector<DSBufferStream>	mActiveStreamSounds;
 	LPDIRECTSOUND8				mDSDevice;
 	LPDIRECTSOUND3DLISTENER8	mDSListener;
+	bool						mSoundOn;
 
 protected:
 public:
@@ -43,6 +44,9 @@ public:
 	void						Play3D( int SoundID, XMFLOAT3 pos );
 	void						Loop3D( int BufferID, XMFLOAT3 pos );
 	void						StopLoop3D( int BufferID );
+	void						SoundOn();
+	void						SoundOff();
+	bool						SoundIsOn() const;
 	bool						Initialize();
 	void						Release();
 	static	SoundBufferHandler*	GetInstance();

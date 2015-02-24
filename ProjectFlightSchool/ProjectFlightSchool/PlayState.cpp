@@ -167,6 +167,20 @@ void PlayState::EventListener( IEventPtr newEvent )
 		mEnergyCells[data->EnergyCellID()]->SetPosition( data->Position() );
 		mEnergyCells[data->EnergyCellID()]->SetPickedUp( data->PickedUp() );
 	}
+	else if( newEvent->GetEventType() == Event_Server_XP::GUID )
+	{
+		std::shared_ptr<Event_Server_XP> data = std::static_pointer_cast<Event_Server_XP>( newEvent );
+		if( data->PlayerID() == mPlayer->GetID() )
+		{
+			int levelUp = mPlayer->Upgradable();
+			mPlayer->AddXP( data->XP() );
+			if( mPlayer->Upgradable() != levelUp )
+			{
+				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Level_Up, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.0f, 1.0f, 0.0f ) ); //both of these calls are needed for levelup effect.
+				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Level_Inner, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.1f, 0.1f, 0.1f ) ); //both of these calls are needed for levelup effect.
+			}
+		}
+	}
 }
 
 void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction )
@@ -839,7 +853,8 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Turret_Fired_Projectile::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Energy_Cell::GUID ); 
 
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Win::GUID ); 
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Win::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_XP::GUID ); 
 
 	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 

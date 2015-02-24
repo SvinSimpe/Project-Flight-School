@@ -267,6 +267,16 @@ int DSBuffer::GetID()
 	return mID;
 }
 
+void DSBuffer::SoundOn()
+{
+	mBuffer->SetVolume( DSBVOLUME_MAX );
+}
+
+void DSBuffer::SoundOff()
+{
+	mBuffer->SetVolume( DSBVOLUME_MIN );
+}
+
 bool DSBuffer::Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID )
 {
 	mID			= ID;

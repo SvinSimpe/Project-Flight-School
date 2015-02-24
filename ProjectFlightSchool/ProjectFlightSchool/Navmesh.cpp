@@ -205,9 +205,10 @@ DirectX::XMFLOAT3 Navmesh::GetClosestEdgePoint( DirectX::XMFLOAT3 start, DirectX
 {
 	DirectX::XMFLOAT3 result;
 	float dist = 100000.0f;
+
 	for( auto& it : mEdgePoints )
 	{
-		float g = HelperFunctions::Dist3Squared( start, it ) * 0.9f;
+		float g = HelperFunctions::Dist3Squared( start, it );
 		float h = HelperFunctions::Dist3Squared( goal, it );
 
 		float f = g + h;

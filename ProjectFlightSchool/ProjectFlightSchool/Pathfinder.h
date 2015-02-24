@@ -4,6 +4,7 @@
 #pragma once
 #include "Paths.h"
 #include "Navmesh.h"
+#include "NodeGraph.h"
 #define MAX_PATHS 100
 
 class Map;
@@ -12,6 +13,7 @@ class Pathfinder
 {
 	private:
 		Navmesh** mNavmeshMap;
+		NodeGraph* mNodeGraph;
 		Map* mMap;
 		Path mPaths[MAX_PATHS];
 
@@ -29,9 +31,9 @@ class Pathfinder
 		static Pathfinder* instance;
 		HRESULT Initialize( Map* map );
 
-		Path* RequestPath( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end );
-		//If nrOfSteps left at 0, whole path will be calculated
-		bool CalculateSubPath( Path& path, int nrOfSteps = 0 );
+		void RequestPath( Path* path, DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end );
+		//If nrOfSteps left at 0, whole path will be calculated ( atm always leave this as 0 )
+		bool CalculateSubPath( Path* path, int nrOfSteps = 0 );
 		static Pathfinder* GetInstance();
 		void Release();
 		~Pathfinder();

@@ -7,6 +7,7 @@
 #include "Input.h"
 #include <stdlib.h>
 #include <time.h>
+#include "Pathfinder.h"
 
 #define VELOCITY_FALLOFF 2.0f
 

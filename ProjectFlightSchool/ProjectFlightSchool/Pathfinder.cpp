@@ -10,6 +10,9 @@ HRESULT Pathfinder::Initialize( Map* map )
 	mMapWidth = mMap->GetMapWidth();
 	mMapHeight = mMap->GetMapHeight();
 
+	mNodeGraph = new NodeGraph();
+	mNodeGraph->Initialize( map );
+
 	mNavmeshMap = new Navmesh*[mMapWidth * mMapHeight];
 	for( int i = 0; i < mMapWidth; i++ )
 	{
@@ -23,63 +26,76 @@ HRESULT Pathfinder::Initialize( Map* map )
 	return S_OK;
 }
 
-Path* Pathfinder::RequestPath( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end )
+void Pathfinder::RequestPath( Path* path, DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end )
 {	
 	DirectX::XMFLOAT3 currStart = start;
 	DirectX::XMFLOAT3 currEnd	= end;
+	std::vector<Node*> nodePath;
 
-	int startX = (int)( (mMapWidth * NODE_DIM )  + start.x ) / NODE_DIM;
-	int startZ = (int)( (mMapHeight * NODE_DIM )  + start.z ) / NODE_DIM;
+	path->mNrOfSubPaths		= 0;
+	path->mCurrentSubPath	= 0;
 
-	int goalX = (int)( (mMapWidth * NODE_DIM )  + end.x ) / NODE_DIM;
-	int goalZ = (int)( (mMapHeight * NODE_DIM )  + end.z ) / NODE_DIM;
+	int startX = (int)( ( mMap->GetMapHalfWidth() * NODE_DIM )  + floorf( start.x ) ) / NODE_DIM;
+	int startZ = (int)( ( mMap->GetMapHalfHeight() * NODE_DIM )  + floorf( start.z ) ) / NODE_DIM;
 
-	int currentX = startX;
-	int currentZ = startZ;
+	int goalX = (int)( ( mMap->GetMapHalfWidth() * NODE_DIM )  + floorf( end.x ) ) / NODE_DIM;
+	int goalZ = (int)( ( mMap->GetMapHalfHeight() * NODE_DIM )  + floorf( end.z ) ) / NODE_DIM;
 
-	int currIndex	= ( currentX * mMapWidth ) + currentZ;
-	int goalIndex	= ( goalX * mMapHeight ) + goalZ;
-
-	Path* temp = &mPaths[mNrOfPaths++];
+	int currentX, currentZ, currIndex;
 
 
-	while( goalIndex != currIndex )
+	MapNodeInstance* startNode	= mMap->GetNodeInstance( startX, startZ );
+	MapNodeInstance* endNode	= mMap->GetNodeInstance( goalX, goalZ );
+
+	if( startNode && endNode )
 	{
-		if( currIndex < ( mMapWidth * mMapHeight ) && goalIndex < ( mMapWidth * mMapHeight ) )
-		{
-			currEnd = mNavmeshMap[currIndex]->GetClosestEdgePoint( currStart, end );
-			temp->AddSubPath( currStart, currEnd, currIndex );
+		nodePath = mNodeGraph->FindPath( start, end, startNode->GetNodeID(), endNode->GetNodeID() );
 
-			currentX = (int)( (mMapWidth * NODE_DIM )  + currEnd.x ) / NODE_DIM;
-			currentZ = (int)( (mMapHeight * NODE_DIM )  + currEnd.z ) / NODE_DIM;
+		currentX = nodePath.front()->mNodePos.x;
+		currentZ = nodePath.front()->mNodePos.y;
 
-			currIndex	= ( currentX * mMapWidth ) + currentZ;
+		currIndex = ( currentX * mMapWidth ) + currentZ;
 
-			currStart = currEnd;
+			for( int i = 0; i < (int)nodePath.size() - 1; i++ )
+			{
+				currentX = nodePath[i]->mNodePos.x;
+				currentZ = nodePath[i]->mNodePos.y;
+
+				currIndex	= ( currentX * mMapWidth ) + currentZ;
+
+				currEnd = mNavmeshMap[currIndex]->GetClosestEdgePoint( currStart, end );
+
+				path->AddSubPath( currStart, currEnd, currIndex );
+
+				currStart = currEnd;
 		}
-		else
-		{
-			break;
-		}
+		currentX = nodePath.back()->mNodePos.x;
+		currentZ = nodePath.back()->mNodePos.y;
+
+		currIndex = ( currentX * mMapWidth ) + currentZ;
+
+		path->AddSubPath( currStart, end, currIndex );
+
 	}
 
-	return temp;
+	//path->AddSubPath( currStart, end, currIndex );
 }
 
-bool Pathfinder::CalculateSubPath( Path& path, int nrOfSteps )
+bool Pathfinder::CalculateSubPath( Path* path, int nrOfSteps )
 {
 	if( nrOfSteps == 0 )
-		nrOfSteps = path.mNrOfSubPaths;
+		nrOfSteps = path->mNrOfSubPaths;
 	else
-		path.mCurrentSubPath + nrOfSteps;
+		path->mCurrentSubPath + nrOfSteps;
 
-	for( int i = path.mCurrentSubPath; i < path.mNrOfSubPaths; i++ )
+	for( int i = path->mCurrentSubPath; i < path->mNrOfSubPaths; i++ )
 	{
-		SubPath* temp = &path.mSubPaths[i];
+		SubPath* temp = &path->mSubPaths[i];
 		if(! temp->mIsCalculated )
 		{
-			temp->mPoints = mNavmeshMap[path.mSubPaths[i].mNavMeshIndex]->FindPath( temp->mStart, temp->mEnd );
-			path.mCurrentSubPath = i;
+			temp->mPoints = mNavmeshMap[path->mSubPaths[i].mNavMeshIndex]->FindPath( temp->mStart, temp->mEnd );
+			temp->mIsCalculated = true;
+			path->mCurrentSubPath = i;
 		}
 	}
 	return true;
@@ -106,6 +122,9 @@ void Pathfinder::Release()
 {
 	if( instance )
 		delete instance;
+	if( mNodeGraph )
+		delete mNodeGraph;
+
 }
 
 Pathfinder::~Pathfinder()

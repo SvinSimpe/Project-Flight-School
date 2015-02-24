@@ -47,6 +47,7 @@ class Path
 	private:
 	protected:
 	public:
+		std::vector<DirectX::XMFLOAT2> TotalPath();
 		bool AddSubPath( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end, int navMeshIndex );
 		SubPath* GetNextSubPath();
 		Path();

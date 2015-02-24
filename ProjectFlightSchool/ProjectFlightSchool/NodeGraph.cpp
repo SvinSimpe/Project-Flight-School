@@ -116,59 +116,59 @@ void NodeGraph::BuildGraph( Map* map )
 		{
 			for( int j = 0; j < sizeY; j++ )
 			{
-				//int xP = ( ( x + i ) - 1 );
-				//int yP = ( ( y + j ) - 1 );
-				////Box-filter
-				//for( int p = 0; p < 3; p++ )
-				//{
-				//	for( int q = 0; q < 3; q++ )
-				//	{
-				//		bottom = map->GetNodeInstance( xP + p, yP + q );
-				//		if( bottom != nullptr )
-				//		{
-				//			int index = FindNodeByID( bottom->GetNodeID() );
-				//			it->AddEdge( mNodes[index] );
-				//			mNodes[index]->AddEdge( it );		
-				//		}
-				//	}
-				//}
+				int xP = ( ( x + i ) - 1 );
+				int yP = ( ( y + j ) - 1 );
+				//Box-filter
+				for( int p = 0; p < 3; p++ )
+				{
+					for( int q = 0; q < 3; q++ )
+					{
+						bottom = map->GetNodeInstance( xP + p, yP + q );
+						if( bottom != nullptr )
+						{
+							int index = FindNodeByID( bottom->GetNodeID() );
+							it->AddEdge( mNodes[index] );
+							mNodes[index]->AddEdge( it );		
+						}
+					}
+				}
 
 				//South, West, North, East
-				bottom = map->GetNodeInstance( x + i, ( y + j ) + 1 );
-				if( bottom != nullptr )
-				{
-					int index = FindNodeByID( bottom->GetNodeID() );
+				//bottom = map->GetNodeInstance( x + i, ( y + j ) + 1 );
+				//if( bottom != nullptr )
+				//{
+				//	int index = FindNodeByID( bottom->GetNodeID() );
 
-					it->AddEdge( mNodes[index] );
-					mNodes[index]->AddEdge( it );		
-				}
+				//	it->AddEdge( mNodes[index] );
+				//	mNodes[index]->AddEdge( it );		
+				//}
 
-				left = map->GetNodeInstance( ( x + i ) - 1, y + j );
-				if( left != nullptr )
-				{
-					int index = FindNodeByID( left->GetNodeID() );
+				//left = map->GetNodeInstance( ( x + i ) - 1, y + j );
+				//if( left != nullptr )
+				//{
+				//	int index = FindNodeByID( left->GetNodeID() );
 
-					it->AddEdge( mNodes[index] );
-					mNodes[index]->AddEdge( it );		
-				}
+				//	it->AddEdge( mNodes[index] );
+				//	mNodes[index]->AddEdge( it );		
+				//}
 
-				top = map->GetNodeInstance( x + i, ( y + j ) - 1 );
-				if( top != nullptr )
-				{
-					int index = FindNodeByID( top->GetNodeID() );
+				//top = map->GetNodeInstance( x + i, ( y + j ) - 1 );
+				//if( top != nullptr )
+				//{
+				//	int index = FindNodeByID( top->GetNodeID() );
 
-					it->AddEdge( mNodes[index] );
-					mNodes[index]->AddEdge( it );		
-				}
+				//	it->AddEdge( mNodes[index] );
+				//	mNodes[index]->AddEdge( it );		
+				//}
 
-				right = map->GetNodeInstance( ( x + i ) + 1, y + j );
-				if( right != nullptr )
-				{
-					int index = FindNodeByID( right->GetNodeID() );
+				//right = map->GetNodeInstance( ( x + i ) + 1, y + j );
+				//if( right != nullptr )
+				//{
+				//	int index = FindNodeByID( right->GetNodeID() );
 
-					it->AddEdge( mNodes[index] );
-					mNodes[index]->AddEdge( it );		
-				}
+				//	it->AddEdge( mNodes[index] );
+				//	mNodes[index]->AddEdge( it );		
+				//}
 			}
 		}
 	}

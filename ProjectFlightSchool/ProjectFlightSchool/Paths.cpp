@@ -23,7 +23,20 @@ bool SubPath::operator==( const SubPath& origOb )const
 {
 	return HelperFunctions::Float3Equal( origOb.mStart, mStart ) && HelperFunctions::Float3Equal( origOb.mEnd, mEnd );
 }
+std::vector<DirectX::XMFLOAT2> Path::TotalPath()
+{
+	std::vector<DirectX::XMFLOAT2> path;
 
+	for( int i = 0; i < mNrOfSubPaths; i++ )
+	{
+		UINT size = mSubPaths[i].mPoints.size();
+		for( UINT j = 0; j < size; j++ )
+		{
+			path.push_back( mSubPaths[i].mPoints[j] );
+		}
+	}
+	return path;
+}
 ///-------------------
 bool Path::AddSubPath( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end, int navMeshIndex )
 {

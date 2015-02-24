@@ -379,7 +379,9 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
 	{
 		mFollowPath = true;
-		currentPath1 = Pathfinder::GetInstance()->RequestPath( mLowerBody.position, mPick  );
+		Pathfinder::GetInstance()->RequestPath( currentPath1, mLowerBody.position, mPick  );
+		Pathfinder::GetInstance()->CalculateSubPath( currentPath1 );
+		currentPath = currentPath1->TotalPath();
 		currStep = currentPath.begin();
 	}
 	mLowerBody.position.y = worldMap->GetHeight( mLowerBody.position );
@@ -928,6 +930,8 @@ HRESULT Player::Initialize()
 
 	mEnergyCellID	= (UINT)-1;
 	mPickUpCooldown = 0.0f;
+
+	currentPath1 = new Path();
 	
 	return S_OK;
 }
@@ -939,6 +943,7 @@ void Player::Release()
 	IEventPtr reg( new Event_Remove_Point_Light( mPointLight ) );
 	EventManager::GetInstance()->QueueEvent( reg );
 	SAFE_DELETE( mPointLight );
+	SAFE_DELETE( currentPath1 );
 }
 
 Player::Player()

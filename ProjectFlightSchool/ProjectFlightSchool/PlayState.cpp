@@ -529,6 +529,12 @@ HRESULT PlayState::Update( float deltaTime )
 		Client::GetInstance()->SendEvent( mPlayer->gEventList.back() );
 		mPlayer->gEventList.pop_back();
 	}
+	while( !mGui->gEventList.empty() )
+	{
+		OutputDebugString(L"");
+		Client::GetInstance()->SendEvent( mGui->gEventList.back() );
+		mGui->gEventList.pop_back();
+	}
 
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{

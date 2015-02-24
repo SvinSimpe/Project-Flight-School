@@ -610,11 +610,6 @@ HRESULT PlayState::Update( float deltaTime )
 
 	UpdateProjectiles( deltaTime );
 
-	//Test radar due to no ship :(
-	mRadarObjects[nrOfRadarObj].mRadarObjectPos = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );//mShip.GetPosition();
-	mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
-	//-------
-
 	// Enemies
 	if( mEnemyListSynced )
 	{
@@ -626,8 +621,8 @@ HRESULT PlayState::Update( float deltaTime )
 
 				if( mEnemies[i]->IsAlive() )
 				{
-					mRadarObjects[nrOfRadarObj].mType = RADAR_TYPE::HOSTILE;
-					mRadarObjects[nrOfRadarObj++].mRadarObjectPos = mEnemies[i]->GetPosition();
+					mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnemies[i]->GetPosition();
+					mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
 				}
 			}
 		}
@@ -643,6 +638,20 @@ HRESULT PlayState::Update( float deltaTime )
 		mGui->DeActivateUpgradePlayerWindow();
 	}
 
+	if( mFriendShip )
+	{
+		mFriendShip->Update( deltaTime );
+		mRadarObjects[nrOfRadarObj].mRadarObjectPos = mFriendShip->GetPos();
+		mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_FRIENDLY;
+	}
+
+	if( mEnemyShip )
+	{
+		mEnemyShip->Update( deltaTime );
+		mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnemyShip->GetPos();
+		mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_HOSTILE;
+	}
+
 	guiUpdate.mRadarObjects	= mRadarObjects;
 	guiUpdate.mNrOfObjects	= nrOfRadarObj;
 	guiUpdate.mPlayerPos	= mPlayer->GetPlayerPosition();	
@@ -656,25 +665,13 @@ HRESULT PlayState::Update( float deltaTime )
 
 	mGui->Update( guiUpdate );
 
-	if( mFriendShip )
-		mFriendShip->Update( deltaTime );
-	if( mEnemyShip )
-		mEnemyShip->Update( deltaTime );
-
 	CheckProjectileCollision();
-
-	// Test Anim
-	///////////////////////////////////////////////////////////////////////////
-	//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
-	///////////////////////////////////////////////////////////////////////////
 
 	return S_OK;
 }
 
 HRESULT PlayState::Render()
 {
-	//Test asset, currently a tree
-	//RenderManager::GetInstance()->AddObject3dToList(mTestStaticAsset);
 	mPlayer->Render( 0.0f, 1 );
 
 	mWorldMap->Render( 0.0f , mPlayer );

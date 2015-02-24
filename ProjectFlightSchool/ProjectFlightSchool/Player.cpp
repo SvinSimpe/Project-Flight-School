@@ -270,7 +270,7 @@ void Player::Move( float deltaTime )
 void Player::AddXP( int XP )
 {
 	mXP += XP;
-	if( ( mXP / mNextLevelXP ) >= 1 )
+	while( ( mXP / mNextLevelXP ) >= 1 )
 	{
 		mCurrentUpgrades++;
 		mXP -= mNextLevelXP;
@@ -934,7 +934,6 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Change_Buff_State::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Upgrade_Player::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_New_Player_Spawn_Position::GUID );
-	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_XP::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Switch_Team::GUID );
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
 

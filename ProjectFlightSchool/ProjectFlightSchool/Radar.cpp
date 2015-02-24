@@ -59,10 +59,8 @@ HRESULT	Radar::Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjec
 			if( vecLength <= mRadius )
 			{
 				radarObjects[i].mRadarObjectPos.x = mRadarShipOffsetX + ( radarObjects[i].mRadarObjectPos.x - playerPos.x ) * mRadarShipTranslationX;
-				radarObjects[i].mRadarObjectPos.y = mRadarShipOffsetY - radarObjects[i].mRadarObjectPos.z + playerPos.z * mRadarShipTranslationY;
-				//radarObjects[i].mRadarObjectPos.x = ( mOffsetX + ( ( mRadarDimXY * 0.5f ) - mRadarShipHalfWidth - ( mRadarShipWidth * 0.2f ) ) ) + ( radarObjects[i].mRadarObjectPos.x - playerPos.x ) * ( ( mRadarDimXY / mRadarRadius ) * BASE_SCALE_VALUE ) * ( mRadarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) );
-				//radarObjects[i].mRadarObjectPos.y = ( ( mRadarDimXY * 0.5f ) - mRadarShipHalfHeight - ( mRadarShipWidth * 0.3f ) ) - radarObjects[i].mRadarObjectPos.z + playerPos.z * ( ( ( mRadarDimXY / mRadarRadius ) * BASE_SCALE_VALUE ) * ( mRadarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) ) );
-				
+				radarObjects[i].mRadarObjectPos.y = mRadarShipOffsetY - ( radarObjects[i].mRadarObjectPos.z - playerPos.z ) * mRadarShipTranslationY;
+	
 				AddObjectToList( radarObjects[i].mRadarObjectPos, radarObjects[i].mType );
 			}
 		}
@@ -71,10 +69,8 @@ HRESULT	Radar::Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjec
 			if( vecLength <= mRadius )
 			{
 				radarObjects[i].mRadarObjectPos.x = mRadarObjectOffsetX + ( radarObjects[i].mRadarObjectPos.x - playerPos.x ) * mRadarObjectTranslationX;
-				radarObjects[i].mRadarObjectPos.y = mRadarObjectOffsetY + ( ( radarObjects[i].mRadarObjectPos.z + playerPos.z ) * mRadarObjectTranslationY );
-				//radarObjects[i].mRadarObjectPos.x = ( mOffsetX + ( ( mRadarDimXY * 0.5f ) - mRadarObjHalfWidth - ( mRadarObjWidth * 0.2f ) ) ) + ( radarObjects[i].mRadarObjectPos.x - playerPos.x ) * ( ( mRadarDimXY / mRadarRadius ) * BASE_SCALE_VALUE ) * ( mRadarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) );
-				//radarObjects[i].mRadarObjectPos.y = ( ( mRadarDimXY * 0.5f ) - mRadarObjHalfWidth - ( mRadarObjWidth * 0.1f ) ) - radarObjects[i].mRadarObjectPos.z + playerPos.z * ( ( ( mRadarDimXY / mRadarRadius ) * BASE_SCALE_VALUE ) * ( mRadarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) ) );
-
+				radarObjects[i].mRadarObjectPos.y = mRadarObjectOffsetY - ( radarObjects[i].mRadarObjectPos.z - playerPos.z ) * mRadarObjectTranslationY;
+				
 				AddObjectToList( radarObjects[i].mRadarObjectPos, radarObjects[i].mType );
 			}
 		}
@@ -94,8 +90,6 @@ HRESULT	Radar::Render()
 
 HRESULT	Radar::Initialize()
 {
-	//Full image max pixel width and height == 384
-	//Radius from the center == 97 pixels
 	
 	mNrOfObjects		= 1;
 	float radarDimXY	= Input::GetInstance()->mScreenWidth * BASE_SCALE_VALUE;
@@ -118,24 +112,24 @@ HRESULT	Radar::Initialize()
 	mObjects[0].mWidthHeight.y		= radarDimXY;
 
 	mRadarObjWidth					= radarDimXY * 0.055f;
-	mRadarObjHeight					= radarDimY * 0.055f;
+	mRadarObjHeight					= mRadarObjWidth;
 	float radarObjHalfWidth			= mRadarObjWidth * 0.5f;
 	float radarObjHalfHeight		= mRadarObjHeight * 0.5f;
 
 	mRadarShipHeight				= radarDimXY * 0.069f; 
-	mRadarShipWidth					= radarDimXY * 0.069f; 
+	mRadarShipWidth					= mRadarShipHeight;
 	float radarShipHalfHeight		= mRadarShipHeight * 0.5f;	
 	float radarShipHalfWidth		= mRadarShipWidth * 0.5f; 
 
 	mRadarShipOffsetX				= ( ( Input::GetInstance()->mScreenWidth - radarDimXY ) + ( ( radarDimXY * 0.5f ) - radarShipHalfWidth - ( mRadarShipWidth * 0.1f ) ) );
 	mRadarShipOffsetY				= ( ( radarDimXY * 0.5f ) - radarShipHalfHeight - ( mRadarShipHeight * 0.1f ) );
 	mRadarShipTranslationX			= ( ( radarDimXY / radarRadius ) * BASE_SCALE_VALUE ) * ( radarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) );
-	mRadarShipTranslationY			= ( ( ( radarDimXY / radarRadius ) * BASE_SCALE_VALUE ) * ( radarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) ) );
+	mRadarShipTranslationY			= mRadarShipTranslationX;
 
 	mRadarObjectOffsetX				= ( ( Input::GetInstance()->mScreenWidth - radarDimXY ) + ( ( radarDimXY * 0.5f ) - radarObjHalfWidth - ( mRadarObjWidth * 0.1f ) ) );
-	mRadarObjectOffsetY				= ( ( radarDimY * 0.5f ) - radarObjHalfWidth - ( mRadarObjHeight * 0.05f ) );
+	mRadarObjectOffsetY				= ( radarDimXY * 0.5f ) - radarObjHalfHeight - ( mRadarObjHeight * 0.1f );
 	mRadarObjectTranslationX		= ( ( radarDimXY / radarRadius ) * BASE_SCALE_VALUE ) * ( radarDimXY / ( BASE_VALUE_FOR_RESOLUTION_SCALING ) );
-	mRadarObjectTranslationY		= ( ( ( radarDimY / radarRadius ) * BASE_SCALE_VALUE ) * ( radarDimY / ( BASE_VALUE_FOR_RESOLUTION_SCALING_Y ) ) );
+	mRadarObjectTranslationY		= mRadarObjectTranslationX;
 
 	return S_OK;
 }

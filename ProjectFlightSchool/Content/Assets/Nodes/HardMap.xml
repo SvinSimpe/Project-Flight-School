@@ -20,7 +20,7 @@
 	<Node path="../Content/Assets/Nodes/tileGlade.lp" type="AREA_NODE" />
 	<Node path="../Content/Assets/Nodes/tileGrassShroom.lp" type="AREA_NODE" />
 	<Node path="../Content/Assets/Nodes/tileLake1.lp" type="AREA_NODE" />
-	<Node path="../Content/Assets/Nodes/tileLake2.lp" type="AREA_NODE" />
+	<-- <Node path="../Content/Assets/Nodes/tileLake2.lp" type="AREA_NODE" /> --->
 	<Node path="../Content/Assets/Nodes/tileMediumForest.lp" type="AREA_NODE" />
 	<Node path="../Content/Assets/Nodes/tileMushroomForest.lp" type="AREA_NODE" />
 	<Node path="../Content/Assets/Nodes/tilePassageWithANest.lp" type="AREA_NODE" />

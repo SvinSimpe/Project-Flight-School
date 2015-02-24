@@ -555,7 +555,6 @@ HRESULT PlayState::Update( float deltaTime )
 
 	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 	{
-		mWorldMap->IsOnNavMesh( mPlayer->GetPlayerPosition() );
 		CheckPlayerCollision();
 
 		if( mPlayer->GetIsMeleeing() )
@@ -711,10 +710,10 @@ HRESULT PlayState::Render()
 		}
 	}
 
-	//for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
-	//{
-	//	RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
-	//}
+	for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
+	{
+		RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
+	}
 
 	mGui->Render();
 
@@ -791,6 +790,7 @@ HRESULT PlayState::Initialize()
 {
 	mStateType = PLAY_STATE;
 
+
 	//AssetID model		= 0;
 	//AssetID loader	= 0;
 
@@ -806,9 +806,10 @@ HRESULT PlayState::Initialize()
 
 	mWorldMap = new Map();
 
-	mWorldMap->Initialize( 21 );
+	mWorldMap->Initialize( 12 );
 
-	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/HardMap.xml" ) ); 
+	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/ForestMap.xml" ) ); 
+
 	EventManager::GetInstance()->TriggerEvent( E1 );
 
 	//Fill up on Projectiles, test values
@@ -876,11 +877,15 @@ HRESULT PlayState::Initialize()
 	mSoundAsset			= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
 	mStreamSoundAsset	= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav" );
 
+	Pathfinder::GetInstance()->Initialize( mWorldMap );
+
 	return S_OK;
 }
 
 void PlayState::Release()
 {	
+
+	Pathfinder::GetInstance()->Release();
 	mWorldMap->Release();
 	SAFE_DELETE( mWorldMap );
 

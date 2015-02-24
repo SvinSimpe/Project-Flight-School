@@ -15,23 +15,23 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
 #if defined(DEBUG) | defined(_DEBUG)
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 	// 1555131 1555130 1555129 1555128
-	//_CrtSetBreakAlloc(236715); // Break at specific memory allocation point
+	//_CrtSetBreakAlloc(1764133); // Break at specific memory allocation point
 #endif
 	// Console window code
-	//if( AllocConsole() )
-	//{
-	//	HANDLE handle_out = GetStdHandle( STD_OUTPUT_HANDLE );
-	//	int hCrt = _open_osfhandle( (long)handle_out, _O_TEXT );
-	//	FILE* hf_out = _fdopen( hCrt, "w" );
-	//	setvbuf( hf_out, nullptr, _IONBF, 1 );
-	//	*stdout = *hf_out;
+	if( AllocConsole() )
+	{
+		HANDLE handle_out = GetStdHandle( STD_OUTPUT_HANDLE );
+		int hCrt = _open_osfhandle( (long)handle_out, _O_TEXT );
+		FILE* hf_out = _fdopen( hCrt, "w" );
+		setvbuf( hf_out, nullptr, _IONBF, 1 );
+		*stdout = *hf_out;
 
-	//	HANDLE handle_in = GetStdHandle( STD_INPUT_HANDLE );
-	//	hCrt = _open_osfhandle( (long)handle_in, _O_TEXT );
-	//	FILE* hf_int = _fdopen( hCrt, "r" );
-	//	setvbuf( hf_int, nullptr, _IONBF, 128 );
-	//	*stdin = *hf_int;
-	//}
+		HANDLE handle_in = GetStdHandle( STD_INPUT_HANDLE );
+		hCrt = _open_osfhandle( (long)handle_in, _O_TEXT );
+		FILE* hf_int = _fdopen( hCrt, "r" );
+		setvbuf( hf_int, nullptr, _IONBF, 128 );
+		*stdin = *hf_int;
+	}
 	// End of console window code
 
 	int localReturn = 0;

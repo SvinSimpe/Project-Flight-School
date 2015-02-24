@@ -441,7 +441,17 @@ HRESULT Graphics::InitializeEffects()
 	//			PARTICLE EFFECTS			|
 	//=======================================
 
-	//Muzzle Flash effect
+	//Explosion smoke effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/ExplosionSmoke.hlsl";
+	effectInfo.fileName					= "ExplosionSmoke";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_EXPLOSION_SMOKE]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Explosion effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/ExplosionEffect.hlsl";
 	effectInfo.fileName					= "ExplosionEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
@@ -1078,7 +1088,12 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 					// Add particletype you want to apply additive blending on
 					if( info[i].mParticleType == EFFECTS_TEST_FOUNTAIN )
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
-
+					else if( info[i].mParticleType == EFFECTS_EXPLOSION )
+						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
+					
+					/*else if( info[i].mParticleType == EFFECTS_EXPLOSION_SMOKE )
+						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
+*/
 					else
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_NORMAL], 0, 0xFFFFFFFF );
 

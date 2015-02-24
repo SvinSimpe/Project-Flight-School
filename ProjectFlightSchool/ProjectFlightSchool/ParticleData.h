@@ -10,7 +10,7 @@
 using namespace DirectX;
 
 #define MAX_PARTICLES 10000
-#define NR_OF_PARTICLE_TYPES 8
+#define NR_OF_PARTICLE_TYPES 9
 
 enum ParticleType
 {
@@ -21,7 +21,8 @@ enum ParticleType
 	MuzzleFlash,
 	Smoke_MiniGun,
 	Test_Fountain,
-	Explosion
+	Explosion,
+	ExplosionSmoke
 };
 
 struct ParticleData
@@ -192,6 +193,7 @@ struct ParticleData
 		deathTime[id]	= 0.0f;
 		isAlive[id]		= false;
 		randRot[id]		= 0.0f;
+		damping[id]		= 1.0f;
 	}
 
 	void UpdatePosition( float deltaTime )
@@ -261,11 +263,17 @@ struct ParticleData
 	{
 		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
 		{
-			if( particleType == Explosion )
+			if( particleType == ExplosionSmoke )
 			{
-				randomDirectionVector.x = xDirection * GetRandomSpeed( 60, 120 );
- 				randomDirectionVector.y = yDirection * GetRandomSpeed( 3, 30 );
-				randomDirectionVector.z = zDirection * GetRandomSpeed( 60, 120 );		
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 70 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 120 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 70 );		
+			}
+			else if( particleType == Explosion )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 60 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 100 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 60 );		
 			}
 			else if( particleType == Blood )
 			{

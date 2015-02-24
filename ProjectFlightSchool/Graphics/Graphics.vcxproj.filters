@@ -208,5 +208,8 @@
     <Text Include="..\Content\Effects\Particle Effects\ExplosionEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
+    <Text Include="..\Content\Effects\Particle Effects\ExplosionSmoke.hlsl">
+      <Filter>Effects\Particle Effects</Filter>
+    </Text>
   </ItemGroup>
 </Project>

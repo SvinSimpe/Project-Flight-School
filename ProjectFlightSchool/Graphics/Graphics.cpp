@@ -441,7 +441,17 @@ HRESULT Graphics::InitializeEffects()
 	//			PARTICLE EFFECTS			|
 	//=======================================
 
-	//Muzzle Flash effect
+	//Spark effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/SparkEffect.hlsl";
+	effectInfo.fileName					= "SparkEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_SPARK]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Blood effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/BloodEffect.hlsl";
 	effectInfo.fileName					= "BloodEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
@@ -1065,7 +1075,7 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 					mDeviceContext->IASetInputLayout( mEffects[info[i].mParticleType]->GetInputLayout() );
 
 					// Add particletype you want to apply additive blending on
-					if( info[i].mParticleType == EFFECTS_TEST_FOUNTAIN )
+					if( info[i].mParticleType == EFFECTS_TEST_FOUNTAIN || info[i].mParticleType == EFFECTS_SPARK )
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
 
 					else

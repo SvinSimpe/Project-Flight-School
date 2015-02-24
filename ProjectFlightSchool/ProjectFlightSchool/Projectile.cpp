@@ -92,6 +92,16 @@ float Projectile::GetDamage() const
 	return mDamage;
 }
 
+XMFLOAT3 Projectile::GetDirection() const
+{
+	return mDirection;
+}
+
+XMFLOAT3 Projectile::GetPosition() const
+{
+	return mPosition;
+}
+
 HRESULT Projectile::Initialize()
 {
 	mSpeed			= 20.0f;

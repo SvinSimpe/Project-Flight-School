@@ -204,12 +204,6 @@
     <ClCompile Include="InputSquare.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Turret.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Ship.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ParticleManager.cpp">
       <Filter>Particle System\Source</Filter>
     </ClCompile>
@@ -273,9 +267,6 @@
     <ClCompile Include="ServerShip.cpp">
       <Filter>Network\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UpgradeShipWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MovingButton.cpp">
       <Filter>GUI\Source</Filter>
     </ClCompile>
@@ -332,6 +323,18 @@
     </ClCompile>
     <ClCompile Include="Pathfinder.cpp">
       <Filter>Worldmap\Navigation</Filter>
+    </ClCompile>
+    <ClCompile Include="UpgradePlayerWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LobbyState.cpp">
+      <Filter>GameStates\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UpgradePlayerWindow.cpp">
+      <Filter>GUI\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="UpgradeShipWindow.cpp">
+      <Filter>GUI\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -443,12 +446,6 @@
     <ClInclude Include="InputSquare.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Turret.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Ship.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleData.h">
       <Filter>Particle System\Header</Filter>
     </ClInclude>
@@ -521,9 +518,6 @@
     <ClInclude Include="ServerShip.h">
       <Filter>Network\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UpgradeShipWindow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MovingButton.h">
       <Filter>GUI\Header</Filter>
     </ClInclude>
@@ -577,6 +571,9 @@
     </ClInclude>
     <ClInclude Include="Pathfinder.h">
       <Filter>Worldmap\Navigation</Filter>
+    </ClInclude>
+    <ClInclude Include="UpgradeShipWindow.h">
+      <Filter>GUI\Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

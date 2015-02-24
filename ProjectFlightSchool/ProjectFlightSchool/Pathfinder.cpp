@@ -14,9 +14,9 @@ HRESULT Pathfinder::Initialize( Map* map )
 	mNodeGraph->Initialize( map );
 
 	mNavmeshMap = new Navmesh*[mMapWidth * mMapHeight];
-	for( int i = 0; i < mMapWidth; i++ )
+	for( UINT i = 0; i < mMapWidth; i++ )
 	{
-		for( int j = 0; j < mMapHeight; j++ )
+		for( UINT j = 0; j < mMapHeight; j++ )
 		{
 			MapNodeInstance* current = mMap->GetNodeInstance( i, j );
 			if( current )
@@ -86,7 +86,7 @@ bool Pathfinder::CalculateSubPath( Path* path, int nrOfSteps )
 	if( nrOfSteps == 0 )
 		nrOfSteps = path->mNrOfSubPaths;
 	else
-		path->mCurrentSubPath + nrOfSteps;
+		path->mCurrentSubPath += nrOfSteps;
 
 	for( int i = path->mCurrentSubPath; i < path->mNrOfSubPaths; i++ )
 	{
@@ -120,11 +120,14 @@ Pathfinder::Pathfinder()
 
 void Pathfinder::Release()
 {
-	if( instance )
-		delete instance;
 	if( mNodeGraph )
+		mNodeGraph->Release();
 		delete mNodeGraph;
 
+	delete[] mNavmeshMap;
+
+	if( instance )
+		delete instance;
 }
 
 Pathfinder::~Pathfinder()

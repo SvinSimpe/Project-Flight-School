@@ -4,7 +4,7 @@
 
 HRESULT	MapNode::Render( float deltaTime, XMFLOAT4X4 parentWorld )
 {
-	RenderManager::GetInstance()->AddNodeGridToList( mGrid, mNavVertexCount, mBlendMap, parentWorld );
+	RenderManager::GetInstance()->AddNodeGridToList( mGrid, mVertexCount, mBlendMap, parentWorld );
 
 	for( int i = 0; i < (int)mStaticAssetCount; i++ )
 	{
@@ -149,12 +149,12 @@ HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 		}
 	}
 
-	for( int i = 0; i < (int)mNavVertexCount; i++ )
+	for( int i = 0; i < (int)mVertexCount; i++ )
 	{
 
-		//mGrid[i].position[0]	= initInfo.grid[i].position[0];
-		//mGrid[i].position[1]	= initInfo.grid[i].position[1];
-		//mGrid[i].position[2]	= initInfo.grid[i].position[2];
+		mGrid[i].position[0]	= initInfo.grid[i].position[0];
+		mGrid[i].position[1]	= initInfo.grid[i].position[1];
+		mGrid[i].position[2]	= initInfo.grid[i].position[2];
 
 		//int x = (int)floorf( mGrid[i].position[0] + ( mGridWidth / 2 ) + 0.1f );
 		//int y = (int)floorf( mGrid[i].position[2] + ( mGridHeight / 2 ) + 0.1f );
@@ -163,17 +163,17 @@ HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 
 		//mHeightMap[x][y] = mGrid[i].position;
 
-		mGrid[i].position[0]	= mNavData[i].x;
-		mGrid[i].position[1]	= mNavData[i].y;
-		mGrid[i].position[2]	= mNavData[i].z;
+		//mGrid[i].position[0]	= mNavData[i].x;
+		//mGrid[i].position[1]	= mNavData[i].y;
+		//mGrid[i].position[2]	= mNavData[i].z;
 
-		//mGrid[i].normal[0]	= initInfo.grid[i].normal[0];
-		//mGrid[i].normal[1]	= initInfo.grid[i].normal[1];
-		//mGrid[i].normal[2]	= initInfo.grid[i].normal[2];
+		mGrid[i].normal[0]	= initInfo.grid[i].normal[0];
+		mGrid[i].normal[1]	= initInfo.grid[i].normal[1];
+		mGrid[i].normal[2]	= initInfo.grid[i].normal[2];
 
-		mGrid[i].normal[0]	= 1.0f;
-		mGrid[i].normal[1]	= 1.0f;
-		mGrid[i].normal[2]	= 1.0f;
+		//mGrid[i].normal[0]	= 1.0f;
+		//mGrid[i].normal[1]	= 1.0f;
+		//mGrid[i].normal[2]	= 1.0f;
 
 		mGrid[i].tangent[0]	= 1.0f;
 		mGrid[i].tangent[1]	= 1.0f;
@@ -195,6 +195,10 @@ HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 }
 void MapNode::Release()
 {
+	for( int i = 0; i < INSTANCE_COUNT; i++ )
+	{
+		mInstances[i].Release();
+	}
 	if( mNavData )
 		delete[] mNavData;
 	if( mGrid )
@@ -204,15 +208,11 @@ void MapNode::Release()
 	
 	if( mHeightMap )
 	{
-		for( int i = 0; i < mGridWidth + 1; i++ )
+		for( UINT i = 0; i < mGridWidth + 1; i++ )
 		{
 			delete[] mHeightMap[i];
 		}
 		delete[] mHeightMap;
-	}
-	for( int i = 0; i < INSTANCE_COUNT; i++ )
-	{
-		mInstances[i].Release();
 	}
 }
 MapNode::MapNode()

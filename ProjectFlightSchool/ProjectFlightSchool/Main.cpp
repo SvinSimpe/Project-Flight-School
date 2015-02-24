@@ -15,9 +15,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
 #if defined(DEBUG) | defined(_DEBUG)
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 	// 1555131 1555130 1555129 1555128
-	//_CrtSetBreakAlloc(1141); // Break at specific memory allocation point
-
-
+	//_CrtSetBreakAlloc(1764133); // Break at specific memory allocation point
 #endif
 	// Console window code
 	if( AllocConsole() )
@@ -42,8 +40,8 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
 	system->Initialize( hInstance, nCmdShow );
 	localReturn = system->Run();
 
-	//system->Release();	// TESTING ONLY, THIS IS NOT GOOD, DERP!
-	//SAFE_DELETE(system); // THIS TOO!
+	system->Release();
+	SAFE_DELETE(system);
 
 	return localReturn;
 }

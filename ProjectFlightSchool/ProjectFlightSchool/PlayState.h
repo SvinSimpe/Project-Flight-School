@@ -33,7 +33,7 @@ class PlayState : public BaseState
 		float			mFPS;
 		AnimationTrack	mTestAnimation;
 		AssetID			mTestStaticAsset;
-		Map*		mWorldMap;
+		Map*			mWorldMap;
 
 		//Collision
 		unsigned int	mFrameCounter;
@@ -55,10 +55,9 @@ class PlayState : public BaseState
 		float						mAlliesHP[MAX_REMOTE_PLAYERS / 2];
 		Gui*						mGui;
 
+		ClientShip*					mFriendShip;	// A pointer to the Client's own ship, used to show the remaining HP of it
+		ClientShip*					mEnemyShip;		// A pointer to the other team's ship, used for interaction with that
 		EnergyCell**				mEnergyCells;
-		
-		std::vector<ClientShip*>	mShips;
-		ClientShip*					mMyShip;	// A pointer to the Client's own ship, used to show the remaining HP of it
 
 		//TestSound
 		int							m3DSoundAsset;
@@ -77,7 +76,7 @@ class PlayState : public BaseState
 		void			BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction );
 		void			BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage );
 		void			BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float knockBack, XMFLOAT3 direction );
-		void			FireProjectile( unsigned int id, unsigned int projectileID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range );
+		void			FireProjectile( unsigned int id, unsigned int projectileID, unsigned int teamID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range, float damage );
 		void			CheckPlayerCollision();
 		void			CheckProjectileCollision();
 		void			CheckMeeleCollision();

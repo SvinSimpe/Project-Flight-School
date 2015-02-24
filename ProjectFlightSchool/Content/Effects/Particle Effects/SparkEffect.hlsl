@@ -34,16 +34,17 @@ void GS_main( point VS_In input[1], inout TriangleStream<GS_Out> outputStream )
 	float3 rightVec = float3( 1.0f, 0.0f, 0.0f );
 	float3 upVec = normalize( cross( vecToCam, rightVec ) );
 
-	float size = 0.02f;
-
+	float size = 0.2f - input[0].age * 2.0f;
 
 	//Get vertices for the quad
 	float3 vert[4];
+
 	vert[0]	= input[0].position - rightVec * size - upVec * size;
 	vert[1]	= input[0].position - rightVec * size + upVec * size;
 	vert[2]	= input[0].position	+ rightVec * size - upVec * size;
 	vert[3]	= input[0].position + rightVec * size + upVec * size;
-								
+
+															
 	//Get texture coordinates
 	float2 texCoord[4];
 	texCoord[0]	= float2( 0.0f, 1.0f );
@@ -68,11 +69,18 @@ SamplerState pointSampler			: register( s0 );
 SamplerState linearSampler			: register( s1 );
 float4 PS_main(GS_Out input) : SV_TARGET0
 {	
-	//clip( diffuseTexture.Sample( linearSampler, input.uv ).w < 0.7f ? -1:1 );
-	//return float4( diffuseTexture.Sample( linearSampler, input.uv ) );
+
+	clip( diffuseTexture.Sample( linearSampler, input.uv ).w < 0.1f ? -1:1 );
+
+
+	float alpha = 1.0f;
+	if( input.timeTillDeath <= 0.10f )
+		alpha = input.timeTillDeath;
+	
 	float4 diffuse = float4( diffuseTexture.Sample( linearSampler, input.uv ) );
 
-	diffuse.w = diffuse.w * input.timeTillDeath;
+	diffuse.w = diffuse.w * alpha;
 
 	return diffuse;
+
 }

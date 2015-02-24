@@ -103,10 +103,13 @@ void NodeGraph::BuildGraph( Map* map )
 		int y = it->mNodePos.y;
 		MapNodeInstance* currentNode = map->GetNodeInstance( x, y );
 
-		MapNodeInstance* top;
-		MapNodeInstance* left;
-		MapNodeInstance* bottom;
-		MapNodeInstance* right;
+		//For 4-dir connections
+		//MapNodeInstance* top;
+		//MapNodeInstance* left;
+		//MapNodeInstance* bottom;
+		//MapNodeInstance* right;
+
+		MapNodeInstance* current;
 
 		//calculate node size
 		int sizeX = currentNode->GetNodeSizeX();
@@ -123,16 +126,17 @@ void NodeGraph::BuildGraph( Map* map )
 				{
 					for( int q = 0; q < 3; q++ )
 					{
-						bottom = map->GetNodeInstance( xP + p, yP + q );
-						if( bottom != nullptr )
+						current = map->GetNodeInstance( xP + p, yP + q );
+						if( current != nullptr )
 						{
-							int index = FindNodeByID( bottom->GetNodeID() );
+							int index = FindNodeByID( current->GetNodeID() );
 							it->AddEdge( mNodes[index] );
 							mNodes[index]->AddEdge( it );		
 						}
 					}
 				}
 
+				//For 4-dir connections
 				//South, West, North, East
 				//bottom = map->GetNodeInstance( x + i, ( y + j ) + 1 );
 				//if( bottom != nullptr )

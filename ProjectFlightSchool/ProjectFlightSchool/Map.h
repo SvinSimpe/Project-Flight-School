@@ -20,9 +20,6 @@ class Map
 		float mVertexSpacing;
 		UINT mNrOfNodes;
 		UINT mMapId;
-		NodeGraph* nodeGraph;
-
-		std::vector<NavTriangle> mNavData;
 
 	protected:
 	public:
@@ -33,7 +30,7 @@ class Map
 		HRESULT Render( float deltaTime, Player* player );
 		void GenerateGrid();
 		void OnLoadLevel( IEventPtr E1 );
-		std::vector<DirectX::XMFLOAT2> GetPath( XMFLOAT3 start, XMFLOAT3 goal );
+		//std::vector<DirectX::XMFLOAT2> GetPath( XMFLOAT3 start, XMFLOAT3 goal );
 
 		UINT GetMapDim() const;
 		UINT GetMapWidth() const;

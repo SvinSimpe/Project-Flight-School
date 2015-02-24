@@ -162,7 +162,11 @@ HRESULT	MapNodeInstance::Initialize()
 }
 void MapNodeInstance::Release()
 {
-	SAFE_RELEASE_DELETE( mNavMesh );
+	if( mNavMesh )
+	{
+		mNavMesh->Release();
+		delete mNavMesh;
+	}
 }
 MapNodeInstance::MapNodeInstance()
 {

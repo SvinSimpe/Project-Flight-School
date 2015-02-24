@@ -366,14 +366,20 @@ std::vector<XMFLOAT2> Navmesh::FunnelPath( std::vector<Portal>& path )
 
 void Navmesh::Release()
 {
-	delete[] mPortals;
-	delete[] mMesh;
-	delete[] mPath;
+	if( mPortals )
+		delete[] mPortals;
+	if( mMesh )
+		delete[] mMesh;
+	if( mPath )
+		delete[] mPath;
 }
 
 Navmesh::Navmesh()
 {
-}
+	mPortals	= nullptr;
+	mMesh		= nullptr;
+	mPath		= nullptr;
+}	
 
 Navmesh::~Navmesh()
 {

@@ -52,7 +52,7 @@ class NetSocket
 		bool			Connect( UINT ip, UINT port, bool forceCoalesce = false );
 		void			SetBlocking( bool blocking );
 		void			Send( std::shared_ptr<IPacket> pkt, bool clearTimeOut = 1);
-		virtual int		HasOutput();
+		virtual bool	HasOutput();
 		virtual void	HandleOutput();
 		virtual bool	HandleInput();
 		void			HandleException();

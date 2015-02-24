@@ -1,5 +1,4 @@
 #include "Game.h"
-#include "HelperFunctions.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //									PRIVATE
@@ -35,10 +34,8 @@ void Game::StartPlayState( IEventPtr eventPtr )
 
 HRESULT Game::Update( float deltaTime )
 {
-	HelperFunctions::StartCounter();
 	mServer->Update( deltaTime );
 	Client::GetInstance()->Update( deltaTime );
-	HelperFunctions::PrintCounter( "Network::Update() result:" );
 
 	EventManager::GetInstance()->Update();
 

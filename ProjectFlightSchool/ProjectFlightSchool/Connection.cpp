@@ -1,5 +1,4 @@
 #include "Connection.h"
-#include "HelperFunctions.h"
 
 #define EXIT_ASSERT PFS_ASSERT(0);
 
@@ -63,6 +62,7 @@ bool NetSocket::HasOutput()
 
 void NetSocket::HandleOutput()
 {
+	auto size = mOutList.size();
 	int fSent = 0;
 	do
 	{

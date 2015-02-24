@@ -1,10 +1,8 @@
 #ifndef HELPERFUNCTIONS_H
 #define HELPERFUNCTIONS_H
 
-#include <Windows.h>
 #include <DirectXMath.h>
 #include <string>
-#include <chrono>
 
 namespace HelperFunctions
 {
@@ -15,6 +13,7 @@ namespace HelperFunctions
 	extern double PCFreq;
 	extern __int64 CounterStart;
 	void StartCounter();
-	void PrintCounter( std::string text = "Result:" );
+	double GetCounter();
+	void PrintCounter( std::string text );
 }
 #endif

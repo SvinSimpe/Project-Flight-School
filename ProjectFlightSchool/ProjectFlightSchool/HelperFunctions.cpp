@@ -1,4 +1,5 @@
 #include "HelperFunctions.h"
+#include <Windows.h>
 #include <sstream>
 
 bool HelperFunctions::Inside2DTriangle( DirectX::XMFLOAT2 p, DirectX::XMFLOAT2 p0, DirectX::XMFLOAT2 p1, DirectX::XMFLOAT2 p2 )
@@ -36,12 +37,17 @@ void HelperFunctions::StartCounter()
 	CounterStart = li.QuadPart;
 }
 
-void HelperFunctions::PrintCounter( std::string text )
+double HelperFunctions::GetCounter()
 {
 	LARGE_INTEGER li;
 	QueryPerformanceCounter( &li );
-	double counter = (double)( li.QuadPart - CounterStart ) / PCFreq;
+	return (double)( li.QuadPart - CounterStart ) / PCFreq;
+}
+
+void HelperFunctions::PrintCounter( std::string text )
+{
+
 	std::ostringstream ss;
-	ss << text << " " << counter << "ms.\n";
+	ss << text << " " << HelperFunctions::GetCounter() << "ms.\n";
 	OutputDebugStringA( ss.str().c_str() );
 }

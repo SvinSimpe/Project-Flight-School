@@ -2,7 +2,6 @@
 #define NETWORK_H
 
 #include "Connection.h"
-#include "HelperFunctions.h"
 
 // Base class for both server and client
 class Network

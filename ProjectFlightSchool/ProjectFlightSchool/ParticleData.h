@@ -10,7 +10,7 @@
 using namespace DirectX;
 
 #define MAX_PARTICLES 10000
-#define NR_OF_PARTICLE_TYPES 8
+#define NR_OF_PARTICLE_TYPES 9
 
 enum ParticleType
 {
@@ -21,7 +21,8 @@ enum ParticleType
 	MuzzleFlash,
 	Smoke_MiniGun,
 	Test_Fountain,
-	Explosion
+	Explosion,
+	FireSmoke
 };
 
 struct ParticleData
@@ -268,7 +269,13 @@ struct ParticleData
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 20 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 50 );		
 			}
-			if( particleType == Explosion )
+			else if( particleType == FireSmoke )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 5 );	//---------------------random speed of particles
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 15, 30 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 5 );		
+			}
+			else if( particleType == Explosion )
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 60, 120 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 3, 30 );
@@ -380,8 +387,10 @@ struct ParticleData
 	{
 		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
 		{
+			
 			float randomAngle = (float)( rand() % 360 + 1 );
-			float randomRadius = (float)( rand() % (int)radius + 1 );
+			float randomRadius = (float)( rand() % (int)( radius * 10.0f ) + 1 );
+			randomRadius *= 0.1f;
 
 			XMVECTOR randomDirection = XMVector3TransformCoord( XMVectorSet( 1.0f, 0.0f, 0.0f, 0.0f ), XMMatrixRotationY( XMConvertToRadians( randomAngle ) ) );
 

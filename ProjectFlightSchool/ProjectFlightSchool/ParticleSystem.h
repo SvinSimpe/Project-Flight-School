@@ -61,6 +61,11 @@ struct ParticleSystem : public ParticleData
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/levelUpParticle2.dds", assetID );
 				break;
 			}
+			case Level_Inner:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/levelUpParticle3.dds", assetID );
+				break;
+			}
 			default:
 				break;
 		}
@@ -99,6 +104,8 @@ struct ParticleSystem : public ParticleData
 			GeneratePlanePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 60, 60, particleCount );
 		else if( particleType == Level_Up )
 			GenerateCircleEdgePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 1, particleCount );
+		else if( particleType == Level_Inner )
+			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 1, particleCount );
 		else
 			SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
 		
@@ -107,7 +114,8 @@ struct ParticleSystem : public ParticleData
 		else if( particleType == MuzzleFlash )		SetRandomDeathTime( 1, 2, particleCount );
 		else if( particleType == Smoke_MiniGun )	SetRandomDeathTime( 1, 6, particleCount );
 		else if( particleType == Test_Fountain )	SetRandomDeathTime( 1, 50, particleCount );
-		else if( particleType == Level_Up )			SetRandomDeathTime( 4, 10, particleCount );
+		else if( particleType == Level_Up )			SetRandomDeathTime( 2, 6, particleCount );
+		else if( particleType == Level_Inner )		SetRandomDeathTime( 1, 2, particleCount );
 
 		nrOfRequestedParticles += particleCount;
 
@@ -116,12 +124,13 @@ struct ParticleSystem : public ParticleData
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{	
-		if( particleType == Spark )					Generate( emitterPosition, emitterDirection, 8, 25.0f );	
+		if( particleType == Spark )					Generate( emitterPosition, emitterDirection, 8, 25.0f );
 		else if( particleType == Blood )			Generate( emitterPosition, emitterDirection, 8, 25.0f );
 		else if( particleType == MuzzleFlash )		Generate( emitterPosition, emitterDirection, 4,  25.0f );
 		else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 8, 2.0f );
 		else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 32, 20.0f );
-		else if( particleType == Level_Up )			Generate( emitterPosition, emitterDirection, 1024, 20.0f );
+		else if( particleType == Level_Up )			Generate( emitterPosition, emitterDirection, 1024, 270.0f );
+		else if( particleType == Level_Inner )		Generate( emitterPosition, emitterDirection, 32, 20.0f );
 	}
 
 	virtual void Update( float deltaTime )
@@ -169,6 +178,12 @@ struct ParticleSystem : public ParticleData
 			{
 				// Update Smoke_MiniGun logic here
 				Level_UpLogic( deltaTime );
+				break;
+			}
+			case Level_Inner:
+			{
+				// Update Smoke_MiniGun logic here
+				Level_InnerLogic( deltaTime );
 				break;
 			}
 			default:
@@ -223,6 +238,11 @@ struct ParticleSystem : public ParticleData
 	}
 
 	void Level_UpLogic( float deltaTime )
+	{
+
+	}
+	
+	void Level_InnerLogic( float deltaTime )
 	{
 
 	}

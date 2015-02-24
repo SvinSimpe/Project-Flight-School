@@ -441,7 +441,17 @@ HRESULT Graphics::InitializeEffects()
 	//			PARTICLE EFFECTS			|
 	//=======================================
 
-		//Spark effect
+	//Spark effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/Level_InnerEffect.hlsl";
+	effectInfo.fileName					= "Level_InnerEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_LEVEL_INNER]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Spark effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/Level_UpEffect.hlsl";
 	effectInfo.fileName					= "Level_UpEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;

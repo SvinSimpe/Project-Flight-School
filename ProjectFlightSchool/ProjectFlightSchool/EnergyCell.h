@@ -15,6 +15,7 @@ class EnergyCell
 		UINT				mOwnerID;
 		bool				mPickedUp;
 		BoundingCircle*		mPickUpRadius;
+		bool				mSecured;
 
 	protected:
 	public:
@@ -25,11 +26,13 @@ class EnergyCell
 		void				SetOwnerID( UINT id );
 		void				SetPickedUp( bool pickedUp );
 		void				SetPosition( DirectX::XMFLOAT3 position );
+		void				SetSecured( bool secured );
 
 		UINT				GetOwnerID() const;
 		bool				GetPickedUp() const;
 		DirectX::XMFLOAT3	GetPosition() const;
 		BoundingCircle*		GetPickUpRadius() const;
+		bool				GetSecured() const;
 
 		HRESULT				Update( float deltaTime );
 		HRESULT				Render();

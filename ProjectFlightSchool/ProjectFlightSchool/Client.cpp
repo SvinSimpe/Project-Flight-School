@@ -49,8 +49,7 @@ void Client::StartUp( IEventPtr eventPtr )
 
 void Client::SendEvent( IEventPtr eventPtr )
 {
-	mNEF->ForwardEvent( eventPtr );
-	//mEventList.push_front( eventPtr );
+	mEventList.push_front( eventPtr );
 }
 
 bool Client::Connect( std::string ip, UINT port )
@@ -91,8 +90,7 @@ void Client::Shutdown( IEventPtr eventPtr )
 
 void Client::DoSelect( int pauseMicroSecs, bool handleInput )
 {
-	if( this && mActive )
-		mSocketManager->DoSelect( pauseMicroSecs, handleInput );
+	mSocketManager->DoSelect( pauseMicroSecs, handleInput );
 }
 
 void Client::Update( float deltaTime )
@@ -105,6 +103,8 @@ void Client::Update( float deltaTime )
 			mEventList.pop_back();
 		}
 		mEventList.clear();
+
+		DoSelect( 0 );
 	}
 }
 

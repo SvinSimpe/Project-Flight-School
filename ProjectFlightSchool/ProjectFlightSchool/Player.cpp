@@ -858,13 +858,8 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 	//== Event to sync player with server ==
 
-	mEventCapTimer += deltaTime;
-	if( mEventCapTimer > 0.02f )
-	{
-		IEventPtr E1( new Event_Client_Update( mID, mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName, mIsBuffed, mIsAlive ) );
-		QueueEvent( E1 );
-		mEventCapTimer = 0.0f;
-	}
+	IEventPtr E1( new Event_Client_Update( mID, mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName, mIsBuffed, mIsAlive ) );
+	QueueEvent( E1 );
 	return S_OK;
 }
 

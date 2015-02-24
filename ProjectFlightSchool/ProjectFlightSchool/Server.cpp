@@ -553,8 +553,7 @@ void Server::StartUp( IEventPtr eventPtr )
 
 void Server::DoSelect( int pauseMicroSecs, bool handleInput )
 {
-	if ( this && mActive )
-		mSocketManager->DoSelect( pauseMicroSecs, handleInput );
+	mSocketManager->DoSelect( pauseMicroSecs, handleInput );
 }
 
 void Server::BroadcastEvent( IEventPtr eventPtr, UINT exception )
@@ -654,7 +653,6 @@ bool Server::Connect( UINT port )
 		return false;
 	}
 	mSocketManager->AddSocket( new ServerListenSocket( mSocketManager, port ) );
-	std::cout << "Server started on port: " << port << std::endl;
 
 	return true;
 }
@@ -731,6 +729,7 @@ void Server::Update( float deltaTime )
 			mClientMap[mEventList.back().ToID]->NEF.ForwardEvent( mEventList.back().EventPtr );
 			mEventList.pop_back();
 		}
+		DoSelect( 0 );
 	}
 }
 

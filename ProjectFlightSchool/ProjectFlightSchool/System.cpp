@@ -54,6 +54,7 @@ LRESULT CALLBACK System::WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM
 	return 0;
 }
 
+#include "HelperFunctions.h"
 HRESULT	System::Update( float deltaTime )
 {
 	mGame->Update( deltaTime );

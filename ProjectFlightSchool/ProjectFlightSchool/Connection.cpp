@@ -1,4 +1,5 @@
 #include "Connection.h"
+#include "HelperFunctions.h"
 
 #define EXIT_ASSERT PFS_ASSERT(0);
 
@@ -104,7 +105,6 @@ bool NetSocket::HandleInput()
 	SetBlocking( false );
 
 	int rc = recv( mSocket, mRecvBuf + mRecvBegin + mRecvOfs, RECV_BUFFER_SIZE - ( mRecvBegin + mRecvOfs ), 0 );
-	//printf( "Incoming %6d bytes. Begin %6d offset %4d\n", rc, mRecvBegin, mRecvOfs );
 
 	if( rc == -1 )
 	{
@@ -442,6 +442,7 @@ bool RemoteEventSocket::HandleInput()
 {
 	NetSocket::HandleInput();
 
+	size_t size = mInList.size();
 	while( !mInList.empty() )
 	{
 		std::shared_ptr<IPacket> packet = *mInList.begin();
@@ -551,8 +552,6 @@ void SocketManager::RemoveSocket( NetSocket* socket )
 	mSocketMap.erase( socket->mID );
 	SAFE_DELETE( socket );
 
-	printf("Removing socket %d.\n", id);
-
 	IEventPtr E1( PFS_NEW Event_Client_Left( id ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
 
@@ -571,7 +570,7 @@ UINT SocketManager::GetHostByName( const std::string &hostName )
 
 	if( hostEnt == nullptr )
 	{
-		printf("Error happened in GetHostByName()");
+		OutputDebugStringA( "Error happened in GetHostByName()" );
 		return 0;
 	}
 	memcpy( &sa.sin_addr, hostEnt->h_addr, hostEnt->h_length );
@@ -815,6 +814,7 @@ ClientSocketManager::ClientSocketManager()
 /////////////////////////////////////////////////////////////////
 // Start of NetworkEventForwarder functions
 
+
 void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 {
 	std::ostringstream out;
@@ -827,9 +827,6 @@ void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 
 	if( this )
 		mSocketManager->Send( mSocketID, msg );
-
-	out.str( std::string() );
-	out.clear();
 }
 
 void NetworkEventForwarder::Initialize( UINT socketID, SocketManager* sm )

@@ -1,5 +1,6 @@
 #include "HelperFunctions.h"
-
+#include <sstream>
+#include <Windows.h>
 
 bool HelperFunctions::Inside2DTriangle( DirectX::XMFLOAT2 p, DirectX::XMFLOAT2 p0, DirectX::XMFLOAT2 p1, DirectX::XMFLOAT2 p2 )
 {
@@ -19,4 +20,17 @@ float HelperFunctions::DistSquared( DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2 )
 DirectX::XMFLOAT3 HelperFunctions::GetCenter( DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, DirectX::XMFLOAT3 p3 )
 {
 	return DirectX::XMFLOAT3( ( p1.x + p2.x + p3.x ) / 3.0f, ( p1.y + p2.y + p3.y ) / 3.0f, ( p1.z + p2.z + p3.z ) / 3.0f );
+}
+
+std::chrono::steady_clock::time_point HelperFunctions::StartTime()
+{
+	return std::chrono::steady_clock::now();
+}
+
+void HelperFunctions::PrintElapsedTime( std::string text, std::chrono::steady_clock::time_point start )
+{
+	std::chrono::steady_clock::time_point end = StartTime();
+	std::ostringstream ss;
+	ss << text << " " << std::chrono::duration_cast<std::chrono::microseconds>( end - start ).count() << "µs.\n";
+	OutputDebugStringA( ss.str().c_str() );
 }

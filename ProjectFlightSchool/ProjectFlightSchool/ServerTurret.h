@@ -48,6 +48,7 @@ class ServerTurret : public GameObject
 
 	protected:
 		struct TurretHead
+
 		{
 			AssetID model	= CUBE_PLACEHOLDER;
 			XMFLOAT3 pos	= XMFLOAT3( 0.0f, 0.0f, 0.0f );

@@ -582,6 +582,10 @@ void Player::TakeDamage( float damage, unsigned int shooter )
 		damage -= moddedDmg;
 	}
 	mCurrentHp -= damage / (float)mUpgrades.body;
+	if( mCurrentHp < 0.0f )
+	{
+		mCurrentHp = 0.0f;
+	}
 	IEventPtr E1( new Event_Client_Update_HP( mID, mCurrentHp ) );
 	QueueEvent( E1 );
 	if ( !mIsDown && mIsAlive && mCurrentHp <= 0.0f )

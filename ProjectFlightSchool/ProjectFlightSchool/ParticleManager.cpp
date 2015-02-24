@@ -88,10 +88,11 @@ void ParticleManager::Initialize()
 	mNrOfParticleSystemsPerType[Blood]			= 0;
 	mNrOfParticleSystemsPerType[MuzzleFlash]	= 0;
 	mNrOfParticleSystemsPerType[Smoke_MiniGun]	= 0;
-	mNrOfParticleSystemsPerType[Test_Fountain]	= 0; // Below this
 	mNrOfParticleSystemsPerType[Level_Up]		= 0;
 	mNrOfParticleSystemsPerType[Level_Inner]	= 0;
-	
+	mNrOfParticleSystemsPerType[Test_Fountain]	= 0;
+	mNrOfParticleSystemsPerType[Explosion]		= 0;
+	mNrOfParticleSystemsPerType[ExplosionSmoke]	= 0;// Below this
 
 	mMaxNrOfParticleSystemsPerType[Smoke]			= 1;
 	mMaxNrOfParticleSystemsPerType[Fire]			= 1;
@@ -99,9 +100,11 @@ void ParticleManager::Initialize()
 	mMaxNrOfParticleSystemsPerType[Blood]			= 10;
 	mMaxNrOfParticleSystemsPerType[MuzzleFlash]		= 8;
 	mMaxNrOfParticleSystemsPerType[Smoke_MiniGun]	= 8;
-	mMaxNrOfParticleSystemsPerType[Test_Fountain]	= 5; // Aswell as this
 	mMaxNrOfParticleSystemsPerType[Level_Up]		= 5;
 	mMaxNrOfParticleSystemsPerType[Level_Inner]		= 5;
+	mMaxNrOfParticleSystemsPerType[Test_Fountain]	= 5;
+	mMaxNrOfParticleSystemsPerType[Explosion]		= 1;
+	mMaxNrOfParticleSystemsPerType[ExplosionSmoke]	= 3;// Aswell as this
 
 	mNrOfActiveParticleSystemsPerType[Smoke]			= 0;
 	mNrOfActiveParticleSystemsPerType[Fire]				= 0;
@@ -109,9 +112,12 @@ void ParticleManager::Initialize()
 	mNrOfActiveParticleSystemsPerType[Blood]			= 0;
 	mNrOfActiveParticleSystemsPerType[MuzzleFlash]		= 0;
 	mNrOfActiveParticleSystemsPerType[Smoke_MiniGun]	= 0;
-	mNrOfActiveParticleSystemsPerType[Test_Fountain]	= 0; // And this
 	mNrOfActiveParticleSystemsPerType[Level_Up]			= 0;
 	mNrOfActiveParticleSystemsPerType[Level_Inner]		= 0;
+	mNrOfActiveParticleSystemsPerType[Test_Fountain]	= 0;
+	mNrOfActiveParticleSystemsPerType[Explosion]		= 0;
+	mNrOfActiveParticleSystemsPerType[ExplosionSmoke]	= 0;// And this
+
 	//======= Allocate memory for Particle Systems =======
 	mParticleSystems = new ParticleSystem**[NR_OF_PARTICLE_TYPES];
 	for ( int i = 0; i < NR_OF_PARTICLE_TYPES; i++ )
@@ -132,6 +138,18 @@ void ParticleManager::Initialize()
 	//		mNrOfParticleSystemsPerType[MuzzleFlash]++;
 	//		mNrOfParticleSystems++;
 	//	}
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[ExplosionSmoke]; i++ )
+	{
+		mParticleSystems[ExplosionSmoke][i]->Initialize( ExplosionSmoke, 50.0f, 1000 );
+		mNrOfParticleSystemsPerType[ExplosionSmoke]++;
+		mNrOfParticleSystems++;
+	}
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Explosion]; i++ )
+	{
+		mParticleSystems[Explosion][i]->Initialize( Explosion, 20.0f, 1000 );
+		mNrOfParticleSystemsPerType[Explosion]++;
+		mNrOfParticleSystems++;
+	}
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Level_Inner]; i++ )
 	{

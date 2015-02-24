@@ -31,6 +31,16 @@ struct ParticleSystem : public ParticleData
 
 		switch ( particleType )
 		{
+			case ExplosionSmoke:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/smokeFlares.dds", assetID );
+				break;
+			}
+			case Explosion:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireParticle.dds", assetID );
+				break;
+			}
 			case Blood:
 			{
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/blood.dds", assetID );
@@ -108,14 +118,49 @@ struct ParticleSystem : public ParticleData
 			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 1, particleCount );
 		else
 			SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
-		
-		if( particleType == Spark )					SetRandomDeathTime( 1, 2, particleCount );
-		else if( particleType == Blood )			SetRandomDeathTime( 1, 2, particleCount );
-		else if( particleType == MuzzleFlash )		SetRandomDeathTime( 1, 2, particleCount );
-		else if( particleType == Smoke_MiniGun )	SetRandomDeathTime( 1, 6, particleCount );
-		else if( particleType == Test_Fountain )	SetRandomDeathTime( 1, 50, particleCount );
-		else if( particleType == Level_Up )			SetRandomDeathTime( 2, 6, particleCount );
-		else if( particleType == Level_Inner )		SetRandomDeathTime( 1, 2, particleCount );
+
+		if( particleType == Spark )
+		{
+			SetRandomDeathTime( 1, 2, particleCount );
+		}
+		if( particleType == ExplosionSmoke )	
+		{
+			SetRandomDeathTime( 1, 6, particleCount );
+			SetRandomRotation( particleCount ); 
+		}
+		else if( particleType == Explosion )	
+		{
+			SetRandomDeathTime( 1, 2, particleCount );
+			SetRandomRotation( particleCount ); 
+		}
+		else if( particleType == Spark )
+		{
+			SetRandomDeathTime( 1, 2, particleCount );
+		}
+		else if( particleType == Blood )
+		{
+			SetRandomDeathTime( 1, 2, particleCount );
+		}
+		else if( particleType == MuzzleFlash )
+		{
+			SetRandomDeathTime( 1, 2, particleCount );
+		}
+		else if( particleType == Smoke_MiniGun )
+		{
+			SetRandomDeathTime( 1, 6, particleCount );
+		}
+		else if( particleType == Test_Fountain )
+		{
+			SetRandomDeathTime( 1, 50, particleCount );
+		}
+		else if( particleType == Level_Up )	
+		{
+			SetRandomDeathTime( 2, 6, particleCount );
+		}
+		else if( particleType == Level_Inner )		
+		{
+			SetRandomDeathTime( 1, 2, particleCount );
+		}
 
 		nrOfRequestedParticles += particleCount;
 
@@ -124,7 +169,9 @@ struct ParticleSystem : public ParticleData
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{	
-		if( particleType == Spark )					Generate( emitterPosition, emitterDirection, 8, 25.0f );
+		if( particleType == Explosion )				Generate( emitterPosition, emitterDirection, 50,  360.0f );
+		else if( particleType == ExplosionSmoke )	Generate( emitterPosition, emitterDirection, 50,  360.0f );
+		else if( particleType == Spark )			Generate( emitterPosition, emitterDirection, 8, 25.0f );
 		else if( particleType == Blood )			Generate( emitterPosition, emitterDirection, 8, 25.0f );
 		else if( particleType == MuzzleFlash )		Generate( emitterPosition, emitterDirection, 4,  25.0f );
 		else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 8, 2.0f );
@@ -144,6 +191,18 @@ struct ParticleSystem : public ParticleData
 		// Update logic based on Particle type
 		switch( particleType )
 		{
+			case ExplosionSmoke: 
+			{
+				// Update Explosion smoke logic here
+				ExplosionSmokeLogic( deltaTime );
+				break;
+			}
+			case Explosion: 
+			{
+				// Update Explosion logic here
+				ExplosionLogic( deltaTime );
+				break;
+			}
 			case Spark: 
 			{
 				// Update Spark logic here
@@ -232,6 +291,36 @@ struct ParticleSystem : public ParticleData
 		}
 	}
 	
+	void ExplosionSmokeLogic( float deltatime )
+	{
+		for ( int i = 0; i < nrOfParticlesAlive; i++ )
+		{
+			if(damping[i] > 0)
+				damping[i] -= 0.01f;
+
+			xVelocity[i] = xVelocity[i] * damping[i];
+			zVelocity[i] = zVelocity[i] * damping[i];
+			yVelocity[i] = zVelocity[i] * damping[i] * 4;
+			xPosition[i] += 0.05f * ( 1.0f - damping[i] );
+			zPosition[i] += 0.025f * ( 1.0f - damping[i] );
+			yPosition[i] += 0.08f * ( 1.0f - damping[i] );
+
+
+		}
+	}
+
+	void ExplosionLogic( float deltaTime )
+	{
+		for ( int i = 0; i < nrOfParticlesAlive; i++ )
+		{
+			if(damping[i] > 0)
+				damping[i] -= 0.005f;
+
+			xVelocity[i] = xVelocity[i] * damping[i];
+			zVelocity[i] = zVelocity[i] * damping[i];
+		}
+
+	}
 	void SparkLogic( float deltaTime ) 
 	{
 
@@ -246,7 +335,6 @@ struct ParticleSystem : public ParticleData
 	{
 
 	}
-
 	void BloodLogic( float deltaTime )
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )

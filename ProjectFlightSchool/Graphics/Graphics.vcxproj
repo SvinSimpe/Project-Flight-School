@@ -202,6 +202,16 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
+
+    
+    <Text Include="..\Content\Effects\Particle Effects\ExplosionEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Content\Effects\Particle Effects\ExplosionSmoke.hlsl">
+      <FileType>Document</FileType>
+    </Text>
     <Text Include="..\Content\Effects\Particle Effects\SparkEffect.hlsl">
       <FileType>Document</FileType>
     </Text>

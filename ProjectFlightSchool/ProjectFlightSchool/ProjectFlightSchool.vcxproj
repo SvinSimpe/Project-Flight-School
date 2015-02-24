@@ -99,6 +99,7 @@
     <ClCompile Include="EnemyBehavior.cpp" />
     <ClCompile Include="Gui.cpp" />
     <ClCompile Include="HelperFunctions.cpp" />
+    <ClCompile Include="InGameWindow.cpp" />
     <ClCompile Include="LobbyState.cpp" />
     <ClCompile Include="Navmesh.cpp" />
     <ClCompile Include="HealthBars.cpp" />
@@ -166,6 +167,7 @@
     <ClInclude Include="DSBufferStream.h" />
     <ClInclude Include="Gui.h" />
     <ClInclude Include="HelperFunctions.h" />
+    <ClInclude Include="InGameWindow.h" />
     <ClInclude Include="LobbyState.h" />
     <ClInclude Include="Navmesh.h" />
     <ClInclude Include="HealthBars.h" />

@@ -309,9 +309,6 @@
     <ClCompile Include="DSBufferStream.cpp">
       <Filter>DirectSound\Source</Filter>
     </ClCompile>
-    <ClCompile Include="UpgradePlayerWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LobbyState.cpp">
       <Filter>GameStates\Source Files</Filter>
     </ClCompile>
@@ -319,6 +316,12 @@
       <Filter>GUI\Source</Filter>
     </ClCompile>
     <ClCompile Include="UpgradeShipWindow.cpp">
+      <Filter>GUI\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="InGameWindow.cpp">
+      <Filter>GUI\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="UpgradePlayerWindow.cpp">
       <Filter>GUI\Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -549,6 +552,9 @@
       <Filter>GameStates\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UpgradeShipWindow.h">
+      <Filter>GUI\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="InGameWindow.h">
       <Filter>GUI\Header</Filter>
     </ClInclude>
   </ItemGroup>

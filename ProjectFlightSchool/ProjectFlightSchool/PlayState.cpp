@@ -415,6 +415,19 @@ void PlayState::HandleDeveloperCameraInput()
 			}
 		}
 	}
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_ENTER ) )
+	{
+		if( mGui->InGameWindowIsActive() )
+		{
+			mPlayer->UnLock();
+			mGui->DeActivateInGameWindow();
+		}
+		else
+		{
+			mPlayer->Lock();
+			mGui->ActivateInGameWindow();
+		}
+	}
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_1 ) )
 	{
 		RenderManager::GetInstance()->ChangeRasterizerState( CULL_NONE );

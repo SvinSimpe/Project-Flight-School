@@ -5,7 +5,8 @@
 #include "Font.h"
 #include "Image.h"
 
-#define KEYCOOLDOWN 0.12f;
+#define KEYCOOLDOWN 0.2f;
+#define HELDCOOLDOWN 0.1f;
 
 class InputSquare : public MovingButton
 {
@@ -15,6 +16,7 @@ class InputSquare : public MovingButton
 		std::string mCurrentText;
 		bool		mActive;
 		float		mKeyTimer;
+		int			mLastPressed;
 
 	protected:
 	public:

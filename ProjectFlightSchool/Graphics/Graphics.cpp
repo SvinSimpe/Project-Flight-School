@@ -441,6 +441,16 @@ HRESULT Graphics::InitializeEffects()
 	//			PARTICLE EFFECTS			|
 	//=======================================
 
+		//Spark effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/Level_UpEffect.hlsl";
+	effectInfo.fileName					= "Level_UpEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_LEVEL_UP]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
 	//Spark effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/SparkEffect.hlsl";
 	effectInfo.fileName					= "SparkEffect";
@@ -1075,7 +1085,7 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 					mDeviceContext->IASetInputLayout( mEffects[info[i].mParticleType]->GetInputLayout() );
 
 					// Add particletype you want to apply additive blending on
-					if( info[i].mParticleType == EFFECTS_TEST_FOUNTAIN || info[i].mParticleType == EFFECTS_SPARK )
+					if( info[i].mParticleType == EFFECTS_TEST_FOUNTAIN || info[i].mParticleType == EFFECTS_SPARK  || info[i].mParticleType == EFFECTS_LEVEL_UP )
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
 
 					else

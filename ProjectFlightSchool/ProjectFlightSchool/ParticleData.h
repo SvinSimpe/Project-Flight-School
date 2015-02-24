@@ -10,7 +10,7 @@
 using namespace DirectX;
 
 #define MAX_PARTICLES 10000
-#define NR_OF_PARTICLE_TYPES 7
+#define NR_OF_PARTICLE_TYPES 8
 
 enum ParticleType
 {
@@ -20,7 +20,8 @@ enum ParticleType
 	Blood,
 	MuzzleFlash,
 	Smoke_MiniGun,
-	Test_Fountain
+	Test_Fountain,
+	Level_Up
 };
 
 struct ParticleData
@@ -217,7 +218,7 @@ struct ParticleData
 			SparkElevationY( 1.0f, 2.0f );
 		}
 
-		if( particleType != Test_Fountain && particleType != Spark )
+		if( particleType != Test_Fountain && particleType != Spark  && particleType != Level_Up)
 		{
 			//Get random elevation
 			float randomElevation = ( (float)( rand() % 20 ) - 10 ) * 0.1f;
@@ -273,6 +274,12 @@ struct ParticleData
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 2, 3 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 3, 10 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 2, 3 );		
+			}
+			else if( particleType == Level_Up )
+			{
+				//randomDirectionVector.x = xDirection * GetRandomSpeed( 2, 3 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 65, 70 );
+				//randomDirectionVector.z = zDirection * GetRandomSpeed( 2, 3 );		
 			}
 
 			GetRandomSpread( spreadAngle );

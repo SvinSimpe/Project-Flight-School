@@ -208,5 +208,8 @@
     <Text Include="..\Content\Effects\Particle Effects\SparkEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
+    <Text Include="..\Content\Effects\Particle Effects\Level_UpEffect.hlsl">
+      <Filter>Effects\Particle Effects</Filter>
+    </Text>
   </ItemGroup>
 </Project>

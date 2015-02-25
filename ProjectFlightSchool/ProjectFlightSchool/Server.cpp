@@ -378,7 +378,6 @@ void Server::ClientInteractEnergyCell( IEventPtr eventPtr )
 			{
 				if( !mEnergyCells[j]->GetSecured() && s->Intersect( mEnergyCells[j]->GetPickUpRadius() ) )
 				{
-					OutputDebugString( L"Going to add Energy Cell in Server" );
 					mEnergyCells[j]->SetSecured( true );
 					s->AddEnergyCell( mEnergyCells[j]->GetOwnerID() );
 				}

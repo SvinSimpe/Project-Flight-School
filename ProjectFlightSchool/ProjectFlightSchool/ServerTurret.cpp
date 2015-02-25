@@ -40,23 +40,23 @@ void ServerTurret::SwitchMode( UINT mode )
 
 void ServerTurret::Fire()
 {
-	XMVECTOR pos = XMLoadFloat3( &mTurretHead->pos );
-	XMVECTOR dir = XMLoadFloat3( &XMFLOAT3( mTurretHead->rot.x, mTurretHead->rot.y, mTurretHead->rot.z ) );
+	//XMVECTOR pos = XMLoadFloat3( &mTurretHead->pos );
+	//XMVECTOR dir = XMLoadFloat3( &XMFLOAT3( mTurretHead->rot.x, mTurretHead->rot.y, mTurretHead->rot.z ) );
 
-	pos += dir * 2.15f;
+	//pos += dir * 2.15f;
 
-	XMFLOAT3 loadPos;
-	XMStoreFloat3( &loadPos, pos );
+	//XMFLOAT3 loadPos;
+	//XMStoreFloat3( &loadPos, pos );
 
-	float dirOff = (float)( rand() % 100 ) * 0.001f - mLoadOut->rangedWeapon->spread;
-	XMFLOAT3 fireDir = XMFLOAT3( mTurretHead->rot.x + dirOff, mTurretHead->rot.y, mTurretHead->rot.z + dirOff );
-	IEventPtr E1( new Event_Turret_Fired_Projectile( 
-		mID, 
-		loadPos, 
-		fireDir, 
-		mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), 
-		mLoadOut->rangedWeapon->range ) );
-	EventManager::GetInstance()->QueueEvent( E1 );
+	//float dirOff = (float)( rand() % 100 ) * 0.001f - mLoadOut->rangedWeapon->spread;
+	//XMFLOAT3 fireDir = XMFLOAT3( mTurretHead->rot.x + dirOff, mTurretHead->rot.y, mTurretHead->rot.z + dirOff );
+	//IEventPtr E1( new Event_Turret_Fired_Projectile( 
+	//	mID, 
+	//	loadPos, 
+	//	fireDir, 
+	//	mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), 
+	//	mLoadOut->rangedWeapon->range ) );
+	//EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 UINT ServerTurret::CheckMode() const

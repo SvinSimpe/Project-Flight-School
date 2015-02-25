@@ -149,7 +149,7 @@ std::vector<DirectX::XMFLOAT2> Navmesh::FindPath( DirectX::XMFLOAT3 start, Direc
 					PortalPath* temp = &mPath[pathIndex++];
 					char buf[20];
 					sprintf_s(buf, "PathIndex: %d\n", pathIndex );
-					OutputDebugStringA( buf );
+					//OutputDebugStringA( buf );
 
 					temp->portal = comp;
 					temp->parent = currentPath;

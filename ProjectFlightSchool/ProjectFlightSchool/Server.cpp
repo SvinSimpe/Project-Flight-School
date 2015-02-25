@@ -212,7 +212,6 @@ void Server::ClientFiredProjectile( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Client_Fired_Projectile::GUID )
 	{
 		std::shared_ptr<Event_Client_Fired_Projectile> data = std::static_pointer_cast<Event_Client_Fired_Projectile>( eventPtr );
-		HelperFunctions::PrintCounter( "Inside Server::ClientFiredProjectile() after:" );
 		auto& it = mClientMap.find(data->ID());
 		if( it != mClientMap.end() )
 		{
@@ -564,10 +563,6 @@ void Server::DoSelect( int pauseMicroSecs, bool handleInput )
 
 void Server::BroadcastEvent( IEventPtr eventPtr, UINT exception )
 {
-	if( eventPtr->GetEventType() == 21 )
-	{
-		HelperFunctions::PrintCounter( "Inside Server::BroadcastEvent() after:" );
-	}
 	for( auto& to : mClientMap )
 	{
 		if( to.first != exception )

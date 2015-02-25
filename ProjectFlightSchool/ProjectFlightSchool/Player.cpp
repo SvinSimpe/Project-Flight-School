@@ -357,14 +357,14 @@ void Player::GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, Direct
 
 HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
 {
-	//if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
-	//{
-	//	mFollowPath = true;
-	//	Pathfinder::GetInstance()->RequestPath( currentPath1, mLowerBody.position, mPick  );
-	//	Pathfinder::GetInstance()->CalculateSubPath( currentPath1 );
-	//	currentPath = currentPath1->TotalPath();
-	//	currStep = currentPath.begin();
-	//}
+	if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
+	{
+		mFollowPath = true;
+		Pathfinder::GetInstance()->RequestPath( currentPath1, mLowerBody.position, mPick  );
+		Pathfinder::GetInstance()->CalculateSubPath( currentPath1 );
+		currentPath = currentPath1->TotalPath();
+		currStep = currentPath.begin();
+	}
 
 	mLowerBody.position.x += mVelocity.x * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f );
 	mLowerBody.position.z += mVelocity.z * deltaTime *( 0.8f + (float)mUpgrades.legs / 5.0f );
@@ -448,9 +448,7 @@ void Player::Fire()
 			float directionOffset	=  (float)( rand() % 100 ) * 0.001f - mLoadOut->rangedWeapon->spread;
 			mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffset, mUpperBody.direction.y, mUpperBody.direction.z + directionOffset );
 			IEventPtr E1( new Event_Trigger_Client_Fired_Projectile( mID, loadDir, mFireDirection, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage ) );
-			EventManager::GetInstance()->TriggerEvent( E1 );
-			HelperFunctions::StartCounter();
-			OutputDebugStringA( "Event sent from Player::Fire()\n" );
+			EventManager::GetInstance()->QueueEvent( E1 );
 		}
 		else
 		{

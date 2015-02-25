@@ -31,6 +31,11 @@ struct ParticleSystem : public ParticleData
 
 		switch ( particleType )
 		{
+			case NormalSmoke:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/smokeParticle1.dds", assetID );
+				break;
+			}
 			case ExplosionSmoke:
 			{
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/smokeFlares.dds", assetID );
@@ -115,6 +120,11 @@ struct ParticleSystem : public ParticleData
 			SetRandomDeathTime( 1, 2, particleCount );
 			SetRandomRotation( particleCount ); 
 		}
+		else if( particleType == NormalSmoke )	
+		{
+			SetRandomDeathTime( 4, 12, particleCount );
+			SetRandomRotation( particleCount ); 
+		}
 		else if( particleType == Spark )			SetRandomDeathTime( 1, 2, particleCount );
 		else if( particleType == Blood )			SetRandomDeathTime( 1, 2, particleCount );
 		else if( particleType == MuzzleFlash )		SetRandomDeathTime( 1, 2, particleCount );
@@ -130,6 +140,7 @@ struct ParticleSystem : public ParticleData
 	{
 		if( particleType == Explosion )	Generate( emitterPosition, emitterDirection, 50,  360.0f );
 		else if( particleType == ExplosionSmoke )	Generate( emitterPosition, emitterDirection, 50,  360.0f );
+		else if( particleType == NormalSmoke )	Generate( emitterPosition, emitterDirection, 6,  120.0f );
 		else if( particleType == Spark )	Generate( emitterPosition, emitterDirection, 8, 25.0f );	
 		else if( particleType == Blood )	Generate( emitterPosition, emitterDirection, 8, 25.0f );
 		else if( particleType == MuzzleFlash )	Generate( emitterPosition, emitterDirection, 4,  25.0f );
@@ -148,6 +159,12 @@ struct ParticleSystem : public ParticleData
 		// Update logic based on Particle type
 		switch( particleType )
 		{
+			case NormalSmoke: 
+			{
+				// Update Explosion smoke logic here
+				NormalSmokeLogic( deltaTime );
+				break;
+			}
 			case ExplosionSmoke: 
 			{
 				// Update Explosion smoke logic here
@@ -236,6 +253,21 @@ struct ParticleSystem : public ParticleData
 		}
 	}
 	
+	void NormalSmokeLogic( float deltatime )
+	{
+		for ( int i = 0; i < nrOfParticlesAlive; i++ )
+		{
+			if(damping[i] > 0)
+				damping[i] -= 0.01f;
+
+			xVelocity[i] = xVelocity[i] * damping[i];
+			zVelocity[i] = zVelocity[i] * damping[i];
+			yVelocity[i] = zVelocity[i] * damping[i];
+			xPosition[i] += 0.05f * ( 1.0f - damping[i] );
+			zPosition[i] += 0.025f * ( 1.0f - damping[i] );
+			yPosition[i] += 0.08f * ( 1.0f - damping[i] );
+		}
+	}
 	void ExplosionSmokeLogic( float deltatime )
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
@@ -246,9 +278,9 @@ struct ParticleSystem : public ParticleData
 			xVelocity[i] = xVelocity[i] * damping[i];
 			zVelocity[i] = zVelocity[i] * damping[i];
 			yVelocity[i] = zVelocity[i] * damping[i] * 4;
-			xPosition[i] += 0.05f * ( 1.0f - damping[i] );
-			zPosition[i] += 0.025f * ( 1.0f - damping[i] );
-			yPosition[i] += 0.08f * ( 1.0f - damping[i] );
+			xPosition[i] += 0.5f * ( 1.0f - damping[i] );
+			zPosition[i] += 0.25f * ( 1.0f - damping[i] );
+			yPosition[i] += 0.8f * ( 1.0f - damping[i] );
 
 
 		}

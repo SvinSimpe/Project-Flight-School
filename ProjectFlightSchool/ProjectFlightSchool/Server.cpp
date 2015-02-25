@@ -214,7 +214,7 @@ void Server::ClientFiredProjectile( IEventPtr eventPtr )
 			float range		= data->Range();
 			float damage	= data->Damage();
 
-			IEventPtr E1( new Event_Remote_Fired_Projectile( data->ID(), pid, pos, dir, speed, range, damage ) );
+			IEventPtr E1( new Event_Remote_Fired_Projectile( data->ID(), pid, pos, dir, speed, range, damage, data->Weapon() ) );
 			BroadcastEvent( E1 );
 		}
 	}

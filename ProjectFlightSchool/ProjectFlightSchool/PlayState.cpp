@@ -70,7 +70,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 				break;
 			}
 		}
-		FireProjectile( data->ID(), data->ProjectileID(), teamID, data->BodyPos(), data->Direction(), data->Speed(), data->Range(), data->Damage() );
+		FireProjectile( data->ID(), data->ProjectileID(), teamID, data->BodyPos(), data->Direction(), data->Speed(), data->Range(), data->Damage(), (WeaponType)data->Weapon() );
 
 		//TestSound
 		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->BodyPos());
@@ -147,7 +147,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		// Fire projectile
 		std::shared_ptr<Event_Server_Turret_Fired_Projectile> data = std::static_pointer_cast<Event_Server_Turret_Fired_Projectile>(newEvent);
-		FireProjectile( data->ID(), data->ProjectileID(), data->TeamID(), data->Position(), data->Direction(), data->Speed(), data->Range(), 1.0f ); // Don't know where to get damage from yet
+		FireProjectile( data->ID(), data->ProjectileID(), data->TeamID(), data->Position(), data->Direction(), data->Speed(), data->Range(), 1.0f, TURRET ); // Don't know where to get damage from yet
 
 		//TestSound
 		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->Position());
@@ -228,9 +228,9 @@ void PlayState::BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned
 	Client::GetInstance()->SendEvent( E1 );
 }
 
-void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, unsigned int teamID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range, float damage )
+void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, unsigned int teamID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range, float damage, WeaponType weaponType )
 {
-	mProjectiles[mNrOfActiveProjectiles]->SetDirection( id, projectileID, teamID, position, direction, speed, range, damage );
+	mProjectiles[mNrOfActiveProjectiles]->SetDirection( id, projectileID, teamID, position, direction, speed, range, damage, weaponType );
 	mNrOfActiveProjectiles++;
 }
 
@@ -305,7 +305,8 @@ void PlayState::CheckProjectileCollision()
 						// hit
 						BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
 						RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-						mProjectiles[i]->Reset();
+						if( mProjectiles[i]->GetWeaponType() != SNIPER )
+							mProjectiles[i]->Reset();
 						break;
 					}
 
@@ -315,7 +316,8 @@ void PlayState::CheckProjectileCollision()
 						// hit
 						BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
 						RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-						mProjectiles[i]->Reset();
+						if( mProjectiles[i]->GetWeaponType() != SNIPER )
+							mProjectiles[i]->Reset();
 						break;
 					}
 				}
@@ -469,11 +471,14 @@ void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int project
 		{
 			shooter = mProjectiles[i]->GetPlayerID();
 			damage	= mProjectiles[i]->GetDamage();
-			mProjectiles[i]->Reset();
-			Projectile* temp							= mProjectiles[mNrOfActiveProjectiles - 1];
-			mProjectiles[mNrOfActiveProjectiles - 1]	= mProjectiles[i];
-			mProjectiles[i]								= temp;
-			mNrOfActiveProjectiles--;
+			if( mProjectiles[i]->GetWeaponType() != SNIPER )
+			{
+				mProjectiles[i]->Reset();
+				Projectile* temp							= mProjectiles[mNrOfActiveProjectiles - 1];
+				mProjectiles[mNrOfActiveProjectiles - 1]	= mProjectiles[i];
+				mProjectiles[i]								= temp;
+				mNrOfActiveProjectiles--;
+			}
 		}
 	}
 

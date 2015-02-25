@@ -14,11 +14,11 @@ static enum MapSize
 class Map
 {
 	private:
-		MapSection *mMapSection;
-		MapNodeInstance* mNodes[MAX_NODES];
-		float mVertexSpacing;
-		UINT mNrOfNodes;
-		UINT mMapId;
+		MapSection*			mMapSection;
+		MapNodeInstance*	mNodes[MAX_NODES];
+		float				mVertexSpacing;
+		UINT				mNrOfNodes;
+		UINT				mMapId;
 
 		std::vector<NavTriangle> mNavData;
 
@@ -28,11 +28,12 @@ class Map
 	private:
 	protected:
 	public:
-		HRESULT Render( float deltaTime, Player* player );
-		void GenerateGrid();
-		void OnLoadLevel( IEventPtr E1 );
-		NavTriangle* IsOnNavMesh( XMFLOAT3 pos );
+		HRESULT			Render( float deltaTime, Player* player );
+		void			GenerateGrid();
+		void			OnLoadLevel( IEventPtr E1 );
+		NavTriangle*	IsOnNavMesh( XMFLOAT3 pos );
 		//bool Inside2DTriangle( XMFLOAT2 p, XMFLOAT2 p0, XMFLOAT2 p1, XMFLOAT2 p2 );
+		bool			PlayerVsMap( XMFLOAT3 position, XMFLOAT3 &normal );
 
 		UINT GetMapDim() const;
 		UINT GetMapWidth() const;

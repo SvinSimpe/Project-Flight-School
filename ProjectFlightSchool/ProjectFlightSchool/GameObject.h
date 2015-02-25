@@ -12,12 +12,13 @@ class GameObject
 {
 	private:
 	protected:
-		DirectX::XMFLOAT3 mPos;
-		DirectX::XMFLOAT4 mRot;
-		DirectX::XMFLOAT3 mScale;
+		DirectX::XMFLOAT3	mPos;
+		DirectX::XMFLOAT4	mRot;
+		DirectX::XMFLOAT3	mScale;
 
 		AssetID mAssetID;
 	public:
+		DirectX::XMFLOAT4X4 mWorld;
 
 	private:
 	protected:

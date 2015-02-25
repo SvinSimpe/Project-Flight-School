@@ -74,6 +74,8 @@ void GameObject::Initialize( GameObjectInfo gameObjectInfo, AssetID assetID )
 
 	DirectX::XMMatrixDecompose( &scale, &rotation, &translation, XMLoadFloat4x4( &gameObjectInfo.transformation ) );
 
+	mWorld = gameObjectInfo.transformation;
+
 	XMStoreFloat3( &mScale, scale );
 	XMStoreFloat4( &mRot, rotation );
 	XMStoreFloat3( &mPos, translation );

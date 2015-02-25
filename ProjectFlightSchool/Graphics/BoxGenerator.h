@@ -5,6 +5,7 @@
 #include "Vertex.h"
 #include <DirectXCollision.h>
 using namespace std;
+using namespace DirectX;
 
 enum OctreeParts
 {
@@ -37,6 +38,32 @@ struct OctTree
 		{
 			children[i] = nullptr;
 		}
+	}
+	bool AABBvsAABB( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, UINT maxDepth, DirectX::XMFLOAT3 &normal )
+	{
+		if( maxDepth > 0 )
+		{
+			if( min.x > boundingBox.max.x || boundingBox.min.x > max.x ) return false;
+			if( min.y > boundingBox.max.y || boundingBox.min.y > max.y ) return false;
+			if( min.z > boundingBox.max.z || boundingBox.min.z > max.z ) return false;
+			
+			if( maxDepth == 1 )
+			{
+				XMStoreFloat3( &normal, ( XMLoadFloat3( &boundingBox.min ) + XMLoadFloat3( &boundingBox.max ) ) * 0.5f - XMLoadFloat3( &normal ) );
+				normal.y = 0.0f;
+				XMVECTOR loaded = XMLoadFloat3( &normal );
+				XMStoreFloat3( &normal, XMVector3Normalize( loaded ) );
+				return true;
+			}
+		
+			bool childCollision = false;
+			for( int i = 0; i < 8; i++ )
+				if( childrenCollides[i] )
+					if( children[i]->AABBvsAABB( min, max, maxDepth - 1, normal ) ) childCollision = true;
+
+			return childCollision;
+		}
+		return false;
 	}
 };
 

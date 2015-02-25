@@ -414,7 +414,7 @@ HRESULT RemotePlayer::Render()
 
 HRESULT RemotePlayer::Initialize()
 {
-	mLowerBody.position		= XMFLOAT3( 3.0f, 0.0f, 6.0f );
+	mLowerBody.position		= XMFLOAT3( 0.0f, 0.0f, 6.0f );
 
 	mBoundingBox			= new BoundingRectangle( 1.5f, 1.5f );
 	mBoundingCircle			= new BoundingCircle( 0.5f );

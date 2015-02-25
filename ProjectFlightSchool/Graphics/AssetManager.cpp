@@ -480,7 +480,7 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceConte
 		AABB meshAABB;
 		meshAABB  = BoxGen.CreateAABBFromVerts( &vertexInput );
 		OctTree* meshOct = new OctTree();
-		BoxGen.GenerateOctTree( &vertexInput, &meshAABB, 4, 0, meshOct);
+		BoxGen.GenerateOctTree( &vertexInput, &meshAABB, 5, 0, meshOct);
 
 		////////////////
 

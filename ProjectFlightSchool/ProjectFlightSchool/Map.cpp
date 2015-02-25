@@ -58,6 +58,117 @@ void Map::OnLoadLevel( IEventPtr pEvent )
 	}
 }
 
+bool Map::PlayerVsMap( XMFLOAT3 position, XMFLOAT3 &normal )
+{
+	int x = ( ( (int)GetMapHalfWidth() * NODE_DIM ) + (int)floorf( position.x ) ) / NODE_DIM;
+	int z = ( ( (int)GetMapHalfHeight() * NODE_DIM ) + (int)floorf( position.z ) ) / NODE_DIM;
+
+	bool localReturn = false;
+
+	for( int a = x - 1; a < x + 2; a++ )
+	{
+		for( int b = z - 1; b < z + 2; b++ )
+		{
+			MapNodeInstance* temp = MapNodePlacer::GetInstance()->GetNodeInstance( a, b );
+
+			if( temp )
+			{
+				MapNode* node = temp->GetMapNode();
+
+				for( UINT i = 0; i < node->mStaticAssetCount; i++ )
+				{
+					OctTree* tree	= Graphics::GetInstance()->GetOctTreeFromStatic3DAsset( node->mStaticAssets[i].GetAssetID() );
+
+					XMMATRIX objMat	= XMLoadFloat4x4( &node->mStaticAssets[i].mWorld );
+
+					XMVECTOR translate, scale, rotation;
+					XMMatrixDecompose( &scale, &rotation, &translate, objMat );
+
+					translate	= XMLoadFloat3( &XMFLOAT3( XMVectorGetX( translate ), XMVectorGetY( translate ), -XMVectorGetZ( translate ) ) );
+					rotation	= XMLoadFloat4( &XMFLOAT4( -XMVectorGetX( rotation ), -XMVectorGetY( rotation ), XMVectorGetZ( rotation ), XMVectorGetW( rotation ) ) );
+
+					objMat		= XMMatrixAffineTransformation( scale, XMVectorZero(), rotation, translate );
+					objMat		= objMat * XMMatrixTranslationFromVector( XMLoadFloat3( &MapNodePlacer::GetInstance()->GetNodeInstance( a, b )->GetPos() ) );
+					XMMATRIX objInv = XMMatrixInverse( nullptr, objMat );
+
+					/////////////// Player to objspace
+					XMFLOAT3 playerPosInObjSpace;
+					XMStoreFloat3( &playerPosInObjSpace, XMVector3TransformCoord( XMLoadFloat3( &position ), objInv ) );
+
+					float xScale = 1.0f / XMVectorGetX( scale );
+					float yScale = 1.0f / XMVectorGetY( scale );
+					float zScale = 1.0f / XMVectorGetZ( scale );
+
+					XMFLOAT3 playerMin = XMFLOAT3(	playerPosInObjSpace.x - 0.4f * xScale,
+													playerPosInObjSpace.y,
+													playerPosInObjSpace.z - 0.4f * zScale );
+
+					XMFLOAT3 playerMax = XMFLOAT3(	playerPosInObjSpace.x + 0.4f * xScale,
+													playerPosInObjSpace.y + 2.0f * yScale, 
+													playerPosInObjSpace.z + 0.4f * zScale );
+
+
+					//////// collision check
+					XMFLOAT3 collisionNormal;
+					bool collision = tree->AABBvsAABB( playerMin, playerMax, 5, collisionNormal );
+
+					XMStoreFloat3( &collisionNormal, XMVector3TransformNormal( XMLoadFloat3( &collisionNormal ), objMat ) );
+					collisionNormal.y	= 0.0f;
+					XMVECTOR loaded		= XMLoadFloat3( &collisionNormal );
+					XMStoreFloat3( &collisionNormal, XMVector3Normalize( loaded ) );
+
+					///////////////////////////////////////////
+					// Draw objstuff
+					XMFLOAT4X4 store;
+					XMStoreFloat4x4( &store, XMMatrixTranspose( objMat ) );
+
+					if( collision )
+					{
+						localReturn = true;
+						normal		= collisionNormal;
+
+						RenderManager::GetInstance()->AddBoxToList( playerMin, playerMax, store );
+						XMFLOAT3 playerStart;
+						XMFLOAT3 playerEnd;
+						XMStoreFloat3( &playerStart, XMLoadFloat3( &position ) + XMLoadFloat3( &XMFLOAT3( 0.0f, 3.0f, 0.0f ) ) );
+						XMStoreFloat3( &playerEnd, XMLoadFloat3( &playerStart ) + XMLoadFloat3( &collisionNormal ) * 2.0f );
+						RenderManager::GetInstance()->AddLineToList( playerStart, playerEnd );
+
+						for( int i = 0; i < 8; i++ )
+						{
+							if( tree->childrenCollides[i] )
+							{
+								for( int j = 0; j < 8; j++ )
+								{
+									if( tree->children[i]->childrenCollides[j] )
+									{
+										for( int k = 0; k < 8; k++ )
+										{
+											if( tree->children[i]->children[j]->childrenCollides[k] )
+											{
+												for( int l = 0; l < 8; l++ )
+												{
+													if( tree->children[i]->children[j]->children[k]->childrenCollides[l] )
+													{
+														RenderManager::GetInstance()->AddBoxToList( tree->children[i]->children[j]->children[k]->children[l]->boundingBox.min,
+																									tree->children[i]->children[j]->children[k]->children[l]->boundingBox.max, store );
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return localReturn;
+}
+
 NavTriangle* Map::IsOnNavMesh( XMFLOAT3 pos )
 {
 	XMFLOAT2 tempPos = XMFLOAT2(pos.x, pos.z);

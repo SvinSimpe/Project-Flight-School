@@ -411,8 +411,21 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 			newDir.y = newDir.y * s;
 		}
 	}
-	mLowerBody.position.x += newDir.x;
-	mLowerBody.position.z += newDir.y;
+	XMFLOAT3 testPosition	= mLowerBody.position;
+	XMFLOAT3 normal			= XMFLOAT3( 0.0f, 1.0f, 0.0f );
+	testPosition.x += newDir.x;
+	testPosition.z += newDir.y;
+
+	if( !worldMap->PlayerVsMap(	testPosition, normal ) )
+	{
+		mLowerBody.position.x += newDir.x;
+		mLowerBody.position.z += newDir.y;
+	}
+	else
+	{
+		mLowerBody.position.x += normal.x * 0.5f;
+		mLowerBody.position.z += normal.z * 0.5f;
+	}
 
 	Update( deltaTime, remotePlayers, energyCells );
 	return S_OK;

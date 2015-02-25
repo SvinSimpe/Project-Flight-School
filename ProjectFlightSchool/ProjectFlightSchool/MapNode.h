@@ -41,14 +41,14 @@ class MapNode
 		XMFLOAT3		mOrigin;
 		XMFLOAT3		mPos;
 		UINT			mNodeDim;
-		GameObject*		mStaticAssets;
-		UINT			mStaticAssetCount;
 		AssetID			mBlendMap;
 
 		MapNodeInstance mInstances[INSTANCE_COUNT];
 
 	protected:
 	public:
+		GameObject*		mStaticAssets;
+		UINT			mStaticAssetCount;
 
 	private:
 	protected:

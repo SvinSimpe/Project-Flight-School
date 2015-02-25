@@ -5,6 +5,7 @@
 #include <vector>
 #include "BoundingGeometry.h"
 #include "Navmesh.h"
+#include "Pathfinder.h"
 
 
 //forward declaration
@@ -16,6 +17,10 @@ public:
 
 	private:
 		int mInstanceID;
+		int mNodeID;
+		int mSizeX;
+		int mSizeY;
+
 		MapNode* mNode;
 
 		DirectX::XMFLOAT3 mPos;
@@ -23,6 +28,7 @@ public:
 		DirectX::XMFLOAT4X4 mWorld;
 
 		Navmesh* mNavMesh;
+		std::vector<DirectX::XMFLOAT3> mEdgePoints;
 
 		UINT		 mNavTriangleCount;
 
@@ -37,9 +43,17 @@ public:
 		HRESULT				Update( float deltaTime );
 		HRESULT				Render( float deltaTime );
 
-		
+		Navmesh*			GetNavMesh() const;
+
+		DirectX::XMFLOAT3	GetClosestEdgePoint( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 goal );
 		DirectX::XMFLOAT3	GetPos() const;
 		void				SetPos( DirectX::XMFLOAT3 pos );
+
+		int					GetNodeSizeX();
+		int					GetNodeSizeY();
+
+		void				SetNodeID( int ID );
+		int					GetNodeID() const;
 
 		void				SetInstanceID( int ID );
 		int					GetInstanceID() const;

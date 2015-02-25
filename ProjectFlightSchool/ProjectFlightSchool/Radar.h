@@ -13,7 +13,7 @@
 
 #define MAX_RADAR_OBJECTS 100
 #define BASE_SCALE_VALUE 0.15f
-#define BASE_RESOLUTION_VALUE 1920.0f
+#define BASE_RESOLUTION_VALUE 1920.0f	//Using the width of the screen as the base for the calculations of the radar
 #define BASE_VALUE_FOR_RESOLUTION_SCALING ( BASE_RESOLUTION_VALUE * BASE_SCALE_VALUE )
 
 enum RADAR_TYPE

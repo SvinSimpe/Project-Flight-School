@@ -16,6 +16,7 @@ enum WeaponType
 	SAW,
 	SHOTGUN,
 	SNIPER,
+	TURRET,
 	WEAPON_COUNT,
 };
 

@@ -179,7 +179,7 @@ void ParticleManager::Initialize()
 	
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[FireSmoke]; i++ )
 	{
-		mParticleSystems[FireSmoke][i]->Initialize( FireSmoke, 10.0f, 256 );	//-------------------------------------------------emitter rate and particle count
+		mParticleSystems[FireSmoke][i]->Initialize( FireSmoke, 15.0f, 512 );	//-------------------------------------------------emitter rate and particle count
 		mNrOfParticleSystemsPerType[FireSmoke]++;
 		mNrOfParticleSystems++;
 	}

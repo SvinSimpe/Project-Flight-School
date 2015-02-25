@@ -35,7 +35,7 @@ void GS_main( point VS_In input[1], inout TriangleStream<GS_Out> outputStream )
 	float3 rightVec = float3( cos( input[0].randomRotation ), sin( input[0].randomRotation ), 0.0f );
 	float3 upVec = normalize( cross( vecToCam, rightVec ) );
 
-	float size = input[0].age * 3.0f;//3.0f;	//--------------------------------------------size of particles
+	float size = 0.3f + input[0].age * 3.0f;//3.0f;	//--------------------------------------------size of particles
 
 	//Get vertices for the quad
 	float3 vert[4];

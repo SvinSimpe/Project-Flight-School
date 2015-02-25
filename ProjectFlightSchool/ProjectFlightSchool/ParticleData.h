@@ -272,7 +272,7 @@ struct ParticleData
 			else if( particleType == FireSmoke )
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 5 );	//---------------------random speed of particles
- 				randomDirectionVector.y = yDirection * GetRandomSpeed( 15, 30 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 5, 30 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 5 );		
 			}
 			else if( particleType == Explosion )

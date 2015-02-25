@@ -15,7 +15,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 			mPlayer->SetTeam( data->TeamID() );
 
 			//TestSound
-			SoundBufferHandler::GetInstance()->Play( mSoundAsset );
+			//SoundBufferHandler::GetInstance()->Play( mSoundAsset );
 
 			IEventPtr E1( new Event_Client_Initialize_LobbyPlayer( mPlayer->GetID(), mPlayer->GetTeam(), mPlayer->GetName() ) );
 			Client::GetInstance()->SendEvent( E1 );

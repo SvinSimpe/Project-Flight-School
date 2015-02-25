@@ -48,10 +48,6 @@ void Client::StartUp( IEventPtr eventPtr )
 
 void Client::SendEvent( IEventPtr eventPtr )
 {
-	if( eventPtr->GetEventType() == 20 )
-	{
-		HelperFunctions::PrintCounter( "Inside Client::SendEvent() after:" );
-	}
 	mNEF->ForwardEvent( eventPtr );
 }
 
@@ -186,6 +182,9 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Server_Lobby_Finished );
 	EF::REGISTER_EVENT( Event_Client_Switch_Team );
 	EF::REGISTER_EVENT( Event_Server_Switch_Team );
+
+	EF::REGISTER_EVENT( Event_Trigger_Client_Fired_Projectile );
+	EF::REGISTER_EVENT( Event_Trigger_Client_Update );
 
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	EventManager::GetInstance()->AddListener( &Client::Shutdown, this, Event_Shutdown_Client::GUID );

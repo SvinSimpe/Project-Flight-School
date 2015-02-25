@@ -408,14 +408,6 @@ void RemoteEventSocket::BuildEvent( std::istringstream &in )
 	if( E1 )
 	{
 		E1->Deserialize( in );
-		if( E1->GetEventType() == 20 )
-		{
-			HelperFunctions::PrintCounter( "Inside Server::RemoteEventSocket::BuildEvent() after:" );
-		}
-		else if( E1->GetEventType() == 21 )
-		{
-			HelperFunctions::PrintCounter( "Inside Client::RemoteEventSocket::BuildEvent() after:" );
-		}
 		if( !EventManager::GetInstance()->TriggerEvent( E1 ) )
 		{
 			std::ostringstream out;
@@ -807,27 +799,11 @@ void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 {
 	std::ostringstream out;
 	out << eventPtr->GetEventType() << " ";
-	if( eventPtr->GetEventType() == 20 )
-	{
-		HelperFunctions::PrintCounter( "Serializing event in Client::NetworkEventForwarder::ForwardEvent() after:" );
-	}
-	else if( eventPtr->GetEventType() == 21 )
-	{
-		HelperFunctions::PrintCounter( "Serializing event in Server::NetworkEventForwarder::ForwardEvent() after:" );
-	}
+
 	eventPtr->Serialize( out );
 	out << "\r\n";
 
 	std::shared_ptr<BinaryPacket> msg( new BinaryPacket( out.str().c_str(), (u_long)out.str().length() ) );
-
-	if( eventPtr->GetEventType() == 20 )
-	{
-		HelperFunctions::PrintCounter( "Inside Client::NetworkEventForwarder::ForwardEvent() after:" );
-	}
-	else if( eventPtr->GetEventType() == 21 )
-	{
-		HelperFunctions::PrintCounter( "Inside Server::NetworkEventForwarder::ForwardEvent() after:" );
-	}
 
 	if( this )
 		mSocketManager->Send( mSocketID, msg );

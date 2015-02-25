@@ -1,5 +1,4 @@
 #include "Connection.h"
-#include "HelperFunctions.h"
 
 #define EXIT_ASSERT PFS_ASSERT(0);
 
@@ -408,10 +407,10 @@ void RemoteEventSocket::BuildEvent( std::istringstream &in )
 	if( E1 )
 	{
 		E1->Deserialize( in );
-		if( !EventManager::GetInstance()->TriggerEvent( E1 ) )
+		if( !EventManager::GetInstance()->QueueEvent( E1 ) )
 		{
 			std::ostringstream out;
-			out << "Failed to trigger event with ID: " << E1->GetEventType() << "\n";
+			out << "Failed to queue event with ID: " << E1->GetEventType() << "\n";
 			OutputDebugStringA( out.str().c_str() );
 		}
 	}

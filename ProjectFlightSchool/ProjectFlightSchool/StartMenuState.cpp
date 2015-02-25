@@ -8,7 +8,7 @@ void StartMenuState::HandleInput()
 {
 	if( mButtons.at(CREATE)->LeftMousePressed() )
 	{
-		IEventPtr E1( new Event_Change_State( CREATE_MENU_STATE ) );
+		IEventPtr E1( new Event_Change_State( MULTI_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 	else if( mButtons.at(JOIN)->LeftMousePressed() )

@@ -183,9 +183,6 @@
     <ClCompile Include="BaseMenuState.cpp">
       <Filter>GameStates\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CreateMenuState.cpp">
-      <Filter>GameStates\Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="JoinMenuState.cpp">
       <Filter>GameStates\Source Files</Filter>
     </ClCompile>
@@ -193,9 +190,6 @@
       <Filter>GameStates\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="OptionsMenuState.cpp">
-      <Filter>GameStates\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SingleplayerMenuState.cpp">
       <Filter>GameStates\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Image.cpp">
@@ -430,9 +424,6 @@
     <ClInclude Include="BaseMenuState.h">
       <Filter>GameStates\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CreateMenuState.h">
-      <Filter>GameStates\Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="JoinMenuState.h">
       <Filter>GameStates\Header Files</Filter>
     </ClInclude>
@@ -440,9 +431,6 @@
       <Filter>GameStates\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="OptionsMenuState.h">
-      <Filter>GameStates\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SingleplayerMenuState.h">
       <Filter>GameStates\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Image.h">

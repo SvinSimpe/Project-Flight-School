@@ -5,6 +5,12 @@ void MultiplayerMenuState::HandleInput()
 	if( mPortBox.LeftMousePressed() )
 	{
 		mPortBox.SwitchActive( true );
+		mNameBox.SwitchActive( false );
+	}
+	else if( mNameBox.LeftMousePressed() )
+	{
+		mPortBox.SwitchActive( false );
+		mNameBox.SwitchActive( true );
 	}
 	else if( mButtons.at(TWO_VS_TWO)->LeftMousePressed() )
 	{	
@@ -16,6 +22,9 @@ void MultiplayerMenuState::HandleInput()
 
 		IEventPtr E2( new Event_Start_Client( "localhost", port ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
+
+		IEventPtr E3( new Event_Create_Player_Name( mNameBox.GetText() ) );
+		EventManager::GetInstance()->TriggerEvent( E3 );
 	}
 	else if( mButtons.at(THREE_VS_THREE)->LeftMousePressed() )
 	{
@@ -26,6 +35,9 @@ void MultiplayerMenuState::HandleInput()
 		
 		IEventPtr E2( new Event_Start_Client( "localhost", port ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
+
+		IEventPtr E3( new Event_Create_Player_Name( mNameBox.GetText() ) );
+		EventManager::GetInstance()->TriggerEvent( E3 );
 	}
 	else if( mButtons.at(FOUR_VS_FOUR)->LeftMousePressed() )
 	{
@@ -36,10 +48,13 @@ void MultiplayerMenuState::HandleInput()
 				
 		IEventPtr E2( new Event_Start_Client( "localhost", port ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
+
+		IEventPtr E3( new Event_Create_Player_Name( mNameBox.GetText() ) );
+		EventManager::GetInstance()->TriggerEvent( E3 );
 	}
 	else if( mButtons.at(BACK)->LeftMousePressed() )
 	{
-		IEventPtr E1( new Event_Change_State( CREATE_MENU_STATE ) );
+		IEventPtr E1( new Event_Change_State( START_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 }
@@ -52,6 +67,7 @@ HRESULT MultiplayerMenuState::Update( float deltaTime )
 		mButtons.at(i)->Update( deltaTime );
 	}
 	mPortBox.Update( deltaTime );
+	mNameBox.Update( deltaTime );
 	return S_OK;
 }
 
@@ -64,6 +80,7 @@ HRESULT MultiplayerMenuState::Render()
 		mButtons.at(i)->Render();
 	}
 	mPortBox.Render();
+	mNameBox.Render();
 	RenderManager::GetInstance()->AddObject2dToList( mCursor, XMFLOAT2( (float)Input::GetInstance()->mCurrentMousePos.x, (float)Input::GetInstance()->mCurrentMousePos.y ), DirectX::XMFLOAT2( 20.0f, 20.0f ) );
 	RenderManager::GetInstance()->Render();
 	return S_OK;
@@ -104,6 +121,7 @@ HRESULT MultiplayerMenuState::Initialize()
 	float h = 177.0f/2;
 
 	mPortBox.Initialize( "27015", "Port", x - w * 0.5f, y - h * 0.5f, w, h );
+	mNameBox.Initialize( "PlayerName", "Name", Input::GetInstance()->mScreenWidth * 0.3f - (640.0f * 0.5f) * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + (177.0f * 0.5f) *0.5f, 640.0f * 0.5f, 177.0f * 0.5f );
 
 	x	= (float)Input::GetInstance()->mScreenWidth  * 0.35f;
 	y	= (float)Input::GetInstance()->mScreenHeight * 0.9f;
@@ -131,6 +149,7 @@ void MultiplayerMenuState::Release()
 {
 	BaseMenuState::Release();
 	mPortBox.Release();
+	mNameBox.Release();
 }
 
 MultiplayerMenuState::MultiplayerMenuState() : BaseMenuState()

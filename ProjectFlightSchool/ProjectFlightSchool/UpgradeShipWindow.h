@@ -10,9 +10,9 @@
 
 struct ButtonStruct
 {
-	Button*		buttons;
-	int			nrOfButtons;
-	int			nrOfFilled;
+	Button*		buttons		= nullptr;
+	int			nrOfButtons	= 0;
+	int			nrOfFilled	= 0;
 
 	int Pressed()
 	{
@@ -54,18 +54,19 @@ struct ButtonStruct
 class UpgradeShipWindow
 {
 private:
-	int				mTeam;
-	bool			mIsActive;
-	AssetID			mUpgradeWindow;
-	XMFLOAT2		mTopLeftCorner;
-	XMFLOAT2		mSize;
-	ButtonStruct	mTurretButtons;
-	ButtonStruct	mForceFieldButtons;
-	ButtonStruct	mBuffButtons;
-	ButtonStruct	mEngineButtons;
+	int						mTeam;
+	bool					mIsActive;
+	AssetID					mUpgradeWindow;
+	XMFLOAT2				mTopLeftCorner;
+	XMFLOAT2				mSize;
+	ButtonStruct			mTurretButtons;
+	ButtonStruct			mForceFieldButtons;
+	ButtonStruct			mBuffButtons;
+	ButtonStruct			mEngineButtons;
 
 protected:
 public:
+	std::list<IEventPtr>	gEventList;
 
 private:
 	void	HandleInput();

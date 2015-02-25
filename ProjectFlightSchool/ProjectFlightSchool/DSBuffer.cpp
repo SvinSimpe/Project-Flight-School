@@ -210,7 +210,7 @@ bool DSBuffer::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName )
 	waveData = 0;
 
 	// Set volume of the buffer to 100%.
-	hr = mBuffer->SetVolume( DSBVOLUME_MAX );
+	hr = mBuffer->SetVolume( -2000  ); // mellan 0 och -10 000
 	if ( FAILED( hr ) )
 	{
 		printf( "SetVolume in main has failed\n" );
@@ -265,6 +265,16 @@ char* DSBuffer::GetFileName()
 int DSBuffer::GetID()
 {
 	return mID;
+}
+
+void DSBuffer::SoundOn()
+{
+	mBuffer->SetVolume( DSBVOLUME_MAX );
+}
+
+void DSBuffer::SoundOff()
+{
+	mBuffer->SetVolume( DSBVOLUME_MIN );
 }
 
 bool DSBuffer::Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID )

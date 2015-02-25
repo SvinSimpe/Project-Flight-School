@@ -11,7 +11,6 @@ class MapNodePlacer
 {
 	private:
 		Map* mMap;
-		MapNodeInstance*** mBuildMap;
 		//std::vector<MapNodeInstance*> mNodes;
 		int mNrOfNodes;
 
@@ -19,14 +18,13 @@ class MapNodePlacer
 	public:
 		static MapNodePlacer* instance;
 	private:
-		NODE_RETURN_CODE CanPlace( int x, int y, MapNodeInstance* newNode );
+		NODE_RETURN_CODE CanPlace( int x, int y, MapNodeInstance* newNode, MapNodeInstance*** buildMap );
 	protected:
 	public:
 
 		static MapNodePlacer*			GetInstance();
 	//	std::vector<MapNodeInstance*>	GetAllNodes() const;
-		MapNodeInstance*				GetNodeInstance( int x, int z );
-		void							BuildMap( MapNodeInstance** map );
+		void							BuildMap( MapNodeInstance***& buildMap );
 		UINT							GetNrOfNodes() const;
 		void							Reset();
 		HRESULT							Initialize( Map* map );

@@ -94,7 +94,7 @@ bool EventManager::Update( unsigned long maxMillis )
 	}
 	
 	// If we couldn't process all of the events, push the remaining events to the new active queue.
-	// Note: To preserve sequencing, go back-to-front, inserting them at the head of the active queue
+	// Note: To preserve sequencing, go back-to-front, inserting them at the of the active queue
 	bool queueFlushed = ( m_queues[queueToProcess].empty() );
 	if ( !queueFlushed )
 	{

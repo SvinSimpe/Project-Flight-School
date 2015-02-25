@@ -220,12 +220,15 @@ void Enemy::Hunt( float deltaTime )
 
 void Enemy::TakeDamage( float damage, UINT killer )
 {
-	mCurrentHp -= damage;
-	if( mCurrentHp <= 0.0f )
+	if( mIsAlive )
 	{
-		Die( killer );
+		mCurrentHp -= damage;
+		if( mCurrentHp <= 0.0f )
+		{
+			Die( killer );
+		}
+		mTakingDamage	= true;
 	}
-	mTakingDamage	= true;
 }
 
 void Enemy::TakeMeleeDamage( float damage, float knockBack, XMFLOAT3 direction, float stun, UINT killer )
@@ -267,8 +270,7 @@ void Enemy::Spawn( XMFLOAT3 spawnPos )
 		break;
 	case 1:
 		//CreateRanged();
-		CreateTank();
-		//CreateStandard();
+		CreateStandard();
 		break;
 	case 2:
 		//CreateBoomer();
@@ -312,7 +314,7 @@ void Enemy::Die( UINT killer )
 	// Send dieEv
 	IEventPtr state( new Event_Set_Enemy_State( mID, Death ) );
 	EventManager::GetInstance()->QueueEvent( state );
-	IEventPtr E1( new Event_Server_XP( killer, mXpDrop ) );
+	IEventPtr E1( new Event_XP( killer, mXpDrop ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
@@ -350,6 +352,11 @@ XMFLOAT3 Enemy::GetPosition() const
 XMFLOAT3 Enemy::GetDirection() const
 {
 	return mDirection;
+}
+
+float Enemy::GetHP() const
+{
+	return mCurrentHp;
 }
 
 float Enemy::GetSpeed() const

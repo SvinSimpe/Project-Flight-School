@@ -55,7 +55,7 @@ void NetSocket::Send( std::shared_ptr<IPacket> pkt, bool clearTimeOut )
 	mOutList.push_back( pkt );
 }
 
-int NetSocket::HasOutput()
+bool NetSocket::HasOutput()
 {
 	return !mOutList.empty();
 }
@@ -65,7 +65,7 @@ void NetSocket::HandleOutput()
 	int fSent = 0;
 	do
 	{
-		PFS_ASSERT( !mOutList.empty() );
+		PFS_ASSERT( HasOutput() );
 		PacketList::iterator i			= mOutList.begin();
 		std::shared_ptr<IPacket> pkt	= *i;
 		const char* buf					= pkt->GetData();
@@ -94,7 +94,7 @@ void NetSocket::HandleOutput()
 			mSendOfs = 0;
 		}
 		
-	} while( fSent && !mOutList.empty() );
+	} while( fSent && HasOutput() );
 }
 
 bool NetSocket::HandleInput()
@@ -102,6 +102,7 @@ bool NetSocket::HandleInput()
 	bool pktReceived = false;
 	u_long packetSize = 0;
 	SetBlocking( false );
+
 	int rc = recv( mSocket, mRecvBuf + mRecvBegin + mRecvOfs, RECV_BUFFER_SIZE - ( mRecvBegin + mRecvOfs ), 0 );
 	//printf( "Incoming %6d bytes. Begin %6d offset %4d\n", rc, mRecvBegin, mRecvOfs );
 
@@ -109,6 +110,7 @@ bool NetSocket::HandleInput()
 	{
 		return false;
 	}
+
 	if( rc == SOCKET_ERROR )
 	{
 		printf( "recv() failed with error: %d\n", WSAGetLastError() );
@@ -438,7 +440,7 @@ void RemoteEventSocket::CreateEvent( std::istringstream &in )
 
 bool RemoteEventSocket::HandleInput()
 {
-	while( NetSocket::HandleInput() );
+	NetSocket::HandleInput();
 
 	while( !mInList.empty() )
 	{
@@ -452,20 +454,11 @@ bool RemoteEventSocket::HandleInput()
 
 			std::istringstream in( buf + sizeof( u_long ), (size - sizeof( u_long ) ) );
 
-			int type;
-			in >> type;
-			switch( type ) // This is where we will put the input logic to the client
-			{
-			case NetMsg_Event:
-				{
-					CreateEvent( in );
-				}
-				break;
-			default:
-				{
-					std::cout << "Unknown message type." << std::endl;
-				}
-			}
+			CreateEvent( in );
+
+			in.str( std::string() );
+			in.clear();
+
 		}
 		else if( packet->GetType() == BinaryPacket::GUID )
 		{
@@ -826,7 +819,6 @@ void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 {
 	std::ostringstream out;
 
-	out << static_cast<int>( RemoteEventSocket::NetMsg_Event ) << " ";
 	out << eventPtr->GetEventType() << " ";
 	eventPtr->Serialize( out );
 	out << "\r\n";
@@ -835,6 +827,9 @@ void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 
 	if( this )
 		mSocketManager->Send( mSocketID, msg );
+
+	out.str( std::string() );
+	out.clear();
 }
 
 void NetworkEventForwarder::Initialize( UINT socketID, SocketManager* sm )

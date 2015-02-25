@@ -20,6 +20,16 @@ void Gui::DeActivateUpgradePlayerWindow()
 	mPlayerWindow.DeActivate();
 }
 
+void Gui::ActivateInGameWindow()
+{
+	mInGameWindow.Activate();
+}
+
+void Gui::DeActivateInGameWindow()
+{
+	mInGameWindow.DeActivate();
+}
+
 HRESULT Gui::Update( GuiUpdate guiUpdate )
 {
 	HRESULT result = S_OK;
@@ -78,6 +88,17 @@ HRESULT Gui::Update( GuiUpdate guiUpdate )
 		mPlayerWindow.Update( guiUpdate.deltaTime );
 	}
 
+	if ( mInGameWindow.IsActive() )
+	{
+		mInGameWindow.Update( guiUpdate.deltaTime );
+	}
+
+	while( !mShipWindow.gEventList.empty() )
+	{
+		gEventList.push_front( mShipWindow.gEventList.back() );
+		mShipWindow.gEventList.pop_back();
+	}
+
 	return result;
 
 }
@@ -119,7 +140,7 @@ HRESULT Gui::Render()
 	////////////////
 	//Level up
 	////////////////
-	if( mExperience >= 1 )
+	if( mExperience >= 1 && !mPlayerWindow.IsActive() )
 	{
 
 		RenderManager::GetInstance()->AddObject2dToList( mLevelUp, mTopLeftCompWithPlayerHealthXP, mSizeLevelUp );
@@ -137,6 +158,11 @@ HRESULT Gui::Render()
 	if ( mPlayerWindow.IsActive() )
 	{
 		mPlayerWindow.Render();
+	}
+
+	if ( mInGameWindow.IsActive() )
+	{
+		mInGameWindow.Render();
 	}
 
 	return result;
@@ -191,6 +217,7 @@ HRESULT Gui::Initialize()
 
 	mShipWindow.Initialize();
 	mPlayerWindow.Initialize();
+	mInGameWindow.Initialize();
 
 	return result;
 }
@@ -234,4 +261,9 @@ bool Gui::UpgradeShipWindowIsActive()
 bool Gui::UpgradePlayerWindowIsActive()
 {
 	return mPlayerWindow.IsActive();
+}
+
+bool Gui::InGameWindowIsActive()
+{
+	return mInGameWindow.IsActive();
 }

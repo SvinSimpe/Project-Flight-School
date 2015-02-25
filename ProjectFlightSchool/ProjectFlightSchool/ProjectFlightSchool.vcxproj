@@ -99,12 +99,16 @@
     <ClCompile Include="EnemyBehavior.cpp" />
     <ClCompile Include="Gui.cpp" />
     <ClCompile Include="HelperFunctions.cpp" />
+    <ClCompile Include="InGameWindow.cpp" />
     <ClCompile Include="LobbyState.cpp" />
     <ClCompile Include="Navmesh.cpp" />
     <ClCompile Include="HealthBars.cpp" />
     <ClCompile Include="MovingButton.cpp" />
     <ClCompile Include="Network.cpp" />
+    <ClCompile Include="NodeGraph.cpp" />
     <ClCompile Include="PacketImpl.cpp" />
+    <ClCompile Include="Pathfinder.cpp" />
+    <ClCompile Include="Paths.cpp" />
     <ClCompile Include="ServerShip.cpp" />
     <ClCompile Include="ServerTurret.cpp" />
     <ClCompile Include="SoundBufferHandler.cpp" />
@@ -141,7 +145,6 @@
     <ClCompile Include="RemoteEnemy.cpp" />
     <ClCompile Include="RemotePlayer.cpp" />
     <ClCompile Include="RenderManager.cpp" />
-    <ClCompile Include="Ship.cpp" />
     <ClCompile Include="SingleplayerMenuState.cpp" />
     <ClCompile Include="StartMenuState.cpp" />
     <ClCompile Include="StateMachine.cpp" />
@@ -153,7 +156,6 @@
     <ClCompile Include="tinyxml.cpp" />
     <ClCompile Include="tinyxmlerror.cpp" />
     <ClCompile Include="tinyxmlparser.cpp" />
-    <ClCompile Include="Turret.cpp" />
     <ClCompile Include="UpgradePlayerWindow.cpp" />
     <ClCompile Include="UpgradeShipWindow.cpp" />
   </ItemGroup>
@@ -168,13 +170,17 @@
     <ClInclude Include="DSBufferStream.h" />
     <ClInclude Include="Gui.h" />
     <ClInclude Include="HelperFunctions.h" />
+    <ClInclude Include="InGameWindow.h" />
     <ClInclude Include="LobbyState.h" />
     <ClInclude Include="Navmesh.h" />
     <ClInclude Include="HealthBars.h" />
     <ClInclude Include="IPacket.h" />
     <ClInclude Include="MovingButton.h" />
     <ClInclude Include="Network.h" />
+    <ClInclude Include="NodeGraph.h" />
     <ClInclude Include="PacketImpl.h" />
+    <ClInclude Include="Pathfinder.h" />
+    <ClInclude Include="Paths.h" />
     <ClInclude Include="ServerShip.h" />
     <ClInclude Include="ServerTurret.h" />
     <ClInclude Include="SoundBufferHandler.h" />
@@ -214,7 +220,6 @@
     <ClInclude Include="RemotePlayer.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="RenderStructs.h" />
-    <ClInclude Include="Ship.h" />
     <ClInclude Include="SingleplayerMenuState.h" />
     <ClInclude Include="StartMenuState.h" />
     <ClInclude Include="StateMachine.h" />
@@ -232,7 +237,6 @@
     <ClInclude Include="Timer.h" />
     <ClInclude Include="tinystr.h" />
     <ClInclude Include="tinyxml.h" />
-    <ClInclude Include="Turret.h" />
     <ClInclude Include="UpgradePlayerWindow.h" />
     <ClInclude Include="UpgradeShipWindow.h" />
     <ClInclude Include="WeaponInfo.h" />

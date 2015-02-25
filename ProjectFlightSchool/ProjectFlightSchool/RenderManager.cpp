@@ -161,6 +161,7 @@ void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, i
 
 				info.mAge				= particleSystem[i][j]->lifeTime[k];
 				info.mTimeTillDeath		= particleSystem[i][j]->deathTime[k] - particleSystem[i][j]->lifeTime[k];
+				info.mRandomRotation	= particleSystem[i][j]->randRot[k];
 
 				mParticleInfoArray[mNrOfParticles++] = info;
 			}
@@ -281,10 +282,7 @@ HRESULT RenderManager::Render()
 		Graphics::GetInstance()->RenderPlane2dAsset( mPlaneArray[i].mAssetId, mPlaneArray[i].mTopTriangle, mPlaneArray[i].mBottomTriangle );
 	}
 
-	for( UINT i = 0; i < mNrOfBoxes; i++ )
-	{
-		Graphics::GetInstance()->RenderDebugBox( mBoxArray[i].min, mBoxArray[i].max );
-	}
+	Graphics::GetInstance()->RenderDebugBox( mBoxArray, mNrOfBoxes );
 
 	Graphics::GetInstance()->RenderLine( mLineArray, mNrOfLines );
 

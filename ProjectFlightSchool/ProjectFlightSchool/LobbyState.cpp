@@ -144,7 +144,7 @@ HRESULT LobbyState::Render()
 
 void LobbyState::OnEnter()
 {
-
+	Reset();
 }
 
 void LobbyState::OnExit()
@@ -185,6 +185,7 @@ HRESULT LobbyState::Initialize()
 
 void LobbyState::Release()
 {
+	mFont.Release();
 	mStartButton.Release();
 	for( size_t i = 0; i < mPlayers.size(); i++ )
 	{

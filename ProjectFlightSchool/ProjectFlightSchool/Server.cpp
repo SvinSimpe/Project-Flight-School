@@ -206,7 +206,6 @@ void Server::ClientSpawned( IEventPtr eventPtr )
 	}
 }
 
-#include "HelperFunctions.h"
 void Server::ClientFiredProjectile( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Client_Fired_Projectile::GUID )

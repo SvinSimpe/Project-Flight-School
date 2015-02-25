@@ -5,6 +5,12 @@ void MultiplayerMenuState::HandleInput()
 	if( mPortBox.LeftMousePressed() )
 	{
 		mPortBox.SwitchActive( true );
+		mNameBox.SwitchActive( false );
+	}
+	else if( mNameBox.LeftMousePressed() )
+	{
+		mPortBox.SwitchActive( false );
+		mNameBox.SwitchActive( true );
 	}
 	else if( mButtons.at(TWO_VS_TWO)->LeftMousePressed() )
 	{	

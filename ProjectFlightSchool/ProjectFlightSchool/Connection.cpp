@@ -1,5 +1,4 @@
 #include "Connection.h"
-#include "HelperFunctions.h"
 
 #define EXIT_ASSERT PFS_ASSERT(0);
 

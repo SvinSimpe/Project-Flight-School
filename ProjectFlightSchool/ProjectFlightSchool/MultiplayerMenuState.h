@@ -15,6 +15,7 @@ class MultiplayerMenuState : public BaseMenuState
 			BUTTON_AMOUNT = 4;
 
 		InputSquare	mPortBox;
+		InputSquare	mNameBox;
 
 	protected:
 	public:

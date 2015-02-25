@@ -1,5 +1,6 @@
 #include "Server.h"
 #include "Enemy.h"
+#include "HelperFunctions.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Start of eventlistening functions
@@ -129,7 +130,7 @@ void Server::ClientUpdate( IEventPtr eventPtr )
 			mClientMap[data->ID()]->IsAlive = data->IsAlive();
 
 			IEventPtr E1( new Event_Remote_Update( data->ID(), mClientMap[data->ID()]->Pos.center, vel, dir, name, data->IsAlive() ) );
-			BroadcastEvent( E1, data->ID() );
+			SendCulledUpdate( E1, mClientMap[data->ID()]->Pos.center, data->ID() );
 		}
 	}
 }
@@ -206,7 +207,6 @@ void Server::ClientSpawned( IEventPtr eventPtr )
 	}
 }
 
-#include "HelperFunctions.h"
 void Server::ClientFiredProjectile( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Client_Fired_Projectile::GUID )
@@ -393,7 +393,6 @@ void Server::ClientInteractEnergyCell( IEventPtr eventPtr )
 			{
 				if( !mEnergyCells[j]->GetSecured() && s->Intersect( mEnergyCells[j]->GetPickUpRadius() ) )
 				{
-					OutputDebugString( L"Going to add Energy Cell in Server" );
 					mEnergyCells[j]->SetSecured( true );
 					s->AddEnergyCell( mEnergyCells[j]->GetOwnerID() );
 				}
@@ -645,7 +644,24 @@ void Server::UpdateShip( float deltaTime, ServerShip* s )
 
 	s->Update( deltaTime );
 	IEventPtr E1( new Event_Server_Update_Turret( s->mServerTurret->mID, s->mServerTurret->mTurretHead->rot ) );
-	BroadcastEvent( E1 );
+	SendCulledUpdate( E1, s->mServerTurret->mPos );
+}
+
+void Server::SendCulledUpdate( IEventPtr eventPtr, XMFLOAT3 enemyPos, UINT exception )
+{
+	for( auto& cm : mClientMap )
+	{
+		auto c = cm.second;
+		if( CullEnemyUpdate( c->Pos.center, enemyPos ) && c->ID != exception )
+		{
+			SendEvent( eventPtr, c->ID );
+		}
+	}
+}
+
+bool Server::CullEnemyUpdate( XMFLOAT3 playerPos, XMFLOAT3 enemyPos )
+{
+	return HelperFunctions::Dist3Squared( playerPos, enemyPos ) <= ENEMY_UPDATE_RANGE;
 }
 
 bool Server::Connect( UINT port )
@@ -666,7 +682,7 @@ bool Server::Connect( UINT port )
 
 void Server::Update( float deltaTime )
 {
-	if( this && mActive )
+	if( this && mActive && mStopAccept )
 	{
 		// Handles the client getting buffed by the ship
 		bool shipBuff = false;
@@ -710,7 +726,9 @@ void Server::Update( float deltaTime )
 																	mEnemies[i]->GetPosition(), 
 																	mEnemies[i]->GetDirection(), 
 																	mEnemies[i]->IsAlive() ) );
-				BroadcastEvent( enemy );
+				{
+					SendCulledUpdate( enemy, mEnemies[i]->GetPosition() );
+				}
 			}
 			else
 			{
@@ -789,7 +807,7 @@ bool Server::Initialize()
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 	{
 		mEnemies[i] = new Enemy();
-		mEnemies[i]->Initialize( i, mPlayers, mNrOfPlayers );
+		mEnemies[i]->Initialize( i, mPlayers, mNrOfPlayers, mEnemies );
 		mEnemies[i]->Spawn( GetNextSpawn() );
 	}
 

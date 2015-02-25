@@ -8,7 +8,7 @@ void StartMenuState::HandleInput()
 {
 	if( mButtons.at(CREATE)->LeftMousePressed() )
 	{
-		IEventPtr E1( new Event_Change_State( CREATE_MENU_STATE ) );
+		IEventPtr E1( new Event_Change_State( MULTI_MENU_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 	else if( mButtons.at(JOIN)->LeftMousePressed() )
@@ -51,6 +51,7 @@ HRESULT StartMenuState::Render()
 	{
 		mButtons.at(i)->Render();
 	}
+	RenderManager::GetInstance()->AddObject2dToList( mCursor, XMFLOAT2( (float)Input::GetInstance()->mCurrentMousePos.x, (float)Input::GetInstance()->mCurrentMousePos.y ), DirectX::XMFLOAT2( 20.0f, 20.0f ) );
 
 	RenderManager::GetInstance()->Render();
 	return S_OK;

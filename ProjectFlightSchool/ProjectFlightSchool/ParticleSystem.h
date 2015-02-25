@@ -206,8 +206,8 @@ struct ParticleSystem : public ParticleData
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{
-		if( particleType == NormalSmoke )	Generate( emitterPosition, emitterDirection, 6,  120.0f );
-		else if( particleType == Spark )	Generate( emitterPosition, emitterDirection, 8, 25.0f );	
+		if( particleType == NormalSmoke )			Generate( emitterPosition, emitterDirection, 6,  120.0f );
+		else if( particleType == Spark )			Generate( emitterPosition, emitterDirection, 8, 25.0f );	
 		else if( particleType == Fire )				Generate( emitterPosition, emitterDirection, 8, 35.0f );					//------------particle count and spreadangle
 		else if( particleType == FireSmoke )		Generate( emitterPosition, emitterDirection, 15, 25.0f );		//------------particle count and spreadangle
 		else if( particleType == Explosion )		Generate( emitterPosition, emitterDirection, 50,  360.0f );
@@ -358,10 +358,10 @@ struct ParticleSystem : public ParticleData
 
 			xVelocity[i] = xVelocity[i] * damping[i];
 			zVelocity[i] = zVelocity[i] * damping[i];
-			yVelocity[i] = zVelocity[i] * damping[i] * 4;
-			xPosition[i] += 0.5f * ( 1.0f - damping[i] );
-			zPosition[i] += 0.25f * ( 1.0f - damping[i] );
-			yPosition[i] += 0.8f * ( 1.0f - damping[i] );
+			yVelocity[i] = zVelocity[i] * damping[i];
+			xPosition[i] += 0.05f * ( 1.0f - damping[i] );
+			zPosition[i] += 0.025f * ( 1.0f - damping[i] );
+			yPosition[i] += 0.05f * ( 1.0f - damping[i] );
 		}
 	}
 

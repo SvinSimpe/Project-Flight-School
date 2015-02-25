@@ -24,7 +24,7 @@
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
-#define TOSERVER_OFFSET			5000
+#define ENTITY_CULLDISTANCE		900.0f
 
 class PlayState : public BaseState
 {
@@ -86,7 +86,7 @@ class PlayState : public BaseState
 		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive );
 		void			RenderProjectiles();
 		void			SetEnemyState( unsigned int id, EnemyState state );
-	
+		bool			CullEntity( XMFLOAT3 entityPos );
 
 	protected:
 	public:

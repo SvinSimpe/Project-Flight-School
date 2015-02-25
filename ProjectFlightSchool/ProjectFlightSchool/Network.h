@@ -2,6 +2,7 @@
 #define NETWORK_H
 
 #include "Connection.h"
+#include <thread>
 
 // Base class for both server and client
 class Network
@@ -14,7 +15,6 @@ class Network
 		virtual void	StartUp( IEventPtr eventPtr ) = 0;
 
 	protected:
-
 	public:
 		virtual void	Update( float deltaTime ) = 0;
 		virtual void	DoSelect( int pauseMicroSecs, bool handleInput = true ) = 0;

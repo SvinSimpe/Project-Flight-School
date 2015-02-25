@@ -91,7 +91,7 @@ void ServerShip::ChangeEngineLevel( int change )
 
 void ServerShip::CalcTurretLevel()
 {
-	// Stuff
+	mServerTurret->ChangeLevel( mTurretLevel );
 }
 
 void ServerShip::CalcShieldLevel()

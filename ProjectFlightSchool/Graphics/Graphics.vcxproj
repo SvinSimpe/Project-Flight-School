@@ -205,12 +205,34 @@
     <Text Include="..\Content\Effects\Particle Effects\FireEffect.hlsl">
       <FileType>Document</FileType>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
     <Text Include="..\Content\Effects\Particle Effects\ExplosionEffect.hlsl">
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\Content\Effects\Particle Effects\FireSmokeEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Content\Effects\Particle Effects\ExplosionSmoke.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Content\Effects\Particle Effects\SparkEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Content\Effects\Particle Effects\Level_UpEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Content\Effects\Particle Effects\Level_InnerEffect.hlsl">
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>

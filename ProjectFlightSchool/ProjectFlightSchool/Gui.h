@@ -7,6 +7,7 @@
 #include "HealthBars.h"
 #include "UpgradeShipWindow.h"
 #include "UpgradePlayerWindow.h"
+#include "InGameWindow.h"
 
 #define MAX_REMOTE_PLAYERS 14
 
@@ -57,6 +58,7 @@ class Gui
 		Radar*				mRadar;
 		UpgradeShipWindow	mShipWindow;
 		UpgradePlayerWindow	mPlayerWindow;
+		InGameWindow		mInGameWindow;
 
 		HealthBar*	mHealtBar;
 
@@ -80,6 +82,7 @@ class Gui
 		
 	protected:
 	public:
+		std::list<IEventPtr>	gEventList;
 
 	private:
 	protected:
@@ -88,6 +91,8 @@ class Gui
 		void	DeActivateUpgradeShipWindow();
 		void	ActivateUpgradePlayerWindow();
 		void	DeActivateUpgradePlayerWindow();
+		void	ActivateInGameWindow();
+		void	DeActivateInGameWindow();
 		HRESULT	Update( GuiUpdate guiUpdate );
 		HRESULT	Render();
 		HRESULT	Initialize();
@@ -97,6 +102,7 @@ class Gui
 
 		bool	UpgradeShipWindowIsActive();
 		bool	UpgradePlayerWindowIsActive();
+		bool	InGameWindowIsActive();
 };
 
 

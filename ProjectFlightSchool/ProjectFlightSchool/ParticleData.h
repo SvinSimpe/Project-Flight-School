@@ -10,7 +10,7 @@
 using namespace DirectX;
 
 #define MAX_PARTICLES 10000
-#define NR_OF_PARTICLE_TYPES 9
+#define NR_OF_PARTICLE_TYPES 12
 
 enum ParticleType
 {
@@ -21,8 +21,11 @@ enum ParticleType
 	MuzzleFlash,
 	Smoke_MiniGun,
 	Test_Fountain,
+	FireSmoke,
+	Level_Up,
+	Level_Inner,
 	Explosion,
-	FireSmoke
+	ExplosionSmoke
 };
 
 struct ParticleData
@@ -193,6 +196,7 @@ struct ParticleData
 		deathTime[id]	= 0.0f;
 		isAlive[id]		= false;
 		randRot[id]		= 0.0f;
+		damping[id]		= 1.0f;
 	}
 
 	void UpdatePosition( float deltaTime )
@@ -230,8 +234,14 @@ struct ParticleData
 			randomAimingDirection = XMVector3TransformCoord( aimingDirection, XMMatrixRotationY( XMConvertToRadians( randomSpreadAngle ) ) );
 
 		XMStoreFloat3( &randomDirectionVector, randomAimingDirection );
-		
-		if( particleType != Test_Fountain && particleType != Explosion )
+
+		if ( particleType == Spark )
+		{
+			//Elevation for Spark effect
+			SparkElevationY( 1.0f, 2.0f );
+		}
+
+		if( particleType != Test_Fountain && particleType != Spark  && particleType != Level_Up && particleType != Level_Inner && particleType != Explosion )
 		{
 			//Get random elevation
 			float randomElevation = ( (float)( rand() % 20 ) - 10 ) * 0.1f;
@@ -262,7 +272,6 @@ struct ParticleData
 	{
 		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
 		{
-
 			if( particleType == Fire )
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 50 );	//---------------------random speed of particles
@@ -277,18 +286,29 @@ struct ParticleData
 			}
 			else if( particleType == Explosion )
 			{
-				randomDirectionVector.x = xDirection * GetRandomSpeed( 60, 120 );
- 				randomDirectionVector.y = yDirection * GetRandomSpeed( 3, 30 );
-				randomDirectionVector.z = zDirection * GetRandomSpeed( 60, 120 );
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 60 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 100 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 60 );		
+			}
+			else if( particleType == ExplosionSmoke )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 70 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 120 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 70 );		
+			}			
+			else if( particleType == Spark )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 20, 80 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 5 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 20, 80 );
 			}
 			else if( particleType == Blood )
 			{
-				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 40 );
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 20, 80 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 10 );
-				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 40 );		
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 20, 80 );		
 			}
 			else if( particleType == MuzzleFlash )
-
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 10, 80 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 10, 80 );
@@ -305,6 +325,18 @@ struct ParticleData
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 2, 3 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 3, 10 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 2, 3 );		
+			}
+			else if( particleType == Level_Up )
+			{
+				//randomDirectionVector.x = xDirection * GetRandomSpeed( 2, 3 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 20, 40 );
+				//randomDirectionVector.z = zDirection * GetRandomSpeed( 2, 3 );		
+			}
+			else if( particleType == Level_Inner )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 2, 10 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 5 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 2, 10 );		
 			}
 
 			GetRandomSpread( spreadAngle );
@@ -343,6 +375,12 @@ struct ParticleData
 		{
 			yVelocity[i] += value;
 		}
+	}
+
+	void SparkElevationY( float lowerBound, float upperBound )
+	{
+		float randomElevation = (float)( rand() % (int)upperBound ) - lowerBound;
+		randomDirectionVector.y = randomElevation;
 	}
 
 	void ResetRandomDirectionVector()
@@ -389,8 +427,9 @@ struct ParticleData
 		{
 			
 			float randomAngle = (float)( rand() % 360 + 1 );
-			float randomRadius = (float)( rand() % (int)( radius * 10.0f ) + 1 );
-			randomRadius *= 0.1f;
+
+			float randomRadius = (float)( rand() % (int)( radius * 100.0f ) + 1 );
+			randomRadius *= 0.01f;
 
 			XMVECTOR randomDirection = XMVector3TransformCoord( XMVectorSet( 1.0f, 0.0f, 0.0f, 0.0f ), XMMatrixRotationY( XMConvertToRadians( randomAngle ) ) );
 

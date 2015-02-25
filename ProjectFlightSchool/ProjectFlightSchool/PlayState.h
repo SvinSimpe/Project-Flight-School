@@ -16,6 +16,7 @@
 #include "Gui.h"
 #include "SoundBufferHandler.h"
 #include "EnergyCell.h"
+#include "Pathfinder.h"
 
 //TestUpgradeWindow
 #include "UpgradeShipWindow.h"
@@ -32,7 +33,7 @@ class PlayState : public BaseState
 		float			mFPS;
 		AnimationTrack	mTestAnimation;
 		AssetID			mTestStaticAsset;
-		Map*		mWorldMap;
+		Map*			mWorldMap;
 
 		//Collision
 		unsigned int	mFrameCounter;

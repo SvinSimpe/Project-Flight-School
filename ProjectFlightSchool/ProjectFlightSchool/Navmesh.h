@@ -1,25 +1,30 @@
 #ifndef NAVMESH_H
 #define NAVMESH_H
+
 #include <Windows.h>
 #include <DirectXMath.h>
 #include <list>
-
+#include <vector>
 
 
 struct Portal
 {
-	int points[2];
+	DirectX::XMFLOAT3 center;
+	int portalID;
+	DirectX::XMFLOAT3 points[2];
 	int adjTri;
-	int parent;
-
 
 	float h;
 	float g;
 
 	Portal()
 	{
+		adjTri		= -1;
+
+		h = 0;
+		g = 0;
 	}
-	Portal( int p1, int p2, int pAdjTri = -1 )
+	Portal( DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2, int pAdjTri = -1 )
 	{
 		points[0] = p1;
 		points[1] = p2;
@@ -28,13 +33,24 @@ struct Portal
 	}
 };
 
-struct Path
+struct PortalPath
 {
-	int portal;
-	int parent;
+	Portal* portal;
+	PortalPath* parent;
+
+	PortalPath()
+	{
+		portal = nullptr;
+		parent = nullptr;
+	}
+
+	bool operator==( Portal const& p1 )
+	{
+		return portal->portalID == p1.portalID;
+	}
 };
 
-typedef std::list<int> PathList;
+typedef std::list<PortalPath*> PathList;
 
 struct NavTriangle
 {
@@ -48,18 +64,21 @@ struct NavTriangle
 		triPoints[0] = p1;
 		triPoints[1] = p2;
 		triPoints[2] = p3;
+
 	}
 	Portal portals[3];
 };
 class Navmesh
 {
 	private:
+		PortalPath*	mPath;
 		Portal* mPortals;
-		DirectX::XMFLOAT3* mMesh;		
-		UINT mNavTriangleCount;
+		DirectX::XMFLOAT3* mMesh;	
 
-		PathList mOpenList;
-		PathList mClosedList;
+		UINT mNavTriangleCount;
+		UINT mMaxPathLength;
+
+		std::vector<DirectX::XMFLOAT3> mEdgePoints;
 
 	protected:
 	public:
@@ -67,13 +86,15 @@ class Navmesh
 	private:
 		bool IsTriangleAdj( Portal t1, Portal t2 );
 		bool BuildAdjacencyInfo();
-		void FunnelPath();
+		std::vector<DirectX::XMFLOAT2> FunnelPath( std::vector<Portal>& path );
 	protected:
 	public:
 		HRESULT Render();
-
-		HRESULT Initialize( DirectX::XMFLOAT3* meshData, UINT vertexCount );
-		std::list<DirectX::XMFLOAT3> FindPath( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end );
+		
+		HRESULT Initialize( DirectX::XMFLOAT3* meshData, UINT vertexCount, std::vector<DirectX::XMFLOAT3>& edgePoints );
+		std::vector<DirectX::XMFLOAT2> FindPath( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end );
+		DirectX::XMFLOAT3 GetClosestEdgePoint( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 goal );
+		void Release();
 
 		Navmesh();
 		~Navmesh();

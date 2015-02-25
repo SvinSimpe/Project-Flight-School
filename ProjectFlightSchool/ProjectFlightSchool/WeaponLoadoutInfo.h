@@ -64,12 +64,12 @@
 // Hammer
 #define HAMMER_AR			3.5f	// Attack Rate Can't be lower than 3.5f
 #define HAMMER_DAMAGE		5.0f	// Damage
-#define HAMMER_RADIUS		5.0f	// Radius
+#define HAMMER_RADIUS		1.0f	// Radius
 #define HAMMER_SPREAD		7		// Spread
 #define HAMMER_KB			3.0f	// Knockback
-#define HAMMER_TTA			0.6f	// Time till Attack Can't be changed
+#define HAMMER_TTA			0.7f	// Time till Attack Can't be changed
 #define HAMMER_STUN			3.0f	// Stun
-#define HAMMER_REACH		4.0f	// Reach
+#define HAMMER_REACH		2.0f	// Reach
 
 // Blowtorch
 #define BLOWTORCH_AR		3.0f	// Attack Rate

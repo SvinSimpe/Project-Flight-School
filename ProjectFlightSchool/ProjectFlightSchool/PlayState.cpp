@@ -304,9 +304,15 @@ void PlayState::CheckProjectileCollision()
 					{
 						// hit
 						BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
-						RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
 						if( mProjectiles[i]->GetWeaponType() != SNIPER )
+						{
+							RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
 							mProjectiles[i]->Reset();
+						}
+						else
+						{
+							RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
+						}
 						break;
 					}
 

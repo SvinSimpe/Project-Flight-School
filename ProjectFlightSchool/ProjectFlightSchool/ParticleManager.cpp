@@ -92,6 +92,7 @@ void ParticleManager::Initialize()
 	mNrOfParticleSystemsPerType[Level_Inner]	= 0;
 	mNrOfParticleSystemsPerType[Test_Fountain]	= 0;
 	mNrOfParticleSystemsPerType[Explosion]		= 0;
+	mNrOfParticleSystemsPerType[FireSmoke]		= 0;
 	mNrOfParticleSystemsPerType[ExplosionSmoke]	= 0;// Below this
 
 	mMaxNrOfParticleSystemsPerType[Smoke]			= 1;
@@ -104,6 +105,7 @@ void ParticleManager::Initialize()
 	mMaxNrOfParticleSystemsPerType[Level_Inner]		= 5;
 	mMaxNrOfParticleSystemsPerType[Test_Fountain]	= 5;
 	mMaxNrOfParticleSystemsPerType[Explosion]		= 1;
+	mMaxNrOfParticleSystemsPerType[FireSmoke]		= 4;
 	mMaxNrOfParticleSystemsPerType[ExplosionSmoke]	= 3;// Aswell as this
 
 	mNrOfActiveParticleSystemsPerType[Smoke]			= 0;
@@ -116,6 +118,7 @@ void ParticleManager::Initialize()
 	mNrOfActiveParticleSystemsPerType[Level_Inner]		= 0;
 	mNrOfActiveParticleSystemsPerType[Test_Fountain]	= 0;
 	mNrOfActiveParticleSystemsPerType[Explosion]		= 0;
+	mNrOfActiveParticleSystemsPerType[FireSmoke]		= 0;
 	mNrOfActiveParticleSystemsPerType[ExplosionSmoke]	= 0;// And this
 
 	//======= Allocate memory for Particle Systems =======
@@ -138,12 +141,21 @@ void ParticleManager::Initialize()
 	//		mNrOfParticleSystemsPerType[MuzzleFlash]++;
 	//		mNrOfParticleSystems++;
 	//	}
+
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Fire]; i++ )
+	{
+		mParticleSystems[Fire][i]->Initialize( Fire, 20.0f, 256 );	//-------------------------------------------------emitter rate and particle count
+		mNrOfParticleSystemsPerType[Fire]++;
+		mNrOfParticleSystems++;
+	}
+
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[ExplosionSmoke]; i++ )
 	{
 		mParticleSystems[ExplosionSmoke][i]->Initialize( ExplosionSmoke, 50.0f, 1000 );
 		mNrOfParticleSystemsPerType[ExplosionSmoke]++;
 		mNrOfParticleSystems++;
 	}
+
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Explosion]; i++ )
 	{
 		mParticleSystems[Explosion][i]->Initialize( Explosion, 20.0f, 1000 );
@@ -199,7 +211,13 @@ void ParticleManager::Initialize()
 		mNrOfParticleSystemsPerType[Test_Fountain]++;
 		mNrOfParticleSystems++;
 	}
-
+	
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[FireSmoke]; i++ )
+	{
+		mParticleSystems[FireSmoke][i]->Initialize( FireSmoke, 15.0f, 512 );	//-------------------------------------------------emitter rate and particle count
+		mNrOfParticleSystemsPerType[FireSmoke]++;
+		mNrOfParticleSystems++;
+	}
 	// Place initialize here!
 	//-----------------------
 }

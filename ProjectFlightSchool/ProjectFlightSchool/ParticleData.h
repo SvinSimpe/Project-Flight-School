@@ -10,7 +10,7 @@
 using namespace DirectX;
 
 #define MAX_PARTICLES 10000
-#define NR_OF_PARTICLE_TYPES 11
+#define NR_OF_PARTICLE_TYPES 12
 
 enum ParticleType
 {
@@ -21,6 +21,7 @@ enum ParticleType
 	MuzzleFlash,
 	Smoke_MiniGun,
 	Test_Fountain,
+	FireSmoke,
 	Level_Up,
 	Level_Inner,
 	Explosion,
@@ -271,11 +272,17 @@ struct ParticleData
 	{
 		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
 		{
-			if( particleType == ExplosionSmoke )
+			if( particleType == Fire )
 			{
-				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 70 );
- 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 120 );
-				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 70 );		
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 50 );	//---------------------random speed of particles
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 20 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 50 );		
+			}
+			else if( particleType == FireSmoke )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 5 );	//---------------------random speed of particles
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 5, 30 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 5 );		
 			}
 			else if( particleType == Explosion )
 			{
@@ -283,11 +290,17 @@ struct ParticleData
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 100 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 60 );		
 			}
+			else if( particleType == ExplosionSmoke )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 70 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 120 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 70 );		
+			}			
 			else if( particleType == Spark )
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 20, 80 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 5 );
-				randomDirectionVector.z = zDirection * GetRandomSpeed( 20, 80 );		
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 20, 80 );
 			}
 			else if( particleType == Blood )
 			{
@@ -412,7 +425,9 @@ struct ParticleData
 	{
 		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
 		{
+			
 			float randomAngle = (float)( rand() % 360 + 1 );
+
 			float randomRadius = (float)( rand() % (int)( radius * 100.0f ) + 1 );
 			randomRadius *= 0.01f;
 

@@ -445,8 +445,38 @@ HRESULT Graphics::InitializeEffects()
 	effectInfo.fileName					= "ExplosionSmoke";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
 	effectInfo.isGeometryShaderIncluded = true;
-
+	
 	if( FAILED( hr = mEffects[EFFECTS_EXPLOSION_SMOKE]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Fire effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/FireEffect.hlsl";
+	effectInfo.fileName					= "FireEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_FIRE]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//FireSmoke effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/FireSmokeEffect.hlsl";
+	effectInfo.fileName					= "FireSmokeEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_FIRE_SMOKE]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Muzzle Flash effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/MuzzleFlashEffect.hlsl";
+	effectInfo.fileName					= "MuzzleFlashEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_MUZZLEFLASH]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 	//--------------------------
 
@@ -460,7 +490,7 @@ HRESULT Graphics::InitializeEffects()
 		return hr;
 	//--------------------------
 
-	//Spark effect
+	//Level inner effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/Level_InnerEffect.hlsl";
 	effectInfo.fileName					= "Level_InnerEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
@@ -470,7 +500,7 @@ HRESULT Graphics::InitializeEffects()
 		return hr;
 	//--------------------------
 
-	//Spark effect
+	//Level up effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/Level_UpEffect.hlsl";
 	effectInfo.fileName					= "Level_UpEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
@@ -1115,14 +1145,13 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 					mDeviceContext->IASetInputLayout( mEffects[info[i].mParticleType]->GetInputLayout() );
 
 					// Add particletype you want to apply additive blending on
-					if( info[i].mParticleType == EFFECTS_TEST_FOUNTAIN || info[i].mParticleType == EFFECTS_SPARK  || info[i].mParticleType == EFFECTS_LEVEL_UP )
+					if( info[i].mParticleType == EFFECTS_TEST_FOUNTAIN || info[i].mParticleType == EFFECTS_SPARK || info[i].mParticleType == EFFECTS_LEVEL_UP 
+						|| info[i].mParticleType == EFFECTS_FIRE )
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
+					
 					else if( info[i].mParticleType == EFFECTS_EXPLOSION )
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
 					
-					/*else if( info[i].mParticleType == EFFECTS_EXPLOSION_SMOKE )
-						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
-*/
 					else
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_NORMAL], 0, 0xFFFFFFFF );
 

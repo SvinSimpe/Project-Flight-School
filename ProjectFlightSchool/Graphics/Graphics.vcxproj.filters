@@ -205,6 +205,15 @@
     <Text Include="..\Content\Effects\Particle Effects\BloodEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
+<<<<<<< HEAD
+    <Text Include="..\Content\Effects\Particle Effects\FireEffect.hlsl">
+      <Filter>Effects\Particle Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\Particle Effects\ExplosionEffect.hlsl">
+      <Filter>Effects\Particle Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\Particle Effects\FireSmokeEffect.hlsl">
+=======
 
     <Text Include="..\Content\Effects\Particle Effects\ExplosionEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
@@ -219,6 +228,7 @@
       <Filter>Effects\Particle Effects</Filter>
     </Text>
     <Text Include="..\Content\Effects\Particle Effects\Level_InnerEffect.hlsl">
+>>>>>>> development
       <Filter>Effects\Particle Effects</Filter>
     </Text>
   </ItemGroup>

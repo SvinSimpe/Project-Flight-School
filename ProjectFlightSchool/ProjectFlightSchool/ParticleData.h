@@ -12,6 +12,10 @@ using namespace DirectX;
 #define MAX_PARTICLES 10000
 #define NR_OF_PARTICLE_TYPES 13
 
+#if !defined(SAFE_DELETE_ARRAY)
+#define SAFE_DELETE_ARRAY( x ) if( x ){ delete [] x; x = nullptr; }
+#endif
+
 
 enum ParticleType
 {
@@ -81,67 +85,89 @@ struct ParticleData
 		lifeTime	= new float[nrOfParticles];
 		deathTime	= new float[nrOfParticles];
 		isAlive		= new bool[nrOfParticles];
+
 		randRot		= new float[nrOfParticles];
 		damping		= new float[nrOfParticles];
 
-		for ( int i = 0; i < nrOfParticles; i += 4 )
+		//for ( int i = 0; i < nrOfParticles; i += 4 )
+		//{
+		//	//Position
+		//	xPosition[i]	= 0.0f;
+		//	xPosition[i+1]	= 0.0f;
+		//	xPosition[i+2]	= 0.0f;
+		//	xPosition[i+3]	= 0.0f;
+
+		//	yPosition[i]	= 0.0f;
+		//	yPosition[i+1]	= 0.0f;
+		//	yPosition[i+2]	= 0.0f;
+		//	yPosition[i+3]	= 0.0f;
+
+		//	zPosition[i]	= 0.0f;
+		//	zPosition[i+1]	= 0.0f;
+		//	zPosition[i+2]	= 0.0f;
+		//	zPosition[i+3]	= 0.0f;
+
+		//	//Velocity
+		//	xVelocity[i]	= 0.0f;
+		//	xVelocity[i+1]	= 0.0f;
+		//	xVelocity[i+2]	= 0.0f;
+		//	xVelocity[i+3]	= 0.0f;
+		//	 
+		//	yVelocity[i]	= 0.0f;
+		//	yVelocity[i+1]	= 0.0f;
+		//	yVelocity[i+2]	= 0.0f;
+		//	yVelocity[i+3]	= 0.0f;
+		//	 
+		//	zVelocity[i]	= 0.0f;
+		//	zVelocity[i+1]	= 0.0f;
+		//	zVelocity[i+2]	= 0.0f;
+		//	zVelocity[i+3]	= 0.0f;
+		//	
+		//	lifeTime[i]		= 0.0f;
+		//	lifeTime[i+1]	= 0.0f;
+		//	lifeTime[i+2]	= 0.0f;
+		//	lifeTime[i+3]	= 0.0f;
+		//	 
+		//	deathTime[i]	= 0.0f;
+		//	deathTime[i+1]	= 0.0f;
+		//	deathTime[i+2]	= 0.0f;
+		//	deathTime[i+3]	= 0.0f;
+
+		//	isAlive[i]		= false;
+		//	isAlive[i+1]	= false;
+		//	isAlive[i+2]	= false;
+		//	isAlive[i+3]	= false;
+
+		//	randRot[i]		= 0.0f;
+		//	randRot[i+1]	= 0.0f;
+		//	randRot[i+2]	= 0.0f;
+		//	randRot[i+3]	= 0.0f;
+
+		//	damping[i]		= 1.0f;
+		//	damping[i+1]	= 1.0f;
+		//	damping[i+2]	= 1.0f;
+		//	damping[i+3]	= 1.0f;
+		//}
+
+		for ( int i = 0; i < nrOfParticles; i++ )
 		{
 			//Position
 			xPosition[i]	= 0.0f;
-			xPosition[i+1]	= 0.0f;
-			xPosition[i+2]	= 0.0f;
-			xPosition[i+3]	= 0.0f;
-
 			yPosition[i]	= 0.0f;
-			yPosition[i+1]	= 0.0f;
-			yPosition[i+2]	= 0.0f;
-			yPosition[i+3]	= 0.0f;
-
 			zPosition[i]	= 0.0f;
-			zPosition[i+1]	= 0.0f;
-			zPosition[i+2]	= 0.0f;
-			zPosition[i+3]	= 0.0f;
+
 
 			//Velocity
-			xVelocity[i]	= 0.0f;
-			xVelocity[i+1]	= 0.0f;
-			xVelocity[i+2]	= 0.0f;
-			xVelocity[i+3]	= 0.0f;
-			 
-			yVelocity[i]	= 0.0f;
-			yVelocity[i+1]	= 0.0f;
-			yVelocity[i+2]	= 0.0f;
-			yVelocity[i+3]	= 0.0f;
-			 
+			xVelocity[i]	= 0.0f;		 
+			yVelocity[i]	= 0.0f;		 
 			zVelocity[i]	= 0.0f;
-			zVelocity[i+1]	= 0.0f;
-			zVelocity[i+2]	= 0.0f;
-			zVelocity[i+3]	= 0.0f;
 			
-			lifeTime[i]		= 0.0f;
-			lifeTime[i+1]	= 0.0f;
-			lifeTime[i+2]	= 0.0f;
-			lifeTime[i+3]	= 0.0f;
-			 
+			lifeTime[i]		= 0.0f;			 
 			deathTime[i]	= 0.0f;
-			deathTime[i+1]	= 0.0f;
-			deathTime[i+2]	= 0.0f;
-			deathTime[i+3]	= 0.0f;
-
 			isAlive[i]		= false;
-			isAlive[i+1]	= false;
-			isAlive[i+2]	= false;
-			isAlive[i+3]	= false;
 
 			randRot[i]		= 0.0f;
-			randRot[i+1]	= 0.0f;
-			randRot[i+2]	= 0.0f;
-			randRot[i+3]	= 0.0f;
-
 			damping[i]		= 1.0f;
-			damping[i+1]	= 1.0f;
-			damping[i+2]	= 1.0f;
-			damping[i+3]	= 1.0f;
 		}
 
 			randomDirectionVector = XMFLOAT3( 0.0f, 0.0f, 0.0f );
@@ -166,7 +192,7 @@ struct ParticleData
 
 	void Wake( size_t id )
 	{
-		if( nrOfParticlesAlive < MAX_PARTICLES )
+		if( nrOfParticlesAlive < capacity )
 		{
 			isAlive[id] = true;
 			SwapData( id, nrOfParticlesAlive );
@@ -408,19 +434,22 @@ struct ParticleData
 	void Release()
 	{
 		// Free the alligned memory
-		delete [] xPosition;
-		delete [] yPosition;
-		delete [] zPosition;
+		SAFE_DELETE_ARRAY( xVelocity );
+		SAFE_DELETE_ARRAY( yVelocity );
+		SAFE_DELETE_ARRAY( zVelocity );
 
-		delete [] xVelocity;
-		delete [] yVelocity;
-		delete [] zVelocity;
+		SAFE_DELETE_ARRAY( xPosition );
+		SAFE_DELETE_ARRAY( yPosition );
+		SAFE_DELETE_ARRAY( zPosition );
+		
 
-		delete [] lifeTime;
-		delete [] deathTime;
-		delete [] isAlive;
-		delete [] randRot;
-		delete [] damping;
+		
+		SAFE_DELETE_ARRAY( lifeTime );
+		SAFE_DELETE_ARRAY( deathTime );
+		SAFE_DELETE_ARRAY( isAlive );
+		
+		SAFE_DELETE_ARRAY( randRot );
+		SAFE_DELETE_ARRAY( damping );
 	}
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emiterDirection ) = 0;

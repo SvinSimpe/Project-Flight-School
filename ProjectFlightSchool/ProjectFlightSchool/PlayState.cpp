@@ -71,7 +71,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 				break;
 			}
 		}
-		FireProjectile( data->ID(), data->ProjectileID(), teamID, data->BodyPos(), data->Direction(), data->Speed(), data->Range(), data->Damage() );
+		FireProjectile( data->ID(), data->ProjectileID(), teamID, data->BodyPos(), data->Direction(), data->Speed(), data->Range(), data->Damage(), (WeaponType)data->Weapon() );
 
 		//TestSound
 		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->BodyPos());
@@ -148,7 +148,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		// Fire projectile
 		std::shared_ptr<Event_Server_Turret_Fired_Projectile> data = std::static_pointer_cast<Event_Server_Turret_Fired_Projectile>(newEvent);
-		FireProjectile( data->ID(), data->ProjectileID(), data->TeamID(), data->Position(), data->Direction(), data->Speed(), data->Range(), 1.0f ); // Don't know where to get damage from yet
+		FireProjectile( data->ID(), data->ProjectileID(), data->TeamID(), data->Position(), data->Direction(), data->Speed(), data->Range(), 1.0f, TURRET ); // Don't know where to get damage from yet
 
 		//TestSound
 		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->Position());
@@ -185,7 +185,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if( newEvent->GetEventType() == Event_Trigger_Client_Fired_Projectile::GUID )
 	{
 		std::shared_ptr<Event_Trigger_Client_Fired_Projectile> data = std::static_pointer_cast<Event_Trigger_Client_Fired_Projectile>( newEvent );
-		IEventPtr E1( new Event_Client_Fired_Projectile( data->ID(), data->BodyPos(), data->Direction(), data->Speed(), data->Range(), data->Damage() ) );
+		IEventPtr E1( new Event_Client_Fired_Projectile( data->ID(), data->BodyPos(), data->Direction(), data->Speed(), data->Range(), data->Damage(), data->Weapon() ) );
 		Client::GetInstance()->SendEvent( E1 );
 	}
 	else if( newEvent->GetEventType() == Event_Trigger_Client_Update::GUID )
@@ -241,9 +241,9 @@ void PlayState::BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned
 	Client::GetInstance()->SendEvent( E1 );
 }
 
-void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, unsigned int teamID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range, float damage )
+void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, unsigned int teamID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range, float damage, WeaponType weaponType )
 {
-	mProjectiles[mNrOfActiveProjectiles]->SetDirection( id, projectileID, teamID, position, direction, speed, range, damage );
+	mProjectiles[mNrOfActiveProjectiles]->SetDirection( id, projectileID, teamID, position, direction, speed, range, damage, weaponType );
 	mNrOfActiveProjectiles++;
 }
 
@@ -318,7 +318,8 @@ void PlayState::CheckProjectileCollision()
 						// hit
 						BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
 						RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-						mProjectiles[i]->Reset();
+						if( mProjectiles[i]->GetWeaponType() != SNIPER )
+							mProjectiles[i]->Reset();
 						break;
 					}
 
@@ -328,7 +329,8 @@ void PlayState::CheckProjectileCollision()
 						// hit
 						BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
 						RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-						mProjectiles[i]->Reset();
+						if( mProjectiles[i]->GetWeaponType() != SNIPER )
+							mProjectiles[i]->Reset();
 						break;
 					}
 				}
@@ -482,11 +484,14 @@ void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int project
 		{
 			shooter = mProjectiles[i]->GetPlayerID();
 			damage	= mProjectiles[i]->GetDamage();
-			mProjectiles[i]->Reset();
-			Projectile* temp							= mProjectiles[mNrOfActiveProjectiles - 1];
-			mProjectiles[mNrOfActiveProjectiles - 1]	= mProjectiles[i];
-			mProjectiles[i]								= temp;
-			mNrOfActiveProjectiles--;
+			if( mProjectiles[i]->GetWeaponType() != SNIPER )
+			{
+				mProjectiles[i]->Reset();
+				Projectile* temp							= mProjectiles[mNrOfActiveProjectiles - 1];
+				mProjectiles[mNrOfActiveProjectiles - 1]	= mProjectiles[i];
+				mProjectiles[i]								= temp;
+				mNrOfActiveProjectiles--;
+			}
 		}
 	}
 
@@ -674,9 +679,14 @@ HRESULT PlayState::Update( float deltaTime )
 		}
 	}
 
-
 	///Test fountain particle system
+	RenderManager::GetInstance()->RequestParticleSystem( 990, NormalSmoke, XMFLOAT3( 0.0f, 1.0f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 0.0f ) );
+
+	RenderManager::GetInstance()->RequestParticleSystem( 1889, Fire, XMFLOAT3( 1.0f, 2.0f, 15.0f ), XMFLOAT3( 0.5f, 1.0f, 0.5f ) );	//---------id, effect, position, direction
+	RenderManager::GetInstance()->RequestParticleSystem( 1889, FireSmoke, XMFLOAT3( 2.5f, 3.5f, 16.5f ), XMFLOAT3( 1.5f, 2.0f, 1.5f ) );	//---------id, effect, position, direction
+	
 	RenderManager::GetInstance()->RequestParticleSystem( 997, Test_Fountain, XMFLOAT3( 0.0f, 20.0f, 0.0f ), XMFLOAT3( 0.0f, -1.0f, 0.0f ) );
+
 
 	if( mPlayer->Upgradable() < 1 )
 	{

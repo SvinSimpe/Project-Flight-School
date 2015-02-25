@@ -1087,6 +1087,7 @@ class Event_Client_Fired_Projectile : public IEvent
 		float		mSpeed;
 		float		mRange;
 		float		mDamage;
+		int			mWeapon;
 
 	protected:
 	public:
@@ -1103,9 +1104,10 @@ class Event_Client_Fired_Projectile : public IEvent
 			mSpeed			= 0.0f;
 			mRange			= 0.0f;
 			mDamage			= 0.0f;
+			mWeapon			= 4;
 		}
 
-		Event_Client_Fired_Projectile( unsigned int id, XMFLOAT3 bodyPos, XMFLOAT3 direction, float speed, float range, float damage )
+		Event_Client_Fired_Projectile( unsigned int id, XMFLOAT3 bodyPos, XMFLOAT3 direction, float speed, float range, float damage, int weapon )
 		{
 			mID				= id;
 			mBodyPos		= bodyPos;
@@ -1113,6 +1115,7 @@ class Event_Client_Fired_Projectile : public IEvent
 			mSpeed			= speed;
 			mRange			= range;
 			mDamage			= damage;
+			mWeapon			= weapon;
 		}
 
 		~Event_Client_Fired_Projectile() {}
@@ -1132,9 +1135,10 @@ class Event_Client_Fired_Projectile : public IEvent
 			out << mDirection.y << " ";
 			out << mDirection.z << " ";
 
-			out <<	mSpeed	<< " ";
-			out	<<	mRange	<< " ";
+			out << mSpeed << " ";
+			out	<< mRange << " ";
 			out << mDamage << " ";
+			out	<< mWeapon << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
@@ -1151,10 +1155,11 @@ class Event_Client_Fired_Projectile : public IEvent
 			in >> mSpeed;
 			in >> mRange;
 			in >> mDamage;
+			in >> mWeapon;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Client_Fired_Projectile( mID, mBodyPos, mDirection, mSpeed, mRange, mDamage ) );
+			return IEventPtr( new Event_Client_Fired_Projectile( mID, mBodyPos, mDirection, mSpeed, mRange, mDamage, mWeapon ) );
 		}
 		UINT ID() const
 		{
@@ -1180,6 +1185,10 @@ class Event_Client_Fired_Projectile : public IEvent
 		{
 			return mDamage;
 		}
+		int Weapon() const
+		{
+			return mWeapon;
+		}
 };
 
 // An event sent from the server to the other clients whenever a client fires a projectile
@@ -1193,6 +1202,7 @@ class Event_Remote_Fired_Projectile : public IEvent
 		float		mSpeed;
 		float		mRange;
 		float		mDamage;
+		int			mWeapon;
 
 	protected:
 	public:
@@ -1210,9 +1220,10 @@ class Event_Remote_Fired_Projectile : public IEvent
 			mSpeed			= 0.0f;
 			mRange			= 0.0f;
 			mDamage			= 0.0;
+			mWeapon			= 4;
 		}
 
-		Event_Remote_Fired_Projectile( UINT id, UINT projectileID, XMFLOAT3 bodyPos, XMFLOAT3 direction, float speed, float range, float damage )
+		Event_Remote_Fired_Projectile( UINT id, UINT projectileID, XMFLOAT3 bodyPos, XMFLOAT3 direction, float speed, float range, float damage, int weapon )
 		{
 			mID				= id;
 			mProjectileID	= projectileID;
@@ -1221,7 +1232,7 @@ class Event_Remote_Fired_Projectile : public IEvent
 			mSpeed			= speed;
 			mRange			= range;
 			mDamage			= damage;
-
+			mWeapon			= weapon;
 		}
 
 		~Event_Remote_Fired_Projectile() {}
@@ -1242,9 +1253,10 @@ class Event_Remote_Fired_Projectile : public IEvent
 			out << mDirection.y << " ";
 			out << mDirection.z << " ";
 
-			out <<	mSpeed	<< " ";
-			out	<<	mRange	<< " ";
+			out << mSpeed << " ";
+			out	<< mRange << " ";
 			out << mDamage << " ";
+			out << mWeapon << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
@@ -1262,10 +1274,11 @@ class Event_Remote_Fired_Projectile : public IEvent
 			in >> mSpeed;
 			in >> mRange;
 			in >> mDamage;
+			in >> mWeapon;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Remote_Fired_Projectile( mID, mProjectileID, mBodyPos, mDirection, mSpeed, mRange, mDamage ) );
+			return IEventPtr( new Event_Remote_Fired_Projectile( mID, mProjectileID, mBodyPos, mDirection, mSpeed, mRange, mDamage, mWeapon ) );
 		}
 		UINT ID() const
 		{
@@ -1294,6 +1307,10 @@ class Event_Remote_Fired_Projectile : public IEvent
 		float Damage() const
 		{
 			return mDamage;
+		}
+		int Weapon() const
+		{
+			return mWeapon;
 		}
 };
 
@@ -4955,6 +4972,7 @@ class Event_Trigger_Client_Fired_Projectile : public IEvent
 		float		mSpeed;
 		float		mRange;
 		float		mDamage;
+		int			mWeapon;
 
 	protected:
 	public:
@@ -4971,9 +4989,10 @@ class Event_Trigger_Client_Fired_Projectile : public IEvent
 			mSpeed			= 0.0f;
 			mRange			= 0.0f;
 			mDamage			= 0.0f;
+			mWeapon			= 0;
 		}
 
-		Event_Trigger_Client_Fired_Projectile( unsigned int id, XMFLOAT3 bodyPos, XMFLOAT3 direction, float speed, float range, float damage )
+		Event_Trigger_Client_Fired_Projectile( unsigned int id, XMFLOAT3 bodyPos, XMFLOAT3 direction, float speed, float range, float damage, int weapon )
 		{
 			mID				= id;
 			mBodyPos		= bodyPos;
@@ -4981,6 +5000,7 @@ class Event_Trigger_Client_Fired_Projectile : public IEvent
 			mSpeed			= speed;
 			mRange			= range;
 			mDamage			= damage;
+			mWeapon			= weapon;
 		}
 
 		~Event_Trigger_Client_Fired_Projectile() {}
@@ -5003,6 +5023,7 @@ class Event_Trigger_Client_Fired_Projectile : public IEvent
 			out <<	mSpeed	<< " ";
 			out	<<	mRange	<< " ";
 			out << mDamage << " ";
+			out << mWeapon;
 		}
 		void Deserialize( std::istringstream& in )
 		{
@@ -5019,10 +5040,11 @@ class Event_Trigger_Client_Fired_Projectile : public IEvent
 			in >> mSpeed;
 			in >> mRange;
 			in >> mDamage;
+			in >> mWeapon;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Trigger_Client_Fired_Projectile( mID, mBodyPos, mDirection, mSpeed, mRange, mDamage ) );
+			return IEventPtr( new Event_Trigger_Client_Fired_Projectile( mID, mBodyPos, mDirection, mSpeed, mRange, mDamage, mWeapon ) );
 		}
 		UINT ID() const
 		{
@@ -5047,6 +5069,10 @@ class Event_Trigger_Client_Fired_Projectile : public IEvent
 		float Damage() const
 		{
 			return mDamage;
+		}
+		int Weapon() const
+		{
+			return mWeapon;
 		}
 };
 

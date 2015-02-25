@@ -156,3 +156,62 @@ bool SteerEvade::Update( float deltaTime, XMFLOAT3& totalForce )
 SteerEvade::SteerEvade( Enemy* enemy ) : SteeringBehavior( enemy ) {}
 
 SteerEvade::~SteerEvade() { }
+
+////////////////////////////////////////////////////////////////////
+//						Steer Wander
+////////////////////////////////////////////////////////////////////
+
+bool SteerWander::Update( float deltaTime, XMFLOAT3& totalForce )
+{
+	bool adjustment			= false;
+	XMFLOAT3 steeringForce	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	float delta				= 0.15f;
+
+	//theta represents "where" we are on the circle, perturbing
+	//it is what causes the guy to wander
+	//range on random is (-delta to delta)
+	mThetaValue	= ( randflt() * 2 * delta ) - delta;
+
+	// Calculate the point on the circle and head there
+	mCirclePosition			= mEnemy->GetVelocity();
+	XMStoreFloat3( &mCirclePosition, XMVector3Normalize( XMLoadFloat3( &mCirclePosition ) ) );		// mCirclePosition.Normalize()
+	mCirclePosition.x      *= mWanderCircleDistance;													// mCirclePosition *= mWanderCircleDistance
+	mCirclePosition.z      *= mWanderCircleDistance;
+	mCirclePosition.y		= 0.0f;	
+	mCirclePosition.x      += mEnemy->GetPosition().x;													//mCirclePosition  += mEnemy->GetPosition()
+	mCirclePosition.z	   += mEnemy->GetPosition().z;
+	mCirclePosition.y		= 0.0f;
+
+	XMFLOAT3 circleTarget	= XMFLOAT3( mWanderCircleRadius * cos( mThetaValue ), 0.0f, mWanderCircleRadius * sin( mThetaValue ) );
+	XMFLOAT3 target			= mCirclePosition;
+	target.x				= circleTarget.x;
+	target.z				= circleTarget.z;
+	target.y				= 0.0f;
+
+	SteerTowards( target, steeringForce );
+
+	float distanceToTarget = XMVectorGetX( XMVector3Length( XMLoadFloat3( &steeringForce ) ) ); 
+	if( distanceToTarget )
+	{
+		totalForce.x       += steeringForce.x;
+		totalForce.z       += steeringForce.z;
+		totalForce.y		= 0.0f;
+		adjustment			= true;
+		mTargetPosition.x	= target.x;
+		mTargetPosition.z	= target.z;
+		mTargetPosition.y	= 0.0f;
+	}
+
+	return adjustment;
+}
+
+SteerWander::SteerWander( Enemy* enemy ) : SteeringBehavior( enemy )
+{
+	mCirclePosition			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mTargetPosition			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mThetaValue				= 0.0f;
+	mWanderCircleRadius		= 30.0f;
+	mWanderCircleDistance	= 30.0f;
+}
+
+SteerWander::~SteerWander() { }

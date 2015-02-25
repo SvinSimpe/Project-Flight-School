@@ -8,10 +8,13 @@
 #include "Font.h"
 #include "RemotePlayer.h"
 #include "SteeringBehaviorManager.h"
+#include <math.h>
 
 class Enemy;
 
-#define MAX_NR_OF_ENEMIES		20
+#define randflt() (((float) rand())/((float) RAND_MAX))
+
+#define MAX_NR_OF_ENEMIES		15
 
 // ---- Define all enemy animations ----
 // Standard
@@ -259,6 +262,20 @@ class SteerEvade : public SteeringBehavior
 		virtual		   ~SteerEvade();
 };
 
+class SteerWander : public SteeringBehavior
+{
+	private:
+		XMFLOAT3		mCirclePosition;
+		XMFLOAT3		mTargetPosition;
+		float			mThetaValue;		//theta represents "where" we are on the circle
+		float			mWanderCircleRadius;
+		float			mWanderCircleDistance;
+	public:
+		virtual bool	Update( float deltaTime, XMFLOAT3& totalForce );
+						SteerWander( Enemy* enemy );
+		virtual		   ~SteerWander();
+};
+
 #pragma endregion
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -319,6 +336,7 @@ class Enemy
 		friend class		SteerApproach;
 		friend class		SteerPursuit;
 		friend class		SteerEvade;
+		friend class		SteerWander;
 		friend class		SteeringBehaviorManager;
 
 #pragma endregion

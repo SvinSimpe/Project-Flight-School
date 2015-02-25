@@ -112,6 +112,8 @@ void Enemy::TankLogic( float deltaTime )
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT Enemy::Update( float deltaTime, ServerPlayer** players, UINT NrOfPlayers )
 {
+	mSteeringBehaviorManager->Update( deltaTime );
+
 	mDeltaTime					= deltaTime;
 	mAttackRadius->center		= mPosition;
 	mAttentionRadius->center	= mPosition;
@@ -123,6 +125,9 @@ HRESULT Enemy::Update( float deltaTime, ServerPlayer** players, UINT NrOfPlayers
 		mStateTimer -= deltaTime;
 		
 	mBehaviors[mCurrentBehavior]->Update( deltaTime );
+
+	mPosition.x += mVelocity.x * mSpeed * deltaTime;
+	mPosition.z += mVelocity.z * mSpeed * deltaTime;
 
 	// Update specific enemy logic
 	switch( mEnemyType )
@@ -201,9 +206,11 @@ void Enemy::Hunt( float deltaTime )
 
 	XMStoreFloat3( &mVelocity, XMVector3Normalize( XMLoadFloat3( &mVelocity ) ) );
 
-	mPosition.x += mVelocity.x * mSpeed * deltaTime;
-	mPosition.z += mVelocity.z * mSpeed * deltaTime;
 	mDirection = mVelocity;
+
+	//mPosition.x += mVelocity.x * mSpeed * deltaTime;
+	//mPosition.z += mVelocity.z * mSpeed * deltaTime;
+	//mDirection = mVelocity;
 
 	/*mPosition.x	 += totalSteeringForce.x * mSpeed * deltaTime;
 	mPosition.z	 += totalSteeringForce.z * mSpeed * deltaTime;
@@ -272,7 +279,7 @@ void Enemy::Spawn( XMFLOAT3 spawnPos )
 		break;
 	}
 
-	//CreateStandard();
+	CreateStandard();
 	//CreateRanged();
 	//CreateBoomer();
 	//CreateTank();
@@ -395,10 +402,11 @@ HRESULT Enemy::Initialize( int id, ServerPlayer** players, UINT NrOfPlayers, Ene
 
 	mSteeringBehaviorManager			  = new SteeringBehaviorManager();
 	mSteeringBehaviorManager->Initialize(	this );
+	//mSteeringBehaviorManager->AddBehavior( new SteerWander( this ) );
 	mSteeringBehaviorManager->AddBehavior(  new SteerApproach( this ) );
-	mSteeringBehaviorManager->AddBehavior(  new SteerEvade( this ) );
+	//mSteeringBehaviorManager->AddBehavior(  new SteerEvade( this ) );
 	mSteeringBehaviorManager->SetUpBehavior( 0, 4.0f, 1.0f );
-	mSteeringBehaviorManager->SetUpBehavior( 1, 4.0f, 1.0f );
+	//mSteeringBehaviorManager->SetUpBehavior( 1, 4.0f, 1.0f );
 
 	return S_OK;
 }

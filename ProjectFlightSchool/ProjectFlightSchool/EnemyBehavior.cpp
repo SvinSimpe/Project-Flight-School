@@ -85,7 +85,7 @@ IdleBehavior::~IdleBehavior()
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT HuntPlayerBehavior::Update( float deltaTime )
 {
-	mEnemy->mSteeringBehaviorManager->Update( deltaTime );
+	//mEnemy->mSteeringBehaviorManager->Update( deltaTime );
 	mEnemy->Hunt( deltaTime );
 
 	// If enemy damaged check, go to take Damage
@@ -234,6 +234,7 @@ void AttackBehavior::OnEnter()
 {
 	mTimeTillAttack	= mEnemy->mAttackRate;
 	mHasAttacked	= false;
+	mEnemy->mVelocity = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
 	switch( mEnemy->mEnemyType )
 	{

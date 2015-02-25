@@ -2,11 +2,9 @@
 #define STATEMACHINE_H
 
 #include "StartMenuState.h"
-#include "CreateMenuState.h"
 #include "JoinMenuState.h"
 #include "MultiplayerMenuState.h"
 #include "OptionsMenuState.h"
-#include "SingleplayerMenuState.h"
 #include "PlayState.h"
 #include "LobbyState.h"
 

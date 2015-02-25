@@ -359,7 +359,7 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 {
 	if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
 	{
-		mFollowPath = true;
+		mFollowPath = false;
 		Pathfinder::GetInstance()->RequestPath( currentPath1, mLowerBody.position, mPick  );
 		Pathfinder::GetInstance()->CalculateSubPath( currentPath1 );
 		currentPath = currentPath1->TotalPath();

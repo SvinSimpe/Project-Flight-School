@@ -91,6 +91,11 @@ struct ParticleSystem : public ParticleData
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/levelUpParticle3.dds", assetID );
 				break;
 			}
+			case Fire_Flies:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireflyParticle.dds", assetID );
+				break;
+			}
 			default:
 				break;
 		}
@@ -128,32 +133,32 @@ struct ParticleSystem : public ParticleData
 		if( particleType == Test_Fountain )
 			GeneratePlanePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 60, 60, particleCount );
 		else if( particleType == Fire )
-			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 1.5f, particleCount );	//-----------------circle spawn instead of point
+			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 1.5f, particleCount );	
 		else if( particleType == FireSmoke )
-			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 4.0f, particleCount );	//-----------------circle spawn instead of point
+			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 4.0f, particleCount );	
 		else if( particleType == Level_Up )
 			GenerateCircleEdgePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 1, particleCount );
 		else if( particleType == Level_Inner )
 			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 1, particleCount );
+		else if( particleType == Fire_Flies )
+		{
+			initialSpawnPos = XMFLOAT3( emitterPosition.x, emitterPosition.y, emitterPosition.z );
+			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 1, particleCount );//-------circle spawn instead of point
+			SetRandomDistance( 1, 2, particleCount );
+		}
+			
 		else
 			SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );	
-
-		if( particleType == Explosion )	SetRandomDeathTime( 1, 3, particleCount );
-		else if( particleType == Fire )	SetRandomDeathTime( 1, 12, particleCount );	//---------------------------------------------------------random lifetime
-		else if( particleType == FireSmoke )	SetRandomDeathTime( 15, 25, particleCount );	//---------------------------------------------------------random lifetime
-		else if( particleType == Blood )	SetRandomDeathTime( 1, 2, particleCount );
-		else if( particleType == MuzzleFlash )	SetRandomDeathTime( 1, 2, particleCount );
-		else if( particleType == Smoke_MiniGun )	SetRandomDeathTime( 1, 6, particleCount );
-		else if( particleType == Test_Fountain )	SetRandomDeathTime( 1, 50, particleCount );
 
 		//Add Random Rotation
 		if(particleType == Fire || FireSmoke)
 			SetRandomRotation( particleCount ); 
+
 		if( particleType == Spark )
 		{
 			SetRandomDeathTime( 1, 2, particleCount );
 		}
-		if( particleType == ExplosionSmoke )	
+		else if( particleType == ExplosionSmoke )	
 		{
 			SetRandomDeathTime( 1, 6, particleCount );
 			SetRandomRotation( particleCount ); 
@@ -208,8 +213,8 @@ struct ParticleSystem : public ParticleData
 	{
 		if( particleType == NormalSmoke )			Generate( emitterPosition, emitterDirection, 6,  120.0f );
 		else if( particleType == Spark )			Generate( emitterPosition, emitterDirection, 8, 25.0f );	
-		else if( particleType == Fire )				Generate( emitterPosition, emitterDirection, 8, 35.0f );					//------------particle count and spreadangle
-		else if( particleType == FireSmoke )		Generate( emitterPosition, emitterDirection, 15, 25.0f );		//------------particle count and spreadangle
+		else if( particleType == Fire )				Generate( emitterPosition, emitterDirection, 8, 35.0f );					
+		else if( particleType == FireSmoke )		Generate( emitterPosition, emitterDirection, 15, 25.0f );		
 		else if( particleType == Explosion )		Generate( emitterPosition, emitterDirection, 50,  360.0f );
 		else if( particleType == ExplosionSmoke )	Generate( emitterPosition, emitterDirection, 50,  360.0f );
 		else if( particleType == Spark )			Generate( emitterPosition, emitterDirection, 8, 25.0f );
@@ -219,12 +224,14 @@ struct ParticleSystem : public ParticleData
 		else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 32, 20.0f );
 		else if( particleType == Level_Up )			Generate( emitterPosition, emitterDirection, 1024, 270.0f );
 		else if( particleType == Level_Inner )		Generate( emitterPosition, emitterDirection, 32, 20.0f );
+		else if( particleType == Fire_Flies )		Generate( emitterPosition, emitterDirection, 8, 5.0f );		//------------particle count and spreadangle
 	}
 
 	virtual void Update( float deltaTime )
 	{
 		// First instruction
-		UpdateLifeTime( deltaTime );
+		if ( particleType != Fire_Flies ) 
+			UpdateLifeTime( deltaTime );
 
 		// Check for dead particles
 		CheckDeadParticles();
@@ -303,6 +310,12 @@ struct ParticleSystem : public ParticleData
 				Level_InnerLogic( deltaTime );
 				break;
 			}
+			case Fire_Flies:
+			{
+				// Update Smoke_MiniGun logic here
+				Fire_FliesLogic( deltaTime );
+				break;
+			}
 			default:
 			{
 				OutputDebugStringA( "-- ERROR: Particle type unknown --" );
@@ -367,18 +380,12 @@ struct ParticleSystem : public ParticleData
 
 	void FireLogic( float deltaTime )
 	{
-		for ( int i = 0; i < nrOfParticlesAlive; i++ )
-		{
-			
-		}
+		
 	}
 
 	void FireSmokeLogic( float deltaTime )
 	{
-		for ( int i = 0; i < nrOfParticlesAlive; i++ )
-		{
-
-		}
+		
 	}
 
 	void ExplosionSmokeLogic( float deltatime )
@@ -454,6 +461,16 @@ struct ParticleSystem : public ParticleData
 		
 		if( currCount == prevCount )
 			int k = 4;
+	}
+	
+	void Fire_FliesLogic( float deltaTime )
+	{
+		for ( int i = 0; i < nrOfParticlesAlive; i++ )
+		{
+			float distanceFromSpawnPos = XMVectorGetX( XMVector3Length( XMLoadFloat3( &initialSpawnPos ) - XMLoadFloat3( &XMFLOAT3( xPosition[i], yPosition[i], zPosition[i] ) ) ) );
+			
+
+		}
 	}
 
 	#pragma endregion

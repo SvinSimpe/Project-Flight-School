@@ -10,7 +10,7 @@
 using namespace DirectX;
 
 #define MAX_PARTICLES 10000
-#define NR_OF_PARTICLE_TYPES 13
+#define NR_OF_PARTICLE_TYPES 14
 
 
 enum ParticleType
@@ -27,7 +27,8 @@ enum ParticleType
 	Level_Inner,
 	Explosion,
 	ExplosionSmoke,
-	NormalSmoke
+	NormalSmoke,
+	Fire_Flies
 };
 
 struct ParticleData
@@ -51,6 +52,10 @@ struct ParticleData
 	bool*	isAlive		= nullptr;
 	float*	randRot		= nullptr;
 	float*	damping		= nullptr;
+	float*  maxDistanceFromSpawnPos = nullptr;
+
+	XMFLOAT3 initialSpawnPos;
+
 
 	XMFLOAT3 randomDirectionVector;
 	int		 nrOfRequestedParticles		= 0;
@@ -83,6 +88,9 @@ struct ParticleData
 		isAlive		= new bool[nrOfParticles];
 		randRot		= new float[nrOfParticles];
 		damping		= new float[nrOfParticles];
+		maxDistanceFromSpawnPos		= new float[nrOfParticles];
+
+		initialSpawnPos = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
 		for ( int i = 0; i < nrOfParticles; i += 4 )
 		{
@@ -261,6 +269,22 @@ struct ParticleData
 		return (float)( rand() % upperBound + (float)lowerBound );
 	}
 
+	float GetRandomDistance( int lowerBound, int upperBound )
+	{
+		lowerBound *= 10;
+		upperBound *= 10;
+
+		return ( (float)( rand() % upperBound + (float)lowerBound ) ) * 0.1f;
+	}
+
+	void SetRandomDistance( size_t lowerBound, size_t upperBound, size_t particleCount )
+	{
+		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
+		{
+			maxDistanceFromSpawnPos[i] = GetRandomDistance( lowerBound, upperBound );
+		}	
+	}
+
 	void SetRandomDeathTime( size_t lowerBound, size_t upperBound, size_t particleCount ) // If 2.0f is upperBound, send 20
 	{
 		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
@@ -282,13 +306,13 @@ struct ParticleData
 			}
 			if( particleType == Fire )
 			{
-				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 50 );	//---------------------random speed of particles
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 50 );	
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 20 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 50 );		
 			}
 			else if( particleType == FireSmoke )
 			{
-				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 5 );	//---------------------random speed of particles
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 5 );	
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 5, 30 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 5 );		
 			}
@@ -345,6 +369,12 @@ struct ParticleData
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 2, 10 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 5 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 2, 10 );		
+			}
+			if( particleType == Fire_Flies )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 10 );	//---------------------random speed of particles
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 10 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 10 );		
 			}
 
 			GetRandomSpread( spreadAngle );

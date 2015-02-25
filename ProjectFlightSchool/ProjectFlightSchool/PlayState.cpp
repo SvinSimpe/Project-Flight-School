@@ -1,4 +1,5 @@
 #include "PlayState.h"
+#include "HelperFunctions.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //									PRIVATE
@@ -180,6 +181,18 @@ void PlayState::EventListener( IEventPtr newEvent )
 				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Level_Inner, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.1f, 0.1f, 0.1f ) ); //both of these calls are needed for levelup effect.
 			}
 		}
+	}
+	else if( newEvent->GetEventType() == Event_Trigger_Client_Fired_Projectile::GUID )
+	{
+		std::shared_ptr<Event_Trigger_Client_Fired_Projectile> data = std::static_pointer_cast<Event_Trigger_Client_Fired_Projectile>( newEvent );
+		IEventPtr E1( new Event_Client_Fired_Projectile( data->ID(), data->BodyPos(), data->Direction(), data->Speed(), data->Range(), data->Damage(), data->Weapon() ) );
+		Client::GetInstance()->SendEvent( E1 );
+	}
+	else if( newEvent->GetEventType() == Event_Trigger_Client_Update::GUID )
+	{
+		std::shared_ptr<Event_Trigger_Client_Update> data = std::static_pointer_cast<Event_Trigger_Client_Update>( newEvent );
+		IEventPtr E1( new Event_Client_Update( data->ID(), data->LowerBodyPos(), data->Velocity(), data->UpperBodyDirection(), data->Name(), data->IsBuffed(), data->IsAlive() ) );
+		Client::GetInstance()->SendEvent( E1 );
 	}
 }
 
@@ -529,7 +542,8 @@ void PlayState::RenderProjectiles()
 {
 	for ( int i = 0; i < mNrOfActiveProjectiles; i++ )
 	{
-		mProjectiles[i]->Render();
+		if( CullEntity( mProjectiles[i]->GetPosition() ) )
+			mProjectiles[i]->Render();
 	}
 }
 
@@ -550,6 +564,11 @@ void PlayState::SetEnemyState( unsigned int id, EnemyState state )
 	mEnemies[id]->SetAnimation( mEnemyAnimationManager->GetAnimation( mEnemies[id]->GetEnemyType(), state ), state == TakeDamage );
 }
 
+bool PlayState::CullEntity( XMFLOAT3 entityPos )
+{
+	return HelperFunctions::Dist3Squared( mPlayer->GetPosition(), entityPos  ) <= ENTITY_CULLDISTANCE;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
@@ -567,7 +586,6 @@ HRESULT PlayState::Update( float deltaTime )
 	}
 	while( !mGui->gEventList.empty() )
 	{
-		OutputDebugString(L"");
 		Client::GetInstance()->SendEvent( mGui->gEventList.back() );
 		mGui->gEventList.pop_back();
 	}
@@ -716,7 +734,7 @@ HRESULT PlayState::Render()
 
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
 	{
-		if ( mRemotePlayers.at(i) )
+		if ( mRemotePlayers.at(i) && CullEntity( mRemotePlayers.at(i)->GetPosition() ) )
 		{
 			mRemotePlayers.at(i)->Render();
 		}
@@ -729,7 +747,7 @@ HRESULT PlayState::Render()
 	{
 		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 		{
-			if( mEnemies[i]->IsSynced() )
+			if( mEnemies[i]->IsSynced() && CullEntity( mEnemies[i]->GetPosition() ) )
 				mEnemies[i]->Render();
 		}
 	}
@@ -743,7 +761,7 @@ HRESULT PlayState::Render()
 
 	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
 	{
-		if( !mEnergyCells[i]->GetPickedUp() )
+		if( !mEnergyCells[i]->GetPickedUp() && CullEntity( mEnergyCells[i]->GetPosition() ) )
 		{
 			mEnergyCells[i]->Render();
 		}
@@ -759,9 +777,9 @@ HRESULT PlayState::Render()
 	XMFLOAT4X4 identity;
 	XMStoreFloat4x4( &identity, XMMatrixIdentity() );
 
-	if( mFriendShip )
+	if( mFriendShip && CullEntity( mFriendShip->GetPos() ) )
 		mFriendShip->Render( 0.0f, identity );
-	if( mEnemyShip )
+	if( mEnemyShip && CullEntity( mEnemyShip->GetPos() ) )
 		mEnemyShip->Render( 0.0f, identity );
 
 	RenderManager::GetInstance()->Render();
@@ -865,6 +883,9 @@ HRESULT PlayState::Initialize()
 
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Win::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_XP::GUID ); 
+
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Trigger_Client_Fired_Projectile::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Trigger_Client_Update::GUID );
 
 	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 

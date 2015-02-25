@@ -1,4 +1,5 @@
 #include "Connection.h"
+#include "HelperFunctions.h"
 
 #define EXIT_ASSERT PFS_ASSERT(0);
 
@@ -62,7 +63,9 @@ bool NetSocket::HasOutput()
 
 void NetSocket::HandleOutput()
 {
+	auto size = mOutList.size();
 	int fSent = 0;
+	SetBlocking( false );
 	do
 	{
 		PFS_ASSERT( HasOutput() );
@@ -104,12 +107,6 @@ bool NetSocket::HandleInput()
 	SetBlocking( false );
 
 	int rc = recv( mSocket, mRecvBuf + mRecvBegin + mRecvOfs, RECV_BUFFER_SIZE - ( mRecvBegin + mRecvOfs ), 0 );
-	//printf( "Incoming %6d bytes. Begin %6d offset %4d\n", rc, mRecvBegin, mRecvOfs );
-
-	if( rc == -1 )
-	{
-		return false;
-	}
 
 	if( rc == SOCKET_ERROR )
 	{
@@ -143,22 +140,6 @@ bool NetSocket::HandleInput()
 				std::shared_ptr<BinaryPacket> pkt( PFS_NEW BinaryPacket( &mRecvBuf[mRecvBegin + hdrSize], packetSize - hdrSize ) );
 				mInList.push_back( pkt );
 				pktReceived = true;
-				processedData += packetSize;
-				newData -= packetSize;
-				mRecvBegin += packetSize;
-			}
-		}
-		else
-		{
-			char* cr = static_cast<char*>( memchr( &mRecvBuf[mRecvBegin], 0x0a, rc ) );
-			if( cr )
-			{
-				*(cr + 1) = 0;
-				std::shared_ptr<TextPacket> pkt( PFS_NEW TextPacket( &mRecvBuf[mRecvBegin] ) );
-				mInList.push_back( pkt );
-				packetSize = cr - &mRecvBuf[mRecvBegin];
-				pktReceived = true;
-
 				processedData += packetSize;
 				newData -= packetSize;
 				mRecvBegin += packetSize;
@@ -231,7 +212,7 @@ NetSocket::NetSocket( SocketManager* socketManager, SOCKET socket, UINT ip )
 	mTimeCreated	= timeGetTime();
 	mSocket			= socket;
 	mIPAddr			= ip;
-	mInternal		= mSocketManager->IsInternal(mIPAddr);
+	mInternal		= mSocketManager->IsInternal( mIPAddr );
 }
 
 NetSocket::~NetSocket()
@@ -287,7 +268,6 @@ void NetListenSocket::InitScan( int portNum_min, int portNum_max )
 			exit( 1 );
 	}
 
-	SetBlocking( false );
 	if( listen( mSocket, 8 ) == SOCKET_ERROR )
 	{
 		closesocket( mSocket );
@@ -350,7 +330,6 @@ void NetListenSocket::Initialize( int portNum )
 		PFS_ASSERT( "NetListenSocket error: Initialize failed to bind." );
 	}
 
-	SetBlocking( false );
 	if( listen( mSocket, 256 ) == SOCKET_ERROR )
 	{
 		closesocket( mSocket );
@@ -420,7 +399,7 @@ ServerListenSocket::ServerListenSocket( SocketManager* socketManager, int portNu
 /////////////////////////////////////////////////////////////////
 // RemoteEventSocket functions
 
-void RemoteEventSocket::CreateEvent( std::istringstream &in )
+void RemoteEventSocket::BuildEvent( std::istringstream &in )
 {
 	EventType eventType;
 	in >> eventType;
@@ -429,12 +408,18 @@ void RemoteEventSocket::CreateEvent( std::istringstream &in )
 	if( E1 )
 	{
 		E1->Deserialize( in );
-		if( !EventManager::GetInstance()->QueueEvent( E1 ) )
-			printf( "Failed to queue event with ID: %d\n", eventType );
+		if( !EventManager::GetInstance()->TriggerEvent( E1 ) )
+		{
+			std::ostringstream out;
+			out << "Failed to trigger event with ID: " << E1->GetEventType() << "\n";
+			OutputDebugStringA( out.str().c_str() );
+		}
 	}
 	else
 	{
-		printf("ERROR Unknown event type from remote: 0x%d\n", eventType);
+		std::ostringstream out;
+		out << "Unknown event type: " << E1->GetEventType() << "\n";
+		OutputDebugStringA( out.str().c_str() );
 	}
 }
 
@@ -442,6 +427,7 @@ bool RemoteEventSocket::HandleInput()
 {
 	NetSocket::HandleInput();
 
+	size_t size = mInList.size();
 	while( !mInList.empty() )
 	{
 		std::shared_ptr<IPacket> packet = *mInList.begin();
@@ -454,15 +440,10 @@ bool RemoteEventSocket::HandleInput()
 
 			std::istringstream in( buf + sizeof( u_long ), (size - sizeof( u_long ) ) );
 
-			CreateEvent( in );
+			BuildEvent( in );
 
 			in.str( std::string() );
 			in.clear();
-
-		}
-		else if( packet->GetType() == BinaryPacket::GUID )
-		{
-			printf( "Network: %s\n", packet->GetData()+sizeof(u_long) );
 		}
 	}
 	return false;
@@ -551,8 +532,6 @@ void SocketManager::RemoveSocket( NetSocket* socket )
 	mSocketMap.erase( socket->mID );
 	SAFE_DELETE( socket );
 
-	printf("Removing socket %d.\n", id);
-
 	IEventPtr E1( PFS_NEW Event_Client_Left( id ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
 
@@ -571,7 +550,7 @@ UINT SocketManager::GetHostByName( const std::string &hostName )
 
 	if( hostEnt == nullptr )
 	{
-		printf("Error happened in GetHostByName()");
+		OutputDebugStringA( "Error happened in GetHostByName()" );
 		return 0;
 	}
 	memcpy( &sa.sin_addr, hostEnt->h_addr, hostEnt->h_length );
@@ -815,21 +794,19 @@ ClientSocketManager::ClientSocketManager()
 /////////////////////////////////////////////////////////////////
 // Start of NetworkEventForwarder functions
 
+
 void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 {
 	std::ostringstream out;
-
 	out << eventPtr->GetEventType() << " ";
+
 	eventPtr->Serialize( out );
 	out << "\r\n";
 
-	std::shared_ptr<BinaryPacket> msg(PFS_NEW BinaryPacket( out.str().c_str(), (u_long)out.str().length()));
+	std::shared_ptr<BinaryPacket> msg( new BinaryPacket( out.str().c_str(), (u_long)out.str().length() ) );
 
 	if( this )
 		mSocketManager->Send( mSocketID, msg );
-
-	out.str( std::string() );
-	out.clear();
 }
 
 void NetworkEventForwarder::Initialize( UINT socketID, SocketManager* sm )

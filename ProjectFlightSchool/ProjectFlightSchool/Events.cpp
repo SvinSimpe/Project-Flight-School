@@ -125,3 +125,5 @@ const EventType Event_Client_Lobby_Finished::GUID( counter++ );
 const EventType Event_Server_Lobby_Finished::GUID( counter++ );
 const EventType Event_Client_Switch_Team::GUID( counter++ );
 const EventType Event_Server_Switch_Team::GUID( counter++ );
+const EventType Event_Trigger_Client_Fired_Projectile::GUID( counter++ );
+const EventType Event_Trigger_Client_Update::GUID( counter++ );

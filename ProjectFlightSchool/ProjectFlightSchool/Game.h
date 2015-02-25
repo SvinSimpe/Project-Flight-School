@@ -4,6 +4,7 @@
 #include "Server.h"
 #include "StateMachine.h"
 #include "RenderManager.h"
+#include "Timer.h"
 
 class Game
 {
@@ -20,7 +21,7 @@ class Game
 		void	ResetGame( IEventPtr eventPtr );
 		void	StartPlayState( IEventPtr eventPtr );
 		void	StartNetworkUpdate( IEventPtr eventPtr );
-		void	UpdateServer();
+		void	ReportTime( DWORD before, DWORD after, std::string text );
 
 	protected:
 	public:

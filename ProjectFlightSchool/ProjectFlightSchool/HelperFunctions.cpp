@@ -1,5 +1,6 @@
 #include "HelperFunctions.h"
-
+#include <Windows.h>
+#include <sstream>
 
 bool HelperFunctions::Inside2DTriangle( DirectX::XMFLOAT2 p, DirectX::XMFLOAT2 p0, DirectX::XMFLOAT2 p1, DirectX::XMFLOAT2 p2 )
 {
@@ -48,4 +49,33 @@ bool HelperFunctions::Float3Equal( DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2 )
 bool HelperFunctions::Float2Equal( DirectX::XMFLOAT2 p1, DirectX::XMFLOAT2 p2 )
 {
 	return Dist2Squared( p1, p2 ) < 0.01f;
+}
+
+double HelperFunctions::PCFreq = 0.0;
+__int64 HelperFunctions::CounterStart = 0;
+
+void HelperFunctions::StartCounter()
+{
+	LARGE_INTEGER li;
+	if( !QueryPerformanceFrequency( &li ) )
+		OutputDebugStringA( "QueryPerformanceFrequency failed!\n" );
+
+	PCFreq = double( li.QuadPart )/1000.0;
+
+	QueryPerformanceCounter( &li );
+	CounterStart = li.QuadPart;
+}
+
+double HelperFunctions::GetCounter()
+{
+	LARGE_INTEGER li;
+	QueryPerformanceCounter( &li );
+	return (double)( li.QuadPart - CounterStart ) / PCFreq;
+}
+
+void HelperFunctions::PrintCounter( std::string text )
+{
+	std::ostringstream ss;
+	ss << text << " " << HelperFunctions::GetCounter() << "ms.\n";
+	OutputDebugStringA( ss.str().c_str() );
 }

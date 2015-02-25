@@ -16,6 +16,7 @@ enum WeaponType
 	SAW,
 	SHOTGUN,
 	SNIPER,
+	TURRET,
 	WEAPON_COUNT,
 };
 
@@ -100,7 +101,16 @@ struct RangedInfo
 				projectileSpeed	=	SNIPER_SPEED;
 			}
 				break;
-
+			case TURRET:
+			{
+				attackRate		=	TURRET_AR;
+				damage			=	TURRET_DAMAGE;
+				range			=	TURRET_RANGE;
+				spread			=	TURRET_SPREAD;
+				areaOfEffect	=	TURRET_AOE;
+				projectileSpeed	=	TURRET_SPEED;
+			}
+				break;
 			default:
 			{
 				attackRate		=	MINIGUN_AR;

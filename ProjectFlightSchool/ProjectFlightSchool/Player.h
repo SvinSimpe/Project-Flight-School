@@ -67,8 +67,6 @@ class Player: public RemotePlayer
 		float		mLeavingAreaTime;
 		int			mLastKiller;
 
-		std::list<IEventPtr> mEventList;
-
 		UINT		mEnergyCellID;
 		float		mPickUpCooldown;
 
@@ -129,7 +127,6 @@ class Player: public RemotePlayer
 		void		SetTeam( int team );
 		void		SetPosition( XMVECTOR position );
 		void		SetEnergyCellID( UINT energyCellID );
-
 
 		void		QueueEvent( IEventPtr ptr );
 };

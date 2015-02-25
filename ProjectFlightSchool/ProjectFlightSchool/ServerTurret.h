@@ -69,6 +69,8 @@ class ServerTurret : public GameObject
 
 	protected:
 	public:
+		void			ChangeLevel( UINT level );
+		void			ClearTarget();
 		UINT			CheckMode() const;
 		void			FindTarget( BoundingCircle* enemy );
 		virtual void	Reset( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale );

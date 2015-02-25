@@ -191,13 +191,11 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		XMStoreFloat( &t, result );
 		XMVECTOR intersection = XMVectorAdd( rayPosInWorld, rayDirInWorld * t );
 
-		
-
-
-	if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
-	{
-		XMStoreFloat3( &mPick, intersection );
-	}
+	// UNCOMMENT THIS TO USE CLICK TO MOVE
+	//if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
+	//{
+	//	XMStoreFloat3( &mPick, intersection );
+	//}
 	//== Weapon handling ==
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_LEFT ) && mWeaponCoolDown <= 0.0f )
 	{

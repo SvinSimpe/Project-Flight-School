@@ -148,22 +148,6 @@ bool NetSocket::HandleInput()
 				mRecvBegin += packetSize;
 			}
 		}
-		else
-		{
-			char* cr = static_cast<char*>( memchr( &mRecvBuf[mRecvBegin], 0x0a, rc ) );
-			if( cr )
-			{
-				*(cr + 1) = 0;
-				std::shared_ptr<TextPacket> pkt( PFS_NEW TextPacket( &mRecvBuf[mRecvBegin] ) );
-				mInList.push_back( pkt );
-				packetSize = cr - &mRecvBuf[mRecvBegin];
-				pktReceived = true;
-
-				processedData += packetSize;
-				newData -= packetSize;
-				mRecvBegin += packetSize;
-			}
-		}
 	}
 
 	mSocketManager->AddToInbound( rc );
@@ -429,12 +413,18 @@ void RemoteEventSocket::CreateEvent( std::istringstream &in )
 	if( E1 )
 	{
 		E1->Deserialize( in );
-		if( !EventManager::GetInstance()->QueueEvent( E1 ) )
-			printf( "Failed to queue event with ID: %d\n", eventType );
+		if( !EventManager::GetInstance()->TriggerEvent( E1 ) )
+		{
+			std::ostringstream out;
+			out << "Failed to trigger event with ID: " << E1->GetEventType() << "\n";
+			OutputDebugStringA( out.str().c_str() );
+		}
 	}
 	else
 	{
-		printf("ERROR Unknown event type from remote: 0x%d\n", eventType);
+		std::ostringstream out;
+		out << "Unknown event type: " << E1->GetEventType() << "\n";
+		OutputDebugStringA( out.str().c_str() );
 	}
 }
 
@@ -459,11 +449,6 @@ bool RemoteEventSocket::HandleInput()
 
 			in.str( std::string() );
 			in.clear();
-
-		}
-		else if( packet->GetType() == BinaryPacket::GUID )
-		{
-			printf( "Network: %s\n", packet->GetData()+sizeof(u_long) );
 		}
 	}
 	return false;

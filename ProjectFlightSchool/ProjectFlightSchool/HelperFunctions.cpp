@@ -75,7 +75,6 @@ double HelperFunctions::GetCounter()
 
 void HelperFunctions::PrintCounter( std::string text )
 {
-
 	std::ostringstream ss;
 	ss << text << " " << HelperFunctions::GetCounter() << "ms.\n";
 	OutputDebugStringA( ss.str().c_str() );

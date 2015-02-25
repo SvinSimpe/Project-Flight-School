@@ -822,7 +822,7 @@ HRESULT PlayState::Initialize()
 
 	mWorldMap->Initialize( 12 );
 
-	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/ForestMap.xml" ) ); 
+	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/HardMap.xml" ) ); 
 
 	EventManager::GetInstance()->TriggerEvent( E1 );
 

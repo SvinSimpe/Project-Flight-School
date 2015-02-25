@@ -682,7 +682,7 @@ bool Server::Connect( UINT port )
 
 void Server::Update( float deltaTime )
 {
-	if( this && mActive )
+	if( this && mActive && mStopAccept )
 	{
 		// Handles the client getting buffed by the ship
 		bool shipBuff = false;

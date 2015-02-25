@@ -81,6 +81,7 @@ HRESULT MultiplayerMenuState::Render()
 	}
 	mPortBox.Render();
 	mNameBox.Render();
+	RenderManager::GetInstance()->AddObject2dToList( mCursor, XMFLOAT2( (float)Input::GetInstance()->mCurrentMousePos.x, (float)Input::GetInstance()->mCurrentMousePos.y ), DirectX::XMFLOAT2( 20.0f, 20.0f ) );
 	RenderManager::GetInstance()->Render();
 	return S_OK;
 }

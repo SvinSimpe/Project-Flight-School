@@ -25,6 +25,7 @@ void BaseMenuState::OnExit()
 
 HRESULT BaseMenuState::Initialize()
 {
+	BaseState::Initialize();
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/Menu_Background.jpg", mBackground );
 	mText.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 	

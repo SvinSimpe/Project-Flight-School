@@ -156,7 +156,7 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 		return E_FAIL;
 
 	ShowWindow( mHWnd, nCmdShow );
-	ShowCursor( true );
+	ShowCursor( false );
 
 	///////////////////////////////
 	// Initialize sub-applications

@@ -5,7 +5,6 @@
 #include "Graphics.h"
 #include "Game.h"
 #include "Player.h"
-#include "Timer.h"
 #include "RenderManager.h"
 
 #define DELTA_TIME_CAP 0.2f

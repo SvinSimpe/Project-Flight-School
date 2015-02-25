@@ -185,7 +185,7 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 	RenderManager::GetInstance()->Initialize();
 	//TestSound
 	SoundBufferHandler::GetInstance()->Initialize();
-	
+
 	mGame = new Game();
 	mGame->Initialize();
 

@@ -86,14 +86,6 @@ void Player::EventListener( IEventPtr newEvent )
 			mSpawnPosition = XMFLOAT3( data->SpawnPosition().x, 0.0f, data->SpawnPosition().y );
 		}
 	}
-	else if( newEvent->GetEventType() == Event_Server_XP::GUID )
-	{
-		std::shared_ptr<Event_Server_XP> data = std::static_pointer_cast<Event_Server_XP>( newEvent );
-		if( data->PlayerID() == mID )
-		{
-			mXP += data->XP();
-		}
-	}
 	else if( newEvent->GetEventType() == Event_Server_Switch_Team::GUID )
 	{
 		std::shared_ptr<Event_Server_Switch_Team> data = std::static_pointer_cast<Event_Server_Switch_Team>( newEvent );
@@ -305,6 +297,16 @@ void Player::Move( float deltaTime )
 		mLowerBody.direction.z	= mVelocity.z;
 		normalizer				= XMVector3Normalize( XMLoadFloat3( &mLowerBody.direction ) );
 		XMStoreFloat3( &mLowerBody.direction, normalizer );
+	}
+}
+
+void Player::AddXP( int XP )
+{
+	mXP += XP;
+	while( ( mXP / mNextLevelXP ) >= 1 )
+	{
+		mCurrentUpgrades++;
+		mXP -= mNextLevelXP;
 	}
 }
 
@@ -645,12 +647,6 @@ void Player::Reset()
 
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
 {
-	if( ( mXP / mNextLevelXP ) >= 1 )
-	{
-		mCurrentUpgrades++;
-		mXP -= mNextLevelXP;
-	}
-
 	mCloseToPlayer = false;
 	for( auto rp : remotePlayers )
 	{
@@ -920,7 +916,6 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Change_Buff_State::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Upgrade_Player::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_New_Player_Spawn_Position::GUID );
-	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_XP::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Switch_Team::GUID );
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
 	mPick = XMFLOAT3( 0, 0, 0 );

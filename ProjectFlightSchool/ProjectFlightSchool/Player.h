@@ -99,6 +99,7 @@ class Player: public RemotePlayer
 
 	protected:
 	public:
+		void		AddXP( int XP );
 		void		PickUpEnergyCell( EnergyCell** energyCell );
 		void		DropEnergyCell( EnergyCell** energyCells );
 		void		GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, DirectX::XMFLOAT3 shipPos );

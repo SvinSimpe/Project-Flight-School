@@ -9,7 +9,6 @@ class Client : public Network
 		static Client*			mInstance;
 		ClientSocketManager*	mSocketManager;
 		NetworkEventForwarder*	mNEF;
-		std::list<IEventPtr>	mEventList;
 		bool					mActive;
 
 	protected:

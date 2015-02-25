@@ -1,4 +1,5 @@
 #include "Client.h"
+#include "HelperFunctions.h"
 
 Client* Client::mInstance = nullptr;
 
@@ -6,7 +7,6 @@ Client::Client() : Network()
 {
 	mSocketManager			= nullptr;
 	mNEF					= nullptr;
-	mEventList				= std::list<IEventPtr>();
 	mActive					= false;
 }
 
@@ -41,7 +41,6 @@ void Client::StartUp( IEventPtr eventPtr )
 				mSocketManager->Release();
 			SAFE_DELETE( mSocketManager );
 			SAFE_DELETE( mNEF );
-			mEventList.clear();
 			mActive = false;
 		}
 	}
@@ -49,7 +48,11 @@ void Client::StartUp( IEventPtr eventPtr )
 
 void Client::SendEvent( IEventPtr eventPtr )
 {
-	mEventList.push_front( eventPtr );
+	if( eventPtr->GetEventType() == 20 )
+	{
+		HelperFunctions::PrintCounter( "Inside Client::SendEvent() after:" );
+	}
+	mNEF->ForwardEvent( eventPtr );
 }
 
 bool Client::Connect( std::string ip, UINT port )
@@ -80,7 +83,6 @@ void Client::Shutdown( IEventPtr eventPtr )
 			mSocketManager->Release();
 		SAFE_DELETE( mSocketManager );
 		SAFE_DELETE( mNEF );
-		mEventList.clear();
 		mActive = false;
 
 		IEventPtr E1( new Event_Change_State( 0 ) ); // The state definitions should be moved to some global place!
@@ -90,22 +92,12 @@ void Client::Shutdown( IEventPtr eventPtr )
 
 void Client::DoSelect( int pauseMicroSecs, bool handleInput )
 {
-	mSocketManager->DoSelect( pauseMicroSecs, handleInput );
+	if( mActive )
+		mSocketManager->DoSelect( pauseMicroSecs, handleInput );
 }
 
 void Client::Update( float deltaTime )
 {
-	if( this && mActive )
-	{
-		while( !mEventList.empty() )
-		{
-			mNEF->ForwardEvent( mEventList.back() );
-			mEventList.pop_back();
-		}
-		mEventList.clear();
-
-		DoSelect( 0 );
-	}
 }
 
 bool Client::Initialize()
@@ -203,11 +195,10 @@ bool Client::Initialize()
 
 void Client::Release()
 {
+	mActive = false;
 	if( mSocketManager )
 		mSocketManager->Release();
 	SAFE_DELETE( mSocketManager );
 	SAFE_DELETE( mNEF );
-	mEventList.clear();
-	mActive = false;
 	SAFE_DELETE( mInstance );
 }

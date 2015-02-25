@@ -1,4 +1,5 @@
 #include "Connection.h"
+#include "HelperFunctions.h"
 
 #define EXIT_ASSERT PFS_ASSERT(0);
 
@@ -64,6 +65,7 @@ void NetSocket::HandleOutput()
 {
 	auto size = mOutList.size();
 	int fSent = 0;
+	SetBlocking( false );
 	do
 	{
 		PFS_ASSERT( HasOutput() );
@@ -105,11 +107,6 @@ bool NetSocket::HandleInput()
 	SetBlocking( false );
 
 	int rc = recv( mSocket, mRecvBuf + mRecvBegin + mRecvOfs, RECV_BUFFER_SIZE - ( mRecvBegin + mRecvOfs ), 0 );
-
-	if( rc == -1 )
-	{
-		return false;
-	}
 
 	if( rc == SOCKET_ERROR )
 	{
@@ -215,7 +212,7 @@ NetSocket::NetSocket( SocketManager* socketManager, SOCKET socket, UINT ip )
 	mTimeCreated	= timeGetTime();
 	mSocket			= socket;
 	mIPAddr			= ip;
-	mInternal		= mSocketManager->IsInternal(mIPAddr);
+	mInternal		= mSocketManager->IsInternal( mIPAddr );
 }
 
 NetSocket::~NetSocket()
@@ -271,7 +268,6 @@ void NetListenSocket::InitScan( int portNum_min, int portNum_max )
 			exit( 1 );
 	}
 
-	SetBlocking( false );
 	if( listen( mSocket, 8 ) == SOCKET_ERROR )
 	{
 		closesocket( mSocket );
@@ -334,7 +330,6 @@ void NetListenSocket::Initialize( int portNum )
 		PFS_ASSERT( "NetListenSocket error: Initialize failed to bind." );
 	}
 
-	SetBlocking( false );
 	if( listen( mSocket, 256 ) == SOCKET_ERROR )
 	{
 		closesocket( mSocket );
@@ -404,7 +399,7 @@ ServerListenSocket::ServerListenSocket( SocketManager* socketManager, int portNu
 /////////////////////////////////////////////////////////////////
 // RemoteEventSocket functions
 
-void RemoteEventSocket::CreateEvent( std::istringstream &in )
+void RemoteEventSocket::BuildEvent( std::istringstream &in )
 {
 	EventType eventType;
 	in >> eventType;
@@ -413,6 +408,14 @@ void RemoteEventSocket::CreateEvent( std::istringstream &in )
 	if( E1 )
 	{
 		E1->Deserialize( in );
+		if( E1->GetEventType() == 20 )
+		{
+			HelperFunctions::PrintCounter( "Inside Server::RemoteEventSocket::BuildEvent() after:" );
+		}
+		else if( E1->GetEventType() == 21 )
+		{
+			HelperFunctions::PrintCounter( "Inside Client::RemoteEventSocket::BuildEvent() after:" );
+		}
 		if( !EventManager::GetInstance()->TriggerEvent( E1 ) )
 		{
 			std::ostringstream out;
@@ -445,7 +448,7 @@ bool RemoteEventSocket::HandleInput()
 
 			std::istringstream in( buf + sizeof( u_long ), (size - sizeof( u_long ) ) );
 
-			CreateEvent( in );
+			BuildEvent( in );
 
 			in.str( std::string() );
 			in.clear();
@@ -803,12 +806,28 @@ ClientSocketManager::ClientSocketManager()
 void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 {
 	std::ostringstream out;
-
 	out << eventPtr->GetEventType() << " ";
+	if( eventPtr->GetEventType() == 20 )
+	{
+		HelperFunctions::PrintCounter( "Serializing event in Client::NetworkEventForwarder::ForwardEvent() after:" );
+	}
+	else if( eventPtr->GetEventType() == 21 )
+	{
+		HelperFunctions::PrintCounter( "Serializing event in Server::NetworkEventForwarder::ForwardEvent() after:" );
+	}
 	eventPtr->Serialize( out );
 	out << "\r\n";
 
-	std::shared_ptr<BinaryPacket> msg(PFS_NEW BinaryPacket( out.str().c_str(), (u_long)out.str().length()));
+	std::shared_ptr<BinaryPacket> msg( new BinaryPacket( out.str().c_str(), (u_long)out.str().length() ) );
+
+	if( eventPtr->GetEventType() == 20 )
+	{
+		HelperFunctions::PrintCounter( "Inside Client::NetworkEventForwarder::ForwardEvent() after:" );
+	}
+	else if( eventPtr->GetEventType() == 21 )
+	{
+		HelperFunctions::PrintCounter( "Inside Server::NetworkEventForwarder::ForwardEvent() after:" );
+	}
 
 	if( this )
 		mSocketManager->Send( mSocketID, msg );

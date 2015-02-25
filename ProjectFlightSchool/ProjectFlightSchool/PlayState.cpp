@@ -62,7 +62,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		// Fire projectile
 		std::shared_ptr<Event_Remote_Fired_Projectile> data = std::static_pointer_cast<Event_Remote_Fired_Projectile>(newEvent);
-		HelperFunctions::PrintCounter( "PlayState::EventListener() received event after:" );
+		HelperFunctions::PrintCounter( "Inside PlayState::EventListener() after:" );
 		OutputDebugStringA("-----------------------------------\n");
 		UINT teamID = (UINT)-1;
 		for( UINT i = 0; i < mRemotePlayers.size(); i++ )
@@ -566,12 +566,15 @@ HRESULT PlayState::Update( float deltaTime )
 
 	while( !mPlayer->gEventList.empty() )
 	{
+		if( mPlayer->gEventList.back()->GetEventType() == 20 )
+		{
+			HelperFunctions::PrintCounter( "Inside PlayState::Update() after:" );
+		}
 		Client::GetInstance()->SendEvent( mPlayer->gEventList.back() );
 		mPlayer->gEventList.pop_back();
 	}
 	while( !mGui->gEventList.empty() )
 	{
-		OutputDebugString(L"");
 		Client::GetInstance()->SendEvent( mGui->gEventList.back() );
 		mGui->gEventList.pop_back();
 	}

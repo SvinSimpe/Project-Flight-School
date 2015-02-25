@@ -191,56 +191,40 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		XMStoreFloat( &t, result );
 		XMVECTOR intersection = XMVectorAdd( rayPosInWorld, rayDirInWorld * t );
 
+		XMVECTOR playerToCursor = XMVectorSubtract( intersection, XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, 1.0f, mLowerBody.position.z ) ) );
+		XMStoreFloat3( &unPack, playerToCursor );
+		playerToCursor = XMVector3Normalize( XMVectorSet( unPack.x, 0.0f, unPack.z, 0.0f ) );
+		XMStoreFloat3( &mUpperBody.direction, playerToCursor );
+	}
+
 	// UNCOMMENT THIS TO USE CLICK TO MOVE
 	//if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
 	//{
 	//	XMStoreFloat3( &mPick, intersection );
 	//}
+
 	//== Weapon handling ==
+	mWeaponCoolDown -= deltaTime;
+	mMeleeCoolDown -= deltaTime;
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_LEFT ) && mWeaponCoolDown <= 0.0f )
 	{
 		Fire();
-		mWeaponCoolDown = mLoadOut->rangedWeapon->attackRate;
-		
+
 		RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] );
 		mRightArmAnimationCompleted		= false;
 		IEventPtr E1( new Event_Client_Attack( mID, RIGHT_ARM_ID, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] ) );
 		QueueEvent( E1 );
+		mWeaponCoolDown = mLoadOut->rangedWeapon->attackRate;
+		//mWeaponCoolDown = 2.0f;
 	}
-	else
-		mWeaponCoolDown -= deltaTime;
-
-		XMVECTOR playerToCursor = XMVectorSubtract( intersection, XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, 1.0f, mLowerBody.position.z ) ) );
-		XMStoreFloat3( &unPack, playerToCursor );
-		playerToCursor = XMVector3Normalize( XMVectorSet( unPack.x, 0.0f, unPack.z, 0.0f ) );
-		XMStoreFloat3( &mUpperBody.direction, playerToCursor );
-
-
-		//== Weapon handling ==
-		if ( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_LEFT ) && mWeaponCoolDown <= 0.0f )
-		{
-			Fire();
-			mWeaponCoolDown = 1.0f;
-
-			RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] );
-			mRightArmAnimationCompleted = false;
-			IEventPtr E1( new Event_Client_Attack( mID, RIGHT_ARM_ID, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] ) );
-			QueueEvent( E1 );
-		}
-		else
-			mWeaponCoolDown -= deltaTime;
-
-		if ( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_RIGHT ) && mMeleeCoolDown <= 0.0f )
-		{
-			RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
-			mLeftArmAnimationCompleted = false;
-			IEventPtr E1( new Event_Client_Attack( mID, LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] ) );
-			QueueEvent( E1 );
-			mHasMeleeStarted	= true;
-			mMeleeCoolDown		= mLoadOut->meleeWeapon->attackRate;
-		}
-		else
-			mMeleeCoolDown -= deltaTime;
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_RIGHT ) && mMeleeCoolDown <= 0.0f )
+	{
+		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
+		mLeftArmAnimationCompleted = false;
+		IEventPtr E1( new Event_Client_Attack( mID, LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] ) );
+		QueueEvent( E1 );
+		mHasMeleeStarted	= true;
+		mMeleeCoolDown		= mLoadOut->meleeWeapon->attackRate;
 	}
 }
 
@@ -375,7 +359,7 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 {
 	if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
 	{
-		mFollowPath = true;
+		mFollowPath = false;
 		Pathfinder::GetInstance()->RequestPath( currentPath1, mLowerBody.position, mPick  );
 		Pathfinder::GetInstance()->CalculateSubPath( currentPath1 );
 		currentPath = currentPath1->TotalPath();
@@ -464,9 +448,9 @@ void Player::Fire()
 			float directionOffset	=  (float)( rand() % 100 ) * 0.001f - mLoadOut->rangedWeapon->spread;
 			mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffset, mUpperBody.direction.y, mUpperBody.direction.z + directionOffset );
 			IEventPtr E1( new Event_Client_Fired_Projectile( mID, loadDir, mFireDirection, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage ) );
-			QueueEvent( E1 );
-			// Firing projectile here
 			HelperFunctions::StartCounter();
+			OutputDebugStringA( "Event sent from Player::Fire()\n" );
+			QueueEvent( E1 );
 		}
 		else
 		{

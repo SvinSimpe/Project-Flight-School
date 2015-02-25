@@ -40,6 +40,7 @@
 #include "EventManager.h"
 #include <windows.h>
 #include <windowsx.h>
+#include "HelperFunctions.h"
 
 using namespace EF;
 
@@ -152,6 +153,14 @@ bool EventManager::RemoveListener( const EventListenerDelegate& eventDelegate, c
 bool EventManager::TriggerEvent( const IEventPtr& pEvent ) const
 {
     bool processed = false;
+	if( pEvent->GetEventType() == 20 )
+	{
+		HelperFunctions::PrintCounter( "Inside Server::EventManager::TriggerEvent() after:" );
+	}
+	else if( pEvent->GetEventType() == 21 )
+	{
+		HelperFunctions::PrintCounter( "Inside Client::EventManager::TriggerEvent() after:" );
+	}
 
 	auto findIt = m_eventListeners.find( pEvent->GetEventType() );
 	if ( findIt != m_eventListeners.end() )

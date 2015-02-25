@@ -15,7 +15,8 @@ void Server::ClientJoined( IEventPtr eventPtr )
 			UINT teamID = CurrentTeamDelegate();
 
 			mClientMap[data->ID()]			= new ClientNEF();
-			mClientMap[data->ID()]->NEF.Initialize( data->ID(), mSocketManager );
+			mClientMap[data->ID()]->NEF		= new NetworkEventForwarder();
+			mClientMap[data->ID()]->NEF->Initialize( data->ID(), mSocketManager );
 			mClientMap[data->ID()]->TeamID	= teamID;
 			mClientMap[data->ID()]->ID		= data->ID();
 			//mClientMap[data->ID()]->AggroCircle	= new BoundingCircle( 1.0f );
@@ -211,7 +212,7 @@ void Server::ClientFiredProjectile( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Client_Fired_Projectile::GUID )
 	{
 		std::shared_ptr<Event_Client_Fired_Projectile> data = std::static_pointer_cast<Event_Client_Fired_Projectile>( eventPtr );
-		HelperFunctions::PrintCounter( "Server::ClientFiredProjectile() received event after:" );
+		HelperFunctions::PrintCounter( "Inside Server::ClientFiredProjectile() after:" );
 		auto& it = mClientMap.find(data->ID());
 		if( it != mClientMap.end() )
 		{
@@ -557,25 +558,28 @@ void Server::StartUp( IEventPtr eventPtr )
 
 void Server::DoSelect( int pauseMicroSecs, bool handleInput )
 {
-	mSocketManager->DoSelect( pauseMicroSecs, handleInput );
+	if( mActive )
+		mSocketManager->DoSelect( pauseMicroSecs, handleInput );
 }
 
 void Server::BroadcastEvent( IEventPtr eventPtr, UINT exception )
 {
+	if( eventPtr->GetEventType() == 21 )
+	{
+		HelperFunctions::PrintCounter( "Inside Server::BroadcastEvent() after:" );
+	}
 	for( auto& to : mClientMap )
 	{
 		if( to.first != exception )
 		{
-			//mClientMap[to.first]->NEF.ForwardEvent( eventPtr );
-			mEventList.push_front( ServerEvent( eventPtr, to.first ) );
+			mClientMap[to.first]->NEF->ForwardEvent( eventPtr );
 		}
 	}
 }
 
 void Server::SendEvent( IEventPtr eventPtr, UINT to )
 {
-	//mClientMap[to]->NEF.ForwardEvent( eventPtr );
-	mEventList.push_front( ServerEvent( eventPtr, to ) );
+	mClientMap[to]->NEF->ForwardEvent( eventPtr );
 }
 
 UINT Server::CurrentTeamDelegate()
@@ -728,12 +732,6 @@ void Server::Update( float deltaTime )
 		}
 
 		// Sends the events in the queue to the clients
-		while( !mEventList.empty() )
-		{
-			mClientMap[mEventList.back().ToID]->NEF.ForwardEvent( mEventList.back().EventPtr );
-			mEventList.pop_back();
-		}
-		DoSelect( 0 );
 	}
 }
 
@@ -835,10 +833,10 @@ void Server::Reset()
 
 	for( auto& c : mClientMap )
 	{
+		SAFE_DELETE( c.second->NEF );
 		SAFE_DELETE( c.second );
 	}
 	mClientMap.clear();
-	mEventList.clear();
 
 	//for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
 	//{
@@ -893,9 +891,13 @@ void Server::Release()
 		mSocketManager->Release();
 
 	SAFE_DELETE( mSocketManager );
-	mClientMap.clear();
 
-	mEventList.clear();
+	for( auto& c : mClientMap )
+	{
+		SAFE_DELETE( c.second->NEF );
+		SAFE_DELETE( c.second );
+	}
+	mClientMap.clear();
 
 	//Energy cells
 	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
@@ -916,7 +918,6 @@ Server::Server() : Network()
 	mActive					= false;
 	mShips					= std::vector<ServerShip*>();
 	mShips.reserve( 2 );
-	mEventList				= std::list<ServerEvent>();
 	mEnergyCells			= nullptr;
 	mEnemies				= nullptr;
 	mSpawners				= nullptr;
@@ -924,14 +925,13 @@ Server::Server() : Network()
 	mNrOfEnemiesSpawned		= 0;
 	mNrOfPlayers			= 0;
 	mNrOfProjectilesFired	= 0;
-	mEventList		= std::list<ServerEvent>();
-	mPlayers		= nullptr;
+	mPlayers				= nullptr;
 	
-	mPlayers		= new ServerPlayer*[MAX_NR_OF_PLAYERS];
+	mPlayers				= new ServerPlayer*[MAX_NR_OF_PLAYERS];
 	for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
-		mPlayers[i]	= nullptr;
+		mPlayers[i]			= nullptr;
 
-	mNrOfPlayers	= 0;
+	mNrOfPlayers			= 0;
 }
 
 Server::~Server()

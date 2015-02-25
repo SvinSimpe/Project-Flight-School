@@ -2,6 +2,7 @@
 #define NETWORK_H
 
 #include "Connection.h"
+#include <thread>
 
 // Base class for both server and client
 class Network

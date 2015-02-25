@@ -13,6 +13,12 @@ int BaseState::GetStateType()
 	return mStateType;
 }
 
+HRESULT BaseState::Initialize()
+{
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/shipUpgradeMenu.dds", mCursor );
+	return S_OK;
+}
+
 BaseState::BaseState()
 {
 }

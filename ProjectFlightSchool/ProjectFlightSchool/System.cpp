@@ -156,7 +156,7 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 		return E_FAIL;
 
 	ShowWindow( mHWnd, nCmdShow );
-	ShowCursor( true );
+	ShowCursor( false );
 
 	///////////////////////////////
 	// Initialize sub-applications
@@ -180,7 +180,7 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 	RenderManager::GetInstance()->Initialize();
 	//TestSound
 	SoundBufferHandler::GetInstance()->Initialize();
-	
+
 	mGame = new Game();
 	mGame->Initialize();
 

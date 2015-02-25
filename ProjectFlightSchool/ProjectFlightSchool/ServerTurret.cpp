@@ -40,23 +40,35 @@ void ServerTurret::SwitchMode( UINT mode )
 
 void ServerTurret::Fire()
 {
-	//XMVECTOR pos = XMLoadFloat3( &mTurretHead->pos );
-	//XMVECTOR dir = XMLoadFloat3( &XMFLOAT3( mTurretHead->rot.x, mTurretHead->rot.y, mTurretHead->rot.z ) );
+	XMVECTOR pos = XMLoadFloat3( &mTurretHead->pos );
+	XMVECTOR dir = XMLoadFloat3( &XMFLOAT3( mTurretHead->rot.x, mTurretHead->rot.y, mTurretHead->rot.z ) );
 
-	//pos += dir * 2.15f;
+	pos += dir * 2.15f;
 
-	//XMFLOAT3 loadPos;
-	//XMStoreFloat3( &loadPos, pos );
+	XMFLOAT3 loadPos;
+	XMStoreFloat3( &loadPos, pos );
 
-	//float dirOff = (float)( rand() % 100 ) * 0.001f - mLoadOut->rangedWeapon->spread;
-	//XMFLOAT3 fireDir = XMFLOAT3( mTurretHead->rot.x + dirOff, mTurretHead->rot.y, mTurretHead->rot.z + dirOff );
-	//IEventPtr E1( new Event_Turret_Fired_Projectile( 
-	//	mID, 
-	//	loadPos, 
-	//	fireDir, 
-	//	mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), 
-	//	mLoadOut->rangedWeapon->range ) );
-	//EventManager::GetInstance()->QueueEvent( E1 );
+	float dirOff = (float)( rand() % 100 ) * 0.001f - mLoadOut->rangedWeapon->spread;
+	XMFLOAT3 fireDir = XMFLOAT3( mTurretHead->rot.x + dirOff, mTurretHead->rot.y, mTurretHead->rot.z + dirOff );
+	IEventPtr E1( new Event_Turret_Fired_Projectile( 
+		mID, 
+		loadPos, 
+		fireDir, 
+		mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), 
+		mLoadOut->rangedWeapon->range ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
+}
+
+void ServerTurret::ChangeLevel( UINT level )
+{
+	level -= 1;
+	mLoadOut->rangedWeapon->damage = TURRET_DAMAGE + ( level * 10 );
+}
+
+void ServerTurret::ClearTarget()
+{
+	mTarget = nullptr;
+	SwitchMode( IDLE_MODE );
 }
 
 UINT ServerTurret::CheckMode() const
@@ -97,8 +109,7 @@ void ServerTurret::FindTarget( BoundingCircle* enemy )
 		}
 		else if( !mTarget->Intersect( mScanCircle ) )
 		{
-			mTarget = nullptr;
-			SwitchMode( IDLE_MODE );
+			ClearTarget();
 		}
 	}
 }
@@ -117,7 +128,8 @@ void ServerTurret::Reset( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 	mID		= id;
 	mTeamID	= team;
 
-	SwitchMode( IDLE_MODE );
+	mLoadOut->rangedWeapon->Reset();
+	ClearTarget();
 
 	mPos.x -= 1.798f;
 	mPos.y += 3.878f;
@@ -145,7 +157,7 @@ void ServerTurret::Initialize( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, X
 	mModes[ATTACK_MODE]		= new AttackingTurret();
 
 	mLoadOut				= new LoadOut();
-	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN );
+	mLoadOut->rangedWeapon	= new RangedInfo( TURRET );
 
 	mPos.x -= 1.798f;
 	mPos.y += 3.878f;

@@ -22,6 +22,7 @@ class BaseState
 	private:
 	protected:
 		int				mStateType;
+		AssetID			mCursor;
 	public:
 
 	// Class functions
@@ -35,7 +36,7 @@ class BaseState
 		virtual void	Reset()						= 0;
 		int				GetStateType();	
 
-		virtual HRESULT Initialize()				= 0;
+		virtual HRESULT Initialize();
 		virtual void	Release()					= 0;
 						BaseState();
 		virtual			~BaseState();

@@ -24,7 +24,8 @@ void MapNodeManager::writeToLog( const std::string &text )
 void MapNodeManager::LoadLevel( std::string filePath ) 
 {
 	HRESULT hr = S_OK;
-	std::vector<std::string> assetPaths;
+	std::vector<AssetInfo> assets;
+	std::unordered_map<AssetID, AssetInfo> assetMap;
 	TiXmlDocument doc;
 	if( !doc.LoadFile( filePath.c_str() ) )
 	{
@@ -44,22 +45,31 @@ void MapNodeManager::LoadLevel( std::string filePath )
 			 nodeElement;
 			 nodeElement = nodeElement->NextSiblingElement() )
 		{
-			assetPaths.push_back( nodeElement->Attribute("path") );
+			AssetInfo temp;
+
+			temp.assetPath = nodeElement->Attribute("path");
+			nodeElement->Attribute("collisionType", (int*)&temp.collisionType );
+			nodeElement->Attribute("renderType", (int*)&temp.renderType );
+
+			assets.push_back( temp );
 		}
 	//Load the assets into the engine
-	for( auto it = assetPaths.begin(); it != assetPaths.end(); it++ )
+	for( auto it = assets.begin(); it != assets.end(); it++ )
 	{
 		AssetID id = 0;
-		int found = it->find_last_of('/');
-		if( it->substr( found + 1 ) == "mushroom1.pfs")
+		int found = (*it).assetPath.find_last_of('/');
+		if( (*it).assetPath.substr( found + 1 ) == "mushroom1.pfs")
 		{
 			int d = 0;
 		}
-		hr = Graphics::GetInstance()->LoadStatic3dAsset( it->substr( 0, found + 1 ), it->substr( found + 1 ), id );
+		hr = Graphics::GetInstance()->LoadStatic3dAsset( (*it).assetPath.substr( 0, found + 1 ), (*it).assetPath.substr( found + 1 ), id );
+
+		assetMap[id] = (*it);
+
 		if( id == CUBE_PLACEHOLDER )
 		{
 			OutputDebugStringA( "Model not found:" );
-			OutputDebugStringA( it->substr( found + 1 ).c_str() );
+			OutputDebugStringA( (*it).assetPath.substr( found + 1 ).c_str() );
 			OutputDebugStringA( " Maybe path is wrong? \n" );
 		}
 	}
@@ -72,13 +82,13 @@ void MapNodeManager::LoadLevel( std::string filePath )
 			 nodeElement = nodeElement->NextSiblingElement() )
 		{
 			MapNode* temp;
-			if( temp = CreateNode( nodeElement->Attribute("path") ) )
+			if( temp = CreateNode( nodeElement->Attribute("path"), assetMap ) )
 			{
 				mNodeMap[nodeElement->Attribute("type")].push_back( temp );
 			}
 		}
 }
-MapNode* MapNodeManager::CreateNode( const char* fileName )
+MapNode* MapNodeManager::CreateNode( const char* fileName, std::unordered_map<AssetID, AssetInfo>& assetMap )
 {
 	//char* contentDir	= "../Content/Assets/Nodes/";
 	UINT vertexSize		= sizeof( StaticVertex );
@@ -172,6 +182,9 @@ MapNode* MapNodeManager::CreateNode( const char* fileName )
 			OutputDebugStringA( fileName );
 			OutputDebugStringA( ".\n" );
 		}
+
+		obInfo.collision = assetMap[assetID].collisionType;
+		obInfo.renderType = assetMap[assetID].renderType;
 
 		ob.Initialize( obInfo, assetID );
 		staticObjects.push_back( ob );

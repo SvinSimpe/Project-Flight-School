@@ -1,4 +1,4 @@
-#include "SteeringBehaviorManager.h"
+#include "Enemy.h"
 
 HRESULT SteeringBehaviorManager::Update( float deltaTime )
 {
@@ -32,12 +32,12 @@ HRESULT SteeringBehaviorManager::Update( float deltaTime )
 			// ONLY USE ONE Combine Force function
 
 			// Simple weighted combination function
-			//keepGoing		= CombinedForceWeighted( steeringForce, mBehaviors[i]->mWeight );
+			keepGoing		= CombinedForceWeighted( steeringForce, mBehaviors[i]->mWeight );
 			// Normalize the result
 			//needToClamp		= true;
 
 			// Prioritized Sum funtion
-			keepGoing		= CombineForcePrioritySum( steeringForce );
+			//keepGoing		= CombineForcePrioritySum( steeringForce );
 
 			if( !keepGoing )
 				break;
@@ -100,9 +100,9 @@ bool SteeringBehaviorManager::CombineForcePrioritySum( XMFLOAT3& steeringForce )
 		if( newForce < forceLeft )
 		{
 			// mTotalSteeringForce += steeringForce
-			mTotalSteeringForce.x	+= mTotalSteeringForce.x;
-			mTotalSteeringForce.z	+= mTotalSteeringForce.z;
-			mTotalSteeringForce.y	+= mTotalSteeringForce.y;
+			mTotalSteeringForce.x	+= steeringForce.x;
+			mTotalSteeringForce.z	+= steeringForce.z;
+			mTotalSteeringForce.y	+= steeringForce.y;
 		}
 		else
 		{
@@ -124,4 +124,28 @@ bool SteeringBehaviorManager::CombineForcePrioritySum( XMFLOAT3& steeringForce )
 XMFLOAT3 SteeringBehaviorManager::GetFinalSteeringForce() const
 {
 	return mTotalSteeringForce;
+}
+
+HRESULT SteeringBehaviorManager::Initialize( Enemy* enemy )
+{
+	mEnemy				= enemy;
+	mMaxSteeringForce	= 400.0f;
+	return S_OK;
+}
+
+void SteeringBehaviorManager::Release()
+{
+}
+
+void SteeringBehaviorManager::Reset()
+{
+}
+
+SteeringBehaviorManager::SteeringBehaviorManager()
+{
+	mTotalSteeringForce = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+}
+
+SteeringBehaviorManager::~SteeringBehaviorManager()
+{
 }

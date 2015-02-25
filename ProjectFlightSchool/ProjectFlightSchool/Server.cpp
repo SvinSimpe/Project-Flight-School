@@ -808,7 +808,7 @@ bool Server::Initialize()
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 	{
 		mEnemies[i] = new Enemy();
-		mEnemies[i]->Initialize( i, mPlayers, mNrOfPlayers );
+		mEnemies[i]->Initialize( i, mPlayers, mNrOfPlayers, mEnemies );
 		mEnemies[i]->Spawn( GetNextSpawn() );
 	}
 

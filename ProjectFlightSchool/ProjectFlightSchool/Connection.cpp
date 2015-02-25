@@ -162,11 +162,6 @@ bool NetSocket::HandleInput()
 			mRecvBegin = 0;
 		}
 	}
-
-	std::ostringstream out;
-	out << "Number of packages received: " << mInList.size() << "\n";
-	OutputDebugStringA( out.str().c_str() );
-
 	return pktReceived;
 }
 

@@ -1,5 +1,6 @@
 #include "Server.h"
 #include "Enemy.h"
+#include "HelperFunctions.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Start of eventlistening functions
@@ -129,7 +130,7 @@ void Server::ClientUpdate( IEventPtr eventPtr )
 			mClientMap[data->ID()]->IsAlive = data->IsAlive();
 
 			IEventPtr E1( new Event_Remote_Update( data->ID(), mClientMap[data->ID()]->Pos.center, vel, dir, name, data->IsAlive() ) );
-			BroadcastEvent( E1, data->ID() );
+			SendCulledUpdate( E1, mClientMap[data->ID()]->Pos.center, data->ID() );
 		}
 	}
 }
@@ -644,7 +645,24 @@ void Server::UpdateShip( float deltaTime, ServerShip* s )
 
 	s->Update( deltaTime );
 	IEventPtr E1( new Event_Server_Update_Turret( s->mServerTurret->mID, s->mServerTurret->mTurretHead->rot ) );
-	BroadcastEvent( E1 );
+	SendCulledUpdate( E1, s->mServerTurret->mPos );
+}
+
+void Server::SendCulledUpdate( IEventPtr eventPtr, XMFLOAT3 enemyPos, UINT exception )
+{
+	for( auto& cm : mClientMap )
+	{
+		auto c = cm.second;
+		if( CullEnemyUpdate( c->Pos.center, enemyPos ) && c->ID != exception )
+		{
+			SendEvent( eventPtr, c->ID );
+		}
+	}
+}
+
+bool Server::CullEnemyUpdate( XMFLOAT3 playerPos, XMFLOAT3 enemyPos )
+{
+	return HelperFunctions::Dist3Squared( playerPos, enemyPos ) <= ENEMY_UPDATE_RANGE;
 }
 
 bool Server::Connect( UINT port )
@@ -709,7 +727,9 @@ void Server::Update( float deltaTime )
 																	mEnemies[i]->GetPosition(), 
 																	mEnemies[i]->GetDirection(), 
 																	mEnemies[i]->IsAlive() ) );
-				BroadcastEvent( enemy );
+				{
+					SendCulledUpdate( enemy, mEnemies[i]->GetPosition() );
+				}
 			}
 			else
 			{

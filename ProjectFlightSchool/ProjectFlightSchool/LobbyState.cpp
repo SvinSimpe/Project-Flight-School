@@ -88,6 +88,10 @@ void LobbyState::HandleInput()
 		IEventPtr E1( new Event_Client_Lobby_Finished() );
 		Client::GetInstance()->SendEvent( E1 );
 	}
+	else if( mBackButton.LeftMousePressed() )
+	{
+		// DO SOME STUFF HERE FOR LOGIC AND COOLNESS AND SCIENCE
+	}
 }
 
 HRESULT LobbyState::Update( float deltaTime )
@@ -100,6 +104,7 @@ HRESULT LobbyState::Update( float deltaTime )
 	}
 
 	mStartButton.Update( deltaTime );
+	mBackButton.Update( deltaTime );
 	
 	HandleInput();
 
@@ -129,8 +134,8 @@ HRESULT LobbyState::Render()
 		mFont.WriteText( textToWrite, 360.0f, p->button.GetPosition().y, 2 );
 	}
 
-
 	mStartButton.Render();
+	mBackButton.Render();
 
 	for( auto p : mPlayers )
 	{
@@ -180,7 +185,16 @@ HRESULT LobbyState::Initialize()
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Lobby_Finished::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Remote_Left::GUID );
 
-	mStartButton.Initialize( "../Content/Assets/Textures/Menu/Create_Menu_Text/MultiPlayer.png", 1600, 700, 200, 200 );
+	float x = ( (float)Input::GetInstance()->mScreenWidth * 0.9f ) - 400.0f;
+	float y = ( (float)Input::GetInstance()->mScreenHeight * 0.9f ) - 200.0f;
+	float w = 200.0f;
+	float h = 200.0f;
+
+	mStartButton.Initialize( "../Content/Assets/Textures/Menu/Create_Menu_Text/MultiPlayer.png", x, y, w, h );
+
+	x += 250.0f;
+
+	mBackButton.Initialize( "../Content/Assets/Textures/Menu/Back.png", x, y, w, h );
 
 	return hr;
 }
@@ -189,6 +203,7 @@ void LobbyState::Release()
 {
 	mFont.Release();
 	mStartButton.Release();
+	mBackButton.Release();
 	for( size_t i = 0; i < mPlayers.size(); i++ )
 	{
 		mPlayers[i]->button.Release();

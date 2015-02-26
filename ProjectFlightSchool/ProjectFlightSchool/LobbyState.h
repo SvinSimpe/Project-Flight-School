@@ -24,6 +24,7 @@ class LobbyState : public BaseState
 		std::vector<LobbyPlayer*>	mPlayers;
 		Font						mFont;
 		MovingButton				mStartButton;
+		MovingButton				mBackButton;
 
 	protected:
 	public:

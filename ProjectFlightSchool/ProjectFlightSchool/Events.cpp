@@ -59,6 +59,8 @@ const EventType Event_Game_Started::GUID( counter++ );
 const EventType Event_Game_Ended::GUID( counter++ );
 const EventType Event_Client_Died::GUID( counter++ );
 const EventType Event_Remote_Died::GUID( counter++ );
+const EventType Event_Client_Removed_Projectile::GUID( counter++ );
+const EventType Event_Remote_Removed_Projectile::GUID( counter++ );
 const EventType Event_Client_Damaged::GUID( counter++ );
 const EventType Event_Remote_Damaged::GUID( counter++ );
 const EventType Event_Client_Spawned::GUID( counter++ );

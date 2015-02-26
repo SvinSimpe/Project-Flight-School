@@ -211,6 +211,7 @@ class LIBRARY_EXPORT Graphics
 
 		DirectX::XMFLOAT4X4	GetRootMatrix( AnimationTrack animTrack );
 		bool				GetAnimationMatrices( AnimationTrack &animTrack, int playType, Anim3dInfo &info );
+		OctTree*			GetOctTreeFromStatic3DAsset( AssetID assetID );
 
 		void ChangeCamera();
 		void ZoomInDeveloperCamera();

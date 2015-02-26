@@ -708,18 +708,18 @@ void Server::Update( float deltaTime )
 			}
 		}
 
-		for ( size_t i = 0; i < mNrOfPlayers; i++ )
+		for( auto& cm : mClientMap )
 		{
+			auto c  = cm.second;
 			for( auto& s : mShips )
 			{
-				if( s->mTeamID == mPlayers[i]->TeamID )
+				if( s->mTeamID == c->TeamID )
 				{
-					shipBuff = CheckShipBuff( s, mPlayers[i]->Pos );
-					if( shipBuff != mPlayers[i]->IsBuffed )
+					shipBuff = s->mBuffCircle->Intersect( &c->Pos );
+					if( shipBuff != c->IsBuffed )
 					{
-						IEventPtr BuffEvent( new Event_Server_Change_Buff_State( mPlayers[i]->ID, shipBuff, s->mBuffMod ) );
-						SendEvent( BuffEvent, mPlayers[i]->ID );
-						break;
+						IEventPtr BuffEvent( new Event_Server_Change_Buff_State( c->ID, shipBuff, s->mBuffMod ) );
+						BroadcastEvent( BuffEvent );
 					}
 				}
 			}

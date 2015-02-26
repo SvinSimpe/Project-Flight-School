@@ -593,6 +593,20 @@ HRESULT PlayState::Update( float deltaTime )
 	mFPS = mFPS * 0.1f + 0.9f / deltaTime;
 	HandleDeveloperCameraInput();
 
+	if( mPlayer->IsBuffed() )
+	{
+		OutputDebugStringA( "Player is buffed!\n" );
+	}
+	for( auto& rp : mRemotePlayers )
+	{
+		if( rp->IsBuffed() )
+		{
+			std::ostringstream out;
+			out << "Remote: " << rp->GetID() << " is buffed!\n";
+			OutputDebugStringA( out.str().c_str() );
+		}
+	}
+
 	while( !mPlayer->gEventList.empty() )
 	{
 		Client::GetInstance()->SendEvent( mPlayer->gEventList.back() );

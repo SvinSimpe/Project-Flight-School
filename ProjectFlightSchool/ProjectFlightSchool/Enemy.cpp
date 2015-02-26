@@ -385,7 +385,7 @@ HRESULT Enemy::Initialize( int id, ServerPlayer** players, UINT NrOfPlayers, Ene
 
 	mAttackRadius		= new BoundingCircle( 1.0f );
 	mAttentionRadius	= new BoundingCircle( 1.0f );
-	mEvadeRadius		= new BoundingCircle( 1.5f );
+	mEvadeRadius		= new BoundingCircle( 2.0f );
 	
 	mBehaviors			= new IEnemyBehavior*[NR_OF_ENEMY_BEHAVIORS];
 
@@ -411,9 +411,9 @@ HRESULT Enemy::Initialize( int id, ServerPlayer** players, UINT NrOfPlayers, Ene
 	mSteeringBehaviorManager->Initialize(	this );
 	//mSteeringBehaviorManager->AddBehavior( new SteerWander( this ) );
 	mSteeringBehaviorManager->AddBehavior(  new SteerApproach( this ) );
-	//mSteeringBehaviorManager->AddBehavior(  new SteerEvade( this ) );
+	mSteeringBehaviorManager->AddBehavior(  new SteerEvade( this ) );
 	mSteeringBehaviorManager->SetUpBehavior( 0, 4.0f, 1.0f );
-	//mSteeringBehaviorManager->SetUpBehavior( 1, 4.0f, 1.0f );
+	mSteeringBehaviorManager->SetUpBehavior( 1, 10.0f, 1.0f );
 
 	return S_OK;
 }

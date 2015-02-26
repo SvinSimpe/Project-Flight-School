@@ -32,12 +32,12 @@ HRESULT SteeringBehaviorManager::Update( float deltaTime )
 			// ONLY USE ONE Combine Force function
 
 			// Simple weighted combination function
-			keepGoing		= CombinedForceWeighted( steeringForce, mBehaviors[i]->mWeight );
+			//keepGoing		= CombinedForceWeighted( steeringForce, mBehaviors[i]->mWeight );
 			// Normalize the result
 			//needToClamp		= true;
 
 			// Prioritized Sum funtion
-			//keepGoing		= CombineForcePrioritySum( steeringForce );
+			keepGoing		= CombineForcePrioritySum( steeringForce );
 
 			if( !keepGoing )
 				break;

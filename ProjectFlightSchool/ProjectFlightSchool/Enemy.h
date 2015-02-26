@@ -227,6 +227,7 @@ class SteeringBehavior
 		virtual bool	Update( float deltaTime, XMFLOAT3& totalForce );
 		virtual void	SteerTowards( XMFLOAT3& target, XMFLOAT3& result );
 		virtual void	SteerAway( XMFLOAT3& target, XMFLOAT3& result );
+		virtual float	Dot( XMFLOAT3& a, XMFLOAT3& b );
 		
 		virtual void	Reset();
 		virtual void	Release();

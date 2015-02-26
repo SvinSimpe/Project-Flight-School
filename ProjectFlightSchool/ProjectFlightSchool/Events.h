@@ -3358,7 +3358,6 @@ class Event_Server_Change_Buff_State : public IEvent
 		}
 };
 
-
 class Event_Server_Sync_Energy_Cell : public IEvent
 {
 	private:
@@ -3550,7 +3549,6 @@ class Event_Remote_Win : public IEvent
 		}
 };
 	
-
 class Event_Client_Sync_Energy_Cell : public IEvent
 {
 	private:

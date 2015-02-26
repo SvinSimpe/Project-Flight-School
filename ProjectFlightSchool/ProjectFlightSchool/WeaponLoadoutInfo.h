@@ -22,7 +22,7 @@
 
 // Shotgun
 #define SHOTGUN_AR			1.0f	// Attack Rate
-#define SHOTGUN_DAMAGE		0.5f	// Damage
+#define SHOTGUN_DAMAGE		3.0f	// Damage
 #define SHOTGUN_RANGE		0.3f	// Range
 #define SHOTGUN_SPREAD		0.0f	// Spread
 #define SHOTGUN_AOE			0.0f	// Area of effect

@@ -156,7 +156,7 @@ void ParticleManager::Initialize()
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Fire]; i++ )
 	{
-		mParticleSystems[Fire][i]->Initialize( Fire, 12.0f, 256 );	//-------------------------------------------------emitter rate and particle count
+		mParticleSystems[Fire][i]->Initialize( Fire, 8.0f, 256 );	//-------------------------------------------------emitter rate and particle count
 		mNrOfParticleSystemsPerType[Fire]++;
 		mNrOfParticleSystems++;
 	}

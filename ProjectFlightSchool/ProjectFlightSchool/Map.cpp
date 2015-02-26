@@ -239,52 +239,6 @@ bool Map::BulletVsMap( XMFLOAT3 position, XMFLOAT3 &normal )
 	return localReturn;
 }
 
-NavTriangle* Map::IsOnNavMesh( XMFLOAT3 pos )
-{
-	XMFLOAT2 tempPos = XMFLOAT2(pos.x, pos.z);
-	XMFLOAT2 p0, p1, p2;
-
-	int unitPosX = (int)pos.x;
-	int unitPosZ = (int)pos.z;
-
-	int playerX = ( ( (int)GetMapHalfWidth() * NODE_DIM ) + unitPosX ) / NODE_DIM;
-	int playerZ = ( ( (int)GetMapHalfHeight() * NODE_DIM ) + unitPosZ ) / NODE_DIM;
-
-	MapNodeInstance* temp = GetNodeInstance( playerX, playerZ );
-
-	//if( temp )
-	//	return temp->IsOnNavMesh( pos );
-	//else
-	return nullptr;
-	////for( auto& it : mNavData )
-	////{
-	////	p0 = XMFLOAT2( it.triPoints[0].x, it.triPoints[0].z );
-	////	p1 = XMFLOAT2( it.triPoints[1].x, it.triPoints[1].z ); 
-	////	p2 = XMFLOAT2( it.triPoints[2].x, it.triPoints[2].z ); 
-
-	////	if( HelperFunctions::Inside2DTriangle( tempPos, p0, p1, p2 ) )
-	////	{
-	////		OutputDebugStringA("Player is inside bounds.\n");
-	////		return &it;
-	////	}
-	////}
-	//OutputDebugStringA("Player is outside of map!\n");
-	//return nullptr;
-
-
-	////p0 = XMFLOAT2( -10, -10 );
-	////p1 = XMFLOAT2( -10, 10 ); 
-	////p2 = XMFLOAT2( 10, 0 ); 
-
-	////if( Inside2DTriangle( tempPos, p0, p1, p2 ) )
-	////{
-	////	OutputDebugStringA("Player is inside bounds.\n");
-	////	return true;
-	////}
-	////OutputDebugStringA("Player is outside of map!\n");
-	////return false;
-}
-
 //std::vector<DirectX::XMFLOAT2> Map::GetPath( XMFLOAT3 start, XMFLOAT3 goal )
 //{
 //	std::vector<Node*> path;

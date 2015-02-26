@@ -30,6 +30,7 @@ struct RangedInfo
 	float			spread;
 	float			areaOfEffect;
 	float			projectileSpeed;
+	float			overheat;
 
 	RangedInfo()
 	{
@@ -42,6 +43,7 @@ struct RangedInfo
 		spread			= 0.0f;
 		areaOfEffect	= 0.0f;
 		projectileSpeed	= 0.0f;
+		overheat		= 0.0f;
 	}
 
 	RangedInfo( WeaponType weaponType )
@@ -60,6 +62,7 @@ struct RangedInfo
 				spread			=	MINIGUN_SPREAD;
 				areaOfEffect	=	MINIGUN_AOE;
 				projectileSpeed	=	MINIGUN_SPEED;
+				overheat		=	0.0f;
 				/*attackRate		= 0.005f;
 				damage			= 2.0f;
 				range			= 0.1f;
@@ -77,6 +80,7 @@ struct RangedInfo
 				spread			=	SHOTGUN_SPREAD;
 				areaOfEffect	=	SHOTGUN_AOE;
 				projectileSpeed	=	SHOTGUN_SPEED;
+				overheat		=	0.0f;
 			}
 				break;
 
@@ -88,6 +92,7 @@ struct RangedInfo
 				spread			=	GL_SPREAD;
 				areaOfEffect	=	GL_AOE;
 				projectileSpeed	=	GL_SPEED;
+				overheat		=	0.0f;
 			}
 				break;
 
@@ -99,6 +104,7 @@ struct RangedInfo
 				spread			=	SNIPER_SPREAD;
 				areaOfEffect	=	SNIPER_AOE;
 				projectileSpeed	=	SNIPER_SPEED;
+				overheat		=	0.0f;
 			}
 				break;
 			case TURRET:
@@ -109,6 +115,7 @@ struct RangedInfo
 				spread			=	TURRET_SPREAD;
 				areaOfEffect	=	TURRET_AOE;
 				projectileSpeed	=	TURRET_SPEED;
+				overheat		=	0.0f;
 			}
 				break;
 			default:
@@ -119,6 +126,7 @@ struct RangedInfo
 				spread			=	MINIGUN_SPREAD;
 				areaOfEffect	=	MINIGUN_AOE;
 				projectileSpeed	=	MINIGUN_SPEED;
+				overheat		=	0.0f;
 			}
 		}
 	}
@@ -143,6 +151,7 @@ struct RangedInfo
 				spread			=	MINIGUN_SPREAD;
 				areaOfEffect	=	MINIGUN_AOE;
 				projectileSpeed	=	MINIGUN_SPEED;
+				overheat		=	0.0f;
 			}
 				break;
 
@@ -154,6 +163,7 @@ struct RangedInfo
 				spread			=	SHOTGUN_SPREAD;
 				areaOfEffect	=	SHOTGUN_AOE;
 				projectileSpeed	=	SHOTGUN_SPEED;
+				overheat		=	0.0f;
 			}
 				break;
 
@@ -165,6 +175,7 @@ struct RangedInfo
 				spread			=	GL_SPREAD;
 				areaOfEffect	=	GL_AOE;
 				projectileSpeed	=	GL_SPEED;
+				overheat		=	0.0f;
 			}
 				break;
 
@@ -176,6 +187,7 @@ struct RangedInfo
 				spread			=	SNIPER_SPREAD;
 				areaOfEffect	=	SNIPER_AOE;
 				projectileSpeed	=	SNIPER_SPEED;
+				overheat		=	0.0f;
 			}
 				break;
 
@@ -187,6 +199,7 @@ struct RangedInfo
 				spread			=	MINIGUN_SPREAD;
 				areaOfEffect	=	MINIGUN_AOE;
 				projectileSpeed	=	MINIGUN_SPEED;
+				overheat		=	0.0f;
 			}
 		}
 	}
@@ -208,6 +221,7 @@ struct RangedInfo
 						spread			= 0.15f;
 						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
+						overheat		= 0.0f;
 					}
 						break;
 
@@ -219,6 +233,7 @@ struct RangedInfo
 						spread			= 0.15f;
 						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
+						overheat		= 0.0f;
 					}
 						break;
 
@@ -230,6 +245,7 @@ struct RangedInfo
 						spread			= 0.15f;
 						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
+						overheat		= 0.0f;
 					}
 						break;
 
@@ -248,6 +264,7 @@ struct RangedInfo
 						spread			= 0.15f;
 						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
+						overheat		= 0.0f;
 					}
 						break;
 

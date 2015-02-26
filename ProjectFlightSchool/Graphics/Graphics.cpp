@@ -440,7 +440,17 @@ HRESULT Graphics::InitializeEffects()
 	//=======================================
 	//			PARTICLE EFFECTS			|
 	//=======================================
-		
+
+	//Hammer smoke effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/Hammer_Effect.hlsl";
+	effectInfo.fileName					= "Hammer_Effect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_HAMMER_EFFECT]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
 	//Normal Smoke effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/NormalSmokeEffect.hlsl";
 	effectInfo.fileName					= "NormalSmokeEffect";
@@ -450,6 +460,7 @@ HRESULT Graphics::InitializeEffects()
 	if( FAILED( hr = mEffects[EFFECTS_NORMAL_SMOKE]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 	//--------------------------
+
 	//Explosion smoke effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/ExplosionSmoke.hlsl";
 	effectInfo.fileName					= "ExplosionSmoke";

@@ -63,8 +63,6 @@ class MapNode
 		UINT				GetVertexCount() const;
 		UINT				GetNavVertexCount() const;
 
-		UINT				GetGridDim() const;
-
 		UINT				GetGridWidth() const;
 		UINT				GetGridHeight() const;
 

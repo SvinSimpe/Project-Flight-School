@@ -31,6 +31,7 @@ HRESULT Map::Render( float deltaTime, Player* player )
 	}
 	return S_OK;
 }
+
 void Map::OnLoadLevel( IEventPtr pEvent )
 {
 	if( Event_Load_Level::GUID == pEvent->GetEventType() )
@@ -43,15 +44,9 @@ void Map::OnLoadLevel( IEventPtr pEvent )
 
 		MapNodePlacer::GetInstance()->BuildMap( mBuildMap );
 
-		if( mMapSection )
-		{
-			mMapSection->Release();
-			delete mMapSection;
-		}
 		mNrOfNodes = MapNodePlacer::GetInstance()->GetNrOfNodes();
 	}
 }
-
 //std::vector<DirectX::XMFLOAT2> Map::GetPath( XMFLOAT3 start, XMFLOAT3 goal )
 //{
 //	std::vector<Node*> path;
@@ -141,23 +136,26 @@ void Map::OnLoadLevel( IEventPtr pEvent )
 //
 //	return path1;
 //}
-
 UINT Map::GetMapDim() const
 {
-	return mMapDim ;//* SECTION_DIM;
+	return mMapDim ;
 }
+
 UINT Map::GetMapWidth() const
 {
-	return mMapDim ;//* SECTION_DIM;
+	return mMapDim ;
 }
+
 UINT Map::GetMapHeight() const
 {
-	return mMapDim ;//* SECTION_DIM;
+	return mMapDim ;
 }
+
 UINT Map::GetMapHalfWidth() const
 {
 	return mMapDim / 2;
 }
+
 UINT Map::GetMapHalfHeight() const
 {
 	return mMapDim / 2;
@@ -213,7 +211,6 @@ MapNodeInstance* Map::GetNodeInstance( int x, int z )
 HRESULT Map::Initialize( UINT mapDim )
 {
 	//Map size is mapDim* mapDim
-	
 
 	mMapDim = mapDim;
 	MapNodeManager::GetInstance()->Initialize();
@@ -223,6 +220,7 @@ HRESULT Map::Initialize( UINT mapDim )
 	
 	return S_OK;
 }
+
 void Map::Release()
 {
 	
@@ -239,9 +237,11 @@ void Map::Release()
 	MapNodePlacer::GetInstance()->Release();
 	MapNodeManager::GetInstance()->Release();
 }
+
 Map::Map()
 {
 }
+
 Map::~Map()
 {
 }

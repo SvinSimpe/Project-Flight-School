@@ -15,11 +15,10 @@ static enum MapSize
 class Map
 {
 	private:
-		MapSection *mMapSection;
-		MapNodeInstance*** mBuildMap;
-		float mVertexSpacing;
-		UINT mNrOfNodes;
-		UINT mMapId;
+		MapNodeInstance***	mBuildMap;
+		float				mVertexSpacing;
+		UINT				mNrOfNodes;
+		UINT				mMapId;
 
 	protected:
 	public:
@@ -27,29 +26,24 @@ class Map
 	private:
 	protected:
 	public:
-		HRESULT Render( float deltaTime, Player* player );
-		void GenerateGrid();
-		void OnLoadLevel( IEventPtr E1 );
+		HRESULT				Render( float deltaTime, Player* player );
+
+		void				OnLoadLevel( IEventPtr E1 );
 		//std::vector<DirectX::XMFLOAT2> GetPath( XMFLOAT3 start, XMFLOAT3 goal );
+		UINT				GetMapDim() const;
+		UINT				GetMapWidth() const;
+		UINT				GetMapHeight() const;
+		UINT				GetMapHalfWidth() const;
+		UINT				GetMapHalfHeight() const;
+		float				GetHeight( DirectX::XMFLOAT3 pos );
+		UINT				GetNrOfNodes() const;
+		MapNodeInstance***	GetNodeMap() const;
+		MapNodeInstance*	GetNodeInstance( int x, int z );
 
-		UINT GetMapDim() const;
-		UINT GetMapWidth() const;
-		UINT GetMapHeight() const;
-
-		UINT GetMapHalfWidth() const;
-		UINT GetMapHalfHeight() const;
-
-		float GetHeight( DirectX::XMFLOAT3 pos );
-
-		UINT GetNrOfNodes() const;
-
-		MapNodeInstance*** GetNodeMap() const;
-		MapNodeInstance* GetNodeInstance( int x, int z );
-
-		HRESULT Initialize( UINT mapDim );
-		
-		void Release();
+		HRESULT				Initialize( UINT mapDim );
+		void				Release();
 		Map();
+
 		~Map();
 };
 #endif

@@ -2,6 +2,10 @@
 #include "MapNodeInstance.h"
 #include "RenderManager.h"
 
+HRESULT	MapNode::Update( float deltaTime )
+{
+	return S_OK;
+}
 HRESULT	MapNode::Render( float deltaTime, XMFLOAT4X4 parentWorld )
 {
 	RenderManager::GetInstance()->AddNodeGridToList( mGrid, mVertexCount, mBlendMap, parentWorld );
@@ -12,6 +16,34 @@ HRESULT	MapNode::Render( float deltaTime, XMFLOAT4X4 parentWorld )
 	}
 
 	return S_OK;
+}
+
+StaticVertex* MapNode::GetGrid() const
+{
+	return mGrid;
+}
+
+UINT MapNode::GetVertexCount() const
+{
+	return mVertexCount;
+}
+UINT MapNode::GetNavVertexCount() const
+{
+	return mNavVertexCount;
+}
+
+UINT MapNode::GetGridWidth() const
+{
+	return mGridWidth;
+}
+UINT MapNode::GetGridHeight() const
+{
+	return mGridHeight;
+}
+
+XMFLOAT3 MapNode::GetOrigin() const
+{
+	return mOrigin;
 }
 XMFLOAT3* MapNode::GetNavData() const
 {
@@ -49,38 +81,11 @@ float MapNode::GetHeight( DirectX::XMFLOAT3 pos )
 	}
 }
 
-UINT MapNode::GetNavVertexCount() const
-{
-	return mNavVertexCount;
-}
-StaticVertex* MapNode::GetGrid() const
-{
-	return mGrid;
-}
-UINT MapNode::GetVertexCount() const
-{
-	return mVertexCount;
-}
-UINT MapNode::GetGridWidth() const
-{
-	return mGridWidth;
-}
-UINT MapNode::GetGridHeight() const
-{
-	return mGridHeight;
-}
-XMFLOAT3 MapNode::GetOrigin() const
-{
-	return mOrigin;
-}
 GameObject* MapNode::GetStaticAssets() const
 {
 	return mStaticAssets;
 }
-HRESULT	MapNode::Update( float deltaTime )
-{
-	return S_OK;
-}
+
 MapNodeInstance* MapNode::GetMapNodeInstance()
 {
 	MapNodeInstance* result = nullptr;
@@ -108,6 +113,7 @@ void MapNode::ReleaseInstance( int InstanceID )
 		}
 	}
 }
+
 HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 {
 	mGrid				= new StaticVertex[initInfo.vertexCount];

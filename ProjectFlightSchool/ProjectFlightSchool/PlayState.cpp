@@ -651,6 +651,15 @@ HRESULT PlayState::Update( float deltaTime )
 
 	CheckProjectileCollision();
 
+	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+	{
+		if( !mEnergyCells[i]->GetPickedUp() )
+		{
+			mEnergyCells[i]->Update( deltaTime );
+		}
+	}
+
+
 	// Test Anim
 	///////////////////////////////////////////////////////////////////////////
 	//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );

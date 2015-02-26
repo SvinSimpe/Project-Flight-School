@@ -15,6 +15,8 @@ class EnergyCell
 		UINT				mOwnerID;
 		bool				mPickedUp;
 		BoundingCircle*		mPickUpRadius;
+		float				mHooverFactor;
+		PointLight*			mLight;
 
 	protected:
 	public:

@@ -596,7 +596,7 @@ void Server::CreateShips()
 		mShips.push_back( new ServerShip() );
 		mShips.back()->Initialize( shipID, CurrentTeamDelegate(), XMFLOAT3( xOffset, 0.0f, 0.0f ), XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 		shipID++;
-		xOffset += 60.0f;
+		xOffset += 160.0f;
 	}
 }
 
@@ -643,29 +643,24 @@ void Server::CreateEnergyCells()
 {
 	//Calculate Energy cell position
 	CalculateCellSpawnPositions( mShips.at(0)->GetPos() );
-	//CalculateCellSpawnPositions( mShips.at(1)->GetPos() );
+	CalculateCellSpawnPositions( mShips.at(1)->GetPos() );
 
 	//Energy cells
 	mEnergyCells = new EnergyCell*[MAX_ENERGY_CELLS];
 	mEnergyCells[0] = new EnergyCell();
 	mEnergyCells[0]->Initialize( DirectX::XMFLOAT3( 1000000.0f, 0.0f, 10000000.0f ) ); //Gfx drivers bug makes us not render the first one so this is an incredible ugly hack around that problem
-	for( int i = 1; i < (MAX_ENERGY_CELLS/2) + 1 ; i++ )
+	for( int i = 1; i < MAX_ENERGY_CELLS ; i++ )
 	{
 		mEnergyCells[i] = new EnergyCell();
 		mEnergyCells[i]->Initialize( mCellPositionQueue.front() );
 		mCellPositionQueue.pop();
-	}
-	for( int i = (MAX_ENERGY_CELLS / 2) + 1; i < MAX_ENERGY_CELLS; i++ )
-	{
-		mEnergyCells[i] = new EnergyCell();
-		mEnergyCells[i]->Initialize( XMFLOAT3( 100.0f, 0.0f, 100.0f ) );
 	}
 }
 
 void Server::CalculateCellSpawnPositions( XMFLOAT3 shipPosition )
 {
 	// Length between every cell
-	float length = 5.0f;
+	float length = 20.0f;
 	
 	XMFLOAT3	energyCellPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	float		offset				= 0.0f;
@@ -682,14 +677,9 @@ void Server::CalculateCellSpawnPositions( XMFLOAT3 shipPosition )
 		energyCellPosition = shipPosition;
 		energyCellPosition.x += ( length * cellIndex );
 
-		// Find rotation angle
+		// Set current bounds based on previous angle
 		lowerBound = prevCellAngle + offset;
-		//if( lowerBound > 360.0f )
-		//	lowerBound -= 360.0f;
-
 		upperBound = prevCellAngle - offset;
-		//if( upperBound <= 0.0f )
-		//	upperBound += 360.0f;
 
 		if( upperBound < lowerBound )
 			std::swap( upperBound, lowerBound );
@@ -704,10 +694,17 @@ void Server::CalculateCellSpawnPositions( XMFLOAT3 shipPosition )
 		// Get vector from ship to cell
 		XMVECTOR shipToCell = XMLoadFloat3( &energyCellPosition ) - XMLoadFloat3( &shipPosition );
 
+		// --- DO ---
 		// Rotate vector around ship by some random value
-		XMStoreFloat3( &energyCellPosition, XMVector3TransformCoord( shipToCell, XMMatrixRotationY( -XMConvertToRadians( 45.0f * (float)cellIndex ) ) ) );
+		XMStoreFloat3( &energyCellPosition, ( XMVector3TransformCoord( shipToCell, XMMatrixRotationY( -XMConvertToRadians( currCellAngle ) ) ) ) );
+		// --- WHILE ---
+
+
+		// Add rotated vector to ship position to get new cell position
+		XMStoreFloat3( &energyCellPosition, XMLoadFloat3( &shipPosition ) + XMLoadFloat3( &energyCellPosition ) );
 
 		// Add to queue
+		energyCellPosition.y = 2.5f;
 		mCellPositionQueue.push( energyCellPosition );
 
 		prevCellAngle = currCellAngle;

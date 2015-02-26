@@ -31,6 +31,7 @@ HRESULT Map::Render( float deltaTime, Player* player )
 	}
 	return S_OK;
 }
+
 void Map::OnLoadLevel( IEventPtr pEvent )
 {
 	if( Event_Load_Level::GUID == pEvent->GetEventType() )
@@ -43,11 +44,6 @@ void Map::OnLoadLevel( IEventPtr pEvent )
 
 		MapNodePlacer::GetInstance()->BuildMap( mBuildMap );
 
-		if( mMapSection )
-		{
-			mMapSection->Release();
-			delete mMapSection;
-		}
 		mNrOfNodes = MapNodePlacer::GetInstance()->GetNrOfNodes();
 	}
 }
@@ -82,7 +78,7 @@ bool Map::PlayerVsMap( XMFLOAT3 position, XMFLOAT3 &normal )
 					rotation		= XMLoadFloat4( &XMFLOAT4( -XMVectorGetX( rotation ), -XMVectorGetY( rotation ), XMVectorGetZ( rotation ), XMVectorGetW( rotation ) ) );
 
 					objMat			= XMMatrixAffineTransformation( scale, XMVectorZero(), rotation, translate );
-					objMat			= objMat * XMMatrixTranslationFromVector( XMLoadFloat3( &temp->GetPos() ) );
+					objMat			= objMat * XMMatrixTranslationFromVector( XMLoadFloat3( &temp->GetOrigin() ) );
 					XMMATRIX objInv = XMMatrixInverse( nullptr, objMat );
 
 					/////////////// Player to objspace
@@ -194,7 +190,7 @@ bool Map::BulletVsMap( XMFLOAT3 position, XMFLOAT3 &normal )
 			rotation		= XMLoadFloat4( &XMFLOAT4( -XMVectorGetX( rotation ), -XMVectorGetY( rotation ), XMVectorGetZ( rotation ), XMVectorGetW( rotation ) ) );
 
 			objMat			= XMMatrixAffineTransformation( scale, XMVectorZero(), rotation, translate );
-			objMat			= objMat * XMMatrixTranslationFromVector( XMLoadFloat3( &temp->GetPos() ) );
+			objMat			= objMat * XMMatrixTranslationFromVector( XMLoadFloat3( &temp->GetOrigin() ) );
 			XMMATRIX objInv = XMMatrixInverse( nullptr, objMat );
 
 			/////////////// Player to objspace
@@ -374,23 +370,26 @@ NavTriangle* Map::IsOnNavMesh( XMFLOAT3 pos )
 //
 //	return path1;
 //}
-
 UINT Map::GetMapDim() const
 {
-	return mMapDim ;//* SECTION_DIM;
+	return mMapDim ;
 }
+
 UINT Map::GetMapWidth() const
 {
-	return mMapDim ;//* SECTION_DIM;
+	return mMapDim ;
 }
+
 UINT Map::GetMapHeight() const
 {
-	return mMapDim ;//* SECTION_DIM;
+	return mMapDim ;
 }
+
 UINT Map::GetMapHalfWidth() const
 {
 	return mMapDim / 2;
 }
+
 UINT Map::GetMapHalfHeight() const
 {
 	return mMapDim / 2;
@@ -398,21 +397,25 @@ UINT Map::GetMapHalfHeight() const
 
 float Map::GetHeight( DirectX::XMFLOAT3 pos )
 {
+	DirectX::XMFLOAT3 corrPos;
+	DirectX::XMFLOAT3 corrNodePos;
+
 	float x = ( pos.x + GetMapHalfWidth() * NODE_DIM );
 	float z = ( pos.z + GetMapHalfWidth() * NODE_DIM );
 
-	DirectX::XMFLOAT3 nodeSpace;
-
-	nodeSpace.x = x;
-	nodeSpace.z = z;
-
-	int pX = (int)floorf( nodeSpace.x / NODE_DIM );
-	int pZ = (int)floorf( nodeSpace.z / NODE_DIM );
+	int pX = (int)floorf( x / NODE_DIM );
+	int pZ = (int)floorf( z / NODE_DIM );
 
 	MapNodeInstance* temp = GetNodeInstance( pX, pZ );
 	if( temp )
 	{
-		temp->GetMapNode()->GetHeight( nodeSpace );
+		corrNodePos.x = temp->GetPos().x + ( GetMapHalfWidth() * NODE_DIM );
+		corrNodePos.z = temp->GetPos().z + ( GetMapHalfHeight() * NODE_DIM );
+
+		corrPos.x = x - corrNodePos.x;
+		corrPos.z = z - corrNodePos.z;
+
+		return temp->GetMapNode()->GetHeight( corrPos );
 	}
 
 	return 0.0f;
@@ -442,7 +445,6 @@ MapNodeInstance* Map::GetNodeInstance( int x, int z )
 HRESULT Map::Initialize( UINT mapDim )
 {
 	//Map size is mapDim* mapDim
-	
 
 	mMapDim = mapDim;
 	MapNodeManager::GetInstance()->Initialize();
@@ -452,6 +454,7 @@ HRESULT Map::Initialize( UINT mapDim )
 	
 	return S_OK;
 }
+
 void Map::Release()
 {
 	
@@ -468,9 +471,11 @@ void Map::Release()
 	MapNodePlacer::GetInstance()->Release();
 	MapNodeManager::GetInstance()->Release();
 }
+
 Map::Map()
 {
 }
+
 Map::~Map()
 {
 }

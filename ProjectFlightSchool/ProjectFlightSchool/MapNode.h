@@ -45,6 +45,8 @@ class MapNode
 
 		float***		mHeightMap;
 
+		float			mEnvironmentTimer;
+
 		MapNodeInstance mInstances[INSTANCE_COUNT];
 
 	protected:

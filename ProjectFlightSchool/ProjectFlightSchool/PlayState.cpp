@@ -781,11 +781,11 @@ HRESULT PlayState::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT PlayState::Render()
+HRESULT PlayState::Render( float deltaTime )
 {
 	mPlayer->Render( 0.0f, 1 );
 
-	mWorldMap->Render( 0.0f , mPlayer );
+	mWorldMap->Render( deltaTime , mPlayer );
 
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
 	{

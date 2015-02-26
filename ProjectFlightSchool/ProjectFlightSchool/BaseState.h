@@ -20,7 +20,7 @@ class BaseState
 	private:
 	protected:
 		int				mStateType;
-		AssetID			mCursor;
+		HCURSOR			mCursor;
 	public:
 
 	// Class functions

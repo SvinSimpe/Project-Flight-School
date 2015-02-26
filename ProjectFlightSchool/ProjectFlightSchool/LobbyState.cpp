@@ -136,7 +136,6 @@ HRESULT LobbyState::Render()
 	{
 		p->button.Render();
 	}
-	RenderManager::GetInstance()->AddObject2dToList( mCursor, XMFLOAT2( (float)Input::GetInstance()->mCurrentMousePos.x, (float)Input::GetInstance()->mCurrentMousePos.y ), DirectX::XMFLOAT2( 20.0f, 20.0f ) );
 
 	RenderManager::GetInstance()->Render();
 
@@ -146,6 +145,7 @@ HRESULT LobbyState::Render()
 void LobbyState::OnEnter()
 {
 	Reset();
+	SetCursor( mCursor );
 }
 
 void LobbyState::OnExit()

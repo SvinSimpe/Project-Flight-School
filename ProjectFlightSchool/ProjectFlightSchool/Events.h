@@ -5203,4 +5203,35 @@ class Event_Trigger_Client_Update : public IEvent
 			return mIsAlive;
 		}
 };
+
+class Event_Unlock_Player : public IEvent
+{
+	private:
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Unlock_Player()
+		{
+		}
+		~Event_Unlock_Player() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Unlock_Player() );
+		}
+};
 #endif

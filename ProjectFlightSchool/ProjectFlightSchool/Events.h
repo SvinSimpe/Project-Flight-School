@@ -625,6 +625,8 @@ class Event_Start_Server : public IEvent
 {
 	private:
 		std::string mPort;
+		UINT		mMaxPlayers;
+
 	protected:
 	public:
 		static const EventType GUID;
@@ -635,10 +637,12 @@ class Event_Start_Server : public IEvent
 		Event_Start_Server()
 		{
 			mPort = "";
+			mMaxPlayers = (UINT)-1;
 		}
-		Event_Start_Server( std::string port )
+		Event_Start_Server( std::string port, UINT maxPlayers )
 		{
 			mPort = port;
+			mMaxPlayers = maxPlayers;
 		}
 		~Event_Start_Server() {}
 		const EventType& GetEventType() const
@@ -648,18 +652,24 @@ class Event_Start_Server : public IEvent
 		void Serialize( std::ostringstream& out ) const
 		{
 			out << mPort << " ";
+			out << mMaxPlayers << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
 			in >> mPort;
+			in >> mMaxPlayers;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Start_Server( mPort ) );
+			return IEventPtr( new Event_Start_Server( mPort, mMaxPlayers ) );
 		}
 		std::string Port() const
 		{
 			return mPort;
+		}
+		UINT MaxPlayers() const
+		{
+			return mMaxPlayers;
 		}
 };
 

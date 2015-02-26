@@ -14,10 +14,9 @@ void MultiplayerMenuState::HandleInput()
 	}
 	else if( mButtons.at(TWO_VS_TWO)->LeftMousePressed() )
 	{	
-		// WARNING, THE STRINGSTREAM HERE MIGHT FUCK SHIT UP
 		std::string port = mPortBox.GetText();
 
-		IEventPtr E1( new Event_Start_Server( port ) );
+		IEventPtr E1( new Event_Start_Server( port, 4 ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
 		IEventPtr E2( new Event_Start_Client( "localhost", port ) );
@@ -30,7 +29,7 @@ void MultiplayerMenuState::HandleInput()
 	{
 		std::string port = mPortBox.GetText();
 
-		IEventPtr E1( new Event_Start_Server( port ) );
+		IEventPtr E1( new Event_Start_Server( port, 6 ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 		
 		IEventPtr E2( new Event_Start_Client( "localhost", port ) );
@@ -43,7 +42,7 @@ void MultiplayerMenuState::HandleInput()
 	{
 		std::string port = mPortBox.GetText();
 
-		IEventPtr E1( new Event_Start_Server( port ) );
+		IEventPtr E1( new Event_Start_Server( port, 8 ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 				
 		IEventPtr E2( new Event_Start_Client( "localhost", port ) );

@@ -10,7 +10,7 @@
 using namespace DirectX;
 
 #define MAX_PARTICLES 10000
-#define NR_OF_PARTICLE_TYPES 13
+#define NR_OF_PARTICLE_TYPES 14
 
 #if !defined(SAFE_DELETE_ARRAY)
 #define SAFE_DELETE_ARRAY( x ) if( x ){ delete [] x; x = nullptr; }
@@ -31,7 +31,8 @@ enum ParticleType
 	Level_Inner,
 	Explosion,
 	ExplosionSmoke,
-	NormalSmoke
+	NormalSmoke,
+	Hammer_Effect
 };
 
 struct ParticleData
@@ -269,7 +270,7 @@ struct ParticleData
 			SparkElevationY( 1.0f, 2.0f );
 		}
 
-		if( particleType != Test_Fountain && particleType != Spark  && particleType != Level_Up && particleType != Level_Inner && particleType != Explosion && particleType != NormalSmoke )
+		if( particleType != Test_Fountain && particleType != Spark  && particleType != Level_Up && particleType != Level_Inner && particleType != Explosion && particleType != NormalSmoke && particleType != Hammer_Effect )
 		{
 			//Get random elevation
 			float randomElevation = ( (float)( rand() % 20 ) - 10 ) * 0.1f;
@@ -306,7 +307,13 @@ struct ParticleData
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 2 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 1 );		
 			}
-			if( particleType == Fire )
+			else if( particleType == Hammer_Effect )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 20 );
+ 				//randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 20 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 20 );		
+			}
+			else if( particleType == Fire )
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 50 );	//---------------------random speed of particles
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 20 );

@@ -361,6 +361,7 @@ struct MeleeInfo
 	float			knockBack;
 	float			timeTillAttack;		// From button press
 	float			stun;
+	float			reach;
 	BoundingCircle*	boundingCircle;
 
 	MeleeInfo()
@@ -370,6 +371,7 @@ struct MeleeInfo
 		attackRate		= 0.0f;
 		damage			= 0.0f;
 		radius			= 0.0f;
+		reach			= 0.0f;
 		spread			= 0;
 		knockBack		= 0.0f;
 		boundingCircle	= nullptr;
@@ -388,9 +390,10 @@ struct MeleeInfo
 				attackRate		= CLAYMORE_AR;
 				damage			= CLAYMORE_DAMAGE;
 				radius			= CLAYMORE_RADIUS;
+				reach			= CLAYMORE_REACH;
 				spread			= CLAYMORE_SPREAD;
 				knockBack		= CLAYMORE_KB;
-				boundingCircle	= new BoundingCircle( CLAYMORE_REACH );
+				boundingCircle	= new BoundingCircle( CLAYMORE_RADIUS );
 				timeTillAttack	= CLAYMORE_TTA;
 				stun			= CLAYMORE_STUN;
 			}
@@ -402,8 +405,9 @@ struct MeleeInfo
 				damage			= HAMMER_DAMAGE;
 				radius			= HAMMER_RADIUS;
 				spread			= HAMMER_SPREAD;
+				reach			= HAMMER_REACH;
 				knockBack		= HAMMER_KB;
-				boundingCircle	= new BoundingCircle( HAMMER_REACH );
+				boundingCircle	= new BoundingCircle( HAMMER_RADIUS );
 				timeTillAttack	= HAMMER_TTA;
 				stun			= HAMMER_STUN;
 			}
@@ -414,9 +418,10 @@ struct MeleeInfo
 				attackRate		= BLOWTORCH_AR;
 				damage			= BLOWTORCH_DAMAGE;
 				radius			= BLOWTORCH_RADIUS;
+				reach			= BLOWTORCH_REACH;
 				spread			= BLOWTORCH_SPREAD;
 				knockBack		= BLOWTORCH_KB;
-				boundingCircle	= new BoundingCircle( BLOWTORCH_REACH );
+				boundingCircle	= new BoundingCircle( BLOWTORCH_RADIUS );
 				timeTillAttack	= BLOWTORCH_TTA;
 				stun			= BLOWTORCH_STUN;
 			}
@@ -427,9 +432,10 @@ struct MeleeInfo
 				attackRate		= SAW_AR;
 				damage			= SAW_DAMAGE;
 				radius			= SAW_RADIUS;
+				reach			= SAW_REACH;
 				spread			= SAW_SPREAD;
 				knockBack		= SAW_KB;
-				boundingCircle	= new BoundingCircle( SAW_REACH );
+				boundingCircle	= new BoundingCircle( SAW_RADIUS );
 				timeTillAttack	= SAW_TTA;
 				stun			= SAW_STUN;
 			}
@@ -440,9 +446,10 @@ struct MeleeInfo
 				attackRate		= HAMMER_AR;
 				damage			= HAMMER_DAMAGE;
 				radius			= HAMMER_RADIUS;
+				reach			= HAMMER_REACH;
 				spread			= HAMMER_SPREAD;
 				knockBack		= HAMMER_KB;
-				boundingCircle	= new BoundingCircle( HAMMER_REACH );
+				boundingCircle	= new BoundingCircle( HAMMER_RADIUS );
 				timeTillAttack	= HAMMER_TTA;
 				stun			= HAMMER_STUN;
 			}

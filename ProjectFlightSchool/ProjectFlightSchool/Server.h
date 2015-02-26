@@ -29,14 +29,14 @@ class Server : public Network
 
 		struct ClientNEF // Server player
 		{
-			NetworkEventForwarder*	NEF;
-			float					HP = 100.0f;
-			UINT					ID;
-			UINT					TeamID;
-			BoundingCircle			Pos = BoundingCircle( XMFLOAT3( 0.0f, 0.0f, 0.0f ), 1.0f );
-			bool					IsBuffed = false;
-			bool					IsAlive = false;
-			bool					IsDown = false;
+			NetworkEventForwarder	NEF;
+			float					HP			= 100.0f;
+			UINT					ID			= (UINT)-1;
+			UINT					TeamID		= (UINT)-1;
+			BoundingCircle			Pos			= BoundingCircle( XMFLOAT3( 0.0f, 0.0f, 0.0f ), 1.0f );
+			bool					IsBuffed	= false;
+			bool					IsAlive		= false;
+			bool					IsDown		= false;
 		};
 
 		const UINT MAX_TEAMS = 2;
@@ -61,6 +61,7 @@ class Server : public Network
 
 		EnergyCell**				mEnergyCells;
 		bool						mStopAccept;
+		UINT						mMaxClients;
 
 	protected:
 	public:

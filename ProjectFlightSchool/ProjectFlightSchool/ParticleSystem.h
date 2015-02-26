@@ -170,7 +170,7 @@ struct ParticleSystem : public ParticleData
 		}
 		else if( particleType == Hammer_Effect )	
 		{
-			SetRandomDeathTime( 4, 12, particleCount );
+			SetRandomDeathTime( 2, 8, particleCount );
 			//SetRandomRotation( particleCount ); 
 		}
 		else if( particleType == Spark )
@@ -210,7 +210,7 @@ struct ParticleSystem : public ParticleData
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{
 		if( particleType == NormalSmoke )			Generate( emitterPosition, emitterDirection, 6,  120.0f );
-		else if( particleType == Hammer_Effect )	Generate( emitterPosition, emitterDirection, 8,  120.0f );
+		else if( particleType == Hammer_Effect )	Generate( emitterPosition, emitterDirection, 64,  180.0f );
 		else if( particleType == Spark )			Generate( emitterPosition, emitterDirection, 8, 25.0f );	
 		else if( particleType == Fire )				Generate( emitterPosition, emitterDirection, 8, 35.0f );
 		else if( particleType == FireSmoke )		Generate( emitterPosition, emitterDirection, 15, 25.0f );

@@ -151,7 +151,7 @@ void ParticleManager::Initialize()
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Hammer_Effect]; i++ )
 	{
-		mParticleSystems[Hammer_Effect][i]->Initialize( Hammer_Effect, 8.0f, 86 );
+		mParticleSystems[Hammer_Effect][i]->Initialize( Hammer_Effect, 64.0f, 256 );
 		mNrOfParticleSystemsPerType[Hammer_Effect]++;
 		mNrOfParticleSystems++;
 	}

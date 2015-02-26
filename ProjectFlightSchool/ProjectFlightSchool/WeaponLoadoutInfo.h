@@ -67,7 +67,7 @@
 #define HAMMER_RADIUS		1.0f	// Radius
 #define HAMMER_SPREAD		7		// Spread
 #define HAMMER_KB			3.0f	// Knockback
-#define HAMMER_TTA			0.7f	// Time till Attack Can't be changed
+#define HAMMER_TTA			0.92f	// Time till Attack Can't be changed
 #define HAMMER_STUN			3.0f	// Stun
 #define HAMMER_REACH		2.0f	// Reach
 

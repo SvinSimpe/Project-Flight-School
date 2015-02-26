@@ -283,9 +283,9 @@ struct ParticleData
 			}
 			else if( particleType == Hammer_Effect )
 			{
-				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 10 );
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 20 );
  				//randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 20 );
-				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 10 );		
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 20 );		
 			}
 			else if( particleType == Fire )
 			{

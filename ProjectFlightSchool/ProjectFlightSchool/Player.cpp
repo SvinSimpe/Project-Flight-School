@@ -218,6 +218,7 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		
 		//mWeaponCoolDown = 2.0f;
 	}
+
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_RIGHT ) && mMeleeCoolDown <= 0.0f )
 	{
 		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
@@ -228,13 +229,41 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		mMeleeCoolDown		= mLoadOut->meleeWeapon->attackRate;
 	}
 
-	if( mTimeSinceLastShot > 0.0f )
+	//Minigun behaviour
+	if( mLoadOut->rangedWeapon->weaponType == MINIGUN )
 	{
-		mTimeSinceLastShot -= deltaTime;
-	}
-	else if( mLoadOut->rangedWeapon->overheat > 0.0f )
-	{
-		mLoadOut->rangedWeapon->overheat -= 0.5f;
+		if( !mWeaponOverheated )
+		{
+			if( mTimeSinceLastShot > 0.0f )
+			{
+				mTimeSinceLastShot -= deltaTime;
+			}
+			else if( mLoadOut->rangedWeapon->overheat > 0.0f )
+			{
+				mLoadOut->rangedWeapon->overheat -= MINIGUN_OVERHEAT;
+			}
+		}
+		else
+		{
+			XMFLOAT3 weaponOffsets = MINIGUN_OFFSETS;
+
+			XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
+			XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
+			XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, weaponOffsets.z, mLowerBody.position.z ) );
+	
+			offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * weaponOffsets.y;
+			offset += direction * weaponOffsets.x;
+
+			XMFLOAT3 loadDir;
+			XMStoreFloat3( &loadDir, offset );
+
+			RenderManager::GetInstance()->mParticleManager->RequestParticleSystem( mID, NormalSmoke, loadDir, DirectX::XMFLOAT3( 0.0f, 1.0f, 0.0f ) ); 
+
+			if( mWeaponCoolDown <= 0.0f )
+			{
+				mWeaponOverheated = false;
+			}
+		}
 	}
 }
 
@@ -534,14 +563,20 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		IEventPtr E1( new Event_Trigger_Client_Fired_Projectile( mID, *projectileOffset, mFireDirection, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
-		mLoadOut->rangedWeapon->overheat += 0.5f;
+		mLoadOut->rangedWeapon->overheat += MINIGUN_OVERHEAT;
 		mTimeSinceLastShot = MINIGUN_OVERHEAT_CD;
+
+		if( mWeaponOverheated )
+		{
+			mWeaponOverheated = false;
+		}
 	}
 	else
 	{
 		mWeaponCoolDown						= MINIGUN_OVERHEAT_CD;
 		mLoadOut->rangedWeapon->overheat	= 0.0f;
 		mTimeSinceLastShot					= 0.0f;
+		mWeaponOverheated					= true;
 	}
 }
 
@@ -989,6 +1024,7 @@ Player::Player()
 	mPointLight			= nullptr;
 	mEnergyCellLight	= nullptr;
 
+	mWeaponOverheated	= false;
 	mTimeSinceLastShot	= 0.0f;
 	mWeaponCoolDown		= 0.0f;
 	mMeleeCoolDown		= 0.0f;

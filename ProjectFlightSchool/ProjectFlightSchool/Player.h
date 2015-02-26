@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "Pathfinder.h"
+#include "RenderManager.h"
 
 #define VELOCITY_FALLOFF 2.0f
 
@@ -33,6 +34,7 @@ class Player: public RemotePlayer
 		PointLight*		mEnergyCellLight;
 		Upgrades		mUpgrades;
 
+		bool		mWeaponOverheated;
 		float		mTimeSinceLastShot;
 		float		mWeaponCoolDown;
 		float		mMeleeCoolDown;

@@ -55,6 +55,11 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 		{
 			if( mPlayers[i]->ID == data->ID() )
 			{
+				if( data->ID() == 1 )
+				{
+					IEventPtr E1( new Event_Reset_Game() );
+					EventManager::GetInstance()->QueueEvent( E1 );
+				}
 				mPlayers.at(i)->button.Release();
 				SAFE_DELETE( mPlayers.at(i) );
 				std::swap( mPlayers.at(i), mPlayers.at(mPlayers.size() - 1) );
@@ -91,6 +96,8 @@ void LobbyState::HandleInput()
 	else if( mBackButton.LeftMousePressed() )
 	{
 		// DO SOME STUFF HERE FOR LOGIC AND COOLNESS AND SCIENCE
+		IEventPtr E1( new Event_Reset_Game() );
+		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 }
 
@@ -190,7 +197,7 @@ HRESULT LobbyState::Initialize()
 	float w = 200.0f;
 	float h = 200.0f;
 
-	mStartButton.Initialize( "../Content/Assets/Textures/Menu/Create_Menu_Text/MultiPlayer.png", x, y, w, h );
+	mStartButton.Initialize( "../Content/Assets/Textures/Menu/Start.png", x, y, w, h );
 
 	x += 250.0f;
 

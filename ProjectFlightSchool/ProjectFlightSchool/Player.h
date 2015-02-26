@@ -33,6 +33,7 @@ class Player: public RemotePlayer
 		PointLight*		mEnergyCellLight;
 		Upgrades		mUpgrades;
 
+		float		mTimeSinceLastShot;
 		float		mWeaponCoolDown;
 		float		mMeleeCoolDown;
 		float		mTimeTillattack;
@@ -88,6 +89,7 @@ class Player: public RemotePlayer
 		void		Die();
 		void		Fire();
 		void		FireShotgun( XMFLOAT3* spawnPoint );
+		void		FireMinigun( XMFLOAT3* projectileOffset );
 		void		AddImpuls( XMFLOAT3 impuls );
 		void		QueueEvent( IEvent* ptr );
 		void		UpgradeBody();

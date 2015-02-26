@@ -34,7 +34,7 @@ class System
 		void					EventListener( IEventPtr newEvent );
 		static LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
 		HRESULT					Update( float deltaTime );
-		HRESULT					Render();
+		HRESULT					Render( float deltaTime );
 
 	protected:
 	public:

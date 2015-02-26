@@ -11,14 +11,14 @@ struct JMatrix
 
 struct AssetInfo
 {
-	std::string assetPath;
-	CollisionType collisionType;
-	RenderType renderType;
+	std::string		assetPath;
+	CollisionType	collisionType;
+	RenderType		renderType;
 
 	AssetInfo()
 	{
-		collisionType	= Full;
-		renderType		= Static;
+		collisionType	= FULL_COLLISION;
+		renderType		= STATIC_RENDERTYPE;
 	}
 };
 
@@ -32,18 +32,18 @@ class MapNodeManager
 	public:
 
 	private:
-		void ConvertToFloat( XMFLOAT4X4& dest, double* source );
-		void writeToLog( const std::string &test );
+		void					ConvertToFloat( XMFLOAT4X4& dest, double* source );
+		void					writeToLog( const std::string &test );
 	protected:
 	public:
-		static		MapNodeManager* instance;
-		MapNode* CreateNode( const char* fileName, std::unordered_map<AssetID, AssetInfo>& assetMap );
-		NodeMap GetNodes();
-		void LoadLevel( std::string filePath );
-		static MapNodeManager* GetInstance();
-		HRESULT		Initialize();
-		void		Release();
-					MapNodeManager();
-		virtual		~MapNodeManager();
+		static MapNodeManager*	instance;
+		MapNode*				CreateNode( const char* fileName, std::unordered_map<AssetID, AssetInfo>& assetMap );
+		NodeMap					GetNodes();
+		void					LoadLevel( std::string filePath );
+		static MapNodeManager*	GetInstance();
+		HRESULT					Initialize();
+		void					Release();
+								MapNodeManager();
+		virtual					~MapNodeManager();
 };
 #endif

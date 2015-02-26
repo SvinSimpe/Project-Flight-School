@@ -12,7 +12,8 @@ const int MULTI_MENU_STATE		= 2;
 const int OPTIONS_MENU_STATE	= 3;
 const int PLAY_STATE			= 4;
 const int LOBBY_STATE			= 5;
-const int NR_OF_STATES			= 6;
+const int LOBBY_OWNER_STATE		= 6;
+const int NR_OF_STATES			= 7;
 
 class BaseState
 {
@@ -20,7 +21,7 @@ class BaseState
 	private:
 	protected:
 		int				mStateType;
-		AssetID			mCursor;
+		HCURSOR			mCursor;
 	public:
 
 	// Class functions
@@ -28,7 +29,7 @@ class BaseState
 	protected:
 	public:
 		virtual HRESULT Update( float deltaTime )	= 0;
-		virtual HRESULT Render()					= 0;
+		virtual HRESULT Render( float deltaTime )	= 0;
 		virtual void	OnEnter()					= 0;
 		virtual void	OnExit()					= 0;
 		virtual void	Reset()						= 0;

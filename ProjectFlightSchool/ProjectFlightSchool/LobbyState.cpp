@@ -17,10 +17,10 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 		if( add )
 		{
 			LobbyPlayer* player = new LobbyPlayer;
-			player->ID		= data->ID();
+			player->ID			= data->ID();
 			player->team		= data->TeamID();
 			player->name		= data->Name();
-			XMFLOAT2 pos	= XMFLOAT2( 70.0f, 130.0f );
+			XMFLOAT2 pos		= XMFLOAT2( 70.0f, 130.0f );
 			if( mPlayers.size() > 0 )
 			{
 				pos = XMFLOAT2( mPlayers[mPlayers.size() - 1]->button.GetPosition().x, mPlayers[mPlayers.size() - 1]->button.GetPosition().y + 30 );
@@ -44,9 +44,12 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 	}
 	else if( newEvent->GetEventType() == Event_Server_Lobby_Finished::GUID )
 	{
-		std::shared_ptr<Event_Server_Lobby_Finished> data = std::static_pointer_cast<Event_Server_Lobby_Finished>( newEvent );
-		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
+		if( mActive )
+		{
+			std::shared_ptr<Event_Server_Lobby_Finished> data = std::static_pointer_cast<Event_Server_Lobby_Finished>( newEvent );
+			IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
 	}
 	else if( newEvent->GetEventType() == Event_Remote_Left::GUID )
 	{
@@ -67,6 +70,11 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 				}
 			}
 		}
+	}
+	else if ( newEvent->GetEventType() == Event_Connect_Server_Success::GUID )
+	{
+		IEventPtr E1( new Event_Change_State( LOBBY_OWNER_STATE ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 }
 
@@ -89,12 +97,7 @@ void LobbyState::HandleInput()
 		}
 	}
 
-	if( mStartButton.LeftMousePressed() )
-	{
-		IEventPtr E1( new Event_Client_Lobby_Finished() );
-		Client::GetInstance()->SendEvent( E1 );
-	}
-	else if( mBackButton.LeftMousePressed() )
+	if( mBackButton.LeftMousePressed() )
 	{
 		// DO SOME STUFF HERE FOR LOGIC AND COOLNESS AND SCIENCE
 		IEventPtr E1( new Event_Reset_Game() );
@@ -111,7 +114,6 @@ HRESULT LobbyState::Update( float deltaTime )
 		mPlayers[i]->button.Update( deltaTime );
 	}
 
-	mStartButton.Update( deltaTime );
 	mBackButton.Update( deltaTime );
 	
 	HandleInput();
@@ -119,7 +121,7 @@ HRESULT LobbyState::Update( float deltaTime )
 	return hr;
 }
 
-HRESULT LobbyState::Render()
+HRESULT LobbyState::Render( float deltaTime )
 {
 	HRESULT hr = S_OK;
 
@@ -142,14 +144,11 @@ HRESULT LobbyState::Render()
 		mFont.WriteText( textToWrite, 360.0f, p->button.GetPosition().y, 2 );
 	}
 
-	mStartButton.Render();
 	mBackButton.Render();
-
 	for( auto p : mPlayers )
 	{
 		p->button.Render();
 	}
-	RenderManager::GetInstance()->AddObject2dToList( mCursor, XMFLOAT2( (float)Input::GetInstance()->mCurrentMousePos.x, (float)Input::GetInstance()->mCurrentMousePos.y ), DirectX::XMFLOAT2( 20.0f, 20.0f ) );
 
 	RenderManager::GetInstance()->Render();
 
@@ -159,11 +158,13 @@ HRESULT LobbyState::Render()
 void LobbyState::OnEnter()
 {
 	Reset();
+	SetCursor( mCursor );
+	mActive = true;
 }
 
 void LobbyState::OnExit()
 {
-	mStartButton.SetExitCooldown();
+	mActive = false;
 	for( size_t i = 0; i < mPlayers.size(); i++ )
 	{
 		mPlayers[i]->button.SetExitCooldown();
@@ -173,6 +174,7 @@ void LobbyState::OnExit()
 
 void LobbyState::Reset()
 {
+	mActive = false;
 	for( size_t i = 0; i < mPlayers.size(); i++ )
 	{
 		mPlayers[i]->button.Release();
@@ -199,11 +201,8 @@ HRESULT LobbyState::Initialize()
 	float w = 200.0f;
 	float h = 200.0f;
 
-	mStartButton.Initialize( "../Content/Assets/Textures/Menu/Start.png", x, y, w, h );
-
-	x += 250.0f;
-
 	mBackButton.Initialize( "../Content/Assets/Textures/Menu/Back.png", x, y, w, h );
+	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Connect_Server_Success::GUID );
 
 	return hr;
 }
@@ -211,7 +210,6 @@ HRESULT LobbyState::Initialize()
 void LobbyState::Release()
 {
 	mFont.Release();
-	mStartButton.Release();
 	mBackButton.Release();
 	for( size_t i = 0; i < mPlayers.size(); i++ )
 	{
@@ -223,6 +221,7 @@ void LobbyState::Release()
 
 LobbyState::LobbyState()
 {
+	mActive = false;
 	mPlayers = std::vector<LobbyPlayer*>( 0 );
 }
 

@@ -43,7 +43,7 @@ HRESULT StartMenuState::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT StartMenuState::Render()
+HRESULT StartMenuState::Render( float deltaTime )
 {
 	BaseMenuState::Render();
 
@@ -51,7 +51,6 @@ HRESULT StartMenuState::Render()
 	{
 		mButtons.at(i)->Render();
 	}
-	RenderManager::GetInstance()->AddObject2dToList( mCursor, XMFLOAT2( (float)Input::GetInstance()->mCurrentMousePos.x, (float)Input::GetInstance()->mCurrentMousePos.y ), DirectX::XMFLOAT2( 20.0f, 20.0f ) );
 
 	RenderManager::GetInstance()->Render();
 	return S_OK;
@@ -59,6 +58,7 @@ HRESULT StartMenuState::Render()
 
 void StartMenuState::OnEnter()
 {
+	BaseMenuState::OnEnter();
 }
 
 void StartMenuState::OnExit()

@@ -55,9 +55,9 @@ HRESULT Game::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT Game::Render()
+HRESULT Game::Render( float deltaTime )
 {
-	mStateMachine->Render();
+	mStateMachine->Render( deltaTime );
 
 	return S_OK;
 }

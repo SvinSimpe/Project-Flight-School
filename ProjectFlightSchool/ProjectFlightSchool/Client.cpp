@@ -112,6 +112,8 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Game_Ended );
 	EF::REGISTER_EVENT( Event_Client_Died );
 	EF::REGISTER_EVENT( Event_Remote_Died );
+	EF::REGISTER_EVENT( Event_Client_Removed_Projectile );
+	EF::REGISTER_EVENT( Event_Remote_Removed_Projectile );
 	EF::REGISTER_EVENT( Event_Client_Damaged );
 	EF::REGISTER_EVENT( Event_Remote_Damaged );
 	EF::REGISTER_EVENT( Event_Client_Spawned );

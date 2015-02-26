@@ -35,6 +35,7 @@ class PlayState : public BaseState
 						ENEMY_SHIP	= 1,
 						SHIP_AMOUNT = 2;
 
+		HCURSOR			mSight;
 		float			mFPS;
 		AnimationTrack	mTestAnimation;
 		AssetID			mTestStaticAsset;
@@ -86,6 +87,7 @@ class PlayState : public BaseState
 		void			CheckMeeleCollision();
 		void			HandleDeveloperCameraInput();
 		void			HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID );
+		void			HandleRemoteProjectileRemoved( UINT projectileID );
 		void			UpdateProjectiles( float deltaTime );
 		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive );
 		void			RenderProjectiles();
@@ -95,7 +97,7 @@ class PlayState : public BaseState
 	protected:
 	public:
 		virtual HRESULT Update( float deltaTime );
-		virtual HRESULT Render();
+		virtual HRESULT Render( float deltaTime );
 		virtual void	OnEnter();
 		virtual void	OnExit();
 		virtual void	Reset();

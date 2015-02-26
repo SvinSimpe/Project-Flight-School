@@ -58,6 +58,11 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Remote_Damaged> data = std::static_pointer_cast<Event_Remote_Damaged>(newEvent);
 		HandleRemoteProjectileHit( data->ID(), data->ProjectileID() );
 	}
+	else if( newEvent->GetEventType() == Event_Remote_Removed_Projectile::GUID )
+	{
+		std::shared_ptr<Event_Remote_Removed_Projectile> data = std::static_pointer_cast<Event_Remote_Removed_Projectile>(newEvent);
+		HandleRemoteProjectileRemoved( data->ProjectileID() );
+	}
 	else if ( newEvent->GetEventType() == Event_Remote_Fired_Projectile::GUID )
 	{
 		// Fire projectile
@@ -190,6 +195,11 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Trigger_Client_Update> data = std::static_pointer_cast<Event_Trigger_Client_Update>( newEvent );
 		IEventPtr E1( new Event_Client_Update( data->ID(), data->LowerBodyPos(), data->Velocity(), data->UpperBodyDirection(), data->Name(), data->IsBuffed(), data->IsAlive() ) );
 		Client::GetInstance()->SendEvent( E1 );
+	}
+	else if( newEvent->GetEventType() == Event_Unlock_Player::GUID )
+	{
+		mPlayer->UnLock();
+		SetCursor( mSight );
 	}
 }
 
@@ -349,6 +359,19 @@ void PlayState::CheckProjectileCollision()
 					}
 				}
 			}
+
+			// Environment
+			if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() || ( ( mProjectiles[i]->GetPlayerID() == 70 || mProjectiles[i]->GetPlayerID() == 71 ) && mPlayer->GetID() == 1 ) )
+			{
+				XMFLOAT3 normal;
+				if( mWorldMap->BulletVsMap( mProjectiles[i]->GetPosition(), normal ) )
+				{
+					IEventPtr E1( new Event_Client_Removed_Projectile( mProjectiles[i]->GetID() ) );
+					Client::GetInstance()->SendEvent( E1 );
+					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Spark, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+				}
+			}
+
 		}
 	}
 }
@@ -441,6 +464,7 @@ void PlayState::HandleDeveloperCameraInput()
 			}
 			else if( mPlayer->IsAlive() )
 			{
+				SetCursor( mCursor );
 				mPlayer->Lock();
 				mGui->ActivateUpgradeShipWindow();
 			}
@@ -457,6 +481,7 @@ void PlayState::HandleDeveloperCameraInput()
 			}
 			else if( mPlayer->IsAlive() && ( mPlayer->Upgradable() >= 1 ) )
 			{
+				SetCursor( mCursor );
 				mPlayer->Lock();
 				mGui->ActivateUpgradePlayerWindow();
 			}
@@ -471,6 +496,7 @@ void PlayState::HandleDeveloperCameraInput()
 		}
 		else
 		{
+			SetCursor( mCursor );
 			mPlayer->Lock();
 			mGui->ActivateInGameWindow();
 		}
@@ -521,6 +547,21 @@ void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int project
 					mPlayer->TakeDamage( damage, shooter );
 				}
 			}
+		}
+	}
+}
+
+void PlayState::HandleRemoteProjectileRemoved( UINT projectileID )
+{
+	for ( int i = 0; i < mNrOfActiveProjectiles; i++ )
+	{
+		if( mProjectiles[i]->GetID() == projectileID )
+		{
+			mProjectiles[i]->Reset();
+			Projectile* temp							= mProjectiles[mNrOfActiveProjectiles - 1];
+			mProjectiles[mNrOfActiveProjectiles - 1]	= mProjectiles[i];
+			mProjectiles[i]								= temp;
+			mNrOfActiveProjectiles--;
 		}
 	}
 }
@@ -703,7 +744,7 @@ HRESULT PlayState::Update( float deltaTime )
 	RenderManager::GetInstance()->RequestParticleSystem( 997, Test_Fountain, XMFLOAT3( 0.0f, 20.0f, 0.0f ), XMFLOAT3( 0.0f, -1.0f, 0.0f ) );
 
 
-	if( mPlayer->Upgradable() < 1 )
+	if( mPlayer->Upgradable() < 1 && mGui->UpgradePlayerWindowIsActive() )
 	{
 		mPlayer->UnLock();
 		mGui->DeActivateUpgradePlayerWindow();
@@ -741,11 +782,11 @@ HRESULT PlayState::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT PlayState::Render()
+HRESULT PlayState::Render( float deltaTime )
 {
 	mPlayer->Render( 0.0f, 1 );
 
-	mWorldMap->Render( 0.0f , mPlayer );
+	mWorldMap->Render( deltaTime , mPlayer );
 
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
 	{
@@ -800,11 +841,6 @@ HRESULT PlayState::Render()
 		}
 	}
 
-	if( mGui->UpgradeShipWindowIsActive() || mGui->InGameWindowIsActive() || mGui->UpgradePlayerWindowIsActive() )
-	{
-		RenderManager::GetInstance()->AddObject2dToList( mCursor, XMFLOAT2( (float)Input::GetInstance()->mCurrentMousePos.x, (float)Input::GetInstance()->mCurrentMousePos.y ), DirectX::XMFLOAT2( 20.0f, 20.0f ) );
-	}
-
 	RenderManager::GetInstance()->Render();
 
 	return S_OK;
@@ -812,6 +848,7 @@ HRESULT PlayState::Render()
 
 void PlayState::OnEnter()
 {
+	SetCursor( mSight );
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Started() );
 	EventManager::GetInstance()->QueueEvent( E1 );
@@ -857,7 +894,8 @@ HRESULT PlayState::Initialize()
 {
 	BaseState::Initialize();
 	mStateType = PLAY_STATE;
-
+	
+	mSight = (HCURSOR)LoadImage( NULL, L"../Content/Assets/GUI/tempCurs.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE );
 
 	//AssetID model		= 0;
 	//AssetID loader	= 0;
@@ -894,6 +932,7 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Left::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Damaged::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Removed_Projectile::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Fired_Projectile::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Create_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Enemies_Created::GUID );
@@ -912,6 +951,7 @@ HRESULT PlayState::Initialize()
 
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Trigger_Client_Fired_Projectile::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Trigger_Client_Update::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Unlock_Player::GUID );
 
 	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 

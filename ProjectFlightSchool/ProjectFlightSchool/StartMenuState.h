@@ -24,7 +24,7 @@ class StartMenuState : public BaseMenuState
 	protected:
 	public:
 		HRESULT Update( float deltaTime );
-		HRESULT Render();
+		HRESULT Render( float deltaTime );
 		void	OnEnter();
 		void	OnExit();
 		void	Reset();

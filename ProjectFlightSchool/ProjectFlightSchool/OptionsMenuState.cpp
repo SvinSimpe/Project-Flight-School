@@ -25,7 +25,7 @@ HRESULT OptionsMenuState::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT OptionsMenuState::Render()
+HRESULT OptionsMenuState::Render( float deltaTime )
 {
 	BaseMenuState::Render();
 
@@ -34,13 +34,13 @@ HRESULT OptionsMenuState::Render()
 		mButtons.at(i)->Render();
 	}
 	
-	RenderManager::GetInstance()->AddObject2dToList( mCursor, XMFLOAT2( (float)Input::GetInstance()->mCurrentMousePos.x, (float)Input::GetInstance()->mCurrentMousePos.y ), DirectX::XMFLOAT2( 20.0f, 20.0f ) );
 	RenderManager::GetInstance()->Render();
 	return S_OK;
 }
 
 void OptionsMenuState::OnEnter()
 {
+	BaseMenuState::OnEnter();
 }
 
 void OptionsMenuState::OnExit()

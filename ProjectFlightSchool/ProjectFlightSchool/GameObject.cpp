@@ -6,15 +6,13 @@ void GameObject::Update(float deltaTime)
 {
 }
 
-void GameObject::Render(float deltaTime, DirectX::XMFLOAT4X4 parentWorld )
+void GameObject::Render(float deltaTime, DirectX::XMFLOAT4X4 parentWorld, DirectX::XMFLOAT4X4 world )
 {
-	DirectX::XMMATRIX parent		= DirectX::XMLoadFloat4x4( &parentWorld );
-
 	DirectX::XMMATRIX transformation = DirectX::XMMatrixAffineTransformation( DirectX::XMLoadFloat3( &mScale ), DirectX::XMVectorZero(), DirectX::XMLoadFloat4( &mRot ), DirectX::XMLoadFloat3( &mPos ) );
 
-	DirectX::XMMATRIX world = transformation * parent;
+	DirectX::XMMATRIX worldMat = DirectX::XMLoadFloat4x4( &world ) * transformation * DirectX::XMLoadFloat4x4( &parentWorld );
 	DirectX::XMFLOAT4X4 worldFinished;
-	DirectX::XMStoreFloat4x4( &worldFinished, world );
+	DirectX::XMStoreFloat4x4( &worldFinished, worldMat );
 	
 	RenderManager::GetInstance()->AddObject3dToList( mAssetID, worldFinished );
 }
@@ -97,6 +95,8 @@ void GameObject::Initialize( GameObjectInfo gameObjectInfo, AssetID assetID )
 	mCollisionType	= gameObjectInfo.collision;
 	mRenderType		= gameObjectInfo.renderType;
 
+	mWorld = gameObjectInfo.transformation;
+
 	XMStoreFloat3( &mScale, scale );
 	XMStoreFloat4( &mRot, rotation );
 	XMStoreFloat3( &mPos, translation );
@@ -116,6 +116,9 @@ GameObject::GameObject()
 	mPos	= DirectX::XMFLOAT3( 0, 0 ,0 );
 	mRot	= DirectX::XMFLOAT4( 0, 0 ,0 ,0 );
 	mScale	= DirectX::XMFLOAT3( 0, 0 ,0 );
+
+	mCollisionType	= NONE_COLLISION;
+	mRenderType		= INVISIBLE_RENDERTYPE;
 
 	mAssetID = 0;
 }

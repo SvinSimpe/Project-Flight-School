@@ -15,6 +15,11 @@ HRESULT BaseMenuState::Render()
 	return S_OK;
 }
 
+void BaseMenuState::OnEnter()
+{
+	SetCursor( mCursor );
+}
+
 void BaseMenuState::OnExit()
 {
 	for( auto& it : mButtons )

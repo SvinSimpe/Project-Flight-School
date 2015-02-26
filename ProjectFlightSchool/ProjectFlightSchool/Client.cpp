@@ -6,7 +6,6 @@ Client::Client() : Network()
 {
 	mSocketManager			= nullptr;
 	mNEF					= nullptr;
-	mEventList				= std::list<IEventPtr>();
 	mActive					= false;
 }
 
@@ -41,7 +40,6 @@ void Client::StartUp( IEventPtr eventPtr )
 				mSocketManager->Release();
 			SAFE_DELETE( mSocketManager );
 			SAFE_DELETE( mNEF );
-			mEventList.clear();
 			mActive = false;
 		}
 	}
@@ -50,7 +48,6 @@ void Client::StartUp( IEventPtr eventPtr )
 void Client::SendEvent( IEventPtr eventPtr )
 {
 	mNEF->ForwardEvent( eventPtr );
-	//mEventList.push_front( eventPtr );
 }
 
 bool Client::Connect( std::string ip, UINT port )
@@ -81,7 +78,6 @@ void Client::Shutdown( IEventPtr eventPtr )
 			mSocketManager->Release();
 		SAFE_DELETE( mSocketManager );
 		SAFE_DELETE( mNEF );
-		mEventList.clear();
 		mActive = false;
 
 		IEventPtr E1( new Event_Change_State( 0 ) ); // The state definitions should be moved to some global place!
@@ -91,21 +87,12 @@ void Client::Shutdown( IEventPtr eventPtr )
 
 void Client::DoSelect( int pauseMicroSecs, bool handleInput )
 {
-	mSocketManager->DoSelect( pauseMicroSecs, handleInput );
+	if( mActive )
+		mSocketManager->DoSelect( pauseMicroSecs, handleInput );
 }
 
 void Client::Update( float deltaTime )
 {
-	if( this && mActive )
-	{
-		DoSelect( 0 );
-		while( !mEventList.empty() )
-		{
-			mNEF->ForwardEvent( mEventList.back() );
-			mEventList.pop_back();
-		}
-		mEventList.clear();
-	}
 }
 
 bool Client::Initialize()
@@ -195,6 +182,9 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Client_Switch_Team );
 	EF::REGISTER_EVENT( Event_Server_Switch_Team );
 
+	EF::REGISTER_EVENT( Event_Trigger_Client_Fired_Projectile );
+	EF::REGISTER_EVENT( Event_Trigger_Client_Update );
+
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	EventManager::GetInstance()->AddListener( &Client::Shutdown, this, Event_Shutdown_Client::GUID );
 
@@ -203,11 +193,10 @@ bool Client::Initialize()
 
 void Client::Release()
 {
+	mActive = false;
 	if( mSocketManager )
 		mSocketManager->Release();
 	SAFE_DELETE( mSocketManager );
 	SAFE_DELETE( mNEF );
-	mEventList.clear();
-	mActive = false;
 	SAFE_DELETE( mInstance );
 }

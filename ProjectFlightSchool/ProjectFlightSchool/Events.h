@@ -4961,4 +4961,236 @@ class Event_Server_Switch_Team : public IEvent
 			return mTeamID;
 		}
 };
+
+// A local event triggered by the Player and listened to by the PlayState in order to transfer data faster
+class Event_Trigger_Client_Fired_Projectile : public IEvent
+{
+	private:
+		UINT		mID;
+		XMFLOAT3	mBodyPos;
+		XMFLOAT3	mDirection;
+		float		mSpeed;
+		float		mRange;
+		float		mDamage;
+		int			mWeapon;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Trigger_Client_Fired_Projectile()
+		{
+			mID				= (UINT)-1;
+			mBodyPos		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mSpeed			= 0.0f;
+			mRange			= 0.0f;
+			mDamage			= 0.0f;
+			mWeapon			= 0;
+		}
+
+		Event_Trigger_Client_Fired_Projectile( unsigned int id, XMFLOAT3 bodyPos, XMFLOAT3 direction, float speed, float range, float damage, int weapon )
+		{
+			mID				= id;
+			mBodyPos		= bodyPos;
+			mDirection		= direction;
+			mSpeed			= speed;
+			mRange			= range;
+			mDamage			= damage;
+			mWeapon			= weapon;
+		}
+
+		~Event_Trigger_Client_Fired_Projectile() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			
+			out << mBodyPos.x << " ";
+			out << mBodyPos.y << " ";
+			out << mBodyPos.z << " ";
+
+			out << mDirection.x << " ";
+			out << mDirection.y << " ";
+			out << mDirection.z << " ";
+
+			out <<	mSpeed	<< " ";
+			out	<<	mRange	<< " ";
+			out << mDamage << " ";
+			out << mWeapon;
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+
+			in >> mBodyPos.x;
+			in >> mBodyPos.y;
+			in >> mBodyPos.z;
+
+			in >> mDirection.x;
+			in >> mDirection.y;
+			in >> mDirection.z;
+
+			in >> mSpeed;
+			in >> mRange;
+			in >> mDamage;
+			in >> mWeapon;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Trigger_Client_Fired_Projectile( mID, mBodyPos, mDirection, mSpeed, mRange, mDamage, mWeapon ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		XMFLOAT3 BodyPos() const
+		{
+			return mBodyPos;
+		}
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
+		}
+		float Speed() const
+		{
+			return mSpeed;
+		}
+		float Range() const
+		{
+			return mRange;
+		}
+		float Damage() const
+		{
+			return mDamage;
+		}
+		int Weapon() const
+		{
+			return mWeapon;
+		}
+};
+
+// A local event triggered by the Player and listened to by the PlayState in order to transfer data faster
+class Event_Trigger_Client_Update : public IEvent
+{
+	private:
+		UINT		mID;
+		XMFLOAT3	mLowerBodyPos;
+		XMFLOAT3	mVelocity;
+		XMFLOAT3	mUpperBodyDirection;
+		std::string mName;
+		bool		mIsBuffed;
+		bool		mIsAlive;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Trigger_Client_Update()
+		{
+			mID						= (UINT)-1;
+			mLowerBodyPos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mVelocity				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mUpperBodyDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mName					= "";
+			mIsBuffed				= false;
+			mIsAlive				= false;
+		}
+		Event_Trigger_Client_Update( UINT id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDir, std::string name, bool isBuffed, bool isAlive )
+		{
+			mID						= id;
+			mLowerBodyPos			= lowerBodyPos;
+			mVelocity				= velocity;
+			mUpperBodyDirection		= upperBodyDir;
+			mName					= name;
+			mIsBuffed				= isBuffed;
+			mIsAlive				= isAlive;
+		}
+		~Event_Trigger_Client_Update() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			
+			out << mLowerBodyPos.x << " ";
+			out << mLowerBodyPos.y << " ";
+			out << mLowerBodyPos.z << " ";
+
+			out << mVelocity.x << " ";
+			out << mVelocity.y << " ";
+			out << mVelocity.z << " ";
+
+			out << mUpperBodyDirection.x << " ";
+			out << mUpperBodyDirection.y << " ";
+			out << mUpperBodyDirection.z << " ";
+
+			out << mName << " ";
+			out << mIsBuffed << " ";
+			out << mIsAlive << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+
+			in >> mLowerBodyPos.x;
+			in >> mLowerBodyPos.y;
+			in >> mLowerBodyPos.z;
+
+			in >> mVelocity.x;
+			in >> mVelocity.y;
+			in >> mVelocity.z;
+
+			in >> mUpperBodyDirection.x;
+			in >> mUpperBodyDirection.y;
+			in >> mUpperBodyDirection.z;
+
+			in >> mName;
+			in >> mIsBuffed;
+			in >> mIsAlive;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Trigger_Client_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection, mName, mIsBuffed, mIsAlive ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		XMFLOAT3 LowerBodyPos() const
+		{
+			return mLowerBodyPos;
+		}
+		XMFLOAT3 Velocity() const
+		{
+			return mVelocity;
+		}
+		XMFLOAT3 UpperBodyDirection() const
+		{
+			return mUpperBodyDirection;
+		}
+		std::string Name() const
+		{
+			return mName;
+		}
+		bool IsBuffed() const
+		{
+			return mIsBuffed;
+		}
+		bool IsAlive() const
+		{
+			return mIsAlive;
+		}
+};
 #endif

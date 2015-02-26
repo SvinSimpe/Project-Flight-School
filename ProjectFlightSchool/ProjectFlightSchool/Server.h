@@ -29,7 +29,7 @@ class Server : public Network
 
 		struct ClientNEF // Server player
 		{
-			NetworkEventForwarder	NEF;
+			NetworkEventForwarder*	NEF;
 			float					HP = 100.0f;
 			UINT					ID;
 			UINT					TeamID;
@@ -39,26 +39,15 @@ class Server : public Network
 			bool					IsDown = false;
 		};
 
-		struct ServerEvent
-		{
-			IEventPtr EventPtr;
-			UINT ToID;
-
-			ServerEvent( IEventPtr eventPtr, UINT toID )
-			{
-				this->EventPtr = eventPtr;
-				this->ToID = toID;
-			}
-		};
 		const UINT MAX_TEAMS = 2;
 		const UINT MAX_PROJECTILE_ID = 999;
+		const float ENEMY_UPDATE_RANGE = 900.0f;
 
 		SocketManager*				mSocketManager;
 		std::map<UINT, ClientNEF*>	mClientMap;
 		UINT						mCurrentPID;
 		bool						mActive;
 		std::vector<ServerShip*>	mShips;
-		std::list<ServerEvent>		mEventList;
 
 		// Game Logic
 		ServerPlayer**				mPlayers;
@@ -106,7 +95,6 @@ class Server : public Network
 		void	ClientInteractEnergyCell( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
-		void	DoSelect( int pauseMicroSecs, bool handleInput = true );
 
 		void	SendEvent( IEventPtr eventPtr, UINT to );
 		UINT	CurrentTeamDelegate();
@@ -114,6 +102,8 @@ class Server : public Network
 		void	CreateShips();
 		bool	CheckShipBuff( ServerShip* ship, XMFLOAT3 pos );
 		void	UpdateShip( float deltaTime, ServerShip* s );
+		void	SendCulledUpdate( IEventPtr eventPtr, XMFLOAT3 enemyPos, UINT exception = (UINT)-1 );
+		bool	CullEnemyUpdate( XMFLOAT3 playerPos, XMFLOAT3 enemyPos );
 
 		XMFLOAT3	GetNextSpawn();
 
@@ -121,7 +111,7 @@ class Server : public Network
 		bool	Connect( UINT port );
 
 	public:
-		bool	IsActive() const;
+		void	DoSelect( int pauseMicroSecs, bool handleInput = true );
 		void	BroadcastEvent( IEventPtr eventPtr, UINT exception = (UINT)-1 );
 		void	Shutdown();
 		void	Update( float deltaTime );

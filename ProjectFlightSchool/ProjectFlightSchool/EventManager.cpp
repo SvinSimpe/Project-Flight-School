@@ -51,8 +51,6 @@ EventFactory* EventFactory::mInstance = nullptr;
 //---------------------------------------------------------------------------------------------------------------------
 bool EventManager::Update( unsigned long maxMillis )
 {
-	EnterCriticalSection( &lock );
-
 	unsigned long currMs = GetTickCount();
 	unsigned long maxMs = ( ( maxMillis == IEventManager::kINFINITE ) ? ( IEventManager::kINFINITE ) : ( currMs + maxMillis ) );
 
@@ -105,8 +103,6 @@ bool EventManager::Update( unsigned long maxMillis )
 			m_queues[m_activeQueue].push_front( pEvent );
 		}
 	}
-	
-	LeaveCriticalSection( &lock );
 
 	return queueFlushed;
 }

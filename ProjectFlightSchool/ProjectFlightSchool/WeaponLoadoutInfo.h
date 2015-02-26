@@ -21,12 +21,12 @@
 #define MINIGUN_OFFSETS		XMFLOAT3( 0.75f, 0.5f, 1.3f ) // Offsets forward, right, up
 
 // Shotgun
-#define SHOTGUN_AR			0.5f	// Attack Rate
-#define SHOTGUN_DAMAGE		1.0f	// Damage
-#define SHOTGUN_RANGE		1.0f	// Range
-#define SHOTGUN_SPREAD		0.5f	// Spread
+#define SHOTGUN_AR			1.0f	// Attack Rate
+#define SHOTGUN_DAMAGE		0.5f	// Damage
+#define SHOTGUN_RANGE		0.3f	// Range
+#define SHOTGUN_SPREAD		0.0f	// Spread
 #define SHOTGUN_AOE			0.0f	// Area of effect
-#define SHOTGUN_SPEED		35.0f	// Projectile Speed 35
+#define SHOTGUN_SPEED		40.0f	// Projectile Speed 35
 #define SHOTGUN_OFFSETS		XMFLOAT3( 0.93f, 0.5f, 1.45f ) // Offsets forward, right, up
 
 // Grenade Launcher
@@ -90,3 +90,15 @@
 #define SAW_TTA				0.95f	// Time till Attack
 #define SAW_STUN			0.0f	// Stun
 #define SAW_REACH			1.3f	// Reach
+
+//////////////////////////////////
+//		 TURRET WEAPON
+//////////////////////////////////
+
+#define TURRET_AR			0.05f	// Attack Rate
+#define TURRET_DAMAGE		0.6f	// Damage
+#define TURRET_RANGE		0.8f	// Range
+#define TURRET_SPREAD		0.1f	// Spread
+#define TURRET_AOE			0.0f	// Area of effect
+#define TURRET_SPEED		40.0f	// Projectile Speed 30
+#define TURRET_OFFSETS		XMFLOAT3( 0.75f, 0.5f, 1.3f ) // Offsets forward, right, up

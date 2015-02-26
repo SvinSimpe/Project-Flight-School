@@ -120,7 +120,7 @@ struct ParticleSystem : public ParticleData
 	void Generate( XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection, int particleCount, float spreadAngle )
 	{
 		// Check if there is enough particles to meet request
-		if( ( particleCount + nrOfParticlesAlive ) > capacity )
+		if( ( particleCount + nrOfParticlesAlive ) >= capacity )
 		{
 			particleCount = capacity - nrOfParticlesAlive;
 			return;
@@ -340,7 +340,7 @@ struct ParticleSystem : public ParticleData
 			// Calculate Particle count for this frame
 			int nrOfNewParticles = (int)emitRate;
 	
-			if( nrOfNewParticles > capacity )
+			if( nrOfParticlesAlive + nrOfNewParticles > capacity )
 				return;
 
 			// Wake Particles

@@ -1,6 +1,7 @@
 #include "Server.h"
 #include "Enemy.h"
 #include "HelperFunctions.h"
+#include "Pathfinder.h"
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -731,20 +732,24 @@ void Server::CalculateCellSpawnPositions( XMFLOAT3 shipPosition )
 		if( upperBound < lowerBound )
 			std::swap( upperBound, lowerBound );
 
-		// Randomize angle between lowerBound & upperBound
 		do
 		{
-			currCellAngle = (float)( rand() % 360 + 1 );
-		}  
-		while( i != 0 && currCellAngle > lowerBound && currCellAngle < upperBound );
+			// Randomize angle between lowerBound & upperBound
+			do
+			{
+				currCellAngle = (float)( rand() % 360 + 1 );
+			}  
+			while( i != 0 && currCellAngle > lowerBound && currCellAngle < upperBound );
 
-		// Get vector from ship to cell
-		XMVECTOR shipToCell = XMLoadFloat3( &energyCellPosition ) - XMLoadFloat3( &shipPosition );
+			// Get vector from ship to cell
+			XMVECTOR shipToCell = XMLoadFloat3( &energyCellPosition ) - XMLoadFloat3( &shipPosition );
 
-		// --- DO ---
-		// Rotate vector around ship by some random value
-		XMStoreFloat3( &energyCellPosition, ( XMVector3TransformCoord( shipToCell, XMMatrixRotationY( -XMConvertToRadians( currCellAngle ) ) ) ) );
-		// --- WHILE ---
+		
+			// Rotate vector around ship by some random value
+			XMStoreFloat3( &energyCellPosition, ( XMVector3TransformCoord( shipToCell, XMMatrixRotationY( -XMConvertToRadians( currCellAngle ) ) ) ) );
+		}
+		while( !Pathfinder::GetInstance()->IsOnNavMesh(  energyCellPosition ) );
+
 
 
 		// Add rotated vector to ship position to get new cell position

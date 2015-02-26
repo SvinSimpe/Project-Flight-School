@@ -16,7 +16,6 @@ class EnergyCell
 		bool				mPickedUp;
 		BoundingCircle*		mPickUpRadius;
 		float				mHooverFactor;
-		PointLight*			mLight;
 		bool				mSecured;
 
 

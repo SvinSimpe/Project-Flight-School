@@ -50,8 +50,6 @@ HRESULT EnergyCell::Update( float deltaTime )
 	mHooverFactor += deltaTime * 1.0f;
 	mPickUpRadius->center.y = sinf( mHooverFactor ) + 1.0f;
 
-	mLight->position = XMFLOAT4( mPickUpRadius->center.x, mPickUpRadius->center.y, mPickUpRadius->center.z, 1.0f );
-
 	return S_OK;
 }
 
@@ -80,13 +78,6 @@ HRESULT EnergyCell::Initialize( DirectX::XMFLOAT3 position )
 	mPickUpRadius			= new BoundingCircle( 1.0f );
 	mPickUpRadius->center	= position;
 
-	mLight					= new PointLight();
-	mLight->colorAndRadius	= XMFLOAT4( 0.2f, 0.1f, 1.0f, 5.0f );
-	mLight->position		= XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f );
-	
-	IEventPtr reg( new Event_Add_Point_Light( mLight ) );
-	EventManager::GetInstance()->QueueEvent( reg );
-
 	mSecured				= false;
 
 
@@ -101,7 +92,6 @@ HRESULT EnergyCell::Initialize( DirectX::XMFLOAT3 position )
 void EnergyCell::Release()
 {
 	SAFE_DELETE( mPickUpRadius );
-	SAFE_DELETE( mLight );
 }
 
 EnergyCell::EnergyCell()
@@ -111,7 +101,6 @@ EnergyCell::EnergyCell()
 	mPickedUp		= false;
 	mPickUpRadius	= nullptr;
 	mHooverFactor	= 0.0f;
-	mLight			= nullptr;
 	mSecured		= false;
 }
 

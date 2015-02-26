@@ -24,6 +24,7 @@ void Server::ClientJoined( IEventPtr eventPtr )
 			if( mClientMap.size() > mMaxClients )
 			{
 				IEventPtr bounceClient( new Event_Shutdown_Client() );
+				mStopAccept = true;
 				SendEvent( bounceClient, data->ID() );
 				SAFE_DELETE( mClientMap[data->ID()] );
 				mClientMap.erase( data->ID() );
@@ -549,6 +550,7 @@ void Server::StartUp( IEventPtr eventPtr )
 		if( Connect( iPort ) )
 		{
 			mActive = true;
+			mMaxClients = data->MaxPlayers();
 			IEventPtr E1( new Event_Connect_Server_Success () );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
@@ -836,6 +838,7 @@ bool Server::Initialize()
 
 void Server::Reset()
 {
+	mMaxClients = (UINT)-1;
 	mStopAccept = false;
 
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
@@ -951,7 +954,7 @@ Server::Server() : Network()
 		mPlayers[i]			= nullptr;
 
 	mNrOfPlayers			= 0;
-	mMaxClients				= 1;
+	mMaxClients				= (UINT)-1;
 }
 
 Server::~Server()

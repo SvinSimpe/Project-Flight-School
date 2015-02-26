@@ -7,6 +7,7 @@
 #include "OptionsMenuState.h"
 #include "PlayState.h"
 #include "LobbyState.h"
+#include "LobbyOwnerState.h"
 
 class StateMachine
 {

@@ -335,6 +335,9 @@
     <ClCompile Include="UpgradePlayerWindow.cpp">
       <Filter>GUI\Source</Filter>
     </ClCompile>
+    <ClCompile Include="LobbyOwnerState.cpp">
+      <Filter>GameStates\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
@@ -569,6 +572,9 @@
     </ClInclude>
     <ClInclude Include="InGameWindow.h">
       <Filter>GUI\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="LobbyOwnerState.h">
+      <Filter>GameStates\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

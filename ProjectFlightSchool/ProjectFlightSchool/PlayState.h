@@ -30,6 +30,7 @@ class PlayState : public BaseState
 {
 	// Class members
 	private:
+		HCURSOR			mSight;
 		float			mFPS;
 		AnimationTrack	mTestAnimation;
 		AssetID			mTestStaticAsset;

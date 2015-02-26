@@ -196,6 +196,11 @@ void PlayState::EventListener( IEventPtr newEvent )
 		IEventPtr E1( new Event_Client_Update( data->ID(), data->LowerBodyPos(), data->Velocity(), data->UpperBodyDirection(), data->Name(), data->IsBuffed(), data->IsAlive() ) );
 		Client::GetInstance()->SendEvent( E1 );
 	}
+	else if( newEvent->GetEventType() == Event_Unlock_Player::GUID )
+	{
+		mPlayer->UnLock();
+		SetCursor( mSight );
+	}
 }
 
 void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction )
@@ -459,6 +464,7 @@ void PlayState::HandleDeveloperCameraInput()
 			}
 			else if( mPlayer->IsAlive() )
 			{
+				SetCursor( mCursor );
 				mPlayer->Lock();
 				mGui->ActivateUpgradeShipWindow();
 			}
@@ -475,6 +481,7 @@ void PlayState::HandleDeveloperCameraInput()
 			}
 			else if( mPlayer->IsAlive() && ( mPlayer->Upgradable() >= 1 ) )
 			{
+				SetCursor( mCursor );
 				mPlayer->Lock();
 				mGui->ActivateUpgradePlayerWindow();
 			}
@@ -489,6 +496,7 @@ void PlayState::HandleDeveloperCameraInput()
 		}
 		else
 		{
+			SetCursor( mCursor );
 			mPlayer->Lock();
 			mGui->ActivateInGameWindow();
 		}
@@ -735,7 +743,7 @@ HRESULT PlayState::Update( float deltaTime )
 	RenderManager::GetInstance()->RequestParticleSystem( 997, Test_Fountain, XMFLOAT3( 0.0f, 20.0f, 0.0f ), XMFLOAT3( 0.0f, -1.0f, 0.0f ) );
 
 
-	if( mPlayer->Upgradable() < 1 )
+	if( mPlayer->Upgradable() < 1 && mGui->UpgradePlayerWindowIsActive() )
 	{
 		mPlayer->UnLock();
 		mGui->DeActivateUpgradePlayerWindow();
@@ -829,11 +837,6 @@ HRESULT PlayState::Render()
 	if( mEnemyShip && CullEntity( mEnemyShip->GetPos() ) )
 		mEnemyShip->Render( 0.0f, identity );
 
-	if( mGui->UpgradeShipWindowIsActive() || mGui->InGameWindowIsActive() || mGui->UpgradePlayerWindowIsActive() )
-	{
-		RenderManager::GetInstance()->AddObject2dToList( mCursor, XMFLOAT2( (float)Input::GetInstance()->mCurrentMousePos.x, (float)Input::GetInstance()->mCurrentMousePos.y ), DirectX::XMFLOAT2( 20.0f, 20.0f ) );
-	}
-
 	RenderManager::GetInstance()->Render();
 
 	return S_OK;
@@ -841,6 +844,7 @@ HRESULT PlayState::Render()
 
 void PlayState::OnEnter()
 {
+	SetCursor( mSight );
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Started() );
 	EventManager::GetInstance()->QueueEvent( E1 );
@@ -884,7 +888,8 @@ HRESULT PlayState::Initialize()
 {
 	BaseState::Initialize();
 	mStateType = PLAY_STATE;
-
+	
+	mSight = (HCURSOR)LoadImage( NULL, L"../Content/Assets/GUI/tempCurs.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE );
 
 	//AssetID model		= 0;
 	//AssetID loader	= 0;
@@ -940,6 +945,7 @@ HRESULT PlayState::Initialize()
 
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Trigger_Client_Fired_Projectile::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Trigger_Client_Update::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Unlock_Player::GUID );
 
 	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 

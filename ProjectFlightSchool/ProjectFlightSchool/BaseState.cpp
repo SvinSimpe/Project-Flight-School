@@ -15,7 +15,7 @@ int BaseState::GetStateType()
 
 HRESULT BaseState::Initialize()
 {
-	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/shipUpgradeMenu.dds", mCursor );
+	mCursor = (HCURSOR)LoadImage( NULL, L"../Content/Assets/GUI/tempCurs.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE );
 	return S_OK;
 }
 

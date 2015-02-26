@@ -162,6 +162,9 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 
 	ShowWindow( mHWnd, nCmdShow );
 	ShowCursor( true );
+	HCURSOR ch;
+	ch = (HCURSOR)LoadImage( NULL, L"../Content/Assets/GUI/tempCurs.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE );
+	SetCursor( ch );
 
 	///////////////////////////////
 	// Initialize sub-applications

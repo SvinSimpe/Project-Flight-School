@@ -61,14 +61,9 @@ public:
 		void				ReleaseInstance();
 
 		DirectX::XMFLOAT3	GetOrigin() const;
-		void				SetOrigin( DirectX::XMFLOAT3 origin );
 		
 		MapNode*			GetMapNode() const;
 		void				SetMapNode( MapNode* mapNode );
-
-		BoundingRectangle			GetBoundingBox();
-
-		NavTriangle*		IsOnNavMesh( DirectX::XMFLOAT3 pos ) const;			
 
 		HRESULT				Initialize();
 		void				Release();

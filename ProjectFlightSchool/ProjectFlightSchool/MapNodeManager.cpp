@@ -4,8 +4,6 @@
 
 MapNodeManager* MapNodeManager::instance = nullptr;
 
- 
-
 void MapNodeManager::ConvertToFloat( XMFLOAT4X4& dest, double* values )
 {
 	XMFLOAT4X4 temp = {		(float)values[0], (float)values[1], (float)values[2], (float)values[3], 
@@ -15,79 +13,14 @@ void MapNodeManager::ConvertToFloat( XMFLOAT4X4& dest, double* values )
 
 	dest = temp;
 }
+
 void MapNodeManager::writeToLog( const std::string &text )
 {
     //std::ofstream log_file(
     //    "mapNodeLog.jocke", std::ios_base::out | std::ios_base::app );
     //log_file << text << std::endl;
 }
-void MapNodeManager::LoadLevel( std::string filePath ) 
-{
-	HRESULT hr = S_OK;
-	std::vector<AssetInfo> assets;
-	std::unordered_map<AssetID, AssetInfo> assetMap;
-	TiXmlDocument doc;
-	if( !doc.LoadFile( filePath.c_str() ) )
-	{
-		OutputDebugStringA( "Cannot open file: " );
-		OutputDebugStringA( filePath.c_str() );
-		OutputDebugStringA( "\n" );
-		return;
-	}
 
-	TiXmlElement* rootElement = doc.RootElement();
-	TiXmlNode* topElement;
-	TiXmlElement* nodeElement;
-
-	//Load all assetpaths
-	topElement = rootElement->FirstChild("Assets");
-	for( nodeElement = topElement->FirstChildElement();
-			 nodeElement;
-			 nodeElement = nodeElement->NextSiblingElement() )
-		{
-			AssetInfo temp;
-
-			temp.assetPath = nodeElement->Attribute("path");
-			nodeElement->Attribute("collisionType", (int*)&temp.collisionType );
-			nodeElement->Attribute("renderType", (int*)&temp.renderType );
-
-			assets.push_back( temp );
-		}
-	//Load the assets into the engine
-	for( auto it = assets.begin(); it != assets.end(); it++ )
-	{
-		AssetID id = 0;
-		int found = (*it).assetPath.find_last_of('/');
-		if( (*it).assetPath.substr( found + 1 ) == "mushroom1.pfs")
-		{
-			int d = 0;
-		}
-		hr = Graphics::GetInstance()->LoadStatic3dAsset( (*it).assetPath.substr( 0, found + 1 ), (*it).assetPath.substr( found + 1 ), id );
-
-		assetMap[id] = (*it);
-
-		if( id == CUBE_PLACEHOLDER )
-		{
-			OutputDebugStringA( "Model not found:" );
-			OutputDebugStringA( (*it).assetPath.substr( found + 1 ).c_str() );
-			OutputDebugStringA( " Maybe path is wrong? \n" );
-		}
-	}
-
-
-	topElement = rootElement->FirstChild("Nodes");
-	//Load nodes into the engine
-	for( nodeElement = topElement->FirstChildElement();
-			 nodeElement;
-			 nodeElement = nodeElement->NextSiblingElement() )
-		{
-			MapNode* temp;
-			if( temp = CreateNode( nodeElement->Attribute("path"), assetMap ) )
-			{
-				mNodeMap[nodeElement->Attribute("type")].push_back( temp );
-			}
-		}
-}
 MapNode* MapNodeManager::CreateNode( const char* fileName, std::unordered_map<AssetID, AssetInfo>& assetMap )
 {
 	//char* contentDir	= "../Content/Assets/Nodes/";
@@ -230,6 +163,75 @@ NodeMap MapNodeManager::GetNodes()
 {
 	return mNodeMap;
 }
+
+void MapNodeManager::LoadLevel( std::string filePath ) 
+{
+	HRESULT hr = S_OK;
+	std::vector<AssetInfo> assets;
+	std::unordered_map<AssetID, AssetInfo> assetMap;
+	TiXmlDocument doc;
+	if( !doc.LoadFile( filePath.c_str() ) )
+	{
+		OutputDebugStringA( "Cannot open file: " );
+		OutputDebugStringA( filePath.c_str() );
+		OutputDebugStringA( "\n" );
+		return;
+	}
+
+	TiXmlElement* rootElement = doc.RootElement();
+	TiXmlNode* topElement;
+	TiXmlElement* nodeElement;
+
+	//Load all assetpaths
+	topElement = rootElement->FirstChild("Assets");
+	for( nodeElement = topElement->FirstChildElement();
+			 nodeElement;
+			 nodeElement = nodeElement->NextSiblingElement() )
+		{
+			AssetInfo temp;
+
+			temp.assetPath = nodeElement->Attribute("path");
+			nodeElement->Attribute("collisionType", (int*)&temp.collisionType );
+			nodeElement->Attribute("renderType", (int*)&temp.renderType );
+
+			assets.push_back( temp );
+		}
+	//Load the assets into the engine
+	for( auto it = assets.begin(); it != assets.end(); it++ )
+	{
+		AssetID id = 0;
+		int found = (*it).assetPath.find_last_of('/');
+		if( (*it).assetPath.substr( found + 1 ) == "mushroom1.pfs")
+		{
+			int d = 0;
+		}
+		hr = Graphics::GetInstance()->LoadStatic3dAsset( (*it).assetPath.substr( 0, found + 1 ), (*it).assetPath.substr( found + 1 ), id );
+
+		assetMap[id] = (*it);
+
+		if( id == CUBE_PLACEHOLDER )
+		{
+			OutputDebugStringA( "Model not found:" );
+			OutputDebugStringA( (*it).assetPath.substr( found + 1 ).c_str() );
+			OutputDebugStringA( " Maybe path is wrong? \n" );
+		}
+	}
+
+
+	topElement = rootElement->FirstChild("Nodes");
+	//Load nodes into the engine
+	for( nodeElement = topElement->FirstChildElement();
+			 nodeElement;
+			 nodeElement = nodeElement->NextSiblingElement() )
+		{
+			MapNode* temp;
+			if( temp = CreateNode( nodeElement->Attribute("path"), assetMap ) )
+			{
+				mNodeMap[nodeElement->Attribute("type")].push_back( temp );
+			}
+		}
+}
+
 MapNodeManager* MapNodeManager::GetInstance()
 {
 	if( instance == nullptr )
@@ -238,10 +240,12 @@ MapNodeManager* MapNodeManager::GetInstance()
 	}
 	return instance;
 }
+
 HRESULT MapNodeManager::Initialize()
 {
 	return S_OK;
 }
+
 void MapNodeManager::Release()
 {
 	for( auto& it : mNodeMap )
@@ -257,9 +261,11 @@ void MapNodeManager::Release()
 	mNodeMap.clear();
 	SAFE_DELETE( instance );
 }
+
 MapNodeManager::MapNodeManager()
 {
 }
+
 MapNodeManager::~MapNodeManager()
 {
 }

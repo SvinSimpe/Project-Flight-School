@@ -4,30 +4,7 @@
 
 MapNodePlacer* MapNodePlacer::instance = nullptr;
 
-MapNodePlacer* MapNodePlacer::GetInstance()
-{
-	if ( instance == nullptr )
-	{
-		instance  = new MapNodePlacer();
-		return instance;
-	}
-	return instance;
-}
-//std::vector<MapNodeInstance*> MapNodePlacer::GetAllNodes() const
-//{
-//	return nullptr;
-//}
-MapNodeInstance* MapNodePlacer::GetNodeInstance( int x, int z )
-{
-	MapNodeInstance* result = nullptr;
-	if( ( x < (int)mMap->GetMapWidth() && 0 <= x ) &&
-		( z < (int)mMap->GetMapHeight() && 0 <= z ) )
-	{
-		result = mBuildMap[x][z];
-	}
-	return result;
-}
-NODE_RETURN_CODE MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNode )
+NODE_RETURN_CODE MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNode, MapNodeInstance*** buildMap )
 {
 	int nodeWith   = (int)( ( newNode->GetMapNode()->GetGridWidth() / ( NODE_DIM ) ) );
 	int nodeHeight = (int)( ( newNode->GetMapNode()->GetGridHeight() / ( NODE_DIM ) ) );
@@ -41,7 +18,7 @@ NODE_RETURN_CODE MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNo
 	{
 		for( int y = pY; y < (int)( pY +  nodeHeight ); y++ )
 		{
-			if( mBuildMap[x][y] != nullptr )
+			if( buildMap[x][y] != nullptr )
 			{
 				return OCCUPIED;
 			}
@@ -52,7 +29,7 @@ NODE_RETURN_CODE MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNo
 	{
 		for( int y = pY; y < (int)( pY +  nodeHeight ); y++ )
 		{
-			mBuildMap[x][y] = newNode;
+			buildMap[x][y] = newNode;
 			//mNodes.push_back( newNode );
 		}
 	}
@@ -60,24 +37,48 @@ NODE_RETURN_CODE MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNo
 
 	newNode->SetPos( newPos );
 	newNode->Initialize();
+	newNode->SetNodeID( mNrOfNodes++ );
 
 	return PLACED;
 }
-void MapNodePlacer::BuildMap( MapNodeInstance** map )
+
+MapNodePlacer* MapNodePlacer::GetInstance()
 {
+	if ( instance == nullptr )
+	{
+		instance  = new MapNodePlacer();
+		return instance;
+	}
+	return instance;
+}
+
+void MapNodePlacer::BuildMap( MapNodeInstance***& buildMap )
+{
+	buildMap = new MapNodeInstance**[mMap->GetMapDim()];
+	for( int i = 0; i < (int)mMap->GetMapDim(); i++ )
+	{
+		buildMap[i] = new MapNodeInstance*[mMap->GetMapDim()];
+		for( int j = 0; j < (int)mMap->GetMapDim(); j++ )
+		{
+			buildMap[i][j] = nullptr;
+		}
+	}
 	NodeMap nodeMap = MapNodeManager::GetInstance()->GetNodes();
-	int count = 0;
+
+	int count	= 0;
+	int nodeID	= 0;
+
 	int nodeMapSize = (int)nodeMap[NodeTypes::AREA_NODE].size();
 	int randomNode = 0;
 
 
 	//Hardcoding Ships
-	CanPlace( mMap->GetMapHalfWidth() - 1, mMap->GetMapHalfHeight(), nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance() );
-	map[mNrOfNodes++] = nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance();
-	////////////////
-	//Hardcoding Ships
-	CanPlace( mMap->GetMapHalfWidth() + 1, mMap->GetMapHalfHeight(), nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance() );
-	map[mNrOfNodes++] = nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance();
+	//CanPlace( mMap->GetMapHalfWidth() - 1, mMap->GetMapHalfHeight(), nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance(), buildMap );
+	////map[mNrOfNodes++] = nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance();
+	//////////////////
+	////Hardcoding Ships
+	//CanPlace( mMap->GetMapHalfWidth() + 1, mMap->GetMapHalfHeight(), nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance(), buildMap );
+	//map[mNrOfNodes++] = nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance();
 	////////////////
 
 	for( int x = 0; x < (int)mMap->GetMapDim(); x++ )
@@ -95,7 +96,7 @@ void MapNodePlacer::BuildMap( MapNodeInstance** map )
 			while( doLoop )
 			{
 				MapNodeInstance* newNode = nodeMap[NodeTypes::AREA_NODE][randomNode]->GetMapNodeInstance();
-				switch( CanPlace( x, y, newNode ) )
+				switch( CanPlace( x, y, newNode, buildMap ) )
 				{
 					case OCCUPIED:
 						newNode->ReleaseInstance();
@@ -123,8 +124,9 @@ void MapNodePlacer::BuildMap( MapNodeInstance** map )
 						}
 						break;
 					case PLACED:
-						map[mNrOfNodes++] = newNode;
+						//map[mNrOfNodes++] = newNode;
 						count = 0;
+
 						doLoop = false;
 						break;
 				}
@@ -133,52 +135,36 @@ void MapNodePlacer::BuildMap( MapNodeInstance** map )
 	}
 	return;
 }
+
 UINT MapNodePlacer::GetNrOfNodes() const
 {
 	return (UINT)mNrOfNodes;
 }
+
+void MapNodePlacer::Reset()
+{
+	mNrOfNodes = 0;
+}
+
 HRESULT	MapNodePlacer::Initialize( Map* map )
 {
 	mMap = map;
-	mBuildMap = new MapNodeInstance**[mMap->GetMapDim()];
-	for( int i = 0; i < (int)mMap->GetMapDim(); i++ )
-	{
-		mBuildMap[i] = new MapNodeInstance*[mMap->GetMapDim()];
-		for( int j = 0; j < (int)mMap->GetMapDim(); j++ )
-		{
-			mBuildMap[i][j] = nullptr;
-		}
-	}
 	return S_OK;
 }
+
 void MapNodePlacer::Release()
 {
 	if ( instance != nullptr )
 	{
-		for( int i = 0; i < (int)mMap->GetMapDim(); i++ )
-		{
-			delete[] mBuildMap[i];
-		}
-		delete[] mBuildMap;
-
 		delete instance;
 	}
 }
-void MapNodePlacer::Reset()
-{
-	for( int i = 0; i < (int)mMap->GetMapDim(); i++ )
-	{
-		for( int j = 0; j < (int)mMap->GetMapDim(); j++ )
-		{
-			mBuildMap[i][j] = nullptr;
-		}
-	}
-	mNrOfNodes = 0;
-}
+
 MapNodePlacer::MapNodePlacer()
 {
 	mNrOfNodes = 0;
 }
+
 MapNodePlacer::~MapNodePlacer()
 {
 }

@@ -1,4 +1,5 @@
 #include "ServerTurret.h"
+#include "HelperFunctions.h"
 
 void ServerTurret::IdleTurret::Action( ServerTurret* t, float dt )
 {
@@ -59,6 +60,18 @@ void ServerTurret::Fire()
 	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
+void ServerTurret::ChangeLevel( UINT level )
+{
+	level -= 1;
+	mLoadOut->rangedWeapon->damage = TURRET_DAMAGE + ( level * 10 );
+}
+
+void ServerTurret::ClearTarget()
+{
+	mTarget = nullptr;
+	SwitchMode( IDLE_MODE );
+}
+
 UINT ServerTurret::CheckMode() const
 {
 	return mCurrentMode;
@@ -97,8 +110,7 @@ void ServerTurret::FindTarget( BoundingCircle* enemy )
 		}
 		else if( !mTarget->Intersect( mScanCircle ) )
 		{
-			mTarget = nullptr;
-			SwitchMode( IDLE_MODE );
+			ClearTarget();
 		}
 	}
 }
@@ -117,7 +129,8 @@ void ServerTurret::Reset( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 	mID		= id;
 	mTeamID	= team;
 
-	SwitchMode( IDLE_MODE );
+	mLoadOut->rangedWeapon->Reset();
+	ClearTarget();
 
 	mPos.x -= 1.798f;
 	mPos.y += 3.878f;
@@ -145,7 +158,7 @@ void ServerTurret::Initialize( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, X
 	mModes[ATTACK_MODE]		= new AttackingTurret();
 
 	mLoadOut				= new LoadOut();
-	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN );
+	mLoadOut->rangedWeapon	= new RangedInfo( TURRET );
 
 	mPos.x -= 1.798f;
 	mPos.y += 3.878f;

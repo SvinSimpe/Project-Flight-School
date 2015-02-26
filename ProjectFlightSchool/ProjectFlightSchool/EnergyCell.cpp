@@ -15,6 +15,11 @@ void EnergyCell::SetPickedUp( bool pickedUp )
 	mPickedUp = pickedUp;
 }
 
+void EnergyCell::SetSecured( bool secured )
+{
+	mSecured = secured;
+}
+
 UINT EnergyCell::GetOwnerID() const 
 {
 	return mOwnerID;
@@ -33,6 +38,11 @@ DirectX::XMFLOAT3 EnergyCell::GetPosition() const
 BoundingCircle*	EnergyCell::GetPickUpRadius() const
 {
 	return mPickUpRadius;
+}
+
+bool EnergyCell::GetSecured() const
+{
+	return mSecured;
 }
 
 HRESULT EnergyCell::Update( float deltaTime )
@@ -57,6 +67,7 @@ void EnergyCell::Reset()
 	mAssetID		= (UINT)-1;
 	mOwnerID		= (UINT)-1;
 	mPickedUp		= false;
+	mSecured		= false;
 	SAFE_DELETE( mPickUpRadius );
 	mPickUpRadius	= nullptr;
 }
@@ -68,12 +79,15 @@ HRESULT EnergyCell::Initialize( DirectX::XMFLOAT3 position )
 	mPickedUp				= false;
 	mPickUpRadius			= new BoundingCircle( 1.0f );
 	mPickUpRadius->center	= position;
+
 	mLight					= new PointLight();
 	mLight->colorAndRadius	= XMFLOAT4( 0.2f, 0.1f, 1.0f, 5.0f );
 	mLight->position		= XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f );
 	
 	IEventPtr reg( new Event_Add_Point_Light( mLight ) );
 	EventManager::GetInstance()->QueueEvent( reg );
+
+	mSecured				= false;
 
 
 	if( FAILED( hr = Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Battery/", "battery.pfs", mAssetID ) ) )
@@ -98,6 +112,7 @@ EnergyCell::EnergyCell()
 	mPickUpRadius	= nullptr;
 	mHooverFactor	= 0.0f;
 	mLight			= nullptr;
+	mSecured		= false;
 }
 
 EnergyCell::~EnergyCell()

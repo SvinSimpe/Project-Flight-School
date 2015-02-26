@@ -9,7 +9,6 @@ class Client : public Network
 		static Client*			mInstance;
 		ClientSocketManager*	mSocketManager;
 		NetworkEventForwarder*	mNEF;
-		std::list<IEventPtr>	mEventList;
 		bool					mActive;
 
 	protected:
@@ -24,12 +23,12 @@ class Client : public Network
 
 		void	StartUp( IEventPtr eventPtr );
 		void	Shutdown( IEventPtr eventPtr );
-		void	DoSelect( int pauseMicroSecs, bool handleInput = true );
 
 	protected:
 		bool	Connect( std::string ip, UINT port );
 	public:
 		static Client* GetInstance();
+		void	DoSelect( int pauseMicroSecs, bool handleInput = true );
 		void	SendEvent( IEventPtr eventPtr );
 		void	Update( float deltaTime );
 		bool	Initialize();

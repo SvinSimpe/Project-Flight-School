@@ -60,14 +60,6 @@ void UpgradePlayerWindow::Render()
 	XMFLOAT2 topLeftCorner;
 	XMFLOAT2 widthHeight;
 
-	widthHeight.x = 20.0f;
-	widthHeight.y = 20.0f;
-
-	topLeftCorner.x = (float)( Input::GetInstance()->mCurrentMousePos.x );
-	topLeftCorner.y = (float)( Input::GetInstance()->mCurrentMousePos.y );
-
-	RenderManager::GetInstance()->AddObject2dToList( mUpgradeWindow, topLeftCorner, widthHeight );
-
 	mHealthButton.Render();
 	mSpeedButton.Render();
 	mMeleeButton.Render();
@@ -90,6 +82,8 @@ void UpgradePlayerWindow::Release()
 	mSpeedButton.button.Release();
 	mMeleeButton.button.Release();
 	mRangeButton.button.Release();
+
+	mFont.Release();
 }
 
 HRESULT UpgradePlayerWindow::Initialize()

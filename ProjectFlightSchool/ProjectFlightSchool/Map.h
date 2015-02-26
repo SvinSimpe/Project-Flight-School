@@ -2,6 +2,7 @@
 #define MAP_H
 #include "MapSection.h"
 #include "BoundingGeometry.h"
+#include "NodeGraph.h"
 #define MAX_NODES 1000
 
 static enum MapSize
@@ -14,13 +15,11 @@ static enum MapSize
 class Map
 {
 	private:
-		MapSection *mMapSection;
-		MapNodeInstance* mNodes[MAX_NODES];
-		float mVertexSpacing;
-		UINT mNrOfNodes;
-		UINT mMapId;
 
-		std::vector<NavTriangle> mNavData;
+		MapNodeInstance***	mBuildMap;
+		float				mVertexSpacing;
+		UINT				mNrOfNodes;
+		UINT				mMapId;
 
 	protected:
 	public:
@@ -28,24 +27,27 @@ class Map
 	private:
 	protected:
 	public:
-		HRESULT Render( float deltaTime, Player* player );
-		void GenerateGrid();
-		void OnLoadLevel( IEventPtr E1 );
-		NavTriangle* IsOnNavMesh( XMFLOAT3 pos );
-		//bool Inside2DTriangle( XMFLOAT2 p, XMFLOAT2 p0, XMFLOAT2 p1, XMFLOAT2 p2 );
 
-		UINT GetMapDim() const;
-		UINT GetMapWidth() const;
-		UINT GetMapHeight() const;
+		HRESULT				Render( float deltaTime, Player* player );
+		void				OnLoadLevel( IEventPtr E1 );
+		bool				PlayerVsMap( XMFLOAT3 position, XMFLOAT3 &normal );
+		bool				BulletVsMap( XMFLOAT3 position, XMFLOAT3 &normal );
+		NavTriangle*		IsOnNavMesh( XMFLOAT3 pos );
 
-		UINT GetMapHalfWidth() const;
-		UINT GetMapHalfHeight() const;
+		UINT				GetMapDim() const;
+		UINT				GetMapWidth() const;
+		UINT				GetMapHeight() const;
+		UINT				GetMapHalfWidth() const;
+		UINT				GetMapHalfHeight() const;
+		float				GetHeight( DirectX::XMFLOAT3 pos );
+		UINT				GetNrOfNodes() const;
+		MapNodeInstance***	GetNodeMap() const;
+		MapNodeInstance*	GetNodeInstance( int x, int z );
 
-		UINT GetNrOfNodes() const;
-
-		HRESULT Initialize( UINT mapDim );
-		void Release();
+		HRESULT				Initialize( UINT mapDim );
+		void				Release();
 		Map();
+
 		~Map();
 };
 #endif

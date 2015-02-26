@@ -34,21 +34,30 @@ void Game::StartPlayState( IEventPtr eventPtr )
 
 HRESULT Game::Update( float deltaTime )
 {
-	mServer->Update( deltaTime );
 	Client::GetInstance()->Update( deltaTime );
+	mServer->Update( deltaTime );
 
+	Client::GetInstance()->DoSelect( 0 );
+	mServer->DoSelect( 0 );
 	EventManager::GetInstance()->Update();
-	RenderManager::GetInstance()->Update( deltaTime );
 
+	Client::GetInstance()->DoSelect( 0 );
+	mServer->DoSelect( 0 );
+	RenderManager::GetInstance()->Update( deltaTime );
+	
+	Client::GetInstance()->DoSelect( 0 );
+	mServer->DoSelect( 0 );
 	mStateMachine->Update( deltaTime );
 
-
+	Client::GetInstance()->DoSelect( 0 );
+	mServer->DoSelect( 0 );
+	Client::GetInstance()->DoSelect( 0 );
 	return S_OK;
 }
 
-HRESULT Game::Render()
+HRESULT Game::Render( float deltaTime )
 {
-	mStateMachine->Render();
+	mStateMachine->Render( deltaTime );
 
 	return S_OK;
 }

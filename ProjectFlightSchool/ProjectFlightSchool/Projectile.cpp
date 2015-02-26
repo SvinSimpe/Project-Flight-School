@@ -14,6 +14,7 @@ HRESULT Projectile::Update( float deltaTime )
 		mLifeTime -=deltaTime;
 
 	mBoundingCircle->center = mPosition;
+	mPointLight->position	= XMFLOAT4( mPosition.x, mPosition.y, mPosition.z, 1.0f );
 
 	return S_OK;
 }
@@ -31,7 +32,7 @@ HRESULT Projectile::Render( )
 	return S_OK;
 }
 
-void Projectile::SetDirection( unsigned int playerID, unsigned int id, unsigned int teamID, XMFLOAT3 startPosition, XMFLOAT3 direction, float speed, float range, float damage )
+void Projectile::SetDirection( unsigned int playerID, unsigned int id, unsigned int teamID, XMFLOAT3 startPosition, XMFLOAT3 direction, float speed, float range, float damage, WeaponType weaponType )
 {
 	Reset();
 	mPlayerID		= playerID;
@@ -43,6 +44,9 @@ void Projectile::SetDirection( unsigned int playerID, unsigned int id, unsigned 
 	mLifeTime		= range;
 	mIsActive		= true;
 	mDamage			= damage;
+	mWeaponType		= weaponType;
+	IEventPtr E1( new Event_Add_Point_Light( mPointLight ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 void Projectile::SetIsActive( bool isActive )
@@ -65,6 +69,9 @@ void Projectile::Reset()
 	mSpeed		= 20.0f;
 	mLifeTime	= 4.0f;
 	mDamage		= 0.0f;
+	mWeaponType	= MINIGUN;
+	IEventPtr E1( new Event_Remove_Point_Light( mPointLight ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 BoundingCircle* Projectile::GetBoundingCircle() const
@@ -92,12 +99,31 @@ float Projectile::GetDamage() const
 	return mDamage;
 }
 
+XMFLOAT3 Projectile::GetDirection() const
+{
+	return mDirection;
+}
+
+XMFLOAT3 Projectile::GetPosition() const
+{
+	return mPosition;
+}
+
+WeaponType Projectile::GetWeaponType() const
+{
+	return mWeaponType;
+}
+
 HRESULT Projectile::Initialize()
 {
 	mSpeed			= 20.0f;
 	mLifeTime		= 4.0f;
 	mBoundingCircle = new BoundingCircle( 0.5f );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Bullet/", "bullet2.pfs", mProjectileAsset );
+	mWeaponType		= MINIGUN;
+	mPointLight		= new PointLight;
+	mPointLight->colorAndRadius	= XMFLOAT4( 1.0f, 1.0f, 1.0f, 0.5f );
+	mPointLight->position		= XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
 
 	return S_OK;
 }
@@ -105,6 +131,7 @@ HRESULT Projectile::Initialize()
 void Projectile::Release()
 {
 	SAFE_DELETE( mBoundingCircle );
+	SAFE_DELETE( mPointLight );
 }
 
 Projectile::Projectile()
@@ -118,6 +145,7 @@ Projectile::Projectile()
 	mLifeTime		= 0.0f;
 	mBoundingCircle	= nullptr;	
 	mDamage			= 0.0f;
+	mWeaponType		= MINIGUN;
 }
 
 Projectile::~Projectile()

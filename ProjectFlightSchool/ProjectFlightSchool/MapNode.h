@@ -41,14 +41,18 @@ class MapNode
 		XMFLOAT3		mOrigin;
 		XMFLOAT3		mPos;
 		UINT			mNodeDim;
-		GameObject*		mStaticAssets;
-		UINT			mStaticAssetCount;
 		AssetID			mBlendMap;
+
+		float***		mHeightMap;
+
+		float			mEnvironmentTimer;
 
 		MapNodeInstance mInstances[INSTANCE_COUNT];
 
 	protected:
 	public:
+		GameObject*		mStaticAssets;
+		UINT			mStaticAssetCount;
 
 	private:
 	protected:
@@ -61,13 +65,13 @@ class MapNode
 		UINT				GetVertexCount() const;
 		UINT				GetNavVertexCount() const;
 
-		UINT				GetGridDim() const;
-
 		UINT				GetGridWidth() const;
 		UINT				GetGridHeight() const;
 
 		XMFLOAT3			GetOrigin() const;
 		XMFLOAT3*			GetNavData() const;
+
+		float				GetHeight( DirectX::XMFLOAT3 pos );
 
 		GameObject*			GetStaticAssets() const;
 

@@ -16,6 +16,7 @@ enum WeaponType
 	SAW,
 	SHOTGUN,
 	SNIPER,
+	TURRET,
 	WEAPON_COUNT,
 };
 
@@ -29,6 +30,7 @@ struct RangedInfo
 	float			spread;
 	float			areaOfEffect;
 	float			projectileSpeed;
+	float			overheat;
 
 	RangedInfo()
 	{
@@ -41,6 +43,7 @@ struct RangedInfo
 		spread			= 0.0f;
 		areaOfEffect	= 0.0f;
 		projectileSpeed	= 0.0f;
+		overheat		= 0.0f;
 	}
 
 	RangedInfo( WeaponType weaponType )
@@ -59,6 +62,7 @@ struct RangedInfo
 				spread			=	MINIGUN_SPREAD;
 				areaOfEffect	=	MINIGUN_AOE;
 				projectileSpeed	=	MINIGUN_SPEED;
+				overheat		=	0.0f;
 				/*attackRate		= 0.005f;
 				damage			= 2.0f;
 				range			= 0.1f;
@@ -76,6 +80,7 @@ struct RangedInfo
 				spread			=	SHOTGUN_SPREAD;
 				areaOfEffect	=	SHOTGUN_AOE;
 				projectileSpeed	=	SHOTGUN_SPEED;
+				overheat		=	0.0f;
 			}
 				break;
 
@@ -87,6 +92,7 @@ struct RangedInfo
 				spread			=	GL_SPREAD;
 				areaOfEffect	=	GL_AOE;
 				projectileSpeed	=	GL_SPEED;
+				overheat		=	0.0f;
 			}
 				break;
 
@@ -98,9 +104,20 @@ struct RangedInfo
 				spread			=	SNIPER_SPREAD;
 				areaOfEffect	=	SNIPER_AOE;
 				projectileSpeed	=	SNIPER_SPEED;
+				overheat		=	0.0f;
 			}
 				break;
-
+			case TURRET:
+			{
+				attackRate		=	TURRET_AR;
+				damage			=	TURRET_DAMAGE;
+				range			=	TURRET_RANGE;
+				spread			=	TURRET_SPREAD;
+				areaOfEffect	=	TURRET_AOE;
+				projectileSpeed	=	TURRET_SPEED;
+				overheat		=	0.0f;
+			}
+				break;
 			default:
 			{
 				attackRate		=	MINIGUN_AR;
@@ -109,6 +126,7 @@ struct RangedInfo
 				spread			=	MINIGUN_SPREAD;
 				areaOfEffect	=	MINIGUN_AOE;
 				projectileSpeed	=	MINIGUN_SPEED;
+				overheat		=	0.0f;
 			}
 		}
 	}
@@ -133,6 +151,7 @@ struct RangedInfo
 				spread			=	MINIGUN_SPREAD;
 				areaOfEffect	=	MINIGUN_AOE;
 				projectileSpeed	=	MINIGUN_SPEED;
+				overheat		=	0.0f;
 			}
 				break;
 
@@ -144,6 +163,7 @@ struct RangedInfo
 				spread			=	SHOTGUN_SPREAD;
 				areaOfEffect	=	SHOTGUN_AOE;
 				projectileSpeed	=	SHOTGUN_SPEED;
+				overheat		=	0.0f;
 			}
 				break;
 
@@ -155,6 +175,7 @@ struct RangedInfo
 				spread			=	GL_SPREAD;
 				areaOfEffect	=	GL_AOE;
 				projectileSpeed	=	GL_SPEED;
+				overheat		=	0.0f;
 			}
 				break;
 
@@ -166,6 +187,7 @@ struct RangedInfo
 				spread			=	SNIPER_SPREAD;
 				areaOfEffect	=	SNIPER_AOE;
 				projectileSpeed	=	SNIPER_SPEED;
+				overheat		=	0.0f;
 			}
 				break;
 
@@ -177,6 +199,7 @@ struct RangedInfo
 				spread			=	MINIGUN_SPREAD;
 				areaOfEffect	=	MINIGUN_AOE;
 				projectileSpeed	=	MINIGUN_SPEED;
+				overheat		=	0.0f;
 			}
 		}
 	}
@@ -198,6 +221,7 @@ struct RangedInfo
 						spread			= 0.15f;
 						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
+						overheat		= 0.0f;
 					}
 						break;
 
@@ -209,6 +233,7 @@ struct RangedInfo
 						spread			= 0.15f;
 						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
+						overheat		= 0.0f;
 					}
 						break;
 
@@ -220,6 +245,7 @@ struct RangedInfo
 						spread			= 0.15f;
 						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
+						overheat		= 0.0f;
 					}
 						break;
 
@@ -238,6 +264,7 @@ struct RangedInfo
 						spread			= 0.15f;
 						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
+						overheat		= 0.0f;
 					}
 						break;
 
@@ -351,6 +378,7 @@ struct MeleeInfo
 	float			knockBack;
 	float			timeTillAttack;		// From button press
 	float			stun;
+	float			reach;
 	BoundingCircle*	boundingCircle;
 
 	MeleeInfo()
@@ -360,6 +388,7 @@ struct MeleeInfo
 		attackRate		= 0.0f;
 		damage			= 0.0f;
 		radius			= 0.0f;
+		reach			= 0.0f;
 		spread			= 0;
 		knockBack		= 0.0f;
 		boundingCircle	= nullptr;
@@ -378,9 +407,10 @@ struct MeleeInfo
 				attackRate		= CLAYMORE_AR;
 				damage			= CLAYMORE_DAMAGE;
 				radius			= CLAYMORE_RADIUS;
+				reach			= CLAYMORE_REACH;
 				spread			= CLAYMORE_SPREAD;
 				knockBack		= CLAYMORE_KB;
-				boundingCircle	= new BoundingCircle( CLAYMORE_REACH );
+				boundingCircle	= new BoundingCircle( CLAYMORE_RADIUS );
 				timeTillAttack	= CLAYMORE_TTA;
 				stun			= CLAYMORE_STUN;
 			}
@@ -392,8 +422,9 @@ struct MeleeInfo
 				damage			= HAMMER_DAMAGE;
 				radius			= HAMMER_RADIUS;
 				spread			= HAMMER_SPREAD;
+				reach			= HAMMER_REACH;
 				knockBack		= HAMMER_KB;
-				boundingCircle	= new BoundingCircle( HAMMER_REACH );
+				boundingCircle	= new BoundingCircle( HAMMER_RADIUS );
 				timeTillAttack	= HAMMER_TTA;
 				stun			= HAMMER_STUN;
 			}
@@ -404,9 +435,10 @@ struct MeleeInfo
 				attackRate		= BLOWTORCH_AR;
 				damage			= BLOWTORCH_DAMAGE;
 				radius			= BLOWTORCH_RADIUS;
+				reach			= BLOWTORCH_REACH;
 				spread			= BLOWTORCH_SPREAD;
 				knockBack		= BLOWTORCH_KB;
-				boundingCircle	= new BoundingCircle( BLOWTORCH_REACH );
+				boundingCircle	= new BoundingCircle( BLOWTORCH_RADIUS );
 				timeTillAttack	= BLOWTORCH_TTA;
 				stun			= BLOWTORCH_STUN;
 			}
@@ -417,9 +449,10 @@ struct MeleeInfo
 				attackRate		= SAW_AR;
 				damage			= SAW_DAMAGE;
 				radius			= SAW_RADIUS;
+				reach			= SAW_REACH;
 				spread			= SAW_SPREAD;
 				knockBack		= SAW_KB;
-				boundingCircle	= new BoundingCircle( SAW_REACH );
+				boundingCircle	= new BoundingCircle( SAW_RADIUS );
 				timeTillAttack	= SAW_TTA;
 				stun			= SAW_STUN;
 			}
@@ -430,9 +463,10 @@ struct MeleeInfo
 				attackRate		= HAMMER_AR;
 				damage			= HAMMER_DAMAGE;
 				radius			= HAMMER_RADIUS;
+				reach			= HAMMER_REACH;
 				spread			= HAMMER_SPREAD;
 				knockBack		= HAMMER_KB;
-				boundingCircle	= new BoundingCircle( HAMMER_REACH );
+				boundingCircle	= new BoundingCircle( HAMMER_RADIUS );
 				timeTillAttack	= HAMMER_TTA;
 				stun			= HAMMER_STUN;
 			}

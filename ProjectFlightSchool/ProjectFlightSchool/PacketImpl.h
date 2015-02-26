@@ -46,21 +46,4 @@ inline BinaryPacket::BinaryPacket( u_long size )
 	PFS_ASSERT( mData );
 	*(u_long*)mData = htonl( size + sizeof( u_long ) );
 }
-
-/////////////////////////////////////////////////////////////////
-// Test package only used to send text
-class TextPacket : public BinaryPacket
-{
-	private:
-	protected:
-	public:
-		static const PacketType GUID;
-
-	private:
-	protected:
-	public:
-		const PacketType& GetType() const { return GUID; }
-		TextPacket( char const* const text );
-};
-/////////////////////////////////////////////////////////////////
 #endif

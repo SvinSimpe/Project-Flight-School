@@ -36,6 +36,7 @@ class ServerShip : public GameObject
 
 		bool			mWasUpdated;
 
+
 	public:
 
 	private:

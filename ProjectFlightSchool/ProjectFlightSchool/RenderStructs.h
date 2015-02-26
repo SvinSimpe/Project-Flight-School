@@ -7,7 +7,7 @@
 #define MAX_AMOUNT_OF_OBJECT2D	5000
 #define MAX_AMOUNT_OF_ANIM3D	100
 #define MAX_AMOUNT_OF_PLANES	2000
-#define MAX_AMOUNT_OF_BOXES		2000
+#define MAX_AMOUNT_OF_BOXES		20000
 #define MAX_AMOUNT_OF_NODEGRIDS	500
 #define MAX_AMOUNT_OF_LINES		10000
 
@@ -48,6 +48,7 @@ struct ParticleInfo
 	DirectX::XMFLOAT3	mWorldPosition;
 	float				mAge;
 	float				mTimeTillDeath;
+	float				mRandomRotation;
 };
 
 struct NodeGridInfo
@@ -68,8 +69,9 @@ struct PlaneInfo
 
 struct BoxInfo
 {
-	DirectX::XMFLOAT3 min;
-	DirectX::XMFLOAT3 max;
+	DirectX::XMFLOAT3	min;
+	DirectX::XMFLOAT3	max;
+	DirectX::XMFLOAT4X4 world;
 };
 struct LineInfo
 {

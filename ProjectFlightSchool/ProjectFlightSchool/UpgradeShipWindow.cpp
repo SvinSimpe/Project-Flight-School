@@ -49,12 +49,12 @@ void UpgradeShipWindow::Update( float deltaTime )
 		if( pressed == 1 )
 		{
 			IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, 1, 0, 0 ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
+			gEventList.push_front( E1 );
 		}
 		else
 		{
 			IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, -1, 0, 0 ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
+			gEventList.push_front( E1 );
 		}
 	}
 	else
@@ -65,12 +65,12 @@ void UpgradeShipWindow::Update( float deltaTime )
 			if ( pressed == 1 )
 			{
 				IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 1, 0, 0, 0 ) );
-				EventManager::GetInstance()->QueueEvent( E1 );
+				gEventList.push_front( E1 );
 			}
 			else
 			{
 				IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, -1, 0, 0, 0 ) );
-				EventManager::GetInstance()->QueueEvent( E1 );
+				gEventList.push_front( E1 );
 			}
 		}
 		else
@@ -81,12 +81,12 @@ void UpgradeShipWindow::Update( float deltaTime )
 				if ( pressed == 1 )
 				{
 					IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, 0, 1, 0 ) );
-					EventManager::GetInstance()->QueueEvent( E1 );
+					gEventList.push_front( E1 );
 				}
 				else
 				{
 					IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, 0, -1, 0 ) );
-					EventManager::GetInstance()->QueueEvent( E1 );
+					gEventList.push_front( E1 );
 				}
 			}
 			else
@@ -97,12 +97,12 @@ void UpgradeShipWindow::Update( float deltaTime )
 					if ( pressed == 1 )
 					{
 						IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, 0, 0, 1 ) );
-						EventManager::GetInstance()->QueueEvent( E1 );
+						gEventList.push_front( E1 );
 					}
 					else
 					{
 						IEventPtr E1( new Event_Client_Change_Ship_Levels( mTeam, 0, 0, 0, -1 ) );
-						EventManager::GetInstance()->QueueEvent( E1 );
+						gEventList.push_front( E1 );
 					}
 				}
 			}
@@ -115,14 +115,6 @@ void UpgradeShipWindow::Render()
 {
 	XMFLOAT2 topLeftCorner;
 	XMFLOAT2 widthHeight;
-
-	widthHeight.x = 20.0f;
-	widthHeight.y = 20.0f;
-
-	topLeftCorner.x = (float)( Input::GetInstance()->mCurrentMousePos.x );
-	topLeftCorner.y = (float)( Input::GetInstance()->mCurrentMousePos.y );
-
-	RenderManager::GetInstance()->AddObject2dToList( mUpgradeWindow, topLeftCorner, widthHeight );
 
 	widthHeight.x = mSize.x;
 	widthHeight.y = mSize.y;
@@ -145,6 +137,7 @@ void UpgradeShipWindow::Release()
 
 HRESULT UpgradeShipWindow::Initialize()
 {
+	gEventList	= std::list<IEventPtr>();
 	mIsActive	= false;
 	mTeam		= -1;
 
@@ -153,7 +146,7 @@ HRESULT UpgradeShipWindow::Initialize()
 	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/shipUpgradeMenu.dds", mUpgradeWindow );
 
 	mSize.x = Input::GetInstance()->mScreenWidth * 0.45f;
-	mSize.y = Input::GetInstance()->mScreenHeight * 0.26f;
+	mSize.y = Input::GetInstance()->mScreenHeight * 0.26296296f;
 
 	mTopLeftCorner.x = (float)( Input::GetInstance()->mScreenWidth / 2.0f ) - (float)( mSize.x / 2.0f );
 	mTopLeftCorner.y = Input::GetInstance()->mScreenHeight - mSize.y;
@@ -174,10 +167,10 @@ HRESULT UpgradeShipWindow::Initialize()
 	mEngineButtons.buttons		= new Button[MAX_NR_OF_UPGRADES * 2];
 
 	float sizeBox					= 48.0f;
-	XMFLOAT2 turretTopLeft			= XMFLOAT2( 605.0f, 955.0f );
-	XMFLOAT2 forceFieldTopLeft		= XMFLOAT2( 817.0f, 955.0f );
-	XMFLOAT2 buffButtonTopLeft		= XMFLOAT2( 1014.0f, 955.0f );
-	XMFLOAT2 engineButtonTopLeft	= XMFLOAT2( 1160.0f, 955.0f );
+	XMFLOAT2 turretTopLeft			= XMFLOAT2( 605.0f, 954.0f );
+	XMFLOAT2 forceFieldTopLeft		= XMFLOAT2( 817.0f, 954.0f );
+	XMFLOAT2 buffButtonTopLeft		= XMFLOAT2( 1014.0f, 954.0f );
+	XMFLOAT2 engineButtonTopLeft	= XMFLOAT2( 1160.0f, 954.0f );
 
 	XMFLOAT2 unused[MAX_NR_OF_UPGRADES] = { XMFLOAT2( 0.0f, 0.0f ), XMFLOAT2( 58.0f, 0.0f ), XMFLOAT2( 29.0f, 50.0f ) };
 

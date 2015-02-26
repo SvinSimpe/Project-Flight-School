@@ -16,6 +16,7 @@
 #include "Gui.h"
 #include "SoundBufferHandler.h"
 #include "EnergyCell.h"
+#include "Pathfinder.h"
 
 //TestUpgradeWindow
 #include "UpgradeShipWindow.h"
@@ -23,12 +24,13 @@
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
-#define TOSERVER_OFFSET			5000
+#define ENTITY_CULLDISTANCE		900.0f
 
 class PlayState : public BaseState
 {
 	// Class members
 	private:
+		HCURSOR			mSight;
 		float			mFPS;
 		AnimationTrack	mTestAnimation;
 		AssetID			mTestStaticAsset;
@@ -75,23 +77,24 @@ class PlayState : public BaseState
 		void			BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction );
 		void			BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage );
 		void			BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float knockBack, XMFLOAT3 direction );
-		void			FireProjectile( unsigned int id, unsigned int projectileID, unsigned int teamID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range, float damage );
+		void			FireProjectile( unsigned int id, unsigned int projectileID, unsigned int teamID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range, float damage, WeaponType weaponType );
 		void			CheckPlayerCollision();
 		void			CheckProjectileCollision();
 		void			CheckMeeleCollision();
 		void			HandleDeveloperCameraInput();
 		void			HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID );
+		void			HandleRemoteProjectileRemoved( UINT projectileID );
 		void			UpdateProjectiles( float deltaTime );
 		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive );
 		void			RenderProjectiles();
 		void			SetEnemyState( unsigned int id, EnemyState state );
-		void			CalculateEnergyCellSpawnPosition( XMFLOAT3 shipPosition );
-	
+		bool			CullEntity( XMFLOAT3 entityPos );
+
 
 	protected:
 	public:
 		virtual HRESULT Update( float deltaTime );
-		virtual HRESULT Render();
+		virtual HRESULT Render( float deltaTime );
 		virtual void	OnEnter();
 		virtual void	OnExit();
 		virtual void	Reset();

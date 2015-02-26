@@ -441,7 +441,107 @@ HRESULT Graphics::InitializeEffects()
 	//			PARTICLE EFFECTS			|
 	//=======================================
 
+	//Hammer smoke effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/Hammer_Effect.hlsl";
+	effectInfo.fileName					= "Hammer_Effect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_HAMMER_EFFECT]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Normal Smoke effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/NormalSmokeEffect.hlsl";
+	effectInfo.fileName					= "NormalSmokeEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_NORMAL_SMOKE]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Explosion smoke effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/ExplosionSmoke.hlsl";
+	effectInfo.fileName					= "ExplosionSmoke";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+	
+	if( FAILED( hr = mEffects[EFFECTS_EXPLOSION_SMOKE]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Fire effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/FireEffect.hlsl";
+	effectInfo.fileName					= "FireEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_FIRE]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//FireSmoke effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/FireSmokeEffect.hlsl";
+	effectInfo.fileName					= "FireSmokeEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_FIRE_SMOKE]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
 	//Muzzle Flash effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/MuzzleFlashEffect.hlsl";
+	effectInfo.fileName					= "MuzzleFlashEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_MUZZLEFLASH]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Explosion effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/ExplosionEffect.hlsl";
+	effectInfo.fileName					= "ExplosionEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_EXPLOSION]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Level inner effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/Level_InnerEffect.hlsl";
+	effectInfo.fileName					= "Level_InnerEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_LEVEL_INNER]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Level up effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/Level_UpEffect.hlsl";
+	effectInfo.fileName					= "Level_UpEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_LEVEL_UP]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Spark effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/SparkEffect.hlsl";
+	effectInfo.fileName					= "SparkEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_SPARK]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Blood effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/BloodEffect.hlsl";
 	effectInfo.fileName					= "BloodEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
@@ -593,36 +693,32 @@ void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX
 void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 {
 	///////////////////////////////Code for rendering Oct tree boxes, DO NOT REMOVE!
-	/*for( UINT i = 0; i < sizeOfList; i++ )
-	{
-		Static3dAsset* derpface = (Static3dAsset*)mAssetManager->mAssetContainer[info[i].mAssetId];
-		if(derpface->mFileName != "NO PATHCUBE")
-		{
-			for(UINT j = 0; j < 8; j++)
-			{
-				for(UINT k = 0; k < 8; k++)
-				{
-					for(UINT l = 0; l < 8; l++)
-					{
-						DirectX::XMFLOAT4X4 ident;
-						DirectX::XMStoreFloat4x4( &ident, DirectX::XMMatrixIdentity() );
-						if(derpface->mOctTree.childrenCollides[j])
-						{
-							if(derpface->mOctTree.children[j]->childrenCollides[k])
-							{
-								if(derpface->mOctTree.children[j]->children[k]->childrenCollides[l])
-								{
-									Graphics::RenderDebugBox( derpface->mOctTree.children[j]->children[k]->children[l]->boundingBox.min, 
-																derpface->mOctTree.children[j]->children[k]->children[l]->boundingBox.max,
-																	info[i].mWorld );
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}*/
+	//for( UINT i = 0; i < sizeOfList; i++ )
+	//{
+	//	Static3dAsset* derpface = (Static3dAsset*)mAssetManager->mAssetContainer[info[i].mAssetId];
+	//	if(derpface->mFileName != "NO PATHCUBE")
+	//	{
+	//		for(UINT j = 0; j < 8; j++)
+	//		{
+	//			for(UINT k = 0; k < 8; k++)
+	//			{
+	//			
+	//				DirectX::XMFLOAT4X4 ident;
+	//				DirectX::XMStoreFloat4x4( &ident, DirectX::XMMatrixIdentity() );
+	//				if(derpface->mOctTree->childrenCollides[j])
+	//				{
+	//					if(derpface->mOctTree->children[j]->childrenCollides[k])
+	//					{
+	//							Graphics::RenderDebugBox( derpface->mOctTree->children[j]->children[k]->boundingBox.min, 
+	//														derpface->mOctTree->children[j]->children[k]->boundingBox.max,
+	//															info[i].mWorld );
+	//					}
+	//				}
+	//			
+	//			}
+	//		}
+	//	}
+	//}
 	///////////////////////////////
 
 
@@ -1056,6 +1152,7 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 
 				mParticleInstanced[objectToRender].age				= info[i].mAge;
 				mParticleInstanced[objectToRender].timeTillDeath	= info[i].mTimeTillDeath;
+				mParticleInstanced[objectToRender].randomRotation	= info[i].mRandomRotation;
 
 				objectToRender++;
 				strider++;
@@ -1065,9 +1162,13 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 					mDeviceContext->IASetInputLayout( mEffects[info[i].mParticleType]->GetInputLayout() );
 
 					// Add particletype you want to apply additive blending on
-					if( info[i].mParticleType == EFFECTS_TEST_FOUNTAIN )
+					if( info[i].mParticleType == EFFECTS_TEST_FOUNTAIN || info[i].mParticleType == EFFECTS_SPARK || info[i].mParticleType == EFFECTS_LEVEL_UP 
+						|| info[i].mParticleType == EFFECTS_FIRE )
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
-
+					
+					else if( info[i].mParticleType == EFFECTS_EXPLOSION )
+						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
+					
 					else
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_NORMAL], 0, 0xFFFFFFFF );
 
@@ -1135,46 +1236,49 @@ void Graphics::RenderNodeGrid( NodeGridInfo* info, UINT sizeOfList )
 	}
 }
 
-void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
+void Graphics::RenderDebugBox( BoxInfo* info, UINT sizeOfList )
 {
 	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_DISABLED], 1 );
+	DirectX::XMFLOAT3 min, max;
 
 	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
-
-	UINT32 vertexSize	= sizeof(StaticVertex);
-	UINT32 offset		= 0;
-
-	DirectX::XMFLOAT3 boxSize = DirectX::XMFLOAT3( max.x - min.x, max.y - min.y, max.z - min.z );
-	DirectX::XMFLOAT3 center  = DirectX::XMFLOAT3( ( min.x + max.x ) / 2, ( min.y + max.y ) / 2, ( min.z + max.z ) / 2 );
-
-	ID3D11Buffer* buffersToSet[] = { ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexBuffer };
-	
-	mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_DEBUG_BOX], &vertexSize, &offset );
-	mDeviceContext->IASetIndexBuffer( mBuffers[BUFFERS_DEBUG_BOX_INDICES], DXGI_FORMAT_R32_UINT, 0 );
-
-	//Map CbufferPerObject
-	CbufferPerObject data;
-	DirectX::XMMATRIX scaling		= DirectX::XMMatrixScaling( boxSize.x, boxSize.y, boxSize.z );
-	DirectX::XMMATRIX translation	= DirectX::XMMatrixTranslation( center.x, center.y, center.z );
-
-	data.worldMatrix = DirectX::XMMatrixTranspose( scaling * translation );
-	//data.worldMatrix = DirectX::XMMatrixIdentity();
-	
-	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT], &data, sizeof( CbufferPerObject ) );
-
-	mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] );
-	
-	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_DEBUG_BOX]->GetInputLayout() );
-
 	mDeviceContext->VSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetVertexShader(), nullptr, 0 );
 	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
 	mDeviceContext->PSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetPixelShader(), nullptr, 0 );
 
-	//mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexCount, 0 );//, 0, 0 );
-	mDeviceContext->DrawIndexed( 24, 0, 0 );
-	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
+	UINT32 vertexSize	= sizeof(StaticVertex);
+	UINT32 offset		= 0;
+
+	mDeviceContext->IASetIndexBuffer( mBuffers[BUFFERS_DEBUG_BOX_INDICES], DXGI_FORMAT_R32_UINT, 0 );
+	mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_DEBUG_BOX], &vertexSize, &offset );
+	mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] );
+	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_DEBUG_BOX]->GetInputLayout() );
+
+	for( UINT i = 0; i < sizeOfList; i++ )
+	{
+		max = info[i].max;
+		min = info[i].min;
+
+
+		DirectX::XMFLOAT3 boxSize = DirectX::XMFLOAT3( max.x - min.x, max.y - min.y, max.z - min.z );
+		DirectX::XMFLOAT3 center  = DirectX::XMFLOAT3( ( min.x + max.x ) / 2, ( min.y + max.y ) / 2, ( min.z + max.z ) / 2 );
+
+		//Map CbufferPerObject
+		CbufferPerObject data;
+		DirectX::XMMATRIX worldMat		= DirectX::XMLoadFloat4x4( &info[i].world );
+		DirectX::XMMATRIX scaling		= DirectX::XMMatrixScaling( boxSize.x, boxSize.y, boxSize.z );
+		DirectX::XMMATRIX translation	= DirectX::XMMatrixTranslation( center.x, center.y, center.z );
+
+		data.worldMatrix = worldMat * DirectX::XMMatrixTranspose( scaling * translation );
+
+		MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT], &data, sizeof( CbufferPerObject ) );
+
+		//mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexCount, 0 );//, 0, 0 );
+		mDeviceContext->DrawIndexed( 24, 0, 0 );
+		//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
+	}
 }
 
 void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, DirectX::XMFLOAT4X4 world )
@@ -1219,6 +1323,7 @@ void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, Dir
 	mDeviceContext->DrawIndexed( 24, 0, 0 );
 	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
 }
+
 void Graphics::RenderLine( LineInfo* info, UINT sizeOfList )
 {
 
@@ -1560,12 +1665,24 @@ bool Graphics::GetAnimationMatrices( AnimationTrack &animTrack, int playType, An
 	return localReturn;
 }
 
+OctTree* Graphics::GetOctTreeFromStatic3DAsset( AssetID assetID )
+{
+	return ( (Static3dAsset*)mAssetManager->mAssetContainer[assetID] )->mOctTree;
+}
+
 void Graphics::ChangeCamera()
 {
 	if( mIsDeveloperCameraActive )
+	{
 		mIsDeveloperCameraActive = false;
+		mCurrentCamera = CAMERAS_MAIN;
+	}
+
 	else
+	{
 		mIsDeveloperCameraActive = true;
+		mCurrentCamera = CAMERAS_DEV;
+	}
 }
 
 void Graphics::ZoomInDeveloperCamera()
@@ -1583,22 +1700,22 @@ void Graphics::ZoomOutDeveloperCamera()
 
 void Graphics::GetViewMatrix( DirectX::XMMATRIX &view )
 {
-	view = mCamera[CAMERAS_MAIN]->GetViewMatrix();
+	view = mCamera[mCurrentCamera]->GetViewMatrix();
 }
 
 void Graphics::GetInverseViewMatrix( DirectX::XMMATRIX &inverseViewMatrix )
 {
-	inverseViewMatrix = mCamera[CAMERAS_MAIN]->GetInverseViewMatrix();
+	inverseViewMatrix = mCamera[mCurrentCamera]->GetInverseViewMatrix();
 }
 
 void Graphics::GetProjectionMatrix( DirectX::XMMATRIX &proj )
 {
-	proj = mCamera[CAMERAS_MAIN]->GetProjMatrix();
+	proj = mCamera[mCurrentCamera]->GetProjMatrix();
 }
 
 void Graphics::GetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatrix )
 {
-	projectionViewMatrix = mCamera[CAMERAS_MAIN]->GetInverseProjectionMatrix();
+	projectionViewMatrix = mCamera[mCurrentCamera]->GetInverseProjectionMatrix();
 }
 
 void Graphics::ChangeRasterizerState( RasterizerStates rasterState )
@@ -1667,10 +1784,7 @@ void Graphics::BeginScene()
 void Graphics::GbufferPass()
 {
 
-	if( mIsDeveloperCameraActive )
-		mCamera[CAMERAS_DEV]->Update();
-	else
-		mCamera[CAMERAS_MAIN]->Update();
+	mCamera[mCurrentCamera]->Update();
 
 	mCamera[CAMERAS_SHADOWMAP]->Update();
 
@@ -1693,18 +1807,10 @@ void Graphics::GbufferPass()
 	//Map CbufferPerFrame
 	CbufferPerFrame data;
 
-	if( mIsDeveloperCameraActive )
-	{
-		data.viewMatrix			= mCamera[CAMERAS_DEV]->GetViewMatrix();
-		data.projectionMatrix	= mCamera[CAMERAS_DEV]->GetProjMatrix();
-		data.cameraPosition		= mCamera[CAMERAS_DEV]->GetPos();
-	}
-	else
-	{
-		data.viewMatrix			= mCamera[CAMERAS_MAIN]->GetViewMatrix();
-		data.projectionMatrix	= mCamera[CAMERAS_MAIN]->GetProjMatrix();
-		data.cameraPosition		= mCamera[CAMERAS_MAIN]->GetPos();
-	}
+
+	data.viewMatrix			= mCamera[mCurrentCamera]->GetViewMatrix();
+	data.projectionMatrix	= mCamera[mCurrentCamera]->GetProjMatrix();
+	data.cameraPosition		= mCamera[mCurrentCamera]->GetPos();
 	
 	data.numPointLights = mNumPointLights;
 	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_FRAME], &data, sizeof( CbufferPerFrame ) );
@@ -1807,6 +1913,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 	mScreenWidth	= screenWidth;
 	mScreenHeight	= screenHeight;
 	mFullscreen		= fullscreen;
+	mCurrentCamera	= CAMERAS_MAIN;
 
 	HRESULT hr		= E_FAIL;
 
@@ -2069,7 +2176,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 	cameraInfo.eyePos		= DirectX::XMFLOAT4( 0.0f, 50.0f, -50.0f, 0.0f );
 	cameraInfo.focusPoint	= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
 	cameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
-	cameraInfo.farZ			= 1000.0f;
+	cameraInfo.farZ			= 100.0f;
 
 	hr = mCamera[CAMERAS_DEV]->Initialize( &cameraInfo );
 	if( FAILED( hr ) )

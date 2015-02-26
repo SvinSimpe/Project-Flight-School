@@ -19,7 +19,7 @@
 		<Node path="../Content/Assets/Nodes/tileFungusForest.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileGiantBonesAndTrees.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileGlade.lp" type="AREA_NODE" />
-		<Node path="../Content/Assets/Nodes/tileGrassShroom.lp" type="AREA_NODE" />
+		<Node path="../Content/Assets/Nodes/tilegrassshroom.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileLake1.lp" type="AREA_NODE" />
 		<-- <Node path="../Content/Assets/Nodes/tileLake2.lp" type="AREA_NODE" /> --->
 		<Node path="../Content/Assets/Nodes/tileMediumForest.lp" type="AREA_NODE" />
@@ -29,11 +29,11 @@
 		<Node path="../Content/Assets/Nodes/tileRatherOpenArea2.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileRatherOpenArea3.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileRatherOpenArea4.lp" type="AREA_NODE" />
-		<Node path="../Content/Assets/Nodes/tileShroomPuddle.lp" type="AREA_NODE" />
+		<Node path="../Content/Assets/Nodes/tileshroompuddle.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileSmallForest.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileSomeNests.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileThreeTrees.lp" type="AREA_NODE" />
-		<Node path="../Content/Assets/Nodes/tileTreeForest.lp" type="AREA_NODE" />
+		<Node path="../Content/Assets/Nodes/tiletreeforest.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileTwoIslandsOfTrees.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileWithAfricaLakeAndIsland.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileWithBigTreeAndOneNest.lp" type="AREA_NODE" />
@@ -55,6 +55,7 @@
 				collisionType ="0"
 				renderType ="0"/>
 				
+<-----------------------------Assets divided by maps----------------------------------->
         <Asset path="../Content/Assets/ForestAssets/Bones/bones.pfs" 
 				collisionType ="0"
 				renderType ="0"/>
@@ -70,7 +71,7 @@
         <Asset path="../Content/Assets/ForestAssets/Bones/skeletonboneribbs.pfs" 
 				collisionType ="0"
 				renderType ="0"/>
-				
+<-------------------------------------------------------------------------------------->
         <Asset path="../Content/Assets/ForestAssets/BossNest/bossnestBignest.pfs" 
 				collisionType ="0"
 				renderType ="0"/>
@@ -134,7 +135,7 @@
         <Asset path="../Content/Assets/ForestAssets/BossNest/bosstone14.pfs" 
 				collisionType ="0"
 				renderType ="0"/>
-				
+<-------------------------------------------------------------------------------------->		
         <Asset path="../Content/Assets/ForestAssets/Bushes/bush1.pfs" 
 				collisionType ="2"
 				renderType ="0"/>
@@ -154,15 +155,15 @@
         <Asset path="../Content/Assets/ForestAssets/Bushes/bush5.pfs" 
 				collisionType ="2"
 				renderType ="0"/>
-				
+<-------------------------------------------------------------------------------------->				
         <Asset path="../Content/Assets/ForestAssets/Grass/grassasset1.pfs"
 				collisionType ="2"
 				renderType ="0"/>
-				
+<-------------------------------------------------------------------------------------->				
 		<Asset path="../Content/Assets/ForestAssets/Hill/muddyhill.pfs"
 				collisionType ="0"
 				renderType ="0"/>
-				
+<-------------------------------------------------------------------------------------->				
         <Asset path="../Content/Assets/ForestAssets/Mushrooms/mushroom1.pfs"
 				collisionType ="0"
 				renderType ="0"/>
@@ -186,7 +187,7 @@
         <Asset path="../Content/Assets/ForestAssets/Mushrooms/smallmushroom3.pfs"
 				collisionType ="0"
 				renderType ="0"/>
-				
+<-------------------------------------------------------------------------------------->				
         <Asset path="../Content/Assets/ForestAssets/Nests/nest1.pfs"
 				collisionType ="0"
 				renderType ="0"/>
@@ -198,8 +199,8 @@
         <Asset path="../Content/Assets/ForestAssets/Nests/nest3.pfs"
 				collisionType ="0"
 				renderType ="0"/>
-				
-		<Asset path="../Content/Assets/ForestAssets/Plants/plant1.pfs"
+<-------------------------------------------------------------------------------------->				
+	<Asset path="../Content/Assets/ForestAssets/Plants/plant1.pfs"
 				collisionType ="2"
 				renderType ="0"/>
 				
@@ -210,51 +211,51 @@
         <Asset path="../Content/Assets/ForestAssets/Plants/plant3.pfs" 
 				collisionType ="2"
 				renderType ="0"/>
-				
+<-------------------------------------------------------------------------------------->				
         <Asset path="../Content/Assets/ForestAssets/Stones/greaystone1.pfs" 
 				collisionType ="0"
 				renderType ="0"/>
 				
-		<Asset path="../Content/Assets/ForestAssets/Stones/greaystone2.pfs" 
+	<Asset path="../Content/Assets/ForestAssets/Stones/greaystone2.pfs" 
 				collisionType ="0"
 				renderType ="0"/>
 				
-		<Asset path="../Content/Assets/ForestAssets/Stones/greaystone3.pfs" 
+	<Asset path="../Content/Assets/ForestAssets/Stones/greaystone3.pfs" 
 				collisionType ="0"
 				renderType ="0"/>
 				
-		<Asset path="../Content/Assets/ForestAssets/Stones/greaystone4.pfs" 
+	<Asset path="../Content/Assets/ForestAssets/Stones/greaystone4.pfs" 
 				collisionType ="0"
 				renderType ="0"/>
 				
-		<Asset path="../Content/Assets/ForestAssets/Stones/greaystone5.pfs" 
+	<Asset path="../Content/Assets/ForestAssets/Stones/greaystone5.pfs" 
 				collisionType ="0"
 				renderType ="0"/>
 				
-		<Asset path="../Content/Assets/ForestAssets/Stones/sandstone1.pfs" 
+	<Asset path="../Content/Assets/ForestAssets/Stones/sandstone1.pfs" 
 				collisionType ="0"
 				renderType ="0"/>
 				
-		<Asset path="../Content/Assets/ForestAssets/Stones/sandstone2.pfs" 
+	<Asset path="../Content/Assets/ForestAssets/Stones/sandstone2.pfs" 
 				collisionType ="0"
 				renderType ="0"/>
 				
-		<Asset path="../Content/Assets/ForestAssets/Stones/sandstone3.pfs" 
+	<Asset path="../Content/Assets/ForestAssets/Stones/sandstone3.pfs" 
 				collisionType ="0"
 				renderType ="0"/>
 				
-		<Asset path="../Content/Assets/ForestAssets/Stones/sandstone4.pfs" 
+	<Asset path="../Content/Assets/ForestAssets/Stones/sandstone4.pfs" 
 				collisionType ="0"
 				renderType ="0"/>
 				
-		<Asset path="../Content/Assets/ForestAssets/Stones/sandstone5.pfs" 
+	<Asset path="../Content/Assets/ForestAssets/Stones/sandstone5.pfs" 
 				collisionType ="0"
 				renderType ="0"/>
 				
-		<Asset path="../Content/Assets/ForestAssets/Stones/sandstone6.pfs" 
+	<Asset path="../Content/Assets/ForestAssets/Stones/sandstone6.pfs" 
 				collisionType ="0"
 				renderType ="0"/>
-				
+<-------------------------------------------------------------------------------------->			
       	<Asset path="../Content/Assets/ForestAssets/Trees/bluetree3.pfs" 
 				collisionType ="0"
 				renderType ="0"/>
@@ -267,7 +268,7 @@
 				collisionType ="0"
 				renderType ="0"/>
 				
-		<Asset path="../Content/Assets/ForestAssets/Trees/log1.pfs" 
+	<Asset path="../Content/Assets/ForestAssets/Trees/log1.pfs" 
 				collisionType ="0"
 				renderType ="0"/>
 				
@@ -295,23 +296,23 @@
 				collisionType ="0"
 				renderType ="0"/>
 				
-		<Asset path="../Content/Assets/ForestAssets/Trees/tree3.pfs" 
+	<Asset path="../Content/Assets/ForestAssets/Trees/tree3.pfs" 
 				collisionType ="0"
 				renderType ="0"/>
 				
-		<Asset path="../Content/Assets/ForestAssets/Trees/tree4.pfs" 
+	<Asset path="../Content/Assets/ForestAssets/Trees/tree4.pfs" 
 				collisionType ="0"
 				renderType ="0"/>
 				
-		<Asset path="../Content/Assets/ForestAssets/Trees/tree5.pfs"
+	<Asset path="../Content/Assets/ForestAssets/Trees/tree5.pfs"
 				collisionType ="0"
 				renderType ="0"/>
 				
-		<Asset path="../Content/Assets/ForestAssets/Trees/tree6.pfs"
+	<Asset path="../Content/Assets/ForestAssets/Trees/tree6.pfs"
 				collisionType ="0"
 				renderType ="0"/>
 				
-		<Asset path="../Content/Assets/ForestAssets/Trees/tree7.pfs" 
+	<Asset path="../Content/Assets/ForestAssets/Trees/tree7.pfs" 
 				collisionType ="0"
 				renderType ="0"/>
 				
@@ -322,7 +323,7 @@
         <Asset path="../Content/Assets/ForestAssets/Trees/tree9.pfs" 
 				collisionType ="0"
 				renderType ="0"/>
-				
+<-------------------------------------------------------------------------------------->			
         <Asset path="../Content/Assets/ForestAssets/Water/puddle.pfs"
 				collisionType ="0"
 				renderType ="0"/>

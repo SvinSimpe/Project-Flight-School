@@ -4,16 +4,16 @@
 
 static enum CollisionType
 {
-	Full = 0,
-	Half = 1,
-	None = 2
+	FULL_COLLISION = 0,
+	HALF_COLLISION = 1,
+	NONE_COLLISION = 2
 };
 
 static enum RenderType
 {
-	Static = 0,
-	Dynamic = 1,
-	Invisible = 2
+	STATIC_RENDERTYPE		= 0,
+	DYNAMIC_RENDERTYPE		= 1,
+	INVISIBLE_RENDERTYPE	= 2
 };
 
 struct GameObjectInfo
@@ -27,15 +27,16 @@ class GameObject
 {
 	private:
 	protected:
-		DirectX::XMFLOAT3 mPos;
-		DirectX::XMFLOAT4 mRot;
-		DirectX::XMFLOAT3 mScale;
+		DirectX::XMFLOAT3	mPos;
+		DirectX::XMFLOAT4	mRot;
+		DirectX::XMFLOAT3	mScale;
 
 		CollisionType mCollisionType;
 		RenderType mRenderType;
 
 		AssetID mAssetID;
 	public:
+		DirectX::XMFLOAT4X4 mWorld;
 
 	private:
 	protected:

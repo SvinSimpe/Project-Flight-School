@@ -73,6 +73,7 @@ class Server : public Network
 		void	ClientUpdate( IEventPtr eventPtr );
 		void	ClientDied( IEventPtr eventPtr );
 		void	ClientDamaged( IEventPtr eventPtr );
+		void	ClientRemovedProjectile( IEventPtr eventPtr );
 		void	ClientSpawned( IEventPtr eventPtr );
 		void	ClientFiredProjectile( IEventPtr eventPtr );
 		void	ClientUpdateHP( IEventPtr eventPtr );

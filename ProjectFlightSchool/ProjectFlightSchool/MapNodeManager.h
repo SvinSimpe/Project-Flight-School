@@ -11,14 +11,14 @@ struct JMatrix
 
 struct AssetInfo
 {
-	std::string assetPath;
-	CollisionType collisionType;
-	RenderType renderType;
+	std::string		assetPath;
+	CollisionType	collisionType;
+	RenderType		renderType;
 
 	AssetInfo()
 	{
-		collisionType	= Full;
-		renderType		= Static;
+		collisionType	= FULL_COLLISION;
+		renderType		= STATIC_RENDERTYPE;
 	}
 };
 

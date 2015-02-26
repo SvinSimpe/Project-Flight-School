@@ -97,6 +97,8 @@ void GameObject::Initialize( GameObjectInfo gameObjectInfo, AssetID assetID )
 	mCollisionType	= gameObjectInfo.collision;
 	mRenderType		= gameObjectInfo.renderType;
 
+	mWorld = gameObjectInfo.transformation;
+
 	XMStoreFloat3( &mScale, scale );
 	XMStoreFloat4( &mRot, rotation );
 	XMStoreFloat3( &mPos, translation );
@@ -116,6 +118,9 @@ GameObject::GameObject()
 	mPos	= DirectX::XMFLOAT3( 0, 0 ,0 );
 	mRot	= DirectX::XMFLOAT4( 0, 0 ,0 ,0 );
 	mScale	= DirectX::XMFLOAT3( 0, 0 ,0 );
+
+	mCollisionType	= NONE_COLLISION;
+	mRenderType		= INVISIBLE_RENDERTYPE;
 
 	mAssetID = 0;
 }

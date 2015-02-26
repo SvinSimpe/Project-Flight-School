@@ -15,11 +15,12 @@ static enum MapSize
 class Map
 {
 	private:
-		MapSection *mMapSection;
-		MapNodeInstance*** mBuildMap;
-		float mVertexSpacing;
-		UINT mNrOfNodes;
-		UINT mMapId;
+
+		MapSection*			mMapSection;
+		MapNodeInstance***	mBuildMap;
+		float				mVertexSpacing;
+		UINT				mNrOfNodes;
+		UINT				mMapId;
 
 	protected:
 	public:
@@ -27,10 +28,13 @@ class Map
 	private:
 	protected:
 	public:
-		HRESULT Render( float deltaTime, Player* player );
-		void GenerateGrid();
-		void OnLoadLevel( IEventPtr E1 );
-		//std::vector<DirectX::XMFLOAT2> GetPath( XMFLOAT3 start, XMFLOAT3 goal );
+
+		HRESULT			Render( float deltaTime, Player* player );
+		void			GenerateGrid();
+		void			OnLoadLevel( IEventPtr E1 );
+		NavTriangle*	IsOnNavMesh( XMFLOAT3 pos );
+		bool			PlayerVsMap( XMFLOAT3 position, XMFLOAT3 &normal );
+		bool			BulletVsMap( XMFLOAT3 position, XMFLOAT3 &normal );
 
 		UINT GetMapDim() const;
 		UINT GetMapWidth() const;

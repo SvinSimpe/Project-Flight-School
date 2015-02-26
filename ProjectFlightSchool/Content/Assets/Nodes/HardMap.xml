@@ -297,7 +297,7 @@
 				
 	<Asset path="../Content/Assets/ForestAssets/Trees/tree3.pfs" 
 				collisionType ="0"
-				renderType ="1"/>
+				renderType ="0"/>
 				
 	<Asset path="../Content/Assets/ForestAssets/Trees/tree4.pfs" 
 				collisionType ="0"

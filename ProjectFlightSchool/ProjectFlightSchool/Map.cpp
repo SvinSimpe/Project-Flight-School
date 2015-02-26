@@ -78,7 +78,7 @@ bool Map::PlayerVsMap( XMFLOAT3 position, XMFLOAT3 &normal )
 					rotation		= XMLoadFloat4( &XMFLOAT4( -XMVectorGetX( rotation ), -XMVectorGetY( rotation ), XMVectorGetZ( rotation ), XMVectorGetW( rotation ) ) );
 
 					objMat			= XMMatrixAffineTransformation( scale, XMVectorZero(), rotation, translate );
-					objMat			= objMat * XMMatrixTranslationFromVector( XMLoadFloat3( &temp->GetPos() ) );
+					objMat			= objMat * XMMatrixTranslationFromVector( XMLoadFloat3( &temp->GetOrigin() ) );
 					XMMATRIX objInv = XMMatrixInverse( nullptr, objMat );
 
 					/////////////// Player to objspace
@@ -190,7 +190,7 @@ bool Map::BulletVsMap( XMFLOAT3 position, XMFLOAT3 &normal )
 			rotation		= XMLoadFloat4( &XMFLOAT4( -XMVectorGetX( rotation ), -XMVectorGetY( rotation ), XMVectorGetZ( rotation ), XMVectorGetW( rotation ) ) );
 
 			objMat			= XMMatrixAffineTransformation( scale, XMVectorZero(), rotation, translate );
-			objMat			= objMat * XMMatrixTranslationFromVector( XMLoadFloat3( &temp->GetPos() ) );
+			objMat			= objMat * XMMatrixTranslationFromVector( XMLoadFloat3( &temp->GetOrigin() ) );
 			XMMATRIX objInv = XMMatrixInverse( nullptr, objMat );
 
 			/////////////// Player to objspace

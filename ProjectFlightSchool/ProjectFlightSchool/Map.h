@@ -34,7 +34,6 @@ class Map
 		bool				BulletVsMap( XMFLOAT3 position, XMFLOAT3 &normal );
 		NavTriangle*		IsOnNavMesh( XMFLOAT3 pos );
 
-		void				OnLoadLevel( IEventPtr E1 );
 		UINT				GetMapDim() const;
 		UINT				GetMapWidth() const;
 		UINT				GetMapHeight() const;

@@ -211,9 +211,9 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		Fire();
 
 		RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] );
-		mRightArmAnimationCompleted		= false;
-		IEventPtr E1( new Event_Client_Attack( mID, RIGHT_ARM_ID, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] ) );
-		QueueEvent( E1 );
+		mRightArmAnimationCompleted	= false;
+		IEventPtr E2( new Event_Client_Attack( mID, RIGHT_ARM_ID, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] ) );
+		QueueEvent( E2 );
 		mWeaponCoolDown = mLoadOut->rangedWeapon->attackRate;
 		//mWeaponCoolDown = 2.0f;
 	}
@@ -359,7 +359,7 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 {
 	if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
 	{
-		mFollowPath = true;
+		mFollowPath = false;
 		Pathfinder::GetInstance()->RequestPath( currentPath1, mLowerBody.position, mPick  );
 		Pathfinder::GetInstance()->CalculateSubPath( currentPath1 );
 		currentPath = currentPath1->TotalPath();
@@ -476,43 +476,56 @@ void Player::Fire()
 void Player::FireShotgun( XMFLOAT3* spawnPoint )
 {
 	// Fire shotgun
-
-	// middle projectile
-	IEventPtr E1( new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, mUpperBody.direction, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
-	EventManager::GetInstance()->QueueEvent( E1 );
-
-	//// projectile 1
 	XMFLOAT3 shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 30.0f ) ) ) );
-	IEventPtr E2( new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType  ) );
-	EventManager::GetInstance()->QueueEvent( E2 );
+	switch( mLoadOut->rangedWeapon->level )
+	{
+		case 5:
+		{
+				//// projectile 6
+				XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 15.0f ) ) ) );
+				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 
-	// projectile 2
-	//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -30.0f ) ) ) );
-	IEventPtr E3( new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
-	EventManager::GetInstance()->QueueEvent( E3 );
+				// projectile 7
+				XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -15.0f ) ) ) );
+				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
+		}
 
-	XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 20.0f ) ) ) );
-	IEventPtr E4( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
-	EventManager::GetInstance()->QueueEvent( E4 );
 
-	// projectile 2
-	//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -20.0f ) ) ) );
-	IEventPtr E5( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
-	EventManager::GetInstance()->QueueEvent( E5 );
+		case 4:
+		{
+		}
 
-	XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 40.0f ) ) ) );
-	IEventPtr E6( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
-	EventManager::GetInstance()->QueueEvent( E6 );
+		case 3:
+		{
+				//// projectile 4
+				XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 10.0f ) ) ) );
+				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 
-	// projectile 2
-	//shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -40.0f ) ) ) );
-	IEventPtr E7( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
-	EventManager::GetInstance()->QueueEvent( E7 );
+				// projectile 5
+				XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -10.0f ) ) ) );
+				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
+		}
+
+		case 2:
+		{
+		}
+
+		case 1:
+		{
+				// middle projectile
+				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, mUpperBody.direction, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
+
+				//// projectile 2
+				XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 5.0f ) ) ) );
+				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
+
+				// projectile 3
+				XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -5.0f ) ) ) );
+				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
+		}
+	}
 }
+
 
 void Player::AddImpuls( XMFLOAT3 impuls )
 {

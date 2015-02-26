@@ -41,6 +41,7 @@ class Server : public Network
 
 		const UINT MAX_TEAMS = 2;
 		const UINT MAX_PROJECTILE_ID = 999;
+		const float ENEMY_UPDATE_RANGE = 900.0f;
 
 		SocketManager*				mSocketManager;
 		std::map<UINT, ClientNEF*>	mClientMap;
@@ -71,6 +72,7 @@ class Server : public Network
 		void	ClientUpdate( IEventPtr eventPtr );
 		void	ClientDied( IEventPtr eventPtr );
 		void	ClientDamaged( IEventPtr eventPtr );
+		void	ClientRemovedProjectile( IEventPtr eventPtr );
 		void	ClientSpawned( IEventPtr eventPtr );
 		void	ClientFiredProjectile( IEventPtr eventPtr );
 		void	ClientUpdateHP( IEventPtr eventPtr );
@@ -101,6 +103,8 @@ class Server : public Network
 		void	CreateShips();
 		bool	CheckShipBuff( ServerShip* ship, XMFLOAT3 pos );
 		void	UpdateShip( float deltaTime, ServerShip* s );
+		void	SendCulledUpdate( IEventPtr eventPtr, XMFLOAT3 enemyPos, UINT exception = (UINT)-1 );
+		bool	CullEnemyUpdate( XMFLOAT3 playerPos, XMFLOAT3 enemyPos );
 
 		XMFLOAT3	GetNextSpawn();
 

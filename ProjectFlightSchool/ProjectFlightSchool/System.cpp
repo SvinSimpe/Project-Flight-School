@@ -1,5 +1,5 @@
 #include "System.h"
-
+#include <sstream>
 ///////////////////////////////////////////////////////////////////////////////
 //									PRIVATE
 ///////////////////////////////////////////////////////////////////////////////
@@ -75,7 +75,8 @@ HRESULT	System::Render()
 //System loop, reads windows messages and runs the application.
 int	System::Run()
 {
-	MSG message = { 0 };
+	MSG message			= { 0 };
+
 	while( WM_QUIT != message.message )
 	{
 		if( PeekMessage( &message, nullptr, 0, 0, PM_REMOVE) )
@@ -88,7 +89,11 @@ int	System::Run()
 			float deltaTime	= mTimer->GetDeltaTime();
 			//float fps		= mTimer->GetFPS();
 
+			if( deltaTime > DELTA_TIME_CAP )
+				deltaTime = DELTA_TIME_CAP;
+
 			Update( deltaTime );
+
 			Render();
 		}
 	}
@@ -156,7 +161,7 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 		return E_FAIL;
 
 	ShowWindow( mHWnd, nCmdShow );
-	ShowCursor( true );
+	ShowCursor( false );
 
 	///////////////////////////////
 	// Initialize sub-applications

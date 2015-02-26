@@ -884,6 +884,93 @@ class Event_Remote_Died : public IEvent
 };
 
 // An event created by the client whenever s/he is shot by a projectile
+
+class Event_Client_Removed_Projectile : public IEvent
+{
+	private:
+		UINT mProjectileID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Removed_Projectile()
+		{
+			mProjectileID = (UINT)-1;
+		}
+		Event_Client_Removed_Projectile( UINT projectileID )
+		{
+			mProjectileID = projectileID;
+		}
+		~Event_Client_Removed_Projectile() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mProjectileID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mProjectileID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Removed_Projectile( mProjectileID ) );
+		}
+		UINT ProjectileID() const
+		{
+			return mProjectileID;
+		}
+};
+
+class Event_Remote_Removed_Projectile : public IEvent
+{
+	private:
+		UINT mProjectileID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Removed_Projectile()
+		{
+			mProjectileID = (UINT)-1;
+		}
+		Event_Remote_Removed_Projectile( UINT projectileID )
+		{
+			mProjectileID = projectileID;
+		}
+		~Event_Remote_Removed_Projectile() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mProjectileID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mProjectileID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Removed_Projectile( mProjectileID ) );
+		}
+		UINT ProjectileID() const
+		{
+			return mProjectileID;
+		}
+};
+
 class Event_Client_Damaged : public IEvent
 {
 	private:

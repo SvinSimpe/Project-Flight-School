@@ -16,7 +16,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 			mPlayer->SetTeam( data->TeamID() );
 
 			//TestSound
-			SoundBufferHandler::GetInstance()->Play( mSoundAsset );
+			//SoundBufferHandler::GetInstance()->Play( mSoundAsset );
 
 			IEventPtr E1( new Event_Client_Initialize_LobbyPlayer( mPlayer->GetID(), mPlayer->GetTeam(), mPlayer->GetName() ) );
 			Client::GetInstance()->SendEvent( E1 );
@@ -57,6 +57,11 @@ void PlayState::EventListener( IEventPtr newEvent )
 		// Damage remote player
 		std::shared_ptr<Event_Remote_Damaged> data = std::static_pointer_cast<Event_Remote_Damaged>(newEvent);
 		HandleRemoteProjectileHit( data->ID(), data->ProjectileID() );
+	}
+	else if( newEvent->GetEventType() == Event_Remote_Removed_Projectile::GUID )
+	{
+		std::shared_ptr<Event_Remote_Removed_Projectile> data = std::static_pointer_cast<Event_Remote_Removed_Projectile>(newEvent);
+		HandleRemoteProjectileRemoved( data->ProjectileID() );
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Fired_Projectile::GUID )
 	{
@@ -318,8 +323,7 @@ void PlayState::CheckProjectileCollision()
 						// hit
 						BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
 						RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-						if( mProjectiles[i]->GetWeaponType() != SNIPER )
-							mProjectiles[i]->Reset();
+						mProjectiles[i]->Reset();
 						break;
 					}
 
@@ -328,13 +332,44 @@ void PlayState::CheckProjectileCollision()
 					{
 						// hit
 						BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
-						RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-						if( mProjectiles[i]->GetWeaponType() != SNIPER )
+						if( mProjectiles[i]->GetWeaponType() == TURRET )
+						{
+							RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
 							mProjectiles[i]->Reset();
+						}
+						else if( mProjectiles[i]->GetWeaponType() != SNIPER )
+						{
+							RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+							mProjectiles[i]->Reset();
+						}
+						else
+						{
+							XMFLOAT3 pos = mProjectiles[i]->GetPosition();
+							RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
+							pos = XMFLOAT3( mProjectiles[i]->GetPosition().x + mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetPosition().y + mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetPosition().z + mProjectiles[i]->GetDirection().z );
+							RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
+							pos = XMFLOAT3( mProjectiles[i]->GetPosition().x + mProjectiles[i]->GetDirection().x * 2, mProjectiles[i]->GetPosition().y + mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetPosition().z + mProjectiles[i]->GetDirection().z * 2 );							
+							RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
+							pos = XMFLOAT3( mProjectiles[i]->GetPosition().x + mProjectiles[i]->GetDirection().x * 0.5f, mProjectiles[i]->GetPosition().y + mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetPosition().z + mProjectiles[i]->GetDirection().z * 0.5f );
+							RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
+						}
 						break;
 					}
 				}
 			}
+
+			// Environment
+			if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() )
+			{
+				XMFLOAT3 normal;
+				if( mWorldMap->BulletVsMap( mProjectiles[i]->GetPosition(), normal ) )
+				{
+					IEventPtr E1( new Event_Client_Removed_Projectile( mProjectiles[i]->GetID() ) );
+					Client::GetInstance()->SendEvent( E1 );
+					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Spark, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+				}
+			}
+
 		}
 	}
 }
@@ -507,6 +542,21 @@ void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int project
 					mPlayer->TakeDamage( damage, shooter );
 				}
 			}
+		}
+	}
+}
+
+void PlayState::HandleRemoteProjectileRemoved( UINT projectileID )
+{
+	for ( int i = 0; i < mNrOfActiveProjectiles; i++ )
+	{
+		if( mProjectiles[i]->GetID() == projectileID )
+		{
+			mProjectiles[i]->Reset();
+			Projectile* temp							= mProjectiles[mNrOfActiveProjectiles - 1];
+			mProjectiles[mNrOfActiveProjectiles - 1]	= mProjectiles[i];
+			mProjectiles[i]								= temp;
+			mNrOfActiveProjectiles--;
 		}
 	}
 }
@@ -782,6 +832,11 @@ HRESULT PlayState::Render()
 	if( mEnemyShip && CullEntity( mEnemyShip->GetPos() ) )
 		mEnemyShip->Render( 0.0f, identity );
 
+	if( mGui->UpgradeShipWindowIsActive() || mGui->InGameWindowIsActive() || mGui->UpgradePlayerWindowIsActive() )
+	{
+		RenderManager::GetInstance()->AddObject2dToList( mCursor, XMFLOAT2( (float)Input::GetInstance()->mCurrentMousePos.x, (float)Input::GetInstance()->mCurrentMousePos.y ), DirectX::XMFLOAT2( 20.0f, 20.0f ) );
+	}
+
 	RenderManager::GetInstance()->Render();
 
 	return S_OK;
@@ -830,6 +885,7 @@ void PlayState::Reset()
 
 HRESULT PlayState::Initialize()
 {
+	BaseState::Initialize();
 	mStateType = PLAY_STATE;
 
 
@@ -868,6 +924,7 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Left::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Damaged::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Removed_Projectile::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Fired_Projectile::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Create_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Enemies_Created::GUID );

@@ -6,7 +6,7 @@
 #include "BoundingGeometry.h"
 #include "RenderManager.h"
 
-#define MAX_ENERGY_CELLS 10
+#define MAX_ENERGY_CELLS 11
 
 class EnergyCell
 {

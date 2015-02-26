@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "EnergyCell.h"
+#include <queue>
 
 class Enemy;
 
@@ -72,6 +73,7 @@ class Server : public Network
 
 		EnergyCell**				mEnergyCells;
 		bool						mStopAccept;
+		std::queue<XMFLOAT3>		mCellPositionQueue;
 
 	protected:
 	public:
@@ -114,6 +116,8 @@ class Server : public Network
 		void	CreateShips();
 		bool	CheckShipBuff( ServerShip* ship, XMFLOAT3 pos );
 		void	UpdateShip( float deltaTime, ServerShip* s );
+		void	CreateEnergyCells();
+		void	CalculateCellSpawnPositions( XMFLOAT3 shipPosition );
 
 		XMFLOAT3	GetNextSpawn();
 

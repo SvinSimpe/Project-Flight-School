@@ -1,5 +1,6 @@
 #include "Server.h"
 #include "Enemy.h"
+#include <queue>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Start of eventlistening functions
@@ -516,6 +517,7 @@ void Server::StartUp( IEventPtr eventPtr )
 		// Makes sure everything is clean before starting
 		Reset();
 		CreateShips();
+		CreateEnergyCells();
 		
 		std::stringstream sstr;
 		sstr << port << " ";
@@ -635,6 +637,84 @@ void Server::UpdateShip( float deltaTime, ServerShip* s )
 	s->Update( deltaTime );
 	IEventPtr E1( new Event_Server_Update_Turret( s->mServerTurret->mID, s->mServerTurret->mTurretHead->rot ) );
 	BroadcastEvent( E1 );
+}
+
+void Server::CreateEnergyCells()
+{
+	//Calculate Energy cell position
+	CalculateCellSpawnPositions( mShips.at(0)->GetPos() );
+	//CalculateCellSpawnPositions( mShips.at(1)->GetPos() );
+
+	//Energy cells
+	mEnergyCells = new EnergyCell*[MAX_ENERGY_CELLS];
+	mEnergyCells[0] = new EnergyCell();
+	mEnergyCells[0]->Initialize( DirectX::XMFLOAT3( 1000000.0f, 0.0f, 10000000.0f ) ); //Gfx drivers bug makes us not render the first one so this is an incredible ugly hack around that problem
+	for( int i = 1; i < (MAX_ENERGY_CELLS/2) + 1 ; i++ )
+	{
+		mEnergyCells[i] = new EnergyCell();
+		mEnergyCells[i]->Initialize( mCellPositionQueue.front() );
+		mCellPositionQueue.pop();
+	}
+	for( int i = (MAX_ENERGY_CELLS / 2) + 1; i < MAX_ENERGY_CELLS; i++ )
+	{
+		mEnergyCells[i] = new EnergyCell();
+		mEnergyCells[i]->Initialize( XMFLOAT3( 100.0f, 0.0f, 100.0f ) );
+	}
+}
+
+void Server::CalculateCellSpawnPositions( XMFLOAT3 shipPosition )
+{
+	// Length between every cell
+	float length = 5.0f;
+	
+	XMFLOAT3	energyCellPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	float		offset				= 0.0f;
+	float		lowerBound			= 0.0f;
+	float		upperBound			= 0.0f;
+	float		prevCellAngle		= 0.0f;
+	float		currCellAngle		= 0.0f;
+
+	// Calc position for own ship cells
+	for ( size_t i = 0; i < MAX_ENERGY_CELLS / 2; i++ )
+	{
+		// Set distance from ship
+		int cellIndex = i + 1;
+		energyCellPosition = shipPosition;
+		energyCellPosition.x += ( length * cellIndex );
+
+		// Find rotation angle
+		lowerBound = prevCellAngle + offset;
+		//if( lowerBound > 360.0f )
+		//	lowerBound -= 360.0f;
+
+		upperBound = prevCellAngle - offset;
+		//if( upperBound <= 0.0f )
+		//	upperBound += 360.0f;
+
+		if( upperBound < lowerBound )
+			std::swap( upperBound, lowerBound );
+
+		// Randomize angle between lowerBound & upperBound
+		do
+		{
+			currCellAngle = (float)( rand() % 360 + 1 );
+		}  
+		while( i != 0 && currCellAngle > lowerBound && currCellAngle < upperBound );
+
+		// Get vector from ship to cell
+		XMVECTOR shipToCell = XMLoadFloat3( &energyCellPosition ) - XMLoadFloat3( &shipPosition );
+
+		// Rotate vector around ship by some random value
+		XMStoreFloat3( &energyCellPosition, XMVector3TransformCoord( shipToCell, XMMatrixRotationY( -XMConvertToRadians( 45.0f * (float)cellIndex ) ) ) );
+
+		// Add to queue
+		mCellPositionQueue.push( energyCellPosition );
+
+		prevCellAngle = currCellAngle;
+		
+		if( i == 0 )
+			offset	= 40.0f;
+	}
 }
 
 bool Server::Connect( UINT port )
@@ -791,15 +871,15 @@ bool Server::Initialize()
 
 	//mAggroCircle	= new BoundingCircle();
 
-	//Energy cells
-	mEnergyCells = new EnergyCell*[MAX_ENERGY_CELLS];
-	mEnergyCells[0] = new EnergyCell();
-	mEnergyCells[0]->Initialize( DirectX::XMFLOAT3( 1000000.0f, 0.0f, 10000000.0f ) ); //Gfx drivers bug makes us not render the first one so this is an incredible ugly hack around that problem
-	for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
-	{
-		mEnergyCells[i] = new EnergyCell();
-		mEnergyCells[i]->Initialize( DirectX::XMFLOAT3( ( -2.0f + ( i * 2 ) ), 0.0f, -30.0f ) );
-	}
+	////Energy cells
+	//mEnergyCells = new EnergyCell*[MAX_ENERGY_CELLS];
+	//mEnergyCells[0] = new EnergyCell();
+	//mEnergyCells[0]->Initialize( DirectX::XMFLOAT3( 1000000.0f, 0.0f, 10000000.0f ) ); //Gfx drivers bug makes us not render the first one so this is an incredible ugly hack around that problem
+	//for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
+	//{
+	//	mEnergyCells[i] = new EnergyCell();
+	//	mEnergyCells[i]->Initialize( DirectX::XMFLOAT3( ( -2.0f + ( i * 2 ) ), 0.0f, -30.0f ) );
+	//}
 
 	return true;
 }

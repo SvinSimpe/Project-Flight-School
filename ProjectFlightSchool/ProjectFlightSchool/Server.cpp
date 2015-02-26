@@ -7,7 +7,7 @@
 
 void Server::ClientJoined( IEventPtr eventPtr )
 {
-	if( eventPtr->GetEventType() == Event_Client_Joined::GUID && !mStopAccept )
+	if( eventPtr->GetEventType() == Event_Client_Joined::GUID )
 	{
 		std::shared_ptr<Event_Client_Joined> data = std::static_pointer_cast<Event_Client_Joined>( eventPtr );
 		auto& it = mClientMap.find(data->ID());
@@ -16,11 +16,20 @@ void Server::ClientJoined( IEventPtr eventPtr )
 			UINT teamID = CurrentTeamDelegate();
 
 			mClientMap[data->ID()]			= new ClientNEF();
-			mClientMap[data->ID()]->NEF		= new NetworkEventForwarder();
-			mClientMap[data->ID()]->NEF->Initialize( data->ID(), mSocketManager );
+			mClientMap[data->ID()]->NEF.Initialize( data->ID(), mSocketManager );
 			mClientMap[data->ID()]->TeamID	= teamID;
 			mClientMap[data->ID()]->ID		= data->ID();
 			//mClientMap[data->ID()]->AggroCircle	= new BoundingCircle( 1.0f );
+
+			if( mClientMap.size() > mMaxClients || mStopAccept )
+			{
+				IEventPtr bounceClient( new Event_Shutdown_Client() );
+				mStopAccept = true;
+				SendEvent( bounceClient, data->ID() );
+				SAFE_DELETE( mClientMap[data->ID()] );
+				mClientMap.erase( data->ID() );
+				return;
+			}
 
 			mPlayers[mNrOfPlayers]				= new ServerPlayer();
 			mPlayers[mNrOfPlayers]->ID			= data->ID();
@@ -541,6 +550,7 @@ void Server::StartUp( IEventPtr eventPtr )
 		if( Connect( iPort ) )
 		{
 			mActive = true;
+			mMaxClients = data->MaxPlayers();
 			IEventPtr E1( new Event_Connect_Server_Success () );
 			EventManager::GetInstance()->QueueEvent( E1 );
 		}
@@ -566,14 +576,14 @@ void Server::BroadcastEvent( IEventPtr eventPtr, UINT exception )
 	{
 		if( to.first != exception )
 		{
-			mClientMap[to.first]->NEF->ForwardEvent( eventPtr );
+			mClientMap[to.first]->NEF.ForwardEvent( eventPtr );
 		}
 	}
 }
 
 void Server::SendEvent( IEventPtr eventPtr, UINT to )
 {
-	mClientMap[to]->NEF->ForwardEvent( eventPtr );
+	mClientMap[to]->NEF.ForwardEvent( eventPtr );
 }
 
 UINT Server::CurrentTeamDelegate()
@@ -828,6 +838,7 @@ bool Server::Initialize()
 
 void Server::Reset()
 {
+	mMaxClients = (UINT)-1;
 	mStopAccept = false;
 
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
@@ -846,7 +857,6 @@ void Server::Reset()
 
 	for( auto& c : mClientMap )
 	{
-		SAFE_DELETE( c.second->NEF );
 		SAFE_DELETE( c.second );
 	}
 	mClientMap.clear();
@@ -907,7 +917,6 @@ void Server::Release()
 
 	for( auto& c : mClientMap )
 	{
-		SAFE_DELETE( c.second->NEF );
 		SAFE_DELETE( c.second );
 	}
 	mClientMap.clear();
@@ -945,6 +954,7 @@ Server::Server() : Network()
 		mPlayers[i]			= nullptr;
 
 	mNrOfPlayers			= 0;
+	mMaxClients				= (UINT)-1;
 }
 
 Server::~Server()

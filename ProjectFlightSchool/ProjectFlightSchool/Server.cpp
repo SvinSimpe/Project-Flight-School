@@ -7,7 +7,7 @@
 
 void Server::ClientJoined( IEventPtr eventPtr )
 {
-	if( eventPtr->GetEventType() == Event_Client_Joined::GUID && !mStopAccept )
+	if( eventPtr->GetEventType() == Event_Client_Joined::GUID )
 	{
 		std::shared_ptr<Event_Client_Joined> data = std::static_pointer_cast<Event_Client_Joined>( eventPtr );
 		auto& it = mClientMap.find(data->ID());
@@ -21,7 +21,7 @@ void Server::ClientJoined( IEventPtr eventPtr )
 			mClientMap[data->ID()]->ID		= data->ID();
 			//mClientMap[data->ID()]->AggroCircle	= new BoundingCircle( 1.0f );
 
-			if( mClientMap.size() > mMaxClients )
+			if( mClientMap.size() > mMaxClients || mStopAccept )
 			{
 				IEventPtr bounceClient( new Event_Shutdown_Client() );
 				mStopAccept = true;

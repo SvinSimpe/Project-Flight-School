@@ -16,7 +16,7 @@ void MultiplayerMenuState::HandleInput()
 	{	
 		std::string port = mPortBox.GetText();
 
-		IEventPtr E1( new Event_Start_Server( port, 1 ) ); // Here intentionally wrong code is
+		IEventPtr E1( new Event_Start_Server( port, 4 ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
 		IEventPtr E2( new Event_Start_Client( "localhost", port ) );

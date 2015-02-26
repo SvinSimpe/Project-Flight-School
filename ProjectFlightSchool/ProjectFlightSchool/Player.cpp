@@ -396,14 +396,15 @@ void Player::GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, Direct
 
 HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
 {
-	if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
-	{
-		mFollowPath = false;
-		Pathfinder::GetInstance()->RequestPath( currentPath1, mLowerBody.position, mPick  );
-		Pathfinder::GetInstance()->CalculateSubPath( currentPath1 );
-		currentPath = currentPath1->TotalPath();
-		currStep = currentPath.begin();
-	}
+	//Comment in for click-to-move
+	//if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
+	//{
+	//	mFollowPath = false;
+	//	Pathfinder::GetInstance()->RequestPath( currentPath1, mLowerBody.position, mPick  );
+	//	Pathfinder::GetInstance()->CalculateSubPath( currentPath1 );
+	//	currentPath = currentPath1->TotalPath();
+	//	currStep = currentPath.begin();
+	//}
 
 	XMFLOAT3 testPosition	= mLowerBody.position;
 	XMFLOAT3 normal			= XMFLOAT3( 0.0f, 1.0f, 0.0f );
@@ -482,7 +483,7 @@ void Player::Fire()
 
 	XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
 	XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
-	XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, weaponOffsets.z, mLowerBody.position.z ) );
+	XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + weaponOffsets.z, mLowerBody.position.z ) );
 	
 	offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * weaponOffsets.y;
 	offset += direction * weaponOffsets.x;

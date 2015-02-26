@@ -16,7 +16,6 @@ class Map
 {
 	private:
 
-		MapSection*			mMapSection;
 		MapNodeInstance***	mBuildMap;
 		float				mVertexSpacing;
 		UINT				mNrOfNodes;
@@ -29,31 +28,27 @@ class Map
 	protected:
 	public:
 
-		HRESULT			Render( float deltaTime, Player* player );
-		void			GenerateGrid();
-		void			OnLoadLevel( IEventPtr E1 );
-		NavTriangle*	IsOnNavMesh( XMFLOAT3 pos );
-		bool			PlayerVsMap( XMFLOAT3 position, XMFLOAT3 &normal );
-		bool			BulletVsMap( XMFLOAT3 position, XMFLOAT3 &normal );
+		HRESULT				Render( float deltaTime, Player* player );
+		void				OnLoadLevel( IEventPtr E1 );
+		bool				PlayerVsMap( XMFLOAT3 position, XMFLOAT3 &normal );
+		bool				BulletVsMap( XMFLOAT3 position, XMFLOAT3 &normal );
+		NavTriangle*		IsOnNavMesh( XMFLOAT3 pos );
 
-		UINT GetMapDim() const;
-		UINT GetMapWidth() const;
-		UINT GetMapHeight() const;
+		void				OnLoadLevel( IEventPtr E1 );
+		UINT				GetMapDim() const;
+		UINT				GetMapWidth() const;
+		UINT				GetMapHeight() const;
+		UINT				GetMapHalfWidth() const;
+		UINT				GetMapHalfHeight() const;
+		float				GetHeight( DirectX::XMFLOAT3 pos );
+		UINT				GetNrOfNodes() const;
+		MapNodeInstance***	GetNodeMap() const;
+		MapNodeInstance*	GetNodeInstance( int x, int z );
 
-		UINT GetMapHalfWidth() const;
-		UINT GetMapHalfHeight() const;
-
-		float GetHeight( DirectX::XMFLOAT3 pos );
-
-		UINT GetNrOfNodes() const;
-
-		MapNodeInstance*** GetNodeMap() const;
-		MapNodeInstance* GetNodeInstance( int x, int z );
-
-		HRESULT Initialize( UINT mapDim );
-		
-		void Release();
+		HRESULT				Initialize( UINT mapDim );
+		void				Release();
 		Map();
+
 		~Map();
 };
 #endif

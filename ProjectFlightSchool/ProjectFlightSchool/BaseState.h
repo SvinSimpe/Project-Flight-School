@@ -7,14 +7,12 @@
 
 // State-tracking constants
 const int START_MENU_STATE		= 0;
-const int CREATE_MENU_STATE		= 1;
-const int JOIN_MENU_STATE		= 2;
-const int MULTI_MENU_STATE		= 3;
-const int OPTIONS_MENU_STATE	= 4;
-const int SINGLE_MENU_STATE		= 5;
-const int PLAY_STATE			= 6;
-const int LOBBY_STATE			= 7;
-const int NR_OF_STATES			= 8;
+const int JOIN_MENU_STATE		= 1;
+const int MULTI_MENU_STATE		= 2;
+const int OPTIONS_MENU_STATE	= 3;
+const int PLAY_STATE			= 4;
+const int LOBBY_STATE			= 5;
+const int NR_OF_STATES			= 6;
 
 class BaseState
 {
@@ -22,6 +20,7 @@ class BaseState
 	private:
 	protected:
 		int				mStateType;
+		AssetID			mCursor;
 	public:
 
 	// Class functions
@@ -35,7 +34,7 @@ class BaseState
 		virtual void	Reset()						= 0;
 		int				GetStateType();	
 
-		virtual HRESULT Initialize()				= 0;
+		virtual HRESULT Initialize();
 		virtual void	Release()					= 0;
 						BaseState();
 		virtual			~BaseState();

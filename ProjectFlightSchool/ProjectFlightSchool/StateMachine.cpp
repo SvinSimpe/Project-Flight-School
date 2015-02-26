@@ -57,7 +57,7 @@ HRESULT StateMachine::ChangeState( const int NEW_STATE )
 	if( NEW_STATE == START_MENU_STATE || NEW_STATE == NEW_STATE )
 	{
 		mStates[mCurrentState]->OnExit();
-		mCurrentState		= NEW_STATE;
+		mCurrentState = NEW_STATE;
 		mStates[mCurrentState]->OnEnter();
 	}
 	else
@@ -84,11 +84,9 @@ HRESULT StateMachine::Initialize()
 	}
 
 	mStates[START_MENU_STATE]		= new StartMenuState();
-	mStates[CREATE_MENU_STATE]		= new CreateMenuState();
 	mStates[JOIN_MENU_STATE]		= new JoinMenuState();
 	mStates[MULTI_MENU_STATE]		= new MultiplayerMenuState();
 	mStates[OPTIONS_MENU_STATE]		= new OptionsMenuState();
-	mStates[SINGLE_MENU_STATE]		= new SingleplayerMenuState();
 	mStates[PLAY_STATE]				= new PlayState();
 	mStates[LOBBY_STATE]			= new LobbyState();
 	mCurrentState					= START_MENU_STATE;

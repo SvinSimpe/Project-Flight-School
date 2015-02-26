@@ -1,5 +1,4 @@
 #include "Client.h"
-#include "HelperFunctions.h"
 
 Client* Client::mInstance = nullptr;
 

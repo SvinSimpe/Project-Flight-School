@@ -70,7 +70,7 @@ HRESULT MultiplayerMenuState::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT MultiplayerMenuState::Render()
+HRESULT MultiplayerMenuState::Render( float deltaTime )
 {
 	BaseMenuState::Render();
 

@@ -43,9 +43,9 @@ HRESULT StateMachine::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT StateMachine::Render()
+HRESULT StateMachine::Render( float deltaTime )
 {
-	mStates[mCurrentState]->Render();
+	mStates[mCurrentState]->Render( deltaTime );
 
 	return S_OK;
 }

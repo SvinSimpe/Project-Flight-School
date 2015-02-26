@@ -25,7 +25,7 @@ HRESULT OptionsMenuState::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT OptionsMenuState::Render()
+HRESULT OptionsMenuState::Render( float deltaTime )
 {
 	BaseMenuState::Render();
 

@@ -42,7 +42,10 @@ class GameObject
 	protected:
 	public:
 		virtual void	Update( float deltaTime );
-		virtual void	Render( float deltaTime, DirectX::XMFLOAT4X4 parentWorld );
+		virtual void	Render( float deltaTime, DirectX::XMFLOAT4X4 parentWorld, DirectX::XMFLOAT4X4 world = DirectX::XMFLOAT4X4(	1.0f, 0.0f, 0.0f, 0.0f,
+																																	0.0f, 1.0f, 0.0f, 0.0f,
+																																	0.0f, 0.0f, 1.0f, 0.0f,
+																																	0.0f, 0.0f, 0.0f, 1.0f ) );
 		
 		DirectX::XMFLOAT3	GetPos() const;
 		void			SetPos( DirectX::XMFLOAT3 pos );

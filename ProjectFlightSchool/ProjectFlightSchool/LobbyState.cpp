@@ -106,7 +106,7 @@ HRESULT LobbyState::Update( float deltaTime )
 	return hr;
 }
 
-HRESULT LobbyState::Render()
+HRESULT LobbyState::Render( float deltaTime )
 {
 	HRESULT hr = S_OK;
 

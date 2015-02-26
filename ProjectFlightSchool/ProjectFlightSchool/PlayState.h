@@ -92,7 +92,7 @@ class PlayState : public BaseState
 	protected:
 	public:
 		virtual HRESULT Update( float deltaTime );
-		virtual HRESULT Render();
+		virtual HRESULT Render( float deltaTime );
 		virtual void	OnEnter();
 		virtual void	OnExit();
 		virtual void	Reset();

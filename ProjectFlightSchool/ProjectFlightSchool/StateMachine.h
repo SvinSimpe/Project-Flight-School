@@ -24,7 +24,7 @@ class StateMachine
 	protected:
 	public:
 		HRESULT Update( float deltaTime );
-		HRESULT Render();
+		HRESULT Render( float deltaTime );
 		HRESULT ChangeState( const int NEW_STATE );
 		void	ResetState( const int STATE );
 

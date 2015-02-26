@@ -356,7 +356,7 @@ void PlayState::CheckProjectileCollision()
 			}
 
 			// Environment
-			if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() )
+			if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() || ( ( mProjectiles[i]->GetPlayerID() == 70 || mProjectiles[i]->GetPlayerID() == 71 ) && mPlayer->GetID() == 1 ) )
 			{
 				XMFLOAT3 normal;
 				if( mWorldMap->BulletVsMap( mProjectiles[i]->GetPosition(), normal ) )

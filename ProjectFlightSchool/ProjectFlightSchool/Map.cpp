@@ -165,21 +165,25 @@ UINT Map::GetMapHalfHeight() const
 
 float Map::GetHeight( DirectX::XMFLOAT3 pos )
 {
+	DirectX::XMFLOAT3 corrPos;
+	DirectX::XMFLOAT3 corrNodePos;
+
 	float x = ( pos.x + GetMapHalfWidth() * NODE_DIM );
 	float z = ( pos.z + GetMapHalfWidth() * NODE_DIM );
 
-	DirectX::XMFLOAT3 nodeSpace;
-
-	nodeSpace.x = x;
-	nodeSpace.z = z;
-
-	int pX = (int)floorf( nodeSpace.x / NODE_DIM );
-	int pZ = (int)floorf( nodeSpace.z / NODE_DIM );
+	int pX = (int)floorf( x / NODE_DIM );
+	int pZ = (int)floorf( z / NODE_DIM );
 
 	MapNodeInstance* temp = GetNodeInstance( pX, pZ );
 	if( temp )
 	{
-		temp->GetMapNode()->GetHeight( nodeSpace );
+		corrNodePos.x = temp->GetPos().x + ( GetMapHalfWidth() * NODE_DIM );
+		corrNodePos.z = temp->GetPos().z + ( GetMapHalfHeight() * NODE_DIM );
+
+		corrPos.x = x - corrNodePos.x;
+		corrPos.z = z - corrNodePos.z;
+
+		return temp->GetMapNode()->GetHeight( corrPos );
 	}
 
 	return 0.0f;

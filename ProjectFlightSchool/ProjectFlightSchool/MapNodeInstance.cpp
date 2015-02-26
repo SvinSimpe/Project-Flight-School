@@ -13,7 +13,7 @@ HRESULT	MapNodeInstance::Render( float deltaTime  )
 	{
 		mNode->Render( deltaTime, mWorld );
 	}
-	DirectX::XMFLOAT3 min = DirectX::XMFLOAT3( mPos.x - ( mNode->GetGridWidth() * 0.5f ), 0, mPos.z - ( mNode->GetGridHeight() * 0.5f ) );
+	DirectX::XMFLOAT3 min = DirectX::XMFLOAT3( mPos.x , 0, mPos.z );
 	DirectX::XMFLOAT3 max = DirectX::XMFLOAT3( min.x + mNode->GetGridWidth(), 5, min.z + mNode->GetGridHeight() );
 
 	return S_OK;
@@ -93,9 +93,10 @@ DirectX::XMFLOAT3 MapNodeInstance::GetPos()const
 }
 void MapNodeInstance::SetPos( DirectX::XMFLOAT3 pos )
 {
-	mPos = XMFLOAT3( pos.x + ( mNode->GetGridWidth() * 0.5f ), 0, pos.z + ( mNode->GetGridHeight() * 0.5f ) );
-	DirectX::XMStoreFloat4x4( &mWorld, DirectX::XMMatrixTranslationFromVector( XMLoadFloat3( &mPos ) ) );
+	mPos = pos;
 	mOrigin = XMFLOAT3( pos.x + mNode->GetGridWidth() * 0.5f, 0, pos.z + mNode->GetGridHeight() * 0.5f );
+	DirectX::XMStoreFloat4x4( &mWorld, DirectX::XMMatrixTranslationFromVector( XMLoadFloat3( &mOrigin ) ) );
+	
 }
 
 int	 MapNodeInstance::GetNodeSizeX()

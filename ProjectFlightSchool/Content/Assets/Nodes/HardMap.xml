@@ -21,8 +21,7 @@
 		<Node path="../Content/Assets/Nodes/tileGlade.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileGrassShroom.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileLake1.lp" type="AREA_NODE" />
-		<-- <Node path="../Content/Assets/Nodes/tileLake2.lp" type="AREA_NODE" /> --->
-		<Node path="../Content/Assets/Nodes/tileMediumForest.lp" type="AREA_NODE" />
+		<-- <Node path="../Content/Assets/Nodes/tileLake2.lp" type="AREA_NODE" /> -->
 		<Node path="../Content/Assets/Nodes/tileMushroomForest.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tilePassageWithANest.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileRatherOpenArea1.lp" type="AREA_NODE" />
@@ -39,7 +38,7 @@
 		<Node path="../Content/Assets/Nodes/tileWithBigTreeAndOneNest.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileWithFourTinyLakes.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileWithGrassSea.lp" type="AREA_NODE" />
-		<Node path="../Content/Assets/Nodes/tileWithMediumLake.lp" type="AREA_NODE" />
+		<-- <Node path="../Content/Assets/Nodes/tileWithMediumLake.lp" type="AREA_NODE" /> -->
 		<Node path="../Content/Assets/Nodes/tileWithNests.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileWithNests2.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileWithPuddles.lp" type="AREA_NODE" />
@@ -47,7 +46,7 @@
 		<Node path="../Content/Assets/Nodes/tileWithTinyLakeInCorner2.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileWithTinyLakeInCorner3.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileWithTriforceLakes.lp" type="AREA_NODE" />
-		<Node path="../Content/Assets/Nodes/tileWithTwoLakesAndAMudPile.lp" type="AREA_NODE" />
+		<-- <Node path="../Content/Assets/Nodes/tileWithTwoLakesAndAMudPile.lp" type="AREA_NODE" /> -->
 		<Node path="../Content/Assets/Nodes/tileWithTwoPuddlesAndADeadTree.lp" type="AREA_NODE" />
     </Nodes>
     <Assets>

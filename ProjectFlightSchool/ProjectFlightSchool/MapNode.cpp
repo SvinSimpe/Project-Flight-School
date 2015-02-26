@@ -20,34 +20,33 @@ XMFLOAT3* MapNode::GetNavData() const
 
 float MapNode::GetHeight( DirectX::XMFLOAT3 pos )
 {
-	float c = ( pos.x / ( mGridWidth + 1 ) );
-	//float d = ( pos.x / ( mGridWidth + 1 ) );
+	float c = pos.x;
+	float d = pos.z;
 
-	//int x = (int)floorf( pos.x / ( mGridWidth + 1 ) );
-	//int z = (int)floorf( pos.y / ( mGridWidth + 1 ) );
+	int x = (int)floorf( c );
+	int z = (int)floorf( d );
 
-	//float A = mHeightMap[x][z][1];
-	//float B = mHeightMap[x + 1][z][1];
-	//float C = mHeightMap[x][z + 1][1];
-	//float D = mHeightMap[x + 1][z + 1][1];
+	float A = mHeightMap[x][z][1];
+	float B = mHeightMap[x + 1][z][1];
+	float C = mHeightMap[x][z + 1][1];
+	float D = mHeightMap[x + 1][z + 1][1];
 
-	//float s = c - (float)x;
-	//float t = d - (float)z;
+	float s = c - (float)x;
+	float t = d - (float)z;
 
-	//if( s + t <= 1.0f )
-	//{
-	//	float uy = B - A;
-	//	float vy = C - A;
-	//	return A + s*uy + t*vy;
-	//}
+	if( s + t <= 1.0f )
+	{
+		float uy = B - A;
+		float vy = C - A;
+		return A + s*uy + t*vy;
+	}
 
-	//else
-	//{
-	//	float uy = C - D;
-	//	float vy = B - D;
-	//	return D + (1.0f - s) * uy + (1.0f - t) * vy;
-	//}
-	return 0.0f;
+	else
+	{
+		float uy = C - D;
+		float vy = B - D;
+		return D + (1.0f - s) * uy + (1.0f - t) * vy;
+	}
 }
 
 UINT MapNode::GetNavVertexCount() const
@@ -156,12 +155,10 @@ HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 		mGrid[i].position[1]	= initInfo.grid[i].position[1];
 		mGrid[i].position[2]	= initInfo.grid[i].position[2];
 
-		//int x = (int)floorf( mGrid[i].position[0] + ( mGridWidth / 2 ) + 0.1f );
-		//int y = (int)floorf( mGrid[i].position[2] + ( mGridHeight / 2 ) + 0.1f );
+		int x = (int)floorf( mGrid[i].position[0] + ( mGridWidth / 2 ) + 0.1f );
+		int y = (int)floorf( mGrid[i].position[2] + ( mGridHeight / 2 ) + 0.1f );
 
-
-
-		//mHeightMap[x][y] = mGrid[i].position;
+		mHeightMap[x][y] = mGrid[i].position;
 
 		//mGrid[i].position[0]	= mNavData[i].x;
 		//mGrid[i].position[1]	= mNavData[i].y;
@@ -183,14 +180,6 @@ HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 		mGrid[i].uv[1] = -mGrid[i].position[2] / (float)mGridHeight + 0.5f;
 	}
 
-	//for( int i = 0; i < fullWidth; i++ )
-	//{
-	//	for( int j = 0; j < fullHeight; j++ )
-	//	{
-	//		printf(" (%.1f,%.1f,%1.f) ", mHeightMap[i][j][0], mHeightMap[i][j][1], mHeightMap[i][j][2] );
-	//	}
-	//	printf("\n");
-	//}
 	return S_OK;
 }
 void MapNode::Release()

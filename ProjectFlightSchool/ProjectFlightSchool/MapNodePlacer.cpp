@@ -4,20 +4,6 @@
 
 MapNodePlacer* MapNodePlacer::instance = nullptr;
 
-MapNodePlacer* MapNodePlacer::GetInstance()
-{
-	if ( instance == nullptr )
-	{
-		instance  = new MapNodePlacer();
-		return instance;
-	}
-	return instance;
-}
-//std::vector<MapNodeInstance*> MapNodePlacer::GetAllNodes() const
-//{
-//	return nullptr;
-//}
-
 NODE_RETURN_CODE MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNode, MapNodeInstance*** buildMap )
 {
 	int nodeWith   = (int)( ( newNode->GetMapNode()->GetGridWidth() / ( NODE_DIM ) ) );
@@ -55,6 +41,17 @@ NODE_RETURN_CODE MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNo
 
 	return PLACED;
 }
+
+MapNodePlacer* MapNodePlacer::GetInstance()
+{
+	if ( instance == nullptr )
+	{
+		instance  = new MapNodePlacer();
+		return instance;
+	}
+	return instance;
+}
+
 void MapNodePlacer::BuildMap( MapNodeInstance***& buildMap )
 {
 	buildMap = new MapNodeInstance**[mMap->GetMapDim()];
@@ -138,15 +135,23 @@ void MapNodePlacer::BuildMap( MapNodeInstance***& buildMap )
 	}
 	return;
 }
+
 UINT MapNodePlacer::GetNrOfNodes() const
 {
 	return (UINT)mNrOfNodes;
 }
+
+void MapNodePlacer::Reset()
+{
+	mNrOfNodes = 0;
+}
+
 HRESULT	MapNodePlacer::Initialize( Map* map )
 {
 	mMap = map;
 	return S_OK;
 }
+
 void MapNodePlacer::Release()
 {
 	if ( instance != nullptr )
@@ -154,14 +159,12 @@ void MapNodePlacer::Release()
 		delete instance;
 	}
 }
-void MapNodePlacer::Reset()
-{
-	mNrOfNodes = 0;
-}
+
 MapNodePlacer::MapNodePlacer()
 {
 	mNrOfNodes = 0;
 }
+
 MapNodePlacer::~MapNodePlacer()
 {
 }

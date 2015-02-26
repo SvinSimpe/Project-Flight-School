@@ -396,17 +396,37 @@ void Player::GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, Direct
 
 HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
 {
-	if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
+	//Comment in for click-to-move
+	//if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
+	//{
+	//	mFollowPath = false;
+	//	Pathfinder::GetInstance()->RequestPath( currentPath1, mLowerBody.position, mPick  );
+	//	Pathfinder::GetInstance()->CalculateSubPath( currentPath1 );
+	//	currentPath = currentPath1->TotalPath();
+	//	currStep = currentPath.begin();
+	//}
+
+	XMFLOAT3 testPosition	= mLowerBody.position;
+	XMFLOAT3 normal			= XMFLOAT3( 0.0f, 1.0f, 0.0f );
+	testPosition.x += mVelocity.x * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f );
+	testPosition.z += mVelocity.z * deltaTime *( 0.8f + (float)mUpgrades.legs / 5.0f );
+	testPosition.y = worldMap->GetHeight( testPosition );
+
+	if( !worldMap->PlayerVsMap(	testPosition, normal ) )
 	{
-		mFollowPath = false;
-		Pathfinder::GetInstance()->RequestPath( currentPath1, mLowerBody.position, mPick  );
-		Pathfinder::GetInstance()->CalculateSubPath( currentPath1 );
-		currentPath = currentPath1->TotalPath();
-		currStep = currentPath.begin();
+		mLowerBody.position.x = testPosition.x;
+		mLowerBody.position.y = testPosition.y;
+		mLowerBody.position.z = testPosition.z;
+	}
+	else
+	{
+		XMVECTOR loadVel		= XMLoadFloat3( &mVelocity );
+		XMVECTOR loadNorm		= XMLoadFloat3( &XMFLOAT3( normal.x, normal.y, normal.z ) );
+		XMVECTOR loadNormNorm	= XMLoadFloat3( &XMFLOAT3( -normal.z, -normal.y, normal.x ) );
+		XMStoreFloat3( &mVelocity, loadNormNorm * XMVectorGetX( XMVector3Dot( loadVel, loadNormNorm ) ) + loadNorm * deltaTime * 20.0f );
 	}
 
-	mLowerBody.position.x += mVelocity.x * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f );
-	mLowerBody.position.z += mVelocity.z * deltaTime *( 0.8f + (float)mUpgrades.legs / 5.0f );
+	
 
 	Update( deltaTime, remotePlayers, energyCells );
 	return S_OK;
@@ -467,7 +487,7 @@ void Player::Fire()
 
 	XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
 	XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
-	XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, weaponOffsets.z, mLowerBody.position.z ) );
+	XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + weaponOffsets.z, mLowerBody.position.z ) );
 	
 	offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * weaponOffsets.y;
 	offset += direction * weaponOffsets.x;

@@ -41,8 +41,6 @@ class MapNode
 		XMFLOAT3		mOrigin;
 		XMFLOAT3		mPos;
 		UINT			mNodeDim;
-		GameObject*		mStaticAssets;
-		UINT			mStaticAssetCount;
 		AssetID			mBlendMap;
 
 		float***		mHeightMap;
@@ -51,6 +49,8 @@ class MapNode
 
 	protected:
 	public:
+		GameObject*		mStaticAssets;
+		UINT			mStaticAssetCount;
 
 	private:
 	protected:
@@ -62,8 +62,6 @@ class MapNode
 
 		UINT				GetVertexCount() const;
 		UINT				GetNavVertexCount() const;
-
-		UINT				GetGridDim() const;
 
 		UINT				GetGridWidth() const;
 		UINT				GetGridHeight() const;

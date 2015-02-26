@@ -190,6 +190,16 @@ void Server::ClientDamaged( IEventPtr eventPtr )
 	}
 }
 
+void Server::ClientRemovedProjectile( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Removed_Projectile::GUID )
+	{
+		std::shared_ptr<Event_Client_Removed_Projectile> data = std::static_pointer_cast<Event_Client_Removed_Projectile>( eventPtr );
+		IEventPtr E1( new Event_Remote_Removed_Projectile( data->ProjectileID() ) );
+		BroadcastEvent( E1 );
+	}
+}
+
 void Server::ClientSpawned( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Client_Spawned::GUID )
@@ -772,6 +782,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientUpdate, this, Event_Client_Update::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientDied, this, Event_Client_Died::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientDamaged, this, Event_Client_Damaged::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientRemovedProjectile, this, Event_Client_Removed_Projectile::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientSpawned, this, Event_Client_Spawned::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientFiredProjectile, this, Event_Client_Fired_Projectile::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientUpdateHP, this, Event_Client_Update_HP::GUID );

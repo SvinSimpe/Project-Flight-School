@@ -693,36 +693,32 @@ void Graphics::RenderPlane2dAsset( AssetID assetId, DirectX::XMFLOAT3 x, DirectX
 void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 {
 	///////////////////////////////Code for rendering Oct tree boxes, DO NOT REMOVE!
-	/*for( UINT i = 0; i < sizeOfList; i++ )
-	{
-		Static3dAsset* derpface = (Static3dAsset*)mAssetManager->mAssetContainer[info[i].mAssetId];
-		if(derpface->mFileName != "NO PATHCUBE")
-		{
-			for(UINT j = 0; j < 8; j++)
-			{
-				for(UINT k = 0; k < 8; k++)
-				{
-					for(UINT l = 0; l < 8; l++)
-					{
-						DirectX::XMFLOAT4X4 ident;
-						DirectX::XMStoreFloat4x4( &ident, DirectX::XMMatrixIdentity() );
-						if(derpface->mOctTree.childrenCollides[j])
-						{
-							if(derpface->mOctTree.children[j]->childrenCollides[k])
-							{
-								if(derpface->mOctTree.children[j]->children[k]->childrenCollides[l])
-								{
-									Graphics::RenderDebugBox( derpface->mOctTree.children[j]->children[k]->children[l]->boundingBox.min, 
-																derpface->mOctTree.children[j]->children[k]->children[l]->boundingBox.max,
-																	info[i].mWorld );
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}*/
+	//for( UINT i = 0; i < sizeOfList; i++ )
+	//{
+	//	Static3dAsset* derpface = (Static3dAsset*)mAssetManager->mAssetContainer[info[i].mAssetId];
+	//	if(derpface->mFileName != "NO PATHCUBE")
+	//	{
+	//		for(UINT j = 0; j < 8; j++)
+	//		{
+	//			for(UINT k = 0; k < 8; k++)
+	//			{
+	//			
+	//				DirectX::XMFLOAT4X4 ident;
+	//				DirectX::XMStoreFloat4x4( &ident, DirectX::XMMatrixIdentity() );
+	//				if(derpface->mOctTree->childrenCollides[j])
+	//				{
+	//					if(derpface->mOctTree->children[j]->childrenCollides[k])
+	//					{
+	//							Graphics::RenderDebugBox( derpface->mOctTree->children[j]->children[k]->boundingBox.min, 
+	//														derpface->mOctTree->children[j]->children[k]->boundingBox.max,
+	//															info[i].mWorld );
+	//					}
+	//				}
+	//			
+	//			}
+	//		}
+	//	}
+	//}
 	///////////////////////////////
 
 
@@ -1271,10 +1267,11 @@ void Graphics::RenderDebugBox( BoxInfo* info, UINT sizeOfList )
 
 		//Map CbufferPerObject
 		CbufferPerObject data;
+		DirectX::XMMATRIX worldMat		= DirectX::XMLoadFloat4x4( &info[i].world );
 		DirectX::XMMATRIX scaling		= DirectX::XMMatrixScaling( boxSize.x, boxSize.y, boxSize.z );
 		DirectX::XMMATRIX translation	= DirectX::XMMatrixTranslation( center.x, center.y, center.z );
 
-		data.worldMatrix = DirectX::XMMatrixTranspose( scaling * translation );
+		data.worldMatrix = worldMat * DirectX::XMMatrixTranspose( scaling * translation );
 
 		MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT], &data, sizeof( CbufferPerObject ) );
 
@@ -1326,6 +1323,7 @@ void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, Dir
 	mDeviceContext->DrawIndexed( 24, 0, 0 );
 	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
 }
+
 void Graphics::RenderLine( LineInfo* info, UINT sizeOfList )
 {
 
@@ -1665,6 +1663,11 @@ bool Graphics::GetAnimationMatrices( AnimationTrack &animTrack, int playType, An
 		DirectX::XMStoreFloat4x4( &info.mBoneTransforms[i], DirectX::XMMatrixTranspose( DirectX::XMMatrixMultiply( DirectX::XMLoadFloat4x4( &model->mBoneOffsets[i] ), currentBoneTransforms[i] ) ) );
 
 	return localReturn;
+}
+
+OctTree* Graphics::GetOctTreeFromStatic3DAsset( AssetID assetID )
+{
+	return ( (Static3dAsset*)mAssetManager->mAssetContainer[assetID] )->mOctTree;
 }
 
 void Graphics::ChangeCamera()

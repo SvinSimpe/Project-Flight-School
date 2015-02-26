@@ -1,5 +1,5 @@
 #include "System.h"
-
+#include <sstream>
 ///////////////////////////////////////////////////////////////////////////////
 //									PRIVATE
 ///////////////////////////////////////////////////////////////////////////////
@@ -61,9 +61,9 @@ HRESULT	System::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT	System::Render()
+HRESULT	System::Render( float deltaTime )
 {
-	mGame->Render();
+	mGame->Render( deltaTime );
 
 	return S_OK;
 }
@@ -75,7 +75,8 @@ HRESULT	System::Render()
 //System loop, reads windows messages and runs the application.
 int	System::Run()
 {
-	MSG message = { 0 };
+	MSG message			= { 0 };
+
 	while( WM_QUIT != message.message )
 	{
 		if( PeekMessage( &message, nullptr, 0, 0, PM_REMOVE) )
@@ -88,8 +89,12 @@ int	System::Run()
 			float deltaTime	= mTimer->GetDeltaTime();
 			//float fps		= mTimer->GetFPS();
 
+			if( deltaTime > DELTA_TIME_CAP )
+				deltaTime = DELTA_TIME_CAP;
+
 			Update( deltaTime );
-			Render();
+
+			Render( deltaTime );
 		}
 	}
 	return (int)message.wParam;
@@ -157,6 +162,9 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 
 	ShowWindow( mHWnd, nCmdShow );
 	ShowCursor( true );
+	HCURSOR ch;
+	ch = (HCURSOR)LoadImage( NULL, L"../Content/Assets/GUI/tempCurs.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE );
+	SetCursor( ch );
 
 	///////////////////////////////
 	// Initialize sub-applications

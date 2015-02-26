@@ -131,7 +131,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	float shadowFactor = shadowSamples / 25.0f;
 
 	//======== SHADOW MAP POINTLIGHT ===========
-	float3 ambient		= float3( 0.8f, 0.8f,  0.8f );
+	float3 ambient		= float3( 0.6f, 0.6f,  0.6f );
 	float3 color		= float3( 0.6f, 0.3f,  0.6f );
 
 	float3 lightDirection	= worldSample - shadowCameraPosition.xyz;
@@ -190,5 +190,5 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	//return float4( normalSample, 1.0f );
 	//return float4( ssao, 0.0f, 0.0f, 1.0f );
 
-	return float4( finalColor * ( shadowFactor * 0.3f + 0.7f ) * albedoSample, 1.0f );
+	return float4( finalColor * ( shadowFactor * 0.4f + 0.6f ) * albedoSample, 1.0f );
 }

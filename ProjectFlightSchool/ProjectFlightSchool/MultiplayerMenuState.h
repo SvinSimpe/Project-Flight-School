@@ -15,6 +15,7 @@ class MultiplayerMenuState : public BaseMenuState
 			BUTTON_AMOUNT = 4;
 
 		InputSquare	mPortBox;
+		InputSquare	mNameBox;
 
 	protected:
 	public:
@@ -24,7 +25,7 @@ class MultiplayerMenuState : public BaseMenuState
 	protected:
 	public:
 		HRESULT Update( float deltaTime );
-		HRESULT Render();
+		HRESULT Render( float deltaTime );
 		void	OnEnter();
 		void	OnExit();
 		void	Reset();

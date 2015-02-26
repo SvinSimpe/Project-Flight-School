@@ -25,6 +25,7 @@ class Projectile
 		BoundingCircle*	mBoundingCircle;
 		float			mDamage;
 		WeaponType		mWeaponType;
+		PointLight*		mPointLight;
 
 	public:
 		HRESULT			Update( float deltaTime );

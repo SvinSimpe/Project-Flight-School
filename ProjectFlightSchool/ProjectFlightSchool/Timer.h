@@ -10,6 +10,7 @@ class Timer
 		double		mSecsPerCnt;
 		__int64		mPrevTimeStamp;
 		float		mFps;
+
 	protected:
 	public:
 

@@ -2,66 +2,51 @@
 #include "MapNodeInstance.h"
 #include "RenderManager.h"
 
+HRESULT	MapNode::Update( float deltaTime )
+{
+	return S_OK;
+}
 HRESULT	MapNode::Render( float deltaTime, XMFLOAT4X4 parentWorld )
 {
+	mEnvironmentTimer += deltaTime;
+	if( mEnvironmentTimer > 6.283f )
+		mEnvironmentTimer-= 6.283f;
+
 	RenderManager::GetInstance()->AddNodeGridToList( mGrid, mVertexCount, mBlendMap, parentWorld );
 
 	for( int i = 0; i < (int)mStaticAssetCount; i++ )
 	{
-		mStaticAssets[i].Render( deltaTime, parentWorld );
+		if( mStaticAssets[i].GetRenderType() == DYNAMIC_RENDERTYPE )
+		{
+			XMMATRIX	environmentMatrix = XMMatrixRotationRollPitchYaw( 
+				sinf( mEnvironmentTimer + mStaticAssets[i].GetPos().x ) * 0.01f,
+				0.0f,
+				cosf( mEnvironmentTimer + mStaticAssets[i].GetPos().x  ) * 0.01f );
+			XMFLOAT4X4	world;
+			XMStoreFloat4x4( &world, environmentMatrix );
+			mStaticAssets[i].Render( deltaTime, parentWorld, world );
+		}
+		else
+			mStaticAssets[i].Render( deltaTime, parentWorld );
 	}
 
 	return S_OK;
 }
-XMFLOAT3* MapNode::GetNavData() const
-{
-	return mNavData;
-}
 
-float MapNode::GetHeight( DirectX::XMFLOAT3 pos )
-{
-	float c = ( pos.x / ( mGridWidth + 1 ) );
-	//float d = ( pos.x / ( mGridWidth + 1 ) );
-
-	//int x = (int)floorf( pos.x / ( mGridWidth + 1 ) );
-	//int z = (int)floorf( pos.y / ( mGridWidth + 1 ) );
-
-	//float A = mHeightMap[x][z][1];
-	//float B = mHeightMap[x + 1][z][1];
-	//float C = mHeightMap[x][z + 1][1];
-	//float D = mHeightMap[x + 1][z + 1][1];
-
-	//float s = c - (float)x;
-	//float t = d - (float)z;
-
-	//if( s + t <= 1.0f )
-	//{
-	//	float uy = B - A;
-	//	float vy = C - A;
-	//	return A + s*uy + t*vy;
-	//}
-
-	//else
-	//{
-	//	float uy = C - D;
-	//	float vy = B - D;
-	//	return D + (1.0f - s) * uy + (1.0f - t) * vy;
-	//}
-	return 0.0f;
-}
-
-UINT MapNode::GetNavVertexCount() const
-{
-	return mNavVertexCount;
-}
 StaticVertex* MapNode::GetGrid() const
 {
 	return mGrid;
 }
+
 UINT MapNode::GetVertexCount() const
 {
 	return mVertexCount;
 }
+UINT MapNode::GetNavVertexCount() const
+{
+	return mNavVertexCount;
+}
+
 UINT MapNode::GetGridWidth() const
 {
 	return mGridWidth;
@@ -70,18 +55,52 @@ UINT MapNode::GetGridHeight() const
 {
 	return mGridHeight;
 }
+
 XMFLOAT3 MapNode::GetOrigin() const
 {
 	return mOrigin;
 }
+XMFLOAT3* MapNode::GetNavData() const
+{
+	return mNavData;
+}
+
+float MapNode::GetHeight( DirectX::XMFLOAT3 pos )
+{
+	float c = pos.x;
+	float d = pos.z;
+
+	int x = (int)floorf( c );
+	int z = (int)floorf( d );
+
+	float A = mHeightMap[x][z][1];
+	float B = mHeightMap[x + 1][z][1];
+	float C = mHeightMap[x][z + 1][1];
+	float D = mHeightMap[x + 1][z + 1][1];
+
+	float s = c - (float)x;
+	float t = d - (float)z;
+
+	if( s + t <= 1.0f )
+	{
+		float uy = B - A;
+		float vy = C - A;
+		return A + s*uy + t*vy;
+	}
+
+	else
+	{
+		float uy = C - D;
+		float vy = B - D;
+		return D + (1.0f - s) * uy + (1.0f - t) * vy;
+	}
+}
+
 GameObject* MapNode::GetStaticAssets() const
 {
 	return mStaticAssets;
 }
-HRESULT	MapNode::Update( float deltaTime )
-{
-	return S_OK;
-}
+
 MapNodeInstance* MapNode::GetMapNodeInstance()
 {
 	MapNodeInstance* result = nullptr;
@@ -109,6 +128,7 @@ void MapNode::ReleaseInstance( int InstanceID )
 		}
 	}
 }
+
 HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 {
 	mGrid				= new StaticVertex[initInfo.vertexCount];
@@ -156,12 +176,10 @@ HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 		mGrid[i].position[1]	= initInfo.grid[i].position[1];
 		mGrid[i].position[2]	= initInfo.grid[i].position[2];
 
-		//int x = (int)floorf( mGrid[i].position[0] + ( mGridWidth / 2 ) + 0.1f );
-		//int y = (int)floorf( mGrid[i].position[2] + ( mGridHeight / 2 ) + 0.1f );
+		int x = (int)floorf( mGrid[i].position[0] + ( mGridWidth / 2 ) + 0.1f );
+		int y = (int)floorf( mGrid[i].position[2] + ( mGridHeight / 2 ) + 0.1f );
 
-
-
-		//mHeightMap[x][y] = mGrid[i].position;
+		mHeightMap[x][y] = mGrid[i].position;
 
 		//mGrid[i].position[0]	= mNavData[i].x;
 		//mGrid[i].position[1]	= mNavData[i].y;
@@ -183,14 +201,6 @@ HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 		mGrid[i].uv[1] = -mGrid[i].position[2] / (float)mGridHeight + 0.5f;
 	}
 
-	//for( int i = 0; i < fullWidth; i++ )
-	//{
-	//	for( int j = 0; j < fullHeight; j++ )
-	//	{
-	//		printf(" (%.1f,%.1f,%1.f) ", mHeightMap[i][j][0], mHeightMap[i][j][1], mHeightMap[i][j][2] );
-	//	}
-	//	printf("\n");
-	//}
 	return S_OK;
 }
 void MapNode::Release()
@@ -217,12 +227,13 @@ void MapNode::Release()
 }
 MapNode::MapNode()
 {
-	mGrid			= nullptr;
-	mVertexCount	= 0;
-	mGridWidth		= 0;
-	mGridHeight		= 0;
-	mOrigin			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mStaticAssets	= nullptr;
+	mGrid				= nullptr;
+	mVertexCount		= 0;
+	mGridWidth			= 0;
+	mGridHeight			= 0;
+	mOrigin				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mStaticAssets		= nullptr;
+	mEnvironmentTimer	= 0.0f;
 }
 MapNode::~MapNode()
 {

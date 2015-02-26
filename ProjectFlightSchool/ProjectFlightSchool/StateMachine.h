@@ -2,13 +2,12 @@
 #define STATEMACHINE_H
 
 #include "StartMenuState.h"
-#include "CreateMenuState.h"
 #include "JoinMenuState.h"
 #include "MultiplayerMenuState.h"
 #include "OptionsMenuState.h"
-#include "SingleplayerMenuState.h"
 #include "PlayState.h"
 #include "LobbyState.h"
+#include "LobbyOwnerState.h"
 
 class StateMachine
 {
@@ -26,7 +25,7 @@ class StateMachine
 	protected:
 	public:
 		HRESULT Update( float deltaTime );
-		HRESULT Render();
+		HRESULT Render( float deltaTime );
 		HRESULT ChangeState( const int NEW_STATE );
 		void	ResetState( const int STATE );
 

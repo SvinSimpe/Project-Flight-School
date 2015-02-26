@@ -24,7 +24,7 @@ class BaseMenuState : public BaseState
 	public:
 		virtual HRESULT Update( float deltaTime );
 		virtual HRESULT Render();
-		virtual void	OnEnter()					= 0;
+		virtual void	OnEnter();
 		virtual void	OnExit();
 		virtual void	Reset()						= 0;
 		virtual HRESULT Initialize();

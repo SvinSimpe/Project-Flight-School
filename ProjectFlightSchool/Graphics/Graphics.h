@@ -84,6 +84,7 @@ enum Effects
 	EFFECTS_EXPLOSION,
 	EFFECTS_EXPLOSION_SMOKE,
 	EFFECTS_NORMAL_SMOKE,
+	EFFECTS_HAMMER_EFFECT,
 
 	EFFECTS_STATIC_VERTEX,
 	EFFECTS_STATIC_INSTANCED,
@@ -210,6 +211,7 @@ class LIBRARY_EXPORT Graphics
 
 		DirectX::XMFLOAT4X4	GetRootMatrix( AnimationTrack animTrack );
 		bool				GetAnimationMatrices( AnimationTrack &animTrack, int playType, Anim3dInfo &info );
+		OctTree*			GetOctTreeFromStatic3DAsset( AssetID assetID );
 
 		void ChangeCamera();
 		void ZoomInDeveloperCamera();

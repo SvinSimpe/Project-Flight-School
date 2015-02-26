@@ -19,7 +19,8 @@
 #define MINIGUN_AOE			0.0f	// Area of effect
 #define MINIGUN_SPEED		40.0f	// Projectile Speed 30
 #define MINIGUN_OFFSETS		XMFLOAT3( 0.75f, 0.5f, 1.3f ) // Offsets forward, right, up
-
+#define MINIGUN_OVERHEAT_CD 2.0f	// Cooldown that occurs when the minigun overheats	
+#define MINIGUN_OVERHEAT	1.0f	// Amount of heat the minigun get's for firing once
 // Shotgun
 #define SHOTGUN_AR			1.0f	// Attack Rate
 #define SHOTGUN_DAMAGE		3.0f	// Damage
@@ -64,12 +65,12 @@
 // Hammer
 #define HAMMER_AR			3.5f	// Attack Rate Can't be lower than 3.5f
 #define HAMMER_DAMAGE		5.0f	// Damage
-#define HAMMER_RADIUS		5.0f	// Radius
+#define HAMMER_RADIUS		1.0f	// Radius
 #define HAMMER_SPREAD		7		// Spread
 #define HAMMER_KB			3.0f	// Knockback
-#define HAMMER_TTA			0.6f	// Time till Attack Can't be changed
+#define HAMMER_TTA			0.92f	// Time till Attack Can't be changed
 #define HAMMER_STUN			3.0f	// Stun
-#define HAMMER_REACH		4.0f	// Reach
+#define HAMMER_REACH		2.0f	// Reach
 
 // Blowtorch
 #define BLOWTORCH_AR		3.0f	// Attack Rate

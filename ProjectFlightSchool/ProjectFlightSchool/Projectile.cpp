@@ -31,7 +31,7 @@ HRESULT Projectile::Render( )
 	return S_OK;
 }
 
-void Projectile::SetDirection( unsigned int playerID, unsigned int id, unsigned int teamID, XMFLOAT3 startPosition, XMFLOAT3 direction, float speed, float range, float damage )
+void Projectile::SetDirection( unsigned int playerID, unsigned int id, unsigned int teamID, XMFLOAT3 startPosition, XMFLOAT3 direction, float speed, float range, float damage, WeaponType weaponType )
 {
 	Reset();
 	mPlayerID		= playerID;
@@ -43,6 +43,7 @@ void Projectile::SetDirection( unsigned int playerID, unsigned int id, unsigned 
 	mLifeTime		= range;
 	mIsActive		= true;
 	mDamage			= damage;
+	mWeaponType		= weaponType;
 }
 
 void Projectile::SetIsActive( bool isActive )
@@ -65,6 +66,7 @@ void Projectile::Reset()
 	mSpeed		= 20.0f;
 	mLifeTime	= 4.0f;
 	mDamage		= 0.0f;
+	mWeaponType	= MINIGUN;
 }
 
 BoundingCircle* Projectile::GetBoundingCircle() const
@@ -92,12 +94,28 @@ float Projectile::GetDamage() const
 	return mDamage;
 }
 
+XMFLOAT3 Projectile::GetDirection() const
+{
+	return mDirection;
+}
+
+XMFLOAT3 Projectile::GetPosition() const
+{
+	return mPosition;
+}
+
+WeaponType Projectile::GetWeaponType() const
+{
+	return mWeaponType;
+}
+
 HRESULT Projectile::Initialize()
 {
 	mSpeed			= 20.0f;
 	mLifeTime		= 4.0f;
 	mBoundingCircle = new BoundingCircle( 0.5f );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Bullet/", "bullet2.pfs", mProjectileAsset );
+	mWeaponType		= MINIGUN;
 
 	return S_OK;
 }
@@ -118,6 +136,7 @@ Projectile::Projectile()
 	mLifeTime		= 0.0f;
 	mBoundingCircle	= nullptr;	
 	mDamage			= 0.0f;
+	mWeaponType		= MINIGUN;
 }
 
 Projectile::~Projectile()

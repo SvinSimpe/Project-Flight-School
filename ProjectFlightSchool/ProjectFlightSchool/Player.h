@@ -7,12 +7,15 @@
 #include "Input.h"
 #include <stdlib.h>
 #include <time.h>
+#include "Pathfinder.h"
 
 #define VELOCITY_FALLOFF 2.0f
 
 #define MAX_ROBOT_RANGE		40000.0f   //Squared distance here.
 #define LEAVING_AREA_TIME	10.0f
+
 class Map;
+class Path;
 
 struct Upgrades
 {
@@ -46,19 +49,23 @@ class Player: public RemotePlayer
 		float		mMaxAcceleration;
 		XMFLOAT3	mAcceleration;
 		XMFLOAT3	mFireDirection;
+		XMFLOAT3	mPick;
+		std::vector<DirectX::XMFLOAT2>::iterator	currStep;
+		bool		mFollowPath;
 
 		bool		mIsBuffed;
 		bool		mIsOutSideZone;
 		float		mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
-				
+
+		Path*		currentPath1;
+		std::vector<DirectX::XMFLOAT2> currentPath;
+		
 		float		mSpawnTime;
 		float		mTimeTillSpawn;
 		float		mReviveTime;
 		float		mTimeTillRevive;
 		float		mLeavingAreaTime;
 		int			mLastKiller;
-
-		std::list<IEventPtr> mEventList;
 
 		UINT		mEnergyCellID;
 		float		mPickUpCooldown;
@@ -90,6 +97,7 @@ class Player: public RemotePlayer
 
 	protected:
 	public:
+		void		AddXP( int XP );
 		void		PickUpEnergyCell( EnergyCell** energyCell );
 		void		DropEnergyCell( EnergyCell** energyCells );
 		void		GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, DirectX::XMFLOAT3 shipPos );
@@ -119,7 +127,6 @@ class Player: public RemotePlayer
 		void		SetTeam( int team );
 		void		SetPosition( XMVECTOR position );
 		void		SetEnergyCellID( UINT energyCellID );
-
 
 		void		QueueEvent( IEventPtr ptr );
 };

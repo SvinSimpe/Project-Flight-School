@@ -48,6 +48,7 @@ struct ParticleInfo
 	DirectX::XMFLOAT3	mWorldPosition;
 	float				mAge;
 	float				mTimeTillDeath;
+	float				mRandomRotation;
 };
 
 struct NodeGridInfo

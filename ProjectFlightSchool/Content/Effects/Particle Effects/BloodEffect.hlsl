@@ -34,7 +34,7 @@ void GS_main( point VS_In input[1], inout TriangleStream<GS_Out> outputStream )
 	float3 rightVec = float3( 1.0f, 0.0f, 0.0f );
 	float3 upVec = normalize( cross( vecToCam, rightVec ) );
 
-	float size = input[0].age * 2.0f;
+	float size = 0.05f + input[0].age * 2.0f;
 
 	//Get vertices for the quad
 	float3 vert[4];
@@ -78,5 +78,4 @@ float4 PS_main(GS_Out input) : SV_TARGET0
 		alpha = input.timeTillDeath;
 	
 	return float4( diffuseTexture.Sample( linearSampler, input.uv ).xyz, alpha );
-
 }

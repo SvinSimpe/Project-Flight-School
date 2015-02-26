@@ -1,83 +1,72 @@
 #include "Navmesh.h"
 #include "HelperFunctions.h"
 #include "RenderManager.h"
+#include <algorithm>
 
 HRESULT Navmesh::Render()
 {
-	for(UINT i = 0; i < ( mNavTriangleCount * 3 ) - 1; i++ )
-	{
-		int portal1 = mPortals[i].adjTri;
-		if( portal1 != -1)
-		{
-			DirectX::XMFLOAT3 c1 = HelperFunctions::GetCenter( mMesh[portal1], mMesh[portal1 + 1], mMesh[portal1 + 2] );
-			DirectX::XMFLOAT3 c2 = DirectX::XMFLOAT3( ( mMesh[mPortals[i].points[0]].x + mMesh[mPortals[i].points[1]].x ) / 2.0f, ( mMesh[mPortals[i].points[0]].y + mMesh[mPortals[i].points[1]].y ) / 2.0f , ( mMesh[mPortals[i].points[0]].z + mMesh[mPortals[i].points[1]].z ) / 2.0f );
-
-			//DirectX::XMVECTOR vecDir = DirectX::XMVectorSet( c2.x - c1.x, c2.y - c1.y, c2.z - c1.z, 1.0f );
-
-			//vecDir = DirectX::XMVector3Normalize( vecDir );
-
-			//DirectX::XMVECTOR startVec = DirectX::XMLoadFloat3( &c1 );
-
-			//startVec += -0.5f * vecDir;
-
-			//DirectX::XMVECTOR endVec = startVec + ( 1.0f * vecDir );
-
-			DirectX::XMFLOAT3 start, end;
-
-			//DirectX::XMStoreFloat3( &start, startVec );
-			//DirectX::XMStoreFloat3( &end, endVec );
-
-			start	= DirectX::XMFLOAT3( c2.x - 1.0f, -1.0f, c2.z - 1.0f );
-			end		= DirectX::XMFLOAT3( c2.x + 1.0f, 1.0f, c2.z + 1.0f );
-
-			RenderManager::GetInstance()->AddLineToList( c1, c2 );
-		}
-
-		//int p1 = mPortals[i].points[0];
-		//int p2 = mPortals[i].points[1];
-
-		//DirectX::XMFLOAT3 pos1 = DirectX::XMFLOAT3( ( mMesh[mPortals[i].points[0]].x + mMesh[mPortals[i].points[1]].x ) / 2.0f, ( mMesh[mPortals[i].points[0]].y + mMesh[mPortals[i].points[1]].y ) / 2.0f , ( mMesh[mPortals[i].points[0]].z + mMesh[mPortals[i].points[1]].z ) / 2.0f );
-		//DirectX::XMFLOAT3 pos2 = DirectX::XMFLOAT3( ( mMesh[mPortals[i + 1].points[0]].x + mMesh[mPortals[i + 1].points[1]].x ) / 2.0f, ( mMesh[mPortals[i + 1].points[0]].y + mMesh[mPortals[i + 1].points[1]].y ) / 2.0f , ( mMesh[mPortals[i + 1].points[0]].z + mMesh[mPortals[i + 1].points[1]].z ) / 2.0f );
-
-		//DirectX::XMVECTOR dirVec = DirectX::XMVectorSet( pos1.z, pos1.y, pos1.x, 1.0f );
-		//RenderManager::GetInstance()->AddLineToList( pos1, pos2 );
-	}
-	RenderManager::GetInstance()->AddBoxToList(XMFLOAT3(2.0f, 0.0f, 1.0f), XMFLOAT3( 3.0f,1.0f,2.0f) );
-	RenderManager::GetInstance()->AddBoxToList(XMFLOAT3( 22.0f, 0.0f, 21.0f), XMFLOAT3( 23.0f,1.0f,22.0f) );
 	return S_OK;
 }
-HRESULT Navmesh::Initialize( DirectX::XMFLOAT3* meshData, UINT vertexCount )
+HRESULT Navmesh::Initialize( DirectX::XMFLOAT3* meshData, UINT vertexCount, std::vector<DirectX::XMFLOAT3>& edgePoints )
 {
+	mEdgePoints = edgePoints;
 	mNavTriangleCount = vertexCount / 3;
+	mMaxPathLength = mNavTriangleCount;
+
+	mPath = new PortalPath[vertexCount * 2];
 
 	mMesh = meshData;
-	UINT count = 0;
-	DirectX::XMFLOAT3 pos;
 	mPortals = new Portal[vertexCount];
 
-	for(UINT i = 0; i < vertexCount; i += 3 )
+	for(int i = 0; i < (int)vertexCount; i += 3 )
 	{
-		pos = mMesh[i];
-		pos = mMesh[i + 1];
-		pos = mMesh[i + 2];
-		mPortals[i] = Portal( i, i + 1 );
-		mPortals[i + 1] = Portal( i + 1, i + 2 );
-		mPortals[i + 2] = Portal( i + 2, i );
+		XMFLOAT3 c = HelperFunctions::GetLineCenter( mMesh[i], mMesh[i + 1] );
+		mPortals[i] = Portal( mMesh[i], mMesh[i + 1] );
+		mPortals[i].center = c;
+
+		c = HelperFunctions::GetLineCenter( mMesh[i + 1], mMesh[i + 2] );
+		mPortals[i + 1] = Portal( mMesh[i + 1], mMesh[i + 2] );
+		mPortals[i + 1].center = c;
+
+		c = HelperFunctions::GetLineCenter( mMesh[i + 2], mMesh[i] );
+		mPortals[i + 2] = Portal( mMesh[i + 2], mMesh[i] );
+		mPortals[i + 2].center = c;
 	}
 
 	BuildAdjacencyInfo();
 
 	return S_OK;
 }
-std::list<DirectX::XMFLOAT3> Navmesh::FindPath( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end )
+std::vector<DirectX::XMFLOAT2> Navmesh::FindPath( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end )
 {
-	std::list<DirectX::XMFLOAT3> finishedPath;
+	PathList mOpenList;
+	PathList mClosedList;
 
-	int startIndex = -1;
-	int endIndex	= -1;
-	int currentIndex = startIndex;
-	int newIndex	= -1;
-	int popIndex	= -1;
+	Portal startPortal	= Portal( start, start );
+	Portal endPortal	= Portal( end, end );
+
+	startPortal.points[0] = start;
+	startPortal.points[1] = start;
+
+	endPortal.points[0] = end;
+	endPortal.points[1] = end;
+
+	float cost_so_far = 10000.0f;
+
+	std::vector<DirectX::XMFLOAT2> unFinishedPath;
+
+	std::vector<Portal> finishedPath;
+
+	PortalPath* currentPath = nullptr;
+
+	int startTri		= -1;
+	int endTri			= -1;
+	int currentPortal	= -1;
+	int currentTriangle = -1;
+
+	int newIndex		= -1;
+	int popIndex		= -1;
+	int pathIndex		=  0;
 
 	DirectX::XMFLOAT2 startPos, endPos, p1, p2, p3;
 
@@ -99,88 +88,147 @@ std::list<DirectX::XMFLOAT3> Navmesh::FindPath( DirectX::XMFLOAT3 start, DirectX
 
 		if( HelperFunctions::Inside2DTriangle( startPos, p1, p2, p3 ) )
 		{
-			startIndex = i;
+			startTri = k;
 		}
 
 		if( HelperFunctions::Inside2DTriangle( endPos, p1, p2, p3 ) )
 		{
-			endIndex = i;
+			endTri = k;
 		}
 
-		if( startIndex != -1 && endIndex != -1 )
+		if( startTri != -1 && endTri != -1 )
 		{
 			break;
 		}
 	}
 
-	currentIndex = startIndex;
-	while( endIndex != currentIndex )
+	if( startTri == -1 || endTri == -1 )
+		return unFinishedPath;
+
+	currentTriangle = startTri;
+
+	while( endTri != currentTriangle )
 	{
 		float minF  = 1000000.0f;
 
+		currentPortal  = currentTriangle;
 
-		int searchIndex = currentIndex * 3;
+		
 		
 		for( int i = 0; i < 3; i++ )
 		{
-			if( mPortals[currentIndex + i].adjTri != -1 )
+			Portal* comp = &mPortals[currentPortal + i];
+
+			if( comp->adjTri != -1 )
 			{
-				std::list<int>::iterator findIt, findIt2;
-				findIt = std::find( mOpenList.begin(), mOpenList.end(), currentIndex + i );
-				findIt2 = std::find( mClosedList.begin(), mClosedList.end(), currentIndex +i );
-				if( findIt == mOpenList.end() && findIt2 == mClosedList.end() )
+				bool found = false;
+
+				for( auto it = mOpenList.begin(); it != mOpenList.end(); it++ )
 				{
-					newVec = DirectX::XMLoadFloat2( &DirectX::XMFLOAT2 ( ( mMesh[mPortals[currentIndex + i].points[0]].x + mMesh[mPortals[currentIndex + i].points[1]].x ) / 2.0f,
-						( mMesh[mPortals[currentIndex + i].points[0]].z + mMesh[mPortals[currentIndex + i].points[1]].z ) / 2.0f ) );
+					found = (*it)->portal->portalID == comp->portalID;
+				}
+
+				for( auto it = mClosedList.begin(); it != mClosedList.end() && !found; it++ )
+				{
+					found = (*it)->portal->portalID == comp->portalID;
+				}
+
+				if( !found )
+				{
+					newVec = DirectX::XMLoadFloat2( &DirectX::XMFLOAT2(comp->center.x, comp->center.z) );
 
 					vecDist = newVec - startVec;
 
-					mPortals[currentIndex + i].g = DirectX::XMVectorGetX( DirectX::XMVector2LengthEst( vecDist ) );
+					mPortals[currentPortal + i].g = DirectX::XMVectorGetX( DirectX::XMVector2LengthEst( vecDist ) );
 
 					vecDist = endVec - newVec;
 
-					mPortals[currentIndex + i].h = DirectX::XMVectorGetX( DirectX::XMVector2LengthEst( vecDist ) );
+					mPortals[currentPortal + i].h = DirectX::XMVectorGetX( DirectX::XMVector2LengthEst( vecDist ) );
 
 					//Calculate f for portal
-					mOpenList.push_back( currentIndex + i );
+					PortalPath* temp = &mPath[pathIndex++];
+					//char buf[20];
+					//sprintf_s(buf, "PathIndex: %d\n", pathIndex );
+					//OutputDebugStringA( buf );
+
+					temp->portal = comp;
+					temp->parent = currentPath;
+
+					mOpenList.push_back( temp );
 				}
 			}
 		}
 
-		for( auto it : mOpenList )
+		std::list<PortalPath*>::iterator removeIt = mOpenList.end();
+		for( auto it = mOpenList.begin(); it != mOpenList.end(); it++ )
 		{
-			float newF = mPortals[it].g + mPortals[it].h;
+			float newF = (*it)->portal->g + (*it)->portal->h;
 
 			if( newF < minF )
 			{
+				removeIt = it;
 				minF = newF;
-				newIndex = it;
 			}
 		}
-		mOpenList.remove( newIndex );
-		mClosedList.push_back( newIndex );
-
-		currentIndex = mPortals[newIndex].adjTri;
+		if( removeIt == mOpenList.end() )
+		{
+			OutputDebugStringA("No path available!\n");
+			return unFinishedPath;
+		}
+		
+		currentTriangle = (*removeIt)->portal->adjTri;
+		currentPath = (*removeIt);
+		mClosedList.push_back( (*removeIt) );
+		mOpenList.erase( removeIt );
 	}
-	return finishedPath;
+
+	finishedPath.push_back( endPortal );
+
+	while( currentPath != nullptr )
+	{
+		currentPath->portal;
+
+		finishedPath.push_back( *currentPath->portal );
+
+		currentPath = currentPath->parent;
+	}
+	finishedPath.push_back( startPortal );
+
+	std::reverse( finishedPath.begin(), finishedPath.end() );
+
+	unFinishedPath = FunnelPath( finishedPath );
+
+	return unFinishedPath;
 }
+
+DirectX::XMFLOAT3 Navmesh::GetClosestEdgePoint( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 goal )
+{
+	DirectX::XMFLOAT3 result;
+	float dist = 100000.0f;
+
+	for( auto& it : mEdgePoints )
+	{
+		float g = HelperFunctions::Dist3Squared( start, it );
+		float h = HelperFunctions::Dist3Squared( goal, it );
+
+		float f = g + h;
+		if( f < dist )
+		{
+			dist = f;
+			result = it;
+		}
+	}
+	return result;
+}
+
 bool Navmesh::IsTriangleAdj( Portal t1, Portal t2 )
 {
-	DirectX::XMFLOAT3 p1 = mMesh[t1.points[0]];
-	DirectX::XMFLOAT3 p2 = mMesh[t1.points[1]];
-	DirectX::XMFLOAT3 c1 = DirectX::XMFLOAT3( ( p1.x + p2.x ) / 2.0f, ( p1.y + p2.y ) / 2.0f, ( p1.z + p2.z ) / 2.0f );
-
-	DirectX::XMFLOAT3 p3 = mMesh[t2.points[0]];
-	DirectX::XMFLOAT3 p4 = mMesh[t2.points[1]];
-	DirectX::XMFLOAT3 c2 = DirectX::XMFLOAT3( ( p3.x + p4.x ) / 2.0f, ( p3.y + p4.y ) / 2.0f, ( p3.z + p4.z ) / 2.0f );
-
-	float distSquared = HelperFunctions::DistSquared( c1, c2 );
-
-	return ( distSquared < 0.01f );
+	return HelperFunctions::Float3Equal( t1.center, t2.center );
 }
 
 bool Navmesh::BuildAdjacencyInfo()
 {
+	int portalID = 0;
 	for( UINT i = 0; i < mNavTriangleCount - 1; i++ )
 	{
 		for( UINT j = i + 1; j < mNavTriangleCount; j++ )
@@ -192,20 +240,36 @@ bool Navmesh::BuildAdjacencyInfo()
 
 				if( IsTriangleAdj( mPortals[currTri + k], mPortals[nextTri] ) )
 				{
-					mPortals[currTri + k].adjTri = nextTri;
-					mPortals[nextTri].adjTri = currTri;
+					mPortals[currTri + k].adjTri	= nextTri;
+					mPortals[currTri + k].portalID	= portalID;
+
+					mPortals[nextTri].adjTri	= currTri;
+					mPortals[nextTri].portalID	= portalID;
+
+					portalID++;
+
 					break;
 				}
 				if( IsTriangleAdj( mPortals[currTri + k], mPortals[nextTri + 1] ) )
 				{
-					mPortals[currTri + k].adjTri = nextTri;
-					mPortals[nextTri + 1].adjTri = currTri;
+					mPortals[currTri + k].adjTri	= nextTri;
+					mPortals[currTri + k].portalID	= portalID;
+
+					mPortals[nextTri + 1].adjTri	= currTri;
+					mPortals[nextTri + 1].portalID	= portalID;
+					portalID++;
+
 					break;
 				}
 				if( IsTriangleAdj( mPortals[currTri + k], mPortals[nextTri + 2] ) )
 				{
-					mPortals[currTri + k].adjTri = nextTri;
-					mPortals[nextTri + 2].adjTri = currTri;
+					mPortals[currTri + k].adjTri	= nextTri;
+					mPortals[currTri + k].portalID	= portalID;
+
+					mPortals[nextTri + 2].adjTri	= currTri;
+					mPortals[nextTri + 2].portalID	= portalID;
+					portalID++;
+
 					break;
 				}
 			}
@@ -215,9 +279,107 @@ bool Navmesh::BuildAdjacencyInfo()
 	return true;
 }
 
+std::vector<XMFLOAT2> Navmesh::FunnelPath( std::vector<Portal>& path )
+{
+	std::vector<XMFLOAT2> points;
+	int npts = 0;
+	int maxPts = 100;
+	int apexIndex = 0, leftIndex = 0, rightIndex = 0;
+
+	XMFLOAT2 portalApex, portalLeft, portalRight;
+
+	portalApex	= XMFLOAT2( path[0].points[0].x, path[0].points[0].z );
+	portalLeft	= portalApex;
+	portalRight = portalApex;
+
+	points.push_back( portalApex );
+	npts++;
+
+	for( int i = 1; i < (int)path.size() && npts < maxPts; i++ )
+	{
+		XMFLOAT2 left	= XMFLOAT2( path[i].points[0].x, path[i].points[0].z );
+		XMFLOAT2 right	= XMFLOAT2( path[i].points[1].x, path[i].points[1].z );
+
+		if( HelperFunctions::TriArea2( portalApex, portalRight, right ) <= 0.0f )
+		{
+			if ( HelperFunctions::Float2Equal( portalApex, portalRight) || HelperFunctions::TriArea2( portalApex, portalLeft, right ) > 0.0f )
+			{
+				portalRight = right;
+				rightIndex = i;
+			}
+			else
+			{
+				points.push_back( portalLeft );
+				npts++;
+
+				portalApex = portalLeft;
+				apexIndex = leftIndex;
+
+				portalLeft = portalApex;
+				portalRight = portalApex;
+
+				leftIndex = apexIndex;
+				rightIndex = apexIndex;
+
+				i = apexIndex;
+				continue;
+			}
+
+		}
+		if (HelperFunctions::TriArea2(portalApex, portalLeft, left) >= 0.0f)
+		{
+			 if (HelperFunctions::Float2Equal(portalApex, portalLeft) || HelperFunctions::TriArea2(portalApex, portalRight, left) < 0.0f)
+			 {
+					 // Tighten the funnel.
+				 portalLeft = left;
+				 leftIndex = i;
+			 }
+			 else
+			 {
+				  // Left over right, insert right to path and restart scan from portal right point.
+				 points.push_back( portalRight );
+				 npts++;
+					 // Make current right the new apex.
+				 portalApex = portalRight;
+				 apexIndex = rightIndex;
+					 // Reset portal
+				 portalLeft = portalApex;
+				 portalRight = portalApex;
+				 leftIndex = apexIndex;
+				 rightIndex = apexIndex;
+					 // Restart scan
+				 i = apexIndex;
+				 continue;
+			 }
+		 }
+	 }
+     // Append last point to path.
+ if (npts < maxPts)
+ {
+	 XMFLOAT2 pos = XMFLOAT2( path.back().points[0].x, path.back().points[0].z );
+     points.push_back( pos );
+     npts++;
+ }
+
+ return points;
+}
+
+void Navmesh::Release()
+{
+	if( mPortals )
+		delete[] mPortals;
+	if( mMesh )
+		delete[] mMesh;
+	if( mPath )
+		delete[] mPath;
+}
+
 Navmesh::Navmesh()
 {
-}
+	mPortals	= nullptr;
+	mMesh		= nullptr;
+	mPath		= nullptr;
+}	
 
 Navmesh::~Navmesh()
 {

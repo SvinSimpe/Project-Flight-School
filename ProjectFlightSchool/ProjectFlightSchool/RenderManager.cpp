@@ -162,6 +162,7 @@ void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, i
 
 				info.mAge				= particleSystem[i][j]->lifeTime[k];
 				info.mTimeTillDeath		= particleSystem[i][j]->deathTime[k] - particleSystem[i][j]->lifeTime[k];
+				info.mRandomRotation	= particleSystem[i][j]->randRot[k];
 
 				mParticleInfoArray[mNrOfParticles++] = info;
 			}
@@ -263,13 +264,14 @@ HRESULT RenderManager::Update( float deltaTime )
 
 HRESULT RenderManager::Render()
 {
-	
 	//Reset the scene to default values
 	Graphics::GetInstance()->BeginScene();
 
 	Graphics::GetInstance()->ChangeRasterizerState( mRasterState );
+
 	//Prepare the scene to be rendered with Gbuffers
 	Graphics::GetInstance()->GbufferPass();
+	
 	SetLightStructuredBuffer();
 
 	//------------------------Fill the Gbuffers with data----------------------
@@ -282,10 +284,7 @@ HRESULT RenderManager::Render()
 		Graphics::GetInstance()->RenderPlane2dAsset( mPlaneArray[i].mAssetId, mPlaneArray[i].mTopTriangle, mPlaneArray[i].mBottomTriangle );
 	}
 
-	for( UINT i = 0; i < mNrOfBoxes; i++ )
-	{
-		Graphics::GetInstance()->RenderDebugBox( mBoxArray[i].min, mBoxArray[i].max, mBoxArray[i].world );
-	}
+	Graphics::GetInstance()->RenderDebugBox( mBoxArray, mNrOfBoxes );
 
 	Graphics::GetInstance()->RenderLine( mLineArray, mNrOfLines );
 
@@ -296,7 +295,7 @@ HRESULT RenderManager::Render()
 	Graphics::GetInstance()->DeferredPass();
 
 	//Render the particles
-	mParticleManager->Render();
+	mParticleManager->Render(); // Check these separately?
 	Graphics::GetInstance()->RenderParticleSystems( mParticleInfoArray, mNrOfParticles );
 
 	//Prepare the scene to render Screen space located assets

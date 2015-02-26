@@ -54,11 +54,32 @@ void GameObject::SetAssetID(AssetID assetID)
 	mAssetID = assetID;
 }
 
+RenderType GameObject::GetRenderType() const
+{
+	return mRenderType;
+}
+
+void GameObject::SetRenderType( RenderType type )
+{
+	mRenderType = type;
+}
+
+CollisionType GameObject::GetCollisionType() const
+{
+	return mCollisionType;
+}
+
+void GameObject::SetCollisionType( CollisionType type )
+{
+	mCollisionType = type;
+}
+
 void GameObject::Initialize( XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID )
 {
 	DirectX::XMMATRIX scalemat		= XMMatrixScaling( scale.x, scale.y, scale.z );
 	DirectX::XMMATRIX rotation		= XMMatrixRotationRollPitchYaw( rot.x, rot.y, rot.z );
 	DirectX::XMMATRIX translation	= XMMatrixTranslation( pos.x, pos.y, pos.z );
+
 
 	GameObjectInfo goi;
 	DirectX::XMStoreFloat4x4( &goi.transformation, scalemat * rotation * translation ); // think about the order here, might be reversed
@@ -73,6 +94,8 @@ void GameObject::Initialize( GameObjectInfo gameObjectInfo, AssetID assetID )
 	DirectX::XMVECTOR translation;
 
 	DirectX::XMMatrixDecompose( &scale, &rotation, &translation, XMLoadFloat4x4( &gameObjectInfo.transformation ) );
+	mCollisionType	= gameObjectInfo.collision;
+	mRenderType		= gameObjectInfo.renderType;
 
 	mWorld = gameObjectInfo.transformation;
 
@@ -95,6 +118,9 @@ GameObject::GameObject()
 	mPos	= DirectX::XMFLOAT3( 0, 0 ,0 );
 	mRot	= DirectX::XMFLOAT4( 0, 0 ,0 ,0 );
 	mScale	= DirectX::XMFLOAT3( 0, 0 ,0 );
+
+	mCollisionType	= NONE_COLLISION;
+	mRenderType		= INVISIBLE_RENDERTYPE;
 
 	mAssetID = 0;
 }

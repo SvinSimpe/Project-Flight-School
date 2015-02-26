@@ -9,6 +9,19 @@ struct JMatrix
 	double transformation[16];
 };
 
+struct AssetInfo
+{
+	std::string		assetPath;
+	CollisionType	collisionType;
+	RenderType		renderType;
+
+	AssetInfo()
+	{
+		collisionType	= FULL_COLLISION;
+		renderType		= STATIC_RENDERTYPE;
+	}
+};
+
 typedef std::unordered_map< std::string, std::vector<MapNode*> > NodeMap;
 
 class MapNodeManager
@@ -24,7 +37,7 @@ class MapNodeManager
 	protected:
 	public:
 		static		MapNodeManager* instance;
-		MapNode* CreateNode( const char* filePath );
+		MapNode* CreateNode( const char* fileName, std::unordered_map<AssetID, AssetInfo>& assetMap );
 		NodeMap GetNodes();
 		void LoadLevel( std::string filePath );
 		static MapNodeManager* GetInstance();

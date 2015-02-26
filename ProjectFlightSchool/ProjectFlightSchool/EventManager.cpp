@@ -40,6 +40,7 @@
 #include "EventManager.h"
 #include <windows.h>
 #include <windowsx.h>
+#include "HelperFunctions.h"
 
 using namespace EF;
 
@@ -51,8 +52,6 @@ EventFactory* EventFactory::mInstance = nullptr;
 //---------------------------------------------------------------------------------------------------------------------
 bool EventManager::Update( unsigned long maxMillis )
 {
-	EnterCriticalSection( &lock );
-
 	unsigned long currMs = GetTickCount();
 	unsigned long maxMs = ( ( maxMillis == IEventManager::kINFINITE ) ? ( IEventManager::kINFINITE ) : ( currMs + maxMillis ) );
 
@@ -94,7 +93,7 @@ bool EventManager::Update( unsigned long maxMillis )
 	}
 	
 	// If we couldn't process all of the events, push the remaining events to the new active queue.
-	// Note: To preserve sequencing, go back-to-front, inserting them at the head of the active queue
+	// Note: To preserve sequencing, go back-to-front, inserting them at the of the active queue
 	bool queueFlushed = ( m_queues[queueToProcess].empty() );
 	if ( !queueFlushed )
 	{
@@ -105,8 +104,6 @@ bool EventManager::Update( unsigned long maxMillis )
 			m_queues[m_activeQueue].push_front( pEvent );
 		}
 	}
-	
-	LeaveCriticalSection( &lock );
 
 	return queueFlushed;
 }

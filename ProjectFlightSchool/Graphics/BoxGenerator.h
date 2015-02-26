@@ -49,10 +49,21 @@ struct OctTree
 			
 			if( maxDepth == 1 )
 			{
-				XMStoreFloat3( &normal, ( XMLoadFloat3( &boundingBox.min ) + XMLoadFloat3( &boundingBox.max ) ) * 0.5f - XMLoadFloat3( &normal ) );
+				float dx = ( ( min.x + max.x ) - ( boundingBox.min.x + boundingBox.max.x ) ) * 0.5f; // DeltaX for box centers
+				float px = fabs( ( min.x - max.x ) * 0.5f ) + fabs( ( boundingBox.min.x - boundingBox.max.x ) * 0.5f ) - fabs( dx ); //Overlap X for boxes
+
+				float dz = ( ( min.z + max.z ) - ( boundingBox.min.z + boundingBox.max.z ) ) * 0.5f; // DeltaZ for box centers
+				float pz = fabs( ( min.z - max.z ) * 0.5f ) + fabs( ( boundingBox.min.z - boundingBox.max.z ) * 0.5f ) - fabs( dz ); //Overlap Z for boxes
+
+				normal.x = 0.0f;
 				normal.y = 0.0f;
-				XMVECTOR loaded = XMLoadFloat3( &normal );
-				XMStoreFloat3( &normal, XMVector3Normalize( loaded ) );
+				normal.z = 0.0f;
+
+				if( px < pz )
+					normal.x = dx > 0.0f ? 1.0f : -1.0f;
+				else
+					normal.z = dz > 0.0f ? 1.0f : -1.0f;
+
 				return true;
 			}
 		
@@ -79,9 +90,9 @@ class BoxGenerator
 	protected:
 	public:
 		HRESULT		Initialize();
-		AABB		CreateAABBFromVerts( vector<StaticVertex>* vertices );
-		void		GenerateOctTree( vector<StaticVertex>* vertices, AABB* boundingAABB, int maxLevel, int currentLevel, OctTree* inOct );
-		bool		CheckIntersectionTriangleVSAABB( vector<StaticVertex>* vertices, AABB* collisionBox );
+		AABB		CreateAABBFromVerts( vector<StaticVertex*> &vertices );
+		void		GenerateOctTree( vector<StaticVertex*> &vertices, AABB &boundingAABB, int maxLevel, int currentLevel, OctTree &inOct );
+		bool		CheckIntersectionTriangleVSAABB( vector<StaticVertex*> &vertices, AABB* collisionBox );
 		void		Release( OctTree* killMe );
 					BoxGenerator();
 		virtual		~BoxGenerator();

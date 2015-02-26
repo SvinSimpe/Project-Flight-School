@@ -471,16 +471,16 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceConte
 		////////////////TA kod
 		////////////////Creates boxes and octrees around static assets and saves it into Static3DAsset struct, 
 		////////////////Creating too many levels will cause the loading times to go through the roof
-		vector<StaticVertex> vertexInput;
+		vector<StaticVertex*> vertexInput;
 		for( UINT i = 0; i < nrOfMeshes; i++ )
 		{
 			for( UINT j = 0; j < meshInfo[i].nrOfVertices; j++ )
-				vertexInput.push_back( vertices[i][j] );
+				vertexInput.push_back( &vertices[i][j] );
 		}
 		AABB meshAABB;
-		meshAABB  = BoxGen.CreateAABBFromVerts( &vertexInput );
+		meshAABB  = BoxGen.CreateAABBFromVerts( vertexInput );
 		OctTree* meshOct = new OctTree();
-		BoxGen.GenerateOctTree( &vertexInput, &meshAABB, 5, 0, meshOct);
+		BoxGen.GenerateOctTree( vertexInput, meshAABB, 4, 0, *meshOct);
 
 		////////////////
 

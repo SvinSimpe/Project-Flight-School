@@ -1,9 +1,10 @@
 //Vertex
 struct VS_In
 {
-	float3 unused	: POSITION;
-	float3 position	: WORLDPOSITION;
-	float  lifeTime : LIFETIME;
+	float3 unused			: POSITION;
+	float3 position			: WORLDPOSITION;
+	float  age				: AGE;
+	float  timeTillDeath	: TIMETILLDEATH;
 };
 
 VS_In VS_main( VS_In input )
@@ -21,9 +22,9 @@ cbuffer CbufferPerFrame	: register( b0 )
 
 struct GS_Out
 {
-	float4 position	: SV_POSITION;
-	float  lifeTime : LIFETIME;
-	float2 uv		: TEX;
+	float4 position			: SV_POSITION;
+	float  timeTillDeath	: TIMETILLDEATH;
+	float2 uv				: TEX;
 };
 
 [maxvertexcount(4)]
@@ -33,12 +34,16 @@ void GS_main( point VS_In input[1], inout TriangleStream<GS_Out> outputStream )
 	float3 rightVec = float3( 1.0f, 0.0f, 0.0f );
 	float3 upVec = normalize( cross( vecToCam, rightVec ) );
 
+	float size = 0.8f + input[0].age * 2.0f;
+
 	//Get vertices for the quad
 	float3 vert[4];
-	vert[0]	= input[0].position - rightVec * 0.5f - upVec * 0.5f;
-	vert[1]	= input[0].position - rightVec * 0.5f + upVec * 0.5f;
-	vert[2]	= input[0].position	+ rightVec * 0.5f - upVec * 0.5f;
-	vert[3]	= input[0].position + rightVec * 0.5f + upVec * 0.5f;
+
+	vert[0]	= input[0].position - rightVec * size - upVec * size;
+	vert[1]	= input[0].position - rightVec * size + upVec * size;
+	vert[2]	= input[0].position	+ rightVec * size - upVec * size;
+	vert[3]	= input[0].position + rightVec * size + upVec * size;
+
 															
 	//Get texture coordinates
 	float2 texCoord[4];
@@ -51,9 +56,9 @@ void GS_main( point VS_In input[1], inout TriangleStream<GS_Out> outputStream )
 	[unroll]
 	for( int i = 0; i < 4; i++ )
 	{
-		outputVert.position = mul( mul( float4( vert[i], 1.0f ), viewMatrix ), projectionMatrix );
-		outputVert.lifeTime	= input[0].lifeTime;
-		outputVert.uv		= texCoord[i];
+		outputVert.position			= mul( mul( float4( vert[i], 1.0f ), viewMatrix ), projectionMatrix );
+		outputVert.timeTillDeath	= input[0].timeTillDeath;
+		outputVert.uv				= texCoord[i];
 		outputStream.Append( outputVert );
 	}
 }
@@ -65,6 +70,17 @@ SamplerState linearSampler			: register( s1 );
 float4 PS_main(GS_Out input) : SV_TARGET0
 {	
 
-	clip( diffuseTexture.Sample( linearSampler, input.uv ).w < 0.7f ? -1:1 );
-	return float4( diffuseTexture.Sample( linearSampler, input.uv ).xyz, input.lifeTime );
+	//clip( diffuseTexture.Sample( linearSampler, input.uv ).w < 0.1f ? -1:1 );
+
+
+	float alpha = 1.0f;
+	if( input.timeTillDeath <= 0.7f )
+		alpha = input.timeTillDeath;
+	
+	float4 diffuse = float4( diffuseTexture.Sample( linearSampler, input.uv ) );
+
+	diffuse.w = diffuse.w * alpha;
+
+	return diffuse;
+
 }

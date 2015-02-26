@@ -43,6 +43,8 @@ class MapNode
 		UINT			mNodeDim;
 		AssetID			mBlendMap;
 
+		float***		mHeightMap;
+
 		MapNodeInstance mInstances[INSTANCE_COUNT];
 
 	protected:
@@ -68,6 +70,8 @@ class MapNode
 
 		XMFLOAT3			GetOrigin() const;
 		XMFLOAT3*			GetNavData() const;
+
+		float				GetHeight( DirectX::XMFLOAT3 pos );
 
 		GameObject*			GetStaticAssets() const;
 

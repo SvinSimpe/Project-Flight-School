@@ -282,7 +282,7 @@ HRESULT	Input::Initialize( UINT screenWidth, UINT screenHeight, HWND hWnd )
 	//Keyboard
 	mRid[1].usUsagePage	= 1;
 	mRid[1].usUsage		= 6;			//Set this RAWINPUTDEVICE usage for keyboard
-	mRid[1].dwFlags		= 0;
+	mRid[1].dwFlags		= RIDEV_NOLEGACY;
 	mRid[1].hwndTarget	= NULL;
 	
 	if( RegisterRawInputDevices( mRid, NUMBER_OF_DEVICES, sizeof( mRid[0] )) == false )

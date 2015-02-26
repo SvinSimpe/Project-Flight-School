@@ -414,7 +414,7 @@ HRESULT RemotePlayer::Render()
 
 HRESULT RemotePlayer::Initialize()
 {
-	mLowerBody.position		= XMFLOAT3( 0.0f, 0.0f, 6.0f );
+	mLowerBody.position		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
 	mBoundingBox			= new BoundingRectangle( 1.5f, 1.5f );
 	mBoundingCircle			= new BoundingCircle( 0.5f );
@@ -432,7 +432,7 @@ HRESULT RemotePlayer::Initialize()
 
 	//Weapon Initialization
 	mLoadOut				= new LoadOut();
-	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN );
+	mLoadOut->rangedWeapon	= new RangedInfo( SNIPER );
 	mLoadOut->meleeWeapon	= new MeleeInfo( HAMMER );
 
 	InitializeGraphics();

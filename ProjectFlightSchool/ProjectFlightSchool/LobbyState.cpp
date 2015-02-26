@@ -55,15 +55,16 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 		{
 			if( mPlayers[i]->ID == data->ID() )
 			{
+				mPlayers.at(i)->button.Release();
+				SAFE_DELETE( mPlayers.at(i) );
+				std::swap( mPlayers.at(i), mPlayers.at(mPlayers.size() - 1) );
+				mPlayers.pop_back();
+
 				if( data->ID() == 1 )
 				{
 					IEventPtr E1( new Event_Reset_Game() );
 					EventManager::GetInstance()->QueueEvent( E1 );
 				}
-				mPlayers.at(i)->button.Release();
-				SAFE_DELETE( mPlayers.at(i) );
-				std::swap( mPlayers.at(i), mPlayers.at(mPlayers.size() - 1) );
-				mPlayers.pop_back();
 			}
 		}
 	}
@@ -167,6 +168,7 @@ void LobbyState::OnExit()
 	{
 		mPlayers[i]->button.SetExitCooldown();
 	}
+	Reset();
 }
 
 void LobbyState::Reset()

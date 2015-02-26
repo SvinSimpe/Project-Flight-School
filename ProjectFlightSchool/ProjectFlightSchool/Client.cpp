@@ -72,7 +72,7 @@ Client* Client::GetInstance()
 
 void Client::Shutdown( IEventPtr eventPtr )
 {
-	if( eventPtr->GetEventType() == Event_Shutdown_Client::GUID && mActive)
+	if( eventPtr->GetEventType() == Event_Shutdown_Client::GUID && mActive )
 	{
 		if( mSocketManager )
 			mSocketManager->Release();

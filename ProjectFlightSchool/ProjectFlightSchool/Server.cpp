@@ -16,11 +16,19 @@ void Server::ClientJoined( IEventPtr eventPtr )
 			UINT teamID = CurrentTeamDelegate();
 
 			mClientMap[data->ID()]			= new ClientNEF();
-			mClientMap[data->ID()]->NEF		= new NetworkEventForwarder();
-			mClientMap[data->ID()]->NEF->Initialize( data->ID(), mSocketManager );
+			mClientMap[data->ID()]->NEF.Initialize( data->ID(), mSocketManager );
 			mClientMap[data->ID()]->TeamID	= teamID;
 			mClientMap[data->ID()]->ID		= data->ID();
 			//mClientMap[data->ID()]->AggroCircle	= new BoundingCircle( 1.0f );
+
+			if( mClientMap.size() > mMaxClients )
+			{
+				IEventPtr bounceClient( new Event_Shutdown_Client() );
+				SendEvent( bounceClient, data->ID() );
+				SAFE_DELETE( mClientMap[data->ID()] );
+				mClientMap.erase( data->ID() );
+				return;
+			}
 
 			mPlayers[mNrOfPlayers]				= new ServerPlayer();
 			mPlayers[mNrOfPlayers]->ID			= data->ID();
@@ -566,14 +574,14 @@ void Server::BroadcastEvent( IEventPtr eventPtr, UINT exception )
 	{
 		if( to.first != exception )
 		{
-			mClientMap[to.first]->NEF->ForwardEvent( eventPtr );
+			mClientMap[to.first]->NEF.ForwardEvent( eventPtr );
 		}
 	}
 }
 
 void Server::SendEvent( IEventPtr eventPtr, UINT to )
 {
-	mClientMap[to]->NEF->ForwardEvent( eventPtr );
+	mClientMap[to]->NEF.ForwardEvent( eventPtr );
 }
 
 UINT Server::CurrentTeamDelegate()
@@ -846,7 +854,6 @@ void Server::Reset()
 
 	for( auto& c : mClientMap )
 	{
-		SAFE_DELETE( c.second->NEF );
 		SAFE_DELETE( c.second );
 	}
 	mClientMap.clear();
@@ -907,7 +914,6 @@ void Server::Release()
 
 	for( auto& c : mClientMap )
 	{
-		SAFE_DELETE( c.second->NEF );
 		SAFE_DELETE( c.second );
 	}
 	mClientMap.clear();
@@ -945,6 +951,7 @@ Server::Server() : Network()
 		mPlayers[i]			= nullptr;
 
 	mNrOfPlayers			= 0;
+	mMaxClients				= 1;
 }
 
 Server::~Server()

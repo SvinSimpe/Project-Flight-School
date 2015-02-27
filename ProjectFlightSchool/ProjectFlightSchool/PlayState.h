@@ -94,6 +94,7 @@ class PlayState : public BaseState
 		void			SetEnemyState( unsigned int id, EnemyState state );
 		bool			CullEntity( XMFLOAT3 entityPos );
 
+
 	protected:
 	public:
 		virtual HRESULT Update( float deltaTime );

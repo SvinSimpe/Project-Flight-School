@@ -94,6 +94,8 @@ void ParticleManager::Initialize()
 	mNrOfParticleSystemsPerType[Explosion]		= 0;
 	mNrOfParticleSystemsPerType[ExplosionSmoke]	= 0;
 	mNrOfParticleSystemsPerType[FireSmoke]		= 0;
+	mNrOfParticleSystemsPerType[BlowTorchFire]	= 0;
+	mNrOfParticleSystemsPerType[BlowTorchIdle]	= 0;
 	mNrOfParticleSystemsPerType[ExplosionSmoke]	= 0;
 	mNrOfParticleSystemsPerType[NormalSmoke]	= 0;// Below this
 	mNrOfParticleSystemsPerType[Hammer_Effect]	= 0;
@@ -109,6 +111,8 @@ void ParticleManager::Initialize()
 	mMaxNrOfParticleSystemsPerType[Test_Fountain]	= 5;
 	mMaxNrOfParticleSystemsPerType[Explosion]		= 1;
 	mMaxNrOfParticleSystemsPerType[ExplosionSmoke]	= 3;
+	mMaxNrOfParticleSystemsPerType[BlowTorchFire]	= 3;
+	mMaxNrOfParticleSystemsPerType[BlowTorchIdle]	= 3;
 	mMaxNrOfParticleSystemsPerType[FireSmoke]		= 4;
 	mMaxNrOfParticleSystemsPerType[NormalSmoke]		= 3;// Aswell as this
 	mMaxNrOfParticleSystemsPerType[Hammer_Effect]	= 3;
@@ -124,6 +128,8 @@ void ParticleManager::Initialize()
 	mNrOfActiveParticleSystemsPerType[Test_Fountain]	= 0;
 	mNrOfActiveParticleSystemsPerType[Explosion]		= 0;
 	mNrOfActiveParticleSystemsPerType[ExplosionSmoke]	= 0;
+	mNrOfActiveParticleSystemsPerType[BlowTorchFire]	= 0;
+	mNrOfActiveParticleSystemsPerType[BlowTorchIdle]	= 0;
 	mNrOfActiveParticleSystemsPerType[FireSmoke]		= 0;
 	mNrOfActiveParticleSystemsPerType[NormalSmoke]		= 0;// And this
 	mNrOfActiveParticleSystemsPerType[Hammer_Effect]	= 0;
@@ -215,6 +221,20 @@ void ParticleManager::Initialize()
 	{
 		mParticleSystems[MuzzleFlash][i]->Initialize( MuzzleFlash, 1.0f, 64 );
 		mNrOfParticleSystemsPerType[MuzzleFlash]++;
+		mNrOfParticleSystems++;
+	}
+
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[BlowTorchFire]; i++ )
+	{
+		mParticleSystems[BlowTorchFire][i]->Initialize( BlowTorchFire, 16.0f, 128 );
+		mNrOfParticleSystemsPerType[BlowTorchFire]++;
+		mNrOfParticleSystems++;
+	}
+	
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[BlowTorchIdle]; i++ )
+	{
+		mParticleSystems[BlowTorchIdle][i]->Initialize( BlowTorchIdle, 12.0f, 102 );
+		mNrOfParticleSystemsPerType[BlowTorchIdle]++;
 		mNrOfParticleSystems++;
 	}
 

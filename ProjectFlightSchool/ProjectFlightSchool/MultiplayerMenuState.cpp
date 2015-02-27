@@ -14,42 +14,33 @@ void MultiplayerMenuState::HandleInput()
 	}
 	else if( mButtons.at(TWO_VS_TWO)->LeftMousePressed() )
 	{	
-		std::string port = mPortBox.GetText();
+		mPort = mPortBox.GetText();
 
-		IEventPtr E1( new Event_Start_Server( port, 4 ) );
+		IEventPtr E1( new Event_Start_Server( mPort, 4 ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
-		IEventPtr E2( new Event_Start_Client( "localhost", port ) );
-		EventManager::GetInstance()->QueueEvent( E2 );
-
-		IEventPtr E3( new Event_Create_Player_Name( mNameBox.GetText() ) );
-		EventManager::GetInstance()->TriggerEvent( E3 );
+		IEventPtr E2( new Event_Create_Player_Name( mNameBox.GetText() ) );
+		EventManager::GetInstance()->TriggerEvent( E2 );
 	}
 	else if( mButtons.at(THREE_VS_THREE)->LeftMousePressed() )
 	{
-		std::string port = mPortBox.GetText();
+		mPort = mPortBox.GetText();
 
-		IEventPtr E1( new Event_Start_Server( port, 6 ) );
+		IEventPtr E1( new Event_Start_Server( mPort, 6 ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
-		
-		IEventPtr E2( new Event_Start_Client( "localhost", port ) );
-		EventManager::GetInstance()->QueueEvent( E2 );
 
-		IEventPtr E3( new Event_Create_Player_Name( mNameBox.GetText() ) );
-		EventManager::GetInstance()->TriggerEvent( E3 );
+		IEventPtr E2( new Event_Create_Player_Name( mNameBox.GetText() ) );
+		EventManager::GetInstance()->TriggerEvent( E2 );
 	}
 	else if( mButtons.at(FOUR_VS_FOUR)->LeftMousePressed() )
 	{
-		std::string port = mPortBox.GetText();
+		mPort = mPortBox.GetText();
 
-		IEventPtr E1( new Event_Start_Server( port, 8 ) );
+		IEventPtr E1( new Event_Start_Server( mPort, 8 ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
-				
-		IEventPtr E2( new Event_Start_Client( "localhost", port ) );
-		EventManager::GetInstance()->QueueEvent( E2 );
 
-		IEventPtr E3( new Event_Create_Player_Name( mNameBox.GetText() ) );
-		EventManager::GetInstance()->TriggerEvent( E3 );
+		IEventPtr E2( new Event_Create_Player_Name( mNameBox.GetText() ) );
+		EventManager::GetInstance()->TriggerEvent( E2 );
 	}
 	else if( mButtons.at(BACK)->LeftMousePressed() )
 	{
@@ -153,6 +144,7 @@ void MultiplayerMenuState::Release()
 
 MultiplayerMenuState::MultiplayerMenuState() : BaseMenuState()
 {
+	mPort = "";
 }
 
 MultiplayerMenuState::~MultiplayerMenuState()

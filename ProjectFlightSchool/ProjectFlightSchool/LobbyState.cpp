@@ -62,12 +62,6 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 				SAFE_DELETE( mPlayers.at(i) );
 				std::swap( mPlayers.at(i), mPlayers.at(mPlayers.size() - 1) );
 				mPlayers.pop_back();
-
-				if( data->ID() == 1 )
-				{
-					IEventPtr E1( new Event_Reset_Game() );
-					EventManager::GetInstance()->QueueEvent( E1 );
-				}
 			}
 		}
 	}
@@ -196,7 +190,7 @@ HRESULT LobbyState::Initialize()
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Lobby_Finished::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Remote_Left::GUID );
 
-	float x = ( (float)Input::GetInstance()->mScreenWidth * 0.9f ) - 400.0f;
+	float x = ( (float)Input::GetInstance()->mScreenWidth * 0.9f ) - 650.0f;
 	float y = ( (float)Input::GetInstance()->mScreenHeight * 0.9f ) - 200.0f;
 	float w = 200.0f;
 	float h = 200.0f;

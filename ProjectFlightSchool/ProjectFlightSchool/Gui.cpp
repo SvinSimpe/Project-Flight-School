@@ -145,7 +145,7 @@ HRESULT Gui::Render()
 
 		RenderManager::GetInstance()->AddObject2dToList( mLevelUp, mTopLeftCompWithPlayerHealthXP, mSizeLevelUp );
 
-		renderText = "!";
+		renderText = "+";
 		renderText += std::to_string( (int)mExperience );
 		mFont.WriteText( renderText, (mTopLeftCompWithPlayerHealthXP.x + 75.0f ), ( mTopLeftCompWithPlayerHealthXP.y + 66.0f ), 4.8f );
 	}

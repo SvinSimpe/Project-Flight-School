@@ -12,8 +12,9 @@
 
 class Enemy;
 
+
+#define MAX_NR_OF_ENEMIES		0
 #define randflt() (((float) rand())/((float) RAND_MAX))
-#define MAX_NR_OF_ENEMIES		15
 
 // ---- Define all enemy animations ----
 // Standard

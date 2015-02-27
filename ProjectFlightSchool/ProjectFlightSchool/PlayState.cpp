@@ -624,6 +624,7 @@ bool PlayState::CullEntity( XMFLOAT3 entityPos )
 	return HelperFunctions::Dist3Squared( mPlayer->GetPosition(), entityPos  ) <= ENTITY_CULLDISTANCE;
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
@@ -777,6 +778,19 @@ HRESULT PlayState::Update( float deltaTime )
 	mGui->Update( guiUpdate );
 
 	CheckProjectileCollision();
+
+	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+	{
+		if( !mEnergyCells[i]->GetPickedUp() )
+		{
+			mEnergyCells[i]->Update( deltaTime );
+		}
+	}
+
+	// Test Anim
+	///////////////////////////////////////////////////////////////////////////
+	//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
+	///////////////////////////////////////////////////////////////////////////
 
 	return S_OK;
 }
@@ -968,11 +982,12 @@ HRESULT PlayState::Initialize()
 
 	//Energy cells
 	mEnergyCells = new EnergyCell*[MAX_ENERGY_CELLS];
-	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+	for ( size_t i = 0; i < MAX_ENERGY_CELLS; i++ )
 	{
 		mEnergyCells[i] = new EnergyCell();
 		mEnergyCells[i]->Initialize( DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 	}
+
 
 	//TestSound
 	m3DSoundAsset	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav" );

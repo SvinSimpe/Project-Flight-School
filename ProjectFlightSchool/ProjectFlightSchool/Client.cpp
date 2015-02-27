@@ -186,6 +186,7 @@ bool Client::Initialize()
 
 	EF::REGISTER_EVENT( Event_Trigger_Client_Fired_Projectile );
 	EF::REGISTER_EVENT( Event_Trigger_Client_Update );
+	EF::REGISTER_EVENT( Event_Client_Reach_Server );
 
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	EventManager::GetInstance()->AddListener( &Client::Shutdown, this, Event_Shutdown_Client::GUID );

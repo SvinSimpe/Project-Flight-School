@@ -5321,4 +5321,36 @@ class Event_Unlock_Player : public IEvent
 			return IEventPtr( new Event_Unlock_Player() );
 		}
 };
+
+//Empty Event to use to see if you can reach the server
+class Event_Client_Reach_Server : public IEvent
+{
+	private:
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Reach_Server()
+		{
+		}
+		~Event_Client_Reach_Server() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Reach_Server() );
+		}
+};
 #endif

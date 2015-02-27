@@ -30,6 +30,7 @@ class LobbyState : public BaseState
 		Font						mFont;
 		AssetID						mBackground;
 		bool						mActive;
+		MovingButton				mBackButton;
 
 	public:
 

@@ -135,16 +135,26 @@ void LobbyState::HandleInput()
 			Client::GetInstance()->SendEvent( E1 );
 		}
 	}
+	if( mBackButton.LeftMousePressed() )
+	{
+		IEventPtr E1( new Event_Reset_Game() );
+		EventManager::GetInstance()->QueueEvent( E1 );
+	}
 }
 
 HRESULT LobbyState::Update( float deltaTime )
 {
 	HRESULT hr = S_OK;
 
+	IEventPtr E1( new Event_Client_Reach_Server() ); //Check so that the connection isn't broken.
+	Client::GetInstance()->SendEvent( E1 );
+
 	for( size_t i = 0; i < mPlayers.size(); i++ )
 	{
 		mPlayers[i]->button.Update( deltaTime );
 	}
+	mBackButton.Update( deltaTime );
+
 	HandleInput();
 
 	return hr;
@@ -169,6 +179,8 @@ HRESULT LobbyState::Render()
 		
 		mFont.WriteText( textToWrite, p->button.GetPosition().x + 20.0f, p->button.GetPosition().y + 15.0f, 3.0f );
 	}
+
+	mBackButton.Render();
 	
 	RenderManager::GetInstance()->Render();
 
@@ -189,6 +201,7 @@ void LobbyState::OnExit()
 	{
 		mPlayers[i]->button.SetExitCooldown();
 	}
+	mBackButton.SetExitCooldown();
 }
 
 void LobbyState::Reset()
@@ -218,6 +231,8 @@ HRESULT LobbyState::Initialize()
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Lobby_Finished::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Remote_Left::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Connect_Server_Success::GUID );
+	
+	mBackButton.Initialize( "../Content/Assets/Textures/Menu/Back.png", 70.0f, 760.0f, 200.0f, 200.0f );
 
 	return hr;
 }
@@ -231,6 +246,7 @@ void LobbyState::Release()
 		SAFE_DELETE( mPlayers[i] );
 	}
 	mPlayers.clear();
+	mBackButton.Release();
 }
 
 LobbyState::LobbyState()

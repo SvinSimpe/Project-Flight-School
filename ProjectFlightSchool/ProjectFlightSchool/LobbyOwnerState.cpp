@@ -41,6 +41,8 @@ HRESULT LobbyOwnerState::Render()
 		
 		mFont.WriteText( textToWrite, p->button.GetPosition().x + 20.0f, p->button.GetPosition().y + 15.0f, 3.0f );
 	}
+
+	mBackButton.Render();
 	
 	RenderManager::GetInstance()->Render();
 	
@@ -55,7 +57,7 @@ void LobbyOwnerState::OnExit()
 
 HRESULT LobbyOwnerState::Initialize()
 {
-	mStartButton.Initialize( "../Content/Assets/Textures/Menu/Create_Menu_Text/MultiPlayer.png", 1665, 760, 200, 200 );
+	mStartButton.Initialize( "../Content/Assets/Textures/Menu/Create_Menu_Text/MultiPlayer.png", 1665.0f, 760.0f, 200.0f, 200.0f );
 
 	return LobbyState::Initialize();
 }

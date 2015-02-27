@@ -19,7 +19,7 @@ class LobbyOwnerState : public LobbyState
 	protected:
 	public:
 		HRESULT Update( float deltaTime );
-		HRESULT Render();
+		HRESULT Render( float deltaTime );
 		void	OnExit();
 
 		HRESULT Initialize();

@@ -6,6 +6,7 @@ Graphics::Graphics()
 	mScreenWidth	= 0;
 	mScreenHeight	= 0;
 	mFullscreen		= false;
+	mTimeVariable	= 0.0f;
 
 	mSwapChain		= nullptr;
 	mDevice			= nullptr;
@@ -461,6 +462,26 @@ HRESULT Graphics::InitializeEffects()
 		return hr;
 	//--------------------------
 
+	//Blowtorch fire effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/BlowtorchFireEffect.hlsl";
+	effectInfo.fileName					= "BlowtorchFireEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+	
+	if( FAILED( hr = mEffects[EFFECTS_BLOWTORCH_FIRE]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Blowtorch Idle effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/BlowtorchIdleEffect.hlsl";
+	effectInfo.fileName					= "BlowtorchIdleEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+	
+	if( FAILED( hr = mEffects[EFFECTS_BLOWTORCH_IDLE]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
 	//Explosion smoke effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/ExplosionSmoke.hlsl";
 	effectInfo.fileName					= "ExplosionSmoke";
@@ -594,6 +615,13 @@ HRESULT Graphics::MapBuffer( ID3D11Buffer* buffer, void* data, int size )
 	mDeviceContext->Unmap( buffer, 0 );
 
 	return S_OK;
+}
+
+void Graphics::Update( float deltaTime )
+{
+	mTimeVariable += deltaTime;
+	if( deltaTime > 25.132f )
+		mTimeVariable = 25.132f;
 }
 
 HRESULT Graphics::LoadStatic2dAsset( std::string fileName, AssetID &assetId )
@@ -1163,7 +1191,7 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 
 					// Add particletype you want to apply additive blending on
 					if( info[i].mParticleType == EFFECTS_TEST_FOUNTAIN || info[i].mParticleType == EFFECTS_SPARK || info[i].mParticleType == EFFECTS_LEVEL_UP 
-						|| info[i].mParticleType == EFFECTS_FIRE )
+						|| info[i].mParticleType == EFFECTS_FIRE || info[i].mParticleType == EFFECTS_BLOWTORCH_FIRE || info[i].mParticleType == EFFECTS_BLOWTORCH_IDLE )
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
 					
 					else if( info[i].mParticleType == EFFECTS_EXPLOSION )
@@ -1813,6 +1841,7 @@ void Graphics::GbufferPass()
 	data.cameraPosition		= mCamera[mCurrentCamera]->GetPos();
 	
 	data.numPointLights = mNumPointLights;
+	data.timeVariable	= mTimeVariable;
 	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_FRAME], &data, sizeof( CbufferPerFrame ) );
 
 	CbufferPerFrameShadow dataShadow;
@@ -1853,7 +1882,8 @@ void Graphics::DeferredPass()
 		mDeviceContext->PSSetShaderResources( i, 1, &mGbuffers[i]->mShaderResourceView );
 
 	mDeviceContext->PSSetShaderResources( 4, 1, &mShadowMapSRV );
-	mDeviceContext->PSSetShaderResources( 5, 1, &mLightStructuredBuffer );
+	mDeviceContext->PSSetShaderResources( 5, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[WATER_NORMALMAP] )->mSRV );
+	mDeviceContext->PSSetShaderResources( 6, 1, &mLightStructuredBuffer );
 
 	mDeviceContext->VSSetShader( mEffects[EFFECTS_DEFERRED]->GetVertexShader(), nullptr, 0 );
 	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );

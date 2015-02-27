@@ -43,7 +43,7 @@ HRESULT StartMenuState::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT StartMenuState::Render()
+HRESULT StartMenuState::Render( float deltaTime )
 {
 	BaseMenuState::Render();
 

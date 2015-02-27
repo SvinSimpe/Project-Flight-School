@@ -63,7 +63,7 @@ HRESULT JoinMenuState::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT JoinMenuState::Render()
+HRESULT JoinMenuState::Render( float deltaTime )
 {
 	BaseMenuState::Render();
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
@@ -132,7 +132,7 @@ HRESULT JoinMenuState::Initialize()
 	y -= (float)Input::GetInstance()->mScreenHeight * 0.2f;
 
 	mButtons.push_back( new MovingButton() );
-	mButtons.at(MIKAEL)->Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/Join.png", x - w * 0.5f, y - h * 0.5f, w, h ); 
+	mButtons.at(MIKAEL)->Initialize( "../Content/Assets/Textures/Menu/Judas.png", x - w * 0.5f, y - h * 0.5f, w, h ); 
 
 	x = (float)Input::GetInstance()->mScreenWidth  * 0.2f;
 	y = (float)Input::GetInstance()->mScreenHeight * 0.9f;
@@ -145,7 +145,7 @@ HRESULT JoinMenuState::Initialize()
 
 	mPortBox.Initialize( "27015", "Port", x - w * 0.5f, y - h * 0.5f, w, h );
 
-	mNameBox.Initialize( "playername", "IP", Input::GetInstance()->mScreenWidth * 0.3f - w * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + h *0.5f, w, h );
+	mNameBox.Initialize( "playername", "Name", Input::GetInstance()->mScreenWidth * 0.3f - w * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + h *0.5f, w, h );
 
 	return S_OK;
 }

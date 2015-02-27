@@ -20,20 +20,18 @@ HRESULT LobbyOwnerState::Update( float deltaTime )
 	return hr;
 }
 
-HRESULT LobbyOwnerState::Render()
+HRESULT LobbyOwnerState::Render( float deltaTime )
 {
 	HRESULT hr = S_OK;
 	
 	RenderManager::GetInstance()->AddObject2dToList( mBackground, XMFLOAT2( 0.0f, 0.0f ), XMFLOAT2( (float)Input::GetInstance()->mScreenWidth, (float)Input::GetInstance()->mScreenHeight ) );
 	
-	mStartButton.Render();
-
-	std::string textToWrite = "";
-
 	for( auto p : mPlayers )
 	{
 		p->button.Render();
 	}
+	
+	std::string textToWrite = "";
 
 	for( auto p : mPlayers )
 	{
@@ -45,6 +43,7 @@ HRESULT LobbyOwnerState::Render()
 	mBackButton.Render();
 	mChooseWeaponButton.Render();
 	mChooseWeaponText.Render();
+	mStartButton.Render();
 
 	if( mLoadOutMenu.IsActive() )
 	{
@@ -52,7 +51,7 @@ HRESULT LobbyOwnerState::Render()
 	}
 	
 	RenderManager::GetInstance()->Render();
-	
+
 	return hr;
 }
 

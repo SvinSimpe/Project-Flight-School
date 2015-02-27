@@ -229,6 +229,12 @@
     <Text Include="..\Content\Effects\Particle Effects\Level_InnerEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
+    <Text Include="..\Content\Effects\Particle Effects\BlowtorchFireEffect.hlsl">
+      <Filter>Effects\Particle Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\Particle Effects\BlowtorchIdleEffect.hlsl">
+		<Filter>Effects\Particle Effects</Filter>
+	</Text>
     <Text Include="..\Content\Effects\Particle Effects\Hammer_Effect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>

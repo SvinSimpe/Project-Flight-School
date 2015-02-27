@@ -108,7 +108,7 @@ LoadOutMenu::LoadOutMenu()
 {
 	mIsActive		= false;
 	mBackground		= 0;
-	mCurrentRanged	= 1;
+	mCurrentRanged	= 0;
 	mCurrentMelee	= 5;
 }
 

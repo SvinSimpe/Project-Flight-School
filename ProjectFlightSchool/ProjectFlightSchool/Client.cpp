@@ -72,7 +72,7 @@ Client* Client::GetInstance()
 
 void Client::Shutdown( IEventPtr eventPtr )
 {
-	if( eventPtr->GetEventType() == Event_Shutdown_Client::GUID && mActive)
+	if( eventPtr->GetEventType() == Event_Shutdown_Client::GUID && mActive )
 	{
 		if( mSocketManager )
 			mSocketManager->Release();
@@ -188,6 +188,8 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Trigger_Client_Update );
 	EF::REGISTER_EVENT( Event_Client_Reach_Server );
 	EF::REGISTER_EVENT( Event_Server_Reach_Client );
+	EF::REGISTER_EVENT( Event_Client_Change_Weapon );
+	EF::REGISTER_EVENT( Event_Server_Change_Weapon );
 
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	EventManager::GetInstance()->AddListener( &Client::Shutdown, this, Event_Shutdown_Client::GUID );

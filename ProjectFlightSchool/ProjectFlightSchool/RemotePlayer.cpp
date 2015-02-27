@@ -93,6 +93,36 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 			printf( "RemotePlayer:: Spelare: %d, blev lag %d\n", mID, mTeam );
 		}
 	}
+	else if( newEvent->GetEventType() == Event_Server_Change_Buff_State::GUID )
+	{
+		std::shared_ptr<Event_Server_Change_Buff_State> data = std::static_pointer_cast<Event_Server_Change_Buff_State>( newEvent );
+		if( data->ID() == mID )
+		{
+			mIsBuffed	= data->IsBuffed();
+			mBuffMod	= data->BuffMod();
+		}
+	}
+	else if( newEvent->GetEventType() == Event_Server_Change_Weapon::GUID )
+	{
+		std::shared_ptr<Event_Server_Change_Weapon> data = std::static_pointer_cast<Event_Server_Change_Weapon>( newEvent );
+		if( data->ID() == mID )
+		{
+			if( (WeaponType)data->Weapon() == MINIGUN || (WeaponType)data->Weapon() == SHOTGUN || (WeaponType)data->Weapon() == GRENADELAUNCHER || (WeaponType)data->Weapon() == SNIPER )
+			{
+				delete mLoadOut->rangedWeapon;
+				mLoadOut->rangedWeapon	= new RangedInfo( (WeaponType)data->Weapon() );	
+				RenderManager::GetInstance()->AnimationInitialize( mArms.rightArm, mWeaponModels[mLoadOut->rangedWeapon->weaponType], mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
+			}
+			else if( (WeaponType)data->Weapon() == CLAYMORE || (WeaponType)data->Weapon() == HAMMER || (WeaponType)data->Weapon() == BLOWTORCH || (WeaponType)data->Weapon() == SAW )
+			{
+				if( mLoadOut->meleeWeapon->boundingCircle )
+					delete mLoadOut->meleeWeapon->boundingCircle;
+				delete mLoadOut->meleeWeapon;
+				mLoadOut->meleeWeapon	= new MeleeInfo( (WeaponType)data->Weapon() );
+				RenderManager::GetInstance()->AnimationInitialize( mArms.leftArm, mWeaponModels[mLoadOut->meleeWeapon->weaponType], mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
+			}
+		}
+	}
 }
 
 HRESULT RemotePlayer::InitializeGraphics()
@@ -129,7 +159,8 @@ HRESULT RemotePlayer::InitializeGraphics()
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Claymore/Animations/", "claymoreAttack.PaMan"	, mWeaponAnimations[CLAYMORE][ATTACK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 	
-	//HAMMER
+	//
+
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/Animations/", "hammerIdle.PaMan",	mWeaponAnimations[HAMMER][IDLE] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );																							
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/Animations/", "hammerWalk.PaMan",	mWeaponAnimations[HAMMER][WALK] ) ) )
@@ -436,6 +467,9 @@ HRESULT RemotePlayer::Initialize()
 	mLoadOut->meleeWeapon	= new MeleeInfo( HAMMER );
 
 	InitializeGraphics();
+	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Server_Change_Buff_State::GUID );
+
+	mBuffMod				= 0.5f;
 
 	return S_OK;
 }
@@ -452,6 +486,7 @@ void RemotePlayer::RemoteInit( unsigned int id, int team )
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Down::GUID );
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Up::GUID );
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Server_Switch_Team::GUID );
+	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Server_Change_Weapon::GUID );
 }
 
 void RemotePlayer::Release()
@@ -491,6 +526,8 @@ RemotePlayer::RemotePlayer()
 	mLoadOut				= nullptr;
 	mPointLightIfDown		= nullptr;
 	mSpawnPosition			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mIsBuffed				= false;
+	mBuffMod				= 0.0f;
 }
 
 RemotePlayer::~RemotePlayer()
@@ -506,6 +543,11 @@ bool RemotePlayer::IsAlive() const
 bool RemotePlayer::IsDown() const
 {
 	return mIsDown;
+}
+
+bool RemotePlayer::IsBuffed() const
+{
+	return mIsBuffed;
 }
 
 LoadOut* RemotePlayer::GetLoadOut() const

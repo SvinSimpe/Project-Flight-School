@@ -5428,4 +5428,108 @@ class Event_Change_Weapon : public IEvent
 			return mWeapon;
 		}
 };
+
+class Event_Client_Change_Weapon : public IEvent
+{
+	private:
+		int		mWeapon;
+		UINT	mID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Change_Weapon()
+		{
+			mWeapon = -1;
+			mID		= -1;
+		}
+		Event_Client_Change_Weapon( int weapon, UINT id )
+		{
+			mWeapon	= weapon;
+			mID		= id;
+		}
+		~Event_Client_Change_Weapon() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mWeapon << " ";
+			out << mID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mWeapon;
+			in >> mID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Change_Weapon( mWeapon, mID ) );
+		}
+		int Weapon() const
+		{
+			return mWeapon;
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+};
+
+class Event_Server_Change_Weapon : public IEvent
+{
+	private:
+		int		mWeapon;
+		UINT	mID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Change_Weapon()
+		{
+			mWeapon = -1;
+			mID		= -1;
+		}
+		Event_Server_Change_Weapon( int weapon, UINT id )
+		{
+			mWeapon	= weapon;
+			mID		= id;
+		}
+		~Event_Server_Change_Weapon() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mWeapon << " ";
+			out << mID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mWeapon;
+			in >> mID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Change_Weapon( mWeapon, mID ) );
+		}
+		int Weapon() const
+		{
+			return mWeapon;
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+};
 #endif

@@ -45,15 +45,6 @@ void Player::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Create_Player_Name> data = std::static_pointer_cast<Event_Create_Player_Name>( newEvent );
 		mPlayerName = data->PlayerName();
 	}
-	else if( newEvent->GetEventType() == Event_Server_Change_Buff_State::GUID )
-	{
-		std::shared_ptr<Event_Server_Change_Buff_State> data = std::static_pointer_cast<Event_Server_Change_Buff_State>( newEvent );
-		if( data->ID() == mID )
-		{
-			mIsBuffed	= data->IsBuffed();
-			mBuffMod	= data->BuffMod();
-		}
-	}
 	else if( newEvent->GetEventType() == Event_Upgrade_Player::GUID )
 	{
 		std::shared_ptr<Event_Upgrade_Player> data = std::static_pointer_cast<Event_Upgrade_Player>( newEvent );
@@ -111,6 +102,13 @@ void Player::EventListener( IEventPtr newEvent )
 			mLoadOut->meleeWeapon	= new MeleeInfo( (WeaponType)data->Weapon() );
 			RenderManager::GetInstance()->AnimationInitialize( mArms.leftArm, mWeaponModels[mLoadOut->meleeWeapon->weaponType], mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
 		}
+	}
+	else if( newEvent->GetEventType() == Event_Server_Lobby_Finished::GUID )
+	{
+		IEventPtr E1( new Event_Client_Change_Weapon( mLoadOut->meleeWeapon->weaponType, mID ) );
+		QueueEvent( E1 );
+		IEventPtr E2( new Event_Client_Change_Weapon( mLoadOut->rangedWeapon->weaponType, mID ) );
+		QueueEvent( E2 );
 	}
 }
 
@@ -704,8 +702,6 @@ void Player::UnLock()
 
 void Player::Reset()
 {
-	mEventCapTimer				= 0.0f;
-
 	mTimeSinceLastShot			= 0.0f;
 	mWeaponCoolDown				= 0;
 	mMeleeCoolDown				= 0;
@@ -1032,6 +1028,7 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_New_Player_Spawn_Position::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Switch_Team::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Change_Weapon::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Lobby_Finished::GUID );
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
 	mPick = XMFLOAT3( 0, 0, 0 );
 
@@ -1058,8 +1055,6 @@ void Player::Release()
 Player::Player()
 	:RemotePlayer()
 {
-	mEventCapTimer		= 0.0f;
-
 	mPointLight			= nullptr;
 	mEnergyCellLight	= nullptr;
 
@@ -1077,9 +1072,7 @@ Player::Player()
 	mMaxAcceleration	= 0.0f;
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mFireDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mIsBuffed			= false;
 	mIsOutSideZone		= false;
-	mBuffMod			= 0.0f;
 	mHasMeleeStarted	= false;
 	mXP					= 0;
 	mNextLevelXP		= 0;

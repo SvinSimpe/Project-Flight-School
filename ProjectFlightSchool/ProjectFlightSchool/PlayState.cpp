@@ -82,11 +82,15 @@ void PlayState::EventListener( IEventPtr newEvent )
 		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->BodyPos());
 		
 		// Request Muzzle Flash from Particle Manager
-		
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Explosion, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), ExplosionSmoke, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+
+		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Explosion, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), ExplosionSmoke, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+
+		///Blowtorch particle system
+		RenderManager::GetInstance()->RequestParticleSystem( 855, BlowTorchIdle, data->BodyPos(), data->Direction() );
+		RenderManager::GetInstance()->RequestParticleSystem( 855, BlowTorchFire, data->BodyPos(), data->Direction() );
 
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
@@ -123,13 +127,13 @@ void PlayState::EventListener( IEventPtr newEvent )
 
 		if( data->TeamID() == mPlayer->GetTeam() )
 		{
-			mFriendShip = new ClientShip();
-			mFriendShip->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
+			mShips[FRIEND_SHIP] = new ClientShip();
+			mShips[FRIEND_SHIP]->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
 		}
 		else
 		{
-			mEnemyShip = new ClientShip();
-			mEnemyShip->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
+			mShips[ENEMY_SHIP] = new ClientShip();
+			mShips[ENEMY_SHIP]->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
 		}
 	}
 	else if( newEvent->GetEventType() == Event_Remote_Win::GUID )
@@ -451,7 +455,7 @@ void PlayState::HandleDeveloperCameraInput()
 	}
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_O ) )
 	{
-		if( mFriendShip->Intersect( mPlayer->GetBoundingCircle() ) )
+		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 		{
 			IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
 			Client::GetInstance()->SendEvent( E1 );
@@ -459,7 +463,7 @@ void PlayState::HandleDeveloperCameraInput()
 	}
 	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_U ) )
 	{
-		if( mFriendShip->Intersect( mPlayer->GetBoundingCircle() ) )
+		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 		{
 			if( mGui->UpgradeShipWindowIsActive() )
 			{
@@ -476,7 +480,7 @@ void PlayState::HandleDeveloperCameraInput()
 	}
 	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_Y ) )
 	{
-		if( mFriendShip->Intersect( mPlayer->GetBoundingCircle() ) )
+		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 		{
 			if( mGui->UpgradePlayerWindowIsActive() )
 			{
@@ -509,7 +513,7 @@ void PlayState::HandleDeveloperCameraInput()
 	{
 		RenderManager::GetInstance()->ChangeRasterizerState( CULL_NONE );
 
-		IEventPtr E1( new Event_Client_Change_Ship_Levels( mFriendShip->GetID(), 0, -1, 0, 0 ) );
+		IEventPtr E1( new Event_Client_Change_Ship_Levels( mShips[FRIEND_SHIP]->GetID(), 0, -1, 0, 0 ) );
 		Client::GetInstance()->SendEvent( E1 );
 	}
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_2 ) )
@@ -628,6 +632,7 @@ bool PlayState::CullEntity( XMFLOAT3 entityPos )
 	return HelperFunctions::Dist3Squared( mPlayer->GetPosition(), entityPos  ) <= ENTITY_CULLDISTANCE;
 }
 
+
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
@@ -703,17 +708,18 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.mNrOfAllies	= nrOfAllies;
 	guiUpdate.mAlliesHP		= mAlliesHP;
 
-	if( mFriendShip )
-		guiUpdate.mShipHP	= mFriendShip->PercentHP();
+	if( mShips[FRIEND_SHIP] )
+		guiUpdate.mShipHP	= mShips[FRIEND_SHIP]->PercentHP();
 	else
 		guiUpdate.mShipHP	= 1.0f;
 
+
 	if( mPlayer->GetEnergyCellID() != (UINT)-1 )
 	{
-		if( mFriendShip->Intersect( mPlayer->GetBoundingCircle() ) )
+		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 		{
 			UINT temp = mPlayer->GetEnergyCellID();
-			mPlayer->GiveEnergyCellToShip( mEnergyCells, mFriendShip->GetID(), mFriendShip->GetPos() );
+			mPlayer->GiveEnergyCellToShip( mEnergyCells, mShips[FRIEND_SHIP]->GetID(), mShips[FRIEND_SHIP]->GetPos() );
 		}
 	}
 	mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers, mEnergyCells );
@@ -741,10 +747,12 @@ HRESULT PlayState::Update( float deltaTime )
 	///Test fountain particle system
 	RenderManager::GetInstance()->RequestParticleSystem( 990, NormalSmoke, XMFLOAT3( 0.0f, 1.0f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 0.0f ) );
 
-	RenderManager::GetInstance()->RequestParticleSystem( 1889, Fire, XMFLOAT3( 1.0f, 2.0f, 15.0f ), XMFLOAT3( 0.5f, 1.0f, 0.5f ) );	//---------id, effect, position, direction
+	RenderManager::GetInstance()->RequestParticleSystem( 1889, Fire, XMFLOAT3( 1.0f, 2.0f, 15.0f ), XMFLOAT3( 0.5f, 1.0f, 0.5f ) );			//---------id, effect, position, direction
 	RenderManager::GetInstance()->RequestParticleSystem( 1889, FireSmoke, XMFLOAT3( 2.5f, 3.5f, 16.5f ), XMFLOAT3( 1.5f, 2.0f, 1.5f ) );	//---------id, effect, position, direction
 	
 	RenderManager::GetInstance()->RequestParticleSystem( 997, Test_Fountain, XMFLOAT3( 0.0f, 20.0f, 0.0f ), XMFLOAT3( 0.0f, -1.0f, 0.0f ) );
+
+	//RenderManager::GetInstance()->RequestParticleSystem( 855, BlowTorchIdle, XMFLOAT3( 0.0f, 5.0f, 5.0f ), XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
 
 
 	if( mPlayer->Upgradable() < 1 && mGui->UpgradePlayerWindowIsActive() )
@@ -753,18 +761,18 @@ HRESULT PlayState::Update( float deltaTime )
 		mGui->DeActivateUpgradePlayerWindow();
 	}
 
-	if( mFriendShip )
+	for( int i = 0; i < SHIP_AMOUNT; i++ )
 	{
-		mFriendShip->Update( deltaTime );
-		mRadarObjects[nrOfRadarObj].mRadarObjectPos = mFriendShip->GetPos();
-		mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_FRIENDLY;
-	}
-
-	if( mEnemyShip )
-	{
-		mEnemyShip->Update( deltaTime );
-		mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnemyShip->GetPos();
-		mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_HOSTILE;
+		mShips[i]->Update( deltaTime );
+		mRadarObjects[nrOfRadarObj].mRadarObjectPos = mShips[i]->GetPos();
+		if( i == FRIEND_SHIP )
+		{
+			mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_FRIENDLY;
+		}
+		else
+		{
+			mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_HOSTILE;
+		}
 	}
 
 	guiUpdate.mRadarObjects	= mRadarObjects;
@@ -782,14 +790,27 @@ HRESULT PlayState::Update( float deltaTime )
 
 	CheckProjectileCollision();
 
+	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+	{
+		if( !mEnergyCells[i]->GetPickedUp() )
+		{
+			mEnergyCells[i]->Update( deltaTime );
+		}
+	}
+
+	// Test Anim
+	///////////////////////////////////////////////////////////////////////////
+	//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
+	///////////////////////////////////////////////////////////////////////////
+
 	return S_OK;
 }
 
-HRESULT PlayState::Render()
+HRESULT PlayState::Render( float deltaTime )
 {
 	mPlayer->Render( 0.0f, 1 );
 
-	mWorldMap->Render( 0.0f , mPlayer );
+	mWorldMap->Render( deltaTime , mPlayer );
 
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
 	{
@@ -836,10 +857,13 @@ HRESULT PlayState::Render()
 	XMFLOAT4X4 identity;
 	XMStoreFloat4x4( &identity, XMMatrixIdentity() );
 
-	if( mFriendShip && CullEntity( mFriendShip->GetPos() ) )
-		mFriendShip->Render( 0.0f, identity );
-	if( mEnemyShip && CullEntity( mEnemyShip->GetPos() ) )
-		mEnemyShip->Render( 0.0f, identity );
+	for( int i = 0; i < SHIP_AMOUNT; i++ )
+	{
+		if( mShips[i] && CullEntity( mShips[i]->GetPos() ) )
+		{
+			mShips[i]->Render( 0.0f, identity );
+		}
+	}
 
 	RenderManager::GetInstance()->Render();
 
@@ -882,8 +906,10 @@ void PlayState::Reset()
 	}
 	mRemotePlayers.clear();
 
-	SAFE_RELEASE_DELETE( mFriendShip );
-	SAFE_RELEASE_DELETE( mEnemyShip );
+	for( int i = 0; i < SHIP_AMOUNT; i++ )
+	{
+		SAFE_RELEASE_DELETE( mShips[i] );
+	}
 
 	RenderManager::GetInstance()->mParticleManager->Reset();
 }
@@ -973,11 +999,12 @@ HRESULT PlayState::Initialize()
 
 	//Energy cells
 	mEnergyCells = new EnergyCell*[MAX_ENERGY_CELLS];
-	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+	for ( size_t i = 0; i < MAX_ENERGY_CELLS; i++ )
 	{
 		mEnergyCells[i] = new EnergyCell();
 		mEnergyCells[i]->Initialize( DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 	}
+
 
 	//TestSound
 	m3DSoundAsset	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav" );
@@ -1033,8 +1060,10 @@ void PlayState::Release()
 	mGui->Release();
 	SAFE_DELETE( mGui );
 
-	SAFE_RELEASE_DELETE( mFriendShip );
-	SAFE_RELEASE_DELETE( mEnemyShip );
+	for( int i = 0; i < SHIP_AMOUNT; i++ )
+	{
+		SAFE_RELEASE_DELETE( mShips[i] );
+	}
 
 	//Energy cells
 	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
@@ -1060,8 +1089,10 @@ PlayState::PlayState()
 	mEnemyListSynced		= false;
 	mServerInitialized		= false;
 	mGui					= nullptr;
-	mFriendShip				= nullptr;
-	mEnemyShip				= nullptr;
+	for( int i = 0; i < SHIP_AMOUNT; i++ )
+	{
+		mShips[i] = nullptr;
+	}
 }
 
 PlayState::~PlayState()

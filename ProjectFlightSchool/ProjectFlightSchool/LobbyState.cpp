@@ -173,7 +173,7 @@ HRESULT LobbyState::Update( float deltaTime )
 	return hr;
 }
 
-HRESULT LobbyState::Render()
+HRESULT LobbyState::Render( float deltaTime )
 {
 	HRESULT hr = S_OK;
 	
@@ -216,13 +216,7 @@ void LobbyState::OnEnter()
 
 void LobbyState::OnExit()
 {
-	mActive = false;
-	for( size_t i = 0; i < mPlayers.size(); i++ )
-	{
-		mPlayers[i]->button.SetExitCooldown();
-	}
-	mBackButton.SetExitCooldown();
-	mChooseWeaponButton.SetExitCooldown();
+	Reset();
 }
 
 void LobbyState::Reset()
@@ -233,6 +227,8 @@ void LobbyState::Reset()
 		mPlayers[i]->button.Release();
 		SAFE_DELETE( mPlayers[i] );
 	}
+	mBackButton.SetExitCooldown();
+	mChooseWeaponButton.SetExitCooldown();
 	mPlayers.clear();
 }
 
@@ -251,6 +247,13 @@ HRESULT LobbyState::Initialize()
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Switch_Team::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Lobby_Finished::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Remote_Left::GUID );
+
+	float x = ( (float)Input::GetInstance()->mScreenWidth * 0.9f ) - 650.0f;
+	float y = ( (float)Input::GetInstance()->mScreenHeight * 0.9f ) - 200.0f;
+	float w = 200.0f;
+	float h = 200.0f;
+
+	mBackButton.Initialize( "../Content/Assets/Textures/Menu/Back.png", x, y, w, h );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Connect_Server_Success::GUID );
 	
 	mBackButton.Initialize( "../Content/Assets/Textures/Menu/Back.png", 70.0f, 760.0f, 200.0f, 200.0f );
@@ -265,6 +268,7 @@ HRESULT LobbyState::Initialize()
 void LobbyState::Release()
 {
 	mFont.Release();
+	mBackButton.Release();
 	for( size_t i = 0; i < mPlayers.size(); i++ )
 	{
 		mPlayers[i]->button.Release();

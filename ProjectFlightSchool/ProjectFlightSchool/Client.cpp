@@ -1,5 +1,4 @@
 #include "Client.h"
-#include "HelperFunctions.h"
 
 Client* Client::mInstance = nullptr;
 
@@ -73,7 +72,7 @@ Client* Client::GetInstance()
 
 void Client::Shutdown( IEventPtr eventPtr )
 {
-	if( eventPtr->GetEventType() == Event_Shutdown_Client::GUID && mActive)
+	if( eventPtr->GetEventType() == Event_Shutdown_Client::GUID && mActive )
 	{
 		if( mSocketManager )
 			mSocketManager->Release();
@@ -113,6 +112,8 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Game_Ended );
 	EF::REGISTER_EVENT( Event_Client_Died );
 	EF::REGISTER_EVENT( Event_Remote_Died );
+	EF::REGISTER_EVENT( Event_Client_Removed_Projectile );
+	EF::REGISTER_EVENT( Event_Remote_Removed_Projectile );
 	EF::REGISTER_EVENT( Event_Client_Damaged );
 	EF::REGISTER_EVENT( Event_Remote_Damaged );
 	EF::REGISTER_EVENT( Event_Client_Spawned );

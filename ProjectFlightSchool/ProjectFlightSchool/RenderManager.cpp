@@ -64,11 +64,12 @@ void RenderManager::AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLef
 	mObject2dArray[mNrOfObject2d++] = info;
 }
 
-void RenderManager::AddBoxToList( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max )
+void RenderManager::AddBoxToList( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, DirectX::XMFLOAT4X4 world )
 {
 	BoxInfo info;
-	info.min = min;
-	info.max = max;
+	info.min	= min;
+	info.max	= max;
+	info.world	= world;
 	mBoxArray[mNrOfBoxes++] = info;
 }
 

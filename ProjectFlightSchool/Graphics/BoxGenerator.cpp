@@ -5,10 +5,9 @@ HRESULT BoxGenerator::Initialize()
 	return S_OK;
 }
 
-AABB BoxGenerator::CreateAABBFromVerts( vector<StaticVertex>* vertices )
+AABB BoxGenerator::CreateAABBFromVerts( vector<StaticVertex*> &vertices )
 {
 	AABB tempAABB;
-	vector<StaticVertex>& verticesRef = *vertices;
 
 	tempAABB.max.x	=0.0f;
 	tempAABB.max.y	=0.0f;
@@ -19,129 +18,129 @@ AABB BoxGenerator::CreateAABBFromVerts( vector<StaticVertex>* vertices )
 
 	
 	//Extrude Box
-	for( UINT i = 0; i < verticesRef.size(); i++ )
+	for( UINT i = 0; i < vertices.size(); i++ )
 	{
 		//X max Check
-		if( verticesRef.at( i ).position[0] > tempAABB.max.x )
-			tempAABB.max.x = verticesRef.at( i ).position[0];
+		if( vertices.at( i )->position[0] > tempAABB.max.x )
+			tempAABB.max.x = vertices.at( i )->position[0];
 		
 		//Y max Check
-		if( verticesRef.at( i ).position[1] > tempAABB.max.y )
-			tempAABB.max.y = verticesRef.at( i ).position[1];
+		if( vertices.at( i )->position[1] > tempAABB.max.y )
+			tempAABB.max.y = vertices.at( i )->position[1];
 
 		//Z max Check
-		if( verticesRef.at( i ).position[2] > tempAABB.max.z )
-			tempAABB.max.z = verticesRef.at( i ).position[2];
+		if( vertices.at( i )->position[2] > tempAABB.max.z )
+			tempAABB.max.z = vertices.at( i )->position[2];
 
 		//X min Check
-		if( verticesRef.at( i ).position[0] < tempAABB.min.x )
-			tempAABB.min.x = verticesRef.at( i ).position[0];
+		if( vertices.at( i )->position[0] < tempAABB.min.x )
+			tempAABB.min.x = vertices.at( i )->position[0];
 
 		//Y min Check
-		if( verticesRef.at( i ).position[1] < tempAABB.min.y )
-			tempAABB.min.y = verticesRef.at( i ).position[1];
+		if( vertices.at( i )->position[1] < tempAABB.min.y )
+			tempAABB.min.y = vertices.at( i )->position[1];
 
 		//Z min Check
-		if( verticesRef.at( i ).position[2] < tempAABB.min.z )
-			tempAABB.min.z = verticesRef.at( i ).position[2];
+		if( vertices.at( i )->position[2] < tempAABB.min.z )
+			tempAABB.min.z = vertices.at( i )->position[2];
 	}
 	
 	return tempAABB;
 }
-void BoxGenerator::GenerateOctTree( vector<StaticVertex>* vertices, AABB* boundingAABB, int maxLevel, int currentLevel, OctTree* inOct )
+void BoxGenerator::GenerateOctTree( vector<StaticVertex*> &vertices, AABB &boundingAABB, int maxLevel, int currentLevel, OctTree &inOct )
 {
 	//Divide given AABB into children unless given level is reached
 	currentLevel++;
-	inOct->boundingBox			= *boundingAABB;
+	inOct.boundingBox		= boundingAABB;
 	AABB						testBox;
-	inOct->lastLevel			= true;
-	inOct->collides				= true;
+	inOct.lastLevel			= true;
+	inOct.collides			= true;
 
 	if( currentLevel < maxLevel )
 	{
-		inOct->lastLevel		= false;
+		inOct.lastLevel		= false;
 		for( int i = 0; i < 8; i++ )
 		{
-			inOct->children[i]			= new OctTree();
-			inOct->childrenCollides[i]	= false;
+			inOct.children[i]			= new OctTree();
+			inOct.childrenCollides[i]	= false;
 		}
 	}
 
 	//find TOP_FRONT_LEFT AABB
-	testBox = Subdivide( boundingAABB, TOP_FRONT_LEFT );
+	testBox = Subdivide( &boundingAABB, TOP_FRONT_LEFT );
 	if( CheckIntersectionTriangleVSAABB( vertices, &testBox ) )
 	{
-		inOct->childrenCollides[TOP_FRONT_LEFT] = true;
+		inOct.childrenCollides[TOP_FRONT_LEFT] = true;
 		if( currentLevel < maxLevel )
-			GenerateOctTree( vertices, &testBox, maxLevel, currentLevel, inOct->children[TOP_FRONT_LEFT] );
+			GenerateOctTree( vertices, testBox, maxLevel, currentLevel, *inOct.children[TOP_FRONT_LEFT] );
 	}
 	//find TOP_FRONT_RIGHT AABB
-	testBox = Subdivide( boundingAABB, TOP_FRONT_RIGHT );
+	testBox = Subdivide( &boundingAABB, TOP_FRONT_RIGHT );
 	if( CheckIntersectionTriangleVSAABB( vertices, &testBox ) )
 	{
-		inOct->childrenCollides[TOP_FRONT_RIGHT] = true;
+		inOct.childrenCollides[TOP_FRONT_RIGHT] = true;
 		if( currentLevel < maxLevel )
-			GenerateOctTree( vertices, &testBox, maxLevel, currentLevel, inOct->children[TOP_FRONT_RIGHT] );
+			GenerateOctTree( vertices, testBox, maxLevel, currentLevel, *inOct.children[TOP_FRONT_RIGHT] );
 	}
 	//find TOP_BACK_LEFT AABB
-	testBox = Subdivide( boundingAABB, TOP_BACK_LEFT );
+	testBox = Subdivide( &boundingAABB, TOP_BACK_LEFT );
 	if( CheckIntersectionTriangleVSAABB( vertices, &testBox ) )
 	{
-		inOct->childrenCollides[TOP_BACK_LEFT] = true;
+		inOct.childrenCollides[TOP_BACK_LEFT] = true;
 		if( currentLevel < maxLevel )
-			GenerateOctTree( vertices, &testBox, maxLevel, currentLevel, inOct->children[TOP_BACK_LEFT] );
+			GenerateOctTree( vertices, testBox, maxLevel, currentLevel, *inOct.children[TOP_BACK_LEFT] );
 	}
 	//find TOP_BACK_RIGHT AABB
-	testBox = Subdivide( boundingAABB, TOP_BACK_RIGHT );
+	testBox = Subdivide( &boundingAABB, TOP_BACK_RIGHT );
 	if( CheckIntersectionTriangleVSAABB( vertices, &testBox ) )
 	{
-		inOct->childrenCollides[TOP_BACK_RIGHT] = true;
+		inOct.childrenCollides[TOP_BACK_RIGHT] = true;
 		if( currentLevel < maxLevel )
-			GenerateOctTree( vertices, &testBox, maxLevel, currentLevel, inOct->children[TOP_BACK_RIGHT] );
+			GenerateOctTree( vertices, testBox, maxLevel, currentLevel, *inOct.children[TOP_BACK_RIGHT] );
 	}
 	//find BOTTOM_FRONT_LEFT AABB
-	testBox = Subdivide( boundingAABB, BOTTOM_FRONT_LEFT );
+	testBox = Subdivide( &boundingAABB, BOTTOM_FRONT_LEFT );
 	if( CheckIntersectionTriangleVSAABB( vertices, &testBox ) )
 	{
-		inOct->childrenCollides[BOTTOM_FRONT_LEFT] = true;
+		inOct.childrenCollides[BOTTOM_FRONT_LEFT] = true;
 		if( currentLevel < maxLevel )
-			GenerateOctTree( vertices, &testBox, maxLevel, currentLevel, inOct->children[BOTTOM_FRONT_LEFT] );
+			GenerateOctTree( vertices, testBox, maxLevel, currentLevel, *inOct.children[BOTTOM_FRONT_LEFT] );
 	}
 	//find BOTTOM_FRONT_RIGHT  AABB
-	testBox = Subdivide (boundingAABB, BOTTOM_FRONT_RIGHT );
+	testBox = Subdivide ( &boundingAABB, BOTTOM_FRONT_RIGHT );
 	if( CheckIntersectionTriangleVSAABB( vertices, &testBox ) )
 	{
-		inOct->childrenCollides[BOTTOM_FRONT_RIGHT] = true;
+		inOct.childrenCollides[BOTTOM_FRONT_RIGHT] = true;
 		if( currentLevel < maxLevel )
-			GenerateOctTree( vertices, &testBox, maxLevel, currentLevel, inOct->children[BOTTOM_FRONT_RIGHT] );
+			GenerateOctTree( vertices, testBox, maxLevel, currentLevel, *inOct.children[BOTTOM_FRONT_RIGHT] );
 	}
 	//find BOTTOM_BACK_LEFT AABB
-	testBox = Subdivide( boundingAABB, BOTTOM_BACK_LEFT );
+	testBox = Subdivide( &boundingAABB, BOTTOM_BACK_LEFT );
 	if( CheckIntersectionTriangleVSAABB( vertices, &testBox ) )
 	{
-		inOct->childrenCollides[BOTTOM_BACK_LEFT] = true;
+		inOct.childrenCollides[BOTTOM_BACK_LEFT] = true;
 		if( currentLevel < maxLevel )
-			GenerateOctTree( vertices, &testBox, maxLevel, currentLevel, inOct->children[BOTTOM_BACK_LEFT] );
+			GenerateOctTree( vertices, testBox, maxLevel, currentLevel, *inOct.children[BOTTOM_BACK_LEFT] );
 	}
 	//find BOTTOM_BACK_RIGHT BOTTOM_BACK_LEFT
-	testBox = Subdivide( boundingAABB, BOTTOM_BACK_RIGHT );
+	testBox = Subdivide( &boundingAABB, BOTTOM_BACK_RIGHT );
 	if( CheckIntersectionTriangleVSAABB( vertices, &testBox ) )
 	{
-		inOct->childrenCollides[BOTTOM_BACK_RIGHT] = true;
+		inOct.childrenCollides[BOTTOM_BACK_RIGHT] = true;
 		if( currentLevel < maxLevel )
-			GenerateOctTree( vertices, &testBox, maxLevel, currentLevel, inOct->children[BOTTOM_BACK_RIGHT] );
+			GenerateOctTree( vertices, testBox, maxLevel, currentLevel, *inOct.children[BOTTOM_BACK_RIGHT] );
 	}
 
 	//we dont look for another level so all children are set to nullpointers
-	if( currentLevel > maxLevel )
+	if( currentLevel >= maxLevel )
 	{
 		for( UINT i = 0; i < 8; i++ )
 		{
-			inOct->children[i] = nullptr;
+			inOct.children[i] = nullptr;
 		}
 	}
 }
-bool	BoxGenerator::CheckIntersectionTriangleVSAABB( vector<StaticVertex>* vertices, AABB* collisionBox )
+bool	BoxGenerator::CheckIntersectionTriangleVSAABB( vector<StaticVertex*> &vertices, AABB* collisionBox )
 {
 	DirectX::XMFLOAT3 center;
 	center.x = collisionBox->max.x - ( ( collisionBox->max.x - collisionBox->min.x ) * 0.5f );
@@ -153,15 +152,15 @@ bool	BoxGenerator::CheckIntersectionTriangleVSAABB( vector<StaticVertex>* vertic
 	extents.z = ( collisionBox->max.z - collisionBox->min.z ) * 0.5f;
 
 	DirectX::BoundingBox colissionBox(center, extents);
-	for( UINT i = 0; i < vertices->size(); i += 3 )
+	for( UINT i = 0; i < vertices.size(); i += 3 )
 	{
-		DirectX::XMFLOAT3 floatToVert1( vertices->at( i ).position[0],vertices->at( i ).position[1], vertices->at( i ).position[2] );
+		DirectX::XMFLOAT3 floatToVert1( vertices.at( i )->position[0], vertices.at( i )->position[1], vertices.at( i )->position[2] );
 		DirectX::FXMVECTOR vert1 = XMLoadFloat3( &floatToVert1 );
 
-		DirectX::XMFLOAT3 floatToVert2( vertices->at( i + 1 ).position[0],vertices->at( i + 1 ).position[1], vertices->at( i + 1 ).position[2] );
+		DirectX::XMFLOAT3 floatToVert2( vertices.at( i + 1 )->position[0], vertices.at( i + 1 )->position[1], vertices.at( i + 1 )->position[2] );
 		DirectX::FXMVECTOR vert2 = XMLoadFloat3( &floatToVert2 );
 
-		DirectX::XMFLOAT3 floatToVert3( vertices->at( i + 2 ).position[0],vertices->at( i + 2 ).position[1], vertices->at( i + 2 ).position[2] );
+		DirectX::XMFLOAT3 floatToVert3( vertices.at( i + 2 )->position[0], vertices.at( i + 2 )->position[1], vertices.at( i + 2 )->position[2] );
 		DirectX::FXMVECTOR vert3 = XMLoadFloat3( &floatToVert3 );
 
 		bool result = colissionBox.Intersects( vert1, vert2, vert3 );

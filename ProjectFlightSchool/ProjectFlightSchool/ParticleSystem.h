@@ -31,9 +31,24 @@ struct ParticleSystem : public ParticleData
 
 		switch ( particleType )
 		{
+			case Hammer_Effect:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/smokeParticle1.dds", assetID );
+				break;
+			}
 			case NormalSmoke:
 			{
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/smokeParticle1.dds", assetID );
+				break;
+			}
+			case BlowTorchFire:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireParticle.dds", assetID );
+				break;
+			}
+			case BlowTorchIdle:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireParticle.dds", assetID );
 				break;
 			}
 			case Fire:
@@ -120,7 +135,7 @@ struct ParticleSystem : public ParticleData
 	void Generate( XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection, int particleCount, float spreadAngle )
 	{
 		// Check if there is enough particles to meet request
-		if( ( particleCount + nrOfParticlesAlive ) > capacity )
+		if( ( particleCount + nrOfParticlesAlive ) >= capacity )
 		{
 			particleCount = capacity - nrOfParticlesAlive;
 			return;
@@ -152,8 +167,9 @@ struct ParticleSystem : public ParticleData
 
 		//Add Random Rotation
 		if(particleType == Fire || FireSmoke)
+		{
 			SetRandomRotation( particleCount ); 
-
+		}
 		if( particleType == Spark )
 		{
 			SetRandomDeathTime( 1, 2, particleCount );
@@ -163,18 +179,31 @@ struct ParticleSystem : public ParticleData
 			SetRandomDeathTime( 1, 6, particleCount );
 			SetRandomRotation( particleCount ); 
 		}
+		else if( particleType == BlowTorchFire )	
+		{
+			SetRandomDeathTime( 1, 2, particleCount );
+			SetRandomRotation( particleCount ); 
+		}
+		else if( particleType == BlowTorchIdle )	
+		{
+			SetRandomDeathTime( 1, 1, particleCount );
+			SetRandomRotation( particleCount ); 
+		}
 		else if( particleType == Explosion )	
 		{
 			SetRandomDeathTime( 1, 2, particleCount );
 			SetRandomRotation( particleCount ); 
 		}
-
 		else if( particleType == NormalSmoke )	
 		{
 			SetRandomDeathTime( 4, 12, particleCount );
 			SetRandomRotation( particleCount ); 
 		}
-
+		else if( particleType == Hammer_Effect )	
+		{
+			SetRandomDeathTime( 2, 8, particleCount );
+			//SetRandomRotation( particleCount ); 
+		}
 		else if( particleType == Spark )
 		{
 			SetRandomDeathTime( 1, 2, particleCount );
@@ -211,10 +240,13 @@ struct ParticleSystem : public ParticleData
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{
-		if( particleType == NormalSmoke )			Generate( emitterPosition, emitterDirection, 6,  120.0f );
-		else if( particleType == Spark )			Generate( emitterPosition, emitterDirection, 8, 25.0f );	
-		else if( particleType == Fire )				Generate( emitterPosition, emitterDirection, 8, 35.0f );					
-		else if( particleType == FireSmoke )		Generate( emitterPosition, emitterDirection, 15, 25.0f );		
+		if( particleType == NormalSmoke )			Generate( emitterPosition, emitterDirection, 6,  120.0f );	
+		else if( particleType == Spark )			Generate( emitterPosition, emitterDirection, 16, 25.0f );	
+		else if( particleType == BlowTorchFire )	Generate( emitterPosition, emitterDirection, 32, 4.0f );
+		else if( particleType == BlowTorchIdle )	Generate( emitterPosition, emitterDirection, 32, 2.0f );
+		else if( particleType == Fire )				Generate( emitterPosition, emitterDirection, 8, 35.0f );					//------------particle count and spreadangle
+		else if( particleType == FireSmoke )		Generate( emitterPosition, emitterDirection, 15, 25.0f );					//------------particle count and spreadangle
+		else if( particleType == Hammer_Effect )	Generate( emitterPosition, emitterDirection, 64,  180.0f );
 		else if( particleType == Explosion )		Generate( emitterPosition, emitterDirection, 50,  360.0f );
 		else if( particleType == ExplosionSmoke )	Generate( emitterPosition, emitterDirection, 50,  360.0f );
 		else if( particleType == Spark )			Generate( emitterPosition, emitterDirection, 8, 25.0f );
@@ -243,11 +275,28 @@ struct ParticleSystem : public ParticleData
 			{
 				// Update Normal smoke logic here
 				NormalSmokeLogic( deltaTime );
+			}			
+			case Hammer_Effect: 
+			{
+				// Update Normal smoke logic here
+				HammerEffectLogic( deltaTime );
 			}
 			case Fire: 
 			{
 				// Update Fire logic here
 				FireLogic( deltaTime );
+				break;
+			}
+			case BlowTorchFire: 
+			{
+				// Update Fire logic here
+				BlowTorchFireLogic( deltaTime );
+				break;
+			}
+			case BlowTorchIdle: 
+			{
+				// Update Fire logic here
+				BlowTorchIdleLogic( deltaTime );
 				break;
 			}
 			case FireSmoke: 
@@ -344,7 +393,7 @@ struct ParticleSystem : public ParticleData
 			// Calculate Particle count for this frame
 			int nrOfNewParticles = (int)emitRate;
 	
-			if( nrOfNewParticles > capacity )
+			if( nrOfParticlesAlive + nrOfNewParticles > capacity )
 				return;
 
 			// Wake Particles
@@ -378,14 +427,42 @@ struct ParticleSystem : public ParticleData
 		}
 	}
 
+	void HammerEffectLogic( float deltaTime )
+	{
+
+	}
+
 	void FireLogic( float deltaTime )
 	{
-		
+
+	}
+	
+	void BlowTorchFireLogic( float deltaTime )
+	{
+		for ( int i = 0; i < nrOfParticlesAlive; i++ )
+		{
+			if( damping[i] > 0 )
+				damping[i] += 0.004f;
+
+			xVelocity[i] = xVelocity[i] * damping[i];
+			zVelocity[i] = zVelocity[i] * damping[i];
+			
+			if( damping[i] > 0.08f )
+				yPosition[i] = yPosition[i] * 1.03f;
+		}
+	}
+
+	void BlowTorchIdleLogic( float deltaTime )
+	{
+		for ( int i = 0; i < nrOfParticlesAlive; i++ )
+		{
+			deathTime[i] = 0.07f;
+		}
 	}
 
 	void FireSmokeLogic( float deltaTime )
 	{
-		
+
 	}
 
 	void ExplosionSmokeLogic( float deltatime )
@@ -398,9 +475,9 @@ struct ParticleSystem : public ParticleData
 			xVelocity[i] = xVelocity[i] * damping[i];
 			zVelocity[i] = zVelocity[i] * damping[i];
 			yVelocity[i] = zVelocity[i] * damping[i] * 4;
-			xPosition[i] += 0.5f * ( 1.0f - damping[i] );
-			zPosition[i] += 0.25f * ( 1.0f - damping[i] );
-			yPosition[i] += 0.8f * ( 1.0f - damping[i] );
+			xPosition[i] += 0.05f * ( 1.0f - damping[i] );
+			zPosition[i] += 0.025f * ( 1.0f - damping[i] );
+			yPosition[i] += 0.08f * ( 1.0f - damping[i] );
 		}
 	}
 

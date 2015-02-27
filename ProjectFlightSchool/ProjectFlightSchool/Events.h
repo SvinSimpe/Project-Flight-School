@@ -625,6 +625,8 @@ class Event_Start_Server : public IEvent
 {
 	private:
 		std::string mPort;
+		UINT		mMaxPlayers;
+
 	protected:
 	public:
 		static const EventType GUID;
@@ -635,10 +637,12 @@ class Event_Start_Server : public IEvent
 		Event_Start_Server()
 		{
 			mPort = "";
+			mMaxPlayers = (UINT)-1;
 		}
-		Event_Start_Server( std::string port )
+		Event_Start_Server( std::string port, UINT maxPlayers )
 		{
 			mPort = port;
+			mMaxPlayers = maxPlayers;
 		}
 		~Event_Start_Server() {}
 		const EventType& GetEventType() const
@@ -648,18 +652,24 @@ class Event_Start_Server : public IEvent
 		void Serialize( std::ostringstream& out ) const
 		{
 			out << mPort << " ";
+			out << mMaxPlayers << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
 			in >> mPort;
+			in >> mMaxPlayers;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Start_Server( mPort ) );
+			return IEventPtr( new Event_Start_Server( mPort, mMaxPlayers ) );
 		}
 		std::string Port() const
 		{
 			return mPort;
+		}
+		UINT MaxPlayers() const
+		{
+			return mMaxPlayers;
 		}
 };
 
@@ -884,6 +894,93 @@ class Event_Remote_Died : public IEvent
 };
 
 // An event created by the client whenever s/he is shot by a projectile
+
+class Event_Client_Removed_Projectile : public IEvent
+{
+	private:
+		UINT mProjectileID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Removed_Projectile()
+		{
+			mProjectileID = (UINT)-1;
+		}
+		Event_Client_Removed_Projectile( UINT projectileID )
+		{
+			mProjectileID = projectileID;
+		}
+		~Event_Client_Removed_Projectile() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mProjectileID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mProjectileID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Removed_Projectile( mProjectileID ) );
+		}
+		UINT ProjectileID() const
+		{
+			return mProjectileID;
+		}
+};
+
+class Event_Remote_Removed_Projectile : public IEvent
+{
+	private:
+		UINT mProjectileID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Removed_Projectile()
+		{
+			mProjectileID = (UINT)-1;
+		}
+		Event_Remote_Removed_Projectile( UINT projectileID )
+		{
+			mProjectileID = projectileID;
+		}
+		~Event_Remote_Removed_Projectile() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mProjectileID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mProjectileID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Removed_Projectile( mProjectileID ) );
+		}
+		UINT ProjectileID() const
+		{
+			return mProjectileID;
+		}
+};
+
 class Event_Client_Damaged : public IEvent
 {
 	private:
@@ -5191,6 +5288,37 @@ class Event_Trigger_Client_Update : public IEvent
 		bool IsAlive() const
 		{
 			return mIsAlive;
+		}
+};
+
+class Event_Unlock_Player : public IEvent
+{
+	private:
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Unlock_Player()
+		{
+		}
+		~Event_Unlock_Player() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Unlock_Player() );
 		}
 };
 #endif

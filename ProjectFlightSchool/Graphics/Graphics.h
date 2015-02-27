@@ -79,12 +79,15 @@ enum Effects
 	EFFECTS_SMOKE_MINIGUN,
 	EFFECTS_TEST_FOUNTAIN,
 	EFFECTS_FIRE_SMOKE,
+	EFFECTS_BLOWTORCH_FIRE,
+	EFFECTS_BLOWTORCH_IDLE,
 	EFFECTS_LEVEL_UP,
 	EFFECTS_LEVEL_INNER,
 	EFFECTS_EXPLOSION,
 	EFFECTS_EXPLOSION_SMOKE,
 	EFFECTS_NORMAL_SMOKE,
 	EFFECTS_FIRE_FLIES,
+	EFFECTS_HAMMER_EFFECT,
 
 	EFFECTS_STATIC_VERTEX,
 	EFFECTS_STATIC_INSTANCED,
@@ -142,6 +145,7 @@ class LIBRARY_EXPORT Graphics
 		UINT						mScreenWidth;
 		UINT						mScreenHeight;
 		bool						mFullscreen;
+		float						mTimeVariable;
 
 		IDXGISwapChain*				mSwapChain;
 		ID3D11Device*				mDevice;
@@ -192,6 +196,8 @@ class LIBRARY_EXPORT Graphics
 
 	protected:
 	public:
+		void Update( float deltaTime );
+
 		HRESULT LoadStatic2dAsset	( std::string fileName, AssetID &assetId );
 		HRESULT LoadStatic3dAsset	( std::string filePath, std::string fileName, AssetID &assetId );
 		HRESULT LoadAnimated3dAsset	( std::string filePath, std::string fileName, AssetID skeletonId, AssetID &assetId ); 
@@ -211,21 +217,22 @@ class LIBRARY_EXPORT Graphics
 
 		DirectX::XMFLOAT4X4	GetRootMatrix( AnimationTrack animTrack );
 		bool				GetAnimationMatrices( AnimationTrack &animTrack, int playType, Anim3dInfo &info );
+		OctTree*			GetOctTreeFromStatic3DAsset( AssetID assetID );
 
 		void ChangeCamera();
 		void ZoomInDeveloperCamera();
 		void ZoomOutDeveloperCamera();
 
-		void GetViewMatrix( DirectX::XMMATRIX &view );
-		void GetInverseViewMatrix( DirectX::XMMATRIX &inverseViewMatrix );
-		void GetProjectionMatrix( DirectX::XMMATRIX &proj );
-		void GetInverseProjectionMatrix( DirectX::XMMATRIX &projectionViewMatrix );
+		void GetViewMatrix				( DirectX::XMMATRIX &view );
+		void GetInverseViewMatrix		( DirectX::XMMATRIX &inverseViewMatrix );
+		void GetProjectionMatrix		( DirectX::XMMATRIX &proj );
+		void GetInverseProjectionMatrix	( DirectX::XMMATRIX &projectionViewMatrix );
 
-		void ChangeRasterizerState( RasterizerStates rasterState );
-		void MapLightStructuredBuffer( LightStructure* lightStructure, int numPointLights );
-		void SetNDCSpaceCoordinates( float &mousePositionX, float &mousePositionY );
-		void SetEyePosition( Cameras camera, DirectX::XMFLOAT3 &eyePosition );
-		void SetFocus( Cameras camera, DirectX::XMFLOAT3 &focusPoint );
+		void ChangeRasterizerState		( RasterizerStates rasterState );
+		void MapLightStructuredBuffer	( LightStructure* lightStructure, int numPointLights );
+		void SetNDCSpaceCoordinates		( float &mousePositionX, float &mousePositionY );
+		void SetEyePosition				( Cameras camera, DirectX::XMFLOAT3 &eyePosition );
+		void SetFocus					( Cameras camera, DirectX::XMFLOAT3 &focusPoint );
 
 		void BeginScene();
 		void GbufferPass();

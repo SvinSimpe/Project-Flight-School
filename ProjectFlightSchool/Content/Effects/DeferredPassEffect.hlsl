@@ -55,6 +55,7 @@ cbuffer CbufferPerFrame	: register( b0 )
 	float4x4	projectionMatrix;
 	float4		cameraPosition;
 	int			numPointLights;
+	float		timeVariable;
 }
 
 cbuffer CbufferPerFrameShadow : register( b1 )
@@ -68,7 +69,8 @@ Texture2D<float4>				albedoSpecBuffer		: register( t0 );
 Texture2D<float4>				normalBuffer			: register( t1 );
 Texture2D<float4>				worldPositionBuffer		: register( t2 );
 Texture2D<float4>				shadowMap				: register( t4 );
-StructuredBuffer<PointLight>	lightStructure			: register( t5 );
+Texture2D<float4>				waterNormalMap			: register( t5 );
+StructuredBuffer<PointLight>	lightStructure			: register( t6 );
 
 SamplerState pointSampler			: register( s0 );
 SamplerState linearSampler			: register( s1 );
@@ -124,14 +126,14 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	smTex	-= float2( dx * 0.5f, dy * 0.5f );
 
 	//25 samples
-	for( int i = -2; i < 3; i++ )
-		for( int j = -2; j < 3; j++ )
-			shadowSamples += shadowMap.Sample( linearSampler, smTex + float2( dx * i, dy * j ) ).r + SHADOW_BIAS < depth ? 0.0f : 1.0f;
+	for( int k = -2; k < 3; k++ )
+		for( int l = -2; l < 3; l++ )
+			shadowSamples += shadowMap.Sample( linearSampler, smTex + float2( dx * k, dy * l ) ).r + SHADOW_BIAS < depth ? 0.0f : 1.0f;
 
 	float shadowFactor = shadowSamples / 25.0f;
 
 	//======== SHADOW MAP POINTLIGHT ===========
-	float3 ambient		= float3( 0.8f, 0.8f,  0.8f );
+	float3 ambient		= float3( 0.6f, 0.6f,  0.6f );
 	float3 color		= float3( 0.6f, 0.3f,  0.6f );
 
 	float3 lightDirection	= worldSample - shadowCameraPosition.xyz;
@@ -169,10 +171,6 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 		float diff	= saturate( dot( -lightDir, N ) );
 		float3 spec	= float3( lightStructure[i].colorAndRadius.xyz * pow( dot( R, V ), specularPower ) ) * specularSample;
 
-		//float radiusInverse = 1.0f / lightStructure[i].colorAndRadius.w;
-		//finalColor += ( ( diffuse + specular ) * lightStructure[i].colorAndRadius.xyz ) 
-		//				/ ( 0.5f + d * ( 1.0f * radiusInverse ) + d * d * ( 1.0f * radiusInverse ) );
-
 		float denom			= d / lightStructure[i].colorAndRadius.w + 1.0f;
 		float attenuation	= 1.0f / ( denom * denom );
 
@@ -181,14 +179,97 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 
 	saturate( finalColor );
 
-	//Water hotfix?
-	if( worldSample.y < -0.5f )
-		albedoSample = ( albedoSample * 0.3 + float3( 0.6f, 0.6f, 0.7f ) * 0.7f ) * max( 0.4f, saturate( ( 1 + ( worldSample.y + 0.5f ) * 0.3f ) ) );
+	//-------------------------------------------------------------------------------------------------
+	//	WATER SIMULATION
+	//-------------------------------------------------------------------------------------------------
+	float2 offset = float2( timeVariable / 25.132f, timeVariable / 25.132f );
+
+	float3 toCamera = normalize( cameraPosition.xyz - worldSample );
+
+	//ray vs plane
+	float t = ( -0.5f -dot( worldSample, float3( 0.0f, -1.0f, 0.0f ) ) ) / dot( toCamera, float3( 0.0f, -1.0f, 0.0f ) );
+
+	float3 waterWorldSample	= worldSample + toCamera * t;
+
+	float3 waterNormal	= float3( 0.0f, 1.0f, 0.0f );
+	float3 waterTangent	= float3( 0.71f, 0.0f, -0.71f );
+
+	float4 waterSample = waterNormalMap.Sample( linearSampler, float2( waterWorldSample.x * 0.1f, waterWorldSample.z * 0.1f ) + offset );
+
+	float waterLevel = -0.5f - waterSample.y;
+
+	if( worldSample.y < waterLevel )
+	{
+		float4 bumpNormal	= waterSample;
+		bumpNormal			= ( 2.0f * bumpNormal ) - 1.0f;
+		waterTangent		= normalize( waterTangent - dot( waterTangent, waterNormal ) * waterNormal );
+		float3 biTangent	= cross( waterNormal, waterTangent );
+		float3x3 texSpace	= float3x3( waterTangent, biTangent, waterNormal );
+		waterNormal			+= mul( bumpNormal.xyz, texSpace );
+
+		//ShadowMap light
+		float3 lightDirection	= waterWorldSample - shadowCameraPosition.xyz;
+		float dShadow			= length( lightDirection );
+		lightDirection			/= dShadow;
+
+		//Calculate diffuse factor
+		float	diffuseFactor	= saturate( dot( -lightDirection, normalSample ) );
+		float3	diffuse			= float3( diffuseFactor, diffuseFactor, diffuseFactor );
+
+		//Calculate specular factor
+		float3 reflection		= normalize( reflect( -lightDirection, waterNormal ) );
+		float3 viewVector		= normalize( waterWorldSample - cameraPosition.xyz );
+		float specularFactor	= saturate( dot( reflection, viewVector ) );
+		float specularPower		= 4.0f;
+		float3 specular			= float3( float3( 1.0f, 1.0f, 1.0f ) * pow( specularFactor, specularPower ) );
+
+		float3 waterColor	= ( ( ( ambient * ssao + diffuse + specular ) * float3( 0.4f, 0.3f, 0.6f ) ) * shadowFactor ) / ( dShadow * 0.01f + dShadow * dShadow * 0.005f );
+
+		//Point lights
+		for( int i = 0; i < numPointLights; i++ )
+		{
+			float3 lightDir = waterWorldSample - lightStructure[i].position.xyz;
+			float d			= length( lightDir );
+			lightDir		/= d;
+		
+			float3 N = waterNormal;
+			float3 V = cameraPosition.xyz;
+			float3 R = reflect( lightDir, N );
+
+			float diff	= saturate( dot( -lightDir, N ) );
+			float3 spec	= float3( lightStructure[i].colorAndRadius.xyz * pow( dot( R, V ), specularPower ) );
+
+			float denom			= d / lightStructure[i].colorAndRadius.w + 1.0f;
+			float attenuation	= 1.0f / ( denom * denom );
+
+			waterColor += ( diffuse + specular ) * lightStructure[i].colorAndRadius.xyz * attenuation;
+		}
+
+		float fresnel	= max( 0.1f, dot( waterNormal, toCamera ) );
+
+		float depthVar	= saturate( abs( worldSample.y + waterLevel ) * 0.2f );
+
+		float3 depthCol	= ( 1.0f - depthVar ) + depthVar * float3( 0.2f, 0.2f, 0.15f );
+
+		finalColor = albedoSample * ( finalColor * depthCol * ( 1.0f - fresnel ) + waterColor * depthCol * fresnel );
+	}
+	else
+	{
+		finalColor = finalColor * albedoSample;
+	}
+
+	if( abs( worldSample.y - waterLevel ) <= 0.25f )
+	{
+		float foamVar	= max( 0.0f, worldSample.y - waterLevel * 1.25f );
+		foamVar			*= frac( timeVariable * albedoSample.x + worldSample.z );
+		//finalColor = float3( foamVar, foamVar, foamVar );
+		finalColor		= finalColor * ( 1.0f - foamVar ) + float3( 0.8f, 0.8f, 0.8f ) * foamVar;
+	}
 
 	//return float4( albedoSample, 1.0f );
 	//return float4( specularSample, specularSample, specularSample, 1.0f );
 	//return float4( normalSample, 1.0f );
 	//return float4( ssao, 0.0f, 0.0f, 1.0f );
 
-	return float4( finalColor * ( shadowFactor * 0.3f + 0.7f ) * albedoSample, 1.0f );
+	return float4( finalColor * ( shadowFactor * 0.4f + 0.6f ), 1.0f );
 }

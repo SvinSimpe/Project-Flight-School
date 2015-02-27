@@ -170,9 +170,9 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device, ID3D11DeviceConte
 
 
 
-	ID3D11ShaderResourceView* srv[6];
-	ID3D10Texture2D* tex[6];
-	for( int i = 0; i < 6; i++ )
+	ID3D11ShaderResourceView* srv[7];
+	ID3D10Texture2D* tex[7];
+	for( int i = 0; i < 7; i++ )
 	{
 		srv[i] = nullptr;
 		tex[i] = nullptr;
@@ -216,7 +216,14 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device, ID3D11DeviceConte
 	hr = mResourceLoader->LoadResource( device, dc, "../Content/Assets/Textures/BlendMaps/B_blendSand.dds", (ID3D11Resource**)tex[5], &srv[5] );
 	if( FAILED( hr ) )
 	{	
-		//Failed to create the normal placeholder SRV
+		//Failed to create the sand blend map
+		return hr;
+	}
+
+	hr = mResourceLoader->LoadResource( device, dc, "../Content/Assets/Textures/BlendMaps/waterNM.dds", (ID3D11Resource**)tex[6], &srv[6] );
+	if( FAILED( hr ) )
+	{	
+		//Failed to create the water normalmap
 		return hr;
 	}
 
@@ -265,6 +272,14 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device, ID3D11DeviceConte
 	blendTexture->mSRV			= srv[5];
 
 	mAssetContainer[SAND_BLENDMAP] = blendTexture;
+
+	Static2dAsset* waterTexture;
+	waterTexture				= new Static2dAsset;
+	waterTexture->mAssetId		= WATER_NORMALMAP;
+	waterTexture->mFileName		= "WATER NORMALMAP";
+	waterTexture->mSRV			= srv[6];
+
+	mAssetContainer[WATER_NORMALMAP] = waterTexture;
 
 	return hr;
 }
@@ -471,16 +486,16 @@ HRESULT	AssetManager::LoadStatic3dAsset( ID3D11Device* device, ID3D11DeviceConte
 		////////////////TA kod
 		////////////////Creates boxes and octrees around static assets and saves it into Static3DAsset struct, 
 		////////////////Creating too many levels will cause the loading times to go through the roof
-		vector<StaticVertex> vertexInput;
+		vector<StaticVertex*> vertexInput;
 		for( UINT i = 0; i < nrOfMeshes; i++ )
 		{
 			for( UINT j = 0; j < meshInfo[i].nrOfVertices; j++ )
-				vertexInput.push_back( vertices[i][j] );
+				vertexInput.push_back( &vertices[i][j] );
 		}
 		AABB meshAABB;
-		meshAABB  = BoxGen.CreateAABBFromVerts( &vertexInput );
+		meshAABB  = BoxGen.CreateAABBFromVerts( vertexInput );
 		OctTree* meshOct = new OctTree();
-		BoxGen.GenerateOctTree( &vertexInput, &meshAABB, 4, 0, meshOct);
+		BoxGen.GenerateOctTree( vertexInput, meshAABB, 4, 0, *meshOct);
 
 		////////////////
 

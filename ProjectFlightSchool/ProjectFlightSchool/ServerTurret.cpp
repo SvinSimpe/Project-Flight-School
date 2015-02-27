@@ -1,4 +1,5 @@
 #include "ServerTurret.h"
+#include "HelperFunctions.h"
 
 void ServerTurret::IdleTurret::Action( ServerTurret* t, float dt )
 {

@@ -73,7 +73,7 @@ float4 PS_main(GS_Out input) : SV_TARGET0
 
 	float4 diffuse = float4( diffuseTexture.Sample( linearSampler, input.uv ) );
 
-	diffuse.w = diffuse.w * input.timeTillDeath * 0.3f;
+	diffuse.w = diffuse.w * input.timeTillDeath * 0.6f;
 
 	return diffuse;
 

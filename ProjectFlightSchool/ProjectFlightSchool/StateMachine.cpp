@@ -20,7 +20,7 @@ void StateMachine::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Connect_Client_Fail> data = std::static_pointer_cast<Event_Connect_Client_Fail>( newEvent );
 		std::string msg = data->ErrorMsg();
 
-		std::cout << msg << std::endl;
+		OutputDebugStringA( msg.c_str() );
 		mStates[mCurrentState]->Reset();
 	}
 	else if( newEvent->GetEventType() == Event_Connect_Server_Fail::GUID )
@@ -28,7 +28,7 @@ void StateMachine::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Connect_Server_Fail> data = std::static_pointer_cast<Event_Connect_Server_Fail>( newEvent );
 		std::string msg = data->ErrorMsg();
 
-		std::cout << msg << std::endl;
+		OutputDebugStringA( msg.c_str() );
 		mStates[mCurrentState]->Reset();
 	}
 }
@@ -43,9 +43,9 @@ HRESULT StateMachine::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT StateMachine::Render()
+HRESULT StateMachine::Render( float deltaTime )
 {
-	mStates[mCurrentState]->Render();
+	mStates[mCurrentState]->Render( deltaTime );
 
 	return S_OK;
 }
@@ -56,9 +56,16 @@ HRESULT StateMachine::ChangeState( const int NEW_STATE )
 {
 	if( NEW_STATE == START_MENU_STATE || NEW_STATE == NEW_STATE )
 	{
-		mStates[mCurrentState]->OnExit();
-		mCurrentState		= NEW_STATE;
-		mStates[mCurrentState]->OnEnter();
+		if( NEW_STATE == LOBBY_STATE && mCurrentState == LOBBY_OWNER_STATE )
+		{
+			OutputDebugString( L"Not an appopriate state change" );
+		}
+		else
+		{
+			mStates[mCurrentState]->OnExit();
+			mCurrentState = NEW_STATE;
+			mStates[mCurrentState]->OnEnter();
+		}
 	}
 	else
 	{
@@ -84,13 +91,12 @@ HRESULT StateMachine::Initialize()
 	}
 
 	mStates[START_MENU_STATE]		= new StartMenuState();
-	mStates[CREATE_MENU_STATE]		= new CreateMenuState();
 	mStates[JOIN_MENU_STATE]		= new JoinMenuState();
 	mStates[MULTI_MENU_STATE]		= new MultiplayerMenuState();
 	mStates[OPTIONS_MENU_STATE]		= new OptionsMenuState();
-	mStates[SINGLE_MENU_STATE]		= new SingleplayerMenuState();
 	mStates[PLAY_STATE]				= new PlayState();
 	mStates[LOBBY_STATE]			= new LobbyState();
+	mStates[LOBBY_OWNER_STATE]		= new LobbyOwnerState();
 	mCurrentState					= START_MENU_STATE;
 
 	for( int i = 0; i < NR_OF_STATES; i++ )

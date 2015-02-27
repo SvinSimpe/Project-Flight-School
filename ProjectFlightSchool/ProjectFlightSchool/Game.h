@@ -26,7 +26,7 @@ class Game
 	protected:
 	public:
 		HRESULT Update( float deltaTime );
-		HRESULT Render();
+		HRESULT Render( float deltaTime );
 
 		HRESULT Initialize();
 		void	Release();

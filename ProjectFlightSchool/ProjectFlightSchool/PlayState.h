@@ -30,6 +30,12 @@ class PlayState : public BaseState
 {
 	// Class members
 	private:
+		static const int 
+						FRIEND_SHIP = 0,
+						ENEMY_SHIP	= 1,
+						SHIP_AMOUNT = 2;
+
+		HCURSOR			mSight;
 		float			mFPS;
 		AnimationTrack	mTestAnimation;
 		AssetID			mTestStaticAsset;
@@ -54,9 +60,8 @@ class PlayState : public BaseState
 		RADAR_UPDATE_INFO			mRadarObjects[MAX_RADAR_OBJECTS];
 		float						mAlliesHP[MAX_REMOTE_PLAYERS / 2];
 		Gui*						mGui;
+		ClientShip*					mShips[SHIP_AMOUNT];
 
-		ClientShip*					mFriendShip;	// A pointer to the Client's own ship, used to show the remaining HP of it
-		ClientShip*					mEnemyShip;		// A pointer to the other team's ship, used for interaction with that
 		EnergyCell**				mEnergyCells;
 
 		//TestSound
@@ -82,16 +87,18 @@ class PlayState : public BaseState
 		void			CheckMeeleCollision();
 		void			HandleDeveloperCameraInput();
 		void			HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID );
+		void			HandleRemoteProjectileRemoved( UINT projectileID );
 		void			UpdateProjectiles( float deltaTime );
 		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive );
 		void			RenderProjectiles();
 		void			SetEnemyState( unsigned int id, EnemyState state );
 		bool			CullEntity( XMFLOAT3 entityPos );
 
+
 	protected:
 	public:
 		virtual HRESULT Update( float deltaTime );
-		virtual HRESULT Render();
+		virtual HRESULT Render( float deltaTime );
 		virtual void	OnEnter();
 		virtual void	OnExit();
 		virtual void	Reset();

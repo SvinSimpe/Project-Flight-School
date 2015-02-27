@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "Pathfinder.h"
+#include "RenderManager.h"
 
 #define VELOCITY_FALLOFF 2.0f
 
@@ -28,11 +29,12 @@ struct Upgrades
 class Player: public RemotePlayer
 {
 	private:
-		float			mEventCapTimer;
 		PointLight*		mPointLight;
 		PointLight*		mEnergyCellLight;
 		Upgrades		mUpgrades;
 
+		bool		mWeaponOverheated;
+		float		mTimeSinceLastShot;
 		float		mWeaponCoolDown;
 		float		mMeleeCoolDown;
 		float		mTimeTillattack;
@@ -53,9 +55,7 @@ class Player: public RemotePlayer
 		std::vector<DirectX::XMFLOAT2>::iterator	currStep;
 		bool		mFollowPath;
 
-		bool		mIsBuffed;
 		bool		mIsOutSideZone;
-		float		mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
 
 		Path*		currentPath1;
 		std::vector<DirectX::XMFLOAT2> currentPath;
@@ -88,6 +88,7 @@ class Player: public RemotePlayer
 		void		Die();
 		void		Fire();
 		void		FireShotgun( XMFLOAT3* spawnPoint );
+		void		FireMinigun( XMFLOAT3* projectileOffset );
 		void		AddImpuls( XMFLOAT3 impuls );
 		void		QueueEvent( IEvent* ptr );
 		void		UpgradeBody();

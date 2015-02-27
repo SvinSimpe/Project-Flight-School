@@ -183,9 +183,6 @@
     <ClCompile Include="BaseMenuState.cpp">
       <Filter>GameStates\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CreateMenuState.cpp">
-      <Filter>GameStates\Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="JoinMenuState.cpp">
       <Filter>GameStates\Source Files</Filter>
     </ClCompile>
@@ -193,9 +190,6 @@
       <Filter>GameStates\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="OptionsMenuState.cpp">
-      <Filter>GameStates\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SingleplayerMenuState.cpp">
       <Filter>GameStates\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Image.cpp">
@@ -300,9 +294,6 @@
     <ClCompile Include="NodeGraph.cpp">
       <Filter>Worldmap\Navigation</Filter>
     </ClCompile>
-    <ClCompile Include="UpgradePlayerWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SteeringBehavior.cpp">
       <Filter>Enemy\Source Files</Filter>
     </ClCompile>
@@ -321,9 +312,6 @@
     <ClCompile Include="Pathfinder.cpp">
       <Filter>Worldmap\Navigation</Filter>
     </ClCompile>
-    <ClCompile Include="UpgradePlayerWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LobbyState.cpp">
       <Filter>GameStates\Source Files</Filter>
     </ClCompile>
@@ -340,6 +328,15 @@
     </ClCompile>
     <ClCompile Include="UpgradePlayerWindow.cpp">
       <Filter>GUI\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="UpgradePlayerWindow.cpp">
+      <Filter>GUI\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="UpgradePlayerWindow.cpp">
+      <Filter>GUI\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="LobbyOwnerState.cpp">
+      <Filter>GameStates\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -430,9 +427,6 @@
     <ClInclude Include="BaseMenuState.h">
       <Filter>GameStates\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CreateMenuState.h">
-      <Filter>GameStates\Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="JoinMenuState.h">
       <Filter>GameStates\Header Files</Filter>
     </ClInclude>
@@ -440,9 +434,6 @@
       <Filter>GameStates\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="OptionsMenuState.h">
-      <Filter>GameStates\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SingleplayerMenuState.h">
       <Filter>GameStates\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Image.h">
@@ -582,6 +573,9 @@
     <ClInclude Include="InGameWindow.h">
       <Filter>GUI\Header</Filter>
     </ClInclude>
+    <ClInclude Include="LobbyOwnerState.h">
+      <Filter>GameStates\Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -611,8 +605,5 @@
     <ClInclude Include="KeyDefines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
 </Project>

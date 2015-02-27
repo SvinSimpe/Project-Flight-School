@@ -9,7 +9,7 @@ void Game::ResetGame( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Reset_Game::GUID )
 	{
 		IEventPtr E1( new Event_Shutdown_Client() );
-		EventManager::GetInstance()->QueueEvent( E1 );
+		EventManager::GetInstance()->TriggerEvent( E1 );
 
 		if( mServer )
 		{
@@ -55,9 +55,9 @@ HRESULT Game::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT Game::Render()
+HRESULT Game::Render( float deltaTime )
 {
-	mStateMachine->Render();
+	mStateMachine->Render( deltaTime );
 
 	return S_OK;
 }

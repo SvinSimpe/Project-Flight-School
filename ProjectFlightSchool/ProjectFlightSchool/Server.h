@@ -97,6 +97,7 @@ class Server : public Network
 		void	StopLobby( IEventPtr eventPtr );
 		void	SwitchTeam( IEventPtr eventPtr );
 		void	XP( IEventPtr eventPtr );
+		void	ChangeWeapon( IEventPtr eventPtr );
 
 		void	ClientInteractEnergyCell( IEventPtr eventPtr );
 

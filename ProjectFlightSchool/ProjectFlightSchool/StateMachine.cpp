@@ -20,7 +20,7 @@ void StateMachine::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Connect_Client_Fail> data = std::static_pointer_cast<Event_Connect_Client_Fail>( newEvent );
 		std::string msg = data->ErrorMsg();
 
-		std::cout << msg << std::endl;
+		OutputDebugStringA( msg.c_str() );
 		mStates[mCurrentState]->Reset();
 	}
 	else if( newEvent->GetEventType() == Event_Connect_Server_Fail::GUID )
@@ -28,7 +28,7 @@ void StateMachine::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Connect_Server_Fail> data = std::static_pointer_cast<Event_Connect_Server_Fail>( newEvent );
 		std::string msg = data->ErrorMsg();
 
-		std::cout << msg << std::endl;
+		OutputDebugStringA( msg.c_str() );
 		mStates[mCurrentState]->Reset();
 	}
 }

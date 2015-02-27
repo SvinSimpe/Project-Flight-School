@@ -9,7 +9,7 @@ void Game::ResetGame( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Reset_Game::GUID )
 	{
 		IEventPtr E1( new Event_Shutdown_Client() );
-		EventManager::GetInstance()->QueueEvent( E1 );
+		EventManager::GetInstance()->TriggerEvent( E1 );
 
 		if( mServer )
 		{

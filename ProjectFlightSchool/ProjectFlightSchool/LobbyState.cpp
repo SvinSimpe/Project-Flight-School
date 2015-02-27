@@ -2,7 +2,7 @@
 
 void LobbyState::EventListener( IEventPtr  newEvent )
 {
-	if ( newEvent->GetEventType() == Event_Server_Initialize_LobbyPlayer::GUID ) // Add a remote player to the list when they connect
+	if ( newEvent->GetEventType() == Event_Server_Initialize_LobbyPlayer::GUID && mActive ) // Add a remote player to the list when they connect
 	{
 		std::shared_ptr<Event_Server_Initialize_LobbyPlayer> data = std::static_pointer_cast<Event_Server_Initialize_LobbyPlayer>( newEvent );
 		bool add = true;
@@ -20,17 +20,25 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 			player->ID			= data->ID();
 			player->team		= data->TeamID();
 			player->name		= data->Name();
-			XMFLOAT2 pos		= XMFLOAT2( 70.0f, 130.0f );
-			if( mPlayers.size() > 0 )
+			XMFLOAT2 pos		= XMFLOAT2( mTeamOneXPos, 720.0f );
+			if( player->team == 2 )
 			{
-				pos = XMFLOAT2( mPlayers[mPlayers.size() - 1]->button.GetPosition().x, mPlayers[mPlayers.size() - 1]->button.GetPosition().y + 30 );
+				pos.x = mTeamTwoXPos;
 			}
-			player->button.Initialize( "../Content/Assets/Textures/Menu/Create_Menu_Text/MultiPlayer.png", pos.x, pos.y, 20.0f, 20.0f );
+
+			for( auto p : mPlayers )
+			{
+				if( p->team == player->team )
+				{
+					pos = XMFLOAT2( p->button.GetPosition().x, p->button.GetPosition().y + 70 );
+				}
+			}
+			player->button.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/lobbyNameFrame.dds", pos.x, pos.y, player->size.x, player->size.y );
 			mPlayers.push_back( player );
 			printf( "Lobby:: Ny Spelare: %d, blev lag %d\n", player->ID, player->team );
 		}
 	}
-	else if( newEvent->GetEventType() == Event_Server_Switch_Team::GUID )
+	else if( newEvent->GetEventType() == Event_Server_Switch_Team::GUID && mActive )
 	{
 		std::shared_ptr<Event_Server_Switch_Team> data = std::static_pointer_cast<Event_Server_Switch_Team>( newEvent );
 		for( size_t i = 0; i < mPlayers.size(); i++ )
@@ -39,19 +47,56 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 			{
 				mPlayers[i]->team = data->TeamID();
 				printf( "Lobby:: Spelare: %d, blev lag %d\n", mPlayers[i]->ID, mPlayers[i]->team );
+				XMFLOAT2 pos		= XMFLOAT2( mTeamOneXPos, 720.0f );
+				if( mPlayers[i]->team == 2 )
+				{
+					pos.x = mTeamTwoXPos;
+				}
+
+				for( auto p : mPlayers )
+				{
+					if( p->team == mPlayers[i]->team && p->ID != mPlayers[i]->ID )
+					{
+						if( p->button.GetPosition().y >= pos.y )
+						{
+							pos = XMFLOAT2( p->button.GetPosition().x, p->button.GetPosition().y + 70 );
+						}
+					}
+				}
+				mPlayers[i]->button.SetPosition( pos, mPlayers[i]->size );
+
+				std::vector<LobbyPlayer*>playersTemp = std::vector<LobbyPlayer*>( 0 );
+
+				for( auto p : mPlayers )
+				{
+					playersTemp.push_back( p );
+					if( p->team != mPlayers[i]->team )
+					{
+						XMFLOAT2 pos = XMFLOAT2( mTeamOneXPos, 720.0f );
+						if( p->team == 2 )
+						{
+							pos.x = mTeamTwoXPos;
+						}
+						for( auto pl : playersTemp )
+						{
+							if( pl->team == p->team && pl->ID != p->ID )
+							{
+								pos = XMFLOAT2( pl->button.GetPosition().x, pl->button.GetPosition().y + 70 );
+							}
+						}
+						p->button.SetPosition( pos, p->size );
+					}
+				}
 			}
 		}
 	}
-	else if( newEvent->GetEventType() == Event_Server_Lobby_Finished::GUID )
+	else if( newEvent->GetEventType() == Event_Server_Lobby_Finished::GUID && mActive )
 	{
-		if( mActive )
-		{
-			std::shared_ptr<Event_Server_Lobby_Finished> data = std::static_pointer_cast<Event_Server_Lobby_Finished>( newEvent );
-			IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-		}
+		std::shared_ptr<Event_Server_Lobby_Finished> data = std::static_pointer_cast<Event_Server_Lobby_Finished>( newEvent );
+		IEventPtr E1( new Event_Change_State( PLAY_STATE ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
 	}
-	else if( newEvent->GetEventType() == Event_Remote_Left::GUID )
+	else if( newEvent->GetEventType() == Event_Remote_Left::GUID && mActive )
 	{
 		std::shared_ptr<Event_Remote_Left> data = std::static_pointer_cast<Event_Remote_Left>( newEvent );
 		for( size_t i = 0; i < mPlayers.size(); i++ )
@@ -108,31 +153,23 @@ HRESULT LobbyState::Update( float deltaTime )
 HRESULT LobbyState::Render()
 {
 	HRESULT hr = S_OK;
-
-	std::string textToWrite = "Name\n";
-	mFont.WriteText( textToWrite, 100.0f, 100.0f, 2 );
+	
+	RenderManager::GetInstance()->AddObject2dToList( mBackground, XMFLOAT2( 0.0f, 0.0f ), XMFLOAT2( (float)Input::GetInstance()->mScreenWidth, (float)Input::GetInstance()->mScreenHeight ) );
+	
+	for( auto p : mPlayers )
+	{
+		p->button.Render();
+	}
+	
+	std::string textToWrite = "";
 
 	for( auto p : mPlayers )
 	{
 		textToWrite = p->name;
 		
-		mFont.WriteText( textToWrite, p->button.GetPosition().x + 30.0f, p->button.GetPosition().y, 2 );
+		mFont.WriteText( textToWrite, p->button.GetPosition().x + 20.0f, p->button.GetPosition().y + 15.0f, 3.0f );
 	}
-
-	textToWrite = "Team\n";
-	mFont.WriteText( textToWrite, 360.0f, 100.0f, 2 );
-	for( auto p : mPlayers )
-	{
-		textToWrite = std::to_string( p->team );
-		
-		mFont.WriteText( textToWrite, 360.0f, p->button.GetPosition().y, 2 );
-	}
-
-	for( auto p : mPlayers )
-	{
-		p->button.Render();
-	}
-
+	
 	RenderManager::GetInstance()->Render();
 
 	return hr;
@@ -171,6 +208,9 @@ HRESULT LobbyState::Initialize()
 	HRESULT hr = S_OK;
 
 	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
+	
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/lobby_loadout_menu/lobbyNameFrame.dds", mBackground ); //Laddar in bilden till knapparna så att deras initialize bara får en int och inte laddar nnya bilder.
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/lobby_loadout_menu/lobby_menu.dds", mBackground );
 
 	mStateType = LOBBY_STATE;
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Initialize_LobbyPlayer::GUID );
@@ -195,8 +235,10 @@ void LobbyState::Release()
 
 LobbyState::LobbyState()
 {
-	mActive = false;
-	mPlayers = std::vector<LobbyPlayer*>( 0 );
+	mActive			= false;
+	mPlayers		= std::vector<LobbyPlayer*>( 0 );
+	mTeamOneXPos	= 415.0f;
+	mTeamTwoXPos	= 1190.0f;
 }
 
 LobbyState::~LobbyState()

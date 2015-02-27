@@ -14,18 +14,23 @@ struct LobbyPlayer
 	int				ID;
 	std::string		name;
 	int				team;
-	MovingButton	button;
+	XMFLOAT2		position;
+	XMFLOAT2		size = XMFLOAT2( 328.0f, 64.0f );
+	Button			button;
 };
 
 class LobbyState : public BaseState
 {
 	// Class members
 	private:
+	protected:
+		float						mTeamOneXPos;
+		float						mTeamTwoXPos;
 		std::vector<LobbyPlayer*>	mPlayers;
 		Font						mFont;
+		AssetID						mBackground;
 		bool						mActive;
 
-	protected:
 	public:
 
 	// Class functions

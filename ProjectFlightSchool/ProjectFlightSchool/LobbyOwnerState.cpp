@@ -22,10 +22,28 @@ HRESULT LobbyOwnerState::Update( float deltaTime )
 
 HRESULT LobbyOwnerState::Render()
 {
-
-	mStartButton.Render();
+	HRESULT hr = S_OK;
 	
-	HRESULT hr = LobbyState::Render();
+	RenderManager::GetInstance()->AddObject2dToList( mBackground, XMFLOAT2( 0.0f, 0.0f ), XMFLOAT2( (float)Input::GetInstance()->mScreenWidth, (float)Input::GetInstance()->mScreenHeight ) );
+	
+	mStartButton.Render();
+
+	std::string textToWrite = "";
+
+	for( auto p : mPlayers )
+	{
+		p->button.Render();
+	}
+
+	for( auto p : mPlayers )
+	{
+		textToWrite = p->name;
+		
+		mFont.WriteText( textToWrite, p->button.GetPosition().x + 20.0f, p->button.GetPosition().y + 15.0f, 3.0f );
+	}
+	
+	RenderManager::GetInstance()->Render();
+	
 	return hr;
 }
 
@@ -37,7 +55,7 @@ void LobbyOwnerState::OnExit()
 
 HRESULT LobbyOwnerState::Initialize()
 {
-	mStartButton.Initialize( "../Content/Assets/Textures/Menu/Create_Menu_Text/MultiPlayer.png", 1600, 700, 200, 200 );
+	mStartButton.Initialize( "../Content/Assets/Textures/Menu/Create_Menu_Text/MultiPlayer.png", 1665, 760, 200, 200 );
 
 	return LobbyState::Initialize();
 }

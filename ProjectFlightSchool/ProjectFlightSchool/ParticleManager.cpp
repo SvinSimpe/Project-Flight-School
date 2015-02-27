@@ -98,7 +98,7 @@ void ParticleManager::Initialize()
 	mNrOfParticleSystemsPerType[BlowTorchIdle]	= 0;
 	mNrOfParticleSystemsPerType[ExplosionSmoke]	= 0;
 	mNrOfParticleSystemsPerType[NormalSmoke]	= 0;// Below this
-
+	mNrOfParticleSystemsPerType[Hammer_Effect]	= 0;
 
 	mMaxNrOfParticleSystemsPerType[Smoke]			= 1;
 	mMaxNrOfParticleSystemsPerType[Fire]			= 1;
@@ -115,6 +115,7 @@ void ParticleManager::Initialize()
 	mMaxNrOfParticleSystemsPerType[BlowTorchIdle]	= 3;
 	mMaxNrOfParticleSystemsPerType[FireSmoke]		= 4;
 	mMaxNrOfParticleSystemsPerType[NormalSmoke]		= 3;// Aswell as this
+	mMaxNrOfParticleSystemsPerType[Hammer_Effect]	= 3;
 
 	mNrOfActiveParticleSystemsPerType[Smoke]			= 0;
 	mNrOfActiveParticleSystemsPerType[Fire]				= 0;
@@ -131,6 +132,7 @@ void ParticleManager::Initialize()
 	mNrOfActiveParticleSystemsPerType[BlowTorchIdle]	= 0;
 	mNrOfActiveParticleSystemsPerType[FireSmoke]		= 0;
 	mNrOfActiveParticleSystemsPerType[NormalSmoke]		= 0;// And this
+	mNrOfActiveParticleSystemsPerType[Hammer_Effect]	= 0;
 
 	//======= Allocate memory for Particle Systems =======
 	mParticleSystems = new ParticleSystem**[NR_OF_PARTICLE_TYPES];
@@ -153,6 +155,12 @@ void ParticleManager::Initialize()
 	//		mNrOfParticleSystems++;
 	//	}
 
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Hammer_Effect]; i++ )
+	{
+		mParticleSystems[Hammer_Effect][i]->Initialize( Hammer_Effect, 64.0f, 256 );
+		mNrOfParticleSystemsPerType[Hammer_Effect]++;
+		mNrOfParticleSystems++;
+	}
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[NormalSmoke]; i++ )
 	{
 		mParticleSystems[NormalSmoke][i]->Initialize( NormalSmoke, 4.0f, 48 );
@@ -162,7 +170,7 @@ void ParticleManager::Initialize()
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Fire]; i++ )
 	{
-		mParticleSystems[Fire][i]->Initialize( Fire, 12.0f, 256 );	//-------------------------------------------------emitter rate and particle count
+		mParticleSystems[Fire][i]->Initialize( Fire, 8.0f, 256 );	//-------------------------------------------------emitter rate and particle count
 		mNrOfParticleSystemsPerType[Fire]++;
 		mNrOfParticleSystems++;
 	}

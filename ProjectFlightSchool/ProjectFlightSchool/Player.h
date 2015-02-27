@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "Pathfinder.h"
+#include "RenderManager.h"
 
 #define VELOCITY_FALLOFF 2.0f
 
@@ -33,6 +34,8 @@ class Player: public RemotePlayer
 		PointLight*		mEnergyCellLight;
 		Upgrades		mUpgrades;
 
+		bool		mWeaponOverheated;
+		float		mTimeSinceLastShot;
 		float		mWeaponCoolDown;
 		float		mMeleeCoolDown;
 		float		mTimeTillattack;
@@ -67,8 +70,6 @@ class Player: public RemotePlayer
 		float		mLeavingAreaTime;
 		int			mLastKiller;
 
-		std::list<IEventPtr> mEventList;
-
 		UINT		mEnergyCellID;
 		float		mPickUpCooldown;
 
@@ -90,6 +91,7 @@ class Player: public RemotePlayer
 		void		Die();
 		void		Fire();
 		void		FireShotgun( XMFLOAT3* spawnPoint );
+		void		FireMinigun( XMFLOAT3* projectileOffset );
 		void		AddImpuls( XMFLOAT3 impuls );
 		void		QueueEvent( IEvent* ptr );
 		void		UpgradeBody();
@@ -129,7 +131,6 @@ class Player: public RemotePlayer
 		void		SetTeam( int team );
 		void		SetPosition( XMVECTOR position );
 		void		SetEnergyCellID( UINT energyCellID );
-
 
 		void		QueueEvent( IEventPtr ptr );
 };

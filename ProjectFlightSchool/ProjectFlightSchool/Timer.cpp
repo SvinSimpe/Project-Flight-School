@@ -6,8 +6,10 @@ float Timer::GetDeltaTime()
 	QueryPerformanceCounter( (LARGE_INTEGER*)&currTimeStamp );
 
 	float dt = (float)( ( currTimeStamp - mPrevTimeStamp ) * mSecsPerCnt );
-
+	
 	mPrevTimeStamp = currTimeStamp;
+
+	
 
 	mFps = mFps * 0.1f + 0.9f / dt;
 

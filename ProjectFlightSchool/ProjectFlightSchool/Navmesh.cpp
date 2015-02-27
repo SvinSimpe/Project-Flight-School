@@ -37,6 +37,25 @@ HRESULT Navmesh::Initialize( DirectX::XMFLOAT3* meshData, UINT vertexCount, std:
 
 	return S_OK;
 }
+bool Navmesh::IsOnNavMesh( DirectX::XMFLOAT3 pos )
+{
+	DirectX::XMFLOAT2 p, p0, p1, p2; 
+
+	p.x = pos.x;
+	p.y = pos.z;
+
+	for( UINT i = 0; i < mNavTriangleCount * 3; i += 3 )
+	{
+		p0 = DirectX::XMFLOAT2( mMesh[i].x, mMesh[i].z );
+		p1 = DirectX::XMFLOAT2( mMesh[i + 1].x, mMesh[i + 1].z );
+		p2 = DirectX::XMFLOAT2( mMesh[i + 2].x, mMesh[i + 2].z );
+
+		if( HelperFunctions::Inside2DTriangle( p, p0, p1, p2 ) )
+			return true;
+	}
+
+	return false;
+}
 std::vector<DirectX::XMFLOAT2> Navmesh::FindPath( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end )
 {
 	PathList mOpenList;
@@ -147,9 +166,9 @@ std::vector<DirectX::XMFLOAT2> Navmesh::FindPath( DirectX::XMFLOAT3 start, Direc
 
 					//Calculate f for portal
 					PortalPath* temp = &mPath[pathIndex++];
-					char buf[20];
-					sprintf_s(buf, "PathIndex: %d\n", pathIndex );
-					OutputDebugStringA( buf );
+					//char buf[20];
+					//sprintf_s(buf, "PathIndex: %d\n", pathIndex );
+					//OutputDebugStringA( buf );
 
 					temp->portal = comp;
 					temp->parent = currentPath;

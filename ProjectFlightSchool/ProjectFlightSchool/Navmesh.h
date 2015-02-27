@@ -92,6 +92,7 @@ class Navmesh
 		HRESULT Render();
 		
 		HRESULT Initialize( DirectX::XMFLOAT3* meshData, UINT vertexCount, std::vector<DirectX::XMFLOAT3>& edgePoints );
+		bool IsOnNavMesh( DirectX::XMFLOAT3 pos );
 		std::vector<DirectX::XMFLOAT2> FindPath( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end );
 		DirectX::XMFLOAT3 GetClosestEdgePoint( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 goal );
 		void Release();

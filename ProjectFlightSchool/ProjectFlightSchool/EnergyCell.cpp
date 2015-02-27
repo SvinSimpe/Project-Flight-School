@@ -47,6 +47,9 @@ bool EnergyCell::GetSecured() const
 
 HRESULT EnergyCell::Update( float deltaTime )
 {
+	mHooverFactor += deltaTime * 1.0f;
+	mPickUpRadius->center.y = sinf( mHooverFactor ) + 1.0f;
+
 	return S_OK;
 }
 
@@ -74,7 +77,9 @@ HRESULT EnergyCell::Initialize( DirectX::XMFLOAT3 position )
 	mPickedUp				= false;
 	mPickUpRadius			= new BoundingCircle( 1.0f );
 	mPickUpRadius->center	= position;
+
 	mSecured				= false;
+
 
 	if( FAILED( hr = Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Battery/", "battery.pfs", mAssetID ) ) )
 	{
@@ -95,6 +100,7 @@ EnergyCell::EnergyCell()
 	mOwnerID		= (UINT)-1;
 	mPickedUp		= false;
 	mPickUpRadius	= nullptr;
+	mHooverFactor	= 0.0f;
 	mSecured		= false;
 }
 

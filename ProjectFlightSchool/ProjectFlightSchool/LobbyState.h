@@ -23,7 +23,7 @@ class LobbyState : public BaseState
 	private:
 		std::vector<LobbyPlayer*>	mPlayers;
 		Font						mFont;
-		MovingButton				mStartButton;
+		bool						mActive;
 
 	protected:
 	public:
@@ -31,12 +31,12 @@ class LobbyState : public BaseState
 	// Class functions
 	private:
 		void	EventListener( IEventPtr newEvent );
-		void	HandleInput();
 
 	protected:
+		void	HandleInput();
 	public:
 		HRESULT Update( float deltaTime );
-		HRESULT Render();
+		HRESULT Render( float deltaTime );
 		void	OnEnter();
 		void	OnExit();
 		void	Reset();

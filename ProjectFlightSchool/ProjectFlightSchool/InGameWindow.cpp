@@ -35,6 +35,8 @@ void InGameWindow::Update( float deltaTime )
 		case 0:
 		{
 			DeActivate();
+			IEventPtr E1( new Event_Unlock_Player() );
+			EventManager::GetInstance()->QueueEvent( E1 );
 			break;
 		}
 		case 1:

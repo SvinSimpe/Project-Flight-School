@@ -63,7 +63,7 @@ HRESULT JoinMenuState::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT JoinMenuState::Render()
+HRESULT JoinMenuState::Render( float deltaTime )
 {
 	BaseMenuState::Render();
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
@@ -80,6 +80,7 @@ HRESULT JoinMenuState::Render()
 
 void JoinMenuState::OnEnter()
 {
+	BaseMenuState::OnEnter();
 }
 
 void JoinMenuState::OnExit()

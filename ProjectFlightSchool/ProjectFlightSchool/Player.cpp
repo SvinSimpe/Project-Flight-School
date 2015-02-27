@@ -85,6 +85,31 @@ void Player::EventListener( IEventPtr newEvent )
 			mTeam = data->TeamID();
 		}
 	}
+	else if( newEvent->GetEventType() == Event_Change_Weapon::GUID )
+	{
+		std::shared_ptr<Event_Change_Weapon> data = std::static_pointer_cast<Event_Change_Weapon>( newEvent );
+		if( (WeaponType)data->Weapon() == MINIGUN || (WeaponType)data->Weapon() == SHOTGUN || (WeaponType)data->Weapon() == GRENADELAUNCHER || (WeaponType)data->Weapon() == SNIPER )
+		{
+			delete mLoadOut->rangedWeapon;
+			mLoadOut->rangedWeapon	= new RangedInfo( (WeaponType)data->Weapon() );	
+			RenderManager::GetInstance()->AnimationInitialize( mArms.rightArm, mWeaponModels[mLoadOut->rangedWeapon->weaponType], mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
+		}
+		else if( (WeaponType)data->Weapon() == CLAYMORE || (WeaponType)data->Weapon() == HAMMER || (WeaponType)data->Weapon() == BLOWTORCH || (WeaponType)data->Weapon() == SAW )
+		{
+			if( mLoadOut->meleeWeapon->boundingCircle )
+				delete mLoadOut->meleeWeapon->boundingCircle;
+			delete mLoadOut->meleeWeapon;
+			mLoadOut->meleeWeapon	= new MeleeInfo( (WeaponType)data->Weapon() );
+			RenderManager::GetInstance()->AnimationInitialize( mArms.leftArm, mWeaponModels[mLoadOut->meleeWeapon->weaponType], mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
+		}
+	}
+	else if( newEvent->GetEventType() == Event_Server_Lobby_Finished::GUID )
+	{
+		IEventPtr E1( new Event_Client_Change_Weapon( mLoadOut->meleeWeapon->weaponType, mID ) );
+		QueueEvent( E1 );
+		IEventPtr E2( new Event_Client_Change_Weapon( mLoadOut->rangedWeapon->weaponType, mID ) );
+		QueueEvent( E2 );
+	}
 }
 
 void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
@@ -1002,6 +1027,8 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Upgrade_Player::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_New_Player_Spawn_Position::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Switch_Team::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Change_Weapon::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Lobby_Finished::GUID );
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
 	mPick = XMFLOAT3( 0, 0, 0 );
 

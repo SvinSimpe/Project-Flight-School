@@ -102,6 +102,27 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 			mBuffMod	= data->BuffMod();
 		}
 	}
+	else if( newEvent->GetEventType() == Event_Server_Change_Weapon::GUID )
+	{
+		std::shared_ptr<Event_Server_Change_Weapon> data = std::static_pointer_cast<Event_Server_Change_Weapon>( newEvent );
+		if( data->ID() == mID )
+		{
+			if( (WeaponType)data->Weapon() == MINIGUN || (WeaponType)data->Weapon() == SHOTGUN || (WeaponType)data->Weapon() == GRENADELAUNCHER || (WeaponType)data->Weapon() == SNIPER )
+			{
+				delete mLoadOut->rangedWeapon;
+				mLoadOut->rangedWeapon	= new RangedInfo( (WeaponType)data->Weapon() );	
+				RenderManager::GetInstance()->AnimationInitialize( mArms.rightArm, mWeaponModels[mLoadOut->rangedWeapon->weaponType], mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
+			}
+			else if( (WeaponType)data->Weapon() == CLAYMORE || (WeaponType)data->Weapon() == HAMMER || (WeaponType)data->Weapon() == BLOWTORCH || (WeaponType)data->Weapon() == SAW )
+			{
+				if( mLoadOut->meleeWeapon->boundingCircle )
+					delete mLoadOut->meleeWeapon->boundingCircle;
+				delete mLoadOut->meleeWeapon;
+				mLoadOut->meleeWeapon	= new MeleeInfo( (WeaponType)data->Weapon() );
+				RenderManager::GetInstance()->AnimationInitialize( mArms.leftArm, mWeaponModels[mLoadOut->meleeWeapon->weaponType], mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
+			}
+		}
+	}
 }
 
 HRESULT RemotePlayer::InitializeGraphics()
@@ -465,6 +486,7 @@ void RemotePlayer::RemoteInit( unsigned int id, int team )
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Down::GUID );
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Up::GUID );
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Server_Switch_Team::GUID );
+	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Server_Change_Weapon::GUID );
 }
 
 void RemotePlayer::Release()

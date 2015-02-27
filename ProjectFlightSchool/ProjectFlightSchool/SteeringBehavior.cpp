@@ -145,7 +145,7 @@ bool SteerEvade::Update( float deltaTime, XMFLOAT3& totalForce )
 	// Move away from the nearest object ( for now just other enemies )
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 	{
-		if( mEnemy->mID != mEnemy->mOtherEnemies[i]->mID )
+		if( mEnemy->mID != mEnemy->mOtherEnemies[i]->mID && mEnemy->mOtherEnemies[i]->IsAlive() )
 		{
 			if( mEnemy->GetAttackCircle()->Intersect( mEnemy->mOtherEnemies[i]->GetAttackCircle() ) )
 			{
@@ -164,7 +164,8 @@ bool SteerEvade::Update( float deltaTime, XMFLOAT3& totalForce )
 
 				//if the other enemy is to the front of this enemy and they moving towards each other...
 				XMFLOAT3 targetPos	= mEnemy->mOtherEnemies[i]->mPosition;
-				XMStoreFloat3( &b, XMVector3Normalize( XMLoadFloat3( &mEnemy->mVelocity ) ) );
+				
+				//XMStoreFloat3( &b, XMVector3Normalize( XMLoadFloat3( &mEnemy->mVelocity ) ) );
 				//if( ( Dot( deltaPos, b ) ) < 0.0f || ( dotVelocity > -0.93f ) ) //magic number == about 21 degrees
 				//{
 				//	XMFLOAT3 enemyVelocity = mEnemy->mVelocity;
@@ -181,6 +182,7 @@ bool SteerEvade::Update( float deltaTime, XMFLOAT3& totalForce )
 
 				adjustment = true;
 			}
+			
 		}
 	}
 

@@ -13,7 +13,7 @@
 class Enemy;
 
 #define randflt() (((float) rand())/((float) RAND_MAX))
-#define MAX_NR_OF_ENEMIES		15
+#define MAX_NR_OF_ENEMIES		10
 
 // ---- Define all enemy animations ----
 // Standard
@@ -301,7 +301,7 @@ class SteeringBehaviorManager
 		virtual void		DisableBehavior( int index );
 		virtual void		SetUpBehavior( int behaviorIndex, float weight, float probability, bool disable = false );
 		virtual bool		CombinedForceWeighted( XMFLOAT3& steeringForce, float weight );
-		virtual bool		CombineForcePrioritySum( XMFLOAT3& steeringForce );
+		virtual bool		CombineForcePrioritySum( XMFLOAT3& steeringForce, float weight );
 		virtual XMFLOAT3	GetFinalSteeringForce() const;
 
 		virtual HRESULT		Initialize( Enemy* enemy = nullptr );

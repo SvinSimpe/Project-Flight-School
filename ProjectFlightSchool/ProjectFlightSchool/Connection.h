@@ -76,7 +76,7 @@ class NetListenSocket : public NetSocket
 	public:
 		void	InitScan( int portNum_min, int portNum_max );
 		SOCKET	AcceptConnection( UINT* addr );
-		void	Initialize( int portNum );
+		bool	Initialize( int portNum );
 				NetListenSocket( SocketManager* socketManager );
 				NetListenSocket( SocketManager* socketManager, int portNum );
 };

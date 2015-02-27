@@ -90,6 +90,13 @@ void LobbyState::HandleInput()
 			Client::GetInstance()->SendEvent( E1 );
 		}
 	}
+
+	if( mBackButton.LeftMousePressed() )
+	{
+		// DO SOME STUFF HERE FOR LOGIC AND COOLNESS AND SCIENCE
+		IEventPtr E1( new Event_Reset_Game() );
+		EventManager::GetInstance()->QueueEvent( E1 );
+	}
 }
 
 HRESULT LobbyState::Update( float deltaTime )
@@ -100,6 +107,9 @@ HRESULT LobbyState::Update( float deltaTime )
 	{
 		mPlayers[i]->button.Update( deltaTime );
 	}
+
+	mBackButton.Update( deltaTime );
+	
 	HandleInput();
 
 	return hr;
@@ -128,6 +138,7 @@ HRESULT LobbyState::Render( float deltaTime )
 		mFont.WriteText( textToWrite, 360.0f, p->button.GetPosition().y, 2 );
 	}
 
+	mBackButton.Render();
 	for( auto p : mPlayers )
 	{
 		p->button.Render();
@@ -152,6 +163,7 @@ void LobbyState::OnExit()
 	{
 		mPlayers[i]->button.SetExitCooldown();
 	}
+	Reset();
 }
 
 void LobbyState::Reset()
@@ -177,6 +189,13 @@ HRESULT LobbyState::Initialize()
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Switch_Team::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Lobby_Finished::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Remote_Left::GUID );
+
+	float x = ( (float)Input::GetInstance()->mScreenWidth * 0.9f ) - 650.0f;
+	float y = ( (float)Input::GetInstance()->mScreenHeight * 0.9f ) - 200.0f;
+	float w = 200.0f;
+	float h = 200.0f;
+
+	mBackButton.Initialize( "../Content/Assets/Textures/Menu/Back.png", x, y, w, h );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Connect_Server_Success::GUID );
 
 	return hr;
@@ -185,6 +204,7 @@ HRESULT LobbyState::Initialize()
 void LobbyState::Release()
 {
 	mFont.Release();
+	mBackButton.Release();
 	for( size_t i = 0; i < mPlayers.size(); i++ )
 	{
 		mPlayers[i]->button.Release();

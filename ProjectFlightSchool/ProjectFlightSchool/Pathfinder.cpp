@@ -34,8 +34,8 @@ bool Pathfinder::IsOnNavMesh( DirectX::XMFLOAT3 pos )
 	int unitPosX = (int)pos.x;
 	int unitPosZ = (int)pos.z;
 
-	int playerX = ( ( (int)mMapWidth * NODE_DIM ) + unitPosX ) / NODE_DIM;
-	int playerZ = ( ( (int)mMapHeight * NODE_DIM ) + unitPosZ ) / NODE_DIM;
+	int playerX = ( ( (int)mMap->GetMapHalfWidth() * NODE_DIM ) + unitPosX ) / NODE_DIM;
+	int playerZ = ( ( (int)mMap->GetMapHalfHeight() * NODE_DIM ) + unitPosZ ) / NODE_DIM;
 
 	UINT index = ( playerX * mMapWidth ) + playerZ;
 

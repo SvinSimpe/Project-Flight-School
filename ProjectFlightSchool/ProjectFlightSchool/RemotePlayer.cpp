@@ -93,6 +93,15 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 			printf( "RemotePlayer:: Spelare: %d, blev lag %d\n", mID, mTeam );
 		}
 	}
+	else if( newEvent->GetEventType() == Event_Server_Change_Buff_State::GUID )
+	{
+		std::shared_ptr<Event_Server_Change_Buff_State> data = std::static_pointer_cast<Event_Server_Change_Buff_State>( newEvent );
+		if( data->ID() == mID )
+		{
+			mIsBuffed	= data->IsBuffed();
+			mBuffMod	= data->BuffMod();
+		}
+	}
 }
 
 HRESULT RemotePlayer::InitializeGraphics()
@@ -129,7 +138,8 @@ HRESULT RemotePlayer::InitializeGraphics()
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Claymore/Animations/", "claymoreAttack.PaMan"	, mWeaponAnimations[CLAYMORE][ATTACK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 	
-	//HAMMER
+	//
+
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/Animations/", "hammerIdle.PaMan",	mWeaponAnimations[HAMMER][IDLE] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );																							
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/Animations/", "hammerWalk.PaMan",	mWeaponAnimations[HAMMER][WALK] ) ) )
@@ -436,6 +446,9 @@ HRESULT RemotePlayer::Initialize()
 	mLoadOut->meleeWeapon	= new MeleeInfo( HAMMER );
 
 	InitializeGraphics();
+	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Server_Change_Buff_State::GUID );
+
+	mBuffMod				= 0.5f;
 
 	return S_OK;
 }
@@ -491,6 +504,8 @@ RemotePlayer::RemotePlayer()
 	mLoadOut				= nullptr;
 	mPointLightIfDown		= nullptr;
 	mSpawnPosition			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mIsBuffed				= false;
+	mBuffMod				= 0.0f;
 }
 
 RemotePlayer::~RemotePlayer()
@@ -506,6 +521,11 @@ bool RemotePlayer::IsAlive() const
 bool RemotePlayer::IsDown() const
 {
 	return mIsDown;
+}
+
+bool RemotePlayer::IsBuffed() const
+{
+	return mIsBuffed;
 }
 
 LoadOut* RemotePlayer::GetLoadOut() const

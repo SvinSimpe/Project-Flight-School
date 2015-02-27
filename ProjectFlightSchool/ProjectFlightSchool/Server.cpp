@@ -1,6 +1,8 @@
 #include "Server.h"
 #include "Enemy.h"
 #include "HelperFunctions.h"
+#include "Pathfinder.h"
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Start of eventlistening functions
@@ -543,7 +545,7 @@ void Server::XP( IEventPtr eventPtr )
 // This is technically also an eventlistening function, but it's special so it can't be with the other ones
 void Server::StartUp( IEventPtr eventPtr )
 {
-	if( eventPtr->GetEventType() == Event_Start_Server::GUID )
+	if( eventPtr->GetEventType() == Event_Start_Server::GUID && !mActive )
 	{
 		std::shared_ptr<Event_Start_Server> data = std::static_pointer_cast<Event_Start_Server>( eventPtr );
 		std::string port = data->Port();
@@ -551,6 +553,7 @@ void Server::StartUp( IEventPtr eventPtr )
 		// Makes sure everything is clean before starting
 		Reset();
 		CreateShips();
+		CreateEnergyCells();
 		
 		std::stringstream sstr;
 		sstr << port << " ";
@@ -561,13 +564,16 @@ void Server::StartUp( IEventPtr eventPtr )
 		{
 			mActive = true;
 			mMaxClients = data->MaxPlayers();
-			IEventPtr E1( new Event_Connect_Server_Success () );
+			IEventPtr E1( new Event_Connect_Server_Success() );
 			EventManager::GetInstance()->QueueEvent( E1 );
+
+			IEventPtr E2( new Event_Start_Client( "localhost", port ) );
+			EventManager::GetInstance()->QueueEvent( E2 );
 		}
 		else
 		{
 			mActive = false;
-			IEventPtr E1( new Event_Connect_Server_Fail ( "Server failed at connecting!" ) );
+			IEventPtr E1( new Event_Connect_Server_Fail ( "Server failed at connecting!\n" ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
 			Release();
 		}
@@ -624,7 +630,7 @@ void Server::CreateShips()
 		mShips.push_back( new ServerShip() );
 		mShips.back()->Initialize( shipID, CurrentTeamDelegate(), XMFLOAT3( xOffset, 0.0f, 0.0f ), XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 		shipID++;
-		xOffset += 60.0f;
+		xOffset += 160.0f;
 	}
 }
 
@@ -684,6 +690,85 @@ bool Server::CullEnemyUpdate( XMFLOAT3 playerPos, XMFLOAT3 enemyPos )
 	return HelperFunctions::Dist3Squared( playerPos, enemyPos ) <= ENEMY_UPDATE_RANGE;
 }
 
+void Server::CreateEnergyCells()
+{
+	//Calculate Energy cell position
+	CalculateCellSpawnPositions( mShips.at(0)->GetPos() );
+	CalculateCellSpawnPositions( mShips.at(1)->GetPos() );
+
+	//Energy cells
+	mEnergyCells = new EnergyCell*[MAX_ENERGY_CELLS];
+	mEnergyCells[0] = new EnergyCell();
+	mEnergyCells[0]->Initialize( DirectX::XMFLOAT3( 1000000.0f, 0.0f, 10000000.0f ) ); //Gfx drivers bug makes us not render the first one so this is an incredible ugly hack around that problem
+	for( int i = 1; i < MAX_ENERGY_CELLS ; i++ )
+	{
+		mEnergyCells[i] = new EnergyCell();
+		mEnergyCells[i]->Initialize( mCellPositionQueue.front() );
+		mCellPositionQueue.pop();
+	}
+}
+
+void Server::CalculateCellSpawnPositions( XMFLOAT3 shipPosition )
+{
+	// Length between every cell
+	float length = 20.0f;
+	
+	XMFLOAT3	energyCellPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	float		offset				= 0.0f;
+	float		lowerBound			= 0.0f;
+	float		upperBound			= 0.0f;
+	float		prevCellAngle		= 0.0f;
+	float		currCellAngle		= 0.0f;
+
+	// Calc position for own ship cells
+	for ( size_t i = 0; i < MAX_ENERGY_CELLS / 2; i++ )
+	{
+		// Set distance from ship
+		int cellIndex = i + 1;
+		energyCellPosition = shipPosition;
+		energyCellPosition.x += ( length * cellIndex );
+
+		// Set current bounds based on previous angle
+		lowerBound = prevCellAngle + offset;
+		upperBound = prevCellAngle - offset;
+
+		if( upperBound < lowerBound )
+			std::swap( upperBound, lowerBound );
+
+		do
+		{
+			// Randomize angle between lowerBound & upperBound
+			do
+			{
+				currCellAngle = (float)( rand() % 360 + 1 );
+			}  
+			while( i != 0 && currCellAngle > lowerBound && currCellAngle < upperBound );
+
+			// Get vector from ship to cell
+			XMVECTOR shipToCell = XMLoadFloat3( &energyCellPosition ) - XMLoadFloat3( &shipPosition );
+
+		
+			// Rotate vector around ship by some random value
+			XMStoreFloat3( &energyCellPosition, ( XMVector3TransformCoord( shipToCell, XMMatrixRotationY( -XMConvertToRadians( currCellAngle ) ) ) ) );
+		}
+		while( !Pathfinder::GetInstance()->IsOnNavMesh(  energyCellPosition ) );
+
+
+
+		// Add rotated vector to ship position to get new cell position
+		XMStoreFloat3( &energyCellPosition, XMLoadFloat3( &shipPosition ) + XMLoadFloat3( &energyCellPosition ) );
+
+		// Add to queue
+		energyCellPosition.y = 2.5f;
+		mCellPositionQueue.push( energyCellPosition );
+
+		prevCellAngle = currCellAngle;
+		
+		if( i == 0 )
+			offset	= 40.0f;
+	}
+}
+
 bool Server::Connect( UINT port )
 {
 	mSocketManager = new SocketManager();
@@ -691,7 +776,14 @@ bool Server::Connect( UINT port )
 	{
 		return false;
 	}
-	mSocketManager->AddSocket( new ServerListenSocket( mSocketManager, port ) );
+
+	ServerListenSocket* socket = new ServerListenSocket( mSocketManager, port );
+	if( !socket->Initialize( port ) )
+	{
+		mSocketManager->AddSocket( socket );
+		return false;
+	}
+	mSocketManager->AddSocket( socket );
 
 	return true;
 }
@@ -718,18 +810,18 @@ void Server::Update( float deltaTime )
 			}
 		}
 
-		for ( size_t i = 0; i < mNrOfPlayers; i++ )
+		for( auto& cm : mClientMap )
 		{
+			auto c  = cm.second;
 			for( auto& s : mShips )
 			{
-				if( s->mTeamID == mPlayers[i]->TeamID )
+				if( s->mTeamID == c->TeamID )
 				{
-					shipBuff = CheckShipBuff( s, mPlayers[i]->Pos );
-					if( shipBuff != mPlayers[i]->IsBuffed )
+					shipBuff = s->mBuffCircle->Intersect( &c->Pos );
+					if( shipBuff != c->IsBuffed )
 					{
-						IEventPtr BuffEvent( new Event_Server_Change_Buff_State( mPlayers[i]->ID, shipBuff, s->mBuffMod ) );
-						SendEvent( BuffEvent, mPlayers[i]->ID );
-						break;
+						IEventPtr BuffEvent( new Event_Server_Change_Buff_State( c->ID, shipBuff, s->mBuffMod ) );
+						BroadcastEvent( BuffEvent );
 					}
 				}
 			}
@@ -763,8 +855,6 @@ void Server::Update( float deltaTime )
 		{
 			UpdateShip( deltaTime, s );
 		}
-
-		// Sends the events in the queue to the clients
 	}
 }
 
@@ -832,18 +922,6 @@ bool Server::Initialize()
 		mEnemies[i]->Spawn( GetNextSpawn() );
 	}
 
-	//mAggroCircle	= new BoundingCircle();
-
-	//Energy cells
-	mEnergyCells = new EnergyCell*[MAX_ENERGY_CELLS];
-	mEnergyCells[0] = new EnergyCell();
-	mEnergyCells[0]->Initialize( DirectX::XMFLOAT3( 1000000.0f, 0.0f, 10000000.0f ) ); //Gfx drivers bug makes us not render the first one so this is an incredible ugly hack around that problem
-	for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
-	{
-		mEnergyCells[i] = new EnergyCell();
-		mEnergyCells[i]->Initialize( DirectX::XMFLOAT3( ( -2.0f + ( i * 2 ) ), 0.0f, -30.0f ) );
-	}
-
 	return true;
 }
 
@@ -852,18 +930,12 @@ void Server::Reset()
 	mMaxClients = (UINT)-1;
 	mStopAccept = false;
 
-	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
-	{
-		mEnemies[i]->Reset();
-	}
-
 	mTeamDelegate	= 1;
 	mCurrentPID		= 0;
 	mActive			= false;
 
 	if( mSocketManager )
 		mSocketManager->Release();
-
 	SAFE_DELETE( mSocketManager );
 
 	for( auto& c : mClientMap )
@@ -872,16 +944,16 @@ void Server::Reset()
 	}
 	mClientMap.clear();
 
-	//for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
-	//{
-	//	mEnergyCells[i]->Reset();
-	//}
-
 	for( auto& s : mShips )
 	{
 		SAFE_RELEASE_DELETE( s );
 	}
 	mShips.clear();
+
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	{
+		mEnemies[i]->Reset();
+	}
 }
 
 void Server::Release()
@@ -889,26 +961,26 @@ void Server::Release()
 	// Enemies
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 	{
-		mEnemies[i]->Release();
+		if( mEnemies[i] )
+			mEnemies[i]->Release();
 		SAFE_DELETE( mEnemies[i] );
 	}
-
-	delete [] mEnemies;
+	SAFE_DELETE_ARRAY( mEnemies );
 
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
 	{
-		mSpawners[i]->Release();
+		if( mSpawners[i] )
+			mSpawners[i]->Release();
 		SAFE_DELETE( mSpawners[i] );
 	}
-
-	delete [] mSpawners;
+	SAFE_DELETE_ARRAY( mSpawners );
 
 	//SAFE_DELETE( mAggroCircle );
 
 	for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
 		SAFE_DELETE( mPlayers[i] );
 	
-	delete [] mPlayers;
+	SAFE_DELETE_ARRAY( mPlayers );
 
 	mTeamDelegate	= 1;
 	mCurrentPID		= 0;
@@ -921,9 +993,9 @@ void Server::Release()
 		SAFE_DELETE( s );
 	}
 	mShips.clear();
+
 	if( mSocketManager )
 		mSocketManager->Release();
-
 	SAFE_DELETE( mSocketManager );
 
 	for( auto& c : mClientMap )
@@ -935,11 +1007,11 @@ void Server::Release()
 	//Energy cells
 	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
 	{
-		mEnergyCells[i]->Release();
+		if( mEnergyCells[i] )
+			mEnergyCells[i]->Release();
 		SAFE_DELETE( mEnergyCells[i] );
 	}
-
-	delete [] mEnergyCells;
+	SAFE_DELETE_ARRAY( mEnergyCells );
 }
 
 Server::Server() : Network()
@@ -951,21 +1023,23 @@ Server::Server() : Network()
 	mActive					= false;
 	mShips					= std::vector<ServerShip*>();
 	mShips.reserve( 2 );
-	mEnergyCells			= nullptr;
-	mEnemies				= nullptr;
-	mSpawners				= nullptr;
-	//mAggroCircle			= nullptr;
 	mNrOfEnemiesSpawned		= 0;
 	mNrOfPlayers			= 0;
 	mNrOfProjectilesFired	= 0;
 	mPlayers				= nullptr;
+
+	mNrOfPlayers			= 0;
+	mMaxClients				= (UINT)-1;
 	
 	mPlayers				= new ServerPlayer*[MAX_NR_OF_PLAYERS];
 	for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
 		mPlayers[i]			= nullptr;
 
-	mNrOfPlayers			= 0;
-	mMaxClients				= (UINT)-1;
+	mEnergyCells			= nullptr;
+
+	mEnemies				= nullptr;
+
+	mSpawners				= nullptr;
 }
 
 Server::~Server()

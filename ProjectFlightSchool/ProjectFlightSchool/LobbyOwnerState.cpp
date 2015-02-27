@@ -22,7 +22,6 @@ HRESULT LobbyOwnerState::Update( float deltaTime )
 
 HRESULT LobbyOwnerState::Render()
 {
-
 	mStartButton.Render();
 	
 	HRESULT hr = LobbyState::Render( 0.0f );

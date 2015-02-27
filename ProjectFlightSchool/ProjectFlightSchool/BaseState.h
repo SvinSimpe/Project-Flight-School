@@ -29,7 +29,7 @@ class BaseState
 	protected:
 	public:
 		virtual HRESULT Update( float deltaTime )	= 0;
-		virtual HRESULT Render()					= 0;
+		virtual HRESULT Render( float deltaTime )	= 0;
 		virtual void	OnEnter()					= 0;
 		virtual void	OnExit()					= 0;
 		virtual void	Reset()						= 0;

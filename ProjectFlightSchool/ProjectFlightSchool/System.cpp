@@ -62,9 +62,9 @@ HRESULT	System::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT	System::Render()
+HRESULT	System::Render( float deltaTime )
 {
-	mGame->Render();
+	mGame->Render( deltaTime );
 
 	return S_OK;
 }
@@ -95,7 +95,7 @@ int	System::Run()
 
 			Update( deltaTime );
 
-			Render();
+			Render( deltaTime );
 		}
 	}
 	return (int)message.wParam;

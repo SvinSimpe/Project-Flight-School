@@ -36,7 +36,7 @@ class LobbyState : public BaseState
 		void	HandleInput();
 	public:
 		HRESULT Update( float deltaTime );
-		HRESULT Render();
+		HRESULT Render( float deltaTime );
 		void	OnEnter();
 		void	OnExit();
 		void	Reset();

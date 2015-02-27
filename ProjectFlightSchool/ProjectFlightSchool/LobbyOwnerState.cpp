@@ -36,7 +36,7 @@ void LobbyOwnerState::OnExit()
 
 HRESULT LobbyOwnerState::Initialize()
 {
-	mStartButton.Initialize( "../Content/Assets/Textures/Menu/Create_Menu_Text/MultiPlayer.png", 1600, 700, 200, 200 );
+	mStartButton.Initialize( "../Content/Assets/Textures/Menu/Start.png", 1600, 700, 200, 200 );
 
 	return LobbyState::Initialize();
 }

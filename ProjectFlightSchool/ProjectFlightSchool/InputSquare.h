@@ -32,6 +32,7 @@ class InputSquare : public MovingButton
 		void		HandleInput();
 		void		Render();
 		bool		Update( float deltaTime );
+		void		Reset( std::string text );
 		void		Initialize( std::string text, std::string imgName, float x, float y, float width, float height );
 		void		Release();
 					InputSquare();

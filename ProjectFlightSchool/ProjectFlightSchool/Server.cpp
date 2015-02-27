@@ -922,6 +922,10 @@ bool Server::Initialize()
 		mEnemies[i]->Spawn( GetNextSpawn() );
 	}
 
+	mPlayers				= new ServerPlayer*[MAX_NR_OF_PLAYERS];
+	for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
+		mPlayers[i]			= nullptr;
+
 	return true;
 }
 
@@ -979,8 +983,8 @@ void Server::Release()
 
 	for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
 		SAFE_DELETE( mPlayers[i] );
-	
-	SAFE_DELETE_ARRAY( mPlayers );
+	if( mPlayers )
+		delete[] mPlayers;
 
 	mTeamDelegate	= 1;
 	mCurrentPID		= 0;
@@ -1026,14 +1030,11 @@ Server::Server() : Network()
 	mNrOfEnemiesSpawned		= 0;
 	mNrOfPlayers			= 0;
 	mNrOfProjectilesFired	= 0;
-	mPlayers				= nullptr;
 
 	mNrOfPlayers			= 0;
 	mMaxClients				= (UINT)-1;
-	
-	mPlayers				= new ServerPlayer*[MAX_NR_OF_PLAYERS];
-	for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
-		mPlayers[i]			= nullptr;
+
+	mPlayers				= nullptr;
 
 	mEnergyCells			= nullptr;
 

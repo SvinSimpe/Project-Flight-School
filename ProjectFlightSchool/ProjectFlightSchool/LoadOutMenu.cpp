@@ -55,6 +55,12 @@ void LoadOutMenu::Render()
 	RenderManager::GetInstance()->AddObject2dToList( mMarker, mButtons[mCurrentRanged].button.GetPosition(), XMFLOAT2( 528.0f, 80.0f ) );
 }
 
+void LoadOutMenu::Reset()
+{
+	mCurrentRanged	= 0;
+	mCurrentMelee	= 5;
+}
+
 void LoadOutMenu::Release()
 {
 	for( int i = 0; i < NR_OF_WEAPONS; i++ )

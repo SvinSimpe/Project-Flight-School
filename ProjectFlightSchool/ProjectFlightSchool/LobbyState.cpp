@@ -221,6 +221,7 @@ void LobbyState::OnExit()
 
 void LobbyState::Reset()
 {
+	mLoadOutMenu.Reset();
 	mActive = false;
 	for( size_t i = 0; i < mPlayers.size(); i++ )
 	{

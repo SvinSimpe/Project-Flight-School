@@ -59,6 +59,7 @@ public:
 	void	DeActivate();
 	void	Update( float deltaTime );
 	void	Render();
+	void	Reset();
 	void	Release();
 	HRESULT	Initialize();
 	LoadOutMenu();

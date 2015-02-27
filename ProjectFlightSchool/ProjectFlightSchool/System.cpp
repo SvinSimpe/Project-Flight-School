@@ -58,6 +58,7 @@ HRESULT	System::Update( float deltaTime )
 {
 	mGame->Update( deltaTime );
 	Input::GetInstance()->Update();
+	Graphics::GetInstance()->Update( deltaTime );
 	return S_OK;
 }
 

@@ -6,6 +6,7 @@ Graphics::Graphics()
 	mScreenWidth	= 0;
 	mScreenHeight	= 0;
 	mFullscreen		= false;
+	mTimeVariable	= 0.0f;
 
 	mSwapChain		= nullptr;
 	mDevice			= nullptr;
@@ -594,6 +595,13 @@ HRESULT Graphics::MapBuffer( ID3D11Buffer* buffer, void* data, int size )
 	mDeviceContext->Unmap( buffer, 0 );
 
 	return S_OK;
+}
+
+void Graphics::Update( float deltaTime )
+{
+	mTimeVariable += deltaTime;
+	if( deltaTime > 25.132f )
+		mTimeVariable = 25.132f;
 }
 
 HRESULT Graphics::LoadStatic2dAsset( std::string fileName, AssetID &assetId )
@@ -1813,6 +1821,7 @@ void Graphics::GbufferPass()
 	data.cameraPosition		= mCamera[mCurrentCamera]->GetPos();
 	
 	data.numPointLights = mNumPointLights;
+	data.timeVariable	= mTimeVariable;
 	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_FRAME], &data, sizeof( CbufferPerFrame ) );
 
 	CbufferPerFrameShadow dataShadow;
@@ -1853,7 +1862,8 @@ void Graphics::DeferredPass()
 		mDeviceContext->PSSetShaderResources( i, 1, &mGbuffers[i]->mShaderResourceView );
 
 	mDeviceContext->PSSetShaderResources( 4, 1, &mShadowMapSRV );
-	mDeviceContext->PSSetShaderResources( 5, 1, &mLightStructuredBuffer );
+	mDeviceContext->PSSetShaderResources( 5, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[WATER_NORMALMAP] )->mSRV );
+	mDeviceContext->PSSetShaderResources( 6, 1, &mLightStructuredBuffer );
 
 	mDeviceContext->VSSetShader( mEffects[EFFECTS_DEFERRED]->GetVertexShader(), nullptr, 0 );
 	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );

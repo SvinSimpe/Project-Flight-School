@@ -2,6 +2,7 @@
 
 HRESULT BaseMenuState::Update( float deltaTime )
 {
+	SetCursor( mCursor );
 	HandleInput();
 
 	return S_OK;

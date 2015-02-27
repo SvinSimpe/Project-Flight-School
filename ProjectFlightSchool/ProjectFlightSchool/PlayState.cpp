@@ -639,6 +639,15 @@ bool PlayState::CullEntity( XMFLOAT3 entityPos )
 
 HRESULT PlayState::Update( float deltaTime )
 {
+	if( mGui->InGameWindowIsActive() || mGui->UpgradeShipWindowIsActive() || mGui->UpgradePlayerWindowIsActive() )
+	{
+		SetCursor( mCursor );
+	}
+	else
+	{
+		SetCursor( mSight );
+	}
+
 	//Fps update
 	mFPS = mFPS * 0.1f + 0.9f / deltaTime;
 	HandleDeveloperCameraInput();

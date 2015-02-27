@@ -43,6 +43,13 @@ HRESULT LobbyOwnerState::Render()
 	}
 
 	mBackButton.Render();
+	mChooseWeaponButton.Render();
+	mChooseWeaponText.Render();
+
+	if( mLoadOutMenu.IsActive() )
+	{
+		mLoadOutMenu.Render();
+	}
 	
 	RenderManager::GetInstance()->Render();
 	

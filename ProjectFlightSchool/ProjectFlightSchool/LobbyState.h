@@ -8,6 +8,7 @@
 #include "MovingButton.h"
 #include "Button.h"
 #include "Client.h"
+#include "LoadOutMenu.h"
 
 struct LobbyPlayer
 {
@@ -31,6 +32,9 @@ class LobbyState : public BaseState
 		AssetID						mBackground;
 		bool						mActive;
 		MovingButton				mBackButton;
+		LoadOutMenu					mLoadOutMenu;
+		Button						mChooseWeaponButton;
+		Image						mChooseWeaponText;
 
 	public:
 

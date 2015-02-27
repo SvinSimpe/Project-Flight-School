@@ -5353,4 +5353,79 @@ class Event_Client_Reach_Server : public IEvent
 			return IEventPtr( new Event_Client_Reach_Server() );
 		}
 };
+
+//Empty Event to use to see if server can reach the client
+class Event_Server_Reach_Client : public IEvent
+{
+	private:
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Reach_Client()
+		{
+		}
+		~Event_Server_Reach_Client() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Reach_Client() );
+		}
+};
+
+class Event_Change_Weapon : public IEvent
+{
+	private:
+		int		mWeapon;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Change_Weapon()
+		{
+			mWeapon = -1;
+		}
+		Event_Change_Weapon( int weapon )
+		{
+			mWeapon	= weapon;
+		}
+		~Event_Change_Weapon() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mWeapon << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mWeapon;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Change_Weapon( mWeapon ) );
+		}
+		int Weapon() const
+		{
+			return mWeapon;
+		}
+};
 #endif

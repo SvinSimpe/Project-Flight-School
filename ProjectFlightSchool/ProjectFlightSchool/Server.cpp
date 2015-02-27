@@ -702,6 +702,11 @@ bool Server::Connect( UINT port )
 
 void Server::Update( float deltaTime )
 {
+	if( this && mActive && !mStopAccept )
+	{
+		IEventPtr E1( new Event_Server_Reach_Client() );
+		BroadcastEvent( E1 );
+	}
 	if( this && mActive && mStopAccept )
 	{
 		// Handles the client getting buffed by the ship

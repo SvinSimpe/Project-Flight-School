@@ -140,6 +140,10 @@ void LobbyState::HandleInput()
 		IEventPtr E1( new Event_Reset_Game() );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
+	if( mChooseWeaponButton.LeftMousePressed() )
+	{
+		mLoadOutMenu.Activate();
+	}
 }
 
 HRESULT LobbyState::Update( float deltaTime )
@@ -155,7 +159,16 @@ HRESULT LobbyState::Update( float deltaTime )
 	}
 	mBackButton.Update( deltaTime );
 
-	HandleInput();
+	if( mLoadOutMenu.IsActive() )
+	{
+		mLoadOutMenu.Update( deltaTime );
+	}
+	else
+	{
+		HandleInput();
+	}
+
+	mChooseWeaponButton.Update( deltaTime );
 
 	return hr;
 }
@@ -181,6 +194,13 @@ HRESULT LobbyState::Render()
 	}
 
 	mBackButton.Render();
+	mChooseWeaponButton.Render();
+	mChooseWeaponText.Render();
+
+	if( mLoadOutMenu.IsActive() )
+	{
+		mLoadOutMenu.Render();
+	}
 	
 	RenderManager::GetInstance()->Render();
 
@@ -202,6 +222,7 @@ void LobbyState::OnExit()
 		mPlayers[i]->button.SetExitCooldown();
 	}
 	mBackButton.SetExitCooldown();
+	mChooseWeaponButton.SetExitCooldown();
 }
 
 void LobbyState::Reset()
@@ -233,6 +254,10 @@ HRESULT LobbyState::Initialize()
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Connect_Server_Success::GUID );
 	
 	mBackButton.Initialize( "../Content/Assets/Textures/Menu/Back.png", 70.0f, 760.0f, 200.0f, 200.0f );
+	mLoadOutMenu.Initialize();
+
+	mChooseWeaponButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/changeYourWeaponFrame.dds", 875.0f, 820.0f, 184.0f, 152.0f );
+	mChooseWeaponText.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/textChooseYourWeapon.dds", 875.0f, 820.0f, 184.0f, 152.0f );
 
 	return hr;
 }
@@ -247,6 +272,9 @@ void LobbyState::Release()
 	}
 	mPlayers.clear();
 	mBackButton.Release();
+	mLoadOutMenu.Release();
+	mChooseWeaponButton.Release();
+	mChooseWeaponText.Release();
 }
 
 LobbyState::LobbyState()

@@ -338,6 +338,9 @@
     <ClCompile Include="LobbyOwnerState.cpp">
       <Filter>GameStates\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LoadOutMenu.cpp">
+      <Filter>GUI\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
@@ -575,6 +578,9 @@
     </ClInclude>
     <ClInclude Include="LobbyOwnerState.h">
       <Filter>GameStates\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadOutMenu.h">
+      <Filter>GUI\Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

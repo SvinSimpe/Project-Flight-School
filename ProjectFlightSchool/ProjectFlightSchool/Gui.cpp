@@ -145,7 +145,7 @@ HRESULT Gui::Render()
 
 		RenderManager::GetInstance()->AddObject2dToList( mLevelUp, mTopLeftLevelUp, mSizeLevelUp );
 
-		renderText = "!";
+		renderText = "+";
 		renderText += std::to_string( (int)mExperience );
 		mFont.WriteText( renderText, (mTopLeftLevelUp.x + 75.0f ), ( mTopLeftLevelUp.y + 66.0f ), 4.8f );
 	}

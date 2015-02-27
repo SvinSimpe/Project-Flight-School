@@ -450,6 +450,27 @@ HRESULT Graphics::InitializeEffects()
 	if( FAILED( hr = mEffects[EFFECTS_NORMAL_SMOKE]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 	//--------------------------
+
+	//Blowtorch fire effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/BlowtorchFireEffect.hlsl";
+	effectInfo.fileName					= "BlowtorchFireEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+	
+	if( FAILED( hr = mEffects[EFFECTS_BLOWTORCH_FIRE]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Blowtorch Idle effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/BlowtorchIdleEffect.hlsl";
+	effectInfo.fileName					= "BlowtorchIdleEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+	
+	if( FAILED( hr = mEffects[EFFECTS_BLOWTORCH_IDLE]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
 	//Explosion smoke effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/ExplosionSmoke.hlsl";
 	effectInfo.fileName					= "ExplosionSmoke";
@@ -1156,7 +1177,7 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 
 					// Add particletype you want to apply additive blending on
 					if( info[i].mParticleType == EFFECTS_TEST_FOUNTAIN || info[i].mParticleType == EFFECTS_SPARK || info[i].mParticleType == EFFECTS_LEVEL_UP 
-						|| info[i].mParticleType == EFFECTS_FIRE )
+						|| info[i].mParticleType == EFFECTS_FIRE || info[i].mParticleType == EFFECTS_BLOWTORCH_FIRE || info[i].mParticleType == EFFECTS_BLOWTORCH_IDLE )
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
 					
 					else if( info[i].mParticleType == EFFECTS_EXPLOSION )

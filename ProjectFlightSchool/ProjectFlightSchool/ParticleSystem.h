@@ -36,6 +36,16 @@ struct ParticleSystem : public ParticleData
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/smokeParticle1.dds", assetID );
 				break;
 			}
+			case BlowTorchFire:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireParticle.dds", assetID );
+				break;
+			}
+			case BlowTorchIdle:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireParticle.dds", assetID );
+				break;
+			}
 			case Fire:
 			{
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireParticle.dds", assetID );
@@ -149,6 +159,7 @@ struct ParticleSystem : public ParticleData
 		//Add Random Rotation
 		if(particleType == Fire || FireSmoke)
 			SetRandomRotation( particleCount ); 
+		
 		if( particleType == Spark )
 		{
 			SetRandomDeathTime( 1, 2, particleCount );
@@ -156,6 +167,16 @@ struct ParticleSystem : public ParticleData
 		if( particleType == ExplosionSmoke )	
 		{
 			SetRandomDeathTime( 1, 6, particleCount );
+			SetRandomRotation( particleCount ); 
+		}
+		else if( particleType == BlowTorchFire )	
+		{
+			SetRandomDeathTime( 1, 2, particleCount );
+			SetRandomRotation( particleCount ); 
+		}
+		else if( particleType == BlowTorchIdle )	
+		{
+			SetRandomDeathTime( 1, 1, particleCount );
 			SetRandomRotation( particleCount ); 
 		}
 		else if( particleType == Explosion )	
@@ -207,9 +228,11 @@ struct ParticleSystem : public ParticleData
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{
 		if( particleType == NormalSmoke )			Generate( emitterPosition, emitterDirection, 6,  120.0f );
-		else if( particleType == Spark )			Generate( emitterPosition, emitterDirection, 8, 25.0f );	
+		else if( particleType == Spark )			Generate( emitterPosition, emitterDirection, 16, 25.0f );	
+		else if( particleType == BlowTorchFire )	Generate( emitterPosition, emitterDirection, 32, 4.0f );
+		else if( particleType == BlowTorchIdle )	Generate( emitterPosition, emitterDirection, 32, 2.0f );
 		else if( particleType == Fire )				Generate( emitterPosition, emitterDirection, 8, 35.0f );					//------------particle count and spreadangle
-		else if( particleType == FireSmoke )		Generate( emitterPosition, emitterDirection, 15, 25.0f );		//------------particle count and spreadangle
+		else if( particleType == FireSmoke )		Generate( emitterPosition, emitterDirection, 15, 25.0f );					//------------particle count and spreadangle
 		else if( particleType == Explosion )		Generate( emitterPosition, emitterDirection, 50,  360.0f );
 		else if( particleType == ExplosionSmoke )	Generate( emitterPosition, emitterDirection, 50,  360.0f );
 		else if( particleType == Spark )			Generate( emitterPosition, emitterDirection, 8, 25.0f );
@@ -241,6 +264,18 @@ struct ParticleSystem : public ParticleData
 			{
 				// Update Fire logic here
 				FireLogic( deltaTime );
+				break;
+			}
+			case BlowTorchFire: 
+			{
+				// Update Fire logic here
+				BlowTorchFireLogic( deltaTime );
+				break;
+			}
+			case BlowTorchIdle: 
+			{
+				// Update Fire logic here
+				BlowTorchIdleLogic( deltaTime );
 				break;
 			}
 			case FireSmoke: 
@@ -370,6 +405,29 @@ struct ParticleSystem : public ParticleData
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
 		{
 			
+		}
+	}
+	
+	void BlowTorchFireLogic( float deltaTime )
+	{
+		for ( int i = 0; i < nrOfParticlesAlive; i++ )
+		{
+			if( damping[i] > 0 )
+				damping[i] += 0.004f;
+
+			xVelocity[i] = xVelocity[i] * damping[i];
+			zVelocity[i] = zVelocity[i] * damping[i];
+			
+			if( damping[i] > 0.08f )
+				yPosition[i] = yPosition[i] * 1.03f;
+		}
+	}
+
+	void BlowTorchIdleLogic( float deltaTime )
+	{
+		for ( int i = 0; i < nrOfParticlesAlive; i++ )
+		{
+			deathTime[i] = 0.07f;
 		}
 	}
 

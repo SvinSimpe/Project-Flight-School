@@ -129,7 +129,8 @@ HRESULT RemotePlayer::InitializeGraphics()
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Claymore/Animations/", "claymoreAttack.PaMan"	, mWeaponAnimations[CLAYMORE][ATTACK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 	
-	//HAMMER
+	//
+
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/Animations/", "hammerIdle.PaMan",	mWeaponAnimations[HAMMER][IDLE] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );																							
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Hammer/Animations/", "hammerWalk.PaMan",	mWeaponAnimations[HAMMER][WALK] ) ) )
@@ -432,8 +433,8 @@ HRESULT RemotePlayer::Initialize()
 
 	//Weapon Initialization
 	mLoadOut				= new LoadOut();
-	mLoadOut->rangedWeapon	= new RangedInfo( SNIPER );
-	mLoadOut->meleeWeapon	= new MeleeInfo( HAMMER );
+	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN );
+	mLoadOut->meleeWeapon	= new MeleeInfo( BLOWTORCH );
 
 	InitializeGraphics();
 

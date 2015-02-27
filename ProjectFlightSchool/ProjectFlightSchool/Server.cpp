@@ -539,6 +539,16 @@ void Server::XP( IEventPtr eventPtr )
 	}
 }
 
+void Server::ChangeWeapon( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Change_Weapon::GUID )
+	{
+		std::shared_ptr<Event_Client_Change_Weapon> data = std::static_pointer_cast<Event_Client_Change_Weapon>( eventPtr );
+		IEventPtr E1( new Event_Server_Change_Weapon( data->Weapon(), data->ID() ) );
+		BroadcastEvent( E1, data->ID() );
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -794,6 +804,11 @@ bool Server::Connect( UINT port )
 
 void Server::Update( float deltaTime )
 {
+	if( this && mActive && !mStopAccept )
+	{
+		IEventPtr E1( new Event_Server_Reach_Client() );
+		BroadcastEvent( E1 );
+	}
 	if( this && mActive && mStopAccept )
 	{
 		// Handles the client getting buffed by the ship
@@ -894,6 +909,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::StopLobby, this, Event_Client_Lobby_Finished::GUID );
 	EventManager::GetInstance()->AddListener( &Server::SwitchTeam, this, Event_Client_Switch_Team::GUID );
 	EventManager::GetInstance()->AddListener( &Server::XP, this, Event_XP::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ChangeWeapon, this, Event_Client_Change_Weapon::GUID );
 
 	mTeamDelegate	= 1;
 	mCurrentPID		= 0;

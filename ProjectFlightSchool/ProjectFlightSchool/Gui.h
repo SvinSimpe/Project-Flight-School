@@ -59,6 +59,7 @@ class Gui
 		UpgradeShipWindow	mShipWindow;
 		UpgradePlayerWindow	mPlayerWindow;
 		InGameWindow		mInGameWindow;
+		bool				mEnergyCellsShowing;
 
 		HealthBar*	mHealtBar;
 
@@ -78,7 +79,9 @@ class Gui
 
 		AssetID		mLevelUp;
 		XMFLOAT2	mSizeLevelUp;
-		XMFLOAT2	mTopLeftCompWithPlayerHealthXP;
+		XMFLOAT2	mTopLeftLevelUp;
+
+		int			mNeededEnergyCells;
 		
 	protected:
 	public:
@@ -91,6 +94,8 @@ class Gui
 		void	DeActivateUpgradeShipWindow();
 		void	ActivateUpgradePlayerWindow();
 		void	DeActivateUpgradePlayerWindow();
+		void	ActivateEnergyCellsShowing();
+		void	DeActivateEnergyCellsShowing();
 		void	ActivateInGameWindow();
 		void	DeActivateInGameWindow();
 		HRESULT	Update( GuiUpdate guiUpdate );
@@ -103,6 +108,7 @@ class Gui
 		bool	UpgradeShipWindowIsActive();
 		bool	UpgradePlayerWindowIsActive();
 		bool	InGameWindowIsActive();
+		bool	EnergyCellsActive();
 };
 
 

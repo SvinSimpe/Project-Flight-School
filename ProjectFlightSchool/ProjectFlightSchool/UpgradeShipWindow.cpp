@@ -11,6 +11,7 @@ void UpgradeShipWindow::EventListener( IEventPtr eventPtr )
 			mTurretButtons.nrOfFilled		= data->TurretLevelChange();
 			mBuffButtons.nrOfFilled			= data->BuffLevelChange();
 			mEngineButtons.nrOfFilled		= data->EngineLevelChange();
+			mNrOfEnergyCells				= data->NrOfEnergyCells();
 		}
 	}
 	else if ( eventPtr->GetEventType() == Event_Local_Joined::GUID ) // Add a remote player to the list when they connect
@@ -196,7 +197,7 @@ HRESULT UpgradeShipWindow::Initialize()
 
 UpgradeShipWindow::UpgradeShipWindow()
 {
-
+	mNrOfEnergyCells = 0;
 }
 
 UpgradeShipWindow::~UpgradeShipWindow()
@@ -207,4 +208,9 @@ UpgradeShipWindow::~UpgradeShipWindow()
 bool UpgradeShipWindow::IsActive() const
 {
 	return mIsActive;
+}
+
+int UpgradeShipWindow::GetNrOfEnergyCells() const
+{
+	return mNrOfEnergyCells;
 }

@@ -477,6 +477,14 @@ void PlayState::HandleDeveloperCameraInput()
 				mGui->ActivateUpgradeShipWindow();
 			}
 		}
+		else if( mGui->EnergyCellsActive() )
+		{
+			mGui->DeActivateEnergyCellsShowing();
+		}
+		else
+		{
+			mGui->ActivateEnergyCellsShowing();
+		}
 	}
 	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_Y ) )
 	{
@@ -639,6 +647,15 @@ bool PlayState::CullEntity( XMFLOAT3 entityPos )
 
 HRESULT PlayState::Update( float deltaTime )
 {
+	if( mGui->InGameWindowIsActive() || mGui->UpgradeShipWindowIsActive() || mGui->UpgradePlayerWindowIsActive() )
+	{
+		SetCursor( mCursor );
+	}
+	else
+	{
+		SetCursor( mSight );
+	}
+
 	//Fps update
 	mFPS = mFPS * 0.1f + 0.9f / deltaTime;
 	HandleDeveloperCameraInput();
@@ -832,10 +849,10 @@ HRESULT PlayState::Render( float deltaTime )
 		}
 	}
 
-	for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
+	/*for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
 	{
 		RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
-	}
+	}*/
 
 	mGui->Render();
 
@@ -847,12 +864,9 @@ HRESULT PlayState::Render( float deltaTime )
 		}
 	}
 
-	//TestUpgradeWindow
-	//mWindow.Render();
-
 	//RENDER DEVTEXT
-	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
-	mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
+	//std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
+	//mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
 
 	XMFLOAT4X4 identity;
 	XMStoreFloat4x4( &identity, XMMatrixIdentity() );
@@ -919,7 +933,7 @@ HRESULT PlayState::Initialize()
 	BaseState::Initialize();
 	mStateType = PLAY_STATE;
 	
-	mSight = (HCURSOR)LoadImage( NULL, L"../Content/Assets/GUI/tempCurs.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE );
+	mSight = (HCURSOR)LoadImage( NULL, L"../Content/Assets/GUI/crosshair.ico", IMAGE_ICON, 32, 32, LR_LOADFROMFILE );
 
 	//AssetID model		= 0;
 	//AssetID loader	= 0;
@@ -936,7 +950,7 @@ HRESULT PlayState::Initialize()
 
 	mWorldMap = new Map();
 
-	mWorldMap->Initialize( 12 );
+	mWorldMap->Initialize( 25 );
 
 	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/HardMap.xml" ) ); 
 

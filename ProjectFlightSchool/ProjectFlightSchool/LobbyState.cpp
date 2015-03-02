@@ -148,6 +148,7 @@ void LobbyState::HandleInput()
 
 HRESULT LobbyState::Update( float deltaTime )
 {
+	SetCursor( mCursor );
 	HRESULT hr = S_OK;
 
 	IEventPtr E1( new Event_Client_Reach_Server() ); //Check so that the connection isn't broken.

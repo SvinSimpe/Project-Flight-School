@@ -13,7 +13,7 @@
 
 // Minigun
 #define MINIGUN_AR			0.05f	// Attack Rate
-#define MINIGUN_DAMAGE		0.6f	// Damage
+#define MINIGUN_DAMAGE		2.0f	// Damage
 #define MINIGUN_RANGE		0.8f	// Range
 #define MINIGUN_SPREAD		0.1f	// Spread
 #define MINIGUN_AOE			0.0f	// Area of effect

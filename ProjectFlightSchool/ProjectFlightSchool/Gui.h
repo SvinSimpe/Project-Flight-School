@@ -78,7 +78,7 @@ class Gui
 
 		AssetID		mLevelUp;
 		XMFLOAT2	mSizeLevelUp;
-		XMFLOAT2	mTopLeftCompWithPlayerHealthXP;
+		XMFLOAT2	mTopLeftLevelUp;
 		
 	protected:
 	public:

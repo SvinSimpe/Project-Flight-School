@@ -828,10 +828,10 @@ HRESULT PlayState::Render( float deltaTime )
 		}
 	}
 
-	for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
+	/*for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
 	{
 		RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
-	}
+	}*/
 
 	mGui->Render();
 
@@ -847,8 +847,8 @@ HRESULT PlayState::Render( float deltaTime )
 	//mWindow.Render();
 
 	//RENDER DEVTEXT
-	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
-	mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
+	//std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
+	//mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
 
 	XMFLOAT4X4 identity;
 	XMStoreFloat4x4( &identity, XMMatrixIdentity() );
@@ -932,7 +932,7 @@ HRESULT PlayState::Initialize()
 
 	mWorldMap = new Map();
 
-	mWorldMap->Initialize( 12 );
+	mWorldMap->Initialize( 25 );
 
 	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/HardMap.xml" ) ); 
 

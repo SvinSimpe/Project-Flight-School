@@ -100,15 +100,14 @@ HRESULT UpgradePlayerWindow::Initialize()
 	mRangeButton.nrOfLevels		= 1;
 
 	XMFLOAT2 sizeBox		= XMFLOAT2( 200.0f, 208.0f );
-	XMFLOAT2 meleeTopLeft	= XMFLOAT2( 142.0f, 651.0f );
-	XMFLOAT2 rangeTopLeft	= XMFLOAT2( 332.0f, 649.0f );
-	XMFLOAT2 speedTopLeft	= XMFLOAT2( 42.0f, 490.0f );
-	XMFLOAT2 healthTopLeft	= XMFLOAT2( 234.0f, 485.0f );
-
-	mHealthButton.button.Initialize( "../Content/Assets/GUI/HUD/Upgrade2.dds", healthTopLeft.x, healthTopLeft.y, sizeBox.x, sizeBox.y );
-	mSpeedButton.button.Initialize( "../Content/Assets/GUI/HUD/Upgrade2.dds", speedTopLeft.x, speedTopLeft.y, sizeBox.x, sizeBox.y );
-	mMeleeButton.button.Initialize( "../Content/Assets/GUI/HUD/Upgrade2.dds", meleeTopLeft.x, meleeTopLeft.y, sizeBox.x, sizeBox.y );
-	mRangeButton.button.Initialize( "../Content/Assets/GUI/HUD/Upgrade2.dds", rangeTopLeft.x, rangeTopLeft.y, sizeBox.x, sizeBox.y );
+	XMFLOAT2 meleeTopLeft	= XMFLOAT2( 149.0f, 641.0f );
+	XMFLOAT2 rangeTopLeft	= XMFLOAT2( 360.0f, 634.0f );
+	XMFLOAT2 speedTopLeft	= XMFLOAT2( 42.0f, 477.0f );
+	XMFLOAT2 healthTopLeft	= XMFLOAT2( 248.0f, 471.0f );
+	mHealthButton.button.Initialize( "../Content/Assets/GUI/HUD/hexagonSingle.dds", healthTopLeft.x, healthTopLeft.y, sizeBox.x, sizeBox.y );
+	mSpeedButton.button.Initialize( "../Content/Assets/GUI/HUD/hexagonSingle.dds", speedTopLeft.x, speedTopLeft.y, sizeBox.x, sizeBox.y );
+	mMeleeButton.button.Initialize( "../Content/Assets/GUI/HUD/hexagonSingle.dds", meleeTopLeft.x, meleeTopLeft.y, sizeBox.x, sizeBox.y );
+	mRangeButton.button.Initialize( "../Content/Assets/GUI/HUD/hexagonSingle.dds", rangeTopLeft.x, rangeTopLeft.y, sizeBox.x, sizeBox.y );
 
 	mTextPos = XMFLOAT2( 40.0f, 93.0f );
 

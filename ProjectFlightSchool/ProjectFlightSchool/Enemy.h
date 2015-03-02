@@ -229,6 +229,7 @@ class SteeringBehavior
 		virtual void	SteerTowards( XMFLOAT3& target, XMFLOAT3& result );
 		virtual void	SteerAway( XMFLOAT3& target, XMFLOAT3& result );
 		virtual float	Dot( XMFLOAT3& a, XMFLOAT3& b );
+		virtual float	Lerp( float t, float a, float b );
 		
 		virtual void	Reset();
 		virtual void	Release();
@@ -361,6 +362,7 @@ class Enemy
 		UINT				mTargetID;
 		UINT				mTargetIndex;
 		bool				mTakingDamage;
+		bool				mHasEvaded;
 
 		ServerPlayer**		mPlayers;
 		UINT				mNrOfPlayers;

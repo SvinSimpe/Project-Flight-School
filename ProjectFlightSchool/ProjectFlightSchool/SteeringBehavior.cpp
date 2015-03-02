@@ -62,6 +62,11 @@ float SteeringBehavior::Dot( XMFLOAT3& a, XMFLOAT3& b )
 	return ( a.x * b.x ) + ( a.y * b.y ) + ( a.z * b.z );
 }
 
+float SteeringBehavior::Lerp( float t, float a, float b )
+{
+	return a + ( b - a ) * t;
+}
+
 void SteeringBehavior::Reset()
 {
 }
@@ -145,24 +150,23 @@ bool SteerEvade::Update( float deltaTime, XMFLOAT3& totalForce )
 	// Move away from the nearest object ( for now just other enemies )
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 	{
-		if( mEnemy->mID != mEnemy->mOtherEnemies[i]->mID && mEnemy->mOtherEnemies[i]->IsAlive() )
+		if( ( mEnemy->mID != mEnemy->mOtherEnemies[i]->mID && mEnemy->mOtherEnemies[i]->IsAlive() ) ) // && !mEnemy->mOtherEnemies[i]->mHasEvaded )
 		{
 			if( mEnemy->GetAttackCircle()->Intersect( mEnemy->mOtherEnemies[i]->GetAttackCircle() ) )
 			{
-				XMFLOAT3 deltaPos		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+				/*XMFLOAT3 deltaPos		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 				deltaPos.x				= mEnemy->mOtherEnemies[i]->mPosition.x - mEnemy->mPosition.x;
-				deltaPos.z				= mEnemy->mOtherEnemies[i]->mPosition.x - mEnemy->mPosition.z;
+				deltaPos.z				= mEnemy->mOtherEnemies[i]->mPosition.z - mEnemy->mPosition.z;
 				XMFLOAT3 deltaPosNorm	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-				XMStoreFloat3( &deltaPosNorm, XMVector3Normalize( XMLoadFloat3( &deltaPosNorm ) ) );
+				XMStoreFloat3( &deltaPosNorm, XMVector3Normalize( XMLoadFloat3( &deltaPosNorm ) ) );*/
 
 				// Dot( mEnemy->GetVelocity().Normalize(), mEnemy->mOtherEnemies[i]->GetVelocity().Normalize() );
-				XMFLOAT3 a			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+				/*XMFLOAT3 a			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 				XMFLOAT3 b			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 				XMStoreFloat3( &a, XMVector3Normalize( XMLoadFloat3( &mEnemy->mVelocity ) ) );
 				XMStoreFloat3( &b, XMVector3Normalize( XMLoadFloat3( &mEnemy->mOtherEnemies[i]->mVelocity ) ) );
-				float dotVelocity	= Dot( a, b );
+				float dotVelocity	= Dot( a, b );*/
 
-				//if the other enemy is to the front of this enemy and they moving towards each other...
 				XMFLOAT3 targetPos	= mEnemy->mOtherEnemies[i]->mPosition;
 				
 				//XMStoreFloat3( &b, XMVector3Normalize( XMLoadFloat3( &mEnemy->mVelocity ) ) );
@@ -186,6 +190,8 @@ bool SteerEvade::Update( float deltaTime, XMFLOAT3& totalForce )
 		}
 	}
 
+	//mEnemy->mOtherEnemies[i]->mHasEvaded = adjustment;
+	mEnemy->mHasEvaded	= adjustment;
 	return adjustment;
 }
 

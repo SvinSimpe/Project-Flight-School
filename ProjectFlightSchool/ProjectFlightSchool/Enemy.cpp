@@ -114,6 +114,8 @@ HRESULT Enemy::Update( float deltaTime, ServerPlayer** players, UINT NrOfPlayers
 {
 	mSteeringBehaviorManager->Update( deltaTime );
 
+	XMStoreFloat3( &mVelocity, XMVector3Normalize( XMLoadFloat3( &mVelocity ) ) );
+
 	mDeltaTime					= deltaTime;
 	mAttackRadius->center		= mPosition;
 	mAttentionRadius->center	= mPosition;
@@ -159,6 +161,8 @@ HRESULT Enemy::Update( float deltaTime, ServerPlayer** players, UINT NrOfPlayers
 		default:
 			OutputDebugStringA( "\n--Error: No enemy type " );
 	}
+
+	mHasEvaded	= false;
 
 	return S_OK;
 }

@@ -180,7 +180,7 @@ HRESULT Gui::Render()
 	if( mEnergyCellsShowing && !mInGameWindow.IsActive() )
 	{
 		renderText = std::to_string( mShipWindow.GetNrOfEnergyCells() ) + " of " + std::to_string( mNeededEnergyCells ) + " energy cells";
-		mFont.WriteText( renderText, 1650.0f, 300.0f, 2.0f );
+		mFont.WriteText( renderText, 1680.0f, 280.0f, 2.0f );
 	}
 
 	return result;

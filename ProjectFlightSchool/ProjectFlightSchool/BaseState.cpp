@@ -15,7 +15,7 @@ int BaseState::GetStateType()
 
 HRESULT BaseState::Initialize()
 {
-	mCursor = (HCURSOR)LoadImage( NULL, L"../Content/Assets/GUI/tempCurs.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE );
+	mCursor = (HCURSOR)LoadImage( NULL, L"../Content/Assets/GUI/cursor.ico", IMAGE_ICON, 32, 32, LR_LOADFROMFILE );
 	return S_OK;
 }
 

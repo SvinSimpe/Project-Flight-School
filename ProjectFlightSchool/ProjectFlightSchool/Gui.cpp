@@ -2,11 +2,13 @@
 
 void Gui::ActivateUpgradeShipWindow()
 {
+	mEnergyCellsShowing = true;
 	mShipWindow.Activate();
 }
 
 void Gui::DeActivateUpgradeShipWindow()
 {
+	mEnergyCellsShowing = false;
 	mShipWindow.DeActivate();
 }
 
@@ -18,6 +20,16 @@ void Gui::ActivateUpgradePlayerWindow()
 void Gui::DeActivateUpgradePlayerWindow()
 {
 	mPlayerWindow.DeActivate();
+}
+
+void Gui::ActivateEnergyCellsShowing()
+{
+	mEnergyCellsShowing = true;
+}
+
+void Gui::DeActivateEnergyCellsShowing()
+{
+	mEnergyCellsShowing = false;
 }
 
 void Gui::ActivateInGameWindow()
@@ -165,12 +177,18 @@ HRESULT Gui::Render()
 		mInGameWindow.Render();
 	}
 
+	if( mEnergyCellsShowing && !mInGameWindow.IsActive() )
+	{
+		renderText = std::to_string( mShipWindow.GetNrOfEnergyCells() ) + " of " + std::to_string( mNeededEnergyCells ) + " energy cells";
+		mFont.WriteText( renderText, 1680.0f, 280.0f, 2.0f );
+	}
+
 	return result;
 }
 
 HRESULT Gui::Initialize()
 {
-	mNrOfRemotePlayer = 0;
+	mNrOfRemotePlayer	= 0;
 
 	mRadar			= new Radar();
 	HRESULT result	= mRadar->Initialize();
@@ -246,6 +264,8 @@ Gui::Gui()
 	mNrOfRemotePlayer	= 0;
 	mRadar				= nullptr;
 	mHealtBar			= nullptr;
+	mEnergyCellsShowing	= true;
+	mNeededEnergyCells	= 6;
 }
 
 Gui::~Gui()
@@ -266,4 +286,9 @@ bool Gui::UpgradePlayerWindowIsActive()
 bool Gui::InGameWindowIsActive()
 {
 	return mInGameWindow.IsActive();
+}
+
+bool Gui::EnergyCellsActive()
+{
+	return mEnergyCellsShowing;
 }

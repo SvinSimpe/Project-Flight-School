@@ -299,11 +299,13 @@ SOCKET NetListenSocket::AcceptConnection( UINT* addr )
 	return newSocket;
 }
 
-void NetListenSocket::Initialize( int portNum )
+bool NetListenSocket::Initialize( int portNum )
 {
+	bool result = true;
 	if( ( mSocket = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP ) )  == INVALID_SOCKET )
 	{
 		PFS_ASSERT( "NetListenSocket Error: Init failed to create socket handle" );
+		result = false;
 	}
 
 	int value = 1;
@@ -313,6 +315,7 @@ void NetListenSocket::Initialize( int portNum )
 		closesocket( mSocket );
 		mSocket = INVALID_SOCKET;
 		PFS_ASSERT( "NetListenSocket Error : Initialize failed to set socket options ");
+		result = false;
 	}
 
 	sockaddr_in sa;
@@ -327,6 +330,7 @@ void NetListenSocket::Initialize( int portNum )
 		closesocket( mSocket );
 		mSocket = INVALID_SOCKET;
 		PFS_ASSERT( "NetListenSocket error: Initialize failed to bind." );
+		result = false;
 	}
 
 	if( listen( mSocket, 256 ) == SOCKET_ERROR )
@@ -334,9 +338,11 @@ void NetListenSocket::Initialize( int portNum )
 		closesocket( mSocket );
 		mSocket = INVALID_SOCKET;
 		PFS_ASSERT( "NetListenSocket error: Initialize failed to listen." );
+		result = false;
 	}
 
 	gPort = portNum;
+	return result;
 }
 
 NetListenSocket::NetListenSocket( SocketManager* socketManager )
@@ -389,7 +395,6 @@ bool ServerListenSocket::HandleInput()
 ServerListenSocket::ServerListenSocket( SocketManager* socketManager, int portNum )
 	: NetListenSocket( socketManager )
 {
-	Initialize( portNum );
 }
 
 // End of ServerListenSocket functions
@@ -717,7 +722,7 @@ void SocketManager::DoSelect( int pauseMicroSecs, bool handleInput )
 
 bool SocketManager::Initialize()
 {
-	if( !(WSAStartup( 0x0202, &mWsaData) == 0) )
+	if( !( WSAStartup( 0x0202, &mWsaData ) == 0) )
 		return false;
 
 	return true;

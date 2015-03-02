@@ -704,7 +704,10 @@ void Exporter::ConvertAndBuildStaticMesh(MeshInfo_Maya* meshIter)
 	tempMeshData.meshInfo.vertexCount = polygon_iter.count() * 3;
 
 	//Diffusemap name
-	sprintf_s(tempMeshData.meshInfo.diffuseMapName, sizeof(tempMeshData.meshInfo.diffuseMapName), "%s", meshIter->diffuseMapName.asChar());
+	if(meshIter->diffuseMapName.length() != 0)
+		sprintf_s(tempMeshData.meshInfo.diffuseMapName, sizeof(tempMeshData.meshInfo.diffuseMapName), "%s", meshIter->diffuseMapName.asChar());
+	else
+		sprintf_s(tempMeshData.meshInfo.diffuseMapName, sizeof(tempMeshData.meshInfo.diffuseMapName), "%s", "N/A");
 
 	//Normalmap name
 	if (meshIter->normalMapName.length() != 0)
@@ -781,7 +784,10 @@ void Exporter::ConvertAndBuildAnimMesh(MeshInfo_Maya* meshIter)
 	tempMeshData.meshInfo.vertexCount = polygon_iter.count() * 3;
 
 	//Diffusemap name
-	sprintf_s(tempMeshData.meshInfo.diffuseMapName, sizeof(tempMeshData.meshInfo.diffuseMapName), "%s", meshIter->diffuseMapName.asChar());
+	if(meshIter->diffuseMapName.length() != 0)
+		sprintf_s(tempMeshData.meshInfo.diffuseMapName, sizeof(tempMeshData.meshInfo.diffuseMapName), "%s", meshIter->diffuseMapName.asChar());
+	else
+		sprintf_s(tempMeshData.meshInfo.diffuseMapName, sizeof(tempMeshData.meshInfo.diffuseMapName), "%s", "N/A");
 
 	//Normalmap name
 	if (meshIter->normalMapName.length() != 0)

@@ -79,6 +79,8 @@ class RemotePlayer
 		BoundingCircle*	mBoundingCircle;
 		BoundingCircle*	mBoundingCircleAura;
 		XMFLOAT3		mSpawnPosition;
+		bool			mIsBuffed;
+		float			mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
 
 		//Graphics
 		Font			mFont;
@@ -118,6 +120,7 @@ class RemotePlayer
 		//GetSet
 		bool			IsAlive() const;
 		bool			IsDown() const;
+		bool			IsBuffed() const;
 		LoadOut*		GetLoadOut() const;
 		float			GetHP() const;
 		float			GetMaxHP() const;

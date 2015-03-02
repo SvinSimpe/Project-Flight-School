@@ -20,12 +20,38 @@ HRESULT LobbyOwnerState::Update( float deltaTime )
 	return hr;
 }
 
-HRESULT LobbyOwnerState::Render()
+HRESULT LobbyOwnerState::Render( float deltaTime )
 {
-
-	mStartButton.Render();
+	HRESULT hr = S_OK;
 	
-	HRESULT hr = LobbyState::Render( 0.0f );
+	RenderManager::GetInstance()->AddObject2dToList( mBackground, XMFLOAT2( 0.0f, 0.0f ), XMFLOAT2( (float)Input::GetInstance()->mScreenWidth, (float)Input::GetInstance()->mScreenHeight ) );
+	
+	for( auto p : mPlayers )
+	{
+		p->button.Render();
+	}
+	
+	std::string textToWrite = "";
+
+	for( auto p : mPlayers )
+	{
+		textToWrite = p->name;
+		
+		mFont.WriteText( textToWrite, p->button.GetPosition().x + 20.0f, p->button.GetPosition().y + 15.0f, 3.0f );
+	}
+
+	mBackButton.Render();
+	mChooseWeaponButton.Render();
+	mChooseWeaponText.Render();
+	mStartButton.Render();
+
+	if( mLoadOutMenu.IsActive() )
+	{
+		mLoadOutMenu.Render();
+	}
+	
+	RenderManager::GetInstance()->Render();
+
 	return hr;
 }
 
@@ -37,7 +63,7 @@ void LobbyOwnerState::OnExit()
 
 HRESULT LobbyOwnerState::Initialize()
 {
-	mStartButton.Initialize( "../Content/Assets/Textures/Menu/Create_Menu_Text/MultiPlayer.png", 1600, 700, 200, 200 );
+	mStartButton.Initialize( "../Content/Assets/Textures/Menu/Create_Menu_Text/MultiPlayer.png", 1665.0f, 760.0f, 200.0f, 200.0f );
 
 	return LobbyState::Initialize();
 }

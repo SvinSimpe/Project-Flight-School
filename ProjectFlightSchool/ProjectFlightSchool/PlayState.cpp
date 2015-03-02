@@ -856,9 +856,6 @@ HRESULT PlayState::Render( float deltaTime )
 		}
 	}
 
-	//TestUpgradeWindow
-	//mWindow.Render();
-
 	//RENDER DEVTEXT
 	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
 	mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );

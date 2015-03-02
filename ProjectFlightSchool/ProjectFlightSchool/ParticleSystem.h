@@ -33,7 +33,7 @@ struct ParticleSystem : public ParticleData
 		{
 			case Hammer_Effect:
 			{
-				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/smokeParticle1.dds", assetID );
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/dustParticle1.dds", assetID );
 				break;
 			}
 			case NormalSmoke:
@@ -77,6 +77,11 @@ struct ParticleSystem : public ParticleData
 				break;
 			}
 			case Spark:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/sparks.dds", assetID );
+				break;
+			}
+			case Spark_Robot:
 			{
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/sparks.dds", assetID );
 				break;
@@ -162,6 +167,10 @@ struct ParticleSystem : public ParticleData
 		{
 			SetRandomDeathTime( 1, 2, particleCount );
 		}
+		if( particleType == Spark_Robot )
+		{
+			SetRandomDeathTime( 1, 2, particleCount );
+		}
 		else if( particleType == ExplosionSmoke )	
 		{
 			SetRandomDeathTime( 1, 6, particleCount );
@@ -190,7 +199,6 @@ struct ParticleSystem : public ParticleData
 		else if( particleType == Hammer_Effect )	
 		{
 			SetRandomDeathTime( 2, 8, particleCount );
-			//SetRandomRotation( particleCount ); 
 		}
 		else if( particleType == Spark )
 		{
@@ -238,6 +246,7 @@ struct ParticleSystem : public ParticleData
 		else if( particleType == Explosion )		Generate( emitterPosition, emitterDirection, 50,  360.0f );
 		else if( particleType == ExplosionSmoke )	Generate( emitterPosition, emitterDirection, 50,  360.0f );
 		else if( particleType == Spark )			Generate( emitterPosition, emitterDirection, 8, 25.0f );
+		else if( particleType == Spark_Robot )		Generate( emitterPosition, emitterDirection, 8, 25.0f );
 		else if( particleType == Blood )			Generate( emitterPosition, emitterDirection, 8, 25.0f );
 		else if( particleType == MuzzleFlash )		Generate( emitterPosition, emitterDirection, 4,  25.0f );
 		else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 8, 2.0f );
@@ -307,6 +316,12 @@ struct ParticleSystem : public ParticleData
 			{
 				// Update Spark logic here
 				SparkLogic( deltaTime );
+				break;
+			}
+			case Spark_Robot: 
+			{
+				// Update Spark logic here
+				Spark_RobotLogic( deltaTime );
 				break;
 			}
 			case Blood: 
@@ -475,6 +490,11 @@ struct ParticleSystem : public ParticleData
 	}
 
 	void SparkLogic( float deltaTime ) 
+	{
+
+	}
+	
+	void Spark_RobotLogic( float deltaTime ) 
 	{
 
 	}

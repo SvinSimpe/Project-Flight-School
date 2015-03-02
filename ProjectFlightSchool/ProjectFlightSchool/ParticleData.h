@@ -10,7 +10,7 @@
 using namespace DirectX;
 
 #define MAX_PARTICLES 10000
-#define NR_OF_PARTICLE_TYPES 16
+#define NR_OF_PARTICLE_TYPES 17
 
 #if !defined(SAFE_DELETE_ARRAY)
 #define SAFE_DELETE_ARRAY( x ) if( x ){ delete [] x; x = nullptr; }
@@ -21,6 +21,7 @@ enum ParticleType
 	Smoke,
 	Fire,
 	Spark,
+	Spark_Robot,
 	Blood,
 	MuzzleFlash,
 	Smoke_MiniGun,
@@ -355,6 +356,12 @@ struct ParticleData
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 70 );		
 			}			
 			else if( particleType == Spark )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 20, 80 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 5 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 20, 80 );
+			}
+			else if( particleType == Spark_Robot )
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 20, 80 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 5 );

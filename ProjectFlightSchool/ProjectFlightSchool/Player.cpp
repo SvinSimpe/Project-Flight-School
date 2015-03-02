@@ -98,6 +98,10 @@ void Player::EventListener( IEventPtr newEvent )
 
 void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
 {
+	if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_SPACE) )
+	{
+		GoDown(0);
+	}
 	if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_SPACE) && mCloseToPlayer )
 	{
 		mAcceleration = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -269,6 +273,15 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 
 void Player::HandleSpawn( float deltaTime )
 {
+	// Spawn smokeparticles at ground impact
+	if ( 7.75f <= mTimeTillSpawn && mTimeTillSpawn <= 7.8f )
+	{
+		XMFLOAT3 posOffset;
+		XMStoreFloat3( &posOffset, ( XMLoadFloat3( &mLowerBody.position ) + XMLoadFloat3( &mUpperBody.direction ) * XMLoadFloat3( &XMFLOAT3( 2.0f, 2.0f, 2.0f ) ) ) );
+
+		RenderManager::GetInstance()->RequestParticleSystem( mID, Hammer_Effect, posOffset, mLowerBody.direction );
+	}
+	
 	if( mTimeTillSpawn <= 0.0f )
 	{
 		Spawn();
@@ -783,15 +796,12 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 		mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
 		mHasMeleeStarted	= false;
 	}
-
+	
 	// If player is alive, update position. If hp <= 0 kill player
-
 	if( !mIsDown )
 	{
 		if( mIsAlive )
 		{
-
-
 			//////////////////////////////////
 			//ANIMATIONS
 			float currentVelocity = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) );

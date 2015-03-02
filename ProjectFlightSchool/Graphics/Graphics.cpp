@@ -561,6 +561,16 @@ HRESULT Graphics::InitializeEffects()
 		return hr;
 	//--------------------------
 
+	//Spark effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/SparkEffect.hlsl";
+	effectInfo.fileName					= "SparkEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_SPARK_ROBOT]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
 	//Blood effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/BloodEffect.hlsl";
 	effectInfo.fileName					= "BloodEffect";

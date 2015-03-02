@@ -85,6 +85,7 @@ void ParticleManager::Initialize()
 	mNrOfParticleSystemsPerType[Smoke]			= 0;
 	mNrOfParticleSystemsPerType[Fire]			= 0;
 	mNrOfParticleSystemsPerType[Spark]			= 0;
+	mNrOfParticleSystemsPerType[Spark_Robot]	= 0;
 	mNrOfParticleSystemsPerType[Blood]			= 0;
 	mNrOfParticleSystemsPerType[MuzzleFlash]	= 0;
 	mNrOfParticleSystemsPerType[Smoke_MiniGun]	= 0;
@@ -97,12 +98,13 @@ void ParticleManager::Initialize()
 	mNrOfParticleSystemsPerType[BlowTorchFire]	= 0;
 	mNrOfParticleSystemsPerType[BlowTorchIdle]	= 0;
 	mNrOfParticleSystemsPerType[ExplosionSmoke]	= 0;
-	mNrOfParticleSystemsPerType[NormalSmoke]	= 0;// Below this
-	mNrOfParticleSystemsPerType[Hammer_Effect]	= 0;
+	mNrOfParticleSystemsPerType[NormalSmoke]	= 0;
+	mNrOfParticleSystemsPerType[Hammer_Effect]	= 0;// Below this
 
 	mMaxNrOfParticleSystemsPerType[Smoke]			= 1;
 	mMaxNrOfParticleSystemsPerType[Fire]			= 1;
 	mMaxNrOfParticleSystemsPerType[Spark]			= 10;
+	mMaxNrOfParticleSystemsPerType[Spark_Robot]		= 10;
 	mMaxNrOfParticleSystemsPerType[Blood]			= 10;
 	mMaxNrOfParticleSystemsPerType[MuzzleFlash]		= 8;
 	mMaxNrOfParticleSystemsPerType[Smoke_MiniGun]	= 8;
@@ -114,12 +116,13 @@ void ParticleManager::Initialize()
 	mMaxNrOfParticleSystemsPerType[BlowTorchFire]	= 3;
 	mMaxNrOfParticleSystemsPerType[BlowTorchIdle]	= 3;
 	mMaxNrOfParticleSystemsPerType[FireSmoke]		= 4;
-	mMaxNrOfParticleSystemsPerType[NormalSmoke]		= 3;// Aswell as this
-	mMaxNrOfParticleSystemsPerType[Hammer_Effect]	= 3;
+	mMaxNrOfParticleSystemsPerType[NormalSmoke]		= 3;
+	mMaxNrOfParticleSystemsPerType[Hammer_Effect]	= 3;// Aswell as this
 
 	mNrOfActiveParticleSystemsPerType[Smoke]			= 0;
 	mNrOfActiveParticleSystemsPerType[Fire]				= 0;
 	mNrOfActiveParticleSystemsPerType[Spark]			= 0;
+	mNrOfActiveParticleSystemsPerType[Spark_Robot]		= 0;
 	mNrOfActiveParticleSystemsPerType[Blood]			= 0;
 	mNrOfActiveParticleSystemsPerType[MuzzleFlash]		= 0;
 	mNrOfActiveParticleSystemsPerType[Smoke_MiniGun]	= 0;
@@ -131,8 +134,8 @@ void ParticleManager::Initialize()
 	mNrOfActiveParticleSystemsPerType[BlowTorchFire]	= 0;
 	mNrOfActiveParticleSystemsPerType[BlowTorchIdle]	= 0;
 	mNrOfActiveParticleSystemsPerType[FireSmoke]		= 0;
-	mNrOfActiveParticleSystemsPerType[NormalSmoke]		= 0;// And this
-	mNrOfActiveParticleSystemsPerType[Hammer_Effect]	= 0;
+	mNrOfActiveParticleSystemsPerType[NormalSmoke]		= 0;
+	mNrOfActiveParticleSystemsPerType[Hammer_Effect]	= 0;// And this
 
 	//======= Allocate memory for Particle Systems =======
 	mParticleSystems = new ParticleSystem**[NR_OF_PARTICLE_TYPES];
@@ -209,7 +212,13 @@ void ParticleManager::Initialize()
 		mNrOfParticleSystemsPerType[Spark]++;
 		mNrOfParticleSystems++;
 	}
-	
+
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Spark_Robot]; i++ )
+	{
+		mParticleSystems[Spark_Robot][i]->Initialize( Spark_Robot, 8.0f, 144 );
+		mNrOfParticleSystemsPerType[Spark_Robot]++;
+		mNrOfParticleSystems++;
+	}
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Blood]; i++ )
 	{
 		mParticleSystems[Blood][i]->Initialize( Blood, 8.0f, 144 );

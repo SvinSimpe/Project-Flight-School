@@ -85,12 +85,13 @@ void PlayState::EventListener( IEventPtr newEvent )
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
 
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Spark_Robot, XMFLOAT3( 4.0f, 2.0f, 4.0f ), data->Direction() );
 		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Explosion, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), ExplosionSmoke, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 
 		///Blowtorch particle system
-		RenderManager::GetInstance()->RequestParticleSystem( 855, BlowTorchIdle, data->BodyPos(), data->Direction() );
-		RenderManager::GetInstance()->RequestParticleSystem( 855, BlowTorchFire, data->BodyPos(), data->Direction() );
+		//RenderManager::GetInstance()->RequestParticleSystem( 855, BlowTorchIdle, data->BodyPos(), data->Direction() );
+		//RenderManager::GetInstance()->RequestParticleSystem( 855, BlowTorchFire, data->BodyPos(), data->Direction() );
 
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
@@ -136,6 +137,8 @@ void PlayState::EventListener( IEventPtr newEvent )
 			mEnemyShip->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
 		}
 	}
+
+	
 	else if( newEvent->GetEventType() == Event_Remote_Win::GUID )
 	{
 		std::shared_ptr<Event_Remote_Win> data = std::static_pointer_cast<Event_Remote_Win>( newEvent );

@@ -9,7 +9,8 @@ struct CbufferPerFrame
 	DirectX::XMMATRIX	projectionMatrix;
 	DirectX::XMFLOAT4	cameraPosition;
 	int					numPointLights;
-	int					pad[3];
+	float				timeVariable;
+	int					pad[2];
 };
 
 struct CbufferPerFrameShadow

@@ -416,6 +416,8 @@ void Server::ClientInteractEnergyCell( IEventPtr eventPtr )
 				{
 					mEnergyCells[j]->SetSecured( true );
 					s->AddEnergyCell( mEnergyCells[j]->GetOwnerID() );
+					IEventPtr E2( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel, s->mEngineLevel ) );
+					BroadcastEvent( E2 );
 				}
 			}
 		}

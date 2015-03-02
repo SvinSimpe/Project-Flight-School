@@ -125,11 +125,9 @@ void ServerShip::ClientUpdateShip( IEventPtr eventPtr )
 
 void ServerShip::AddEnergyCell( UINT energyCellOwnerID )
 {
-	if( energyCellOwnerID == mID )
-	{
 		mNrOfEnergyCells++;
 		mNrOfAvailableEnergyCells++;
-	}
+		ChangeEngineLevel( 1 );
 }
 
 float ServerShip::PercentShield() const

@@ -7,6 +7,8 @@
 using namespace std;
 using namespace DirectX;
 
+#define OCTTREE_MAX_Y 2.0f
+
 enum OctreeParts
 {
   TOP_FRONT_LEFT		= 0,

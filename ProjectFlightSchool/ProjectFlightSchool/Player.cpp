@@ -422,17 +422,32 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	//	currStep = currentPath.begin();
 	//}
 
+	// Update water status	
+	mIsInWater	= mLowerBody.position.y < -0.7f ? true : false;
+	
 	XMFLOAT3 testPosition	= mLowerBody.position;
 	XMFLOAT3 normal			= XMFLOAT3( 0.0f, 1.0f, 0.0f );
 	testPosition.x += mVelocity.x * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f );
-	testPosition.z += mVelocity.z * deltaTime *( 0.8f + (float)mUpgrades.legs / 5.0f );
+	testPosition.z += mVelocity.z * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f );
 	testPosition.y = worldMap->GetHeight( testPosition );
 
-	if( !worldMap->PlayerVsMap(	testPosition, normal ) )
+	bool collisionTest = worldMap->PlayerVsMap( testPosition, normal );
+	if( !collisionTest )
 	{
 		mLowerBody.position.x = testPosition.x;
 		mLowerBody.position.y = testPosition.y;
 		mLowerBody.position.z = testPosition.z;
+
+		if( mIsInWater )
+		{
+			XMStoreFloat3( &mVelocity, XMLoadFloat3( &mVelocity ) * ( 1.0f - deltaTime * 10.0f ) );
+			mWaterDamageTime += deltaTime;
+			if( mWaterDamageTime > WATER_DAMAGE_TIME )
+			{
+				mWaterDamageTime = 0.0f;
+				TakeDamage( WATER_DAMAGE, 0 );
+			}
+		}
 	}
 	else
 	{
@@ -441,8 +456,6 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 		XMVECTOR loadNormNorm	= XMLoadFloat3( &XMFLOAT3( -normal.z, -normal.y, normal.x ) );
 		XMStoreFloat3( &mVelocity, loadNormNorm * XMVectorGetX( XMVector3Dot( loadVel, loadNormNorm ) ) + loadNorm * deltaTime * 20.0f );
 	}
-
-	
 
 	Update( deltaTime, remotePlayers, energyCells );
 	return S_OK;
@@ -1073,6 +1086,7 @@ Player::Player()
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mFireDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mIsOutSideZone		= false;
+	mIsInWater			= false;
 	mHasMeleeStarted	= false;
 	mXP					= 0;
 	mNextLevelXP		= 0;
@@ -1084,6 +1098,7 @@ Player::Player()
 	mReviveTime				= 0.0f;
 	mTimeTillRevive			= 0.0f;
 	mLeavingAreaTime		= 0.0f;
+	mWaterDamageTime		= 0.0f;
 	mLastKiller				= 0;
 
 	gEventList				= std::list<IEventPtr>();

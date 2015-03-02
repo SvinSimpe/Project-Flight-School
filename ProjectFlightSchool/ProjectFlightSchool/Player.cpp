@@ -221,8 +221,8 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_RIGHT ) && mMeleeCoolDown <= 0.0f )
 	{
-		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
-		mLeftArmAnimationCompleted = false;
+		//RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
+		//mLeftArmAnimationCompleted = false;
 		IEventPtr E1( new Event_Client_Attack( mID, LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] ) );
 		QueueEvent( E1 );
 		mHasMeleeStarted	= true;
@@ -778,10 +778,43 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 		{
 			RenderManager::GetInstance()->RequestParticleSystem( mID, Hammer_Effect, XMFLOAT3( mLoadOut->meleeWeapon->boundingCircle->center.x, 0.3f, mLoadOut->meleeWeapon->boundingCircle->center.z ) , XMFLOAT3( 1.0f, 0.0f, 1.0f ) );
 		}
+		if ( mLoadOut->meleeWeapon->weaponType == BLOWTORCH )
+		{
+			XMFLOAT3 weaponOffsets = BLOWTORCH_OFFSETS;
+
+			XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
+			XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
+			XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + weaponOffsets.z, mLowerBody.position.z ) );
+	
+			offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * weaponOffsets.y;
+			offset += direction * weaponOffsets.x;
+
+			XMFLOAT3 loadDir;
+			XMStoreFloat3( &loadDir, offset );
+
+			RenderManager::GetInstance()->RequestParticleSystem( mID, Smoke_MiniGun, loadDir, DirectX::XMFLOAT3( 0.0f, 1.0f, 0.0f ) ); 
+			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, loadDir, mUpperBody.direction );
+		}
 		//QueueEvent( new Event_Client_Attack( mID, LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK]) );
 
 		mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
 		mHasMeleeStarted	= false;
+	}
+	else if( mLoadOut->meleeWeapon->weaponType == BLOWTORCH )
+	{
+		XMFLOAT3 weaponOffsets = BLOWTORCH_OFFSETS;
+
+		XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
+		XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
+		XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + weaponOffsets.z, mLowerBody.position.z ) );
+	
+		offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * weaponOffsets.y;
+		offset += direction * weaponOffsets.x;
+
+		XMFLOAT3 loadDir;
+		XMStoreFloat3( &loadDir, offset );
+
+		RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchIdle, loadDir, mUpperBody.direction );
 	}
 
 	// If player is alive, update position. If hp <= 0 kill player

@@ -382,15 +382,35 @@ void PlayState::CheckProjectileCollision()
 
 void PlayState::CheckMeeleCollision()
 {
+	XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) * mPlayer->GetLoadOut()->meleeWeapon->radius );
+
+	XMFLOAT3 endPos;
+		
+	XMStoreFloat3( &endPos, XMLoadFloat3( &mPlayer->GetPlayerPosition() ) + XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) * mPlayer->GetLoadOut()->meleeWeapon->radius );
+
+	RenderManager::GetInstance()->AddLineToList( mPlayer->GetPosition(), XMFLOAT3( endPos.x, 1.0f, endPos.z ) ); 
+
+	float halfRadian = XMConvertToRadians( mPlayer->GetLoadOut()->meleeWeapon->spread * 18.0f ) * 0.5f;
+
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++ )
 	{
+		//XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) * mPlayer->GetLoadOut()->meleeWeapon->radius );
+
+		//XMFLOAT3 endPos;
+		//
+		//XMStoreFloat3( &endPos, XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) * mPlayer->GetLoadOut()->meleeWeapon->radius );
+
+		//RenderManager::GetInstance()->AddLineToList( mPlayer->GetPosition(), XMFLOAT3( endPos.x, 1.0f, endPos.z ) ); 
+
+		//float halfRadian = XMConvertToRadians( mPlayer->GetLoadOut()->meleeWeapon->spread * 18.0f ) * 0.5f;
+
 		//Check intersection with melee circle & remotePlayer
 		if( mRemotePlayers[i]->IsAlive() && mPlayer->GetLoadOut()->meleeWeapon->boundingCircle->Intersect( mRemotePlayers.at(i)->GetBoundingCircle() ) )
 		{
-			XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) * mPlayer->GetLoadOut()->meleeWeapon->radius );
+			
 
 			//Spread to Radians
-			float halfRadian = XMConvertToRadians( mPlayer->GetLoadOut()->meleeWeapon->spread * 18.0f ) * 0.5f;
+			
 
 			XMVECTOR playerToRemote = XMLoadFloat3( &mRemotePlayers.at(i)->GetPosition() ) - XMLoadFloat3( &mPlayer->GetPosition() );
 

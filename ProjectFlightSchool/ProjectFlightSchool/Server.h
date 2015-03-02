@@ -87,6 +87,7 @@ class Server : public Network
 		void	ClientUp( IEventPtr eventPtr );
 		void	ClientAttemptRevive( IEventPtr eventPtr );
 		void	ClientShipProjectileDamage( IEventPtr eventPtr );
+		void	ClientEnemyMeleeDamage( IEventPtr eventPtr );
 		void	ClientEnemyProjectileDamage( IEventPtr eventPtr );
 		void	SetEnemyState( IEventPtr eventPtr );
 		void	BroadcastEnemyAttackToClients( IEventPtr eventPtr );

@@ -73,14 +73,15 @@
 #define HAMMER_REACH		2.0f	// Reach
 
 // Blowtorch
-#define BLOWTORCH_AR		3.0f	// Attack Rate
+#define BLOWTORCH_AR		0.0f	// Attack Rate
 #define BLOWTORCH_DAMAGE	5.0f	// Damage
 #define BLOWTORCH_RADIUS	5.0f	// Radius
 #define BLOWTORCH_SPREAD	7		// Spread
 #define BLOWTORCH_KB		2.0f	// Knockback
-#define BLOWTORCH_TTA		0.95f	// Time till Attack
+#define BLOWTORCH_TTA		0.2f	// Time till Attack
 #define BLOWTORCH_STUN		0.0f	// Stun
 #define BLOWTORCH_REACH		2.3f	// Reach
+#define BLOWTORCH_OFFSETS		XMFLOAT3( 0.8f, -0.65f, 1.3f ) // Offsets forward, right, up
 
 // Saw
 #define SAW_AR				3.0f	// Attack Rate

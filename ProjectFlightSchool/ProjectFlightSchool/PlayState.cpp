@@ -477,6 +477,14 @@ void PlayState::HandleDeveloperCameraInput()
 				mGui->ActivateUpgradeShipWindow();
 			}
 		}
+		else if( mGui->EnergyCellsActive() )
+		{
+			mGui->DeActivateEnergyCellsShowing();
+		}
+		else
+		{
+			mGui->ActivateEnergyCellsShowing();
+		}
 	}
 	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_Y ) )
 	{

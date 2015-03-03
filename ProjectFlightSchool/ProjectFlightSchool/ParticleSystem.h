@@ -158,6 +158,8 @@ struct ParticleSystem : public ParticleData
 		{
 			SetRandomRotation( particleCount ); 
 		}
+
+
 		if( particleType == Spark )
 		{
 			SetRandomDeathTime( 1, 2, particleCount );
@@ -179,7 +181,7 @@ struct ParticleSystem : public ParticleData
 		}
 		else if( particleType == Explosion )	
 		{
-			SetRandomDeathTime( 1, 2, particleCount );
+			SetRandomDeathTime( 1, 3, particleCount );
 			SetRandomRotation( particleCount ); 
 		}
 		else if( particleType == NormalSmoke )	
@@ -242,7 +244,7 @@ struct ParticleSystem : public ParticleData
 		else if( particleType == MuzzleFlash )		Generate( emitterPosition, emitterDirection, 4,  25.0f );
 		else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 8, 2.0f );
 		else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 32, 20.0f );
-		else if( particleType == Level_Up )			Generate( emitterPosition, emitterDirection, 1024, 270.0f );
+		else if( particleType == Level_Up )			Generate( emitterPosition, emitterDirection, 512, 270.0f );
 		else if( particleType == Level_Inner )		Generate( emitterPosition, emitterDirection, 32, 20.0f );
 	}
 

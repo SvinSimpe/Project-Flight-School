@@ -198,7 +198,7 @@ void ParticleManager::Initialize()
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Level_Up]; i++ )
 	{
-		mParticleSystems[Level_Up][i]->Initialize( Level_Up, 1024.0f, 1024 );
+		mParticleSystems[Level_Up][i]->Initialize( Level_Up, 512.0f, 1024 );
 		mNrOfParticleSystemsPerType[Level_Up]++;
 		mNrOfParticleSystems++;
 	}

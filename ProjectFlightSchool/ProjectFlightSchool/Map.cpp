@@ -112,8 +112,8 @@ bool Map::PlayerVsMap( XMFLOAT3 position, XMFLOAT3 &normal )
 						XMVECTOR loaded		= XMLoadFloat3( &collisionNormal );
 						XMStoreFloat3( &collisionNormal, XMVector3Normalize( loaded ) );
 
-						//XMFLOAT4X4 store;
-						//XMStoreFloat4x4( &store, XMMatrixTranspose( objMat ) );
+						XMFLOAT4X4 store;
+						XMStoreFloat4x4( &store, XMMatrixTranspose( objMat ) );
 
 						if( collision )
 						{

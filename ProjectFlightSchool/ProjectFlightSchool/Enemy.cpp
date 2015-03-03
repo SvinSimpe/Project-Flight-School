@@ -473,7 +473,7 @@ void Enemy::Release()
 	}
 	delete [] mBehaviors;
 
-	SAFE_DELETE( mSteeringBehaviorManager );
+	SAFE_RELEASE_DELETE( mSteeringBehaviorManager );
 }
 
 Enemy::Enemy()

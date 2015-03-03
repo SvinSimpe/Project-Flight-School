@@ -13,7 +13,7 @@
 
 // Minigun
 #define MINIGUN_AR			0.05f	// Attack Rate
-#define MINIGUN_DAMAGE		0.6f	// Damage
+#define MINIGUN_DAMAGE		2.0f	// Damage
 #define MINIGUN_RANGE		0.8f	// Range
 #define MINIGUN_SPREAD		0.1f	// Spread
 #define MINIGUN_AOE			5.0f	// Area of effect
@@ -23,7 +23,7 @@
 #define MINIGUN_OVERHEAT	1.0f	// Amount of heat the minigun get's for firing once
 // Shotgun
 #define SHOTGUN_AR			1.0f	// Attack Rate
-#define SHOTGUN_DAMAGE		0.5f	// Damage
+#define SHOTGUN_DAMAGE		3.0f	// Damage
 #define SHOTGUN_RANGE		0.3f	// Range
 #define SHOTGUN_SPREAD		0.0f	// Spread
 #define SHOTGUN_AOE			0.0f	// Area of effect
@@ -50,7 +50,7 @@
 
 //////////////////////////////////
 //		 MELEE WEAPONS
-//////////////////////////////////
+//////////////////////////////////d
 
 // Claymore
 #define CLAYMORE_AR			1.0f	// Attack Rate

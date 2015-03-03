@@ -57,6 +57,16 @@ void SteeringBehavior::SteerAway( XMFLOAT3& target, XMFLOAT3& result )
 		XMStoreFloat3( &result, XMVectorZero() );
 }
 
+float SteeringBehavior::Dot( XMFLOAT3& a, XMFLOAT3& b )
+{
+	return ( a.x * b.x ) + ( a.y * b.y ) + ( a.z * b.z );
+}
+
+float SteeringBehavior::Lerp( float t, float a, float b )
+{
+	return a + ( b - a ) * t;
+}
+
 void SteeringBehavior::Reset()
 {
 }
@@ -140,16 +150,48 @@ bool SteerEvade::Update( float deltaTime, XMFLOAT3& totalForce )
 	// Move away from the nearest object ( for now just other enemies )
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 	{
-		if( mEnemy->GetAttackCircle()->Intersect( mEnemy->mOtherEnemies[i]->GetAttackCircle() ) )
+		if( ( mEnemy->mID != mEnemy->mOtherEnemies[i]->mID && mEnemy->mOtherEnemies[i]->IsAlive() ) ) // && !mEnemy->mOtherEnemies[i]->mHasEvaded )
 		{
-			XMFLOAT3 steeringForce = XMFLOAT3( 0.0f, 0.0f, 0.0f );
-			SteerAway( mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos, steeringForce );
-			totalForce.x	+= steeringForce.x;
-			totalForce.z	+= steeringForce.z;
-			totalForce.y	 = 0.0f;
+			if( mEnemy->GetAttackCircle()->Intersect( mEnemy->mOtherEnemies[i]->GetAttackCircle() ) )
+			{
+				/*XMFLOAT3 deltaPos		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+				deltaPos.x				= mEnemy->mOtherEnemies[i]->mPosition.x - mEnemy->mPosition.x;
+				deltaPos.z				= mEnemy->mOtherEnemies[i]->mPosition.z - mEnemy->mPosition.z;
+				XMFLOAT3 deltaPosNorm	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+				XMStoreFloat3( &deltaPosNorm, XMVector3Normalize( XMLoadFloat3( &deltaPosNorm ) ) );*/
+
+				// Dot( mEnemy->GetVelocity().Normalize(), mEnemy->mOtherEnemies[i]->GetVelocity().Normalize() );
+				/*XMFLOAT3 a			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+				XMFLOAT3 b			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+				XMStoreFloat3( &a, XMVector3Normalize( XMLoadFloat3( &mEnemy->mVelocity ) ) );
+				XMStoreFloat3( &b, XMVector3Normalize( XMLoadFloat3( &mEnemy->mOtherEnemies[i]->mVelocity ) ) );
+				float dotVelocity	= Dot( a, b );*/
+
+				XMFLOAT3 targetPos	= mEnemy->mOtherEnemies[i]->mPosition;
+				
+				//XMStoreFloat3( &b, XMVector3Normalize( XMLoadFloat3( &mEnemy->mVelocity ) ) );
+				//if( ( Dot( deltaPos, b ) ) < 0.0f || ( dotVelocity > -0.93f ) ) //magic number == about 21 degrees
+				//{
+				//	XMFLOAT3 enemyVelocity = mEnemy->mVelocity;
+				//	XMStoreFloat3( &enemyVelocity, XMVector3Normalize( XMLoadFloat3( &mEnemy->mVelocity ) ) * mEnemy->GetSpeed() );
+				//	// combinedSpeed = enemyVelocity + mEnemy->mOtherEnemies[i]->mVelocity.Length()
+				//	float combinedSpeed		= XMVectorGetX( )
+				//}
+
+				XMFLOAT3 steeringForce = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+				SteerAway( targetPos, steeringForce ); //mEnemy->mOtherEnemies[i]->GetPosition(), steeringForce );
+				totalForce.x	+= steeringForce.x;
+				totalForce.z	+= steeringForce.z;
+				totalForce.y	 = 0.0f;
+
+				adjustment = true;
+			}
+			
 		}
 	}
 
+	//mEnemy->mOtherEnemies[i]->mHasEvaded = adjustment;
+	mEnemy->mHasEvaded	= adjustment;
 	return adjustment;
 }
 

@@ -32,12 +32,12 @@ HRESULT SteeringBehaviorManager::Update( float deltaTime )
 			// ONLY USE ONE Combine Force function
 
 			// Simple weighted combination function
-			keepGoing		= CombinedForceWeighted( steeringForce, mBehaviors[i]->mWeight );
+			//keepGoing		= CombinedForceWeighted( steeringForce, mBehaviors[i]->mWeight );
 			// Normalize the result
 			//needToClamp		= true;
 
 			// Prioritized Sum funtion
-			//keepGoing		= CombineForcePrioritySum( steeringForce );
+			keepGoing		= CombineForcePrioritySum( steeringForce, mBehaviors[i]->mWeight );
 
 			if( !keepGoing )
 				break;
@@ -83,7 +83,7 @@ bool SteeringBehaviorManager::CombinedForceWeighted( XMFLOAT3& steeringForce, fl
 	return true;
 }
 
-bool SteeringBehaviorManager::CombineForcePrioritySum( XMFLOAT3& steeringForce )
+bool SteeringBehaviorManager::CombineForcePrioritySum( XMFLOAT3& steeringForce, float weight )
 {
 	bool retVal			= false;
 
@@ -94,6 +94,7 @@ bool SteeringBehaviorManager::CombineForcePrioritySum( XMFLOAT3& steeringForce )
 
 	if( forceLeft > 0.0f )
 	{
+		XMStoreFloat3( &steeringForce, XMLoadFloat3( &steeringForce ) * weight );
 		// newForce = steeringForce.Lenght()
 		float newForce = XMVectorGetX( XMVector3Length( XMLoadFloat3( &steeringForce ) ) );
 

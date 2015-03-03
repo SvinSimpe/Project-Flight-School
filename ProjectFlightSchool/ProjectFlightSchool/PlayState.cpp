@@ -477,6 +477,14 @@ void PlayState::HandleDeveloperCameraInput()
 				mGui->ActivateUpgradeShipWindow();
 			}
 		}
+		else if( mGui->EnergyCellsActive() )
+		{
+			mGui->DeActivateEnergyCellsShowing();
+		}
+		else
+		{
+			mGui->ActivateEnergyCellsShowing();
+		}
 	}
 	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_Y ) )
 	{
@@ -495,7 +503,7 @@ void PlayState::HandleDeveloperCameraInput()
 			}
 		}
 	}
-	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_ENTER ) )
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_ESCAPE ) )
 	{
 		if( mGui->InGameWindowIsActive() )
 		{
@@ -698,7 +706,15 @@ HRESULT PlayState::Update( float deltaTime )
 			{
 				remotePlayerName							= mRemotePlayers[i]->GetName();
 				mRadarObjects[nrOfRadarObj].mRadarObjectPos = mRemotePlayers[i]->GetPosition();
-				mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::HOSTILE;
+
+				if( mRemotePlayers[i]->GetTeam() == mPlayer->GetTeam() )
+				{
+					mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::FRIENDLY;
+				}
+				else
+				{
+					mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::HOSTILE;
+				}
 			}
 			pName[i].mRemotePlayerPos		= mRemotePlayers[i]->GetPosition();
 			pName[i].mRemotePlayerName		= remotePlayerName;
@@ -784,6 +800,26 @@ HRESULT PlayState::Update( float deltaTime )
 		}
 	}
 
+	//No need to update the first energy cell since it's not supposed to be active
+	for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
+	{
+		if( !mEnergyCells[i]->GetPickedUp() )
+		{
+			mEnergyCells[i]->Update( deltaTime );
+			mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnergyCells[i]->GetPosition();
+			mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::OBJECTIVE;
+		}
+	}
+
+	CheckProjectileCollision();
+
+	// Test Anim
+	///////////////////////////////////////////////////////////////////////////
+	//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
+	///////////////////////////////////////////////////////////////////////////
+
+	//GUI UPDATE ANYTHING RELATED TO IT NEEDS TO PUT ABOVE THIS COMMENT
+	////////////////////////////////////////////////////////////////////////////////////////////
 	guiUpdate.mRadarObjects	= mRadarObjects;
 	guiUpdate.mNrOfObjects	= nrOfRadarObj;
 	guiUpdate.mPlayerPos	= mPlayer->GetPlayerPosition();	
@@ -796,21 +832,7 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.deltaTime = deltaTime;
 
 	mGui->Update( guiUpdate );
-
-	CheckProjectileCollision();
-
-	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
-	{
-		if( !mEnergyCells[i]->GetPickedUp() )
-		{
-			mEnergyCells[i]->Update( deltaTime );
-		}
-	}
-
-	// Test Anim
-	///////////////////////////////////////////////////////////////////////////
-	//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////
 
 	return S_OK;
 }
@@ -841,14 +863,14 @@ HRESULT PlayState::Render( float deltaTime )
 		}
 	}
 
-	for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
+	/*for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
 	{
 		RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
-	}
+	}*/
 
 	mGui->Render();
 
-	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+	for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
 	{
 		if( !mEnergyCells[i]->GetPickedUp() && CullEntity( mEnergyCells[i]->GetPosition() ) )
 		{
@@ -856,12 +878,9 @@ HRESULT PlayState::Render( float deltaTime )
 		}
 	}
 
-	//TestUpgradeWindow
-	//mWindow.Render();
-
 	//RENDER DEVTEXT
-	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
-	mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
+	//std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
+	//mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
 
 	XMFLOAT4X4 identity;
 	XMStoreFloat4x4( &identity, XMMatrixIdentity() );
@@ -928,7 +947,7 @@ HRESULT PlayState::Initialize()
 	BaseState::Initialize();
 	mStateType = PLAY_STATE;
 	
-	mSight = (HCURSOR)LoadImage( NULL, L"../Content/Assets/GUI/tempCurs.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE );
+	mSight = (HCURSOR)LoadImage( NULL, L"../Content/Assets/GUI/crosshair.ico", IMAGE_ICON, 32, 32, LR_LOADFROMFILE );
 
 	//AssetID model		= 0;
 	//AssetID loader	= 0;
@@ -945,7 +964,7 @@ HRESULT PlayState::Initialize()
 
 	mWorldMap = new Map();
 
-	mWorldMap->Initialize( 12 );
+	mWorldMap->Initialize( 25 );
 
 	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/HardMap.xml" ) ); 
 

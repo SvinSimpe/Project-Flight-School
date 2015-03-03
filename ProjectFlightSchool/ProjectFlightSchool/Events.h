@@ -3987,6 +3987,7 @@ class Event_Server_Change_Ship_Levels : public IEvent
 		int mShieldLevel;
 		int mBuffLevel;
 		int mEngineLevel;
+		int mNrOfEnergyCells;
 
 	protected:
 	public:
@@ -3997,19 +3998,21 @@ class Event_Server_Change_Ship_Levels : public IEvent
 	public:
 		Event_Server_Change_Ship_Levels()
 		{
-			mID				= (UINT)-1;
-			mTurretLevel	= 0;
-			mShieldLevel	= 0;
-			mBuffLevel		= 0;
-			mEngineLevel	= 0;
+			mID					= (UINT)-1;
+			mTurretLevel		= 0;
+			mShieldLevel		= 0;
+			mBuffLevel			= 0;
+			mEngineLevel		= 0;
+			mNrOfEnergyCells	= 0;
 		}
-		Event_Server_Change_Ship_Levels( UINT id, int turretLevel, int shieldLevel, int buffLevel, int engineLevel )
+		Event_Server_Change_Ship_Levels( UINT id, int turretLevel, int shieldLevel, int buffLevel, int engineLevel, int NrOfEnergyCells )
 		{
-			mID				= id;
-			mTurretLevel	= turretLevel;
-			mShieldLevel	= shieldLevel;
-			mBuffLevel		= buffLevel;
-			mEngineLevel	= engineLevel;
+			mID					= id;
+			mTurretLevel		= turretLevel;
+			mShieldLevel		= shieldLevel;
+			mBuffLevel			= buffLevel;
+			mEngineLevel		= engineLevel;
+			mNrOfEnergyCells	= NrOfEnergyCells;
 		}
 		~Event_Server_Change_Ship_Levels() {}
 
@@ -4025,6 +4028,7 @@ class Event_Server_Change_Ship_Levels : public IEvent
 			out << mShieldLevel << " ";
 			out << mBuffLevel << " ";
 			out << mEngineLevel << " ";
+			out << mNrOfEnergyCells << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
@@ -4033,10 +4037,11 @@ class Event_Server_Change_Ship_Levels : public IEvent
 			in >> mShieldLevel;
 			in >> mBuffLevel;
 			in >> mEngineLevel;
+			in >> mNrOfEnergyCells;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Server_Change_Ship_Levels( mID, mTurretLevel, mShieldLevel, mBuffLevel, mEngineLevel ) );
+			return IEventPtr( new Event_Server_Change_Ship_Levels( mID, mTurretLevel, mShieldLevel, mBuffLevel, mEngineLevel, mNrOfEnergyCells ) );
 		}
 		UINT ID() const
 		{
@@ -4057,6 +4062,10 @@ class Event_Server_Change_Ship_Levels : public IEvent
 		int EngineLevelChange() const
 		{
 			return mEngineLevel;
+		}
+		int NrOfEnergyCells() const
+		{
+			return mNrOfEnergyCells;
 		}
 };
 

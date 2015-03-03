@@ -129,6 +129,7 @@ void ServerShip::AddEnergyCell( UINT energyCellOwnerID )
 	{
 		mNrOfEnergyCells++;
 		mNrOfAvailableEnergyCells++;
+		ChangeEngineLevel( 1 );
 	}
 }
 

@@ -48,7 +48,7 @@ void Server::ClientJoined( IEventPtr eventPtr )
 			{
 				IEventPtr SpawnShip( new Event_Server_Spawn_Ship( s->mID, s->mTeamID, s->mPos, s->mRot, s->mScale, s->mCurrentHP ) );
 				SendEvent( SpawnShip, data->ID() );
-				IEventPtr E1( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel, s->mEngineLevel ) );
+				IEventPtr E1( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel, s->mEngineLevel, s->mNrOfEnergyCells ) );
 				SendEvent( E1, data->ID() );
 			}
 
@@ -416,6 +416,8 @@ void Server::ClientInteractEnergyCell( IEventPtr eventPtr )
 				{
 					mEnergyCells[j]->SetSecured( true );
 					s->AddEnergyCell( mEnergyCells[j]->GetOwnerID() );
+					IEventPtr E2( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel, s->mEngineLevel, s->mNrOfEnergyCells ) );
+					BroadcastEvent( E2 );
 				}
 			}
 		}
@@ -458,7 +460,7 @@ void Server::ClientChangeShipLevels( IEventPtr eventPtr )
 					IEventPtr E1( new Event_Remote_Win( s->mTeamID ) );
 					BroadcastEvent( E1 );
 				}
-				IEventPtr E1( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel, s->mEngineLevel ) );
+				IEventPtr E1( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel, s->mEngineLevel, s->mNrOfEnergyCells ) );
 				BroadcastEvent( E1 );
 				break;
 			}
@@ -633,14 +635,14 @@ UINT Server::CurrentPID()
 void Server::CreateShips()
 {
 	UINT shipID = 60;
-	float xOffset = -30.0f;
+	float xOffset = -48.0f;
 
 	for( UINT i = 0; i < MAX_TEAMS; i++ )
 	{
 		mShips.push_back( new ServerShip() );
-		mShips.back()->Initialize( shipID, CurrentTeamDelegate(), XMFLOAT3( xOffset, 0.0f, 0.0f ), XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+		mShips.back()->Initialize( shipID, CurrentTeamDelegate(), XMFLOAT3( xOffset, 0.0f, 20.0f ), XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 		shipID++;
-		xOffset += 160.0f;
+		xOffset += 96.0f;
 	}
 }
 
@@ -939,57 +941,17 @@ bool Server::Initialize()
 	mNrOfEnemiesSpawned		= 0;
 	srand( (UINT)time( NULL ) );
 	mSpawners		= new EnemySpawn*[MAX_NR_OF_ENEMY_SPAWNERS];
-	//for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
-	//{
-	//	// Map size values
-	//	int X, Y;
-	//	X = ( rand() % 150 ) - 75;
-	//	Y = ( rand() % 150 ) - 75;
-	//	mSpawners[i] = new EnemySpawn();
-	//	mSpawners[i]->Initialize( i );
-	//	//mSpawners[i]->SetPosition( XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
-	//	mSpawners[i]->SetPosition( XMFLOAT3( (float)(X), 0.0f, (float)(Y) ) );
-	//}
-	mSpawners[0] = new EnemySpawn();
-	mSpawners[0]->Initialize( 0 );
-	mSpawners[0]->SetPosition( XMFLOAT3( 100.0f, 0.0f, 0.0f ) );
-
-	mSpawners[1] = new EnemySpawn();
-	mSpawners[1]->Initialize( 1 );
-	mSpawners[1]->SetPosition( XMFLOAT3( 5.0f, 0.0f, 0.0f ) );
-
-	mSpawners[2] = new EnemySpawn();
-	mSpawners[2]->Initialize( 2 );
-	mSpawners[2]->SetPosition( XMFLOAT3( 10.0f, 0.0f, 0.0f ) );
-
-	mSpawners[3] = new EnemySpawn();
-	mSpawners[3]->Initialize( 3 );
-	mSpawners[3]->SetPosition( XMFLOAT3( 15.0f, 0.0f, 0.0f ) );
-
-	mSpawners[4] = new EnemySpawn();
-	mSpawners[4]->Initialize( 4 );
-	mSpawners[4]->SetPosition( XMFLOAT3( 20.0f, 0.0f, 0.0f ) );
-
-	mSpawners[5] = new EnemySpawn();
-	mSpawners[5]->Initialize( 5 );
-	mSpawners[5]->SetPosition( XMFLOAT3( 25.0f, 0.0f, 0.0f ) );
-
-	mSpawners[6] = new EnemySpawn();
-	mSpawners[6]->Initialize( 6 );
-	mSpawners[6]->SetPosition( XMFLOAT3( 30.0f, 0.0f, 0.0f ) );
-
-	mSpawners[7] = new EnemySpawn();
-	mSpawners[7]->Initialize( 7 );
-	mSpawners[7]->SetPosition( XMFLOAT3( 35.0f, 0.0f, 0.0f ) );
-
-	mSpawners[8] = new EnemySpawn();
-	mSpawners[8]->Initialize( 8 );
-	mSpawners[8]->SetPosition( XMFLOAT3( 40.0f, 0.0f, 0.0f ) );
-
-	mSpawners[9] = new EnemySpawn();
-	mSpawners[9]->Initialize( 9 );
-	mSpawners[9]->SetPosition( XMFLOAT3( 45.0f, 0.0f, 0.0f ) );
-	
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+	{
+		// Map size values
+		int X, Y;
+		X = ( rand() % 150 ) - 75;
+		Y = ( rand() % 150 ) - 75;
+		mSpawners[i] = new EnemySpawn();
+		mSpawners[i]->Initialize( i );
+		//mSpawners[i]->SetPosition( XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
+		mSpawners[i]->SetPosition( XMFLOAT3( (float)(X), 0.0f, (float)(Y) ) );
+	}
 
 	mEnemies	= new Enemy*[MAX_NR_OF_ENEMIES];
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )

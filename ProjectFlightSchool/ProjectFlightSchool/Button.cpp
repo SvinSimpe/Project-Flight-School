@@ -83,8 +83,10 @@ XMFLOAT2 Button::GetPosition() const
 	return XMFLOAT2( (float)mUpperLeft.x, (float)mUpperLeft.y );
 }
 
-void Button::SetPosition( XMFLOAT2 pos )
+void Button::SetPosition( XMFLOAT2 pos, XMFLOAT2 size )
 {
-	mUpperLeft.x = (LONG)pos.x;
-	mUpperLeft.y = (LONG)pos.y;
+	mUpperLeft.x	= (UINT)pos.x;
+	mUpperLeft.y	= (UINT)pos.y;
+	mLowerRight.x	= (UINT)pos.x + (UINT)size.x;
+	mLowerRight.y	= (UINT)pos.y + (UINT)size.y;
 }

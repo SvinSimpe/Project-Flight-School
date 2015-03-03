@@ -367,6 +367,7 @@ struct RangedInfo
 		return projectileSpeed * (1.0f - (float)( rand() % 100 ) * 0.005f);
 	}
 };
+
 struct MeleeInfo
 {
 	WeaponType		weaponType;
@@ -473,7 +474,7 @@ struct MeleeInfo
 		}
 	}
 
-		MeleeInfo( WeaponType weaponType )
+	MeleeInfo( WeaponType weaponType )
 	{
 		this->weaponType		= weaponType;
 		level					= 1;

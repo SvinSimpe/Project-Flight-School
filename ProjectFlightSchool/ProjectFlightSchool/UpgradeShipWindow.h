@@ -63,6 +63,7 @@ private:
 	ButtonStruct			mForceFieldButtons;
 	ButtonStruct			mBuffButtons;
 	ButtonStruct			mEngineButtons;
+	int						mNrOfEnergyCells;
 
 protected:
 public:
@@ -83,6 +84,7 @@ public:
 	~UpgradeShipWindow();
 
 	bool	IsActive() const;
+	int		GetNrOfEnergyCells() const;
 };
 
 #endif // !UPGRADESHIPWINDOW_H

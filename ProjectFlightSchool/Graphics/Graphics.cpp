@@ -1817,6 +1817,8 @@ void Graphics::BeginScene()
 
 	mDeviceContext->ClearDepthStencilView( mDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
 	mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
+
+	mDeviceContext->RSSetState( mRasterizerState[CULL_BACK] );
 }
 
 void Graphics::GbufferPass()

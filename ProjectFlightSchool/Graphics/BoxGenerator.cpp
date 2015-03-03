@@ -20,29 +20,32 @@ AABB BoxGenerator::CreateAABBFromVerts( vector<StaticVertex*> &vertices )
 	//Extrude Box
 	for( UINT i = 0; i < vertices.size(); i++ )
 	{
-		//X max Check
-		if( vertices.at( i )->position[0] > tempAABB.max.x )
-			tempAABB.max.x = vertices.at( i )->position[0];
+		if( vertices.at( i )->position[1] < OCTTREE_MAX_Y )
+		{
+			//X max Check
+			if( vertices.at( i )->position[0] > tempAABB.max.x )
+				tempAABB.max.x = vertices.at( i )->position[0];
 		
-		//Y max Check
-		if( vertices.at( i )->position[1] > tempAABB.max.y )
-			tempAABB.max.y = vertices.at( i )->position[1];
+			//Y max Check
+			if( vertices.at( i )->position[1] > tempAABB.max.y )
+				tempAABB.max.y = vertices.at( i )->position[1];
 
-		//Z max Check
-		if( vertices.at( i )->position[2] > tempAABB.max.z )
-			tempAABB.max.z = vertices.at( i )->position[2];
+			//Z max Check
+			if( vertices.at( i )->position[2] > tempAABB.max.z )
+				tempAABB.max.z = vertices.at( i )->position[2];
 
-		//X min Check
-		if( vertices.at( i )->position[0] < tempAABB.min.x )
-			tempAABB.min.x = vertices.at( i )->position[0];
+			//X min Check
+			if( vertices.at( i )->position[0] < tempAABB.min.x )
+				tempAABB.min.x = vertices.at( i )->position[0];
 
-		//Y min Check
-		if( vertices.at( i )->position[1] < tempAABB.min.y )
-			tempAABB.min.y = vertices.at( i )->position[1];
+			//Y min Check
+			if( vertices.at( i )->position[1] < tempAABB.min.y )
+				tempAABB.min.y = vertices.at( i )->position[1];
 
-		//Z min Check
-		if( vertices.at( i )->position[2] < tempAABB.min.z )
-			tempAABB.min.z = vertices.at( i )->position[2];
+			//Z min Check
+			if( vertices.at( i )->position[2] < tempAABB.min.z )
+				tempAABB.min.z = vertices.at( i )->position[2];
+		}
 	}
 	
 	return tempAABB;

@@ -79,7 +79,7 @@
 #define BLOWTORCH_DAMAGE	7.0f	// Damage
 #define BLOWTORCH_RADIUS	4.0f	// Radius
 #define BLOWTORCH_SPREAD	3		// Spread
-#define BLOWTORCH_KB		3.1f	// Knockback
+#define BLOWTORCH_KB		0.0f	// Knockback
 #define BLOWTORCH_TTA		0.2f	// Time till Attack
 #define BLOWTORCH_STUN		0.0f	// Stun
 #define BLOWTORCH_REACH		1.0f	// Reach

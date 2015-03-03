@@ -4,7 +4,7 @@
 #include "Button.h"
 #include "RenderManager.h"
 
-#define FRAME_AMOUNT 45
+#define FRAME_AMOUNT 44
 
 // Hard coded button used by the menus
 class MovingButton : public Button

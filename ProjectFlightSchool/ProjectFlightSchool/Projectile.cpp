@@ -4,7 +4,7 @@ HRESULT Projectile::Update( float deltaTime )
 {
 	if( mWeaponType == GRENADELAUNCHER )
 	{
-		float acceleration	= ( 120.0f * deltaTime * deltaTime );
+		float acceleration	= ( 2.0f * deltaTime );
 		mDirection.y -= acceleration;
 	}
 

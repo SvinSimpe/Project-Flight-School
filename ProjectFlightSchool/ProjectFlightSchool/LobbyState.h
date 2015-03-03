@@ -8,24 +8,34 @@
 #include "MovingButton.h"
 #include "Button.h"
 #include "Client.h"
+#include "LoadOutMenu.h"
 
 struct LobbyPlayer
 {
 	int				ID;
 	std::string		name;
 	int				team;
-	MovingButton	button;
+	XMFLOAT2		position;
+	XMFLOAT2		size = XMFLOAT2( 328.0f, 64.0f );
+	Button			button;
 };
 
 class LobbyState : public BaseState
 {
 	// Class members
 	private:
+	protected:
+		float						mTeamOneXPos;
+		float						mTeamTwoXPos;
 		std::vector<LobbyPlayer*>	mPlayers;
 		Font						mFont;
+		AssetID						mBackground;
 		bool						mActive;
+		MovingButton				mBackButton;
+		LoadOutMenu					mLoadOutMenu;
+		Button						mChooseWeaponButton;
+		Image						mChooseWeaponText;
 
-	protected:
 	public:
 
 	// Class functions

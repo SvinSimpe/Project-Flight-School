@@ -33,7 +33,7 @@
 // Grenade Launcher
 #define GL_AR				1.0f	// Attack Rate
 #define GL_DAMAGE			15.0f	// Damage
-#define GL_RANGE			1.0f	// Range
+#define GL_RANGE			25.0f	// Range
 #define GL_SPREAD			0.0f	// Spread
 #define GL_AOE				2.0f	// Area of effect
 #define GL_SPEED			20.0f	// Projectile Speed 10

@@ -196,6 +196,7 @@ void Font::Initialize( std::string path )
 		Letter( '_', 8.0f/LETTER_SCALE ),
 		Letter( '!', 12.0f/LETTER_SCALE ),
 		Letter( '~', 32.0f/LETTER_SCALE ),
+		Letter( '+', 20.0f/LETTER_SCALE ),
 		Letter( '%', 32.0f/LETTER_SCALE ),
 	};
 

@@ -45,15 +45,6 @@ void Player::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Create_Player_Name> data = std::static_pointer_cast<Event_Create_Player_Name>( newEvent );
 		mPlayerName = data->PlayerName();
 	}
-	else if( newEvent->GetEventType() == Event_Server_Change_Buff_State::GUID )
-	{
-		std::shared_ptr<Event_Server_Change_Buff_State> data = std::static_pointer_cast<Event_Server_Change_Buff_State>( newEvent );
-		if( data->ID() == mID )
-		{
-			mIsBuffed	= data->IsBuffed();
-			mBuffMod	= data->BuffMod();
-		}
-	}
 	else if( newEvent->GetEventType() == Event_Upgrade_Player::GUID )
 	{
 		std::shared_ptr<Event_Upgrade_Player> data = std::static_pointer_cast<Event_Upgrade_Player>( newEvent );
@@ -93,6 +84,31 @@ void Player::EventListener( IEventPtr newEvent )
 		{
 			mTeam = data->TeamID();
 		}
+	}
+	else if( newEvent->GetEventType() == Event_Change_Weapon::GUID )
+	{
+		std::shared_ptr<Event_Change_Weapon> data = std::static_pointer_cast<Event_Change_Weapon>( newEvent );
+		if( (WeaponType)data->Weapon() == MINIGUN || (WeaponType)data->Weapon() == SHOTGUN || (WeaponType)data->Weapon() == GRENADELAUNCHER || (WeaponType)data->Weapon() == SNIPER )
+		{
+			delete mLoadOut->rangedWeapon;
+			mLoadOut->rangedWeapon	= new RangedInfo( (WeaponType)data->Weapon() );	
+			RenderManager::GetInstance()->AnimationInitialize( mArms.rightArm, mWeaponModels[mLoadOut->rangedWeapon->weaponType], mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
+		}
+		else if( (WeaponType)data->Weapon() == CLAYMORE || (WeaponType)data->Weapon() == HAMMER || (WeaponType)data->Weapon() == BLOWTORCH || (WeaponType)data->Weapon() == SAW )
+		{
+			if( mLoadOut->meleeWeapon->boundingCircle )
+				delete mLoadOut->meleeWeapon->boundingCircle;
+			delete mLoadOut->meleeWeapon;
+			mLoadOut->meleeWeapon	= new MeleeInfo( (WeaponType)data->Weapon() );
+			RenderManager::GetInstance()->AnimationInitialize( mArms.leftArm, mWeaponModels[mLoadOut->meleeWeapon->weaponType], mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
+		}
+	}
+	else if( newEvent->GetEventType() == Event_Server_Lobby_Finished::GUID )
+	{
+		IEventPtr E1( new Event_Client_Change_Weapon( mLoadOut->meleeWeapon->weaponType, mID ) );
+		QueueEvent( E1 );
+		IEventPtr E2( new Event_Client_Change_Weapon( mLoadOut->rangedWeapon->weaponType, mID ) );
+		QueueEvent( E2 );
 	}
 }
 
@@ -412,17 +428,32 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	//	currStep = currentPath.begin();
 	//}
 
+	// Update water status	
+	mIsInWater	= mLowerBody.position.y < -0.7f ? true : false;
+	
 	XMFLOAT3 testPosition	= mLowerBody.position;
 	XMFLOAT3 normal			= XMFLOAT3( 0.0f, 1.0f, 0.0f );
 	testPosition.x += mVelocity.x * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f );
-	testPosition.z += mVelocity.z * deltaTime *( 0.8f + (float)mUpgrades.legs / 5.0f );
+	testPosition.z += mVelocity.z * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f );
 	testPosition.y = worldMap->GetHeight( testPosition );
 
-	if( !worldMap->PlayerVsMap(	testPosition, normal ) )
+	bool collisionTest = worldMap->PlayerVsMap( testPosition, normal );
+	if( !collisionTest )
 	{
 		mLowerBody.position.x = testPosition.x;
 		mLowerBody.position.y = testPosition.y;
 		mLowerBody.position.z = testPosition.z;
+
+		if( mIsInWater )
+		{
+			XMStoreFloat3( &mVelocity, XMLoadFloat3( &mVelocity ) * ( 1.0f - deltaTime * 10.0f ) );
+			mWaterDamageTime += deltaTime;
+			if( mWaterDamageTime > WATER_DAMAGE_TIME )
+			{
+				mWaterDamageTime = 0.0f;
+				TakeDamage( WATER_DAMAGE, 0 );
+			}
+		}
 	}
 	else
 	{
@@ -431,8 +462,6 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 		XMVECTOR loadNormNorm	= XMLoadFloat3( &XMFLOAT3( -normal.z, -normal.y, normal.x ) );
 		XMStoreFloat3( &mVelocity, loadNormNorm * XMVectorGetX( XMVector3Dot( loadVel, loadNormNorm ) ) + loadNorm * deltaTime * 20.0f );
 	}
-
-	
 
 	Update( deltaTime, remotePlayers, energyCells );
 	return S_OK;
@@ -613,8 +642,8 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 void Player::FireGrenadeLauncher( XMFLOAT3* projectileOffset )
 {
 	float elevation = CalculateLaunchAngle();
-	if( elevation <= 0.0f )
-		elevation *= -1.0f;
+	//if( elevation <= 0.0f )
+	//	elevation *= -1.0f;
 
 	mFireDirection			= XMFLOAT3( mUpperBody.direction.x, elevation, mUpperBody.direction.z );
 	IEventPtr E1( new Event_Trigger_Client_Fired_Projectile( mID, *projectileOffset, mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
@@ -623,18 +652,30 @@ void Player::FireGrenadeLauncher( XMFLOAT3* projectileOffset )
 
 float Player::CalculateLaunchAngle()
 {
-	float distance = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mPick ) - XMLoadFloat3( &mLowerBody.position ) ) );
+	float distance	= XMVectorGetX( XMVector3Length( XMLoadFloat3( &mPick ) - XMLoadFloat3( &mLowerBody.position ) ) );
+	float speed		= 0.0f;
+
+	if( distance < 3.0f )
+		distance = 3.0f;
+
+	if( distance > mLoadOut->rangedWeapon->range )
+		distance = mLoadOut->rangedWeapon->range;
 	
-	float x = 0.6f * ( 40.0f * distance ) / ( mLoadOut->rangedWeapon->projectileSpeed * mLoadOut->rangedWeapon->projectileSpeed );
+	speed = mLoadOut->rangedWeapon->projectileSpeed;
+
+	float x = 0.6f * ( 25.0f * distance ) / ( speed* speed );
 	
 	if( x > 1.0f )
 		x = 1.0f;
 	
 	float result = asin( x );
 
-	if( distance > 8.0f )
-		result += 0.2f;
+	if( distance > 7.0f && distance < 10.0f )
+		result -= 0.10f;
 
+	if( distance >= 3.0f && distance <= 7.0f )
+		result -= 0.15f;
+		
 	return result;
 }
 
@@ -724,8 +765,6 @@ void Player::UnLock()
 
 void Player::Reset()
 {
-	mEventCapTimer				= 0.0f;
-
 	mTimeSinceLastShot			= 0.0f;
 	mWeaponCoolDown				= 0;
 	mMeleeCoolDown				= 0;
@@ -1051,6 +1090,8 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Upgrade_Player::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_New_Player_Spawn_Position::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Switch_Team::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Change_Weapon::GUID );
+	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Server_Lobby_Finished::GUID );
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
 	mPick = XMFLOAT3( 0, 0, 0 );
 
@@ -1077,8 +1118,6 @@ void Player::Release()
 Player::Player()
 	:RemotePlayer()
 {
-	mEventCapTimer		= 0.0f;
-
 	mPointLight			= nullptr;
 	mEnergyCellLight	= nullptr;
 
@@ -1096,9 +1135,8 @@ Player::Player()
 	mMaxAcceleration	= 0.0f;
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mFireDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mIsBuffed			= false;
 	mIsOutSideZone		= false;
-	mBuffMod			= 0.0f;
+	mIsInWater			= false;
 	mHasMeleeStarted	= false;
 	mXP					= 0;
 	mNextLevelXP		= 0;
@@ -1110,6 +1148,7 @@ Player::Player()
 	mReviveTime				= 0.0f;
 	mTimeTillRevive			= 0.0f;
 	mLeavingAreaTime		= 0.0f;
+	mWaterDamageTime		= 0.0f;
 	mLastKiller				= 0;
 
 	gEventList				= std::list<IEventPtr>();

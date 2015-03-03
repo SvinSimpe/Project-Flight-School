@@ -67,94 +67,97 @@ bool Map::PlayerVsMap( XMFLOAT3 position, XMFLOAT3 &normal )
 
 				for( UINT i = 0; i < node->mStaticAssetCount; i++ )
 				{
-					OctTree* tree	= Graphics::GetInstance()->GetOctTreeFromStatic3DAsset( node->mStaticAssets[i].GetAssetID() );
-
-					XMMATRIX objMat	= XMLoadFloat4x4( &node->mStaticAssets[i].mWorld );
-
-					XMVECTOR translate, scale, rotation;
-					XMMatrixDecompose( &scale, &rotation, &translate, objMat );
-
-					translate		= XMLoadFloat3( &XMFLOAT3( XMVectorGetX( translate ), XMVectorGetY( translate ), -XMVectorGetZ( translate ) ) );
-					rotation		= XMLoadFloat4( &XMFLOAT4( -XMVectorGetX( rotation ), -XMVectorGetY( rotation ), XMVectorGetZ( rotation ), XMVectorGetW( rotation ) ) );
-
-					objMat			= XMMatrixAffineTransformation( scale, XMVectorZero(), rotation, translate );
-					objMat			= objMat * XMMatrixTranslationFromVector( XMLoadFloat3( &temp->GetOrigin() ) );
-					XMMATRIX objInv = XMMatrixInverse( nullptr, objMat );
-
-					/////////////// Player to objspace
-					XMFLOAT3 playerPosInObjSpace;
-					XMStoreFloat3( &playerPosInObjSpace, XMVector3TransformCoord( XMLoadFloat3( &position ), objInv ) );
-
-					float xScale = 1.0f / XMVectorGetX( scale );
-					float yScale = 1.0f / XMVectorGetY( scale );
-					float zScale = 1.0f / XMVectorGetZ( scale );
-
-					XMFLOAT3 playerMin = XMFLOAT3(	playerPosInObjSpace.x - 0.4f * xScale,
-													playerPosInObjSpace.y,
-													playerPosInObjSpace.z - 0.4f * zScale );
-
-					XMFLOAT3 playerMax = XMFLOAT3(	playerPosInObjSpace.x + 0.4f * xScale,
-													playerPosInObjSpace.y + 2.0f * yScale, 
-													playerPosInObjSpace.z + 0.4f * zScale );
-
-
-					//////// Collision check
-					XMFLOAT3 collisionNormal = XMFLOAT3( 0.0f, 1.0f, 0.0f );
-					bool collision = false;
-					if( tree && node->mStaticAssets[i].GetCollisionType() != NONE_COLLISION )
-						collision = tree->AABBvsAABB( playerMin, playerMax, 4, collisionNormal );
-
-					// normal from objspace to worldspace.
-					XMStoreFloat3( &collisionNormal, XMVector3TransformNormal( XMLoadFloat3( &collisionNormal ), objMat ) );
-					collisionNormal.y	= 0.0f;
-					XMVECTOR loaded		= XMLoadFloat3( &collisionNormal );
-					XMStoreFloat3( &collisionNormal, XMVector3Normalize( loaded ) );
-
-					//XMFLOAT4X4 store;
-					//XMStoreFloat4x4( &store, XMMatrixTranspose( objMat ) );
-
-					if( collision )
+					if( node->mStaticAssets[i].GetCollisionType() != NONE_COLLISION )
 					{
-						localReturn = true;
-						normal		= collisionNormal;
+						OctTree* tree	= Graphics::GetInstance()->GetOctTreeFromStatic3DAsset( node->mStaticAssets[i].GetAssetID() );
 
-						////////////////////////////////////////////
-						// DEBUG RENDERING FOLLOWS, PLEASE KEEP FOR NOW!
-						//RenderManager::GetInstance()->AddBoxToList( playerMin, playerMax, store );
-						//XMFLOAT3 playerStart;
-						//XMFLOAT3 playerEnd;
-						//XMStoreFloat3( &playerStart, XMLoadFloat3( &position ) + XMLoadFloat3( &XMFLOAT3( 0.0f, 3.0f, 0.0f ) ) );
-						//XMStoreFloat3( &playerEnd, XMLoadFloat3( &playerStart ) + XMLoadFloat3( &collisionNormal ) * 2.0f );
-						//RenderManager::GetInstance()->AddLineToList( playerStart, playerEnd );
+						XMMATRIX objMat	= XMLoadFloat4x4( &node->mStaticAssets[i].mWorld );
 
-						//for( int i = 0; i < 8; i++ )
-						//{
-						//	if( tree->childrenCollides[i] )
-						//	{
-						//		for( int j = 0; j < 8; j++ )
-						//		{
-						//			if( tree->children[i]->childrenCollides[j] )
-						//			{
-						//				for( int k = 0; k < 8; k++ )
-						//				{
-						//					if( tree->children[i]->children[j]->childrenCollides[k] )
-						//					{
-						//						RenderManager::GetInstance()->AddBoxToList( tree->children[i]->children[j]->children[k]->boundingBox.min,
-						//																			tree->children[i]->children[j]->children[k]->boundingBox.max, store );
-						//						//for( int l = 0; l < 8; l++ )
-						//						//{
-						//						//	if( tree->children[i]->children[j]->children[k]->childrenCollides[l] )
-						//						//	{
-						//						//		RenderManager::GetInstance()->AddBoxToList( tree->children[i]->children[j]->children[k]->children[l]->boundingBox.min,
-						//						//													tree->children[i]->children[j]->children[k]->children[l]->boundingBox.max, store );
-						//						//	}
-						//						//}
-						//					}
-						//				}
-						//			}
-						//		}
-						//	}
-						//}
+						XMVECTOR translate, scale, rotation;
+						XMMatrixDecompose( &scale, &rotation, &translate, objMat );
+
+						translate		= XMLoadFloat3( &XMFLOAT3( XMVectorGetX( translate ), XMVectorGetY( translate ), -XMVectorGetZ( translate ) ) );
+						rotation		= XMLoadFloat4( &XMFLOAT4( -XMVectorGetX( rotation ), -XMVectorGetY( rotation ), XMVectorGetZ( rotation ), XMVectorGetW( rotation ) ) );
+
+						objMat			= XMMatrixAffineTransformation( scale, XMVectorZero(), rotation, translate );
+						objMat			= objMat * XMMatrixTranslationFromVector( XMLoadFloat3( &temp->GetOrigin() ) );
+						XMMATRIX objInv = XMMatrixInverse( nullptr, objMat );
+
+						/////////////// Player to objspace
+						XMFLOAT3 playerPosInObjSpace;
+						XMStoreFloat3( &playerPosInObjSpace, XMVector3TransformCoord( XMLoadFloat3( &position ), objInv ) );
+
+						float xScale = 1.0f / XMVectorGetX( scale );
+						float yScale = 1.0f / XMVectorGetY( scale );
+						float zScale = 1.0f / XMVectorGetZ( scale );
+
+						XMFLOAT3 playerMin = XMFLOAT3(	playerPosInObjSpace.x - 0.4f * xScale,
+														playerPosInObjSpace.y,
+														playerPosInObjSpace.z - 0.4f * zScale );
+
+						XMFLOAT3 playerMax = XMFLOAT3(	playerPosInObjSpace.x + 0.4f * xScale,
+														playerPosInObjSpace.y + 2.0f * yScale, 
+														playerPosInObjSpace.z + 0.4f * zScale );
+
+
+						//////// Collision check
+						XMFLOAT3 collisionNormal = XMFLOAT3( 0.0f, 1.0f, 0.0f );
+						bool collision = false;
+						if( tree )
+							collision = tree->AABBvsAABB( playerMin, playerMax, 4, collisionNormal );
+
+						// normal from objspace to worldspace.
+						XMStoreFloat3( &collisionNormal, XMVector3TransformNormal( XMLoadFloat3( &collisionNormal ), objMat ) );
+						collisionNormal.y	= 0.0f;
+						XMVECTOR loaded		= XMLoadFloat3( &collisionNormal );
+						XMStoreFloat3( &collisionNormal, XMVector3Normalize( loaded ) );
+
+						XMFLOAT4X4 store;
+						XMStoreFloat4x4( &store, XMMatrixTranspose( objMat ) );
+
+						if( collision )
+						{
+							localReturn = true;
+							normal		= collisionNormal;
+
+							////////////////////////////////////////////
+							// DEBUG RENDERING FOLLOWS, PLEASE KEEP FOR NOW!
+							//RenderManager::GetInstance()->AddBoxToList( playerMin, playerMax, store );
+							//XMFLOAT3 playerStart;
+							//XMFLOAT3 playerEnd;
+							//XMStoreFloat3( &playerStart, XMLoadFloat3( &position ) + XMLoadFloat3( &XMFLOAT3( 0.0f, 3.0f, 0.0f ) ) );
+							//XMStoreFloat3( &playerEnd, XMLoadFloat3( &playerStart ) + XMLoadFloat3( &collisionNormal ) * 2.0f );
+							//RenderManager::GetInstance()->AddLineToList( playerStart, playerEnd );
+
+							//for( int i = 0; i < 8; i++ )
+							//{
+							//	if( tree->childrenCollides[i] )
+							//	{
+							//		for( int j = 0; j < 8; j++ )
+							//		{
+							//			if( tree->children[i]->childrenCollides[j] )
+							//			{
+							//				for( int k = 0; k < 8; k++ )
+							//				{
+							//					if( tree->children[i]->children[j]->childrenCollides[k] )
+							//					{
+							//						RenderManager::GetInstance()->AddBoxToList( tree->children[i]->children[j]->children[k]->boundingBox.min,
+							//																			tree->children[i]->children[j]->children[k]->boundingBox.max, store );
+							//						//for( int l = 0; l < 8; l++ )
+							//						//{
+							//						//	if( tree->children[i]->children[j]->children[k]->childrenCollides[l] )
+							//						//	{
+							//						//		RenderManager::GetInstance()->AddBoxToList( tree->children[i]->children[j]->children[k]->children[l]->boundingBox.min,
+							//						//													tree->children[i]->children[j]->children[k]->children[l]->boundingBox.max, store );
+							//						//	}
+							//						//}
+							//					}
+							//				}
+							//			}
+							//		}
+							//	}
+							//}
+						}
 					}
 				}
 			}
@@ -179,56 +182,59 @@ bool Map::BulletVsMap( XMFLOAT3 position, XMFLOAT3 &normal )
 
 		for( UINT i = 0; i < node->mStaticAssetCount; i++ )
 		{
-			OctTree* tree	= Graphics::GetInstance()->GetOctTreeFromStatic3DAsset( node->mStaticAssets[i].GetAssetID() );
-
-			XMMATRIX objMat	= XMLoadFloat4x4( &node->mStaticAssets[i].mWorld );
-
-			XMVECTOR translate, scale, rotation;
-			XMMatrixDecompose( &scale, &rotation, &translate, objMat );
-
-			translate		= XMLoadFloat3( &XMFLOAT3( XMVectorGetX( translate ), XMVectorGetY( translate ), -XMVectorGetZ( translate ) ) );
-			rotation		= XMLoadFloat4( &XMFLOAT4( -XMVectorGetX( rotation ), -XMVectorGetY( rotation ), XMVectorGetZ( rotation ), XMVectorGetW( rotation ) ) );
-
-			objMat			= XMMatrixAffineTransformation( scale, XMVectorZero(), rotation, translate );
-			objMat			= objMat * XMMatrixTranslationFromVector( XMLoadFloat3( &temp->GetOrigin() ) );
-			XMMATRIX objInv = XMMatrixInverse( nullptr, objMat );
-
-			/////////////// Player to objspace
-			XMFLOAT3 playerPosInObjSpace;
-			XMStoreFloat3( &playerPosInObjSpace, XMVector3TransformCoord( XMLoadFloat3( &position ), objInv ) );
-
-			float xScale = 1.0f / XMVectorGetX( scale );
-			float yScale = 1.0f / XMVectorGetY( scale );
-			float zScale = 1.0f / XMVectorGetZ( scale );
-
-			XMFLOAT3 playerMin = XMFLOAT3(	playerPosInObjSpace.x - 0.1f * xScale,
-											playerPosInObjSpace.y - 0.1f * yScale,
-											playerPosInObjSpace.z - 0.1f * zScale );
-
-			XMFLOAT3 playerMax = XMFLOAT3(	playerPosInObjSpace.x + 0.1f * xScale,
-											playerPosInObjSpace.y + 0.1f * yScale, 
-											playerPosInObjSpace.z + 0.1f * zScale );
-
-
-			//////// Collision check
-			XMFLOAT3 collisionNormal = XMFLOAT3( 0.0f, 1.0f, 0.0f );
-			bool collision = false;
-			if( tree && node->mStaticAssets[i].GetCollisionType() != NONE_COLLISION )
-				collision = tree->AABBvsAABB( playerMin, playerMax, 4, collisionNormal );
-
-			// normal from objspace to worldspace.
-			XMStoreFloat3( &collisionNormal, XMVector3TransformNormal( XMLoadFloat3( &collisionNormal ), objMat ) );
-			collisionNormal.y	= 0.0f;
-			XMVECTOR loaded		= XMLoadFloat3( &collisionNormal );
-			XMStoreFloat3( &collisionNormal, XMVector3Normalize( loaded ) );
-
-			//XMFLOAT4X4 store;
-			//XMStoreFloat4x4( &store, XMMatrixTranspose( objMat ) );
-
-			if( collision )
+			if( node->mStaticAssets[i].GetCollisionType() != NONE_COLLISION  )
 			{
-				localReturn = true;
-				normal		= collisionNormal;
+				OctTree* tree	= Graphics::GetInstance()->GetOctTreeFromStatic3DAsset( node->mStaticAssets[i].GetAssetID() );
+
+				XMMATRIX objMat	= XMLoadFloat4x4( &node->mStaticAssets[i].mWorld );
+
+				XMVECTOR translate, scale, rotation;
+				XMMatrixDecompose( &scale, &rotation, &translate, objMat );
+
+				translate		= XMLoadFloat3( &XMFLOAT3( XMVectorGetX( translate ), XMVectorGetY( translate ), -XMVectorGetZ( translate ) ) );
+				rotation		= XMLoadFloat4( &XMFLOAT4( -XMVectorGetX( rotation ), -XMVectorGetY( rotation ), XMVectorGetZ( rotation ), XMVectorGetW( rotation ) ) );
+
+				objMat			= XMMatrixAffineTransformation( scale, XMVectorZero(), rotation, translate );
+				objMat			= objMat * XMMatrixTranslationFromVector( XMLoadFloat3( &temp->GetOrigin() ) );
+				XMMATRIX objInv = XMMatrixInverse( nullptr, objMat );
+
+				/////////////// Player to objspace
+				XMFLOAT3 playerPosInObjSpace;
+				XMStoreFloat3( &playerPosInObjSpace, XMVector3TransformCoord( XMLoadFloat3( &position ), objInv ) );
+
+				float xScale = 1.0f / XMVectorGetX( scale );
+				float yScale = 1.0f / XMVectorGetY( scale );
+				float zScale = 1.0f / XMVectorGetZ( scale );
+
+				XMFLOAT3 playerMin = XMFLOAT3(	playerPosInObjSpace.x - 0.1f * xScale,
+												playerPosInObjSpace.y - 0.1f * yScale,
+												playerPosInObjSpace.z - 0.1f * zScale );
+
+				XMFLOAT3 playerMax = XMFLOAT3(	playerPosInObjSpace.x + 0.1f * xScale,
+												playerPosInObjSpace.y + 0.1f * yScale, 
+												playerPosInObjSpace.z + 0.1f * zScale );
+
+
+				//////// Collision check
+				XMFLOAT3 collisionNormal = XMFLOAT3( 0.0f, 1.0f, 0.0f );
+				bool collision = false;
+				if( tree )
+					collision = tree->AABBvsAABB( playerMin, playerMax, 4, collisionNormal );
+
+				// normal from objspace to worldspace.
+				XMStoreFloat3( &collisionNormal, XMVector3TransformNormal( XMLoadFloat3( &collisionNormal ), objMat ) );
+				collisionNormal.y	= 0.0f;
+				XMVECTOR loaded		= XMLoadFloat3( &collisionNormal );
+				XMStoreFloat3( &collisionNormal, XMVector3Normalize( loaded ) );
+
+				//XMFLOAT4X4 store;
+				//XMStoreFloat4x4( &store, XMMatrixTranspose( objMat ) );
+
+				if( collision )
+				{
+					localReturn = true;
+					normal		= collisionNormal;
+				}
 			}
 		}
 	}

@@ -539,7 +539,7 @@ void PlayState::HandleDeveloperCameraInput()
 			}
 		}
 	}
-	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_ENTER ) )
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_ESCAPE ) )
 	{
 		if( mGui->InGameWindowIsActive() )
 		{
@@ -742,7 +742,15 @@ HRESULT PlayState::Update( float deltaTime )
 			{
 				remotePlayerName							= mRemotePlayers[i]->GetName();
 				mRadarObjects[nrOfRadarObj].mRadarObjectPos = mRemotePlayers[i]->GetPosition();
-				mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::HOSTILE;
+
+				if( mRemotePlayers[i]->GetTeam() == mPlayer->GetTeam() )
+				{
+					mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::FRIENDLY;
+				}
+				else
+				{
+					mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::HOSTILE;
+				}
 			}
 			pName[i].mRemotePlayerPos		= mRemotePlayers[i]->GetPosition();
 			pName[i].mRemotePlayerName		= remotePlayerName;
@@ -828,6 +836,26 @@ HRESULT PlayState::Update( float deltaTime )
 		}
 	}
 
+	//No need to update the first energy cell since it's not supposed to be active
+	for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
+	{
+		if( !mEnergyCells[i]->GetPickedUp() )
+		{
+			mEnergyCells[i]->Update( deltaTime );
+			mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnergyCells[i]->GetPosition();
+			mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::OBJECTIVE;
+		}
+	}
+
+	CheckProjectileCollision();
+
+	// Test Anim
+	///////////////////////////////////////////////////////////////////////////
+	//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
+	///////////////////////////////////////////////////////////////////////////
+
+	//GUI UPDATE ANYTHING RELATED TO IT NEEDS TO PUT ABOVE THIS COMMENT
+	////////////////////////////////////////////////////////////////////////////////////////////
 	guiUpdate.mRadarObjects	= mRadarObjects;
 	guiUpdate.mNrOfObjects	= nrOfRadarObj;
 	guiUpdate.mPlayerPos	= mPlayer->GetPlayerPosition();	
@@ -840,21 +868,7 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.deltaTime = deltaTime;
 
 	mGui->Update( guiUpdate );
-
-	CheckProjectileCollision();
-
-	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
-	{
-		if( !mEnergyCells[i]->GetPickedUp() )
-		{
-			mEnergyCells[i]->Update( deltaTime );
-		}
-	}
-
-	// Test Anim
-	///////////////////////////////////////////////////////////////////////////
-	//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
-	///////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////
 
 	return S_OK;
 }
@@ -892,7 +906,7 @@ HRESULT PlayState::Render( float deltaTime )
 
 	mGui->Render();
 
-	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+	for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
 	{
 		if( !mEnergyCells[i]->GetPickedUp() && CullEntity( mEnergyCells[i]->GetPosition() ) )
 		{

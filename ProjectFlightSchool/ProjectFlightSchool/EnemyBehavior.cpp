@@ -345,11 +345,21 @@ TakeDamageBehavior::~TakeDamageBehavior()
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT StunnedBehavior::Update( float deltaTime )
 {
+
+	mStateTimer -= deltaTime;
+
+	if( mStateTimer < 0.0f )
+	{
+		mEnemy->ChangeBehavior( HUNT_PLAYER_BEHAVIOR );
+	}
+
 	return S_OK;
 }
 
 void StunnedBehavior::OnEnter()
 {
+	mStateTimer = mEnemy->mStunTimer;
+	mEnemy->ChangeBehavior( STUNNED_BEHAVIOR );
 	IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), Stunned ) );
 	EventManager::GetInstance()->QueueEvent( state );
 }

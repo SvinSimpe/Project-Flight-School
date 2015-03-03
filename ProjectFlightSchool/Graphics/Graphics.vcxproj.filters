@@ -233,10 +233,13 @@
       <Filter>Effects\Particle Effects</Filter>
     </Text>
     <Text Include="..\Content\Effects\Particle Effects\BlowtorchIdleEffect.hlsl">
-		<Filter>Effects\Particle Effects</Filter>
-	</Text>
+      <Filter>Effects\Particle Effects</Filter>
+    </Text>
     <Text Include="..\Content\Effects\Particle Effects\Hammer_Effect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\DrawCircleEffect.hlsl">
+      <Filter>Effects</Filter>
     </Text>
   </ItemGroup>
 </Project>

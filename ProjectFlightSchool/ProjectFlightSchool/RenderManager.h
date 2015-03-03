@@ -17,6 +17,7 @@ class RenderManager
 		NodeGridInfo	mNodeGridArray[MAX_AMOUNT_OF_NODEGRIDS];
 		BoxInfo			mBoxArray[MAX_AMOUNT_OF_BOXES];
 		LineInfo		mLineArray[MAX_AMOUNT_OF_LINES];
+		CircleInfo		mCircleArray[MAX_AMOUNT_OF_CIRCLES];
 
 		RasterizerStates mRasterState;
 		LightManager*		mLightManager;
@@ -33,6 +34,7 @@ class RenderManager
 		UINT mNrOfNodeGrid;
 		UINT mNrOfBoxes;
 		UINT mNrOfLines;
+		UINT mNrOfCircles;
 		ParticleManager*	mParticleManager;
 
 	private:
@@ -56,6 +58,7 @@ class RenderManager
 		void AddBillboardToList( AssetID assetId, DirectX::XMFLOAT3 worldPosition, float width, float height );
 		void AddParticleSystemToList( ParticleSystem*** particleSystem,  int* nrOfActiveParticleSystemsPerType );
 		void AddNodeGridToList( StaticVertex* vertices, UINT nrOfVertices, AssetID blendMap, DirectX::XMFLOAT4X4 world );
+		void AddCircleToList( DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 color, float radius );
 
 		void AnimationInitialize( AnimationTrack &animationTrack, AssetID model, AssetID defaultAnimation );
 		void AnimationUpdate( AnimationTrack &animationTrack, float deltaTime );

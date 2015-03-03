@@ -635,14 +635,14 @@ UINT Server::CurrentPID()
 void Server::CreateShips()
 {
 	UINT shipID = 60;
-	float xOffset = -12.0f;
+	float xOffset = -48.0f;
 
 	for( UINT i = 0; i < MAX_TEAMS; i++ )
 	{
 		mShips.push_back( new ServerShip() );
-		mShips.back()->Initialize( shipID, CurrentTeamDelegate(), XMFLOAT3( xOffset, 0.0f, 24.0f ), XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+		mShips.back()->Initialize( shipID, CurrentTeamDelegate(), XMFLOAT3( xOffset, 0.0f, 20.0f ), XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 		shipID++;
-		xOffset += 24.0f;
+		xOffset += 96.0f;
 	}
 }
 

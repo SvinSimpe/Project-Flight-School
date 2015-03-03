@@ -107,11 +107,25 @@ void Enemy::TankLogic( float deltaTime )
 
 }
 
+//void Enemy::DamageFromPlayer( IEventPtr eventPtr )
+//{
+//	if( eventPtr->GetEventType() == Event_Client_Projectile_Damage_Enemy::GUID )
+//	{
+//		std::shared_ptr<Event_Client_Projectile_Damage_Enemy> data = std::static_pointer_cast<Event_Client_Projectile_Damage_Enemy>( eventPtr );
+//		if( data->EnemyID() == mID )
+//		{
+//			TakeDamage( data->Damage(), data->ID() );
+//		}
+//	}
+//}
+
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT Enemy::Update( float deltaTime, ServerPlayer** players, UINT NrOfPlayers )
 {
+	mDeltaTime		= deltaTime;
+
 	mSteeringBehaviorManager->Update( deltaTime );
 
 	XMStoreFloat3( &mVelocity, XMVector3Normalize( XMLoadFloat3( &mVelocity ) ) );
@@ -204,9 +218,14 @@ void Enemy::Hunt( float deltaTime )
 	XMStoreFloat3( &mVelocity, XMVector3Normalize( XMLoadFloat3( &mVelocity ) ) );
 	*/
 
-	mVelocity.x += totalSteeringForce.x;
-	mVelocity.z += totalSteeringForce.z;
-	mVelocity.y += totalSteeringForce.y;
+	//mVelocity.x += totalSteeringForce.x;
+	//mVelocity.z += totalSteeringForce.z;
+	//mVelocity.y += totalSteeringForce.y;
+
+	float interpolation = max( 0.0f, 1.0f - deltaTime * 0.1f );
+
+	XMStoreFloat3( &mVelocity, XMLoadFloat3( &mVelocity ) * interpolation
+					+ XMLoadFloat3( &totalSteeringForce ) * ( 1.0f - interpolation ) );
 
 	XMStoreFloat3( &mVelocity, XMVector3Normalize( XMLoadFloat3( &mVelocity ) ) );
 
@@ -253,19 +272,19 @@ void Enemy::AddImpuls( XMFLOAT3 impuls )
 	mPosition.z += impuls.z;
 }
 
-void Enemy::HandleSpawn( float deltaTime, XMFLOAT3 spawnPos )
+void Enemy::HandleSpawn()
 {
 	if( mTimeTillSapwn <= 0.0f )
 	{
-		Spawn( spawnPos );
+		Spawn();
 	}
 	else
 	{
-		mTimeTillSapwn -= deltaTime;
+		mTimeTillSapwn -= mDeltaTime;
 	}
 }
 
-void Enemy::Spawn( XMFLOAT3 spawnPos )
+void Enemy::Spawn()
 {
 	switch( mID % 4 )
 	{
@@ -273,12 +292,12 @@ void Enemy::Spawn( XMFLOAT3 spawnPos )
 		CreateStandard();
 		break;
 	case 1:
-		//CreateRanged();
-		CreateStandard();
+		CreateRanged();
+		//CreateStandard();
 		break;
 	case 2:
-		//CreateBoomer();
-		CreateStandard();
+		CreateBoomer();
+		//CreateStandard();
 		break;
 	case 3:
 		CreateTank();
@@ -290,13 +309,11 @@ void Enemy::Spawn( XMFLOAT3 spawnPos )
 	//CreateBoomer();
 	//CreateTank();
 
-	mPosition	= spawnPos;
-	mIsAlive	= true;
+	mPosition		= mSpawnPos;
+	mIsAlive		= true;
+	mHasSpawnPos	= false;
 	
-
-	// Send spawnEv
-	IEventPtr state( new Event_Set_Enemy_State( mID, Idle ) );
-	EventManager::GetInstance()->QueueEvent( state );
+	ChangeBehavior( IDLE_BEHAVIOR );
 }
 
 BoundingCircle* Enemy::GetAttackCircle() const
@@ -311,15 +328,21 @@ BoundingCircle* Enemy::GetAttentionCircle() const
 
 void Enemy::Die( UINT killer )
 {
-	mIsAlive		= false;
-	mCurrentHp		= 0.0f;
-	mTimeTillSapwn	= mSpawnTime;
-	
 	// Send dieEv
-	IEventPtr state( new Event_Set_Enemy_State( mID, Death ) );
-	EventManager::GetInstance()->QueueEvent( state );
+	ChangeBehavior( DEAD_BEHAVIOR );
 	IEventPtr E1( new Event_XP( killer, mXpDrop ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
+}
+
+bool Enemy::HasSpawnPos() const
+{
+	return mHasSpawnPos;
+}
+
+void Enemy::SetSpawnPos( XMFLOAT3 spawnPos )
+{
+	mSpawnPos		= spawnPos;
+	mHasSpawnPos	= true;
 }
 
 unsigned int Enemy::GetID() const
@@ -419,6 +442,8 @@ HRESULT Enemy::Initialize( int id, ServerPlayer** players, UINT NrOfPlayers, Ene
 	mSteeringBehaviorManager->SetUpBehavior( 0, 4.0f, 1.0f );
 	mSteeringBehaviorManager->SetUpBehavior( 1, 10.0f, 1.0f );
 
+	//EventManager::GetInstance()->AddListener( &Enemy::DamageFromPlayer, this, Event_Client_Projectile_Damage_Enemy::GUID );
+
 	return S_OK;
 }
 
@@ -427,9 +452,11 @@ void Enemy::Reset()
 	mEnemyType		= Standard;
 	mCurrentState	= Idle;
 	mIsAlive		= false;
+	mHasSpawnPos	= false;
 	mPosition		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity		= XMFLOAT3( 0.0f, 0.0f, 0.0f );	
+	ChangeBehavior( DEAD_BEHAVIOR );
 }
 
 void Enemy::Release()
@@ -479,6 +506,9 @@ Enemy::Enemy()
 	mOtherEnemies				= nullptr;
 	mTakingDamage				= false;
 	mSteeringBehaviorManager	= nullptr;
+	mSpawnPos					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mDeltaTime					= 0.0f;
+	mHasSpawnPos				= false;
 }
 
 Enemy::~Enemy()

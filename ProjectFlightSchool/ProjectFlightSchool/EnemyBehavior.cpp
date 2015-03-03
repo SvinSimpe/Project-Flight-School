@@ -1,5 +1,17 @@
 #include "Enemy.h"
 
+void IEnemyBehavior::DamageFromPlayer( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Projectile_Damage_Enemy::GUID )
+	{
+		std::shared_ptr<Event_Client_Projectile_Damage_Enemy> data = std::static_pointer_cast<Event_Client_Projectile_Damage_Enemy>( eventPtr );
+		if( data->EnemyID() == mEnemy->mID )
+		{
+			mEnemy->TakeDamage( data->Damage(), data->ID() );
+		}
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //								Base Behavior
 ///////////////////////////////////////////////////////////////////////////////
@@ -10,6 +22,7 @@ EnemyState IEnemyBehavior::GetBehavior() const
 
 IEnemyBehavior::IEnemyBehavior()
 {
+	EventManager::GetInstance()->AddListener( &IEnemyBehavior::DamageFromPlayer, this, Event_Client_Projectile_Damage_Enemy::GUID );
 	mBehavior	= Idle;
 }
 
@@ -42,6 +55,7 @@ HRESULT IdleBehavior::Update( float deltaTime )
 
 void IdleBehavior::OnEnter()
 {
+	mEnemy->mIsAlive		= true;
 	mEnemy->mCurrentState	= Idle;
 	mEnemy->mVelocity = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), Idle ) );
@@ -298,7 +312,11 @@ AttackBehavior::~AttackBehavior()
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT TakeDamageBehavior::Update( float deltaTime )
 {
-	mEnemy->ChangeBehavior( HUNT_PLAYER_BEHAVIOR );
+	if( mEnemy->mIsAlive )
+		mEnemy->ChangeBehavior( HUNT_PLAYER_BEHAVIOR );
+	//else
+	//	mEnemy->ChangeBehavior( DEAD_BEHAVIOR );
+
 	return S_OK;
 }
 
@@ -391,11 +409,14 @@ StunnedBehavior::~StunnedBehavior()
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT DeadBehavior::Update( float deltaTime )
 {
+	mEnemy->HandleSpawn();
 	return S_OK;
 }
 
 void DeadBehavior::OnEnter()
 {
+	mEnemy->mVelocity		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mEnemy->mCurrentState	= Death;
 	mEnemy->mIsAlive		= false;
 	mEnemy->mCurrentHp		= 0.0f;
 	mEnemy->mTimeTillSapwn	= mEnemy->mSpawnTime;

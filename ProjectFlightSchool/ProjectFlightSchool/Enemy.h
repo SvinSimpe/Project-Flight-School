@@ -9,11 +9,12 @@
 #include "RemotePlayer.h"
 #include "SteeringBehaviorManager.h"
 #include <math.h>
+#include "EventManager.h"
 
 class Enemy;
 
 
-#define MAX_NR_OF_ENEMIES		20
+#define MAX_NR_OF_ENEMIES		5
 
 #define randflt() (((float) rand())/((float) RAND_MAX))
 
@@ -72,6 +73,7 @@ class IEnemyBehavior
 		float			mStateTimer;
 
 		//SteeringBehaviorManager**	mSteeringBehaviors;
+		void			DamageFromPlayer( IEventPtr eventPtr );
 
 	// Class functions
 	public:
@@ -364,6 +366,8 @@ class Enemy
 		UINT				mTargetIndex;
 		bool				mTakingDamage;
 		bool				mHasEvaded;
+		bool				mHasSpawnPos;
+		XMFLOAT3			mSpawnPos;
 
 		ServerPlayer**		mPlayers;
 		UINT				mNrOfPlayers;
@@ -399,6 +403,7 @@ class Enemy
 		void				RangedLogic( float deltaTime );
 		void				BoomerLogic( float deltaTime );
 		void				TankLogic( float deltaTime );
+		//void				DamageFromPlayer( IEventPtr eventPtr );
 
 	protected:
 	public:
@@ -411,12 +416,14 @@ class Enemy
 		void				AddImpuls( XMFLOAT3 impuls );
 		void				SetTarget( UINT id );
 		void				Hunt( float deltaTime );
-		void				HandleSpawn( float deltaTime, XMFLOAT3 spawnPos );
-		void				Spawn( XMFLOAT3 spawnPos );
+		void				HandleSpawn();
+		void				Spawn();
 		BoundingCircle*		GetAttackCircle()	 const;
 		BoundingCircle*		GetAttentionCircle() const;
 		void				Die( UINT killer );
 		float				HandleAttack();
+		bool				HasSpawnPos() const;
+		void				SetSpawnPos( XMFLOAT3 spawnPos );
 
 		unsigned int		GetID() const;
 		void				SetID( unsigned int id );

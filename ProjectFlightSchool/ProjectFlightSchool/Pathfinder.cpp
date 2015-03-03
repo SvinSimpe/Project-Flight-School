@@ -21,6 +21,8 @@ HRESULT Pathfinder::Initialize( Map* map )
 			MapNodeInstance* current = mMap->GetNodeInstance( i, j );
 			if( current )
 				mNavmeshMap[( i * mMapHeight ) + j] = current->GetNavMesh();
+			else
+				mNavmeshMap[( i * mMapHeight ) + j] = nullptr;
 		}
 	}
 	return S_OK;
@@ -42,11 +44,10 @@ bool Pathfinder::IsOnNavMesh( DirectX::XMFLOAT3 pos )
 	if( index < mMapWidth * mMapHeight )
 	{
 		Navmesh* temp = mNavmeshMap[index];
-
-		return temp->IsOnNavMesh( pos );
+		if( temp )
+			return temp->IsOnNavMesh( pos );
 	}
-	else
-		return false;
+	return false;
 }
 
 void Pathfinder::RequestPath( Path* path, DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end )

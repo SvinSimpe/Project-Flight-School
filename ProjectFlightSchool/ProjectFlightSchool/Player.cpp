@@ -211,6 +211,12 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		XMStoreFloat3( &unPack, playerToCursor );
 		playerToCursor = XMVector3Normalize( XMVectorSet( unPack.x, 0.0f, unPack.z, 0.0f ) );
 		XMStoreFloat3( &mUpperBody.direction, playerToCursor );
+
+
+		if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
+		{
+			XMStoreFloat3( &mPick, intersection );
+		}
 	}
 
 	// UNCOMMENT THIS TO USE CLICK TO MOVE
@@ -532,6 +538,10 @@ void Player::Fire()
 	{
 		FireMinigun( &loadDir );	
 	}
+	else if( mLoadOut->rangedWeapon->weaponType == GRENADELAUNCHER )
+	{
+		FireGrenadeLauncher( &loadDir );
+	}
 	else
 	{
 		// Set random spread
@@ -627,6 +637,46 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		mTimeSinceLastShot					= 0.0f;
 		mWeaponOverheated					= true;
 	}
+}
+
+void Player::FireGrenadeLauncher( XMFLOAT3* projectileOffset )
+{
+	float elevation = CalculateLaunchAngle();
+	//if( elevation <= 0.0f )
+	//	elevation *= -1.0f;
+
+	mFireDirection			= XMFLOAT3( mUpperBody.direction.x, elevation, mUpperBody.direction.z );
+	IEventPtr E1( new Event_Trigger_Client_Fired_Projectile( mID, *projectileOffset, mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
+}
+
+float Player::CalculateLaunchAngle()
+{
+	float distance	= XMVectorGetX( XMVector3Length( XMLoadFloat3( &mPick ) - XMLoadFloat3( &mLowerBody.position ) ) );
+	float speed		= 0.0f;
+
+	if( distance < 3.0f )
+		distance = 3.0f;
+
+	if( distance > mLoadOut->rangedWeapon->range )
+		distance = mLoadOut->rangedWeapon->range;
+	
+	speed = mLoadOut->rangedWeapon->projectileSpeed;
+
+	float x = 0.6f * ( 25.0f * distance ) / ( speed* speed );
+	
+	if( x > 1.0f )
+		x = 1.0f;
+	
+	float result = asin( x );
+
+	if( distance > 7.0f && distance < 10.0f )
+		result -= 0.10f;
+
+	if( distance >= 3.0f && distance <= 7.0f )
+		result -= 0.15f;
+		
+	return result;
 }
 
 void Player::AddImpuls( XMFLOAT3 impuls )
@@ -757,7 +807,7 @@ void Player::Reset()
 	mUpperBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mLowerBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
-	RenderManager::GetInstance()->AnimationReset( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
+	RenderManager::GetInstance()->AnimationReset( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] );
 	RenderManager::GetInstance()->AnimationReset( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
 	RenderManager::GetInstance()->AnimationReset( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
 }
@@ -780,7 +830,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	}
 	else
 	{
-		mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 30.0f );
+		mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 10.0f );
 	}
 
 	if ( !mLock )
@@ -825,21 +875,21 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 			if( currentVelocity < 0.2f )
 			{
-				if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE] )
+				if( mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] )
 				{
-					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
+					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] );
 				}
 			}
 			else
 			{
-				if(	mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK] )
+				if(	mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] )
 				{
-					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_WALK] );
+					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] );
 				}
 			}
 
-			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, 
-				mLowerBody.playerModel.mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK] ? deltaTime * currentVelocity / 1.1f : deltaTime );
+			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel[TEAM_ARRAY_ID], 
+				mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] ? deltaTime * currentVelocity / 1.1f : deltaTime );
 
 			if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] )
 				RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
@@ -893,9 +943,9 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 		}
 		else
 		{
-			if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DEATH] )
-			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_DEATH] );
-			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, deltaTime );
+			if( mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DEATH][TEAM_ARRAY_ID] )
+			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_DEATH][TEAM_ARRAY_ID] );
+			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel[TEAM_ARRAY_ID], deltaTime );
 
 			/////////////////////////////////////////////////
 			// interpolate upper to face lower direction
@@ -912,9 +962,9 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	{
 		DropEnergyCell( energyCells );
 
-		if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DOWN] )
-			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_DOWN] );
-		RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, deltaTime );
+		if( mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DOWN][TEAM_ARRAY_ID] )
+			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_DOWN][TEAM_ARRAY_ID] );
+		RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel[TEAM_ARRAY_ID], deltaTime );
 
 		/////////////////////////////////////////////////
 		// interpolate upper to face lower direction

@@ -11,12 +11,14 @@
 class EnergyCell
 {
 	private:
-		AssetID				mAssetID;
+		AnimationTrack		mAnimationTrack;
+		AssetID				mAnimation;
 		UINT				mOwnerID;
 		bool				mPickedUp;
 		BoundingCircle*		mPickUpRadius;
 		float				mHooverFactor;
 		bool				mSecured;
+
 
 
 	protected:

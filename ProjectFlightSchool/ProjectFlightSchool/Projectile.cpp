@@ -2,17 +2,34 @@
 
 HRESULT Projectile::Update( float deltaTime )
 {
+	if( mWeaponType == GRENADELAUNCHER )
+	{
+		float acceleration	= ( 2.0f * deltaTime );
+		mDirection.y -= acceleration;
+	}
+
+
 	mPosition.x += mDirection.x * mSpeed * deltaTime;
 	mPosition.y += mDirection.y * mSpeed * deltaTime;
 	mPosition.z += mDirection.z * mSpeed * deltaTime;
 
-	if( mLifeTime <= 0.0f || mPosition.y < -0.05f )
-	{
-		Reset();
-	}
-	else
-		mLifeTime -=deltaTime;
 
+	if( mWeaponType == GRENADELAUNCHER )
+	{
+		if( mPosition.y <= 0.0f )
+			Reset();
+	}
+
+	else
+	{
+		if( mLifeTime <= 0.0f || mPosition.y < -0.05f )
+		{
+			Reset();
+		}
+		else
+			mLifeTime -=deltaTime;
+	}
+	
 	mBoundingCircle->center = mPosition;
 	mPointLight->position	= XMFLOAT4( mPosition.x, mPosition.y, mPosition.z, 1.0f );
 

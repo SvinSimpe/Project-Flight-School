@@ -503,7 +503,7 @@ void PlayState::HandleDeveloperCameraInput()
 			}
 		}
 	}
-	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_ENTER ) )
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_ESCAPE ) )
 	{
 		if( mGui->InGameWindowIsActive() )
 		{

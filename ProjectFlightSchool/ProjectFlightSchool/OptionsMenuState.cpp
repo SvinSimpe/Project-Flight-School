@@ -63,7 +63,7 @@ HRESULT OptionsMenuState::Render( float deltaTime )
 	
 	if( mInOptions )
 	{
-		RenderManager::GetInstance()->AddObject2dToList( mInOptionsBackground, XMFLOAT2( 0.0f, 0.0f ), XMFLOAT2( Input::GetInstance()->mScreenWidth, Input::GetInstance()->mScreenHeight ) );
+		RenderManager::GetInstance()->AddObject2dToList( mInOptionsBackground, XMFLOAT2( 0.0f, 0.0f ), XMFLOAT2( (float)Input::GetInstance()->mScreenWidth, (float)Input::GetInstance()->mScreenHeight ) );
 	}
 
 	RenderManager::GetInstance()->Render();
@@ -90,7 +90,7 @@ HRESULT OptionsMenuState::Initialize()
 	mStateType = OPTIONS_MENU_STATE;
 	mButtons.reserve( BUTTON_AMOUNT );
 
-	std::string texts[] = { "Sound", "Fullscreen", "Sound", "Back" }; //First Sound should be switched to Help
+	std::string texts[] = { "textSoundOnOff", "textFullScreenOnOff", "textSoundOnOff", "textBack" }; //First Sound should be switched to Help
 
 	float x	= (float)Input::GetInstance()->mScreenWidth  * 0.35f;
 	float y	= (float)Input::GetInstance()->mScreenHeight * 0.9f;
@@ -101,11 +101,11 @@ HRESULT OptionsMenuState::Initialize()
 		mButtons.push_back( new MovingButton() );
 		if( texts[i] == "Back" )
 		{
-			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Back.png", x - w * 0.5f, y - h * 0.5f, w, h );
+			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Options_Menu_Text/textBack.dds", x - w * 0.5f, y - h * 0.5f, w, h );
 		}
 		else
 		{
-			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Options_Menu_Text/" + texts[i] + ".png", x - w * 0.5f, y - h * 0.5f, w, h );
+			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Options_Menu_Text/" + texts[i] + ".dds", x - w * 0.5f, y - h * 0.5f, w, h );
 		}
 		x += (float)Input::GetInstance()->mScreenWidth  * 0.1f;
 	}

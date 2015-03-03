@@ -76,7 +76,7 @@ HRESULT StartMenuState::Initialize()
 	mStateType		= START_MENU_STATE;
 	mButtons.reserve( BUTTON_AMOUNT );
 
-	std::string texts[] = { "Create", "Join", "Options", "Exit" };
+	std::string texts[] = { "textCreate", "textJoin", "textOptions", "textExit" };
 
 	float x	= (float)Input::GetInstance()->mScreenWidth  * 0.35f;
 	float y	= (float)Input::GetInstance()->mScreenHeight * 0.9f;
@@ -85,7 +85,7 @@ HRESULT StartMenuState::Initialize()
 	for(int i = 0; i < BUTTON_AMOUNT; i++)
 	{
 		mButtons.push_back( new MovingButton() );
-		mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Start_Menu_Text/" + texts[i] + ".png", x - w * 0.5f , y - h * 0.5f, w, h );
+		mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Start_Menu_Text/" + texts[i] + ".dds", x - w * 0.5f , y - h * 0.5f, w, h );
 		x += (float)Input::GetInstance()->mScreenWidth * 0.1f;
 	}
 

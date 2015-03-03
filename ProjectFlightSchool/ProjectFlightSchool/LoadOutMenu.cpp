@@ -99,7 +99,7 @@ HRESULT LoadOutMenu::Initialize()
 		offsetY += 124.0f;
 	}
 	
-	mBackButton.Initialize( "../Content/Assets/Textures/Menu/Back.png", 820.0f, 820.0f, 200.0f, 200.0f );
+	mBackButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/textBack.dds", 820.0f, 820.0f, 200.0f, 200.0f );
 	
 	WeaponType types[NR_OF_WEAPONS] = { MINIGUN, SHOTGUN, GRENADELAUNCHER, SNIPER, CLAYMORE, HAMMER, BLOWTORCH, SAW };
 	for( int i = 0; i < NR_OF_WEAPONS; i++ )

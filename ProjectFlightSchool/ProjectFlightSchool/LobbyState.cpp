@@ -250,13 +250,13 @@ HRESULT LobbyState::Initialize()
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Lobby_Finished::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Remote_Left::GUID );
 
-	float x = ( (float)Input::GetInstance()->mScreenWidth * 0.9f ) - 650.0f;
-	float y = ( (float)Input::GetInstance()->mScreenHeight * 0.9f ) - 200.0f;
-	float w = 200.0f;
-	float h = 200.0f;
+	//float x = ( (float)Input::GetInstance()->mScreenWidth * 0.9f ) - 650.0f;
+	//float y = ( (float)Input::GetInstance()->mScreenHeight * 0.9f ) - 200.0f;
+	//float w = 200.0f;
+	//float h = 200.0f;
 
-	mBackButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/textBack.dds", x, y, w, h );
-	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Connect_Server_Success::GUID );
+	//mBackButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/textBack.dds", x, y, w, h );
+	//EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Connect_Server_Success::GUID );
 	
 	mBackButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/textBack.dds", 70.0f, 760.0f, 200.0f, 200.0f );
 	mLoadOutMenu.Initialize();

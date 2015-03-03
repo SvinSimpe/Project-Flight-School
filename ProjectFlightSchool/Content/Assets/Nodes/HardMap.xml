@@ -2,7 +2,7 @@
 <-- RenderTypes: Static = 0, Dynamic = 1, Invisble = 2. CollisionTypes: Full = 0, Half = 1, None = 2 -->
 <Level>
     <Nodes>
-		<Node path="../Content/Assets/Nodes/tileRatherOpenArea1.lp" type="SHIP_NODE" />
+		<Node path="../Content/Assets/Nodes/tileEmpty.lp" type="SHIP_NODE" />
 		<Node path="../Content/Assets/Nodes/tileALargePuddle.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileForest.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileBigOpenAreaWithFourTreeGrooves.lp" type="AREA_NODE" />

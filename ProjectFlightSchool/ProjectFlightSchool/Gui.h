@@ -8,6 +8,7 @@
 #include "UpgradeShipWindow.h"
 #include "UpgradePlayerWindow.h"
 #include "InGameWindow.h"
+#include "EndGameWindow.h"
 
 #define MAX_REMOTE_PLAYERS 14
 
@@ -48,6 +49,12 @@ struct GuiUpdate
 	float	mPlayerXP;
 	int		mLevel;
 	//------------------------------
+
+	//End game update info
+	bool mEndGame;
+	bool mWonGame;
+	//------------------------------
+
 };
 
 class Gui
@@ -59,7 +66,9 @@ class Gui
 		UpgradeShipWindow	mShipWindow;
 		UpgradePlayerWindow	mPlayerWindow;
 		InGameWindow		mInGameWindow;
+		EndGameWindow		mEndGameWindow;
 		bool				mEnergyCellsShowing;
+		bool				mEndGame;
 
 		HealthBar*	mHealtBar;
 
@@ -100,7 +109,7 @@ class Gui
 		void	DeActivateInGameWindow();
 		HRESULT	Update( GuiUpdate guiUpdate );
 		HRESULT	Render();
-		HRESULT	Initialize();
+		HRESULT	Initialize( UINT neededEnergyCells );
 		void	Release();
 				Gui();
 				~Gui();

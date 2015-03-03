@@ -160,7 +160,7 @@ struct ParticleSystem : public ParticleData
 		}
 		else if( particleType == Explosion )	
 		{
-			SetRandomDeathTime( 1, 2, particleCount );
+			SetRandomDeathTime( 1, 3, particleCount );
 			SetRandomRotation( particleCount ); 
 		}
 		else if( particleType == NormalSmoke )	

@@ -195,6 +195,12 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		XMStoreFloat3( &unPack, playerToCursor );
 		playerToCursor = XMVector3Normalize( XMVectorSet( unPack.x, 0.0f, unPack.z, 0.0f ) );
 		XMStoreFloat3( &mUpperBody.direction, playerToCursor );
+
+
+		if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
+		{
+			XMStoreFloat3( &mPick, intersection );
+		}
 	}
 
 	// UNCOMMENT THIS TO USE CLICK TO MOVE
@@ -503,6 +509,10 @@ void Player::Fire()
 	{
 		FireMinigun( &loadDir );	
 	}
+	else if( mLoadOut->rangedWeapon->weaponType == GRENADELAUNCHER )
+	{
+		FireGrenadeLauncher( &loadDir );
+	}
 	else
 	{
 		// Set random spread
@@ -598,6 +608,34 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		mTimeSinceLastShot					= 0.0f;
 		mWeaponOverheated					= true;
 	}
+}
+
+void Player::FireGrenadeLauncher( XMFLOAT3* projectileOffset )
+{
+	float elevation = CalculateLaunchAngle();
+	if( elevation <= 0.0f )
+		elevation *= -1.0f;
+
+	mFireDirection			= XMFLOAT3( mUpperBody.direction.x, elevation, mUpperBody.direction.z );
+	IEventPtr E1( new Event_Trigger_Client_Fired_Projectile( mID, *projectileOffset, mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
+}
+
+float Player::CalculateLaunchAngle()
+{
+	float distance = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mPick ) - XMLoadFloat3( &mLowerBody.position ) ) );
+	
+	float x = 0.6f * ( 40.0f * distance ) / ( mLoadOut->rangedWeapon->projectileSpeed * mLoadOut->rangedWeapon->projectileSpeed );
+	
+	if( x > 1.0f )
+		x = 1.0f;
+	
+	float result = asin( x );
+
+	if( distance > 8.0f )
+		result += 0.2f;
+
+	return result;
 }
 
 void Player::AddImpuls( XMFLOAT3 impuls )
@@ -753,7 +791,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	}
 	else
 	{
-		mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 30.0f );
+		mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 10.0f );
 	}
 
 	if ( !mLock )

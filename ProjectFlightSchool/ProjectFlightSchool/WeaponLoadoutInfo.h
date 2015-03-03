@@ -16,7 +16,7 @@
 #define MINIGUN_DAMAGE		0.6f	// Damage
 #define MINIGUN_RANGE		0.8f	// Range
 #define MINIGUN_SPREAD		0.1f	// Spread
-#define MINIGUN_AOE			0.0f	// Area of effect
+#define MINIGUN_AOE			5.0f	// Area of effect
 #define MINIGUN_SPEED		40.0f	// Projectile Speed 30
 #define MINIGUN_OFFSETS		XMFLOAT3( 0.75f, 0.5f, 1.3f ) // Offsets forward, right, up
 #define MINIGUN_OVERHEAT_CD 2.0f	// Cooldown that occurs when the minigun overheats	
@@ -31,12 +31,12 @@
 #define SHOTGUN_OFFSETS		XMFLOAT3( 0.93f, 0.5f, 1.45f ) // Offsets forward, right, up
 
 // Grenade Launcher
-#define GL_AR				1.5f	// Attack Rate
-#define GL_DAMAGE			10.0f	// Damage
+#define GL_AR				1.0f	// Attack Rate
+#define GL_DAMAGE			15.0f	// Damage
 #define GL_RANGE			1.0f	// Range
 #define GL_SPREAD			0.0f	// Spread
-#define GL_AOE				0.0f	// Area of effect
-#define GL_SPEED			10.0f	// Projectile Speed 10
+#define GL_AOE				2.0f	// Area of effect
+#define GL_SPEED			20.0f	// Projectile Speed 10
 #define GL_OFFSETS			XMFLOAT3( 0.92f, 0.5f, 1.45f ) // Offsets forward, right, up
 
 // Sniper

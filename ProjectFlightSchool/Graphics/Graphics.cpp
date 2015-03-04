@@ -461,6 +461,16 @@ HRESULT Graphics::InitializeEffects()
 	//			PARTICLE EFFECTS			|
 	//=======================================
 
+	//Debris effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/DebrisEffect.hlsl";
+	effectInfo.fileName					= "DebrisEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_DEBRIS]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
 	//Hammer smoke effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/Hammer_Effect.hlsl";
 	effectInfo.fileName					= "Hammer_Effect";

@@ -1024,6 +1024,7 @@ bool Server::Initialize()
 // The reset in the server is special because it's allowed to deallocate/allocate memory (Y)
 void Server::Reset()
 {
+	Release();
 	mStopAccept				= false;
 	mActive					= false;
 	mCurrentPID				= 0;
@@ -1033,48 +1034,12 @@ void Server::Reset()
 	mNrOfProjectilesFired	= 0;
 	mMaxClients				= 0;
 
-	// SocketManager "reset"
-	if( mSocketManager )
-	{
-		mSocketManager->Release();
-		SAFE_DELETE( mSocketManager );
-	}
-
-	// ClientNEF "reset"
-	for( auto& cm : mClientMap )
-	{
-		auto& c = cm.second;
-		SAFE_DELETE( c );
-	}
-	mClientMap.clear();
-
-	// Ship "reset"
-	for( auto& s : mShips )
-	{
-		SAFE_DELETE( s );
-	}
-	mShips.clear();
-
-	// The ServerPlayer array needs to be completely cleared and the reinitialized
-	for( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
-	{
-		SAFE_DELETE( mPlayers[i] );
-	}
-	SAFE_DELETE_ARRAY( mPlayers );
 	mPlayers = new ServerPlayer*[MAX_NR_OF_PLAYERS];
 	for( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
 	{
 		mPlayers[i] = nullptr;
 	}
 
-	// The same goes for the Enemies array
-	for( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
-	{
-		if( mEnemies[i] )
-			mEnemies[i]->Release();
-		SAFE_DELETE( mEnemies[i] );
-	}
-	SAFE_DELETE_ARRAY( mEnemies );
 	mEnemies = new Enemy*[MAX_NR_OF_ENEMIES];
 	for( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 	{
@@ -1082,14 +1047,6 @@ void Server::Reset()
 		mEnemies[i]->Initialize( i, mPlayers, mNrOfPlayers, mEnemies );
 	}
 
-	// And this other array here
-	for( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
-	{
-		if( mSpawners[i] )
-			mSpawners[i]->Release();
-		SAFE_DELETE( mSpawners[i] );
-	}
-	SAFE_DELETE_ARRAY( mSpawners );
 	mSpawners = new EnemySpawn*[MAX_NR_OF_ENEMY_SPAWNERS];
 	for( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
 	{
@@ -1101,15 +1058,6 @@ void Server::Reset()
 		mSpawners[i]->Initialize( i );
 	}
 
-	// ...Fucking arrays man
-	for( size_t i = 0; i < MAX_ENERGY_CELLS; i++ )
-	{
-		if( mEnergyCells[i] )
-			mEnergyCells[i]->Release();
-		SAFE_DELETE( mEnergyCells[i] );
-	}
-	SAFE_DELETE_ARRAY( mEnergyCells );
-
 	CreateShips();
 	CreateEnergyCells();
 	SetEnemySpawnerPositions();
@@ -1117,15 +1065,6 @@ void Server::Reset()
 
 void Server::Release()
 {
-	mCurrentPID				= (UINT)-1;
-	mActive					= false;
-	mTeamDelegate			= (UINT)-1;
-	mNrOfPlayers			= (UINT)-1;
-	mNrOfEnemiesSpawned		= (UINT)-1;
-	mNrOfProjectilesFired	= (UINT)-1;
-	mStopAccept				= false;
-	mMaxClients				= (UINT)-1;
-
 	if( mSocketManager )
 	{
 		mSocketManager->Release();
@@ -1144,45 +1083,45 @@ void Server::Release()
 		SAFE_DELETE( s );
 	}
 	mShips.clear();
-	CreateShips();
 
-	for( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
+	if( mPlayers )
 	{
-		SAFE_DELETE( mPlayers[i] );
+		for( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
+		{
+			SAFE_DELETE( mPlayers[i] );
+		}
+		SAFE_DELETE_ARRAY( mPlayers );
 	}
-	SAFE_DELETE_ARRAY( mPlayers );
 
-	for( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	if( mEnemies )
 	{
-		if( mEnemies[i] )
-			mEnemies[i]->Release();
-		SAFE_DELETE( mEnemies[i] );
+		for( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+		{
+			if( mEnemies[i] )
+				mEnemies[i]->Release();
+			SAFE_DELETE( mEnemies[i] );
+		}
+		SAFE_DELETE_ARRAY( mEnemies );
 	}
-	SAFE_DELETE_ARRAY( mEnemies );
 
-<<<<<<< HEAD
-	for( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+	if( mSpawners )
 	{
-		if( mSpawners[i] )
-			mSpawners[i]->Release();
-		SAFE_DELETE( mSpawners[i] );
+		for( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+		{
+			if( mSpawners[i] )
+				mSpawners[i]->Release();
+			SAFE_DELETE( mSpawners[i] );
+		}
+		SAFE_DELETE_ARRAY( mSpawners );
 	}
-	SAFE_DELETE_ARRAY( mSpawners );
 
 	for( size_t i = 0; i < MAX_ENERGY_CELLS; i++ )
-=======
-	//Energy cells
-	if( mEnergyCells )
->>>>>>> development
 	{
-		for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
-		{
-			if( mEnergyCells[i] )
-				mEnergyCells[i]->Release();
-			SAFE_DELETE( mEnergyCells[i] );
-		}
-		SAFE_DELETE_ARRAY( mEnergyCells );
+		if( mEnergyCells[i] )
+			mEnergyCells[i]->Release();
+		SAFE_DELETE( mEnergyCells[i] );
 	}
+	SAFE_DELETE_ARRAY( mEnergyCells );
 }
 
 Server::Server() : Network()

@@ -9,12 +9,14 @@
 #include "RemotePlayer.h"
 #include "SteeringBehaviorManager.h"
 #include <math.h>
+#include "EventManager.h"
 
 class Enemy;
 
+#define MAX_NR_OF_ENEMIES		20
 
-#define MAX_NR_OF_ENEMIES		0
 #define randflt() (((float) rand())/((float) RAND_MAX))
+
 
 // ---- Define all enemy animations ----
 // Standard
@@ -70,6 +72,7 @@ class IEnemyBehavior
 		float			mStateTimer;
 
 		//SteeringBehaviorManager**	mSteeringBehaviors;
+		void			DamageFromPlayer( IEventPtr eventPtr );
 
 	// Class functions
 	public:
@@ -227,6 +230,8 @@ class SteeringBehavior
 		virtual bool	Update( float deltaTime, XMFLOAT3& totalForce );
 		virtual void	SteerTowards( XMFLOAT3& target, XMFLOAT3& result );
 		virtual void	SteerAway( XMFLOAT3& target, XMFLOAT3& result );
+		virtual float	Dot( XMFLOAT3& a, XMFLOAT3& b );
+		virtual float	Lerp( float t, float a, float b );
 		
 		virtual void	Reset();
 		virtual void	Release();
@@ -301,7 +306,7 @@ class SteeringBehaviorManager
 		virtual void		DisableBehavior( int index );
 		virtual void		SetUpBehavior( int behaviorIndex, float weight, float probability, bool disable = false );
 		virtual bool		CombinedForceWeighted( XMFLOAT3& steeringForce, float weight );
-		virtual bool		CombineForcePrioritySum( XMFLOAT3& steeringForce );
+		virtual bool		CombineForcePrioritySum( XMFLOAT3& steeringForce, float weight );
 		virtual XMFLOAT3	GetFinalSteeringForce() const;
 
 		virtual HRESULT		Initialize( Enemy* enemy = nullptr );
@@ -359,6 +364,9 @@ class Enemy
 		UINT				mTargetID;
 		UINT				mTargetIndex;
 		bool				mTakingDamage;
+		bool				mHasEvaded;
+		bool				mHasSpawnPos;
+		XMFLOAT3			mSpawnPos;
 
 		ServerPlayer**		mPlayers;
 		UINT				mNrOfPlayers;
@@ -394,6 +402,7 @@ class Enemy
 		void				RangedLogic( float deltaTime );
 		void				BoomerLogic( float deltaTime );
 		void				TankLogic( float deltaTime );
+		//void				DamageFromPlayer( IEventPtr eventPtr );
 
 	protected:
 	public:
@@ -406,12 +415,14 @@ class Enemy
 		void				AddImpuls( XMFLOAT3 impuls );
 		void				SetTarget( UINT id );
 		void				Hunt( float deltaTime );
-		void				HandleSpawn( float deltaTime, XMFLOAT3 spawnPos );
-		void				Spawn( XMFLOAT3 spawnPos );
+		void				HandleSpawn();
+		void				Spawn();
 		BoundingCircle*		GetAttackCircle()	 const;
 		BoundingCircle*		GetAttentionCircle() const;
 		void				Die( UINT killer );
 		float				HandleAttack();
+		bool				HasSpawnPos() const;
+		void				SetSpawnPos( XMFLOAT3 spawnPos );
 
 		unsigned int		GetID() const;
 		void				SetID( unsigned int id );

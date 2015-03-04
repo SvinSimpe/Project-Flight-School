@@ -2,11 +2,13 @@
 
 void Gui::ActivateUpgradeShipWindow()
 {
+	mEnergyCellsShowing = true;
 	mShipWindow.Activate();
 }
 
 void Gui::DeActivateUpgradeShipWindow()
 {
+	mEnergyCellsShowing = false;
 	mShipWindow.DeActivate();
 }
 
@@ -18,6 +20,16 @@ void Gui::ActivateUpgradePlayerWindow()
 void Gui::DeActivateUpgradePlayerWindow()
 {
 	mPlayerWindow.DeActivate();
+}
+
+void Gui::ActivateEnergyCellsShowing()
+{
+	mEnergyCellsShowing = true;
+}
+
+void Gui::DeActivateEnergyCellsShowing()
+{
+	mEnergyCellsShowing = false;
 }
 
 void Gui::ActivateInGameWindow()
@@ -99,78 +111,99 @@ HRESULT Gui::Update( GuiUpdate guiUpdate )
 		mShipWindow.gEventList.pop_back();
 	}
 
+	if( guiUpdate.mEndGame )
+	{
+		mEndGameWindow.Update( guiUpdate.deltaTime, guiUpdate.mWonGame );
+		mEndGame = guiUpdate.mEndGame;
+	}
+
 	return result;
 
 }
 
 HRESULT Gui::Render()
 {
+	HRESULT result = S_OK;
 
-	for( UINT i = 0; i < mNrOfRemotePlayer; i++ )
+	if( !mEndGame )
 	{
-		mPlayerNames[i].Render();
+		for( UINT i = 0; i < mNrOfRemotePlayer; i++ )
+		{
+			mPlayerNames[i].Render();
+		}
+
+		mHealtBar->Render();
+
+		result = mRadar->Render();
+
+		///////////////////
+		//Player hp, shield & xp
+		///////////////////
+		RenderManager::GetInstance()->AddObject2dToList( mPlayerBar, mPlayerHealthXPTopLeftCorner, mSizePlayerHealthXP );
+		std::string renderText;
+
+		mFont.WriteText( "Hp", 106.0f, 858.0f, 2.9f );
+		renderText = std::to_string( mPlayerHP );
+		renderText += "%";
+		mFont.WriteText( renderText, 95.0f, 896.0f, 2.9f );
+
+		mFont.WriteText( "Shield", 68.0f, 945.0f, 2.9f );
+		renderText = std::to_string( mPlayerShield );
+		renderText += "%";
+		mFont.WriteText( renderText, 95.0f, 983.0f, 2.9f );
+
+		mFont.WriteText( "Xp", 316.0f, 871.0f, 3.8f );
+		renderText = std::to_string( mPlayerXP );
+		renderText += "%";
+		mFont.WriteText( renderText, 297.0f, 930.0f, 3.8f );
+
+
+		////////////////
+		//Level up
+		////////////////
+		if( mExperience >= 1 && !mPlayerWindow.IsActive() )
+		{
+
+			RenderManager::GetInstance()->AddObject2dToList( mLevelUp, mTopLeftLevelUp, mSizeLevelUp );
+
+			renderText = "+";
+			renderText += std::to_string( (int)mExperience );
+			mFont.WriteText( renderText, (mTopLeftLevelUp.x + 75.0f ), ( mTopLeftLevelUp.y + 66.0f ), 4.8f );
+		}
+
+		if ( mShipWindow.IsActive() )
+		{
+			mShipWindow.Render();
+		}
+
+		if ( mPlayerWindow.IsActive() )
+		{
+			mPlayerWindow.Render();
+		}
+
+		if ( mInGameWindow.IsActive() )
+		{
+			mInGameWindow.Render();
+		}
+
+		if( mEnergyCellsShowing && !mInGameWindow.IsActive() )
+		{
+			renderText = std::to_string( mShipWindow.GetNrOfEnergyCells() ) + " of " + std::to_string( mNeededEnergyCells ) + " energy cells";
+			mFont.WriteText( renderText, 1680.0f, 280.0f, 2.0f );
+		}
 	}
-
-	mHealtBar->Render();
-
-	HRESULT result = mRadar->Render();
-
-	///////////////////
-	//Player hp, shield & xp
-	///////////////////
-	RenderManager::GetInstance()->AddObject2dToList( mPlayerBar, mPlayerHealthXPTopLeftCorner, mSizePlayerHealthXP );
-	std::string renderText;
-
-	mFont.WriteText( "Hp", 106.0f, 858.0f, 2.9f );
-	renderText = std::to_string( mPlayerHP );
-	renderText += "%";
-	mFont.WriteText( renderText, 95.0f, 896.0f, 2.9f );
-
-	mFont.WriteText( "Shield", 68.0f, 945.0f, 2.9f );
-	renderText = std::to_string( mPlayerShield );
-	renderText += "%";
-	mFont.WriteText( renderText, 95.0f, 983.0f, 2.9f );
-
-	mFont.WriteText( "Xp", 316.0f, 871.0f, 3.8f );
-	renderText = std::to_string( mPlayerXP );
-	renderText += "%";
-	mFont.WriteText( renderText, 297.0f, 930.0f, 3.8f );
-
-
-	////////////////
-	//Level up
-	////////////////
-	if( mExperience >= 1 && !mPlayerWindow.IsActive() )
+	else
 	{
-
-		RenderManager::GetInstance()->AddObject2dToList( mLevelUp, mTopLeftCompWithPlayerHealthXP, mSizeLevelUp );
-
-		renderText = "!";
-		renderText += std::to_string( (int)mExperience );
-		mFont.WriteText( renderText, (mTopLeftCompWithPlayerHealthXP.x + 75.0f ), ( mTopLeftCompWithPlayerHealthXP.y + 66.0f ), 4.8f );
+		mEndGameWindow.Render();
 	}
-
-	if ( mShipWindow.IsActive() )
-	{
-		mShipWindow.Render();
-	}
-
-	if ( mPlayerWindow.IsActive() )
-	{
-		mPlayerWindow.Render();
-	}
-
-	if ( mInGameWindow.IsActive() )
-	{
-		mInGameWindow.Render();
-	}
+	
 
 	return result;
 }
 
-HRESULT Gui::Initialize()
+HRESULT Gui::Initialize( UINT neededEnergyCells )
 {
-	mNrOfRemotePlayer = 0;
+	mNrOfRemotePlayer	= 0;
 
 	mRadar			= new Radar();
 	HRESULT result	= mRadar->Initialize();
@@ -198,26 +231,30 @@ HRESULT Gui::Initialize()
 
 	mExperience		= 0;
 
-	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/playerHealth+XP2.dds", mPlayerBar );
+	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/hexagonDouble.dds", mPlayerBar );
 	if( FAILED( result ) )
 	{
 		return result;
 	}
 
-	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/levelUp.dds", mLevelUp );
+	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/hexagonSingle.dds", mLevelUp );
 	if( FAILED( result ) )
 	{
 		return result;
 	}
 
-	mSizePlayerHealthXP					= XMFLOAT2( 440.0f, 280.0f );
+	mSizePlayerHealthXP					= XMFLOAT2( 480.0f, 284.0f );
 	mPlayerHealthXPTopLeftCorner		= XMFLOAT2( 0.0f, ( Input::GetInstance()->mScreenHeight - mSizePlayerHealthXP.y ) );
-	mSizeLevelUp						= XMFLOAT2( (float)( mSizePlayerHealthXP.x / 2.16f ), (float)( mSizePlayerHealthXP.y / 1.4f ) );
-	mTopLeftCompWithPlayerHealthXP		= XMFLOAT2( (float)( mSizePlayerHealthXP.x / 3.14f ), ( mPlayerHealthXPTopLeftCorner.y - (float)( mSizeLevelUp.y / 1.45f ) ) );
+	mSizeLevelUp						= XMFLOAT2( 200.0f, 208.0f );
+	mTopLeftLevelUp						= XMFLOAT2( 149.0f, 641.0f );
 
 	mShipWindow.Initialize();
 	mPlayerWindow.Initialize();
 	mInGameWindow.Initialize();
+	mEndGameWindow.Initialize();
+
+	mEndGame			= false;
+	mNeededEnergyCells	= neededEnergyCells;
 
 	return result;
 }
@@ -239,6 +276,7 @@ void Gui::Release()
 
 	mShipWindow.Release();
 	mPlayerWindow.Release();
+	mEndGameWindow.Release();
 }
 
 Gui::Gui()
@@ -246,6 +284,9 @@ Gui::Gui()
 	mNrOfRemotePlayer	= 0;
 	mRadar				= nullptr;
 	mHealtBar			= nullptr;
+	mEnergyCellsShowing	= true;
+	mNeededEnergyCells	= 0;
+	mEndGame			= false;
 }
 
 Gui::~Gui()
@@ -266,4 +307,9 @@ bool Gui::UpgradePlayerWindowIsActive()
 bool Gui::InGameWindowIsActive()
 {
 	return mInGameWindow.IsActive();
+}
+
+bool Gui::EnergyCellsActive()
+{
+	return mEnergyCellsShowing;
 }

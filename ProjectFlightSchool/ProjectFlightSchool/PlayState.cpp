@@ -141,14 +141,16 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Remote_Win> data = std::static_pointer_cast<Event_Remote_Win>( newEvent );
 		if( data->Team() == mPlayer->GetTeam() )
 		{
-			MessageBox( NULL, L"You Won", L"Congratulations", MB_OK );
+			mEndGame = true;
+			mWonGame = true;
 		}
 		else
 		{
-			MessageBox( NULL, L"You Lost", L"Sorry", MB_OK );
+			mEndGame = true;
+			mWonGame = false;
 		}
-		IEventPtr E1( new Event_Reset_Game() );
-		EventManager::GetInstance()->QueueEvent( E1 );
+		/*IEventPtr E1( new Event_Reset_Game() );
+		EventManager::GetInstance()->QueueEvent( E1 );*/
 	}
 	else if( newEvent->GetEventType() == Event_Server_Turret_Fired_Projectile::GUID )
 	{
@@ -204,6 +206,10 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		mPlayer->UnLock();
 		SetCursor( mSight );
+	}
+	else if( newEvent->GetEventType() == Event_Reset_Game::GUID )
+	{
+		Reset();
 	}
 }
 
@@ -318,48 +324,51 @@ void PlayState::CheckProjectileCollision()
 			}
 
 			// Enemies
-			for ( size_t j = 0; j < MAX_NR_OF_ENEMIES; j++ )
+			if( mProjectiles[i]->GetWeaponType() != GRENADELAUNCHER )
 			{
-				if( mEnemies[j]->IsAlive() )
+				for ( size_t j = 0; j < MAX_NR_OF_ENEMIES; j++ )
 				{
-					if( mPlayer->GetID() == 1 &&
-						( mProjectiles[i]->GetPlayerID() == 70 || mProjectiles[i]->GetPlayerID() == 71 ) &&
-						mProjectiles[i]->GetBoundingCircle()->Intersect( mEnemies[j]->GetBoundingCircle() ) )
+					if( mEnemies[j]->IsAlive() )
 					{
-						// hit
-						BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
-						RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-						mProjectiles[i]->Reset();
-						break;
-					}
+						if( mPlayer->GetID() == 1 &&
+							( mProjectiles[i]->GetPlayerID() == 70 || mProjectiles[i]->GetPlayerID() == 71 ) &&
+							mProjectiles[i]->GetBoundingCircle()->Intersect( mEnemies[j]->GetBoundingCircle() ) )
+						{
+							// hit
+							BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
+							RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+							mProjectiles[i]->Reset();
+							break;
+						}
 
-					if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() &&
-						mProjectiles[i]->GetBoundingCircle()->Intersect( mEnemies[j]->GetBoundingCircle() ) )
-					{
-						// hit
-						BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
-						if( mProjectiles[i]->GetWeaponType() == TURRET )
+						if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() &&
+							mProjectiles[i]->GetBoundingCircle()->Intersect( mEnemies[j]->GetBoundingCircle() ) )
 						{
-							RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-							mProjectiles[i]->Reset();
+							// hit
+							BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
+							if( mProjectiles[i]->GetWeaponType() == TURRET )
+							{
+								RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+								mProjectiles[i]->Reset();
+							}
+							else if( mProjectiles[i]->GetWeaponType() != SNIPER )
+							{
+								RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+								mProjectiles[i]->Reset();
+							}
+							else
+							{
+								XMFLOAT3 pos = mProjectiles[i]->GetPosition();
+								RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
+								pos = XMFLOAT3( mProjectiles[i]->GetPosition().x + mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetPosition().y + mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetPosition().z + mProjectiles[i]->GetDirection().z );
+								RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
+								pos = XMFLOAT3( mProjectiles[i]->GetPosition().x + mProjectiles[i]->GetDirection().x * 2, mProjectiles[i]->GetPosition().y + mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetPosition().z + mProjectiles[i]->GetDirection().z * 2 );							
+								RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
+								pos = XMFLOAT3( mProjectiles[i]->GetPosition().x + mProjectiles[i]->GetDirection().x * 0.5f, mProjectiles[i]->GetPosition().y + mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetPosition().z + mProjectiles[i]->GetDirection().z * 0.5f );
+								RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
+							}
+							break;
 						}
-						else if( mProjectiles[i]->GetWeaponType() != SNIPER )
-						{
-							RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-							mProjectiles[i]->Reset();
-						}
-						else
-						{
-							XMFLOAT3 pos = mProjectiles[i]->GetPosition();
-							RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
-							pos = XMFLOAT3( mProjectiles[i]->GetPosition().x + mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetPosition().y + mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetPosition().z + mProjectiles[i]->GetDirection().z );
-							RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
-							pos = XMFLOAT3( mProjectiles[i]->GetPosition().x + mProjectiles[i]->GetDirection().x * 2, mProjectiles[i]->GetPosition().y + mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetPosition().z + mProjectiles[i]->GetDirection().z * 2 );							
-							RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
-							pos = XMFLOAT3( mProjectiles[i]->GetPosition().x + mProjectiles[i]->GetDirection().x * 0.5f, mProjectiles[i]->GetPosition().y + mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetPosition().z + mProjectiles[i]->GetDirection().z * 0.5f );
-							RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
-						}
-						break;
 					}
 				}
 			}
@@ -372,10 +381,43 @@ void PlayState::CheckProjectileCollision()
 				{
 					IEventPtr E1( new Event_Client_Removed_Projectile( mProjectiles[i]->GetID() ) );
 					Client::GetInstance()->SendEvent( E1 );
+					
+				if( mPlayer->GetLoadOut()->rangedWeapon->weaponType == GRENADELAUNCHER )
+				{
+					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+				}
+				else
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Spark, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+
 				}
 			}
 
+			if( mPlayer->GetLoadOut()->rangedWeapon->weaponType == GRENADELAUNCHER )
+			{
+				if( mProjectiles[i]->GetPosition().y <= 0.5f )
+				{
+					for (size_t j = 0; j < MAX_NR_OF_ENEMIES; j++)
+					{
+						if( mEnemies[j]->IsAlive() )
+						{
+							if( BoundingCircle( mProjectiles[i]->GetPosition(), mPlayer->GetLoadOut()->rangedWeapon->areaOfEffect ).Intersect( mEnemies[j]->GetBoundingCircle() ) )
+							{
+								// Hit
+								BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
+								RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+							}
+						}
+					}
+
+					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+
+					IEventPtr E1( new Event_Client_Removed_Projectile( mProjectiles[i]->GetID() ) );
+					Client::GetInstance()->SendEvent( E1 );
+
+				}
+			}
 		}
 	}
 }
@@ -473,6 +515,14 @@ void PlayState::HandleDeveloperCameraInput()
 				mGui->ActivateUpgradeShipWindow();
 			}
 		}
+		else if( mGui->EnergyCellsActive() )
+		{
+			mGui->DeActivateEnergyCellsShowing();
+		}
+		else
+		{
+			mGui->ActivateEnergyCellsShowing();
+		}
 	}
 	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_Y ) )
 	{
@@ -491,7 +541,7 @@ void PlayState::HandleDeveloperCameraInput()
 			}
 		}
 	}
-	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_ENTER ) )
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_ESCAPE ) )
 	{
 		if( mGui->InGameWindowIsActive() )
 		{
@@ -635,6 +685,15 @@ bool PlayState::CullEntity( XMFLOAT3 entityPos )
 
 HRESULT PlayState::Update( float deltaTime )
 {
+	if( mGui->InGameWindowIsActive() || mGui->UpgradeShipWindowIsActive() || mGui->UpgradePlayerWindowIsActive() )
+	{
+		SetCursor( mCursor );
+	}
+	else
+	{
+		SetCursor( mSight );
+	}
+
 	//Fps update
 	mFPS = mFPS * 0.1f + 0.9f / deltaTime;
 	HandleDeveloperCameraInput();
@@ -685,7 +744,15 @@ HRESULT PlayState::Update( float deltaTime )
 			{
 				remotePlayerName							= mRemotePlayers[i]->GetName();
 				mRadarObjects[nrOfRadarObj].mRadarObjectPos = mRemotePlayers[i]->GetPosition();
-				mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::HOSTILE;
+
+				if( mRemotePlayers[i]->GetTeam() == mPlayer->GetTeam() )
+				{
+					mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::FRIENDLY;
+				}
+				else
+				{
+					mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::HOSTILE;
+				}
 			}
 			pName[i].mRemotePlayerPos		= mRemotePlayers[i]->GetPosition();
 			pName[i].mRemotePlayerName		= remotePlayerName;
@@ -716,6 +783,7 @@ HRESULT PlayState::Update( float deltaTime )
 		{
 			UINT temp = mPlayer->GetEnergyCellID();
 			mPlayer->GiveEnergyCellToShip( mEnergyCells, mShips[FRIEND_SHIP]->GetID(), mShips[FRIEND_SHIP]->GetPos() );
+			mShips[FRIEND_SHIP]->AddEnergyCell( mShips[FRIEND_SHIP]->GetID() );
 		}
 	}
 	mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers, mEnergyCells );
@@ -771,6 +839,26 @@ HRESULT PlayState::Update( float deltaTime )
 		}
 	}
 
+	//No need to update the first energy cell since it's not supposed to be active
+	for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
+	{
+		if( !mEnergyCells[i]->GetPickedUp() )
+		{
+			mEnergyCells[i]->Update( deltaTime );
+			mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnergyCells[i]->GetPosition();
+			mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::OBJECTIVE;
+		}
+	}
+
+	CheckProjectileCollision();
+
+	// Test Anim
+	///////////////////////////////////////////////////////////////////////////
+	//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
+	///////////////////////////////////////////////////////////////////////////
+
+	//GUI UPDATE ANYTHING RELATED TO IT NEEDS TO PUT ABOVE THIS COMMENT
+	////////////////////////////////////////////////////////////////////////////////////////////
 	guiUpdate.mRadarObjects	= mRadarObjects;
 	guiUpdate.mNrOfObjects	= nrOfRadarObj;
 	guiUpdate.mPlayerPos	= mPlayer->GetPlayerPosition();	
@@ -781,23 +869,38 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.mLevel		= mPlayer->Upgradable();
 	
 	guiUpdate.deltaTime = deltaTime;
-
-	mGui->Update( guiUpdate );
-
-	CheckProjectileCollision();
-
-	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+	
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_ENTER ) )
 	{
-		if( !mEnergyCells[i]->GetPickedUp() )
-		{
-			mEnergyCells[i]->Update( deltaTime );
-		}
+		mEnergyCells[1]->SetOwnerID( mShips[FRIEND_SHIP]->GetID() );
+		mEnergyCells[1]->SetPickedUp( true );
+		mEnergyCells[1]->SetSecured( true );
+
+		mShips[FRIEND_SHIP]->AddEnergyCell( mShips[FRIEND_SHIP]->GetID() );
 	}
 
-	// Test Anim
-	///////////////////////////////////////////////////////////////////////////
-	//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
-	///////////////////////////////////////////////////////////////////////////
+	if( mShips[FRIEND_SHIP]->GetNrOfEnergyCells() == mNeededEnergyCells )
+	{
+		guiUpdate.mEndGame = true;
+		guiUpdate.mWonGame = true;
+		mEndGame = true;
+
+		IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
+		Client::GetInstance()->SendEvent( E1 );
+	}
+	else if( !mEndGame )
+	{
+		guiUpdate.mEndGame = mEndGame;
+		guiUpdate.mWonGame = mWonGame;
+	}
+	else
+	{
+		guiUpdate.mEndGame = mEndGame;
+		guiUpdate.mWonGame = mWonGame;
+	}
+
+	mGui->Update( guiUpdate );
+	////////////////////////////////////////////////////////////////////////////////////////////
 
 	return S_OK;
 }
@@ -828,14 +931,14 @@ HRESULT PlayState::Render( float deltaTime )
 		}
 	}
 
-	for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
+	/*for (size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++)
 	{
 		RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
-	}
+	}*/
 
 	mGui->Render();
 
-	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+	for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
 	{
 		if( !mEnergyCells[i]->GetPickedUp() && CullEntity( mEnergyCells[i]->GetPosition() ) )
 		{
@@ -843,12 +946,9 @@ HRESULT PlayState::Render( float deltaTime )
 		}
 	}
 
-	//TestUpgradeWindow
-	//mWindow.Render();
-
 	//RENDER DEVTEXT
-	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
-	mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
+	//std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
+	//mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
 
 	XMFLOAT4X4 identity;
 	XMStoreFloat4x4( &identity, XMMatrixIdentity() );
@@ -908,6 +1008,9 @@ void PlayState::Reset()
 	}
 
 	RenderManager::GetInstance()->mParticleManager->Reset();
+
+	mEndGame = false;
+	mWonGame = false;
 }
 
 HRESULT PlayState::Initialize()
@@ -915,7 +1018,7 @@ HRESULT PlayState::Initialize()
 	BaseState::Initialize();
 	mStateType = PLAY_STATE;
 	
-	mSight = (HCURSOR)LoadImage( NULL, L"../Content/Assets/GUI/tempCurs.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE );
+	mSight = (HCURSOR)LoadImage( NULL, L"../Content/Assets/GUI/crosshair.ico", IMAGE_ICON, 32, 32, LR_LOADFROMFILE );
 
 	//AssetID model		= 0;
 	//AssetID loader	= 0;
@@ -932,7 +1035,7 @@ HRESULT PlayState::Initialize()
 
 	mWorldMap = new Map();
 
-	mWorldMap->Initialize( 12 );
+	mWorldMap->Initialize( 25 );
 
 	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/HardMap.xml" ) ); 
 
@@ -966,12 +1069,12 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Turret_Fired_Projectile::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Energy_Cell::GUID ); 
 
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Win::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_XP::GUID ); 
 
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Trigger_Client_Fired_Projectile::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Trigger_Client_Update::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Unlock_Player::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Reset_Game::GUID );
 
 	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 
@@ -989,8 +1092,12 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_2.pfs", mSpawnModel );
 	mSpawners	= new XMFLOAT3[MAX_NR_OF_ENEMY_SPAWNERS];
 
+	//Victory condition, maybe should be set from outside?
+	mNeededEnergyCells = 6;
+	///////////////////////////////////////////////////////
+
 	mGui = new Gui();
-	mGui->Initialize();
+	mGui->Initialize( mNeededEnergyCells );
 
 	//Energy cells
 	mEnergyCells = new EnergyCell*[MAX_ENERGY_CELLS];
@@ -1011,6 +1118,9 @@ HRESULT PlayState::Initialize()
 	mStreamSoundAsset	= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav" );
 
 	Pathfinder::GetInstance()->Initialize( mWorldMap );
+
+	mEndGame = false;
+	mWonGame = false;
 
 	return S_OK;
 }

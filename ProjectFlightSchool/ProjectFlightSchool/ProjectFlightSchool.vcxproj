@@ -94,12 +94,14 @@
     <ClCompile Include="ClientShip.cpp" />
     <ClCompile Include="ClientTurret.cpp" />
     <ClCompile Include="DSBufferStream.cpp" />
+    <ClCompile Include="EndGameWindow.cpp" />
     <ClCompile Include="EnemyAnimationManager.cpp" />
     <ClCompile Include="EnergyCell.cpp" />
     <ClCompile Include="EnemyBehavior.cpp" />
     <ClCompile Include="Gui.cpp" />
     <ClCompile Include="HelperFunctions.cpp" />
     <ClCompile Include="InGameWindow.cpp" />
+    <ClCompile Include="LoadOutMenu.cpp" />
     <ClCompile Include="LobbyOwnerState.cpp" />
     <ClCompile Include="LobbyState.cpp" />
     <ClCompile Include="Navmesh.cpp" />
@@ -167,9 +169,11 @@
     <ClInclude Include="ClientShip.h" />
     <ClInclude Include="ClientTurret.h" />
     <ClInclude Include="DSBufferStream.h" />
+    <ClInclude Include="EndGameWindow.h" />
     <ClInclude Include="Gui.h" />
     <ClInclude Include="HelperFunctions.h" />
     <ClInclude Include="InGameWindow.h" />
+    <ClInclude Include="LoadOutMenu.h" />
     <ClInclude Include="LobbyOwnerState.h" />
     <ClInclude Include="LobbyState.h" />
     <ClInclude Include="Navmesh.h" />

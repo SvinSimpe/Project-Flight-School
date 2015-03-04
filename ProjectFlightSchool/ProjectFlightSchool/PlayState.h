@@ -64,6 +64,10 @@ class PlayState : public BaseState
 
 		EnergyCell**				mEnergyCells;
 
+		UINT						mNeededEnergyCells;
+		bool						mEndGame;
+		bool						mWonGame;
+
 		//TestSound
 		int							m3DSoundAsset;
 		int							mSoundAsset;

@@ -130,3 +130,8 @@ const EventType Event_Server_Switch_Team::GUID( counter++ );
 const EventType Event_Trigger_Client_Fired_Projectile::GUID( counter++ );
 const EventType Event_Trigger_Client_Update::GUID( counter++ );
 const EventType Event_Unlock_Player::GUID( counter++ );
+const EventType Event_Client_Reach_Server::GUID( counter++ );
+const EventType Event_Server_Reach_Client::GUID( counter++ );
+const EventType Event_Change_Weapon::GUID( counter++ );
+const EventType Event_Client_Change_Weapon::GUID( counter++ );
+const EventType Event_Server_Change_Weapon::GUID( counter++ );

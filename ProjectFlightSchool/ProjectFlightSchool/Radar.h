@@ -47,6 +47,7 @@ class Radar
 		UINT			mFriendlyAssetID;
 		UINT			mFriendlyShipAssetID;
 		UINT			mHostileShipAssetID;
+		UINT			mObjectiveArrowID;
 		UINT			mNrOfObjects;
 		ObjectOnRadar	mObjects[MAX_RADAR_OBJECTS];
 		float			mRadius;

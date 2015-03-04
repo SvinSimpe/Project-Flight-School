@@ -66,7 +66,6 @@ class Server : public Network
 		std::queue<XMFLOAT3>		mCellPositionQueue;
 		UINT						mMaxClients;
 
-
 	protected:
 	public:
 
@@ -97,6 +96,7 @@ class Server : public Network
 		void	StopLobby( IEventPtr eventPtr );
 		void	SwitchTeam( IEventPtr eventPtr );
 		void	XP( IEventPtr eventPtr );
+		void	ChangeWeapon( IEventPtr eventPtr );
 
 		void	ClientInteractEnergyCell( IEventPtr eventPtr );
 
@@ -110,6 +110,9 @@ class Server : public Network
 		void	UpdateShip( float deltaTime, ServerShip* s );
 		void	CreateEnergyCells();
 		void	CalculateCellSpawnPositions( XMFLOAT3 shipPosition );
+		void	SetEnemySpawnerPositions();
+		void	CalculateEnemySpawnerPositions();
+		bool	IsEnergyCellHere( XMFLOAT3 checkPosition ) const;
 		void	SendCulledUpdate( IEventPtr eventPtr, XMFLOAT3 enemyPos, UINT exception = (UINT)-1 );
 		bool	CullEnemyUpdate( XMFLOAT3 playerPos, XMFLOAT3 enemyPos );
 

@@ -43,6 +43,7 @@ enum Buffers
 	BUFFERS_SINGLE_VERTEX,
 	BUFFERS_PARTICLE,
 	BUFFERS_SINGLE_STATIC_VERTEX,
+	BUFFERS_CIRCLE_VERTEX,
 
 	BUFFERS_DEBUG_BOX,
 	BUFFERS_DEBUG_BOX_INDICES,
@@ -73,7 +74,9 @@ enum Effects
 	//Particle Effects
 	EFFECTS_SMOKE,	// NOT IMPLEMENTED
 	EFFECTS_FIRE,	
-	EFFECTS_SPARK,	// NOT IMPLEMENTED
+	EFFECTS_SPARK,
+	EFFECTS_SPARK_ROBOT,
+	EFFECTS_SPARK_ELECTRIC,
 	EFFECTS_BLOOD,	
 	EFFECTS_MUZZLEFLASH,
 	EFFECTS_SMOKE_MINIGUN,
@@ -101,6 +104,7 @@ enum Effects
 	EFFECTS_NODEGRID,
 
 	EFFECTS_DEBUG_BOX,
+	EFFECTS_CIRCLE,
 	//New effects added above this comment
 	EFFECTS_AMOUNT
 };
@@ -131,6 +135,7 @@ enum Cameras
 #define MAX_BILLBOARD_BATCH			100000 // Used to be 1024
 #define MAX_PARTICLE_BATCH			100000
 #define MAX_SINGLE_STATIC_VERTICES	20000
+#define MAX_CIRCLE_POINTS			1000
 
 #define SHADOW_MAP_WIDTH	512
 #define SHADOW_MAP_HEIGHT	512
@@ -214,6 +219,7 @@ class LIBRARY_EXPORT Graphics
 		void RenderDebugBox			( BoxInfo* info, UINT sizeOfList );
 		void RenderDebugBox			( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, DirectX::XMFLOAT4X4 world );
 		void RenderLine				( LineInfo* info, UINT sizeOfList );
+		void RenderCircle			( CircleInfo* info, UINT sizeOfList );
 
 		DirectX::XMFLOAT4X4	GetRootMatrix( AnimationTrack animTrack );
 		bool				GetAnimationMatrices( AnimationTrack &animTrack, int playType, Anim3dInfo &info );

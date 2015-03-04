@@ -63,8 +63,6 @@ class Player: public RemotePlayer
 		Path*		currentPath1;
 		std::vector<DirectX::XMFLOAT2> currentPath;
 		
-		float		mSpawnTime;
-		float		mTimeTillSpawn;
 		float		mReviveTime;
 		float		mTimeTillRevive;
 		float		mLeavingAreaTime;

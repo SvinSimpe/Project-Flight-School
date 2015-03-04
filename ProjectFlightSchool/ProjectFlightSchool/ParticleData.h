@@ -11,7 +11,7 @@ using namespace DirectX;
 
 #define MAX_PARTICLES 10000
 
-#define NR_OF_PARTICLE_TYPES 17
+#define NR_OF_PARTICLE_TYPES 18
 
 #if !defined(SAFE_DELETE_ARRAY)
 #define SAFE_DELETE_ARRAY( x ) if( x ){ delete [] x; x = nullptr; }
@@ -20,8 +20,10 @@ using namespace DirectX;
 enum ParticleType
 {
 	Smoke,
-	Fire,
+	FIRE,
 	Spark,
+	Spark_Robot,
+	Spark_Electric,
 	Blood,
 	MuzzleFlash,
 	Smoke_MiniGun,
@@ -280,7 +282,7 @@ struct ParticleData
 			SparkElevationY( 1.0f, 2.0f );
 		}
 
-		if( particleType != Test_Fountain && particleType != Spark  && particleType != Level_Up && particleType != Level_Inner && particleType != Explosion && particleType != NormalSmoke && particleType != BlowTorchIdle && particleType != Hammer_Effect )
+		if( particleType != Test_Fountain && particleType != Spark  && particleType != Level_Up && particleType != Level_Inner && particleType != Explosion && particleType != NormalSmoke && particleType != BlowTorchIdle && particleType != Hammer_Effect && particleType != FIRE )
 		{
 			//Get random elevation
 			float randomElevation = ( (float)( rand() % 20 ) - 10 ) * 0.1f;
@@ -336,7 +338,7 @@ struct ParticleData
 
 			if( particleType == BlowTorchFire )
 			{
-				randomDirectionVector.x = xDirection * GetRandomSpeed( 35, 55 );	//---------------------random speed of particles
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 35, 55 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 55, 85 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 35, 55 );		
 			}
@@ -351,21 +353,29 @@ struct ParticleData
 			else if( particleType == Hammer_Effect )
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 20 );
- 				//randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 20 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 20 );		
 			}
 
-			else if( particleType == Fire )
+			else if( particleType == FIRE )
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 50 );	
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 20 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 50 );		
 			}
-			else if( particleType == FireSmoke )
+			/*else if( particleType == FireSmoke )
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 5 );	
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 5, 30 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 5 );		
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 20, 50 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 20, 30 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 20, 50 );		
+			}*/
+			else if( particleType == FireSmoke )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 20, 40 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 20, 30 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 20, 40 );
 			}
 			else if( particleType == Explosion )
 			{
@@ -384,6 +394,18 @@ struct ParticleData
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 20, 80 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 5 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 20, 80 );
+			}
+			else if( particleType == Spark_Robot )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 20, 50 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 20, 50 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 20, 50 );
+			}
+			else if( particleType == Spark_Electric )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 3 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 3 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 3 );
 			}
 			else if( particleType == Blood )
 			{
@@ -411,9 +433,7 @@ struct ParticleData
 			}
 			else if( particleType == Level_Up )
 			{
-				//randomDirectionVector.x = xDirection * GetRandomSpeed( 2, 3 );
- 				randomDirectionVector.y = yDirection * GetRandomSpeed( 20, 40 );
-				//randomDirectionVector.z = zDirection * GetRandomSpeed( 2, 3 );		
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 20, 40 );		
 			}
 			else if( particleType == Level_Inner )
 			{
@@ -456,7 +476,6 @@ struct ParticleData
 			int k = 4;
 		}
 	}
-
 
 	void IncrementValueY( float value )
 	{

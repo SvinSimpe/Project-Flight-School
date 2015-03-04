@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="AssetBase.cpp">
@@ -15,9 +15,6 @@
     </ClCompile>
     <ClCompile Include="Effect.cpp">
       <Filter>EffectClasses\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Animated3dAsset.cpp">
       <Filter>AssetClasses\Source Files</Filter>
@@ -45,6 +42,9 @@
     </ClCompile>
     <ClCompile Include="BoxGenerator.cpp">
       <Filter>AssetClasses\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -210,47 +210,49 @@
     </Text>
     <Text Include="..\Content\Effects\Particle Effects\FireSmokeEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
-    </Text>
-    
+    </Text>    
     <Text Include="..\Content\Effects\Particle Effects\ExplosionEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
-    </Text>
-    
+    </Text>    
     <Text Include="..\Content\Effects\Particle Effects\ExplosionSmoke.hlsl">
       <Filter>Effects\Particle Effects</Filter>
-    </Text>
-    
+    </Text>    
     <Text Include="..\Content\Effects\Particle Effects\SparkEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
-    </Text>
-    
+    </Text>    
     <Text Include="..\Content\Effects\Particle Effects\NormalSmokeEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
-    </Text>
-    
+    </Text>    
     <Text Include="..\Content\Effects\Particle Effects\Level_UpEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
-    </Text>
-    
+    </Text>    
     <Text Include="..\Content\Effects\Particle Effects\Level_InnerEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
-    </Text>
-    
+    </Text>    
     <Text Include="..\Content\Effects\Particle Effects\Fire_FliesEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
-    </Text>
-    
+    </Text>    
     <Text Include="..\Content\Effects\Particle Effects\BlowtorchFireEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
-    </Text>
-    
+    </Text>    
     <Text Include="..\Content\Effects\Particle Effects\BlowtorchIdleEffect.hlsl">
-		  <Filter>Effects\Particle Effects</Filter>
-	  </Text>
-    
+	 <Filter>Effects\Particle Effects</Filter>
+    </Text>    
     <Text Include="..\Content\Effects\Particle Effects\Hammer_Effect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
-    
+
+    <Text Include="..\Content\Effects\Particle Effects\Hammer_Effect.hlsl">
+      <Filter>Effects\Particle Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\DrawCircleEffect.hlsl">
+      <Filter>Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\Particle Effects\Spark_RobotEffect.hlsl">
+      <Filter>Effects\Particle Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\Particle Effects\Spark_ElectricEffect.hlsl">
+      <Filter>Effects\Particle Effects</Filter>
+    </Text>
   </ItemGroup>
 </Project>

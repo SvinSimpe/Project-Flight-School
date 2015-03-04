@@ -84,14 +84,6 @@ void PlayState::EventListener( IEventPtr newEvent )
 		// Request Muzzle Flash from Particle Manager
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
-
-		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Explosion, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), ExplosionSmoke, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-
-		///Blowtorch particle system
-		RenderManager::GetInstance()->RequestParticleSystem( 855, BlowTorchIdle, data->BodyPos(), data->Direction() );
-		RenderManager::GetInstance()->RequestParticleSystem( 855, BlowTorchFire, data->BodyPos(), data->Direction() );
-
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
 	{
@@ -136,6 +128,8 @@ void PlayState::EventListener( IEventPtr newEvent )
 			mShips[ENEMY_SHIP]->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
 		}
 	}
+
+	
 	else if( newEvent->GetEventType() == Event_Remote_Win::GUID )
 	{
 		std::shared_ptr<Event_Remote_Win> data = std::static_pointer_cast<Event_Remote_Win>( newEvent );
@@ -164,9 +158,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		// Request Muzzle Flash from Particle Manager
 		
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->Position(), data->Direction() );
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->Position(), data->Direction() );
-		//RenderManager::GetInstance()->RequestParticleSystem( 9999, Blood, XMFLOAT3( 2.0f, 3.0f, 0.0f ) , XMFLOAT3( 0.0f, 1.0f, 1.0f ) );
-		
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->Position(), data->Direction() );		
 	}
 	else if( newEvent->GetEventType() == Event_Server_Sync_Energy_Cell::GUID )
 	{
@@ -811,8 +803,8 @@ HRESULT PlayState::Update( float deltaTime )
 	///Test fountain particle system
 	RenderManager::GetInstance()->RequestParticleSystem( 990, NormalSmoke, XMFLOAT3( 0.0f, 1.0f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 0.0f ) );
 
-	RenderManager::GetInstance()->RequestParticleSystem( 1889, Fire, XMFLOAT3( 1.0f, 2.0f, 15.0f ), XMFLOAT3( 0.5f, 1.0f, 0.5f ) );			//---------id, effect, position, direction
-	RenderManager::GetInstance()->RequestParticleSystem( 1889, FireSmoke, XMFLOAT3( 2.5f, 3.5f, 16.5f ), XMFLOAT3( 1.5f, 2.0f, 1.5f ) );	//---------id, effect, position, direction
+	//RenderManager::GetInstance()->RequestParticleSystem( 1889, FIRE, XMFLOAT3( 1.0f, 2.0f, 15.0f ), XMFLOAT3( 0.5f, 1.0f, 0.5f ) );			//---------id, effect, position, direction
+	//RenderManager::GetInstance()->RequestParticleSystem( 1889, FireSmoke, XMFLOAT3( 2.5f, 3.5f, 16.5f ), XMFLOAT3( 1.5f, 2.0f, 1.5f ) );	//---------id, effect, position, direction
 	
 	RenderManager::GetInstance()->RequestParticleSystem( 997, Test_Fountain, XMFLOAT3( 0.0f, 20.0f, 0.0f ), XMFLOAT3( 0.0f, -1.0f, 0.0f ) );
 

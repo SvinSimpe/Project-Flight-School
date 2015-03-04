@@ -539,10 +539,10 @@ HRESULT RemotePlayer::Initialize()
 	//Weapon Initialization
 	mLoadOut				= new LoadOut();
 
-//	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN );
-//	mLoadOut->meleeWeapon	= new MeleeInfo( HAMMER );
-	mLoadOut->meleeWeapon	= new MeleeInfo( BLOWTORCH );
-	mLoadOut->rangedWeapon	= new RangedInfo( GRENADELAUNCHER );
+	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN );
+	mLoadOut->meleeWeapon	= new MeleeInfo( HAMMER );
+	//mLoadOut->meleeWeapon	= new MeleeInfo( BLOWTORCH );
+	//mLoadOut->rangedWeapon	= new RangedInfo( GRENADELAUNCHER );
 
 	InitializeGraphics();
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Server_Change_Buff_State::GUID );

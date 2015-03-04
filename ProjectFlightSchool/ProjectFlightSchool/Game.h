@@ -20,8 +20,7 @@ class Game
 	private:
 		void	ResetGame( IEventPtr eventPtr );
 		void	StartPlayState( IEventPtr eventPtr );
-		void	StartNetworkUpdate( IEventPtr eventPtr );
-		void	ReportTime( DWORD before, DWORD after, std::string text );
+		void	ReachEvents( IEventPtr eventPtr );
 
 	protected:
 	public:

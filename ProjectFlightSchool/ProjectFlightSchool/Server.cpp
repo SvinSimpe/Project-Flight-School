@@ -580,9 +580,6 @@ void Server::StartUp( IEventPtr eventPtr )
 
 		// Makes sure everything is clean before starting
 		Reset();
-		CreateShips();
-		CreateEnergyCells();
-		SetEnemySpawnerPositions();
 		
 		std::stringstream sstr;
 		sstr << port << " ";
@@ -604,7 +601,7 @@ void Server::StartUp( IEventPtr eventPtr )
 			mActive = false;
 			IEventPtr E1( new Event_Connect_Server_Fail ( "Server failed at connecting!\n" ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
-			Release();
+			Reset();
 		}
 	}
 }
@@ -973,8 +970,6 @@ XMFLOAT3 Server::GetNextSpawn()
 
 bool Server::Initialize()
 {
-	mStopAccept = false;
-
 	EventManager::GetInstance()->AddListener( &Server::ClientJoined, this, Event_Client_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientLeft, this, Event_Client_Left::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientUpdate, this, Event_Client_Update::GUID );
@@ -1005,16 +1000,72 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::XP, this, Event_XP::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ChangeWeapon, this, Event_Client_Change_Weapon::GUID );
 
-	mTeamDelegate	= 1;
-	mCurrentPID		= 0;
-
-	//		GAME LOGIC
-	//   Enemies & Spawners
-
+	mCurrentPID				= 0;
+	mActive					= false;
+	mTeamDelegate			= 0;
+	mNrOfPlayers			= 0;
 	mNrOfEnemiesSpawned		= 0;
+	mNrOfProjectilesFired	= 0;
+	mStopAccept				= false;
+	mMaxClients				= 0;
+
 	srand( (UINT)time( NULL ) );
-	mSpawners		= new EnemySpawn*[MAX_NR_OF_ENEMY_SPAWNERS];
-	for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+
+	mPlayers = new ServerPlayer*[MAX_NR_OF_PLAYERS];
+	for( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
+	{
+		mPlayers[i] = nullptr;
+	}
+
+	mEnemies = new Enemy*[MAX_NR_OF_ENEMIES];
+	for( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	{
+		mEnemies[i] = nullptr;
+	}
+
+	mSpawners = new EnemySpawn*[MAX_NR_OF_ENEMY_SPAWNERS];
+	for( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+	{
+		mSpawners[i] = nullptr;
+	}
+
+	mEnergyCells = new EnergyCell*[MAX_ENERGY_CELLS];
+	for( size_t i = 0; i < MAX_ENERGY_CELLS; i++ )
+	{
+		mEnergyCells[i] = nullptr;
+	}
+
+	return true;
+}
+
+// The reset in the server is special because it's allowed to deallocate/allocate memory (Y)
+void Server::Reset()
+{
+	Release();
+	mStopAccept				= false;
+	mActive					= false;
+	mCurrentPID				= 0;
+	mTeamDelegate			= 1;
+	mNrOfPlayers			= 0;
+	mNrOfEnemiesSpawned		= 0;
+	mNrOfProjectilesFired	= 0;
+	mMaxClients				= 0;
+
+	mPlayers = new ServerPlayer*[MAX_NR_OF_PLAYERS];
+	for( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
+	{
+		mPlayers[i] = nullptr;
+	}
+
+	mEnemies = new Enemy*[MAX_NR_OF_ENEMIES];
+	for( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	{
+		mEnemies[i] = new Enemy();
+		mEnemies[i]->Initialize( i, mPlayers, mNrOfPlayers, mEnemies );
+	}
+
+	mSpawners = new EnemySpawn*[MAX_NR_OF_ENEMY_SPAWNERS];
+	for( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
 	{
 		// Map size values
 		int X, Y;
@@ -1024,87 +1075,25 @@ bool Server::Initialize()
 		mSpawners[i]->Initialize( i );
 	}
 
-	mEnemies	= new Enemy*[MAX_NR_OF_ENEMIES];
-	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
-	{
-		mEnemies[i] = new Enemy();
-		mEnemies[i]->Initialize( i, mPlayers, mNrOfPlayers, mEnemies );
-	}
-
-	return true;
-}
-
-void Server::Reset()
-{
-	mMaxClients = (UINT)-1;
-	mStopAccept = false;
-
-	mTeamDelegate	= 1;
-	mCurrentPID		= 0;
-	mActive			= false;
-
-	if( mSocketManager )
-		mSocketManager->Release();
-	SAFE_DELETE( mSocketManager );
-
-	for( auto& c : mClientMap )
-	{
-		SAFE_DELETE( c.second );
-	}
-	mClientMap.clear();
-
-	for( auto& s : mShips )
-	{
-		SAFE_RELEASE_DELETE( s );
-	}
-	mShips.clear();
-
-	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
-	{
-		mEnemies[i]->Reset();
-	}
-
-	if( mEnergyCells )
-	{
-		for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
-		{
-			if( mEnergyCells[i] )
-				mEnergyCells[i]->Release();
-			SAFE_DELETE( mEnergyCells[i] );
-		}
-		SAFE_DELETE_ARRAY( mEnergyCells );
-	}
+	CreateShips();
+	CreateEnergyCells();
+	SetEnemySpawnerPositions();
 }
 
 void Server::Release()
 {
-	// Enemies
-	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	if( mSocketManager )
 	{
-		if( mEnemies[i] )
-			mEnemies[i]->Release();
-		SAFE_DELETE( mEnemies[i] );
+		mSocketManager->Release();
+		SAFE_DELETE( mSocketManager );
 	}
-	SAFE_DELETE_ARRAY( mEnemies );
 
-	for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+	for( auto& cm : mClientMap )
 	{
-		if( mSpawners[i] )
-			mSpawners[i]->Release();
-		SAFE_DELETE( mSpawners[i] );
+		auto& c = cm.second;
+		SAFE_DELETE( c );
 	}
-	SAFE_DELETE_ARRAY( mSpawners );
-
-	//SAFE_DELETE( mAggroCircle );
-
-	for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
-		SAFE_DELETE( mPlayers[i] );
-	
-	SAFE_DELETE_ARRAY( mPlayers );
-
-	mTeamDelegate	= 1;
-	mCurrentPID		= 0;
-	mActive			= false;
+	mClientMap.clear();
 
 	for( auto& s : mShips )
 	{
@@ -1114,55 +1103,64 @@ void Server::Release()
 	}
 	mShips.clear();
 
-	if( mSocketManager )
-		mSocketManager->Release();
-	SAFE_DELETE( mSocketManager );
-
-	for( auto& c : mClientMap )
+	if( mPlayers )
 	{
-		SAFE_DELETE( c.second );
-	}
-	mClientMap.clear();
-
-	//Energy cells
-	if( mEnergyCells )
-	{
-		for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+		for( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
 		{
-			if( mEnergyCells[i] )
-				mEnergyCells[i]->Release();
-			SAFE_DELETE( mEnergyCells[i] );
+			SAFE_DELETE( mPlayers[i] );
 		}
-		SAFE_DELETE_ARRAY( mEnergyCells );
+		SAFE_DELETE_ARRAY( mPlayers );
 	}
+
+	if( mEnemies )
+	{
+		for( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+		{
+			if( mEnemies[i] )
+				mEnemies[i]->Release();
+			SAFE_DELETE( mEnemies[i] );
+		}
+		SAFE_DELETE_ARRAY( mEnemies );
+	}
+
+	if( mSpawners )
+	{
+		for( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+		{
+			if( mSpawners[i] )
+				mSpawners[i]->Release();
+			SAFE_DELETE( mSpawners[i] );
+		}
+		SAFE_DELETE_ARRAY( mSpawners );
+	}
+
+	for( size_t i = 0; i < MAX_ENERGY_CELLS; i++ )
+	{
+		if( mEnergyCells[i] )
+			mEnergyCells[i]->Release();
+		SAFE_DELETE( mEnergyCells[i] );
+	}
+	SAFE_DELETE_ARRAY( mEnergyCells );
 }
 
 Server::Server() : Network()
 {
 	mSocketManager			= nullptr;
 	mClientMap				= std::map<UINT, ClientNEF*>();
-	mTeamDelegate			= (UINT)-1;
 	mCurrentPID				= (UINT)-1;
 	mActive					= false;
 	mShips					= std::vector<ServerShip*>();
-	mShips.reserve( 2 );
-	mNrOfEnemiesSpawned		= 0;
-	mNrOfPlayers			= 0;
-	mNrOfProjectilesFired	= 0;
 	mPlayers				= nullptr;
-
-	mNrOfPlayers			= 0;
-	mMaxClients				= (UINT)-1;
-	
-	mPlayers				= new ServerPlayer*[MAX_NR_OF_PLAYERS];
-	for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
-		mPlayers[i]			= nullptr;
-
-	mEnergyCells			= nullptr;
-
+	mTeamDelegate			= (UINT)-1;
 	mEnemies				= nullptr;
-
 	mSpawners				= nullptr;
+	mNrOfPlayers			= (UINT)-1;
+	mNrOfEnemiesSpawned		= (UINT)-1;
+	mNrOfProjectilesFired	= (UINT)-1;
+	mEnergyCells			= nullptr;
+	mStopAccept				= false;
+	mCellPositionQueue		= std::queue<XMFLOAT3>();
+	mMaxClients				= (UINT)-1;
 }
 
 Server::~Server()

@@ -370,6 +370,22 @@ void Server::ClientAttemptRevive( IEventPtr eventPtr )
 	}
 }
 
+void Server::ClientEnemyMeleeDamage( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Enemy_Attack::GUID )
+	{
+		std::shared_ptr<Event_Client_Enemy_Attack> data = std::static_pointer_cast<Event_Client_Enemy_Attack>( eventPtr );
+		mEnemies[data->EnemyID()]->TakeMeleeDamage( data->Damage(), data->KnockBack(), data->Direction(), data->Stun(), data->ID() );
+		if( !mEnemies[data->EnemyID()]->IsAlive() )
+		{
+			for( auto& s : mShips )
+			{
+				s->mServerTurret->ClearTarget();
+			}
+		}
+	}
+}
+
 void Server::ClientEnemyProjectileDamage( IEventPtr eventPtr )
 {
 	//if( eventPtr->GetEventType() == Event_Client_Projectile_Damage_Enemy::GUID )
@@ -973,6 +989,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientDown, this, Event_Client_Down::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientUp, this, Event_Client_Up::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientAttemptRevive, this, Event_Client_Attempt_Revive::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientEnemyMeleeDamage, this, Event_Client_Enemy_Attack::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientEnemyProjectileDamage, this, Event_Client_Projectile_Damage_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &Server::SetEnemyState, this, Event_Set_Enemy_State::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientInteractEnergyCell, this, Event_Client_Sync_Energy_Cell::GUID );

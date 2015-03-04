@@ -13,6 +13,7 @@
 
 #define LEFT_ARM_ID			0
 #define RIGHT_ARM_ID		1
+#define TEAM_ARRAY_ID		mTeam - 1
 
 enum PLAYER_ANIMATION
 {
@@ -40,13 +41,13 @@ enum WEAPON_ANIMATION
 
 struct UpperBody
 {
-	AssetID		playerModel;
+	AssetID		playerModel[2];
 	XMFLOAT3	direction;
 };
 
 struct LowerBody
 {
-	AnimationTrack	playerModel;
+	AnimationTrack	playerModel[2];
 	XMFLOAT3		direction;
 	XMFLOAT3		position;
 	XMFLOAT4X4		rootMatrix;
@@ -88,7 +89,7 @@ class RemotePlayer
 		//Graphics
 		Font			mFont;
 		PointLight*		mPointLightIfDown;
-		AssetID			mAnimations[PLAYER_ANIMATION::COUNT];
+		AssetID			mAnimations[PLAYER_ANIMATION::COUNT][2];
 		AssetID			mWeaponModels[WEAPON_COUNT];
 		AssetID			mWeaponAnimations[WEAPON_COUNT][WEAPON_ANIMATION_COUNT];
 		UpperBody		mUpperBody;

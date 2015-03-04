@@ -16,9 +16,6 @@
     <ClCompile Include="Effect.cpp">
       <Filter>EffectClasses\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Animated3dAsset.cpp">
       <Filter>AssetClasses\Source Files</Filter>
     </ClCompile>
@@ -45,6 +42,9 @@
     </ClCompile>
     <ClCompile Include="BoxGenerator.cpp">
       <Filter>AssetClasses\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

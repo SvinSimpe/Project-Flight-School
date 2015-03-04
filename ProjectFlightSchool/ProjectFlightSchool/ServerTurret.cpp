@@ -160,6 +160,8 @@ void ServerTurret::Initialize( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, X
 	mLoadOut				= new LoadOut();
 	mLoadOut->rangedWeapon	= new RangedInfo( TURRET );
 
+	mPos.z	= -mPos.z;
+
 	mPos.x -= 1.798f;
 	mPos.y += 3.878f;
 	mPos.z += 1.609f;
@@ -190,6 +192,8 @@ void ServerTurret::Initialize( UINT id, UINT team, GameObjectInfo gameObjectInfo
 
 	mLoadOut				= new LoadOut();
 	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN );
+
+	mPos.z	= -mPos.z;
 
 	mPos.x -= 1.798f;
 	mPos.y += 3.878f;

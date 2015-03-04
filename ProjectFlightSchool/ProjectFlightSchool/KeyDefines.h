@@ -55,6 +55,7 @@ enum KEYS
 	KEYS_RIGHT,
 	KEYS_MOUSE_LEFT,
 	KEYS_MOUSE_RIGHT,
+	KEYS_ESCAPE,
 
 	//Number of keys that we can handle
 	KEYS_AMOUNT

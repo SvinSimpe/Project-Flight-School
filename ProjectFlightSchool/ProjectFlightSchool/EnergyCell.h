@@ -6,17 +6,19 @@
 #include "BoundingGeometry.h"
 #include "RenderManager.h"
 
-#define MAX_ENERGY_CELLS 11
+#define MAX_ENERGY_CELLS 2
 
 class EnergyCell
 {
 	private:
-		AssetID				mAssetID;
+		AnimationTrack		mAnimationTrack;
+		AssetID				mAnimation;
 		UINT				mOwnerID;
 		bool				mPickedUp;
 		BoundingCircle*		mPickUpRadius;
 		float				mHooverFactor;
 		bool				mSecured;
+
 
 
 	protected:

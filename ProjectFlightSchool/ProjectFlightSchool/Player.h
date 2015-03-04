@@ -14,6 +14,8 @@
 
 #define MAX_ROBOT_RANGE		40000.0f   //Squared distance here.
 #define LEAVING_AREA_TIME	10.0f
+#define WATER_DAMAGE_TIME	0.1f
+#define WATER_DAMAGE		1.0f
 
 class Map;
 class Path;
@@ -56,6 +58,7 @@ class Player: public RemotePlayer
 		bool		mFollowPath;
 
 		bool		mIsOutSideZone;
+		bool		mIsInWater;
 
 		Path*		currentPath1;
 		std::vector<DirectX::XMFLOAT2> currentPath;
@@ -63,6 +66,7 @@ class Player: public RemotePlayer
 		float		mReviveTime;
 		float		mTimeTillRevive;
 		float		mLeavingAreaTime;
+		float		mWaterDamageTime;
 		int			mLastKiller;
 
 		UINT		mEnergyCellID;
@@ -87,6 +91,8 @@ class Player: public RemotePlayer
 		void		Fire();
 		void		FireShotgun( XMFLOAT3* spawnPoint );
 		void		FireMinigun( XMFLOAT3* projectileOffset );
+		void		FireGrenadeLauncher( XMFLOAT3* projectileOffset );
+		float		CalculateLaunchAngle();
 		void		AddImpuls( XMFLOAT3 impuls );
 		void		QueueEvent( IEvent* ptr );
 		void		UpgradeBody();

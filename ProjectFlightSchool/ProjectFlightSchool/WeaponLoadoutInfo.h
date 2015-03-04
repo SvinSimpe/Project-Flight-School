@@ -75,8 +75,8 @@
 #define HAMMER_OFFSETS		XMFLOAT3( 0.8f, -0.65f, 1.3f ) // Offsets forward, right, up
 
 // Blowtorch
-#define BLOWTORCH_AR		0.0f	// Attack Rate
-#define BLOWTORCH_DAMAGE	7.0f	// Damage
+#define BLOWTORCH_AR		0.1f	// Attack Rate
+#define BLOWTORCH_DAMAGE	5.0f	// Damage
 #define BLOWTORCH_RADIUS	4.0f	// Radius
 #define BLOWTORCH_SPREAD	3		// Spread
 #define BLOWTORCH_KB		0.0f	// Knockback

@@ -451,7 +451,7 @@ void PlayState::CheckMeeleCollision()
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 	{
 		//Check intersection with melee circle & enemy
-		if( currWeapon->boundingCircle->Intersect( mEnemies[i]->GetBoundingCircle() ) )
+		if( mEnemies[i]->IsAlive() && currWeapon->boundingCircle->Intersect( mEnemies[i]->GetBoundingCircle() ) )
 		{
 			float angleRemoteToAim = 0.0f;
 			XMVECTOR playerToCenter = XMLoadFloat3( &mEnemies[i]->GetBoundingCircle()->center ) - XMLoadFloat3( &pos );
@@ -461,7 +461,7 @@ void PlayState::CheckMeeleCollision()
 			{
 				DirectX::XMFLOAT3 direction = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
 				XMStoreFloat3( &direction, XMVector4Normalize( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) ) );
-				BroadcastEnemyMeleeDamage(mEnemies[i]->GetID(), currWeapon->damage, currWeapon->knockBack, direction );
+				BroadcastEnemyMeleeDamage( mEnemies[i]->GetID(), currWeapon->damage, currWeapon->knockBack, direction );
 			}
 		}
 	}

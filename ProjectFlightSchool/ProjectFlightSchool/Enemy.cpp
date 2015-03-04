@@ -256,14 +256,14 @@ void Enemy::TakeDamage( float damage, UINT killer )
 
 void Enemy::TakeMeleeDamage( float damage, float knockBack, XMFLOAT3 direction, float stun, UINT killer )
 {
-		direction.x *= knockBack;
-		direction.z *= knockBack;
-		AddImpuls( direction );
-		mCurrentState = Stunned;
-		mStunTimer = stun;
-		IEventPtr state( new Event_Set_Enemy_State( mID, Stunned ) );
-		EventManager::GetInstance()->QueueEvent( state );
-		TakeDamage( damage, killer );
+	direction.x *= knockBack;
+	direction.z *= knockBack;
+	AddImpuls( direction );
+	mCurrentState = Stunned;
+	mStunTimer = stun;
+	IEventPtr state( new Event_Set_Enemy_State( mID, Stunned ) );
+	EventManager::GetInstance()->QueueEvent( state );
+	TakeDamage( damage, killer );
 }
 
 void Enemy::AddImpuls( XMFLOAT3 impuls )

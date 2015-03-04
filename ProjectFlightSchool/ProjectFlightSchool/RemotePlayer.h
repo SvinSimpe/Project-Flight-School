@@ -50,6 +50,7 @@ struct LowerBody
 	AnimationTrack	playerModel[2];
 	XMFLOAT3		direction;
 	XMFLOAT3		position;
+	XMFLOAT4X4		rootMatrix;
 };
 
 struct Arms
@@ -74,6 +75,8 @@ class RemotePlayer
 		int				mNrOfKills;
 		float			mDeathTime;
 		float			mTimeTillDeath;
+		float			mSpawnTime;
+		float			mTimeTillSpawn;
 		XMFLOAT3		mVelocity;
 		LoadOut*		mLoadOut;
 		BoundingRectangle*	mBoundingBox;
@@ -95,6 +98,8 @@ class RemotePlayer
 		bool			mLeftArmAnimationCompleted;
 		bool			mRightArmAnimationCompleted;
 		bool			mLegsAnimationCompleted;
+
+		float			mPlayerDownSparksTimer;
 
 	public:
 

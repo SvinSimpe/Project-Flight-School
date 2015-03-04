@@ -114,10 +114,6 @@ void Player::EventListener( IEventPtr newEvent )
 
 void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
 {
-	if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_SPACE) )
-	{
-		GoDown(0);
-	}
 	if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_SPACE) && mCloseToPlayer )
 	{
 		mAcceleration = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -289,13 +285,42 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 
 void Player::HandleSpawn( float deltaTime )
 {
-	// Spawn smokeparticles at ground impact
-	if ( 7.75f <= mTimeTillSpawn && mTimeTillSpawn <= 7.8f )
+	mPlayerDownSparksTimer -= deltaTime;
+
+	// Spawn smoke and electricity after ground impact
+	if ( mTimeTillSpawn < 7.6f )
+	{
+		XMFLOAT3 newPos;
+		XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorZero(), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
+
+		RenderManager::GetInstance()->RequestParticleSystem( mID, FireSmoke, XMFLOAT3( newPos.x, newPos.y - 0.3f, newPos.z ), XMFLOAT3( 0.0f, -0.1f , 0.0f ) );
+
+		if( mPlayerDownSparksTimer < 0.0f )
+		{
+			RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
+			mPlayerDownSparksTimer = (float)( rand() % 6 + 4 ) * 0.1f;
+		}
+	}
+	// Spawn dustparticles at ground impact
+	else if ( 7.95f <= mTimeTillSpawn && mTimeTillSpawn <= 8.0f )
 	{
 		XMFLOAT3 posOffset;
-		XMStoreFloat3( &posOffset, ( XMLoadFloat3( &mLowerBody.position ) + XMLoadFloat3( &mUpperBody.direction ) * XMLoadFloat3( &XMFLOAT3( 2.0f, 2.0f, 2.0f ) ) ) );
+		XMStoreFloat3( &posOffset, ( XMLoadFloat3( &mLowerBody.position ) + XMLoadFloat3( &mUpperBody.direction ) * XMLoadFloat3( &XMFLOAT3( 2.0f, 2.8f, 2.0f ) ) ) );
 
 		RenderManager::GetInstance()->RequestParticleSystem( mID, Hammer_Effect, posOffset, mLowerBody.direction );
+	}
+
+	// Spawn fire at death
+	else if (  9.55f <= mTimeTillSpawn && mTimeTillSpawn <= 10.0f )
+	{
+		XMFLOAT3 newPos;
+		XMFLOAT3 inverseDir;
+
+		XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorZero(), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
+		XMStoreFloat3( &inverseDir, -XMLoadFloat3( &mUpperBody.direction ) );
+
+		RenderManager::GetInstance()->RequestParticleSystem( mID, FIRE, newPos, inverseDir );
+		RenderManager::GetInstance()->RequestParticleSystem( mID, FireSmoke, XMFLOAT3( newPos.x, newPos.y + 1, newPos.z ), inverseDir );
 	}
 	
 	if( mTimeTillSpawn <= 0.0f )
@@ -313,6 +338,22 @@ void Player::HandleSpawn( float deltaTime )
 
 void Player::HandleDeath( float deltaTime )
 {
+	mPlayerDownSparksTimer -= deltaTime;
+
+	if ( mPlayerDownSparksTimer < 0.0f )
+	{
+		XMFLOAT3 newPos;
+		XMFLOAT3 inverseDir;
+
+		XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorZero(), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
+		XMStoreFloat3( &inverseDir, -XMLoadFloat3( &mUpperBody.direction ) );
+
+		RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
+		RenderManager::GetInstance()->RequestParticleSystem( mID, Spark, newPos, inverseDir );
+
+		mPlayerDownSparksTimer = (float)( rand() % 3 + 1 ) * 0.1f;
+	}
+
 	if( mTimeTillDeath <= 0.0f )
 	{
 		Lock();
@@ -503,7 +544,6 @@ void Player::Die()
 	EventManager::GetInstance()->QueueEvent( E1 );
 
 	RemotePlayer::Die();
-	mTimeTillSpawn	= mSpawnTime;
 }
 
 void Player::Fire()
@@ -764,6 +804,18 @@ void Player::Reset()
 
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
 {
+	//Keep the rootMatrix for legs updated.
+	XMFLOAT4X4 upperBody = Graphics::GetInstance()->GetRootMatrix( mLowerBody.playerModel );
+	XMMATRIX loadedMat = XMLoadFloat4x4( &upperBody );
+	XMMATRIX translate = XMMatrixTranslation( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z );
+
+	float yaw = -atan2f( mUpperBody.direction.z, mUpperBody.direction.x );
+	XMMATRIX rotate	= XMMatrixRotationRollPitchYaw( 0.0f, yaw, 0.0 );
+
+	XMMATRIX transformation = loadedMat * rotate * translate;
+
+	XMStoreFloat4x4( &mLowerBody.rootMatrix, transformation );
+
 	mCloseToPlayer = false;
 	for( auto rp : remotePlayers )
 	{
@@ -1022,10 +1074,8 @@ HRESULT Player::Initialize()
 
 	mNextLevelXP		= 10;
 	mCurrentUpgrades	= 0;
-	
-	mSpawnTime			= 10.0f;
+
 	mReviveTime			= 2.0f;
-	mTimeTillSpawn		= mSpawnTime;
 	mTimeTillRevive		= mReviveTime;
 
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Died::GUID );

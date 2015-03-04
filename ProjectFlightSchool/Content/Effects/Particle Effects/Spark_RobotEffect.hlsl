@@ -5,7 +5,6 @@ struct VS_In
 	float3 position			: WORLDPOSITION;
 	float  age				: AGE;
 	float  timeTillDeath	: TIMETILLDEATH;
-	float  randomRotation	: RANDOMROTATION;
 };
 
 VS_In VS_main( VS_In input )
@@ -32,10 +31,10 @@ struct GS_Out
 void GS_main( point VS_In input[1], inout TriangleStream<GS_Out> outputStream )
 {
 	float3 vecToCam = normalize( ( input[0].position - cameraPosition.xyz ) );
-	float3 rightVec = float3( cos( input[0].randomRotation ), sin( input[0].randomRotation ), 0.0f );
+	float3 rightVec = float3( 1.0f, 0.0f, 0.0f );
 	float3 upVec = normalize( cross( vecToCam, rightVec ) );
 
-	float size = 0.3f + input[0].age * 1.3f;
+	float size = 0.3f - input[0].age * 2.0f;
 
 	//Get vertices for the quad
 	float3 vert[4];
@@ -71,10 +70,9 @@ SamplerState linearSampler			: register( s1 );
 float4 PS_main(GS_Out input) : SV_TARGET0
 {	
 	float4 diffuse = float4( diffuseTexture.Sample( linearSampler, input.uv ) );
-	
-	if(input.timeTillDeath < 0.15f)
+
+	if( input.timeTillDeath <= 0.10f )
 		diffuse.w = diffuse.w * input.timeTillDeath;
 
 	return diffuse;
-
 }

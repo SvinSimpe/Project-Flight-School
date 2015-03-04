@@ -1097,6 +1097,8 @@ void Server::Release()
 
 	for( auto& s : mShips )
 	{
+		if( s )
+			s->Release();
 		SAFE_DELETE( s );
 	}
 	mShips.clear();

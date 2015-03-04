@@ -238,5 +238,11 @@
     <Text Include="..\Content\Effects\Particle Effects\Hammer_Effect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
+    <Text Include="..\Content\Effects\Particle Effects\Spark_RobotEffect.hlsl">
+      <Filter>Effects\Particle Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\Particle Effects\Spark_ElectricEffect.hlsl">
+      <Filter>Effects\Particle Effects</Filter>
+    </Text>
   </ItemGroup>
 </Project>

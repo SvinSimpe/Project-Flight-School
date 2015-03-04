@@ -106,6 +106,11 @@ HRESULT LoadOutMenu::Initialize()
 	{
 		mButtons[i].weaponType = types[i];
 	}
+	IEventPtr E1( new Event_Change_Weapon( (int)mButtons[mCurrentMelee].weaponType ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
+	
+	IEventPtr E2( new Event_Change_Weapon( (int)mButtons[mCurrentRanged].weaponType ) );
+	EventManager::GetInstance()->QueueEvent( E2 );
 
 	return result;
 }

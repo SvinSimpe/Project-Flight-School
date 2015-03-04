@@ -20,7 +20,7 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 			player->ID			= data->ID();
 			player->team		= data->TeamID();
 			player->name		= data->Name();
-			XMFLOAT2 pos		= XMFLOAT2( mTeamOneXPos, 720.0f );
+			XMFLOAT2 pos		= XMFLOAT2( mTeamOneXPos, 740.0f );
 			if( player->team == 2 )
 			{
 				pos.x = mTeamTwoXPos;
@@ -30,7 +30,7 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 			{
 				if( p->team == player->team )
 				{
-					pos = XMFLOAT2( p->button.GetPosition().x, p->button.GetPosition().y + 70 );
+					pos = XMFLOAT2( p->button.GetPosition().x, p->button.GetPosition().y + 60 );
 				}
 			}
 			player->button.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/lobbyNameFrame.dds", pos.x, pos.y, player->size.x, player->size.y );
@@ -47,7 +47,7 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 			{
 				mPlayers[i]->team = data->TeamID();
 				printf( "Lobby:: Spelare: %d, blev lag %d\n", mPlayers[i]->ID, mPlayers[i]->team );
-				XMFLOAT2 pos		= XMFLOAT2( mTeamOneXPos, 720.0f );
+				XMFLOAT2 pos		= XMFLOAT2( mTeamOneXPos, 740.0f );
 				if( mPlayers[i]->team == 2 )
 				{
 					pos.x = mTeamTwoXPos;
@@ -59,7 +59,7 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 					{
 						if( p->button.GetPosition().y >= pos.y )
 						{
-							pos = XMFLOAT2( p->button.GetPosition().x, p->button.GetPosition().y + 70 );
+							pos = XMFLOAT2( p->button.GetPosition().x, p->button.GetPosition().y + 60 );
 						}
 					}
 				}
@@ -72,7 +72,7 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 					playersTemp.push_back( p );
 					if( p->team != mPlayers[i]->team )
 					{
-						XMFLOAT2 pos = XMFLOAT2( mTeamOneXPos, 720.0f );
+						XMFLOAT2 pos = XMFLOAT2( mTeamOneXPos, 740.0f );
 						if( p->team == 2 )
 						{
 							pos.x = mTeamTwoXPos;
@@ -81,7 +81,7 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 						{
 							if( pl->team == p->team && pl->ID != p->ID )
 							{
-								pos = XMFLOAT2( pl->button.GetPosition().x, pl->button.GetPosition().y + 70 );
+								pos = XMFLOAT2( pl->button.GetPosition().x, pl->button.GetPosition().y + 60 );
 							}
 						}
 						p->button.SetPosition( pos, p->size );

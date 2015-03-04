@@ -796,8 +796,12 @@ HRESULT PlayState::Update( float deltaTime )
 
 	if( mPlayer->Upgradable() < 1 && mGui->UpgradePlayerWindowIsActive() )
 	{
-		mPlayer->UnLock();
 		mGui->DeActivateUpgradePlayerWindow();
+		
+		if( !mGui->UpgradeShipWindowIsActive() && !mGui->InGameWindowIsActive() )
+		{
+			mPlayer->UnLock();
+		}
 	}
 
 	for( int i = 0; i < SHIP_AMOUNT; i++ )

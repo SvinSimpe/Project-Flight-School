@@ -489,7 +489,7 @@ void PlayState::HandleDeveloperCameraInput()
 			Client::GetInstance()->SendEvent( E1 );
 		}
 	}
-	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_U ) )
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_C ) )
 	{
 		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 		{
@@ -497,12 +497,14 @@ void PlayState::HandleDeveloperCameraInput()
 			{
 				mPlayer->UnLock();
 				mGui->DeActivateUpgradeShipWindow();
+				mGui->DeActivateUpgradePlayerWindow();
 			}
 			else if( mPlayer->IsAlive() )
 			{
 				SetCursor( mCursor );
 				mPlayer->Lock();
 				mGui->ActivateUpgradeShipWindow();
+				mGui->ActivateUpgradePlayerWindow();
 			}
 		}
 		else if( mGui->EnergyCellsActive() )
@@ -512,23 +514,6 @@ void PlayState::HandleDeveloperCameraInput()
 		else
 		{
 			mGui->ActivateEnergyCellsShowing();
-		}
-	}
-	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_Y ) )
-	{
-		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
-		{
-			if( mGui->UpgradePlayerWindowIsActive() )
-			{
-				mPlayer->UnLock();
-				mGui->DeActivateUpgradePlayerWindow();
-			}
-			else if( mPlayer->IsAlive() && ( mPlayer->Upgradable() >= 1 ) )
-			{
-				SetCursor( mCursor );
-				mPlayer->Lock();
-				mGui->ActivateUpgradePlayerWindow();
-			}
 		}
 	}
 	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_ESCAPE ) )
@@ -811,8 +796,12 @@ HRESULT PlayState::Update( float deltaTime )
 
 	if( mPlayer->Upgradable() < 1 && mGui->UpgradePlayerWindowIsActive() )
 	{
-		mPlayer->UnLock();
 		mGui->DeActivateUpgradePlayerWindow();
+		
+		if( !mGui->UpgradeShipWindowIsActive() && !mGui->InGameWindowIsActive() )
+		{
+			mPlayer->UnLock();
+		}
 	}
 
 	for( int i = 0; i < SHIP_AMOUNT; i++ )

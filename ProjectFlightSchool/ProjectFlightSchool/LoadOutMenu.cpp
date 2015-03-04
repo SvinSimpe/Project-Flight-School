@@ -99,13 +99,18 @@ HRESULT LoadOutMenu::Initialize()
 		offsetY += 124.0f;
 	}
 	
-	mBackButton.Initialize( "../Content/Assets/Textures/Menu/Back.png", 820.0f, 820.0f, 200.0f, 200.0f );
+	mBackButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/textBack.dds", 820.0f, 820.0f, 200.0f, 200.0f );
 	
 	WeaponType types[NR_OF_WEAPONS] = { MINIGUN, SHOTGUN, GRENADELAUNCHER, SNIPER, CLAYMORE, HAMMER, BLOWTORCH, SAW };
 	for( int i = 0; i < NR_OF_WEAPONS; i++ )
 	{
 		mButtons[i].weaponType = types[i];
 	}
+	IEventPtr E1( new Event_Change_Weapon( (int)mButtons[mCurrentMelee].weaponType ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
+	
+	IEventPtr E2( new Event_Change_Weapon( (int)mButtons[mCurrentRanged].weaponType ) );
+	EventManager::GetInstance()->QueueEvent( E2 );
 
 	return result;
 }

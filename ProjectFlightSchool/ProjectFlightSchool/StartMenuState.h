@@ -3,6 +3,7 @@
 
 #include "BaseMenuState.h"
 #include "InputSquare.h"
+#include "SoundBufferHandler.h"
 
 class StartMenuState : public BaseMenuState
 {
@@ -14,6 +15,8 @@ class StartMenuState : public BaseMenuState
 			OPTIONS			= 2,
 			EXIT			= 3,
 			BUTTON_AMOUNT	= 4;
+
+		int	mStreamSoundAsset;
 
 	protected:
 	public:

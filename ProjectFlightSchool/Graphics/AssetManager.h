@@ -23,8 +23,9 @@
 #define GRASS_BLENDMAP			6
 #define SAND_BLENDMAP			7
 #define WATER_NORMALMAP			8
+#define GRASS_ASSET_TEXTURE		9
 
-#define NUM_PLACEHOLDER_ASSETS	9
+#define NUM_PLACEHOLDER_ASSETS	10
 
 struct MeshInfo
 {

@@ -80,6 +80,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	float	specularSample	= albedoSpecBuffer.Sample( pointSampler, input.uv ).w;
 	float3	normalSample	= normalBuffer.Sample( pointSampler, input.uv ).xyz;
 	float3	worldSample		= worldPositionBuffer.Sample( linearSampler, input.uv).xyz;
+	float	grassSample		= worldPositionBuffer.Sample( pointSampler, input.uv ).w;
 
 	//========== Screen Space Ambient Occlusion =============
 	// USED FOR TESTING SSAO ONLY, SUCKY VERSION, JOCKE PLEZ HALP
@@ -268,7 +269,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 
 	//return float4( albedoSample, 1.0f );
 	//return float4( specularSample, specularSample, specularSample, 1.0f );
-	//return float4( normalSample, 1.0f );
+	//return float4( grassSample, grassSample, grassSample, 1.0f );
 	//return float4( ssao, 0.0f, 0.0f, 1.0f );
 
 	return float4( finalColor * ( shadowFactor * 0.4f + 0.6f ), 1.0f );

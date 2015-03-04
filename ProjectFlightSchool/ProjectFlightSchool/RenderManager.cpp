@@ -275,9 +275,11 @@ HRESULT RenderManager::Render()
 	SetLightStructuredBuffer();
 
 	//------------------------Fill the Gbuffers with data----------------------
-	Graphics::GetInstance()->RenderStatic3dAsset( mObject3dArray, mNrOfObject3d );
-
 	Graphics::GetInstance()->RenderNodeGrid( mNodeGridArray, mNrOfNodeGrid );
+
+	Graphics::GetInstance()->RenderGrass();
+
+	Graphics::GetInstance()->RenderStatic3dAsset( mObject3dArray, mNrOfObject3d );
 
 	for( UINT i = 0; i < mNrOfPlane; i++ )
 	{

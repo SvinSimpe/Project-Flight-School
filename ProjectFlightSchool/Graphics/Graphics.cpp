@@ -603,6 +603,16 @@ HRESULT Graphics::InitializeEffects()
 	if( FAILED( hr = mEffects[EFFECTS_TEST_FOUNTAIN]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 	//--------------------------
+
+	//Grass effect
+	effectInfo.filePath					= "../Content/Effects/GrassEffect.hlsl";
+	effectInfo.fileName					= "GrassEffect";
+	effectInfo.vertexType				= STATIC_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_GRASS]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
 	return hr;
 }
 
@@ -1262,6 +1272,44 @@ void Graphics::RenderNodeGrid( NodeGridInfo* info, UINT sizeOfList )
 		mDeviceContext->Draw( info[i].mNrOfVertices, 0 );
 
 	}
+}
+
+void Graphics::RenderGrass()
+{
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_POINTLIST );
+	
+	UINT vertexSize	= sizeof( Vertex12 );
+	UINT offset		= 0;
+
+	ID3D11Buffer* buffersToSet[] = { nullptr };
+	//mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+	mDeviceContext->IASetVertexBuffers( 0, 1, buffersToSet, &vertexSize, &offset );
+
+	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_GRASS]->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mEffects[EFFECTS_GRASS]->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( mEffects[EFFECTS_GRASS]->GetGeometryShader(), nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffects[EFFECTS_GRASS]->GetPixelShader(), nullptr, 0 );
+
+	ID3D11Resource* worldBufferCopy;
+	ID3D11Resource* grassBufferCopy;
+	mGbuffers[2]->mShaderResourceView->GetResource( &worldBufferCopy );
+	mGrassBuffer->GetResource( &grassBufferCopy );
+	mDeviceContext->CopyResource( grassBufferCopy, worldBufferCopy );
+
+	mDeviceContext->VSSetShaderResources( 0, 1, &mGrassBuffer );
+	mDeviceContext->VSSetSamplers( 0, 1, &mSamplerStates[SAMPLERS_POINT] );
+
+	mDeviceContext->GSSetConstantBuffers( 0, 1, &mBuffers[BUFFERS_CBUFFER_PER_FRAME] );
+
+	mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[GRASS_ASSET_TEXTURE] )->mSRV );
+
+	SAFE_RELEASE( worldBufferCopy );
+	SAFE_RELEASE( grassBufferCopy );
+
+	mDeviceContext->Draw( 1920 * 1080, 0 );
 }
 
 void Graphics::RenderDebugBox( BoxInfo* info, UINT sizeOfList )
@@ -2134,6 +2182,27 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 		mGbuffers[i] = new Gbuffer;
 		mGbuffers[i]->Initialize( mDevice, mScreenWidth, mScreenHeight );
 	}
+	//Initialize grass shaderresource
+	ID3D11Texture2D* grassResource;
+	D3D11_TEXTURE2D_DESC grassDesc;
+	ZeroMemory( &grassDesc, sizeof( grassDesc ) );
+	grassDesc.Width					= mScreenWidth;
+	grassDesc.Height				= mScreenHeight;
+	grassDesc.MipLevels				= 1;
+	grassDesc.ArraySize				= 1;
+	grassDesc.Format				= DXGI_FORMAT_R16G16B16A16_FLOAT;
+	grassDesc.SampleDesc.Count		= 1;
+	grassDesc.SampleDesc.Quality	= 0;
+	grassDesc.Usage					= D3D11_USAGE_DEFAULT;
+	grassDesc.BindFlags				= D3D11_BIND_SHADER_RESOURCE;
+
+	if( FAILED( hr = mDevice->CreateTexture2D( &grassDesc, nullptr, &grassResource ) ) )
+		return hr;
+
+	if( FAILED( hr = mDevice->CreateShaderResourceView( grassResource, nullptr, &mGrassBuffer ) ) )
+		return hr;
+
+	SAFE_RELEASE( grassResource );
 
 	////////////////////////////////////
 	//		SHADOW MAP VARIABLES

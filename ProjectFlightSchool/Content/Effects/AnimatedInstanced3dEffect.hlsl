@@ -97,6 +97,6 @@ PS_Out PS_main( VS_Out input )
 	
 	output.normal			= float4( normalize( input.normal ), 0.0f );
 	output.albedoSpec		= float4( diffuseTexture.Sample( linearSampler, input.uv ).xyz, specularTexture.Sample( linearSampler, input.uv ).x );
-	output.worldPosition	= float4( input.worldPosition, 1.0f );
+	output.worldPosition	= float4( input.worldPosition, 0.0f );
 	return output;
 }

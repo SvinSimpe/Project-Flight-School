@@ -72,6 +72,6 @@ PS_Out PS_main( VS_Out input )
 
 	output.normal			= float4( normalize( input.normal ), 0.0f );
 	output.albedoSpec		= float4( diffuse, 0.0f );
-	output.worldPosition	= float4( input.worldPosition, 1.0f );
+	output.worldPosition	= float4( input.worldPosition, weights.y > 0.8f && grassBlendMap.Sample( linearSampler, mapUv ).y > 0.5f ? 1.0f : 0.0f );
 	return output;
 }

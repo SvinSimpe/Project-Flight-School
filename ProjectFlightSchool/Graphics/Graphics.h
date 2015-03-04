@@ -98,6 +98,7 @@ enum Effects
 	EFFECTS_DEFERRED,
 	EFFECTS_BILLBOARD,
 	EFFECTS_NODEGRID,
+	EFFECTS_GRASS,
 
 	EFFECTS_DEBUG_BOX,
 	//New effects added above this comment
@@ -166,6 +167,7 @@ class LIBRARY_EXPORT Graphics
 		Cameras						mCurrentCamera;
 		bool						mIsDeveloperCameraActive;
 		Gbuffer*					mGbuffers[NUM_GBUFFERS];
+		ID3D11ShaderResourceView*	mGrassBuffer;
 
 		ID3D11DepthStencilView*		mShadowMapDSV;
 		ID3D11ShaderResourceView*	mShadowMapSRV;
@@ -210,6 +212,7 @@ class LIBRARY_EXPORT Graphics
 		void RenderBillboard		( BillboardInfo* info, UINT sizeOfList );
 		void RenderParticleSystems	( ParticleInfo* info, UINT sizeOfList );
 		void RenderNodeGrid			( NodeGridInfo* info, UINT sizeOfList );
+		void RenderGrass			();
 		void RenderDebugBox			( BoxInfo* info, UINT sizeOfList );
 		void RenderDebugBox			( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, DirectX::XMFLOAT4X4 world );
 		void RenderLine				( LineInfo* info, UINT sizeOfList );

@@ -218,7 +218,7 @@ void LobbyState::OnEnter()
 void LobbyState::OnExit()
 {
 	Reset();
-	SoundBufferHandler::GetInstance()->StopLoopStream( mStreamSoundAsset );
+	//SoundBufferHandler::GetInstance()->StopLoopStream( mStreamSoundAsset );
 }
 
 void LobbyState::Reset()

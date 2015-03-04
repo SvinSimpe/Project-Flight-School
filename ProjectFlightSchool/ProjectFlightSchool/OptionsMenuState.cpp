@@ -88,7 +88,7 @@ HRESULT OptionsMenuState::Initialize()
 	mStateType = OPTIONS_MENU_STATE;
 	mButtons.reserve( BUTTON_AMOUNT );
 
-	std::string texts[] = { "textSoundOnOff", "textFullScreenOnOff", "textSoundOnOff", "textBack" }; //First Sound should be switched to Help
+	std::string texts[] = { "textControls", "textFullScreenOnOff", "textSoundOnOff", "textBack" }; //First Sound should be switched to Help
 
 	float x	= (float)Input::GetInstance()->mScreenWidth  * 0.35f;
 	float y	= (float)Input::GetInstance()->mScreenHeight * 0.9f;
@@ -97,14 +97,7 @@ HRESULT OptionsMenuState::Initialize()
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
 		mButtons.push_back( new MovingButton() );
-		if( texts[i] == "Back" )
-		{
-			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Options_Menu_Text/textBack.dds", x - w * 0.5f, y - h * 0.5f, w, h );
-		}
-		else
-		{
-			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Options_Menu_Text/" + texts[i] + ".dds", x - w * 0.5f, y - h * 0.5f, w, h );
-		}
+		mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Options_Menu_Text/" + texts[i] + ".dds", x - w * 0.5f, y - h * 0.5f, w, h );
 		x += (float)Input::GetInstance()->mScreenWidth  * 0.1f;
 	}
 

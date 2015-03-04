@@ -115,14 +115,7 @@ HRESULT MultiplayerMenuState::Initialize()
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
 		mButtons.push_back( new MovingButton() );
-		if( texts[i] == "Back" )
-		{
-			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Multi_Menu_Text/textBack.dds", x - w * 0.5f, y - h * 0.5f, w, h );
-		}
-		else
-		{
-			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Multi_Menu_Text/" + texts[i] + ".dds", x - w * 0.5f, y - h * 0.5f, w, h );
-		}
+		mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Multi_Menu_Text/" + texts[i] + ".dds", x - w * 0.5f, y - h * 0.5f, w, h );
 		x += (float)Input::GetInstance()->mScreenWidth  * 0.1f;
 	}
 

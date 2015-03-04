@@ -59,7 +59,7 @@ HRESULT StartMenuState::Render( float deltaTime )
 void StartMenuState::OnEnter()
 {
 	BaseMenuState::OnEnter();
-	SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
+	//SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
 }
 
 void StartMenuState::OnExit()

@@ -796,7 +796,7 @@ void Server::SetEnemySpawnerPositions()
 
 void Server::CalculateEnemySpawnerPositions()
 {
-	float		radius					= 30.0f;
+	float		radius					= 100.0f;
 	XMFLOAT3	enemySpawnerPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	float		spawnerAngle			= 0.0f;
 
@@ -823,6 +823,7 @@ void Server::CalculateEnemySpawnerPositions()
 
 		// Add to queue
 		mSpawners[i]->SetPosition( enemySpawnerPosition );
+		enemySpawnerPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	}
 }
 

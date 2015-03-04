@@ -317,6 +317,7 @@ void RemotePlayer::Die()
 	mIsAlive		= false;
 	mIsDown			= false;
 	mCurrentHp		= 0.0f;
+	mTimeTillSpawn	= mSpawnTime;
 }
 
 void RemotePlayer::Spawn()
@@ -353,6 +354,18 @@ void RemotePlayer::GoUp()
 
 HRESULT RemotePlayer::Update( float deltaTime )
 {
+	//Keep the rootMatrix for legs updated.
+	XMFLOAT4X4 upperBody = Graphics::GetInstance()->GetRootMatrix( mLowerBody.playerModel[TEAM_ARRAY_ID] );
+	XMMATRIX loadedMat = XMLoadFloat4x4( &upperBody );
+	XMMATRIX translate = XMMatrixTranslation( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z );
+
+	float yaw = -atan2f( mUpperBody.direction.z, mUpperBody.direction.x );
+	XMMATRIX rotate	= XMMatrixRotationRollPitchYaw( 0.0f, yaw, 0.0 );
+
+	XMMATRIX transformation = loadedMat * rotate * translate;
+
+	XMStoreFloat4x4( &mLowerBody.rootMatrix, transformation );
+
 	// Update Animation
 	if( !mIsDown )
 	{
@@ -400,6 +413,38 @@ HRESULT RemotePlayer::Update( float deltaTime )
 			float change		= min( 1.0f, 6.0f * deltaTime );
 			XMStoreFloat3( &mUpperBody.direction, upLoad * ( 1.0f - change ) + lowLoad * change );
 			/////////////////////////////////////////////////
+
+			//Particle effects when player is dead.
+			mPlayerDownSparksTimer	-= deltaTime;
+			mTimeTillSpawn			-= deltaTime;
+
+			// Spawn smoke and electricity after ground impact
+			if ( mTimeTillSpawn < 8.6f )
+			{
+				XMFLOAT3 newPos;
+				XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorZero(), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
+
+				RenderManager::GetInstance()->RequestParticleSystem( mID, FireSmoke, XMFLOAT3( newPos.x, newPos.y - 0.3f, newPos.z ), XMFLOAT3( 0.0f, -0.1f , 0.0f ) );
+
+				if( mPlayerDownSparksTimer < 0.0f )
+				{
+					RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
+					mPlayerDownSparksTimer = (float)( rand() % 6 + 4 ) * 0.1f;
+				}
+			}
+
+			// Spawn fire at death
+			else if (  9.75f <= mTimeTillSpawn && mTimeTillSpawn <= 10.0f )
+			{
+				XMFLOAT3 newPos;
+				XMFLOAT3 inverseDir;
+
+				XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorZero(), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
+				XMStoreFloat3( &inverseDir, -XMLoadFloat3( &mUpperBody.direction ) );
+
+				RenderManager::GetInstance()->RequestParticleSystem( mID, FIRE, newPos, inverseDir );
+				RenderManager::GetInstance()->RequestParticleSystem( mID, FireSmoke, XMFLOAT3( newPos.x, newPos.y + 1, newPos.z ), inverseDir );
+			}
 		}
 	}
 	else
@@ -418,6 +463,23 @@ HRESULT RemotePlayer::Update( float deltaTime )
 
 		mTimeTillDeath -= deltaTime;
 		mPointLightIfDown->colorAndRadius = DirectX::XMFLOAT4( 0.6f, 0.2f, 0.6f, mTimeTillDeath );
+
+		//Particle effects when player is downed
+		mPlayerDownSparksTimer -= deltaTime;
+
+		if ( mPlayerDownSparksTimer < 0.0f )
+		{
+			XMFLOAT3 newPos;
+			XMFLOAT3 inverseDir;
+
+			XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorZero(), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
+			XMStoreFloat3( &inverseDir, -XMLoadFloat3( &mUpperBody.direction ) );
+
+			RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
+			RenderManager::GetInstance()->RequestParticleSystem( mID, Spark, newPos, inverseDir );
+
+			mPlayerDownSparksTimer = (float)( rand() % 3 + 1 ) * 0.1f;
+		}
 	}
 
 	return S_OK;
@@ -425,23 +487,13 @@ HRESULT RemotePlayer::Update( float deltaTime )
 
 HRESULT RemotePlayer::Render()
 {
-	XMFLOAT4X4 upperMatrix = Graphics::GetInstance()->GetRootMatrix( mLowerBody.playerModel[TEAM_ARRAY_ID] );
-	XMMATRIX loadedMat	= XMLoadFloat4x4( &upperMatrix );
-	XMMATRIX translate	= XMMatrixTranslation( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z );
-
-	float yaw = -atan2f( mUpperBody.direction.z, mUpperBody.direction.x );
-
-	XMMATRIX rotate	= XMMatrixRotationRollPitchYaw( 0.0f, yaw, 0.0 );
-
-	XMStoreFloat4x4( &upperMatrix, loadedMat * rotate * translate );
-
 	//Render upper body
-	RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel[TEAM_ARRAY_ID], upperMatrix );
+	RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel[TEAM_ARRAY_ID], mLowerBody.rootMatrix );
 
 	//Render Arms
 	if ( RenderManager::GetInstance()->AddAnim3dToList( mArms.leftArm,
 		ANIMATION_PLAY_ONCE,
-		&upperMatrix ) )
+		&mLowerBody.rootMatrix ) )
 	{
 		mLeftArmAnimationCompleted = true;
 		//OutputDebugStringA(" animComplete\n" );
@@ -449,15 +501,16 @@ HRESULT RemotePlayer::Render()
 
 	if ( RenderManager::GetInstance()->AddAnim3dToList( mArms.rightArm,
 		ANIMATION_PLAY_ONCE,
-		&upperMatrix ) )
+		&mLowerBody.rootMatrix ) )
 		mRightArmAnimationCompleted = true;
 
 	//Render lower body
-	yaw = -atan2f( mLowerBody.direction.z, mLowerBody.direction.x );
-	RenderManager::GetInstance()->AddAnim3dToList( mLowerBody.playerModel[TEAM_ARRAY_ID],
-		mIsAlive ? ANIMATION_PLAY_LOOPED : ANIMATION_PLAY_ONCE,
-		mLowerBody.position,
-		XMFLOAT3( 0.0f, yaw, 0.0f ) );
+
+	float yaw = -atan2f( mLowerBody.direction.z, mLowerBody.direction.x );
+	RenderManager::GetInstance()->AddAnim3dToList(	mLowerBody.playerModel[TEAM_ARRAY_ID],
+													mIsAlive ? ANIMATION_PLAY_LOOPED : ANIMATION_PLAY_ONCE,
+													mLowerBody.position,
+													XMFLOAT3( 0.0f, yaw, 0.0f ) );
 
 	return S_OK;
 }
@@ -480,10 +533,13 @@ HRESULT RemotePlayer::Initialize()
 	mDeathTime				= 8.0f;
 	mTimeTillDeath			= mDeathTime;
 
+	mSpawnTime				= 10.0f;
+	mTimeTillSpawn			= mSpawnTime;
+
 	//Weapon Initialization
 	mLoadOut				= new LoadOut();
-	mLoadOut->rangedWeapon	= new RangedInfo( GRENADELAUNCHER );
-	mLoadOut->meleeWeapon	= new MeleeInfo( HAMMER );
+	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN );
+	mLoadOut->meleeWeapon	= new MeleeInfo( CLAYMORE );
 
 	InitializeGraphics();
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Server_Change_Buff_State::GUID );

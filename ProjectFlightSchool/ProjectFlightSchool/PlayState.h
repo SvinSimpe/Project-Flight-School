@@ -60,9 +60,13 @@ class PlayState : public BaseState
 		RADAR_UPDATE_INFO			mRadarObjects[MAX_RADAR_OBJECTS];
 		float						mAlliesHP[MAX_REMOTE_PLAYERS / 2];
 		Gui*						mGui;
-		ClientShip*					mShips[SHIP_AMOUNT];
+		ClientShip**				mShips;
 
 		EnergyCell**				mEnergyCells;
+
+		UINT						mNeededEnergyCells;
+		bool						mEndGame;
+		bool						mWonGame;
 
 		//TestSound
 		int							m3DSoundAsset;

@@ -128,23 +128,33 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 HRESULT RemotePlayer::InitializeGraphics()
 {
 	// Animations Body
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotIdle.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_IDLE] ) ) )
+	//team A
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamA/Animations/", "idle.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_IDLE][0] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotWalk.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_WALK] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamA/Animations/", "walk.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_WALK][0] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotDeath.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DEATH] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamA/Animations/", "death.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DEATH][0] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotDown.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DOWN] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamA/Animations/", "down.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DOWN][0] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+	//team B
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/Animations/", "idle.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_IDLE][1] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/Animations/", "walk.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_WALK][1] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/Animations/", "death.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DEATH][1] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/Animations/", "downs.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DOWN][1] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	//BLOWTORCH
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchIdle.PaMan",			mWeaponAnimations[BLOWTORCH][IDLE] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchAttackStart.PaMan",		mWeaponAnimations[BLOWTORCH][ATTACK_START] ) ) )
-		OutputDebugString( L"\nERROR loading player model\n" );																							
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchAttackIdle.PaMan",		mWeaponAnimations[BLOWTORCH][ATTACK_IDLE] ) ) )
+/*	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchAttackStart.PaMan",		mWeaponAnimations[BLOWTORCH][ATTACK] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );	*/																						
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchAttackIdle.PaMan",		mWeaponAnimations[BLOWTORCH][ATTACK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );																										
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchAttackEnd.PaMan",		mWeaponAnimations[BLOWTORCH][ATTACK_END] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchIdle.PaMan",		mWeaponAnimations[BLOWTORCH][WALK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );																										
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchOverheatStart.PaMan",	mWeaponAnimations[BLOWTORCH][OVERHEAT_START] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );																										
@@ -210,15 +220,24 @@ HRESULT RemotePlayer::InitializeGraphics()
 	/////////////////////////////////////
 	AssetID model		= 0;
 	AssetID skeleton	= 0;
-	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Robot/", "robotUpperBodyTeamA.pfs", mUpperBody.playerModel ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamA/", "robotUpperBodyTeamA.pfs", mUpperBody.playerModel[0] ) ) ) //robotUpperBodyTeamA.pfs
+		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/", "robotBodyTeamB.pfs", mUpperBody.playerModel[1] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
-	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/PermanentAssets/Robot/Animations/", "robotLegs.Skel", skeleton ) ) //Skeleton for legs
+	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamA/Animations/", "legsSkel.Skel", skeleton ) ) //Skeleton for legs
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/PermanentAssets/Robot/", "robotLegs.apfs", skeleton, model ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamA/", "robotLegs.apfs", skeleton, model ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
-	RenderManager::GetInstance()->AnimationInitialize( mLowerBody.playerModel, model, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
+	RenderManager::GetInstance()->AnimationInitialize( mLowerBody.playerModel[0], model, mAnimations[PLAYER_ANIMATION::LEGS_IDLE][0] );
+
+	if( Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/Animations/", "robotLegs.Skel", skeleton ) ) //Skeleton for legs
+		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/", "robotLegsTeamB.apfs", skeleton, model ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+
+	RenderManager::GetInstance()->AnimationInitialize( mLowerBody.playerModel[1], model, mAnimations[PLAYER_ANIMATION::LEGS_IDLE][1] );
 
 	//WEAPON MODELS
 	//Blowtorch
@@ -298,6 +317,7 @@ void RemotePlayer::Die()
 	mIsAlive		= false;
 	mIsDown			= false;
 	mCurrentHp		= 0.0f;
+	mTimeTillSpawn	= mSpawnTime;
 }
 
 void RemotePlayer::Spawn()
@@ -334,6 +354,18 @@ void RemotePlayer::GoUp()
 
 HRESULT RemotePlayer::Update( float deltaTime )
 {
+	//Keep the rootMatrix for legs updated.
+	XMFLOAT4X4 upperBody = Graphics::GetInstance()->GetRootMatrix( mLowerBody.playerModel[TEAM_ARRAY_ID] );
+	XMMATRIX loadedMat = XMLoadFloat4x4( &upperBody );
+	XMMATRIX translate = XMMatrixTranslation( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z );
+
+	float yaw = -atan2f( mUpperBody.direction.z, mUpperBody.direction.x );
+	XMMATRIX rotate	= XMMatrixRotationRollPitchYaw( 0.0f, yaw, 0.0 );
+
+	XMMATRIX transformation = loadedMat * rotate * translate;
+
+	XMStoreFloat4x4( &mLowerBody.rootMatrix, transformation );
+
 	// Update Animation
 	if( !mIsDown )
 	{
@@ -343,21 +375,21 @@ HRESULT RemotePlayer::Update( float deltaTime )
 
 			if( currentVelocity < 0.2f )
 			{
-				if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE] )
+				if( mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] )
 				{
-					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_IDLE] );
+					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] );
 				}
 			}
 			else
 			{
-				if(	mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK] )
+				if(	mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] )
 				{
-					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_WALK] );
+					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] );
 				}
 			}
 
-			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, 
-				mLowerBody.playerModel.mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK] ? deltaTime * currentVelocity / 1.1f : deltaTime );
+			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel[TEAM_ARRAY_ID], 
+				mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] ? deltaTime * currentVelocity / 1.1f : deltaTime );
 
 			if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] )
 				RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
@@ -370,9 +402,9 @@ HRESULT RemotePlayer::Update( float deltaTime )
 		}
 		else
 		{		
-			if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DEATH] )
-				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_DEATH] );
-			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, deltaTime );
+			if( mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DEATH][TEAM_ARRAY_ID] )
+				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_DEATH][TEAM_ARRAY_ID] );
+			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel[TEAM_ARRAY_ID], deltaTime );
 
 			/////////////////////////////////////////////////
 			// interpolate upper to face lower direction
@@ -381,13 +413,45 @@ HRESULT RemotePlayer::Update( float deltaTime )
 			float change		= min( 1.0f, 6.0f * deltaTime );
 			XMStoreFloat3( &mUpperBody.direction, upLoad * ( 1.0f - change ) + lowLoad * change );
 			/////////////////////////////////////////////////
+
+			//Particle effects when player is dead.
+			mPlayerDownSparksTimer	-= deltaTime;
+			mTimeTillSpawn			-= deltaTime;
+
+			// Spawn smoke and electricity after ground impact
+			if ( mTimeTillSpawn < 8.6f )
+			{
+				XMFLOAT3 newPos;
+				XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorZero(), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
+
+				RenderManager::GetInstance()->RequestParticleSystem( mID, FireSmoke, XMFLOAT3( newPos.x, newPos.y - 0.3f, newPos.z ), XMFLOAT3( 0.0f, -0.1f , 0.0f ) );
+
+				if( mPlayerDownSparksTimer < 0.0f )
+				{
+					RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
+					mPlayerDownSparksTimer = (float)( rand() % 6 + 4 ) * 0.1f;
+				}
+			}
+
+			// Spawn fire at death
+			else if (  9.75f <= mTimeTillSpawn && mTimeTillSpawn <= 10.0f )
+			{
+				XMFLOAT3 newPos;
+				XMFLOAT3 inverseDir;
+
+				XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorZero(), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
+				XMStoreFloat3( &inverseDir, -XMLoadFloat3( &mUpperBody.direction ) );
+
+				RenderManager::GetInstance()->RequestParticleSystem( mID, FIRE, newPos, inverseDir );
+				RenderManager::GetInstance()->RequestParticleSystem( mID, FireSmoke, XMFLOAT3( newPos.x, newPos.y + 1, newPos.z ), inverseDir );
+			}
 		}
 	}
 	else
 	{
-		if( mLowerBody.playerModel.mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DOWN] )
-				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel, mAnimations[PLAYER_ANIMATION::LEGS_DOWN] );
-			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel, deltaTime );
+		if( mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_DOWN][TEAM_ARRAY_ID] )
+				RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_DOWN][TEAM_ARRAY_ID] );
+			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel[TEAM_ARRAY_ID], deltaTime );
 
 			/////////////////////////////////////////////////
 			// interpolate upper to face lower direction
@@ -399,6 +463,23 @@ HRESULT RemotePlayer::Update( float deltaTime )
 
 		mTimeTillDeath -= deltaTime;
 		mPointLightIfDown->colorAndRadius = DirectX::XMFLOAT4( 0.6f, 0.2f, 0.6f, mTimeTillDeath );
+
+		//Particle effects when player is downed
+		mPlayerDownSparksTimer -= deltaTime;
+
+		if ( mPlayerDownSparksTimer < 0.0f )
+		{
+			XMFLOAT3 newPos;
+			XMFLOAT3 inverseDir;
+
+			XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorZero(), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
+			XMStoreFloat3( &inverseDir, -XMLoadFloat3( &mUpperBody.direction ) );
+
+			RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
+			RenderManager::GetInstance()->RequestParticleSystem( mID, Spark, newPos, inverseDir );
+
+			mPlayerDownSparksTimer = (float)( rand() % 3 + 1 ) * 0.1f;
+		}
 	}
 
 	return S_OK;
@@ -406,23 +487,13 @@ HRESULT RemotePlayer::Update( float deltaTime )
 
 HRESULT RemotePlayer::Render()
 {
-	XMFLOAT4X4 upperMatrix = Graphics::GetInstance()->GetRootMatrix( mLowerBody.playerModel );
-	XMMATRIX loadedMat	= XMLoadFloat4x4( &upperMatrix );
-	XMMATRIX translate	= XMMatrixTranslation( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z );
-
-	float yaw = -atan2f( mUpperBody.direction.z, mUpperBody.direction.x );
-
-	XMMATRIX rotate	= XMMatrixRotationRollPitchYaw( 0.0f, yaw, 0.0 );
-
-	XMStoreFloat4x4( &upperMatrix, loadedMat * rotate * translate );
-
 	//Render upper body
-	RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel, upperMatrix );
+	RenderManager::GetInstance()->AddObject3dToList( mUpperBody.playerModel[TEAM_ARRAY_ID], mLowerBody.rootMatrix );
 
 	//Render Arms
 	if ( RenderManager::GetInstance()->AddAnim3dToList( mArms.leftArm,
 		ANIMATION_PLAY_ONCE,
-		&upperMatrix ) )
+		&mLowerBody.rootMatrix ) )
 	{
 		mLeftArmAnimationCompleted = true;
 		//OutputDebugStringA(" animComplete\n" );
@@ -430,15 +501,16 @@ HRESULT RemotePlayer::Render()
 
 	if ( RenderManager::GetInstance()->AddAnim3dToList( mArms.rightArm,
 		ANIMATION_PLAY_ONCE,
-		&upperMatrix ) )
+		&mLowerBody.rootMatrix ) )
 		mRightArmAnimationCompleted = true;
 
 	//Render lower body
-	yaw = -atan2f( mLowerBody.direction.z, mLowerBody.direction.x );
-	RenderManager::GetInstance()->AddAnim3dToList( mLowerBody.playerModel,
-		mIsAlive ? ANIMATION_PLAY_LOOPED : ANIMATION_PLAY_ONCE,
-		mLowerBody.position,
-		XMFLOAT3( 0.0f, yaw, 0.0f ) );
+
+	float yaw = -atan2f( mLowerBody.direction.z, mLowerBody.direction.x );
+	RenderManager::GetInstance()->AddAnim3dToList(	mLowerBody.playerModel[TEAM_ARRAY_ID],
+													mIsAlive ? ANIMATION_PLAY_LOOPED : ANIMATION_PLAY_ONCE,
+													mLowerBody.position,
+													XMFLOAT3( 0.0f, yaw, 0.0f ) );
 
 	return S_OK;
 }
@@ -461,10 +533,16 @@ HRESULT RemotePlayer::Initialize()
 	mDeathTime				= 8.0f;
 	mTimeTillDeath			= mDeathTime;
 
+	mSpawnTime				= 10.0f;
+	mTimeTillSpawn			= mSpawnTime;
+
 	//Weapon Initialization
 	mLoadOut				= new LoadOut();
-	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN );
-	mLoadOut->meleeWeapon	= new MeleeInfo( HAMMER );
+
+//	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN );
+//	mLoadOut->meleeWeapon	= new MeleeInfo( HAMMER );
+	mLoadOut->meleeWeapon	= new MeleeInfo( BLOWTORCH );
+	mLoadOut->rangedWeapon	= new RangedInfo( GRENADELAUNCHER );
 
 	InitializeGraphics();
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Server_Change_Buff_State::GUID );
@@ -510,24 +588,24 @@ void RemotePlayer::Release()
 
 RemotePlayer::RemotePlayer()
 {
-	mUpperBody.playerModel	= 0;
-	mUpperBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mLowerBody.position		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mLowerBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mUpperBody.playerModel[TEAM_ARRAY_ID]	= 0;
+	mUpperBody.direction			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mLowerBody.position				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mLowerBody.direction			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
-	mID						= 0;
-	mIsAlive				= true;
-	mMaxHp					= 0.0f;
-	mCurrentHp				= 0.0f;
+	mID								= 0;
+	mIsAlive						= true;
+	mMaxHp							= 0.0f;
+	mCurrentHp						= 0.0f;
 
-	mBoundingBox			= nullptr;
-	mBoundingCircle			= nullptr;
-	mBoundingCircleAura		= nullptr;
-	mLoadOut				= nullptr;
-	mPointLightIfDown		= nullptr;
-	mSpawnPosition			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mIsBuffed				= false;
-	mBuffMod				= 0.0f;
+	mBoundingBox					= nullptr;
+	mBoundingCircle					= nullptr;
+	mBoundingCircleAura				= nullptr;
+	mLoadOut						= nullptr;
+	mPointLightIfDown				= nullptr;
+	mSpawnPosition					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mIsBuffed						= false;
+	mBuffMod						= 0.0f;
 }
 
 RemotePlayer::~RemotePlayer()

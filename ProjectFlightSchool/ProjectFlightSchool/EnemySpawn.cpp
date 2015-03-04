@@ -34,7 +34,7 @@ XMFLOAT3 EnemySpawn::GetSpawnPosition() const
 	return mSpawnPosition;
 }
 
-void EnemySpawn::SetSapwnPosition( XMFLOAT3 position )
+void EnemySpawn::SetSpawnPosition( XMFLOAT3 position )
 {
 	mSpawnPosition = position;
 }

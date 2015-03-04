@@ -63,6 +63,46 @@ HRESULT	Radar::Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjec
 	
 				AddObjectToList( radarObjects[i].mRadarObjectPos, radarObjects[i].mType );
 			}
+			else
+			{
+				DirectX::XMFLOAT3 normPos;
+
+				DirectX::XMStoreFloat3( &normPos, DirectX::XMVector3Normalize( ( DirectX::XMLoadFloat3( &radarObjects[i].mRadarObjectPos ) - DirectX::XMLoadFloat3( &playerPos ) ) ) );
+
+				DirectX::XMStoreFloat3( &normPos, DirectX::XMLoadFloat3( &normPos ) );
+
+				radarObjects[i].mRadarObjectPos.x = mRadarShipOffsetX + ( normPos.x * mRadius ) * mRadarShipTranslationX;
+				radarObjects[i].mRadarObjectPos.y = mRadarShipOffsetY - ( normPos.z * mRadius ) * mRadarShipTranslationY;
+				
+				//CHANGE THIS WHEN WE HAVE THE ACTUALL ARROW
+				AddObjectToList( radarObjects[i].mRadarObjectPos, radarObjects[i].mType );
+				//AddObjectToList( radarObjects[i].mRadarObjectPos, mObjectiveArrowID );
+			}
+		}
+		else if( radarObjects[i].mType == RADAR_TYPE::OBJECTIVE )
+		{
+			if( vecLength <= mRadius )
+			{
+				radarObjects[i].mRadarObjectPos.x = mRadarObjectOffsetX + ( radarObjects[i].mRadarObjectPos.x - playerPos.x ) * mRadarObjectTranslationX;
+				radarObjects[i].mRadarObjectPos.y = mRadarObjectOffsetY - ( radarObjects[i].mRadarObjectPos.z - playerPos.z ) * mRadarObjectTranslationY;
+				
+				AddObjectToList( radarObjects[i].mRadarObjectPos, radarObjects[i].mType );
+			}
+			else
+			{
+				DirectX::XMFLOAT3 normPos;
+
+				DirectX::XMStoreFloat3( &normPos, DirectX::XMVector3Normalize( ( DirectX::XMLoadFloat3( &radarObjects[i].mRadarObjectPos ) - DirectX::XMLoadFloat3( &playerPos ) ) ) );
+
+				DirectX::XMStoreFloat3( &normPos, DirectX::XMLoadFloat3( &normPos ) );
+
+				radarObjects[i].mRadarObjectPos.x = mRadarObjectOffsetX + ( normPos.x * mRadius ) * mRadarObjectTranslationX;
+				radarObjects[i].mRadarObjectPos.y = mRadarObjectOffsetY - ( normPos.z * mRadius ) * mRadarObjectTranslationY;
+				
+				//CHANGE THIS WHEN WE HAVE THE ACTUALL ARROW
+				AddObjectToList( radarObjects[i].mRadarObjectPos, radarObjects[i].mType );
+				//AddObjectToList( radarObjects[i].mRadarObjectPos, mObjectiveArrowID );
+			}
 		}
 		else
 		{
@@ -104,6 +144,7 @@ HRESULT	Radar::Initialize()
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/Radar/radarShip.dds", mFriendlyShipAssetID );
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/Radar/radarEnemyShipTest.dds", mHostileShipAssetID );
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/Radar/radar2.dds", mRadarAssetID );
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/Radar/radar2.dds", mObjectiveArrowID );
 	
 	mObjects[0].mAssetId			= mRadarAssetID;
 	mObjects[0].mTopLeftCorner.x	= Input::GetInstance()->mScreenWidth - radarDimXY;

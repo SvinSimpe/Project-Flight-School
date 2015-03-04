@@ -252,7 +252,7 @@ void Input::RawRead( LPARAM lParam )
 					KeyChecker( KEYS::KEYS_RIGHT, raw->data.keyboard.Flags );
 					break;
 				case VK_ESCAPE:
-					KeyChecker( KEYS::KEYS_ESC, raw->data.keyboard.Flags );
+					KeyChecker( KEYS::KEYS_ESCAPE, raw->data.keyboard.Flags );
 					break;
 			}
 			break;

@@ -63,8 +63,6 @@ class Player: public RemotePlayer
 		Path*		currentPath1;
 		std::vector<DirectX::XMFLOAT2> currentPath;
 		
-		float		mSpawnTime;
-		float		mTimeTillSpawn;
 		float		mReviveTime;
 		float		mTimeTillRevive;
 		float		mLeavingAreaTime;
@@ -93,6 +91,8 @@ class Player: public RemotePlayer
 		void		Fire();
 		void		FireShotgun( XMFLOAT3* spawnPoint );
 		void		FireMinigun( XMFLOAT3* projectileOffset );
+		void		FireGrenadeLauncher( XMFLOAT3* projectileOffset );
+		float		CalculateLaunchAngle();
 		void		AddImpuls( XMFLOAT3 impuls );
 		void		QueueEvent( IEvent* ptr );
 		void		UpgradeBody();

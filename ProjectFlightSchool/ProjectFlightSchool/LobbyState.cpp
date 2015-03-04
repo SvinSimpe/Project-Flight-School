@@ -243,7 +243,7 @@ HRESULT LobbyState::Initialize()
 	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 	
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/lobby_loadout_menu/lobbyNameFrame.dds", mBackground ); //Laddar in bilden till knapparna så att deras initialize bara får en int och inte laddar nnya bilder.
-	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/lobby_loadout_menu/lobby_menu.dds", mBackground );
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/lobby_loadout_menu/lobbyMenu.dds", mBackground );
 
 	mStateType = LOBBY_STATE;
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Initialize_LobbyPlayer::GUID );

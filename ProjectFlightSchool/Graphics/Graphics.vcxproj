@@ -256,6 +256,21 @@
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Content\Effects\DrawCircleEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Content\Effects\Particle Effects\Spark_RobotEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Content\Effects\Particle Effects\Spark_ElectricEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

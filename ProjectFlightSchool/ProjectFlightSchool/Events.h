@@ -5539,4 +5539,56 @@ class Event_Server_Change_Weapon : public IEvent
 			return mID;
 		}
 };
+
+class Event_Game_Start_Server : public IEvent
+{
+	private:
+		std::string mPort;
+		UINT		mMaxPlayers;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Game_Start_Server()
+		{
+			mPort = "";
+			mMaxPlayers = (UINT)-1;
+		}
+		Event_Game_Start_Server( std::string port, UINT maxPlayers )
+		{
+			mPort = port;
+			mMaxPlayers = maxPlayers;
+		}
+		~Event_Game_Start_Server() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mPort << " ";
+			out << mMaxPlayers << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mPort;
+			in >> mMaxPlayers;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Game_Start_Server( mPort, mMaxPlayers ) );
+		}
+		std::string Port() const
+		{
+			return mPort;
+		}
+		UINT MaxPlayers() const
+		{
+			return mMaxPlayers;
+		}
+};
 #endif

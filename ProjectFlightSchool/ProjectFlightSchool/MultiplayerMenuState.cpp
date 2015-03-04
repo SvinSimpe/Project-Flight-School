@@ -16,7 +16,7 @@ void MultiplayerMenuState::HandleInput()
 	{	
 		mPort = mPortBox.GetText();
 
-		IEventPtr E1( new Event_Start_Server( mPort, 4 ) );
+		IEventPtr E1( new Event_Game_Start_Server( mPort, 4 ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
 		IEventPtr E2( new Event_Create_Player_Name( mNameBox.GetText() ) );
@@ -26,7 +26,7 @@ void MultiplayerMenuState::HandleInput()
 	{
 		mPort = mPortBox.GetText();
 
-		IEventPtr E1( new Event_Start_Server( mPort, 6 ) );
+		IEventPtr E1( new Event_Game_Start_Server( mPort, 6 ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
 		IEventPtr E2( new Event_Create_Player_Name( mNameBox.GetText() ) );
@@ -36,7 +36,7 @@ void MultiplayerMenuState::HandleInput()
 	{
 		mPort = mPortBox.GetText();
 
-		IEventPtr E1( new Event_Start_Server( mPort, 8 ) );
+		IEventPtr E1( new Event_Game_Start_Server( mPort, 8 ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
 		IEventPtr E2( new Event_Create_Player_Name( mNameBox.GetText() ) );
@@ -87,14 +87,8 @@ void MultiplayerMenuState::OnExit()
 
 void MultiplayerMenuState::Reset()
 {
-	mPortBox.Release();
-
-	float x = (float)Input::GetInstance()->mScreenWidth  * 0.2f;
-	float y = (float)Input::GetInstance()->mScreenHeight * 0.9f;
-	float w = 640.0f * 0.5f;
-	float h = 177.0f * 0.5f;
-
-	mPortBox.Initialize( "27015", "Port", x - w * 0.5f, y - h * 0.5f, w, h );
+	mPortBox.Reset( "27015" );
+	mNameBox.Reset( "playername" );
 }
 
 HRESULT MultiplayerMenuState::Initialize()

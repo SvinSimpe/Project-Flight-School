@@ -1164,8 +1164,12 @@ void PlayState::Release()
 
 	for( int i = 0; i < SHIP_AMOUNT; i++ )
 	{
-		SAFE_RELEASE_DELETE( mShips[i] );
+		if( mShips[i] )
+			mShips[i]->Release();
+		SAFE_DELETE( mShips[i] );
 	}
+	if( mShips )
+		delete[] mShips;
 
 	//Energy cells
 	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
@@ -1191,6 +1195,7 @@ PlayState::PlayState()
 	mEnemyListSynced		= false;
 	mServerInitialized		= false;
 	mGui					= nullptr;
+	mShips					= new ClientShip*[SHIP_AMOUNT];
 	for( int i = 0; i < SHIP_AMOUNT; i++ )
 	{
 		mShips[i] = nullptr;

@@ -420,27 +420,28 @@ void PlayState::CheckProjectileCollision()
 
 void PlayState::CheckMeeleCollision()
 {
+
+	MeleeInfo* currWeapon = mPlayer->GetLoadOut()->meleeWeapon;
+	XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) * currWeapon->radius );
+
+	float halfRadian = XMConvertToRadians( currWeapon->spread * 18.0f ) * 0.5f;
+	XMFLOAT3 pos = currWeapon->boundingCircle->center;
+
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++ )
 	{
 		//Check intersection with melee circle & remotePlayer
-		if( mRemotePlayers[i]->IsAlive() && mPlayer->GetLoadOut()->meleeWeapon->boundingCircle->Intersect( mRemotePlayers.at(i)->GetBoundingCircle() ) )
+		if( mRemotePlayers[i]->IsAlive() && currWeapon->boundingCircle->Intersect( mRemotePlayers.at(i)->GetBoundingCircle() ) )
 		{
-			XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) * mPlayer->GetLoadOut()->meleeWeapon->radius );
-
 			//Spread to Radians
-			float halfRadian = XMConvertToRadians( mPlayer->GetLoadOut()->meleeWeapon->spread * 18.0f ) * 0.5f;
-
-			XMVECTOR playerToRemote = XMLoadFloat3( &mRemotePlayers.at(i)->GetPosition() ) - XMLoadFloat3( &mPlayer->GetPosition() );
-
 			float angleRemoteToAim = 0.0f;
-			XMVECTOR playerToCenter = XMLoadFloat3( &mRemotePlayers.at(i)->GetBoundingCircle()->center ) - XMLoadFloat3( &mPlayer->GetPlayerPosition() );
-			XMStoreFloat( &angleRemoteToAim, XMVector4AngleBetweenVectors( playerToCenter, meeleRadiusVector ) );
+			XMVECTOR playerToCenter = XMLoadFloat3( &mRemotePlayers.at(i)->GetBoundingCircle()->center ) - XMLoadFloat3( &pos );
+			XMStoreFloat( &angleRemoteToAim, XMVector3AngleBetweenVectors( playerToCenter, meeleRadiusVector ) );
 
 			if( angleRemoteToAim <= halfRadian )
 			{
-				XMFLOAT3 direction = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+				DirectX::XMFLOAT3 direction = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
 				XMStoreFloat3( &direction, XMVector4Normalize( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) ) );
-				BroadcastMeleeDamage( mRemotePlayers.at(i)->GetID(), mPlayer->GetLoadOut()->meleeWeapon->damage, mPlayer->GetLoadOut()->meleeWeapon->knockBack, direction );
+				BroadcastMeleeDamage( mRemotePlayers.at(i)->GetID(), mPlayer->GetLoadOut()->meleeWeapon->damage, currWeapon->knockBack, direction );
 			}
 		}
 	}
@@ -448,24 +449,17 @@ void PlayState::CheckMeeleCollision()
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 	{
 		//Check intersection with melee circle & enemy
-		if( mPlayer->GetLoadOut()->meleeWeapon->boundingCircle->Intersect( mEnemies[i]->GetBoundingCircle() ) )
+		if( mEnemies[i]->IsAlive() && currWeapon->boundingCircle->Intersect( mEnemies[i]->GetBoundingCircle() ) )
 		{
-			XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) * mPlayer->GetLoadOut()->meleeWeapon->radius );
-
-			//Spread to Radians
-			float halfRadian = XMConvertToRadians( mPlayer->GetLoadOut()->meleeWeapon->spread * 18.0f ) * 0.5f;
-
-			XMVECTOR playerToRemote = XMLoadFloat3( &mEnemies[i]->GetPosition() ) - XMLoadFloat3( &mPlayer->GetPosition() );
-
 			float angleRemoteToAim = 0.0f;
-			XMVECTOR playerToCenter = XMLoadFloat3( &mEnemies[i]->GetBoundingCircle()->center ) - XMLoadFloat3( &mPlayer->GetPlayerPosition() );
+			XMVECTOR playerToCenter = XMLoadFloat3( &mEnemies[i]->GetBoundingCircle()->center ) - XMLoadFloat3( &pos );
 			XMStoreFloat( &angleRemoteToAim, XMVector4AngleBetweenVectors( playerToCenter, meeleRadiusVector ) );
 
 			if( angleRemoteToAim <= halfRadian )
 			{
-				XMFLOAT3 direction = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+				DirectX::XMFLOAT3 direction = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
 				XMStoreFloat3( &direction, XMVector4Normalize( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) ) );
-				BroadcastEnemyMeleeDamage(mEnemies[i]->GetID(), mPlayer->GetLoadOut()->meleeWeapon->damage, mPlayer->GetLoadOut()->meleeWeapon->knockBack, direction );
+				BroadcastEnemyMeleeDamage( mEnemies[i]->GetID(), currWeapon->damage, currWeapon->knockBack, direction );
 			}
 		}
 	}
@@ -914,6 +908,7 @@ HRESULT PlayState::Render( float deltaTime )
 	{
 		if ( mRemotePlayers.at(i) && CullEntity( mRemotePlayers.at(i)->GetPosition() ) )
 		{
+			//RenderManager::GetInstance()->AddCircleToList( mRemotePlayers.at(i)->GetBoundingCircle()->center, XMFLOAT3( 0,1,1), mRemotePlayers.at(i)->GetBoundingCircle()->radius );
 			mRemotePlayers.at(i)->Render();
 		}
 	}
@@ -926,7 +921,10 @@ HRESULT PlayState::Render( float deltaTime )
 		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 		{
 			if( mEnemies[i]->IsSynced() && CullEntity( mEnemies[i]->GetPosition() ) )
+			{
+				//RenderManager::GetInstance()->AddCircleToList( mEnemies[i]->GetBoundingCircle()->center, XMFLOAT3( 1,0,0), mEnemies[i]->GetBoundingCircle()->radius );
 				mEnemies[i]->Render();
+			}
 		}
 	}
 

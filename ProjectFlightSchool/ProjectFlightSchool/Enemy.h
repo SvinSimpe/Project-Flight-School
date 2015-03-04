@@ -10,6 +10,7 @@
 #include "SteeringBehaviorManager.h"
 #include <math.h>
 #include "EventManager.h"
+#include "Pathfinder.h"
 
 class Enemy;
 
@@ -281,6 +282,14 @@ class SteerWander : public SteeringBehavior
 		virtual		   ~SteerWander();
 };
 
+class SteerAvoidObjects : public SteeringBehavior
+{
+	public:
+		virtual bool	Update( float deltaTime, XMFLOAT3& totalForce );
+						SteerAvoidObjects( Enemy* enemy );
+		virtual			~SteerAvoidObjects();
+};
+
 #pragma endregion
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -341,6 +350,7 @@ class Enemy
 		friend class		SteerPursuit;
 		friend class		SteerEvade;
 		friend class		SteerWander;
+		friend class		SteerAvoidObjects;
 		friend class		SteeringBehaviorManager;
 
 #pragma endregion

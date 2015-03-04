@@ -422,7 +422,9 @@ HRESULT RemotePlayer::Update( float deltaTime )
 			if ( mTimeTillSpawn < 8.6f )
 			{
 				XMFLOAT3 newPos;
-				XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorZero(), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
+				float randY = (float)( rand() % 8 ) * 0.1f;
+
+				XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 
 				RenderManager::GetInstance()->RequestParticleSystem( mID, FireSmoke, XMFLOAT3( newPos.x, newPos.y - 0.3f, newPos.z ), XMFLOAT3( 0.0f, -0.1f , 0.0f ) );
 
@@ -471,8 +473,9 @@ HRESULT RemotePlayer::Update( float deltaTime )
 		{
 			XMFLOAT3 newPos;
 			XMFLOAT3 inverseDir;
+			float randY = (float)( rand() % 8 ) * 0.1f;
 
-			XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorZero(), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
+			XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 			XMStoreFloat3( &inverseDir, -XMLoadFloat3( &mUpperBody.direction ) );
 
 			RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );

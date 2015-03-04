@@ -297,7 +297,9 @@ void Player::HandleSpawn( float deltaTime )
 	if ( mTimeTillSpawn < 8.6f )
 	{
 		XMFLOAT3 newPos;
-		XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorZero(), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
+		float randY = (float)( rand() % 8 ) * 0.1f;
+
+		XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 
 		RenderManager::GetInstance()->RequestParticleSystem( mID, FireSmoke, XMFLOAT3( newPos.x, newPos.y - 0.3f, newPos.z ), XMFLOAT3( 0.0f, -0.1f , 0.0f ) );
 
@@ -342,12 +344,16 @@ void Player::HandleDeath( float deltaTime )
 	{
 		XMFLOAT3 newPos;
 		XMFLOAT3 inverseDir;
+		float randY = (float)( rand() % 8 ) * 0.1f;
+
+		XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
+
+		RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
 
 		XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorZero(), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 		XMStoreFloat3( &inverseDir, -XMLoadFloat3( &mUpperBody.direction ) );
-
-		RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
-		RenderManager::GetInstance()->RequestParticleSystem( mID, Spark, newPos, inverseDir );
+		
+		RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Robot, newPos, inverseDir );
 
 		mPlayerDownSparksTimer = (float)( rand() % 3 + 1 ) * 0.1f;
 	}
@@ -993,7 +999,34 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 			{
 				mIsOutSideZone = false;
 			}
-			
+
+			mPlayerDownSparksTimer -= deltaTime;
+
+			if ( mCurrentHp <= 50 && mPlayerDownSparksTimer < 0.0f )
+			{
+				// Spawn electricity att upperBody
+				XMFLOAT3 newPos;
+				float randY = (float)( rand() % 8 ) * 0.1f;
+
+				XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
+
+				RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
+
+				// Spawn spark on lowerBody
+				if ( mCurrentHp <= 10 )
+				{
+					XMFLOAT3 inverseDir;
+					randY = (float)( rand() % 8 ) * 0.1f;
+
+					XMStoreFloat3( &inverseDir, -XMLoadFloat3( &mUpperBody.direction ) );
+					XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
+					
+					RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Robot, newPos, XMFLOAT3( inverseDir.x * randY, inverseDir.y, inverseDir.z * randY ) );			
+				}
+				
+				float intensity = ( mCurrentHp * 0.1 ) * 0.6f;
+				mPlayerDownSparksTimer = (float)( rand() % 3 + 1 ) * 0.1f + intensity;
+			}
 		}
 		else
 		{

@@ -211,36 +211,46 @@
     <Text Include="..\Content\Effects\Particle Effects\FireSmokeEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
+    
     <Text Include="..\Content\Effects\Particle Effects\ExplosionEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
+    
     <Text Include="..\Content\Effects\Particle Effects\ExplosionSmoke.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
+    
     <Text Include="..\Content\Effects\Particle Effects\SparkEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
+    
     <Text Include="..\Content\Effects\Particle Effects\NormalSmokeEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
+    
     <Text Include="..\Content\Effects\Particle Effects\Level_UpEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
+    
     <Text Include="..\Content\Effects\Particle Effects\Level_InnerEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
-<<<<<<< HEAD
+    
     <Text Include="..\Content\Effects\Particle Effects\Fire_FliesEffect.hlsl">
-=======
+      <Filter>Effects\Particle Effects</Filter>
+    </Text>
+    
     <Text Include="..\Content\Effects\Particle Effects\BlowtorchFireEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
+    
     <Text Include="..\Content\Effects\Particle Effects\BlowtorchIdleEffect.hlsl">
-		<Filter>Effects\Particle Effects</Filter>
-	</Text>
+		  <Filter>Effects\Particle Effects</Filter>
+	  </Text>
+    
     <Text Include="..\Content\Effects\Particle Effects\Hammer_Effect.hlsl">
->>>>>>> development
       <Filter>Effects\Particle Effects</Filter>
     </Text>
+    
   </ItemGroup>
 </Project>

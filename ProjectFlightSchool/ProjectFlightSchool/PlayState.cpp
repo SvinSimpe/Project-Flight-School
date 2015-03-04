@@ -141,14 +141,16 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Remote_Win> data = std::static_pointer_cast<Event_Remote_Win>( newEvent );
 		if( data->Team() == mPlayer->GetTeam() )
 		{
-			MessageBox( NULL, L"You Won", L"Congratulations", MB_OK );
+			mEndGame = true;
+			mWonGame = true;
 		}
 		else
 		{
-			MessageBox( NULL, L"You Lost", L"Sorry", MB_OK );
+			mEndGame = true;
+			mWonGame = false;
 		}
-		IEventPtr E1( new Event_Reset_Game() );
-		EventManager::GetInstance()->QueueEvent( E1 );
+		/*IEventPtr E1( new Event_Reset_Game() );
+		EventManager::GetInstance()->QueueEvent( E1 );*/
 	}
 	else if( newEvent->GetEventType() == Event_Server_Turret_Fired_Projectile::GUID )
 	{
@@ -781,6 +783,7 @@ HRESULT PlayState::Update( float deltaTime )
 		{
 			UINT temp = mPlayer->GetEnergyCellID();
 			mPlayer->GiveEnergyCellToShip( mEnergyCells, mShips[FRIEND_SHIP]->GetID(), mShips[FRIEND_SHIP]->GetPos() );
+			mShips[FRIEND_SHIP]->AddEnergyCell( mShips[FRIEND_SHIP]->GetID() );
 		}
 	}
 	mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers, mEnergyCells );
@@ -866,6 +869,35 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.mLevel		= mPlayer->Upgradable();
 	
 	guiUpdate.deltaTime = deltaTime;
+	
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_ENTER ) )
+	{
+		mEnergyCells[1]->SetOwnerID( mShips[FRIEND_SHIP]->GetID() );
+		mEnergyCells[1]->SetPickedUp( true );
+		mEnergyCells[1]->SetSecured( true );
+
+		mShips[FRIEND_SHIP]->AddEnergyCell( mShips[FRIEND_SHIP]->GetID() );
+	}
+
+	if( mShips[FRIEND_SHIP]->GetNrOfEnergyCells() == mNeededEnergyCells )
+	{
+		guiUpdate.mEndGame = true;
+		guiUpdate.mWonGame = true;
+		mEndGame = true;
+
+		IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
+		Client::GetInstance()->SendEvent( E1 );
+	}
+	else if( !mEndGame )
+	{
+		guiUpdate.mEndGame = mEndGame;
+		guiUpdate.mWonGame = mWonGame;
+	}
+	else
+	{
+		guiUpdate.mEndGame = mEndGame;
+		guiUpdate.mWonGame = mWonGame;
+	}
 
 	mGui->Update( guiUpdate );
 	////////////////////////////////////////////////////////////////////////////////////////////
@@ -976,6 +1008,9 @@ void PlayState::Reset()
 	}
 
 	RenderManager::GetInstance()->mParticleManager->Reset();
+
+	mEndGame = false;
+	mWonGame = false;
 }
 
 HRESULT PlayState::Initialize()
@@ -1034,7 +1069,6 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Turret_Fired_Projectile::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Energy_Cell::GUID ); 
 
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Win::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_XP::GUID ); 
 
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Trigger_Client_Fired_Projectile::GUID );
@@ -1058,8 +1092,12 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_2.pfs", mSpawnModel );
 	mSpawners	= new XMFLOAT3[MAX_NR_OF_ENEMY_SPAWNERS];
 
+	//Victory condition, maybe should be set from outside?
+	mNeededEnergyCells = 6;
+	///////////////////////////////////////////////////////
+
 	mGui = new Gui();
-	mGui->Initialize();
+	mGui->Initialize( mNeededEnergyCells );
 
 	//Energy cells
 	mEnergyCells = new EnergyCell*[MAX_ENERGY_CELLS];
@@ -1080,6 +1118,9 @@ HRESULT PlayState::Initialize()
 	mStreamSoundAsset	= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav" );
 
 	Pathfinder::GetInstance()->Initialize( mWorldMap );
+
+	mEndGame = false;
+	mWonGame = false;
 
 	return S_OK;
 }

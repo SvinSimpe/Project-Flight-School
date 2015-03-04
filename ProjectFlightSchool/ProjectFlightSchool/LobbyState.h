@@ -9,6 +9,7 @@
 #include "Button.h"
 #include "Client.h"
 #include "LoadOutMenu.h"
+#include "SoundBufferHandler.h"
 
 struct LobbyPlayer
 {
@@ -35,6 +36,7 @@ class LobbyState : public BaseState
 		LoadOutMenu					mLoadOutMenu;
 		Button						mChooseWeaponButton;
 		Image						mChooseWeaponText;
+		int							mStreamSoundAsset;
 
 	public:
 

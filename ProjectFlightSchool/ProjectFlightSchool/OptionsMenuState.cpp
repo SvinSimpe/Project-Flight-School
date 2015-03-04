@@ -41,9 +41,7 @@ void OptionsMenuState::HandleInput()
 
 HRESULT OptionsMenuState::Update( float deltaTime )
 {
-	//BaseMenuState::Update( deltaTime );
-
-	HandleInput();
+	BaseMenuState::Update( deltaTime );
 
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{

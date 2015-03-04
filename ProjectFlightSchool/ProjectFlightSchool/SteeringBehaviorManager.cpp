@@ -136,7 +136,7 @@ HRESULT SteeringBehaviorManager::Initialize( Enemy* enemy )
 
 void SteeringBehaviorManager::Release()
 {
-	for( int i = 0; i < mBehaviors.size(); i++ )
+	for( unsigned int i = 0; i < mBehaviors.size(); i++ )
 		SAFE_RELEASE_DELETE( mBehaviors[i] );
 	mBehaviors.clear();
 }

@@ -61,6 +61,7 @@
 #define CLAYMORE_TTA		0.65f	// Time till Attack
 #define CLAYMORE_STUN		0.3f	// Stun
 #define CLAYMORE_REACH		3.0f	// Reach
+#define CLAYMORE_OFFSETS		XMFLOAT3( 0.8f, -0.65f, 1.3f ) // Offsets forward, right, up
 
 // Hammer
 #define HAMMER_AR			3.5f	// Attack Rate Can't be lower than 3.5f
@@ -71,16 +72,18 @@
 #define HAMMER_TTA			0.92f	// Time till Attack Can't be changed
 #define HAMMER_STUN			3.0f	// Stun
 #define HAMMER_REACH		2.0f	// Reach
+#define HAMMER_OFFSETS		XMFLOAT3( 0.8f, -0.65f, 1.3f ) // Offsets forward, right, up
 
 // Blowtorch
-#define BLOWTORCH_AR		3.0f	// Attack Rate
+#define BLOWTORCH_AR		0.1f	// Attack Rate
 #define BLOWTORCH_DAMAGE	5.0f	// Damage
-#define BLOWTORCH_RADIUS	5.0f	// Radius
-#define BLOWTORCH_SPREAD	7		// Spread
-#define BLOWTORCH_KB		2.0f	// Knockback
-#define BLOWTORCH_TTA		0.95f	// Time till Attack
+#define BLOWTORCH_RADIUS	4.0f	// Radius
+#define BLOWTORCH_SPREAD	3		// Spread
+#define BLOWTORCH_KB		0.0f	// Knockback
+#define BLOWTORCH_TTA		0.2f	// Time till Attack
 #define BLOWTORCH_STUN		0.0f	// Stun
-#define BLOWTORCH_REACH		2.3f	// Reach
+#define BLOWTORCH_REACH		1.0f	// Reach
+#define BLOWTORCH_OFFSETS	XMFLOAT3( -0.35f, -0.65f, 1.3f ) // Offsets forward, right, up
 
 // Saw
 #define SAW_AR				3.0f	// Attack Rate

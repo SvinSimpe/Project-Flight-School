@@ -36,6 +36,13 @@ struct StaticVertex
 	float uv[2];
 };
 
+struct CircleVertex
+{
+	float position[3];
+	float radius;
+	float color[3];
+};
+
 struct StaticInstance
 {
 	DirectX::XMFLOAT4X4 world;

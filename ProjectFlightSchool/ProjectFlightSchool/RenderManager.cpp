@@ -299,7 +299,7 @@ HRESULT RenderManager::Render()
 
 	Graphics::GetInstance()->RenderLine( mLineArray, mNrOfLines );
 
-	//Graphics::GetInstance()->RenderCircle( mCircleArray, mNrOfCircles );	
+	Graphics::GetInstance()->RenderCircle( mCircleArray, mNrOfCircles );	
 
 	Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray, mNrOfAnim3d );
 

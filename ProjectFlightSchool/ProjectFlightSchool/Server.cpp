@@ -1160,6 +1160,7 @@ void Server::Release()
 	}
 	SAFE_DELETE_ARRAY( mEnemies );
 
+<<<<<<< HEAD
 	for( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
 	{
 		if( mSpawners[i] )
@@ -1169,12 +1170,19 @@ void Server::Release()
 	SAFE_DELETE_ARRAY( mSpawners );
 
 	for( size_t i = 0; i < MAX_ENERGY_CELLS; i++ )
+=======
+	//Energy cells
+	if( mEnergyCells )
+>>>>>>> development
 	{
-		if( mEnergyCells[i] )
-			mEnergyCells[i]->Release();
-		SAFE_DELETE( mEnergyCells[i] );
+		for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+		{
+			if( mEnergyCells[i] )
+				mEnergyCells[i]->Release();
+			SAFE_DELETE( mEnergyCells[i] );
+		}
+		SAFE_DELETE_ARRAY( mEnergyCells );
 	}
-	SAFE_DELETE_ARRAY( mEnergyCells );
 }
 
 Server::Server() : Network()

@@ -842,7 +842,7 @@ void Player::Reset()
 	mNrOfDeaths				= 0;
 	mNrOfKills				= 0;
 	mID						= -1;
-	mTeam					= -1;
+	mTeam					= 1;
 	mEnergyCellID			= (UINT)-1;
 	mPickUpCooldown			= 0.0f;
 

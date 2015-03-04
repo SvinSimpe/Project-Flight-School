@@ -85,9 +85,6 @@ void PlayState::EventListener( IEventPtr newEvent )
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
 
-		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Explosion, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), ExplosionSmoke, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-
 		///Blowtorch particle system
 		RenderManager::GetInstance()->RequestParticleSystem( 855, BlowTorchIdle, data->BodyPos(), data->Direction() );
 		RenderManager::GetInstance()->RequestParticleSystem( 855, BlowTorchFire, data->BodyPos(), data->Direction() );
@@ -382,7 +379,7 @@ void PlayState::CheckProjectileCollision()
 					IEventPtr E1( new Event_Client_Removed_Projectile( mProjectiles[i]->GetID() ) );
 					Client::GetInstance()->SendEvent( E1 );
 					
-				if( mPlayer->GetLoadOut()->rangedWeapon->weaponType == GRENADELAUNCHER )
+				if( mProjectiles[i]->GetWeaponType() != GRENADELAUNCHER )
 				{
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
@@ -393,7 +390,7 @@ void PlayState::CheckProjectileCollision()
 				}
 			}
 
-			if( mPlayer->GetLoadOut()->rangedWeapon->weaponType == GRENADELAUNCHER )
+			if( mProjectiles[i]->GetWeaponType() == GRENADELAUNCHER )
 			{
 				if( mProjectiles[i]->GetPosition().y <= 0.5f )
 				{

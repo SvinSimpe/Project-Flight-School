@@ -370,6 +370,22 @@ void Server::ClientAttemptRevive( IEventPtr eventPtr )
 	}
 }
 
+void Server::ClientEnemyMeleeDamage( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Enemy_Attack::GUID )
+	{
+		std::shared_ptr<Event_Client_Enemy_Attack> data = std::static_pointer_cast<Event_Client_Enemy_Attack>( eventPtr );
+		mEnemies[data->EnemyID()]->TakeMeleeDamage( data->Damage(), data->KnockBack(), data->Direction(), data->Stun(), data->ID() );
+		if( !mEnemies[data->EnemyID()]->IsAlive() )
+		{
+			for( auto& s : mShips )
+			{
+				s->mServerTurret->ClearTarget();
+			}
+		}
+	}
+}
+
 void Server::ClientEnemyProjectileDamage( IEventPtr eventPtr )
 {
 	//if( eventPtr->GetEventType() == Event_Client_Projectile_Damage_Enemy::GUID )
@@ -564,8 +580,6 @@ void Server::StartUp( IEventPtr eventPtr )
 
 		// Makes sure everything is clean before starting
 		Reset();
-		CreateShips();
-		CreateEnergyCells();
 		
 		std::stringstream sstr;
 		sstr << port << " ";
@@ -587,7 +601,7 @@ void Server::StartUp( IEventPtr eventPtr )
 			mActive = false;
 			IEventPtr E1( new Event_Connect_Server_Fail ( "Server failed at connecting!\n" ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
-			Release();
+			Reset();
 		}
 	}
 }
@@ -782,6 +796,61 @@ void Server::CalculateCellSpawnPositions( XMFLOAT3 shipPosition )
 	}
 }
 
+void Server::SetEnemySpawnerPositions()
+{
+	CalculateEnemySpawnerPositions();
+
+	for (size_t i = 0; i < MAX_NR_OF_ENEMIES; i++)
+	{
+		mEnemies[i]->SetSpawnPos( GetNextSpawn() );
+		mEnemies[i]->Spawn();
+	}
+}
+
+void Server::CalculateEnemySpawnerPositions()
+{
+	float		radius					= 100.0f;
+	XMFLOAT3	enemySpawnerPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	float		spawnerAngle			= 0.0f;
+
+	// Calc position for own ship cells
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+	{
+		// Set distance from ship
+		enemySpawnerPosition.x += radius;
+
+		do
+		{
+			spawnerAngle = (float)( rand() % 360 + 1 );
+
+			// Get vector from ship to cell
+			XMVECTOR shipToCell = XMLoadFloat3( &enemySpawnerPosition ) - XMVectorSet( 0.0f, 0.0f, 0.0f, 0.0f );
+
+			// Rotate vector around ship by some random value
+			XMStoreFloat3( &enemySpawnerPosition, ( XMVector3TransformCoord( shipToCell, XMMatrixRotationY( -XMConvertToRadians( spawnerAngle ) ) ) ) );
+		}
+		while( !Pathfinder::GetInstance()->IsOnNavMesh(  enemySpawnerPosition ) || IsEnergyCellHere( enemySpawnerPosition ) );
+
+		// Add rotated vector to origo to get new cell position
+		XMStoreFloat3( &enemySpawnerPosition, XMVectorSet( 0.0f, 0.0f, 0.0f, 0.0f ) + XMLoadFloat3( &enemySpawnerPosition ) );
+
+		// Add to queue
+		mSpawners[i]->SetPosition( enemySpawnerPosition );
+		enemySpawnerPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	}
+}
+
+bool Server::IsEnergyCellHere( XMFLOAT3 checkPosition ) const
+{
+	for (size_t i = 0; i < MAX_ENERGY_CELLS; i++)
+	{
+		if( BoundingCircle( checkPosition , 1.0f ).Intersect( mEnergyCells[i]->GetPickUpRadius() ) )
+			return true;
+	}
+
+	return false;
+}
+
 bool Server::Connect( UINT port )
 {
 	mSocketManager = new SocketManager();
@@ -901,8 +970,6 @@ XMFLOAT3 Server::GetNextSpawn()
 
 bool Server::Initialize()
 {
-	mStopAccept = false;
-
 	EventManager::GetInstance()->AddListener( &Server::ClientJoined, this, Event_Client_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientLeft, this, Event_Client_Left::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientUpdate, this, Event_Client_Update::GUID );
@@ -917,6 +984,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientDown, this, Event_Client_Down::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientUp, this, Event_Client_Up::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientAttemptRevive, this, Event_Client_Attempt_Revive::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientEnemyMeleeDamage, this, Event_Client_Enemy_Attack::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientEnemyProjectileDamage, this, Event_Client_Projectile_Damage_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &Server::SetEnemyState, this, Event_Set_Enemy_State::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientInteractEnergyCell, this, Event_Client_Sync_Energy_Cell::GUID );
@@ -932,16 +1000,72 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::XP, this, Event_XP::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ChangeWeapon, this, Event_Client_Change_Weapon::GUID );
 
-	mTeamDelegate	= 1;
-	mCurrentPID		= 0;
-
-	//		GAME LOGIC
-	//   Enemies & Spawners
-
+	mCurrentPID				= 0;
+	mActive					= false;
+	mTeamDelegate			= 0;
+	mNrOfPlayers			= 0;
 	mNrOfEnemiesSpawned		= 0;
+	mNrOfProjectilesFired	= 0;
+	mStopAccept				= false;
+	mMaxClients				= 0;
+
 	srand( (UINT)time( NULL ) );
-	mSpawners		= new EnemySpawn*[MAX_NR_OF_ENEMY_SPAWNERS];
-	for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+
+	mPlayers = new ServerPlayer*[MAX_NR_OF_PLAYERS];
+	for( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
+	{
+		mPlayers[i] = nullptr;
+	}
+
+	mEnemies = new Enemy*[MAX_NR_OF_ENEMIES];
+	for( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	{
+		mEnemies[i] = nullptr;
+	}
+
+	mSpawners = new EnemySpawn*[MAX_NR_OF_ENEMY_SPAWNERS];
+	for( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+	{
+		mSpawners[i] = nullptr;
+	}
+
+	mEnergyCells = new EnergyCell*[MAX_ENERGY_CELLS];
+	for( size_t i = 0; i < MAX_ENERGY_CELLS; i++ )
+	{
+		mEnergyCells[i] = nullptr;
+	}
+
+	return true;
+}
+
+// The reset in the server is special because it's allowed to deallocate/allocate memory (Y)
+void Server::Reset()
+{
+	Release();
+	mStopAccept				= false;
+	mActive					= false;
+	mCurrentPID				= 0;
+	mTeamDelegate			= 1;
+	mNrOfPlayers			= 0;
+	mNrOfEnemiesSpawned		= 0;
+	mNrOfProjectilesFired	= 0;
+	mMaxClients				= 0;
+
+	mPlayers = new ServerPlayer*[MAX_NR_OF_PLAYERS];
+	for( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
+	{
+		mPlayers[i] = nullptr;
+	}
+
+	mEnemies = new Enemy*[MAX_NR_OF_ENEMIES];
+	for( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	{
+		mEnemies[i] = new Enemy();
+		mEnemies[i]->Initialize( i, mPlayers, mNrOfPlayers, mEnemies );
+	}
+
+	mSpawners = new EnemySpawn*[MAX_NR_OF_ENEMY_SPAWNERS];
+	for( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
 	{
 		// Map size values
 		int X, Y;
@@ -949,82 +1073,27 @@ bool Server::Initialize()
 		Y = ( rand() % 150 ) - 75;
 		mSpawners[i] = new EnemySpawn();
 		mSpawners[i]->Initialize( i );
-		//mSpawners[i]->SetPosition( XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
-		mSpawners[i]->SetPosition( XMFLOAT3( (float)(X), 0.0f, (float)(Y) ) );
 	}
 
-	mEnemies	= new Enemy*[MAX_NR_OF_ENEMIES];
-	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
-	{
-		mEnemies[i] = new Enemy();
-		mEnemies[i]->Initialize( i, mPlayers, mNrOfPlayers, mEnemies );
-		mEnemies[i]->SetSpawnPos( GetNextSpawn() );
-		mEnemies[i]->Spawn();
-	}
-
-	return true;
-}
-
-void Server::Reset()
-{
-	mMaxClients = (UINT)-1;
-	mStopAccept = false;
-
-	mTeamDelegate	= 1;
-	mCurrentPID		= 0;
-	mActive			= false;
-
-	if( mSocketManager )
-		mSocketManager->Release();
-	SAFE_DELETE( mSocketManager );
-
-	for( auto& c : mClientMap )
-	{
-		SAFE_DELETE( c.second );
-	}
-	mClientMap.clear();
-
-	for( auto& s : mShips )
-	{
-		SAFE_RELEASE_DELETE( s );
-	}
-	mShips.clear();
-
-	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
-	{
-		mEnemies[i]->Reset();
-	}
+	CreateShips();
+	CreateEnergyCells();
+	SetEnemySpawnerPositions();
 }
 
 void Server::Release()
 {
-	// Enemies
-	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	if( mSocketManager )
 	{
-		if( mEnemies[i] )
-			mEnemies[i]->Release();
-		SAFE_DELETE( mEnemies[i] );
+		mSocketManager->Release();
+		SAFE_DELETE( mSocketManager );
 	}
-	SAFE_DELETE_ARRAY( mEnemies );
 
-	for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+	for( auto& cm : mClientMap )
 	{
-		if( mSpawners[i] )
-			mSpawners[i]->Release();
-		SAFE_DELETE( mSpawners[i] );
+		auto& c = cm.second;
+		SAFE_DELETE( c );
 	}
-	SAFE_DELETE_ARRAY( mSpawners );
-
-	//SAFE_DELETE( mAggroCircle );
-
-	for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
-		SAFE_DELETE( mPlayers[i] );
-	
-	SAFE_DELETE_ARRAY( mPlayers );
-
-	mTeamDelegate	= 1;
-	mCurrentPID		= 0;
-	mActive			= false;
+	mClientMap.clear();
 
 	for( auto& s : mShips )
 	{
@@ -1034,18 +1103,38 @@ void Server::Release()
 	}
 	mShips.clear();
 
-	if( mSocketManager )
-		mSocketManager->Release();
-	SAFE_DELETE( mSocketManager );
-
-	for( auto& c : mClientMap )
+	if( mPlayers )
 	{
-		SAFE_DELETE( c.second );
+		for( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
+		{
+			SAFE_DELETE( mPlayers[i] );
+		}
+		SAFE_DELETE_ARRAY( mPlayers );
 	}
-	mClientMap.clear();
 
-	//Energy cells
-	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+	if( mEnemies )
+	{
+		for( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+		{
+			if( mEnemies[i] )
+				mEnemies[i]->Release();
+			SAFE_DELETE( mEnemies[i] );
+		}
+		SAFE_DELETE_ARRAY( mEnemies );
+	}
+
+	if( mSpawners )
+	{
+		for( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+		{
+			if( mSpawners[i] )
+				mSpawners[i]->Release();
+			SAFE_DELETE( mSpawners[i] );
+		}
+		SAFE_DELETE_ARRAY( mSpawners );
+	}
+
+	for( size_t i = 0; i < MAX_ENERGY_CELLS; i++ )
 	{
 		if( mEnergyCells[i] )
 			mEnergyCells[i]->Release();
@@ -1058,28 +1147,20 @@ Server::Server() : Network()
 {
 	mSocketManager			= nullptr;
 	mClientMap				= std::map<UINT, ClientNEF*>();
-	mTeamDelegate			= (UINT)-1;
 	mCurrentPID				= (UINT)-1;
 	mActive					= false;
 	mShips					= std::vector<ServerShip*>();
-	mShips.reserve( 2 );
-	mNrOfEnemiesSpawned		= 0;
-	mNrOfPlayers			= 0;
-	mNrOfProjectilesFired	= 0;
 	mPlayers				= nullptr;
-
-	mNrOfPlayers			= 0;
-	mMaxClients				= (UINT)-1;
-	
-	mPlayers				= new ServerPlayer*[MAX_NR_OF_PLAYERS];
-	for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
-		mPlayers[i]			= nullptr;
-
-	mEnergyCells			= nullptr;
-
+	mTeamDelegate			= (UINT)-1;
 	mEnemies				= nullptr;
-
 	mSpawners				= nullptr;
+	mNrOfPlayers			= (UINT)-1;
+	mNrOfEnemiesSpawned		= (UINT)-1;
+	mNrOfProjectilesFired	= (UINT)-1;
+	mEnergyCells			= nullptr;
+	mStopAccept				= false;
+	mCellPositionQueue		= std::queue<XMFLOAT3>();
+	mMaxClients				= (UINT)-1;
 }
 
 Server::~Server()

@@ -10,6 +10,7 @@
 #include "SteeringBehaviorManager.h"
 #include <math.h>
 #include "EventManager.h"
+#include "Pathfinder.h"
 
 class Enemy;
 
@@ -281,6 +282,14 @@ class SteerWander : public SteeringBehavior
 		virtual		   ~SteerWander();
 };
 
+class SteerAvoidObjects : public SteeringBehavior
+{
+	public:
+		virtual bool	Update( float deltaTime, XMFLOAT3& totalForce );
+						SteerAvoidObjects( Enemy* enemy );
+		virtual			~SteerAvoidObjects();
+};
+
 #pragma endregion
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -294,7 +303,6 @@ class SteeringBehaviorManager
 		std::vector<SteeringBehavior*>		mBehaviors;
 		std::vector<SteeringBehavior*>		mActive;
 		std::vector<float>					mActiveForce;
-		int									mNumberOfBehaviors;
 		Enemy*								mEnemy;
 		XMFLOAT3							mTotalSteeringForce;
 		float								mMaxSteeringForce;
@@ -342,6 +350,7 @@ class Enemy
 		friend class		SteerPursuit;
 		friend class		SteerEvade;
 		friend class		SteerWander;
+		friend class		SteerAvoidObjects;
 		friend class		SteeringBehaviorManager;
 
 #pragma endregion

@@ -160,21 +160,24 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 
 	for( int i = 0; i < numPointLights; i++ )
 	{
-		float3 lightDir = worldSample - lightStructure[i].position.xyz;
-		float d			= length( lightDir );
-		lightDir		/= d;
+		if( lightStructure[i].colorAndRadius.w > 0.01f )
+		{
+			float3 lightDir = worldSample - lightStructure[i].position.xyz;
+			float d			= length( lightDir );
+			lightDir		/= d;
 		
-		float3 N = normalSample;
-		float3 V = cameraPosition.xyz;
-		float3 R = reflect( lightDir, N );
+			float3 N = normalSample;
+			float3 V = cameraPosition.xyz;
+			float3 R = reflect( lightDir, N );
 
-		float diff	= saturate( dot( -lightDir, N ) );
-		float3 spec	= float3( lightStructure[i].colorAndRadius.xyz * pow( dot( R, V ), specularPower ) ) * specularSample;
+			float diff	= saturate( dot( -lightDir, N ) );
+			float3 spec	= float3( lightStructure[i].colorAndRadius.xyz * pow( dot( R, V ), specularPower ) ) * specularSample;
 
-		float denom			= d / lightStructure[i].colorAndRadius.w + 1.0f;
-		float attenuation	= 1.0f / ( denom * denom );
+			float denom			= d / lightStructure[i].colorAndRadius.w + 1.0f;
+			float attenuation	= 1.0f / ( denom * denom );
 
-		finalColor += ( diffuse + specular ) * lightStructure[i].colorAndRadius.xyz * attenuation;
+			finalColor += ( diffuse + specular ) * lightStructure[i].colorAndRadius.xyz * attenuation;
+		}
 	}
 
 	saturate( finalColor );
@@ -228,21 +231,24 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 		//Point lights
 		for( int i = 0; i < numPointLights; i++ )
 		{
-			float3 lightDir = waterWorldSample - lightStructure[i].position.xyz;
-			float d			= length( lightDir );
-			lightDir		/= d;
+			if( lightStructure[i].colorAndRadius.w > 0.01f )
+			{
+				float3 lightDir = waterWorldSample - lightStructure[i].position.xyz;
+				float d			= length( lightDir );
+				lightDir		/= d;
 		
-			float3 N = waterNormal;
-			float3 V = cameraPosition.xyz;
-			float3 R = reflect( lightDir, N );
+				float3 N = waterNormal;
+				float3 V = cameraPosition.xyz;
+				float3 R = reflect( lightDir, N );
 
-			float diff	= saturate( dot( -lightDir, N ) );
-			float3 spec	= float3( lightStructure[i].colorAndRadius.xyz * pow( dot( R, V ), specularPower ) );
+				float diff	= saturate( dot( -lightDir, N ) );
+				float3 spec	= float3( lightStructure[i].colorAndRadius.xyz * pow( dot( R, V ), specularPower ) );
 
-			float denom			= d / lightStructure[i].colorAndRadius.w + 1.0f;
-			float attenuation	= 1.0f / ( denom * denom );
+				float denom			= d / lightStructure[i].colorAndRadius.w + 1.0f;
+				float attenuation	= 1.0f / ( denom * denom );
 
-			waterColor += ( diffuse + specular ) * lightStructure[i].colorAndRadius.xyz * attenuation;
+				waterColor += ( diffuse + specular ) * lightStructure[i].colorAndRadius.xyz * attenuation;
+			}
 		}
 
 		float fresnel	= max( 0.1f, dot( waterNormal, toCamera ) );

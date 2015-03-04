@@ -10,6 +10,7 @@
 #define MAX_AMOUNT_OF_BOXES		20000
 #define MAX_AMOUNT_OF_NODEGRIDS	500
 #define MAX_AMOUNT_OF_LINES		10000
+#define MAX_AMOUNT_OF_CIRCLES	10000
 
 struct Object3dInfo
 {
@@ -73,10 +74,18 @@ struct BoxInfo
 	DirectX::XMFLOAT3	max;
 	DirectX::XMFLOAT4X4 world;
 };
+
 struct LineInfo
 {
 	DirectX::XMFLOAT3 start;
 	DirectX::XMFLOAT3 end;
+};
+
+struct CircleInfo
+{
+	DirectX::XMFLOAT3 center;
+	float radius;
+	DirectX::XMFLOAT3 color;	
 };
 
 struct AnimationTrack

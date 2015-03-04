@@ -85,13 +85,9 @@ void PlayState::EventListener( IEventPtr newEvent )
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
 
-		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Explosion, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), ExplosionSmoke, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-
 		///Blowtorch particle system
 		RenderManager::GetInstance()->RequestParticleSystem( 855, BlowTorchIdle, data->BodyPos(), data->Direction() );
 		RenderManager::GetInstance()->RequestParticleSystem( 855, BlowTorchFire, data->BodyPos(), data->Direction() );
-
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
 	{
@@ -136,19 +132,23 @@ void PlayState::EventListener( IEventPtr newEvent )
 			mShips[ENEMY_SHIP]->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
 		}
 	}
+
+	
 	else if( newEvent->GetEventType() == Event_Remote_Win::GUID )
 	{
 		std::shared_ptr<Event_Remote_Win> data = std::static_pointer_cast<Event_Remote_Win>( newEvent );
 		if( data->Team() == mPlayer->GetTeam() )
 		{
-			MessageBox( NULL, L"You Won", L"Congratulations", MB_OK );
+			mEndGame = true;
+			mWonGame = true;
 		}
 		else
 		{
-			MessageBox( NULL, L"You Lost", L"Sorry", MB_OK );
+			mEndGame = true;
+			mWonGame = false;
 		}
-		IEventPtr E1( new Event_Reset_Game() );
-		EventManager::GetInstance()->QueueEvent( E1 );
+		/*IEventPtr E1( new Event_Reset_Game() );
+		EventManager::GetInstance()->QueueEvent( E1 );*/
 	}
 	else if( newEvent->GetEventType() == Event_Server_Turret_Fired_Projectile::GUID )
 	{
@@ -162,9 +162,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		// Request Muzzle Flash from Particle Manager
 		
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->Position(), data->Direction() );
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->Position(), data->Direction() );
-		//RenderManager::GetInstance()->RequestParticleSystem( 9999, Blood, XMFLOAT3( 2.0f, 3.0f, 0.0f ) , XMFLOAT3( 0.0f, 1.0f, 1.0f ) );
-		
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->Position(), data->Direction() );		
 	}
 	else if( newEvent->GetEventType() == Event_Server_Sync_Energy_Cell::GUID )
 	{
@@ -380,7 +378,7 @@ void PlayState::CheckProjectileCollision()
 					IEventPtr E1( new Event_Client_Removed_Projectile( mProjectiles[i]->GetID() ) );
 					Client::GetInstance()->SendEvent( E1 );
 					
-				if( mPlayer->GetLoadOut()->rangedWeapon->weaponType == GRENADELAUNCHER )
+				if( mProjectiles[i]->GetWeaponType() != GRENADELAUNCHER )
 				{
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
@@ -391,7 +389,7 @@ void PlayState::CheckProjectileCollision()
 				}
 			}
 
-			if( mPlayer->GetLoadOut()->rangedWeapon->weaponType == GRENADELAUNCHER )
+			if( mProjectiles[i]->GetWeaponType() == GRENADELAUNCHER )
 			{
 				if( mProjectiles[i]->GetPosition().y <= 0.5f )
 				{
@@ -422,27 +420,28 @@ void PlayState::CheckProjectileCollision()
 
 void PlayState::CheckMeeleCollision()
 {
+
+	MeleeInfo* currWeapon = mPlayer->GetLoadOut()->meleeWeapon;
+	XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) * currWeapon->radius );
+
+	float halfRadian = XMConvertToRadians( currWeapon->spread * 18.0f ) * 0.5f;
+	XMFLOAT3 pos = currWeapon->boundingCircle->center;
+
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++ )
 	{
 		//Check intersection with melee circle & remotePlayer
-		if( mRemotePlayers[i]->IsAlive() && mPlayer->GetLoadOut()->meleeWeapon->boundingCircle->Intersect( mRemotePlayers.at(i)->GetBoundingCircle() ) )
+		if( mRemotePlayers[i]->IsAlive() && currWeapon->boundingCircle->Intersect( mRemotePlayers.at(i)->GetBoundingCircle() ) )
 		{
-			XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) * mPlayer->GetLoadOut()->meleeWeapon->radius );
-
 			//Spread to Radians
-			float halfRadian = XMConvertToRadians( mPlayer->GetLoadOut()->meleeWeapon->spread * 18.0f ) * 0.5f;
-
-			XMVECTOR playerToRemote = XMLoadFloat3( &mRemotePlayers.at(i)->GetPosition() ) - XMLoadFloat3( &mPlayer->GetPosition() );
-
 			float angleRemoteToAim = 0.0f;
-			XMVECTOR playerToCenter = XMLoadFloat3( &mRemotePlayers.at(i)->GetBoundingCircle()->center ) - XMLoadFloat3( &mPlayer->GetPlayerPosition() );
-			XMStoreFloat( &angleRemoteToAim, XMVector4AngleBetweenVectors( playerToCenter, meeleRadiusVector ) );
+			XMVECTOR playerToCenter = XMLoadFloat3( &mRemotePlayers.at(i)->GetBoundingCircle()->center ) - XMLoadFloat3( &pos );
+			XMStoreFloat( &angleRemoteToAim, XMVector3AngleBetweenVectors( playerToCenter, meeleRadiusVector ) );
 
 			if( angleRemoteToAim <= halfRadian )
 			{
-				XMFLOAT3 direction = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+				DirectX::XMFLOAT3 direction = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
 				XMStoreFloat3( &direction, XMVector4Normalize( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) ) );
-				BroadcastMeleeDamage( mRemotePlayers.at(i)->GetID(), mPlayer->GetLoadOut()->meleeWeapon->damage, mPlayer->GetLoadOut()->meleeWeapon->knockBack, direction );
+				BroadcastMeleeDamage( mRemotePlayers.at(i)->GetID(), mPlayer->GetLoadOut()->meleeWeapon->damage, currWeapon->knockBack, direction );
 			}
 		}
 	}
@@ -450,24 +449,17 @@ void PlayState::CheckMeeleCollision()
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 	{
 		//Check intersection with melee circle & enemy
-		if( mPlayer->GetLoadOut()->meleeWeapon->boundingCircle->Intersect( mEnemies[i]->GetBoundingCircle() ) )
+		if( mEnemies[i]->IsAlive() && currWeapon->boundingCircle->Intersect( mEnemies[i]->GetBoundingCircle() ) )
 		{
-			XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) * mPlayer->GetLoadOut()->meleeWeapon->radius );
-
-			//Spread to Radians
-			float halfRadian = XMConvertToRadians( mPlayer->GetLoadOut()->meleeWeapon->spread * 18.0f ) * 0.5f;
-
-			XMVECTOR playerToRemote = XMLoadFloat3( &mEnemies[i]->GetPosition() ) - XMLoadFloat3( &mPlayer->GetPosition() );
-
 			float angleRemoteToAim = 0.0f;
-			XMVECTOR playerToCenter = XMLoadFloat3( &mEnemies[i]->GetBoundingCircle()->center ) - XMLoadFloat3( &mPlayer->GetPlayerPosition() );
+			XMVECTOR playerToCenter = XMLoadFloat3( &mEnemies[i]->GetBoundingCircle()->center ) - XMLoadFloat3( &pos );
 			XMStoreFloat( &angleRemoteToAim, XMVector4AngleBetweenVectors( playerToCenter, meeleRadiusVector ) );
 
 			if( angleRemoteToAim <= halfRadian )
 			{
-				XMFLOAT3 direction = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+				DirectX::XMFLOAT3 direction = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
 				XMStoreFloat3( &direction, XMVector4Normalize( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) ) );
-				BroadcastEnemyMeleeDamage(mEnemies[i]->GetID(), mPlayer->GetLoadOut()->meleeWeapon->damage, mPlayer->GetLoadOut()->meleeWeapon->knockBack, direction );
+				BroadcastEnemyMeleeDamage( mEnemies[i]->GetID(), currWeapon->damage, currWeapon->knockBack, direction );
 			}
 		}
 	}
@@ -781,6 +773,7 @@ HRESULT PlayState::Update( float deltaTime )
 		{
 			UINT temp = mPlayer->GetEnergyCellID();
 			mPlayer->GiveEnergyCellToShip( mEnergyCells, mShips[FRIEND_SHIP]->GetID(), mShips[FRIEND_SHIP]->GetPos() );
+			mShips[FRIEND_SHIP]->AddEnergyCell( mShips[FRIEND_SHIP]->GetID() );
 		}
 	}
 	mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers, mEnergyCells );
@@ -808,8 +801,8 @@ HRESULT PlayState::Update( float deltaTime )
 	///Test fountain particle system
 	RenderManager::GetInstance()->RequestParticleSystem( 990, NormalSmoke, XMFLOAT3( 0.0f, 1.0f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 0.0f ) );
 
-	RenderManager::GetInstance()->RequestParticleSystem( 1889, Fire, XMFLOAT3( 1.0f, 2.0f, 15.0f ), XMFLOAT3( 0.5f, 1.0f, 0.5f ) );			//---------id, effect, position, direction
-	RenderManager::GetInstance()->RequestParticleSystem( 1889, FireSmoke, XMFLOAT3( 2.5f, 3.5f, 16.5f ), XMFLOAT3( 1.5f, 2.0f, 1.5f ) );	//---------id, effect, position, direction
+	//RenderManager::GetInstance()->RequestParticleSystem( 1889, FIRE, XMFLOAT3( 1.0f, 2.0f, 15.0f ), XMFLOAT3( 0.5f, 1.0f, 0.5f ) );			//---------id, effect, position, direction
+	//RenderManager::GetInstance()->RequestParticleSystem( 1889, FireSmoke, XMFLOAT3( 2.5f, 3.5f, 16.5f ), XMFLOAT3( 1.5f, 2.0f, 1.5f ) );	//---------id, effect, position, direction
 	
 	RenderManager::GetInstance()->RequestParticleSystem( 997, Test_Fountain, XMFLOAT3( 0.0f, 20.0f, 0.0f ), XMFLOAT3( 0.0f, -1.0f, 0.0f ) );
 
@@ -824,15 +817,18 @@ HRESULT PlayState::Update( float deltaTime )
 
 	for( int i = 0; i < SHIP_AMOUNT; i++ )
 	{
-		mShips[i]->Update( deltaTime );
-		mRadarObjects[nrOfRadarObj].mRadarObjectPos = mShips[i]->GetPos();
-		if( i == FRIEND_SHIP )
+		if( mShips[i] )
 		{
-			mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_FRIENDLY;
-		}
-		else
-		{
-			mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_HOSTILE;
+			mShips[i]->Update( deltaTime );
+			mRadarObjects[nrOfRadarObj].mRadarObjectPos = mShips[i]->GetPos();
+			if( i == FRIEND_SHIP )
+			{
+				mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_FRIENDLY;
+			}
+			else
+			{
+				mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_HOSTILE;
+			}
 		}
 	}
 
@@ -866,6 +862,35 @@ HRESULT PlayState::Update( float deltaTime )
 	guiUpdate.mLevel		= mPlayer->Upgradable();
 	
 	guiUpdate.deltaTime = deltaTime;
+	
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_ENTER ) )
+	{
+		mEnergyCells[1]->SetOwnerID( mShips[FRIEND_SHIP]->GetID() );
+		mEnergyCells[1]->SetPickedUp( true );
+		mEnergyCells[1]->SetSecured( true );
+
+		mShips[FRIEND_SHIP]->AddEnergyCell( mShips[FRIEND_SHIP]->GetID() );
+	}
+
+	if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->GetNrOfEnergyCells() == mNeededEnergyCells )
+	{
+		guiUpdate.mEndGame = true;
+		guiUpdate.mWonGame = true;
+		mEndGame = true;
+
+		IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
+		Client::GetInstance()->SendEvent( E1 );
+	}
+	else if( !mEndGame )
+	{
+		guiUpdate.mEndGame = mEndGame;
+		guiUpdate.mWonGame = mWonGame;
+	}
+	else
+	{
+		guiUpdate.mEndGame = mEndGame;
+		guiUpdate.mWonGame = mWonGame;
+	}
 
 	mGui->Update( guiUpdate );
 	////////////////////////////////////////////////////////////////////////////////////////////
@@ -883,6 +908,7 @@ HRESULT PlayState::Render( float deltaTime )
 	{
 		if ( mRemotePlayers.at(i) && CullEntity( mRemotePlayers.at(i)->GetPosition() ) )
 		{
+			//RenderManager::GetInstance()->AddCircleToList( mRemotePlayers.at(i)->GetBoundingCircle()->center, XMFLOAT3( 0,1,1), mRemotePlayers.at(i)->GetBoundingCircle()->radius );
 			mRemotePlayers.at(i)->Render();
 		}
 	}
@@ -895,7 +921,10 @@ HRESULT PlayState::Render( float deltaTime )
 		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 		{
 			if( mEnemies[i]->IsSynced() && CullEntity( mEnemies[i]->GetPosition() ) )
+			{
+				//RenderManager::GetInstance()->AddCircleToList( mEnemies[i]->GetBoundingCircle()->center, XMFLOAT3( 1,0,0), mEnemies[i]->GetBoundingCircle()->radius );
 				mEnemies[i]->Render();
+			}
 		}
 	}
 
@@ -976,6 +1005,9 @@ void PlayState::Reset()
 	}
 
 	RenderManager::GetInstance()->mParticleManager->Reset();
+
+	mEndGame = false;
+	mWonGame = false;
 }
 
 HRESULT PlayState::Initialize()
@@ -1034,7 +1066,6 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Turret_Fired_Projectile::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Sync_Energy_Cell::GUID ); 
 
-	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Win::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_XP::GUID ); 
 
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Trigger_Client_Fired_Projectile::GUID );
@@ -1058,8 +1089,12 @@ HRESULT PlayState::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/Nests/", "nest_2.pfs", mSpawnModel );
 	mSpawners	= new XMFLOAT3[MAX_NR_OF_ENEMY_SPAWNERS];
 
+	//Victory condition, maybe should be set from outside?
+	mNeededEnergyCells = 6;
+	///////////////////////////////////////////////////////
+
 	mGui = new Gui();
-	mGui->Initialize();
+	mGui->Initialize( mNeededEnergyCells );
 
 	//Energy cells
 	mEnergyCells = new EnergyCell*[MAX_ENERGY_CELLS];
@@ -1080,6 +1115,9 @@ HRESULT PlayState::Initialize()
 	mStreamSoundAsset	= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav" );
 
 	Pathfinder::GetInstance()->Initialize( mWorldMap );
+
+	mEndGame = false;
+	mWonGame = false;
 
 	return S_OK;
 }
@@ -1126,8 +1164,12 @@ void PlayState::Release()
 
 	for( int i = 0; i < SHIP_AMOUNT; i++ )
 	{
-		SAFE_RELEASE_DELETE( mShips[i] );
+		if( mShips[i] )
+			mShips[i]->Release();
+		SAFE_DELETE( mShips[i] );
 	}
+	if( mShips )
+		delete[] mShips;
 
 	//Energy cells
 	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
@@ -1153,6 +1195,7 @@ PlayState::PlayState()
 	mEnemyListSynced		= false;
 	mServerInitialized		= false;
 	mGui					= nullptr;
+	mShips					= new ClientShip*[SHIP_AMOUNT];
 	for( int i = 0; i < SHIP_AMOUNT; i++ )
 	{
 		mShips[i] = nullptr;

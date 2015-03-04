@@ -5,7 +5,9 @@
 #include "Events.h"
 #include "RenderManager.h"
 
+
 #define MAX_NR_OF_ENEMY_SPAWNERS	200
+
 
 class EnemySpawn
 {
@@ -28,7 +30,7 @@ class EnemySpawn
 		XMFLOAT3		GetPosition() const;
 		void			SetPosition( XMFLOAT3 position );
 		XMFLOAT3		GetSpawnPosition() const;
-		void			SetSapwnPosition( XMFLOAT3 position );
+		void			SetSpawnPosition( XMFLOAT3 position );
 
 		HRESULT			Initialize( unsigned int id );
 		void			Release();

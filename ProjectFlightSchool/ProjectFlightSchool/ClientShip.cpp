@@ -1,4 +1,5 @@
 #include "ClientShip.h"
+#include "Pathfinder.h"
 
 void ClientShip::RemoteUpdateShip( IEventPtr eventPtr )
 {
@@ -37,8 +38,8 @@ void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 		std::shared_ptr<Event_Request_Player_Spawn_Position> data = std::static_pointer_cast<Event_Request_Player_Spawn_Position>( eventPtr );
 		if ( data->TeamID() == mTeamID )
 		{
-			int width	= 15;
-			int height	= 15;
+			int width	= 20;
+			int height	= 20;
 			int xMin	= 0;
 			int xMax	= 0;
 			int zMin	= 0;
@@ -69,8 +70,8 @@ void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 				spawnX = ( xMin + ( rand() % (int)( xMax - xMin + 1 ) ) );
 				spawnZ = ( zMin + ( rand() % (int)( zMax - zMin + 1 ) ) );
 			}
-			while( spawnX > mBuffCircle->center.x - 12.0f && spawnX < mBuffCircle->center.x + 12.0f &&
-				   spawnZ > mBuffCircle->center.z - 12.0f && spawnZ < mBuffCircle->center.z + 12.0f );
+			while( ( (float)spawnX > mBuffCircle->center.x - 15.0f && (float)spawnX < mBuffCircle->center.x + 15.0f &&
+				   (float)spawnZ > mBuffCircle->center.z - 15.0f && (float)spawnZ < mBuffCircle->center.z + 15.0f ) && Pathfinder::GetInstance()->IsOnNavMesh( XMFLOAT3( (float)spawnX, 0.0f, (float)spawnZ ) ) );
 
 			IEventPtr E1( new Event_New_Player_Spawn_Position( data->PlayerID(), XMFLOAT2( (float)spawnX, (float)spawnZ ) ) );
 			EventManager::GetInstance()->QueueEvent( E1 );

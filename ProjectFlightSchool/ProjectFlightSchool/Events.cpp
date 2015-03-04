@@ -135,3 +135,4 @@ const EventType Event_Server_Reach_Client::GUID( counter++ );
 const EventType Event_Change_Weapon::GUID( counter++ );
 const EventType Event_Client_Change_Weapon::GUID( counter++ );
 const EventType Event_Server_Change_Weapon::GUID( counter++ );
+const EventType Event_Game_Start_Server::GUID( counter++ );

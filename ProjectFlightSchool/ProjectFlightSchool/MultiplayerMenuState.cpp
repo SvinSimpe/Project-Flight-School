@@ -16,7 +16,7 @@ void MultiplayerMenuState::HandleInput()
 	{	
 		mPort = mPortBox.GetText();
 
-		IEventPtr E1( new Event_Start_Server( mPort, 4 ) );
+		IEventPtr E1( new Event_Game_Start_Server( mPort, 4 ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
 		IEventPtr E2( new Event_Create_Player_Name( mNameBox.GetText() ) );
@@ -26,7 +26,7 @@ void MultiplayerMenuState::HandleInput()
 	{
 		mPort = mPortBox.GetText();
 
-		IEventPtr E1( new Event_Start_Server( mPort, 6 ) );
+		IEventPtr E1( new Event_Game_Start_Server( mPort, 6 ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
 		IEventPtr E2( new Event_Create_Player_Name( mNameBox.GetText() ) );
@@ -36,7 +36,7 @@ void MultiplayerMenuState::HandleInput()
 	{
 		mPort = mPortBox.GetText();
 
-		IEventPtr E1( new Event_Start_Server( mPort, 8 ) );
+		IEventPtr E1( new Event_Game_Start_Server( mPort, 8 ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
 		IEventPtr E2( new Event_Create_Player_Name( mNameBox.GetText() ) );

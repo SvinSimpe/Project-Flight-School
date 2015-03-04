@@ -160,10 +160,8 @@ void Server::ClientDied( IEventPtr eventPtr )
 		{
 			UINT killerID = data->KillerID();
 
-			for( auto& s : mShips )
-			{
-				s->mServerTurret->ClearTarget();
-			}
+			IEventPtr resetTurrets( new Event_Reset_Turret_Targets() );
+			EventManager::GetInstance()->QueueEvent( resetTurrets );
 
 			IEventPtr E1( new Event_Remote_Died( data->ID(), killerID ) );
 			BroadcastEvent( E1, data->ID() );
@@ -568,6 +566,17 @@ void Server::ChangeWeapon( IEventPtr eventPtr )
 		std::shared_ptr<Event_Client_Change_Weapon> data = std::static_pointer_cast<Event_Client_Change_Weapon>( eventPtr );
 		IEventPtr E1( new Event_Server_Change_Weapon( data->Weapon(), data->ID() ) );
 		BroadcastEvent( E1, data->ID() );
+	}
+}
+
+void Server::ResetTurretTargets( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Reset_Turret_Targets::GUID )
+	{
+		for( auto& s : mShips )
+		{
+			s->mServerTurret->ClearTarget();
+		}
 	}
 }
 
@@ -1003,6 +1012,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::SwitchTeam, this, Event_Client_Switch_Team::GUID );
 	EventManager::GetInstance()->AddListener( &Server::XP, this, Event_XP::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ChangeWeapon, this, Event_Client_Change_Weapon::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ResetTurretTargets, this, Event_Reset_Turret_Targets::GUID );
 
 	mCurrentPID				= 0;
 	mActive					= false;

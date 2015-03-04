@@ -107,7 +107,7 @@ HRESULT StateMachine::Initialize()
 	EventManager::GetInstance()->AddListener( &StateMachine::EventListener, this, Event_Change_State::GUID );
 	EventManager::GetInstance()->AddListener( &StateMachine::EventListener, this, Event_Connect_Client_Fail::GUID );
 	EventManager::GetInstance()->AddListener( &StateMachine::EventListener, this, Event_Connect_Server_Fail::GUID );
-
+	mStates[mCurrentState]->OnEnter();
 
 	return S_OK;
 }

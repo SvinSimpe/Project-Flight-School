@@ -268,7 +268,7 @@ bool SteerAvoidObjects::Update( float deltaTime, XMFLOAT3& totalForce )
 	{
 		XMFLOAT3 testPosition;
 		XMStoreFloat3( &testPosition, XMLoadFloat3( &mEnemy->GetPosition() ) + XMLoadFloat3( &mEnemy->GetVelocity() ) * mEnemy->GetSpeed() * f );
-	
+		
 		if( !Pathfinder::GetInstance()->IsOnNavMesh( testPosition ) )
 		{
 			XMFLOAT3 steeringForce = XMFLOAT3( 0.0f, 0.0f, 0.0f );

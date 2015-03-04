@@ -35,6 +35,8 @@ IEnemyBehavior::~IEnemyBehavior()
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT IdleBehavior::Update( float deltaTime )
 {
+	mEnemy->ChangeBehavior( MOVE_TO_SHIP_BEHAVIOR );
+
 	if( mEnemy->mIsAlive )
 	{
 		for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
@@ -177,6 +179,7 @@ HuntPlayerBehavior::~HuntPlayerBehavior()
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT MoveToShipBehavior::Update( float deltaTime )
 {
+	
 	return S_OK;
 }
 

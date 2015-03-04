@@ -18,7 +18,7 @@ void Enemy::CreateStandard()
 	mDamage						= 10.0f;
 	mSpeed						= 5.0f;
 	mAttackRadius->radius		= 0.5f;
-	mAttentionRadius->radius	= 15.0f;
+	mAttentionRadius->radius	= 5.0f;
 	mXpDrop						= 5;
 	mSpawnTime					= 10.0f;
 	mAttackRate					= 0.8f;
@@ -413,7 +413,7 @@ HRESULT Enemy::Initialize( int id, ServerPlayer** players, UINT NrOfPlayers, Ene
 	mAttackRadius		= new BoundingCircle( 1.0f );
 	mAttentionRadius	= new BoundingCircle( 1.0f );
 	mEvadeRadius		= new BoundingCircle( 2.0f );
-	
+
 	mBehaviors			= new IEnemyBehavior*[NR_OF_ENEMY_BEHAVIORS];
 
 	for ( size_t i = 0; i < NR_OF_ENEMY_BEHAVIORS; i++ )
@@ -487,7 +487,7 @@ Enemy::Enemy()
 	mPosition					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mDirection					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mAttackRadius				=  nullptr;
+	mAttackRadius				= nullptr;
 	mAttentionRadius			= nullptr;
 	mEvadeRadius				= nullptr;
 	mCurrentState				= Idle;

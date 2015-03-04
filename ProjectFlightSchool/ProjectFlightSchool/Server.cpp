@@ -582,6 +582,7 @@ void Server::StartUp( IEventPtr eventPtr )
 		Reset();
 		CreateShips();
 		CreateEnergyCells();
+		SetEnemySpawnerPositions();
 		
 		std::stringstream sstr;
 		sstr << port << " ";
@@ -798,6 +799,61 @@ void Server::CalculateCellSpawnPositions( XMFLOAT3 shipPosition )
 	}
 }
 
+void Server::SetEnemySpawnerPositions()
+{
+	CalculateEnemySpawnerPositions();
+
+	for (size_t i = 0; i < MAX_NR_OF_ENEMIES; i++)
+	{
+		mEnemies[i]->SetSpawnPos( GetNextSpawn() );
+		mEnemies[i]->Spawn();
+	}
+}
+
+void Server::CalculateEnemySpawnerPositions()
+{
+	float		radius					= 100.0f;
+	XMFLOAT3	enemySpawnerPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	float		spawnerAngle			= 0.0f;
+
+	// Calc position for own ship cells
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMY_SPAWNERS; i++ )
+	{
+		// Set distance from ship
+		enemySpawnerPosition.x += radius;
+
+		do
+		{
+			spawnerAngle = (float)( rand() % 360 + 1 );
+
+			// Get vector from ship to cell
+			XMVECTOR shipToCell = XMLoadFloat3( &enemySpawnerPosition ) - XMVectorSet( 0.0f, 0.0f, 0.0f, 0.0f );
+
+			// Rotate vector around ship by some random value
+			XMStoreFloat3( &enemySpawnerPosition, ( XMVector3TransformCoord( shipToCell, XMMatrixRotationY( -XMConvertToRadians( spawnerAngle ) ) ) ) );
+		}
+		while( !Pathfinder::GetInstance()->IsOnNavMesh(  enemySpawnerPosition ) || IsEnergyCellHere( enemySpawnerPosition ) );
+
+		// Add rotated vector to origo to get new cell position
+		XMStoreFloat3( &enemySpawnerPosition, XMVectorSet( 0.0f, 0.0f, 0.0f, 0.0f ) + XMLoadFloat3( &enemySpawnerPosition ) );
+
+		// Add to queue
+		mSpawners[i]->SetPosition( enemySpawnerPosition );
+		enemySpawnerPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	}
+}
+
+bool Server::IsEnergyCellHere( XMFLOAT3 checkPosition ) const
+{
+	for (size_t i = 0; i < MAX_ENERGY_CELLS; i++)
+	{
+		if( BoundingCircle( checkPosition , 1.0f ).Intersect( mEnergyCells[i]->GetPickUpRadius() ) )
+			return true;
+	}
+
+	return false;
+}
+
 bool Server::Connect( UINT port )
 {
 	mSocketManager = new SocketManager();
@@ -966,8 +1022,6 @@ bool Server::Initialize()
 		Y = ( rand() % 150 ) - 75;
 		mSpawners[i] = new EnemySpawn();
 		mSpawners[i]->Initialize( i );
-		//mSpawners[i]->SetPosition( XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
-		mSpawners[i]->SetPosition( XMFLOAT3( (float)(X), 0.0f, (float)(Y) ) );
 	}
 
 	mEnemies	= new Enemy*[MAX_NR_OF_ENEMIES];
@@ -975,8 +1029,6 @@ bool Server::Initialize()
 	{
 		mEnemies[i] = new Enemy();
 		mEnemies[i]->Initialize( i, mPlayers, mNrOfPlayers, mEnemies );
-		mEnemies[i]->SetSpawnPos( GetNextSpawn() );
-		mEnemies[i]->Spawn();
 	}
 
 	return true;

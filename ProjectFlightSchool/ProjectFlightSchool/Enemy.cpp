@@ -18,7 +18,7 @@ void Enemy::CreateStandard()
 	mDamage						= 10.0f;
 	mSpeed						= 5.0f;
 	mAttackRadius->radius		= 0.5f;
-	mAttentionRadius->radius	= 15.0f;
+	mAttentionRadius->radius	= 1500.0f;
 	mXpDrop						= 5;
 	mSpawnTime					= 10.0f;
 	mAttackRate					= 0.8f;
@@ -473,7 +473,7 @@ void Enemy::Release()
 	}
 	delete [] mBehaviors;
 
-	SAFE_DELETE( mSteeringBehaviorManager );
+	SAFE_RELEASE_DELETE( mSteeringBehaviorManager );
 }
 
 Enemy::Enemy()

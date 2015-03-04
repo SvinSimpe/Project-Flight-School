@@ -882,7 +882,7 @@ HRESULT PlayState::Update( float deltaTime )
 		mShips[FRIEND_SHIP]->AddEnergyCell( mShips[FRIEND_SHIP]->GetID() );
 	}
 
-	if( mShips[FRIEND_SHIP]->GetNrOfEnergyCells() == mNeededEnergyCells )
+	if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->GetNrOfEnergyCells() == mNeededEnergyCells )
 	{
 		guiUpdate.mEndGame = true;
 		guiUpdate.mWonGame = true;

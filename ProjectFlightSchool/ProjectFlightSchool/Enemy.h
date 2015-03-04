@@ -294,7 +294,6 @@ class SteeringBehaviorManager
 		std::vector<SteeringBehavior*>		mBehaviors;
 		std::vector<SteeringBehavior*>		mActive;
 		std::vector<float>					mActiveForce;
-		int									mNumberOfBehaviors;
 		Enemy*								mEnemy;
 		XMFLOAT3							mTotalSteeringForce;
 		float								mMaxSteeringForce;

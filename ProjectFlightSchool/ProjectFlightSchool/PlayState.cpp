@@ -827,15 +827,18 @@ HRESULT PlayState::Update( float deltaTime )
 
 	for( int i = 0; i < SHIP_AMOUNT; i++ )
 	{
-		mShips[i]->Update( deltaTime );
-		mRadarObjects[nrOfRadarObj].mRadarObjectPos = mShips[i]->GetPos();
-		if( i == FRIEND_SHIP )
+		if( mShips[i] )
 		{
-			mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_FRIENDLY;
-		}
-		else
-		{
-			mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_HOSTILE;
+			mShips[i]->Update( deltaTime );
+			mRadarObjects[nrOfRadarObj].mRadarObjectPos = mShips[i]->GetPos();
+			if( i == FRIEND_SHIP )
+			{
+				mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_FRIENDLY;
+			}
+			else
+			{
+				mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_HOSTILE;
+			}
 		}
 	}
 

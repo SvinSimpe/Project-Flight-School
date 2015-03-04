@@ -1045,6 +1045,17 @@ void Server::Reset()
 	{
 		mEnemies[i]->Reset();
 	}
+
+	if( mEnergyCells )
+	{
+		for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+		{
+			if( mEnergyCells[i] )
+				mEnergyCells[i]->Release();
+			SAFE_DELETE( mEnergyCells[i] );
+		}
+		SAFE_DELETE_ARRAY( mEnergyCells );
+	}
 }
 
 void Server::Release()
@@ -1096,13 +1107,16 @@ void Server::Release()
 	mClientMap.clear();
 
 	//Energy cells
-	for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+	if( mEnergyCells )
 	{
-		if( mEnergyCells[i] )
-			mEnergyCells[i]->Release();
-		SAFE_DELETE( mEnergyCells[i] );
+		for( int i = 0; i < MAX_ENERGY_CELLS; i++ )
+		{
+			if( mEnergyCells[i] )
+				mEnergyCells[i]->Release();
+			SAFE_DELETE( mEnergyCells[i] );
+		}
+		SAFE_DELETE_ARRAY( mEnergyCells );
 	}
-	SAFE_DELETE_ARRAY( mEnergyCells );
 }
 
 Server::Server() : Network()

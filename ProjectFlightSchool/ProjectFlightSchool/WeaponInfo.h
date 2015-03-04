@@ -600,45 +600,45 @@ struct MeleeInfo
 				{
 					case 2:
 					{
-						damage			= 15.0f;
-						radius			= 5.0f;
-						spread			= 7;
-						knockBack		= 3.2f;
-						boundingCircle	= new BoundingCircle( HAMMER_REACH );
-						stun			= 3.3f;
+						damage					= 15.0f;
+						radius					= 5.0f;
+						spread					= 7;
+						knockBack				= 3.2f;
+						boundingCircle->radius	= radius;
+						stun					= 3.3f;
 					}
 						break;
 
 					case 3:
 					{
-						damage			= 18.0f;
-						radius			= 5.0f;
-						spread			= 7;
-						knockBack		= 3.5f;
-						boundingCircle	= new BoundingCircle( HAMMER_REACH );
-						stun			= 3.5f;
+						damage					= 18.0f;
+						radius					= 5.0f;
+						spread					= 7;
+						knockBack				= 3.5f;
+						boundingCircle->radius	= radius;
+						stun					= 3.5f;
 					}
 						break;
 
 					case 4:
 					{
-						damage			= 24.0f;
-						radius			= 5.0f;
-						spread			= 7;
-						knockBack		= 3.8f;
-						boundingCircle	= new BoundingCircle( HAMMER_REACH );
-						stun			= 3.5f;
+						damage					= 24.0f;
+						radius					= 5.0f;
+						spread					= 7;
+						knockBack				= 3.8f;
+						boundingCircle->radius	= radius;
+						stun					= 3.5f;
 					}
 						break;
 
 					case 5:
 					{
-						damage			= 40.0f;
-						radius			= 5.0f;
-						spread			= 7;
-						knockBack		= 4.0f;
-						boundingCircle	= new BoundingCircle( HAMMER_REACH );
-						stun			= 3.5f;
+						damage					= 40.0f;
+						radius					= 5.0f;
+						spread					= 7;
+						knockBack				= 4.0f;
+						boundingCircle->radius	= radius;
+						stun					= 3.5f;
 					}
 						break;
 

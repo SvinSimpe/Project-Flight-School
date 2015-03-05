@@ -18,7 +18,7 @@ void Enemy::CreateStandard()
 	mDamage						= 10.0f;
 	mSpeed						= 5.0f;
 	mAttackRadius->radius		= 0.5f;
-	mAttentionRadius->radius	= 30.0f;
+	mAttentionRadius->radius	= 3000.0f;
 	mXpDrop						= 5;
 	mSpawnTime					= 10.0f;
 	mAttackRate					= 0.8f;
@@ -442,7 +442,7 @@ HRESULT Enemy::Initialize( int id, ServerPlayer** players, UINT NrOfPlayers, Ene
 	mSteeringBehaviorManager->AddBehavior(  new SteerAvoidObjects( this ) );
 	mSteeringBehaviorManager->SetUpBehavior( 0, 4.0f, 1.0f );
 	mSteeringBehaviorManager->SetUpBehavior( 1, 10.0f, 1.0f );
-	mSteeringBehaviorManager->SetUpBehavior( 2, 100.0f, 1.0f );
+	mSteeringBehaviorManager->SetUpBehavior( 2, 500.0f, 1.0f );
 
 	//EventManager::GetInstance()->AddListener( &Enemy::DamageFromPlayer, this, Event_Client_Projectile_Damage_Enemy::GUID );
 

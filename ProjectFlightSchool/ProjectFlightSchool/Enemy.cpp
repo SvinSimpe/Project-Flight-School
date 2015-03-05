@@ -222,7 +222,7 @@ void Enemy::Hunt( float deltaTime )
 	//mVelocity.z += totalSteeringForce.z;
 	//mVelocity.y += totalSteeringForce.y;
 
-	float interpolation = max( 0.0f, 1.0f - deltaTime * 0.1f );
+	float interpolation = max( 0.0f, 1.0f - deltaTime * 0.05f );
 
 	XMStoreFloat3( &mVelocity, XMLoadFloat3( &mVelocity ) * interpolation
 					+ XMLoadFloat3( &totalSteeringForce ) * ( 1.0f - interpolation ) );

@@ -139,12 +139,6 @@ struct RangedInfo
 		{
 			case MINIGUN:
 			{
-				/*attackRate		=	MINIGUN_AR;
-				damage			=	MINIGUN_DAMAGE;
-				range			=	MINIGUN_RANGE;
-				spread			=	MINIGUN_SPREAD;
-				areaOfEffect	=	MINIGUN_AOE;
-				projectileSpeed	=	MINIGUN_SPEED;*/
 				attackRate		=	MINIGUN_AR;
 				damage			=	MINIGUN_DAMAGE;
 				range			=	MINIGUN_RANGE;
@@ -215,56 +209,49 @@ struct RangedInfo
 				{
 					case 2:
 					{
-						attackRate		= 0.04f;
-						damage			= 1.5f;
+						attackRate		= 0.11f;
+						damage			= 0.9f;
 						range			= 1.0f;
-						spread			= 0.15f;
+						spread			= 4.7f;
 						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
-						overheat		= 0.0f;
+						overheat		= 0.8f;
 					}
 						break;
 
 					case 3:
 					{
-						attackRate		= 0.03f;
-						damage			= 2.0f;
+						attackRate		= 0.09f;
+						damage			= 1.2f;
 						range			= 1.5f;
-						spread			= 0.15f;
+						spread			= 4.3f;
 						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
-						overheat		= 0.0f;
+						overheat		= 0.6f;
 					}
 						break;
 
 					case 4:
 					{
-						attackRate		= 0.02f;
-						damage			= 2.8f;
+						attackRate		= 0.07f;
+						damage			= 1.5f;
 						range			= 2.0f;
-						spread			= 0.15f;
+						spread			= 4.0f;
 						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
-						overheat		= 0.0f;
+						overheat		= 0.3f;
 					}
 						break;
 
 					case 5:
 					{
-						//attackRate		= 0.01f;
-						//damage			= 3.0f;
-						//range			= 0.5f;
-						//spread			= 0.2f;
-						//areaOfEffect	= 0.0f;
-						//projectileSpeed	= 60.0f;
-
-						attackRate		= 0.02f;
-						damage			= 4.0f;
+						attackRate		= 0.05f;
+						damage			= 2.0f;
 						range			= 2.0f;
-						spread			= 0.15f;
+						spread			= 3.6f;
 						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
-						overheat		= 0.0f;
+						overheat		= 0.1f;
 					}
 						break;
 
@@ -278,21 +265,37 @@ struct RangedInfo
 				{
 					case 2:
 					{
+						attackRate		= 1.8f;
+						damage			= 2.2f;
+						spread			= 6.3f;
+						projectileSpeed	= 35.0f;
 					}
 						break;
 
 					case 3:
 					{
+						attackRate		= 1.6f;
+						damage			= 2.5f;
+						spread			= 5.6f;
+						projectileSpeed	= 40.0f;
 					}
 						break;
 
 					case 4:
 					{
+						attackRate		= 1.4f;
+						damage			= 2.7f;
+						spread			= 5.0f;
+						projectileSpeed	= 45.0f;
 					}
 						break;
 
 					case 5:
 					{
+						attackRate		= 1.1f;
+						damage			= 3.0f;
+						spread			= 4.5f;
+						projectileSpeed	= 50.0f;
 					}
 						break;
 
@@ -306,21 +309,37 @@ struct RangedInfo
 				{
 					case 2:
 					{
+						attackRate		= 2.8f;
+						damage			= 3.2f;
+						areaOfEffect	= 2.5f;
+						projectileSpeed	= 30.0f;
 					}
 						break;
 
 					case 3:
 					{
+						attackRate		= 2.5f;
+						damage			= 3.7f;
+						areaOfEffect	= 3.0f;
+						projectileSpeed	= 30.0f;
 					}
 						break;
 
 					case 4:
 					{
+						attackRate		= 2.2f;
+						damage			= 4.0f;
+						areaOfEffect	= 3.5f;
+						projectileSpeed	= 30.0f;
 					}
 						break;
 
 					case 5:
 					{
+						attackRate		= 2.0f;
+						damage			= 4.5f;
+						areaOfEffect	= 3.7f;
+						projectileSpeed	= 30.0f;
 					}
 						break;
 
@@ -334,21 +353,29 @@ struct RangedInfo
 				{
 					case 2:
 					{
+						attackRate		= 3.0f;
+						damage			= 5.0f;
 					}
 						break;
 
 					case 3:
 					{
+						attackRate		= 2.7f;
+						damage			= 6.0f;
 					}
 						break;
 
 					case 4:
 					{
+						attackRate		= 2.4f;
+						damage			= 7.0f;
 					}
 						break;
 
 					case 5:
 					{
+						attackRate		= 2.0f;
+						damage			= 8.0f;
 					}
 						break;
 

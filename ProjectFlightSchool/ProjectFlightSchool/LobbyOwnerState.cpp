@@ -41,9 +41,25 @@ HRESULT LobbyOwnerState::Render( float deltaTime )
 	}
 
 	mBackButton.Render();
+	mReadyButton.Render();
 	mChooseWeaponButton.Render();
 	mChooseWeaponText.Render();
 	mStartButton.Render();
+
+	for( size_t i = 0; i < mPlayers.size(); i++ )
+	{
+		if( mPlayers[i]->thisPlayer )
+		{
+			if( mPlayers[i]->isReady )
+			{
+				OutputDebugStringA( "Ready!\n" );
+			}
+			else
+			{
+				OutputDebugStringA( "Not ready!\n" );
+			}
+		}
+	}
 
 	if( mLoadOutMenu.IsActive() )
 	{

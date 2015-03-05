@@ -573,6 +573,16 @@ void Server::ResetTurretTargets( IEventPtr eventPtr )
 	}
 }
 
+void Server::ClientChangeReady( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Change_Ready_State::GUID )
+	{
+		std::shared_ptr<Event_Client_Change_Ready_State> data = std::static_pointer_cast<Event_Client_Change_Ready_State>( eventPtr );
+		IEventPtr E1( new Event_Server_Change_Ready_State( data->ID(), data->IsReady() ) );
+		BroadcastEvent( E1 );
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

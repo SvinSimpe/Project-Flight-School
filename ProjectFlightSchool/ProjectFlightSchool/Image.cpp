@@ -1,5 +1,10 @@
 #include "Image.h"
 
+void Image::SetImage( AssetID texture )
+{
+	m2DTexture = texture;
+}
+
 void Image::Render()
 {
 	RenderManager::GetInstance()->AddObject2dToList( m2DTexture, DirectX::XMFLOAT2( (float)mUpperLeft.x, (float)mUpperLeft.y ), DirectX::XMFLOAT2( mWidth, mHeight ) );

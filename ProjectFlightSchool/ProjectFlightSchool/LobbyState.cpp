@@ -126,6 +126,17 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 			mMyID = data->ID();
 		}
 	}
+	else if( newEvent->GetEventType() == Event_Server_Change_Ready_State::GUID )
+	{
+		std::shared_ptr<Event_Server_Change_Ready_State> data = std::static_pointer_cast<Event_Server_Change_Ready_State>( newEvent );
+		for( size_t i = 0; i < mPlayers.size(); i++ )
+		{
+			if( mPlayers[i]->ID == data->ID() )
+			{
+				mPlayers[i]->isReady = data->IsReady();
+			}
+		}
+	}
 }
 
 void LobbyState::HandleInput()
@@ -151,6 +162,26 @@ void LobbyState::HandleInput()
 		IEventPtr E1( new Event_Reset_Game() );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
+	if( mReadyButton.LeftMousePressed() )
+	{
+		for( size_t i = 0; i < mPlayers.size(); i++ )
+		{
+			if( mPlayers[i]->thisPlayer )
+			{
+				if( mPlayers[i]->isReady )
+				{
+					mPlayers[i]->isReady = false;
+				}
+				else
+				{
+					mPlayers[i]->isReady = true;
+				}
+				IEventPtr E1( new Event_Client_Change_Ready_State( mPlayers[i]->ID, mPlayers[i]->isReady ) );
+				EventManager::GetInstance()->QueueEvent( E1 );
+				break;
+			}
+		}
+	}
 	if( mChooseWeaponButton.LeftMousePressed() )
 	{
 		mLoadOutMenu.Activate();
@@ -170,6 +201,7 @@ HRESULT LobbyState::Update( float deltaTime )
 		mPlayers[i]->button.Update( deltaTime );
 	}
 	mBackButton.Update( deltaTime );
+	mReadyButton.Update( deltaTime );
 
 	if( mLoadOutMenu.IsActive() )
 	{
@@ -178,6 +210,21 @@ HRESULT LobbyState::Update( float deltaTime )
 	else
 	{
 		HandleInput();
+	}
+
+	for( size_t i = 0; i < mPlayers.size(); i++ )
+	{
+		if( mPlayers[i]->thisPlayer )
+		{
+			if( mPlayers[i]->isReady )
+			{
+				mReadyButton.SetImage( mReadyImg );
+			}
+			else
+			{
+				mReadyButton.SetImage( mNotReadyImg );
+			}
+		}
 	}
 
 	mChooseWeaponButton.Update( deltaTime );
@@ -206,6 +253,7 @@ HRESULT LobbyState::Render( float deltaTime )
 	}
 
 	mBackButton.Render();
+	mReadyButton.Render();
 	mChooseWeaponButton.Render();
 	mChooseWeaponText.Render();
 
@@ -242,6 +290,7 @@ void LobbyState::Reset()
 		SAFE_DELETE( mPlayers[i] );
 	}
 	mBackButton.SetExitCooldown();
+	mReadyButton.SetExitCooldown();
 	mChooseWeaponButton.SetExitCooldown();
 	mPlayers.clear();
 	mMyID = (UINT)-1;
@@ -257,12 +306,17 @@ HRESULT LobbyState::Initialize()
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/lobby_loadout_menu/lobbyNameFrame.dds", mBackground ); //Laddar in bilden till knapparna så att deras initialize bara får en int och inte laddar nnya bilder.
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/lobby_loadout_menu/lobbyMenu.dds", mBackground );
 
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/lobby_loadout_menu/ready.png", mReadyImg );
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/lobby_loadout_menu/notReady.png", mNotReadyImg );
+
+
 	mStateType = LOBBY_STATE;
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Initialize_LobbyPlayer::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Switch_Team::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Lobby_Finished::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Remote_Left::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Local_Joined::GUID );
+	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Change_Ready_State::GUID );
 
 	mStreamSoundAsset = SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav" );
 	//float x = ( (float)Input::GetInstance()->mScreenWidth * 0.9f ) - 650.0f;
@@ -271,9 +325,12 @@ HRESULT LobbyState::Initialize()
 	//float h = 200.0f;
 
 	//mBackButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/textBack.dds", x, y, w, h );
+
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Connect_Server_Success::GUID );
-	
+
 	mBackButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/textBack.dds", 70.0f, 760.0f, 200.0f, 200.0f );
+	mReadyButton.Initialize( "", 1665.0f, 550.0f, 200.0, 200.0 );
+	mReadyButton.SetImage( mNotReadyImg );
 	mLoadOutMenu.Initialize();
 
 	mChooseWeaponButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/changeYourWeaponFrame.dds", 875.0f, 820.0f, 184.0f, 152.0f );
@@ -286,6 +343,7 @@ void LobbyState::Release()
 {
 	mFont.Release();
 	mBackButton.Release();
+	mReadyButton.Release();
 	for( size_t i = 0; i < mPlayers.size(); i++ )
 	{
 		mPlayers[i]->button.Release();
@@ -305,6 +363,8 @@ LobbyState::LobbyState()
 	mTeamOneXPos	= 415.0f;
 	mTeamTwoXPos	= 1190.0f;
 	mMyID			= (UINT)-1;
+	mReadyImg		= CUBE_PLACEHOLDER;
+	mNotReadyImg	= CUBE_PLACEHOLDER;
 }
 
 LobbyState::~LobbyState()

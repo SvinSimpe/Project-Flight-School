@@ -16,6 +16,7 @@ class Image : public Entry
 	private:
 	protected:
 	public:
+		void			SetImage( AssetID texture );
 		virtual void	Render();
 		virtual bool	Update( float deltaTime );
 		virtual void	Initialize( std::string assetPath, float x, float y, float width, float height );

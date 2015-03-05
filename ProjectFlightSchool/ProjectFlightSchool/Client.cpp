@@ -191,6 +191,9 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Client_Change_Weapon );
 	EF::REGISTER_EVENT( Event_Server_Change_Weapon );
 	EF::REGISTER_EVENT( Event_Reset_Turret_Targets );
+	
+	EF::REGISTER_EVENT( Event_Client_Change_Ready_State );
+	EF::REGISTER_EVENT( Event_Server_Change_Ready_State );
 
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	EventManager::GetInstance()->AddListener( &Client::Shutdown, this, Event_Shutdown_Client::GUID );

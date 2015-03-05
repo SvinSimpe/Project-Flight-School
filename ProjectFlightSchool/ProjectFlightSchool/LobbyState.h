@@ -20,6 +20,7 @@ struct LobbyPlayer
 	XMFLOAT2		size = XMFLOAT2( 328.0f, 64.0f );
 	Button			button;
 	bool			thisPlayer = false;
+	bool			isReady = false;
 };
 
 class LobbyState : public BaseState
@@ -34,6 +35,9 @@ class LobbyState : public BaseState
 		AssetID						mBackground;
 		bool						mActive;
 		MovingButton				mBackButton;
+		AssetID						mReadyImg;
+		AssetID						mNotReadyImg;
+		MovingButton				mReadyButton;
 		LoadOutMenu					mLoadOutMenu;
 		Button						mChooseWeaponButton;
 		Image						mChooseWeaponText;

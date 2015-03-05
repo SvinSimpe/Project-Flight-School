@@ -310,7 +310,7 @@ void LobbyState::Reset()
 	mReadyButton.SetExitCooldown();
 	mChooseWeaponButton.SetExitCooldown();
 	mPlayers.clear();
-	mMyID = (UINT)-1;
+	mMyID = (UINT)-1;	
 }
 
 HRESULT LobbyState::Initialize()

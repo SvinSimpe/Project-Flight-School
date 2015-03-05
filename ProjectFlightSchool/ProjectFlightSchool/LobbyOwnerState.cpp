@@ -4,8 +4,27 @@ void LobbyOwnerState::HandleInput()
 {
 	if( mStartButton.LeftMousePressed() )
 	{
-		IEventPtr E1( new Event_Client_Lobby_Finished() );
-		Client::GetInstance()->SendEvent( E1 );
+		// check here if teams are even
+
+		// check here if all players are ready
+		bool allReady = true;
+		for( size_t i = 0; i < mPlayers.size(); i++ )
+		{
+			if( !mPlayers[i]->isReady )
+			{
+				allReady = false;
+				mWarningTexts[ALL_READY].timer = MAX_TEXT_TIME;
+				break;
+			}
+		}
+
+		// check here if game is full
+
+		if( allReady )
+		{
+			IEventPtr E1( new Event_Client_Lobby_Finished() );
+			Client::GetInstance()->SendEvent( E1 );
+		}
 	}
 }
 
@@ -58,7 +77,24 @@ HRESULT LobbyOwnerState::Render( float deltaTime )
 	{
 		mLoadOutMenu.Render();
 	}
-	
+
+	for( int i = 0; i < WARNING_AMOUNT; i++ )
+	{
+		if( mWarningTexts[i].timer > 0.0f )
+		{
+			float offset = mFont.GetMiddleXPoint( mWarningTexts[i].text, 3.0f ); 
+			float textShadowWidth = 1.0f;
+			mFont.WriteText( mWarningTexts[i].text, (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 570.0f + textShadowWidth + ((LETTER_HEIGHT * 3.0f) * i), 3.0f, DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f ) );
+			mFont.WriteText( mWarningTexts[i].text, (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 570.0f + textShadowWidth + ((LETTER_HEIGHT * 3.0f) * i), 3.0f, DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f ) );
+			mFont.WriteText( mWarningTexts[i].text, (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 570.0f - textShadowWidth + ((LETTER_HEIGHT * 3.0f) * i), 3.0f, DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f ) );
+			mFont.WriteText( mWarningTexts[i].text, (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 570.0f - textShadowWidth + ((LETTER_HEIGHT * 3.0f) * i), 3.0f, DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f ) );
+
+			mFont.WriteText( mWarningTexts[i].text, (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset, 570.0f + ((LETTER_HEIGHT * 3.0f) * i), 3.0f, COLOR_ORANGE );
+		}
+		mWarningTexts[i].timer -= deltaTime;
+	}
+	mCurrentTextTime -= deltaTime;
+
 	RenderManager::GetInstance()->Render();
 
 	return hr;
@@ -73,6 +109,9 @@ void LobbyOwnerState::OnExit()
 HRESULT LobbyOwnerState::Initialize()
 {
 	mStartButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/startText.dds", 1665.0f, 760.0f, 200.0f, 200.0f );
+	mWarningTexts[EVEN_TEAMS].text = "Teams has to be even before starting game!";
+	mWarningTexts[ALL_READY].text = "Every player has to be ready before starting game!";
+	mWarningTexts[FULL_GAME].text = "Server has to be full before starting game!";
 
 	return LobbyState::Initialize();
 }
@@ -86,6 +125,7 @@ void LobbyOwnerState::Release()
 LobbyOwnerState::LobbyOwnerState()
 {
 	LobbyState::LobbyState();
+	mCurrentTextTime	= 0.0f;
 }
 
 LobbyOwnerState::~LobbyOwnerState()

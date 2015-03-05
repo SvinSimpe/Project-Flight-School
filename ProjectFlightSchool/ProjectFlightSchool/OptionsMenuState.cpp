@@ -104,7 +104,7 @@ HRESULT OptionsMenuState::Initialize()
 		x += (float)Input::GetInstance()->mScreenWidth  * 0.1f;
 	}
 
-	mInOptionsBackground.Initialize( "../Content/Assets/Textures/Menu/helpOverlay_menu.dds", 0.0f, 0.0f, Input::GetInstance()->mScreenWidth, Input::GetInstance()->mScreenHeight );
+	mInOptionsBackground.Initialize( "../Content/Assets/Textures/Menu/helpOverlay_menu.dds", 0.0f, 0.0f, (float)Input::GetInstance()->mScreenWidth, (float)Input::GetInstance()->mScreenHeight );
 
 	return S_OK;
 }

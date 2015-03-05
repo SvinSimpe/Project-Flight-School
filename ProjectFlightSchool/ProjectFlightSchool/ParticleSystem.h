@@ -31,6 +31,11 @@ struct ParticleSystem : public ParticleData
 
 		switch ( particleType )
 		{
+			case Shell:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/shell.dds", assetID );
+				break;
+			}
 			case Debris:
 			{
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireflyParticle.dds", assetID );
@@ -170,6 +175,11 @@ struct ParticleSystem : public ParticleData
 			SetRandomRotation( particleCount );
 			SetRandomDeathTime( 1, 3, particleCount );
 		}
+		else if(particleType == Shell )
+		{
+			SetRandomRotation( particleCount );
+			SetRandomDeathTime( 2, 4, particleCount );
+		}
 		else if(particleType == Debris )
 		{
 			SetRandomRotation( particleCount );
@@ -259,7 +269,8 @@ struct ParticleSystem : public ParticleData
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{
-		if( particleType == Debris )				Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(0, 5),  30.0f );
+		if( particleType == Shell )				Generate( emitterPosition, emitterDirection, 1,  10.0f );
+		else if( particleType == Debris )				Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(0, 5),  30.0f );
 		else if( particleType == NormalSmoke )		Generate( emitterPosition, emitterDirection, 6,  120.0f );
 		else if( particleType == BlowTorchIdle )	Generate( emitterPosition, emitterDirection, 32, 2.0f );
 		else if( particleType == BlowTorchFire )	Generate( emitterPosition, emitterDirection, 32, 4.0f );
@@ -290,6 +301,12 @@ struct ParticleSystem : public ParticleData
 		// Update logic based on Particle type
 		switch( particleType )
 		{
+			case Shell: 
+			{
+				// Update Debris logic here
+				ShellLogic( deltaTime );
+				break;
+			}	
 			case Debris: 
 			{
 				// Update Debris logic here
@@ -459,6 +476,27 @@ struct ParticleSystem : public ParticleData
 			yPosition[i] += 0.05f * ( 1.0f - damping[i] );
 		}
 	}
+
+	void ShellLogic( float deltaTime )
+	{
+		for ( int i = 0; i < nrOfParticlesAlive; i++ )
+		{
+			if ( yPosition[i] < 0 )
+			{
+				if ( damping[i] > 0 )
+					damping[i] -= 0.03f;
+				else
+					damping[i] = 0.0f;
+
+				yVelocity[i] = ( yVelocity[i] * -1 ) * damping[i];
+			}
+			else
+			{
+				yVelocity[i] -= 1.0f;
+			}
+		}
+	}
+
 	void DebrisLogic( float deltaTime )
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )

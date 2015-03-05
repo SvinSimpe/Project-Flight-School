@@ -10,7 +10,6 @@
 class ServerShip : public GameObject
 {
 	private:
-		BoundingCircle* mHitCircle;
 		friend class Server;
 		const UINT MIN_LEVEL = 1;
 		const UINT MAX_LEVEL = 3;
@@ -19,6 +18,7 @@ class ServerShip : public GameObject
 	protected:
 		ServerTurret*	mServerTurret;
 		BoundingCircle* mBuffCircle;
+		BoundingCircle* mHitCircle;
 		UINT			mID;
 		UINT			mTeamID;
 		XMFLOAT4X4		mWorld;
@@ -36,6 +36,7 @@ class ServerShip : public GameObject
 		UINT			mEngineLevel;
 
 		bool			mWasUpdated;
+		bool			mIsAlive;
 
 
 	public:
@@ -63,6 +64,8 @@ class ServerShip : public GameObject
 
 		UINT			GetID() const;
 		BoundingCircle*	GetHitCircle() const;
+		bool			IsAlive() const;
+		UINT			GetTeamID() const;
 		virtual bool	TakeDamage( float damage );
 		virtual bool	Intersect( BoundingCircle* entity ); // Will check for intersects with buffable players
 		virtual void	Update( float deltaTime );

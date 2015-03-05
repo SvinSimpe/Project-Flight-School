@@ -15,7 +15,7 @@
 
 class Enemy;
 
-#define MAX_NR_OF_ENEMIES		80
+#define MAX_NR_OF_ENEMIES		40
 
 #define randflt() (((float) rand())/((float) RAND_MAX))
 
@@ -359,6 +359,7 @@ class Enemy
 		unsigned int		mID;
 		EnemyType			mEnemyType;
 		EnemyState			mCurrentState;
+		EnemyState			mLastState;
 		float				mCurrentHp;
 		float				mMaxHp;
 		float				mDamage;

@@ -126,7 +126,7 @@ HRESULT Enemy::Update( float deltaTime, ServerPlayer** players, UINT NrOfPlayers
 {
 	mDeltaTime		= deltaTime;
 
-	mSteeringBehaviorManager->Update( deltaTime );
+	//mSteeringBehaviorManager->Update( deltaTime );
 
 	XMStoreFloat3( &mVelocity, XMVector3Normalize( XMLoadFloat3( &mVelocity ) ) );
 
@@ -225,6 +225,7 @@ void Enemy::SetShipTarget( UINT id, std::vector<ServerShip*>& ships )
 
 void Enemy::Hunt( float deltaTime )
 {
+	mSteeringBehaviorManager->Update( deltaTime );
 	XMFLOAT3 totalSteeringForce = mSteeringBehaviorManager->GetFinalSteeringForce();
 
 	/*mVelocity.x = mPlayers[mTargetIndex]->Pos.x - mPosition.x;

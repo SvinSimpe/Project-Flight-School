@@ -35,7 +35,10 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 			}
 			player->button.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/lobbyNameFrame.dds", pos.x, pos.y, player->size.x, player->size.y );
 			mPlayers.push_back( player );
-			printf( "Lobby:: Ny Spelare: %d, blev lag %d\n", player->ID, player->team );
+			if( data->ID() == mMyID )
+			{
+				mPlayers.back()->thisPlayer = true;
+			}
 		}
 	}
 	else if( newEvent->GetEventType() == Event_Server_Switch_Team::GUID && mActive )
@@ -115,13 +118,21 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 		IEventPtr E1( new Event_Change_State( LOBBY_OWNER_STATE ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
+	else if( newEvent->GetEventType() == Event_Local_Joined::GUID )
+	{
+		std::shared_ptr<Event_Local_Joined> data = std::static_pointer_cast<Event_Local_Joined>( newEvent );
+		if( mMyID == (UINT)-1 )
+		{
+			mMyID = data->ID();
+		}
+	}
 }
 
 void LobbyState::HandleInput()
 {
 	for( size_t i = 0; i < mPlayers.size(); i++ )
 	{
-		if( mPlayers[i]->button.LeftMousePressed() )
+		if( mPlayers[i]->thisPlayer && mPlayers[i]->button.LeftMousePressed() )
 		{
 			if( mPlayers[i]->team == 1 )
 			{
@@ -233,6 +244,7 @@ void LobbyState::Reset()
 	mBackButton.SetExitCooldown();
 	mChooseWeaponButton.SetExitCooldown();
 	mPlayers.clear();
+	mMyID = (UINT)-1;
 }
 
 HRESULT LobbyState::Initialize()
@@ -250,6 +262,7 @@ HRESULT LobbyState::Initialize()
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Switch_Team::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Lobby_Finished::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Remote_Left::GUID );
+	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Local_Joined::GUID );
 
 	mStreamSoundAsset = SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav" );
 	//float x = ( (float)Input::GetInstance()->mScreenWidth * 0.9f ) - 650.0f;
@@ -291,6 +304,7 @@ LobbyState::LobbyState()
 	mPlayers		= std::vector<LobbyPlayer*>( 0 );
 	mTeamOneXPos	= 415.0f;
 	mTeamTwoXPos	= 1190.0f;
+	mMyID			= (UINT)-1;
 }
 
 LobbyState::~LobbyState()

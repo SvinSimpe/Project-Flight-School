@@ -13,12 +13,13 @@
 
 struct LobbyPlayer
 {
-	int				ID;
-	std::string		name;
-	int				team;
-	XMFLOAT2		position;
+	UINT			ID = (UINT)-1;
+	std::string		name = "";
+	UINT			team = (UINT)-1; 
+	XMFLOAT2		position = XMFLOAT2(0.0f, 0.0f);
 	XMFLOAT2		size = XMFLOAT2( 328.0f, 64.0f );
 	Button			button;
+	bool			thisPlayer = false;
 };
 
 class LobbyState : public BaseState
@@ -37,6 +38,7 @@ class LobbyState : public BaseState
 		Button						mChooseWeaponButton;
 		Image						mChooseWeaponText;
 		int							mStreamSoundAsset;
+		UINT						mMyID;
 
 	public:
 

@@ -264,17 +264,28 @@ SteerWander::~SteerWander() { }
 
 bool SteerAvoidObjects::Update( float deltaTime, XMFLOAT3& totalForce )
 {
-	for( float f = 1.0f; f < 2.1f; f += 0.2f )
+	XMFLOAT3 rightVec;
+	XMStoreFloat3( &rightVec, XMVector3Cross( -XMLoadFloat3( &mEnemy->GetVelocity() ), XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ) ) );
+	XMFLOAT3 testPosition;
+
+	XMStoreFloat3( &testPosition, XMVector3TransformNormal( XMLoadFloat3( &testPosition ), XMMatrixRotationY( -1.0f ) ) );
+	bool check = Pathfinder::GetInstance()->IsOnNavMesh( testPosition );
+
+	XMStoreFloat3( &testPosition, XMLoadFloat3( &mEnemy->GetPosition() ) + XMLoadFloat3( &mEnemy->GetVelocity() ) * mEnemy->GetSpeed() );
+	bool nextPosIsOnNav = Pathfinder::GetInstance()->IsOnNavMesh( testPosition );
+
+	if( !Pathfinder::GetInstance()->IsOnNavMesh( mEnemy->GetPosition() ) )
 	{
-		XMFLOAT3 testPosition;
-		XMStoreFloat3( &testPosition, XMLoadFloat3( &mEnemy->GetPosition() ) + XMLoadFloat3( &mEnemy->GetVelocity() ) * mEnemy->GetSpeed() * f );
-	
-		if( !Pathfinder::GetInstance()->IsOnNavMesh( testPosition ) )
+		XMFLOAT3 steeringForce = nextPosIsOnNav ? mEnemy->GetVelocity() : rightVec;
+		totalForce.x	+= steeringForce.x;
+		totalForce.z	+= steeringForce.z;
+		totalForce.y	 = 0.0f;
+	}
+	else
+	{
+		if( !nextPosIsOnNav )
 		{
-			XMFLOAT3 steeringForce = XMFLOAT3( 0.0f, 0.0f, 0.0f );
-			XMStoreFloat3( &steeringForce, XMVector3Cross( -XMLoadFloat3( &mEnemy->GetVelocity() ), XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ) ) / f );
-			//XMStoreFloat3( &steeringForce, -XMLoadFloat3( &mEnemy->GetVelocity() ) );
-			//SteerTowards( XMFLOAT3( 0.0f, 0.0f, 0.0f ), steeringForce );
+			XMFLOAT3 steeringForce = !check ? rightVec : XMFLOAT3( -rightVec.x, -rightVec.y, -rightVec.z );
 			totalForce.x	+= steeringForce.x;
 			totalForce.z	+= steeringForce.z;
 			totalForce.y	 = 0.0f;

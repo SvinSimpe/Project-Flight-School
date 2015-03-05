@@ -10,7 +10,8 @@ class LobbyOwnerState : public LobbyState
 		static const int
 			ALL_READY		= 0,
 			FULL_GAME		= 1,
-			WARNING_AMOUNT	= 2;
+			BALANCE_TEAMS	= 2,
+			WARNING_AMOUNT	= 3;
 
 		struct activatedString
 		{
@@ -19,7 +20,7 @@ class LobbyOwnerState : public LobbyState
 		};
 
 		MovingButton	mStartButton;
-		const float		MAX_TEXT_TIME = 5.0f;
+		const float		MAX_TEXT_TIME = 3.0f;
 		float			mCurrentTextTime;
 		activatedString	mWarningTexts[WARNING_AMOUNT];
 		UINT			mMaxPlayers;
@@ -30,6 +31,8 @@ class LobbyOwnerState : public LobbyState
 	// Class functions
 	private:
 		void	EventListener( IEventPtr eventPtr );
+		void	ManageStartButton();
+		void	BalanceTeams( std::vector<LobbyPlayer*> biggerTeam, std::vector<LobbyPlayer*> smallerTeam );
 		void	HandleInput();
 
 	protected:

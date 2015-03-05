@@ -179,14 +179,14 @@ void LobbyState::HandleInput()
 			{
 				if( mPlayers[i]->isReady )
 				{
-					IEventPtr E1( new Event_Client_Change_Ready_State( mPlayers[i]->ID, false ) );
-					Client::GetInstance()->SendEvent( E1 );
+					mPlayers[i]->isReady = false;
 				}
 				else
 				{
-					IEventPtr E1( new Event_Client_Change_Ready_State( mPlayers[i]->ID, true ) );
-					Client::GetInstance()->SendEvent( E1 );
+					mPlayers[i]->isReady = true;
 				}
+				IEventPtr E1( new Event_Client_Change_Ready_State( mPlayers[i]->ID, true ) );
+				Client::GetInstance()->SendEvent( E1 );
 				break;
 			}
 		}

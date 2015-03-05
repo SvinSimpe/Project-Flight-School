@@ -579,7 +579,7 @@ void Server::ClientChangeReady( IEventPtr eventPtr )
 	{
 		std::shared_ptr<Event_Client_Change_Ready_State> data = std::static_pointer_cast<Event_Client_Change_Ready_State>( eventPtr );
 		IEventPtr E1( new Event_Server_Change_Ready_State( data->ID(), data->IsReady() ) );
-		BroadcastEvent( E1 );
+		BroadcastEvent( E1, data->ID() );
 	}
 }
 

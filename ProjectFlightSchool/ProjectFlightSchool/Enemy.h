@@ -11,6 +11,7 @@
 #include <math.h>
 #include "EventManager.h"
 #include "Pathfinder.h"
+#include "ServerShip.h"
 
 class Enemy;
 
@@ -358,6 +359,7 @@ class Enemy
 		unsigned int		mID;
 		EnemyType			mEnemyType;
 		EnemyState			mCurrentState;
+		EnemyState			mLastState;
 		float				mCurrentHp;
 		float				mMaxHp;
 		float				mDamage;
@@ -372,12 +374,16 @@ class Enemy
 		unsigned int		mXpDrop;
 		UINT				mTargetID;
 		UINT				mTargetIndex;
+		UINT				mTargetShipID;
+		UINT				mTargetShipIndex;
 		bool				mTakingDamage;
 		bool				mHasEvaded;
 		bool				mHasSpawnPos;
 		XMFLOAT3			mSpawnPos;
 
-		ServerPlayer**		mPlayers;
+		ServerPlayer**					mPlayers;
+		std::vector<ServerShip*>		mShips;
+		
 		UINT				mNrOfPlayers;
 		Enemy**				mOtherEnemies;
 
@@ -423,6 +429,7 @@ class Enemy
 
 		void				AddImpuls( XMFLOAT3 impuls );
 		void				SetTarget( UINT id );
+		void				SetShipTarget( UINT id, std::vector<ServerShip*>& ships );
 		void				Hunt( float deltaTime );
 		void				HandleSpawn();
 		void				Spawn();

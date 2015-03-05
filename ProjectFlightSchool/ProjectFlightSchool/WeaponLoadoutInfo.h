@@ -13,26 +13,26 @@
 
 // Minigun
 #define MINIGUN_AR			0.05f	// Attack Rate
-#define MINIGUN_DAMAGE		2.0f	// Damage
-#define MINIGUN_RANGE		0.8f	// Range
-#define MINIGUN_SPREAD		0.1f	// Spread
+#define MINIGUN_DAMAGE		0.6f	// Damage
+#define MINIGUN_RANGE		0.6f	// Range
+#define MINIGUN_SPREAD		0.0015f	// Spread
 #define MINIGUN_AOE			5.0f	// Area of effect
-#define MINIGUN_SPEED		40.0f	// Projectile Speed 30
+#define MINIGUN_SPEED		45.0f	// Projectile Speed 30
 #define MINIGUN_OFFSETS		XMFLOAT3( 0.75f, 0.5f, 1.3f ) // Offsets forward, right, up
 #define MINIGUN_OVERHEAT_CD 2.0f	// Cooldown that occurs when the minigun overheats	
 #define MINIGUN_OVERHEAT	1.0f	// Amount of heat the minigun get's for firing once
 // Shotgun
-#define SHOTGUN_AR			1.0f	// Attack Rate
+#define SHOTGUN_AR			2.0f	// Attack Rate
 #define SHOTGUN_DAMAGE		3.0f	// Damage
 #define SHOTGUN_RANGE		0.3f	// Range
-#define SHOTGUN_SPREAD		0.0f	// Spread
+#define SHOTGUN_SPREAD		1.0f	// Spread
 #define SHOTGUN_AOE			0.0f	// Area of effect
-#define SHOTGUN_SPEED		40.0f	// Projectile Speed 35
+#define SHOTGUN_SPEED		30.0f	// Projectile Speed 35
 #define SHOTGUN_OFFSETS		XMFLOAT3( 0.93f, 0.5f, 1.45f ) // Offsets forward, right, up
 
 // Grenade Launcher
-#define GL_AR				1.0f	// Attack Rate
-#define GL_DAMAGE			15.0f	// Damage
+#define GL_AR				3.0f	// Attack Rate
+#define GL_DAMAGE			3.0f	// Damage
 #define GL_RANGE			25.0f	// Range
 #define GL_SPREAD			0.0f	// Spread
 #define GL_AOE				2.0f	// Area of effect
@@ -40,12 +40,12 @@
 #define GL_OFFSETS			XMFLOAT3( 0.92f, 0.5f, 1.45f ) // Offsets forward, right, up
 
 // Sniper
-#define SNIPER_AR			2.5f	// Attack Rate
-#define SNIPER_DAMAGE		20.0f	// Damage
+#define SNIPER_AR			3.2f	// Attack Rate
+#define SNIPER_DAMAGE		4.0f	// Damage
 #define SNIPER_RANGE		5.0f	// Range
 #define SNIPER_SPREAD		0.0f	// Spread
 #define SNIPER_AOE			0.0f	// Area of effect
-#define SNIPER_SPEED		90.0f	// Projectile Speed 90
+#define SNIPER_SPEED		50.0f	// Projectile Speed 90
 #define SNIPER_OFFSETS		XMFLOAT3( 1.15f, 0.45f, 1.9f ) // Offsets forward, right, up
 
 //////////////////////////////////

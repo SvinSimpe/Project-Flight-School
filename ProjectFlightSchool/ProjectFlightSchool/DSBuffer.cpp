@@ -49,7 +49,7 @@ HRESULT DSBuffer::CreateBasicBuffer( LPDIRECTSOUND8 lpDirectSound, WaveHeaderTyp
 	return hr;
 }
 
-bool DSBuffer::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName )
+bool DSBuffer::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName, LONG volume )
 {
 	///////////////////////////Read header
 	WaveHeaderType	waveFileHeader;
@@ -210,7 +210,7 @@ bool DSBuffer::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName )
 	waveData = 0;
 
 	// Set volume of the buffer to 100%.
-	hr = mBuffer->SetVolume( -2000  ); // mellan 0 och -10 000
+	hr = mBuffer->SetVolume( -volume  ); // mellan 0 och -10 000
 	if ( FAILED( hr ) )
 	{
 		printf( "SetVolume in main has failed\n" );
@@ -277,11 +277,11 @@ void DSBuffer::SoundOff()
 	mBuffer->SetVolume( DSBVOLUME_MIN );
 }
 
-bool DSBuffer::Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID )
+bool DSBuffer::Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID, LONG volume )
 {
 	mID			= ID;
 	mFileName	= fileName;
-	return FillBufferWithWave( lpds, mFileName );
+	return FillBufferWithWave( lpds, mFileName, volume );
 }
 
 void DSBuffer::Release()

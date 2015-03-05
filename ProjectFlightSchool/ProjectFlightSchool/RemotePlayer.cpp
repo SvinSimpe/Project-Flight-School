@@ -310,9 +310,6 @@ HRESULT RemotePlayer::InitializeGraphics()
 // Set current hp to 0 to avoid negative values and send event that player has died
 void RemotePlayer::Die()
 {
-	IEventPtr reg( new Event_Remove_Point_Light( mPointLightIfDown ) );
-	EventManager::GetInstance()->QueueEvent( reg );
-	SAFE_DELETE( mPointLightIfDown );
 	mNrOfDeaths++;
 	mIsAlive		= false;
 	mIsDown			= false;
@@ -336,20 +333,12 @@ void RemotePlayer::GoDown()
 {
 	mTimeTillDeath							= mDeathTime;
 	mIsDown									= true;
-	mPointLightIfDown						= new PointLight;
-	mPointLightIfDown->positionAndIntensity	= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 1.0f );
-	IEventPtr reg( new Event_Add_Point_Light( mPointLightIfDown ) );
-	EventManager::GetInstance()->QueueEvent( reg );
-	mPointLightIfDown->colorAndRadius = DirectX::XMFLOAT4( 0.6f, 0.2f, 0.6f, mTimeTillDeath );
 }
 
 void RemotePlayer::GoUp()
 {
 	mIsDown		= false;
 	mCurrentHp	= mMaxHp / 5.0f;
-	IEventPtr reg( new Event_Remove_Point_Light( mPointLightIfDown ) );
-	EventManager::GetInstance()->QueueEvent( reg );
-	SAFE_DELETE( mPointLightIfDown );
 }
 
 HRESULT RemotePlayer::Update( float deltaTime )
@@ -464,7 +453,6 @@ HRESULT RemotePlayer::Update( float deltaTime )
 			/////////////////////////////////////////////////
 
 		mTimeTillDeath -= deltaTime;
-		mPointLightIfDown->colorAndRadius = DirectX::XMFLOAT4( 0.6f, 0.2f, 0.6f, mTimeTillDeath );
 
 		//Particle effects when player is downed
 		mPlayerDownSparksTimer -= deltaTime;
@@ -579,13 +567,6 @@ void RemotePlayer::Release()
 	SAFE_DELETE( mBoundingCircle );
 	SAFE_DELETE( mBoundingCircleAura );
 
-	if( mIsDown )
-	{
-		IEventPtr reg( new Event_Remove_Point_Light( mPointLightIfDown ) );
-		EventManager::GetInstance()->QueueEvent( reg );
-		SAFE_DELETE( mPointLightIfDown );
-	}
-
 	mFont.Release();
 }
 
@@ -605,7 +586,6 @@ RemotePlayer::RemotePlayer()
 	mBoundingCircle					= nullptr;
 	mBoundingCircleAura				= nullptr;
 	mLoadOut						= nullptr;
-	mPointLightIfDown				= nullptr;
 	mSpawnPosition					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mIsBuffed						= false;
 	mBuffMod						= 0.0f;

@@ -36,7 +36,7 @@ enum ParticleType
 	Blood,
 	MuzzleFlash,
 	Smoke_MiniGun,
-	Test_Fountain,
+	Spores,
 	FireSmoke,
 	BlowTorchFire,
 	BlowTorchIdle,
@@ -271,7 +271,7 @@ struct ParticleData
 		float randomSpreadAngle = (float)( rand() % (int)spreadAngle * 2 ) - spreadAngle;
 		XMVECTOR randomAimingDirection = XMVectorSet( 0.0f, 0.0f, 0.0f, 0.0f );
 
-		if( particleType == Test_Fountain )
+		if( particleType == Spores )
 		{
 			randomAimingDirection = XMVector3TransformCoord( aimingDirection, XMMatrixRotationX( XMConvertToRadians( randomSpreadAngle ) ) );
 			randomAimingDirection = XMVector3TransformCoord( randomAimingDirection, XMMatrixRotationZ( XMConvertToRadians( randomSpreadAngle ) ) );	
@@ -288,7 +288,7 @@ struct ParticleData
 			SparkElevationY( 1.0f, 2.0f );
 		}
 
-		if( particleType != Test_Fountain && particleType != Spark  && particleType != Level_Up && particleType != Level_Inner && particleType != Explosion && particleType != NormalSmoke && particleType != BlowTorchIdle && particleType != Hammer_Effect && particleType != FIRE )
+		if( particleType != Spores && particleType != Spark  && particleType != Level_Up && particleType != Level_Inner && particleType != Explosion && particleType != NormalSmoke && particleType != BlowTorchIdle && particleType != Hammer_Effect && particleType != FIRE )
 		{
 			//Get random elevation
 			float randomElevation = ( (float)( rand() % 20 ) - 10 ) * 0.1f;
@@ -419,7 +419,7 @@ struct ParticleData
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 10, 20 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 10, 20 );		
 			}
-			else if( particleType == Test_Fountain )
+			else if( particleType == Spores )
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 2, 3 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 3, 10 );

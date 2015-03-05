@@ -118,11 +118,6 @@ void Player::EventListener( IEventPtr newEvent )
 
 void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
 {
-	if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_SPACE) )
-	{
-		GoDown(0);
-	}
-
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_F ) && mCloseToPlayer )
 	{
 		mAcceleration = XMFLOAT3( 0.0f, 0.0f, 0.0f );

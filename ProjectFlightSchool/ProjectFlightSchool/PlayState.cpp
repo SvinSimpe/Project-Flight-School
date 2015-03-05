@@ -860,7 +860,6 @@ HRESULT PlayState::Update( float deltaTime )
 
 	guiUpdate.mPlayerHP		= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
 	guiUpdate.mPlayerXP		= mPlayer->GetXPToNext();
-	guiUpdate.mPlayerShield	= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
 	guiUpdate.mLevel		= mPlayer->Upgradable();
 	
 	guiUpdate.deltaTime = deltaTime;

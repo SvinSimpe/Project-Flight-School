@@ -50,7 +50,7 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 			}
 		}
 	}
-	else if( newEvent->GetEventType() == Event_Server_Switch_Team::GUID && mActive )
+	else if( newEvent->GetEventType() == Event_Server_Switch_Team::GUID && mActive && !mTeamsLocked )
 	{
 		std::shared_ptr<Event_Server_Switch_Team> data = std::static_pointer_cast<Event_Server_Switch_Team>( newEvent );
 		for( size_t i = 0; i < mPlayers.size(); i++ )
@@ -146,6 +146,17 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 			}
 		}
 	}
+	else if( newEvent->GetEventType() == Event_Server_Start_Game_Countdown::GUID )
+	{
+		StartGameCountdown();
+	}
+}
+
+void LobbyState::StartGameCountdown()
+{
+	mGameCountdown = 5.0f;
+	mGameCountdownStarted = true;
+	mTeamsLocked = true;
 }
 
 void LobbyState::HandleInput()
@@ -236,6 +247,11 @@ HRESULT LobbyState::Update( float deltaTime )
 		}
 	}
 
+	if( mGameCountdownStarted )
+	{
+		mGameCountdown -= deltaTime;
+	}
+
 	mChooseWeaponButton.Update( deltaTime );
 
 	return hr;
@@ -278,6 +294,15 @@ HRESULT LobbyState::Render( float deltaTime )
 	{
 		mLoadOutMenu.Render();
 	}
+
+	if( mGameCountdownStarted )
+	{
+		int secondsLeft = (int) mGameCountdown;
+		std::ostringstream out;
+		out << secondsLeft;
+		float offset = mFont.GetMiddleXPoint( out.str(), 20.0f );
+		mFont.WriteText( out.str(), (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 20.0f, COLOR_ORANGE );
+	}
 	
 	RenderManager::GetInstance()->Render();
 
@@ -289,18 +314,22 @@ void LobbyState::OnEnter()
 	Reset();
 	SetCursor( mCursor );
 	mActive = true;
+	mTeamsLocked = false;
 }
 
 void LobbyState::OnExit()
 {
 	Reset();
 	//SoundBufferHandler::GetInstance()->StopLoopStream( mStreamSoundAsset );
+	mTeamsLocked = true;
 }
 
 void LobbyState::Reset()
 {
 	mLoadOutMenu.Reset();
 	mActive = false;
+	mGameCountdown = 0.0f;
+	mGameCountdownStarted = false;
 	for( size_t i = 0; i < mPlayers.size(); i++ )
 	{
 		mPlayers[i]->button.Release();
@@ -330,6 +359,7 @@ HRESULT LobbyState::Initialize()
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Remote_Left::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Local_Joined::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Change_Ready_State::GUID );
+	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Start_Game_Countdown::GUID );
 
 	mStreamSoundAsset = SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav" );
 	//float x = ( (float)Input::GetInstance()->mScreenWidth * 0.9f ) - 650.0f;
@@ -352,6 +382,7 @@ HRESULT LobbyState::Initialize()
 
 	mChooseWeaponButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/changeYourWeaponFrame.dds", 875.0f, 820.0f, 184.0f, 152.0f );
 	mChooseWeaponText.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/textChooseYourWeapon.dds", 875.0f, 820.0f, 184.0f, 152.0f );
+	mGameCountdown = 0.0f;
 
 	return hr;
 }
@@ -380,6 +411,8 @@ LobbyState::LobbyState()
 	mTeamOneXPos	= 415.0f;
 	mTeamTwoXPos	= 1190.0f;
 	mMyID			= (UINT)-1;
+	mGameCountdown	= 0.0f;
+	mGameCountdownStarted = false;
 }
 
 LobbyState::~LobbyState()

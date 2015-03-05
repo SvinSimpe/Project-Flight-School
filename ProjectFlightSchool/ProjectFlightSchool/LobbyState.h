@@ -43,6 +43,9 @@ class LobbyState : public BaseState
 		Image						mChooseWeaponText;
 		int							mStreamSoundAsset;
 		UINT						mMyID;
+		float						mGameCountdown;
+		bool						mGameCountdownStarted;
+		bool						mTeamsLocked;
 
 	public:
 
@@ -51,7 +54,9 @@ class LobbyState : public BaseState
 		void	EventListener( IEventPtr newEvent );
 
 	protected:
+		void	StartGameCountdown();
 		void	HandleInput();
+
 	public:
 		HRESULT Update( float deltaTime );
 		HRESULT Render( float deltaTime );

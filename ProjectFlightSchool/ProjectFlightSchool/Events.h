@@ -5673,4 +5673,64 @@ class Event_Server_Change_Ready_State : public IEvent
 			return mIsReady;
 		}
 };
+
+class Event_Host_Start_Game_Countdown : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Host_Start_Game_Countdown()
+		{
+		}
+		~Event_Host_Start_Game_Countdown() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Host_Start_Game_Countdown() );
+		}
+};
+
+class Event_Server_Start_Game_Countdown : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Start_Game_Countdown()
+		{
+		}
+		~Event_Server_Start_Game_Countdown() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Start_Game_Countdown() );
+		}
+};
 #endif

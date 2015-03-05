@@ -28,7 +28,7 @@ void LobbyOwnerState::ManageStartButton()
 
 	// check here if game is full
 	//bool gameFull = mPlayers.size() == mMaxPlayers ? true : false;
-	bool gameFull = true;
+	bool gameFull = true; // dev stuff yo
 	if( !gameFull )
 	{
 		mWarningTexts[FULL_GAME].timer = MAX_TEXT_TIME;
@@ -59,19 +59,15 @@ void LobbyOwnerState::ManageStartButton()
 			BalanceTeams( team2, team1 );
 			mWarningTexts[BALANCE_TEAMS].timer = MAX_TEXT_TIME;
 		}
-		else
-		{
-			// teams were even
-		}
 		team1.clear();
 		team2.clear();
 	}
 
 	if( allReady 
-		&& gameFull // commented for dev purposes
+		&& gameFull
 		)
 	{
-		IEventPtr E1( new Event_Client_Lobby_Finished() );
+		IEventPtr E1( new Event_Host_Start_Game_Countdown() );
 		Client::GetInstance()->SendEvent( E1 );
 	}
 }
@@ -102,6 +98,10 @@ void LobbyOwnerState::BalanceTeams( std::vector<LobbyPlayer*> biggerTeam, std::v
 				break;
 			}
 		}
+		if( bSize <= 1 ) // won't be needed in the finished game
+		{
+			break;
+		}
 	}
 }
 
@@ -120,6 +120,12 @@ HRESULT LobbyOwnerState::Update( float deltaTime )
 	mStartButton.Update( deltaTime );
 	
 	HandleInput();
+
+	if( mGameCountdown < 0.0f && mGameCountdownStarted )
+	{
+		IEventPtr E1( new Event_Client_Lobby_Finished() );
+		Client::GetInstance()->SendEvent( E1 );
+	}
 
 	return hr;
 }
@@ -161,6 +167,15 @@ HRESULT LobbyOwnerState::Render( float deltaTime )
 	if( mLoadOutMenu.IsActive() )
 	{
 		mLoadOutMenu.Render();
+	}
+
+	if( mGameCountdownStarted )
+	{
+		int secondsLeft = (int) mGameCountdown;
+		std::ostringstream out;
+		out << secondsLeft;
+		float offset = mFont.GetMiddleXPoint( out.str(), 20.0f );
+		mFont.WriteText( out.str(), (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 20.0f, COLOR_ORANGE );
 	}
 
 	for( int i = 0; i < WARNING_AMOUNT; i++ )

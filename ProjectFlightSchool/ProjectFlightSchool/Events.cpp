@@ -138,3 +138,5 @@ const EventType Event_Server_Change_Weapon::GUID( counter++ );
 const EventType Event_Reset_Turret_Targets::GUID( counter++ );
 const EventType Event_Client_Change_Ready_State::GUID( counter++ );
 const EventType Event_Server_Change_Ready_State::GUID( counter++ );
+const EventType Event_Server_Start_Game_Countdown::GUID( counter++ );
+const EventType Event_Host_Start_Game_Countdown::GUID( counter++ );

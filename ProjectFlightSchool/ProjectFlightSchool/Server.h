@@ -100,6 +100,7 @@ class Server : public Network
 		void	ChangeWeapon( IEventPtr eventPtr );
 		void	ResetTurretTargets( IEventPtr eventPtr );
 		void	ClientChangeReady( IEventPtr eventPtr );
+		void	HostStartCountdown( IEventPtr eventPtr );
 
 		void	ClientInteractEnergyCell( IEventPtr eventPtr );
 

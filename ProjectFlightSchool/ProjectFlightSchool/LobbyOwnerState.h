@@ -8,27 +8,28 @@ class LobbyOwnerState : public LobbyState
 	// Class members
 	private:
 		static const int
-			EVEN_TEAMS		= 0,
-			ALL_READY		= 1,
-			FULL_GAME		= 2,
-			WARNING_AMOUNT	= 3;
+			ALL_READY		= 0,
+			FULL_GAME		= 1,
+			WARNING_AMOUNT	= 2;
 
 		struct activatedString
 		{
 			string text = "";
-			float timer = 0.0f;
+			float timer = -1.0f;
 		};
 
 		MovingButton	mStartButton;
 		const float		MAX_TEXT_TIME = 5.0f;
 		float			mCurrentTextTime;
 		activatedString	mWarningTexts[WARNING_AMOUNT];
+		UINT			mMaxPlayers;
 
 	protected:
 	public:
 
 	// Class functions
 	private:
+		void	EventListener( IEventPtr eventPtr );
 		void	HandleInput();
 
 	protected:

@@ -1,11 +1,21 @@
 #include "LobbyOwnerState.h"
 
+void LobbyOwnerState::EventListener( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Start_Server::GUID )
+	{
+		std::shared_ptr<Event_Start_Server> data = std::static_pointer_cast<Event_Start_Server>( eventPtr );
+		mMaxPlayers = data->MaxPlayers();
+		std::ostringstream out;
+		out << "Max players: " << mMaxPlayers << "\n";
+		OutputDebugStringA( out.str().c_str() );
+	}
+}
+
 void LobbyOwnerState::HandleInput()
 {
 	if( mStartButton.LeftMousePressed() )
 	{
-		// check here if teams are even
-
 		// check here if all players are ready
 		bool allReady = true;
 		for( size_t i = 0; i < mPlayers.size(); i++ )
@@ -19,8 +29,19 @@ void LobbyOwnerState::HandleInput()
 		}
 
 		// check here if game is full
+		bool gameFull = mPlayers.size() == mMaxPlayers ? true : false;
+		if( !gameFull )
+		{
+			mWarningTexts[FULL_GAME].timer = MAX_TEXT_TIME;
+		}
+		else
+		{
+			// check here if teams are even
+		}
 
-		if( allReady )
+		if( allReady 
+			//&& gameFull // commented for dev purposes
+			)
 		{
 			IEventPtr E1( new Event_Client_Lobby_Finished() );
 			Client::GetInstance()->SendEvent( E1 );
@@ -104,14 +125,19 @@ void LobbyOwnerState::OnExit()
 {
 	LobbyState::OnExit();
 	mStartButton.SetExitCooldown();
+	for( int i = 0; i < WARNING_AMOUNT; i++ )
+	{
+		mWarningTexts[i].timer = -1.0f;
+	}
 }
 
 HRESULT LobbyOwnerState::Initialize()
 {
 	mStartButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/startText.dds", 1665.0f, 760.0f, 200.0f, 200.0f );
-	mWarningTexts[EVEN_TEAMS].text = "Teams has to be even before starting game!";
 	mWarningTexts[ALL_READY].text = "Every player has to be ready before starting game!";
 	mWarningTexts[FULL_GAME].text = "Server has to be full before starting game!";
+
+	EventManager::GetInstance()->AddListener( &LobbyOwnerState::EventListener, this, Event_Start_Server::GUID );
 
 	return LobbyState::Initialize();
 }
@@ -126,6 +152,7 @@ LobbyOwnerState::LobbyOwnerState()
 {
 	LobbyState::LobbyState();
 	mCurrentTextTime	= 0.0f;
+	mMaxPlayers			= (UINT)-1;
 }
 
 LobbyOwnerState::~LobbyOwnerState()

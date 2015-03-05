@@ -75,6 +75,10 @@ void Player::EventListener( IEventPtr newEvent )
 		if( data->PlayerID() == mID )
 		{
 			mSpawnPosition = XMFLOAT3( data->SpawnPosition().x, 0.0f, data->SpawnPosition().y );
+			if( IsAlive() )
+			{
+				RemotePlayer::Spawn();
+			}
 		}
 	}
 	else if( newEvent->GetEventType() == Event_Server_Switch_Team::GUID )

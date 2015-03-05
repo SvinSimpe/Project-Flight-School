@@ -39,6 +39,15 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 			{
 				mPlayers.back()->thisPlayer = true;
 			}
+			for( size_t i = 0; i < mPlayers.size(); i++ )
+			{
+				if( mPlayers[i]->thisPlayer )
+				{
+					IEventPtr E1( new Event_Client_Change_Ready_State( mPlayers[i]->ID, mPlayers[i]->isReady ) );
+					Client::GetInstance()->SendEvent( E1 );
+					break;
+				}
+			}
 		}
 	}
 	else if( newEvent->GetEventType() == Event_Server_Switch_Team::GUID && mActive )
@@ -170,14 +179,14 @@ void LobbyState::HandleInput()
 			{
 				if( mPlayers[i]->isReady )
 				{
-					mPlayers[i]->isReady = false;
+					IEventPtr E1( new Event_Client_Change_Ready_State( mPlayers[i]->ID, false ) );
+					Client::GetInstance()->SendEvent( E1 );
 				}
 				else
 				{
-					mPlayers[i]->isReady = true;
+					IEventPtr E1( new Event_Client_Change_Ready_State( mPlayers[i]->ID, true ) );
+					Client::GetInstance()->SendEvent( E1 );
 				}
-				IEventPtr E1( new Event_Client_Change_Ready_State( mPlayers[i]->ID, mPlayers[i]->isReady ) );
-				EventManager::GetInstance()->QueueEvent( E1 );
 				break;
 			}
 		}
@@ -218,11 +227,11 @@ HRESULT LobbyState::Update( float deltaTime )
 		{
 			if( mPlayers[i]->isReady )
 			{
-				mReadyButton.SetImage( mReadyImg );
+				mReadyButton.SetImage( mReadyImg.GetAssetID() );
 			}
 			else
 			{
-				mReadyButton.SetImage( mNotReadyImg );
+				mReadyButton.SetImage( mNotReadyImg.GetAssetID() );
 			}
 		}
 	}
@@ -250,6 +259,14 @@ HRESULT LobbyState::Render( float deltaTime )
 		textToWrite = p->name;
 		
 		mFont.WriteText( textToWrite, p->button.GetPosition().x + 20.0f, p->button.GetPosition().y + 15.0f, 3.0f );
+		if( p->isReady )
+		{
+			mReadyImg.Render( p->button.GetPosition().x + 275.0f, p->button.GetPosition().y + 5.0f, 50.0f, 50.0f );
+		}
+		else
+		{
+			mNotReadyImg.Render( p->button.GetPosition().x + 275.0f, p->button.GetPosition().y + 5.0f, 50.0f, 50.0f );
+		}
 	}
 
 	mBackButton.Render();
@@ -306,10 +323,6 @@ HRESULT LobbyState::Initialize()
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/lobby_loadout_menu/lobbyNameFrame.dds", mBackground ); //Laddar in bilden till knapparna så att deras initialize bara får en int och inte laddar nnya bilder.
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/lobby_loadout_menu/lobbyMenu.dds", mBackground );
 
-	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/lobby_loadout_menu/ready.png", mReadyImg );
-	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/lobby_loadout_menu/notReady.png", mNotReadyImg );
-
-
 	mStateType = LOBBY_STATE;
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Initialize_LobbyPlayer::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Switch_Team::GUID );
@@ -329,8 +342,12 @@ HRESULT LobbyState::Initialize()
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Connect_Server_Success::GUID );
 
 	mBackButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/textBack.dds", 70.0f, 760.0f, 200.0f, 200.0f );
+	
 	mReadyButton.Initialize( "", 1665.0f, 550.0f, 200.0, 200.0 );
-	mReadyButton.SetImage( mNotReadyImg );
+	mReadyImg.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/ready.png", 1665.0f, 550.0f, 200.0, 200.0 );
+	mNotReadyImg.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/notReady.png", 1665.0f, 550.0f, 200.0, 200.0 );
+	mReadyButton.SetImage( mNotReadyImg.GetAssetID() );
+
 	mLoadOutMenu.Initialize();
 
 	mChooseWeaponButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/changeYourWeaponFrame.dds", 875.0f, 820.0f, 184.0f, 152.0f );
@@ -363,8 +380,6 @@ LobbyState::LobbyState()
 	mTeamOneXPos	= 415.0f;
 	mTeamTwoXPos	= 1190.0f;
 	mMyID			= (UINT)-1;
-	mReadyImg		= CUBE_PLACEHOLDER;
-	mNotReadyImg	= CUBE_PLACEHOLDER;
 }
 
 LobbyState::~LobbyState()

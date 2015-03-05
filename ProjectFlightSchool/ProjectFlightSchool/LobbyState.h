@@ -35,8 +35,8 @@ class LobbyState : public BaseState
 		AssetID						mBackground;
 		bool						mActive;
 		MovingButton				mBackButton;
-		AssetID						mReadyImg;
-		AssetID						mNotReadyImg;
+		Image						mReadyImg;
+		Image						mNotReadyImg;
 		MovingButton				mReadyButton;
 		LoadOutMenu					mLoadOutMenu;
 		Button						mChooseWeaponButton;

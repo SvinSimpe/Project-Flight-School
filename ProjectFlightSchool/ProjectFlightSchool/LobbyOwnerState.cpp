@@ -23,7 +23,7 @@ HRESULT LobbyOwnerState::Update( float deltaTime )
 HRESULT LobbyOwnerState::Render( float deltaTime )
 {
 	HRESULT hr = S_OK;
-	
+
 	RenderManager::GetInstance()->AddObject2dToList( mBackground, XMFLOAT2( 0.0f, 0.0f ), XMFLOAT2( (float)Input::GetInstance()->mScreenWidth, (float)Input::GetInstance()->mScreenHeight ) );
 	
 	for( auto p : mPlayers )
@@ -38,6 +38,14 @@ HRESULT LobbyOwnerState::Render( float deltaTime )
 		textToWrite = p->name;
 		
 		mFont.WriteText( textToWrite, p->button.GetPosition().x + 20.0f, p->button.GetPosition().y + 15.0f, 3.0f );
+		if( p->isReady )
+		{
+			mReadyImg.Render( p->button.GetPosition().x + 275.0f, p->button.GetPosition().y + 5.0f, 50.0f, 50.0f );
+		}
+		else
+		{
+			mNotReadyImg.Render( p->button.GetPosition().x + 275.0f, p->button.GetPosition().y + 5.0f, 50.0f, 50.0f );
+		}
 	}
 
 	mBackButton.Render();
@@ -45,21 +53,6 @@ HRESULT LobbyOwnerState::Render( float deltaTime )
 	mChooseWeaponButton.Render();
 	mChooseWeaponText.Render();
 	mStartButton.Render();
-
-	for( size_t i = 0; i < mPlayers.size(); i++ )
-	{
-		if( mPlayers[i]->thisPlayer )
-		{
-			if( mPlayers[i]->isReady )
-			{
-				OutputDebugStringA( "Ready!\n" );
-			}
-			else
-			{
-				OutputDebugStringA( "Not ready!\n" );
-			}
-		}
-	}
 
 	if( mLoadOutMenu.IsActive() )
 	{

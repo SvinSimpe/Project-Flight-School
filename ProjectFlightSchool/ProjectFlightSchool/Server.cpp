@@ -1016,6 +1016,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::XP, this, Event_XP::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ChangeWeapon, this, Event_Client_Change_Weapon::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ResetTurretTargets, this, Event_Reset_Turret_Targets::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientChangeReady, this, Event_Client_Change_Ready_State::GUID );
 
 	mCurrentPID				= 0;
 	mActive					= false;

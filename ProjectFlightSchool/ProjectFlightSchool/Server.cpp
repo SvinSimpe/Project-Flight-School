@@ -562,6 +562,21 @@ void Server::ChangeWeapon( IEventPtr eventPtr )
 	}
 }
 
+
+void Server::ClientUpdateShip( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Update_Ship::GUID )
+	{
+		std::shared_ptr<Event_Client_Update_Ship> data = std::static_pointer_cast<Event_Client_Update_Ship>( eventPtr );
+		for ( size_t i = 0; i < mShips.size(); i++ )
+		{
+			if( data->ID() == mShips.at(i)->GetID() )
+				mShips.at(i)->ClientUpdateShip( eventPtr );
+		}
+	}
+}
+
+
 void Server::ResetTurretTargets( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Reset_Turret_Targets::GUID )
@@ -664,6 +679,18 @@ void Server::CreateShips()
 		shipID++;
 		xOffset += 96.0f;
 	}
+
+	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+	{
+		mEnemies[i]->SetShipTarget( mShips.at(i%2)->GetID(), mShips );
+	}
+	for ( size_t i = 0; i < 2; i++ )
+	{
+		std::ostringstream out;
+		out << "\n--------------Server ship pos: " << mShips.at(i)->GetPos().x << " " << mShips.at(i)->GetPos().y << " " << mShips.at(i)->GetPos().z;
+		OutputDebugStringA( out.str().c_str()  );
+	}
+
 }
 
 bool Server::CheckShipBuff( ServerShip* ship, XMFLOAT3 pos )
@@ -674,11 +701,11 @@ bool Server::CheckShipBuff( ServerShip* ship, XMFLOAT3 pos )
 
 void Server::UpdateShip( float deltaTime, ServerShip* s )
 {
-	if( s->mWasUpdated )
-	{
-		IEventPtr E1( new Event_Server_Update_Ship( s->mID, s->mMaxShield, s->mCurrentShield, s->mCurrentHP ) );
-		BroadcastEvent( E1 );
-	}
+	//if( s->mWasUpdated )
+	//{
+	//	IEventPtr E1( new Event_Server_Update_Ship( s->mID, s->mMaxShield, s->mCurrentShield, s->mCurrentHP ) );
+	//	BroadcastEvent( E1 );
+	//}
 
 	std::vector<BoundingCircle*> enemyCircles;
 	for( UINT i = 0; i < MAX_NR_OF_ENEMIES; i++ )
@@ -703,6 +730,9 @@ void Server::UpdateShip( float deltaTime, ServerShip* s )
 	s->Update( deltaTime );
 	IEventPtr E1( new Event_Server_Update_Turret( s->mServerTurret->mID, s->mServerTurret->mTurretHead->rot ) );
 	SendCulledUpdate( E1, s->mServerTurret->mPos );
+
+	IEventPtr E2( new Event_Server_Update_Ship( s->mID, s->mMaxShield, s->mCurrentShield, s->mCurrentHP ) );
+	BroadcastEvent( E2 );
 }
 
 void Server::SendCulledUpdate( IEventPtr eventPtr, XMFLOAT3 enemyPos, UINT exception )
@@ -965,6 +995,19 @@ void Server::Update( float deltaTime )
 		for( auto& s : mShips )
 		{
 			UpdateShip( deltaTime, s );
+			if( !s->IsAlive() )
+			{
+				if( s->GetTeamID() == 1 )
+				{
+					IEventPtr E1( new Event_Remote_Win( 2 ) );
+					BroadcastEvent( E1 );
+				}
+				else if( s->GetTeamID() == 2 )
+				{
+					IEventPtr E1( new Event_Remote_Win( 1 ) );
+					BroadcastEvent( E1 );
+				}
+			}
 		}
 	}
 }
@@ -1005,6 +1048,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::SwitchTeam, this, Event_Client_Switch_Team::GUID );
 	EventManager::GetInstance()->AddListener( &Server::XP, this, Event_XP::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ChangeWeapon, this, Event_Client_Change_Weapon::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientUpdateShip, this, Event_Client_Update_Ship::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ResetTurretTargets, this, Event_Reset_Turret_Targets::GUID );
 
 	mCurrentPID				= 0;

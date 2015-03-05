@@ -125,6 +125,8 @@ void PlayState::EventListener( IEventPtr newEvent )
 		{
 			mShips[FRIEND_SHIP] = new ClientShip();
 			mShips[FRIEND_SHIP]->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
+			IEventPtr spawnPos( new Event_Request_Player_Spawn_Position( mPlayer->GetID(), mPlayer->GetTeam() ) );
+			EventManager::GetInstance()->QueueEvent( spawnPos );
 		}
 		else
 		{
@@ -480,11 +482,7 @@ void PlayState::HandleDeveloperCameraInput()
 	// ZOOM OUT
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_UP) )
 		Graphics::GetInstance()->ZoomInDeveloperCamera();
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_Q ) )
-	{
-		IEventPtr E1( new Event_Reset_Game() );
-		EventManager::GetInstance()->QueueEvent( E1 );
-	}
+
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_O ) )
 	{
 		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )

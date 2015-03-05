@@ -120,6 +120,10 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if( newEvent->GetEventType() == Event_Server_Spawn_Ship::GUID )
 	{
 		std::shared_ptr<Event_Server_Spawn_Ship> data = std::static_pointer_cast<Event_Server_Spawn_Ship>( newEvent );
+	
+		std::ostringstream out;
+		out << "\n--------------Client ship pos: " << data->Position().x << " " << data->Position().y << " " << data->Position().z;
+		OutputDebugStringA( out.str().c_str()  );
 
 		if( data->TeamID() == mPlayer->GetTeam() )
 		{
@@ -130,7 +134,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		{
 			mShips[ENEMY_SHIP] = new ClientShip();
 			mShips[ENEMY_SHIP]->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
-		}
+		}	
 	}
 
 	

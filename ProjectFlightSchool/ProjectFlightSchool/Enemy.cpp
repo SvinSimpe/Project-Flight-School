@@ -18,7 +18,7 @@ void Enemy::CreateStandard()
 	mDamage						= 10.0f;
 	mSpeed						= 5.0f;
 	mAttackRadius->radius		= 0.5f;
-	mAttentionRadius->radius	= 2.0f;
+	mAttentionRadius->radius	= 10.0f;
 	mXpDrop						= 5;
 	mSpawnTime					= 10.0f;
 	mAttackRate					= 0.8f;
@@ -205,6 +205,20 @@ void Enemy::SetTarget( UINT id )
 		{
 			if( mPlayers[i]->ID == id )
 				mTargetIndex = i;
+		}
+	}
+}
+
+void Enemy::SetShipTarget( UINT id, std::vector<ServerShip*>& ships )
+{
+	mShips			= ships;
+	mTargetShipID	= id;
+
+	for ( size_t i = 0; i < 2; i++ )
+	{
+		if( mShips[i]->GetID() == id )
+		{
+			mTargetShipIndex = i;
 		}
 	}
 }
@@ -503,7 +517,10 @@ Enemy::Enemy()
 	mTakingDamageTimer			= 0.0f;
 	mTargetIndex				= 0;
 	mTargetID					= 0;
+	mTargetShipIndex			= 0;
+	mTargetShipID				= 0;
 	mPlayers					= nullptr;
+	//mShips						= nullptr;
 	mOtherEnemies				= nullptr;
 	mTakingDamage				= false;
 	mSteeringBehaviorManager	= nullptr;

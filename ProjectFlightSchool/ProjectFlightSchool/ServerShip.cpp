@@ -155,6 +155,16 @@ void ServerShip::ClientChangeShipLevels( int changeTurretLevel, int changeShield
 	}
 }
 
+UINT ServerShip::GetID() const
+{
+	return mID;
+}
+
+BoundingCircle* ServerShip::GetHitCircle() const
+{
+	return mHitCircle;
+}
+
 bool ServerShip::TakeDamage( float damage )
 {
 	if( mCurrentShield > 0.0f )
@@ -254,6 +264,7 @@ void ServerShip::Initialize( UINT id, UINT teamID, GameObjectInfo gameObjectInfo
 	GameObject::Initialize( gameObjectInfo, assetID );
 	mServerTurret	= new ServerTurret();
 	mBuffCircle		= new BoundingCircle( 20.0f );
+	mHitCircle		= new BoundingCircle( 10.0f );
 
 	mBuffMod		= 0.5f;
 	mID				= id;
@@ -295,6 +306,7 @@ ServerShip::ServerShip() : GameObject()
 	mBuffMod					= 0.0f;
 	mServerTurret				= nullptr;
 	mBuffCircle					= nullptr;
+	mHitCircle					= nullptr;
 	mID							= (UINT)-1;
 	mTeamID						= (UINT)-1;
 	mTurretLevel				= 0;

@@ -35,7 +35,6 @@ IEnemyBehavior::~IEnemyBehavior()
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT IdleBehavior::Update( float deltaTime )
 {
-	mEnemy->ChangeBehavior( MOVE_TO_SHIP_BEHAVIOR );
 
 	if( mEnemy->mIsAlive )
 	{
@@ -48,10 +47,14 @@ HRESULT IdleBehavior::Update( float deltaTime )
 					mEnemy->SetTarget( mEnemy->mPlayers[i]->ID );
 					mEnemy->ChangeBehavior( HUNT_PLAYER_BEHAVIOR );
 				}
+				else
+				{
+					mEnemy->ChangeBehavior( MOVE_TO_SHIP_BEHAVIOR );
+				}
 			}
 		}
 	}
-
+	
 	return S_OK;
 }
 
@@ -179,12 +182,13 @@ HuntPlayerBehavior::~HuntPlayerBehavior()
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT MoveToShipBehavior::Update( float deltaTime )
 {
-	
+	mEnemy->Hunt( deltaTime );
 	return S_OK;
 }
 
 void MoveToShipBehavior::OnEnter()
 {
+	mEnemy->mCurrentState	= MoveToShip;
 	IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), MoveToShip ) );
 	EventManager::GetInstance()->QueueEvent( state );
 }
@@ -249,6 +253,7 @@ HRESULT AttackBehavior::Update( float deltaTime )
 
 void AttackBehavior::OnEnter()
 {
+	mEnemy->mCurrentState	= Attack;
 	mTimeTillAttack	= mEnemy->mAttackRate;
 	mHasAttacked	= false;
 	mEnemy->mVelocity = XMFLOAT3( 0.0f, 0.0f, 0.0f );
@@ -325,6 +330,7 @@ HRESULT TakeDamageBehavior::Update( float deltaTime )
 
 void TakeDamageBehavior::OnEnter()
 {
+	mEnemy->mCurrentState	= TakeDamage;
 	IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), TakeDamage ) );
 	EventManager::GetInstance()->QueueEvent( state );
 }
@@ -379,8 +385,8 @@ HRESULT StunnedBehavior::Update( float deltaTime )
 
 void StunnedBehavior::OnEnter()
 {
+	mEnemy->mCurrentState	= Stunned;
 	mStateTimer = mEnemy->mStunTimer;
-	mEnemy->ChangeBehavior( STUNNED_BEHAVIOR );
 	IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), Stunned ) );
 	EventManager::GetInstance()->QueueEvent( state );
 }
@@ -428,6 +434,7 @@ HRESULT DeadBehavior::Update( float deltaTime )
 
 void DeadBehavior::OnEnter()
 {
+	mEnemy->mCurrentState	= Death;
 	mEnemy->mVelocity		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mEnemy->mCurrentState	= Death;
 	mEnemy->mIsAlive		= false;

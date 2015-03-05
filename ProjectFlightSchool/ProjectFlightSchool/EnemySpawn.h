@@ -5,7 +5,6 @@
 #include "Events.h"
 #include "RenderManager.h"
 
-
 #define MAX_NR_OF_ENEMY_SPAWNERS	200
 
 

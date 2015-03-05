@@ -321,6 +321,13 @@ bool InputSquare::Update( float deltaTime )
 	return true;
 }
 
+void InputSquare::Reset( std::string text )
+{
+	mCurrentText = text;
+	mActive = false;
+	mLastPressed = -1;
+}
+
 void InputSquare::Initialize( std::string text, std::string imgName, float x, float y, float width, float height )
 {
 	Image::Initialize( "../Content/Assets/Textures/Menu/Input.png", x, y, width, height );

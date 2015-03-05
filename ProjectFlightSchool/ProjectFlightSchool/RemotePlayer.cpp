@@ -150,11 +150,11 @@ HRESULT RemotePlayer::InitializeGraphics()
 	//BLOWTORCH
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchIdle.PaMan",			mWeaponAnimations[BLOWTORCH][IDLE] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchAttackStart.PaMan",		mWeaponAnimations[BLOWTORCH][ATTACK_START] ) ) )
-		OutputDebugString( L"\nERROR loading player model\n" );																							
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchAttackIdle.PaMan",		mWeaponAnimations[BLOWTORCH][ATTACK_IDLE] ) ) )
+/*	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchAttackStart.PaMan",		mWeaponAnimations[BLOWTORCH][ATTACK] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );	*/																						
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchAttackIdle.PaMan",		mWeaponAnimations[BLOWTORCH][ATTACK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );																										
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchAttackEnd.PaMan",		mWeaponAnimations[BLOWTORCH][ATTACK_END] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchIdle.PaMan",		mWeaponAnimations[BLOWTORCH][WALK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );																										
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Blowtorch/Animations/", "blowtorchOverheatStart.PaMan",	mWeaponAnimations[BLOWTORCH][OVERHEAT_START] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );																										
@@ -541,8 +541,11 @@ HRESULT RemotePlayer::Initialize()
 
 	//Weapon Initialization
 	mLoadOut				= new LoadOut();
+
 	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN );
-	mLoadOut->meleeWeapon	= new MeleeInfo( CLAYMORE );
+	mLoadOut->meleeWeapon	= new MeleeInfo( HAMMER );
+	//mLoadOut->meleeWeapon	= new MeleeInfo( BLOWTORCH );
+	//mLoadOut->rangedWeapon	= new RangedInfo( GRENADELAUNCHER );
 
 	InitializeGraphics();
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Server_Change_Buff_State::GUID );

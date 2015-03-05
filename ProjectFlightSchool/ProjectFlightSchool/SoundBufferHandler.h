@@ -32,9 +32,9 @@ private:
 
 protected:
 public:
-	int							Load3DBuffer( char* fileName );
-	int							LoadBuffer( char* fileName );
-	int							LoadStreamBuffer( char* fileName );
+	int							Load3DBuffer( char* fileName, LONG volume = 0 ); //highest is 0, lowest is 10 000. Since it's decibels 5 000 is not half the sound.
+	int							LoadBuffer( char* fileName, LONG volume = 0 ); //highest is 0, lowest is 10 000. Since it's decibels 5 000 is not half the sound.
+	int							LoadStreamBuffer( char* fileName, LONG volume = 0 ); //highest is 0, lowest is 10 000. Since it's decibels 5 000 is not half the sound.
 	void						Play( int SoundID );
 	void						Loop( int BufferID );
 	void						StopLoop( int BufferID );

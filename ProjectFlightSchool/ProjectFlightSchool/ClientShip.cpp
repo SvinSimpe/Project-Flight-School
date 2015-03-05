@@ -70,8 +70,8 @@ void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 				spawnX = ( xMin + ( rand() % (int)( xMax - xMin + 1 ) ) );
 				spawnZ = ( zMin + ( rand() % (int)( zMax - zMin + 1 ) ) );
 			}
-			while( ( spawnX > mBuffCircle->center.x - 15.0f && spawnX < mBuffCircle->center.x + 15.0f &&
-				   spawnZ > mBuffCircle->center.z - 15.0f && spawnZ < mBuffCircle->center.z + 15.0f ) && Pathfinder::GetInstance()->IsOnNavMesh( XMFLOAT3( spawnX, 0.0f, spawnZ ) ) );
+			while( ( (float)spawnX > mBuffCircle->center.x - 15.0f && (float)spawnX < mBuffCircle->center.x + 15.0f &&
+				   (float)spawnZ > mBuffCircle->center.z - 15.0f && (float)spawnZ < mBuffCircle->center.z + 15.0f ) && Pathfinder::GetInstance()->IsOnNavMesh( XMFLOAT3( (float)spawnX, 0.0f, (float)spawnZ ) ) );
 
 			IEventPtr E1( new Event_New_Player_Spawn_Position( data->PlayerID(), XMFLOAT2( (float)spawnX, (float)spawnZ ) ) );
 			EventManager::GetInstance()->QueueEvent( E1 );

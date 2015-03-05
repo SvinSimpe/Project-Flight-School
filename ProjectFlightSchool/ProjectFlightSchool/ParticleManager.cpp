@@ -82,6 +82,8 @@ void ParticleManager::Initialize()
 	
 	// For every new ParticleType initiate values below
 
+	mNrOfParticleSystemsPerType[Shell]			= 0;
+	mNrOfParticleSystemsPerType[Debris]			= 0;
 	mNrOfParticleSystemsPerType[Smoke]			= 0;
 	mNrOfParticleSystemsPerType[FIRE]			= 0;
 	mNrOfParticleSystemsPerType[Spark]			= 0;
@@ -102,6 +104,8 @@ void ParticleManager::Initialize()
 	mNrOfParticleSystemsPerType[NormalSmoke]	= 0;
 	mNrOfParticleSystemsPerType[Hammer_Effect]	= 0; // Below this
 
+	mMaxNrOfParticleSystemsPerType[Shell]			= 6;
+	mMaxNrOfParticleSystemsPerType[Debris]			= 10;
 	mMaxNrOfParticleSystemsPerType[Smoke]			= 1;
 	mMaxNrOfParticleSystemsPerType[FIRE]			= 10;
 	mMaxNrOfParticleSystemsPerType[Spark]			= 10;
@@ -121,6 +125,8 @@ void ParticleManager::Initialize()
 	mMaxNrOfParticleSystemsPerType[NormalSmoke]		= 8;
 	mMaxNrOfParticleSystemsPerType[Hammer_Effect]	= 8; // Aswell as this
 
+	mNrOfActiveParticleSystemsPerType[Shell]			= 0;
+	mNrOfActiveParticleSystemsPerType[Debris]			= 0;
 	mNrOfActiveParticleSystemsPerType[Smoke]			= 0;
 	mNrOfActiveParticleSystemsPerType[FIRE]				= 0;
 	mNrOfActiveParticleSystemsPerType[Spark]			= 0;
@@ -161,6 +167,18 @@ void ParticleManager::Initialize()
 	//		mNrOfParticleSystems++;
 	//	}
 
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Shell]; i++ )
+	{
+		mParticleSystems[Shell][i]->Initialize( Shell, 8.0f, 200 );
+		mNrOfParticleSystemsPerType[Shell]++;
+		mNrOfParticleSystems++;
+	}
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Debris]; i++ )
+	{
+		mParticleSystems[Debris][i]->Initialize( Debris, 8.0f, 200 );
+		mNrOfParticleSystemsPerType[Debris]++;
+		mNrOfParticleSystems++;
+	}
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Hammer_Effect]; i++ )
 	{
 		mParticleSystems[Hammer_Effect][i]->Initialize( Hammer_Effect, 64.0f, 256 );

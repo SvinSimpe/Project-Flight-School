@@ -48,12 +48,12 @@ public:
 	void		PlayBufferLoop();
 	void		StopBuffer();
 	DSBuffer	DuplicateBuffer( LPDIRECTSOUND8 lpds, DSBuffer buffer1 );
-	bool		FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName );
+	bool		FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName, LONG volume );
 	char*		GetFileName();
 	int			GetID();
 	void		SoundOn();
 	void		SoundOff();
-	bool		Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID );
+	bool		Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID, LONG volume );
 	void		Release();
 				DSBuffer();
 				~DSBuffer();

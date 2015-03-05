@@ -75,6 +75,10 @@ void Player::EventListener( IEventPtr newEvent )
 		if( data->PlayerID() == mID )
 		{
 			mSpawnPosition = XMFLOAT3( data->SpawnPosition().x, 0.0f, data->SpawnPosition().y );
+			if( IsAlive() )
+			{
+				RemotePlayer::Spawn();
+			}
 		}
 	}
 	else if( newEvent->GetEventType() == Event_Server_Switch_Team::GUID )
@@ -114,9 +118,9 @@ void Player::EventListener( IEventPtr newEvent )
 
 void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlayers )
 {
-	if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_SPACE) && mCloseToPlayer )
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_F ) && mCloseToPlayer )
 	{
-		mAcceleration = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		mAcceleration = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 		for( auto rp : remotePlayers )
 		{
 			if ( rp->IsDown() )

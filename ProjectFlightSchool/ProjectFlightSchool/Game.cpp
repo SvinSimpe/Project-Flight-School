@@ -28,6 +28,18 @@ void Game::StartPlayState( IEventPtr eventPtr )
 	}
 }
 
+void Game::ReachEvents( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Server_Reach_Client::GUID )
+	{
+		//OutputDebugStringA("Server reached the client.\n");
+	}
+	else if( eventPtr->GetEventType() == Event_Client_Reach_Server::GUID )
+	{
+		//OutputDebugStringA("Client reached the server.\n");
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
 ///////////////////////////////////////////////////////////////////////////////
@@ -73,6 +85,8 @@ HRESULT Game::Initialize()
 
 	EventManager::GetInstance()->AddListener( &Game::ResetGame, this, Event_Reset_Game::GUID );
 	EventManager::GetInstance()->AddListener( &Game::StartPlayState, this, Event_Connect_Client_Success::GUID );
+	EventManager::GetInstance()->AddListener( &Game::ReachEvents, this, Event_Server_Reach_Client::GUID );
+	EventManager::GetInstance()->AddListener( &Game::ReachEvents, this, Event_Client_Reach_Server::GUID );
 
 	return S_OK;
 }

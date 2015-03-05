@@ -332,6 +332,9 @@ void Enemy::Die( UINT killer )
 	ChangeBehavior( DEAD_BEHAVIOR );
 	IEventPtr E1( new Event_XP( killer, mXpDrop ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
+
+	IEventPtr resetTurrets( new Event_Reset_Turret_Targets() );
+	EventManager::GetInstance()->QueueEvent( resetTurrets );
 }
 
 bool Enemy::HasSpawnPos() const

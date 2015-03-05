@@ -5539,4 +5539,34 @@ class Event_Server_Change_Weapon : public IEvent
 			return mID;
 		}
 };
+
+class Event_Reset_Turret_Targets : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Reset_Turret_Targets()
+		{
+		}
+		~Event_Reset_Turret_Targets() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Reset_Turret_Targets() );
+		}
+};
 #endif

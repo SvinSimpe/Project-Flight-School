@@ -462,6 +462,16 @@ HRESULT Graphics::InitializeEffects()
 	//=======================================
 
 	//Debris effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/ShellEffect.hlsl";
+	effectInfo.fileName					= "ShellEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_SHELL]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Debris effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/DebrisEffect.hlsl";
 	effectInfo.fileName					= "DebrisEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;

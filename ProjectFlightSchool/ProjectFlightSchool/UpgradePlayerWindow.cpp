@@ -65,15 +65,14 @@ void UpgradePlayerWindow::Render()
 	mMeleeButton.Render();
 	mRangeButton.Render();
 
-	mFont.WriteText( "Melee", mMeleeButton.button.GetPosition().x + mTextPos.x, mMeleeButton.button.GetPosition().y + mTextPos.y, 2.4f );
-	mFont.WriteText( "Range", mRangeButton.button.GetPosition().x + mTextPos.x, mRangeButton.button.GetPosition().y + mTextPos.y, 2.4f );
-	mFont.WriteText( "Speed", mSpeedButton.button.GetPosition().x + mTextPos.x, mSpeedButton.button.GetPosition().y + mTextPos.y, 2.4f );
-	mFont.WriteText( "Health", mHealthButton.button.GetPosition().x + mTextPos.x, mHealthButton.button.GetPosition().y + mTextPos.y, 2.4f );
-
-	mFont.WriteText( "+" + std::to_string( mMeleeButton.nrOfLevels ), mMeleeButton.button.GetPosition().x + mTextPos.x + 100.0f, mMeleeButton.button.GetPosition().y + mTextPos.y, 2.4f );
-	mFont.WriteText( "+" + std::to_string( mRangeButton.nrOfLevels ), mRangeButton.button.GetPosition().x + mTextPos.x + 100.0f, mRangeButton.button.GetPosition().y + mTextPos.y, 2.4f );
-	mFont.WriteText( "+" + std::to_string( mSpeedButton.nrOfLevels ), mSpeedButton.button.GetPosition().x + mTextPos.x + 100.0f, mSpeedButton.button.GetPosition().y + mTextPos.y, 2.4f );
-	mFont.WriteText( "+" + std::to_string( mHealthButton.nrOfLevels ), mHealthButton.button.GetPosition().x + mTextPos.x + 100.0f, mHealthButton.button.GetPosition().y + mTextPos.y, 2.4f );
+	std::string textToWrite = "Melee +" + std::to_string( mMeleeButton.nrOfLevels );
+	mFont.WriteText( textToWrite, mMeleeButton.button.GetPosition().x + 100.0f - mFont.GetMiddleXPoint( textToWrite, 2.4f ), mMeleeButton.button.GetPosition().y + 100.0f - 12.0f, 2.4f, COLOR_CYAN ); //Size of hexagon is 200, half is 100. Text scale i x10 pixels, 2.4 is 24 pixels, half is 12.
+	textToWrite = "Range +" + std::to_string( mRangeButton.nrOfLevels );
+	mFont.WriteText( textToWrite, mRangeButton.button.GetPosition().x + 100.0f - mFont.GetMiddleXPoint( textToWrite, 2.4f ), mRangeButton.button.GetPosition().y + 100.0f - 12.0f, 2.4f, COLOR_CYAN );
+	textToWrite = "Speed +" + std::to_string( mSpeedButton.nrOfLevels );
+	mFont.WriteText( textToWrite, mSpeedButton.button.GetPosition().x + 100.0f - mFont.GetMiddleXPoint( textToWrite, 2.4f ), mSpeedButton.button.GetPosition().y + 100.0f - 12.0f, 2.4f, COLOR_CYAN );
+	textToWrite = "Health +" + std::to_string( mHealthButton.nrOfLevels );
+	mFont.WriteText( textToWrite, mHealthButton.button.GetPosition().x + 100.0f - mFont.GetMiddleXPoint( textToWrite, 2.4f ), mHealthButton.button.GetPosition().y + 100.0f - 12.0f, 2.4f, COLOR_CYAN );
 }
 
 void UpgradePlayerWindow::Release()
@@ -99,17 +98,23 @@ HRESULT UpgradePlayerWindow::Initialize()
 	mMeleeButton.nrOfLevels		= 1;
 	mRangeButton.nrOfLevels		= 1;
 
-	XMFLOAT2 sizeBox		= XMFLOAT2( 200.0f, 208.0f );
-	XMFLOAT2 meleeTopLeft	= XMFLOAT2( 149.0f, 641.0f );
-	XMFLOAT2 rangeTopLeft	= XMFLOAT2( 360.0f, 634.0f );
-	XMFLOAT2 speedTopLeft	= XMFLOAT2( 42.0f, 477.0f );
-	XMFLOAT2 healthTopLeft	= XMFLOAT2( 248.0f, 471.0f );
+	XMFLOAT2 sizeBox		= XMFLOAT2( 200.0f, 200.0f );
+	XMFLOAT2 meleeTopLeft	= XMFLOAT2( 103.0f, 710.0f );
+	XMFLOAT2 rangeTopLeft	= XMFLOAT2( 309.0f, 710.0f );
+	XMFLOAT2 speedTopLeft	= XMFLOAT2( 0.0f, 550.0f );
+	XMFLOAT2 healthTopLeft	= XMFLOAT2( 206.0f, 550.0f );
 	mHealthButton.button.Initialize( "../Content/Assets/GUI/HUD/hexagonSingle.dds", healthTopLeft.x, healthTopLeft.y, sizeBox.x, sizeBox.y );
 	mSpeedButton.button.Initialize( "../Content/Assets/GUI/HUD/hexagonSingle.dds", speedTopLeft.x, speedTopLeft.y, sizeBox.x, sizeBox.y );
 	mMeleeButton.button.Initialize( "../Content/Assets/GUI/HUD/hexagonSingle.dds", meleeTopLeft.x, meleeTopLeft.y, sizeBox.x, sizeBox.y );
 	mRangeButton.button.Initialize( "../Content/Assets/GUI/HUD/hexagonSingle.dds", rangeTopLeft.x, rangeTopLeft.y, sizeBox.x, sizeBox.y );
 
-	mTextPos = XMFLOAT2( 40.0f, 93.0f );
+	float offsetX = 34.0f;
+	float offsetY = 78.0f;
+	mHealthButton.background.Initialize( "../Content/Assets/GUI/HUD/upgradeBackGround.dds", healthTopLeft.x + offsetX, healthTopLeft.y + offsetY, 132.0f, 44.0f );
+	mSpeedButton.background.Initialize( "../Content/Assets/GUI/HUD/upgradeBackGround.dds", speedTopLeft.x + offsetX, speedTopLeft.y + offsetY, 132.0f, 44.0f );
+	mMeleeButton.background.Initialize( "../Content/Assets/GUI/HUD/upgradeBackGround.dds", meleeTopLeft.x + offsetX, meleeTopLeft.y + offsetY, 132.0f, 44.0f );
+	mRangeButton.background.Initialize( "../Content/Assets/GUI/HUD/upgradeBackGround.dds", rangeTopLeft.x + offsetX, rangeTopLeft.y + offsetY, 132.0f, 44.0f );
+
 
 	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 

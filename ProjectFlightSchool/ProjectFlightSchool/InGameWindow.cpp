@@ -62,7 +62,7 @@ void InGameWindow::Update( float deltaTime )
 			break;
 		}
 	}
-	else
+	else if( !mInControls )
 	{
 		for( int i = 0; i < NR_OF_OPTION_BUTTONS; i++ )
 		{
@@ -88,6 +88,10 @@ void InGameWindow::Update( float deltaTime )
 		}
 		case 1:
 		{
+			mInControls	= true;
+		}
+		case 2:
+		{
 			if( SoundBufferHandler::GetInstance()->SoundIsOn() )
 				SoundBufferHandler::GetInstance()->SoundOff();
 
@@ -96,7 +100,7 @@ void InGameWindow::Update( float deltaTime )
 
 			break;
 		}
-		case 2:
+		case 3:
 		{
 			IEventPtr E1( new Event_Toggle_Fullscreen() );
 			EventManager::GetInstance()->QueueEvent( E1 );
@@ -104,6 +108,14 @@ void InGameWindow::Update( float deltaTime )
 		}
 		default:
 			break;
+		}
+	}
+	else
+	{
+		mInControlsBackground.Update( deltaTime );
+		if( mInControlsBackground.LeftMousePressed() )
+		{
+			mInControls = false;
 		}
 	}
 }
@@ -114,7 +126,7 @@ void InGameWindow::Render()
 
 	if( !mInOptions )
 	{
-		mFont.WriteText( "Game Pause", ( Input::GetInstance()->mScreenWidth / 2 ) - mFont.GetMiddleXPoint( "Game Pause", 7.0f ), 210.0f, 7.0f );
+		mFont.WriteText( "Game Pause", ( Input::GetInstance()->mScreenWidth / 2 ) - mFont.GetMiddleXPoint( "Game Pause", 7.0f ), 210.0f, 7.0f, COLOR_CYAN );
 
 		for( int i = 0; i < NR_OF_BUTTONS; i++ )
 		{
@@ -123,11 +135,15 @@ void InGameWindow::Render()
 	}
 	else
 	{
-		mFont.WriteText( "Options", ( Input::GetInstance()->mScreenWidth / 2 ) - mFont.GetMiddleXPoint( "Options", 7.0f ), 270.0f, 7.0f );
+		mFont.WriteText( "Options", ( Input::GetInstance()->mScreenWidth / 2 ) - mFont.GetMiddleXPoint( "Options", 7.0f ), 270.0f, 7.0f, COLOR_CYAN );
 
 		for( int i = 0; i < NR_OF_OPTION_BUTTONS; i++ )
 		{
 			mOptionButtons[i].Render( mFont );
+		}
+		if( mInControls )
+		{
+			mInControlsBackground.Render();
 		}
 	}
 }
@@ -191,19 +207,26 @@ HRESULT InGameWindow::Initialize()
 	}
 
 	mOptionButtons[0].text = "Back";
-	mOptionButtons[1].text = "Sound";
-	mOptionButtons[2].text = "Fullscreen";
+	mOptionButtons[1].text = "Controls";
+	mOptionButtons[2].text = "Sound";
+	mOptionButtons[3].text = "Fullscreen";
 
 	mOptionButtons[0].scale = 5.7f;
 	mOptionButtons[1].scale = 5.7f;
 	mOptionButtons[2].scale = 5.7f;
+	mOptionButtons[3].scale = 5.7f;
 
 	pos = (float)( Input::GetInstance()->mScreenWidth / 2.0f ) - mFont.GetMiddleXPoint( mOptionButtons[0].text, mOptionButtons[0].scale ) + 8.0f; //8 because the button isn't in the middle
 	mOptionButtons[0].textPos = XMFLOAT2( pos, mOptionButtons[0].button.GetPosition().y + 28.0f );
 	pos = (float)( Input::GetInstance()->mScreenWidth / 2.0f ) - mFont.GetMiddleXPoint( mOptionButtons[1].text, mOptionButtons[1].scale ) + 8.0f;
 	mOptionButtons[1].textPos = XMFLOAT2( pos, mOptionButtons[1].button.GetPosition().y + 28.0f );
 	pos = (float)( Input::GetInstance()->mScreenWidth / 2.0f ) - mFont.GetMiddleXPoint( mOptionButtons[2].text, mOptionButtons[2].scale ) + 8.0f;
-	mOptionButtons[2].textPos = XMFLOAT2( pos, mOptionButtons[2].button.GetPosition().y + 35.0f );
+	mOptionButtons[2].textPos = XMFLOAT2( pos, mOptionButtons[2].button.GetPosition().y + 28.0f );
+	pos = (float)( Input::GetInstance()->mScreenWidth / 2.0f ) - mFont.GetMiddleXPoint( mOptionButtons[3].text, mOptionButtons[3].scale ) + 8.0f;
+	mOptionButtons[3].textPos = XMFLOAT2( pos, mOptionButtons[3].button.GetPosition().y + 35.0f );
+	
+	mInControls	= false;
+	mInControlsBackground.Initialize( "../Content/Assets/Textures/Menu/helpOverlay_menu.dds", 0.0f, 0.0f, (float)Input::GetInstance()->mScreenWidth, (float)Input::GetInstance()->mScreenHeight );
 
 	return result;
 }

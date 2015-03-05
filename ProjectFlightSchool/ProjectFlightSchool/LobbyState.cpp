@@ -274,7 +274,7 @@ HRESULT LobbyState::Render( float deltaTime )
 	{
 		textToWrite = p->name;
 		
-		mFont.WriteText( textToWrite, p->button.GetPosition().x + 20.0f, p->button.GetPosition().y + 15.0f, 3.0f );
+		mFont.WriteText( textToWrite, p->button.GetPosition().x + 20.0f, p->button.GetPosition().y + 15.0f, 3.0f, COLOR_CYAN );
 		if( p->isReady )
 		{
 			mReadyImg.Render( p->button.GetPosition().x + 275.0f, p->button.GetPosition().y + 5.0f, 50.0f, 50.0f );
@@ -283,6 +283,7 @@ HRESULT LobbyState::Render( float deltaTime )
 		{
 			mNotReadyImg.Render( p->button.GetPosition().x + 275.0f, p->button.GetPosition().y + 5.0f, 50.0f, 50.0f );
 		}
+
 	}
 
 	mBackButton.Render();
@@ -299,7 +300,7 @@ HRESULT LobbyState::Render( float deltaTime )
 	{
 		int secondsLeft = (int) mGameCountdown;
 		std::ostringstream out;
-		out << secondsLeft;
+		out << secondsLeft + 1;
 		float offset = mFont.GetMiddleXPoint( out.str(), 20.0f );
 		mFont.WriteText( out.str(), (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 20.0f, COLOR_ORANGE );
 	}

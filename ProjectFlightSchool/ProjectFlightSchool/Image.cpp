@@ -43,3 +43,8 @@ Image::Image() : Entry()
 Image::~Image()
 {
 }
+
+XMFLOAT2 Image::GetPosition() const
+{
+	return XMFLOAT2( (float)mUpperLeft.x, (float)mUpperLeft.y );
+}

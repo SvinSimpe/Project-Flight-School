@@ -14,7 +14,7 @@ class OptionsMenuState : public BaseMenuState
 			BACK			= 3,
 			BUTTON_AMOUNT	= 4;
 		bool	mInOptions;
-		AssetID mInOptionsBackground;
+		Button	mInOptionsBackground;
 
 	protected:
 	public:

@@ -480,11 +480,7 @@ void PlayState::HandleDeveloperCameraInput()
 	// ZOOM OUT
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_UP) )
 		Graphics::GetInstance()->ZoomInDeveloperCamera();
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_Q ) )
-	{
-		IEventPtr E1( new Event_Reset_Game() );
-		EventManager::GetInstance()->QueueEvent( E1 );
-	}
+
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_O ) )
 	{
 		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )

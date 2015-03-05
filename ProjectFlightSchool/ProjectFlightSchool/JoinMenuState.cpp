@@ -107,12 +107,12 @@ HRESULT JoinMenuState::Initialize()
 	float h	= 200.0f;
 
 	mButtons.push_back( new MovingButton() );
-	mButtons.at(JOIN)->Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/Join.png", x - w * 0.5f, y - h * 0.5f, w, h );
+	mButtons.at(JOIN)->Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/textJoin.dds", x - w * 0.5f, y - h * 0.5f, w, h );
 
 	x += (float)Input::GetInstance()->mScreenWidth * 0.1f;
 
 	mButtons.push_back( new MovingButton() );
-	mButtons.at(BACK)->Initialize( "../Content/Assets/Textures/Menu/Back.png", x - w * 0.5f, y - h * 0.5f, w, h );
+	mButtons.at(BACK)->Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/textBack.dds", x - w * 0.5f, y - h * 0.5f, w, h );
 
 	////// MIKAEL JOINBUTTON
 	x -= (float)Input::GetInstance()->mScreenWidth * 0.1f;

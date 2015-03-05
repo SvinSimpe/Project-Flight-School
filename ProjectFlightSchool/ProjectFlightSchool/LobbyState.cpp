@@ -20,7 +20,7 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 			player->ID			= data->ID();
 			player->team		= data->TeamID();
 			player->name		= data->Name();
-			XMFLOAT2 pos		= XMFLOAT2( mTeamOneXPos, 720.0f );
+			XMFLOAT2 pos		= XMFLOAT2( mTeamOneXPos, 740.0f );
 			if( player->team == 2 )
 			{
 				pos.x = mTeamTwoXPos;
@@ -30,7 +30,7 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 			{
 				if( p->team == player->team )
 				{
-					pos = XMFLOAT2( p->button.GetPosition().x, p->button.GetPosition().y + 70 );
+					pos = XMFLOAT2( p->button.GetPosition().x, p->button.GetPosition().y + 60 );
 				}
 			}
 			player->button.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/lobbyNameFrame.dds", pos.x, pos.y, player->size.x, player->size.y );
@@ -47,7 +47,7 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 			{
 				mPlayers[i]->team = data->TeamID();
 				printf( "Lobby:: Spelare: %d, blev lag %d\n", mPlayers[i]->ID, mPlayers[i]->team );
-				XMFLOAT2 pos		= XMFLOAT2( mTeamOneXPos, 720.0f );
+				XMFLOAT2 pos		= XMFLOAT2( mTeamOneXPos, 740.0f );
 				if( mPlayers[i]->team == 2 )
 				{
 					pos.x = mTeamTwoXPos;
@@ -59,7 +59,7 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 					{
 						if( p->button.GetPosition().y >= pos.y )
 						{
-							pos = XMFLOAT2( p->button.GetPosition().x, p->button.GetPosition().y + 70 );
+							pos = XMFLOAT2( p->button.GetPosition().x, p->button.GetPosition().y + 60 );
 						}
 					}
 				}
@@ -72,7 +72,7 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 					playersTemp.push_back( p );
 					if( p->team != mPlayers[i]->team )
 					{
-						XMFLOAT2 pos = XMFLOAT2( mTeamOneXPos, 720.0f );
+						XMFLOAT2 pos = XMFLOAT2( mTeamOneXPos, 740.0f );
 						if( p->team == 2 )
 						{
 							pos.x = mTeamTwoXPos;
@@ -81,7 +81,7 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 						{
 							if( pl->team == p->team && pl->ID != p->ID )
 							{
-								pos = XMFLOAT2( pl->button.GetPosition().x, pl->button.GetPosition().y + 70 );
+								pos = XMFLOAT2( pl->button.GetPosition().x, pl->button.GetPosition().y + 60 );
 							}
 						}
 						p->button.SetPosition( pos, p->size );
@@ -191,7 +191,7 @@ HRESULT LobbyState::Render( float deltaTime )
 	{
 		textToWrite = p->name;
 		
-		mFont.WriteText( textToWrite, p->button.GetPosition().x + 20.0f, p->button.GetPosition().y + 15.0f, 3.0f );
+		mFont.WriteText( textToWrite, p->button.GetPosition().x + 20.0f, p->button.GetPosition().y + 15.0f, 3.0f, COLOR_CYAN );
 	}
 
 	mBackButton.Render();
@@ -218,6 +218,7 @@ void LobbyState::OnEnter()
 void LobbyState::OnExit()
 {
 	Reset();
+	//SoundBufferHandler::GetInstance()->StopLoopStream( mStreamSoundAsset );
 }
 
 void LobbyState::Reset()
@@ -250,15 +251,16 @@ HRESULT LobbyState::Initialize()
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Lobby_Finished::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Remote_Left::GUID );
 
-	float x = ( (float)Input::GetInstance()->mScreenWidth * 0.9f ) - 650.0f;
-	float y = ( (float)Input::GetInstance()->mScreenHeight * 0.9f ) - 200.0f;
-	float w = 200.0f;
-	float h = 200.0f;
+	mStreamSoundAsset = SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav" );
+	//float x = ( (float)Input::GetInstance()->mScreenWidth * 0.9f ) - 650.0f;
+	//float y = ( (float)Input::GetInstance()->mScreenHeight * 0.9f ) - 200.0f;
+	//float w = 200.0f;
+	//float h = 200.0f;
 
-	mBackButton.Initialize( "../Content/Assets/Textures/Menu/Back.png", x, y, w, h );
+	//mBackButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/textBack.dds", x, y, w, h );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Connect_Server_Success::GUID );
 	
-	mBackButton.Initialize( "../Content/Assets/Textures/Menu/Back.png", 70.0f, 760.0f, 200.0f, 200.0f );
+	mBackButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/textBack.dds", 70.0f, 760.0f, 200.0f, 200.0f );
 	mLoadOutMenu.Initialize();
 
 	mChooseWeaponButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/changeYourWeaponFrame.dds", 875.0f, 820.0f, 184.0f, 152.0f );

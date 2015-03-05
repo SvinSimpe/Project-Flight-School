@@ -22,5 +22,7 @@ class Image : public Entry
 		void			Release();
 						Image();
 		virtual			~Image();
+
+		XMFLOAT2		GetPosition() const;
 };
 #endif

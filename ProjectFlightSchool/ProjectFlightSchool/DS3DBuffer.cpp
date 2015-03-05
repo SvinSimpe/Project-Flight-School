@@ -1,8 +1,8 @@
 #include "DS3DBuffer.h"
 
-bool DS3DBuffer::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName )
+bool DS3DBuffer::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName, LONG volume )
 {
-	DSBuffer::FillBufferWithWave( lpds, fileName );
+	DSBuffer::FillBufferWithWave( lpds, fileName, volume );
 	HRESULT hr = mBuffer->QueryInterface( IID_IDirectSound3DBuffer8, (LPVOID*)&mBuffer3D );
 	if ( FAILED( hr ) )
 	{
@@ -38,11 +38,11 @@ void DS3DBuffer::StopBuffer()
 	DSBuffer::StopBuffer();
 }
 
-bool DS3DBuffer::Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID )
+bool DS3DBuffer::Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID, LONG volume )
 {
 	mID			= ID;
 	mFileName	= fileName;
-	return FillBufferWithWave( lpds, mFileName );
+	return FillBufferWithWave( lpds, mFileName, volume );
 }
 
 void DS3DBuffer::Release()

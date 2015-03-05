@@ -237,7 +237,7 @@ void Enemy::Hunt( float deltaTime )
 	//mVelocity.z += totalSteeringForce.z;
 	//mVelocity.y += totalSteeringForce.y;
 
-	float interpolation = max( 0.0f, 1.0f - deltaTime * 0.1f );
+	float interpolation = max( 0.0f, 1.0f - deltaTime * 0.05f );
 
 	XMStoreFloat3( &mVelocity, XMLoadFloat3( &mVelocity ) * interpolation
 					+ XMLoadFloat3( &totalSteeringForce ) * ( 1.0f - interpolation ) );
@@ -347,6 +347,9 @@ void Enemy::Die( UINT killer )
 	ChangeBehavior( DEAD_BEHAVIOR );
 	IEventPtr E1( new Event_XP( killer, mXpDrop ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
+
+	IEventPtr resetTurrets( new Event_Reset_Turret_Targets() );
+	EventManager::GetInstance()->QueueEvent( resetTurrets );
 }
 
 bool Enemy::HasSpawnPos() const
@@ -457,7 +460,7 @@ HRESULT Enemy::Initialize( int id, ServerPlayer** players, UINT NrOfPlayers, Ene
 	mSteeringBehaviorManager->AddBehavior(  new SteerAvoidObjects( this ) );
 	mSteeringBehaviorManager->SetUpBehavior( 0, 4.0f, 1.0f );
 	mSteeringBehaviorManager->SetUpBehavior( 1, 10.0f, 1.0f );
-	mSteeringBehaviorManager->SetUpBehavior( 2, 100.0f, 1.0f );
+	mSteeringBehaviorManager->SetUpBehavior( 2, 500.0f, 1.0f );
 
 	//EventManager::GetInstance()->AddListener( &Enemy::DamageFromPlayer, this, Event_Client_Projectile_Damage_Enemy::GUID );
 

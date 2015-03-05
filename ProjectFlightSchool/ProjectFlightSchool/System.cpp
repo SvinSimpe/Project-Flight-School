@@ -78,6 +78,9 @@ int	System::Run()
 {
 	MSG message			= { 0 };
 
+	IEventPtr E1( new Event_Change_State( START_MENU_STATE ) );
+	EventManager::GetInstance()->TriggerEvent( E1 );
+
 	while( WM_QUIT != message.message )
 	{
 		if( PeekMessage( &message, nullptr, 0, 0, PM_REMOVE) )

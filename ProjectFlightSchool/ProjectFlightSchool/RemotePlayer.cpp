@@ -334,10 +334,10 @@ void RemotePlayer::CountUpKills()
 
 void RemotePlayer::GoDown()
 {
-	mTimeTillDeath				= mDeathTime;
-	mIsDown						= true;
-	mPointLightIfDown			= new PointLight;
-	mPointLightIfDown->position	= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
+	mTimeTillDeath							= mDeathTime;
+	mIsDown									= true;
+	mPointLightIfDown						= new PointLight;
+	mPointLightIfDown->positionAndIntensity	= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 1.0f );
 	IEventPtr reg( new Event_Add_Point_Light( mPointLightIfDown ) );
 	EventManager::GetInstance()->QueueEvent( reg );
 	mPointLightIfDown->colorAndRadius = DirectX::XMFLOAT4( 0.6f, 0.2f, 0.6f, mTimeTillDeath );

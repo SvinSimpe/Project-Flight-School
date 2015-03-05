@@ -16,9 +16,6 @@ struct ParticleSystem : public ParticleData
 	float		emitRate					= 0.0f;
 	AssetID		assetID;
 
-	int currCount = 0;
-	int prevCount = 0;
-
 	#pragma endregion
 
 	#pragma region Functions
@@ -43,11 +40,13 @@ struct ParticleSystem : public ParticleData
 			}
 			case BlowTorchFire:
 			{
+				mPointLightParticleEmitter 	= new PointLight;
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireParticle.dds", assetID );
 				break;
 			}
 			case BlowTorchIdle:
 			{
+				mPointLightParticleEmitter 	= new PointLight;
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireParticle.dds", assetID );
 				break;
 			}
@@ -88,6 +87,7 @@ struct ParticleSystem : public ParticleData
 			}
 			case Spark_Electric:
 			{
+				mPointLightParticleEmitter 	= new PointLight;
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/electric.dds", assetID );
 				break;
 			}
@@ -183,6 +183,7 @@ struct ParticleSystem : public ParticleData
 		{
 			SetRandomRotation( particleCount ); 
 			SetRandomDeathTime( 1, 1, particleCount );
+			ActivateLight( emitterPosition, XMFLOAT3( 2.0f, 2.0f, 8.0f ), 0.2f );
 		}
 		else if( particleType == ExplosionSmoke )	
 		{
@@ -193,11 +194,13 @@ struct ParticleSystem : public ParticleData
 		{
 			SetRandomDeathTime( 1, 2, particleCount );
 			SetRandomRotation( particleCount ); 
+			ActivateLight( emitterPosition, XMFLOAT3( 8.0f, 2.0f, 2.0f ), 0.2f );
 		}
 		else if( particleType == BlowTorchIdle )	
 		{
 			SetRandomDeathTime( 1, 1, particleCount );
-			SetRandomRotation( particleCount ); 
+			SetRandomRotation( particleCount );
+			ActivateLight( emitterPosition, XMFLOAT3( 2.0f, 1.0f, 2.0f ), 0.01f );
 		}
 		else if( particleType == Explosion )	
 		{
@@ -300,12 +303,14 @@ struct ParticleSystem : public ParticleData
 			{
 				// Update Fire logic here
 				BlowTorchFireLogic( deltaTime );
+				HandleLight();
 				break;
 			}
 			case BlowTorchIdle: 
 			{
 				// Update Fire logic here
 				BlowTorchIdleLogic( deltaTime );
+				HandleLight();
 				break;
 			}
 			case FireSmoke: 
@@ -342,6 +347,7 @@ struct ParticleSystem : public ParticleData
 			{
 				// Update Spark logic here
 				Spark_ElectricLogic( deltaTime );
+				HandleLight();
 				break;
 			}
 			case Blood: 
@@ -425,7 +431,60 @@ struct ParticleSystem : public ParticleData
 				nrOfRequestedParticles = 0;	
 		}
 	}
-	
+
+	void ActivateLight( XMFLOAT3 position, XMFLOAT3 color, float radius )
+	{
+		mPointLightParticleEmitter->positionAndIntensity = XMFLOAT4( position.x, position.y, position.z, 1.0f );
+
+		//float radius = nrOfRequestedParticles 
+		mPointLightParticleEmitter->colorAndRadius	= XMFLOAT4( color.x, color.y, color.z, radius );
+		mInitialRadius = radius;
+
+		IEventPtr reg( new Event_Add_Point_Light( mPointLightParticleEmitter ) );
+		EventManager::GetInstance()->QueueEvent( reg );
+
+		isLightActive = true;
+	}
+
+	void DeactivateLight()
+	{
+		IEventPtr reg( new Event_Remove_Point_Light( mPointLightParticleEmitter ) );
+		EventManager::GetInstance()->QueueEvent( reg );
+	}
+
+	void UpdateLight()
+	{
+		if ( particleType == Spark_Electric )
+		{
+			mPointLightParticleEmitter->positionAndIntensity.w = 1 + nrOfParticlesAlive * 0.05f;
+			mPointLightParticleEmitter->colorAndRadius.w = mInitialRadius + nrOfParticlesAlive * 0.012f;
+		}
+
+		else if ( particleType == BlowTorchFire ) 			
+		{
+			 mPointLightParticleEmitter->positionAndIntensity.w = 1 + nrOfParticlesAlive * 0.085f;
+			 mPointLightParticleEmitter->colorAndRadius.w = mInitialRadius + nrOfParticlesAlive * 0.012f;
+		}
+
+		else if ( particleType == BlowTorchIdle ) 			
+		{
+			 mPointLightParticleEmitter->positionAndIntensity.w = 0.2f + nrOfParticlesAlive * 0.085f;
+			 mPointLightParticleEmitter->colorAndRadius.w = mInitialRadius + nrOfParticlesAlive * 0.005f;
+		}
+	}
+
+	void HandleLight( )
+	{
+		if ( nrOfParticlesAlive > 0 && isLightActive == true )
+			UpdateLight();
+
+		else if( nrOfParticlesAlive == 0 && isLightActive == true )
+		{
+			DeactivateLight();
+			isLightActive = false;
+		}
+	}
+		
 	void NormalSmokeLogic( float deltatime )
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
@@ -567,15 +626,6 @@ struct ParticleSystem : public ParticleData
 
 	void Test_FountainLogic( float deltaTime )
 	{
-		currCount = nrOfParticlesAlive;
-		if( currCount > prevCount )
-		{
-			prevCount = currCount;
-			currCount = 0;
-		}
-		
-		if( currCount == prevCount )
-			int k = 4;
 	}
 
 	#pragma endregion

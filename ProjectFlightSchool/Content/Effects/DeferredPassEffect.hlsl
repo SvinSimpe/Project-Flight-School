@@ -45,7 +45,7 @@ VS_Out VS_main( uint index : SV_VertexID )
 
 struct PointLight
 {
-	float4 position;
+	float4 positionAndIntensity;
 	float4 colorAndRadius;
 };
 
@@ -160,10 +160,12 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 
 	for( int i = 0; i < numPointLights; i++ )
 	{
-		float3 lightDir = worldSample - lightStructure[i].position.xyz;
+		float3 lightDir = worldSample - lightStructure[i].positionAndIntensity.xyz;
 		float d			= length( lightDir );
 		lightDir		/= d;
 		
+		lightStructure[i].colorAndRadius.xyz * lightStructure[i].positionAndIntensity.w;
+
 		float3 N = normalSample;
 		float3 V = cameraPosition.xyz;
 		float3 R = reflect( lightDir, N );
@@ -228,7 +230,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 		//Point lights
 		for( int i = 0; i < numPointLights; i++ )
 		{
-			float3 lightDir = waterWorldSample - lightStructure[i].position.xyz;
+			float3 lightDir = waterWorldSample - lightStructure[i].positionAndIntensity.xyz;
 			float d			= length( lightDir );
 			lightDir		/= d;
 		

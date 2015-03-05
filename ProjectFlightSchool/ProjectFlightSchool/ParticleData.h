@@ -7,6 +7,10 @@
 #include <thread>
 #include <DirectXMath.h>
 #include <time.h>
+
+#include "Events.h"
+#include "..\Graphics\LightStructure.h"
+
 using namespace DirectX;
 
 #define MAX_PARTICLES 10000
@@ -14,6 +18,10 @@ using namespace DirectX;
 
 #if !defined(SAFE_DELETE_ARRAY)
 #define SAFE_DELETE_ARRAY( x ) if( x ){ delete [] x; x = nullptr; }
+#endif
+
+#if !defined(SAFE_DELETE)
+#define SAFE_DELETE( x ) if( x ){ delete x; x = nullptr; }
 #endif
 
 enum ParticleType
@@ -42,8 +50,9 @@ struct ParticleData
 {
 	#pragma region Members
 
-	int capacity = 0;
-	int	nrOfParticlesAlive = 0;
+	int capacity				= 0;
+	int	nrOfParticlesAlive		= 0;
+
 	size_t	particleType			= std::numeric_limits<unsigned int>::infinity();
 
 	float*	xPosition = nullptr;
@@ -62,6 +71,10 @@ struct ParticleData
 
 	XMFLOAT3 randomDirectionVector;
 	int		 nrOfRequestedParticles		= 0;
+
+	PointLight* mPointLightParticleEmitter;
+	float		mInitialRadius;
+	bool		isLightActive			= false;
 
 	#pragma endregion
 
@@ -476,7 +489,7 @@ struct ParticleData
 		SAFE_DELETE_ARRAY( yPosition );
 		SAFE_DELETE_ARRAY( zPosition );
 		
-
+		SAFE_DELETE( mPointLightParticleEmitter );
 		
 		SAFE_DELETE_ARRAY( lifeTime );
 		SAFE_DELETE_ARRAY( deathTime );

@@ -491,7 +491,7 @@ void PlayState::HandleDeveloperCameraInput()
 			Client::GetInstance()->SendEvent( E1 );
 		}
 	}
-	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_C ) )
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_E ) )
 	{
 		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 		{

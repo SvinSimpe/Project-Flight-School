@@ -157,7 +157,7 @@ HRESULT Gui::Render()
 
 			renderText = "+";
 			renderText += std::to_string( (int)mExperience );
-			mFont.WriteText( renderText, (mLevelUp.GetPosition().x + 75.0f ), ( mLevelUp.GetPosition().y + 66.0f ), 4.8f, COLOR_CYAN );
+			mFont.WriteText( renderText, mLevelUp.GetPosition().x + 100.0f - mFont.GetMiddleXPoint( renderText, 4.8f ), ( mLevelUp.GetPosition().y + 100.0f - 24.0f ), 4.8f, COLOR_CYAN ); //100 is half of the hexagon, 24 is half of the text height.
 		}
 
 		if ( mShipWindow.IsActive() )
@@ -174,9 +174,11 @@ HRESULT Gui::Render()
 		{
 			mInGameWindow.Render();
 		}
-
-		renderText = std::to_string( mShipWindow.GetNrOfEnergyCells() ) + " of " + std::to_string( mNeededEnergyCells ) + " energy cells";
-		mFont.WriteText( renderText, 1680.0f, 280.0f, 2.0f );
+		else
+		{
+			renderText = std::to_string( mShipWindow.GetNrOfEnergyCells() ) + " of " + std::to_string( mNeededEnergyCells ) + " energy cells";
+			mFont.WriteText( renderText, 1680.0f, 280.0f, 2.0f );
+		}
 	}
 	else
 	{

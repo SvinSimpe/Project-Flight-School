@@ -1056,7 +1056,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientUp, this, Event_Client_Up::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientAttemptRevive, this, Event_Client_Attempt_Revive::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientEnemyMeleeDamage, this, Event_Client_Enemy_Attack::GUID );
-	EventManager::GetInstance()->AddListener( &Server::ClientEnemyProjectileDamage, this, Event_Client_Projectile_Damage_Enemy::GUID );
+	//EventManager::GetInstance()->AddListener( &Server::ClientEnemyProjectileDamage, this, Event_Client_Projectile_Damage_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &Server::SetEnemyState, this, Event_Set_Enemy_State::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientInteractEnergyCell, this, Event_Client_Sync_Energy_Cell::GUID );
 	EventManager::GetInstance()->AddListener( &Server::BroadcastEnemyAttackToClients, this, Event_Tell_Server_Enemy_Attack_Player::GUID );

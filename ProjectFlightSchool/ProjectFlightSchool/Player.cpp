@@ -234,6 +234,11 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 	mMeleeCoolDown -= deltaTime;
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_LEFT ) && mWeaponCoolDown <= 0.0f )
 	{
+		mSlowDown -= mLoadOut->rangedWeapon->slowDown;
+		if( mSlowDown < 0.3f )
+		{
+			mSlowDown = 0.3f;
+		}
 		mWeaponCoolDown = mLoadOut->rangedWeapon->attackRate;
 		Fire();
 
@@ -247,6 +252,11 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_RIGHT ) && mMeleeCoolDown <= 0.0f && !mHasMeleeStarted )
 	{
+		mSlowDown -= mLoadOut->meleeWeapon->slowDown;
+		if( mSlowDown < 0.3f )
+		{
+			mSlowDown = 0.3f;
+		}
 		//RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
 		mLeftArmAnimationCompleted = false;
 		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
@@ -487,12 +497,26 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	//}
 
 	// Update water status	
+	mSlowDown += deltaTime / 5;
+	if( mSlowDown > 1.0f )
+	{
+		mSlowDown = 1.0f;
+	}
+
 	mIsInWater	= mLowerBody.position.y < -0.7f ? true : false;
 	
 	XMFLOAT3 testPosition	= mLowerBody.position;
 	XMFLOAT3 normal			= XMFLOAT3( 0.0f, 1.0f, 0.0f );
-	testPosition.x += mVelocity.x * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f );
-	testPosition.z += mVelocity.z * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f );
+	if( mMeleeCoolDown > 0.0f || mWeaponCoolDown > 0.0f)
+	{
+		testPosition.x += mVelocity.x * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f ) * mSlowDown;
+		testPosition.z += mVelocity.z * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f ) * mSlowDown;
+	}
+	else
+	{
+		testPosition.x += mVelocity.x * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f );
+		testPosition.z += mVelocity.z * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f );
+	}
 	testPosition.y = worldMap->GetHeight( testPosition );
 
 	bool collisionTest = worldMap->PlayerVsMap( testPosition, normal );
@@ -513,19 +537,19 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 			}
 		}
 	}
-	else
-	{
-		mFollowPath = false;
-		Pathfinder::GetInstance()->RequestPath( currentPath1, mLowerBody.position, mPick  );
-		Pathfinder::GetInstance()->CalculateSubPath( currentPath1 );
-		currentPath = currentPath1->TotalPath();
-		currStep = currentPath.begin();
+	//else
+	//{
+	//	mFollowPath = false;
+	//	Pathfinder::GetInstance()->RequestPath( currentPath1, mLowerBody.position, mPick  );
+	//	Pathfinder::GetInstance()->CalculateSubPath( currentPath1 );
+	//	currentPath = currentPath1->TotalPath();
+	//	currStep = currentPath.begin();
 
-		XMVECTOR loadVel		= XMLoadFloat3( &mVelocity );
-		XMVECTOR loadNorm		= XMLoadFloat3( &XMFLOAT3( normal.x, normal.y, normal.z ) );
-		XMVECTOR loadNormNorm	= XMLoadFloat3( &XMFLOAT3( -normal.z, -normal.y, normal.x ) );
-		XMStoreFloat3( &mVelocity, loadNormNorm * XMVectorGetX( XMVector3Dot( loadVel, loadNormNorm ) ) + loadNorm * deltaTime * 20.0f );
-	}
+	//	XMVECTOR loadVel		= XMLoadFloat3( &mVelocity );
+	//	XMVECTOR loadNorm		= XMLoadFloat3( &XMFLOAT3( normal.x, normal.y, normal.z ) );
+	//	XMVECTOR loadNormNorm	= XMLoadFloat3( &XMFLOAT3( -normal.z, -normal.y, normal.x ) );
+	//	XMStoreFloat3( &mVelocity, loadNormNorm * XMVectorGetX( XMVector3Dot( loadVel, loadNormNorm ) ) + loadNorm * deltaTime * 20.0f );
+	//}
 
 	Update( deltaTime, remotePlayers, energyCells );
 	return S_OK;
@@ -1259,6 +1283,7 @@ HRESULT Player::Initialize()
 	mMaxVelocity		= 7.7f;
 	mCurrentVelocity	= 0.0f;
 	mMaxAcceleration	= 20.0f;
+	mSlowDown			= 1.0f;
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
@@ -1322,6 +1347,7 @@ Player::Player()
 	mMaxVelocity		= 0.0f;
 	mCurrentVelocity	= 0.0f;
 	mMaxAcceleration	= 0.0f;
+	mSlowDown			= 0.0f;
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mFireDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mIsOutSideZone		= false;

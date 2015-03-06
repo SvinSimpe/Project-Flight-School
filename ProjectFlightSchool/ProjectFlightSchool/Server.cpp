@@ -588,6 +588,25 @@ void Server::ResetTurretTargets( IEventPtr eventPtr )
 	}
 }
 
+void Server::ClientChangeReady( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Change_Ready_State::GUID )
+	{
+		std::shared_ptr<Event_Client_Change_Ready_State> data = std::static_pointer_cast<Event_Client_Change_Ready_State>( eventPtr );
+		IEventPtr E1( new Event_Server_Change_Ready_State( data->ID(), data->IsReady() ) );
+		BroadcastEvent( E1, data->ID() );
+	}
+}
+
+void Server::HostStartCountdown( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Host_Start_Game_Countdown::GUID )
+	{
+		IEventPtr E1( new Event_Server_Start_Game_Countdown() );
+		BroadcastEvent( E1 );
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1050,6 +1069,8 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ChangeWeapon, this, Event_Client_Change_Weapon::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientUpdateShip, this, Event_Client_Update_Ship::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ResetTurretTargets, this, Event_Reset_Turret_Targets::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientChangeReady, this, Event_Client_Change_Ready_State::GUID );
+	EventManager::GetInstance()->AddListener( &Server::HostStartCountdown, this, Event_Host_Start_Game_Countdown::GUID );
 
 	mCurrentPID				= 0;
 	mActive					= false;

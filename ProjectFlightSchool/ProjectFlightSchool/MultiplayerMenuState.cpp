@@ -105,11 +105,8 @@ HRESULT MultiplayerMenuState::Initialize()
 	float h = 177.0f/2;
 
 	mPortBox.Initialize( "27015", "Port", x - w * 0.5f, y - h * 0.5f, w, h );
-
 	x = (float) Input::GetInstance()->mScreenWidth * 0.9f;
 	mNameBox.Initialize( "playername", "Name", x - w * 0.5f, y - h * 0.5f, w, h );
-
-	//mNameBox.Initialize( "PlayerName", "Name", Input::GetInstance()->mScreenWidth * 0.3f - (640.0f * 0.5f) * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + (177.0f * 0.5f) *0.5f, 640.0f * 0.5f, 177.0f * 0.5f );
 
 	x	= (float)Input::GetInstance()->mScreenWidth  * 0.35f;
 	y	= (float)Input::GetInstance()->mScreenHeight * 0.9f;

@@ -286,10 +286,12 @@ HRESULT LobbyState::Render( float deltaTime )
 		std::ostringstream out;
 		out << secondsLeft + 1;
 		float offset = mFont.GetMiddleXPoint( out.str(), 20.0f );
-		//mFont.WriteText( out.str(), (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 20.0f, COLOR_BLACK );
-		//mFont.WriteText( out.str(), (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 20.0f, COLOR_BLACK );
-		//mFont.WriteText( out.str(), (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 20.0f, COLOR_BLACK );
-		//mFont.WriteText( out.str(), (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 20.0f, COLOR_BLACK );
+
+		float textShadowWidth = 1.0f;
+		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 200.0f + textShadowWidth, 20.0f, COLOR_BLACK );
+		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 200.0f + textShadowWidth, 20.0f, COLOR_BLACK );
+		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 200.0f - textShadowWidth, 20.0f, COLOR_BLACK );
+		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 200.0f - textShadowWidth, 20.0f, COLOR_BLACK );
 
 		mFont.WriteText( out.str(), (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 20.0f, COLOR_ORANGE );
 	}

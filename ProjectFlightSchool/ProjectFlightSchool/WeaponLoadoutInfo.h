@@ -65,8 +65,8 @@
 #define CLAYMORE_OFFSETS	XMFLOAT3( 0.8f, -0.65f, 1.3f )		// Offsets forward, right, up
 
 // Hammer
-#define HAMMER_AR			3.5f								// Attack Rate Can't be lower than 3.5f
-#define HAMMER_DAMAGE		30.0f								// Damage
+#define HAMMER_AR			3.0f								// Attack Rate Can't be lower than 3.5f
+#define HAMMER_DAMAGE		10.0f								// Damage
 #define HAMMER_RADIUS		2.0f								// Radius
 #define HAMMER_SPREAD		20									// Spread
 #define HAMMER_KB			3.0f								// Knockback

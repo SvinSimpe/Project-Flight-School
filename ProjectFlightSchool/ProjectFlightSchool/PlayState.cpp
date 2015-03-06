@@ -80,14 +80,6 @@ void PlayState::EventListener( IEventPtr newEvent )
 
 		//TestSound
 		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->BodyPos());
-		
-		// Request Muzzle Flash from Particle Manager
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
-
-		///Blowtorch particle system
-		RenderManager::GetInstance()->RequestParticleSystem( 855, BlowTorchIdle, data->BodyPos(), data->Direction() );
-		RenderManager::GetInstance()->RequestParticleSystem( 855, BlowTorchFire, data->BodyPos(), data->Direction() );
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
 	{

@@ -63,7 +63,7 @@ class RenderManager
 		void AnimationReset( AnimationTrack &animationTrack, AssetID defaultAnimation );
 
 		void ChangeRasterizerState( RasterizerStates rasterState );
-		void RequestParticleSystem( size_t entityID, ParticleType particleType, XMFLOAT3 position, XMFLOAT3 direction );
+		void RequestParticleSystem( size_t entityID, ParticleType particleType, XMFLOAT3 position, XMFLOAT3 direction, XMFLOAT3 initialVelocity = XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 
 		HRESULT Update( float deltaTime );	//Currently clearing the arrays to standard values and reseting number of active objects variable for them in update
 		HRESULT Render();	

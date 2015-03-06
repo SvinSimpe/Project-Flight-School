@@ -71,7 +71,6 @@ enum RasterizerStates
 enum Effects
 {
 	//Particle Effects
-	EFFECTS_SMOKE,	// NOT IMPLEMENTED
 	EFFECTS_FIRE,	
 	EFFECTS_SPARK,
 	EFFECTS_SPARK_ROBOT,

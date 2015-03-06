@@ -674,6 +674,21 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		{
 			mWeaponOverheated = false;
 		}
+
+		XMFLOAT3 direction;
+		/*XMStoreFloat3( &direction, ( XMVector3Normalize( XMLoadFloat3( &mVelocity ) ) ) + XMLoadFloat3( &mFireDirection )  );*/
+		//XMStoreFloat3( &direction, ( mCurrentVelocity * XMLoadFloat3( &mFireDirection )  ) );
+
+		XMStoreFloat3( &direction,  XMLoadFloat3( &mVelocity ) );
+		//Blowtorch particle system
+		RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchIdle, *projectileOffset, mUpperBody.direction, mVelocity );
+		RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, *projectileOffset, mUpperBody.direction, mVelocity );
+
+		
+
+		// Request Muzzle Flash from Particle Manager
+		//RenderManager::GetInstance()->RequestParticleSystem( mID, MuzzleFlash, *projectileOffset, mFireDirection );
+		//RenderManager::GetInstance()->RequestParticleSystem( mID, MuzzleFlash, *projectileOffset, mFireDirection );
 	}
 	else
 	{

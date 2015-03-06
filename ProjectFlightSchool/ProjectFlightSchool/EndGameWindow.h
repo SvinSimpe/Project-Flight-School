@@ -51,6 +51,7 @@ class EndGameWindow
 		void	Update( float deltaTime, bool wonGame );
 		void	Render();
 		HRESULT	Initialize();
+		void	Reset();
 		void	Release();
 				EndGameWindow();
 		virtual ~EndGameWindow();

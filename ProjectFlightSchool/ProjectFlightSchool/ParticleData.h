@@ -7,13 +7,22 @@
 #include <thread>
 #include <DirectXMath.h>
 #include <time.h>
+
+#include "Events.h"
+#include "..\Graphics\LightStructure.h"
+
 using namespace DirectX;
 
 #define MAX_PARTICLES 10000
-#define NR_OF_PARTICLE_TYPES 20
+
+#define NR_OF_PARTICLE_TYPES 21
 
 #if !defined(SAFE_DELETE_ARRAY)
 #define SAFE_DELETE_ARRAY( x ) if( x ){ delete [] x; x = nullptr; }
+#endif
+
+#if !defined(SAFE_DELETE)
+#define SAFE_DELETE( x ) if( x ){ delete x; x = nullptr; }
 #endif
 
 enum ParticleType
@@ -28,7 +37,7 @@ enum ParticleType
 	Blood,
 	MuzzleFlash,
 	Smoke_MiniGun,
-	Test_Fountain,
+	Spores,
 	FireSmoke,
 	BlowTorchFire,
 	BlowTorchIdle,
@@ -37,6 +46,7 @@ enum ParticleType
 	Explosion,
 	ExplosionSmoke,
 	NormalSmoke,
+	Fire_Flies,
 	Hammer_Effect
 };
 
@@ -44,8 +54,9 @@ struct ParticleData
 {
 	#pragma region Members
 
-	int capacity = 0;
-	int	nrOfParticlesAlive = 0;
+	int capacity				= 0;
+	int	nrOfParticlesAlive		= 0;
+
 	size_t	particleType			= std::numeric_limits<unsigned int>::infinity();
 
 	float*	xPosition = nullptr;
@@ -61,9 +72,17 @@ struct ParticleData
 	bool*	isAlive		= nullptr;
 	float*	randRot		= nullptr;
 	float*	damping		= nullptr;
+	float*  maxDistanceFromSpawnPos = nullptr;
+
+	XMFLOAT3 initialSpawnPos;
+
 
 	XMFLOAT3 randomDirectionVector;
-	int		 nrOfRequestedParticles		= 0;
+	int		 nrOfRequestedParticles			= 0;
+
+	PointLight* mPointLightParticleEmitter	= nullptr;
+	float		mInitialRadius				= 0;
+	bool		isLightActive				= false;
 
 	#pragma endregion
 
@@ -94,6 +113,9 @@ struct ParticleData
 
 		randRot		= new float[nrOfParticles];
 		damping		= new float[nrOfParticles];
+		maxDistanceFromSpawnPos		= new float[nrOfParticles];
+
+		initialSpawnPos = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
 		//for ( int i = 0; i < nrOfParticles; i += 4 )
 		//{
@@ -258,7 +280,7 @@ struct ParticleData
 		float randomSpreadAngle = (float)( rand() % (int)spreadAngle * 2 ) - spreadAngle;
 		XMVECTOR randomAimingDirection = XMVectorSet( 0.0f, 0.0f, 0.0f, 0.0f );
 
-		if( particleType == Test_Fountain )
+		if( particleType == Spores || particleType == Fire_Flies ) 
 		{
 			randomAimingDirection = XMVector3TransformCoord( aimingDirection, XMMatrixRotationX( XMConvertToRadians( randomSpreadAngle ) ) );
 			randomAimingDirection = XMVector3TransformCoord( randomAimingDirection, XMMatrixRotationZ( XMConvertToRadians( randomSpreadAngle ) ) );	
@@ -275,7 +297,7 @@ struct ParticleData
 			SparkElevationY( 1.0f, 2.0f );
 		}
 
-		if( particleType != Test_Fountain && particleType != Spark  && particleType != Level_Up && particleType != Level_Inner && particleType != Explosion && particleType != NormalSmoke && particleType != BlowTorchIdle && particleType != Hammer_Effect && particleType != FIRE )
+		if( particleType != Spores && particleType != Spark  && particleType != Level_Up && particleType != Level_Inner && particleType != Explosion && particleType != NormalSmoke && particleType != BlowTorchIdle && particleType != Hammer_Effect && particleType != FIRE )
 		{
 			//Get random elevation
 			float randomElevation = ( (float)( rand() % 20 ) - 10 ) * 0.1f;
@@ -291,6 +313,22 @@ struct ParticleData
 	float GetRandomRotation( int lowerBound, int upperBound )
 	{
 		return (float)( rand() % upperBound + (float)lowerBound );
+	}
+
+	float GetRandomDistance( int lowerBound, int upperBound )
+	{
+		lowerBound *= 10;
+		upperBound *= 10;
+
+		return ( (float)( rand() % upperBound + (float)lowerBound ) ) * 0.1f;
+	}
+
+	void SetRandomDistance( size_t lowerBound, size_t upperBound, size_t particleCount )
+	{
+		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
+		{
+			maxDistanceFromSpawnPos[i] = GetRandomDistance( lowerBound, upperBound );
+		}	
 	}
 
 	void SetRandomDeathTime( size_t lowerBound, size_t upperBound, size_t particleCount ) // If 2.0f is upperBound, send 20
@@ -348,15 +386,24 @@ struct ParticleData
 
 			else if( particleType == FIRE )
 			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 50 );	
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 20 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 50 );		
+			}
+			/*else if( particleType == FireSmoke )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 5 );	
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 5, 30 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 5 );		
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 20, 50 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 20, 30 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 20, 50 );		
-			}
+			}*/
 			else if( particleType == FireSmoke )
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 20, 40 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 20, 30 );
-				randomDirectionVector.z = zDirection * GetRandomSpeed( 20, 40 );		
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 20, 40 );
 			}
 			else if( particleType == Explosion )
 			{
@@ -406,7 +453,7 @@ struct ParticleData
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 10, 20 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 10, 20 );		
 			}
-			else if( particleType == Test_Fountain )
+			else if( particleType == Spores )
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 2, 3 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 3, 10 );
@@ -421,6 +468,12 @@ struct ParticleData
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 2, 10 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 5 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 2, 10 );		
+			}
+			if( particleType == Fire_Flies )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 5 );	//---------------------random speed of particles
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 3 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 4 );			
 			}
 
 			GetRandomSpread( spreadAngle );
@@ -491,7 +544,8 @@ struct ParticleData
 		SAFE_DELETE_ARRAY( yPosition );
 		SAFE_DELETE_ARRAY( zPosition );
 		
-
+		if ( mPointLightParticleEmitter )
+			SAFE_DELETE( mPointLightParticleEmitter );
 		
 		SAFE_DELETE_ARRAY( lifeTime );
 		SAFE_DELETE_ARRAY( deathTime );

@@ -125,7 +125,7 @@ void ClientShip::Render( float deltaTime, DirectX::XMFLOAT4X4 parentWorld )
 {
 	GameObject::Render( deltaTime, parentWorld );
 	mClientTurret->Render( deltaTime, parentWorld);
-	//RenderManager::GetInstance()->AddCircleToList( mHitCircle->center, XMFLOAT3( 1.0f, 0.0f, 0.0f ), mHitCircle->radius );
+	RenderManager::GetInstance()->AddCircleToList( mHitCircle->center, XMFLOAT3( 1.0f, 0.0f, 0.0f ), mHitCircle->radius );
 }
 
 void ClientShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale )

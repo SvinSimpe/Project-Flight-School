@@ -506,16 +506,9 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	
 	XMFLOAT3 testPosition	= mLowerBody.position;
 	XMFLOAT3 normal			= XMFLOAT3( 0.0f, 1.0f, 0.0f );
-	if( mMeleeCoolDown > 0.0f || mWeaponCoolDown > 0.0f)
-	{
-		testPosition.x += mVelocity.x * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f ) * mSlowDown;
-		testPosition.z += mVelocity.z * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f ) * mSlowDown;
-	}
-	else
-	{
-		testPosition.x += mVelocity.x * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f );
-		testPosition.z += mVelocity.z * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f );
-	}
+
+	testPosition.x += mVelocity.x * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f ) * mSlowDown;
+	testPosition.z += mVelocity.z * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f ) * mSlowDown;
 	testPosition.y = worldMap->GetHeight( testPosition );
 
 	bool collisionTest = worldMap->PlayerVsMap( testPosition, normal );
@@ -536,19 +529,19 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 			}
 		}
 	}
-	//else
-	//{
-	//	mFollowPath = false;
-	//	Pathfinder::GetInstance()->RequestPath( currentPath1, mLowerBody.position, mPick  );
-	//	Pathfinder::GetInstance()->CalculateSubPath( currentPath1 );
-	//	currentPath = currentPath1->TotalPath();
-	//	currStep = currentPath.begin();
+	else
+	{
+		//mFollowPath = false;
+		//Pathfinder::GetInstance()->RequestPath( currentPath1, mLowerBody.position, mPick  );
+		//Pathfinder::GetInstance()->CalculateSubPath( currentPath1 );
+		//currentPath = currentPath1->TotalPath();
+		//currStep = currentPath.begin();
 
-	//	XMVECTOR loadVel		= XMLoadFloat3( &mVelocity );
-	//	XMVECTOR loadNorm		= XMLoadFloat3( &XMFLOAT3( normal.x, normal.y, normal.z ) );
-	//	XMVECTOR loadNormNorm	= XMLoadFloat3( &XMFLOAT3( -normal.z, -normal.y, normal.x ) );
-	//	XMStoreFloat3( &mVelocity, loadNormNorm * XMVectorGetX( XMVector3Dot( loadVel, loadNormNorm ) ) + loadNorm * deltaTime * 20.0f );
-	//}
+		XMVECTOR loadVel		= XMLoadFloat3( &mVelocity );
+		XMVECTOR loadNorm		= XMLoadFloat3( &XMFLOAT3( normal.x, normal.y, normal.z ) );
+		XMVECTOR loadNormNorm	= XMLoadFloat3( &XMFLOAT3( -normal.z, -normal.y, normal.x ) );
+		XMStoreFloat3( &mVelocity, loadNormNorm * XMVectorGetX( XMVector3Dot( loadVel, loadNormNorm ) ) + loadNorm * deltaTime * 20.0f );
+	}
 
 	Update( deltaTime, remotePlayers, energyCells );
 	return S_OK;

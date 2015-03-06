@@ -462,6 +462,16 @@ HRESULT Graphics::InitializeEffects()
 	//=======================================
 
 	//Debris effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/ShellEffect.hlsl";
+	effectInfo.fileName					= "ShellEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_SHELL]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Debris effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/DebrisEffect.hlsl";
 	effectInfo.fileName					= "DebrisEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
@@ -644,12 +654,12 @@ HRESULT Graphics::InitializeEffects()
 
 
 	//Test Fountain effect
-	effectInfo.filePath					= "../Content/Effects/Particle Effects/Test_FountainEffect.hlsl";
-	effectInfo.fileName					= "Test_FountainEffect";
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/SporesEffect.hlsl";
+	effectInfo.fileName					= "SporesEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
 	effectInfo.isGeometryShaderIncluded = true;
 
-	if( FAILED( hr = mEffects[EFFECTS_TEST_FOUNTAIN]->Intialize( mDevice, &effectInfo ) ) )
+	if( FAILED( hr = mEffects[EFFECTS_SPORES]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 	//--------------------------
 	return hr;
@@ -1241,7 +1251,7 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 					mDeviceContext->IASetInputLayout( mEffects[info[i].mParticleType]->GetInputLayout() );
 
 					// Add particletype you want to apply additive blending on
-					if( info[i].mParticleType == EFFECTS_TEST_FOUNTAIN || info[i].mParticleType == EFFECTS_SPARK || info[i].mParticleType == EFFECTS_LEVEL_UP 
+					if( info[i].mParticleType == EFFECTS_SPORES || info[i].mParticleType == EFFECTS_SPARK || info[i].mParticleType == EFFECTS_LEVEL_UP 
 						|| info[i].mParticleType == EFFECTS_FIRE || info[i].mParticleType == EFFECTS_BLOWTORCH_FIRE || info[i].mParticleType == EFFECTS_BLOWTORCH_IDLE
 						|| info[i].mParticleType == EFFECTS_EXPLOSION || info[i].mParticleType == EFFECTS_SPARK_ROBOT || info[i].mParticleType == EFFECTS_SPARK_ELECTRIC )
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );

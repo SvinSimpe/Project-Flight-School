@@ -18,7 +18,7 @@ void Enemy::CreateStandard()
 	mDamage						= 10.0f;
 	mSpeed						= 5.0f;
 	mAttackRadius->radius		= 0.5f;
-	mAttentionRadius->radius	= 30.0f;
+	mAttentionRadius->radius	= 10.0f;
 	mXpDrop						= 5;
 	mSpawnTime					= 10.0f;
 	mAttackRate					= 0.8f;
@@ -126,7 +126,7 @@ HRESULT Enemy::Update( float deltaTime, ServerPlayer** players, UINT NrOfPlayers
 {
 	mDeltaTime		= deltaTime;
 
-	mSteeringBehaviorManager->Update( deltaTime );
+	//mSteeringBehaviorManager->Update( deltaTime );
 
 	XMStoreFloat3( &mVelocity, XMVector3Normalize( XMLoadFloat3( &mVelocity ) ) );
 
@@ -209,8 +209,23 @@ void Enemy::SetTarget( UINT id )
 	}
 }
 
+void Enemy::SetShipTarget( UINT id, std::vector<ServerShip*>& ships )
+{
+	mShips			= ships;
+	mTargetShipID	= id;
+
+	for ( size_t i = 0; i < 2; i++ )
+	{
+		if( mShips[i]->GetID() == id )
+		{
+			mTargetShipIndex = i;
+		}
+	}
+}
+
 void Enemy::Hunt( float deltaTime )
 {
+	mSteeringBehaviorManager->Update( deltaTime );
 	XMFLOAT3 totalSteeringForce = mSteeringBehaviorManager->GetFinalSteeringForce();
 
 	/*mVelocity.x = mPlayers[mTargetIndex]->Pos.x - mPosition.x;
@@ -222,7 +237,7 @@ void Enemy::Hunt( float deltaTime )
 	//mVelocity.z += totalSteeringForce.z;
 	//mVelocity.y += totalSteeringForce.y;
 
-	float interpolation = max( 0.0f, 1.0f - deltaTime * 0.1f );
+	float interpolation = max( 0.0f, 1.0f - deltaTime * 0.05f );
 
 	XMStoreFloat3( &mVelocity, XMLoadFloat3( &mVelocity ) * interpolation
 					+ XMLoadFloat3( &totalSteeringForce ) * ( 1.0f - interpolation ) );
@@ -416,7 +431,7 @@ HRESULT Enemy::Initialize( int id, ServerPlayer** players, UINT NrOfPlayers, Ene
 	mAttackRadius		= new BoundingCircle( 1.0f );
 	mAttentionRadius	= new BoundingCircle( 1.0f );
 	mEvadeRadius		= new BoundingCircle( 2.0f );
-	
+
 	mBehaviors			= new IEnemyBehavior*[NR_OF_ENEMY_BEHAVIORS];
 
 	for ( size_t i = 0; i < NR_OF_ENEMY_BEHAVIORS; i++ )
@@ -445,7 +460,7 @@ HRESULT Enemy::Initialize( int id, ServerPlayer** players, UINT NrOfPlayers, Ene
 	mSteeringBehaviorManager->AddBehavior(  new SteerAvoidObjects( this ) );
 	mSteeringBehaviorManager->SetUpBehavior( 0, 4.0f, 1.0f );
 	mSteeringBehaviorManager->SetUpBehavior( 1, 10.0f, 1.0f );
-	mSteeringBehaviorManager->SetUpBehavior( 2, 100.0f, 1.0f );
+	mSteeringBehaviorManager->SetUpBehavior( 2, 500.0f, 1.0f );
 
 	//EventManager::GetInstance()->AddListener( &Enemy::DamageFromPlayer, this, Event_Client_Projectile_Damage_Enemy::GUID );
 
@@ -492,7 +507,7 @@ Enemy::Enemy()
 	mPosition					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mDirection					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mAttackRadius				=  nullptr;
+	mAttackRadius				= nullptr;
 	mAttentionRadius			= nullptr;
 	mEvadeRadius				= nullptr;
 	mCurrentState				= Idle;
@@ -506,7 +521,10 @@ Enemy::Enemy()
 	mTakingDamageTimer			= 0.0f;
 	mTargetIndex				= 0;
 	mTargetID					= 0;
+	mTargetShipIndex			= 0;
+	mTargetShipID				= 0;
 	mPlayers					= nullptr;
+	//mShips						= nullptr;
 	mOtherEnemies				= nullptr;
 	mTakingDamage				= false;
 	mSteeringBehaviorManager	= nullptr;

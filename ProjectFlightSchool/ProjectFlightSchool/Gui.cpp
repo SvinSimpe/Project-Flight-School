@@ -2,13 +2,11 @@
 
 void Gui::ActivateUpgradeShipWindow()
 {
-	mEnergyCellsShowing = true;
 	mShipWindow.Activate();
 }
 
 void Gui::DeActivateUpgradeShipWindow()
 {
-	mEnergyCellsShowing = false;
 	mShipWindow.DeActivate();
 }
 
@@ -186,11 +184,8 @@ HRESULT Gui::Render()
 			mInGameWindow.Render();
 		}
 
-		if( mEnergyCellsShowing && !mInGameWindow.IsActive() )
-		{
-			renderText = std::to_string( mShipWindow.GetNrOfEnergyCells() ) + " of " + std::to_string( mNeededEnergyCells ) + " energy cells";
-			mFont.WriteText( renderText, 1680.0f, 280.0f, 2.0f );
-		}
+		renderText = std::to_string( mShipWindow.GetNrOfEnergyCells() ) + " of " + std::to_string( mNeededEnergyCells ) + " energy cells";
+		mFont.WriteText( renderText, 1680.0f, 280.0f, 2.0f );
 	}
 	else
 	{
@@ -257,6 +252,13 @@ HRESULT Gui::Initialize( UINT neededEnergyCells )
 	mNeededEnergyCells	= neededEnergyCells;
 
 	return result;
+}
+
+void Gui::Reset()
+{
+	Release();
+	Initialize( 6 );
+	mEndGameWindow.Reset();
 }
 
 void Gui::Release()

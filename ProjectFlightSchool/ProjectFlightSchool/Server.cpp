@@ -921,19 +921,22 @@ void Server::Update( float deltaTime )
 		}
 
 		// Enemy update
-		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+		if( mPlayers != nullptr )
 		{
-			if( !mEnemies[i]->HasSpawnPos() )
-					mEnemies[i]->SetSpawnPos( GetNextSpawn() );
-
-			mEnemies[i]->Update( deltaTime, mPlayers, mNrOfPlayers );
-
-			IEventPtr enemy( new Event_Server_Update_Enemy(		mEnemies[i]->GetID(), 
-																mEnemies[i]->GetPosition(), 
-																mEnemies[i]->GetDirection(),
-																mEnemies[i]->IsAlive() ) );
+			for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 			{
-				SendCulledUpdate( enemy, mEnemies[i]->GetPosition() );
+				if( !mEnemies[i]->HasSpawnPos() )
+						mEnemies[i]->SetSpawnPos( GetNextSpawn() );
+
+				mEnemies[i]->Update( deltaTime, mPlayers, mNrOfPlayers );
+
+				IEventPtr enemy( new Event_Server_Update_Enemy(		mEnemies[i]->GetID(), 
+																	mEnemies[i]->GetPosition(), 
+																	mEnemies[i]->GetDirection(),
+																	mEnemies[i]->IsAlive() ) );
+				{
+					SendCulledUpdate( enemy, mEnemies[i]->GetPosition() );
+				}
 			}
 		}
 

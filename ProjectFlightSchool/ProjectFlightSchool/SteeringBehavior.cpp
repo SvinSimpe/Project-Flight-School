@@ -95,7 +95,10 @@ SteeringBehavior::~SteeringBehavior()
 bool SteerApproach::Update( float deltaTime, XMFLOAT3& totalForce )
 {
 	XMFLOAT3 steeringForce = XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	SteerTowards( mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos, steeringForce );
+	if( mEnemy->mPlayers != nullptr )
+	{
+		SteerTowards( mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos, steeringForce );
+	}
 	totalForce.x	+= steeringForce.x;
 	totalForce.z	+= steeringForce.z;
 	totalForce.y	 = 0.0f;

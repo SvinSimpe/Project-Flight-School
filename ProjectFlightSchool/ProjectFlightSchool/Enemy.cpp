@@ -460,6 +460,8 @@ void Enemy::Reset()
 	mPosition		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity		= XMFLOAT3( 0.0f, 0.0f, 0.0f );	
+	mPlayers		= nullptr;
+	
 	ChangeBehavior( DEAD_BEHAVIOR );
 }
 

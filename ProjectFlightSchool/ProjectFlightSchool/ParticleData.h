@@ -99,20 +99,20 @@ struct ParticleData
 			nrOfParticles = MAX_PARTICLES;
 
 		// Allocate alligned memory
-		xPosition = new float[nrOfParticles];
-		yPosition = new float[nrOfParticles];
-		zPosition = new float[nrOfParticles];
+		xPosition					= new float[nrOfParticles];
+		yPosition					= new float[nrOfParticles];
+		zPosition					= new float[nrOfParticles];
 			
-		xVelocity = new float[nrOfParticles];
-		yVelocity = new float[nrOfParticles];
-		zVelocity = new float[nrOfParticles];
+		xVelocity					= new float[nrOfParticles];
+		yVelocity					= new float[nrOfParticles];
+		zVelocity					= new float[nrOfParticles];
 		
-		lifeTime	= new float[nrOfParticles];
-		deathTime	= new float[nrOfParticles];
-		isAlive		= new bool[nrOfParticles];
+		lifeTime					= new float[nrOfParticles];
+		deathTime					= new float[nrOfParticles];
+		isAlive						= new bool[nrOfParticles];
 
-		randRot		= new float[nrOfParticles];
-		damping		= new float[nrOfParticles];
+		randRot						= new float[nrOfParticles];
+		damping						= new float[nrOfParticles];
 		maxDistanceFromSpawnPos		= new float[nrOfParticles];
 
 		initialSpawnPos = XMFLOAT3( 0.0f, 0.0f, 0.0f );
@@ -553,6 +553,7 @@ struct ParticleData
 		
 		SAFE_DELETE_ARRAY( randRot );
 		SAFE_DELETE_ARRAY( damping );
+		SAFE_DELETE_ARRAY( maxDistanceFromSpawnPos );
 	}
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emiterDirection ) = 0;

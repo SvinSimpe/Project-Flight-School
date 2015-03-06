@@ -478,7 +478,7 @@ void PlayState::CheckMeeleCollision()
 	for ( size_t i = 0; i < mRemotePlayers.size(); i++ )
 	{
 		//Check intersection with melee circle & remotePlayer
-		if( mRemotePlayers[i]->IsAlive() && currWeapon->boundingCircle->Intersect( mRemotePlayers.at(i)->GetBoundingCircle() ) )
+		if( mRemotePlayers[i]->GetTeam() != mPlayer->GetTeam() && mRemotePlayers[i]->IsAlive() && currWeapon->boundingCircle->Intersect( mRemotePlayers.at(i)->GetBoundingCircle() ) )
 		{
 			//Spread to Radians
 			float angleRemoteToAim = 0.0f;
@@ -535,7 +535,7 @@ void PlayState::HandleDeveloperCameraInput()
 	}
 	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_E ) )
 	{
-		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
+		if( mShips[FRIEND_SHIP]->InteractIntersect( mPlayer->GetBoundingCircle() ) )
 		{
 			if( mGui->UpgradeShipWindowIsActive() )
 			{
@@ -697,6 +697,17 @@ bool PlayState::CullEntity( XMFLOAT3 entityPos )
 	return HelperFunctions::Dist3Squared( mPlayer->GetPosition(), entityPos  ) <= ENTITY_CULLDISTANCE;
 }
 
+void PlayState::WriteInteractionText( std::string text )
+{
+	float offset = mFont.GetMiddleXPoint( text, 3.0 );
+	float textShadowWidth = 1.0f;
+	//mFont.WriteText( text, (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 200.0f + textShadowWidth, 3.0, COLOR_BLACK );
+	//mFont.WriteText( text, (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 200.0f + textShadowWidth, 3.0, COLOR_BLACK );
+	//mFont.WriteText( text, (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 200.0f - textShadowWidth, 3.0, COLOR_BLACK );
+	//mFont.WriteText( text, (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 200.0f - textShadowWidth, 3.0, COLOR_BLACK );
+
+	mFont.WriteText( text, (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 3.0, COLOR_CYAN );
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //									PUBLIC
@@ -789,7 +800,7 @@ HRESULT PlayState::Update( float deltaTime )
 
 		if( mPlayer->GetEnergyCellID() != (UINT)-1 )
 		{
-			if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
+			if( mShips[FRIEND_SHIP]->InteractIntersect( mPlayer->GetBoundingCircle() ) )
 			{
 				UINT temp = mPlayer->GetEnergyCellID();
 				mPlayer->GiveEnergyCellToShip( mEnergyCells, mShips[FRIEND_SHIP]->GetID(), mShips[FRIEND_SHIP]->GetPos() );
@@ -970,6 +981,11 @@ HRESULT PlayState::Render( float deltaTime )
 		{
 			mShips[i]->Render( 0.0f, identity );
 		}
+	}
+	
+	if( mShips[FRIEND_SHIP]->InteractIntersect( mPlayer->GetBoundingCircle() ) )
+	{
+		WriteInteractionText( "Press E to open or close ship menu" );
 	}
 
 	RenderManager::GetInstance()->Render();

@@ -171,7 +171,7 @@ HRESULT MoveToShipBehavior::Update( float deltaTime )
 {
 	if( mEnemy->mShips.at(mEnemy->mTargetShipIndex)->GetHitCircle() != nullptr )
 	{
-		if( mEnemy->mAttackRadius->Intersect( mEnemy->mShips.at(0)->GetHitCircle() ) )//mEnemy->mTargetShipIndex)->GetHitCircle() ) )
+		if( mEnemy->mAttackRadius->Intersect( mEnemy->mShips.at(mEnemy->mTargetShipIndex)->GetHitCircle() ) )
 			mEnemy->ChangeBehavior( ATTACK_BEHAVIOR );
 		else
 			mEnemy->Hunt( deltaTime );
@@ -243,13 +243,16 @@ HRESULT AttackBehavior::Update( float deltaTime )
 	}
 	else if( mEnemy->mLastState	== MoveToShip )
 	{
-		// Ship intersects the enemy's attack radius
-			if( mEnemy->mAttackRadius->Intersect( mEnemy->mShips.at(mEnemy->mTargetShipIndex)->GetHitCircle() ) )
-			{
-				mHasAttacked = true;
-				mEnemy->mShips.at(mEnemy->mTargetShipIndex)->TakeDamage( mEnemy->mDamage );
-				mTimeTillAttack	= mEnemy->mAttackRate;
-			}
+		if(	 !mHasAttacked && mTimeTillAttack <= 0.0f )
+		{
+			// Ship intersects the enemy's attack radius
+				if( mEnemy->mAttackRadius->Intersect( mEnemy->mShips.at(mEnemy->mTargetShipIndex)->GetHitCircle() ) )
+				{
+					mHasAttacked = true;
+					mEnemy->mShips.at(mEnemy->mTargetShipIndex)->TakeDamage( mEnemy->mDamage );
+					mTimeTillAttack	= mEnemy->mAttackRate;
+				}
+		}
 	}
 
 	if( mStateTimer <= 0.0f )
@@ -268,7 +271,7 @@ void AttackBehavior::OnEnter()
 	switch( mEnemy->mEnemyType )
 	{
 		case Standard:
-			mStateTimer = 4.0f;
+			mStateTimer = 2.0f;
 			break;
 
 		case Ranged:

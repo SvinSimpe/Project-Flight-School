@@ -174,9 +174,11 @@ HRESULT Gui::Render()
 		{
 			mInGameWindow.Render();
 		}
-
-		renderText = std::to_string( mShipWindow.GetNrOfEnergyCells() ) + " of " + std::to_string( mNeededEnergyCells ) + " energy cells";
-		mFont.WriteText( renderText, 1680.0f, 280.0f, 2.0f );
+		else
+		{
+			renderText = std::to_string( mShipWindow.GetNrOfEnergyCells() ) + " of " + std::to_string( mNeededEnergyCells ) + " energy cells";
+			mFont.WriteText( renderText, 1680.0f, 280.0f, 2.0f );
+		}
 	}
 	else
 	{

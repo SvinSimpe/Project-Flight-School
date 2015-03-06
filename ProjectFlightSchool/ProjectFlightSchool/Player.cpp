@@ -228,7 +228,7 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 	//== Weapon handling ==
 	mWeaponCoolDown -= deltaTime;
 	mMeleeCoolDown -= deltaTime;
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_LEFT ) && mWeaponCoolDown <= 0.0f )
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_LEFT ) && mWeaponCoolDown <= 0.0f && mRightArmAnimationCompleted )
 	{
 		mWeaponCoolDown = mLoadOut->rangedWeapon->attackRate;
 		Fire();
@@ -241,10 +241,10 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		//mWeaponCoolDown = 2.0f;
 	}
 
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_RIGHT ) && mMeleeCoolDown <= 0.0f )
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_RIGHT ) && mMeleeCoolDown <= 0.0f && mLeftArmAnimationCompleted )
 	{
-		//RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
-		//mLeftArmAnimationCompleted = false;
+		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
+		mLeftArmAnimationCompleted = false;
 		IEventPtr E1( new Event_Client_Attack( mID, LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] ) );
 		QueueEvent( E1 );
 		mHasMeleeStarted	= true;
@@ -1123,7 +1123,7 @@ HRESULT Player::Render( float deltaTime, int position )
 	//DEBUG RENDERING----------------------------
 
 	RenderManager::GetInstance()->AddBoxToList( XMFLOAT3( mPick.x - 0.5f, mPick.y - 0.5f, mPick.z - 0.5f ), XMFLOAT3( mPick.x + 0.5f, mPick.y + 0.5f, mPick.z + 0.5f ) );
-	//RenderManager::GetInstance()->AddCircleToList( mLoadOut->meleeWeapon->boundingCircle->center, DirectX::XMFLOAT3(1,1,0), mLoadOut->meleeWeapon->boundingCircle->radius );
+	RenderManager::GetInstance()->AddCircleToList( mLoadOut->meleeWeapon->boundingCircle->center, DirectX::XMFLOAT3(1,1,0), mLoadOut->meleeWeapon->boundingCircle->radius );
 	//RenderManager::GetInstance()->AddCircleToList( mBoundingCircle->center, DirectX::XMFLOAT3(0,1,0), mBoundingCircle->radius );
 	if( mHasMeleeStarted )
 	{

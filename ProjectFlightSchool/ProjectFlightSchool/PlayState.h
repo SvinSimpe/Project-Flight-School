@@ -24,7 +24,7 @@
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
-#define ENTITY_CULLDISTANCE		900.0f
+#define ENTITY_CULLDISTANCE		1200.0f
 
 class PlayState : public BaseState
 {
@@ -60,13 +60,14 @@ class PlayState : public BaseState
 		RADAR_UPDATE_INFO			mRadarObjects[MAX_RADAR_OBJECTS];
 		float						mAlliesHP[MAX_REMOTE_PLAYERS / 2];
 		Gui*						mGui;
-		ClientShip*					mShips[SHIP_AMOUNT];
+		ClientShip**				mShips;
 
 		EnergyCell**				mEnergyCells;
 
 		UINT						mNeededEnergyCells;
 		bool						mEndGame;
 		bool						mWonGame;
+		bool						mActive;
 
 		//TestSound
 		int							m3DSoundAsset;

@@ -10,10 +10,13 @@
 #include "SteeringBehaviorManager.h"
 #include <math.h>
 #include "EventManager.h"
+#include "Pathfinder.h"
+#include "ServerShip.h"
 
 class Enemy;
 
-#define MAX_NR_OF_ENEMIES		0
+
+#define MAX_NR_OF_ENEMIES		10
 
 #define randflt() (((float) rand())/((float) RAND_MAX))
 
@@ -70,9 +73,6 @@ class IEnemyBehavior
 		Enemy*			mEnemy;
 		EnemyState		mBehavior;	
 		float			mStateTimer;
-
-		//SteeringBehaviorManager**	mSteeringBehaviors;
-		void			DamageFromPlayer( IEventPtr eventPtr );
 
 	// Class functions
 	public:
@@ -161,6 +161,7 @@ class TakeDamageBehavior : public IEnemyBehavior
 {
 	// Class members
 	private:
+		void			DamageFromPlayer( IEventPtr eventPtr );
 
 	// Class functions
 	public:
@@ -281,6 +282,14 @@ class SteerWander : public SteeringBehavior
 		virtual		   ~SteerWander();
 };
 
+class SteerAvoidObjects : public SteeringBehavior
+{
+	public:
+		virtual bool	Update( float deltaTime, XMFLOAT3& totalForce );
+						SteerAvoidObjects( Enemy* enemy );
+		virtual			~SteerAvoidObjects();
+};
+
 #pragma endregion
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -341,6 +350,7 @@ class Enemy
 		friend class		SteerPursuit;
 		friend class		SteerEvade;
 		friend class		SteerWander;
+		friend class		SteerAvoidObjects;
 		friend class		SteeringBehaviorManager;
 
 #pragma endregion
@@ -348,6 +358,7 @@ class Enemy
 		unsigned int		mID;
 		EnemyType			mEnemyType;
 		EnemyState			mCurrentState;
+		EnemyState			mLastState;
 		float				mCurrentHp;
 		float				mMaxHp;
 		float				mDamage;
@@ -362,12 +373,16 @@ class Enemy
 		unsigned int		mXpDrop;
 		UINT				mTargetID;
 		UINT				mTargetIndex;
+		UINT				mTargetShipID;
+		UINT				mTargetShipIndex;
 		bool				mTakingDamage;
 		bool				mHasEvaded;
 		bool				mHasSpawnPos;
 		XMFLOAT3			mSpawnPos;
 
-		ServerPlayer**		mPlayers;
+		ServerPlayer**					mPlayers;
+		std::vector<ServerShip*>		mShips;
+		
 		UINT				mNrOfPlayers;
 		Enemy**				mOtherEnemies;
 
@@ -413,6 +428,7 @@ class Enemy
 
 		void				AddImpuls( XMFLOAT3 impuls );
 		void				SetTarget( UINT id );
+		void				SetShipTarget( UINT id, std::vector<ServerShip*>& ships );
 		void				Hunt( float deltaTime );
 		void				HandleSpawn();
 		void				Spawn();

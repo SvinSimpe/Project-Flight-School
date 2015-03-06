@@ -2,15 +2,40 @@
 
 void OptionsMenuState::HandleInput()
 {
-	if( mButtons.at(BACK)->LeftMousePressed() )
+	if( !mInOptions )
 	{
-		IEventPtr E1( new Event_Change_State( START_MENU_STATE ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
+		if( mButtons.at(BACK)->LeftMousePressed() )
+		{
+			IEventPtr E1( new Event_Change_State( START_MENU_STATE ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+		if( mButtons.at(FULLSCREEN)->LeftMousePressed() )
+		{
+			IEventPtr E1( new Event_Toggle_Fullscreen() );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+		if( mButtons.at(SOUND)->LeftMousePressed() )
+		{
+			if( SoundBufferHandler::GetInstance()->SoundIsOn() )
+			{
+				SoundBufferHandler::GetInstance()->SoundOff();
+			}
+			else
+			{
+				SoundBufferHandler::GetInstance()->SoundOn();
+			}
+		}
+		if( mButtons.at(HELP)->LeftMousePressed() )
+		{
+			mInOptions = true;
+		}
 	}
-	if( mButtons.at(FULLSCREEN)->LeftMousePressed() )
+	else
 	{
-		IEventPtr E1( new Event_Toggle_Fullscreen() );
-		EventManager::GetInstance()->QueueEvent( E1 );
+		if( mInOptionsBackground.LeftMousePressed() )
+		{
+			mInOptions = false;
+		}
 	}
 }
 
@@ -22,6 +47,9 @@ HRESULT OptionsMenuState::Update( float deltaTime )
 	{
 		mButtons.at(i)->Update( deltaTime );
 	}
+
+	mInOptionsBackground.Update( deltaTime );
+
 	return S_OK;
 }
 
@@ -34,6 +62,11 @@ HRESULT OptionsMenuState::Render( float deltaTime )
 		mButtons.at(i)->Render();
 	}
 	
+	if( mInOptions )
+	{
+		mInOptionsBackground.Render();
+	}
+
 	RenderManager::GetInstance()->Render();
 	return S_OK;
 }
@@ -58,7 +91,7 @@ HRESULT OptionsMenuState::Initialize()
 	mStateType = OPTIONS_MENU_STATE;
 	mButtons.reserve( BUTTON_AMOUNT );
 
-	std::string texts[] = { "Fullscreen", "Sound", "Back" };
+	std::string texts[] = { "textControls", "textFullScreenOnOff", "textSoundOnOff", "textBack" }; //First Sound should be switched to Help
 
 	float x	= (float)Input::GetInstance()->mScreenWidth  * 0.35f;
 	float y	= (float)Input::GetInstance()->mScreenHeight * 0.9f;
@@ -67,16 +100,12 @@ HRESULT OptionsMenuState::Initialize()
 	for( int i = 0; i < BUTTON_AMOUNT; i++ )
 	{
 		mButtons.push_back( new MovingButton() );
-		if( texts[i] == "Back" )
-		{
-			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Back.png", x - w * 0.5f, y - h * 0.5f, w, h );
-		}
-		else
-		{
-			mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Options_Menu_Text/" + texts[i] + ".png", x - w * 0.5f, y - h * 0.5f, w, h );
-		}
+		mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Options_Menu_Text/" + texts[i] + ".dds", x - w * 0.5f, y - h * 0.5f, w, h );
 		x += (float)Input::GetInstance()->mScreenWidth  * 0.1f;
 	}
+
+	mInOptionsBackground.Initialize( "../Content/Assets/Textures/Menu/helpOverlay_menu.dds", 0.0f, 0.0f, (float)Input::GetInstance()->mScreenWidth, (float)Input::GetInstance()->mScreenHeight );
+
 	return S_OK;
 }
 
@@ -87,6 +116,7 @@ void OptionsMenuState::Release()
 
 OptionsMenuState::OptionsMenuState() : BaseMenuState()
 {
+	bool mInOptions = false;
 }
 
 OptionsMenuState::~OptionsMenuState()

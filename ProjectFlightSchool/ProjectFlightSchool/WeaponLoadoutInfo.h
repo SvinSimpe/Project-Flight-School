@@ -13,6 +13,7 @@
 
 // Minigun
 #define MINIGUN_AR			0.05f	// Attack Rate
+#define MINIGUN_SLOWDOWN	0.02f	// How much is the player slowed down
 #define MINIGUN_DAMAGE		2.0f	// Damage
 #define MINIGUN_RANGE		0.8f	// Range
 #define MINIGUN_SPREAD		0.1f	// Spread
@@ -23,6 +24,7 @@
 #define MINIGUN_OVERHEAT	1.0f	// Amount of heat the minigun get's for firing once
 // Shotgun
 #define SHOTGUN_AR			1.0f	// Attack Rate
+#define SHOTGUN_SLOWDOWN	0.2f	// How much is the player slowed down
 #define SHOTGUN_DAMAGE		3.0f	// Damage
 #define SHOTGUN_RANGE		0.3f	// Range
 #define SHOTGUN_SPREAD		0.0f	// Spread
@@ -32,6 +34,7 @@
 
 // Grenade Launcher
 #define GL_AR				1.0f	// Attack Rate
+#define GL_SLOWDOWN			0.5f	// How much is the player slowed down
 #define GL_DAMAGE			15.0f	// Damage
 #define GL_RANGE			25.0f	// Range
 #define GL_SPREAD			0.0f	// Spread
@@ -41,6 +44,7 @@
 
 // Sniper
 #define SNIPER_AR			2.5f	// Attack Rate
+#define SNIPER_SLOWDOWN		0.5f	// How much is the player slowed down
 #define SNIPER_DAMAGE		20.0f	// Damage
 #define SNIPER_RANGE		5.0f	// Range
 #define SNIPER_SPREAD		0.0f	// Spread
@@ -54,6 +58,7 @@
 
 // Claymore
 #define CLAYMORE_AR			1.0f	// Attack Rate
+#define CLAYMORE_SLOWDOWN	0.1f	// How much is the player slowed down
 #define CLAYMORE_DAMAGE		2.0f	// Damage
 #define CLAYMORE_RADIUS		5.0f	// Radius
 #define CLAYMORE_SPREAD		7		// Spread
@@ -61,29 +66,35 @@
 #define CLAYMORE_TTA		0.65f	// Time till Attack
 #define CLAYMORE_STUN		0.3f	// Stun
 #define CLAYMORE_REACH		3.0f	// Reach
+#define CLAYMORE_OFFSETS	XMFLOAT3( 0.8f, -0.65f, 1.3f ) // Offsets forward, right, up
 
 // Hammer
 #define HAMMER_AR			3.5f	// Attack Rate Can't be lower than 3.5f
-#define HAMMER_DAMAGE		5.0f	// Damage
-#define HAMMER_RADIUS		1.0f	// Radius
-#define HAMMER_SPREAD		7		// Spread
+#define HAMMER_SLOWDOWN		0.5f	// How much is the player slowed down
+#define HAMMER_DAMAGE		30.0f	// Damage
+#define HAMMER_RADIUS		2.0f	// Radius
+#define HAMMER_SPREAD		20		// Spread
 #define HAMMER_KB			3.0f	// Knockback
-#define HAMMER_TTA			0.92f	// Time till Attack Can't be changed
+#define HAMMER_TTA			0.82f	// Time till Attack Can't be changed
 #define HAMMER_STUN			3.0f	// Stun
 #define HAMMER_REACH		2.0f	// Reach
+#define HAMMER_OFFSETS		XMFLOAT3( 1.5f, -0.70f, 1.3f ) // Offsets forward, right, up
 
 // Blowtorch
-#define BLOWTORCH_AR		3.0f	// Attack Rate
+#define BLOWTORCH_AR		0.1f	// Attack Rate
+#define BLOWTORCH_SLOWDOWN	0.04f	// How much is the player slowed down
 #define BLOWTORCH_DAMAGE	5.0f	// Damage
-#define BLOWTORCH_RADIUS	5.0f	// Radius
-#define BLOWTORCH_SPREAD	7		// Spread
-#define BLOWTORCH_KB		2.0f	// Knockback
-#define BLOWTORCH_TTA		0.95f	// Time till Attack
+#define BLOWTORCH_RADIUS	4.0f	// Radius
+#define BLOWTORCH_SPREAD	3		// Spread
+#define BLOWTORCH_KB		0.0f	// Knockback
+#define BLOWTORCH_TTA		0.2f	// Time till Attack
 #define BLOWTORCH_STUN		0.0f	// Stun
-#define BLOWTORCH_REACH		2.3f	// Reach
+#define BLOWTORCH_REACH		1.0f	// Reach
+#define BLOWTORCH_OFFSETS	XMFLOAT3( -0.35f, -0.65f, 1.3f ) // Offsets forward, right, up
 
 // Saw
 #define SAW_AR				3.0f	// Attack Rate
+#define SAW_SLOWDOWN		0.5f	// How much is the player slowed down
 #define SAW_DAMAGE			5.0f	// Damage
 #define SAW_RADIUS			5.0f	// Radius
 #define SAW_SPREAD			7		// Spread

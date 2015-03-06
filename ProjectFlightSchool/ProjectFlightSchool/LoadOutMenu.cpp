@@ -22,15 +22,22 @@ void LoadOutMenu::Update( float deltaTime )
 	{
 		if( mButtons[i].Pressed() )
 		{
-			IEventPtr E1( new Event_Change_Weapon( (int)mButtons[i].weaponType ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
-			if( mButtons[i].weaponType == MINIGUN || mButtons[i].weaponType == SHOTGUN || mButtons[i].weaponType == GRENADELAUNCHER || mButtons[i].weaponType == SNIPER )
+			if( mButtons[i].weaponType != SAW )
 			{
-				mCurrentRanged = i;
+				IEventPtr E1( new Event_Change_Weapon( (int)mButtons[i].weaponType ) );
+				EventManager::GetInstance()->QueueEvent( E1 );
+				if( mButtons[i].weaponType == MINIGUN || mButtons[i].weaponType == SHOTGUN || mButtons[i].weaponType == GRENADELAUNCHER || mButtons[i].weaponType == SNIPER )
+				{
+					mCurrentRanged = i;
+				}
+				else
+				{
+					mCurrentMelee = i;
+				}
 			}
 			else
 			{
-				mCurrentMelee = i;
+				MessageBox( NULL, L"You don't want it to crash, do you?", L"Ja vi vet att detta är en bugg", MB_OK );
 			}
 		}
 	}
@@ -99,13 +106,18 @@ HRESULT LoadOutMenu::Initialize()
 		offsetY += 124.0f;
 	}
 	
-	mBackButton.Initialize( "../Content/Assets/Textures/Menu/Back.png", 820.0f, 820.0f, 200.0f, 200.0f );
+	mBackButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/textBack.dds", 820.0f, 820.0f, 200.0f, 200.0f );
 	
 	WeaponType types[NR_OF_WEAPONS] = { MINIGUN, SHOTGUN, GRENADELAUNCHER, SNIPER, CLAYMORE, HAMMER, BLOWTORCH, SAW };
 	for( int i = 0; i < NR_OF_WEAPONS; i++ )
 	{
 		mButtons[i].weaponType = types[i];
 	}
+	IEventPtr E1( new Event_Change_Weapon( (int)mButtons[mCurrentMelee].weaponType ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
+	
+	IEventPtr E2( new Event_Change_Weapon( (int)mButtons[mCurrentRanged].weaponType ) );
+	EventManager::GetInstance()->QueueEvent( E2 );
 
 	return result;
 }

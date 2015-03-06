@@ -25,6 +25,7 @@ struct RangedInfo
 	WeaponType		weaponType;
 	unsigned int	level;
 	float			attackRate;
+	float			slowDown;
 	float			damage;
 	float			range;
 	float			spread;
@@ -38,6 +39,7 @@ struct RangedInfo
 		weaponType		= SHOTGUN;
 		level			= 1;
 		attackRate		= 0.0f;
+		slowDown		= 0.0f;
 		damage			= 0.0f;
 		range			= 0.0f;
 		spread			= 0.0f;
@@ -57,6 +59,7 @@ struct RangedInfo
 			{
 
 				attackRate		=	MINIGUN_AR;
+				slowDown		=	MINIGUN_SLOWDOWN;
 				damage			=	MINIGUN_DAMAGE;
 				range			=	MINIGUN_RANGE;
 				spread			=	MINIGUN_SPREAD;
@@ -75,6 +78,7 @@ struct RangedInfo
 			case SHOTGUN:
 			{
 				attackRate		=	SHOTGUN_AR;
+				slowDown		=	SHOTGUN_SLOWDOWN;
 				damage			=	SHOTGUN_DAMAGE;
 				range			=	SHOTGUN_RANGE;
 				spread			=	SHOTGUN_SPREAD;
@@ -87,6 +91,7 @@ struct RangedInfo
 			case GRENADELAUNCHER:
 			{
 				attackRate		=	GL_AR;
+				slowDown		=	GL_SLOWDOWN;
 				damage			=	GL_DAMAGE;
 				range			=	GL_RANGE;
 				spread			=	GL_SPREAD;
@@ -99,6 +104,7 @@ struct RangedInfo
 			case SNIPER:
 			{
 				attackRate		=	SNIPER_AR;
+				slowDown		=	SNIPER_SLOWDOWN;
 				damage			=	SNIPER_DAMAGE;
 				range			=	SNIPER_RANGE;
 				spread			=	SNIPER_SPREAD;
@@ -121,6 +127,7 @@ struct RangedInfo
 			default:
 			{
 				attackRate		=	MINIGUN_AR;
+				slowDown		=	MINIGUN_SLOWDOWN;
 				damage			=	MINIGUN_DAMAGE;
 				range			=	MINIGUN_RANGE;
 				spread			=	MINIGUN_SPREAD;
@@ -146,6 +153,7 @@ struct RangedInfo
 				areaOfEffect	=	MINIGUN_AOE;
 				projectileSpeed	=	MINIGUN_SPEED;*/
 				attackRate		=	MINIGUN_AR;
+				slowDown		=	MINIGUN_SLOWDOWN;
 				damage			=	MINIGUN_DAMAGE;
 				range			=	MINIGUN_RANGE;
 				spread			=	MINIGUN_SPREAD;
@@ -158,6 +166,7 @@ struct RangedInfo
 			case SHOTGUN:
 			{
 				attackRate		=	SHOTGUN_AR;
+				slowDown		=	SHOTGUN_SLOWDOWN;
 				damage			=	SHOTGUN_DAMAGE;
 				range			=	SHOTGUN_RANGE;
 				spread			=	SHOTGUN_SPREAD;
@@ -170,6 +179,7 @@ struct RangedInfo
 			case GRENADELAUNCHER:
 			{
 				attackRate		=	GL_AR;
+				slowDown		=	GL_SLOWDOWN;
 				damage			=	GL_DAMAGE;
 				range			=	GL_RANGE;
 				spread			=	GL_SPREAD;
@@ -182,6 +192,7 @@ struct RangedInfo
 			case SNIPER:
 			{
 				attackRate		=	SNIPER_AR;
+				slowDown		=	SNIPER_SLOWDOWN;
 				damage			=	SNIPER_DAMAGE;
 				range			=	SNIPER_RANGE;
 				spread			=	SNIPER_SPREAD;
@@ -194,6 +205,7 @@ struct RangedInfo
 			default:
 			{
 				attackRate		=	MINIGUN_AR;
+				slowDown		=	MINIGUN_SLOWDOWN;
 				damage			=	MINIGUN_DAMAGE;
 				range			=	MINIGUN_RANGE;
 				spread			=	MINIGUN_SPREAD;
@@ -373,6 +385,7 @@ struct MeleeInfo
 	WeaponType		weaponType;
 	unsigned int	level;
 	float			attackRate;			// Cooldown from prev attack
+	float			slowDown;
 	float			damage;
 	float			radius;
 	float			spread;
@@ -380,6 +393,7 @@ struct MeleeInfo
 	float			timeTillAttack;		// From button press
 	float			stun;
 	float			reach;
+	XMFLOAT3		offSet;
 	BoundingCircle*	boundingCircle;
 
 	MeleeInfo()
@@ -387,6 +401,7 @@ struct MeleeInfo
 		weaponType		= CLAYMORE;
 		level			= 1;
 		attackRate		= 0.0f;
+		slowDown		= 0.0f;
 		damage			= 0.0f;
 		radius			= 0.0f;
 		reach			= 0.0f;
@@ -406,6 +421,7 @@ struct MeleeInfo
 			case CLAYMORE:
 			{
 				attackRate		= CLAYMORE_AR;
+				slowDown		= CLAYMORE_SLOWDOWN;
 				damage			= CLAYMORE_DAMAGE;
 				radius			= CLAYMORE_RADIUS;
 				reach			= CLAYMORE_REACH;
@@ -414,12 +430,14 @@ struct MeleeInfo
 				boundingCircle	= new BoundingCircle( CLAYMORE_RADIUS );
 				timeTillAttack	= CLAYMORE_TTA;
 				stun			= CLAYMORE_STUN;
+				offSet			= CLAYMORE_OFFSETS;
 			}
 				break;
 
 			case HAMMER:
 			{
 				attackRate		= HAMMER_AR;
+				slowDown		= HAMMER_SLOWDOWN;
 				damage			= HAMMER_DAMAGE;
 				radius			= HAMMER_RADIUS;
 				spread			= HAMMER_SPREAD;
@@ -428,12 +446,14 @@ struct MeleeInfo
 				boundingCircle	= new BoundingCircle( HAMMER_RADIUS );
 				timeTillAttack	= HAMMER_TTA;
 				stun			= HAMMER_STUN;
+				offSet			= HAMMER_OFFSETS;
 			}
 				break;
 
 			case BLOWTORCH:
 			{
 				attackRate		= BLOWTORCH_AR;
+				slowDown		= BLOWTORCH_SLOWDOWN;
 				damage			= BLOWTORCH_DAMAGE;
 				radius			= BLOWTORCH_RADIUS;
 				reach			= BLOWTORCH_REACH;
@@ -442,12 +462,14 @@ struct MeleeInfo
 				boundingCircle	= new BoundingCircle( BLOWTORCH_RADIUS );
 				timeTillAttack	= BLOWTORCH_TTA;
 				stun			= BLOWTORCH_STUN;
+				offSet			= BLOWTORCH_OFFSETS;
 			}
 				break;
 
 			case SAW:
 			{
 				attackRate		= SAW_AR;
+				slowDown		= SAW_SLOWDOWN;
 				damage			= SAW_DAMAGE;
 				radius			= SAW_RADIUS;
 				reach			= SAW_REACH;
@@ -462,6 +484,7 @@ struct MeleeInfo
 			default:
 			{
 				attackRate		= HAMMER_AR;
+				slowDown		= HAMMER_SLOWDOWN;
 				damage			= HAMMER_DAMAGE;
 				radius			= HAMMER_RADIUS;
 				reach			= HAMMER_REACH;
@@ -470,6 +493,7 @@ struct MeleeInfo
 				boundingCircle	= new BoundingCircle( HAMMER_RADIUS );
 				timeTillAttack	= HAMMER_TTA;
 				stun			= HAMMER_STUN;
+				offSet			= HAMMER_OFFSETS;
 			}
 		}
 	}
@@ -484,50 +508,61 @@ struct MeleeInfo
 			case CLAYMORE:
 			{
 				attackRate		= CLAYMORE_AR;
+				slowDown		= CLAYMORE_SLOWDOWN;
 				damage			= CLAYMORE_DAMAGE;
 				radius			= CLAYMORE_RADIUS;
+				reach			= CLAYMORE_REACH;
 				spread			= CLAYMORE_SPREAD;
 				knockBack		= CLAYMORE_KB;
-				boundingCircle	= new BoundingCircle( CLAYMORE_REACH );
+				boundingCircle	= new BoundingCircle( CLAYMORE_RADIUS );
 				timeTillAttack	= CLAYMORE_TTA;
 				stun			= CLAYMORE_STUN;
+				offSet			= CLAYMORE_OFFSETS;
 			}
 				break;
 
 			case HAMMER:
 			{
 				attackRate		= HAMMER_AR;
+				slowDown		= HAMMER_SLOWDOWN;
 				damage			= HAMMER_DAMAGE;
 				radius			= HAMMER_RADIUS;
 				spread			= HAMMER_SPREAD;
+				reach			= HAMMER_REACH;
 				knockBack		= HAMMER_KB;
-				boundingCircle	= new BoundingCircle( HAMMER_REACH );
+				boundingCircle	= new BoundingCircle( HAMMER_RADIUS );
 				timeTillAttack	= HAMMER_TTA;
 				stun			= HAMMER_STUN;
+				offSet			= HAMMER_OFFSETS;
 			}
 				break;
 
 			case BLOWTORCH:
 			{
 				attackRate		= BLOWTORCH_AR;
+				slowDown		= BLOWTORCH_SLOWDOWN;
 				damage			= BLOWTORCH_DAMAGE;
 				radius			= BLOWTORCH_RADIUS;
+				reach			= BLOWTORCH_REACH;
 				spread			= BLOWTORCH_SPREAD;
 				knockBack		= BLOWTORCH_KB;
-				boundingCircle	= new BoundingCircle( BLOWTORCH_REACH );
+				boundingCircle	= new BoundingCircle( BLOWTORCH_RADIUS );
 				timeTillAttack	= BLOWTORCH_TTA;
 				stun			= BLOWTORCH_STUN;
+				offSet			= BLOWTORCH_OFFSETS;
 			}
 				break;
 
 			case SAW:
 			{
 				attackRate		= SAW_AR;
+				slowDown		= SAW_SLOWDOWN;
 				damage			= SAW_DAMAGE;
 				radius			= SAW_RADIUS;
+				reach			= SAW_REACH;
 				spread			= SAW_SPREAD;
 				knockBack		= SAW_KB;
-				boundingCircle	= new BoundingCircle( SAW_REACH );
+				boundingCircle	= new BoundingCircle( SAW_RADIUS );
 				timeTillAttack	= SAW_TTA;
 				stun			= SAW_STUN;
 			}
@@ -536,13 +571,16 @@ struct MeleeInfo
 			default:
 			{
 				attackRate		= HAMMER_AR;
+				slowDown		= HAMMER_SLOWDOWN;
 				damage			= HAMMER_DAMAGE;
 				radius			= HAMMER_RADIUS;
+				reach			= HAMMER_REACH;
 				spread			= HAMMER_SPREAD;
 				knockBack		= HAMMER_KB;
-				boundingCircle	= new BoundingCircle( HAMMER_REACH );
+				boundingCircle	= new BoundingCircle( HAMMER_RADIUS );
 				timeTillAttack	= HAMMER_TTA;
 				stun			= HAMMER_STUN;
+				offSet			= HAMMER_OFFSETS;
 			}
 		}
 	}
@@ -586,45 +624,45 @@ struct MeleeInfo
 				{
 					case 2:
 					{
-						damage			= 15.0f;
-						radius			= 5.0f;
-						spread			= 7;
-						knockBack		= 3.2f;
-						boundingCircle	= new BoundingCircle( HAMMER_REACH );
-						stun			= 3.3f;
+						damage					= 15.0f;
+						radius					= 5.0f;
+						spread					= 7;
+						knockBack				= 3.2f;
+						boundingCircle->radius	= radius;
+						stun					= 3.3f;
 					}
 						break;
 
 					case 3:
 					{
-						damage			= 18.0f;
-						radius			= 5.0f;
-						spread			= 7;
-						knockBack		= 3.5f;
-						boundingCircle	= new BoundingCircle( HAMMER_REACH );
-						stun			= 3.5f;
+						damage					= 18.0f;
+						radius					= 5.0f;
+						spread					= 7;
+						knockBack				= 3.5f;
+						boundingCircle->radius	= radius;
+						stun					= 3.5f;
 					}
 						break;
 
 					case 4:
 					{
-						damage			= 24.0f;
-						radius			= 5.0f;
-						spread			= 7;
-						knockBack		= 3.8f;
-						boundingCircle	= new BoundingCircle( HAMMER_REACH );
-						stun			= 3.5f;
+						damage					= 24.0f;
+						radius					= 5.0f;
+						spread					= 7;
+						knockBack				= 3.8f;
+						boundingCircle->radius	= radius;
+						stun					= 3.5f;
 					}
 						break;
 
 					case 5:
 					{
-						damage			= 40.0f;
-						radius			= 5.0f;
-						spread			= 7;
-						knockBack		= 4.0f;
-						boundingCircle	= new BoundingCircle( HAMMER_REACH );
-						stun			= 3.5f;
+						damage					= 40.0f;
+						radius					= 5.0f;
+						spread					= 7;
+						knockBack				= 4.0f;
+						boundingCircle->radius	= radius;
+						stun					= 3.5f;
 					}
 						break;
 

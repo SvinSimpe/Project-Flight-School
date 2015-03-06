@@ -7,8 +7,11 @@ void ClientTurret::ServerUpdateTurret( IEventPtr eventPtr )
 		std::shared_ptr<Event_Server_Update_Turret> data = std::static_pointer_cast<Event_Server_Update_Turret>( eventPtr );
 		if( data->ID() == mID )
 		{
-			mTurretHead->rot = data->Rotation();
-			mRot = mTurretHead->rot;
+			if( mTurretHead != nullptr )
+			{
+				mTurretHead->rot = data->Rotation();
+				mRot = mTurretHead->rot;
+			}
 		}
 	}
 }

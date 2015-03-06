@@ -11,8 +11,11 @@
 #define TAB_WIDTH		(SPACE_WIDTH * 8)
 #define LETTER_HEIGHT	78.0f/LETTER_SCALE
 
+#define COLOR_BLACK	XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f )
 #define COLOR_RED	XMFLOAT4( 1.0f, 0.0f, 0.0f, 1.0f )
 #define COLOR_CYAN	XMFLOAT4( 0.0f, 0.94f, 1.0f, 1.0f )
+#define COLOR_ORANGE XMFLOAT4( 1.0f, 0.74f, 0.0f, 1.0f )
+#define COLOR_DARK_ORANGE XMFLOAT4( 1.0f, 0.38f, 0.0f, 1.0f )
 
 class Font
 {

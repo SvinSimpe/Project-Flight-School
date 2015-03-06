@@ -18,6 +18,7 @@ void RenderManager::Clear()
 	mNrOfNodeGrid	= 0;
 	mNrOfBoxes		= 0;
 	mNrOfLines		= 0;
+	mNrOfCircles	= 0;
 }
 
 RenderManager::RenderManager()
@@ -181,6 +182,16 @@ void RenderManager::AddNodeGridToList( StaticVertex* vertices, UINT nrOfVertices
 	mNodeGridArray[mNrOfNodeGrid++] = info;
 }
 
+void RenderManager::AddCircleToList( DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 color, float radius )
+{
+	CircleInfo info;
+	info.center	= pos;
+	info.color	= color;
+	info.radius	= radius;
+
+	mCircleArray[mNrOfCircles++] = info;
+}
+
 void RenderManager::AnimationInitialize( AnimationTrack &animationTrack, AssetID model, AssetID defaultAnimation )
 {
 	animationTrack.mModelID					= model;
@@ -288,7 +299,10 @@ HRESULT RenderManager::Render()
 
 	Graphics::GetInstance()->RenderLine( mLineArray, mNrOfLines );
 
+	Graphics::GetInstance()->RenderCircle( mCircleArray, mNrOfCircles );	
+
 	Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray, mNrOfAnim3d );
+
 	////------------------------Finished filling the Gbuffers----------------------
 
 	////Render the scene with deferred

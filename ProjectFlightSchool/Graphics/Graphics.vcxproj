@@ -192,7 +192,7 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\Content\Effects\Particle Effects\Test_FountainEffect.hlsl">
+    <Text Include="..\Content\Effects\Particle Effects\SporesEffect.hlsl">
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>
@@ -242,6 +242,11 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
+    <Text Include="..\Content\Effects\Particle Effects\Fire_FliesEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
     <Text Include="..\Content\Effects\Particle Effects\BlowtorchFireEffect.hlsl">
       <FileType>Document</FileType>
     </Text>
@@ -257,12 +262,35 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
+    <Text Include="..\Content\Effects\DrawCircleEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
     <Text Include="..\Content\Effects\Particle Effects\Spark_RobotEffect.hlsl">
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\Content\Effects\Particle Effects\Spark_ElectricEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Content\Effects\Particle Effects\DebrisEffect.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Content\Effects\Particle Effects\ShellEffect.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>

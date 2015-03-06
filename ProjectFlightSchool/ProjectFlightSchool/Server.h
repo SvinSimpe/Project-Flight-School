@@ -86,6 +86,7 @@ class Server : public Network
 		void	ClientUp( IEventPtr eventPtr );
 		void	ClientAttemptRevive( IEventPtr eventPtr );
 		void	ClientShipProjectileDamage( IEventPtr eventPtr );
+		void	ClientEnemyMeleeDamage( IEventPtr eventPtr );
 		void	ClientEnemyProjectileDamage( IEventPtr eventPtr );
 		void	SetEnemyState( IEventPtr eventPtr );
 		void	BroadcastEnemyAttackToClients( IEventPtr eventPtr );
@@ -97,6 +98,10 @@ class Server : public Network
 		void	SwitchTeam( IEventPtr eventPtr );
 		void	XP( IEventPtr eventPtr );
 		void	ChangeWeapon( IEventPtr eventPtr );
+		void	ClientUpdateShip( IEventPtr eventPtr );
+		void	ResetTurretTargets( IEventPtr eventPtr );
+		void	ClientChangeReady( IEventPtr eventPtr );
+		void	HostStartCountdown( IEventPtr eventPtr );
 
 		void	ClientInteractEnergyCell( IEventPtr eventPtr );
 

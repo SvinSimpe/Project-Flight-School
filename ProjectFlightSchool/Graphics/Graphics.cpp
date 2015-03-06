@@ -238,6 +238,16 @@ HRESULT Graphics::InitializeBuffers()
 	if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, nullptr, &mBuffers[BUFFERS_SINGLE_STATIC_VERTEX] ) ) )
 		return hr;
 
+	//Buffer used for circle drawing
+	ZeroMemory( &bufferInstancedDesc, sizeof( bufferInstancedDesc ) );
+	bufferInstancedDesc.BindFlags		= D3D11_BIND_VERTEX_BUFFER;
+	bufferInstancedDesc.CPUAccessFlags	= D3D11_CPU_ACCESS_WRITE;
+	bufferInstancedDesc.Usage			= D3D11_USAGE_DYNAMIC;
+	bufferInstancedDesc.ByteWidth		= sizeof( CircleVertex ) * MAX_CIRCLE_POINTS;
+
+	if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, nullptr, &mBuffers[BUFFERS_CIRCLE_VERTEX] ) ) )
+		return hr;
+
 	//Light buffer for structured buffer
 	D3D11_BUFFER_DESC lightBufferDesc;
 	ZeroMemory( &lightBufferDesc, sizeof( lightBufferDesc ) );
@@ -438,9 +448,38 @@ HRESULT Graphics::InitializeEffects()
 	if( FAILED( hr = mEffects[EFFECTS_BILLBOARD]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 
+	////Circle effect
+	effectInfo.filePath					= "../Content/Effects/DrawCircleEffect.hlsl";
+	effectInfo.fileName					= "DrawCircleEffect";
+	effectInfo.vertexType				= CIRCLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_CIRCLE]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+
 	//=======================================
 	//			PARTICLE EFFECTS			|
 	//=======================================
+
+	//Debris effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/ShellEffect.hlsl";
+	effectInfo.fileName					= "ShellEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_SHELL]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Debris effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/DebrisEffect.hlsl";
+	effectInfo.fileName					= "DebrisEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_DEBRIS]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
 
 	//Hammer smoke effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/Hammer_Effect.hlsl";
@@ -615,12 +654,22 @@ HRESULT Graphics::InitializeEffects()
 
 
 	//Test Fountain effect
-	effectInfo.filePath					= "../Content/Effects/Particle Effects/Test_FountainEffect.hlsl";
-	effectInfo.fileName					= "Test_FountainEffect";
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/SporesEffect.hlsl";
+	effectInfo.fileName					= "SporesEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
 	effectInfo.isGeometryShaderIncluded = true;
 
-	if( FAILED( hr = mEffects[EFFECTS_TEST_FOUNTAIN]->Intialize( mDevice, &effectInfo ) ) )
+	if( FAILED( hr = mEffects[EFFECTS_SPORES]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Test Fountain effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/Fire_FliesEffect.hlsl";
+	effectInfo.fileName					= "Fire_FliesEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_FIRE_FLIES]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 	//--------------------------
 	return hr;
@@ -630,7 +679,9 @@ HRESULT Graphics::InitializeEffects()
 HRESULT Graphics::MapBuffer( ID3D11Buffer* buffer, void* data, int size )
 {
 	D3D11_MAPPED_SUBRESOURCE mapRes;
-	mDeviceContext->Map( buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapRes );
+	HRESULT hr = S_OK;
+
+	hr = mDeviceContext->Map( buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapRes );
 	memcpy( mapRes.pData, data, size );
 	mDeviceContext->Unmap( buffer, 0 );
 
@@ -1210,7 +1261,7 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 					mDeviceContext->IASetInputLayout( mEffects[info[i].mParticleType]->GetInputLayout() );
 
 					// Add particletype you want to apply additive blending on
-					if( info[i].mParticleType == EFFECTS_TEST_FOUNTAIN || info[i].mParticleType == EFFECTS_SPARK || info[i].mParticleType == EFFECTS_LEVEL_UP 
+					if( info[i].mParticleType == EFFECTS_SPORES || info[i].mParticleType == EFFECTS_SPARK || info[i].mParticleType == EFFECTS_LEVEL_UP 
 						|| info[i].mParticleType == EFFECTS_FIRE || info[i].mParticleType == EFFECTS_BLOWTORCH_FIRE || info[i].mParticleType == EFFECTS_BLOWTORCH_IDLE
 						|| info[i].mParticleType == EFFECTS_EXPLOSION || info[i].mParticleType == EFFECTS_SPARK_ROBOT || info[i].mParticleType == EFFECTS_SPARK_ELECTRIC )
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
@@ -1412,6 +1463,30 @@ void Graphics::RenderLine( LineInfo* info, UINT sizeOfList )
 		mDeviceContext->Draw( 2, 0 );
 
 	}
+}
+
+void Graphics::RenderCircle( CircleInfo* info, UINT sizeOfList )
+{
+	mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_DISABLED], 1 );
+	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_POINTLIST );
+	
+	UINT32 vertexSize	= sizeof( CircleVertex );
+	UINT32 offset		= 0;
+	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_CIRCLE]->GetInputLayout() );
+
+	mDeviceContext->VSSetShader( mEffects[EFFECTS_CIRCLE]->GetVertexShader(), nullptr, 0 );
+	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+	mDeviceContext->GSSetShader( mEffects[EFFECTS_CIRCLE]->GetGeometryShader(), nullptr, 0 );
+	mDeviceContext->PSSetShader( mEffects[EFFECTS_CIRCLE]->GetPixelShader(), nullptr, 0 );
+
+	mDeviceContext->GSSetConstantBuffers( 0, 1, &mBuffers[BUFFERS_CBUFFER_PER_FRAME] );
+
+	MapBuffer( mBuffers[BUFFERS_CIRCLE_VERTEX], &info[0], sizeof(CircleVertex) * sizeOfList );
+	mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_CIRCLE_VERTEX], &vertexSize, &offset );
+	mDeviceContext->Draw( sizeOfList, 0 );
+
+	mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
 }
 
 DirectX::XMFLOAT4X4 Graphics::GetRootMatrix( AnimationTrack animTrack )

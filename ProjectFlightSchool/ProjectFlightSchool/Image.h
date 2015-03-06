@@ -16,11 +16,18 @@ class Image : public Entry
 	private:
 	protected:
 	public:
+		void			SetPos( float x, float y );
+		void			SetDims( float w, float h );
+		void			SetImage( AssetID texture );
+		AssetID			GetAssetID() const;
 		virtual void	Render();
+		void			Render( float x, float y, float w, float h );
 		virtual bool	Update( float deltaTime );
 		virtual void	Initialize( std::string assetPath, float x, float y, float width, float height );
 		void			Release();
 						Image();
 		virtual			~Image();
+
+		XMFLOAT2		GetPosition() const;
 };
 #endif

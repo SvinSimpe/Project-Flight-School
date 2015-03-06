@@ -1,17 +1,5 @@
 #include "Enemy.h"
 
-void IEnemyBehavior::DamageFromPlayer( IEventPtr eventPtr )
-{
-	if( eventPtr->GetEventType() == Event_Client_Projectile_Damage_Enemy::GUID )
-	{
-		std::shared_ptr<Event_Client_Projectile_Damage_Enemy> data = std::static_pointer_cast<Event_Client_Projectile_Damage_Enemy>( eventPtr );
-		if( data->EnemyID() == mEnemy->mID )
-		{
-			mEnemy->TakeDamage( data->Damage(), data->ID() );
-		}
-	}
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 //								Base Behavior
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,7 +10,6 @@ EnemyState IEnemyBehavior::GetBehavior() const
 
 IEnemyBehavior::IEnemyBehavior()
 {
-	EventManager::GetInstance()->AddListener( &IEnemyBehavior::DamageFromPlayer, this, Event_Client_Projectile_Damage_Enemy::GUID );
 	mBehavior	= Idle;
 }
 
@@ -35,6 +22,7 @@ IEnemyBehavior::~IEnemyBehavior()
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT IdleBehavior::Update( float deltaTime )
 {
+
 	if( mEnemy->mIsAlive )
 	{
 		for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
@@ -46,10 +34,14 @@ HRESULT IdleBehavior::Update( float deltaTime )
 					mEnemy->SetTarget( mEnemy->mPlayers[i]->ID );
 					mEnemy->ChangeBehavior( HUNT_PLAYER_BEHAVIOR );
 				}
+				else
+				{
+					mEnemy->ChangeBehavior( MOVE_TO_SHIP_BEHAVIOR );
+				}
 			}
 		}
 	}
-
+	
 	return S_OK;
 }
 
@@ -64,7 +56,7 @@ void IdleBehavior::OnEnter()
 
 void IdleBehavior::OnExit()
 {
-
+	mEnemy->mLastState	= Idle;
 }
 
 void IdleBehavior::Reset()
@@ -143,7 +135,7 @@ void HuntPlayerBehavior::OnEnter()
 
 void HuntPlayerBehavior::OnExit()
 {
-
+	mEnemy->mLastState	= HuntPlayer;
 }
 
 void HuntPlayerBehavior::Reset()
@@ -177,18 +169,27 @@ HuntPlayerBehavior::~HuntPlayerBehavior()
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT MoveToShipBehavior::Update( float deltaTime )
 {
+	if( mEnemy->mShips.at(mEnemy->mTargetShipIndex)->GetHitCircle() != nullptr )
+	{
+		if( mEnemy->mAttackRadius->Intersect( mEnemy->mShips.at(0)->GetHitCircle() ) )//mEnemy->mTargetShipIndex)->GetHitCircle() ) )
+			mEnemy->ChangeBehavior( ATTACK_BEHAVIOR );
+		else
+			mEnemy->Hunt( deltaTime );
+	}
+
 	return S_OK;
 }
 
 void MoveToShipBehavior::OnEnter()
 {
+	mEnemy->mCurrentState	= MoveToShip;
 	IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), MoveToShip ) );
 	EventManager::GetInstance()->QueueEvent( state );
 }
 
 void MoveToShipBehavior::OnExit()
 {
-
+	mEnemy->mLastState	= MoveToShip;
 }
 
 void MoveToShipBehavior::Reset()
@@ -226,16 +227,29 @@ HRESULT AttackBehavior::Update( float deltaTime )
 	mTimeTillAttack -= deltaTime;
 
 	// If player is not dead or downed and attackTimer < 0.0f...
-	if(	( !mHasAttacked && mTimeTillAttack <= 0.0f ) && (!mEnemy->mPlayers[mEnemy->mTargetIndex]->IsDown && mEnemy->mPlayers[mEnemy->mTargetIndex]->IsAlive ) )
+	if( mEnemy->mLastState == HuntPlayer )
 	{
-		// ... and player intersects the enemy's attack radius
-		if( mEnemy->mAttackRadius->Intersect( mEnemy->mPlayers[mEnemy->mTargetIndex]->AggroCircle ) )
+		if(	( !mHasAttacked && mTimeTillAttack <= 0.0f ) && (!mEnemy->mPlayers[mEnemy->mTargetIndex]->IsDown && mEnemy->mPlayers[mEnemy->mTargetIndex]->IsAlive ) )
 		{
-			mHasAttacked = true;
-			IEventPtr state( new Event_Tell_Server_Enemy_Attack_Player( mEnemy->mID, mEnemy->mTargetID, mEnemy->mDamage ) );
-			EventManager::GetInstance()->QueueEvent( state );
-			mTimeTillAttack	= mEnemy->mAttackRate;
+			// ... and player intersects the enemy's attack radius
+			if( mEnemy->mAttackRadius->Intersect( mEnemy->mPlayers[mEnemy->mTargetIndex]->AggroCircle ) )
+			{
+				mHasAttacked = true;
+				IEventPtr state( new Event_Tell_Server_Enemy_Attack_Player( mEnemy->mID, mEnemy->mTargetID, mEnemy->mDamage ) );
+				EventManager::GetInstance()->QueueEvent( state );
+				mTimeTillAttack	= mEnemy->mAttackRate;
+			}
 		}
+	}
+	else if( mEnemy->mLastState	== MoveToShip )
+	{
+		// Ship intersects the enemy's attack radius
+			if( mEnemy->mAttackRadius->Intersect( mEnemy->mShips.at(mEnemy->mTargetShipIndex)->GetHitCircle() ) )
+			{
+				mHasAttacked = true;
+				mEnemy->mShips.at(mEnemy->mTargetShipIndex)->TakeDamage( mEnemy->mDamage );
+				mTimeTillAttack	= mEnemy->mAttackRate;
+			}
 	}
 
 	if( mStateTimer <= 0.0f )
@@ -246,6 +260,7 @@ HRESULT AttackBehavior::Update( float deltaTime )
 
 void AttackBehavior::OnEnter()
 {
+	mEnemy->mCurrentState	= Attack;
 	mTimeTillAttack	= mEnemy->mAttackRate;
 	mHasAttacked	= false;
 	mEnemy->mVelocity = XMFLOAT3( 0.0f, 0.0f, 0.0f );
@@ -253,7 +268,7 @@ void AttackBehavior::OnEnter()
 	switch( mEnemy->mEnemyType )
 	{
 		case Standard:
-			mStateTimer = 1.6f;
+			mStateTimer = 4.0f;
 			break;
 
 		case Ranged:
@@ -275,7 +290,7 @@ void AttackBehavior::OnEnter()
 
 void AttackBehavior::OnExit()
 {
-
+	mEnemy->mLastState	= Attack;
 }
 
 void AttackBehavior::Reset()
@@ -310,6 +325,18 @@ AttackBehavior::~AttackBehavior()
 ///////////////////////////////////////////////////////////////////////////////
 //								Take Damage Behavior
 ///////////////////////////////////////////////////////////////////////////////
+void TakeDamageBehavior::DamageFromPlayer( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Projectile_Damage_Enemy::GUID )
+	{
+		std::shared_ptr<Event_Client_Projectile_Damage_Enemy> data = std::static_pointer_cast<Event_Client_Projectile_Damage_Enemy>( eventPtr );
+		if( data->EnemyID() == mEnemy->mID )
+		{
+			mEnemy->TakeDamage( data->Damage(), data->ID() );
+		}
+	}
+}
+
 HRESULT TakeDamageBehavior::Update( float deltaTime )
 {
 	if( mEnemy->mIsAlive )
@@ -322,13 +349,14 @@ HRESULT TakeDamageBehavior::Update( float deltaTime )
 
 void TakeDamageBehavior::OnEnter()
 {
+	mEnemy->mCurrentState	= TakeDamage;
 	IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), TakeDamage ) );
 	EventManager::GetInstance()->QueueEvent( state );
 }
 
 void TakeDamageBehavior::OnExit()
 {
-
+	mEnemy->mLastState	= TakeDamage;
 }
 
 void TakeDamageBehavior::Reset()
@@ -340,6 +368,7 @@ HRESULT TakeDamageBehavior::Initialize( Enemy* enemy )
 {
 	mEnemy		= enemy;
 	mBehavior	= TakeDamage;
+	EventManager::GetInstance()->AddListener( &TakeDamageBehavior::DamageFromPlayer, this, Event_Client_Projectile_Damage_Enemy::GUID );
 	return S_OK;
 }
 
@@ -368,7 +397,7 @@ HRESULT StunnedBehavior::Update( float deltaTime )
 
 	if( mStateTimer < 0.0f )
 	{
-		mEnemy->ChangeBehavior( HUNT_PLAYER_BEHAVIOR );
+		mEnemy->ChangeBehavior( IDLE_BEHAVIOR );
 	}
 
 	return S_OK;
@@ -376,15 +405,15 @@ HRESULT StunnedBehavior::Update( float deltaTime )
 
 void StunnedBehavior::OnEnter()
 {
+	mEnemy->mCurrentState	= Stunned;
 	mStateTimer = mEnemy->mStunTimer;
-	mEnemy->ChangeBehavior( STUNNED_BEHAVIOR );
 	IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), Stunned ) );
 	EventManager::GetInstance()->QueueEvent( state );
 }
 
 void StunnedBehavior::OnExit()
 {
-
+	mEnemy->mLastState	= Stunned;
 }
 
 void StunnedBehavior::Reset()
@@ -425,6 +454,7 @@ HRESULT DeadBehavior::Update( float deltaTime )
 
 void DeadBehavior::OnEnter()
 {
+	mEnemy->mCurrentState	= Death;
 	mEnemy->mVelocity		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mEnemy->mCurrentState	= Death;
 	mEnemy->mIsAlive		= false;
@@ -437,7 +467,7 @@ void DeadBehavior::OnEnter()
 
 void DeadBehavior::OnExit()
 {
-
+	mEnemy->mLastState	= Death;
 }
 
 void DeadBehavior::Reset()

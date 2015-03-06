@@ -23,36 +23,35 @@ struct PlayerName
 
 struct GuiUpdate
 {
-	float deltaTime;
+	float deltaTime = 0.0f;;
 
 	//Radar update info
-	RADAR_UPDATE_INFO* mRadarObjects;
-	UINT mNrOfObjects;
-	DirectX::XMFLOAT3 mPlayerPos;
+	RADAR_UPDATE_INFO* mRadarObjects	= nullptr;
+	UINT mNrOfObjects					= 0;
+	DirectX::XMFLOAT3 mPlayerPos		= DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	//------------------------------
 
 	//Player names update info
-	PlayerName* mPlayerNames;
-	UINT mNrOfPlayerNames;
-	int mPlayerTeamID;
+	PlayerName* mPlayerNames	= nullptr;
+	UINT mNrOfPlayerNames		= 0;
+	int mPlayerTeamID			= 0;
 	//------------------------------
 
 	//Health bar update info
-	float* mAlliesHP;
-	int mNrOfAllies;
-	float mShipHP;
+	float* mAlliesHP	= nullptr;
+	int mNrOfAllies		= 0;
+	float mShipHP		= 0.0f;
 	//------------------------------
 
 	//Player update info
 	float	mPlayerHP;
-	float	mPlayerShield;
 	float	mPlayerXP;
 	int		mLevel;
 	//------------------------------
 
 	//End game update info
-	bool mEndGame;
-	bool mWonGame;
+	bool mEndGame = false;
+	bool mWonGame = false;
 	//------------------------------
 
 };
@@ -78,17 +77,12 @@ class Gui
 
 		int			mPlayerHP;
 		int			mPlayerXP;
-		int			mPlayerShield;
 
 		int			mExperience;
 
-		AssetID		mPlayerBar;
-		XMFLOAT2	mPlayerHealthXPTopLeftCorner;
-		XMFLOAT2	mSizePlayerHealthXP;
-
-		AssetID		mLevelUp;
-		XMFLOAT2	mSizeLevelUp;
-		XMFLOAT2	mTopLeftLevelUp;
+		Image		mHPXP;
+		Image		mLevelUp;
+		Image		mDeviderHPXP;
 
 		int			mNeededEnergyCells;
 		
@@ -110,6 +104,7 @@ class Gui
 		HRESULT	Update( GuiUpdate guiUpdate );
 		HRESULT	Render();
 		HRESULT	Initialize( UINT neededEnergyCells );
+		void	Reset();
 		void	Release();
 				Gui();
 				~Gui();

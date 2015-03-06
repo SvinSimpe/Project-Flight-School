@@ -50,14 +50,71 @@ HRESULT EnergyCell::Update( float deltaTime )
 	mHooverFactor += deltaTime * 1.0f;
 	mPickUpRadius->center.y = sinf( mHooverFactor ) + 1.0f;
 
+	UpdateLight( deltaTime );
+
 	RenderManager::GetInstance()->AnimationUpdate( mAnimationTrack, deltaTime );
 
 	return S_OK;
 }
 
+void EnergyCell::UpdateLight( float deltaTime )
+{
+	if( !mPickedUp )
+	{
+		if ( !isLightActive )
+		{
+			mEnergyPointLight->positionAndIntensity.x = mPickUpRadius->center.x;
+			mEnergyPointLight->positionAndIntensity.y = mPickUpRadius->center.y;
+			mEnergyPointLight->positionAndIntensity.z = mPickUpRadius->center.z;
+
+			IEventPtr reg( new Event_Add_Point_Light( mEnergyPointLight ) );
+			EventManager::GetInstance()->QueueEvent( reg );
+			isLightActive = true;
+		}		
+	}
+
+	else if( mPickedUp )
+	{
+		if ( isLightActive )
+		{
+			IEventPtr reg( new Event_Remove_Point_Light( mEnergyPointLight ) );
+			EventManager::GetInstance()->QueueEvent( reg );
+			isLightActive = false;
+		}
+	}
+}
 HRESULT EnergyCell::Render()
 {
 	RenderManager::GetInstance()->AddAnim3dToList( mAnimationTrack, ANIMATION_PLAY_LOOPED, mPickUpRadius->center );
+
+	//// Turn off light
+	//if ( isLightActive && mPickedUp)
+	//{
+	//	IEventPtr reg( new Event_Remove_Point_Light( mEnergyPointLight ) );
+	//	EventManager::GetInstance()->QueueEvent( reg );
+
+	//	isLightActive = false;
+	//}
+
+	//// Turn on light
+	//else if ( !isLightActive && !mPickedUp)
+	//{
+	//	IEventPtr reg( new Event_Remove_Point_Light( mEnergyPointLight ) );
+	//	EventManager::GetInstance()->QueueEvent( reg );
+
+	//	isLightActive = true;
+	//}
+
+
+	//// Turn on Light
+	//if( !mEnergyPointLight && !mPickedUp )
+	//{
+	//	IEventPtr reg( new Event_Add_Point_Light( mEnergyPointLight ) );
+	//	EventManager::GetInstance()->QueueEvent( reg );
+
+	//	isLightActive = true;
+	//}
+
 
 	return S_OK;
 }
@@ -77,6 +134,14 @@ HRESULT EnergyCell::Initialize( DirectX::XMFLOAT3 position )
 	mPickUpRadius			= new BoundingCircle( 1.0f );
 	mPickUpRadius->center	= position;
 
+	mEnergyPointLight						= new PointLight;
+	mEnergyPointLight->positionAndIntensity	= XMFLOAT4( position.x, position.y - 0.5f, position.z, 1.0f );
+	mEnergyPointLight->colorAndRadius		= XMFLOAT4( 2.0f, 2.0f, 4.0f, 1.0f );
+
+	IEventPtr reg( new Event_Add_Point_Light( mEnergyPointLight ) );
+	EventManager::GetInstance()->QueueEvent( reg );
+	isLightActive							= true;
+
 	mSecured				= false;
 
 	AssetID model		= 0;
@@ -93,19 +158,13 @@ HRESULT EnergyCell::Initialize( DirectX::XMFLOAT3 position )
 
 	RenderManager::GetInstance()->AnimationInitialize( mAnimationTrack, model, mAnimation );
 
-	//if( FAILED( hr = Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/PermanentAssets/Battery/", "battery.apfs", mAssetID ) ) )
-	//{
-	//	return hr;
-	//}
-
-	
-
 	return hr;
 }
 
 void EnergyCell::Release()
 {
 	SAFE_DELETE( mPickUpRadius );
+	SAFE_DELETE( mEnergyPointLight );
 }
 
 EnergyCell::EnergyCell()
@@ -116,6 +175,7 @@ EnergyCell::EnergyCell()
 	mPickUpRadius	= nullptr;
 	mHooverFactor	= 0.0f;
 	mSecured		= false;
+	mEnergyPointLight	= nullptr;
 }
 
 EnergyCell::~EnergyCell()

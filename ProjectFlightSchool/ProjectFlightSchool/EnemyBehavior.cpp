@@ -1,17 +1,5 @@
 #include "Enemy.h"
 
-void IEnemyBehavior::DamageFromPlayer( IEventPtr eventPtr )
-{
-	if( eventPtr->GetEventType() == Event_Client_Projectile_Damage_Enemy::GUID )
-	{
-		std::shared_ptr<Event_Client_Projectile_Damage_Enemy> data = std::static_pointer_cast<Event_Client_Projectile_Damage_Enemy>( eventPtr );
-		if( data->EnemyID() == mEnemy->mID )
-		{
-			mEnemy->TakeDamage( data->Damage(), data->ID() );
-		}
-	}
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 //								Base Behavior
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,7 +10,6 @@ EnemyState IEnemyBehavior::GetBehavior() const
 
 IEnemyBehavior::IEnemyBehavior()
 {
-	EventManager::GetInstance()->AddListener( &IEnemyBehavior::DamageFromPlayer, this, Event_Client_Projectile_Damage_Enemy::GUID );
 	mBehavior	= Idle;
 }
 
@@ -338,6 +325,18 @@ AttackBehavior::~AttackBehavior()
 ///////////////////////////////////////////////////////////////////////////////
 //								Take Damage Behavior
 ///////////////////////////////////////////////////////////////////////////////
+void TakeDamageBehavior::DamageFromPlayer( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Projectile_Damage_Enemy::GUID )
+	{
+		std::shared_ptr<Event_Client_Projectile_Damage_Enemy> data = std::static_pointer_cast<Event_Client_Projectile_Damage_Enemy>( eventPtr );
+		if( data->EnemyID() == mEnemy->mID )
+		{
+			mEnemy->TakeDamage( data->Damage(), data->ID() );
+		}
+	}
+}
+
 HRESULT TakeDamageBehavior::Update( float deltaTime )
 {
 	if( mEnemy->mIsAlive )
@@ -369,6 +368,7 @@ HRESULT TakeDamageBehavior::Initialize( Enemy* enemy )
 {
 	mEnemy		= enemy;
 	mBehavior	= TakeDamage;
+	EventManager::GetInstance()->AddListener( &TakeDamageBehavior::DamageFromPlayer, this, Event_Client_Projectile_Damage_Enemy::GUID );
 	return S_OK;
 }
 

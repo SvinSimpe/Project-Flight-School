@@ -539,14 +539,6 @@ void PlayState::HandleDeveloperCameraInput()
 			mGui->ActivateInGameWindow();
 		}
 	}
-	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_P ) )
-	{
-		SoundBufferHandler::GetInstance()->StopLoopStream( mStreamSoundAsset );
-	}
-	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_SPACE ) )
-	{
-		SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
-	}
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_1 ) )
 	{
 		RenderManager::GetInstance()->ChangeRasterizerState( CULL_NONE );

@@ -28,6 +28,7 @@ void LobbyOwnerState::ManageStartButton()
 
 	// check here if game is full
 	//bool gameFull = mPlayers.size() == mMaxPlayers ? true : false;
+
 	bool gameFull = true; // dev stuff yo
 	if( !gameFull )
 	{
@@ -65,7 +66,7 @@ void LobbyOwnerState::ManageStartButton()
 
 	if( allReady 
 		&& gameFull
-		)
+		&& !mGameCountdownStarted )
 	{
 		IEventPtr E1( new Event_Host_Start_Game_Countdown() );
 		Client::GetInstance()->SendEvent( E1 );
@@ -150,16 +151,16 @@ HRESULT LobbyOwnerState::Render( float deltaTime )
 		mFont.WriteText( textToWrite, p->button.GetPosition().x + 20.0f, p->button.GetPosition().y + 15.0f, 3.0f, COLOR_CYAN );
 		if( p->isReady )
 		{
-			mReadyImg.Render( p->button.GetPosition().x + 275.0f, p->button.GetPosition().y + 5.0f, 50.0f, 50.0f );
-		}
-		else
-		{
-			mNotReadyImg.Render( p->button.GetPosition().x + 275.0f, p->button.GetPosition().y + 5.0f, 50.0f, 50.0f );
+			mReadyImg.Render( p->button.GetPosition().x + 265.0f, p->button.GetPosition().y + 7.0f, 50.0f, 50.0f );
+			if( p->thisPlayer )
+			{
+				mReadyImg.Render();
+			}
 		}
 	}
 
 	mBackButton.Render();
-	mReadyButton.Render();
+	mCheckBox.Render();
 	mChooseWeaponButton.Render();
 	mChooseWeaponText.Render();
 	mStartButton.Render();
@@ -212,7 +213,7 @@ void LobbyOwnerState::OnExit()
 
 HRESULT LobbyOwnerState::Initialize()
 {
-	mStartButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/startText.dds", 1665.0f, 760.0f, 200.0f, 200.0f );
+	mStartButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/startText.dds", 1665.0f, 810.0f, 200.0f, 200.0f );
 	mWarningTexts[ALL_READY].text = "Every player has to be ready before starting game!";
 	mWarningTexts[FULL_GAME].text = "Server has to be full before starting game!";
 	mWarningTexts[BALANCE_TEAMS].text = "Teams balanced";

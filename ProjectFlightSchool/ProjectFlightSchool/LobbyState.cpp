@@ -182,7 +182,7 @@ void LobbyState::HandleInput()
 		IEventPtr E1( new Event_Reset_Game() );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
-	if( mReadyButton.LeftMousePressed() )
+	if( mCheckBox.LeftMousePressed() )
 	{
 		for( size_t i = 0; i < mPlayers.size(); i++ )
 		{
@@ -221,7 +221,7 @@ HRESULT LobbyState::Update( float deltaTime )
 		mPlayers[i]->button.Update( deltaTime );
 	}
 	mBackButton.Update( deltaTime );
-	mReadyButton.Update( deltaTime );
+	mCheckBox.Update( deltaTime );
 
 	if( mLoadOutMenu.IsActive() )
 	{
@@ -230,21 +230,6 @@ HRESULT LobbyState::Update( float deltaTime )
 	else
 	{
 		HandleInput();
-	}
-
-	for( size_t i = 0; i < mPlayers.size(); i++ )
-	{
-		if( mPlayers[i]->thisPlayer )
-		{
-			if( mPlayers[i]->isReady )
-			{
-				mReadyButton.SetImage( mReadyImg.GetAssetID() );
-			}
-			else
-			{
-				mReadyButton.SetImage( mNotReadyImg.GetAssetID() );
-			}
-		}
 	}
 
 	if( mGameCountdownStarted )
@@ -277,17 +262,16 @@ HRESULT LobbyState::Render( float deltaTime )
 		mFont.WriteText( textToWrite, p->button.GetPosition().x + 20.0f, p->button.GetPosition().y + 15.0f, 3.0f, COLOR_CYAN );
 		if( p->isReady )
 		{
-			mReadyImg.Render( p->button.GetPosition().x + 275.0f, p->button.GetPosition().y + 5.0f, 50.0f, 50.0f );
+			mReadyImg.Render( p->button.GetPosition().x + 265.0f, p->button.GetPosition().y + 7.0f, 50.0f, 50.0f );
+			if( p->thisPlayer )
+			{
+				mReadyImg.Render();
+			}
 		}
-		else
-		{
-			mNotReadyImg.Render( p->button.GetPosition().x + 275.0f, p->button.GetPosition().y + 5.0f, 50.0f, 50.0f );
-		}
-
 	}
 
 	mBackButton.Render();
-	mReadyButton.Render();
+	mCheckBox.Render();
 	mChooseWeaponButton.Render();
 	mChooseWeaponText.Render();
 
@@ -302,6 +286,11 @@ HRESULT LobbyState::Render( float deltaTime )
 		std::ostringstream out;
 		out << secondsLeft + 1;
 		float offset = mFont.GetMiddleXPoint( out.str(), 20.0f );
+		//mFont.WriteText( out.str(), (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 20.0f, COLOR_BLACK );
+		//mFont.WriteText( out.str(), (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 20.0f, COLOR_BLACK );
+		//mFont.WriteText( out.str(), (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 20.0f, COLOR_BLACK );
+		//mFont.WriteText( out.str(), (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 20.0f, COLOR_BLACK );
+
 		mFont.WriteText( out.str(), (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 20.0f, COLOR_ORANGE );
 	}
 	
@@ -337,7 +326,7 @@ void LobbyState::Reset()
 		SAFE_DELETE( mPlayers[i] );
 	}
 	mBackButton.SetExitCooldown();
-	mReadyButton.SetExitCooldown();
+	mCheckBox.SetExitCooldown();
 	mChooseWeaponButton.SetExitCooldown();
 	mPlayers.clear();
 	mMyID = (UINT)-1;	
@@ -351,7 +340,7 @@ HRESULT LobbyState::Initialize()
 	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 	
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/lobby_loadout_menu/lobbyNameFrame.dds", mBackground ); //Laddar in bilden till knapparna så att deras initialize bara får en int och inte laddar nnya bilder.
-	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/lobby_loadout_menu/lobbyMenu.dds", mBackground );
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/lobby_loadout_menu/lobby_menu.dds", mBackground );
 
 	mStateType = LOBBY_STATE;
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Initialize_LobbyPlayer::GUID );
@@ -372,12 +361,10 @@ HRESULT LobbyState::Initialize()
 
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Connect_Server_Success::GUID );
 
-	mBackButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/textBack.dds", 70.0f, 760.0f, 200.0f, 200.0f );
+	mBackButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/textBack.dds", 70.0f, 810.0f, 200.0f, 200.0f );
 	
-	mReadyButton.Initialize( "", 1665.0f, 550.0f, 200.0, 200.0 );
-	mReadyImg.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/ready.png", 1665.0f, 550.0f, 200.0, 200.0 );
-	mNotReadyImg.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/notReady.png", 1665.0f, 550.0f, 200.0, 200.0 );
-	mReadyButton.SetImage( mNotReadyImg.GetAssetID() );
+	mCheckBox.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/checkBox.png", 1765.0f, 720.0f, 68.0f, 68.0f );
+	mReadyImg.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/checkedCheckBox.png", 1765.0f, 720.0f, 68.0f, 68.0f );
 
 	mLoadOutMenu.Initialize();
 
@@ -392,7 +379,8 @@ void LobbyState::Release()
 {
 	mFont.Release();
 	mBackButton.Release();
-	mReadyButton.Release();
+	mCheckBox.Release();
+	mReadyImg.Release();
 	for( size_t i = 0; i < mPlayers.size(); i++ )
 	{
 		mPlayers[i]->button.Release();

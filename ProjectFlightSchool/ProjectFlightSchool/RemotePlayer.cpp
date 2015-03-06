@@ -310,9 +310,6 @@ HRESULT RemotePlayer::InitializeGraphics()
 // Set current hp to 0 to avoid negative values and send event that player has died
 void RemotePlayer::Die()
 {
-	IEventPtr reg( new Event_Remove_Point_Light( mPointLightIfDown ) );
-	EventManager::GetInstance()->QueueEvent( reg );
-	SAFE_DELETE( mPointLightIfDown );
 	mNrOfDeaths++;
 	mIsAlive		= false;
 	mIsDown			= false;
@@ -334,22 +331,14 @@ void RemotePlayer::CountUpKills()
 
 void RemotePlayer::GoDown()
 {
-	mTimeTillDeath				= mDeathTime;
-	mIsDown						= true;
-	mPointLightIfDown			= new PointLight;
-	mPointLightIfDown->position	= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
-	IEventPtr reg( new Event_Add_Point_Light( mPointLightIfDown ) );
-	EventManager::GetInstance()->QueueEvent( reg );
-	mPointLightIfDown->colorAndRadius = DirectX::XMFLOAT4( 0.6f, 0.2f, 0.6f, mTimeTillDeath );
+	mTimeTillDeath							= mDeathTime;
+	mIsDown									= true;
 }
 
 void RemotePlayer::GoUp()
 {
 	mIsDown		= false;
 	mCurrentHp	= mMaxHp / 5.0f;
-	IEventPtr reg( new Event_Remove_Point_Light( mPointLightIfDown ) );
-	EventManager::GetInstance()->QueueEvent( reg );
-	SAFE_DELETE( mPointLightIfDown );
 }
 
 HRESULT RemotePlayer::Update( float deltaTime )
@@ -422,7 +411,9 @@ HRESULT RemotePlayer::Update( float deltaTime )
 			if ( mTimeTillSpawn < 8.6f )
 			{
 				XMFLOAT3 newPos;
-				XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorZero(), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
+				float randY = (float)( rand() % 8 ) * 0.1f;
+
+				XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 
 				RenderManager::GetInstance()->RequestParticleSystem( mID, FireSmoke, XMFLOAT3( newPos.x, newPos.y - 0.3f, newPos.z ), XMFLOAT3( 0.0f, -0.1f , 0.0f ) );
 
@@ -462,7 +453,6 @@ HRESULT RemotePlayer::Update( float deltaTime )
 			/////////////////////////////////////////////////
 
 		mTimeTillDeath -= deltaTime;
-		mPointLightIfDown->colorAndRadius = DirectX::XMFLOAT4( 0.6f, 0.2f, 0.6f, mTimeTillDeath );
 
 		//Particle effects when player is downed
 		mPlayerDownSparksTimer -= deltaTime;
@@ -471,8 +461,9 @@ HRESULT RemotePlayer::Update( float deltaTime )
 		{
 			XMFLOAT3 newPos;
 			XMFLOAT3 inverseDir;
+			float randY = (float)( rand() % 8 ) * 0.1f;
 
-			XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorZero(), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
+			XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 			XMStoreFloat3( &inverseDir, -XMLoadFloat3( &mUpperBody.direction ) );
 
 			RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
@@ -576,13 +567,6 @@ void RemotePlayer::Release()
 	SAFE_DELETE( mBoundingCircle );
 	SAFE_DELETE( mBoundingCircleAura );
 
-	if( mIsDown )
-	{
-		IEventPtr reg( new Event_Remove_Point_Light( mPointLightIfDown ) );
-		EventManager::GetInstance()->QueueEvent( reg );
-		SAFE_DELETE( mPointLightIfDown );
-	}
-
 	mFont.Release();
 }
 
@@ -602,7 +586,6 @@ RemotePlayer::RemotePlayer()
 	mBoundingCircle					= nullptr;
 	mBoundingCircleAura				= nullptr;
 	mLoadOut						= nullptr;
-	mPointLightIfDown				= nullptr;
 	mSpawnPosition					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mIsBuffed						= false;
 	mBuffMod						= 0.0f;

@@ -302,7 +302,9 @@ void Player::HandleSpawn( float deltaTime )
 	if ( mTimeTillSpawn < 8.6f )
 	{
 		XMFLOAT3 newPos;
-		XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorZero(), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
+		float randY = (float)( rand() % 8 ) * 0.1f;
+
+		XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 
 		RenderManager::GetInstance()->RequestParticleSystem( mID, FireSmoke, XMFLOAT3( newPos.x, newPos.y - 0.3f, newPos.z ), XMFLOAT3( 0.0f, -0.1f , 0.0f ) );
 
@@ -347,12 +349,16 @@ void Player::HandleDeath( float deltaTime )
 	{
 		XMFLOAT3 newPos;
 		XMFLOAT3 inverseDir;
+		float randY = (float)( rand() % 8 ) * 0.1f;
+
+		XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
+
+		RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
 
 		XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorZero(), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 		XMStoreFloat3( &inverseDir, -XMLoadFloat3( &mUpperBody.direction ) );
-
-		RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
-		RenderManager::GetInstance()->RequestParticleSystem( mID, Spark, newPos, inverseDir );
+		
+		RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Robot, newPos, inverseDir );
 
 		mPlayerDownSparksTimer = (float)( rand() % 3 + 1 ) * 0.1f;
 	}
@@ -986,7 +992,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 			if( mEnergyCellID != (UINT)-1 )
 			{
-				mEnergyCellLight->position = DirectX::XMFLOAT4( mLowerBody.position.x, 4.0f, mLowerBody.position.z, 0.0f );
+				mEnergyCellLight->positionAndIntensity = DirectX::XMFLOAT4( mLowerBody.position.x, 4.0f, mLowerBody.position.z, 1.0f );
 			}
 			//////////////////////////////////////////
 			// IF LEAVING AREA
@@ -1013,7 +1019,34 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 			{
 				mIsOutSideZone = false;
 			}
-			
+
+			mPlayerDownSparksTimer -= deltaTime;
+
+			if ( mCurrentHp <= 50 && mPlayerDownSparksTimer < 0.0f )
+			{
+				// Spawn electricity att upperBody
+				XMFLOAT3 newPos;
+				float randY = (float)( rand() % 8 ) * 0.1f;
+
+				XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
+
+				RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
+
+				// Spawn spark on lowerBody
+				if ( mCurrentHp <= 10 )
+				{
+					XMFLOAT3 inverseDir;
+					randY = (float)( rand() % 8 ) * 0.1f;
+
+					XMStoreFloat3( &inverseDir, -XMLoadFloat3( &mUpperBody.direction ) );
+					XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
+					
+					RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Robot, newPos, XMFLOAT3( inverseDir.x * randY, inverseDir.y, inverseDir.z * randY ) );			
+				}
+				
+				float intensity = ( mCurrentHp * 0.1f ) * 0.6f;
+				mPlayerDownSparksTimer = (float)( rand() % 3 + 1 ) * 0.1f + intensity;
+			}
 		}
 		else
 		{
@@ -1085,7 +1118,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	mLoadOut->meleeWeapon->boundingCircle->center = XMFLOAT3( corrPos.x, 0.0f, corrPos.z );
 
 	//Update Light
-	mPointLight->position = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 1.0f, mLowerBody.position.z, 0.0f );
+	mPointLight->positionAndIntensity = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 1.0f, mLowerBody.position.z, 1.0f );
 
 	//== Event to sync player with server ==
 
@@ -1164,16 +1197,16 @@ HRESULT Player::Initialize()
 	////////////
 	// Light
 	////////////
-	mPointLight				= new PointLight;
-	mPointLight->position	= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 0.0f );
+	mPointLight							= new PointLight;
+	mPointLight->positionAndIntensity	= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 1.0f );
 	IEventPtr reg( new Event_Add_Point_Light( mPointLight ) );
 	EventManager::GetInstance()->QueueEvent( reg );
 
 	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.0f, 0.0f, 1.0f, 5.0f );
 
-	mEnergyCellLight					= new PointLight;
-	mEnergyCellLight->position			= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f );
-	mEnergyCellLight->colorAndRadius	= DirectX::XMFLOAT4( 2.0f, 3.0f, 8.0f, 1.0f );
+	mEnergyCellLight						= new PointLight;
+	mEnergyCellLight->positionAndIntensity	= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
+	mEnergyCellLight->colorAndRadius		= DirectX::XMFLOAT4( 2.0f, 3.0f, 8.0f, 1.0f );
 
 	mMaxVelocity		= 7.7f;
 	mCurrentVelocity	= 0.0f;

@@ -7,6 +7,10 @@
 #include <thread>
 #include <DirectXMath.h>
 #include <time.h>
+
+#include "Events.h"
+#include "..\Graphics\LightStructure.h"
+
 using namespace DirectX;
 
 #define MAX_PARTICLES 10000
@@ -14,6 +18,10 @@ using namespace DirectX;
 
 #if !defined(SAFE_DELETE_ARRAY)
 #define SAFE_DELETE_ARRAY( x ) if( x ){ delete [] x; x = nullptr; }
+#endif
+
+#if !defined(SAFE_DELETE)
+#define SAFE_DELETE( x ) if( x ){ delete x; x = nullptr; }
 #endif
 
 enum ParticleType
@@ -28,7 +36,7 @@ enum ParticleType
 	Blood,
 	MuzzleFlash,
 	Smoke_MiniGun,
-	Test_Fountain,
+	Spores,
 	FireSmoke,
 	BlowTorchFire,
 	BlowTorchIdle,
@@ -44,8 +52,9 @@ struct ParticleData
 {
 	#pragma region Members
 
-	int capacity = 0;
-	int	nrOfParticlesAlive = 0;
+	int capacity				= 0;
+	int	nrOfParticlesAlive		= 0;
+
 	size_t	particleType			= std::numeric_limits<unsigned int>::infinity();
 
 	float*	xPosition = nullptr;
@@ -63,7 +72,11 @@ struct ParticleData
 	float*	damping		= nullptr;
 
 	XMFLOAT3 randomDirectionVector;
-	int		 nrOfRequestedParticles		= 0;
+	int		 nrOfRequestedParticles			= 0;
+
+	PointLight* mPointLightParticleEmitter	= nullptr;
+	float		mInitialRadius				= 0;
+	bool		isLightActive				= false;
 
 	#pragma endregion
 
@@ -258,7 +271,7 @@ struct ParticleData
 		float randomSpreadAngle = (float)( rand() % (int)spreadAngle * 2 ) - spreadAngle;
 		XMVECTOR randomAimingDirection = XMVectorSet( 0.0f, 0.0f, 0.0f, 0.0f );
 
-		if( particleType == Test_Fountain )
+		if( particleType == Spores )
 		{
 			randomAimingDirection = XMVector3TransformCoord( aimingDirection, XMMatrixRotationX( XMConvertToRadians( randomSpreadAngle ) ) );
 			randomAimingDirection = XMVector3TransformCoord( randomAimingDirection, XMMatrixRotationZ( XMConvertToRadians( randomSpreadAngle ) ) );	
@@ -275,7 +288,7 @@ struct ParticleData
 			SparkElevationY( 1.0f, 2.0f );
 		}
 
-		if( particleType != Test_Fountain && particleType != Spark  && particleType != Level_Up && particleType != Level_Inner && particleType != Explosion && particleType != NormalSmoke && particleType != BlowTorchIdle && particleType != Hammer_Effect && particleType != FIRE )
+		if( particleType != Spores && particleType != Spark  && particleType != Level_Up && particleType != Level_Inner && particleType != Explosion && particleType != NormalSmoke && particleType != BlowTorchIdle && particleType != Hammer_Effect && particleType != FIRE )
 		{
 			//Get random elevation
 			float randomElevation = ( (float)( rand() % 20 ) - 10 ) * 0.1f;
@@ -406,7 +419,7 @@ struct ParticleData
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 10, 20 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 10, 20 );		
 			}
-			else if( particleType == Test_Fountain )
+			else if( particleType == Spores )
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 2, 3 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 3, 10 );
@@ -491,7 +504,8 @@ struct ParticleData
 		SAFE_DELETE_ARRAY( yPosition );
 		SAFE_DELETE_ARRAY( zPosition );
 		
-
+		if ( mPointLightParticleEmitter )
+			SAFE_DELETE( mPointLightParticleEmitter );
 		
 		SAFE_DELETE_ARRAY( lifeTime );
 		SAFE_DELETE_ARRAY( deathTime );

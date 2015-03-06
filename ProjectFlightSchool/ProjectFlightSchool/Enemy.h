@@ -15,7 +15,7 @@
 
 class Enemy;
 
-#define MAX_NR_OF_ENEMIES		70
+#define MAX_NR_OF_ENEMIES		10
 
 #define randflt() (((float) rand())/((float) RAND_MAX))
 

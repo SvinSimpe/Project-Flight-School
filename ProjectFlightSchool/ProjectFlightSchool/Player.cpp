@@ -514,6 +514,12 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	}
 	else
 	{
+		mFollowPath = false;
+		Pathfinder::GetInstance()->RequestPath( currentPath1, mLowerBody.position, mPick  );
+		Pathfinder::GetInstance()->CalculateSubPath( currentPath1 );
+		currentPath = currentPath1->TotalPath();
+		currStep = currentPath.begin();
+
 		XMVECTOR loadVel		= XMLoadFloat3( &mVelocity );
 		XMVECTOR loadNorm		= XMLoadFloat3( &XMFLOAT3( normal.x, normal.y, normal.z ) );
 		XMVECTOR loadNormNorm	= XMLoadFloat3( &XMFLOAT3( -normal.z, -normal.y, normal.x ) );

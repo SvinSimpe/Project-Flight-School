@@ -16,9 +16,6 @@ struct ParticleSystem : public ParticleData
 	float		emitRate					= 0.0f;
 	AssetID		assetID;
 
-	int currCount = 0;
-	int prevCount = 0;
-
 	#pragma endregion
 
 	#pragma region Functions
@@ -53,16 +50,19 @@ struct ParticleSystem : public ParticleData
 			}
 			case BlowTorchFire:
 			{
+				mPointLightParticleEmitter 	= new PointLight;
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireParticle.dds", assetID );
 				break;
 			}
 			case BlowTorchIdle:
 			{
+				mPointLightParticleEmitter 	= new PointLight;
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireParticle.dds", assetID );
 				break;
 			}
 			case FIRE:
 			{
+				mPointLightParticleEmitter 	= new PointLight;
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireParticle.dds", assetID );
 				break;
 			}
@@ -73,6 +73,7 @@ struct ParticleSystem : public ParticleData
 			}
 			case Explosion:
 			{
+				mPointLightParticleEmitter 	= new PointLight;
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireParticle.dds", assetID );
 				break;
 			}
@@ -88,16 +89,19 @@ struct ParticleSystem : public ParticleData
 			}
 			case Spark:
 			{
+				mPointLightParticleEmitter 	= new PointLight;
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/sparks.dds", assetID );
 				break;
 			}
 			case Spark_Robot:
 			{
+				mPointLightParticleEmitter 	= new PointLight;
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/sparks.dds", assetID );
 				break;
 			}
 			case Spark_Electric:
 			{
+				mPointLightParticleEmitter 	= new PointLight;
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/electric.dds", assetID );
 				break;
 			}
@@ -106,7 +110,7 @@ struct ParticleSystem : public ParticleData
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/whiteSmoke.dds", assetID );
 				break;
 			}
-			case Test_Fountain:
+			case Spores:
 			{
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/smokeParticle1.dds", assetID );
 				break;
@@ -165,12 +169,9 @@ struct ParticleSystem : public ParticleData
 		// Use emitterDirection as base and randomize a different direction vector with a maximum spread angle deviation
 		SetDirection( emitterDirection.x, emitterDirection.y, emitterDirection.z, particleCount, spreadAngle );
 		
-		if( particleType == Test_Fountain )
-			GeneratePlanePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 60, 60, particleCount );
-		else if( particleType == FIRE )
-			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 1.5f, particleCount );	
-		else if( particleType == FireSmoke )
-			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 4.0f, particleCount );	
+
+		if( particleType == Spores )
+			GeneratePlanePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 30, 30, particleCount );
 		else if( particleType == Level_Up )
 			GenerateCircleEdgePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 1, particleCount );
 		else if( particleType == Level_Inner )
@@ -190,6 +191,7 @@ struct ParticleSystem : public ParticleData
 		{
 			SetRandomRotation( particleCount );
 			SetRandomDeathTime( 1, 3, particleCount );
+			ActivateLight( emitterPosition, XMFLOAT3( 6.0f, 2.0f, 2.0f ), 0.4f );
 		}
 		else if(particleType == Shell )
 		{
@@ -199,7 +201,7 @@ struct ParticleSystem : public ParticleData
 		else if(particleType == Debris )
 		{
 			SetRandomRotation( particleCount );
-			SetRandomDeathTime( 2, 4, particleCount );
+			SetRandomDeathTime( 2, 4, particleCount ); 
 		}
 		else if(particleType == FireSmoke )
 		{
@@ -219,6 +221,7 @@ struct ParticleSystem : public ParticleData
 		{
 			SetRandomRotation( particleCount ); 
 			SetRandomDeathTime( 1, 1, particleCount );
+			ActivateLight( emitterPosition, XMFLOAT3( 2.0f, 2.0f, 8.0f ), 0.2f );
 		}
 		else if( particleType == ExplosionSmoke )	
 		{
@@ -229,16 +232,19 @@ struct ParticleSystem : public ParticleData
 		{
 			SetRandomDeathTime( 1, 2, particleCount );
 			SetRandomRotation( particleCount ); 
+			ActivateLight( emitterPosition, XMFLOAT3( 6.0f, 2.0f, 2.0f ), 0.2f );
 		}
 		else if( particleType == BlowTorchIdle )	
 		{
 			SetRandomDeathTime( 1, 1, particleCount );
-			SetRandomRotation( particleCount ); 
+			SetRandomRotation( particleCount );
+			ActivateLight( emitterPosition, XMFLOAT3( 2.0f, 1.0f, 3.0f ), 0.01f );
 		}
 		else if( particleType == Explosion )	
 		{
 			SetRandomDeathTime( 1, 3, particleCount );
-			SetRandomRotation( particleCount ); 
+			SetRandomRotation( particleCount );
+			ActivateLight( XMFLOAT3( emitterPosition.x, emitterPosition.y + 1.3f, emitterPosition.z ), XMFLOAT3( 6.0f, 3.0f, 2.0f ), 0.2f );
 		}
 		else if( particleType == NormalSmoke )	
 		{
@@ -265,9 +271,9 @@ struct ParticleSystem : public ParticleData
 		{
 			SetRandomDeathTime( 1, 6, particleCount );
 		}
-		else if( particleType == Test_Fountain )
+		else if( particleType == Spores )
 		{
-			SetRandomDeathTime( 1, 50, particleCount );
+			SetRandomDeathTime( 3, 50, particleCount );
 		}
 		else if( particleType == Level_Up )	
 		{
@@ -289,8 +295,6 @@ struct ParticleSystem : public ParticleData
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{
-		if( particleType == NormalSmoke )			Generate( emitterPosition, emitterDirection, 6,  120.0f );	
-		else if( particleType == Spark )			Generate( emitterPosition, emitterDirection, 16, 25.0f );	
 		if( particleType == Shell )					Generate( emitterPosition, emitterDirection, 1,  10.0f );
 		else if( particleType == Debris )			Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(0, 5),  30.0f );
 		else if( particleType == NormalSmoke )		Generate( emitterPosition, emitterDirection, 6,  120.0f );
@@ -307,7 +311,7 @@ struct ParticleSystem : public ParticleData
 		else if( particleType == Blood )			Generate( emitterPosition, emitterDirection, 8, 25.0f );
 		else if( particleType == MuzzleFlash )		Generate( emitterPosition, emitterDirection, 4,  25.0f );
 		else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 8, 2.0f );
-		else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 32, 20.0f );
+		else if( particleType == Spores )			Generate( emitterPosition, emitterDirection, 8, 20.0f );
 		else if( particleType == Level_Up )			Generate( emitterPosition, emitterDirection, 512, 270.0f );
 		else if( particleType == Level_Inner )		Generate( emitterPosition, emitterDirection, 32, 20.0f );
 		else if( particleType == Fire_Flies )		Generate( emitterPosition, emitterDirection, 8, 5.0f );		//------------particle count and spreadangle
@@ -353,18 +357,21 @@ struct ParticleSystem : public ParticleData
 			{
 				// Update Fire logic here
 				FireLogic( deltaTime );
+				HandleLight();
 				break;
 			}
 			case BlowTorchFire: 
 			{
 				// Update Fire logic here
 				BlowTorchFireLogic( deltaTime );
+				HandleLight();
 				break;
 			}
 			case BlowTorchIdle: 
 			{
 				// Update Fire logic here
 				BlowTorchIdleLogic( deltaTime );
+				HandleLight();
 				break;
 			}
 			case FireSmoke: 
@@ -383,6 +390,7 @@ struct ParticleSystem : public ParticleData
 			{
 				// Update Explosion logic here
 				ExplosionLogic( deltaTime );
+				HandleLight();
 				break;
 			}
 			case Spark: 
@@ -401,6 +409,7 @@ struct ParticleSystem : public ParticleData
 			{
 				// Update Spark logic here
 				Spark_ElectricLogic( deltaTime );
+				HandleLight();
 				break;
 			}
 			case Blood: 
@@ -421,10 +430,10 @@ struct ParticleSystem : public ParticleData
 				Smoke_MiniGunLogic( deltaTime );
 				break;
 			}
-			case Test_Fountain:
+			case Spores:
 			{
 				// Update Smoke_MiniGun logic here
-				Test_FountainLogic( deltaTime );
+				SporesLogic( deltaTime );
 				break;
 			}
 			case Level_Up:
@@ -490,7 +499,72 @@ struct ParticleSystem : public ParticleData
 				nrOfRequestedParticles = 0;	
 		}
 	}
-	
+
+	void ActivateLight( XMFLOAT3 position, XMFLOAT3 color, float radius )
+	{
+		mPointLightParticleEmitter->positionAndIntensity = XMFLOAT4( position.x, position.y, position.z, 1.0f );
+
+		//float radius = nrOfRequestedParticles 
+		mPointLightParticleEmitter->colorAndRadius	= XMFLOAT4( color.x, color.y, color.z, radius );
+		mInitialRadius								= radius;
+
+		IEventPtr reg( new Event_Add_Point_Light( mPointLightParticleEmitter ) );
+		EventManager::GetInstance()->QueueEvent( reg );
+
+		isLightActive = true;
+	}
+
+	void DeactivateLight()
+	{
+		IEventPtr reg( new Event_Remove_Point_Light( mPointLightParticleEmitter ) );
+		EventManager::GetInstance()->QueueEvent( reg );
+	}
+
+	void UpdateLight()
+	{
+		if ( particleType == Spark_Electric )
+		{
+			mPointLightParticleEmitter->positionAndIntensity.w	= 1 + nrOfParticlesAlive * 0.05f;
+			mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.012f;
+		}
+
+		else if ( particleType == BlowTorchFire ) 			
+		{
+			 mPointLightParticleEmitter->positionAndIntensity.w	= 1 + nrOfParticlesAlive * 0.085f;
+			 mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.012f;
+		}
+
+		else if ( particleType == BlowTorchIdle ) 			
+		{
+			 mPointLightParticleEmitter->positionAndIntensity.w = 0.2f + nrOfParticlesAlive * 0.085f;
+			 mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.005f;
+		}
+
+		else if ( particleType == FIRE ) 			
+		{
+			 mPointLightParticleEmitter->positionAndIntensity.w = 1 + nrOfParticlesAlive * 0.02f;
+			 mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.005f;
+		}
+
+		else if ( particleType == Explosion ) 			
+		{
+			 mPointLightParticleEmitter->positionAndIntensity.w = 1 + nrOfParticlesAlive * 0.9f;
+			 mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.035f;
+		}
+	}
+
+	void HandleLight( )
+	{
+		if ( nrOfParticlesAlive > 0 && isLightActive == true )
+			UpdateLight();
+
+		else if( nrOfParticlesAlive == 0 && isLightActive == true )
+		{
+			DeactivateLight();
+			isLightActive = false;
+		}
+	}
+		
 	void NormalSmokeLogic( float deltatime )
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
@@ -670,17 +744,8 @@ struct ParticleSystem : public ParticleData
 		IncrementValueY( 0.02f );
 	}
 
-	void Test_FountainLogic( float deltaTime )
+	void SporesLogic( float deltaTime )
 	{
-		currCount = nrOfParticlesAlive;
-		if( currCount > prevCount )
-		{
-			prevCount = currCount;
-			currCount = 0;
-		}
-		
-		if( currCount == prevCount )
-			int k = 4;
 	}
 	
 	void Fire_FliesLogic( float deltaTime )

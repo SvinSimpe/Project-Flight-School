@@ -199,9 +199,6 @@
     <Text Include="..\Content\Effects\AnimatedInstanced3dShadowEffect.hlsl">
       <Filter>Effects</Filter>
     </Text>
-    <Text Include="..\Content\Effects\Particle Effects\Test_FountainEffect.hlsl">
-      <Filter>Effects\Particle Effects</Filter>
-    </Text>
     <Text Include="..\Content\Effects\Particle Effects\BloodEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
@@ -256,6 +253,9 @@
     </Text>
     <Text Include="..\Content\Effects\Particle Effects\DebrisEffect.hlsl" />
     <Text Include="..\Content\Effects\Particle Effects\ShellEffect.hlsl">
+      <Filter>Effects\Particle Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\Particle Effects\SporesEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
   </ItemGroup>

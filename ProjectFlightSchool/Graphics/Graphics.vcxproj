@@ -192,7 +192,7 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\Content\Effects\Particle Effects\Test_FountainEffect.hlsl">
+    <Text Include="..\Content\Effects\Particle Effects\SporesEffect.hlsl">
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>

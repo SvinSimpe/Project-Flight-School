@@ -85,11 +85,6 @@ void ClientShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 	mHitCircle->center = pos;
 	mClientTurret->Reset( id, teamID, pos, rot, scale );
 
-	for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
-	{
-		mEnergyCells[i] = (UINT)-1;
-	}
-
 	mNrOfEnergyCells = 0;
 }
 
@@ -115,6 +110,7 @@ void ClientShip::Render( float deltaTime, DirectX::XMFLOAT4X4 parentWorld )
 {
 	GameObject::Render( deltaTime, parentWorld );
 	mClientTurret->Render( deltaTime, parentWorld);
+	//RenderManager::GetInstance()->AddCircleToList( mHitCircle->center, XMFLOAT3( 1.0f, 0.0f, 0.0f ), mHitCircle->radius );
 }
 
 void ClientShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale )
@@ -122,12 +118,16 @@ void ClientShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 	ServerShip::Initialize( id, teamID, pos, rot, scale );
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Ship/", "ShipWithTripod.pfs", mAssetID );
-	mHitCircle = new BoundingCircle( mPos, 5.0f );
 
-	for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
-	{
-		mEnergyCells[i] = (UINT)-1;
-	}
+	//mHitCircle = new BoundingCircle( mPos, 10.0f );
+
+	//for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
+	//{
+	//	mEnergyCells[i] = (UINT)-1;
+	//}
+
+	//mHitCircle = new BoundingCircle( mPos, 5.0f );
+
 	
 	mNrOfEnergyCells = 0;
 

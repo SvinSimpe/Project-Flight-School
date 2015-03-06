@@ -135,6 +135,11 @@ struct ParticleSystem : public ParticleData
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/levelUpParticle3.dds", assetID );
 				break;
 			}
+			case Fire_Flies:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireflyParticle.dds", assetID );
+				break;
+			}
 			default:
 				break;
 		}
@@ -169,12 +174,20 @@ struct ParticleSystem : public ParticleData
 		// Use emitterDirection as base and randomize a different direction vector with a maximum spread angle deviation
 		SetDirection( emitterDirection.x, emitterDirection.y, emitterDirection.z, particleCount, spreadAngle );
 		
+
 		if( particleType == Spores )
 			GeneratePlanePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 30, 30, particleCount );
 		else if( particleType == Level_Up )
 			GenerateCircleEdgePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 1, particleCount );
 		else if( particleType == Level_Inner )
 			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 1, particleCount );
+		else if( particleType == Fire_Flies )
+		{
+			initialSpawnPos = XMFLOAT3( emitterPosition.x, emitterPosition.y, emitterPosition.z );
+			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 1, particleCount );//-------circle spawn instead of point
+			SetRandomDistance( 0, 1, particleCount );
+		}
+			
 		else
 			SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );	
 
@@ -280,6 +293,10 @@ struct ParticleSystem : public ParticleData
 		{
 			SetRandomDeathTime( 1, 2, particleCount );
 		}
+		else if( particleType == Fire_Flies )		
+		{
+			SetRandomDeathTime( 1, 2, particleCount );
+		}
 
 		nrOfRequestedParticles += particleCount;
 
@@ -308,12 +325,14 @@ struct ParticleSystem : public ParticleData
 		else if( particleType == Spores )			Generate( emitterPosition, emitterDirection, 8, 20.0f );
 		else if( particleType == Level_Up )			Generate( emitterPosition, emitterDirection, 512, 270.0f );
 		else if( particleType == Level_Inner )		Generate( emitterPosition, emitterDirection, 32, 20.0f );
+		else if( particleType == Fire_Flies )		Generate( emitterPosition, emitterDirection, 8, 5.0f );		//------------particle count and spreadangle
 	}
 
 	virtual void Update( float deltaTime )
 	{
 		// First instruction
-		UpdateLifeTime( deltaTime );
+		if ( particleType != Fire_Flies ) 
+			UpdateLifeTime( deltaTime );
 
 		// Check for dead particles
 		CheckDeadParticles();
@@ -444,6 +463,12 @@ struct ParticleSystem : public ParticleData
 			{
 				// Update Smoke_MiniGun logic here
 				Level_InnerLogic( deltaTime );
+				break;
+			}
+			case Fire_Flies:
+			{
+				// Update fireflies logic here
+				Fire_FliesLogic( deltaTime );
 				break;
 			}
 			default:
@@ -755,6 +780,26 @@ struct ParticleSystem : public ParticleData
 
 	void SporesLogic( float deltaTime )
 	{
+	}
+	
+	void Fire_FliesLogic( float deltaTime )
+	{
+		for ( int i = 0; i < nrOfParticlesAlive; i++ )
+		{
+			float distanceFromSpawnPos = XMVectorGetX( XMVector3Length( XMLoadFloat3( &initialSpawnPos ) - XMLoadFloat3( &XMFLOAT3( xPosition[i], yPosition[i], zPosition[i] ) ) ) );
+			if ( distanceFromSpawnPos >= maxDistanceFromSpawnPos[0] )
+			{
+				float interpolation = max( 0.0f, 1.0f - deltaTime );
+
+				XMVECTOR toCenter	= XMLoadFloat3( &initialSpawnPos ) - XMLoadFloat3( &XMFLOAT3( xPosition[i], yPosition[i], zPosition[i] ) );
+				XMVECTOR toRight	= XMVector3Cross( toCenter, XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ) );
+				toCenter = XMVector3Normalize( toCenter );
+				xVelocity[i] = xVelocity[i] * interpolation + XMVectorGetX( toCenter * 0.8f + ( i % 2 == 0 ? toRight : -toRight ) * 0.2f ) * ( 1.0f - interpolation );
+				yVelocity[i] = yVelocity[i] * interpolation + XMVectorGetY( toCenter * 0.8f + ( i % 2 == 0 ? toRight : -toRight ) * 0.2f ) * ( 1.0f - interpolation );
+				zVelocity[i] = zVelocity[i] * interpolation + XMVectorGetZ( toCenter * 0.8f + ( i % 2 == 0 ? toRight : -toRight ) * 0.2f ) * ( 1.0f - interpolation );
+			}
+
+		}
 	}
 
 	#pragma endregion

@@ -234,6 +234,11 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 	mMeleeCoolDown -= deltaTime;
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_LEFT ) && mWeaponCoolDown <= 0.0f )
 	{
+		mSlowDown -= mLoadOut->rangedWeapon->slowDown;
+		if( mSlowDown < 0.3f )
+		{
+			mSlowDown = 0.3f;
+		}
 		mWeaponCoolDown = mLoadOut->rangedWeapon->attackRate;
 		Fire();
 
@@ -247,6 +252,11 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_RIGHT ) && mMeleeCoolDown <= 0.0f && !mHasMeleeStarted )
 	{
+		mSlowDown -= mLoadOut->meleeWeapon->slowDown;
+		if( mSlowDown < 0.3f )
+		{
+			mSlowDown = 0.3f;
+		}
 		//RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
 		mLeftArmAnimationCompleted = false;
 		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
@@ -486,12 +496,26 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	//}
 
 	// Update water status	
+	mSlowDown += deltaTime / 5;
+	if( mSlowDown > 1.0f )
+	{
+		mSlowDown = 1.0f;
+	}
+
 	mIsInWater	= mLowerBody.position.y < -0.7f ? true : false;
 	
 	XMFLOAT3 testPosition	= mLowerBody.position;
 	XMFLOAT3 normal			= XMFLOAT3( 0.0f, 1.0f, 0.0f );
-	testPosition.x += mVelocity.x * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f );
-	testPosition.z += mVelocity.z * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f );
+	if( mMeleeCoolDown > 0.0f || mWeaponCoolDown > 0.0f)
+	{
+		testPosition.x += mVelocity.x * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f ) * mSlowDown;
+		testPosition.z += mVelocity.z * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f ) * mSlowDown;
+	}
+	else
+	{
+		testPosition.x += mVelocity.x * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f );
+		testPosition.z += mVelocity.z * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f );
+	}
 	testPosition.y = worldMap->GetHeight( testPosition );
 
 	bool collisionTest = worldMap->PlayerVsMap( testPosition, normal );
@@ -512,13 +536,19 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 			}
 		}
 	}
-	else
-	{
-		XMVECTOR loadVel		= XMLoadFloat3( &mVelocity );
-		XMVECTOR loadNorm		= XMLoadFloat3( &XMFLOAT3( normal.x, normal.y, normal.z ) );
-		XMVECTOR loadNormNorm	= XMLoadFloat3( &XMFLOAT3( -normal.z, -normal.y, normal.x ) );
-		XMStoreFloat3( &mVelocity, loadNormNorm * XMVectorGetX( XMVector3Dot( loadVel, loadNormNorm ) ) + loadNorm * deltaTime * 20.0f );
-	}
+	//else
+	//{
+	//	mFollowPath = false;
+	//	Pathfinder::GetInstance()->RequestPath( currentPath1, mLowerBody.position, mPick  );
+	//	Pathfinder::GetInstance()->CalculateSubPath( currentPath1 );
+	//	currentPath = currentPath1->TotalPath();
+	//	currStep = currentPath.begin();
+
+	//	XMVECTOR loadVel		= XMLoadFloat3( &mVelocity );
+	//	XMVECTOR loadNorm		= XMLoadFloat3( &XMFLOAT3( normal.x, normal.y, normal.z ) );
+	//	XMVECTOR loadNormNorm	= XMLoadFloat3( &XMFLOAT3( -normal.z, -normal.y, normal.x ) );
+	//	XMStoreFloat3( &mVelocity, loadNormNorm * XMVectorGetX( XMVector3Dot( loadVel, loadNormNorm ) ) + loadNorm * deltaTime * 20.0f );
+	//}
 
 	Update( deltaTime, remotePlayers, energyCells );
 	return S_OK;
@@ -847,51 +877,54 @@ void Player::UnLock()
 
 void Player::Reset()
 {
-	mTimeSinceLastShot			= 0.0f;
-	mWeaponCoolDown				= 0;
-	mMeleeCoolDown				= 0;
-	mTimeTillattack				= mLoadOut->meleeWeapon->timeTillAttack;
-	mIsMeleeing					= false;
-	mHasMeleeStarted			= false;
-	mLock						= false;
-	mCloseToPlayer				= false;
+	//mTimeSinceLastShot			= 0.0f;
+	//mWeaponCoolDown				= 0;
+	//mMeleeCoolDown				= 0;
+	//mTimeTillattack				= mLoadOut->meleeWeapon->timeTillAttack;
+	//mIsMeleeing					= false;
+	//mHasMeleeStarted			= false;
+	//mLock						= false;
+	//mCloseToPlayer				= false;
 
-	mMaxVelocity				= 7.7f;
-	mVelocity					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mCurrentVelocity			= 0.0f;
-	mMaxAcceleration			= 20.0f;;
-	mAcceleration				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	//mMaxVelocity				= 7.7f;
+	//mVelocity					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	//mCurrentVelocity			= 0.0f;
+	//mMaxAcceleration			= 20.0f;;
+	//mAcceleration				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
-	mIsBuffed					= false;
-	mBuffMod					= 1; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
+	//mIsBuffed					= false;
+	//mBuffMod					= 1; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
 
-	mTimeTillSpawn				= mSpawnTime;
-	mTimeTillDeath				= mDeathTime;
-	mTimeTillRevive				= mReviveTime;
-	mLastKiller					= 0;
+	//mTimeTillSpawn				= mSpawnTime;
+	//mTimeTillDeath				= mDeathTime;
+	//mTimeTillRevive				= mReviveTime;
+	//mLastKiller					= 0;
 
-	mLowerBody.position				= XMFLOAT3( 3.0f, 0.0f, 6.0f );
-	
-	mIsAlive				= true;
-	mIsDown					= false;
-	mMaxHp					= 100.0f;
-	mCurrentHp				= mMaxHp;
-	mNrOfDeaths				= 0;
-	mNrOfKills				= 0;
-	mID						= -1;
-	mTeam					= 1;
-	mEnergyCellID			= (UINT)-1;
-	mPickUpCooldown			= 0.0f;
+	//mLowerBody.position				= XMFLOAT3( 3.0f, 0.0f, 6.0f );
+	//
+	//mIsAlive				= true;
+	//mIsDown					= false;
+	//mMaxHp					= 100.0f;
+	//mCurrentHp				= mMaxHp;
+	//mNrOfDeaths				= 0;
+	//mNrOfKills				= 0;
+	//mID						= -1;
+	//mTeam					= 1;
+	//mEnergyCellID			= (UINT)-1;
+	//mPickUpCooldown			= 0.0f;
 
-	mLeftArmAnimationCompleted	= false;
-	mRightArmAnimationCompleted	= false;
+	//mLeftArmAnimationCompleted	= false;
+	//mRightArmAnimationCompleted	= false;
 
-	mUpperBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mLowerBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	//mUpperBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	//mLowerBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
-	RenderManager::GetInstance()->AnimationReset( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] );
-	RenderManager::GetInstance()->AnimationReset( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
-	RenderManager::GetInstance()->AnimationReset( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
+	//RenderManager::GetInstance()->AnimationReset( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] );
+	//RenderManager::GetInstance()->AnimationReset( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
+	//RenderManager::GetInstance()->AnimationReset( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
+
+	Release();
+	Initialize();
 }
 
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
@@ -1212,6 +1245,44 @@ HRESULT Player::Render( float deltaTime, int position )
 
 HRESULT Player::Initialize()
 {
+	mPointLight			= nullptr;
+	mEnergyCellLight	= nullptr;
+
+	mWeaponOverheated	= false;
+	mTimeSinceLastShot	= 0.0f;
+	mWeaponCoolDown		= 0.0f;
+	mMeleeCoolDown		= 0.0f;
+	mTimeTillattack		= 0.0f;
+	mIsMeleeing			= false;
+	mLock				= false;
+	mCloseToPlayer		= false;
+
+	mMaxVelocity		= 0.0f;
+	mCurrentVelocity	= 0.0f;
+	mMaxAcceleration	= 0.0f;
+	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mFireDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mIsOutSideZone		= false;
+	mIsInWater			= false;
+	mHasMeleeStarted	= false;
+	mXP					= 0;
+	mNextLevelXP		= 0;
+	
+	mSpawnTime				= 0.0f;
+	mTimeTillSpawn			= 0.0f;
+	mDeathTime				= 0.0f;
+	mTimeTillDeath			= 0.0f;
+	mReviveTime				= 0.0f;
+	mTimeTillRevive			= 0.0f;
+	mLeavingAreaTime		= 0.0f;
+	mWaterDamageTime		= 0.0f;
+	mLastKiller				= 0;
+
+
+	gEventList				= std::list<IEventPtr>(); 
+
+
+
 	RemotePlayer::Initialize();
 
 	mFollowPath = false;
@@ -1237,6 +1308,7 @@ HRESULT Player::Initialize()
 	mMaxVelocity		= 7.7f;
 	mCurrentVelocity	= 0.0f;
 	mMaxAcceleration	= 20.0f;
+	mSlowDown			= 1.0f;
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
@@ -1300,6 +1372,7 @@ Player::Player()
 	mMaxVelocity		= 0.0f;
 	mCurrentVelocity	= 0.0f;
 	mMaxAcceleration	= 0.0f;
+	mSlowDown			= 0.0f;
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mFireDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mIsOutSideZone		= false;

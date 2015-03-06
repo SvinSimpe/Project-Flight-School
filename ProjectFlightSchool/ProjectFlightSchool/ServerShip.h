@@ -28,7 +28,6 @@ class ServerShip : public GameObject
 		float			mCurrentHP;
 		UINT			mNrOfEnergyCells;
 		UINT			mNrOfAvailableEnergyCells;
-		UINT			mEnergyCells[MAX_ENERGY_CELLS];
 
 		UINT			mTurretLevel;
 		UINT			mBuffLevel;
@@ -39,7 +38,10 @@ class ServerShip : public GameObject
 		bool			mIsAlive;
 
 
+
 	public:
+		UINT			EnemiesTargetMe;
+		UINT			TanksTargetMe;
 
 	private:
 		// Calculates the new level dependent on the change factor sent by the client

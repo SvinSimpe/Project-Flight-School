@@ -1,17 +1,5 @@
 #include "Enemy.h"
 
-void IEnemyBehavior::DamageFromPlayer( IEventPtr eventPtr )
-{
-	if( eventPtr->GetEventType() == Event_Client_Projectile_Damage_Enemy::GUID )
-	{
-		std::shared_ptr<Event_Client_Projectile_Damage_Enemy> data = std::static_pointer_cast<Event_Client_Projectile_Damage_Enemy>( eventPtr );
-		if( data->EnemyID() == mEnemy->mID )
-		{
-			mEnemy->TakeDamage( data->Damage(), data->ID() );
-		}
-	}
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 //								Base Behavior
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,7 +10,6 @@ EnemyState IEnemyBehavior::GetBehavior() const
 
 IEnemyBehavior::IEnemyBehavior()
 {
-	EventManager::GetInstance()->AddListener( &IEnemyBehavior::DamageFromPlayer, this, Event_Client_Projectile_Damage_Enemy::GUID );
 	mBehavior	= Idle;
 }
 
@@ -184,7 +171,7 @@ HRESULT MoveToShipBehavior::Update( float deltaTime )
 {
 	if( mEnemy->mShips.at(mEnemy->mTargetShipIndex)->GetHitCircle() != nullptr )
 	{
-		if( mEnemy->mAttackRadius->Intersect( mEnemy->mShips.at(0)->GetHitCircle() ) )//mEnemy->mTargetShipIndex)->GetHitCircle() ) )
+		if( mEnemy->mAttackRadius->Intersect( mEnemy->mShips.at(mEnemy->mTargetShipIndex)->GetHitCircle() ) )
 			mEnemy->ChangeBehavior( ATTACK_BEHAVIOR );
 		else
 			mEnemy->Hunt( deltaTime );
@@ -256,13 +243,16 @@ HRESULT AttackBehavior::Update( float deltaTime )
 	}
 	else if( mEnemy->mLastState	== MoveToShip )
 	{
-		// Ship intersects the enemy's attack radius
-			if( mEnemy->mAttackRadius->Intersect( mEnemy->mShips.at(mEnemy->mTargetShipIndex)->GetHitCircle() ) )
-			{
-				mHasAttacked = true;
-				mEnemy->mShips.at(mEnemy->mTargetShipIndex)->TakeDamage( mEnemy->mDamage );
-				mTimeTillAttack	= mEnemy->mAttackRate;
-			}
+		if(	 !mHasAttacked && mTimeTillAttack <= 0.0f )
+		{
+			// Ship intersects the enemy's attack radius
+				if( mEnemy->mAttackRadius->Intersect( mEnemy->mShips.at(mEnemy->mTargetShipIndex)->GetHitCircle() ) )
+				{
+					mHasAttacked = true;
+					mEnemy->mShips.at(mEnemy->mTargetShipIndex)->TakeDamage( mEnemy->mDamage );
+					mTimeTillAttack	= mEnemy->mAttackRate;
+				}
+		}
 	}
 
 	if( mStateTimer <= 0.0f )
@@ -281,7 +271,7 @@ void AttackBehavior::OnEnter()
 	switch( mEnemy->mEnemyType )
 	{
 		case Standard:
-			mStateTimer = 4.0f;
+			mStateTimer = 2.0f;
 			break;
 
 		case Ranged:
@@ -338,6 +328,18 @@ AttackBehavior::~AttackBehavior()
 ///////////////////////////////////////////////////////////////////////////////
 //								Take Damage Behavior
 ///////////////////////////////////////////////////////////////////////////////
+void TakeDamageBehavior::DamageFromPlayer( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Projectile_Damage_Enemy::GUID )
+	{
+		std::shared_ptr<Event_Client_Projectile_Damage_Enemy> data = std::static_pointer_cast<Event_Client_Projectile_Damage_Enemy>( eventPtr );
+		if( data->EnemyID() == mEnemy->mID )
+		{
+			mEnemy->TakeDamage( data->Damage(), data->ID() );
+		}
+	}
+}
+
 HRESULT TakeDamageBehavior::Update( float deltaTime )
 {
 	if( mEnemy->mIsAlive )
@@ -369,6 +371,7 @@ HRESULT TakeDamageBehavior::Initialize( Enemy* enemy )
 {
 	mEnemy		= enemy;
 	mBehavior	= TakeDamage;
+	EventManager::GetInstance()->AddListener( &TakeDamageBehavior::DamageFromPlayer, this, Event_Client_Projectile_Damage_Enemy::GUID );
 	return S_OK;
 }
 

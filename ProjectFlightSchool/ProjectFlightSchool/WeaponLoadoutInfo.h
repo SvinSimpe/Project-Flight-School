@@ -13,7 +13,7 @@
 
 // Minigun
 #define MINIGUN_AR			0.13f								// Attack Rate
-#define MINIGUN_DAMAGE		0.7f								// Damage
+#define MINIGUN_DAMAGE		4.9f								// Damage
 #define MINIGUN_RANGE		0.6f								// Range
 #define MINIGUN_SPREAD		5.0f								// Spread
 #define MINIGUN_AOE			0.0f								// Area of effect
@@ -24,7 +24,7 @@
 
 // Shotgun
 #define SHOTGUN_AR			2.0f								// Attack Rate
-#define SHOTGUN_DAMAGE		3.0f								// Damage
+#define SHOTGUN_DAMAGE		21.0f								// Damage
 #define SHOTGUN_RANGE		0.3f								// Range
 #define SHOTGUN_SPREAD		7.0f								// Spread
 #define SHOTGUN_AOE			0.0f								// Area of effect
@@ -33,7 +33,7 @@
 
 // Grenade Launcher
 #define GL_AR				3.0f								// Attack Rate
-#define GL_DAMAGE			3.0f								// Damage
+#define GL_DAMAGE			21.0f								// Damage
 #define GL_RANGE			25.0f								// Range
 #define GL_SPREAD			0.0f								// Spread
 #define GL_AOE				2.0f								// Area of effect
@@ -42,12 +42,20 @@
 
 // Sniper
 #define SNIPER_AR			3.2f								// Attack Rate
-#define SNIPER_DAMAGE		4.0f								// Damage
+#define SNIPER_DAMAGE		28.0f								// Damage
 #define SNIPER_RANGE		5.0f								// Range
 #define SNIPER_SPREAD		0.0f								// Spread
 #define SNIPER_AOE			0.0f								// Area of effect
 #define SNIPER_SPEED		70.0f								// Projectile Speed 90
 #define SNIPER_OFFSETS		XMFLOAT3( 1.15f, 0.45f, 1.9f )		// Offsets forward, right, up
+
+#define MINIGUN_SLOWDOWN	0.02f	// How much is the player slowed down
+
+#define SHOTGUN_SLOWDOWN	0.2f	// How much is the player slowed down
+
+#define GL_SLOWDOWN			0.5f	// How much is the player slowed down
+
+#define SNIPER_SLOWDOWN		0.5f	// How much is the player slowed down
 
 //////////////////////////////////
 //		 MELEE WEAPONS			
@@ -95,6 +103,15 @@
 #define SAW_TTA				0.95f								// Time till Attack
 #define SAW_STUN			0.0f								// Stun
 #define SAW_REACH			1.3f								// Reach
+
+#define CLAYMORE_SLOWDOWN	0.1f	// How much is the player slowed down
+
+#define HAMMER_SLOWDOWN		0.5f	// How much is the player slowed down
+
+#define BLOWTORCH_SLOWDOWN	0.04f	// How much is the player slowed down
+
+#define SAW_SLOWDOWN		0.5f	// How much is the player slowed down
+
 
 //////////////////////////////////
 //		 TURRET WEAPON

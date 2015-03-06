@@ -179,14 +179,14 @@ HRESULT	MapNodeInstance::Initialize()
 	mPointLights		= new PointLight[mPointLightCount];
 	for( int i = 0; i < (int)mNode->mPointLightCount; i++ )
 	{
-		XMVECTOR lightPos = XMLoadFloat4( &mNode->mPointLights[i].position );
+		XMVECTOR lightPos = XMLoadFloat4( &mNode->mPointLights[i].positionAndIntensity );
 		lightPos = XMVector3TransformCoord( lightPos, XMLoadFloat4x4( &mWorld ) );
 		XMFLOAT3 values;
 		XMStoreFloat3( &values, lightPos );
-		mPointLights[i].position.x = values.x;
-		mPointLights[i].position.y = values.y;
-		mPointLights[i].position.z = values.z;
-		mPointLights[i].position.w = mNode->mPointLights[i].position.w;
+		mPointLights[i].positionAndIntensity.x = values.x;
+		mPointLights[i].positionAndIntensity.y = values.y;
+		mPointLights[i].positionAndIntensity.z = values.z;
+		mPointLights[i].positionAndIntensity.w = mNode->mPointLights[i].positionAndIntensity.w;
 
 		mPointLights[i].colorAndRadius	= mNode->mPointLights[i].colorAndRadius;
 	}

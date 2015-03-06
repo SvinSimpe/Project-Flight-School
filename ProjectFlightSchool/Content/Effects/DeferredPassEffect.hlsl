@@ -133,8 +133,8 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	float shadowFactor = shadowSamples / 25.0f;
 
 	//======== SHADOW MAP POINTLIGHT ===========
-	float3 ambient		= float3( 0.6f, 0.6f,  0.6f );
-	float3 color		= float3( 0.6f, 0.3f,  0.6f );
+	float3 ambient		= float3( 0.8f, 0.8f,  0.8f );
+	float3 color		= float3( 0.6f, 0.4f, 0.6f ); //float3( 0.6f, 0.3f,  0.6f );
 
 	float3 lightDirection	= worldSample - shadowCameraPosition.xyz;
 	float dShadow			= length( lightDirection );
@@ -165,21 +165,22 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 		{
 			float3 lightDir = worldSample - lightStructure[i].positionAndIntensity.xyz;
 			float d			= length( lightDir );
-			lightDir		/= d;
-		
-			lightStructure[i].colorAndRadius.xyz * lightStructure[i].positionAndIntensity.w;
+			if( d < lightStructure[i].colorAndRadius.w )
+			{
+				lightDir		/= d;
 
-			float3 N = normalSample;
-			float3 V = cameraPosition.xyz;
-			float3 R = reflect( lightDir, N );
+				float3 N = normalSample;
+				float3 V = cameraPosition.xyz;
+				float3 R = reflect( lightDir, N );
 
-			float diff	= saturate( dot( -lightDir, N ) );
-			float3 spec	= float3( lightStructure[i].colorAndRadius.xyz * pow( dot( R, V ), specularPower ) ) * specularSample;
+				float diff	= saturate( dot( -lightDir, N ) );
+				float3 spec	= float3( lightStructure[i].colorAndRadius.xyz * pow( dot( R, V ), specularPower ) ) * specularSample;
 
-			float denom			= d / lightStructure[i].colorAndRadius.w + 1.0f;
-			float attenuation	= 1.0f / ( denom * denom );
+				float denom			= d / lightStructure[i].colorAndRadius.w;
+				float attenuation	= 1.0f - ( denom * denom );
 
-			finalColor += ( diffuse + specular ) * lightStructure[i].colorAndRadius.xyz * attenuation;
+				finalColor += ( diffuse + specular ) * lightStructure[i].colorAndRadius.xyz * lightStructure[i].positionAndIntensity.w * attenuation;
+			}
 		}
 	}
 

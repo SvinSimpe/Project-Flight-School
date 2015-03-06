@@ -106,8 +106,8 @@ MapNode* MapNodeManager::CreateNode( const char* fileName, std::unordered_map<As
 		float lightData[8];
 		inFile.read( (char*)lightData, sizeof( lightData ) );
 		PointLight pl;
-		pl.position			= XMFLOAT4( lightData[0], lightData[1], lightData[2], lightData[6] );
-		pl.colorAndRadius	= XMFLOAT4( lightData[3], lightData[4], lightData[5], lightData[7] );
+		pl.positionAndIntensity	= XMFLOAT4( lightData[0], lightData[1], lightData[2], lightData[6] );
+		pl.colorAndRadius		= XMFLOAT4( lightData[3], lightData[4], lightData[5], lightData[7] );
 		pointLights.push_back( pl );
 	}
 

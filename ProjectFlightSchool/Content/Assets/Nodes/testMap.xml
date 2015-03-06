@@ -2,8 +2,9 @@
 <-- RenderTypes: Static = 0, Dynamic = 1, Invisble = 2. CollisionTypes: Full = 0, Half = 1, None = 2 -->
 <Level>
     <Nodes>
-		<-- <Node path="../Content/Assets/Nodes/lightTest.lp" type="SHIP_NODE" /> -->
-		<Node path="../Content/Assets/Nodes/lightTest.lp" type="AREA_NODE" />
+		<-- <Node path="../Content/Assets/Nodes/Light/lightTest.lp" type="SHIP_NODE" /> -->
+		<Node path="../Content/Assets/Nodes/Light/lightTest.lp" type="AREA_NODE" />
+		<Node path="../Content/Assets/Nodes/Light/tileALargePuddle.lp" type="AREA_NODE" />
     </Nodes>
     <Assets>
 		<Asset path="../Content/Assets/PermanentAssets/Ship/ShipWithTripod.pfs" 

@@ -1246,8 +1246,8 @@ HRESULT Player::Initialize()
 	////////////
 	mPointLight							= new PointLight;
 	mPointLight->positionAndIntensity	= DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z, 1.0f );
-	IEventPtr reg( new Event_Add_Point_Light( mPointLight ) );
-	EventManager::GetInstance()->QueueEvent( reg );
+	//IEventPtr reg( new Event_Add_Point_Light( mPointLight ) );
+	//EventManager::GetInstance()->QueueEvent( reg );
 
 	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.0f, 0.0f, 1.0f, 5.0f );
 

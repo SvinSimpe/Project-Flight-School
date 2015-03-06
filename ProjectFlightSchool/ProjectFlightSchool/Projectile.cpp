@@ -87,6 +87,7 @@ void Projectile::Reset()
 	mLifeTime	= 4.0f;
 	mDamage		= 0.0f;
 	mWeaponType	= MINIGUN;
+	mHits.clear();
 	IEventPtr E1( new Event_Remove_Point_Light( mPointLight ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
 }
@@ -131,6 +132,24 @@ WeaponType Projectile::GetWeaponType() const
 	return mWeaponType;
 }
 
+//Returns true if it set the hitID and false if it already had it.
+bool Projectile::SetHit( UINT hitID )
+{
+	bool result = true;
+	for( auto h : mHits )
+	{
+		if( h == hitID )
+		{
+			result = false;
+		}
+	}
+	if( result )
+	{
+		mHits.push_back( hitID );
+	}
+	return result;
+}
+
 HRESULT Projectile::Initialize()
 {
 	mSpeed			= 20.0f;
@@ -163,6 +182,7 @@ Projectile::Projectile()
 	mBoundingCircle	= nullptr;	
 	mDamage			= 0.0f;
 	mWeaponType		= MINIGUN;
+	mHits			= std::vector<UINT>( 0 );
 }
 
 Projectile::~Projectile()

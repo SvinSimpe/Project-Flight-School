@@ -67,6 +67,7 @@ class PlayState : public BaseState
 		UINT						mNeededEnergyCells;
 		bool						mEndGame;
 		bool						mWonGame;
+		bool						mActive;
 
 		//TestSound
 		int							m3DSoundAsset;

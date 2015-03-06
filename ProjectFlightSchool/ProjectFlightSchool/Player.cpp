@@ -827,51 +827,54 @@ void Player::UnLock()
 
 void Player::Reset()
 {
-	mTimeSinceLastShot			= 0.0f;
-	mWeaponCoolDown				= 0;
-	mMeleeCoolDown				= 0;
-	mTimeTillattack				= mLoadOut->meleeWeapon->timeTillAttack;
-	mIsMeleeing					= false;
-	mHasMeleeStarted			= false;
-	mLock						= false;
-	mCloseToPlayer				= false;
+	//mTimeSinceLastShot			= 0.0f;
+	//mWeaponCoolDown				= 0;
+	//mMeleeCoolDown				= 0;
+	//mTimeTillattack				= mLoadOut->meleeWeapon->timeTillAttack;
+	//mIsMeleeing					= false;
+	//mHasMeleeStarted			= false;
+	//mLock						= false;
+	//mCloseToPlayer				= false;
 
-	mMaxVelocity				= 7.7f;
-	mVelocity					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mCurrentVelocity			= 0.0f;
-	mMaxAcceleration			= 20.0f;;
-	mAcceleration				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	//mMaxVelocity				= 7.7f;
+	//mVelocity					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	//mCurrentVelocity			= 0.0f;
+	//mMaxAcceleration			= 20.0f;;
+	//mAcceleration				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
-	mIsBuffed					= false;
-	mBuffMod					= 1; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
+	//mIsBuffed					= false;
+	//mBuffMod					= 1; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
 
-	mTimeTillSpawn				= mSpawnTime;
-	mTimeTillDeath				= mDeathTime;
-	mTimeTillRevive				= mReviveTime;
-	mLastKiller					= 0;
+	//mTimeTillSpawn				= mSpawnTime;
+	//mTimeTillDeath				= mDeathTime;
+	//mTimeTillRevive				= mReviveTime;
+	//mLastKiller					= 0;
 
-	mLowerBody.position				= XMFLOAT3( 3.0f, 0.0f, 6.0f );
-	
-	mIsAlive				= true;
-	mIsDown					= false;
-	mMaxHp					= 100.0f;
-	mCurrentHp				= mMaxHp;
-	mNrOfDeaths				= 0;
-	mNrOfKills				= 0;
-	mID						= -1;
-	mTeam					= 1;
-	mEnergyCellID			= (UINT)-1;
-	mPickUpCooldown			= 0.0f;
+	//mLowerBody.position				= XMFLOAT3( 3.0f, 0.0f, 6.0f );
+	//
+	//mIsAlive				= true;
+	//mIsDown					= false;
+	//mMaxHp					= 100.0f;
+	//mCurrentHp				= mMaxHp;
+	//mNrOfDeaths				= 0;
+	//mNrOfKills				= 0;
+	//mID						= -1;
+	//mTeam					= 1;
+	//mEnergyCellID			= (UINT)-1;
+	//mPickUpCooldown			= 0.0f;
 
-	mLeftArmAnimationCompleted	= false;
-	mRightArmAnimationCompleted	= false;
+	//mLeftArmAnimationCompleted	= false;
+	//mRightArmAnimationCompleted	= false;
 
-	mUpperBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mLowerBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	//mUpperBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	//mLowerBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
-	RenderManager::GetInstance()->AnimationReset( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] );
-	RenderManager::GetInstance()->AnimationReset( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
-	RenderManager::GetInstance()->AnimationReset( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
+	//RenderManager::GetInstance()->AnimationReset( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] );
+	//RenderManager::GetInstance()->AnimationReset( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
+	//RenderManager::GetInstance()->AnimationReset( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
+
+	Release();
+	Initialize();
 }
 
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
@@ -1192,6 +1195,44 @@ HRESULT Player::Render( float deltaTime, int position )
 
 HRESULT Player::Initialize()
 {
+	mPointLight			= nullptr;
+	mEnergyCellLight	= nullptr;
+
+	mWeaponOverheated	= false;
+	mTimeSinceLastShot	= 0.0f;
+	mWeaponCoolDown		= 0.0f;
+	mMeleeCoolDown		= 0.0f;
+	mTimeTillattack		= 0.0f;
+	mIsMeleeing			= false;
+	mLock				= false;
+	mCloseToPlayer		= false;
+
+	mMaxVelocity		= 0.0f;
+	mCurrentVelocity	= 0.0f;
+	mMaxAcceleration	= 0.0f;
+	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mFireDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mIsOutSideZone		= false;
+	mIsInWater			= false;
+	mHasMeleeStarted	= false;
+	mXP					= 0;
+	mNextLevelXP		= 0;
+	
+	mSpawnTime				= 0.0f;
+	mTimeTillSpawn			= 0.0f;
+	mDeathTime				= 0.0f;
+	mTimeTillDeath			= 0.0f;
+	mReviveTime				= 0.0f;
+	mTimeTillRevive			= 0.0f;
+	mLeavingAreaTime		= 0.0f;
+	mWaterDamageTime		= 0.0f;
+	mLastKiller				= 0;
+
+
+	gEventList				= std::list<IEventPtr>(); 
+
+
+
 	RemotePlayer::Initialize();
 
 	mFollowPath = false;

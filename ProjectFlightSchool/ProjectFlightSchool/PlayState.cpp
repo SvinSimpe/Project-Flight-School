@@ -680,220 +680,210 @@ bool PlayState::CullEntity( XMFLOAT3 entityPos )
 
 HRESULT PlayState::Update( float deltaTime )
 {
-	if( mGui->InGameWindowIsActive() || mGui->UpgradeShipWindowIsActive() || mGui->UpgradePlayerWindowIsActive() )
+	if( mActive )
 	{
-		SetCursor( mCursor );
-	}
-	else
-	{
-		SetCursor( mSight );
-	}
-
-	//Fps update
-	mFPS = mFPS * 0.1f + 0.9f / deltaTime;
-	HandleDeveloperCameraInput();
-
-	while( !mPlayer->gEventList.empty() )
-	{
-		Client::GetInstance()->SendEvent( mPlayer->gEventList.back() );
-		mPlayer->gEventList.pop_back();
-	}
-	while( !mGui->gEventList.empty() )
-	{
-		Client::GetInstance()->SendEvent( mGui->gEventList.back() );
-		mGui->gEventList.pop_back();
-	}
-
-	if( mFrameCounter >= COLLISION_CHECK_OFFSET )
-	{
-		CheckPlayerCollision();
-
-		if( mPlayer->GetIsMeleeing() )
+		if( mGui->InGameWindowIsActive() || mGui->UpgradeShipWindowIsActive() || mGui->UpgradePlayerWindowIsActive() )
 		{
-			CheckMeeleCollision();
-			mPlayer->SetIsMeleeing( false );
+			SetCursor( mCursor );
+		}
+		else
+		{
+			SetCursor( mSight );
 		}
 
-		mFrameCounter = 0;
-	}
-	else
-	{
-		mFrameCounter++;
-	}
+		//Fps update
+		mFPS = mFPS * 0.1f + 0.9f / deltaTime;
+		HandleDeveloperCameraInput();
 
-	GuiUpdate guiUpdate;
-	UINT nrOfRadarObj = 0;
-	PlayerName pName[MAX_REMOTE_PLAYERS - 1];
-	int nrOfAllies				= 0;
-	guiUpdate.mNrOfPlayerNames	= (UINT)mRemotePlayers.size();
-	guiUpdate.mPlayerTeamID		= mPlayer->GetTeam();
-
-	for ( size_t i = 0; i < mRemotePlayers.size(); i++)
-	{
-		if ( mRemotePlayers.at(i) )
+		if( mFrameCounter >= COLLISION_CHECK_OFFSET )
 		{
-			mRemotePlayers.at(i)->Update( deltaTime );
+			CheckPlayerCollision();
 
-			std::string remotePlayerName = "";
-			if( mRemotePlayers[i]->IsAlive() )
+			if( mPlayer->GetIsMeleeing() )
 			{
-				remotePlayerName							= mRemotePlayers[i]->GetName();
-				mRadarObjects[nrOfRadarObj].mRadarObjectPos = mRemotePlayers[i]->GetPosition();
+				CheckMeeleCollision();
+				mPlayer->SetIsMeleeing( false );
+			}
+
+			mFrameCounter = 0;
+		}
+		else
+		{
+			mFrameCounter++;
+		}
+
+		GuiUpdate guiUpdate;
+		UINT nrOfRadarObj = 0;
+		PlayerName pName[MAX_REMOTE_PLAYERS - 1];
+		int nrOfAllies				= 0;
+		guiUpdate.mNrOfPlayerNames	= (UINT)mRemotePlayers.size();
+		guiUpdate.mPlayerTeamID		= mPlayer->GetTeam();
+
+		for ( size_t i = 0; i < mRemotePlayers.size(); i++)
+		{
+			if ( mRemotePlayers.at(i) )
+			{
+				mRemotePlayers.at(i)->Update( deltaTime );
+
+				std::string remotePlayerName = "";
+				if( mRemotePlayers[i]->IsAlive() )
+				{
+					remotePlayerName							= mRemotePlayers[i]->GetName();
+					mRadarObjects[nrOfRadarObj].mRadarObjectPos = mRemotePlayers[i]->GetPosition();
+
+					if( mRemotePlayers[i]->GetTeam() == mPlayer->GetTeam() )
+					{
+						mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::FRIENDLY;
+					}
+					else
+					{
+						mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::HOSTILE;
+					}
+				}
+				pName[i].mRemotePlayerPos		= mRemotePlayers[i]->GetPosition();
+				pName[i].mRemotePlayerName		= remotePlayerName;
+				pName[i].mRemotePlayerTeamID	= mRemotePlayers[i]->GetTeam();
+				pName[i].mRemotePlayerID		= i;
 
 				if( mRemotePlayers[i]->GetTeam() == mPlayer->GetTeam() )
 				{
-					mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::FRIENDLY;
+					mAlliesHP[nrOfAllies] = (float)( mRemotePlayers[i]->GetHP() / mRemotePlayers[i]->GetMaxHP() );
+					nrOfAllies++;
 				}
-				else
-				{
-					mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::HOSTILE;
-				}
-			}
-			pName[i].mRemotePlayerPos		= mRemotePlayers[i]->GetPosition();
-			pName[i].mRemotePlayerName		= remotePlayerName;
-			pName[i].mRemotePlayerTeamID	= mRemotePlayers[i]->GetTeam();
-			pName[i].mRemotePlayerID		= i;
-
-			if( mRemotePlayers[i]->GetTeam() == mPlayer->GetTeam() )
-			{
-				mAlliesHP[nrOfAllies] = (float)( mRemotePlayers[i]->GetHP() / mRemotePlayers[i]->GetMaxHP() );
-				nrOfAllies++;
 			}
 		}
-	}
 
-	guiUpdate.mPlayerNames	= pName;
-	guiUpdate.mNrOfAllies	= nrOfAllies;
-	guiUpdate.mAlliesHP		= mAlliesHP;
+		guiUpdate.mPlayerNames	= pName;
+		guiUpdate.mNrOfAllies	= nrOfAllies;
+		guiUpdate.mAlliesHP		= mAlliesHP;
 
-	if( mShips[FRIEND_SHIP] )
-		guiUpdate.mShipHP	= mShips[FRIEND_SHIP]->PercentHP();
-	else
-		guiUpdate.mShipHP	= 1.0f;
+		if( mShips[FRIEND_SHIP] )
+			guiUpdate.mShipHP	= mShips[FRIEND_SHIP]->PercentHP();
+		else
+			guiUpdate.mShipHP	= 1.0f;
 
 
-	if( mPlayer->GetEnergyCellID() != (UINT)-1 )
-	{
-		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
+		if( mPlayer->GetEnergyCellID() != (UINT)-1 )
 		{
-			UINT temp = mPlayer->GetEnergyCellID();
-			mPlayer->GiveEnergyCellToShip( mEnergyCells, mShips[FRIEND_SHIP]->GetID(), mShips[FRIEND_SHIP]->GetPos() );
-			mShips[FRIEND_SHIP]->AddEnergyCell( mShips[FRIEND_SHIP]->GetID() );
-		}
-	}
-	mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers, mEnergyCells );
-
-	UpdateProjectiles( deltaTime );
-
-	// Enemies
-	if( mEnemyListSynced )
-	{
-		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
-		{
-			if( mEnemies[i]->IsSynced() )
+			if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 			{
-				mEnemies[i]->Update( deltaTime );
+				UINT temp = mPlayer->GetEnergyCellID();
+				mPlayer->GiveEnergyCellToShip( mEnergyCells, mShips[FRIEND_SHIP]->GetID(), mShips[FRIEND_SHIP]->GetPos() );
+				mShips[FRIEND_SHIP]->AddEnergyCell( mShips[FRIEND_SHIP]->GetID() );
+			}
+		}
+		mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers, mEnergyCells );
 
-				if( mEnemies[i]->IsAlive() )
+		UpdateProjectiles( deltaTime );
+
+		// Enemies
+		if( mEnemyListSynced )
+		{
+			for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
+			{
+				if( mEnemies[i]->IsSynced() )
 				{
-					mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnemies[i]->GetPosition();
-					mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
+					mEnemies[i]->Update( deltaTime );
+
+					if( mEnemies[i]->IsAlive() )
+					{
+						mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnemies[i]->GetPosition();
+						mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::HOSTILE;
+					}
 				}
 			}
 		}
-	}
 
 	/// Spore particles
 	RenderManager::GetInstance()->RequestParticleSystem( 997, Spores, XMFLOAT3( mPlayer->GetPlayerPosition().x, mPlayer->GetPlayerPosition().y + 2.5f, mPlayer->GetPlayerPosition().z ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
 
-	if( mPlayer->Upgradable() < 1 && mGui->UpgradePlayerWindowIsActive() )
-	{
-		mGui->DeActivateUpgradePlayerWindow();
+		if( mPlayer->Upgradable() < 1 && mGui->UpgradePlayerWindowIsActive() )
+		{
+			mGui->DeActivateUpgradePlayerWindow();
 		
-		if( !mGui->UpgradeShipWindowIsActive() && !mGui->InGameWindowIsActive() )
-		{
-			mPlayer->UnLock();
-		}
-	}
-
-	for( int i = 0; i < SHIP_AMOUNT; i++ )
-	{
-		if( mShips[i] )
-		{
-			mShips[i]->Update( deltaTime );
-			mRadarObjects[nrOfRadarObj].mRadarObjectPos = mShips[i]->GetPos();
-			if( i == FRIEND_SHIP )
+			if( !mGui->UpgradeShipWindowIsActive() && !mGui->InGameWindowIsActive() )
 			{
-				mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_FRIENDLY;
-			}
-			else
-			{
-				mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_HOSTILE;
+				mPlayer->UnLock();
 			}
 		}
-	}
 
-	//No need to update the first energy cell since it's not supposed to be active
-	for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
-	{
-		if( !mEnergyCells[i]->GetPickedUp() )
+		for( int i = 0; i < SHIP_AMOUNT; i++ )
 		{
-			mEnergyCells[i]->Update( deltaTime );
-			mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnergyCells[i]->GetPosition();
-			mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::OBJECTIVE;
+			if( mShips[i] )
+			{
+				mShips[i]->Update( deltaTime );
+				mRadarObjects[nrOfRadarObj].mRadarObjectPos = mShips[i]->GetPos();
+				if( i == FRIEND_SHIP )
+				{
+					mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_FRIENDLY;
+				}
+				else
+				{
+					mRadarObjects[nrOfRadarObj++].mType = RADAR_TYPE::SHIP_HOSTILE;
+				}
+			}
+		}
+
+		//No need to update the first energy cell since it's not supposed to be active
+		for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
+		{
+			if( !mEnergyCells[i]->GetPickedUp() )
+			{
+				mEnergyCells[i]->Update( deltaTime );
+				mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnergyCells[i]->GetPosition();
+				mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::OBJECTIVE;
+			}
+		}
+
+		CheckProjectileCollision();
+
+		//GUI UPDATE ANYTHING RELATED TO IT NEEDS TO PUT ABOVE THIS COMMENT
+		////////////////////////////////////////////////////////////////////////////////////////////
+		guiUpdate.mRadarObjects	= mRadarObjects;
+		guiUpdate.mNrOfObjects	= nrOfRadarObj;
+		guiUpdate.mPlayerPos	= mPlayer->GetPlayerPosition();	
+
+		guiUpdate.mPlayerHP		= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
+		guiUpdate.mPlayerXP		= mPlayer->GetXPToNext();
+		guiUpdate.mLevel		= mPlayer->Upgradable();
+	
+		guiUpdate.deltaTime = deltaTime;
+
+		if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->GetNrOfEnergyCells() == mNeededEnergyCells )
+		{
+			guiUpdate.mEndGame = true;
+			guiUpdate.mWonGame = true;
+			mEndGame = true;
+
+			IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
+			Client::GetInstance()->SendEvent( E1 );
+		}
+		else if( !mEndGame )
+		{
+			guiUpdate.mEndGame = mEndGame;
+			guiUpdate.mWonGame = mWonGame;
+		}
+		else
+		{
+			guiUpdate.mEndGame = mEndGame;
+			guiUpdate.mWonGame = mWonGame;
+		}
+
+		mGui->Update( guiUpdate );
+		////////////////////////////////////////////////////////////////////////////////////////////
+
+
+		while( !mPlayer->gEventList.empty() )
+		{
+			Client::GetInstance()->SendEvent( mPlayer->gEventList.back() );
+			mPlayer->gEventList.pop_back();
+		}
+		while( !mGui->gEventList.empty() )
+		{
+			Client::GetInstance()->SendEvent( mGui->gEventList.back() );
+			mGui->gEventList.pop_back();
 		}
 	}
-
-	CheckProjectileCollision();
-
-	// Test Anim
-	///////////////////////////////////////////////////////////////////////////
-	//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
-	///////////////////////////////////////////////////////////////////////////
-
-	//GUI UPDATE ANYTHING RELATED TO IT NEEDS TO PUT ABOVE THIS COMMENT
-	////////////////////////////////////////////////////////////////////////////////////////////
-	guiUpdate.mRadarObjects	= mRadarObjects;
-	guiUpdate.mNrOfObjects	= nrOfRadarObj;
-	guiUpdate.mPlayerPos	= mPlayer->GetPlayerPosition();	
-
-	guiUpdate.mPlayerHP		= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
-	guiUpdate.mPlayerXP		= mPlayer->GetXPToNext();
-	guiUpdate.mLevel		= mPlayer->Upgradable();
-	
-	guiUpdate.deltaTime = deltaTime;
-	
-	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_ENTER ) )
-	{
-		mEnergyCells[1]->SetOwnerID( mShips[FRIEND_SHIP]->GetID() );
-		mEnergyCells[1]->SetPickedUp( true );
-		mEnergyCells[1]->SetSecured( true );
-
-		mShips[FRIEND_SHIP]->AddEnergyCell( mShips[FRIEND_SHIP]->GetID() );
-	}
-
-	if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->GetNrOfEnergyCells() == mNeededEnergyCells )
-	{
-		guiUpdate.mEndGame = true;
-		guiUpdate.mWonGame = true;
-		mEndGame = true;
-
-		IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
-		Client::GetInstance()->SendEvent( E1 );
-	}
-	else if( !mEndGame )
-	{
-		guiUpdate.mEndGame = mEndGame;
-		guiUpdate.mWonGame = mWonGame;
-	}
-	else
-	{
-		guiUpdate.mEndGame = mEndGame;
-		guiUpdate.mWonGame = mWonGame;
-	}
-
-	mGui->Update( guiUpdate );
-	////////////////////////////////////////////////////////////////////////////////////////////
 
 	return S_OK;
 }
@@ -966,6 +956,7 @@ HRESULT PlayState::Render( float deltaTime )
 void PlayState::OnEnter()
 {
 	SetCursor( mSight );
+	mActive = true;
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Started() );
 	EventManager::GetInstance()->QueueEvent( E1 );
@@ -1005,10 +996,19 @@ void PlayState::Reset()
 		SAFE_RELEASE_DELETE( mShips[i] );
 	}
 
+	for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
+	{
+		mEnergyCells[i]->Reset();
+	}
+
 	RenderManager::GetInstance()->mParticleManager->Reset();
 
-	mEndGame = false;
-	mWonGame = false;
+	mGui->Reset();
+
+	mEndGame	= false;
+	mWonGame	= false;
+	mActive		= false;
+
 }
 
 HRESULT PlayState::Initialize()
@@ -1112,8 +1112,9 @@ HRESULT PlayState::Initialize()
 
 	Pathfinder::GetInstance()->Initialize( mWorldMap );
 
-	mEndGame = false;
-	mWonGame = false;
+	mEndGame	= false;
+	mWonGame	= false;
+	mActive		= false;
 
 	RenderManager::GetInstance()->RequestParticleSystem( 3333, Fire_Flies, XMFLOAT3( 6.0f, 2.0f, 0.0f ), XMFLOAT3( 0.0f, 0.1f, 0.0f ) );	//---id, effect, position, direction
 

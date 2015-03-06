@@ -30,7 +30,7 @@ void BaseMenuState::OnExit()
 HRESULT BaseMenuState::Initialize()
 {
 	BaseState::Initialize();
-	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/lobby_loadout_menu/menuBackground.dds", mBackground );
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/empty_menu.dds", mBackground );
 	mText.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 	
 	return S_OK;

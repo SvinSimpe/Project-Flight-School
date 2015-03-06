@@ -66,6 +66,7 @@ void EnergyCell::UpdateLight( float deltaTime )
 			mEnergyPointLight->positionAndIntensity.x = mPickUpRadius->center.x;
 			mEnergyPointLight->positionAndIntensity.y = mPickUpRadius->center.y;
 			mEnergyPointLight->positionAndIntensity.z = mPickUpRadius->center.z;
+			mEnergyPointLight->positionAndIntensity.w = 1.0f;
 
 			IEventPtr reg( new Event_Add_Point_Light( mEnergyPointLight ) );
 			EventManager::GetInstance()->QueueEvent( reg );
@@ -87,35 +88,6 @@ HRESULT EnergyCell::Render()
 {
 	RenderManager::GetInstance()->AddAnim3dToList( mAnimationTrack, ANIMATION_PLAY_LOOPED, mPickUpRadius->center );
 
-	//// Turn off light
-	//if ( isLightActive && mPickedUp)
-	//{
-	//	IEventPtr reg( new Event_Remove_Point_Light( mEnergyPointLight ) );
-	//	EventManager::GetInstance()->QueueEvent( reg );
-
-	//	isLightActive = false;
-	//}
-
-	//// Turn on light
-	//else if ( !isLightActive && !mPickedUp)
-	//{
-	//	IEventPtr reg( new Event_Remove_Point_Light( mEnergyPointLight ) );
-	//	EventManager::GetInstance()->QueueEvent( reg );
-
-	//	isLightActive = true;
-	//}
-
-
-	//// Turn on Light
-	//if( !mEnergyPointLight && !mPickedUp )
-	//{
-	//	IEventPtr reg( new Event_Add_Point_Light( mEnergyPointLight ) );
-	//	EventManager::GetInstance()->QueueEvent( reg );
-
-	//	isLightActive = true;
-	//}
-
-
 	return S_OK;
 }
 
@@ -124,6 +96,7 @@ void EnergyCell::Reset()
 	mOwnerID		= (UINT)-1;
 	mPickedUp		= false;
 	mSecured		= false;
+	isLightActive	= false;
 }
 
 HRESULT EnergyCell::Initialize( DirectX::XMFLOAT3 position )
@@ -135,14 +108,10 @@ HRESULT EnergyCell::Initialize( DirectX::XMFLOAT3 position )
 	mPickUpRadius->center	= position;
 
 	mEnergyPointLight						= new PointLight;
-	mEnergyPointLight->positionAndIntensity	= XMFLOAT4( position.x, position.y - 0.5f, position.z, 1.0f );
 	mEnergyPointLight->colorAndRadius		= XMFLOAT4( 2.0f, 2.0f, 4.0f, 1.0f );
+	isLightActive		= false;
 
-	IEventPtr reg( new Event_Add_Point_Light( mEnergyPointLight ) );
-	EventManager::GetInstance()->QueueEvent( reg );
-	isLightActive							= true;
-
-	mSecured				= false;
+	mSecured			= false;
 
 	AssetID model		= 0;
 	AssetID skeleton	= 0;

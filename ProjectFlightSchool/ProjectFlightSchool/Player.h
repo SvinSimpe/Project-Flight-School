@@ -9,6 +9,7 @@
 #include <time.h>
 #include "Pathfinder.h"
 #include "RenderManager.h"
+#include "SoundBufferHandler.h"
 
 #define VELOCITY_FALLOFF 2.0f
 
@@ -72,6 +73,8 @@ class Player: public RemotePlayer
 
 		UINT		mEnergyCellID;
 		float		mPickUpCooldown;
+
+		int			miniGunOverheat;
 
 	protected:
 	public:

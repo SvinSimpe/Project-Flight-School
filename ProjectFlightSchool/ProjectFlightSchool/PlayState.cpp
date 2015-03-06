@@ -79,7 +79,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		FireProjectile( data->ID(), data->ProjectileID(), teamID, data->BodyPos(), data->Direction(), data->Speed(), data->Range(), data->Damage(), (WeaponType)data->Weapon() );
 
 		//TestSound
-		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->BodyPos());
+		SoundBufferHandler::GetInstance()->Play3D( miniGun , data->BodyPos());
 		
 		XMFLOAT3 cross;
 		XMStoreFloat3( &cross, XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), XMLoadFloat3( &data->Direction() ) ) );
@@ -1001,7 +1001,7 @@ void PlayState::OnEnter()
 	IEventPtr E1( new Event_Game_Started() );
 	EventManager::GetInstance()->QueueEvent( E1 );
 
-	SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
+	//SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
 
 	IEventPtr spawnPos( new Event_Request_Player_Spawn_Position( mPlayer->GetID(), mPlayer->GetTeam() ) );
 	EventManager::GetInstance()->QueueEvent( spawnPos );
@@ -1151,7 +1151,8 @@ HRESULT PlayState::Initialize()
 	}
 
 	//TestSound
-	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav", 2000 );
+	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/minigun.wav", 500 );
+	miniGun		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/minigun.wav", 500 );
 	mSoundAsset			= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
 	mStreamSoundAsset	= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav", 3000 );
 

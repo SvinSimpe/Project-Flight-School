@@ -724,7 +724,7 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		//Blowtorch particle system
 		RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchIdle, *projectileOffset, mUpperBody.direction, mVelocity );
 		RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, *projectileOffset, mUpperBody.direction, mVelocity );
-
+		SoundBufferHandler::GetInstance()->Play3D( miniGunOverheat , GetPosition() );
 		
 
 		// Request Muzzle Flash from Particle Manager
@@ -1308,6 +1308,8 @@ HRESULT Player::Initialize()
 
 	mReviveTime			= 2.0f;
 	mTimeTillRevive		= mReviveTime;
+
+	miniGunOverheat	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/minigun.wav", 500 );
 
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Died::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Attempt_Revive::GUID );

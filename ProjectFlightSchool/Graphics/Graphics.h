@@ -72,6 +72,7 @@ enum RasterizerStates
 enum Effects
 {
 	//Particle Effects
+	EFFECTS_SNIPER_TRAIL,
 	EFFECTS_SHELL,
 	EFFECTS_DEBRIS,
 	EFFECTS_SMOKE,	// NOT IMPLEMENTED

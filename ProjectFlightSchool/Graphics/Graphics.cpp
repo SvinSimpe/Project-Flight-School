@@ -462,6 +462,16 @@ HRESULT Graphics::InitializeEffects()
 	//=======================================
 
 	//Debris effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/SniperTrailEffect.hlsl";
+	effectInfo.fileName					= "SniperTrailEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_SNIPER_TRAIL]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Debris effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/ShellEffect.hlsl";
 	effectInfo.fileName					= "ShellEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
@@ -1253,7 +1263,8 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 					// Add particletype you want to apply additive blending on
 					if( info[i].mParticleType == EFFECTS_SPORES || info[i].mParticleType == EFFECTS_SPARK || info[i].mParticleType == EFFECTS_LEVEL_UP 
 						|| info[i].mParticleType == EFFECTS_FIRE || info[i].mParticleType == EFFECTS_BLOWTORCH_FIRE || info[i].mParticleType == EFFECTS_BLOWTORCH_IDLE
-						|| info[i].mParticleType == EFFECTS_EXPLOSION || info[i].mParticleType == EFFECTS_SPARK_ROBOT || info[i].mParticleType == EFFECTS_SPARK_ELECTRIC )
+						|| info[i].mParticleType == EFFECTS_EXPLOSION || info[i].mParticleType == EFFECTS_SPARK_ROBOT || info[i].mParticleType == EFFECTS_SPARK_ELECTRIC
+						|| info[i].mParticleType == EFFECTS_SNIPER_TRAIL)
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
 					
 					else

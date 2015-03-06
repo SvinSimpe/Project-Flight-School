@@ -28,6 +28,11 @@ struct ParticleSystem : public ParticleData
 
 		switch ( particleType )
 		{
+			case SniperTrail:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/smokeParticle1.dds", assetID );
+				break;
+			}
 			case Shell:
 			{
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/shell.dds", assetID );
@@ -180,6 +185,11 @@ struct ParticleSystem : public ParticleData
 			SetRandomDeathTime( 1, 3, particleCount );
 			ActivateLight( emitterPosition, XMFLOAT3( 6.0f, 2.0f, 2.0f ), 0.4f );
 		}
+		else if(particleType == SniperTrail )
+		{
+			SetRandomRotation( particleCount );
+			SetRandomDeathTime( 1, 5, particleCount );
+		}
 		else if(particleType == Shell )
 		{
 			SetRandomRotation( particleCount );
@@ -278,7 +288,8 @@ struct ParticleSystem : public ParticleData
 
 	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
 	{
-		if( particleType == Shell )					Generate( emitterPosition, emitterDirection, 1,  10.0f );
+		if( particleType == SniperTrail )			Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(10, 30),  1.0f );
+		else if( particleType == Shell )			Generate( emitterPosition, emitterDirection, 1,  10.0f );
 		else if( particleType == Debris )			Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(0, 5),  30.0f );
 		else if( particleType == NormalSmoke )		Generate( emitterPosition, emitterDirection, 6,  120.0f );
 		else if( particleType == BlowTorchIdle )	Generate( emitterPosition, emitterDirection, 32, 2.0f );
@@ -310,6 +321,12 @@ struct ParticleSystem : public ParticleData
 		// Update logic based on Particle type
 		switch( particleType )
 		{
+			case SniperTrail: 
+			{
+				// Update Debris logic here
+				SniperTrailLogic( deltaTime );
+				break;
+			}
 			case Shell: 
 			{
 				// Update Debris logic here
@@ -539,7 +556,24 @@ struct ParticleSystem : public ParticleData
 			isLightActive = false;
 		}
 	}
-		
+	
+	void SniperTrailLogic( float deltatime )
+	{
+		for ( int i = 0; i < nrOfParticlesAlive; i++ )
+		{
+			if( damping[i] > 0.0f )
+				damping[i] -= 0.03f;
+
+			xVelocity[i] = xVelocity[i] * damping[i];
+			yVelocity[i] = yVelocity[i] * damping[i];
+			zVelocity[i] = zVelocity[i] * damping[i];
+			
+			xPosition[i] += 0.05f * ( 1.0f - damping[i] );
+			zPosition[i] += 0.025f * ( 1.0f - damping[i] );
+			yPosition[i] += 0.05f * ( 1.0f - damping[i] );
+		}
+	}
+
 	void NormalSmokeLogic( float deltatime )
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
@@ -549,10 +583,10 @@ struct ParticleSystem : public ParticleData
 
 			xVelocity[i] = xVelocity[i] * damping[i];
 			zVelocity[i] = zVelocity[i] * damping[i];
-			yVelocity[i] = zVelocity[i] * damping[i];
+			yVelocity[i] = zVelocity[i] * damping[i] * 4;
 			xPosition[i] += 0.05f * ( 1.0f - damping[i] );
 			zPosition[i] += 0.025f * ( 1.0f - damping[i] );
-			yPosition[i] += 0.05f * ( 1.0f - damping[i] );
+			yPosition[i] += 0.08f * ( 1.0f - damping[i] );
 		}
 	}
 

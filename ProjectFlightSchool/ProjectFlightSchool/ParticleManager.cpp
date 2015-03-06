@@ -98,7 +98,6 @@ void ParticleManager::Initialize()
 	mNrOfParticleSystemsPerType[FireSmoke]		= 0;
 	mNrOfParticleSystemsPerType[BlowTorchFire]	= 0;
 	mNrOfParticleSystemsPerType[BlowTorchIdle]	= 0;
-	mNrOfParticleSystemsPerType[ExplosionSmoke]	= 0;
 	mNrOfParticleSystemsPerType[Fire_Flies]		= 0;// Below this
 	mNrOfParticleSystemsPerType[NormalSmoke]	= 0;// Below this
 	mNrOfParticleSystemsPerType[Hammer_Effect]	= 0;
@@ -111,28 +110,17 @@ void ParticleManager::Initialize()
 	mMaxNrOfParticleSystemsPerType[Blood]			= 10;
 	mMaxNrOfParticleSystemsPerType[MuzzleFlash]		= 8;
 	mMaxNrOfParticleSystemsPerType[Smoke_MiniGun]	= 8;
-
-	mMaxNrOfParticleSystemsPerType[Level_Up]		= 5;
-	mMaxNrOfParticleSystemsPerType[Level_Inner]		= 5;
-	mMaxNrOfParticleSystemsPerType[Test_Fountain]	= 5;
-	mMaxNrOfParticleSystemsPerType[Explosion]		= 1;
-	mMaxNrOfParticleSystemsPerType[ExplosionSmoke]	= 3;
-	mMaxNrOfParticleSystemsPerType[BlowTorchFire]	= 3;
-	mMaxNrOfParticleSystemsPerType[BlowTorchIdle]	= 3;
-	mMaxNrOfParticleSystemsPerType[FireSmoke]		= 4;
-	mMaxNrOfParticleSystemsPerType[Fire_Flies]		= 2;// Aswell as this
-	mMaxNrOfParticleSystemsPerType[NormalSmoke]		= 3;// Aswell as this
-	mMaxNrOfParticleSystemsPerType[Hammer_Effect]	= 3;
-	//mMaxNrOfParticleSystemsPerType[Level_Up]		= 8;
-	//mMaxNrOfParticleSystemsPerType[Level_Inner]		= 8;
-	//mMaxNrOfParticleSystemsPerType[Test_Fountain]	= 8;
-	//mMaxNrOfParticleSystemsPerType[Explosion]		= 8;
-	//mMaxNrOfParticleSystemsPerType[ExplosionSmoke]	= 8;
-	//mMaxNrOfParticleSystemsPerType[BlowTorchFire]	= 8;
-	//mMaxNrOfParticleSystemsPerType[BlowTorchIdle]	= 8;
-	//mMaxNrOfParticleSystemsPerType[FireSmoke]		= 8;
-	//mMaxNrOfParticleSystemsPerType[NormalSmoke]		= 8;
-	//mMaxNrOfParticleSystemsPerType[Hammer_Effect]	= 8; // Aswell as this
+	mMaxNrOfParticleSystemsPerType[Level_Up]		= 8;
+	mMaxNrOfParticleSystemsPerType[Level_Inner]		= 8;
+	mMaxNrOfParticleSystemsPerType[Test_Fountain]	= 8;
+	mMaxNrOfParticleSystemsPerType[Explosion]		= 8;
+	mMaxNrOfParticleSystemsPerType[ExplosionSmoke]	= 8;
+	mMaxNrOfParticleSystemsPerType[FireSmoke]		= 8;
+	mMaxNrOfParticleSystemsPerType[BlowTorchFire]	= 8;
+	mMaxNrOfParticleSystemsPerType[BlowTorchIdle]	= 8;
+	mMaxNrOfParticleSystemsPerType[Fire_Flies]		= 8;// Below this
+	mMaxNrOfParticleSystemsPerType[NormalSmoke]		= 8;
+	mMaxNrOfParticleSystemsPerType[Hammer_Effect]	= 8; // Aswell as this
 
 	mNrOfActiveParticleSystemsPerType[Smoke]			= 0;
 	mNrOfActiveParticleSystemsPerType[FIRE]				= 0;
@@ -295,7 +283,7 @@ void ParticleManager::Initialize()
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Fire_Flies]; i++ )
 	{
-		mParticleSystems[Fire_Flies][i]->Initialize( Fire_Flies, 1.0f, 1 );	//-------------------------------------------------emitter rate and particle count
+		mParticleSystems[Fire_Flies][i]->Initialize( Fire_Flies, 8.0f, 10 );	//-------------------------------------------------emitter rate and particle count
 		mNrOfParticleSystemsPerType[Fire_Flies]++;
 		mNrOfParticleSystems++;
 	}

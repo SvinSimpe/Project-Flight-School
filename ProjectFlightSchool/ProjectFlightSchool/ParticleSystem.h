@@ -169,7 +169,7 @@ struct ParticleSystem : public ParticleData
 		{
 			initialSpawnPos = XMFLOAT3( emitterPosition.x, emitterPosition.y, emitterPosition.z );
 			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 1, particleCount );//-------circle spawn instead of point
-			SetRandomDistance( 1, 2, particleCount );
+			SetRandomDistance( 0, 1, particleCount );
 		}
 			
 		else
@@ -257,6 +257,10 @@ struct ParticleSystem : public ParticleData
 		{
 			SetRandomDeathTime( 1, 2, particleCount );
 		}
+		else if( particleType == Fire_Flies )		
+		{
+			SetRandomDeathTime( 1, 2, particleCount );
+		}
 
 		nrOfRequestedParticles += particleCount;
 
@@ -283,7 +287,7 @@ struct ParticleSystem : public ParticleData
 		else if( particleType == Test_Fountain )	Generate( emitterPosition, emitterDirection, 32, 20.0f );
 		else if( particleType == Level_Up )			Generate( emitterPosition, emitterDirection, 512, 270.0f );
 		else if( particleType == Level_Inner )		Generate( emitterPosition, emitterDirection, 32, 20.0f );
-		else if( particleType == Fire_Flies )		Generate( emitterPosition, emitterDirection, 1, 5.0f );		//------------particle count and spreadangle
+		else if( particleType == Fire_Flies )		Generate( emitterPosition, emitterDirection, 8, 5.0f );		//------------particle count and spreadangle
 	}
 
 	virtual void Update( float deltaTime )
@@ -400,7 +404,7 @@ struct ParticleSystem : public ParticleData
 			}
 			case Fire_Flies:
 			{
-				// Update Smoke_MiniGun logic here
+				// Update fireflies logic here
 				Fire_FliesLogic( deltaTime );
 				break;
 			}
@@ -607,13 +611,16 @@ struct ParticleSystem : public ParticleData
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
 		{
 			float distanceFromSpawnPos = XMVectorGetX( XMVector3Length( XMLoadFloat3( &initialSpawnPos ) - XMLoadFloat3( &XMFLOAT3( xPosition[i], yPosition[i], zPosition[i] ) ) ) );
-			if (distanceFromSpawnPos >= maxDistanceFromSpawnPos[0])
+			if ( distanceFromSpawnPos >= maxDistanceFromSpawnPos[0] )
 			{
-				XMVECTOR toCenter = XMLoadFloat3( &XMFLOAT3( xPosition[i], xPosition[i], xPosition[i] ) ) - XMLoadFloat3( &initialSpawnPos );
-				xVelocity[i] += XMVectorGetX( toCenter );
-				yVelocity[i] += XMVectorGetY( toCenter );
-				zVelocity[i] += XMVectorGetZ( toCenter );
+				float interpolation = max( 0.0f, 1.0f - deltaTime );
 
+				XMVECTOR toCenter	= XMLoadFloat3( &initialSpawnPos ) - XMLoadFloat3( &XMFLOAT3( xPosition[i], yPosition[i], zPosition[i] ) );
+				XMVECTOR toRight	= XMVector3Cross( toCenter, XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ) );
+				toCenter = XMVector3Normalize( toCenter );
+				xVelocity[i] = xVelocity[i] * interpolation + XMVectorGetX( toCenter * 0.8f + ( i % 2 == 0 ? toRight : -toRight ) * 0.2f ) * ( 1.0f - interpolation );
+				yVelocity[i] = yVelocity[i] * interpolation + XMVectorGetY( toCenter * 0.8f + ( i % 2 == 0 ? toRight : -toRight ) * 0.2f ) * ( 1.0f - interpolation );
+				zVelocity[i] = zVelocity[i] * interpolation + XMVectorGetZ( toCenter * 0.8f + ( i % 2 == 0 ? toRight : -toRight ) * 0.2f ) * ( 1.0f - interpolation );
 			}
 
 		}

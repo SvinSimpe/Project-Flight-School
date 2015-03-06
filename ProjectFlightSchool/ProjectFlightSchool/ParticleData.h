@@ -11,7 +11,7 @@ using namespace DirectX;
 
 #define MAX_PARTICLES 10000
 
-#define NR_OF_PARTICLE_TYPES 18
+#define NR_OF_PARTICLE_TYPES 19
 
 #if !defined(SAFE_DELETE_ARRAY)
 #define SAFE_DELETE_ARRAY( x ) if( x ){ delete [] x; x = nullptr; }
@@ -265,7 +265,7 @@ struct ParticleData
 		float randomSpreadAngle = (float)( rand() % (int)spreadAngle * 2 ) - spreadAngle;
 		XMVECTOR randomAimingDirection = XMVectorSet( 0.0f, 0.0f, 0.0f, 0.0f );
 
-		if( particleType == Test_Fountain )
+		if( particleType == Test_Fountain || particleType == Fire_Flies )
 		{
 			randomAimingDirection = XMVector3TransformCoord( aimingDirection, XMMatrixRotationX( XMConvertToRadians( randomSpreadAngle ) ) );
 			randomAimingDirection = XMVector3TransformCoord( randomAimingDirection, XMMatrixRotationZ( XMConvertToRadians( randomSpreadAngle ) ) );	
@@ -443,9 +443,9 @@ struct ParticleData
 			}
 			if( particleType == Fire_Flies )
 			{
-				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 10 );	//---------------------random speed of particles
- 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 10 );
-				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 10 );		
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 5 );	//---------------------random speed of particles
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 3 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 4 );			
 			}
 
 			GetRandomSpread( spreadAngle );

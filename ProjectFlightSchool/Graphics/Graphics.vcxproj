@@ -192,7 +192,7 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\Content\Effects\Particle Effects\Test_FountainEffect.hlsl">
+    <Text Include="..\Content\Effects\Particle Effects\SporesEffect.hlsl">
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>
@@ -238,6 +238,11 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\Content\Effects\Particle Effects\Level_InnerEffect.hlsl">
+      <FileType>Document</FileType>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Content\Effects\Particle Effects\Fire_FliesEffect.hlsl">
       <FileType>Document</FileType>
     </Text>
   </ItemGroup>

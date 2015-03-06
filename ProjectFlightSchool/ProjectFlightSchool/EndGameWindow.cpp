@@ -57,6 +57,12 @@ HRESULT	EndGameWindow::Initialize()
 	return hr;
 }
 
+void EndGameWindow::Reset()
+{
+	mWonGame = false;
+	mEndGameButton.mButton.SetExitCooldown();
+}
+
 void EndGameWindow::Release()
 {
 	mEndGameButton.mButton.Release();

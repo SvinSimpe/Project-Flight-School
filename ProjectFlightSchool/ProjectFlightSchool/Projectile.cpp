@@ -30,8 +30,8 @@ HRESULT Projectile::Update( float deltaTime )
 			mLifeTime -=deltaTime;
 	}
 	
-	mBoundingCircle->center = mPosition;
-	mPointLight->position	= XMFLOAT4( mPosition.x, mPosition.y, mPosition.z, 1.0f );
+	mBoundingCircle->center				= mPosition;
+	mPointLight->positionAndIntensity	= XMFLOAT4( mPosition.x, mPosition.y, mPosition.z, 1.0f );
 
 	return S_OK;
 }
@@ -139,8 +139,8 @@ HRESULT Projectile::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Bullet/", "bullet2.pfs", mProjectileAsset );
 	mWeaponType		= MINIGUN;
 	mPointLight		= new PointLight;
-	mPointLight->colorAndRadius	= XMFLOAT4( 1.0f, 1.0f, 1.0f, 0.5f );
-	mPointLight->position		= XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
+	mPointLight->colorAndRadius				= XMFLOAT4( 1.0f, 1.0f, 1.0f, 0.5f );
+	mPointLight->positionAndIntensity		= XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
 
 	return S_OK;
 }

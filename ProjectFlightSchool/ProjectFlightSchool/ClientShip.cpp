@@ -88,6 +88,21 @@ void ClientShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 	mNrOfEnergyCells = 0;
 }
 
+bool ClientShip::InteractIntersect( BoundingCircle* entity )
+{
+	BoundingCircle* temp = mHitCircle;
+	if( temp != nullptr )
+	{
+		temp->center.z = -temp->center.z;
+		if( temp->Intersect( entity ) )
+		{
+			return true;
+		}
+		else return false;
+	}
+	return false;
+}
+
 bool ClientShip::Intersect( BoundingCircle* entity )
 {
 	if( mHitCircle != nullptr )

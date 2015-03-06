@@ -38,7 +38,10 @@ class ServerShip : public GameObject
 		bool			mIsAlive;
 
 
+
 	public:
+		UINT			EnemiesTargetMe;
+		UINT			TanksTargetMe;
 
 	private:
 		// Calculates the new level dependent on the change factor sent by the client

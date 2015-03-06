@@ -84,6 +84,9 @@ void PlayState::EventListener( IEventPtr newEvent )
 		// Request Muzzle Flash from Particle Manager
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
+		XMFLOAT3 cross;
+		XMStoreFloat3( &cross, XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), XMLoadFloat3( &data->Direction() ) ) );
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Shell, XMFLOAT3(data->BodyPos().x - data->Direction().x, data->BodyPos().y, data->BodyPos().z - data->Direction().z), cross );
 
 		///Blowtorch particle system
 		RenderManager::GetInstance()->RequestParticleSystem( 855, BlowTorchIdle, data->BodyPos(), data->Direction() );
@@ -120,17 +123,23 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if( newEvent->GetEventType() == Event_Server_Spawn_Ship::GUID )
 	{
 		std::shared_ptr<Event_Server_Spawn_Ship> data = std::static_pointer_cast<Event_Server_Spawn_Ship>( newEvent );
+	
+		std::ostringstream out;
+		out << "\n--------------Client ship pos: " << data->Position().x << " " << data->Position().y << " " << data->Position().z;
+		OutputDebugStringA( out.str().c_str()  );
 
 		if( data->TeamID() == mPlayer->GetTeam() )
 		{
 			mShips[FRIEND_SHIP] = new ClientShip();
 			mShips[FRIEND_SHIP]->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
+			IEventPtr spawnPos( new Event_Request_Player_Spawn_Position( mPlayer->GetID(), mPlayer->GetTeam() ) );
+			EventManager::GetInstance()->QueueEvent( spawnPos );
 		}
 		else
 		{
 			mShips[ENEMY_SHIP] = new ClientShip();
 			mShips[ENEMY_SHIP]->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
-		}
+		}	
 	}
 
 	
@@ -489,7 +498,7 @@ void PlayState::HandleDeveloperCameraInput()
 			Client::GetInstance()->SendEvent( E1 );
 		}
 	}
-	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_C ) )
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_E ) )
 	{
 		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 		{
@@ -529,6 +538,14 @@ void PlayState::HandleDeveloperCameraInput()
 			mPlayer->Lock();
 			mGui->ActivateInGameWindow();
 		}
+	}
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_P ) )
+	{
+		SoundBufferHandler::GetInstance()->StopLoopStream( mStreamSoundAsset );
+	}
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_SPACE ) )
+	{
+		SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
 	}
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_1 ) )
 	{
@@ -774,16 +791,7 @@ HRESULT PlayState::Update( float deltaTime )
 			}
 		}
 
-		///Test fountain particle system
-		RenderManager::GetInstance()->RequestParticleSystem( 990, NormalSmoke, XMFLOAT3( 0.0f, 1.0f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 0.0f ) );
-
-		//RenderManager::GetInstance()->RequestParticleSystem( 1889, FIRE, XMFLOAT3( 1.0f, 2.0f, 15.0f ), XMFLOAT3( 0.5f, 1.0f, 0.5f ) );			//---------id, effect, position, direction
-		//RenderManager::GetInstance()->RequestParticleSystem( 1889, FireSmoke, XMFLOAT3( 2.5f, 3.5f, 16.5f ), XMFLOAT3( 1.5f, 2.0f, 1.5f ) );	//---------id, effect, position, direction
-	
-		RenderManager::GetInstance()->RequestParticleSystem( 997, Test_Fountain, XMFLOAT3( 0.0f, 20.0f, 0.0f ), XMFLOAT3( 0.0f, -1.0f, 0.0f ) );
-
-		//RenderManager::GetInstance()->RequestParticleSystem( 855, BlowTorchIdle, XMFLOAT3( 0.0f, 5.0f, 5.0f ), XMFLOAT3( 1.0f, 0.0f, 0.0f ) );
-
+	RenderManager::GetInstance()->RequestParticleSystem( 997, Spores, XMFLOAT3( mPlayer->GetPlayerPosition().x, mPlayer->GetPlayerPosition().y + 2.5f, mPlayer->GetPlayerPosition().z ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
 
 		if( mPlayer->Upgradable() < 1 && mGui->UpgradePlayerWindowIsActive() )
 		{
@@ -838,7 +846,6 @@ HRESULT PlayState::Update( float deltaTime )
 
 		guiUpdate.mPlayerHP		= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
 		guiUpdate.mPlayerXP		= mPlayer->GetXPToNext();
-		guiUpdate.mPlayerShield	= (float)( mPlayer->GetHP() / mPlayer->GetMaxHP() );
 		guiUpdate.mLevel		= mPlayer->Upgradable();
 	
 		guiUpdate.deltaTime = deltaTime;
@@ -967,12 +974,13 @@ void PlayState::OnEnter()
 	IEventPtr E1( new Event_Game_Started() );
 	EventManager::GetInstance()->QueueEvent( E1 );
 
-	//SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
+	SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
 }
 
 void PlayState::OnExit()
 {
 	Reset();
+	SoundBufferHandler::GetInstance()->StopLoopStream( mStreamSoundAsset );
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Ended() );
 	EventManager::GetInstance()->QueueEvent( E1 );
@@ -1110,15 +1118,10 @@ HRESULT PlayState::Initialize()
 		mEnergyCells[i]->Initialize( DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 	}
 
-
 	//TestSound
-	m3DSoundAsset	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav" );
-	mSoundAsset		= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
-
-	//TestSound
-	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav" );
+	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav", 2000 );
 	mSoundAsset			= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
-	mStreamSoundAsset	= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav" );
+	mStreamSoundAsset	= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav", 3000 );
 
 	Pathfinder::GetInstance()->Initialize( mWorldMap );
 

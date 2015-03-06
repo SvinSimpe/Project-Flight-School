@@ -7,7 +7,7 @@
 
 struct PointLight
 {
-	DirectX::XMFLOAT4 position;
+	DirectX::XMFLOAT4 positionAndIntensity;
 	DirectX::XMFLOAT4 colorAndRadius;
 };
 

@@ -44,10 +44,9 @@ struct GuiUpdate
 	//------------------------------
 
 	//Player update info
-	float	mPlayerHP		= 0.0f;
-	float	mPlayerShield	= 0.0f;
-	float	mPlayerXP		= 0.0f;
-	int		mLevel			= 0;
+	float	mPlayerHP;
+	float	mPlayerXP;
+	int		mLevel;
 	//------------------------------
 
 	//End game update info
@@ -78,17 +77,12 @@ class Gui
 
 		int			mPlayerHP;
 		int			mPlayerXP;
-		int			mPlayerShield;
 
 		int			mExperience;
 
-		AssetID		mPlayerBar;
-		XMFLOAT2	mPlayerHealthXPTopLeftCorner;
-		XMFLOAT2	mSizePlayerHealthXP;
-
-		AssetID		mLevelUp;
-		XMFLOAT2	mSizeLevelUp;
-		XMFLOAT2	mTopLeftLevelUp;
+		Image		mHPXP;
+		Image		mLevelUp;
+		Image		mDeviderHPXP;
 
 		int			mNeededEnergyCells;
 		

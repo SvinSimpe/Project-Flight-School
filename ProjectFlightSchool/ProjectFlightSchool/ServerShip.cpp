@@ -154,6 +154,26 @@ void ServerShip::ClientChangeShipLevels( int changeTurretLevel, int changeShield
 	}
 }
 
+UINT ServerShip::GetID() const
+{
+	return mID;
+}
+
+BoundingCircle* ServerShip::GetHitCircle() const
+{
+	return mHitCircle;
+}
+
+bool ServerShip::IsAlive() const
+{
+	return mIsAlive;
+}
+
+UINT ServerShip::GetTeamID() const
+{
+	return mTeamID;
+}
+
 bool ServerShip::TakeDamage( float damage )
 {
 	if( mCurrentShield > 0.0f )
@@ -166,9 +186,13 @@ bool ServerShip::TakeDamage( float damage )
 		if( mCurrentHP > 0.0f )
 		{
 			mCurrentHP -= damage;
+			if( mCurrentHP <= 0.0f )
+				mIsAlive = false;
+
 			return true;
 		}
 	}
+
 	return false;
 }
 
@@ -215,6 +239,7 @@ void ServerShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 	mNrOfEnergyCells			= 0;
 	mNrOfAvailableEnergyCells	= 0;
 	mWasUpdated					= false;
+	mIsAlive					= true;
 
 	mServerTurret->Reset( id + 10, teamID, pos, rot, scale );
 	float percent	= PercentShield();
@@ -227,6 +252,9 @@ void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 	GameObject::Initialize( pos, rot, scale, assetID );
 	mServerTurret	= new ServerTurret();
 	mBuffCircle		= new BoundingCircle( mPos, 20.0f );
+	XMFLOAT3 invPos	= mPos;
+	invPos.z *= -1.0f;
+	mHitCircle		= new BoundingCircle( invPos, 10.0f );
 
 	mBuffMod		= 0.5f;
 	mID				= id;
@@ -234,18 +262,17 @@ void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 	mTurretLevel	= MIN_LEVEL;
 	mShieldLevel	= MIN_LEVEL;
 	mBuffLevel		= MIN_LEVEL;
-	mMaxShield		= 100.0f;
+	mMaxShield		= 2000.0f;
 	mCurrentShield	= mMaxShield;
-	mMaxHP			= 100.0f;
+	mMaxHP			= 8000.0f;
 	mCurrentHP		= mMaxHP;
+	mIsAlive		= true;
 
 	float percent	= PercentShield();
 	mMaxShield		= 100.0f * mShieldLevel;
 	mCurrentShield	= mMaxShield * percent;
 
-	mServerTurret->Initialize( id + 10, teamID, pos, rot, scale, assetID );
-
-	EventManager::GetInstance()->AddListener( &ServerShip::ClientUpdateShip, this, Event_Client_Update_Ship::GUID );
+	mServerTurret->Initialize( id + 10, teamID, pos, rot, scale, assetID );	
 }
 
 void ServerShip::Initialize( UINT id, UINT teamID, GameObjectInfo gameObjectInfo, AssetID assetID )
@@ -253,6 +280,7 @@ void ServerShip::Initialize( UINT id, UINT teamID, GameObjectInfo gameObjectInfo
 	GameObject::Initialize( gameObjectInfo, assetID );
 	mServerTurret	= new ServerTurret();
 	mBuffCircle		= new BoundingCircle( 20.0f );
+	mHitCircle		= new BoundingCircle( mPos, 10.0f );
 
 	mBuffMod		= 0.5f;
 	mID				= id;
@@ -263,6 +291,7 @@ void ServerShip::Initialize( UINT id, UINT teamID, GameObjectInfo gameObjectInfo
 	mMaxShield		= 100.0f;
 	mCurrentShield	= mMaxShield;
 	mMaxHP			= 100.0f;
+	mIsAlive		= true;
 	mCurrentHP		= mMaxHP;
 
 	float percent	= PercentShield();
@@ -287,6 +316,7 @@ void ServerShip::Release()
 		delete mBuffCircle;
 		mBuffCircle = nullptr;
 	}
+	SAFE_DELETE( mHitCircle );
 }
 
 ServerShip::ServerShip() : GameObject()
@@ -294,6 +324,7 @@ ServerShip::ServerShip() : GameObject()
 	mBuffMod					= 0.0f;
 	mServerTurret				= nullptr;
 	mBuffCircle					= nullptr;
+	mHitCircle					= nullptr;
 	mID							= (UINT)-1;
 	mTeamID						= (UINT)-1;
 	mTurretLevel				= 0;
@@ -305,6 +336,7 @@ ServerShip::ServerShip() : GameObject()
 	mWasUpdated					= false;
 	mNrOfEnergyCells			= 0;
 	mNrOfAvailableEnergyCells	= 0;
+	mIsAlive					= true;
 }
 
 ServerShip::~ServerShip()

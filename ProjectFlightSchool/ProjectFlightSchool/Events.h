@@ -5569,4 +5569,168 @@ class Event_Reset_Turret_Targets : public IEvent
 			return IEventPtr( new Event_Reset_Turret_Targets() );
 		}
 };
+
+class Event_Client_Change_Ready_State : public IEvent
+{
+	private:
+		UINT mID;
+		bool mIsReady;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Change_Ready_State()
+		{
+			mID			= (UINT)-1;
+			mIsReady	= false;
+		}
+		Event_Client_Change_Ready_State( UINT ID, bool isReady )
+		{
+			mID			= ID;
+			mIsReady	= isReady;
+		}
+		~Event_Client_Change_Ready_State() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mIsReady << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mIsReady;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Change_Ready_State( mID, mIsReady ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		bool IsReady() const
+		{
+			return mIsReady;
+		}
+};
+
+class Event_Server_Change_Ready_State : public IEvent
+{
+	private:
+		UINT mID;
+		bool mIsReady;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Change_Ready_State()
+		{
+			mID			= (UINT)-1;
+			mIsReady	= false;
+		}
+		Event_Server_Change_Ready_State( UINT ID, bool isReady )
+		{
+			mID			= ID;
+			mIsReady	= isReady;
+		}
+		~Event_Server_Change_Ready_State() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mIsReady << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mIsReady;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Change_Ready_State( mID, mIsReady ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+		bool IsReady() const
+		{
+			return mIsReady;
+		}
+};
+
+class Event_Host_Start_Game_Countdown : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Host_Start_Game_Countdown()
+		{
+		}
+		~Event_Host_Start_Game_Countdown() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Host_Start_Game_Countdown() );
+		}
+};
+
+class Event_Server_Start_Game_Countdown : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Start_Game_Countdown()
+		{
+		}
+		~Event_Server_Start_Game_Countdown() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Start_Game_Countdown() );
+		}
+};
 #endif

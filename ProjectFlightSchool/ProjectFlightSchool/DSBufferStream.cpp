@@ -186,7 +186,7 @@ bool DSBufferStream::ReFillBuffer2Loop()
 	return true;
 }
 
-bool DSBufferStream::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName )
+bool DSBufferStream::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName, LONG volume )
 {
 	///////////////////////////Read header
 	WaveHeaderType	waveFileHeader;
@@ -300,50 +300,50 @@ bool DSBufferStream::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName )
 
 	/////////////////////////////////////// Fill the buffer with wavedata.
 
-	unsigned char* waveData = new unsigned char[waveFileHeader.dataSize];
-	if ( !waveData )
-	{
-		printf( "waveData array allocation in FillBufferWithWave has failed\n" );
-		return false;
-	}
+	//unsigned char* waveData = new unsigned char[mDataSize];
+	//if ( !waveData )
+	//{
+	//	printf( "waveData array allocation in FillBufferWithWave has failed\n" );
+	//	return false;
+	//}
 
-	// Read in the wave file data into the newly created buffer.
-	count = fread( waveData, 1, waveFileHeader.dataSize, mFileptr );
-	if ( count != waveFileHeader.dataSize )
-	{
-		printf( "fread in FillBufferWithWave has not read correctly\n" );
-		//return false;
-	}
+	//// Read in the wave file data into the newly created buffer.
+	//count = fread( waveData, 1, mDataSize, mFileptr );
+	//if ( count != mDataSize )
+	//{
+	//	printf( "fread in FillBufferWithWave has not read correctly\n" );
+	//	//return false;
+	//}
 
-	//////////////////Dags att fylla buffern
-	unsigned char *bufferPtr;
-	unsigned long bufferSize;
+	////////////////////Dags att fylla buffern
+	//unsigned char *bufferPtr;
+	//unsigned long bufferSize;
 
-	// Lock the secondary buffer to write wave data into it.
-	hr = mBuffer->Lock( 0, waveFileHeader.dataSize, (void**)&bufferPtr, (DWORD*)&bufferSize, NULL, 0, 0 );
-	if ( FAILED( hr ) )
-	{
-		return false;
-	}
+	//// Lock the secondary buffer to write wave data into it.
+	//hr = mBuffer->Lock( 0, mDataSize, (void**)&bufferPtr, (DWORD*)&bufferSize, NULL, 0, 0 );
+	//if ( FAILED( hr ) )
+	//{
+	//	return false;
+	//}
 
-	// Copy the wave data into the buffer.
-	memcpy( bufferPtr, waveData, waveFileHeader.dataSize );
+	//// Copy the wave data into the buffer.
+	//memcpy( bufferPtr, waveData, mDataSize );
 
-	// Unlock the secondary buffer after the data has been written to it.
-	hr = mBuffer->Unlock( (void*)bufferPtr, bufferSize, NULL, 0 );
-	if ( FAILED( hr ) )
-	{
-		return false;
-	}
+	//// Unlock the secondary buffer after the data has been written to it.
+	//hr = mBuffer->Unlock( (void*)bufferPtr, bufferSize, NULL, 0 );
+	//if ( FAILED( hr ) )
+	//{
+	//	return false;
+	//}
 
-	
+	//
 
-	// Release the wave data since it was copied into the secondary buffer.
-	delete[] waveData;
-	waveData = 0;
+	//// Release the wave data since it was copied into the secondary buffer.
+	//delete[] waveData;
+	//waveData = 0;
 
 	// Set volume of the buffer to 100%.
-	hr = mBuffer->SetVolume( DSBVOLUME_MAX );
+	hr = mBuffer->SetVolume( -volume );
 	if ( FAILED( hr ) )
 	{
 		printf( "SetVolume in main has failed\n" );
@@ -386,6 +386,8 @@ void DSBufferStream::TimerCallBackLoop()
 void DSBufferStream::PlayBuffer()
 {
 	mCurrentBuffer	= 1;
+	ReFillBuffer1();
+	ReFillBuffer2();
 	DSBuffer::PlayBuffer();
 	mTimerID = timeSetEvent( 1000, 0, TimerProcess, (DWORD)this, TIME_PERIODIC | TIME_CALLBACK_FUNCTION );
 }
@@ -393,6 +395,8 @@ void DSBufferStream::PlayBuffer()
 void DSBufferStream::PlayBufferLoop()
 {
 	mCurrentBuffer	= 1;
+	ReFillBuffer1Loop();
+	ReFillBuffer2Loop();
 	DSBuffer::PlayBufferLoop();
 	mTimerID = timeSetEvent( 1000, 0, TimerProcessLoop, (DWORD)this, TIME_PERIODIC | TIME_CALLBACK_FUNCTION );
 }
@@ -404,12 +408,12 @@ void DSBufferStream::StopBuffer()
 	fseek( mFileptr, sizeof(WaveHeaderType), SEEK_SET );
 }
 
-bool DSBufferStream::Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID )
+bool DSBufferStream::Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID, LONG volume )
 {
 	mFileptr		= nullptr;
 	mID				= ID;
 	mFileName		= fileName;
-	return FillBufferWithWave( lpds, mFileName );
+	return FillBufferWithWave( lpds, mFileName, volume );
 }
 
 void DSBufferStream::Release()

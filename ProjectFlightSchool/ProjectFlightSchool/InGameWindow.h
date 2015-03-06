@@ -7,7 +7,7 @@
 #include "SoundBufferHandler.h"
 
 #define	NR_OF_BUTTONS 4
-#define NR_OF_OPTION_BUTTONS 3
+#define NR_OF_OPTION_BUTTONS 4
 
 struct MenuButtonStruct
 {
@@ -33,7 +33,7 @@ struct MenuButtonStruct
 	void Render( Font font )
 	{
 		button.Render();
-		font.WriteText( text, textPos.x, textPos.y, scale );
+		font.WriteText( text, textPos.x, textPos.y, scale, COLOR_CYAN );
 	}
 };
 
@@ -46,6 +46,8 @@ private:
 	AssetID				mBackground;
 	MenuButtonStruct	mButtons[NR_OF_BUTTONS];
 	MenuButtonStruct	mOptionButtons[NR_OF_OPTION_BUTTONS];
+	bool				mInControls;
+	Button				mInControlsBackground;
 
 protected:
 public:

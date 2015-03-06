@@ -10,7 +10,7 @@
 using namespace DirectX;
 
 #define MAX_PARTICLES 10000
-#define NR_OF_PARTICLE_TYPES 18
+#define NR_OF_PARTICLE_TYPES 20
 
 #if !defined(SAFE_DELETE_ARRAY)
 #define SAFE_DELETE_ARRAY( x ) if( x ){ delete [] x; x = nullptr; }
@@ -18,6 +18,8 @@ using namespace DirectX;
 
 enum ParticleType
 {
+	Shell,
+	Debris,
 	Smoke,
 	FIRE,
 	Spark,
@@ -310,15 +312,28 @@ struct ParticleData
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 2 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 1 );		
 			}
+			else if( particleType == Shell )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 30, 50 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 30, 50 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 30, 50 );
+			}
 
-			if( particleType == BlowTorchFire )
+			else if( particleType == Debris )
+			{
+				randomDirectionVector.x = xDirection * GetRandomSpeed( 10, 80 );
+ 				randomDirectionVector.y = yDirection * GetRandomSpeed( 10, 80 );
+				randomDirectionVector.z = zDirection * GetRandomSpeed( 10, 80 );
+			}
+
+			else if( particleType == BlowTorchFire )
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 35, 55 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 55, 85 );
 				randomDirectionVector.z = zDirection * GetRandomSpeed( 35, 55 );		
 			}
 
-			if( particleType == BlowTorchIdle )
+			else if( particleType == BlowTorchIdle )
 			{
 				randomDirectionVector.x = xDirection * GetRandomSpeed( 80, 80 );
  				randomDirectionVector.y = yDirection * GetRandomSpeed( 80, 80 );

@@ -2,15 +2,19 @@
 #define OPTIONSMENUSTATE_H
 
 #include "BaseMenuState.h"
+#include "SoundBufferHandler.h"
 
 class OptionsMenuState : public BaseMenuState
 {
 	private:
 		static const int
-			FULLSCREEN		= 0,
-			SOUND			= 1,
-			BACK			= 2,
-			BUTTON_AMOUNT	= 3;
+			HELP			= 0,
+			FULLSCREEN		= 1,
+			SOUND			= 2,
+			BACK			= 3,
+			BUTTON_AMOUNT	= 4;
+		bool	mInOptions;
+		Button	mInOptionsBackground;
 
 	protected:
 	public:

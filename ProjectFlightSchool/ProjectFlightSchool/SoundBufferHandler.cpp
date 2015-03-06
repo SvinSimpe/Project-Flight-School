@@ -1,6 +1,6 @@
 #include "SoundBufferHandler.h"
 
-int SoundBufferHandler::Load3DBuffer( char* fileName )
+int SoundBufferHandler::Load3DBuffer( char* fileName, LONG volume )
 {
 	for ( auto s : m3DSoundAssets )
 	{
@@ -11,12 +11,12 @@ int SoundBufferHandler::Load3DBuffer( char* fileName )
 	}
 	DS3DBuffer buffer;
 	int id = m3DSoundAssets.size();
-	buffer.Initialize( mDSDevice, fileName, id );
+	buffer.Initialize( mDSDevice, fileName, id, volume );
 	m3DSoundAssets.push_back( buffer );
 	return id;
 }
 
-int SoundBufferHandler::LoadBuffer( char* fileName )
+int SoundBufferHandler::LoadBuffer( char* fileName, LONG volume )
 {
 	for ( auto s : mSoundAssets )
 	{
@@ -27,12 +27,12 @@ int SoundBufferHandler::LoadBuffer( char* fileName )
 	}
 	DSBuffer buffer;
 	int id = mSoundAssets.size();
-	buffer.Initialize( mDSDevice, fileName, id );
+	buffer.Initialize( mDSDevice, fileName, id, volume );
 	mSoundAssets.push_back( buffer );
 	return id;
 }
 
-int SoundBufferHandler::LoadStreamBuffer( char* fileName )
+int SoundBufferHandler::LoadStreamBuffer( char* fileName, LONG volume )
 {
 	for ( auto s : mStreamSoundAssets )
 	{
@@ -43,7 +43,7 @@ int SoundBufferHandler::LoadStreamBuffer( char* fileName )
 	}
 	DSBufferStream buffer;
 	int id = mStreamSoundAssets.size();
-	buffer.Initialize( mDSDevice, fileName, id );
+	buffer.Initialize( mDSDevice, fileName, id, volume );
 	mStreamSoundAssets.push_back( buffer );
 	return id;
 }

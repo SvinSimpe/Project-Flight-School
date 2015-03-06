@@ -98,7 +98,8 @@ class Server : public Network
 		void	SwitchTeam( IEventPtr eventPtr );
 		void	XP( IEventPtr eventPtr );
 		void	ChangeWeapon( IEventPtr eventPtr );
-
+		void	ClientUpdateShip( IEventPtr eventPtr );
+		void	ResetTurretTargets( IEventPtr eventPtr );
 		void	ClientInteractEnergyCell( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );

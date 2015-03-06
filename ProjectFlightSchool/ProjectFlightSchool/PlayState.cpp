@@ -132,8 +132,6 @@ void PlayState::EventListener( IEventPtr newEvent )
 		{
 			mShips[FRIEND_SHIP] = new ClientShip();
 			mShips[FRIEND_SHIP]->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
-			IEventPtr spawnPos( new Event_Request_Player_Spawn_Position( mPlayer->GetID(), mPlayer->GetTeam() ) );
-			EventManager::GetInstance()->QueueEvent( spawnPos );
 		}
 		else
 		{
@@ -215,6 +213,14 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if( newEvent->GetEventType() == Event_Reset_Game::GUID )
 	{
 		Reset();
+	}
+	else if( newEvent->GetEventType() == Event_Server_Switch_Team::GUID )
+	{
+		std::shared_ptr<Event_Server_Switch_Team> data = std::static_pointer_cast<Event_Server_Switch_Team>( newEvent );
+		if ( data->ID() == mPlayer->GetID() )
+		{
+			std::swap( mShips[FRIEND_SHIP], mShips[ENEMY_SHIP] );
+		}
 	}
 }
 
@@ -976,6 +982,9 @@ void PlayState::OnEnter()
 	EventManager::GetInstance()->QueueEvent( E1 );
 
 	SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
+
+	IEventPtr spawnPos( new Event_Request_Player_Spawn_Position( mPlayer->GetID(), mPlayer->GetTeam() ) );
+	EventManager::GetInstance()->QueueEvent( spawnPos );
 }
 
 void PlayState::OnExit()
@@ -1078,6 +1087,8 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Trigger_Client_Update::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Unlock_Player::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Reset_Game::GUID );
+
+	EventManager::GetInstance()->AddListener(&PlayState::EventListener, this, Event_Server_Switch_Team::GUID);
 
 	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 

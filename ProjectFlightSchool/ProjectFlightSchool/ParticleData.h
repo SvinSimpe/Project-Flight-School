@@ -72,11 +72,11 @@ struct ParticleData
 	float*	damping		= nullptr;
 
 	XMFLOAT3 randomDirectionVector;
-	int		 nrOfRequestedParticles		= 0;
+	int		 nrOfRequestedParticles			= 0;
 
-	PointLight* mPointLightParticleEmitter;
-	float		mInitialRadius;
-	bool		isLightActive			= false;
+	PointLight* mPointLightParticleEmitter	= nullptr;
+	float		mInitialRadius				= 0;
+	bool		isLightActive				= false;
 
 	#pragma endregion
 
@@ -504,7 +504,8 @@ struct ParticleData
 		SAFE_DELETE_ARRAY( yPosition );
 		SAFE_DELETE_ARRAY( zPosition );
 		
-		SAFE_DELETE( mPointLightParticleEmitter );
+		if ( mPointLightParticleEmitter )
+			SAFE_DELETE( mPointLightParticleEmitter );
 		
 		SAFE_DELETE_ARRAY( lifeTime );
 		SAFE_DELETE_ARRAY( deathTime );

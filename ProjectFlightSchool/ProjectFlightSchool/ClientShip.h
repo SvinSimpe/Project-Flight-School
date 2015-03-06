@@ -8,7 +8,6 @@
 class ClientShip : public ServerShip
 {
 	private:
-		BoundingCircle* mHitCircle;
 		ClientTurret* mClientTurret;
 
 

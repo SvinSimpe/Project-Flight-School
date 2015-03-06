@@ -191,7 +191,7 @@ HRESULT LobbyState::Render( float deltaTime )
 	{
 		textToWrite = p->name;
 		
-		mFont.WriteText( textToWrite, p->button.GetPosition().x + 20.0f, p->button.GetPosition().y + 15.0f, 3.0f );
+		mFont.WriteText( textToWrite, p->button.GetPosition().x + 20.0f, p->button.GetPosition().y + 15.0f, 3.0f, COLOR_CYAN );
 	}
 
 	mBackButton.Render();

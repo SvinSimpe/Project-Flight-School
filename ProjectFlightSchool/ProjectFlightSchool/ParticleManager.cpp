@@ -78,6 +78,8 @@ void ParticleManager::Initialize()
 	mNrOfActiveParticleSystemsPerType	= new int[NR_OF_PARTICLE_TYPES];
 	
 	// For every new ParticleType initiate values below
+
+	mNrOfParticleSystemsPerType[SniperTrail]	= 0;
 	mNrOfParticleSystemsPerType[Shell]			= 0;
 	mNrOfParticleSystemsPerType[Debris]			= 0;
 	mNrOfParticleSystemsPerType[FIRE]			= 0;
@@ -99,7 +101,7 @@ void ParticleManager::Initialize()
 	mNrOfParticleSystemsPerType[NormalSmoke]	= 0;// Below this
 	mNrOfParticleSystemsPerType[Hammer_Effect]	= 0;
 
-
+	mMaxNrOfParticleSystemsPerType[SniperTrail]		= 15;
 	mMaxNrOfParticleSystemsPerType[Shell]			= 6;
 	mMaxNrOfParticleSystemsPerType[Debris]			= 10;
 	mMaxNrOfParticleSystemsPerType[FIRE]			= 10;
@@ -121,7 +123,7 @@ void ParticleManager::Initialize()
 	mMaxNrOfParticleSystemsPerType[NormalSmoke]		= 8;
 	mMaxNrOfParticleSystemsPerType[Hammer_Effect]	= 8; // Aswell as this
 
-
+	mNrOfActiveParticleSystemsPerType[SniperTrail]		= 0;
 	mNrOfActiveParticleSystemsPerType[Shell]			= 0;
 	mNrOfActiveParticleSystemsPerType[Debris]			= 0;
 	mNrOfActiveParticleSystemsPerType[FIRE]				= 0;
@@ -151,10 +153,25 @@ void ParticleManager::Initialize()
 		for ( int j = 0; j < mMaxNrOfParticleSystemsPerType[i]; j++ )
 			mParticleSystems[i][j] = new ParticleSystem();
 	}
+	//========== Initialize Particle Systems ==========
+	//					-EXAMPLE-
+	//
+	//	Initialize with ParticleType, Emitrate and ParticleCount
+	//
+	//	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[MuzzleFlash]; i++ )
+	//	{
+	//		mParticleSystems[MuzzleFlash][i]->Initialize( MuzzleFlash, 16.0f, 2000 );
+	//		mNrOfParticleSystemsPerType[MuzzleFlash]++;
+	//		mNrOfParticleSystems++;
+	//	}
 
-	//================================
-	// Initialize Particle Systems	||
-	//================================
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[SniperTrail]; i++ )
+	{
+		mParticleSystems[SniperTrail][i]->Initialize( SniperTrail, 100.0f, 200 );
+		mNrOfParticleSystemsPerType[SniperTrail]++;
+		mNrOfParticleSystems++;
+	}
+
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Shell]; i++ )
 	{
 		mParticleSystems[Shell][i]->Initialize( Shell, 8.0f, 200 );

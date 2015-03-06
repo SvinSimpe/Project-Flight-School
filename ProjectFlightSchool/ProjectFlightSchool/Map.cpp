@@ -25,6 +25,18 @@ HRESULT Map::Render( float deltaTime, Player* player )
 		}
 	}
 
+	for( int x = 0; x < (int)mMapDim; x++ )
+	{
+		for( int z = 0; z < (int)mMapDim; z++ )
+		{
+			MapNodeInstance* temp = GetNodeInstance( x, z );
+			if( temp && std::find( mapNodes.begin(), mapNodes.end(), temp ) == mapNodes.end() )
+			{
+				temp->ResetLights();
+			}
+		}
+	}
+
 	for( auto& it : mapNodes )
 	{
 		it->Render( deltaTime );

@@ -1034,9 +1034,9 @@ HRESULT PlayState::Initialize()
 
 	mWorldMap = new Map();
 
-	mWorldMap->Initialize( 25 );
+	mWorldMap->Initialize( 9 );
 
-	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/HardMap.xml" ) ); 
+	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/testMap.xml" ) ); 
 
 	EventManager::GetInstance()->TriggerEvent( E1 );
 

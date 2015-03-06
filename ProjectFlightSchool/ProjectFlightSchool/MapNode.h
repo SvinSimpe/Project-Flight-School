@@ -20,6 +20,8 @@ struct MapNodeInfo
 		UINT			nodeDim;
 		GameObject*		staticAssets;
 		UINT			staticAssetCount;
+		PointLight*		pointLights;
+		UINT			pointLightCount;
 		AssetID			blendMap;
 		std::string		name;
 };
@@ -53,6 +55,8 @@ class MapNode
 	public:
 		GameObject*		mStaticAssets;
 		UINT			mStaticAssetCount;
+		PointLight*		mPointLights;
+		UINT			mPointLightCount;
 
 	private:
 	protected:

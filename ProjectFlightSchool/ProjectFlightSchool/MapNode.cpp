@@ -29,7 +29,6 @@ HRESULT	MapNode::Render( float deltaTime, XMFLOAT4X4 parentWorld )
 		else
 			mStaticAssets[i].Render( deltaTime, parentWorld );
 	}
-
 	return S_OK;
 }
 
@@ -141,6 +140,8 @@ HRESULT	MapNode::Initialize( MapNodeInfo initInfo )
 	//Handles deleting assets
 	mStaticAssets		= initInfo.staticAssets;
 	mStaticAssetCount	= initInfo.staticAssetCount;
+	mPointLights		= initInfo.pointLights;
+	mPointLightCount	= initInfo.pointLightCount;
 	mVertexCount		= initInfo.vertexCount;
 	mBlendMap			= initInfo.blendMap;
 	
@@ -224,6 +225,8 @@ void MapNode::Release()
 		}
 		delete[] mHeightMap;
 	}
+
+	SAFE_DELETE_ARRAY( mPointLights );
 }
 MapNode::MapNode()
 {

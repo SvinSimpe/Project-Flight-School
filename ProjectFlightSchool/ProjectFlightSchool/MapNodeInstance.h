@@ -6,7 +6,7 @@
 #include "BoundingGeometry.h"
 #include "Navmesh.h"
 #include "Pathfinder.h"
-
+#include "RenderManager.h"
 
 //forward declaration
 
@@ -31,6 +31,10 @@ public:
 		std::vector<DirectX::XMFLOAT3> mEdgePoints;
 
 		UINT		 mNavTriangleCount;
+
+		PointLight*		mPointLights;
+		UINT			mPointLightCount;
+		bool			mLightsRegistered;
 
 	protected:
 	public:
@@ -64,6 +68,8 @@ public:
 		
 		MapNode*			GetMapNode() const;
 		void				SetMapNode( MapNode* mapNode );
+
+		void				ResetLights();
 
 		HRESULT				Initialize();
 		void				Release();

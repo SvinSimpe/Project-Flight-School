@@ -26,6 +26,7 @@ MapNode* MapNodeManager::CreateNode( const char* fileName, std::unordered_map<As
 	//char* contentDir	= "../Content/Assets/Nodes/";
 	UINT vertexSize		= sizeof( StaticVertex );
 	std::vector<GameObject> staticObjects;
+	std::vector<PointLight>	pointLights;
 
 	//char localFileName[50];
 	//sprintf_s( localFileName, "%s%d", fileName, i );
@@ -40,7 +41,8 @@ MapNode* MapNodeManager::CreateNode( const char* fileName, std::unordered_map<As
 		return nullptr;
 	}
 	MapNodeInfo initInfo;
-	UINT nrOfObjects = 0;
+	UINT nrOfObjects	= 0;
+	UINT nrOfLights		= 0;
 
 
 	//--------------------------Read gridData-------------------------------------------
@@ -92,6 +94,25 @@ MapNode* MapNodeManager::CreateNode( const char* fileName, std::unordered_map<As
 
 	//--------------------------Read navigation Data -----------------------------------
 
+	//--------------------------Read light Data ---------------------------------------
+
+	inFile.read( (char*)&nrOfLights, sizeof( UINT ) );
+
+	for( int i = 0; i < (int)nrOfLights; i++ )
+	{
+		char lightName[32];
+		inFile.read( lightName, sizeof( lightName ) );
+
+		float lightData[8];
+		inFile.read( (char*)lightData, sizeof( lightData ) );
+		PointLight pl;
+		pl.position			= XMFLOAT4( lightData[0], lightData[1], lightData[2], lightData[6] );
+		pl.colorAndRadius	= XMFLOAT4( lightData[3], lightData[4], lightData[5], lightData[7] );
+		pointLights.push_back( pl );
+	}
+
+	//--------------------------Read light Data ---------------------------------------
+
 	//--------------------------Read object Data ---------------------------------------
 
 	inFile.read( (char*)&nrOfObjects, sizeof( UINT ) );
@@ -137,6 +158,18 @@ MapNode* MapNodeManager::CreateNode( const char* fileName, std::unordered_map<As
 	//--------------------------Read object Data ---------------------------------------
 
 	inFile.close();
+
+	//--------------------------Copy light Data ---------------------------------------
+	initInfo.pointLightCount	= pointLights.size();
+	initInfo.pointLights		= new PointLight[initInfo.pointLightCount];
+
+	for( UINT i = 0; i < initInfo.pointLightCount; i++ )
+	{
+		initInfo.pointLights[i] = pointLights[i];
+	}
+
+	//--------------------------Copy light Data ---------------------------------------
+
 	//--------------------------Copy object Data ---------------------------------------
 
 	//Mapnode handles deallocation of this object

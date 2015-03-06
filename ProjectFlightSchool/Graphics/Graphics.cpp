@@ -662,6 +662,16 @@ HRESULT Graphics::InitializeEffects()
 	if( FAILED( hr = mEffects[EFFECTS_SPORES]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 	//--------------------------
+
+	//Test Fountain effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/Fire_FliesEffect.hlsl";
+	effectInfo.fileName					= "Fire_FliesEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_FIRE_FLIES]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
 	return hr;
 }
 

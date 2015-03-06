@@ -88,6 +88,9 @@ void PlayState::EventListener( IEventPtr newEvent )
 		XMStoreFloat3( &cross, XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), XMLoadFloat3( &data->Direction() ) ) );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Shell, XMFLOAT3(data->BodyPos().x - data->Direction().x, data->BodyPos().y, data->BodyPos().z - data->Direction().z), cross );
 
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Explosion, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), ExplosionSmoke, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+
 		///Blowtorch particle system
 		RenderManager::GetInstance()->RequestParticleSystem( 855, BlowTorchIdle, data->BodyPos(), data->Direction() );
 		RenderManager::GetInstance()->RequestParticleSystem( 855, BlowTorchFire, data->BodyPos(), data->Direction() );
@@ -791,6 +794,7 @@ HRESULT PlayState::Update( float deltaTime )
 			}
 		}
 
+	/// Spore particles
 	RenderManager::GetInstance()->RequestParticleSystem( 997, Spores, XMFLOAT3( mPlayer->GetPlayerPosition().x, mPlayer->GetPlayerPosition().y + 2.5f, mPlayer->GetPlayerPosition().z ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
 
 		if( mPlayer->Upgradable() < 1 && mGui->UpgradePlayerWindowIsActive() )
@@ -833,11 +837,6 @@ HRESULT PlayState::Update( float deltaTime )
 
 		CheckProjectileCollision();
 
-		// Test Anim
-		///////////////////////////////////////////////////////////////////////////
-		//RenderManager::GetInstance()->AnimationUpdate( mTestAnimation, deltaTime );
-		///////////////////////////////////////////////////////////////////////////
-
 		//GUI UPDATE ANYTHING RELATED TO IT NEEDS TO PUT ABOVE THIS COMMENT
 		////////////////////////////////////////////////////////////////////////////////////////////
 		guiUpdate.mRadarObjects	= mRadarObjects;
@@ -849,18 +848,6 @@ HRESULT PlayState::Update( float deltaTime )
 		guiUpdate.mLevel		= mPlayer->Upgradable();
 	
 		guiUpdate.deltaTime = deltaTime;
-	
-		if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_ENTER ) )
-		{
-			for( int i = 1; i < 7; i++ )
-			{
-				mEnergyCells[1]->SetOwnerID( mShips[FRIEND_SHIP]->GetID() );
-				mEnergyCells[1]->SetPickedUp( true );
-				mEnergyCells[1]->SetSecured( true );
-
-				mShips[FRIEND_SHIP]->AddEnergyCell( mShips[FRIEND_SHIP]->GetID() );
-			}
-		}
 
 		if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->GetNrOfEnergyCells() == mNeededEnergyCells )
 		{
@@ -1128,6 +1115,8 @@ HRESULT PlayState::Initialize()
 	mEndGame	= false;
 	mWonGame	= false;
 	mActive		= false;
+
+	RenderManager::GetInstance()->RequestParticleSystem( 3333, Fire_Flies, XMFLOAT3( 6.0f, 2.0f, 0.0f ), XMFLOAT3( 0.0f, 0.1f, 0.0f ) );	//---id, effect, position, direction
 
 	return S_OK;
 }

@@ -156,7 +156,7 @@ struct ParticleSystem : public ParticleData
 		isEmitting			= false;
 	}
 
-	void Generate( XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection, int particleCount, float spreadAngle )
+	void Generate( XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection, int particleCount, float spreadAngle, XMFLOAT3 initialVelocity )
 	{
 		// Check if there is enough particles to meet request
 		if( ( particleCount + nrOfParticlesAlive ) >= capacity )
@@ -164,160 +164,200 @@ struct ParticleSystem : public ParticleData
 			particleCount = capacity - nrOfParticlesAlive;
 			return;
 		}
-		
-		///==================
+
+		switch ( particleType )
+		{
+			case Shell:
+			{
+				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+				SetRandomRotation( particleCount );
+				SetRandomDeathTime( 2, 4, particleCount );
+				break;
+			}
+
+			case Debris:
+			{
+				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+				SetRandomRotation( particleCount );
+				SetRandomDeathTime( 2, 4, particleCount ); 
+				break;
+			}
+
+			case FIRE:
+			{
+				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+				SetRandomRotation( particleCount );
+				SetRandomDeathTime( 1, 3, particleCount );
+				ActivateLight( emitterPosition, XMFLOAT3( 6.0f, 2.0f, 2.0f ), 0.4f );
+				break;
+			}
+			case Spark:
+			{
+				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+				SetRandomDeathTime( 1, 2, particleCount );
+
+				break;
+			}
+			case Spark_Robot:
+			{
+				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+				SetRandomRotation( particleCount ); 
+				SetRandomDeathTime( 1, 2, particleCount );
+				break;
+			}
+			case Spark_Electric:
+			{
+				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+				SetRandomRotation( particleCount ); 
+				SetRandomDeathTime( 1, 1, particleCount );
+				ActivateLight( emitterPosition, XMFLOAT3( 2.0f, 2.0f, 8.0f ), 0.2f );
+				break;
+			}
+			case Blood:
+			{
+				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+				SetRandomDeathTime( 1, 2, particleCount );
+				break;
+			}
+			case MuzzleFlash:
+			{
+				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+				SetRandomDeathTime( 1, 2, particleCount );
+				break;
+			}
+			case Smoke_MiniGun:
+			{
+				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+				SetRandomDeathTime( 1, 6, particleCount );
+				break;
+			}
+			case Spores:
+			{
+				GeneratePlanePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 30, 30, particleCount );
+				SetRandomDeathTime( 3, 50, particleCount );
+				break;
+			}
+			case FireSmoke:
+			{
+				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+				SetRandomRotation( particleCount );
+				SetRandomDeathTime( 3, 6, particleCount );
+				break;
+			}
+			case BlowTorchFire:
+			{
+				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+				SetRandomDeathTime( 1, 2, particleCount );
+				SetRandomRotation( particleCount );
+				ActivateLight( emitterPosition, XMFLOAT3( 6.0f, 2.0f, 2.0f ), 0.2f );
+				break;
+			}
+			case BlowTorchIdle:
+			{
+				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+				SetRandomDeathTime( 1, 1, particleCount );
+				SetRandomRotation( particleCount );
+				ActivateLight( emitterPosition, XMFLOAT3( 2.0f, 1.0f, 3.0f ), 0.01f );
+				break;
+			}
+			case Level_Up:
+			{
+				GenerateCircleEdgePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 1, particleCount );
+				SetRandomDeathTime( 2, 6, particleCount );
+				break;
+			}
+			case Level_Inner:
+			{
+				GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 1, particleCount );
+				SetRandomDeathTime( 1, 2, particleCount );
+				break;
+			}
+			case Explosion:
+			{
+				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+				SetRandomDeathTime( 1, 3, particleCount );
+				SetRandomRotation( particleCount );
+				ActivateLight( XMFLOAT3( emitterPosition.x, emitterPosition.y + 1.3f, emitterPosition.z ), XMFLOAT3( 6.0f, 3.0f, 2.0f ), 0.2f );
+				break;
+			}
+			case ExplosionSmoke:
+			{
+				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+				SetRandomDeathTime( 1, 6, particleCount );
+				SetRandomRotation( particleCount ); 
+				break;
+			}
+			case NormalSmoke:
+			{
+				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+				SetRandomDeathTime( 4, 12, particleCount );
+				SetRandomRotation( particleCount ); 
+				break;
+			}
+
+			case Fire_Flies:
+			{	
+				initialSpawnPos = XMFLOAT3( emitterPosition.x, emitterPosition.y, emitterPosition.z );
+				GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 1, particleCount );
+				SetRandomDeathTime( 1, 2, particleCount );
+				SetRandomDistance( 0, 1, particleCount );
+				break;
+			}
+
+			case Hammer_Effect:
+			{
+				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+				SetRandomDeathTime( 2, 8, particleCount );
+				break;
+			}
+
+			default:
+			{
+				//Unvalid ParticleType
+				break;
+			}		
+		}
+
+
+		// NON-SPECIFIC
+		//==============
+		SetInitialVelocity( initialVelocity.x, initialVelocity.y, initialVelocity.z, particleCount );
+
 		// Use emitterDirection as base and randomize a different direction vector with a maximum spread angle deviation
 		SetDirection( emitterDirection.x, emitterDirection.y, emitterDirection.z, particleCount, spreadAngle );
-		
-
-		if( particleType == Spores )
-			GeneratePlanePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 30, 30, particleCount );
-		else if( particleType == Level_Up )
-			GenerateCircleEdgePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 1, particleCount );
-		else if( particleType == Level_Inner )
-			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 1, particleCount );
-		else if( particleType == Fire_Flies )
-		{
-			initialSpawnPos = XMFLOAT3( emitterPosition.x, emitterPosition.y, emitterPosition.z );
-			GenerateCirclePosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, 1, particleCount );//-------circle spawn instead of point
-			SetRandomDistance( 0, 1, particleCount );
-		}
-			
-		else
-			SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );	
-
-		//Add Random Rotation
-		if(particleType == FIRE )
-		{
-			SetRandomRotation( particleCount );
-			SetRandomDeathTime( 1, 3, particleCount );
-			ActivateLight( emitterPosition, XMFLOAT3( 6.0f, 2.0f, 2.0f ), 0.4f );
-		}
-		else if(particleType == Shell )
-		{
-			SetRandomRotation( particleCount );
-			SetRandomDeathTime( 2, 4, particleCount );
-		}
-		else if(particleType == Debris )
-		{
-			SetRandomRotation( particleCount );
-			SetRandomDeathTime( 2, 4, particleCount ); 
-		}
-		else if(particleType == FireSmoke )
-		{
-			SetRandomRotation( particleCount );
-			SetRandomDeathTime( 3, 6, particleCount );
-		}
-		else if( particleType == Spark )
-		{
-			SetRandomDeathTime( 1, 2, particleCount );
-		}
-		else if( particleType == Spark_Robot )
-		{
-			SetRandomRotation( particleCount ); 
-			SetRandomDeathTime( 1, 2, particleCount );
-		}
-		else if( particleType == Spark_Electric )
-		{
-			SetRandomRotation( particleCount ); 
-			SetRandomDeathTime( 1, 1, particleCount );
-			ActivateLight( emitterPosition, XMFLOAT3( 2.0f, 2.0f, 8.0f ), 0.2f );
-		}
-		else if( particleType == ExplosionSmoke )	
-		{
-			SetRandomDeathTime( 1, 6, particleCount );
-			SetRandomRotation( particleCount ); 
-		}
-		else if( particleType == BlowTorchFire )	
-		{
-			SetRandomDeathTime( 1, 2, particleCount );
-			SetRandomRotation( particleCount ); 
-			ActivateLight( emitterPosition, XMFLOAT3( 6.0f, 2.0f, 2.0f ), 0.2f );
-		}
-		else if( particleType == BlowTorchIdle )	
-		{
-			SetRandomDeathTime( 1, 1, particleCount );
-			SetRandomRotation( particleCount );
-			ActivateLight( emitterPosition, XMFLOAT3( 2.0f, 1.0f, 3.0f ), 0.01f );
-		}
-		else if( particleType == Explosion )	
-		{
-			SetRandomDeathTime( 1, 3, particleCount );
-			SetRandomRotation( particleCount );
-			ActivateLight( XMFLOAT3( emitterPosition.x, emitterPosition.y + 1.3f, emitterPosition.z ), XMFLOAT3( 6.0f, 3.0f, 2.0f ), 0.2f );
-		}
-		else if( particleType == NormalSmoke )	
-		{
-			SetRandomDeathTime( 4, 12, particleCount );
-			SetRandomRotation( particleCount ); 
-		}
-		else if( particleType == Hammer_Effect )	
-		{
-			SetRandomDeathTime( 2, 8, particleCount );
-		}
-		else if( particleType == Spark )
-		{
-			SetRandomDeathTime( 1, 2, particleCount );
-		}
-		else if( particleType == Blood )
-		{
-			SetRandomDeathTime( 1, 2, particleCount );
-		}
-		else if( particleType == MuzzleFlash )
-		{
-			SetRandomDeathTime( 1, 2, particleCount );
-		}
-		else if( particleType == Smoke_MiniGun )
-		{
-			SetRandomDeathTime( 1, 6, particleCount );
-		}
-		else if( particleType == Spores )
-		{
-			SetRandomDeathTime( 3, 50, particleCount );
-		}
-		else if( particleType == Level_Up )	
-		{
-			SetRandomDeathTime( 2, 6, particleCount );
-		}
-		else if( particleType == Level_Inner )		
-		{
-			SetRandomDeathTime( 1, 2, particleCount );
-		}
-		else if( particleType == Fire_Flies )		
-		{
-			SetRandomDeathTime( 1, 2, particleCount );
-		}
 
 		nrOfRequestedParticles += particleCount;
 
+		//Nya nightwish-låten? :)))
 		SpellCasterLifeMaster();
 	}
 
-	virtual void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection )
+	void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection, XMFLOAT3 initialVelocity )
 	{
-		if( particleType == Shell )					Generate( emitterPosition, emitterDirection, 1,  10.0f );
-		else if( particleType == Debris )			Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(0, 5),  30.0f );
-		else if( particleType == NormalSmoke )		Generate( emitterPosition, emitterDirection, 6,  120.0f );
-		else if( particleType == BlowTorchIdle )	Generate( emitterPosition, emitterDirection, 32, 2.0f );
-		else if( particleType == BlowTorchFire )	Generate( emitterPosition, emitterDirection, 32, 4.0f );
-		else if( particleType == FIRE )				Generate( emitterPosition, emitterDirection, 8, 40.0f );
-		else if( particleType == FireSmoke )		Generate( emitterPosition, emitterDirection, 15, 25.0f );					
-		else if( particleType == Hammer_Effect )	Generate( emitterPosition, emitterDirection, 64,  180.0f );
-		else if( particleType == Explosion )		Generate( emitterPosition, emitterDirection, 50,  360.0f );
-		else if( particleType == ExplosionSmoke )	Generate( emitterPosition, emitterDirection, 50,  360.0f );
-		else if( particleType == Spark )			Generate( emitterPosition, emitterDirection, 8, 25.0f );
-		else if( particleType == Spark_Robot )		Generate( emitterPosition, emitterDirection, 8, 90.0f );
-		else if( particleType == Spark_Electric )	Generate( emitterPosition, emitterDirection, 1, 360.0f );
-		else if( particleType == Blood )			Generate( emitterPosition, emitterDirection, 8, 25.0f );
-		else if( particleType == MuzzleFlash )		Generate( emitterPosition, emitterDirection, 4,  25.0f );
-		else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 8, 2.0f );
-		else if( particleType == Spores )			Generate( emitterPosition, emitterDirection, 8, 20.0f );
-		else if( particleType == Level_Up )			Generate( emitterPosition, emitterDirection, 512, 270.0f );
-		else if( particleType == Level_Inner )		Generate( emitterPosition, emitterDirection, 32, 20.0f );
-		else if( particleType == Fire_Flies )		Generate( emitterPosition, emitterDirection, 8, 5.0f );		//------------particle count and spreadangle
+
+		if( particleType == Shell )					Generate( emitterPosition, emitterDirection, 1,  10.0f,		initialVelocity  );
+		else if( particleType == Debris )			Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(0, 5),  30.0f,		initialVelocity  );
+		else if( particleType == FIRE )				Generate( emitterPosition, emitterDirection, 8,		40.0f,		initialVelocity );		
+		else if( particleType == Spark )			Generate( emitterPosition, emitterDirection, 8,		25.0f,		initialVelocity );
+		else if( particleType == Spark_Robot )		Generate( emitterPosition, emitterDirection, 8,		90.0f,		initialVelocity );
+		else if( particleType == Spark_Electric )	Generate( emitterPosition, emitterDirection, 1,		360.0f,		initialVelocity );
+		else if( particleType == Blood )			Generate( emitterPosition, emitterDirection, 8,		25.0f,		initialVelocity );
+		else if( particleType == MuzzleFlash )		Generate( emitterPosition, emitterDirection, 4,		25.0f,		initialVelocity );
+		else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 8,		2.0f,		initialVelocity );
+		else if( particleType == Spores )			Generate( emitterPosition, emitterDirection, 8,		20.0f,		initialVelocity );
+		else if( particleType == FireSmoke )		Generate( emitterPosition, emitterDirection, 15,	25.0f,		initialVelocity );	
+		else if( particleType == BlowTorchFire )	Generate( emitterPosition, emitterDirection, 32,	4.0f,		initialVelocity );
+		else if( particleType == BlowTorchIdle )	Generate( emitterPosition, emitterDirection, 32,	2.0f,		initialVelocity );
+		else if( particleType == Level_Up )			Generate( emitterPosition, emitterDirection, 512,	270.0f,		initialVelocity );
+		else if( particleType == Level_Inner )		Generate( emitterPosition, emitterDirection, 32,	20.0f,		initialVelocity );
+		else if( particleType == Explosion )		Generate( emitterPosition, emitterDirection, 50,	360.0f,		initialVelocity );
+		else if( particleType == ExplosionSmoke )	Generate( emitterPosition, emitterDirection, 50,	360.0f,		initialVelocity );		
+		else if( particleType == NormalSmoke )		Generate( emitterPosition, emitterDirection, 6,		120.0f,		initialVelocity );
+		else if( particleType == Fire_Flies )		Generate( emitterPosition, emitterDirection, 8,		5.0f,		initialVelocity );
+		else if( particleType == Hammer_Effect )	Generate( emitterPosition, emitterDirection, 64,	180.0f,		initialVelocity );
 	}
 
-	virtual void Update( float deltaTime )
+	void Update( float deltaTime )
 	{
 		// First instruction
 		if ( particleType != Fire_Flies ) 
@@ -331,7 +371,7 @@ struct ParticleSystem : public ParticleData
 		{
 			case Shell: 
 			{
-				// Update Debris logic here
+				// Update Shell logic here
 				ShellLogic( deltaTime );
 				break;
 			}	
@@ -349,7 +389,7 @@ struct ParticleSystem : public ParticleData
 			}			
 			case Hammer_Effect: 
 			{
-				// Update Normal smoke logic here
+				// Update Hammer_Effect logic here
 				HammerEffectLogic( deltaTime );
 				break;
 			}
@@ -362,27 +402,27 @@ struct ParticleSystem : public ParticleData
 			}
 			case BlowTorchFire: 
 			{
-				// Update Fire logic here
+				// Update BlowTorchFire logic here
 				BlowTorchFireLogic( deltaTime );
 				HandleLight();
 				break;
 			}
 			case BlowTorchIdle: 
 			{
-				// Update Fire logic here
+				// Update BlowTorchIdle logic here
 				BlowTorchIdleLogic( deltaTime );
 				HandleLight();
 				break;
 			}
 			case FireSmoke: 
 			{
-				// Update Fire logic here
+				// Update FireSmoke logic here
 				FireSmokeLogic( deltaTime );
 				break;
 			}
 			case ExplosionSmoke: 
 			{
-				// Update Explosion smoke logic here
+				// Update ExplosionSmoke logic here
 				ExplosionSmokeLogic( deltaTime );
 				break;
 			}
@@ -401,13 +441,13 @@ struct ParticleSystem : public ParticleData
 			}
 			case Spark_Robot: 
 			{
-				// Update Spark logic here
+				// Update Spark_Robot logic here
 				Spark_RobotLogic( deltaTime );
 				break;
 			}
 			case Spark_Electric: 
 			{
-				// Update Spark logic here
+				// Update Spark_Electric logic here
 				Spark_ElectricLogic( deltaTime );
 				HandleLight();
 				break;
@@ -432,19 +472,19 @@ struct ParticleSystem : public ParticleData
 			}
 			case Spores:
 			{
-				// Update Smoke_MiniGun logic here
+				// Update Spores logic here
 				SporesLogic( deltaTime );
 				break;
 			}
 			case Level_Up:
 			{
-				// Update Smoke_MiniGun logic here
+				// Update Level_Up logic here
 				Level_UpLogic( deltaTime );
 				break;
 			}
 			case Level_Inner:
 			{
-				// Update Smoke_MiniGun logic here
+				// Update Level_Inner logic here
 				Level_InnerLogic( deltaTime );
 				break;
 			}
@@ -463,11 +503,6 @@ struct ParticleSystem : public ParticleData
 
 		// Last instruction
 		UpdatePosition( deltaTime );
-	}
-
-	virtual void Render( float deltaTime )
-	{
-		
 	}
 
 	void Release()

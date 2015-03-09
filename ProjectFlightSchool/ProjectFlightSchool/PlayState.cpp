@@ -183,7 +183,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 			if( mPlayer->GetCurrentLevel() <= 16 )
 			{
 				int levelUp = mPlayer->Upgradable();
-				mPlayer->AddXP( data->XP() );
+				mPlayer->AddXP( (float)data->XP() );
 				if( mPlayer->Upgradable() != levelUp )
 				{
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Level_Up, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.0f, 1.0f, 0.0f ) ); //both of these calls are needed for levelup effect.
@@ -834,7 +834,6 @@ HRESULT PlayState::Update( float deltaTime )
 		{
 			if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 			{
-				UINT temp = mPlayer->GetEnergyCellID();
 				mPlayer->GiveEnergyCellToShip( mEnergyCells, mShips[FRIEND_SHIP]->GetID(), mShips[FRIEND_SHIP]->GetPos() );
 				mShips[FRIEND_SHIP]->AddEnergyCell( mShips[FRIEND_SHIP]->GetID() );
 			}
@@ -1017,7 +1016,7 @@ HRESULT PlayState::Render( float deltaTime )
 	
 	if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 	{
-		WriteInteractionText( "Press E to open or close ship menu" );
+		WriteInteractionText( "Press E to open or close the upgrade menu!" );
 	}
 
 	RenderManager::GetInstance()->Render();
@@ -1033,6 +1032,7 @@ void PlayState::OnEnter()
 	IEventPtr E1( new Event_Game_Started() );
 	EventManager::GetInstance()->QueueEvent( E1 );
 
+	mGui->SetTeamID( mPlayer->GetTeam() );
 	//SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
 	IEventPtr spawnPos( new Event_Request_Player_Spawn_Position( mPlayer->GetID(), mPlayer->GetTeam() ) );
 	EventManager::GetInstance()->QueueEvent( spawnPos );

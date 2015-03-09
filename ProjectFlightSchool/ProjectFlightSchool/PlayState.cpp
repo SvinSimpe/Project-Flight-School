@@ -81,6 +81,10 @@ void PlayState::EventListener( IEventPtr newEvent )
 		//TestSound
 		SoundBufferHandler::GetInstance()->Play3D( miniGun , data->BodyPos());
 		
+
+		// Request Muzzle Flash from Particle Manager
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), SniperTrail, data->BodyPos(), data->Direction() );
+
 		XMFLOAT3 cross;
 		XMStoreFloat3( &cross, XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), XMLoadFloat3( &data->Direction() ) ) );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Shell, XMFLOAT3(data->BodyPos().x - data->Direction().x, data->BodyPos().y, data->BodyPos().z - data->Direction().z), cross );
@@ -161,7 +165,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		FireProjectile( data->ID(), data->ProjectileID(), data->TeamID(), data->Position(), data->Direction(), data->Speed(), data->Range(), 1.0f, TURRET ); // Don't know where to get damage from yet
 
 		//TestSound
-		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->Position());
+		//SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->Position());
 		
 		// Request Muzzle Flash from Particle Manager
 		

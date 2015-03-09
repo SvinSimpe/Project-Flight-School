@@ -858,8 +858,11 @@ HRESULT PlayState::Update( float deltaTime )
 		for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
 		{
 			mEnergyCells[i]->Update( deltaTime );
-			mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnergyCells[i]->GetPosition();
-			mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::OBJECTIVE;
+			if( !mEnergyCells[i]->GetPickedUp() )
+			{
+				mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnergyCells[i]->GetPosition();
+				mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::OBJECTIVE;
+			}
 		}
 
 		CheckProjectileCollision();

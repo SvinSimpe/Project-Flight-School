@@ -471,7 +471,7 @@ void Player::GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, Direct
 		energyCells[mEnergyCellID]->SetPosition( shipPos );
 		energyCells[mEnergyCellID]->SetOwnerID( shipID );
 		energyCells[mEnergyCellID]->SetPickedUp( true );
-	
+		energyCells[mEnergyCellID]->SetSecured( true );
 
 		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, shipID, shipPos, true ) );
 		QueueEvent( E1 );

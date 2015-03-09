@@ -89,7 +89,7 @@ struct ParticleSystem : public ParticleData
 			}
 			case MuzzleFlash:
 			{
-				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireSprite.dds", assetID );
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireParticle.dds", assetID );
 				break;
 			}
 			case Spark:
@@ -234,7 +234,8 @@ struct ParticleSystem : public ParticleData
 			case MuzzleFlash:
 			{
 				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
-				SetRandomDeathTime( 1, 2, particleCount );
+				SetRandomRotation( particleCount ); 
+				SetRandomDeathTime( 1, 1, particleCount );
 				break;
 			}
 			case Smoke_MiniGun:

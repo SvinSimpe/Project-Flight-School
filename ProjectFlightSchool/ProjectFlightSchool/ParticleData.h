@@ -433,9 +433,9 @@ struct ParticleData
 
 				case MuzzleFlash:
 				{
-					randomDirectionVector.x = xDirection * GetRandomSpeed( 10, 80 );
-					randomDirectionVector.y = yDirection * GetRandomSpeed( 10, 80 );
-					randomDirectionVector.z = zDirection * GetRandomSpeed( 10, 80 );
+					randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 5 );
+					randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 5 );
+					randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 5 );
 					break;
 				}
 

@@ -80,10 +80,10 @@ void PlayState::EventListener( IEventPtr newEvent )
 
 		//TestSound
 		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->BodyPos());
-		
+
 		// Request Muzzle Flash from Particle Manager
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->BodyPos(), data->Direction() );
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->BodyPos(), data->Direction() );
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), SniperTrail, data->BodyPos(), data->Direction() );
+
 		XMFLOAT3 cross;
 		XMStoreFloat3( &cross, XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), XMLoadFloat3( &data->Direction() ) ) );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Shell, XMFLOAT3(data->BodyPos().x - data->Direction().x, data->BodyPos().y, data->BodyPos().z - data->Direction().z), cross );
@@ -91,9 +91,6 @@ void PlayState::EventListener( IEventPtr newEvent )
 		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Explosion, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), ExplosionSmoke, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 
-		///Blowtorch particle system
-		RenderManager::GetInstance()->RequestParticleSystem( 855, BlowTorchIdle, data->BodyPos(), data->Direction() );
-		RenderManager::GetInstance()->RequestParticleSystem( 855, BlowTorchFire, data->BodyPos(), data->Direction() );
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
 	{

@@ -88,21 +88,6 @@ void ClientShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 	mNrOfEnergyCells = 0;
 }
 
-bool ClientShip::InteractIntersect( BoundingCircle* entity )
-{
-	BoundingCircle* temp = mHitCircle;
-	if( temp != nullptr )
-	{
-		temp->center.z = -temp->center.z;
-		if( temp->Intersect( entity ) )
-		{
-			return true;
-		}
-		else return false;
-	}
-	return false;
-}
-
 bool ClientShip::Intersect( BoundingCircle* entity )
 {
 	if( mHitCircle != nullptr )
@@ -111,7 +96,10 @@ bool ClientShip::Intersect( BoundingCircle* entity )
 		{
 			return true;
 		}
-		else return false;
+		else 
+		{
+			return false;
+		}
 	}
 	return false;
 }
@@ -125,7 +113,6 @@ void ClientShip::Render( float deltaTime, DirectX::XMFLOAT4X4 parentWorld )
 {
 	GameObject::Render( deltaTime, parentWorld );
 	mClientTurret->Render( deltaTime, parentWorld);
-	//RenderManager::GetInstance()->AddCircleToList( mHitCircle->center, XMFLOAT3( 1.0f, 0.0f, 0.0f ), mHitCircle->radius );
 }
 
 void ClientShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale )
@@ -133,16 +120,6 @@ void ClientShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 	ServerShip::Initialize( id, teamID, pos, rot, scale );
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Ship/", "ShipWithTripod.pfs", mAssetID );
-
-	//mHitCircle = new BoundingCircle( mPos, 10.0f );
-
-	//for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
-	//{
-	//	mEnergyCells[i] = (UINT)-1;
-	//}
-
-	//mHitCircle = new BoundingCircle( mPos, 5.0f );
-
 	
 	mNrOfEnergyCells = 0;
 
@@ -151,13 +128,11 @@ void ClientShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 
 	EventManager::GetInstance()->AddListener( &ClientShip::RemoteUpdateShip, this, Event_Server_Update_Ship::GUID );
 	EventManager::GetInstance()->AddListener( &ClientShip::CalculatePlayerRespawnPosition, this, Event_Request_Player_Spawn_Position::GUID );
-
 }
 
 void ClientShip::Release()
 {
 	ServerShip::Release();
-	SAFE_DELETE( mHitCircle );
 	SAFE_RELEASE_DELETE( mClientTurret );
 }
 
@@ -165,7 +140,6 @@ ClientShip::ClientShip() : ServerShip()
 {
 
 	mAssetID		= CUBE_PLACEHOLDER;
-	mHitCircle		= nullptr;
 	mWasUpdated		= false;
 	mClientTurret	= nullptr;
 	mNrOfEnergyCells	= 0;	

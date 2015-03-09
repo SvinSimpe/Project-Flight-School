@@ -12,6 +12,8 @@ void UpgradeShipWindow::EventListener( IEventPtr eventPtr )
 			mBuffButtons.nrOfFilled			= data->BuffLevelChange();
 			//mEngineButtons.nrOfFilled		= data->EngineLevelChange();
 			mNrOfEnergyCells				= data->NrOfEnergyCells();
+
+			mUnusedCells = mNrOfEnergyCells - ( mForceFieldButtons.nrOfFilled + mTurretButtons.nrOfButtons + mBuffButtons.nrOfFilled );
 		}
 	}
 	else if ( eventPtr->GetEventType() == Event_Local_Joined::GUID ) // Add a remote player to the list when they connect
@@ -177,7 +179,7 @@ HRESULT UpgradeShipWindow::Initialize()
 	XMFLOAT2 buffButtonTopLeft		= XMFLOAT2( 991.0f, 949.0f );
 	//XMFLOAT2 engineButtonTopLeft	= XMFLOAT2( 1140.0f, 949.0f );
 
-	XMFLOAT2 unused[MAX_NR_OF_UPGRADES] = { XMFLOAT2( 0.0f, 0.0f ), XMFLOAT2( 56.0f, 0.0f ), XMFLOAT2( 27.0f, 50.0f ) };
+	XMFLOAT2 unused[MAX_NR_OF_UPGRADES] = { XMFLOAT2( 0.0f, 0.0f ), XMFLOAT2( 56.0f, 0.0f ), XMFLOAT2( 28.0f, 48.0f ) };
 
 	for (int i = 0; i < MAX_NR_OF_UPGRADES; i++)
 	{
@@ -200,7 +202,8 @@ HRESULT UpgradeShipWindow::Initialize()
 
 UpgradeShipWindow::UpgradeShipWindow()
 {
-	mNrOfEnergyCells = 0;
+	mNrOfEnergyCells	= 0;
+	mUnusedCells		= 0;
 }
 
 UpgradeShipWindow::~UpgradeShipWindow()

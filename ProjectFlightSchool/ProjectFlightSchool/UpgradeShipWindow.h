@@ -64,6 +64,7 @@ private:
 	ButtonStruct			mBuffButtons;
 	//ButtonStruct			mEngineButtons;
 	int						mNrOfEnergyCells;
+	int						mUnusedCells;
 
 protected:
 public:

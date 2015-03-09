@@ -81,7 +81,7 @@ HRESULT Game::Initialize()
 	mServer = new Server();
 	mServer->Initialize();
 
-	OutputDebugString( L"----- Game Initialization Complete. -----" );
+	OutputDebugString( L"----- Game Initialization Complete. -----\n" );
 
 	EventManager::GetInstance()->AddListener( &Game::ResetGame, this, Event_Reset_Game::GUID );
 	EventManager::GetInstance()->AddListener( &Game::StartPlayState, this, Event_Connect_Client_Success::GUID );

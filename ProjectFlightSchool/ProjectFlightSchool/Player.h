@@ -97,6 +97,7 @@ class Player: public RemotePlayer
 		void		FireShotgun( XMFLOAT3* spawnPoint );
 		void		FireMinigun( XMFLOAT3* projectileOffset );
 		void		FireGrenadeLauncher( XMFLOAT3* projectileOffset );
+		void		FireSniper( XMFLOAT3* projectileOffset );
 
 		void		HammerMelee( float deltaTime );
 		void		BlowtorchMelee( float deltaTime );
@@ -109,6 +110,7 @@ class Player: public RemotePlayer
 		void		UpgradeLegs();
 		void		UpgradeMelee();
 		void		UpgradeRange();
+		void		WriteInteractionText( std::string text );
 
 	protected:
 	public:

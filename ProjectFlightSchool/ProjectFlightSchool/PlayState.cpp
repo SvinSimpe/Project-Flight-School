@@ -83,7 +83,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->BodyPos());
 
 		// Request Muzzle Flash from Particle Manager
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), SniperTrail, data->BodyPos(), data->Direction() );
+		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), SniperTrail, data->BodyPos(), data->Direction() );
 
 		XMFLOAT3 cross;
 		XMStoreFloat3( &cross, XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), XMLoadFloat3( &data->Direction() ) ) );
@@ -738,10 +738,6 @@ void PlayState::WriteInteractionText( std::string text )
 {
 	float offset = mFont.GetMiddleXPoint( text, 3.0 );
 	float textShadowWidth = 1.0f;
-	//mFont.WriteText( text, (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 200.0f + textShadowWidth, 3.0, COLOR_BLACK );
-	//mFont.WriteText( text, (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 200.0f + textShadowWidth, 3.0, COLOR_BLACK );
-	//mFont.WriteText( text, (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 200.0f - textShadowWidth, 3.0, COLOR_BLACK );
-	//mFont.WriteText( text, (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 200.0f - textShadowWidth, 3.0, COLOR_BLACK );
 
 	mFont.WriteText( text, (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 3.0, COLOR_CYAN );
 }
@@ -900,8 +896,11 @@ HRESULT PlayState::Update( float deltaTime )
 		for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
 		{
 			mEnergyCells[i]->Update( deltaTime );
-			mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnergyCells[i]->GetPosition();
-			mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::OBJECTIVE;
+			if( !mEnergyCells[i]->GetPickedUp() )
+			{
+				mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnergyCells[i]->GetPosition();
+				mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::OBJECTIVE;
+			}
 		}
 
 		CheckProjectileCollision();
@@ -1017,7 +1016,7 @@ HRESULT PlayState::Render( float deltaTime )
 		}
 	}
 	
-	if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
+	if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 	{
 		WriteInteractionText( "Press E to open or close ship menu" );
 	}

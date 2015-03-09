@@ -661,6 +661,11 @@ XMFLOAT3 RemotePlayer::GetDirection() const
 	return mLowerBody.direction;
 }
 
+XMFLOAT3 RemotePlayer::GetVelocity() const
+{
+	return mVelocity;
+}
+
 std::string RemotePlayer::GetName() const
 {
 	return mPlayerName;

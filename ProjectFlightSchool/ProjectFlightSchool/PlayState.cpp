@@ -181,12 +181,15 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Server_XP> data = std::static_pointer_cast<Event_Server_XP>( newEvent );
 		if( data->PlayerID() == mPlayer->GetID() )
 		{
-			int levelUp = mPlayer->Upgradable();
-			mPlayer->AddXP( data->XP() );
-			if( mPlayer->Upgradable() != levelUp )
+			if( mPlayer->GetCurrentLevel() <= 16 )
 			{
-				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Level_Up, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.0f, 1.0f, 0.0f ) ); //both of these calls are needed for levelup effect.
-				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Level_Inner, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.1f, 0.1f, 0.1f ) ); //both of these calls are needed for levelup effect.
+				int levelUp = mPlayer->Upgradable();
+				mPlayer->AddXP( data->XP() );
+				if( mPlayer->Upgradable() != levelUp )
+				{
+					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Level_Up, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.0f, 1.0f, 0.0f ) ); //both of these calls are needed for levelup effect.
+					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Level_Inner, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.1f, 0.1f, 0.1f ) ); //both of these calls are needed for levelup effect.
+				}
 			}
 		}
 	}
@@ -307,12 +310,12 @@ void PlayState::CheckProjectileCollision()
 	for ( int i	 = 0; i < mNrOfActiveProjectiles; i++ )
 	{
 		// Players
-		if( mProjectiles[i]->IsActive() ) //&& mRemotePlayers.size() > 0 )
+		if( mProjectiles[i]->IsActive() )
 		{
 			if( mPlayer->IsAlive() &&
 				( mProjectiles[i]->GetPlayerID() == 70 || mProjectiles[i]->GetPlayerID() == 71 ) && 
 				mPlayer->GetTeam() != mProjectiles[i]->GetTeamID() &&
-				mProjectiles[i]->GetBoundingCircle()->Intersect( mPlayer->GetBoundingCircle() ) )
+				mProjectiles[i]->GetBoundingCircle()->Intersect( mPlayer->GetBoundingCircle() ) && mProjectiles[i]->GetWeaponType() != GRENADELAUNCHER )
 			{
 				mPlayer->TakeDamage( mProjectiles[i]->GetDamage(), mProjectiles[i]->GetPlayerID() );
 				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Spark, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
@@ -320,7 +323,7 @@ void PlayState::CheckProjectileCollision()
 			}
 			for ( size_t j = 0; j < mRemotePlayers.size(); j++ )
 			{
-				if( mRemotePlayers[j]->IsAlive() )
+				if( mRemotePlayers[j]->IsAlive() && mProjectiles[i]->GetWeaponType() != GRENADELAUNCHER )
 				{
 					if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() &&
 						mProjectiles[i]->GetBoundingCircle()->Intersect( mRemotePlayers[j]->GetBoundingCircle() ) )
@@ -450,6 +453,40 @@ void PlayState::CheckProjectileCollision()
 								// Hit
 								BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
 								RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+							}
+						}
+					}
+
+					// Player is hit by remote player grenade
+					if( mPlayer->IsAlive() && mPlayer->GetTeam() != mProjectiles[i]->GetTeamID() )
+					{
+						for (size_t j = 0; j < mRemotePlayers.size(); j++)
+						{
+							if( mProjectiles[i]->GetPlayerID() == mRemotePlayers[j]->GetID() )
+							{
+								if( BoundingCircle( mProjectiles[i]->GetPosition(), mRemotePlayers[j]->GetLoadOut()->rangedWeapon->areaOfEffect ).Intersect( mPlayer->GetBoundingCircle() ) )
+								{
+									mPlayer->TakeDamage( mProjectiles[i]->GetDamage(), mProjectiles[i]->GetPlayerID() );
+									RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Spark, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+									RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Debris, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+								}
+							}
+						}						
+					}
+
+					// Remote player is hit by Player grenade
+					if( mRemotePlayers.size() > 0 )
+					{
+						for (size_t j = 0; j < mRemotePlayers.size(); j++)
+						{
+							if( mRemotePlayers[j]->IsAlive() )
+							{
+								if( BoundingCircle( mProjectiles[i]->GetPosition(), mPlayer->GetLoadOut()->rangedWeapon->areaOfEffect ).Intersect( mRemotePlayers[j]->GetBoundingCircle() ) )
+								{
+									// Hit
+									BroadcastProjectileDamage(mRemotePlayers[j]->GetID() , mProjectiles[i]->GetID() );
+									RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+								}
 							}
 						}
 					}

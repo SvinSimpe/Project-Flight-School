@@ -166,8 +166,6 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 			float3 lightDir = worldSample - lightStructure[i].positionAndIntensity.xyz;
 			float d			= length( lightDir );
 			lightDir		/= d;
-		
-			lightStructure[i].colorAndRadius.xyz * lightStructure[i].positionAndIntensity.w;
 
 			float3 N = normalSample;
 			float3 V = cameraPosition.xyz;
@@ -179,7 +177,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 			float denom			= d / lightStructure[i].colorAndRadius.w + 1.0f;
 			float attenuation	= 1.0f / ( denom * denom );
 
-			finalColor += ( diffuse + specular ) * lightStructure[i].colorAndRadius.xyz * attenuation;
+			finalColor += ( diffuse + specular ) * lightStructure[i].colorAndRadius.xyz * lightStructure[i].positionAndIntensity.w * attenuation;
 		}
 	}
 

@@ -261,9 +261,9 @@ void RenderManager::AnimationReset( AnimationTrack &animationTrack, AssetID defa
 	animationTrack.mBlendWithCurrent		= false;
 }
 
-void RenderManager::RequestParticleSystem( size_t entityID, ParticleType particleType, XMFLOAT3 position, XMFLOAT3 direction )
+void RenderManager::RequestParticleSystem( size_t entityID, ParticleType particleType, XMFLOAT3 position, XMFLOAT3 direction, XMFLOAT3 initialVelocity )
 {
-	mParticleManager->RequestParticleSystem( entityID, particleType, position, direction );
+	mParticleManager->RequestParticleSystem( entityID, particleType, position, direction, initialVelocity );
 }
 
 HRESULT RenderManager::Update( float deltaTime )

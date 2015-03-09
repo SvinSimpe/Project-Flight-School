@@ -46,6 +46,7 @@ class Player: public RemotePlayer
 		bool		mCloseToPlayer;
 		int			mXP;
 		int			mNextLevelXP;
+		int			mCurrentLevel;
 		int			mCurrentUpgrades;
 
 		float		mMaxVelocity;
@@ -89,10 +90,19 @@ class Player: public RemotePlayer
 		void		BroadcastDeath( unsigned int shooter );
 		void		Revive();
 		void		Die();
+
 		void		Fire();
+		void		Melee( float deltaTime );
+
 		void		FireShotgun( XMFLOAT3* spawnPoint );
 		void		FireMinigun( XMFLOAT3* projectileOffset );
 		void		FireGrenadeLauncher( XMFLOAT3* projectileOffset );
+		void		FireSniper( XMFLOAT3* projectileOffset );
+
+		void		HammerMelee( float deltaTime );
+		void		BlowtorchMelee( float deltaTime );
+		void		ClaymoreMelee( float deltaTime );
+
 		float		CalculateLaunchAngle();
 		void		AddImpuls( XMFLOAT3 impuls );
 		void		QueueEvent( IEvent* ptr );
@@ -100,6 +110,7 @@ class Player: public RemotePlayer
 		void		UpgradeLegs();
 		void		UpgradeMelee();
 		void		UpgradeRange();
+		void		WriteInteractionText( std::string text );
 
 	protected:
 	public:
@@ -133,6 +144,7 @@ class Player: public RemotePlayer
 		void		SetTeam( int team );
 		void		SetPosition( XMVECTOR position );
 		void		SetEnergyCellID( UINT energyCellID );
+		int			GetCurrentLevel() const;
 
 		void		QueueEvent( IEventPtr ptr );
 };

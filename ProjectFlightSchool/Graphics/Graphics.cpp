@@ -2329,7 +2329,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 	shadowMapCameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 0.0f, 1.0f, 0.0f );
 	shadowMapCameraInfo.width		= (float)SHADOW_MAP_WIDTH;
 	shadowMapCameraInfo.height		= (float)SHADOW_MAP_HEIGHT;
-	shadowMapCameraInfo.foVY		= 3.14159265f * 0.4f;
+	shadowMapCameraInfo.foVY		= 3.14159265f * 0.45f;
 	shadowMapCameraInfo.nearZ		= 15.0f;
 	shadowMapCameraInfo.farZ		= 40.0f;
 

@@ -117,20 +117,19 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	posLightH			= mul( posLightH, shadowProjectionMatrix );
 	posLightH.xy	   /= posLightH.w;
 
-	float2 smTex = float2( 0.5f * posLightH.x, -0.5f * posLightH.y ) + 0.5f;
+	float2 smTex = float2( posLightH.x, -posLightH.y ) * 0.5f + 0.5f;
 
 	float depth = posLightH.z / posLightH.w;
 
 	float dx = 1.0f / 512.0f;
-	float dy = 1.0f / 512.0f;
-	smTex	-= float2( dx * 0.5f, dy * 0.5f );
+	smTex	-= float2( dx, dx ) * 0.5f;
 
-	//25 samples
-	for( int k = -2; k < 3; k++ )
-		for( int l = -2; l < 3; l++ )
-			shadowSamples += shadowMap.Sample( linearSampler, smTex + float2( dx * k, dy * l ) ).r + SHADOW_BIAS < depth ? 0.0f : 1.0f;
+	//16 samples
+	for( int k = -2; k < 2; k++ )
+		for( int l = -2; l < 2; l++ )
+			shadowSamples += shadowMap.Sample( linearSampler, smTex + float2( dx * k, dx * l ) ).r + SHADOW_BIAS < depth ? 0.0f : 1.0f;
 
-	float shadowFactor = shadowSamples / 25.0f;
+	float shadowFactor = shadowSamples / 16.0f;
 
 	//======== SHADOW MAP POINTLIGHT ===========
 	float3 ambient		= float3( 0.1f, 0.1f,  0.1f );
@@ -188,7 +187,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	//-------------------------------------------------------------------------------------------------
 	//	WATER SIMULATION
 	//-------------------------------------------------------------------------------------------------
-	float2 offset = float2( timeVariable / 25.132f, timeVariable / 25.132f );
+	float2 offset = float2( timeVariable, timeVariable ) / 25.132f;
 
 	float3 toCamera = normalize( cameraPosition.xyz - worldSample );
 
@@ -232,7 +231,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 		float3 waterColor	= ( ( ( ambient * ssao + diffuse + specular ) * float3( 0.4f, 0.3f, 0.6f ) ) * shadowFactor ) / ( dShadow * 0.01f + dShadow * dShadow * 0.005f );
 
 		//Point lights
-	/*	for( int i = 0; i < numPointLights; i++ )
+		for( int i = 0; i < numPointLights; i++ )
 		{
 
 			if( lightStructure[i].colorAndRadius.w > 0.01f )
@@ -254,7 +253,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 
 				waterColor += ( diffuse + specular ) * lightStructure[i].colorAndRadius.xyz * attenuation;
 			}
-		}*/
+		}
 
 		float fresnel	= max( 0.1f, dot( waterNormal, toCamera ) );
 
@@ -280,7 +279,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	//return float4( albedoSample, 1.0f );
 	//return float4( specularSample, specularSample, specularSample, 1.0f );
 	//return float4( normalSample, 1.0f );
-	//return float4( ssao, 0.0f, 0.0f, 1.0f );
+	//return float4( ssao, ssao, ssao, 1.0f );
 
 	return float4( finalColor * ( shadowFactor * 0.4f + 0.6f ), 1.0f );
 }

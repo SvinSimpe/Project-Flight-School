@@ -14,7 +14,8 @@
 using namespace DirectX;
 
 #define MAX_PARTICLES 10000
-#define NR_OF_PARTICLE_TYPES 20
+
+#define NR_OF_PARTICLE_TYPES 21
 
 
 #if !defined(SAFE_DELETE_ARRAY)
@@ -38,6 +39,7 @@ enum FloatPrecision
 
 enum ParticleType
 {
+	SniperTrail,
 	Shell,
 	Debris,
 	FIRE,
@@ -308,7 +310,8 @@ struct ParticleData
 			SparkElevationY( 1.0f, 2.0f );
 		}
 
-		if( particleType != Spores			&&
+		if( particleType != SniperTrail		&&
+			particleType != Spores			&&
 			particleType != Spark			&& 
 			particleType != Level_Up		&& 
 			particleType != Level_Inner		&& 
@@ -363,9 +366,15 @@ struct ParticleData
 	{
 		for ( size_t i = nrOfParticlesAlive + nrOfRequestedParticles; i < nrOfParticlesAlive + nrOfRequestedParticles + particleCount; i++ )
 		{
-
 			switch ( particleType )
 			{
+				case SniperTrail:
+				{
+					float magnitude = GetRandomSpeed( 40, 400 );
+					randomDirectionVector.x = xDirection * magnitude;
+					randomDirectionVector.z = zDirection * magnitude;
+					break;
+				}
 				case Shell:
 				{
 					randomDirectionVector.x = xDirection * GetRandomSpeed( 30, 50 );

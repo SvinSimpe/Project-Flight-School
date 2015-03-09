@@ -209,7 +209,6 @@ void ServerShip::Update( float deltaTime )
 {
 	mWasUpdated = false;
 	mServerTurret->Update( deltaTime );
-	//RenderManager::GetInstance()->AddCircleToList( mHitCircle->center, XMFLOAT3( 1.0f, 0.0f, 0.0f ), mHitCircle->radius );
 }
 
 void ServerShip::FindTurretTarget( std::vector<BoundingCircle*> enemies )
@@ -226,6 +225,7 @@ void ServerShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 
 	mBuffMod		= 0.5f;
 	mBuffCircle->center = pos;
+	mHitCircle->center	= pos;
 	mID				= id;
 	mTeamID			= teamID;
 
@@ -251,11 +251,8 @@ void ServerShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID )
 {
 	GameObject::Initialize( pos, rot, scale, assetID );
-	mServerTurret	= new ServerTurret();
 	mBuffCircle		= new BoundingCircle( mPos, 20.0f );
-	XMFLOAT3 invPos	= mPos;
-	invPos.z *= -1.0f;
-	mHitCircle		= new BoundingCircle( invPos, 10.0f );
+	mHitCircle		= new BoundingCircle( mPos, 10.0f );
 
 	mBuffMod		= 0.5f;
 	mID				= id;
@@ -273,35 +270,8 @@ void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 	mMaxShield		= 100.0f * mShieldLevel;
 	mCurrentShield	= mMaxShield * percent;
 
-	mServerTurret->Initialize( id + 10, teamID, pos, rot, scale, assetID );	
-}
-
-void ServerShip::Initialize( UINT id, UINT teamID, GameObjectInfo gameObjectInfo, AssetID assetID )
-{
-	GameObject::Initialize( gameObjectInfo, assetID );
 	mServerTurret	= new ServerTurret();
-	mBuffCircle		= new BoundingCircle( 20.0f );
-	mHitCircle		= new BoundingCircle( mPos, 10.0f );
-
-	mBuffMod		= 0.5f;
-	mID				= id;
-	mTeamID			= teamID;
-	mTurretLevel	= MIN_LEVEL;
-	mShieldLevel	= MIN_LEVEL;
-	mBuffLevel		= MIN_LEVEL;
-	mMaxShield		= 100.0f;
-	mCurrentShield	= mMaxShield;
-	mMaxHP			= 100.0f;
-	mIsAlive		= true;
-	mCurrentHP		= mMaxHP;
-
-	float percent	= PercentShield();
-	mMaxShield		= 100.0f * mShieldLevel;
-	mCurrentShield	= mMaxShield * percent;
-
-	mServerTurret->Initialize( id, teamID, gameObjectInfo );
-
-	EventManager::GetInstance()->AddListener( &ServerShip::ClientUpdateShip, this, Event_Client_Update_Ship::GUID );
+	mServerTurret->Initialize( id + 10, teamID, pos, rot, scale, assetID );	
 }
 
 void ServerShip::Release()
@@ -317,7 +287,11 @@ void ServerShip::Release()
 		delete mBuffCircle;
 		mBuffCircle = nullptr;
 	}
-	SAFE_DELETE( mHitCircle );
+	if( mHitCircle )
+	{
+		delete mHitCircle;
+		mHitCircle = nullptr;
+	}
 }
 
 ServerShip::ServerShip() : GameObject()

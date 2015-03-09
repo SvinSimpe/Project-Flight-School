@@ -82,7 +82,21 @@ void GameObject::Initialize( XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID
 	GameObjectInfo goi;
 	DirectX::XMStoreFloat4x4( &goi.transformation, scalemat * rotation * translation ); // think about the order here, might be reversed
 
-	Initialize( goi, assetID );
+	DirectX::XMVECTOR vScale;
+	DirectX::XMVECTOR vRotation;
+	DirectX::XMVECTOR vTranslation;
+
+	DirectX::XMMatrixDecompose( &vScale, &vRotation, &vTranslation, XMLoadFloat4x4( &goi.transformation ) );
+	mCollisionType	= goi.collision;
+	mRenderType		= goi.renderType;
+
+	mWorld = goi.transformation;
+
+	XMStoreFloat3( &mScale, vScale );
+	XMStoreFloat4( &mRot, vRotation );
+	XMStoreFloat3( &mPos, vTranslation );
+
+	mAssetID = assetID;
 }
 
 void GameObject::Initialize( GameObjectInfo gameObjectInfo, AssetID assetID )

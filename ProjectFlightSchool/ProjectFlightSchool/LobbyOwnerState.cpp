@@ -16,9 +16,15 @@ void LobbyOwnerState::ManageStartButton()
 {
 	// check here if all players are ready
 	bool allReady = true;
-	for( size_t i = 0; i < mPlayers.size(); i++ )
+	for( auto& p : mPlayers )
 	{
-		if( !mPlayers[i]->isReady )
+		if( p->thisPlayer && !p->isReady )
+		{
+			p->isReady = true;
+			IEventPtr ready( new Event_Client_Change_Ready_State() );
+			Client::GetInstance()->SendEvent( ready );
+		}
+		else if( !p->isReady )
 		{
 			allReady = false;
 			mWarningTexts[ALL_READY].timer = MAX_TEXT_TIME;

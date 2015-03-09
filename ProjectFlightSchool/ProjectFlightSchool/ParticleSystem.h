@@ -582,25 +582,25 @@ struct ParticleSystem : public ParticleData
 
 		else if ( particleType == BlowTorchFire ) 			
 		{
-			 mPointLightParticleEmitter->positionAndIntensity.w	= 1 + nrOfParticlesAlive * 0.085f;
+			 mPointLightParticleEmitter->positionAndIntensity.w	= 1 + nrOfParticlesAlive * 0.0005f;
 			 mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.012f;
 		}
 
 		else if ( particleType == BlowTorchIdle ) 			
 		{
-			 mPointLightParticleEmitter->positionAndIntensity.w = 0.2f + nrOfParticlesAlive * 0.085f;
+			 mPointLightParticleEmitter->positionAndIntensity.w = 0.2f + nrOfParticlesAlive * 0.005f;
 			 mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.005f;
 		}
 
 		else if ( particleType == FIRE ) 			
 		{
-			 mPointLightParticleEmitter->positionAndIntensity.w = 1 + nrOfParticlesAlive * 0.02f;
+			 mPointLightParticleEmitter->positionAndIntensity.w = 1 + nrOfParticlesAlive * 0.001f;
 			 mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.005f;
 		}
 
 		else if ( particleType == Explosion ) 			
 		{
-			 mPointLightParticleEmitter->positionAndIntensity.w = 1 + nrOfParticlesAlive * 0.9f;
+			 mPointLightParticleEmitter->positionAndIntensity.w = 1 + nrOfParticlesAlive * 0.004f;
 			 mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.035f;
 		}
 	}
@@ -824,7 +824,7 @@ struct ParticleSystem : public ParticleData
 			float distanceFromSpawnPos = XMVectorGetX( XMVector3Length( XMLoadFloat3( &initialSpawnPos ) - XMLoadFloat3( &XMFLOAT3( xPosition[i], yPosition[i], zPosition[i] ) ) ) );
 			if ( distanceFromSpawnPos >= maxDistanceFromSpawnPos[0] )
 			{
-				float interpolation = max( 0.0f, 1.0f - deltaTime );
+				float interpolation = max( 0.0f, 1.0f - deltaTime * 0.5f );
 
 				XMVECTOR toCenter	= XMLoadFloat3( &initialSpawnPos ) - XMLoadFloat3( &XMFLOAT3( xPosition[i], yPosition[i], zPosition[i] ) );
 				XMVECTOR toRight	= XMVector3Cross( toCenter, XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ) );

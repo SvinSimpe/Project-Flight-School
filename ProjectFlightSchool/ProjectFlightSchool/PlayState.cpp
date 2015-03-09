@@ -90,14 +90,14 @@ void PlayState::EventListener( IEventPtr newEvent )
 		
 		
 		// Request Muzzle Flash from Particle Manager
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), SniperTrail, data->BodyPos(), data->Direction() );
+		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), SniperTrail, data->BodyPos(), data->Direction() );
 
 		XMFLOAT3 cross;
 		XMStoreFloat3( &cross, XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), XMLoadFloat3( &data->Direction() ) ) );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Shell, XMFLOAT3(data->BodyPos().x - data->Direction().x, data->BodyPos().y, data->BodyPos().z - data->Direction().z), cross );
 
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Explosion, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), ExplosionSmoke, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Explosion, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), ExplosionSmoke, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
@@ -131,10 +131,6 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if( newEvent->GetEventType() == Event_Server_Spawn_Ship::GUID )
 	{
 		std::shared_ptr<Event_Server_Spawn_Ship> data = std::static_pointer_cast<Event_Server_Spawn_Ship>( newEvent );
-	
-		std::ostringstream out;
-		out << "\n--------------Client ship pos: " << data->Position().x << " " << data->Position().y << " " << data->Position().z;
-		OutputDebugStringA( out.str().c_str()  );
 
 		if( data->TeamID() == mPlayer->GetTeam() )
 		{
@@ -192,13 +188,16 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Server_XP> data = std::static_pointer_cast<Event_Server_XP>( newEvent );
 		if( data->PlayerID() == mPlayer->GetID() )
 		{
-			int levelUp = mPlayer->Upgradable();
-			mPlayer->AddXP( data->XP() );
-			if( mPlayer->Upgradable() != levelUp )
+			if( mPlayer->GetCurrentLevel() <= 16 )
 			{
-				SoundBufferHandler::GetInstance()->Play3D( mLevelUp , mPlayer->GetBoundingCircle()->center );
-				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Level_Up, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.0f, 1.0f, 0.0f ) ); //both of these calls are needed for levelup effect.
-				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Level_Inner, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.1f, 0.1f, 0.1f ) ); //both of these calls are needed for levelup effect.
+				int levelUp = mPlayer->Upgradable();
+				mPlayer->AddXP( data->XP() );
+				if( mPlayer->Upgradable() != levelUp )
+				{
+					SoundBufferHandler::GetInstance()->Play3D( mLevelUp , mPlayer->GetBoundingCircle()->center );
+					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Level_Up, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.0f, 1.0f, 0.0f ) ); //both of these calls are needed for levelup effect.
+					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Level_Inner, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.1f, 0.1f, 0.1f ) ); //both of these calls are needed for levelup effect.
+				}
 			}
 		}
 	}
@@ -319,12 +318,12 @@ void PlayState::CheckProjectileCollision()
 	for ( int i	 = 0; i < mNrOfActiveProjectiles; i++ )
 	{
 		// Players
-		if( mProjectiles[i]->IsActive() ) //&& mRemotePlayers.size() > 0 )
+		if( mProjectiles[i]->IsActive() )
 		{
 			if( mPlayer->IsAlive() &&
 				( mProjectiles[i]->GetPlayerID() == 70 || mProjectiles[i]->GetPlayerID() == 71 ) && 
 				mPlayer->GetTeam() != mProjectiles[i]->GetTeamID() &&
-				mProjectiles[i]->GetBoundingCircle()->Intersect( mPlayer->GetBoundingCircle() ) )
+				mProjectiles[i]->GetBoundingCircle()->Intersect( mPlayer->GetBoundingCircle() ) && mProjectiles[i]->GetWeaponType() != GRENADELAUNCHER )
 			{
 				mPlayer->TakeDamage( mProjectiles[i]->GetDamage(), mProjectiles[i]->GetPlayerID() );
 				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Spark, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
@@ -332,7 +331,7 @@ void PlayState::CheckProjectileCollision()
 			}
 			for ( size_t j = 0; j < mRemotePlayers.size(); j++ )
 			{
-				if( mRemotePlayers[j]->IsAlive() )
+				if( mRemotePlayers[j]->IsAlive() && mProjectiles[i]->GetWeaponType() != GRENADELAUNCHER )
 				{
 					if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() &&
 						mProjectiles[i]->GetBoundingCircle()->Intersect( mRemotePlayers[j]->GetBoundingCircle() ) )
@@ -466,6 +465,40 @@ void PlayState::CheckProjectileCollision()
 						}
 					}
 
+					// Player is hit by remote player grenade
+					if( mPlayer->IsAlive() && mPlayer->GetTeam() != mProjectiles[i]->GetTeamID() )
+					{
+						for (size_t j = 0; j < mRemotePlayers.size(); j++)
+						{
+							if( mProjectiles[i]->GetPlayerID() == mRemotePlayers[j]->GetID() )
+							{
+								if( BoundingCircle( mProjectiles[i]->GetPosition(), mRemotePlayers[j]->GetLoadOut()->rangedWeapon->areaOfEffect ).Intersect( mPlayer->GetBoundingCircle() ) )
+								{
+									mPlayer->TakeDamage( mProjectiles[i]->GetDamage(), mProjectiles[i]->GetPlayerID() );
+									RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Spark, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+									RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Debris, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+								}
+							}
+						}						
+					}
+
+					// Remote player is hit by Player grenade
+					if( mRemotePlayers.size() > 0 )
+					{
+						for (size_t j = 0; j < mRemotePlayers.size(); j++)
+						{
+							if( mRemotePlayers[j]->IsAlive() )
+							{
+								if( BoundingCircle( mProjectiles[i]->GetPosition(), mPlayer->GetLoadOut()->rangedWeapon->areaOfEffect ).Intersect( mRemotePlayers[j]->GetBoundingCircle() ) )
+								{
+									// Hit
+									BroadcastProjectileDamage(mRemotePlayers[j]->GetID() , mProjectiles[i]->GetID() );
+									RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+								}
+							}
+						}
+					}
+
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 
@@ -547,7 +580,7 @@ void PlayState::HandleDeveloperCameraInput()
 	}
 	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_E ) )
 	{
-		if( mShips[FRIEND_SHIP]->InteractIntersect( mPlayer->GetBoundingCircle() ) )
+		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 		{
 			if( mGui->UpgradeShipWindowIsActive() )
 			{
@@ -713,10 +746,6 @@ void PlayState::WriteInteractionText( std::string text )
 {
 	float offset = mFont.GetMiddleXPoint( text, 3.0 );
 	float textShadowWidth = 1.0f;
-	//mFont.WriteText( text, (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 200.0f + textShadowWidth, 3.0, COLOR_BLACK );
-	//mFont.WriteText( text, (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 200.0f + textShadowWidth, 3.0, COLOR_BLACK );
-	//mFont.WriteText( text, (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 200.0f - textShadowWidth, 3.0, COLOR_BLACK );
-	//mFont.WriteText( text, (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 200.0f - textShadowWidth, 3.0, COLOR_BLACK );
 
 	mFont.WriteText( text, (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 3.0, COLOR_CYAN );
 }
@@ -812,7 +841,7 @@ HRESULT PlayState::Update( float deltaTime )
 
 		if( mPlayer->GetEnergyCellID() != (UINT)-1 )
 		{
-			if( mShips[FRIEND_SHIP]->InteractIntersect( mPlayer->GetBoundingCircle() ) )
+			if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 			{
 				UINT temp = mPlayer->GetEnergyCellID();
 				mPlayer->GiveEnergyCellToShip( mEnergyCells, mShips[FRIEND_SHIP]->GetID(), mShips[FRIEND_SHIP]->GetPos() );
@@ -841,8 +870,8 @@ HRESULT PlayState::Update( float deltaTime )
 			}
 		}
 
-	/// Spore particles
-	RenderManager::GetInstance()->RequestParticleSystem( 997, Spores, XMFLOAT3( mPlayer->GetPlayerPosition().x, mPlayer->GetPlayerPosition().y + 2.5f, mPlayer->GetPlayerPosition().z ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
+		/// Spore particles
+		RenderManager::GetInstance()->RequestParticleSystem( 997, Spores, XMFLOAT3( mPlayer->GetPlayerPosition().x, mPlayer->GetPlayerPosition().y + 2.5f, mPlayer->GetPlayerPosition().z ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
 
 		if( mPlayer->Upgradable() < 1 && mGui->UpgradePlayerWindowIsActive() )
 		{
@@ -874,9 +903,9 @@ HRESULT PlayState::Update( float deltaTime )
 		//No need to update the first energy cell since it's not supposed to be active
 		for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
 		{
+			mEnergyCells[i]->Update( deltaTime );
 			if( !mEnergyCells[i]->GetPickedUp() )
 			{
-				mEnergyCells[i]->Update( deltaTime );
 				mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnergyCells[i]->GetPosition();
 				mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::OBJECTIVE;
 			}
@@ -981,8 +1010,8 @@ HRESULT PlayState::Render( float deltaTime )
 	}
 
 	//RENDER DEVTEXT
-	//std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
-	//mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
+	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
+	mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
 
 	XMFLOAT4X4 identity;
 	XMStoreFloat4x4( &identity, XMMatrixIdentity() );
@@ -995,7 +1024,7 @@ HRESULT PlayState::Render( float deltaTime )
 		}
 	}
 	
-	if( mShips[FRIEND_SHIP]->InteractIntersect( mPlayer->GetBoundingCircle() ) )
+	if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 	{
 		WriteInteractionText( "Press E to open or close ship menu" );
 	}
@@ -1163,13 +1192,13 @@ HRESULT PlayState::Initialize()
 	}
 
 	//TestSound
-	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/minigun.wav", 500 );
 	mMiniGun			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/minigun.wav", 500 );
 	mShotGun			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/shotgun.wav", 500 );
 	mSniper				= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/railgun.wav", 500 );
 	mLevelUp			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/level up.wav", 10 );
+	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav", 2000, 40 );
 	mSoundAsset			= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
-	mLobbyMusic			= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/ambientInGame.wav", -5000 );
+	mLobbyMusic			= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/ambientInGame.wav", 0 );
 	//mStreamSoundAsset	= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav", 3000 );
 
 	Pathfinder::GetInstance()->Initialize( mWorldMap );
@@ -1178,7 +1207,24 @@ HRESULT PlayState::Initialize()
 	mWonGame	= false;
 	mActive		= false;
 
-	RenderManager::GetInstance()->RequestParticleSystem( 3333, Fire_Flies, XMFLOAT3( 6.0f, 2.0f, 0.0f ), XMFLOAT3( 0.0f, 0.1f, 0.0f ) );	//---id, effect, position, direction
+	int worldDim = mWorldMap->GetMapWidth() * NODE_DIM;
+
+	int worldOffset = mWorldMap->GetMapHalfWidth() * NODE_DIM;
+
+	RenderManager::GetInstance()->RequestParticleSystem( 3333, Fire_Flies, XMFLOAT3 ( 0.0f, 2.0f, 0.0f ), XMFLOAT3( 0.0f, 0.1f, 0.0f ) );	//---id, effect, position, direction
+
+	for (int i = 0; i < 100; i++)
+	{
+		int randX = rand() % worldDim;
+		int randZ = rand() % worldDim;
+		
+		XMFLOAT3 randPos = XMFLOAT3( (float)( randX - worldOffset ), 2.0f, (float)( randZ - worldOffset ) );
+
+		if( Pathfinder::GetInstance()->IsOnNavMesh( randPos ) )
+		{
+			RenderManager::GetInstance()->RequestParticleSystem( i, Fire_Flies, randPos, XMFLOAT3( 0.0f, 0.1f, 0.0f ) );	//---id, effect, position, direction			
+		}
+	}	
 
 	return S_OK;
 }

@@ -33,7 +33,7 @@
 
 // Grenade Launcher
 #define GL_AR				3.0f								// Attack Rate
-#define GL_DAMAGE			21.0f								// Damage
+#define GL_DAMAGE			20.0f								// Damage
 #define GL_RANGE			25.0f								// Range
 #define GL_SPREAD			0.0f								// Spread
 #define GL_AOE				2.0f								// Area of effect
@@ -62,12 +62,12 @@
 //////////////////////////////////
 
 // Claymore
-#define CLAYMORE_AR			0.13f								// Attack Rate
+#define CLAYMORE_AR			2.8f								// Attack Rate
 #define CLAYMORE_DAMAGE		2.0f								// Damage
-#define CLAYMORE_RADIUS		5.0f								// Radius
-#define CLAYMORE_SPREAD		7									// Spread
+#define CLAYMORE_RADIUS		3.5f								// Radius
+#define CLAYMORE_SPREAD		8									// Spread
 #define CLAYMORE_KB			1.0f								// Knockback
-#define CLAYMORE_TTA		0.65f								// Time till Attack
+#define CLAYMORE_TTA		0.75f								// Time till Attack
 #define CLAYMORE_STUN		0.3f								// Stun
 #define CLAYMORE_REACH		3.0f								// Reach
 #define CLAYMORE_OFFSETS	XMFLOAT3( 0.8f, -0.65f, 1.3f )		// Offsets forward, right, up

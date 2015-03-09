@@ -284,15 +284,18 @@ HRESULT LobbyState::Render( float deltaTime )
 		int secondsLeft = (int) mGameCountdown;
 		std::ostringstream out;
 		out << secondsLeft + 1;
-		float offset = mFont.GetMiddleXPoint( out.str(), 20.0f );
+		float offset = mFont.GetMiddleXPoint( out.str(), 10.0f );
+
+		mGameCountdownBack.Render();
 
 		float textShadowWidth = 1.0f;
-		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 350.0f + textShadowWidth, 20.0f, COLOR_BLACK );
-		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 350.0f + textShadowWidth, 20.0f, COLOR_BLACK );
-		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 350.0f - textShadowWidth, 20.0f, COLOR_BLACK );
-		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 350.0f - textShadowWidth, 20.0f, COLOR_BLACK );
 
-		mFont.WriteText( out.str(), (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 350.0f, 20.0f, COLOR_ORANGE );
+		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 420.0f + textShadowWidth, 10.0f, COLOR_BLACK );
+		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 420.0f + textShadowWidth, 10.0f, COLOR_BLACK );
+		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 420.0f - textShadowWidth, 10.0f, COLOR_BLACK );
+		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 420.0f - textShadowWidth, 10.0f, COLOR_BLACK );
+
+		mFont.WriteText( out.str(), (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 420.0f, 10.0f, COLOR_ORANGE );
 	}
 	
 	RenderManager::GetInstance()->Render();
@@ -372,7 +375,10 @@ HRESULT LobbyState::Initialize()
 
 	mChooseWeaponButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/changeYourWeaponFrame.dds", 875.0f, 820.0f, 184.0f, 152.0f );
 	mChooseWeaponText.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/textChooseYourWeapon.dds", 875.0f, 820.0f, 184.0f, 152.0f );
+	
 	mGameCountdown = 0.0f;
+	mGameCountdownBack.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/gameCountdownFrame.dds", 550.0f, 280.0f, 804.0f, 340.0f );
+
 
 	return hr;
 }
@@ -393,6 +399,7 @@ void LobbyState::Release()
 	mLoadOutMenu.Release();
 	mChooseWeaponButton.Release();
 	mChooseWeaponText.Release();
+	mGameCountdownBack.Release();
 }
 
 LobbyState::LobbyState()

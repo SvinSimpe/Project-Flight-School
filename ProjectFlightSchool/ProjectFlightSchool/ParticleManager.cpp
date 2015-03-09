@@ -119,7 +119,7 @@ void ParticleManager::Initialize()
 	mMaxNrOfParticleSystemsPerType[FireSmoke]		= 8;
 	mMaxNrOfParticleSystemsPerType[BlowTorchFire]	= 8;
 	mMaxNrOfParticleSystemsPerType[BlowTorchIdle]	= 8;
-	mMaxNrOfParticleSystemsPerType[Fire_Flies]		= 8;// Below this
+	mMaxNrOfParticleSystemsPerType[Fire_Flies]		= 100;// Below this
 	mMaxNrOfParticleSystemsPerType[NormalSmoke]		= 8;
 	mMaxNrOfParticleSystemsPerType[Hammer_Effect]	= 8; // Aswell as this
 

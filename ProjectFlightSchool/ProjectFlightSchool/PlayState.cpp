@@ -88,8 +88,8 @@ void PlayState::EventListener( IEventPtr newEvent )
 		XMStoreFloat3( &cross, XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), XMLoadFloat3( &data->Direction() ) ) );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Shell, XMFLOAT3(data->BodyPos().x - data->Direction().x, data->BodyPos().y, data->BodyPos().z - data->Direction().z), cross );
 
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Explosion, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), ExplosionSmoke, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Explosion, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), ExplosionSmoke, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
@@ -832,8 +832,8 @@ HRESULT PlayState::Update( float deltaTime )
 			}
 		}
 
-	/// Spore particles
-	RenderManager::GetInstance()->RequestParticleSystem( 997, Spores, XMFLOAT3( mPlayer->GetPlayerPosition().x, mPlayer->GetPlayerPosition().y + 2.5f, mPlayer->GetPlayerPosition().z ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
+		/// Spore particles
+		RenderManager::GetInstance()->RequestParticleSystem( 997, Spores, XMFLOAT3( mPlayer->GetPlayerPosition().x, mPlayer->GetPlayerPosition().y + 2.5f, mPlayer->GetPlayerPosition().z ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
 
 		if( mPlayer->Upgradable() < 1 && mGui->UpgradePlayerWindowIsActive() )
 		{
@@ -865,12 +865,9 @@ HRESULT PlayState::Update( float deltaTime )
 		//No need to update the first energy cell since it's not supposed to be active
 		for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
 		{
-			if( !mEnergyCells[i]->GetPickedUp() )
-			{
-				mEnergyCells[i]->Update( deltaTime );
-				mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnergyCells[i]->GetPosition();
-				mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::OBJECTIVE;
-			}
+			mEnergyCells[i]->Update( deltaTime );
+			mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnergyCells[i]->GetPosition();
+			mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::OBJECTIVE;
 		}
 
 		CheckProjectileCollision();
@@ -1164,7 +1161,24 @@ HRESULT PlayState::Initialize()
 	mWonGame	= false;
 	mActive		= false;
 
-	RenderManager::GetInstance()->RequestParticleSystem( 3333, Fire_Flies, XMFLOAT3( 6.0f, 2.0f, 0.0f ), XMFLOAT3( 0.0f, 0.1f, 0.0f ) );	//---id, effect, position, direction
+	int worldDim = mWorldMap->GetMapWidth() * NODE_DIM;
+
+	int worldOffset = mWorldMap->GetMapHalfWidth() * NODE_DIM;
+
+	RenderManager::GetInstance()->RequestParticleSystem( 3333, Fire_Flies, XMFLOAT3 ( 0.0f, 2.0f, 0.0f ), XMFLOAT3( 0.0f, 0.1f, 0.0f ) );	//---id, effect, position, direction
+
+	for (int i = 0; i < 100; i++)
+	{
+		int randX = rand() % worldDim;
+		int randZ = rand() % worldDim;
+		
+		XMFLOAT3 randPos = XMFLOAT3( (float)( randX - worldOffset ), 2.0f, (float)( randZ - worldOffset ) );
+
+		if( Pathfinder::GetInstance()->IsOnNavMesh( randPos ) )
+		{
+			RenderManager::GetInstance()->RequestParticleSystem( i, Fire_Flies, randPos, XMFLOAT3( 0.0f, 0.1f, 0.0f ) );	//---id, effect, position, direction			
+		}
+	}	
 
 	return S_OK;
 }

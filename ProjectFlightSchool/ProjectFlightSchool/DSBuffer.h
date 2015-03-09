@@ -32,9 +32,10 @@ class DSBuffer
 private:
 
 protected:
-	LPDIRECTSOUNDBUFFER8	mBuffer;
+	LPDIRECTSOUNDBUFFER8*	mBuffer;
 	char*					mFileName;
 	int						mID;
+	int						mNrOfBuffers;
 
 public:
 
@@ -53,7 +54,7 @@ public:
 	int			GetID();
 	void		SoundOn();
 	void		SoundOff();
-	bool		Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID, LONG volume );
+	bool		Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID, LONG volume, int nrOfBuffers = 1 );
 	void		Release();
 				DSBuffer();
 				~DSBuffer();

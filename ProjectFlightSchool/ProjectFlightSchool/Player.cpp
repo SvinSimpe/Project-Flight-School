@@ -387,7 +387,14 @@ void Player::AddXP( int XP )
 	{
 		mCurrentUpgrades++;
 		mXP -= mNextLevelXP;
+		mNextLevelXP *= 1.1f;
+		mCurrentLevel++;
 	}
+
+	//Check if maxlevel
+	if ( mCurrentLevel == 16 )
+		mXP = mNextLevelXP;
+	
 }
 
 void Player::PickUpEnergyCell( EnergyCell** energyCells )
@@ -441,7 +448,7 @@ void Player::GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, Direct
 		energyCells[mEnergyCellID]->SetPosition( shipPos );
 		energyCells[mEnergyCellID]->SetOwnerID( shipID );
 		energyCells[mEnergyCellID]->SetPickedUp( true );
-	
+		energyCells[mEnergyCellID]->SetSecured( true );
 
 		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, shipID, shipPos, true ) );
 		QueueEvent( E1 );
@@ -592,6 +599,10 @@ void Player::Fire()
 	{
 		FireGrenadeLauncher( &loadDir );
 	}
+	else if( mLoadOut->rangedWeapon->weaponType == SNIPER )
+	{
+		FireSniper( &loadDir );
+	}
 	else
 	{
 		// Set random spread
@@ -725,11 +736,6 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 			mWeaponOverheated = false;
 		}
 
-		XMFLOAT3 direction;
-		/*XMStoreFloat3( &direction, ( XMVector3Normalize( XMLoadFloat3( &mVelocity ) ) ) + XMLoadFloat3( &mFireDirection )  );*/
-		//XMStoreFloat3( &direction, ( mCurrentVelocity * XMLoadFloat3( &mFireDirection )  ) );
-
-		XMStoreFloat3( &direction,  XMLoadFloat3( &mVelocity ) );
 		//Blowtorch particle system
 		//RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchIdle, *projectileOffset, mUpperBody.direction, mVelocity );
 		//RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, *projectileOffset, mUpperBody.direction, mVelocity );
@@ -771,12 +777,15 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 void Player::FireGrenadeLauncher( XMFLOAT3* projectileOffset )
 {
 	float elevation = CalculateLaunchAngle();
-	//if( elevation <= 0.0f )
-	//	elevation *= -1.0f;
 
 	mFireDirection			= XMFLOAT3( mUpperBody.direction.x, elevation, mUpperBody.direction.z );
 	IEventPtr E1( new Event_Trigger_Client_Fired_Projectile( mID, *projectileOffset, mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
+}
+
+void Player::FireSniper( XMFLOAT3* projectileOffset )
+{
+	RenderManager::GetInstance()->RequestParticleSystem( mID, SniperTrail, *projectileOffset, mUpperBody.direction, mVelocity );
 }
 
 void Player::HammerMelee( float deltaTime )
@@ -821,7 +830,7 @@ void Player::BlowtorchMelee( float deltaTime )
 		if( mHasMeleeStarted )
 		{
 			mTimeTillattack -= deltaTime;
-			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, loadDir, mUpperBody.direction );
+			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, loadDir, mUpperBody.direction, mVelocity );
 			if( mTimeTillattack <= 0.0f )
 			{
 				mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
@@ -834,7 +843,7 @@ void Player::BlowtorchMelee( float deltaTime )
 			}
 		}
 		else
-			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchIdle, loadDir, mUpperBody.direction );
+			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchIdle, loadDir, mUpperBody.direction, mVelocity );
 }
 
 void Player::ClaymoreMelee( float deltaTime )
@@ -900,6 +909,11 @@ void Player::AddImpuls( XMFLOAT3 impuls )
 	}
 }
 
+void Player::QueueEvent( IEventPtr ptr )
+{
+	gEventList.push_front( ptr );
+}
+
 void Player::UpgradeBody()
 {
 	mUpgrades.body++;
@@ -922,9 +936,12 @@ void Player::UpgradeRange()
 	mUpgrades.range++;
 }
 
-void Player::QueueEvent( IEventPtr ptr )
+void Player::WriteInteractionText( std::string text )
 {
-	gEventList.push_front( ptr );
+	float offset = mFont.GetMiddleXPoint( text, 3.0 );
+	float textShadowWidth = 1.0f;
+
+	mFont.WriteText( text, (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 250.0f, 3.0, COLOR_CYAN );
 }
 
 /////Public
@@ -1155,7 +1172,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 				XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 
-				RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
+				RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction, mVelocity );
 
 				// Spawn spark on lowerBody
 				if ( mCurrentHp <= 10 )
@@ -1166,7 +1183,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 					XMStoreFloat3( &inverseDir, -XMLoadFloat3( &mUpperBody.direction ) );
 					XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 					
-					RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Robot, newPos, XMFLOAT3( inverseDir.x * randY, inverseDir.y, inverseDir.z * randY ) );			
+					RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Robot, newPos, XMFLOAT3( inverseDir.x * randY, inverseDir.y, inverseDir.z * randY ), mVelocity );			
 				}
 				
 				float intensity = ( mCurrentHp * 0.1f ) * 0.6f;
@@ -1277,32 +1294,37 @@ HRESULT Player::Render( float deltaTime, int position )
 		mFont.WriteText( textToWrite, (float)Input::GetInstance()->mScreenWidth/2 - offset, (float)Input::GetInstance()->mScreenHeight/4, 3.8f, COLOR_RED );
 	}
 
+	if( mEnergyCellID != (UINT)-1 )
+	{
+		WriteInteractionText( "Go back to your ship to hand in the energy cell!" );
+	}
+
 	RemotePlayer::Render();
 	//---------------------------DEBUG RENDERING----------------------------
-	MeleeInfo* currWeapon = mLoadOut->meleeWeapon;
-	RenderManager::GetInstance()->AddCircleToList( currWeapon->boundingCircle->center, DirectX::XMFLOAT3( 0, 1, 1 ), currWeapon->boundingCircle->radius );
-	RenderManager::GetInstance()->AddBoxToList( XMFLOAT3( mPick.x - 0.5f, mPick.y - 0.5f, mPick.z - 0.5f ), XMFLOAT3( mPick.x + 0.5f, mPick.y + 0.5f, mPick.z + 0.5f ) );
-	RenderManager::GetInstance()->AddCircleToList( mLoadOut->meleeWeapon->boundingCircle->center, DirectX::XMFLOAT3(1,1,0), mLoadOut->meleeWeapon->boundingCircle->radius );
-	RenderManager::GetInstance()->AddCircleToList( mBoundingCircle->center, DirectX::XMFLOAT3(0,1,0), mBoundingCircle->radius );
-	if( mHasMeleeStarted )
-	{
-		
-		XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mUpperBody.direction ) * currWeapon->radius );
+	//MeleeInfo* currWeapon = mLoadOut->meleeWeapon;
+	//RenderManager::GetInstance()->AddCircleToList( currWeapon->boundingCircle->center, DirectX::XMFLOAT3( 0, 1, 1 ), currWeapon->boundingCircle->radius );
+	//RenderManager::GetInstance()->AddBoxToList( XMFLOAT3( mPick.x - 0.5f, mPick.y - 0.5f, mPick.z - 0.5f ), XMFLOAT3( mPick.x + 0.5f, mPick.y + 0.5f, mPick.z + 0.5f ) );
+	//RenderManager::GetInstance()->AddCircleToList( mLoadOut->meleeWeapon->boundingCircle->center, DirectX::XMFLOAT3(1,1,0), mLoadOut->meleeWeapon->boundingCircle->radius );
+	//RenderManager::GetInstance()->AddCircleToList( mBoundingCircle->center, DirectX::XMFLOAT3(0,1,0), mBoundingCircle->radius );
+	//if( mHasMeleeStarted )
+	//{
+	//	
+	//	XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mUpperBody.direction ) * currWeapon->radius );
 
-		float halfRadian = XMConvertToRadians( currWeapon->spread * 18.0f ) * 0.5f;
+	//	float halfRadian = XMConvertToRadians( currWeapon->spread * 18.0f ) * 0.5f;
 
-		XMVECTOR leftVector = XMVector3Rotate( meeleRadiusVector, XMQuaternionRotationRollPitchYawFromVector( XMVectorSet( 0, -halfRadian, 0 , 1 ) ) );
-		XMVECTOR rightVector = XMVector3Rotate( meeleRadiusVector, XMQuaternionRotationRollPitchYawFromVector( XMVectorSet( 0, halfRadian, 0 , 1 ) ) );
+	//	XMVECTOR leftVector = XMVector3Rotate( meeleRadiusVector, XMQuaternionRotationRollPitchYawFromVector( XMVectorSet( 0, -halfRadian, 0 , 1 ) ) );
+	//	XMVECTOR rightVector = XMVector3Rotate( meeleRadiusVector, XMQuaternionRotationRollPitchYawFromVector( XMVectorSet( 0, halfRadian, 0 , 1 ) ) );
 
-		XMFLOAT3 leftEnd, rightEnd;
-		XMFLOAT3 pos = currWeapon->boundingCircle->center;
-		
-		XMStoreFloat3( &leftEnd, XMLoadFloat3( &pos ) + leftVector );
-		XMStoreFloat3( &rightEnd, XMLoadFloat3( &pos ) + rightVector );
-		RenderManager::GetInstance()->AddCircleToList( currWeapon->boundingCircle->center, DirectX::XMFLOAT3( 0, 1, 1 ), currWeapon->boundingCircle->radius );
-		RenderManager::GetInstance()->AddLineToList( pos, XMFLOAT3( leftEnd.x, 0.1f, leftEnd.z ) );
-		RenderManager::GetInstance()->AddLineToList( pos, XMFLOAT3( rightEnd.x, 0.1f, rightEnd.z ) );
-	}
+	//	XMFLOAT3 leftEnd, rightEnd;
+	//	XMFLOAT3 pos = currWeapon->boundingCircle->center;
+	//	
+	//	XMStoreFloat3( &leftEnd, XMLoadFloat3( &pos ) + leftVector );
+	//	XMStoreFloat3( &rightEnd, XMLoadFloat3( &pos ) + rightVector );
+	//	RenderManager::GetInstance()->AddCircleToList( currWeapon->boundingCircle->center, DirectX::XMFLOAT3( 0, 1, 1 ), currWeapon->boundingCircle->radius );
+	//	RenderManager::GetInstance()->AddLineToList( pos, XMFLOAT3( leftEnd.x, 0.1f, leftEnd.z ) );
+	//	RenderManager::GetInstance()->AddLineToList( pos, XMFLOAT3( rightEnd.x, 0.1f, rightEnd.z ) );
+	//}
 	//---------------------------DEBUG RENDERING----------------------------
 
 
@@ -1333,6 +1355,7 @@ HRESULT Player::Initialize()
 	mHasMeleeStarted	= false;
 	mXP					= 0;
 	mNextLevelXP		= 0;
+	mCurrentLevel		= 0;
 	
 	mSpawnTime				= 0.0f;
 	mTimeTillSpawn			= 0.0f;
@@ -1380,7 +1403,7 @@ HRESULT Player::Initialize()
 
 	mBuffMod			= 0.5f;
 
-	mNextLevelXP		= 10;
+	mNextLevelXP		= 60;
 	mCurrentUpgrades	= 0;
 
 	mReviveTime			= 2.0f;
@@ -1488,6 +1511,11 @@ UINT Player::GetEnergyCellID() const
 float Player::GetXPToNext() const
 {
 	return (float)( (float)mXP / (float)mNextLevelXP );
+}
+
+int Player::GetCurrentLevel() const
+{
+	return mCurrentLevel;
 }
 
 int Player::Upgradable() const

@@ -139,9 +139,9 @@ void ClientShip::Release()
 ClientShip::ClientShip() : ServerShip()
 {
 
-	mAssetID		= CUBE_PLACEHOLDER;
-	mWasUpdated		= false;
-	mClientTurret	= nullptr;
+	mAssetID			= CUBE_PLACEHOLDER;
+	mWasUpdated			= false;
+	mClientTurret		= nullptr;
 	mNrOfEnergyCells	= 0;	
 
 }

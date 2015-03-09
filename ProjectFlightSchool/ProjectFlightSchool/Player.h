@@ -44,8 +44,8 @@ class Player: public RemotePlayer
 		bool		mHasMeleeStarted;
 		bool		mLock;
 		bool		mCloseToPlayer;
-		int			mXP;
-		int			mNextLevelXP;
+		float		mXP;
+		float		mNextLevelXP;
 		int			mCurrentLevel;
 		int			mCurrentUpgrades;
 
@@ -97,6 +97,7 @@ class Player: public RemotePlayer
 		void		FireShotgun( XMFLOAT3* spawnPoint );
 		void		FireMinigun( XMFLOAT3* projectileOffset );
 		void		FireGrenadeLauncher( XMFLOAT3* projectileOffset );
+		void		FireSniper( XMFLOAT3* projectileOffset );
 
 		void		HammerMelee( float deltaTime );
 		void		BlowtorchMelee( float deltaTime );
@@ -109,10 +110,11 @@ class Player: public RemotePlayer
 		void		UpgradeLegs();
 		void		UpgradeMelee();
 		void		UpgradeRange();
+		void		WriteInteractionText( std::string text );
 
 	protected:
 	public:
-		void		AddXP( int XP );
+		void		AddXP( float XP );
 		void		PickUpEnergyCell( EnergyCell** energyCell );
 		void		DropEnergyCell( EnergyCell** energyCells );
 		void		GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, DirectX::XMFLOAT3 shipPos );

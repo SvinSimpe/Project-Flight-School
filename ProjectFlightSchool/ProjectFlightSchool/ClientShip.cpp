@@ -107,10 +107,6 @@ bool ClientShip::Intersect( BoundingCircle* entity )
 void ClientShip::Update( float deltaTime )
 {
 	ServerShip::Update( deltaTime );
-	if( mHitCircle->center.z != mPos.z )
-	{
-		int ear = 0;
-	}
 }
 
 void ClientShip::Render( float deltaTime, DirectX::XMFLOAT4X4 parentWorld )

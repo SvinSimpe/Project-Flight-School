@@ -703,13 +703,6 @@ void Server::CreateShips()
 	{
 		mEnemies[i]->SetShipTarget( mShips.at(i%2)->GetID(), mShips );
 	}
-	for ( size_t i = 0; i < 2; i++ )
-	{
-		std::ostringstream out;
-		out << "\n--------------Server ship pos: " << mShips.at(i)->GetPos().x << " " << mShips.at(i)->GetPos().y << " " << mShips.at(i)->GetPos().z;
-		OutputDebugStringA( out.str().c_str()  );
-	}
-
 }
 
 bool Server::CheckShipBuff( ServerShip* ship, XMFLOAT3 pos )

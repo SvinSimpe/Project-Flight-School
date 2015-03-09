@@ -48,7 +48,6 @@ class ServerTurret : public GameObject
 
 	protected:
 		struct TurretHead
-
 		{
 			AssetID model	= CUBE_PLACEHOLDER;
 			XMFLOAT3 pos	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
@@ -76,7 +75,6 @@ class ServerTurret : public GameObject
 		virtual void	Reset( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale );
 		void			Update( float deltaTime );
 		virtual void	Initialize( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID = CUBE_PLACEHOLDER );
-		virtual void	Initialize( UINT id, UINT team, GameObjectInfo gameObjectInfo, AssetID assetID = CUBE_PLACEHOLDER );
 		virtual void	Release();
 						ServerTurret();
 		virtual			~ServerTurret();

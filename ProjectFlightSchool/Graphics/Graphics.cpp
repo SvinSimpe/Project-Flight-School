@@ -462,6 +462,16 @@ HRESULT Graphics::InitializeEffects()
 	//=======================================
 
 	//Debris effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/SniperTrailEffect.hlsl";
+	effectInfo.fileName					= "SniperTrailEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_SNIPER_TRAIL]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Debris effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/ShellEffect.hlsl";
 	effectInfo.fileName					= "ShellEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
@@ -1263,7 +1273,8 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 					// Add particletype you want to apply additive blending on
 					if( info[i].mParticleType == EFFECTS_SPORES || info[i].mParticleType == EFFECTS_SPARK || info[i].mParticleType == EFFECTS_LEVEL_UP 
 						|| info[i].mParticleType == EFFECTS_FIRE || info[i].mParticleType == EFFECTS_BLOWTORCH_FIRE || info[i].mParticleType == EFFECTS_BLOWTORCH_IDLE
-						|| info[i].mParticleType == EFFECTS_EXPLOSION || info[i].mParticleType == EFFECTS_SPARK_ROBOT || info[i].mParticleType == EFFECTS_SPARK_ELECTRIC )
+						|| info[i].mParticleType == EFFECTS_EXPLOSION || info[i].mParticleType == EFFECTS_SPARK_ROBOT || info[i].mParticleType == EFFECTS_SPARK_ELECTRIC
+						|| info[i].mParticleType == EFFECTS_SNIPER_TRAIL)
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
 					
 					else
@@ -1642,49 +1653,49 @@ bool Graphics::GetAnimationMatrices( AnimationTrack &animTrack, int playType, An
 				animTrack.mNextAnimationTime = ( (float)animation2->AnimLength / 60.0f );
 		}
 
-			float calcTime = animTrack.mNextAnimationTime * 60.0f;
+		float calcTime = animTrack.mNextAnimationTime * 60.0f;
 
-			for( int i = 0; i < (int)skeleton->joints.size(); i++ )
+		for( int i = 0; i < (int)skeleton->joints.size(); i++ )
+		{
+			float prevTime		= 1.0f;
+			float targetTime	= 1.0f;
+
+			DirectX::XMFLOAT4X4 targetMatrix	= animation2->joints.at(i).matricies.at(0);
+			DirectX::XMFLOAT4X4	previousMatrix	= targetMatrix;
+
+			for( int j = 0; j < (int)animation2->joints.at(i).keys.size() - 1; j++ )
 			{
-				float prevTime		= 1.0f;
-				float targetTime	= 1.0f;
-
-				DirectX::XMFLOAT4X4 targetMatrix	= animation2->joints.at(i).matricies.at(0);
-				DirectX::XMFLOAT4X4	previousMatrix	= targetMatrix;
-
-				for( int j = 0; j < (int)animation2->joints.at(i).keys.size() - 1; j++ )
+				if( (float)animation2->joints.at(i).keys.at(j) < calcTime )
 				{
-					if( (float)animation2->joints.at(i).keys.at(j) < calcTime )
-					{
-						prevTime		= targetTime;
-						previousMatrix	= targetMatrix;
-						targetTime		= (float)animation2->joints.at(i).keys.at(j+1);
-						targetMatrix	= animation2->joints.at(i).matricies.at(j+1);
-					}
+					prevTime		= targetTime;
+					previousMatrix	= targetMatrix;
+					targetTime		= (float)animation2->joints.at(i).keys.at(j+1);
+					targetMatrix	= animation2->joints.at(i).matricies.at(j+1);
 				}
-
-				float interpolation = 1.0f;
-				if( targetTime - prevTime > 0.0f )
-					interpolation = ( calcTime - prevTime ) / ( targetTime - prevTime );
-
-				DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &previousMatrix );
-
-				DirectX::XMVECTOR targetComp[3];
-				DirectX::XMVECTOR childComp[3];
-
-				DirectX::XMMatrixDecompose( &targetComp[0], &targetComp[1], &targetComp[2], DirectX::XMLoadFloat4x4( &targetMatrix ) );
-				DirectX::XMMatrixDecompose( &childComp[0], &childComp[1], &childComp[2], child );
-
-				child = DirectX::XMMatrixAffineTransformation(	DirectX::XMVectorLerp( childComp[0], targetComp[0], interpolation ),
-																	DirectX::XMVectorZero(),
-																	DirectX::XMQuaternionSlerp( childComp[1], targetComp[1], interpolation ),
-																	DirectX::XMVectorLerp( childComp[2], targetComp[2], interpolation ) );		
-
-				DirectX::XMMATRIX parent	= animation2->joints.at(i).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
-													nextBoneTransforms[animation2->joints.at(i).parentIndex];
-
-				nextBoneTransforms[i] = child * parent;
 			}
+
+			float interpolation = 1.0f;
+			if( targetTime - prevTime > 0.0f )
+				interpolation = ( calcTime - prevTime ) / ( targetTime - prevTime );
+
+			DirectX::XMMATRIX child		= DirectX::XMLoadFloat4x4( &previousMatrix );
+
+			DirectX::XMVECTOR targetComp[3];
+			DirectX::XMVECTOR childComp[3];
+
+			DirectX::XMMatrixDecompose( &targetComp[0], &targetComp[1], &targetComp[2], DirectX::XMLoadFloat4x4( &targetMatrix ) );
+			DirectX::XMMatrixDecompose( &childComp[0], &childComp[1], &childComp[2], child );
+
+			child = DirectX::XMMatrixAffineTransformation(	DirectX::XMVectorLerp( childComp[0], targetComp[0], interpolation ),
+																DirectX::XMVectorZero(),
+																DirectX::XMQuaternionSlerp( childComp[1], targetComp[1], interpolation ),
+																DirectX::XMVectorLerp( childComp[2], targetComp[2], interpolation ) );		
+
+			DirectX::XMMATRIX parent	= animation2->joints.at(i).parentIndex == -1 ? DirectX::XMMatrixIdentity() :
+												nextBoneTransforms[animation2->joints.at(i).parentIndex];
+
+			nextBoneTransforms[i] = child * parent;
+		}
 
 	}
 

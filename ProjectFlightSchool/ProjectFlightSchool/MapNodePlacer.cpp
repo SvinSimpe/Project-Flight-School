@@ -100,7 +100,7 @@ void MapNodePlacer::BuildMap( MapNodeInstance***& buildMap )
 				{
 					case OCCUPIED:
 						newNode->ReleaseInstance();
-						if( count < nodeMapSize )
+						if( count <= nodeMapSize )
 						{
 							count++;
 							randomNode = (count + randomNode) % nodeMapSize;
@@ -112,7 +112,7 @@ void MapNodePlacer::BuildMap( MapNodeInstance***& buildMap )
 						break;
 					case NOFIT:
 						newNode->ReleaseInstance();
-						if( count < nodeMapSize )
+						if( count <= nodeMapSize )
 						{
 							count++;
 							randomNode = (count + randomNode) % nodeMapSize;

@@ -25,6 +25,7 @@ struct RangedInfo
 	WeaponType		weaponType;
 	unsigned int	level;
 	float			attackRate;
+	float			slowDown;
 	float			damage;
 	float			range;
 	float			spread;
@@ -38,6 +39,7 @@ struct RangedInfo
 		weaponType		= SHOTGUN;
 		level			= 1;
 		attackRate		= 0.0f;
+		slowDown		= 0.0f;
 		damage			= 0.0f;
 		range			= 0.0f;
 		spread			= 0.0f;
@@ -57,6 +59,7 @@ struct RangedInfo
 			{
 
 				attackRate		=	MINIGUN_AR;
+				slowDown		=	MINIGUN_SLOWDOWN;
 				damage			=	MINIGUN_DAMAGE;
 				range			=	MINIGUN_RANGE;
 				spread			=	MINIGUN_SPREAD;
@@ -75,6 +78,7 @@ struct RangedInfo
 			case SHOTGUN:
 			{
 				attackRate		=	SHOTGUN_AR;
+				slowDown		=	SHOTGUN_SLOWDOWN;
 				damage			=	SHOTGUN_DAMAGE;
 				range			=	SHOTGUN_RANGE;
 				spread			=	SHOTGUN_SPREAD;
@@ -87,6 +91,7 @@ struct RangedInfo
 			case GRENADELAUNCHER:
 			{
 				attackRate		=	GL_AR;
+				slowDown		=	GL_SLOWDOWN;
 				damage			=	GL_DAMAGE;
 				range			=	GL_RANGE;
 				spread			=	GL_SPREAD;
@@ -99,6 +104,7 @@ struct RangedInfo
 			case SNIPER:
 			{
 				attackRate		=	SNIPER_AR;
+				slowDown		=	SNIPER_SLOWDOWN;
 				damage			=	SNIPER_DAMAGE;
 				range			=	SNIPER_RANGE;
 				spread			=	SNIPER_SPREAD;
@@ -121,6 +127,7 @@ struct RangedInfo
 			default:
 			{
 				attackRate		=	MINIGUN_AR;
+				slowDown		=	MINIGUN_SLOWDOWN;
 				damage			=	MINIGUN_DAMAGE;
 				range			=	MINIGUN_RANGE;
 				spread			=	MINIGUN_SPREAD;
@@ -139,13 +146,8 @@ struct RangedInfo
 		{
 			case MINIGUN:
 			{
-				/*attackRate		=	MINIGUN_AR;
-				damage			=	MINIGUN_DAMAGE;
-				range			=	MINIGUN_RANGE;
-				spread			=	MINIGUN_SPREAD;
-				areaOfEffect	=	MINIGUN_AOE;
-				projectileSpeed	=	MINIGUN_SPEED;*/
 				attackRate		=	MINIGUN_AR;
+				slowDown		=	MINIGUN_SLOWDOWN;
 				damage			=	MINIGUN_DAMAGE;
 				range			=	MINIGUN_RANGE;
 				spread			=	MINIGUN_SPREAD;
@@ -158,6 +160,7 @@ struct RangedInfo
 			case SHOTGUN:
 			{
 				attackRate		=	SHOTGUN_AR;
+				slowDown		=	SHOTGUN_SLOWDOWN;
 				damage			=	SHOTGUN_DAMAGE;
 				range			=	SHOTGUN_RANGE;
 				spread			=	SHOTGUN_SPREAD;
@@ -170,6 +173,7 @@ struct RangedInfo
 			case GRENADELAUNCHER:
 			{
 				attackRate		=	GL_AR;
+				slowDown		=	GL_SLOWDOWN;
 				damage			=	GL_DAMAGE;
 				range			=	GL_RANGE;
 				spread			=	GL_SPREAD;
@@ -182,6 +186,7 @@ struct RangedInfo
 			case SNIPER:
 			{
 				attackRate		=	SNIPER_AR;
+				slowDown		=	SNIPER_SLOWDOWN;
 				damage			=	SNIPER_DAMAGE;
 				range			=	SNIPER_RANGE;
 				spread			=	SNIPER_SPREAD;
@@ -194,6 +199,7 @@ struct RangedInfo
 			default:
 			{
 				attackRate		=	MINIGUN_AR;
+				slowDown		=	MINIGUN_SLOWDOWN;
 				damage			=	MINIGUN_DAMAGE;
 				range			=	MINIGUN_RANGE;
 				spread			=	MINIGUN_SPREAD;
@@ -215,56 +221,49 @@ struct RangedInfo
 				{
 					case 2:
 					{
-						attackRate		= 0.04f;
-						damage			= 1.5f;
+						attackRate		= 0.11f;
+						damage			= 6.3f;
 						range			= 1.0f;
-						spread			= 0.15f;
+						spread			= 4.7f;
 						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
-						overheat		= 0.0f;
+						overheat		= 0.8f;
 					}
 						break;
 
 					case 3:
 					{
-						attackRate		= 0.03f;
-						damage			= 2.0f;
+						attackRate		= 0.09f;
+						damage			= 8.4f;
 						range			= 1.5f;
-						spread			= 0.15f;
+						spread			= 4.3f;
 						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
-						overheat		= 0.0f;
+						overheat		= 0.6f;
 					}
 						break;
 
 					case 4:
 					{
-						attackRate		= 0.02f;
-						damage			= 2.8f;
+						attackRate		= 0.07f;
+						damage			= 10.5f;
 						range			= 2.0f;
-						spread			= 0.15f;
+						spread			= 4.0f;
 						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
-						overheat		= 0.0f;
+						overheat		= 0.3f;
 					}
 						break;
 
 					case 5:
 					{
-						//attackRate		= 0.01f;
-						//damage			= 3.0f;
-						//range			= 0.5f;
-						//spread			= 0.2f;
-						//areaOfEffect	= 0.0f;
-						//projectileSpeed	= 60.0f;
-
-						attackRate		= 0.02f;
-						damage			= 4.0f;
+						attackRate		= 0.05f;
+						damage			= 14.0f;
 						range			= 2.0f;
-						spread			= 0.15f;
+						spread			= 3.6f;
 						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
-						overheat		= 0.0f;
+						overheat		= 0.1f;
 					}
 						break;
 
@@ -278,21 +277,37 @@ struct RangedInfo
 				{
 					case 2:
 					{
+						attackRate		= 1.8f;
+						damage			= 15.4f;
+						spread			= 6.3f;
+						projectileSpeed	= 35.0f;
 					}
 						break;
 
 					case 3:
 					{
+						attackRate		= 1.6f;
+						damage			= 17.5f;
+						spread			= 5.6f;
+						projectileSpeed	= 40.0f;
 					}
 						break;
 
 					case 4:
 					{
+						attackRate		= 1.4f;
+						damage			= 18.9f;
+						spread			= 5.0f;
+						projectileSpeed	= 45.0f;
 					}
 						break;
 
 					case 5:
 					{
+						attackRate		= 1.1f;
+						damage			= 21.0f;
+						spread			= 4.5f;
+						projectileSpeed	= 50.0f;
 					}
 						break;
 
@@ -306,21 +321,37 @@ struct RangedInfo
 				{
 					case 2:
 					{
+						attackRate		= 2.8f;
+						damage			= 22.4f;
+						areaOfEffect	= 2.5f;
+						projectileSpeed	= 30.0f;
 					}
 						break;
 
 					case 3:
 					{
+						attackRate		= 2.5f;
+						damage			= 25.9f;
+						areaOfEffect	= 3.0f;
+						projectileSpeed	= 30.0f;
 					}
 						break;
 
 					case 4:
 					{
+						attackRate		= 2.2f;
+						damage			= 27.0f;
+						areaOfEffect	= 3.5f;
+						projectileSpeed	= 30.0f;
 					}
 						break;
 
 					case 5:
 					{
+						attackRate		= 2.0f;
+						damage			= 31.5f;
+						areaOfEffect	= 3.7f;
+						projectileSpeed	= 30.0f;
 					}
 						break;
 
@@ -334,21 +365,29 @@ struct RangedInfo
 				{
 					case 2:
 					{
+						attackRate		= 3.0f;
+						damage			= 35.0f * 7;
 					}
 						break;
 
 					case 3:
 					{
+						attackRate		= 2.7f;
+						damage			= 42.0f;
 					}
 						break;
 
 					case 4:
 					{
+						attackRate		= 2.4f;
+						damage			= 63.0f;
 					}
 						break;
 
 					case 5:
 					{
+						attackRate		= 2.0f;
+						damage			= 84.0f;
 					}
 						break;
 
@@ -373,6 +412,7 @@ struct MeleeInfo
 	WeaponType		weaponType;
 	unsigned int	level;
 	float			attackRate;			// Cooldown from prev attack
+	float			slowDown;
 	float			damage;
 	float			radius;
 	float			spread;
@@ -388,6 +428,7 @@ struct MeleeInfo
 		weaponType		= CLAYMORE;
 		level			= 1;
 		attackRate		= 0.0f;
+		slowDown		= 0.0f;
 		damage			= 0.0f;
 		radius			= 0.0f;
 		reach			= 0.0f;
@@ -407,6 +448,7 @@ struct MeleeInfo
 			case CLAYMORE:
 			{
 				attackRate		= CLAYMORE_AR;
+				slowDown		= CLAYMORE_SLOWDOWN;
 				damage			= CLAYMORE_DAMAGE;
 				radius			= CLAYMORE_RADIUS;
 				reach			= CLAYMORE_REACH;
@@ -422,6 +464,7 @@ struct MeleeInfo
 			case HAMMER:
 			{
 				attackRate		= HAMMER_AR;
+				slowDown		= HAMMER_SLOWDOWN;
 				damage			= HAMMER_DAMAGE;
 				radius			= HAMMER_RADIUS;
 				spread			= HAMMER_SPREAD;
@@ -437,6 +480,7 @@ struct MeleeInfo
 			case BLOWTORCH:
 			{
 				attackRate		= BLOWTORCH_AR;
+				slowDown		= BLOWTORCH_SLOWDOWN;
 				damage			= BLOWTORCH_DAMAGE;
 				radius			= BLOWTORCH_RADIUS;
 				reach			= BLOWTORCH_REACH;
@@ -452,6 +496,7 @@ struct MeleeInfo
 			case SAW:
 			{
 				attackRate		= SAW_AR;
+				slowDown		= SAW_SLOWDOWN;
 				damage			= SAW_DAMAGE;
 				radius			= SAW_RADIUS;
 				reach			= SAW_REACH;
@@ -466,6 +511,7 @@ struct MeleeInfo
 			default:
 			{
 				attackRate		= HAMMER_AR;
+				slowDown		= HAMMER_SLOWDOWN;
 				damage			= HAMMER_DAMAGE;
 				radius			= HAMMER_RADIUS;
 				reach			= HAMMER_REACH;
@@ -489,6 +535,7 @@ struct MeleeInfo
 			case CLAYMORE:
 			{
 				attackRate		= CLAYMORE_AR;
+				slowDown		= CLAYMORE_SLOWDOWN;
 				damage			= CLAYMORE_DAMAGE;
 				radius			= CLAYMORE_RADIUS;
 				reach			= CLAYMORE_REACH;
@@ -504,6 +551,7 @@ struct MeleeInfo
 			case HAMMER:
 			{
 				attackRate		= HAMMER_AR;
+				slowDown		= HAMMER_SLOWDOWN;
 				damage			= HAMMER_DAMAGE;
 				radius			= HAMMER_RADIUS;
 				spread			= HAMMER_SPREAD;
@@ -519,6 +567,7 @@ struct MeleeInfo
 			case BLOWTORCH:
 			{
 				attackRate		= BLOWTORCH_AR;
+				slowDown		= BLOWTORCH_SLOWDOWN;
 				damage			= BLOWTORCH_DAMAGE;
 				radius			= BLOWTORCH_RADIUS;
 				reach			= BLOWTORCH_REACH;
@@ -534,6 +583,7 @@ struct MeleeInfo
 			case SAW:
 			{
 				attackRate		= SAW_AR;
+				slowDown		= SAW_SLOWDOWN;
 				damage			= SAW_DAMAGE;
 				radius			= SAW_RADIUS;
 				reach			= SAW_REACH;
@@ -548,6 +598,7 @@ struct MeleeInfo
 			default:
 			{
 				attackRate		= HAMMER_AR;
+				slowDown		= HAMMER_SLOWDOWN;
 				damage			= HAMMER_DAMAGE;
 				radius			= HAMMER_RADIUS;
 				reach			= HAMMER_REACH;
@@ -600,8 +651,9 @@ struct MeleeInfo
 				{
 					case 2:
 					{
-						damage					= 15.0f;
-						radius					= 5.0f;
+						attackRate				= 3.8f;
+						damage					= 20.0f;
+						radius					= 3.0f;
 						spread					= 7;
 						knockBack				= 3.2f;
 						boundingCircle->radius	= radius;
@@ -611,8 +663,9 @@ struct MeleeInfo
 
 					case 3:
 					{
-						damage					= 18.0f;
-						radius					= 5.0f;
+						attackRate				= 3.7f;
+						damage					= 30.0f;
+						radius					= 3.5f;
 						spread					= 7;
 						knockBack				= 3.5f;
 						boundingCircle->radius	= radius;
@@ -622,8 +675,9 @@ struct MeleeInfo
 
 					case 4:
 					{
-						damage					= 24.0f;
-						radius					= 5.0f;
+						attackRate				= 3.6f;
+						damage					= 40.0;
+						radius					= 4.0;
 						spread					= 7;
 						knockBack				= 3.8f;
 						boundingCircle->radius	= radius;
@@ -633,8 +687,9 @@ struct MeleeInfo
 
 					case 5:
 					{
-						damage					= 40.0f;
-						radius					= 5.0f;
+						attackRate				= 3.5f;
+						damage					= 50.0f;
+						radius					= 4.5f;
 						spread					= 7;
 						knockBack				= 4.0f;
 						boundingCircle->radius	= radius;
@@ -652,21 +707,25 @@ struct MeleeInfo
 				{
 					case 2:
 					{
+						damage					= 10.0f;
 					}
 						break;
 
 					case 3:
 					{
+						damage					= 15.0f;
 					}
 						break;
 
 					case 4:
 					{
+						damage					= 20.0f;
 					}
 						break;
 
 					case 5:
 					{
+						damage					= 25.0f;
 					}
 						break;
 

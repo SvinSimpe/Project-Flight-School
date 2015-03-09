@@ -67,8 +67,6 @@ void EnergyCell::Reset()
 	mOwnerID		= (UINT)-1;
 	mPickedUp		= false;
 	mSecured		= false;
-	SAFE_DELETE( mPickUpRadius );
-	mPickUpRadius	= nullptr;
 }
 
 HRESULT EnergyCell::Initialize( DirectX::XMFLOAT3 position )

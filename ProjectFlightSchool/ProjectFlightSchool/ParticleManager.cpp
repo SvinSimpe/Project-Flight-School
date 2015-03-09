@@ -23,7 +23,7 @@ void ParticleManager::Render()
 	RenderManager::GetInstance()->AddParticleSystemToList( mParticleSystems, mNrOfActiveParticleSystemsPerType );
 }
 
-bool ParticleManager::RequestParticleSystem( size_t entityID, ParticleType particleType, XMFLOAT3 position, XMFLOAT3 direction )
+bool ParticleManager::RequestParticleSystem( size_t entityID, ParticleType particleType, XMFLOAT3 position, XMFLOAT3 direction, XMFLOAT3 initialVelocity )
 {
 	// Check if there is any available Particle System
 	if( mNrOfActiveParticleSystems == mNrOfParticleSystems )
@@ -41,7 +41,7 @@ bool ParticleManager::RequestParticleSystem( size_t entityID, ParticleType parti
 	{
 		if( mParticleSystems[particleType][i]->entityParentID == entityID )
 		{
-			mParticleSystems[particleType][i]->Emitter( particleType, position, direction );
+			mParticleSystems[particleType][i]->Emitter( particleType, position, direction, initialVelocity );
 			return true;
 		}
 	}
@@ -52,7 +52,7 @@ bool ParticleManager::RequestParticleSystem( size_t entityID, ParticleType parti
 	// Activate requested Particle System type and connect entityID to it
 	mParticleSystems[particleType][mNrOfActiveParticleSystemsPerType[particleType]++]->Activate( entityID, position, direction );
 	mNrOfActiveParticleSystems++;
-	mParticleSystems[particleType][mNrOfActiveParticleSystemsPerType[particleType] - 1 ]->Emitter( particleType, position, direction );
+	mParticleSystems[particleType][mNrOfActiveParticleSystemsPerType[particleType] - 1 ]->Emitter( particleType, position, direction, initialVelocity );
 
 	return true;
 }
@@ -73,18 +73,15 @@ bool ParticleManager::DeactivateParticleSystem( size_t entityID, ParticleType pa
 
 void ParticleManager::Initialize()
 {
-	// Function need to have nrOfPlayers to allocate Particle Systems for
-	// each muzzle flash and melee attack swing
-
 	mNrOfParticleSystemsPerType			= new int[NR_OF_PARTICLE_TYPES];
 	mMaxNrOfParticleSystemsPerType		= new int[NR_OF_PARTICLE_TYPES];
 	mNrOfActiveParticleSystemsPerType	= new int[NR_OF_PARTICLE_TYPES];
 	
 	// For every new ParticleType initiate values below
 
+	mNrOfParticleSystemsPerType[SniperTrail]	= 0;
 	mNrOfParticleSystemsPerType[Shell]			= 0;
 	mNrOfParticleSystemsPerType[Debris]			= 0;
-	mNrOfParticleSystemsPerType[Smoke]			= 0;
 	mNrOfParticleSystemsPerType[FIRE]			= 0;
 	mNrOfParticleSystemsPerType[Spark]			= 0;
 	mNrOfParticleSystemsPerType[Spark_Robot]	= 0;
@@ -104,9 +101,9 @@ void ParticleManager::Initialize()
 	mNrOfParticleSystemsPerType[NormalSmoke]	= 0;// Below this
 	mNrOfParticleSystemsPerType[Hammer_Effect]	= 0;
 
+	mMaxNrOfParticleSystemsPerType[SniperTrail]		= 15;
 	mMaxNrOfParticleSystemsPerType[Shell]			= 6;
 	mMaxNrOfParticleSystemsPerType[Debris]			= 10;
-	mMaxNrOfParticleSystemsPerType[Smoke]			= 1;
 	mMaxNrOfParticleSystemsPerType[FIRE]			= 10;
 	mMaxNrOfParticleSystemsPerType[Spark]			= 10;
 	mMaxNrOfParticleSystemsPerType[Spark_Robot]		= 10;
@@ -126,9 +123,9 @@ void ParticleManager::Initialize()
 	mMaxNrOfParticleSystemsPerType[NormalSmoke]		= 8;
 	mMaxNrOfParticleSystemsPerType[Hammer_Effect]	= 8; // Aswell as this
 
+	mNrOfActiveParticleSystemsPerType[SniperTrail]		= 0;
 	mNrOfActiveParticleSystemsPerType[Shell]			= 0;
 	mNrOfActiveParticleSystemsPerType[Debris]			= 0;
-	mNrOfActiveParticleSystemsPerType[Smoke]			= 0;
 	mNrOfActiveParticleSystemsPerType[FIRE]				= 0;
 	mNrOfActiveParticleSystemsPerType[Spark]			= 0;
 	mNrOfActiveParticleSystemsPerType[Spark_Robot]		= 0;
@@ -156,7 +153,6 @@ void ParticleManager::Initialize()
 		for ( int j = 0; j < mMaxNrOfParticleSystemsPerType[i]; j++ )
 			mParticleSystems[i][j] = new ParticleSystem();
 	}
-
 	//========== Initialize Particle Systems ==========
 	//					-EXAMPLE-
 	//
@@ -169,28 +165,24 @@ void ParticleManager::Initialize()
 	//		mNrOfParticleSystems++;
 	//	}
 
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[SniperTrail]; i++ )
+	{
+		mParticleSystems[SniperTrail][i]->Initialize( SniperTrail, 100.0f, 200 );
+		mNrOfParticleSystemsPerType[SniperTrail]++;
+		mNrOfParticleSystems++;
+	}
+
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Shell]; i++ )
 	{
 		mParticleSystems[Shell][i]->Initialize( Shell, 8.0f, 200 );
 		mNrOfParticleSystemsPerType[Shell]++;
 		mNrOfParticleSystems++;
 	}
+
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Debris]; i++ )
 	{
 		mParticleSystems[Debris][i]->Initialize( Debris, 8.0f, 200 );
 		mNrOfParticleSystemsPerType[Debris]++;
-		mNrOfParticleSystems++;
-	}
-	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Hammer_Effect]; i++ )
-	{
-		mParticleSystems[Hammer_Effect][i]->Initialize( Hammer_Effect, 64.0f, 256 );
-		mNrOfParticleSystemsPerType[Hammer_Effect]++;
-		mNrOfParticleSystems++;
-	}
-	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[NormalSmoke]; i++ )
-	{
-		mParticleSystems[NormalSmoke][i]->Initialize( NormalSmoke, 4.0f, 48 );
-		mNrOfParticleSystemsPerType[NormalSmoke]++;
 		mNrOfParticleSystems++;
 	}
 
@@ -198,34 +190,6 @@ void ParticleManager::Initialize()
 	{
 		mParticleSystems[FIRE][i]->Initialize( FIRE, 8.0f, 256 );
 		mNrOfParticleSystemsPerType[FIRE]++;
-		mNrOfParticleSystems++;
-	}
-
-	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[ExplosionSmoke]; i++ )
-	{
-		mParticleSystems[ExplosionSmoke][i]->Initialize( ExplosionSmoke, 50.0f, 1000 );
-		mNrOfParticleSystemsPerType[ExplosionSmoke]++;
-		mNrOfParticleSystems++;
-	}
-
-	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Explosion]; i++ )
-	{
-		mParticleSystems[Explosion][i]->Initialize( Explosion, 20.0f, 1000 );
-		mNrOfParticleSystemsPerType[Explosion]++;
-		mNrOfParticleSystems++;
-	}
-
-	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Level_Inner]; i++ )
-	{
-		mParticleSystems[Level_Inner][i]->Initialize( Level_Inner, 32.0f, 256 );
-		mNrOfParticleSystemsPerType[Level_Inner]++;
-		mNrOfParticleSystems++;
-	}
-
-	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Level_Up]; i++ )
-	{
-		mParticleSystems[Level_Up][i]->Initialize( Level_Up, 512.0f, 1024 );
-		mNrOfParticleSystemsPerType[Level_Up]++;
 		mNrOfParticleSystems++;
 	}
 
@@ -242,7 +206,7 @@ void ParticleManager::Initialize()
 		mNrOfParticleSystemsPerType[Spark_Robot]++;
 		mNrOfParticleSystems++;
 	}
-	
+
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Spark_Electric]; i++ )
 	{
 		mParticleSystems[Spark_Electric][i]->Initialize( Spark_Electric, 1.0f, 2 );
@@ -264,6 +228,27 @@ void ParticleManager::Initialize()
 		mNrOfParticleSystems++;
 	}
 
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Smoke_MiniGun]; i++ )
+	{
+		mParticleSystems[Smoke_MiniGun][i]->Initialize( Smoke_MiniGun, 4.0f, 64 );
+		mNrOfParticleSystemsPerType[Smoke_MiniGun]++;
+		mNrOfParticleSystems++;
+	}
+
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Spores]; i++ )
+	{
+		mParticleSystems[Spores][i]->Initialize( Spores, 8.0f, 600 );
+		mNrOfParticleSystemsPerType[Spores]++;
+		mNrOfParticleSystems++;
+	}
+
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[FireSmoke]; i++ )
+	{
+		mParticleSystems[FireSmoke][i]->Initialize( FireSmoke, 15.0f, 512 );
+		mNrOfParticleSystemsPerType[FireSmoke]++;
+		mNrOfParticleSystems++;
+	}
+
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[BlowTorchFire]; i++ )
 	{
 		mParticleSystems[BlowTorchFire][i]->Initialize( BlowTorchFire, 16.0f, 128 );
@@ -278,35 +263,54 @@ void ParticleManager::Initialize()
 		mNrOfParticleSystems++;
 	}
 
-	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Smoke_MiniGun]; i++ )
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Level_Up]; i++ )
 	{
-		mParticleSystems[Smoke_MiniGun][i]->Initialize( Smoke_MiniGun, 4.0f, 64 );
-		mNrOfParticleSystemsPerType[Smoke_MiniGun]++;
+		mParticleSystems[Level_Up][i]->Initialize( Level_Up, 512.0f, 1024 );
+		mNrOfParticleSystemsPerType[Level_Up]++;
 		mNrOfParticleSystems++;
 	}
 
-	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Spores]; i++ )
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Level_Inner]; i++ )
 	{
-		mParticleSystems[Spores][i]->Initialize( Spores, 8.0f, 600 );
-		mNrOfParticleSystemsPerType[Spores]++;
+		mParticleSystems[Level_Inner][i]->Initialize( Level_Inner, 32.0f, 256 );
+		mNrOfParticleSystemsPerType[Level_Inner]++;
 		mNrOfParticleSystems++;
 	}
-	
-	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[FireSmoke]; i++ )
+
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Explosion]; i++ )
 	{
-		mParticleSystems[FireSmoke][i]->Initialize( FireSmoke, 15.0f, 512 );
-		mNrOfParticleSystemsPerType[FireSmoke]++;
+		mParticleSystems[Explosion][i]->Initialize( Explosion, 20.0f, 1000 );
+		mNrOfParticleSystemsPerType[Explosion]++;
+		mNrOfParticleSystems++;
+	}
+
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[ExplosionSmoke]; i++ )
+	{
+		mParticleSystems[ExplosionSmoke][i]->Initialize( ExplosionSmoke, 50.0f, 1000 );
+		mNrOfParticleSystemsPerType[ExplosionSmoke]++;
+		mNrOfParticleSystems++;
+	}
+
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[NormalSmoke]; i++ )
+	{
+		mParticleSystems[NormalSmoke][i]->Initialize( NormalSmoke, 4.0f, 48 );
+		mNrOfParticleSystemsPerType[NormalSmoke]++;
 		mNrOfParticleSystems++;
 	}
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Fire_Flies]; i++ )
 	{
-		mParticleSystems[Fire_Flies][i]->Initialize( Fire_Flies, 8.0f, 10 );	//-------------------------------------------------emitter rate and particle count
+		mParticleSystems[Fire_Flies][i]->Initialize( Fire_Flies, 8.0f, 10 );
 		mNrOfParticleSystemsPerType[Fire_Flies]++;
 		mNrOfParticleSystems++;
 	}
-	// Place initialize here!
-	//-----------------------
+
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Hammer_Effect]; i++ )
+	{
+		mParticleSystems[Hammer_Effect][i]->Initialize( Hammer_Effect, 64.0f, 256 );
+		mNrOfParticleSystemsPerType[Hammer_Effect]++;
+		mNrOfParticleSystems++;
+	}
 }
 
 void ParticleManager::Release()

@@ -1164,7 +1164,24 @@ HRESULT PlayState::Initialize()
 	mWonGame	= false;
 	mActive		= false;
 
-	RenderManager::GetInstance()->RequestParticleSystem( 3333, Fire_Flies, XMFLOAT3( 6.0f, 2.0f, 0.0f ), XMFLOAT3( 0.0f, 0.1f, 0.0f ) );	//---id, effect, position, direction
+	int worldDim = mWorldMap->GetMapWidth() * NODE_DIM;
+
+	int worldOffset = mWorldMap->GetMapHalfWidth() * NODE_DIM;
+
+	RenderManager::GetInstance()->RequestParticleSystem( 3333, Fire_Flies, XMFLOAT3 ( 0.0f, 2.0f, 0.0f ), XMFLOAT3( 0.0f, 0.1f, 0.0f ) );	//---id, effect, position, direction
+
+	for (int i = 0; i < 100; i++)
+	{
+		int randX = rand() % worldDim;
+		int randZ = rand() % worldDim;
+		
+		XMFLOAT3 randPos = XMFLOAT3( (float)( randX - worldOffset ), 2.0f, (float)( randZ - worldOffset ) );
+
+		if( Pathfinder::GetInstance()->IsOnNavMesh( randPos ) )
+		{
+			RenderManager::GetInstance()->RequestParticleSystem( i, Fire_Flies, randPos, XMFLOAT3( 0.0f, 0.1f, 0.0f ) );	//---id, effect, position, direction			
+		}
+	}	
 
 	return S_OK;
 }

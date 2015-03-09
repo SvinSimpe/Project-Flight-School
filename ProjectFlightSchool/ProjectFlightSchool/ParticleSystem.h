@@ -824,7 +824,7 @@ struct ParticleSystem : public ParticleData
 			float distanceFromSpawnPos = XMVectorGetX( XMVector3Length( XMLoadFloat3( &initialSpawnPos ) - XMLoadFloat3( &XMFLOAT3( xPosition[i], yPosition[i], zPosition[i] ) ) ) );
 			if ( distanceFromSpawnPos >= maxDistanceFromSpawnPos[0] )
 			{
-				float interpolation = max( 0.0f, 1.0f - deltaTime );
+				float interpolation = max( 0.0f, 1.0f - deltaTime * 0.5f );
 
 				XMVECTOR toCenter	= XMLoadFloat3( &initialSpawnPos ) - XMLoadFloat3( &XMFLOAT3( xPosition[i], yPosition[i], zPosition[i] ) );
 				XMVECTOR toRight	= XMVector3Cross( toCenter, XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ) );

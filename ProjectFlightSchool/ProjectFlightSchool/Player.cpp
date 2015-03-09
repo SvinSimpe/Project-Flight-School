@@ -291,6 +291,7 @@ void Player::HandleSpawn( float deltaTime )
 		if( mPlayerDownSparksTimer < 0.0f )
 		{
 			RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
+			SoundBufferHandler::GetInstance()->Play3D( mPlayerDeath , newPos );
 			mPlayerDownSparksTimer = (float)( rand() % 6 + 4 ) * 0.1f;
 		}
 	}
@@ -1185,7 +1186,8 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 					XMStoreFloat3( &inverseDir, -XMLoadFloat3( &mUpperBody.direction ) );
 					XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 					
-					RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Robot, newPos, XMFLOAT3( inverseDir.x * randY, inverseDir.y, inverseDir.z * randY ), mVelocity );			
+					RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Robot, newPos, XMFLOAT3( inverseDir.x * randY, inverseDir.y, inverseDir.z * randY ), mVelocity );
+					SoundBufferHandler::GetInstance()->Play3D( mPlayerDeath , newPos );
 				}
 				
 				float intensity = ( mCurrentHp * 0.1f ) * 0.6f;
@@ -1414,6 +1416,7 @@ HRESULT Player::Initialize()
 	mMiniGunOverheat	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/minigun_Overheat.wav", 10 );
 	mHammerSound		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/hammer.wav", 10 );
 	mSword				= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/sword.wav", 10 );
+	mPlayerDeath		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/sparksPlayerDeath.wav", 10, 15 );
 
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Died::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Attempt_Revive::GUID );

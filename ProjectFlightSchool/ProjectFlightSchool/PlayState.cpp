@@ -168,7 +168,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		FireProjectile( data->ID(), data->ProjectileID(), data->TeamID(), data->Position(), data->Direction(), data->Speed(), data->Range(), 1.0f, TURRET ); // Don't know where to get damage from yet
 
 		//TestSound
-		//SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->Position());
+		SoundBufferHandler::GetInstance()->Play3D( mMiniGun , data->Position());
 		
 		// Request Muzzle Flash from Particle Manager
 		
@@ -1192,7 +1192,7 @@ HRESULT PlayState::Initialize()
 	}
 
 	//TestSound
-	mMiniGun			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/minigun.wav", 500 );
+	mMiniGun			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/minigun.wav", 500, 40 );
 	mShotGun			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/shotgun.wav", 500 );
 	mSniper				= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/railgun.wav", 500 );
 	mLevelUp			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/level up.wav", 10 );

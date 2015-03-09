@@ -72,6 +72,11 @@ class PlayState : public BaseState
 		//TestSound
 		int							m3DSoundAsset;
 		int							mSoundAsset;
+		int							mMiniGun;
+		int							mLevelUp;
+		int							mShotGun;
+		int							mSniper;
+		int							mLobbyMusic;
 		int							mStreamSoundAsset;
 	
 	protected:
@@ -98,6 +103,7 @@ class PlayState : public BaseState
 		void			RenderProjectiles();
 		void			SetEnemyState( unsigned int id, EnemyState state );
 		bool			CullEntity( XMFLOAT3 entityPos );
+		void			WriteInteractionText( std::string text );
 
 
 	protected:

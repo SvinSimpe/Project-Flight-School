@@ -30,25 +30,31 @@ bool DSBufferStream::ReFillBuffer1()
 	}
 
 	//////////////////Dags att fylla buffern
-	unsigned char *bufferPtr;
-	unsigned long bufferSize;
 
-	// Lock the secondary buffer to write wave data into it.
-	HRESULT hr = mBuffer->Lock( 0, mDataSize, (void**)&bufferPtr, (DWORD*)&bufferSize, NULL, 0, 0 );
-	if ( FAILED( hr ) )
+	for( int i = 0; i < mNrOfBuffers; i++ )
 	{
-		return false;
-	}
+		unsigned char *bufferPtr;
+		unsigned long bufferSize;
 
-	// Copy the wave data into the buffer.
-	memcpy( bufferPtr, waveData, mDataSize );
+		// Lock the secondary buffer to write wave data into it.
+		HRESULT hr = mBuffer[i]->Lock( 0, mDataSize, (void**)&bufferPtr, (DWORD*)&bufferSize, NULL, 0, 0 );
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
 
-	// Unlock the secondary buffer after the data has been written to it.
-	hr = mBuffer->Unlock( (void*)bufferPtr, bufferSize, NULL, 0 );
-	if ( FAILED( hr ) )
-	{
-		return false;
+		// Copy the wave data into the buffer.
+		memcpy( bufferPtr, waveData, mDataSize );
+
+		// Unlock the secondary buffer after the data has been written to it.
+		hr = mBuffer[i]->Unlock( (void*)bufferPtr, bufferSize, NULL, 0 );
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
 	}
+	delete[] waveData;
+	waveData = 0;
 	
 	return true;
 }
@@ -71,25 +77,31 @@ bool DSBufferStream::ReFillBuffer2()
 	}
 
 	//////////////////Dags att fylla buffern
-	unsigned char *bufferPtr;
-	unsigned long bufferSize;
 
-	// Lock the secondary buffer to write wave data into it.
-	HRESULT hr = mBuffer->Lock( mDataSize, mDataSize, (void**)&bufferPtr, (DWORD*)&bufferSize, NULL, 0, 0 );
-	if ( FAILED( hr ) )
+	for( int i = 0; i < mNrOfBuffers; i++ )
 	{
-		return false;
-	}
+		unsigned char *bufferPtr;
+		unsigned long bufferSize;
 
-	// Copy the wave data into the buffer.
-	memcpy( bufferPtr, waveData, mDataSize );
+		// Lock the secondary buffer to write wave data into it.
+		HRESULT hr = mBuffer[i]->Lock( mDataSize, mDataSize, (void**)&bufferPtr, (DWORD*)&bufferSize, NULL, 0, 0 );
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
 
-	// Unlock the secondary buffer after the data has been written to it.
-	hr = mBuffer->Unlock( (void*)bufferPtr, bufferSize, NULL, 0 );
-	if ( FAILED( hr ) )
-	{
-		return false;
+		// Copy the wave data into the buffer.
+		memcpy( bufferPtr, waveData, mDataSize );
+
+		// Unlock the secondary buffer after the data has been written to it.
+		hr = mBuffer[i]->Unlock( (void*)bufferPtr, bufferSize, NULL, 0 );
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
 	}
+	delete[] waveData;
+	waveData = 0;
 
 	return true;
 }
@@ -119,25 +131,30 @@ bool DSBufferStream::ReFillBuffer1Loop()
 	}
 
 	//////////////////Dags att fylla buffern
-	unsigned char *bufferPtr;
-	unsigned long bufferSize;
 
-	// Lock the secondary buffer to write wave data into it.
-	HRESULT hr = mBuffer->Lock( 0, mDataSize, (void**)&bufferPtr, (DWORD*)&bufferSize, NULL, 0, 0 );
-	if ( FAILED( hr ) )
+	for( int i = 0; i < mNrOfBuffers; i++ )
 	{
-		return false;
-	}
+		unsigned char *bufferPtr;
+		unsigned long bufferSize;
 
-	// Copy the wave data into the buffer.
-	memcpy( bufferPtr, waveData, mDataSize );
-	delete waveData;
+		// Lock the secondary buffer to write wave data into it.
+		HRESULT hr = mBuffer[i]->Lock( 0, mDataSize, (void**)&bufferPtr, (DWORD*)&bufferSize, NULL, 0, 0 );
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
 
-	// Unlock the secondary buffer after the data has been written to it.
-	hr = mBuffer->Unlock( (void*)bufferPtr, bufferSize, NULL, 0 );
-	if ( FAILED( hr ) )
-	{
-		return false;
+
+		// Copy the wave data into the buffer.
+		memcpy( bufferPtr, waveData, mDataSize );
+		delete waveData;
+
+		// Unlock the secondary buffer after the data has been written to it.
+		hr = mBuffer[i]->Unlock( (void*)bufferPtr, bufferSize, NULL, 0 );
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
 	}
 
 	return true;
@@ -168,26 +185,30 @@ bool DSBufferStream::ReFillBuffer2Loop()
 	}
 
 	//////////////////Dags att fylla buffern
-	unsigned char *bufferPtr;
-	unsigned long bufferSize;
-
-	// Lock the secondary buffer to write wave data into it.
-	HRESULT hr = mBuffer->Lock( mDataSize, mDataSize, (void**)&bufferPtr, (DWORD*)&bufferSize, NULL, 0, 0 );
-	if ( FAILED( hr ) )
+	
+	for( int i = 0; i < mNrOfBuffers; i++ )
 	{
-		return false;
-	}
+		unsigned char *bufferPtr;
+		unsigned long bufferSize;
 
-	// Copy the wave data into the buffer.
-	memcpy( bufferPtr, waveData, mDataSize );
+		// Lock the secondary buffer to write wave data into it.
+		HRESULT hr = mBuffer[i]->Lock( mDataSize, mDataSize, (void**)&bufferPtr, (DWORD*)&bufferSize, NULL, 0, 0 );
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
 
-	delete waveData;
+		// Copy the wave data into the buffer.
+		memcpy( bufferPtr, waveData, mDataSize );
+		delete waveData;
 
-	// Unlock the secondary buffer after the data has been written to it.
-	hr = mBuffer->Unlock( (void*)bufferPtr, bufferSize, NULL, 0 );
-	if ( FAILED( hr ) )
-	{
-		return false;
+		// Unlock the secondary buffer after the data has been written to it.
+		hr = mBuffer[i]->Unlock( (void*)bufferPtr, bufferSize, NULL, 0 );
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
+
 	}
 
 	return true;
@@ -289,11 +310,14 @@ bool DSBufferStream::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName, LO
 	}
 	else if ( SUCCEEDED( hr ) )
 	{
-		hr = pDsb->QueryInterface( IID_IDirectSoundBuffer8, (LPVOID*)&mBuffer );
-		if ( FAILED( hr ) )
+		for( int i = 0; i < mNrOfBuffers; i++ )
 		{
-			printf( "QueryInterface has failed\n" );
-			return false;
+			hr = pDsb->QueryInterface( IID_IDirectSoundBuffer8, (LPVOID*)&mBuffer[i] );
+			if ( FAILED( hr ) )
+			{
+				printf( "QueryInterface has failed\n" );
+				return false;
+		}
 		}
 		pDsb->Release();
 	}
@@ -350,10 +374,14 @@ bool DSBufferStream::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName, LO
 	//waveData = 0;
 
 	// Set volume of the buffer to 100%.
-	hr = mBuffer->SetVolume( -volume );
-	if ( FAILED( hr ) )
+	
+	for( int i = 0; i < mNrOfBuffers; i++ )
 	{
-		printf( "SetVolume in main has failed\n" );
+		hr = mBuffer[i]->SetVolume( -volume );
+		if ( FAILED( hr ) )
+		{
+			printf( "SetVolume in main has failed\n" );
+		}
 	}
 
 
@@ -415,11 +443,13 @@ void DSBufferStream::StopBuffer()
 	fseek( mFileptr, sizeof(WaveHeaderType), SEEK_SET );
 }
 
-bool DSBufferStream::Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID, LONG volume )
+bool DSBufferStream::Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID, LONG volume, int nrOfBuffers )
 {
 	mFileptr		= nullptr;
 	mID				= ID;
 	mFileName		= fileName;
+	mNrOfBuffers	= nrOfBuffers;
+	mBuffer			= new LPDIRECTSOUNDBUFFER8[nrOfBuffers];
 	return FillBufferWithWave( lpds, mFileName, volume );
 }
 

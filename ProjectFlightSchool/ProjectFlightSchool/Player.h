@@ -9,6 +9,7 @@
 #include <time.h>
 #include "Pathfinder.h"
 #include "RenderManager.h"
+#include "SoundBufferHandler.h"
 
 #define VELOCITY_FALLOFF 2.0f
 
@@ -44,8 +45,9 @@ class Player: public RemotePlayer
 		bool		mHasMeleeStarted;
 		bool		mLock;
 		bool		mCloseToPlayer;
-		int			mXP;
-		int			mNextLevelXP;
+		float		mXP;
+		float		mNextLevelXP;
+		int			mCurrentLevel;
 		int			mCurrentUpgrades;
 
 		float		mMaxVelocity;
@@ -73,6 +75,11 @@ class Player: public RemotePlayer
 		UINT		mEnergyCellID;
 		float		mPickUpCooldown;
 
+		int			mMiniGunOverheat;
+		int			mHammerSound;
+		int			mSword;
+		int			mPlayerDeath;
+
 	protected:
 	public:
 		std::list<IEventPtr> gEventList;
@@ -89,10 +96,19 @@ class Player: public RemotePlayer
 		void		BroadcastDeath( unsigned int shooter );
 		void		Revive();
 		void		Die();
+
 		void		Fire();
+		void		Melee( float deltaTime );
+
 		void		FireShotgun( XMFLOAT3* spawnPoint );
 		void		FireMinigun( XMFLOAT3* projectileOffset );
 		void		FireGrenadeLauncher( XMFLOAT3* projectileOffset );
+		void		FireSniper( XMFLOAT3* projectileOffset );
+
+		void		HammerMelee( float deltaTime );
+		void		BlowtorchMelee( float deltaTime );
+		void		ClaymoreMelee( float deltaTime );
+
 		float		CalculateLaunchAngle();
 		void		AddImpuls( XMFLOAT3 impuls );
 		void		QueueEvent( IEvent* ptr );
@@ -100,10 +116,11 @@ class Player: public RemotePlayer
 		void		UpgradeLegs();
 		void		UpgradeMelee();
 		void		UpgradeRange();
+		void		WriteInteractionText( std::string text );
 
 	protected:
 	public:
-		void		AddXP( int XP );
+		void		AddXP( float XP );
 		void		PickUpEnergyCell( EnergyCell** energyCell );
 		void		DropEnergyCell( EnergyCell** energyCells );
 		void		GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, DirectX::XMFLOAT3 shipPos );
@@ -133,6 +150,7 @@ class Player: public RemotePlayer
 		void		SetTeam( int team );
 		void		SetPosition( XMVECTOR position );
 		void		SetEnergyCellID( UINT energyCellID );
+		int			GetCurrentLevel() const;
 
 		void		QueueEvent( IEventPtr ptr );
 };

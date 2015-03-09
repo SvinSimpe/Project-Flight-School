@@ -16,9 +16,15 @@ void LobbyOwnerState::ManageStartButton()
 {
 	// check here if all players are ready
 	bool allReady = true;
-	for( size_t i = 0; i < mPlayers.size(); i++ )
+	for( auto& p : mPlayers )
 	{
-		if( !mPlayers[i]->isReady )
+		if( p->thisPlayer && !p->isReady )
+		{
+			p->isReady = true;
+			IEventPtr ready( new Event_Client_Change_Ready_State() );
+			Client::GetInstance()->SendEvent( ready );
+		}
+		else if( !p->isReady )
 		{
 			allReady = false;
 			mWarningTexts[ALL_READY].timer = MAX_TEXT_TIME;
@@ -178,12 +184,12 @@ HRESULT LobbyOwnerState::Render( float deltaTime )
 		float offset = mFont.GetMiddleXPoint( out.str(), 20.0f );
 
 		float textShadowWidth = 1.0f;
-		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 200.0f + textShadowWidth, 20.0f, COLOR_BLACK );
-		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 200.0f + textShadowWidth, 20.0f, COLOR_BLACK );
-		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 200.0f - textShadowWidth, 20.0f, COLOR_BLACK );
-		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 200.0f - textShadowWidth, 20.0f, COLOR_BLACK );
+		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 350.0f + textShadowWidth, 20.0f, COLOR_BLACK );
+		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 350.0f + textShadowWidth, 20.0f, COLOR_BLACK );
+		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 350.0f - textShadowWidth, 20.0f, COLOR_BLACK );
+		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 350.0f - textShadowWidth, 20.0f, COLOR_BLACK );
 
-		mFont.WriteText( out.str(), (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 20.0f, COLOR_ORANGE );
+		mFont.WriteText( out.str(), (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 350.0f, 20.0f, COLOR_ORANGE );
 	}
 
 	for( int i = 0; i < WARNING_AMOUNT; i++ )

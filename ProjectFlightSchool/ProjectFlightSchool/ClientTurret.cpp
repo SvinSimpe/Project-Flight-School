@@ -40,8 +40,7 @@ void ClientTurret::Reset( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 
 void ClientTurret::Initialize( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID )
 {
-	XMFLOAT3 initPos = XMFLOAT3( pos.x, pos.y, -pos.z );
-	ServerTurret::Initialize( id, team, initPos, rot, scale, assetID );
+	ServerTurret::Initialize( id, team, pos, rot, scale, assetID );
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Turret/", "turretBase2.pfs", mAssetID );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Turret/", "turret.pfs", mTurretHead->model );

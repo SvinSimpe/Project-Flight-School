@@ -232,6 +232,7 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 	//== Weapon handling ==
 	mWeaponCoolDown -= deltaTime;
 	mMeleeCoolDown -= deltaTime;
+
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_LEFT ) && mWeaponCoolDown <= 0.0f )
 	{
 		mSlowDown -= mLoadOut->rangedWeapon->slowDown;
@@ -239,32 +240,22 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		{
 			mSlowDown = 0.3f;
 		}
+		RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] );
 		mWeaponCoolDown = mLoadOut->rangedWeapon->attackRate;
 		Fire();
-
-		RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] );
-		mRightArmAnimationCompleted	= false;
-		IEventPtr E2( new Event_Client_Attack( mID, RIGHT_ARM_ID, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] ) );
-		QueueEvent( E2 );
-		
-		//mWeaponCoolDown = 2.0f;
 	}
 
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_RIGHT ) && mMeleeCoolDown <= 0.0f && !mHasMeleeStarted )
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_RIGHT ) && mMeleeCoolDown <= 0.0f )
 	{
 		mSlowDown -= mLoadOut->meleeWeapon->slowDown;
 		if( mSlowDown < 0.3f )
 		{
 			mSlowDown = 0.3f;
 		}
-		//RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
-		mLeftArmAnimationCompleted = false;
-		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
-		IEventPtr E1( new Event_Client_Attack( mID, LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] ) );
-		QueueEvent( E1 );
-		mHasMeleeStarted	= true;
-		mMeleeCoolDown		= mLoadOut->meleeWeapon->attackRate;
+		mHasMeleeStarted = true;
 	}
+	if( mHasMeleeStarted )
+		Melee( deltaTime );
 
 	//Minigun behaviour
 	if( mLoadOut->rangedWeapon->weaponType == MINIGUN )
@@ -278,27 +269,6 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 			else if( mLoadOut->rangedWeapon->overheat > 0.0f )
 			{
 				mLoadOut->rangedWeapon->overheat -= MINIGUN_OVERHEAT;
-			}
-		}
-		else
-		{
-			XMFLOAT3 weaponOffsets = MINIGUN_OFFSETS;
-
-			XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
-			XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
-			XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, weaponOffsets.z, mLowerBody.position.z ) );
-	
-			offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * weaponOffsets.y;
-			offset += direction * weaponOffsets.x;
-
-			XMFLOAT3 loadDir;
-			XMStoreFloat3( &loadDir, offset );
-
-			RenderManager::GetInstance()->mParticleManager->RequestParticleSystem( mID, NormalSmoke, loadDir, DirectX::XMFLOAT3( 0.0f, 1.0f, 0.0f ) ); 
-
-			if( mWeaponCoolDown <= 0.0f )
-			{
-				mWeaponOverheated = false;
 			}
 		}
 	}
@@ -321,6 +291,7 @@ void Player::HandleSpawn( float deltaTime )
 		if( mPlayerDownSparksTimer < 0.0f )
 		{
 			RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
+			SoundBufferHandler::GetInstance()->Play3D( mPlayerDeath , newPos );
 			mPlayerDownSparksTimer = (float)( rand() % 6 + 4 ) * 0.1f;
 		}
 	}
@@ -410,14 +381,21 @@ void Player::Move( float deltaTime )
 	}
 }
 
-void Player::AddXP( int XP )
+void Player::AddXP( float XP )
 {
 	mXP += XP;
 	while( ( mXP / mNextLevelXP ) >= 1 )
 	{
 		mCurrentUpgrades++;
 		mXP -= mNextLevelXP;
+		mNextLevelXP *= 1.1f;
+		mCurrentLevel++;
 	}
+
+	//Check if maxlevel
+	if ( mCurrentLevel == 16 )
+		mXP = mNextLevelXP;
+	
 }
 
 void Player::PickUpEnergyCell( EnergyCell** energyCells )
@@ -450,6 +428,7 @@ void Player::DropEnergyCell( EnergyCell** energyCells )
 		energyCells[mEnergyCellID]->SetPosition( mLowerBody.position );
 		energyCells[mEnergyCellID]->SetOwnerID( (UINT)-1 );
 		energyCells[mEnergyCellID]->SetPickedUp( false );
+		energyCells[mEnergyCellID]->SetSecured( false );
 	
 
 		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, (UINT)-1, mLowerBody.position, false ) );
@@ -470,7 +449,7 @@ void Player::GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, Direct
 		energyCells[mEnergyCellID]->SetPosition( shipPos );
 		energyCells[mEnergyCellID]->SetOwnerID( shipID );
 		energyCells[mEnergyCellID]->SetPickedUp( true );
-	
+		energyCells[mEnergyCellID]->SetSecured( true );
 
 		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, shipID, shipPos, true ) );
 		QueueEvent( E1 );
@@ -506,16 +485,9 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	
 	XMFLOAT3 testPosition	= mLowerBody.position;
 	XMFLOAT3 normal			= XMFLOAT3( 0.0f, 1.0f, 0.0f );
-	if( mMeleeCoolDown > 0.0f || mWeaponCoolDown > 0.0f)
-	{
-		testPosition.x += mVelocity.x * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f ) * mSlowDown;
-		testPosition.z += mVelocity.z * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f ) * mSlowDown;
-	}
-	else
-	{
-		testPosition.x += mVelocity.x * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f );
-		testPosition.z += mVelocity.z * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f );
-	}
+
+	testPosition.x += mVelocity.x * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f ) * mSlowDown;
+	testPosition.z += mVelocity.z * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f ) * mSlowDown;
 	testPosition.y = worldMap->GetHeight( testPosition );
 
 	bool collisionTest = worldMap->PlayerVsMap( testPosition, normal );
@@ -536,19 +508,19 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 			}
 		}
 	}
-	//else
-	//{
-	//	mFollowPath = false;
-	//	Pathfinder::GetInstance()->RequestPath( currentPath1, mLowerBody.position, mPick  );
-	//	Pathfinder::GetInstance()->CalculateSubPath( currentPath1 );
-	//	currentPath = currentPath1->TotalPath();
-	//	currStep = currentPath.begin();
+	else
+	{
+		//mFollowPath = false;
+		//Pathfinder::GetInstance()->RequestPath( currentPath1, mLowerBody.position, mPick  );
+		//Pathfinder::GetInstance()->CalculateSubPath( currentPath1 );
+		//currentPath = currentPath1->TotalPath();
+		//currStep = currentPath.begin();
 
-	//	XMVECTOR loadVel		= XMLoadFloat3( &mVelocity );
-	//	XMVECTOR loadNorm		= XMLoadFloat3( &XMFLOAT3( normal.x, normal.y, normal.z ) );
-	//	XMVECTOR loadNormNorm	= XMLoadFloat3( &XMFLOAT3( -normal.z, -normal.y, normal.x ) );
-	//	XMStoreFloat3( &mVelocity, loadNormNorm * XMVectorGetX( XMVector3Dot( loadVel, loadNormNorm ) ) + loadNorm * deltaTime * 20.0f );
-	//}
+		XMVECTOR loadVel		= XMLoadFloat3( &mVelocity );
+		XMVECTOR loadNorm		= XMLoadFloat3( &XMFLOAT3( normal.x, normal.y, normal.z ) );
+		XMVECTOR loadNormNorm	= XMLoadFloat3( &XMFLOAT3( -normal.z, -normal.y, normal.x ) );
+		XMStoreFloat3( &mVelocity, loadNormNorm * XMVectorGetX( XMVector3Dot( loadVel, loadNormNorm ) ) + loadNorm * deltaTime * 20.0f );
+	}
 
 	Update( deltaTime, remotePlayers, energyCells );
 	return S_OK;
@@ -628,6 +600,10 @@ void Player::Fire()
 	{
 		FireGrenadeLauncher( &loadDir );
 	}
+	else if( mLoadOut->rangedWeapon->weaponType == SNIPER )
+	{
+		FireSniper( &loadDir );
+	}
 	else
 	{
 		// Set random spread
@@ -646,55 +622,97 @@ void Player::Fire()
 	}
 }
 
+void Player::Melee( float deltaTime )
+{
+	MeleeInfo* currWeapon = mLoadOut->meleeWeapon;
+	if( currWeapon->weaponType == HAMMER )
+	{
+		HammerMelee( deltaTime );
+	}
+	else if( currWeapon->weaponType == BLOWTORCH )
+	{
+		BlowtorchMelee( deltaTime );
+	}
+	else if ( currWeapon->weaponType == CLAYMORE )
+	{
+		ClaymoreMelee( deltaTime );
+	}
+}
+
 void Player::FireShotgun( XMFLOAT3* spawnPoint )
 {
 	// Fire shotgun
-	XMFLOAT3 shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	//XMFLOAT3 shotDir = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	float directionOffsetX;
+	float directionOffsetZ;
 	switch( mLoadOut->rangedWeapon->level )
 	{
 		case 5:
 		{
 				//// projectile 6
-				XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 15.0f ) ) ) );
-				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
+				directionOffsetX	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
+				directionOffsetZ	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
+				mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffsetX, mUpperBody.direction.y, mUpperBody.direction.z + directionOffsetZ );// + sin(directionOffset) );
+				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 
 				// projectile 7
-				XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -15.0f ) ) ) );
-				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
+				directionOffsetX	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
+				directionOffsetZ	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
+				mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffsetX, mUpperBody.direction.y, mUpperBody.direction.z + directionOffsetZ );// + sin(directionOffset) );
+				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 		}
 
 
 		case 4:
 		{
+				directionOffsetX	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
+				directionOffsetZ	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
+				mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffsetX, mUpperBody.direction.y, mUpperBody.direction.z + directionOffsetZ );// + sin(directionOffset) );
+				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 		}
 
 		case 3:
 		{
 				//// projectile 4
-				XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 10.0f ) ) ) );
-				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
+				directionOffsetX	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
+				directionOffsetZ	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
+				mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffsetX, mUpperBody.direction.y, mUpperBody.direction.z + directionOffsetZ );// + sin(directionOffset) );
+				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 
 				// projectile 5
-				XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -10.0f ) ) ) );
-				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
+				directionOffsetX	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
+				directionOffsetZ	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
+				mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffsetX, mUpperBody.direction.y, mUpperBody.direction.z + directionOffsetZ );// + sin(directionOffset) );
+				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 		}
 
 		case 2:
 		{
+				directionOffsetX	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
+				directionOffsetZ	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
+				mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffsetX, mUpperBody.direction.y, mUpperBody.direction.z + directionOffsetZ );// + sin(directionOffset) );
+				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 		}
 
 		case 1:
 		{
 				// middle projectile
-				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, mUpperBody.direction, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
+				directionOffsetX	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
+				directionOffsetZ	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
+				mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffsetX, mUpperBody.direction.y, mUpperBody.direction.z + directionOffsetZ );// + sin(directionOffset) );
+				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 
 				//// projectile 2
-				XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( 5.0f ) ) ) );
-				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
+				directionOffsetX	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
+				directionOffsetZ	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
+				mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffsetX, mUpperBody.direction.y, mUpperBody.direction.z + directionOffsetZ );// + sin(directionOffset) );
+				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 
 				// projectile 3
-				XMStoreFloat3( &shotDir, XMVector3TransformNormal( XMLoadFloat3( &mUpperBody.direction ), XMMatrixRotationY( XMConvertToRadians( -5.0f ) ) ) );
-				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, shotDir, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
+				directionOffsetX	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
+				directionOffsetZ	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
+				mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffsetX, mUpperBody.direction.y, mUpperBody.direction.z + directionOffsetZ );// + sin(directionOffset) );
+				EventManager::GetInstance()->QueueEvent( (IEventPtr)new Event_Trigger_Client_Fired_Projectile( mID, *spawnPoint, mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 		}
 	}
 }
@@ -703,8 +721,11 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 {
 	if( mLoadOut->rangedWeapon->overheat <= 100 )
 	{
-		float directionOffset	=  (float)( rand() % 100 ) * 0.001f - mLoadOut->rangedWeapon->spread;
-		mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffset, mUpperBody.direction.y, mUpperBody.direction.z + directionOffset );
+		IEventPtr E2( new Event_Client_Attack( mID, RIGHT_ARM_ID, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] ) );
+		QueueEvent( E2 );
+		float directionOffsetX	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
+		float directionOffsetZ	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
+		mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffsetX, mUpperBody.direction.y, mUpperBody.direction.z + directionOffsetZ );// + sin(directionOffset) );
 		IEventPtr E1( new Event_Trigger_Client_Fired_Projectile( mID, *projectileOffset, mFireDirection, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
@@ -715,6 +736,16 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		{
 			mWeaponOverheated = false;
 		}
+
+		//Blowtorch particle system
+		RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchIdle, *projectileOffset, mUpperBody.direction, mVelocity );
+		RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, *projectileOffset, mUpperBody.direction, mVelocity );
+		
+		
+
+		// Request Muzzle Flash from Particle Manager
+		//RenderManager::GetInstance()->RequestParticleSystem( mID, MuzzleFlash, *projectileOffset, mFireDirection );
+		//RenderManager::GetInstance()->RequestParticleSystem( mID, MuzzleFlash, *projectileOffset, mFireDirection );
 	}
 	else
 	{
@@ -722,18 +753,125 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		mLoadOut->rangedWeapon->overheat	= 0.0f;
 		mTimeSinceLastShot					= 0.0f;
 		mWeaponOverheated					= true;
+		SoundBufferHandler::GetInstance()->Play3D( mMiniGunOverheat , GetPosition() );
+
+		XMFLOAT3 weaponOffsets = MINIGUN_OFFSETS;
+
+		XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
+		XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
+		XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, weaponOffsets.z, mLowerBody.position.z ) );
+	
+		offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * weaponOffsets.y;
+		offset += direction * weaponOffsets.x;
+
+		XMFLOAT3 loadDir;
+		XMStoreFloat3( &loadDir, offset );
+
+		RenderManager::GetInstance()->mParticleManager->RequestParticleSystem( mID, NormalSmoke, loadDir, DirectX::XMFLOAT3( 0.0f, 1.0f, 0.0f ) ); 
+
+		if( mWeaponCoolDown <= 0.0f )
+		{
+			mWeaponOverheated = false;
+		}
 	}
 }
 
 void Player::FireGrenadeLauncher( XMFLOAT3* projectileOffset )
 {
 	float elevation = CalculateLaunchAngle();
-	//if( elevation <= 0.0f )
-	//	elevation *= -1.0f;
 
 	mFireDirection			= XMFLOAT3( mUpperBody.direction.x, elevation, mUpperBody.direction.z );
 	IEventPtr E1( new Event_Trigger_Client_Fired_Projectile( mID, *projectileOffset, mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
+}
+
+void Player::FireSniper( XMFLOAT3* projectileOffset )
+{
+	RenderManager::GetInstance()->RequestParticleSystem( mID, SniperTrail, *projectileOffset, mUpperBody.direction, mVelocity );
+}
+
+void Player::HammerMelee( float deltaTime )
+{
+	if( mMeleeCoolDown <= 0.0f )
+	{
+		IEventPtr E1( new Event_Client_Attack( mID, LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] ) );
+		QueueEvent( E1 );
+		mLeftArmAnimationCompleted	= false;
+		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
+		mMeleeCoolDown				= mLoadOut->meleeWeapon->attackRate;
+	}
+	else
+	{
+		if( mHasMeleeStarted )
+			mTimeTillattack -= deltaTime;
+
+		if( mTimeTillattack <= 0.0f && mHasMeleeStarted )
+		{
+			mIsMeleeing			= true;
+			SoundBufferHandler::GetInstance()->Play3D( mHammerSound , GetPosition() );
+			RenderManager::GetInstance()->RequestParticleSystem( mID, Hammer_Effect, XMFLOAT3( mLoadOut->meleeWeapon->boundingCircle->center.x, 0.3f, mLoadOut->meleeWeapon->boundingCircle->center.z ) , XMFLOAT3( 1.0f, 0.0f, 1.0f ) );
+			mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
+			mHasMeleeStarted	= false;
+		}
+	}
+}
+
+void Player::BlowtorchMelee( float deltaTime )
+{
+		XMFLOAT3 weaponOffsets = BLOWTORCH_OFFSETS;
+
+		weaponOffsets = XMFLOAT3( weaponOffsets.x + 1.25f, weaponOffsets.y, weaponOffsets.z );
+		XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
+		XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
+		XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + weaponOffsets.z, mLowerBody.position.z ) );
+	
+		offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * weaponOffsets.y;
+		offset += direction * weaponOffsets.x;
+
+		XMFLOAT3 loadDir;
+		XMStoreFloat3( &loadDir, offset );
+		if( mHasMeleeStarted )
+		{
+			mTimeTillattack -= deltaTime;
+			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, loadDir, mUpperBody.direction, mVelocity );
+			if( mTimeTillattack <= 0.0f )
+			{
+				mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
+				mIsMeleeing			= true;
+				mHasMeleeStarted	= false;
+			}
+			else
+			{
+				mIsMeleeing			= false;
+			}
+		}
+		else
+			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchIdle, loadDir, mUpperBody.direction, mVelocity );
+}
+
+void Player::ClaymoreMelee( float deltaTime )
+{
+	if( mMeleeCoolDown <= 0.0f )
+	{
+		IEventPtr E1( new Event_Client_Attack( mID, LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] ) );
+		QueueEvent( E1 );
+		mLeftArmAnimationCompleted	= false;
+		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
+		mMeleeCoolDown				= mLoadOut->meleeWeapon->attackRate;
+	}
+	else
+	{
+		if( mHasMeleeStarted )
+			mTimeTillattack -= deltaTime;
+
+		if( mTimeTillattack <= 0.0f && mHasMeleeStarted )
+		{
+			mIsMeleeing			= true;
+			//RenderManager::GetInstance()->RequestParticleSystem( mID, Hammer_Effect, XMFLOAT3( mLoadOut->meleeWeapon->boundingCircle->center.x, 0.3f, mLoadOut->meleeWeapon->boundingCircle->center.z ) , XMFLOAT3( 1.0f, 0.0f, 1.0f ) );
+			mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
+			mHasMeleeStarted	= false;
+		}
+	}
 }
 
 float Player::CalculateLaunchAngle()
@@ -774,6 +912,11 @@ void Player::AddImpuls( XMFLOAT3 impuls )
 	}
 }
 
+void Player::QueueEvent( IEventPtr ptr )
+{
+	gEventList.push_front( ptr );
+}
+
 void Player::UpgradeBody()
 {
 	mUpgrades.body++;
@@ -796,9 +939,12 @@ void Player::UpgradeRange()
 	mUpgrades.range++;
 }
 
-void Player::QueueEvent( IEventPtr ptr )
+void Player::WriteInteractionText( std::string text )
 {
-	gEventList.push_front( ptr );
+	float offset = mFont.GetMiddleXPoint( text, 3.0 );
+	float textShadowWidth = 1.0f;
+
+	mFont.WriteText( text, (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 250.0f, 3.0, COLOR_CYAN );
 }
 
 /////Public
@@ -943,40 +1089,6 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	// Mele attack
 	//mLoadOut->meleeWeapon->boundingCircle->center = GetPosition() + ( GetDirection() * mLoadOut->meleeWeapon->radius );
 
-	if( mHasMeleeStarted )
-		mTimeTillattack -= deltaTime;
-
-	if( mTimeTillattack <= 0.0f && mHasMeleeStarted )
-	{
-		mIsMeleeing						= true;
-		//mLeftArmAnimationCompleted		= false;
-		if ( mLoadOut->meleeWeapon->weaponType == HAMMER )
-		{
-			RenderManager::GetInstance()->RequestParticleSystem( mID, Hammer_Effect, XMFLOAT3( mLoadOut->meleeWeapon->boundingCircle->center.x, 0.3f, mLoadOut->meleeWeapon->boundingCircle->center.z ) , XMFLOAT3( 1.0f, 0.0f, 1.0f ) );
-		}
-		mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
-		mHasMeleeStarted	= false;
-	}
-
-	if( mLoadOut->meleeWeapon->weaponType == BLOWTORCH )
-	{
-		XMFLOAT3 weaponOffsets = BLOWTORCH_OFFSETS;
-
-		weaponOffsets = XMFLOAT3( weaponOffsets.x + 1.25f, weaponOffsets.y, weaponOffsets.z );
-		XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
-		XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
-		XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + weaponOffsets.z, mLowerBody.position.z ) );
-	
-		offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * weaponOffsets.y;
-		offset += direction * weaponOffsets.x;
-
-		XMFLOAT3 loadDir;
-		XMStoreFloat3( &loadDir, offset );
-		if( mHasMeleeStarted )
-			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, loadDir, mUpperBody.direction );
-		else
-			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchIdle, loadDir, mUpperBody.direction );
-	}
 	// If player is alive, update position. If hp <= 0 kill player
 	if( !mIsDown )
 	{
@@ -1025,7 +1137,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 			if( mEnergyCellID != (UINT)-1 )
 			{
-				mEnergyCellLight->positionAndIntensity = DirectX::XMFLOAT4( mLowerBody.position.x, 4.0f, mLowerBody.position.z, 1.0f );
+				mEnergyCellLight->positionAndIntensity = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 4.0f, mLowerBody.position.z, 1.0f );
 			}
 			//////////////////////////////////////////
 			// IF LEAVING AREA
@@ -1063,7 +1175,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 				XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 
-				RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
+				RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction, mVelocity );
 
 				// Spawn spark on lowerBody
 				if ( mCurrentHp <= 10 )
@@ -1074,7 +1186,8 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 					XMStoreFloat3( &inverseDir, -XMLoadFloat3( &mUpperBody.direction ) );
 					XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 					
-					RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Robot, newPos, XMFLOAT3( inverseDir.x * randY, inverseDir.y, inverseDir.z * randY ) );			
+					RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Robot, newPos, XMFLOAT3( inverseDir.x * randY, inverseDir.y, inverseDir.z * randY ), mVelocity );
+					SoundBufferHandler::GetInstance()->Play3D( mPlayerDeath , newPos );
 				}
 				
 				float intensity = ( mCurrentHp * 0.1f ) * 0.6f;
@@ -1180,9 +1293,14 @@ HRESULT Player::Render( float deltaTime, int position )
 
 	if( mIsOutSideZone )
 	{
-        std::string textToWrite = "Robot losing connection get back!\n" + std::to_string( (int)mLeavingAreaTime );
+        std::string textToWrite = "Robot losing connection get back!\n\t\t\t\t\t   " + std::to_string( (int)mLeavingAreaTime );
 		float offset = mFont.GetMiddleXPoint( "Robot losing connection get back!", 3.8f );
 		mFont.WriteText( textToWrite, (float)Input::GetInstance()->mScreenWidth/2 - offset, (float)Input::GetInstance()->mScreenHeight/4, 3.8f, COLOR_RED );
+	}
+
+	if( mEnergyCellID != (UINT)-1 )
+	{
+		WriteInteractionText( "Go back to your ship to hand in the energy cell!" );
 	}
 
 	RemotePlayer::Render();
@@ -1239,8 +1357,9 @@ HRESULT Player::Initialize()
 	mIsOutSideZone		= false;
 	mIsInWater			= false;
 	mHasMeleeStarted	= false;
-	mXP					= 0;
-	mNextLevelXP		= 0;
+	mXP					= 0.0f;
+	mNextLevelXP		= 0.0f;
+	mCurrentLevel		= 0;
 	
 	mSpawnTime				= 0.0f;
 	mTimeTillSpawn			= 0.0f;
@@ -1288,11 +1407,16 @@ HRESULT Player::Initialize()
 
 	mBuffMod			= 0.5f;
 
-	mNextLevelXP		= 10;
+	mNextLevelXP		= 60.0f;
 	mCurrentUpgrades	= 0;
 
 	mReviveTime			= 2.0f;
 	mTimeTillRevive		= mReviveTime;
+
+	mMiniGunOverheat	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/minigun_Overheat.wav", 10 );
+	mHammerSound		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/hammer.wav", 10 );
+	mSword				= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/sword.wav", 10 );
+	mPlayerDeath		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/sparksPlayerDeath.wav", 10, 15 );
 
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Died::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Attempt_Revive::GUID );
@@ -1352,8 +1476,8 @@ Player::Player()
 	mIsOutSideZone		= false;
 	mIsInWater			= false;
 	mHasMeleeStarted	= false;
-	mXP					= 0;
-	mNextLevelXP		= 0;
+	mXP					= 0.0f;
+	mNextLevelXP		= 0.0f;
 	
 	mSpawnTime				= 0.0f;
 	mTimeTillSpawn			= 0.0f;
@@ -1395,7 +1519,12 @@ UINT Player::GetEnergyCellID() const
 
 float Player::GetXPToNext() const
 {
-	return (float)( (float)mXP / (float)mNextLevelXP );
+	return mXP / mNextLevelXP;
+}
+
+int Player::GetCurrentLevel() const
+{
+	return mCurrentLevel;
 }
 
 int Player::Upgradable() const
@@ -1427,4 +1556,3 @@ void Player::SetEnergyCellID( UINT energyCellID )
 {
 	mEnergyCellID = energyCellID;
 }
-

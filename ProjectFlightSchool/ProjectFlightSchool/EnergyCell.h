@@ -18,8 +18,9 @@ class EnergyCell
 		BoundingCircle*		mPickUpRadius;
 		float				mHooverFactor;
 		bool				mSecured;
-
-
+		PointLight*			mEnergyPointLight;
+		bool				isLightActive;
+		float				mIntensity;
 
 	protected:
 	public:
@@ -27,6 +28,7 @@ class EnergyCell
 	private:
 	protected:
 	public:
+		void				UpdateLight( float deltaTime );
 		void				SetOwnerID( UINT id );
 		void				SetPickedUp( bool pickedUp );
 		void				SetPosition( DirectX::XMFLOAT3 position );

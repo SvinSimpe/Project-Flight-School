@@ -186,6 +186,7 @@ HRESULT LobbyOwnerState::Render( float deltaTime )
 		mGameCountdownBack.Render();
 
 		float textShadowWidth = 1.0f;
+
 		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 420.0f + textShadowWidth, 10.0f, COLOR_BLACK );
 		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 420.0f + textShadowWidth, 10.0f, COLOR_BLACK );
 		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 420.0f - textShadowWidth, 10.0f, COLOR_BLACK );

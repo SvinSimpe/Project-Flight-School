@@ -59,7 +59,7 @@ HRESULT StartMenuState::Render( float deltaTime )
 void StartMenuState::OnEnter()
 {
 	BaseMenuState::OnEnter();
-	//SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
+	SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
 }
 
 void StartMenuState::OnExit()
@@ -89,7 +89,7 @@ HRESULT StartMenuState::Initialize()
 		mButtons.at(i)->Initialize( "../Content/Assets/Textures/Menu/Start_Menu_Text/" + texts[i] + ".dds", x - w * 0.5f , y - h * 0.5f, w, h );
 		x += (float)Input::GetInstance()->mScreenWidth * 0.1f;
 	}
-	mStreamSoundAsset = SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav" );
+	mStreamSoundAsset = SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/ambient_menu.wav" );
 
 	return S_OK;
 }

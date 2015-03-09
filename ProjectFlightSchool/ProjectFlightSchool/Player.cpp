@@ -291,6 +291,7 @@ void Player::HandleSpawn( float deltaTime )
 		if( mPlayerDownSparksTimer < 0.0f )
 		{
 			RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
+			SoundBufferHandler::GetInstance()->Play3D( mPlayerDeath , newPos );
 			mPlayerDownSparksTimer = (float)( rand() % 6 + 4 ) * 0.1f;
 		}
 	}
@@ -380,7 +381,7 @@ void Player::Move( float deltaTime )
 	}
 }
 
-void Player::AddXP( int XP )
+void Player::AddXP( float XP )
 {
 	mXP += XP;
 	while( ( mXP / mNextLevelXP ) >= 1 )
@@ -739,7 +740,7 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		//Blowtorch particle system
 		RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchIdle, *projectileOffset, mUpperBody.direction, mVelocity );
 		RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, *projectileOffset, mUpperBody.direction, mVelocity );
-
+		
 		
 
 		// Request Muzzle Flash from Particle Manager
@@ -752,6 +753,7 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		mLoadOut->rangedWeapon->overheat	= 0.0f;
 		mTimeSinceLastShot					= 0.0f;
 		mWeaponOverheated					= true;
+		SoundBufferHandler::GetInstance()->Play3D( mMiniGunOverheat , GetPosition() );
 
 		XMFLOAT3 weaponOffsets = MINIGUN_OFFSETS;
 
@@ -806,6 +808,7 @@ void Player::HammerMelee( float deltaTime )
 		if( mTimeTillattack <= 0.0f && mHasMeleeStarted )
 		{
 			mIsMeleeing			= true;
+			SoundBufferHandler::GetInstance()->Play3D( mHammerSound , GetPosition() );
 			RenderManager::GetInstance()->RequestParticleSystem( mID, Hammer_Effect, XMFLOAT3( mLoadOut->meleeWeapon->boundingCircle->center.x, 0.3f, mLoadOut->meleeWeapon->boundingCircle->center.z ) , XMFLOAT3( 1.0f, 0.0f, 1.0f ) );
 			mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
 			mHasMeleeStarted	= false;
@@ -1183,7 +1186,8 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 					XMStoreFloat3( &inverseDir, -XMLoadFloat3( &mUpperBody.direction ) );
 					XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 					
-					RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Robot, newPos, XMFLOAT3( inverseDir.x * randY, inverseDir.y, inverseDir.z * randY ), mVelocity );			
+					RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Robot, newPos, XMFLOAT3( inverseDir.x * randY, inverseDir.y, inverseDir.z * randY ), mVelocity );
+					SoundBufferHandler::GetInstance()->Play3D( mPlayerDeath , newPos );
 				}
 				
 				float intensity = ( mCurrentHp * 0.1f ) * 0.6f;
@@ -1353,8 +1357,8 @@ HRESULT Player::Initialize()
 	mIsOutSideZone		= false;
 	mIsInWater			= false;
 	mHasMeleeStarted	= false;
-	mXP					= 0;
-	mNextLevelXP		= 0;
+	mXP					= 0.0f;
+	mNextLevelXP		= 0.0f;
 	mCurrentLevel		= 0;
 	
 	mSpawnTime				= 0.0f;
@@ -1403,11 +1407,16 @@ HRESULT Player::Initialize()
 
 	mBuffMod			= 0.5f;
 
-	mNextLevelXP		= 60;
+	mNextLevelXP		= 60.0f;
 	mCurrentUpgrades	= 0;
 
 	mReviveTime			= 2.0f;
 	mTimeTillRevive		= mReviveTime;
+
+	mMiniGunOverheat	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/minigun_Overheat.wav", 10 );
+	mHammerSound		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/hammer.wav", 10 );
+	mSword				= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/sword.wav", 10 );
+	mPlayerDeath		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/sparksPlayerDeath.wav", 10, 15 );
 
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Died::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Attempt_Revive::GUID );
@@ -1467,8 +1476,8 @@ Player::Player()
 	mIsOutSideZone		= false;
 	mIsInWater			= false;
 	mHasMeleeStarted	= false;
-	mXP					= 0;
-	mNextLevelXP		= 0;
+	mXP					= 0.0f;
+	mNextLevelXP		= 0.0f;
 	
 	mSpawnTime				= 0.0f;
 	mTimeTillSpawn			= 0.0f;
@@ -1510,7 +1519,7 @@ UINT Player::GetEnergyCellID() const
 
 float Player::GetXPToNext() const
 {
-	return (float)( (float)mXP / (float)mNextLevelXP );
+	return mXP / mNextLevelXP;
 }
 
 int Player::GetCurrentLevel() const

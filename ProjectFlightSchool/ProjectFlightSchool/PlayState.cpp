@@ -183,7 +183,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 			if( mPlayer->GetCurrentLevel() <= 16 )
 			{
 				int levelUp = mPlayer->Upgradable();
-				mPlayer->AddXP( data->XP() );
+				mPlayer->AddXP( (float)data->XP() );
 				if( mPlayer->Upgradable() != levelUp )
 				{
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Level_Up, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.0f, 1.0f, 0.0f ) ); //both of these calls are needed for levelup effect.
@@ -1017,7 +1017,7 @@ HRESULT PlayState::Render( float deltaTime )
 	
 	if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 	{
-		WriteInteractionText( "Press E to open or close ship menu" );
+		WriteInteractionText( "Press E to open or close the upgrade menu!" );
 	}
 
 	RenderManager::GetInstance()->Render();

@@ -834,7 +834,6 @@ HRESULT PlayState::Update( float deltaTime )
 		{
 			if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 			{
-				UINT temp = mPlayer->GetEnergyCellID();
 				mPlayer->GiveEnergyCellToShip( mEnergyCells, mShips[FRIEND_SHIP]->GetID(), mShips[FRIEND_SHIP]->GetPos() );
 				mShips[FRIEND_SHIP]->AddEnergyCell( mShips[FRIEND_SHIP]->GetID() );
 			}
@@ -1034,6 +1033,8 @@ void PlayState::OnEnter()
 	EventManager::GetInstance()->QueueEvent( E1 );
 
 	SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
+
+	mGui->SetTeamID( mPlayer->GetTeam() );
 
 	IEventPtr spawnPos( new Event_Request_Player_Spawn_Position( mPlayer->GetID(), mPlayer->GetTeam() ) );
 	EventManager::GetInstance()->QueueEvent( spawnPos );

@@ -24,7 +24,11 @@ void UpgradeShipWindow::EventListener( IEventPtr eventPtr )
 		std::shared_ptr<Event_Client_Died> data = std::static_pointer_cast<Event_Client_Died>( eventPtr );
 		mIsActive = false;
 	}
+}
 
+void UpgradeShipWindow::SetTeamID( UINT teamID )
+{
+	mTeam = teamID;
 }
 
 void UpgradeShipWindow::Activate()
@@ -140,11 +144,11 @@ HRESULT UpgradeShipWindow::Initialize()
 {
 	gEventList	= std::list<IEventPtr>();
 	mIsActive	= false;
-	mTeam		= -1;
+	mTeam		= (UINT)-1;
 
 	HRESULT result;
 
-	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/shipUpgradeMenu.dds", mUpgradeWindow );
+	result = Graphics::GetInstance()->LoadStatic2dAsset( "..Content/Assets/HUD/shipUpgradeMenu.dds", mUpgradeWindow );
 
 	mSize.x = Input::GetInstance()->mScreenWidth * 0.45f;
 	mSize.y = Input::GetInstance()->mScreenHeight * 0.26296296f;

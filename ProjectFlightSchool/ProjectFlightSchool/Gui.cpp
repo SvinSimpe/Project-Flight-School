@@ -1,5 +1,10 @@
 #include "Gui.h"
 
+void Gui::SetTeamID( UINT teamID )
+{
+	mShipWindow.SetTeamID( teamID );
+}
+
 void Gui::ActivateUpgradeShipWindow()
 {
 	mShipWindow.Activate();

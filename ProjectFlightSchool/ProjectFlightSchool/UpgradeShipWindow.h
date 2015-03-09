@@ -54,7 +54,7 @@ struct ButtonStruct
 class UpgradeShipWindow
 {
 private:
-	int						mTeam;
+	UINT					mTeam;
 	bool					mIsActive;
 	AssetID					mUpgradeWindow;
 	XMFLOAT2				mTopLeftCorner;
@@ -74,14 +74,15 @@ private:
 protected:
 public:
 	void	EventListener( IEventPtr eventPtr );
+	void	SetTeamID( UINT teamID );
 	void	Activate();
 	void	DeActivate();
 	void	Update( float deltaTime );
 	void	Render();
 	void	Release();
-	HRESULT	Initialize();
-	UpgradeShipWindow();
-	~UpgradeShipWindow();
+			HRESULT	Initialize();
+			UpgradeShipWindow();
+			~UpgradeShipWindow();
 
 	bool	IsActive() const;
 	int		GetNrOfEnergyCells() const;

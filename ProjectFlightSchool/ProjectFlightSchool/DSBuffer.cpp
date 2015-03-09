@@ -5,7 +5,6 @@ HRESULT DSBuffer::CreateBasicBuffer( LPDIRECTSOUND8 lpDirectSound, WaveHeaderTyp
 {
 	WAVEFORMATEX		wfx;
 	DSBUFFERDESC		dsbdesc;
-	LPDIRECTSOUNDBUFFER pDsb = NULL;
 	HRESULT				hr;
 
 	// Set up WAV format structure. 
@@ -35,17 +34,23 @@ HRESULT DSBuffer::CreateBasicBuffer( LPDIRECTSOUND8 lpDirectSound, WaveHeaderTyp
 
 	// Create buffer. 
 
-	hr = lpDirectSound->CreateSoundBuffer( &dsbdesc, &pDsb, NULL );
-	if ( FAILED( hr ) )
+
+	for( int i = 0; i < mNrOfBuffers; i++ )
 	{
-		printf( "CreateSoundBuffer has failed\n" );
-		return FAILED( hr );
-	}
-	else if ( SUCCEEDED( hr ) )
-	{
-		hr = pDsb->QueryInterface( IID_IDirectSoundBuffer8, (LPVOID*)&mBuffer );
+		LPDIRECTSOUNDBUFFER pDsb = NULL;
+		hr = lpDirectSound->CreateSoundBuffer( &dsbdesc, &pDsb, NULL );
+		if ( FAILED( hr ) )
+		{
+			printf( "CreateSoundBuffer has failed\n" );
+			return FAILED( hr );
+		}
+		else if ( SUCCEEDED( hr ) )
+		{
+			hr = pDsb->QueryInterface( IID_IDirectSoundBuffer8, (LPVOID*)&mBuffer[i] );
+		}
 		pDsb->Release();
 	}
+		
 	return hr;
 }
 
@@ -107,7 +112,6 @@ bool DSBuffer::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName, LONG vol
 	///////////////////////////////////Prepare buffer desc
 	WAVEFORMATEX		wfx;
 	DSBUFFERDESC		dsbdesc;
-	LPDIRECTSOUNDBUFFER pDsb = NULL;
 	HRESULT				hr;
 
 	// Set up WAV format structure. 
@@ -136,23 +140,29 @@ bool DSBuffer::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName, LONG vol
 	dsbdesc.lpwfxFormat		= &wfx;
 
 	////////////////////////////////////// Create buffer and initialize it. 
-	hr = lpds->CreateSoundBuffer( &dsbdesc, &pDsb, NULL );
-	if ( FAILED( hr ) )
+	for( int i = 0; i < mNrOfBuffers; i++ )
 	{
-		printf( "CreateSoundBuffer has failed\n" );
-		return false;
-	}
-	else if ( SUCCEEDED( hr ) )
-	{
-		hr = pDsb->QueryInterface( IID_IDirectSoundBuffer8, (LPVOID*)&mBuffer );
+		LPDIRECTSOUNDBUFFER pDsb = NULL;
+		hr = lpds->CreateSoundBuffer( &dsbdesc, &pDsb, NULL );
 		if ( FAILED( hr ) )
 		{
-			printf( "QueryInterface has failed\n" );
+			printf( "CreateSoundBuffer has failed\n" );
 			return false;
 		}
-		pDsb->Release();
-	}
+		else if ( SUCCEEDED( hr ) )
+		{
+		
 
+				hr = pDsb->QueryInterface( IID_IDirectSoundBuffer8, (LPVOID*)&mBuffer[i] );
+				if ( FAILED( hr ) )
+				{
+					printf( "QueryInterface has failed\n" );
+					return false;
+				}
+		
+			pDsb->Release();
+		}
+	}
 	hr = CreateBasicBuffer( lpds, waveFileHeader );
 	if ( FAILED( hr ) )
 	{
@@ -185,69 +195,92 @@ bool DSBuffer::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName, LONG vol
 	}
 
 	//////////////////Dags att fylla buffern
-	unsigned char *bufferPtr;
-	unsigned long bufferSize;
+	
+	for( int i = 0; i < mNrOfBuffers; i++ )
+	{		
+		unsigned char *bufferPtr;
+		unsigned long bufferSize;
 
-	// Lock the secondary buffer to write wave data into it.
-	hr = mBuffer->Lock( 0, waveFileHeader.dataSize, (void**)&bufferPtr, (DWORD*)&bufferSize, NULL, 0, 0 );
-	if ( FAILED( hr ) )
-	{
-		return false;
+		// Lock the secondary buffer to write wave data into it.
+		hr = mBuffer[i]->Lock( 0, waveFileHeader.dataSize, (void**)&bufferPtr, (DWORD*)&bufferSize, NULL, 0, 0 );
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
+
+		// Copy the wave data into the buffer.
+		memcpy( bufferPtr, waveData, waveFileHeader.dataSize );
+
+		// Unlock the secondary buffer after the data has been written to it.
+		hr = mBuffer[i]->Unlock( (void*)bufferPtr, bufferSize, NULL, 0 );
+		if ( FAILED( hr ) )
+		{
+			return false;
+		}
+
+		// Set volume of the buffer to 100%.
+		hr = mBuffer[i]->SetVolume( -volume  ); // mellan 0 och -10 000
+		if ( FAILED( hr ) )
+		{
+			printf( "SetVolume in main has failed\n" );
+		}
 	}
-
-	// Copy the wave data into the buffer.
-	memcpy( bufferPtr, waveData, waveFileHeader.dataSize );
-
-	// Unlock the secondary buffer after the data has been written to it.
-	hr = mBuffer->Unlock( (void*)bufferPtr, bufferSize, NULL, 0 );
-	if ( FAILED( hr ) )
-	{
-		return false;
-	}
-
+	
 	// Release the wave data since it was copied into the secondary buffer.
 	delete[] waveData;
 	waveData = 0;
-
-	// Set volume of the buffer to 100%.
-	hr = mBuffer->SetVolume( -volume  ); // mellan 0 och -10 000
-	if ( FAILED( hr ) )
-	{
-		printf( "SetVolume in main has failed\n" );
-	}
 
 	return true;
 }
 
 void DSBuffer::PlayBuffer()
 {
-	mBuffer->SetCurrentPosition( 0 );
-	HRESULT hr = mBuffer->Play( 
-		0,  // Unused.
-		0,  // Priority for voice management.
-		0 ); // Flags.
-	if ( FAILED( hr ) )
-	{
-		printf( "Play in main has failed\n" );
+	LPDWORD lpwStatus = 0; 
+	for( int i = 0; i < mNrOfBuffers; i++ )
+	{		
+		mBuffer[i]->GetStatus( lpwStatus );
+		if( !( lpwStatus && DSBSTATUS_LOOPING || lpwStatus && DSBSTATUS_PLAYING  ) )
+		{
+			mBuffer[i]->SetCurrentPosition( 0 );
+			HRESULT hr = mBuffer[i]->Play( 
+				0,  // Unused.
+				0,  // Priority for voice management.
+				0 ); // Flags.
+			if ( FAILED( hr ) )
+			{
+				printf( "Play in main has failed\n" );
+			}
+		}
 	}
 }
 
 void DSBuffer::PlayBufferLoop()
 {
-	mBuffer->SetCurrentPosition( 0 );
-	HRESULT hr = mBuffer->Play( 
-		0,  // Unused.
-		0,  // Priority for voice management.
-		1 ); // Flags.
-	if ( FAILED( hr ) )
+	LPDWORD lpwStatus = 0; 
+	for( int i = 0; i < mNrOfBuffers; i++ )
 	{
-		MessageBox( NULL, L"Loopen spelas inte", L"Error", MB_OK );
+		mBuffer[i]->GetStatus( lpwStatus );
+		if( !( lpwStatus && DSBSTATUS_LOOPING || lpwStatus && DSBSTATUS_PLAYING  ) )
+		{
+			mBuffer[i]->SetCurrentPosition( 0 );
+			HRESULT hr = mBuffer[i]->Play( 
+			0,  // Unused.
+			0,  // Priority for voice management.
+			1 ); // Flags.
+			if ( FAILED( hr ) )
+			{
+				MessageBox( NULL, L"Loopen spelas inte", L"Error", MB_OK );
+			}
+		}
 	}
 }
 
 void DSBuffer::StopBuffer()
 {
-	mBuffer->Stop();
+	for( int i = 0; i < mNrOfBuffers; i++ )
+	{
+		mBuffer[i]->Stop();
+	}
 }
 
 DSBuffer  DSBuffer::DuplicateBuffer( LPDIRECTSOUND8 lpds, DSBuffer buffer1 )
@@ -269,24 +302,36 @@ int DSBuffer::GetID()
 
 void DSBuffer::SoundOn()
 {
-	mBuffer->SetVolume( DSBVOLUME_MAX );
+	for( int i = 0; i < mNrOfBuffers; i++ )
+	{
+		mBuffer[i]->SetVolume( DSBVOLUME_MAX );
+	}
 }
 
 void DSBuffer::SoundOff()
 {
-	mBuffer->SetVolume( DSBVOLUME_MIN );
+	for( int i = 0; i < mNrOfBuffers; i++ )
+	{
+		mBuffer[i]->SetVolume( DSBVOLUME_MIN );
+	}
 }
 
-bool DSBuffer::Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID, LONG volume )
+bool DSBuffer::Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID, LONG volume, int nrOfBuffers )
 {
-	mID			= ID;
-	mFileName	= fileName;
+	mID				= ID;
+	mFileName		= fileName;
+	mBuffer			= new LPDIRECTSOUNDBUFFER8[nrOfBuffers];
+	mNrOfBuffers	= nrOfBuffers;
 	return FillBufferWithWave( lpds, mFileName, volume );
 }
 
 void DSBuffer::Release()
 {
-	mBuffer->Release();
+	for( int i = 0; i < mNrOfBuffers; i++ )
+	{
+		mBuffer[i]->Release();
+	}
+	delete [] mBuffer;
 }
 
 DSBuffer::DSBuffer()

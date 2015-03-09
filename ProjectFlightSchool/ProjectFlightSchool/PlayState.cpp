@@ -972,13 +972,13 @@ void PlayState::OnEnter()
 	IEventPtr E1( new Event_Game_Started() );
 	EventManager::GetInstance()->QueueEvent( E1 );
 
-	SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
+	//SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
 }
 
 void PlayState::OnExit()
 {
 	Reset();
-	SoundBufferHandler::GetInstance()->StopLoopStream( mStreamSoundAsset );
+	//SoundBufferHandler::GetInstance()->StopLoopStream( mStreamSoundAsset );
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Ended() );
 	EventManager::GetInstance()->QueueEvent( E1 );
@@ -1108,7 +1108,7 @@ HRESULT PlayState::Initialize()
 	}
 
 	//TestSound
-	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav", 2000 );
+	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav", 2000, 100 );
 	mSoundAsset			= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
 	mStreamSoundAsset	= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav", 3000 );
 

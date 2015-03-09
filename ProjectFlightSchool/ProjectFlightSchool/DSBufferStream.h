@@ -38,7 +38,7 @@ public:
 	void		PlayBufferLoop();
 	void		StopBuffer();
 	bool		FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName, LONG volume );
-	bool		Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID, LONG volume );
+	bool		Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID, LONG volume, int nrOfBuffers = 1 );
 	void		Release();
 				DSBufferStream();
 				~DSBufferStream();

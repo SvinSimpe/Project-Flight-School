@@ -6,6 +6,10 @@
 
 HRESULT Map::Render( float deltaTime, Player* player )
 {
+	mEnvironmentTimer += deltaTime;
+	if( mEnvironmentTimer > 6.283f )
+		mEnvironmentTimer-= 6.283f;
+
 	std::vector<MapNodeInstance*> mapNodes;
 	int playerPosX = (int)player->GetPosition().x;
 	int playerPosY = (int)player->GetPosition().z;
@@ -39,7 +43,7 @@ HRESULT Map::Render( float deltaTime, Player* player )
 
 	for( auto& it : mapNodes )
 	{
-		it->Render( deltaTime );
+		it->Render( mEnvironmentTimer );
 	}
 	return S_OK;
 }
@@ -446,6 +450,7 @@ void Map::Release()
 
 Map::Map()
 {
+	mEnvironmentTimer	= 0.0f;
 }
 
 Map::~Map()

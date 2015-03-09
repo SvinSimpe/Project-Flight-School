@@ -47,8 +47,6 @@ class MapNode
 
 		float***		mHeightMap;
 
-		float			mEnvironmentTimer;
-
 		MapNodeInstance mInstances[INSTANCE_COUNT];
 
 	protected:
@@ -62,7 +60,7 @@ class MapNode
 	protected:
 	public:
 		HRESULT				Update( float deltaTime );
-		HRESULT				Render( float deltaTime, XMFLOAT4X4 parentWorld );
+		HRESULT				Render( float environmentTimer, XMFLOAT4X4 parentWorld );
 
 		StaticVertex*		GetGrid() const;
 

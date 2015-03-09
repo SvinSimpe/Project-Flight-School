@@ -6,12 +6,8 @@ HRESULT	MapNode::Update( float deltaTime )
 {
 	return S_OK;
 }
-HRESULT	MapNode::Render( float deltaTime, XMFLOAT4X4 parentWorld )
+HRESULT	MapNode::Render( float environmentTimer, XMFLOAT4X4 parentWorld )
 {
-	mEnvironmentTimer += deltaTime;
-	if( mEnvironmentTimer > 6.283f )
-		mEnvironmentTimer-= 6.283f;
-
 	RenderManager::GetInstance()->AddNodeGridToList( mGrid, mVertexCount, mBlendMap, parentWorld );
 
 	for( int i = 0; i < (int)mStaticAssetCount; i++ )
@@ -19,15 +15,15 @@ HRESULT	MapNode::Render( float deltaTime, XMFLOAT4X4 parentWorld )
 		if( mStaticAssets[i].GetRenderType() == DYNAMIC_RENDERTYPE )
 		{
 			XMMATRIX	environmentMatrix = XMMatrixRotationRollPitchYaw( 
-				sinf( mEnvironmentTimer + mStaticAssets[i].GetPos().x ) * 0.01f,
+				sinf( environmentTimer + mStaticAssets[i].GetPos().x ) * 0.01f,
 				0.0f,
-				cosf( mEnvironmentTimer + mStaticAssets[i].GetPos().x  ) * 0.01f );
+				cosf( environmentTimer + mStaticAssets[i].GetPos().x  ) * 0.01f );
 			XMFLOAT4X4	world;
 			XMStoreFloat4x4( &world, environmentMatrix );
-			mStaticAssets[i].Render( deltaTime, parentWorld, world );
+			mStaticAssets[i].Render( 0.0f, parentWorld, world );
 		}
 		else
-			mStaticAssets[i].Render( deltaTime, parentWorld );
+			mStaticAssets[i].Render( 0.0f, parentWorld );
 	}
 	return S_OK;
 }
@@ -236,7 +232,6 @@ MapNode::MapNode()
 	mGridHeight			= 0;
 	mOrigin				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mStaticAssets		= nullptr;
-	mEnvironmentTimer	= 0.0f;
 }
 MapNode::~MapNode()
 {

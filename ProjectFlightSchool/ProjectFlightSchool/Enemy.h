@@ -73,9 +73,6 @@ class IEnemyBehavior
 		EnemyState		mBehavior;	
 		float			mStateTimer;
 
-		//SteeringBehaviorManager**	mSteeringBehaviors;
-		void			DamageFromPlayer( IEventPtr eventPtr );
-
 	// Class functions
 	public:
 		virtual HRESULT Update( float deltaTime )		= 0;
@@ -163,6 +160,7 @@ class TakeDamageBehavior : public IEnemyBehavior
 {
 	// Class members
 	private:
+		void			DamageFromPlayer( IEventPtr eventPtr );
 
 	// Class functions
 	public:

@@ -128,11 +128,12 @@ HRESULT JoinMenuState::Initialize()
 
 	mIPBox.Initialize( "localhost", "IP", x - w * 0.5f, y - h * 0.5f, w, h );
 
-	x += (float)Input::GetInstance()->mScreenWidth  * 0.2f;
+	x += (float)Input::GetInstance()->mScreenWidth * 0.2f;
 
 	mPortBox.Initialize( "27015", "Port", x - w * 0.5f, y - h * 0.5f, w, h );
 
-	mNameBox.Initialize( "playername", "Name", Input::GetInstance()->mScreenWidth * 0.3f - w * 0.5f, Input::GetInstance()->mScreenHeight * 0.5f + h *0.5f, w, h );
+	x = (float)Input::GetInstance()->mScreenWidth * 0.9f;
+	mNameBox.Initialize( "playername", "Name", x - w * 0.5f, y - h * 0.5f, w, h );
 
 	return S_OK;
 }

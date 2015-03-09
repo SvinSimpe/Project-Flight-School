@@ -13,19 +13,20 @@
 class Projectile
 {
 	private:
-		AssetID			mProjectileAsset;
-		unsigned int	mID;
-		unsigned int	mTeamID;
-		unsigned int	mPlayerID;
-		XMFLOAT3		mPosition;
-		XMFLOAT3		mDirection;
-		float			mSpeed;
-		bool			mIsActive;
-		float			mLifeTime;
-		BoundingCircle*	mBoundingCircle;
-		float			mDamage;
-		WeaponType		mWeaponType;
-		PointLight*		mPointLight;
+		AssetID				mProjectileAsset;
+		unsigned int		mID;
+		unsigned int		mTeamID;
+		unsigned int		mPlayerID;
+		XMFLOAT3			mPosition;
+		XMFLOAT3			mDirection;
+		float				mSpeed;
+		bool				mIsActive;
+		float				mLifeTime;
+		BoundingCircle*		mBoundingCircle;
+		float				mDamage;
+		WeaponType			mWeaponType;
+		PointLight*			mPointLight;
+		std::vector<UINT>	mHits;
 
 	public:
 		HRESULT			Update( float deltaTime );
@@ -43,6 +44,7 @@ class Projectile
 		XMFLOAT3		GetDirection() const;
 		XMFLOAT3		GetPosition() const;
 		WeaponType		GetWeaponType() const;
+		bool			SetHit( UINT hitID );
 
 		HRESULT			Initialize();
 		void			Release();

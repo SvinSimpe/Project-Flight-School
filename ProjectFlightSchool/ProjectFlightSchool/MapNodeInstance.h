@@ -45,7 +45,7 @@ public:
 	public:
 
 		HRESULT				Update( float deltaTime );
-		HRESULT				Render( float deltaTime );
+		HRESULT				Render( float environmentTimer );
 
 		Navmesh*			GetNavMesh() const;
 

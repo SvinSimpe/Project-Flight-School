@@ -133,7 +133,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	float shadowFactor = shadowSamples / 25.0f;
 
 	//======== SHADOW MAP POINTLIGHT ===========
-	float3 ambient		= float3( 0.8f, 0.8f,  0.8f );
+	float3 ambient		= float3( 0.1f, 0.1f,  0.1f );
 	float3 color		= float3( 0.6f, 0.4f, 0.6f ); //float3( 0.6f, 0.3f,  0.6f );
 
 	float3 lightDirection	= worldSample - shadowCameraPosition.xyz;
@@ -151,7 +151,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	float specularPower		= 4.0f;
 	float3 specular			= float3( float3( 1.0f, 1.0f, 1.0f ) * pow( specularFactor, specularPower ) ) * specularSample;
 
-	float3 finalColor		= ( ( ( ambient * ssao + diffuse + specular ) * color ) * shadowFactor ) / ( dShadow * 0.01f + dShadow * dShadow * 0.005f );
+	float3 finalColor		= ambient * ssao + ( ( ( diffuse + specular ) * color ) * shadowFactor ) / ( dShadow * 0.01f + dShadow * dShadow * 0.005f );
 
 
 	//-------------------------------------------------------------------------------------------------
@@ -160,12 +160,11 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 
 	for( int i = 0; i < numPointLights; i++ )
 	{
-
 		if( lightStructure[i].colorAndRadius.w > 0.01f )
 		{
 			float3 lightDir = worldSample - lightStructure[i].positionAndIntensity.xyz;
 			float d			= length( lightDir );
-			if( d < lightStructure[i].colorAndRadius.w )
+			if( d < lightStructure[i].colorAndRadius.w * 2 )
 			{
 				lightDir		/= d;
 
@@ -176,8 +175,8 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 				float diff	= saturate( dot( -lightDir, N ) );
 				float3 spec	= float3( lightStructure[i].colorAndRadius.xyz * pow( dot( R, V ), specularPower ) ) * specularSample;
 
-				float denom			= d / lightStructure[i].colorAndRadius.w;
-				float attenuation	= 1.0f - ( denom * denom );
+				float denom			= d / lightStructure[i].colorAndRadius.w + 1.0f;
+				float attenuation	= min( lerp( 1.0f, 0.0f, d / ( lightStructure[i].colorAndRadius.w * 2.0f ) ), 1.0f / ( denom * denom ) );
 
 				finalColor += ( diffuse + specular ) * lightStructure[i].colorAndRadius.xyz * lightStructure[i].positionAndIntensity.w * attenuation;
 			}
@@ -233,7 +232,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 		float3 waterColor	= ( ( ( ambient * ssao + diffuse + specular ) * float3( 0.4f, 0.3f, 0.6f ) ) * shadowFactor ) / ( dShadow * 0.01f + dShadow * dShadow * 0.005f );
 
 		//Point lights
-		for( int i = 0; i < numPointLights; i++ )
+	/*	for( int i = 0; i < numPointLights; i++ )
 		{
 
 			if( lightStructure[i].colorAndRadius.w > 0.01f )
@@ -255,7 +254,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 
 				waterColor += ( diffuse + specular ) * lightStructure[i].colorAndRadius.xyz * attenuation;
 			}
-		}
+		}*/
 
 		float fresnel	= max( 0.1f, dot( waterNormal, toCamera ) );
 

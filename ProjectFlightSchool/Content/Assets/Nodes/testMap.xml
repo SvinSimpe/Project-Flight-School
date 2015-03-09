@@ -4,7 +4,11 @@
     <Nodes>
 		<-- <Node path="../Content/Assets/Nodes/Light/lightTest.lp" type="SHIP_NODE" /> -->
 		<Node path="../Content/Assets/Nodes/Light/lightTest.lp" type="AREA_NODE" />
+		<Node path="../Content/Assets/Nodes/Light/tileBigOpenAreaWithFourTreeGrooves.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/Light/tileALargePuddle.lp" type="AREA_NODE" />
+		<Node path="../Content/Assets/Nodes/Light/tileBigOpenAreaWithManyNests.lp" type="AREA_NODE" />
+		<Node path="../Content/Assets/Nodes/Light/tileBigOpenAreaWithOneNest.lp" type="AREA_NODE" />
+		
     </Nodes>
     <Assets>
 		<Asset path="../Content/Assets/PermanentAssets/Ship/ShipWithTripod.pfs" 

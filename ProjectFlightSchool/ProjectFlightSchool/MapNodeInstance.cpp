@@ -52,11 +52,11 @@ HRESULT MapNodeInstance::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT	MapNodeInstance::Render( float deltaTime  )
+HRESULT	MapNodeInstance::Render( float environmentTimer  )
 {
 	if( mNode != nullptr )
 	{
-		mNode->Render( deltaTime, mWorld );
+		mNode->Render( environmentTimer, mWorld );
 	}
 	DirectX::XMFLOAT3 min = DirectX::XMFLOAT3( mPos.x , 0, mPos.z );
 	DirectX::XMFLOAT3 max = DirectX::XMFLOAT3( min.x + mNode->GetGridWidth(), 5, min.z + mNode->GetGridHeight() );

@@ -443,7 +443,7 @@ void Player::GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, Direct
 		energyCells[mEnergyCellID]->SetPosition( shipPos );
 		energyCells[mEnergyCellID]->SetOwnerID( shipID );
 		energyCells[mEnergyCellID]->SetPickedUp( true );
-	
+		energyCells[mEnergyCellID]->SetSecured( true );
 
 		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, shipID, shipPos, true ) );
 		QueueEvent( E1 );
@@ -904,6 +904,11 @@ void Player::AddImpuls( XMFLOAT3 impuls )
 	}
 }
 
+void Player::QueueEvent( IEventPtr ptr )
+{
+	gEventList.push_front( ptr );
+}
+
 void Player::UpgradeBody()
 {
 	mUpgrades.body++;
@@ -926,9 +931,12 @@ void Player::UpgradeRange()
 	mUpgrades.range++;
 }
 
-void Player::QueueEvent( IEventPtr ptr )
+void Player::WriteInteractionText( std::string text )
 {
-	gEventList.push_front( ptr );
+	float offset = mFont.GetMiddleXPoint( text, 3.0 );
+	float textShadowWidth = 1.0f;
+
+	mFont.WriteText( text, (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 250.0f, 3.0, COLOR_CYAN );
 }
 
 /////Public
@@ -1279,6 +1287,11 @@ HRESULT Player::Render( float deltaTime, int position )
         std::string textToWrite = "Robot losing connection get back!\n\t\t\t\t\t   " + std::to_string( (int)mLeavingAreaTime );
 		float offset = mFont.GetMiddleXPoint( "Robot losing connection get back!", 3.8f );
 		mFont.WriteText( textToWrite, (float)Input::GetInstance()->mScreenWidth/2 - offset, (float)Input::GetInstance()->mScreenHeight/4, 3.8f, COLOR_RED );
+	}
+
+	if( mEnergyCellID != (UINT)-1 )
+	{
+		WriteInteractionText( "Go back to your ship to hand in the energy cell!" );
 	}
 
 	RemotePlayer::Render();

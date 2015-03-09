@@ -57,6 +57,7 @@ Texture2D<float4> mudBlendMap		: register( t0 );
 Texture2D<float4> grassBlendMap		: register( t1 );
 Texture2D<float4> sandBlendMap		: register( t2 );
 Texture2D<float4> blendMapWeights	: register( t3 );
+Texture2D<float4> grassBlendMapNM	: register( t4 );
 SamplerState pointSampler			: register( s0 );
 SamplerState linearSampler			: register( s1 );
 PS_Out PS_main( VS_Out input )
@@ -69,6 +70,14 @@ PS_Out PS_main( VS_Out input )
 	float3 diffuse = mudBlendMap.Sample( linearSampler, mapUv ).xyz * weights.x;
 	diffuse		  += grassBlendMap.Sample( linearSampler, mapUv ).xyz * weights.y;
 	diffuse		  += sandBlendMap.Sample( linearSampler, mapUv ).xyz * weights.z;
+
+	//======== NORMAL MAPPING ==========
+	float4 bumpNormal	= grassBlendMapNM.Sample( linearSampler, mapUv );
+	bumpNormal			= ( 2.0f * bumpNormal ) - 1.0f;
+	input.tangent		= normalize( input.tangent - dot( input.tangent, input.normal ) * input.normal );
+	float3 biTangent	= cross( input.normal.xyz, input.tangent.xyz );
+	float3x3 texSpace	= float3x3( input.tangent.xyz, biTangent, input.normal.xyz );
+	input.normal		+= mul( bumpNormal.xyz, texSpace ) * weights.y;
 
 	output.normal			= float4( normalize( input.normal ), 0.0f );
 	output.albedoSpec		= float4( diffuse, 0.0f );

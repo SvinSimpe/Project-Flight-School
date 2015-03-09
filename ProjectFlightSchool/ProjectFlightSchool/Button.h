@@ -4,7 +4,7 @@
 #include "Image.h"
 #include "RenderManager.h"
 
-#define CLICKCOOLDOWN 1.0f
+#define CLICKCOOLDOWN 0.5f
 
 // Hard coded button used by the menus
 class Button : public Image

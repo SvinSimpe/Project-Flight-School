@@ -79,6 +79,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		FireProjectile( data->ID(), data->ProjectileID(), teamID, data->BodyPos(), data->Direction(), data->Speed(), data->Range(), data->Damage(), (WeaponType)data->Weapon() );
 
 		//TestSound
+		OutputDebugString( L"Shoot - " );
 		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->BodyPos());
 
 		// Request Muzzle Flash from Particle Manager
@@ -160,7 +161,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		FireProjectile( data->ID(), data->ProjectileID(), data->TeamID(), data->Position(), data->Direction(), data->Speed(), data->Range(), 1.0f, TURRET ); // Don't know where to get damage from yet
 
 		//TestSound
-		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->Position());
+		//SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->Position());
 		
 		// Request Muzzle Flash from Particle Manager
 		

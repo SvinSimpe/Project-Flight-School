@@ -235,11 +235,11 @@ bool DSBuffer::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName, LONG vol
 
 void DSBuffer::PlayBuffer()
 {
-	LPDWORD lpwStatus = 0; 
+	DWORD lpwStatus = 0; 
 	for( int i = 0; i < mNrOfBuffers; i++ )
 	{		
-		mBuffer[i]->GetStatus( lpwStatus );
-		if( !( lpwStatus && DSBSTATUS_LOOPING || lpwStatus && DSBSTATUS_PLAYING  ) )
+		mBuffer[i]->GetStatus( &lpwStatus );
+		if( !( lpwStatus & DSBSTATUS_LOOPING || lpwStatus & DSBSTATUS_PLAYING  ) )
 		{
 			mBuffer[i]->SetCurrentPosition( 0 );
 			HRESULT hr = mBuffer[i]->Play( 
@@ -250,17 +250,18 @@ void DSBuffer::PlayBuffer()
 			{
 				printf( "Play in main has failed\n" );
 			}
+			break;
 		}
 	}
 }
 
 void DSBuffer::PlayBufferLoop()
 {
-	LPDWORD lpwStatus = 0; 
+	DWORD lpwStatus = 0; 
 	for( int i = 0; i < mNrOfBuffers; i++ )
 	{
-		mBuffer[i]->GetStatus( lpwStatus );
-		if( !( lpwStatus && DSBSTATUS_LOOPING || lpwStatus && DSBSTATUS_PLAYING  ) )
+		mBuffer[i]->GetStatus( &lpwStatus );
+		if( !( lpwStatus & DSBSTATUS_LOOPING || lpwStatus & DSBSTATUS_PLAYING  ) )
 		{
 			mBuffer[i]->SetCurrentPosition( 0 );
 			HRESULT hr = mBuffer[i]->Play( 
@@ -271,6 +272,7 @@ void DSBuffer::PlayBufferLoop()
 			{
 				MessageBox( NULL, L"Loopen spelas inte", L"Error", MB_OK );
 			}
+			break;
 		}
 	}
 }

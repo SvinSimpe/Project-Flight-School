@@ -41,6 +41,7 @@ void DS3DBuffer::PlayBuffer( XMFLOAT3 pos)
 				printf( "Play in main has failed\n" );
 			}
 			played = true;
+			OutputDebugString( L"Play\n" );
 			break;
 		}
 	}
@@ -52,11 +53,12 @@ void DS3DBuffer::PlayBuffer( XMFLOAT3 pos)
 
 void DS3DBuffer::PlayBufferLoop( XMFLOAT3 pos )
 {
-	LPDWORD lpwStatus = 0; 
+	DWORD lpwStatus = 0; 
+	bool played		= false;
 	for( int i = 0; i < mNrOfBuffers; i++ )
 	{
-		mBuffer[i]->GetStatus( lpwStatus );
-		if( !( lpwStatus && DSBSTATUS_LOOPING || lpwStatus && DSBSTATUS_PLAYING  ) )
+		mBuffer[i]->GetStatus( &lpwStatus );
+		if( !( lpwStatus & DSBSTATUS_LOOPING || lpwStatus & DSBSTATUS_PLAYING  ) )
 		{
 			D3DVECTOR posForFunction;
 			posForFunction.x = pos.x;
@@ -72,7 +74,13 @@ void DS3DBuffer::PlayBufferLoop( XMFLOAT3 pos )
 			{
 				MessageBox( NULL, L"Loopen spelas inte", L"Error", MB_OK );
 			}
+			played = true;
+			break;
 		}
+	}
+	if( !played )
+	{
+		OutputDebugString( L"Not enough buffers\n" );
 	}
 }
 

@@ -450,6 +450,7 @@ void Player::DropEnergyCell( EnergyCell** energyCells )
 		energyCells[mEnergyCellID]->SetPosition( mLowerBody.position );
 		energyCells[mEnergyCellID]->SetOwnerID( (UINT)-1 );
 		energyCells[mEnergyCellID]->SetPickedUp( false );
+		energyCells[mEnergyCellID]->SetSecured( false );
 	
 
 		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, (UINT)-1, mLowerBody.position, false ) );
@@ -1059,7 +1060,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 			if( mEnergyCellID != (UINT)-1 )
 			{
-				mEnergyCellLight->positionAndIntensity = DirectX::XMFLOAT4( mLowerBody.position.x, 4.0f, mLowerBody.position.z, 1.0f );
+				mEnergyCellLight->positionAndIntensity = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 4.0f, mLowerBody.position.z, 1.0f );
 			}
 			//////////////////////////////////////////
 			// IF LEAVING AREA
@@ -1214,7 +1215,7 @@ HRESULT Player::Render( float deltaTime, int position )
 
 	if( mIsOutSideZone )
 	{
-        std::string textToWrite = "Robot losing connection get back!\n" + std::to_string( (int)mLeavingAreaTime );
+        std::string textToWrite = "Robot losing connection get back!\n\t\t\t\t\t   " + std::to_string( (int)mLeavingAreaTime );
 		float offset = mFont.GetMiddleXPoint( "Robot losing connection get back!", 3.8f );
 		mFont.WriteText( textToWrite, (float)Input::GetInstance()->mScreenWidth/2 - offset, (float)Input::GetInstance()->mScreenHeight/4, 3.8f, COLOR_RED );
 	}

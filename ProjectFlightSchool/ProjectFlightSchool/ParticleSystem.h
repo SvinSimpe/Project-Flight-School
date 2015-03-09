@@ -582,25 +582,25 @@ struct ParticleSystem : public ParticleData
 
 		else if ( particleType == BlowTorchFire ) 			
 		{
-			 mPointLightParticleEmitter->positionAndIntensity.w	= 1 + nrOfParticlesAlive * 0.085f;
+			 mPointLightParticleEmitter->positionAndIntensity.w	= 1 + nrOfParticlesAlive * 0.0005f;
 			 mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.012f;
 		}
 
 		else if ( particleType == BlowTorchIdle ) 			
 		{
-			 mPointLightParticleEmitter->positionAndIntensity.w = 0.2f + nrOfParticlesAlive * 0.085f;
+			 mPointLightParticleEmitter->positionAndIntensity.w = 0.2f + nrOfParticlesAlive * 0.005f;
 			 mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.005f;
 		}
 
 		else if ( particleType == FIRE ) 			
 		{
-			 mPointLightParticleEmitter->positionAndIntensity.w = 1 + nrOfParticlesAlive * 0.02f;
+			 mPointLightParticleEmitter->positionAndIntensity.w = 1 + nrOfParticlesAlive * 0.001f;
 			 mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.005f;
 		}
 
 		else if ( particleType == Explosion ) 			
 		{
-			 mPointLightParticleEmitter->positionAndIntensity.w = 1 + nrOfParticlesAlive * 0.9f;
+			 mPointLightParticleEmitter->positionAndIntensity.w = 1 + nrOfParticlesAlive * 0.004f;
 			 mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.035f;
 		}
 	}

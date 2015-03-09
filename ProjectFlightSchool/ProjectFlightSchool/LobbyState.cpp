@@ -182,7 +182,7 @@ void LobbyState::HandleInput()
 		IEventPtr E1( new Event_Reset_Game() );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
-	if( mCheckBox.LeftMousePressed() )
+	if( mCheckBox.LeftMousePressed() && !mGameCountdownStarted )
 	{
 		for( size_t i = 0; i < mPlayers.size(); i++ )
 		{

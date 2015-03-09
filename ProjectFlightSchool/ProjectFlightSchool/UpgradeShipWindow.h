@@ -62,7 +62,7 @@ private:
 	ButtonStruct			mTurretButtons;
 	ButtonStruct			mForceFieldButtons;
 	ButtonStruct			mBuffButtons;
-	ButtonStruct			mEngineButtons;
+	//ButtonStruct			mEngineButtons;
 	int						mNrOfEnergyCells;
 
 protected:

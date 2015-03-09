@@ -428,9 +428,12 @@ void Server::ClientInteractEnergyCell( IEventPtr eventPtr )
 
 		for( auto s :mShips )
 		{
-			s->AddEnergyCell( mEnergyCells[data->EnergyCellID()]->GetOwnerID() );
-			IEventPtr E2( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel, s->mEngineLevel, s->mNrOfEnergyCells ) );
-			BroadcastEvent( E2 );
+			if( s->GetID() )
+			{
+				s->AddEnergyCell( mEnergyCells[data->EnergyCellID()]->GetOwnerID() );
+				IEventPtr E2( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel, s->mEngineLevel, s->mNrOfEnergyCells ) );
+				BroadcastEvent( E2 );
+			}
 		}
 
 	}

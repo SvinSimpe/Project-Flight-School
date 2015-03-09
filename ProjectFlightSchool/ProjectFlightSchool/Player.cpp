@@ -380,7 +380,7 @@ void Player::Move( float deltaTime )
 	}
 }
 
-void Player::AddXP( int XP )
+void Player::AddXP( float XP )
 {
 	mXP += XP;
 	while( ( mXP / mNextLevelXP ) >= 1 )
@@ -390,6 +390,11 @@ void Player::AddXP( int XP )
 		mNextLevelXP *= 1.1f;
 		mCurrentLevel++;
 	}
+
+	//Check if maxlevel
+	if ( mCurrentLevel == 16 )
+		mXP = mNextLevelXP;
+	
 }
 
 void Player::PickUpEnergyCell( EnergyCell** energyCells )
@@ -1167,7 +1172,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 				XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 
-				RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
+				RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction, mVelocity );
 
 				// Spawn spark on lowerBody
 				if ( mCurrentHp <= 10 )
@@ -1178,7 +1183,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 					XMStoreFloat3( &inverseDir, -XMLoadFloat3( &mUpperBody.direction ) );
 					XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 					
-					RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Robot, newPos, XMFLOAT3( inverseDir.x * randY, inverseDir.y, inverseDir.z * randY ) );			
+					RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Robot, newPos, XMFLOAT3( inverseDir.x * randY, inverseDir.y, inverseDir.z * randY ), mVelocity );			
 				}
 				
 				float intensity = ( mCurrentHp * 0.1f ) * 0.6f;
@@ -1348,8 +1353,8 @@ HRESULT Player::Initialize()
 	mIsOutSideZone		= false;
 	mIsInWater			= false;
 	mHasMeleeStarted	= false;
-	mXP					= 0;
-	mNextLevelXP		= 0;
+	mXP					= 0.0f;
+	mNextLevelXP		= 0.0f;
 	mCurrentLevel		= 0;
 	
 	mSpawnTime				= 0.0f;
@@ -1398,7 +1403,7 @@ HRESULT Player::Initialize()
 
 	mBuffMod			= 0.5f;
 
-	mNextLevelXP		= 60;
+	mNextLevelXP		= 60.0f;
 	mCurrentUpgrades	= 0;
 
 	mReviveTime			= 2.0f;
@@ -1462,8 +1467,8 @@ Player::Player()
 	mIsOutSideZone		= false;
 	mIsInWater			= false;
 	mHasMeleeStarted	= false;
-	mXP					= 0;
-	mNextLevelXP		= 0;
+	mXP					= 0.0f;
+	mNextLevelXP		= 0.0f;
 	
 	mSpawnTime				= 0.0f;
 	mTimeTillSpawn			= 0.0f;
@@ -1505,7 +1510,7 @@ UINT Player::GetEnergyCellID() const
 
 float Player::GetXPToNext() const
 {
-	return (float)( (float)mXP / (float)mNextLevelXP );
+	return mXP / mNextLevelXP;
 }
 
 int Player::GetCurrentLevel() const

@@ -137,6 +137,7 @@ class RemotePlayer
 		BoundingCircle*	GetBoundingCircleAura() const;
 		XMFLOAT3		GetPosition() const;
 		XMFLOAT3		GetDirection() const;
+		XMFLOAT3		GetVelocity() const;
 		std::string		GetName() const;
 		void			SetDirection( XMFLOAT3 direction );
 		void			SetHP( float hp );

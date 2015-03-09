@@ -594,6 +594,10 @@ void Player::Fire()
 	{
 		FireGrenadeLauncher( &loadDir );
 	}
+	else if( mLoadOut->rangedWeapon->weaponType == SNIPER )
+	{
+		FireSniper( &loadDir );
+	}
 	else
 	{
 		// Set random spread
@@ -727,11 +731,6 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 			mWeaponOverheated = false;
 		}
 
-		XMFLOAT3 direction;
-		/*XMStoreFloat3( &direction, ( XMVector3Normalize( XMLoadFloat3( &mVelocity ) ) ) + XMLoadFloat3( &mFireDirection )  );*/
-		//XMStoreFloat3( &direction, ( mCurrentVelocity * XMLoadFloat3( &mFireDirection )  ) );
-
-		XMStoreFloat3( &direction,  XMLoadFloat3( &mVelocity ) );
 		//Blowtorch particle system
 		RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchIdle, *projectileOffset, mUpperBody.direction, mVelocity );
 		RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, *projectileOffset, mUpperBody.direction, mVelocity );
@@ -773,12 +772,15 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 void Player::FireGrenadeLauncher( XMFLOAT3* projectileOffset )
 {
 	float elevation = CalculateLaunchAngle();
-	//if( elevation <= 0.0f )
-	//	elevation *= -1.0f;
 
 	mFireDirection			= XMFLOAT3( mUpperBody.direction.x, elevation, mUpperBody.direction.z );
 	IEventPtr E1( new Event_Trigger_Client_Fired_Projectile( mID, *projectileOffset, mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
+}
+
+void Player::FireSniper( XMFLOAT3* projectileOffset )
+{
+	RenderManager::GetInstance()->RequestParticleSystem( mID, SniperTrail, *projectileOffset, mUpperBody.direction, mVelocity );
 }
 
 void Player::HammerMelee( float deltaTime )
@@ -823,7 +825,7 @@ void Player::BlowtorchMelee( float deltaTime )
 		if( mHasMeleeStarted )
 		{
 			mTimeTillattack -= deltaTime;
-			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, loadDir, mUpperBody.direction );
+			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, loadDir, mUpperBody.direction, mVelocity );
 			if( mTimeTillattack <= 0.0f )
 			{
 				mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
@@ -836,7 +838,7 @@ void Player::BlowtorchMelee( float deltaTime )
 			}
 		}
 		else
-			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchIdle, loadDir, mUpperBody.direction );
+			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchIdle, loadDir, mUpperBody.direction, mVelocity );
 }
 
 void Player::ClaymoreMelee( float deltaTime )

@@ -381,7 +381,7 @@ void Player::Move( float deltaTime )
 	}
 }
 
-void Player::AddXP( int XP )
+void Player::AddXP( float XP )
 {
 	mXP += XP;
 	while( ( mXP / mNextLevelXP ) >= 1 )
@@ -1357,8 +1357,8 @@ HRESULT Player::Initialize()
 	mIsOutSideZone		= false;
 	mIsInWater			= false;
 	mHasMeleeStarted	= false;
-	mXP					= 0;
-	mNextLevelXP		= 0;
+	mXP					= 0.0f;
+	mNextLevelXP		= 0.0f;
 	mCurrentLevel		= 0;
 	
 	mSpawnTime				= 0.0f;
@@ -1407,7 +1407,7 @@ HRESULT Player::Initialize()
 
 	mBuffMod			= 0.5f;
 
-	mNextLevelXP		= 60;
+	mNextLevelXP		= 60.0f;
 	mCurrentUpgrades	= 0;
 
 	mReviveTime			= 2.0f;
@@ -1476,8 +1476,8 @@ Player::Player()
 	mIsOutSideZone		= false;
 	mIsInWater			= false;
 	mHasMeleeStarted	= false;
-	mXP					= 0;
-	mNextLevelXP		= 0;
+	mXP					= 0.0f;
+	mNextLevelXP		= 0.0f;
 	
 	mSpawnTime				= 0.0f;
 	mTimeTillSpawn			= 0.0f;
@@ -1519,7 +1519,7 @@ UINT Player::GetEnergyCellID() const
 
 float Player::GetXPToNext() const
 {
-	return (float)( (float)mXP / (float)mNextLevelXP );
+	return mXP / mNextLevelXP;
 }
 
 int Player::GetCurrentLevel() const

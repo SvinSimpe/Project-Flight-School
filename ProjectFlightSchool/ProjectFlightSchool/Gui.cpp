@@ -1,5 +1,10 @@
 #include "Gui.h"
 
+void Gui::SetTeamID( UINT teamID )
+{
+	mShipWindow.SetTeamID( teamID );
+}
+
 void Gui::ActivateUpgradeShipWindow()
 {
 	mShipWindow.Activate();
@@ -144,6 +149,8 @@ HRESULT Gui::Render()
 
 		renderText = "XP " + std::to_string( mPlayerXP ) + "%";
 		mFont.WriteText( renderText, 100.0f - mFont.GetMiddleXPoint( renderText, 3.0 ), mHPXP.GetPosition().y + 100.0f + 25.0f - 15.0f, 3.0f, COLOR_CYAN );
+
+		renderText = std::to_string( mShipWindow.GetUnusedCells() );
 		
 		mDeviderHPXP.Render();
 

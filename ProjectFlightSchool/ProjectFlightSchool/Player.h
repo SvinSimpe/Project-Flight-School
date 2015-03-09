@@ -74,7 +74,9 @@ class Player: public RemotePlayer
 		UINT		mEnergyCellID;
 		float		mPickUpCooldown;
 
-		int			miniGunOverheat;
+		int			mMiniGunOverheat;
+		int			mHammerSound;
+		int			mSword;
 
 	protected:
 	public:

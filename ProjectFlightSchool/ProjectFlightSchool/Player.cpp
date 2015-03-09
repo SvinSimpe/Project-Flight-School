@@ -756,7 +756,7 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		mLoadOut->rangedWeapon->overheat	= 0.0f;
 		mTimeSinceLastShot					= 0.0f;
 		mWeaponOverheated					= true;
-		SoundBufferHandler::GetInstance()->Play3D( miniGunOverheat , GetPosition() );
+		SoundBufferHandler::GetInstance()->Play3D( mMiniGunOverheat , GetPosition() );
 	}
 }
 
@@ -987,8 +987,12 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 		//mLeftArmAnimationCompleted		= false;
 		if ( mLoadOut->meleeWeapon->weaponType == HAMMER )
 		{
+			SoundBufferHandler::GetInstance()->Play3D( mHammerSound , GetPosition() );
 			RenderManager::GetInstance()->RequestParticleSystem( mID, Hammer_Effect, XMFLOAT3( mLoadOut->meleeWeapon->boundingCircle->center.x, 0.3f, mLoadOut->meleeWeapon->boundingCircle->center.z ) , XMFLOAT3( 1.0f, 0.0f, 1.0f ) );
 		}
+		//else if (  mLoadOut->meleeWeapon->weaponType == CLAYMORE ) 
+		//	SoundBufferHandler::GetInstance()->Play3D( mSword , GetPosition() );
+
 		mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
 		mHasMeleeStarted	= false;
 	}
@@ -1329,7 +1333,9 @@ HRESULT Player::Initialize()
 	mReviveTime			= 2.0f;
 	mTimeTillRevive		= mReviveTime;
 
-	miniGunOverheat	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/minigun_Overheat.wav", 10 );
+	mMiniGunOverheat	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/minigun_Overheat.wav", 10 );
+	mHammerSound		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/hammer.wav", 10 );
+	mSword				= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/sword.wav", 10 );
 
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Died::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Attempt_Revive::GUID );

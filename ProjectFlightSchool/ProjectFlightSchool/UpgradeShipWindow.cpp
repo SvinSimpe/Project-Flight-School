@@ -12,7 +12,7 @@ void UpgradeShipWindow::EventListener( IEventPtr eventPtr )
 			mBuffButtons.nrOfFilled			= data->BuffLevelChange();
 			mNrOfEnergyCells				= data->NrOfEnergyCells();
 
-			mUnusedCells = mNrOfEnergyCells - ( mForceFieldButtons.nrOfFilled + mTurretButtons.nrOfButtons + mBuffButtons.nrOfFilled ) + 3; // 3 is the start amount
+			mUnusedCells = ( mNrOfEnergyCells + 3 ) - ( mForceFieldButtons.nrOfFilled + mTurretButtons.nrOfFilled + mBuffButtons.nrOfFilled );
 		}
 	}
 	else if ( eventPtr->GetEventType() == Event_Local_Joined::GUID ) // Add a remote player to the list when they connect

@@ -180,7 +180,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Server_XP> data = std::static_pointer_cast<Event_Server_XP>( newEvent );
 		if( data->PlayerID() == mPlayer->GetID() )
 		{
-			if( mPlayer->GetCurrentLevel() <= 20 )
+			if( mPlayer->GetCurrentLevel() <= 16 )
 			{
 				int levelUp = mPlayer->Upgradable();
 				mPlayer->AddXP( data->XP() );

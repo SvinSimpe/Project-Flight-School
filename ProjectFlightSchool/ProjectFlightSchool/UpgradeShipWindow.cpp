@@ -13,7 +13,7 @@ void UpgradeShipWindow::EventListener( IEventPtr eventPtr )
 			//mEngineButtons.nrOfFilled		= data->EngineLevelChange();
 			mNrOfEnergyCells				= data->NrOfEnergyCells();
 
-			mUnusedCells = mNrOfEnergyCells - ( mForceFieldButtons.nrOfFilled + mTurretButtons.nrOfButtons + mBuffButtons.nrOfFilled );
+			mUnusedCells = mNrOfEnergyCells - ( mForceFieldButtons.nrOfFilled + mTurretButtons.nrOfButtons + mBuffButtons.nrOfFilled ) + 3; // 3 is the start amount
 		}
 	}
 	else if ( eventPtr->GetEventType() == Event_Local_Joined::GUID ) // Add a remote player to the list when they connect
@@ -31,6 +31,11 @@ void UpgradeShipWindow::EventListener( IEventPtr eventPtr )
 void UpgradeShipWindow::SetTeamID( UINT teamID )
 {
 	mTeam = teamID;
+}
+
+int UpgradeShipWindow::GetUnusedCells() const
+{
+	return mUnusedCells;
 }
 
 void UpgradeShipWindow::Activate()

@@ -76,6 +76,7 @@ protected:
 public:
 	void	EventListener( IEventPtr eventPtr );
 	void	SetTeamID( UINT teamID );
+	int		GetUnusedCells() const;
 	void	Activate();
 	void	DeActivate();
 	void	Update( float deltaTime );

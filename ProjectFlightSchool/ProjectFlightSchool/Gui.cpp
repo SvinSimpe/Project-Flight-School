@@ -149,6 +149,9 @@ HRESULT Gui::Render()
 
 		renderText = "XP " + std::to_string( mPlayerXP ) + "%";
 		mFont.WriteText( renderText, 100.0f - mFont.GetMiddleXPoint( renderText, 3.0 ), mHPXP.GetPosition().y + 100.0f + 25.0f - 15.0f, 3.0f, COLOR_CYAN );
+
+		renderText = std::to_string( mShipWindow.GetUnusedCells() );
+		mFont.WriteText( renderText, 100.0f,l - mFont.GetMiddleXPoint( renderText, 3.0 ), 
 		
 		mDeviderHPXP.Render();
 

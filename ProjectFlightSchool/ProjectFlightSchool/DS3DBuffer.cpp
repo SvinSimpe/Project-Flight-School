@@ -41,7 +41,6 @@ void DS3DBuffer::PlayBuffer( XMFLOAT3 pos)
 				printf( "Play in main has failed\n" );
 			}
 			played = true;
-			OutputDebugString( L"Play\n" );
 			break;
 		}
 	}

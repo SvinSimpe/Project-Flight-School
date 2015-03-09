@@ -79,7 +79,6 @@ void PlayState::EventListener( IEventPtr newEvent )
 		FireProjectile( data->ID(), data->ProjectileID(), teamID, data->BodyPos(), data->Direction(), data->Speed(), data->Range(), data->Damage(), (WeaponType)data->Weapon() );
 
 		//TestSound
-		OutputDebugString( L"Shoot - " );
 		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->BodyPos());
 
 		// Request Muzzle Flash from Particle Manager
@@ -1183,7 +1182,7 @@ HRESULT PlayState::Initialize()
 	}
 
 	//TestSound
-	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav", 2000, 100 );
+	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav", 2000, 40 );
 	mSoundAsset			= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
 	mStreamSoundAsset	= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav", 3000 );
 

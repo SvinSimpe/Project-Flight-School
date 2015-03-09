@@ -9,13 +9,14 @@
 #include <stdio.h>
 #include <io.h>
 #include <fcntl.h>
+#include <vld.h>
 
 int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow )
 {
 #if defined(DEBUG) | defined(_DEBUG)
-	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+	//_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 	// 2662792 2662791 2662790 2662789
-	_CrtSetBreakAlloc(5817801); // Break at specific memory allocation point
+	//_CrtSetBreakAlloc(6256668); // Break at specific memory allocation point
 #endif
 	// Console window code
 	//if( AllocConsole() )

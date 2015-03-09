@@ -36,8 +36,7 @@ class LobbyState : public BaseState
 		bool						mActive;
 		MovingButton				mBackButton;
 		Image						mReadyImg;
-		Image						mNotReadyImg;
-		MovingButton				mReadyButton;
+		Button						mCheckBox;
 		LoadOutMenu					mLoadOutMenu;
 		Button						mChooseWeaponButton;
 		Image						mChooseWeaponText;

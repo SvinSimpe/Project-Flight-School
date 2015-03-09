@@ -114,6 +114,8 @@ bool DSBufferStream::ReFillBuffer1Loop()
 		{
 			waveData[count + i] = waveData2[i];
 		}
+
+		delete waveData2;
 	}
 
 	//////////////////Dags att fylla buffern
@@ -129,6 +131,7 @@ bool DSBufferStream::ReFillBuffer1Loop()
 
 	// Copy the wave data into the buffer.
 	memcpy( bufferPtr, waveData, mDataSize );
+	delete waveData;
 
 	// Unlock the secondary buffer after the data has been written to it.
 	hr = mBuffer->Unlock( (void*)bufferPtr, bufferSize, NULL, 0 );
@@ -160,6 +163,8 @@ bool DSBufferStream::ReFillBuffer2Loop()
 		{
 			waveData[count + i] = waveData2[i];
 		}
+
+		delete waveData2;
 	}
 
 	//////////////////Dags att fylla buffern
@@ -175,6 +180,8 @@ bool DSBufferStream::ReFillBuffer2Loop()
 
 	// Copy the wave data into the buffer.
 	memcpy( bufferPtr, waveData, mDataSize );
+
+	delete waveData;
 
 	// Unlock the secondary buffer after the data has been written to it.
 	hr = mBuffer->Unlock( (void*)bufferPtr, bufferSize, NULL, 0 );

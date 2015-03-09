@@ -15,7 +15,7 @@
 
 class Enemy;
 
-#define MAX_NR_OF_ENEMIES		70
+#define MAX_NR_OF_ENEMIES		50
 
 #define randflt() (((float) rand())/((float) RAND_MAX))
 
@@ -72,9 +72,6 @@ class IEnemyBehavior
 		Enemy*			mEnemy;
 		EnemyState		mBehavior;	
 		float			mStateTimer;
-
-		//SteeringBehaviorManager**	mSteeringBehaviors;
-		void			DamageFromPlayer( IEventPtr eventPtr );
 
 	// Class functions
 	public:
@@ -163,6 +160,7 @@ class TakeDamageBehavior : public IEnemyBehavior
 {
 	// Class members
 	private:
+		void			DamageFromPlayer( IEventPtr eventPtr );
 
 	// Class functions
 	public:

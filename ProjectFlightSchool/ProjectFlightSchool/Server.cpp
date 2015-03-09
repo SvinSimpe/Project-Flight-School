@@ -748,7 +748,8 @@ void Server::UpdateShip( float deltaTime, ServerShip* s )
 
 	s->Update( deltaTime );
 	IEventPtr E1( new Event_Server_Update_Turret( s->mServerTurret->mID, s->mServerTurret->mTurretHead->rot ) );
-	SendCulledUpdate( E1, s->mServerTurret->mPos );
+	BroadcastEvent( E1 );
+	//SendCulledUpdate( E1, s->mServerTurret->mPos );
 
 	IEventPtr E2( new Event_Server_Update_Ship( s->mID, s->mMaxShield, s->mCurrentShield, s->mCurrentHP ) );
 	BroadcastEvent( E2 );
@@ -1056,7 +1057,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientUp, this, Event_Client_Up::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientAttemptRevive, this, Event_Client_Attempt_Revive::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientEnemyMeleeDamage, this, Event_Client_Enemy_Attack::GUID );
-	EventManager::GetInstance()->AddListener( &Server::ClientEnemyProjectileDamage, this, Event_Client_Projectile_Damage_Enemy::GUID );
+	//EventManager::GetInstance()->AddListener( &Server::ClientEnemyProjectileDamage, this, Event_Client_Projectile_Damage_Enemy::GUID );
 	EventManager::GetInstance()->AddListener( &Server::SetEnemyState, this, Event_Set_Enemy_State::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientInteractEnergyCell, this, Event_Client_Sync_Energy_Cell::GUID );
 	EventManager::GetInstance()->AddListener( &Server::BroadcastEnemyAttackToClients, this, Event_Tell_Server_Enemy_Attack_Player::GUID );

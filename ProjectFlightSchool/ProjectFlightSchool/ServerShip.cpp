@@ -209,6 +209,7 @@ void ServerShip::Update( float deltaTime )
 {
 	mWasUpdated = false;
 	mServerTurret->Update( deltaTime );
+	//RenderManager::GetInstance()->AddCircleToList( mHitCircle->center, XMFLOAT3( 1.0f, 0.0f, 0.0f ), mHitCircle->radius );
 }
 
 void ServerShip::FindTurretTarget( std::vector<BoundingCircle*> enemies )
@@ -262,9 +263,9 @@ void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 	mTurretLevel	= MIN_LEVEL;
 	mShieldLevel	= MIN_LEVEL;
 	mBuffLevel		= MIN_LEVEL;
-	mMaxShield		= 2000.0f;
+	mMaxShield		= 5000.0f;
 	mCurrentShield	= mMaxShield;
-	mMaxHP			= 8000.0f;
+	mMaxHP			= 20000.0f;
 	mCurrentHP		= mMaxHP;
 	mIsAlive		= true;
 
@@ -337,6 +338,8 @@ ServerShip::ServerShip() : GameObject()
 	mNrOfEnergyCells			= 0;
 	mNrOfAvailableEnergyCells	= 0;
 	mIsAlive					= true;
+	EnemiesTargetMe				= 0;
+	TanksTargetMe				= 0;
 }
 
 ServerShip::~ServerShip()

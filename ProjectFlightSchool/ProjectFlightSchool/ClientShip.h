@@ -27,6 +27,7 @@ class ClientShip : public ServerShip
 
 		void	CalculatePlayerRespawnPosition( IEventPtr eventPtr );
 		void	Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale );
+		bool	InteractIntersect( BoundingCircle* entity );
 		bool	Intersect( BoundingCircle* entity ); // Will check for intersects with damaging stuff
 		void	Update( float deltaTime );
 		void	Render( float deltaTime, DirectX::XMFLOAT4X4 parentWorld );

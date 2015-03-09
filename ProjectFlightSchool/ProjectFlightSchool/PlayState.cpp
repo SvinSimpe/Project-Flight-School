@@ -180,12 +180,15 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Server_XP> data = std::static_pointer_cast<Event_Server_XP>( newEvent );
 		if( data->PlayerID() == mPlayer->GetID() )
 		{
-			int levelUp = mPlayer->Upgradable();
-			mPlayer->AddXP( data->XP() );
-			if( mPlayer->Upgradable() != levelUp )
+			if( mPlayer->GetCurrentLevel() <= 20 )
 			{
-				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Level_Up, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.0f, 1.0f, 0.0f ) ); //both of these calls are needed for levelup effect.
-				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Level_Inner, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.1f, 0.1f, 0.1f ) ); //both of these calls are needed for levelup effect.
+				int levelUp = mPlayer->Upgradable();
+				mPlayer->AddXP( data->XP() );
+				if( mPlayer->Upgradable() != levelUp )
+				{
+					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Level_Up, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.0f, 1.0f, 0.0f ) ); //both of these calls are needed for levelup effect.
+					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Level_Inner, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.1f, 0.1f, 0.1f ) ); //both of these calls are needed for levelup effect.
+				}
 			}
 		}
 	}

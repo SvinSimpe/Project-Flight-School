@@ -46,6 +46,7 @@ class Player: public RemotePlayer
 		bool		mCloseToPlayer;
 		int			mXP;
 		int			mNextLevelXP;
+		int			mCurrentLevel;
 		int			mCurrentUpgrades;
 
 		float		mMaxVelocity;
@@ -141,6 +142,7 @@ class Player: public RemotePlayer
 		void		SetTeam( int team );
 		void		SetPosition( XMVECTOR position );
 		void		SetEnergyCellID( UINT energyCellID );
+		int			GetCurrentLevel() const;
 
 		void		QueueEvent( IEventPtr ptr );
 };

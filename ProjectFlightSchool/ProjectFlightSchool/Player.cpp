@@ -387,6 +387,8 @@ void Player::AddXP( int XP )
 	{
 		mCurrentUpgrades++;
 		mXP -= mNextLevelXP;
+		mNextLevelXP *= 1.1f;
+		mCurrentLevel++;
 	}
 }
 
@@ -1333,6 +1335,7 @@ HRESULT Player::Initialize()
 	mHasMeleeStarted	= false;
 	mXP					= 0;
 	mNextLevelXP		= 0;
+	mCurrentLevel		= 0;
 	
 	mSpawnTime				= 0.0f;
 	mTimeTillSpawn			= 0.0f;
@@ -1380,7 +1383,7 @@ HRESULT Player::Initialize()
 
 	mBuffMod			= 0.5f;
 
-	mNextLevelXP		= 10;
+	mNextLevelXP		= 60;
 	mCurrentUpgrades	= 0;
 
 	mReviveTime			= 2.0f;
@@ -1488,6 +1491,11 @@ UINT Player::GetEnergyCellID() const
 float Player::GetXPToNext() const
 {
 	return (float)( (float)mXP / (float)mNextLevelXP );
+}
+
+int Player::GetCurrentLevel() const
+{
+	return mCurrentLevel;
 }
 
 int Player::Upgradable() const

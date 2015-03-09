@@ -1015,7 +1015,7 @@ HRESULT PlayState::Render( float deltaTime )
 		}
 	}
 	
-	if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
+	if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 	{
 		WriteInteractionText( "Press E to open or close ship menu" );
 	}

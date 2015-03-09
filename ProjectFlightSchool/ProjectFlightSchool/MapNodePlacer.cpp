@@ -30,7 +30,6 @@ NODE_RETURN_CODE MapNodePlacer::CanPlace( int pX, int pY, MapNodeInstance* newNo
 		for( int y = pY; y < (int)( pY +  nodeHeight ); y++ )
 		{
 			buildMap[x][y] = newNode;
-			//mNodes.push_back( newNode );
 		}
 	}
 	XMFLOAT3 newPos = XMFLOAT3( ((float)pX * NODE_DIM ) - ( mMap->GetMapHalfWidth() * NODE_DIM ), 0, ( (float)pY * NODE_DIM ) - ( mMap->GetMapHalfHeight() * NODE_DIM ) );
@@ -90,6 +89,7 @@ void MapNodePlacer::BuildMap( MapNodeInstance***& buildMap )
 				return;
 			}
 			bool doLoop = true;
+			count = 0;
 			//Check "Tier", lastNode, chances of boss arena and/or energy position.
 			
 			randomNode = (randomNode + 1) % nodeMapSize;
@@ -125,12 +125,11 @@ void MapNodePlacer::BuildMap( MapNodeInstance***& buildMap )
 						break;
 					case PLACED:
 						//map[mNrOfNodes++] = newNode;
-						count = 0;
-
 						doLoop = false;
 						break;
 				}
 			}
+
 		}
 	}
 	return;

@@ -232,6 +232,7 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 	//== Weapon handling ==
 	mWeaponCoolDown -= deltaTime;
 	mMeleeCoolDown -= deltaTime;
+
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_LEFT ) && mWeaponCoolDown <= 0.0f )
 	{
 		mSlowDown -= mLoadOut->rangedWeapon->slowDown;
@@ -239,32 +240,22 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		{
 			mSlowDown = 0.3f;
 		}
+		RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] );
 		mWeaponCoolDown = mLoadOut->rangedWeapon->attackRate;
 		Fire();
-
-		RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] );
-		mRightArmAnimationCompleted	= false;
-		IEventPtr E2( new Event_Client_Attack( mID, RIGHT_ARM_ID, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] ) );
-		QueueEvent( E2 );
-		
-		//mWeaponCoolDown = 2.0f;
 	}
 
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_RIGHT ) && mMeleeCoolDown <= 0.0f && !mHasMeleeStarted )
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_RIGHT ) && mMeleeCoolDown <= 0.0f )
 	{
 		mSlowDown -= mLoadOut->meleeWeapon->slowDown;
 		if( mSlowDown < 0.3f )
 		{
 			mSlowDown = 0.3f;
 		}
-		//RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
-		mLeftArmAnimationCompleted = false;
-		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
-		IEventPtr E1( new Event_Client_Attack( mID, LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] ) );
-		QueueEvent( E1 );
-		mHasMeleeStarted	= true;
-		mMeleeCoolDown		= mLoadOut->meleeWeapon->attackRate;
+		mHasMeleeStarted = true;
 	}
+	if( mHasMeleeStarted )
+		Melee( deltaTime );
 
 	//Minigun behaviour
 	if( mLoadOut->rangedWeapon->weaponType == MINIGUN )
@@ -278,27 +269,6 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 			else if( mLoadOut->rangedWeapon->overheat > 0.0f )
 			{
 				mLoadOut->rangedWeapon->overheat -= MINIGUN_OVERHEAT;
-			}
-		}
-		else
-		{
-			XMFLOAT3 weaponOffsets = MINIGUN_OFFSETS;
-
-			XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
-			XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
-			XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, weaponOffsets.z, mLowerBody.position.z ) );
-	
-			offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * weaponOffsets.y;
-			offset += direction * weaponOffsets.x;
-
-			XMFLOAT3 loadDir;
-			XMStoreFloat3( &loadDir, offset );
-
-			RenderManager::GetInstance()->mParticleManager->RequestParticleSystem( mID, NormalSmoke, loadDir, DirectX::XMFLOAT3( 0.0f, 1.0f, 0.0f ) ); 
-
-			if( mWeaponCoolDown <= 0.0f )
-			{
-				mWeaponOverheated = false;
 			}
 		}
 	}
@@ -640,6 +610,23 @@ void Player::Fire()
 	}
 }
 
+void Player::Melee( float deltaTime )
+{
+	MeleeInfo* currWeapon = mLoadOut->meleeWeapon;
+	if( currWeapon->weaponType == HAMMER )
+	{
+		HammerMelee( deltaTime );
+	}
+	else if( currWeapon->weaponType == BLOWTORCH )
+	{
+		BlowtorchMelee( deltaTime );
+	}
+	else if ( currWeapon->weaponType == CLAYMORE )
+	{
+		ClaymoreMelee( deltaTime );
+	}
+}
+
 void Player::FireShotgun( XMFLOAT3* spawnPoint )
 {
 	// Fire shotgun
@@ -722,6 +709,8 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 {
 	if( mLoadOut->rangedWeapon->overheat <= 100 )
 	{
+		IEventPtr E2( new Event_Client_Attack( mID, RIGHT_ARM_ID, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] ) );
+		QueueEvent( E2 );
 		float directionOffsetX	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
 		float directionOffsetZ	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
 		mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffsetX, mUpperBody.direction.y, mUpperBody.direction.z + directionOffsetZ );// + sin(directionOffset) );
@@ -757,6 +746,25 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		mLoadOut->rangedWeapon->overheat	= 0.0f;
 		mTimeSinceLastShot					= 0.0f;
 		mWeaponOverheated					= true;
+
+		XMFLOAT3 weaponOffsets = MINIGUN_OFFSETS;
+
+		XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
+		XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
+		XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, weaponOffsets.z, mLowerBody.position.z ) );
+	
+		offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * weaponOffsets.y;
+		offset += direction * weaponOffsets.x;
+
+		XMFLOAT3 loadDir;
+		XMStoreFloat3( &loadDir, offset );
+
+		RenderManager::GetInstance()->mParticleManager->RequestParticleSystem( mID, NormalSmoke, loadDir, DirectX::XMFLOAT3( 0.0f, 1.0f, 0.0f ) ); 
+
+		if( mWeaponCoolDown <= 0.0f )
+		{
+			mWeaponOverheated = false;
+		}
 	}
 }
 
@@ -769,6 +777,89 @@ void Player::FireGrenadeLauncher( XMFLOAT3* projectileOffset )
 	mFireDirection			= XMFLOAT3( mUpperBody.direction.x, elevation, mUpperBody.direction.z );
 	IEventPtr E1( new Event_Trigger_Client_Fired_Projectile( mID, *projectileOffset, mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
+}
+
+void Player::HammerMelee( float deltaTime )
+{
+	if( mMeleeCoolDown <= 0.0f )
+	{
+		IEventPtr E1( new Event_Client_Attack( mID, LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] ) );
+		QueueEvent( E1 );
+		mLeftArmAnimationCompleted	= false;
+		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
+		mMeleeCoolDown				= mLoadOut->meleeWeapon->attackRate;
+	}
+	else
+	{
+		if( mHasMeleeStarted )
+			mTimeTillattack -= deltaTime;
+
+		if( mTimeTillattack <= 0.0f && mHasMeleeStarted )
+		{
+			mIsMeleeing			= true;
+			RenderManager::GetInstance()->RequestParticleSystem( mID, Hammer_Effect, XMFLOAT3( mLoadOut->meleeWeapon->boundingCircle->center.x, 0.3f, mLoadOut->meleeWeapon->boundingCircle->center.z ) , XMFLOAT3( 1.0f, 0.0f, 1.0f ) );
+			mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
+			mHasMeleeStarted	= false;
+		}
+	}
+}
+
+void Player::BlowtorchMelee( float deltaTime )
+{
+		XMFLOAT3 weaponOffsets = BLOWTORCH_OFFSETS;
+
+		weaponOffsets = XMFLOAT3( weaponOffsets.x + 1.25f, weaponOffsets.y, weaponOffsets.z );
+		XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
+		XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
+		XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + weaponOffsets.z, mLowerBody.position.z ) );
+	
+		offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * weaponOffsets.y;
+		offset += direction * weaponOffsets.x;
+
+		XMFLOAT3 loadDir;
+		XMStoreFloat3( &loadDir, offset );
+		if( mHasMeleeStarted )
+		{
+			mTimeTillattack -= deltaTime;
+			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, loadDir, mUpperBody.direction );
+			if( mTimeTillattack <= 0.0f )
+			{
+				mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
+				mIsMeleeing			= true;
+				mHasMeleeStarted	= false;
+			}
+			else
+			{
+				mIsMeleeing			= false;
+			}
+		}
+		else
+			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchIdle, loadDir, mUpperBody.direction );
+}
+
+void Player::ClaymoreMelee( float deltaTime )
+{
+	if( mMeleeCoolDown <= 0.0f )
+	{
+		IEventPtr E1( new Event_Client_Attack( mID, LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] ) );
+		QueueEvent( E1 );
+		mLeftArmAnimationCompleted	= false;
+		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
+		mMeleeCoolDown				= mLoadOut->meleeWeapon->attackRate;
+	}
+	else
+	{
+		if( mHasMeleeStarted )
+			mTimeTillattack -= deltaTime;
+
+		if( mTimeTillattack <= 0.0f && mHasMeleeStarted )
+		{
+			mIsMeleeing			= true;
+			//RenderManager::GetInstance()->RequestParticleSystem( mID, Hammer_Effect, XMFLOAT3( mLoadOut->meleeWeapon->boundingCircle->center.x, 0.3f, mLoadOut->meleeWeapon->boundingCircle->center.z ) , XMFLOAT3( 1.0f, 0.0f, 1.0f ) );
+			mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
+			mHasMeleeStarted	= false;
+		}
+	}
 }
 
 float Player::CalculateLaunchAngle()
@@ -978,40 +1069,6 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	// Mele attack
 	//mLoadOut->meleeWeapon->boundingCircle->center = GetPosition() + ( GetDirection() * mLoadOut->meleeWeapon->radius );
 
-	if( mHasMeleeStarted )
-		mTimeTillattack -= deltaTime;
-
-	if( mTimeTillattack <= 0.0f && mHasMeleeStarted )
-	{
-		mIsMeleeing						= true;
-		//mLeftArmAnimationCompleted		= false;
-		if ( mLoadOut->meleeWeapon->weaponType == HAMMER )
-		{
-			RenderManager::GetInstance()->RequestParticleSystem( mID, Hammer_Effect, XMFLOAT3( mLoadOut->meleeWeapon->boundingCircle->center.x, 0.3f, mLoadOut->meleeWeapon->boundingCircle->center.z ) , XMFLOAT3( 1.0f, 0.0f, 1.0f ) );
-		}
-		mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
-		mHasMeleeStarted	= false;
-	}
-
-	if( mLoadOut->meleeWeapon->weaponType == BLOWTORCH )
-	{
-		XMFLOAT3 weaponOffsets = BLOWTORCH_OFFSETS;
-
-		weaponOffsets = XMFLOAT3( weaponOffsets.x + 1.25f, weaponOffsets.y, weaponOffsets.z );
-		XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
-		XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
-		XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + weaponOffsets.z, mLowerBody.position.z ) );
-	
-		offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * weaponOffsets.y;
-		offset += direction * weaponOffsets.x;
-
-		XMFLOAT3 loadDir;
-		XMStoreFloat3( &loadDir, offset );
-		if( mHasMeleeStarted )
-			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, loadDir, mUpperBody.direction );
-		else
-			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchIdle, loadDir, mUpperBody.direction );
-	}
 	// If player is alive, update position. If hp <= 0 kill player
 	if( !mIsDown )
 	{
@@ -1222,30 +1279,30 @@ HRESULT Player::Render( float deltaTime, int position )
 
 	RemotePlayer::Render();
 	//---------------------------DEBUG RENDERING----------------------------
-	//MeleeInfo* currWeapon = mLoadOut->meleeWeapon;
-	//RenderManager::GetInstance()->AddCircleToList( currWeapon->boundingCircle->center, DirectX::XMFLOAT3( 0, 1, 1 ), currWeapon->boundingCircle->radius );
-	//RenderManager::GetInstance()->AddBoxToList( XMFLOAT3( mPick.x - 0.5f, mPick.y - 0.5f, mPick.z - 0.5f ), XMFLOAT3( mPick.x + 0.5f, mPick.y + 0.5f, mPick.z + 0.5f ) );
-	//RenderManager::GetInstance()->AddCircleToList( mLoadOut->meleeWeapon->boundingCircle->center, DirectX::XMFLOAT3(1,1,0), mLoadOut->meleeWeapon->boundingCircle->radius );
-	//RenderManager::GetInstance()->AddCircleToList( mBoundingCircle->center, DirectX::XMFLOAT3(0,1,0), mBoundingCircle->radius );
-	//if( mHasMeleeStarted )
-	//{
-	//	
-	//	XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mUpperBody.direction ) * currWeapon->radius );
+	MeleeInfo* currWeapon = mLoadOut->meleeWeapon;
+	RenderManager::GetInstance()->AddCircleToList( currWeapon->boundingCircle->center, DirectX::XMFLOAT3( 0, 1, 1 ), currWeapon->boundingCircle->radius );
+	RenderManager::GetInstance()->AddBoxToList( XMFLOAT3( mPick.x - 0.5f, mPick.y - 0.5f, mPick.z - 0.5f ), XMFLOAT3( mPick.x + 0.5f, mPick.y + 0.5f, mPick.z + 0.5f ) );
+	RenderManager::GetInstance()->AddCircleToList( mLoadOut->meleeWeapon->boundingCircle->center, DirectX::XMFLOAT3(1,1,0), mLoadOut->meleeWeapon->boundingCircle->radius );
+	RenderManager::GetInstance()->AddCircleToList( mBoundingCircle->center, DirectX::XMFLOAT3(0,1,0), mBoundingCircle->radius );
+	if( mHasMeleeStarted )
+	{
+		
+		XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mUpperBody.direction ) * currWeapon->radius );
 
-	//	float halfRadian = XMConvertToRadians( currWeapon->spread * 18.0f ) * 0.5f;
+		float halfRadian = XMConvertToRadians( currWeapon->spread * 18.0f ) * 0.5f;
 
-	//	XMVECTOR leftVector = XMVector3Rotate( meeleRadiusVector, XMQuaternionRotationRollPitchYawFromVector( XMVectorSet( 0, -halfRadian, 0 , 1 ) ) );
-	//	XMVECTOR rightVector = XMVector3Rotate( meeleRadiusVector, XMQuaternionRotationRollPitchYawFromVector( XMVectorSet( 0, halfRadian, 0 , 1 ) ) );
+		XMVECTOR leftVector = XMVector3Rotate( meeleRadiusVector, XMQuaternionRotationRollPitchYawFromVector( XMVectorSet( 0, -halfRadian, 0 , 1 ) ) );
+		XMVECTOR rightVector = XMVector3Rotate( meeleRadiusVector, XMQuaternionRotationRollPitchYawFromVector( XMVectorSet( 0, halfRadian, 0 , 1 ) ) );
 
-	//	XMFLOAT3 leftEnd, rightEnd;
-	//	XMFLOAT3 pos = currWeapon->boundingCircle->center;
-	//	
-	//	XMStoreFloat3( &leftEnd, XMLoadFloat3( &pos ) + leftVector );
-	//	XMStoreFloat3( &rightEnd, XMLoadFloat3( &pos ) + rightVector );
-	//	RenderManager::GetInstance()->AddCircleToList( currWeapon->boundingCircle->center, DirectX::XMFLOAT3( 0, 1, 1 ), currWeapon->boundingCircle->radius );
-	//	RenderManager::GetInstance()->AddLineToList( pos, XMFLOAT3( leftEnd.x, 0.1f, leftEnd.z ) );
-	//	RenderManager::GetInstance()->AddLineToList( pos, XMFLOAT3( rightEnd.x, 0.1f, rightEnd.z ) );
-	//}
+		XMFLOAT3 leftEnd, rightEnd;
+		XMFLOAT3 pos = currWeapon->boundingCircle->center;
+		
+		XMStoreFloat3( &leftEnd, XMLoadFloat3( &pos ) + leftVector );
+		XMStoreFloat3( &rightEnd, XMLoadFloat3( &pos ) + rightVector );
+		RenderManager::GetInstance()->AddCircleToList( currWeapon->boundingCircle->center, DirectX::XMFLOAT3( 0, 1, 1 ), currWeapon->boundingCircle->radius );
+		RenderManager::GetInstance()->AddLineToList( pos, XMFLOAT3( leftEnd.x, 0.1f, leftEnd.z ) );
+		RenderManager::GetInstance()->AddLineToList( pos, XMFLOAT3( rightEnd.x, 0.1f, rightEnd.z ) );
+	}
 	//---------------------------DEBUG RENDERING----------------------------
 
 
@@ -1462,4 +1519,3 @@ void Player::SetEnergyCellID( UINT energyCellID )
 {
 	mEnergyCellID = energyCellID;
 }
-

@@ -563,11 +563,12 @@ void PlayState::HandleDeveloperCameraInput()
 
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_O ) )
 	{
-		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
-		{
-			IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
-			Client::GetInstance()->SendEvent( E1 );
-		}
+		mPlayer->AddXP( 3000.0f );
+		//if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
+		//{
+		//	IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
+		//	Client::GetInstance()->SendEvent( E1 );
+		//}
 	}
 	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_E ) )
 	{

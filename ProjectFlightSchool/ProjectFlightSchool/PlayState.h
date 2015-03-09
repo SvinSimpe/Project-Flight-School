@@ -72,6 +72,11 @@ class PlayState : public BaseState
 		//TestSound
 		int							m3DSoundAsset;
 		int							mSoundAsset;
+		int							mMiniGun;
+		int							mLevelUp;
+		int							mShotGun;
+		int							mSniper;
+		int							mLobbyMusic;
 		int							mStreamSoundAsset;
 	
 	protected:

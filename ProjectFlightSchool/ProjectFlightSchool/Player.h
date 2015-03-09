@@ -100,6 +100,7 @@ class Player: public RemotePlayer
 		void		UpgradeLegs();
 		void		UpgradeMelee();
 		void		UpgradeRange();
+		void		WriteInteractionText( std::string text );
 
 	protected:
 	public:

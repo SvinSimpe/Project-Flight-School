@@ -44,6 +44,7 @@ class LobbyState : public BaseState
 		UINT						mMyID;
 		float						mGameCountdown;
 		bool						mGameCountdownStarted;
+		Image						mGameCountdownBack;
 		bool						mTeamsLocked;
 
 	public:

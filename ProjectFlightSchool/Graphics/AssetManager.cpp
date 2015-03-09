@@ -170,9 +170,9 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device, ID3D11DeviceConte
 
 
 
-	ID3D11ShaderResourceView* srv[7];
-	ID3D10Texture2D* tex[7];
-	for( int i = 0; i < 7; i++ )
+	ID3D11ShaderResourceView* srv[8];
+	ID3D10Texture2D* tex[8];
+	for( int i = 0; i < 8; i++ )
 	{
 		srv[i] = nullptr;
 		tex[i] = nullptr;
@@ -221,6 +221,13 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device, ID3D11DeviceConte
 	}
 
 	hr = mResourceLoader->LoadResource( device, dc, "../Content/Assets/Textures/BlendMaps/waterNM.dds", (ID3D11Resource**)tex[6], &srv[6] );
+	if( FAILED( hr ) )
+	{	
+		//Failed to create the water normalmap
+		return hr;
+	}
+
+	hr = mResourceLoader->LoadResource( device, dc, "../Content/Assets/Textures/BlendMaps/G_blendGrassNM.dds", (ID3D11Resource**)tex[7], &srv[7] );
 	if( FAILED( hr ) )
 	{	
 		//Failed to create the water normalmap
@@ -280,6 +287,13 @@ HRESULT	AssetManager::PlaceholderAssets( ID3D11Device* device, ID3D11DeviceConte
 	waterTexture->mSRV			= srv[6];
 
 	mAssetContainer[WATER_NORMALMAP] = waterTexture;
+
+	blendTexture				= new Static2dAsset;
+	blendTexture->mAssetId		= GRASS_BLENDNORMALMAP;
+	blendTexture->mFileName		= "GRASS BLENDNORMALMAP";
+	blendTexture->mSRV			= srv[7];
+
+	mAssetContainer[GRASS_BLENDNORMALMAP] = blendTexture;
 
 	return hr;
 }

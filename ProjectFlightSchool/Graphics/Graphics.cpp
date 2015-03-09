@@ -1339,6 +1339,7 @@ void Graphics::RenderNodeGrid( NodeGridInfo* info, UINT sizeOfList )
 		mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[GRASS_BLENDMAP] )->mSRV );
 		mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SAND_BLENDMAP] )->mSRV );
 		mDeviceContext->PSSetShaderResources( 3, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[info[i].mBlendMap] )->mSRV );
+		mDeviceContext->PSSetShaderResources( 4, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[GRASS_BLENDNORMALMAP] )->mSRV );
 		mDeviceContext->Draw( info[i].mNrOfVertices, 0 );
 
 	}

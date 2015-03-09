@@ -74,7 +74,6 @@ class ServerShip : public GameObject
 		void			FindTurretTarget( std::vector<BoundingCircle*> enemies );
 		virtual void	Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID = CUBE_PLACEHOLDER );
 		virtual void	Initialize( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID = CUBE_PLACEHOLDER );
-		virtual void	Initialize( UINT id, UINT teamID, GameObjectInfo gameObjectInfo, AssetID assetID = CUBE_PLACEHOLDER );
 		virtual void	Release();
 						ServerShip();
 		virtual			~ServerShip();

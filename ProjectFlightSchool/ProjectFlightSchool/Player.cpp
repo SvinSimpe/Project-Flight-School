@@ -390,6 +390,11 @@ void Player::AddXP( int XP )
 		mNextLevelXP *= 1.1f;
 		mCurrentLevel++;
 	}
+
+	//Check if maxlevel
+	if ( mCurrentLevel == 16 )
+		mXP = mNextLevelXP;
+	
 }
 
 void Player::PickUpEnergyCell( EnergyCell** energyCells )

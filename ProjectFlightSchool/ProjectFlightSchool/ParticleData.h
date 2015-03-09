@@ -433,9 +433,9 @@ struct ParticleData
 
 				case MuzzleFlash:
 				{
-					randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 5 );
-					randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 5 );
-					randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 5 );
+					float magnitude = GetRandomSpeed( 5, 100 );
+					randomDirectionVector.x = xDirection * magnitude;
+					randomDirectionVector.z = zDirection * magnitude;
 					break;
 				}
 
@@ -495,17 +495,17 @@ struct ParticleData
 
 				case Explosion:
 				{
-					randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 60 );
-					randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 100 );
-					randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 60 );	
+					randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 80 );
+					randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 20 );
+					randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 80 );	
 					break;
 				}
 
 				case ExplosionSmoke:
 				{
-					randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 70 );
-					randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 120 );
-					randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 70 );	
+					randomDirectionVector.x = GetRandomSpeed( 1, 70 );
+					randomDirectionVector.y = GetRandomSpeed( 1, 120 );
+					randomDirectionVector.z = GetRandomSpeed( 1, 70 );	
 					break;
 				}
 

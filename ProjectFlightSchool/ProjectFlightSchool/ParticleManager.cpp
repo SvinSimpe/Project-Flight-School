@@ -223,7 +223,7 @@ void ParticleManager::Initialize()
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[MuzzleFlash]; i++ )
 	{
-		mParticleSystems[MuzzleFlash][i]->Initialize( MuzzleFlash, 1.0f, 64 );
+		mParticleSystems[MuzzleFlash][i]->Initialize( MuzzleFlash, 6.0f, 64 );
 		mNrOfParticleSystemsPerType[MuzzleFlash]++;
 		mNrOfParticleSystems++;
 	}
@@ -286,7 +286,7 @@ void ParticleManager::Initialize()
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[ExplosionSmoke]; i++ )
 	{
-		mParticleSystems[ExplosionSmoke][i]->Initialize( ExplosionSmoke, 50.0f, 1000 );
+		mParticleSystems[ExplosionSmoke][i]->Initialize( ExplosionSmoke, 50.0f, 100 );
 		mNrOfParticleSystemsPerType[ExplosionSmoke]++;
 		mNrOfParticleSystems++;
 	}

@@ -296,7 +296,7 @@ struct ParticleSystem : public ParticleData
 			case ExplosionSmoke:
 			{
 				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
-				SetRandomDeathTime( 1, 6, particleCount );
+				SetRandomDeathTime( 5, 10, particleCount );
 				SetRandomRotation( particleCount ); 
 				break;
 			}
@@ -354,7 +354,7 @@ struct ParticleSystem : public ParticleData
 		else if( particleType == Spark_Robot )		Generate( emitterPosition, emitterDirection, 8,		90.0f,		initialVelocity );
 		else if( particleType == Spark_Electric )	Generate( emitterPosition, emitterDirection, 1,		360.0f,		initialVelocity );
 		else if( particleType == Blood )			Generate( emitterPosition, emitterDirection, 8,		25.0f,		initialVelocity );
-		else if( particleType == MuzzleFlash )		Generate( emitterPosition, emitterDirection, 4,		25.0f,		initialVelocity );
+		else if( particleType == MuzzleFlash )		Generate( emitterPosition, emitterDirection, 4,		1.0f,		initialVelocity );
 		else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 8,		2.0f,		initialVelocity );
 		else if( particleType == Spores )			Generate( emitterPosition, emitterDirection, 8,		20.0f,		initialVelocity );
 		else if( particleType == FireSmoke )		Generate( emitterPosition, emitterDirection, 15,	25.0f,		initialVelocity );	
@@ -363,7 +363,7 @@ struct ParticleSystem : public ParticleData
 		else if( particleType == Level_Up )			Generate( emitterPosition, emitterDirection, 512,	270.0f,		initialVelocity );
 		else if( particleType == Level_Inner )		Generate( emitterPosition, emitterDirection, 32,	20.0f,		initialVelocity );
 		else if( particleType == Explosion )		Generate( emitterPosition, emitterDirection, 50,	360.0f,		initialVelocity );
-		else if( particleType == ExplosionSmoke )	Generate( emitterPosition, emitterDirection, 50,	360.0f,		initialVelocity );		
+		else if( particleType == ExplosionSmoke )	Generate( emitterPosition, emitterDirection, 50,	90.0f,		initialVelocity );		
 		else if( particleType == NormalSmoke )		Generate( emitterPosition, emitterDirection, 6,		120.0f,		initialVelocity );
 		else if( particleType == Fire_Flies )		Generate( emitterPosition, emitterDirection, 8,		5.0f,		initialVelocity );
 		else if( particleType == Hammer_Effect )	Generate( emitterPosition, emitterDirection, 64,	180.0f,		initialVelocity );
@@ -732,7 +732,7 @@ struct ParticleSystem : public ParticleData
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
 		{
 			if(damping[i] > 0)
-				damping[i] -= 0.01f;
+				damping[i] -= 0.003f;
 
 			xVelocity[i] = xVelocity[i] * damping[i];
 			zVelocity[i] = zVelocity[i] * damping[i];

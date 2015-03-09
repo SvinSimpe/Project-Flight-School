@@ -32,10 +32,10 @@ struct GS_Out
 void GS_main( point VS_In input[1], inout TriangleStream<GS_Out> outputStream )
 {
 	float3 vecToCam = normalize( ( input[0].position - cameraPosition.xyz ) );
-	float3 rightVec = float3( cos( input[0].randomRotation * 10 + ( input[0].age * 3 ) ), sin( input[0].randomRotation * 10 + (input[0].age * 3) ), 0.0f );
+	float3 rightVec = float3( cos( input[0].randomRotation * 10 + ( input[0].age * 10 ) ), sin( input[0].randomRotation * 10 + (input[0].age * 10) ), 0.0f );
 	float3 upVec = normalize( cross( vecToCam, rightVec ) );
 
-	float size = 0.6f + (input[0].age * 5);
+	float size = 0.6f + (input[0].age * 3.5);
 
 	//Get vertices for the quad
 	float3 vert[4];
@@ -72,9 +72,9 @@ float4 PS_main(GS_Out input) : SV_TARGET0
 {	
 
 	float4 diffuse = float4( diffuseTexture.Sample( linearSampler, input.uv ) );
-	if(input.timeTillDeath < 0.2)
+	if(input.timeTillDeath < 0.5)
 	{
-		diffuse.w = diffuse.w * ( input.timeTillDeath * 5 );
+		diffuse.w = diffuse.w * ( input.timeTillDeath * 2 );
 		return diffuse;
 	}
 

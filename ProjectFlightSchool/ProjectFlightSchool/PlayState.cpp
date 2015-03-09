@@ -164,8 +164,8 @@ void PlayState::EventListener( IEventPtr newEvent )
 		
 		// Request Muzzle Flash from Particle Manager
 		
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->Position(), data->Direction() );
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->Position(), data->Direction() );		
+		/*RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->Position(), data->Direction() );
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->Position(), data->Direction() );	*/	
 	}
 	else if( newEvent->GetEventType() == Event_Server_Sync_Energy_Cell::GUID )
 	{

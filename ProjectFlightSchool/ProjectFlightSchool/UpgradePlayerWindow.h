@@ -13,6 +13,7 @@ struct UpgradeButtonStruct
 {
 	Button		button;
 	int			nrOfLevels	= 1;
+	Image		background;
 
 	bool Pressed()
 	{
@@ -31,6 +32,7 @@ struct UpgradeButtonStruct
 	void Render()
 	{
 		button.Render();
+		background.Render();
 	}
 };
 
@@ -44,7 +46,6 @@ private:
 	UpgradeButtonStruct	mHealthButton;
 	UpgradeButtonStruct	mMeleeButton;
 	UpgradeButtonStruct	mRangeButton;
-	XMFLOAT2			mTextPos;
 
 protected:
 public:

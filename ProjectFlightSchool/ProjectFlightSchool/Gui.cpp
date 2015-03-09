@@ -2,13 +2,11 @@
 
 void Gui::ActivateUpgradeShipWindow()
 {
-	mEnergyCellsShowing = true;
 	mShipWindow.Activate();
 }
 
 void Gui::DeActivateUpgradeShipWindow()
 {
-	mEnergyCellsShowing = false;
 	mShipWindow.DeActivate();
 }
 
@@ -87,7 +85,6 @@ HRESULT Gui::Update( GuiUpdate guiUpdate )
 
 	mPlayerHP		= (int)( guiUpdate.mPlayerHP * 100 );
 	mPlayerXP		= (int)( guiUpdate.mPlayerXP * 100 );
-	mPlayerShield	= (int)( guiUpdate.mPlayerShield * 100 );
 	mExperience		= guiUpdate.mLevel;
 
 	if ( mShipWindow.IsActive() )
@@ -137,38 +134,30 @@ HRESULT Gui::Render()
 		result = mRadar->Render();
 
 		///////////////////
-		//Player hp, shield & xp
+		//Player hp & xp
 		///////////////////
-		RenderManager::GetInstance()->AddObject2dToList( mPlayerBar, mPlayerHealthXPTopLeftCorner, mSizePlayerHealthXP );
+		mHPXP.Render();
 		std::string renderText;
 
-		mFont.WriteText( "Hp", 106.0f, 858.0f, 2.9f );
-		renderText = std::to_string( mPlayerHP );
-		renderText += "%";
-		mFont.WriteText( renderText, 95.0f, 896.0f, 2.9f );
+		renderText = "HP " + std::to_string( mPlayerHP ) + "%";
+		mFont.WriteText( renderText, 100.0f - mFont.GetMiddleXPoint( renderText, 3.0 ), mHPXP.GetPosition().y + 100.0f - 25.0f - 15.0f, 3.0f, COLOR_CYAN );//100 is half the size of the hexagon, 25 is a offset from the middle and 15 is half the size of the text (3.0*10/2)
 
-		mFont.WriteText( "Shield", 68.0f, 945.0f, 2.9f );
-		renderText = std::to_string( mPlayerShield );
-		renderText += "%";
-		mFont.WriteText( renderText, 95.0f, 983.0f, 2.9f );
-
-		mFont.WriteText( "Xp", 316.0f, 871.0f, 3.8f );
-		renderText = std::to_string( mPlayerXP );
-		renderText += "%";
-		mFont.WriteText( renderText, 297.0f, 930.0f, 3.8f );
-
+		renderText = "XP " + std::to_string( mPlayerXP ) + "%";
+		mFont.WriteText( renderText, 100.0f - mFont.GetMiddleXPoint( renderText, 3.0 ), mHPXP.GetPosition().y + 100.0f + 25.0f - 15.0f, 3.0f, COLOR_CYAN );
+		
+		mDeviderHPXP.Render();
 
 		////////////////
 		//Level up
 		////////////////
-		if( mExperience >= 1 && !mPlayerWindow.IsActive() )
+		if( mExperience >= 1 )
 		{
 
-			RenderManager::GetInstance()->AddObject2dToList( mLevelUp, mTopLeftLevelUp, mSizeLevelUp );
+			mLevelUp.Render();
 
 			renderText = "+";
 			renderText += std::to_string( (int)mExperience );
-			mFont.WriteText( renderText, (mTopLeftLevelUp.x + 75.0f ), ( mTopLeftLevelUp.y + 66.0f ), 4.8f );
+			mFont.WriteText( renderText, mLevelUp.GetPosition().x + 100.0f - mFont.GetMiddleXPoint( renderText, 4.8f ), ( mLevelUp.GetPosition().y + 100.0f - 24.0f ), 4.8f, COLOR_CYAN ); //100 is half of the hexagon, 24 is half of the text height.
 		}
 
 		if ( mShipWindow.IsActive() )
@@ -185,8 +174,7 @@ HRESULT Gui::Render()
 		{
 			mInGameWindow.Render();
 		}
-
-		if( mEnergyCellsShowing && !mInGameWindow.IsActive() )
+		else
 		{
 			renderText = std::to_string( mShipWindow.GetNrOfEnergyCells() ) + " of " + std::to_string( mNeededEnergyCells ) + " energy cells";
 			mFont.WriteText( renderText, 1680.0f, 280.0f, 2.0f );
@@ -227,27 +215,13 @@ HRESULT Gui::Initialize( UINT neededEnergyCells )
 
 	mPlayerHP		= 0;
 	mPlayerXP		= 0;
-	mPlayerShield	= 0;
 
 	mExperience		= 0;
 
-	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/hexagonDouble.dds", mPlayerBar );
-	if( FAILED( result ) )
-	{
-		return result;
-	}
-
-	result = Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/HUD/hexagonSingle.dds", mLevelUp );
-	if( FAILED( result ) )
-	{
-		return result;
-	}
-
-	mSizePlayerHealthXP					= XMFLOAT2( 480.0f, 284.0f );
-	mPlayerHealthXPTopLeftCorner		= XMFLOAT2( 0.0f, ( Input::GetInstance()->mScreenHeight - mSizePlayerHealthXP.y ) );
-	mSizeLevelUp						= XMFLOAT2( 200.0f, 208.0f );
-	mTopLeftLevelUp						= XMFLOAT2( 149.0f, 641.0f );
-
+	mHPXP.Initialize( "../Content/Assets/GUI/HUD/hexagonSingle.dds", 0.0f, Input::GetInstance()->mScreenHeight - 208.0f, 200.0f, 200.0f );
+	mLevelUp.Initialize( "../Content/Assets/GUI/HUD/hexagonSingle.dds", 205.0f, Input::GetInstance()->mScreenHeight - 208.0f, 200.0f, 200.0f );
+	mDeviderHPXP.Initialize( "../Content/Assets/GUI/HUD/HP_XPGlowDivider.dds", mHPXP.GetPosition().x + 100.0f - 70.0f, mHPXP.GetPosition().y + 100.0f - 10.0f, 140.0f, 20.0f );
+	
 	mShipWindow.Initialize();
 	mPlayerWindow.Initialize();
 	mInGameWindow.Initialize();
@@ -257,6 +231,13 @@ HRESULT Gui::Initialize( UINT neededEnergyCells )
 	mNeededEnergyCells	= neededEnergyCells;
 
 	return result;
+}
+
+void Gui::Reset()
+{
+	Release();
+	Initialize( 6 );
+	mEndGameWindow.Reset();
 }
 
 void Gui::Release()
@@ -277,6 +258,8 @@ void Gui::Release()
 	mShipWindow.Release();
 	mPlayerWindow.Release();
 	mEndGameWindow.Release();
+	mHPXP.Release();
+	mLevelUp.Release();
 }
 
 Gui::Gui()

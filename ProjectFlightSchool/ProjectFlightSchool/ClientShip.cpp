@@ -85,11 +85,6 @@ void ClientShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 	mHitCircle->center = pos;
 	mClientTurret->Reset( id, teamID, pos, rot, scale );
 
-	for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
-	{
-		mEnergyCells[i] = (UINT)-1;
-	}
-
 	mNrOfEnergyCells = 0;
 }
 
@@ -101,7 +96,10 @@ bool ClientShip::Intersect( BoundingCircle* entity )
 		{
 			return true;
 		}
-		else return false;
+		else 
+		{
+			return false;
+		}
 	}
 	return false;
 }
@@ -122,12 +120,6 @@ void ClientShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 	ServerShip::Initialize( id, teamID, pos, rot, scale );
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Ship/", "ShipWithTripod.pfs", mAssetID );
-	mHitCircle = new BoundingCircle( mPos, 5.0f );
-
-	for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
-	{
-		mEnergyCells[i] = (UINT)-1;
-	}
 	
 	mNrOfEnergyCells = 0;
 
@@ -136,13 +128,11 @@ void ClientShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 
 	EventManager::GetInstance()->AddListener( &ClientShip::RemoteUpdateShip, this, Event_Server_Update_Ship::GUID );
 	EventManager::GetInstance()->AddListener( &ClientShip::CalculatePlayerRespawnPosition, this, Event_Request_Player_Spawn_Position::GUID );
-
 }
 
 void ClientShip::Release()
 {
 	ServerShip::Release();
-	SAFE_DELETE( mHitCircle );
 	SAFE_RELEASE_DELETE( mClientTurret );
 }
 
@@ -150,7 +140,6 @@ ClientShip::ClientShip() : ServerShip()
 {
 
 	mAssetID		= CUBE_PLACEHOLDER;
-	mHitCircle		= nullptr;
 	mWasUpdated		= false;
 	mClientTurret	= nullptr;
 	mNrOfEnergyCells	= 0;	

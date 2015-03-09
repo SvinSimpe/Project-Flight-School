@@ -13,12 +13,14 @@
 
 struct LobbyPlayer
 {
-	int				ID;
-	std::string		name;
-	int				team;
-	XMFLOAT2		position;
+	UINT			ID = (UINT)-1;
+	std::string		name = "";
+	UINT			team = (UINT)-1; 
+	XMFLOAT2		position = XMFLOAT2(0.0f, 0.0f);
 	XMFLOAT2		size = XMFLOAT2( 328.0f, 64.0f );
 	Button			button;
+	bool			thisPlayer = false;
+	bool			isReady = false;
 };
 
 class LobbyState : public BaseState
@@ -33,10 +35,16 @@ class LobbyState : public BaseState
 		AssetID						mBackground;
 		bool						mActive;
 		MovingButton				mBackButton;
+		Image						mReadyImg;
+		Button						mCheckBox;
 		LoadOutMenu					mLoadOutMenu;
 		Button						mChooseWeaponButton;
 		Image						mChooseWeaponText;
 		int							mStreamSoundAsset;
+		UINT						mMyID;
+		float						mGameCountdown;
+		bool						mGameCountdownStarted;
+		bool						mTeamsLocked;
 
 	public:
 
@@ -45,7 +53,9 @@ class LobbyState : public BaseState
 		void	EventListener( IEventPtr newEvent );
 
 	protected:
+		void	StartGameCountdown();
 		void	HandleInput();
+
 	public:
 		HRESULT Update( float deltaTime );
 		HRESULT Render( float deltaTime );

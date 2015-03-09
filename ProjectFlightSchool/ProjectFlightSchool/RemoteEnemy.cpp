@@ -15,7 +15,7 @@ HRESULT RemoteEnemy::Update( float deltaTime )
 HRESULT RemoteEnemy::Render()
 {
 	float radians = atan2f( mDirection.z, mDirection.x );
-
+	//RenderManager::GetInstance()->AddCircleToList( mBoundingCircle->center, XMFLOAT3( 1.0f, 0.0f, 0.0f ), mBoundingCircle->radius );
 	if( mLoopAnimation)
 		RenderManager::GetInstance()->AddAnim3dToList( mAnimationTrack, ANIMATION_PLAY_LOOPED, mPosition, XMFLOAT3( 0.0f, -radians, 0.0f ) );
 	else
@@ -105,7 +105,7 @@ HRESULT RemoteEnemy::Initialize( int id, AssetID model, AssetID animation )
 	mLoopAnimation	= true;
 
 	// Load animationTrack with model and standard animation
-	RenderManager::GetInstance()->AnimationInitialize( mAnimationTrack, model, animation );
+	//RenderManager::GetInstance()->AnimationInitialize( mAnimationTrack, model, animation );
 
 	mBoundingCircle		= new BoundingCircle( 0.5f );
 

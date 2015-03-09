@@ -8,9 +8,7 @@
 class ClientShip : public ServerShip
 {
 	private:
-		BoundingCircle* mHitCircle;
 		ClientTurret* mClientTurret;
-
 
 	protected:
 	public:
@@ -18,7 +16,6 @@ class ClientShip : public ServerShip
 	private:
 		void	RemoteUpdateShip( IEventPtr eventPtr );
 		void	RemoteChangeShipLevels( IEventPtr eventPtr );
-
 
 	protected:
 	public:

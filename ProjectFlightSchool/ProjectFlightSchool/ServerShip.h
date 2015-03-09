@@ -18,6 +18,7 @@ class ServerShip : public GameObject
 	protected:
 		ServerTurret*	mServerTurret;
 		BoundingCircle* mBuffCircle;
+		BoundingCircle* mHitCircle;
 		UINT			mID;
 		UINT			mTeamID;
 		XMFLOAT4X4		mWorld;
@@ -27,7 +28,6 @@ class ServerShip : public GameObject
 		float			mCurrentHP;
 		UINT			mNrOfEnergyCells;
 		UINT			mNrOfAvailableEnergyCells;
-		UINT			mEnergyCells[MAX_ENERGY_CELLS];
 
 		UINT			mTurretLevel;
 		UINT			mBuffLevel;
@@ -35,9 +35,13 @@ class ServerShip : public GameObject
 		UINT			mEngineLevel;
 
 		bool			mWasUpdated;
+		bool			mIsAlive;
+
 
 
 	public:
+		UINT			EnemiesTargetMe;
+		UINT			TanksTargetMe;
 
 	private:
 		// Calculates the new level dependent on the change factor sent by the client
@@ -60,13 +64,16 @@ class ServerShip : public GameObject
 		
 		void			ClientChangeShipLevels( int changeTurretLevel, int changeShieldLevel, int changeBuffLevel, int changeEngineLevel );
 
+		UINT			GetID() const;
+		BoundingCircle*	GetHitCircle() const;
+		bool			IsAlive() const;
+		UINT			GetTeamID() const;
 		virtual bool	TakeDamage( float damage );
 		virtual bool	Intersect( BoundingCircle* entity ); // Will check for intersects with buffable players
 		virtual void	Update( float deltaTime );
 		void			FindTurretTarget( std::vector<BoundingCircle*> enemies );
 		virtual void	Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID = CUBE_PLACEHOLDER );
 		virtual void	Initialize( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID = CUBE_PLACEHOLDER );
-		virtual void	Initialize( UINT id, UINT teamID, GameObjectInfo gameObjectInfo, AssetID assetID = CUBE_PLACEHOLDER );
 		virtual void	Release();
 						ServerShip();
 		virtual			~ServerShip();

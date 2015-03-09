@@ -104,7 +104,7 @@ void GameObject::Initialize( GameObjectInfo gameObjectInfo, AssetID assetID )
 	mRot.x = -mRot.x;
 	mRot.y = -mRot.y;
 
-	mPos.z = -mPos.z;
+	//mPos.z = -mPos.z;
 
 	mAssetID = assetID;
 }

@@ -32,7 +32,7 @@ void OptionsMenuState::HandleInput()
 	}
 	else
 	{
-		if( Input::GetInstance()->IsKeyDown( KEYS_ENTER ) )
+		if( mInOptionsBackground.LeftMousePressed() )
 		{
 			mInOptions = false;
 		}
@@ -47,6 +47,9 @@ HRESULT OptionsMenuState::Update( float deltaTime )
 	{
 		mButtons.at(i)->Update( deltaTime );
 	}
+
+	mInOptionsBackground.Update( deltaTime );
+
 	return S_OK;
 }
 
@@ -61,7 +64,7 @@ HRESULT OptionsMenuState::Render( float deltaTime )
 	
 	if( mInOptions )
 	{
-		RenderManager::GetInstance()->AddObject2dToList( mInOptionsBackground, XMFLOAT2( 0.0f, 0.0f ), XMFLOAT2( (float)Input::GetInstance()->mScreenWidth, (float)Input::GetInstance()->mScreenHeight ) );
+		mInOptionsBackground.Render();
 	}
 
 	RenderManager::GetInstance()->Render();
@@ -101,7 +104,7 @@ HRESULT OptionsMenuState::Initialize()
 		x += (float)Input::GetInstance()->mScreenWidth  * 0.1f;
 	}
 
-	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/Menu/helpOverlay_menu.dds", mInOptionsBackground );
+	mInOptionsBackground.Initialize( "../Content/Assets/Textures/Menu/helpOverlay_menu.dds", 0.0f, 0.0f, (float)Input::GetInstance()->mScreenWidth, (float)Input::GetInstance()->mScreenHeight );
 
 	return S_OK;
 }

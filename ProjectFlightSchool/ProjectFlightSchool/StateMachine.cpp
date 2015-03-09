@@ -58,7 +58,7 @@ HRESULT StateMachine::ChangeState( const int NEW_STATE )
 	{
 		if( NEW_STATE == LOBBY_STATE && mCurrentState == LOBBY_OWNER_STATE )
 		{
-			OutputDebugString( L"Not an appopriate state change" );
+			OutputDebugString( L"Not an appopriate state change\n" );
 		}
 		else
 		{

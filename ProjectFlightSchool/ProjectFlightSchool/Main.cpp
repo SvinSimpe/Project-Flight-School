@@ -14,8 +14,8 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
 {
 #if defined(DEBUG) | defined(_DEBUG)
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
-	// 2662792 2662791 2662790 2662789
-	//_CrtSetBreakAlloc(2662791); // Break at specific memory allocation point
+	// 9376964 9301170 9143178 9143172 9143171 9143170
+ 	// _CrtSetBreakAlloc(9376964); // Break at specific memory allocation point
 #endif
 	// Console window code
 	//if( AllocConsole() )
@@ -35,6 +35,12 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
 	// End of console window code
 
 	int localReturn = 0;
+	char buf[1024];
+	DWORD bufSize = 1024;
+	GetComputerNameA( buf, &bufSize );
+
+	if( strcmp( buf, "G426-PC" ) == 0 )
+		MessageBox( NULL, L"Martin sluda spela!", L"Error", MB_OK );
 
 	System* system = new System();
 	system->Initialize( hInstance, nCmdShow );

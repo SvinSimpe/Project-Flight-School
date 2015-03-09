@@ -18,7 +18,7 @@ void Enemy::CreateStandard()
 	mDamage						= 10.0f;
 	mSpeed						= 5.0f;
 	mAttackRadius->radius		= 0.5f;
-	mAttentionRadius->radius	= 30.0f;
+	mAttentionRadius->radius	= 18.0f;
 	mXpDrop						= 5;
 	mSpawnTime					= 10.0f;
 	mAttackRate					= 0.8f;
@@ -76,10 +76,10 @@ void Enemy::CreateTank()
 		Med atkrate
 	*/
 	mEnemyType					= Tank;
-	mMaxHp						= 400.0f;
+	mMaxHp						= 500.0f;
 	mCurrentHp					= mMaxHp;
-	mDamage						= 30.0f;
-	mSpeed						= 2.0f;
+	mDamage						= 50.0f;
+	mSpeed						= 1.5f;
 	mAttackRadius->radius		= 1.0f;
 	mAttentionRadius->radius	= 15.0f;
 	mXpDrop						= 15;
@@ -126,7 +126,7 @@ HRESULT Enemy::Update( float deltaTime, ServerPlayer** players, UINT NrOfPlayers
 {
 	mDeltaTime		= deltaTime;
 
-	mSteeringBehaviorManager->Update( deltaTime );
+	//mSteeringBehaviorManager->Update( deltaTime );
 
 	XMStoreFloat3( &mVelocity, XMVector3Normalize( XMLoadFloat3( &mVelocity ) ) );
 
@@ -178,6 +178,8 @@ HRESULT Enemy::Update( float deltaTime, ServerPlayer** players, UINT NrOfPlayers
 
 	mHasEvaded	= false;
 
+	
+
 	return S_OK;
 }
 
@@ -209,8 +211,23 @@ void Enemy::SetTarget( UINT id )
 	}
 }
 
+void Enemy::SetShipTarget( UINT id, std::vector<ServerShip*>& ships )
+{
+	mShips			= ships;
+	mTargetShipID	= id;
+
+	for ( size_t i = 0; i < 2; i++ )
+	{
+		if( mShips[i]->GetID() == id )
+		{
+			mTargetShipIndex = i;
+		}
+	}
+}
+
 void Enemy::Hunt( float deltaTime )
 {
+	mSteeringBehaviorManager->Update( deltaTime );
 	XMFLOAT3 totalSteeringForce = mSteeringBehaviorManager->GetFinalSteeringForce();
 
 	/*mVelocity.x = mPlayers[mTargetIndex]->Pos.x - mPosition.x;
@@ -222,7 +239,7 @@ void Enemy::Hunt( float deltaTime )
 	//mVelocity.z += totalSteeringForce.z;
 	//mVelocity.y += totalSteeringForce.y;
 
-	float interpolation = max( 0.0f, 1.0f - deltaTime * 0.1f );
+	float interpolation = max( 0.0f, 1.0f - deltaTime * 0.05f );
 
 	XMStoreFloat3( &mVelocity, XMLoadFloat3( &mVelocity ) * interpolation
 					+ XMLoadFloat3( &totalSteeringForce ) * ( 1.0f - interpolation ) );
@@ -286,25 +303,47 @@ void Enemy::HandleSpawn()
 
 void Enemy::Spawn()
 {
-	switch( mID % 4 )
+	//switch( mID % 4 )
+	//{
+	//case 0:
+	//	CreateStandard();
+	//	break;
+	//case 1:
+	//	CreateRanged();
+	//	//CreateStandard();
+	//	break;
+	//case 2:
+	//	CreateBoomer();
+	//	//CreateStandard();
+	//	break;
+	//case 3:
+	//	CreateTank();
+	//	break;
+	//}
+
+	switch( mID % 10 )
 	{
-	case 0:
-		CreateStandard();
-		break;
-	case 1:
-		CreateRanged();
-		//CreateStandard();
-		break;
-	case 2:
-		CreateBoomer();
-		//CreateStandard();
-		break;
-	case 3:
+	case 9:
 		CreateTank();
 		break;
+	default:
+		CreateStandard();
 	}
 
-	CreateStandard();
+	if( mEnemyType == Tank )
+	{
+		if( mShips[0]->TanksTargetMe < mShips[1]->TanksTargetMe )
+		{
+			mTargetShipIndex = 0;
+			mShips[0]->TanksTargetMe++;
+		}
+		else
+		{
+			mTargetShipIndex = 1;
+			mShips[1]->TanksTargetMe++;
+		}
+	}
+	//CreateStandard();
 	//CreateRanged();
 	//CreateBoomer();
 	//CreateTank();
@@ -416,7 +455,7 @@ HRESULT Enemy::Initialize( int id, ServerPlayer** players, UINT NrOfPlayers, Ene
 	mAttackRadius		= new BoundingCircle( 1.0f );
 	mAttentionRadius	= new BoundingCircle( 1.0f );
 	mEvadeRadius		= new BoundingCircle( 2.0f );
-	
+
 	mBehaviors			= new IEnemyBehavior*[NR_OF_ENEMY_BEHAVIORS];
 
 	for ( size_t i = 0; i < NR_OF_ENEMY_BEHAVIORS; i++ )
@@ -445,7 +484,7 @@ HRESULT Enemy::Initialize( int id, ServerPlayer** players, UINT NrOfPlayers, Ene
 	mSteeringBehaviorManager->AddBehavior(  new SteerAvoidObjects( this ) );
 	mSteeringBehaviorManager->SetUpBehavior( 0, 4.0f, 1.0f );
 	mSteeringBehaviorManager->SetUpBehavior( 1, 10.0f, 1.0f );
-	mSteeringBehaviorManager->SetUpBehavior( 2, 100.0f, 1.0f );
+	mSteeringBehaviorManager->SetUpBehavior( 2, 500.0f, 1.0f );
 
 	//EventManager::GetInstance()->AddListener( &Enemy::DamageFromPlayer, this, Event_Client_Projectile_Damage_Enemy::GUID );
 
@@ -460,6 +499,8 @@ void Enemy::Reset()
 	mPosition		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity		= XMFLOAT3( 0.0f, 0.0f, 0.0f );	
+	mPlayers		= nullptr;
+	
 	ChangeBehavior( DEAD_BEHAVIOR );
 }
 
@@ -492,7 +533,7 @@ Enemy::Enemy()
 	mPosition					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mDirection					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mAttackRadius				=  nullptr;
+	mAttackRadius				= nullptr;
 	mAttentionRadius			= nullptr;
 	mEvadeRadius				= nullptr;
 	mCurrentState				= Idle;
@@ -506,7 +547,10 @@ Enemy::Enemy()
 	mTakingDamageTimer			= 0.0f;
 	mTargetIndex				= 0;
 	mTargetID					= 0;
+	mTargetShipIndex			= 0;
+	mTargetShipID				= 0;
 	mPlayers					= nullptr;
+	//mShips						= nullptr;
 	mOtherEnemies				= nullptr;
 	mTakingDamage				= false;
 	mSteeringBehaviorManager	= nullptr;

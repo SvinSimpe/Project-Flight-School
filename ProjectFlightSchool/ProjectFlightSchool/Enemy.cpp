@@ -18,7 +18,7 @@ void Enemy::CreateStandard()
 	mDamage						= 10.0f;
 	mSpeed						= 5.0f;
 	mAttackRadius->radius		= 0.5f;
-	mAttentionRadius->radius	= 10.0f;
+	mAttentionRadius->radius	= 18.0f;
 	mXpDrop						= 5;
 	mSpawnTime					= 10.0f;
 	mAttackRate					= 0.8f;
@@ -76,10 +76,10 @@ void Enemy::CreateTank()
 		Med atkrate
 	*/
 	mEnemyType					= Tank;
-	mMaxHp						= 400.0f;
+	mMaxHp						= 500.0f;
 	mCurrentHp					= mMaxHp;
-	mDamage						= 30.0f;
-	mSpeed						= 2.0f;
+	mDamage						= 50.0f;
+	mSpeed						= 1.5f;
 	mAttackRadius->radius		= 1.0f;
 	mAttentionRadius->radius	= 15.0f;
 	mXpDrop						= 15;
@@ -177,6 +177,8 @@ HRESULT Enemy::Update( float deltaTime, ServerPlayer** players, UINT NrOfPlayers
 	}
 
 	mHasEvaded	= false;
+
+	
 
 	return S_OK;
 }
@@ -301,25 +303,47 @@ void Enemy::HandleSpawn()
 
 void Enemy::Spawn()
 {
-	switch( mID % 4 )
+	//switch( mID % 4 )
+	//{
+	//case 0:
+	//	CreateStandard();
+	//	break;
+	//case 1:
+	//	CreateRanged();
+	//	//CreateStandard();
+	//	break;
+	//case 2:
+	//	CreateBoomer();
+	//	//CreateStandard();
+	//	break;
+	//case 3:
+	//	CreateTank();
+	//	break;
+	//}
+
+	switch( mID % 10 )
 	{
-	case 0:
-		CreateStandard();
-		break;
-	case 1:
-		CreateRanged();
-		//CreateStandard();
-		break;
-	case 2:
-		CreateBoomer();
-		//CreateStandard();
-		break;
-	case 3:
+	case 9:
 		CreateTank();
 		break;
+	default:
+		CreateStandard();
 	}
 
-	CreateStandard();
+	if( mEnemyType == Tank )
+	{
+		if( mShips[0]->TanksTargetMe < mShips[1]->TanksTargetMe )
+		{
+			mTargetShipIndex = 0;
+			mShips[0]->TanksTargetMe++;
+		}
+		else
+		{
+			mTargetShipIndex = 1;
+			mShips[1]->TanksTargetMe++;
+		}
+	}
+	//CreateStandard();
 	//CreateRanged();
 	//CreateBoomer();
 	//CreateTank();
@@ -475,6 +499,8 @@ void Enemy::Reset()
 	mPosition		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity		= XMFLOAT3( 0.0f, 0.0f, 0.0f );	
+	mPlayers		= nullptr;
+	
 	ChangeBehavior( DEAD_BEHAVIOR );
 }
 

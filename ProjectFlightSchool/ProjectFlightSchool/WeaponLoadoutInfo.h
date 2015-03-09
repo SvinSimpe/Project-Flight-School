@@ -13,6 +13,7 @@
 
 // Minigun
 #define MINIGUN_AR			0.05f	// Attack Rate
+#define MINIGUN_SLOWDOWN	0.02f	// How much is the player slowed down
 #define MINIGUN_DAMAGE		2.0f	// Damage
 #define MINIGUN_RANGE		0.8f	// Range
 #define MINIGUN_SPREAD		0.1f	// Spread
@@ -23,6 +24,7 @@
 #define MINIGUN_OVERHEAT	1.0f	// Amount of heat the minigun get's for firing once
 // Shotgun
 #define SHOTGUN_AR			1.0f	// Attack Rate
+#define SHOTGUN_SLOWDOWN	0.2f	// How much is the player slowed down
 #define SHOTGUN_DAMAGE		3.0f	// Damage
 #define SHOTGUN_RANGE		0.3f	// Range
 #define SHOTGUN_SPREAD		0.0f	// Spread
@@ -32,6 +34,7 @@
 
 // Grenade Launcher
 #define GL_AR				1.0f	// Attack Rate
+#define GL_SLOWDOWN			0.5f	// How much is the player slowed down
 #define GL_DAMAGE			15.0f	// Damage
 #define GL_RANGE			25.0f	// Range
 #define GL_SPREAD			0.0f	// Spread
@@ -41,6 +44,7 @@
 
 // Sniper
 #define SNIPER_AR			2.5f	// Attack Rate
+#define SNIPER_SLOWDOWN		0.5f	// How much is the player slowed down
 #define SNIPER_DAMAGE		20.0f	// Damage
 #define SNIPER_RANGE		5.0f	// Range
 #define SNIPER_SPREAD		0.0f	// Spread
@@ -53,7 +57,8 @@
 //////////////////////////////////d
 
 // Claymore
-#define CLAYMORE_AR			1.3f	// Attack Rate
+#define CLAYMORE_AR			2.8f	// Attack Rate
+#define CLAYMORE_SLOWDOWN	0.1f	// How much is the player slowed down
 #define CLAYMORE_DAMAGE		2.0f	// Damage
 #define CLAYMORE_RADIUS		3.0f	// Radius
 #define CLAYMORE_SPREAD		7		// Spread
@@ -65,6 +70,7 @@
 
 // Hammer
 #define HAMMER_AR			3.5f	// Attack Rate Can't be lower than 3.5f
+#define HAMMER_SLOWDOWN		0.5f	// How much is the player slowed down
 #define HAMMER_DAMAGE		30.0f	// Damage
 #define HAMMER_RADIUS		2.0f	// Radius
 #define HAMMER_SPREAD		20		// Spread
@@ -75,7 +81,8 @@
 #define HAMMER_OFFSETS		XMFLOAT3( 1.5f, -0.70f, 1.3f ) // Offsets forward, right, up
 
 // Blowtorch
-#define BLOWTORCH_AR		0.1f	// Attack Rate
+#define BLOWTORCH_AR		0.01f	// Attack Rate
+#define BLOWTORCH_SLOWDOWN	0.04f	// How much is the player slowed down
 #define BLOWTORCH_DAMAGE	5.0f	// Damage
 #define BLOWTORCH_RADIUS	4.0f	// Radius
 #define BLOWTORCH_SPREAD	3		// Spread
@@ -87,6 +94,7 @@
 
 // Saw
 #define SAW_AR				3.0f	// Attack Rate
+#define SAW_SLOWDOWN		0.5f	// How much is the player slowed down
 #define SAW_DAMAGE			5.0f	// Damage
 #define SAW_RADIUS			5.0f	// Radius
 #define SAW_SPREAD			7		// Spread

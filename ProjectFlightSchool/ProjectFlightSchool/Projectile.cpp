@@ -30,8 +30,8 @@ HRESULT Projectile::Update( float deltaTime )
 			mLifeTime -=deltaTime;
 	}
 	
-	mBoundingCircle->center = mPosition;
-	mPointLight->position	= XMFLOAT4( mPosition.x, mPosition.y, mPosition.z, 1.0f );
+	mBoundingCircle->center				= mPosition;
+	mPointLight->positionAndIntensity	= XMFLOAT4( mPosition.x, mPosition.y, mPosition.z, 1.0f );
 
 	return S_OK;
 }
@@ -87,6 +87,7 @@ void Projectile::Reset()
 	mLifeTime	= 4.0f;
 	mDamage		= 0.0f;
 	mWeaponType	= MINIGUN;
+	mHits.clear();
 	IEventPtr E1( new Event_Remove_Point_Light( mPointLight ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
 }
@@ -131,6 +132,24 @@ WeaponType Projectile::GetWeaponType() const
 	return mWeaponType;
 }
 
+//Returns true if it set the hitID and false if it already had it.
+bool Projectile::SetHit( UINT hitID )
+{
+	bool result = true;
+	for( auto h : mHits )
+	{
+		if( h == hitID )
+		{
+			result = false;
+		}
+	}
+	if( result )
+	{
+		mHits.push_back( hitID );
+	}
+	return result;
+}
+
 HRESULT Projectile::Initialize()
 {
 	mSpeed			= 20.0f;
@@ -139,8 +158,8 @@ HRESULT Projectile::Initialize()
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Bullet/", "bullet2.pfs", mProjectileAsset );
 	mWeaponType		= MINIGUN;
 	mPointLight		= new PointLight;
-	mPointLight->colorAndRadius	= XMFLOAT4( 1.0f, 1.0f, 1.0f, 0.5f );
-	mPointLight->position		= XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
+	mPointLight->colorAndRadius				= XMFLOAT4( 1.0f, 1.0f, 1.0f, 0.5f );
+	mPointLight->positionAndIntensity		= XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
 
 	return S_OK;
 }
@@ -163,6 +182,7 @@ Projectile::Projectile()
 	mBoundingCircle	= nullptr;	
 	mDamage			= 0.0f;
 	mWeaponType		= MINIGUN;
+	mHits			= std::vector<UINT>( 0 );
 }
 
 Projectile::~Projectile()

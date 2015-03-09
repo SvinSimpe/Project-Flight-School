@@ -51,6 +51,7 @@ class Player: public RemotePlayer
 		float		mMaxVelocity;
 		float		mCurrentVelocity;
 		float		mMaxAcceleration;
+		float		mSlowDown;
 		XMFLOAT3	mAcceleration;
 		XMFLOAT3	mFireDirection;
 		XMFLOAT3	mPick;

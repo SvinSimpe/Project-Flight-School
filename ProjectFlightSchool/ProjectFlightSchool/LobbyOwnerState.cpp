@@ -184,12 +184,12 @@ HRESULT LobbyOwnerState::Render( float deltaTime )
 		float offset = mFont.GetMiddleXPoint( out.str(), 20.0f );
 
 		float textShadowWidth = 1.0f;
-		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 200.0f + textShadowWidth, 20.0f, COLOR_BLACK );
-		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 200.0f + textShadowWidth, 20.0f, COLOR_BLACK );
-		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 200.0f - textShadowWidth, 20.0f, COLOR_BLACK );
-		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 200.0f - textShadowWidth, 20.0f, COLOR_BLACK );
+		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 350.0f + textShadowWidth, 20.0f, COLOR_BLACK );
+		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 350.0f + textShadowWidth, 20.0f, COLOR_BLACK );
+		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 350.0f - textShadowWidth, 20.0f, COLOR_BLACK );
+		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 350.0f - textShadowWidth, 20.0f, COLOR_BLACK );
 
-		mFont.WriteText( out.str(), (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 20.0f, COLOR_ORANGE );
+		mFont.WriteText( out.str(), (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 350.0f, 20.0f, COLOR_ORANGE );
 	}
 
 	for( int i = 0; i < WARNING_AMOUNT; i++ )

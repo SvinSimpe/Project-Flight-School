@@ -90,7 +90,6 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 		if( mID == data->ID() )
 		{
 			mTeam = data->TeamID();
-			printf( "RemotePlayer:: Spelare: %d, blev lag %d\n", mID, mTeam );
 		}
 	}
 	else if( newEvent->GetEventType() == Event_Server_Change_Buff_State::GUID )
@@ -512,7 +511,7 @@ HRESULT RemotePlayer::Initialize()
 
 	mBoundingBox			= new BoundingRectangle( 1.5f, 1.5f );
 	mBoundingCircle			= new BoundingCircle( 0.5f );
-	mBoundingCircleAura		= new BoundingCircle( 1.0f );
+	mBoundingCircleAura		= new BoundingCircle( 4.0f );
 	
 	mIsAlive				= true;
 	mIsDown					= false;
@@ -539,6 +538,7 @@ HRESULT RemotePlayer::Initialize()
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Server_Change_Buff_State::GUID );
 
 	mBuffMod				= 0.5f;
+	mEnergyCellID			= (UINT)-1;
 
 	return S_OK;
 }
@@ -671,6 +671,12 @@ std::string RemotePlayer::GetName() const
 	return mPlayerName;
 }
 
+
+UINT RemotePlayer::GetEnergyCellID() const
+{
+	return mEnergyCellID;
+}
+
 void RemotePlayer::SetDirection( XMFLOAT3 direction )
 {
 	XMStoreFloat3( &mLowerBody.direction, ( XMLoadFloat3( &mLowerBody.direction ) += XMLoadFloat3( &direction ) ) );
@@ -685,4 +691,9 @@ void RemotePlayer::SetHP( float hp )
 void RemotePlayer::SetName( std::string name )
 {
 	mPlayerName = name;
+}
+
+void RemotePlayer::SetEnergyCellID( UINT energyCellID )
+{
+	mEnergyCellID = energyCellID;
 }

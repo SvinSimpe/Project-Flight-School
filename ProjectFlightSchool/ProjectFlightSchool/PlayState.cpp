@@ -36,17 +36,30 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if ( newEvent->GetEventType() == Event_Remote_Left::GUID ) // Remove a remote player from the list when they disconnect
 	{
 		std::shared_ptr<Event_Remote_Left> data = std::static_pointer_cast<Event_Remote_Left>( newEvent );
-		for( unsigned int i = 0; i < mRemotePlayers.size(); i++ )
+
+		for( auto& p : mRemotePlayers )
 		{
-			if( !mRemotePlayers.at(i) )
+			if( data->ID() == p->GetID() )
 			{
-				continue;
-			}
-			else if( data->ID() == mRemotePlayers.at(i)->GetID() )
-			{
-				mRemotePlayers.at(i)->Release();
-				SAFE_DELETE( mRemotePlayers.at(i) );
-				std::swap( mRemotePlayers.at(i), mRemotePlayers.at(mRemotePlayers.size() - 1) );
+				UINT ecID = p->GetEnergyCellID();
+				if( ecID != (UINT)-1 )
+				{
+					mEnergyCells[ecID]->SetPosition( p->GetPosition() );
+					mEnergyCells[ecID]->SetOwnerID( (UINT)-1 );
+					mEnergyCells[ecID]->SetPickedUp( false );
+					mEnergyCells[ecID]->SetSecured( false );
+	
+
+					IEventPtr E1( new Event_Client_Sync_Energy_Cell( 
+						ecID, 
+						mEnergyCells[ecID]->GetOwnerID(), 
+						mEnergyCells[ecID]->GetPosition(), 
+						mEnergyCells[ecID]->GetPickedUp() ) );
+					Client::GetInstance()->SendEvent( E1 );
+				}
+				p->Release();
+				SAFE_DELETE( p );
+				std::swap( p, mRemotePlayers.back() );
 				mRemotePlayers.pop_back();
 				break;
 			}
@@ -79,8 +92,16 @@ void PlayState::EventListener( IEventPtr newEvent )
 		FireProjectile( data->ID(), data->ProjectileID(), teamID, data->BodyPos(), data->Direction(), data->Speed(), data->Range(), data->Damage(), (WeaponType)data->Weapon() );
 
 		//TestSound
-		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->BodyPos());
+		if ( (WeaponType)data->Weapon() == MINIGUN )
+			SoundBufferHandler::GetInstance()->Play3D( mMiniGun , data->BodyPos());
 
+		else if ( (WeaponType)data->Weapon() == SHOTGUN )
+			SoundBufferHandler::GetInstance()->Play3D( mShotGun , data->BodyPos());
+
+		else if ( (WeaponType)data->Weapon() == SNIPER )
+			SoundBufferHandler::GetInstance()->Play3D( mSniper , data->BodyPos());
+		
+		
 		// Request Muzzle Flash from Particle Manager
 		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), SniperTrail, data->BodyPos(), data->Direction() );
 
@@ -160,12 +181,12 @@ void PlayState::EventListener( IEventPtr newEvent )
 		FireProjectile( data->ID(), data->ProjectileID(), data->TeamID(), data->Position(), data->Direction(), data->Speed(), data->Range(), 1.0f, TURRET ); // Don't know where to get damage from yet
 
 		//TestSound
-		//SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->Position());
+		SoundBufferHandler::GetInstance()->Play3D( mMiniGun , data->Position());
 		
 		// Request Muzzle Flash from Particle Manager
 		
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->Position(), data->Direction() );
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->Position(), data->Direction() );		
+		/*RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->Position(), data->Direction() );
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->Position(), data->Direction() );	*/	
 	}
 	else if( newEvent->GetEventType() == Event_Server_Sync_Energy_Cell::GUID )
 	{
@@ -174,6 +195,41 @@ void PlayState::EventListener( IEventPtr newEvent )
 		mEnergyCells[data->EnergyCellID()]->SetOwnerID( data->OwnerID() );
 		mEnergyCells[data->EnergyCellID()]->SetPosition( data->Position() );
 		mEnergyCells[data->EnergyCellID()]->SetPickedUp( data->PickedUp() );
+
+		if( data->OwnerID() == (UINT)-1 )
+		{
+			if( mPlayer->GetEnergyCellID() != (UINT)-1 )
+			{
+				mPlayer->SetEnergyCellID( (UINT)-1 );
+			}
+			else
+			{
+				for( auto& p : mRemotePlayers )
+				{
+					if( p->GetEnergyCellID() != (UINT)-1 )
+					{
+						p->SetEnergyCellID( (UINT)-1 );
+					}
+				}
+			}
+		}
+		else
+		{
+			if( mPlayer->GetID() == data->OwnerID() )
+			{
+				mPlayer->SetEnergyCellID( data->EnergyCellID() );
+			}
+			else
+			{
+				for( auto& p : mRemotePlayers )
+				{
+					if( p->GetID() == data->OwnerID() )
+					{
+						p->SetEnergyCellID( data->EnergyCellID() );
+					}
+				}
+			}
+		}
 	}
 	else if( newEvent->GetEventType() == Event_Server_XP::GUID )
 	{
@@ -183,9 +239,10 @@ void PlayState::EventListener( IEventPtr newEvent )
 			if( mPlayer->GetCurrentLevel() <= 16 )
 			{
 				int levelUp = mPlayer->Upgradable();
-				mPlayer->AddXP( data->XP() );
+				mPlayer->AddXP( (float)data->XP() );
 				if( mPlayer->Upgradable() != levelUp )
 				{
+					SoundBufferHandler::GetInstance()->Play3D( mLevelUp , mPlayer->GetBoundingCircle()->center );
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Level_Up, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.0f, 1.0f, 0.0f ) ); //both of these calls are needed for levelup effect.
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Level_Inner, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.1f, 0.1f, 0.1f ) ); //both of these calls are needed for levelup effect.
 				}
@@ -430,6 +487,7 @@ void PlayState::CheckProjectileCollision()
 				{
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+					SoundBufferHandler::GetInstance()->Play3D( mExplosion , mPlayer->GetPosition() );
 				}
 				else
 				{
@@ -492,6 +550,7 @@ void PlayState::CheckProjectileCollision()
 
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+					SoundBufferHandler::GetInstance()->Play3D( mExplosion , mPlayer->GetPosition() );
 
 					IEventPtr E1( new Event_Client_Removed_Projectile( mProjectiles[i]->GetID() ) );
 					Client::GetInstance()->SendEvent( E1 );
@@ -563,6 +622,7 @@ void PlayState::HandleDeveloperCameraInput()
 
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_O ) )
 	{
+		mPlayer->AddXP( 3000.0f );
 		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 		{
 			IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
@@ -732,13 +792,10 @@ bool PlayState::CullEntity( XMFLOAT3 entityPos )
 {
 	return HelperFunctions::Dist3Squared( mPlayer->GetPosition(), entityPos  ) <= ENTITY_CULLDISTANCE;
 }
-
-void PlayState::WriteInteractionText( std::string text )
+void PlayState::WriteInteractionText( std::string text, float xPos, float yPos, float scale, XMFLOAT4 color )
 {
-	float offset = mFont.GetMiddleXPoint( text, 3.0 );
-	float textShadowWidth = 1.0f;
-
-	mFont.WriteText( text, (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 3.0, COLOR_CYAN );
+	float offset = mFont.GetMiddleXPoint( text, scale );
+	mFont.WriteText( text, xPos - offset, yPos, scale, COLOR_CYAN );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -798,13 +855,20 @@ HRESULT PlayState::Update( float deltaTime )
 					remotePlayerName							= mRemotePlayers[i]->GetName();
 					mRadarObjects[nrOfRadarObj].mRadarObjectPos = mRemotePlayers[i]->GetPosition();
 
-					if( mRemotePlayers[i]->GetTeam() == mPlayer->GetTeam() )
+					if( mRemotePlayers[i]->GetEnergyCellID() != (UINT)-1 )
 					{
-						mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::FRIENDLY;
+						mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::PICKED_UP;
 					}
 					else
 					{
-						mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::HOSTILE;
+						if( mRemotePlayers[i]->GetTeam() == mPlayer->GetTeam() )
+						{
+							mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::FRIENDLY;
+						}
+						else
+						{
+							mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::HOSTILE;
+						}
 					}
 				}
 				pName[i].mRemotePlayerPos		= mRemotePlayers[i]->GetPosition();
@@ -834,7 +898,6 @@ HRESULT PlayState::Update( float deltaTime )
 		{
 			if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 			{
-				UINT temp = mPlayer->GetEnergyCellID();
 				mPlayer->GiveEnergyCellToShip( mEnergyCells, mShips[FRIEND_SHIP]->GetID(), mShips[FRIEND_SHIP]->GetPos() );
 				mShips[FRIEND_SHIP]->AddEnergyCell( mShips[FRIEND_SHIP]->GetID() );
 			}
@@ -894,12 +957,29 @@ HRESULT PlayState::Update( float deltaTime )
 		//No need to update the first energy cell since it's not supposed to be active
 		for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
 		{
-			mEnergyCells[i]->Update( deltaTime );
 			if( !mEnergyCells[i]->GetPickedUp() )
 			{
 				mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnergyCells[i]->GetPosition();
 				mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::OBJECTIVE;
 			}
+			else
+			{
+				if( mEnergyCells[i]->GetOwnerID() == mPlayer->GetID() )
+				{
+					mEnergyCells[i]->SetPosition( mPlayer->GetPosition() );
+				}
+				else
+				{
+					for( auto& p : mRemotePlayers )
+					{
+						if( mEnergyCells[i]->GetOwnerID() == p->GetID() )
+						{
+							mEnergyCells[i]->SetPosition( p->GetPosition() );
+						}
+					}
+				}
+			}
+			mEnergyCells[i]->Update( deltaTime );
 		}
 
 		CheckProjectileCollision();
@@ -994,7 +1074,7 @@ HRESULT PlayState::Render( float deltaTime )
 
 	for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
 	{
-		if( !mEnergyCells[i]->GetPickedUp() && CullEntity( mEnergyCells[i]->GetPosition() ) )
+		if( !mEnergyCells[i]->GetSecured() && CullEntity( mEnergyCells[i]->GetPosition() ) )
 		{
 			mEnergyCells[i]->Render();
 		}
@@ -1017,7 +1097,12 @@ HRESULT PlayState::Render( float deltaTime )
 	
 	if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 	{
-		WriteInteractionText( "Press E to open or close ship menu" );
+		WriteInteractionText( 
+			"Press E to open or close the upgrade menu!", 
+			(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
+			(float)( Input::GetInstance()->mScreenHeight * 0.10f ), 
+			2.0f,
+			COLOR_CYAN );
 	}
 
 	RenderManager::GetInstance()->Render();
@@ -1033,7 +1118,9 @@ void PlayState::OnEnter()
 	IEventPtr E1( new Event_Game_Started() );
 	EventManager::GetInstance()->QueueEvent( E1 );
 
-	//SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
+	SoundBufferHandler::GetInstance()->LoopStream( mLobbyMusic );
+
+	mGui->SetTeamID( mPlayer->GetTeam() );
 	IEventPtr spawnPos( new Event_Request_Player_Spawn_Position( mPlayer->GetID(), mPlayer->GetTeam() ) );
 	EventManager::GetInstance()->QueueEvent( spawnPos );
 }
@@ -1041,7 +1128,7 @@ void PlayState::OnEnter()
 void PlayState::OnExit()
 {
 	Reset();
-	//SoundBufferHandler::GetInstance()->StopLoopStream( mStreamSoundAsset );
+	SoundBufferHandler::GetInstance()->StopLoopStream( mLobbyMusic );
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Ended() );
 	EventManager::GetInstance()->QueueEvent( E1 );
@@ -1109,7 +1196,7 @@ HRESULT PlayState::Initialize()
 
 	mWorldMap->Initialize( 25 );
 
-	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/HardMap.xml" ) ); 
+	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/hardMap.xml" ) ); 
 
 	EventManager::GetInstance()->TriggerEvent( E1 );
 
@@ -1182,9 +1269,15 @@ HRESULT PlayState::Initialize()
 	}
 
 	//TestSound
+	mMiniGun			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/minigun.wav", 500, 80 );
+	mShotGun			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/shotgun.wav", 500 );
+	mExplosion			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/explosion.wav", 250 );
+	mSniper				= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/railgun.wav", 500 );
+	mLevelUp			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/level up.wav", 10 );
 	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav", 2000, 40 );
 	mSoundAsset			= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
-	mStreamSoundAsset	= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav", 3000 );
+	mLobbyMusic			= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/ambientInGame.wav", 0 );
+	//mStreamSoundAsset	= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav", 3000 );
 
 	Pathfinder::GetInstance()->Initialize( mWorldMap );
 
@@ -1216,7 +1309,6 @@ HRESULT PlayState::Initialize()
 
 void PlayState::Release()
 {	
-
 	Pathfinder::GetInstance()->Release();
 	mWorldMap->Release();
 	SAFE_DELETE( mWorldMap );

@@ -93,6 +93,7 @@ class Gui
 	private:
 	protected:
 	public:
+		void	SetTeamID( UINT teamID );
 		void	ActivateUpgradeShipWindow();
 		void	DeActivateUpgradeShipWindow();
 		void	ActivateUpgradePlayerWindow();
@@ -114,6 +115,4 @@ class Gui
 		bool	InGameWindowIsActive();
 		bool	EnergyCellsActive();
 };
-
-
 #endif

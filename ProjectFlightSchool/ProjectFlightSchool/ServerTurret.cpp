@@ -14,7 +14,7 @@ void ServerTurret::AttackingTurret::Action( ServerTurret* t, float dt )
 
 	float rightDot		= XMVectorGetX( XMVector3Dot( rightDir, homingVec ) );
 	float leftDot		= XMVectorGetX( XMVector3Dot( -rightDir, homingVec ) );
-	float angleY		= dt * ( rightDot < leftDot ? -leftDot : rightDot ) * 50.0f; // The last number is the turret rotation speed
+	float angleY		= dt * ( rightDot < leftDot ? -leftDot : rightDot ) * t->mTurretTurnSpeed; // The last number is the turret rotation speed
 
 	XMStoreFloat4( &t->mTurretHead->rot, XMVector3TransformNormal( XMLoadFloat4( &t->mTurretHead->rot ), XMMatrixRotationY( angleY ) ) );
 
@@ -64,7 +64,10 @@ void ServerTurret::Fire()
 void ServerTurret::ChangeLevel( UINT level )
 {
 	level -= 1;
-	mLoadOut->rangedWeapon->damage = TURRET_DAMAGE + ( level * 10 );
+	mLoadOut->rangedWeapon->attackRate		= TURRET_AR - (float)( level * 0.01f );
+	mLoadOut->rangedWeapon->damage			= TURRET_DAMAGE + (float)( level * 2 );
+	mLoadOut->rangedWeapon->range			= TURRET_RANGE + ( (float)level * 0.8f );
+	mTurretTurnSpeed						= TURRET_TURNSPEED + (float)( level * 20 );
 }
 
 void ServerTurret::ClearTarget()
@@ -160,6 +163,7 @@ void ServerTurret::Initialize( UINT id, UINT team, XMFLOAT3 pos, XMFLOAT4 rot, X
 
 	mLoadOut				= new LoadOut();
 	mLoadOut->rangedWeapon	= new RangedInfo( TURRET );
+	mTurretTurnSpeed		= TURRET_TURNSPEED;
 
 	//mPos.z	= -mPos.z;
 

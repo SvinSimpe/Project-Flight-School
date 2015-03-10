@@ -65,13 +65,13 @@ void UpgradePlayerWindow::Render()
 	mMeleeButton.Render();
 	mRangeButton.Render();
 
-	std::string textToWrite = "Melee +" + std::to_string( mMeleeButton.nrOfLevels );
+	std::string textToWrite = "Melee " + std::to_string( mMeleeButton.nrOfLevels ) + "/" + std::to_string( MAX_NR_OF_PLAYER_UPGRADES );
 	mFont.WriteText( textToWrite, mMeleeButton.button.GetPosition().x + 100.0f - mFont.GetMiddleXPoint( textToWrite, 2.4f ), mMeleeButton.button.GetPosition().y + 100.0f - 12.0f, 2.4f, COLOR_CYAN ); //Size of hexagon is 200, half is 100. Text scale i x10 pixels, 2.4 is 24 pixels, half is 12.
-	textToWrite = "Range +" + std::to_string( mRangeButton.nrOfLevels );
+	textToWrite = "Range " + std::to_string( mRangeButton.nrOfLevels ) + "/" + std::to_string( MAX_NR_OF_PLAYER_UPGRADES );
 	mFont.WriteText( textToWrite, mRangeButton.button.GetPosition().x + 100.0f - mFont.GetMiddleXPoint( textToWrite, 2.4f ), mRangeButton.button.GetPosition().y + 100.0f - 12.0f, 2.4f, COLOR_CYAN );
-	textToWrite = "Speed +" + std::to_string( mSpeedButton.nrOfLevels );
+	textToWrite = "Speed " + std::to_string( mSpeedButton.nrOfLevels ) + "/" + std::to_string( MAX_NR_OF_PLAYER_UPGRADES );
 	mFont.WriteText( textToWrite, mSpeedButton.button.GetPosition().x + 100.0f - mFont.GetMiddleXPoint( textToWrite, 2.4f ), mSpeedButton.button.GetPosition().y + 100.0f - 12.0f, 2.4f, COLOR_CYAN );
-	textToWrite = "Health +" + std::to_string( mHealthButton.nrOfLevels );
+	textToWrite = "Health " + std::to_string( mHealthButton.nrOfLevels ) + "/" + std::to_string( MAX_NR_OF_PLAYER_UPGRADES );
 	mFont.WriteText( textToWrite, mHealthButton.button.GetPosition().x + 100.0f - mFont.GetMiddleXPoint( textToWrite, 2.4f ), mHealthButton.button.GetPosition().y + 100.0f - 12.0f, 2.4f, COLOR_CYAN );
 }
 

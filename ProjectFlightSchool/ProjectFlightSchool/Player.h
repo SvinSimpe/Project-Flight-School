@@ -116,7 +116,7 @@ class Player: public RemotePlayer
 		void		UpgradeLegs();
 		void		UpgradeMelee();
 		void		UpgradeRange();
-		void		WriteInteractionText( std::string text, float yPos, XMFLOAT4 color );
+		void		WriteInteractionText( std::string text, float xPos, float yPos, float scale, XMFLOAT4 color );
 
 	protected:
 	public:

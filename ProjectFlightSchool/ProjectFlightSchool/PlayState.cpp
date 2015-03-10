@@ -36,17 +36,30 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if ( newEvent->GetEventType() == Event_Remote_Left::GUID ) // Remove a remote player from the list when they disconnect
 	{
 		std::shared_ptr<Event_Remote_Left> data = std::static_pointer_cast<Event_Remote_Left>( newEvent );
-		for( unsigned int i = 0; i < mRemotePlayers.size(); i++ )
+
+		for( auto& p : mRemotePlayers )
 		{
-			if( !mRemotePlayers.at(i) )
+			if( data->ID() == p->GetID() )
 			{
-				continue;
-			}
-			else if( data->ID() == mRemotePlayers.at(i)->GetID() )
-			{
-				mRemotePlayers.at(i)->Release();
-				SAFE_DELETE( mRemotePlayers.at(i) );
-				std::swap( mRemotePlayers.at(i), mRemotePlayers.at(mRemotePlayers.size() - 1) );
+				UINT ecID = p->GetEnergyCellID();
+				if( ecID != (UINT)-1 )
+				{
+					mEnergyCells[ecID]->SetPosition( p->GetPosition() );
+					mEnergyCells[ecID]->SetOwnerID( (UINT)-1 );
+					mEnergyCells[ecID]->SetPickedUp( false );
+					mEnergyCells[ecID]->SetSecured( false );
+	
+
+					IEventPtr E1( new Event_Client_Sync_Energy_Cell( 
+						ecID, 
+						mEnergyCells[ecID]->GetOwnerID(), 
+						mEnergyCells[ecID]->GetPosition(), 
+						mEnergyCells[ecID]->GetPickedUp() ) );
+					Client::GetInstance()->SendEvent( E1 );
+				}
+				p->Release();
+				SAFE_DELETE( p );
+				std::swap( p, mRemotePlayers.back() );
 				mRemotePlayers.pop_back();
 				break;
 			}
@@ -779,13 +792,10 @@ bool PlayState::CullEntity( XMFLOAT3 entityPos )
 {
 	return HelperFunctions::Dist3Squared( mPlayer->GetPosition(), entityPos  ) <= ENTITY_CULLDISTANCE;
 }
-
-void PlayState::WriteInteractionText( std::string text )
+void PlayState::WriteInteractionText( std::string text, float xPos, float yPos, float scale, XMFLOAT4 color )
 {
-	float offset = mFont.GetMiddleXPoint( text, 3.0 );
-	float textShadowWidth = 1.0f;
-
-	mFont.WriteText( text, (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 3.0, COLOR_CYAN );
+	float offset = mFont.GetMiddleXPoint( text, scale );
+	mFont.WriteText( text, xPos - offset, yPos, scale, COLOR_CYAN );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1087,7 +1097,12 @@ HRESULT PlayState::Render( float deltaTime )
 	
 	if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 	{
-		WriteInteractionText( "Press E to open or close the upgrade menu!" );
+		WriteInteractionText( 
+			"Press E to open or close the upgrade menu!", 
+			(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
+			(float)( Input::GetInstance()->mScreenHeight * 0.10f ), 
+			2.0f,
+			COLOR_CYAN );
 	}
 
 	RenderManager::GetInstance()->Render();
@@ -1121,7 +1136,6 @@ void PlayState::OnExit()
 
 void PlayState::Reset()
 {
-	mPlayer->DropEnergyCell( mEnergyCells );
 	mPlayer->Reset();
 	for( size_t i = 0; i < MAX_PROJECTILES; i++ )
 		mProjectiles[i]->Reset();
@@ -1295,12 +1309,10 @@ HRESULT PlayState::Initialize()
 
 void PlayState::Release()
 {	
-
 	Pathfinder::GetInstance()->Release();
 	mWorldMap->Release();
 	SAFE_DELETE( mWorldMap );
 
-	mPlayer->DropEnergyCell( mEnergyCells );
 	mPlayer->Release();
 	SAFE_DELETE(mPlayer);
 

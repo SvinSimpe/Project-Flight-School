@@ -333,11 +333,10 @@ bool DSBuffer::Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID, LONG vol
 
 void DSBuffer::Release()
 {
-	for( int i = 0; i < mNrOfBuffers; i++ )
+	if( mBuffer )
 	{
-		mBuffer[i]->Release();
+		delete [] mBuffer;
 	}
-	delete [] mBuffer;
 }
 
 DSBuffer::DSBuffer()

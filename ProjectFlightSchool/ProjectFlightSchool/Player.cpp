@@ -291,6 +291,7 @@ void Player::HandleSpawn( float deltaTime )
 		if( mPlayerDownSparksTimer < 0.0f )
 		{
 			RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
+			SoundBufferHandler::GetInstance()->Play3D( mPlayerDeath , newPos );
 			mPlayerDownSparksTimer = (float)( rand() % 6 + 4 ) * 0.1f;
 		}
 	}
@@ -485,8 +486,8 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	XMFLOAT3 testPosition	= mLowerBody.position;
 	XMFLOAT3 normal			= XMFLOAT3( 0.0f, 1.0f, 0.0f );
 
-	testPosition.x += mVelocity.x * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f ) * mSlowDown;
-	testPosition.z += mVelocity.z * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f ) * mSlowDown;
+	testPosition.x += mVelocity.x * deltaTime * mUpgrades.runSpeedFactor * mSlowDown;
+	testPosition.z += mVelocity.z * deltaTime * mUpgrades.runSpeedFactor * mSlowDown;
 	testPosition.y = worldMap->GetHeight( testPosition );
 
 	bool collisionTest = worldMap->PlayerVsMap( testPosition, normal );
@@ -739,7 +740,7 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		//Blowtorch particle system
 		RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchIdle, *projectileOffset, mUpperBody.direction, mVelocity );
 		RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, *projectileOffset, mUpperBody.direction, mVelocity );
-
+		
 		
 
 		// Request Muzzle Flash from Particle Manager
@@ -752,6 +753,7 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		mLoadOut->rangedWeapon->overheat	= 0.0f;
 		mTimeSinceLastShot					= 0.0f;
 		mWeaponOverheated					= true;
+		SoundBufferHandler::GetInstance()->Play3D( mMiniGunOverheat , GetPosition() );
 
 		XMFLOAT3 weaponOffsets = MINIGUN_OFFSETS;
 
@@ -779,6 +781,7 @@ void Player::FireGrenadeLauncher( XMFLOAT3* projectileOffset )
 	float elevation = CalculateLaunchAngle();
 
 	mFireDirection			= XMFLOAT3( mUpperBody.direction.x, elevation, mUpperBody.direction.z );
+	SoundBufferHandler::GetInstance()->Play3D( mGrenadeLauncher , GetPosition() );
 	IEventPtr E1( new Event_Trigger_Client_Fired_Projectile( mID, *projectileOffset, mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
 }
@@ -806,6 +809,7 @@ void Player::HammerMelee( float deltaTime )
 		if( mTimeTillattack <= 0.0f && mHasMeleeStarted )
 		{
 			mIsMeleeing			= true;
+			SoundBufferHandler::GetInstance()->Play3D( mHammerSound , GetPosition() );
 			RenderManager::GetInstance()->RequestParticleSystem( mID, Hammer_Effect, XMFLOAT3( mLoadOut->meleeWeapon->boundingCircle->center.x, 0.3f, mLoadOut->meleeWeapon->boundingCircle->center.z ) , XMFLOAT3( 1.0f, 0.0f, 1.0f ) );
 			mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
 			mHasMeleeStarted	= false;
@@ -831,6 +835,7 @@ void Player::BlowtorchMelee( float deltaTime )
 		{
 			mTimeTillattack -= deltaTime;
 			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, loadDir, mUpperBody.direction, mVelocity );
+			SoundBufferHandler::GetInstance()->Play3D( mBlowTorch , GetPosition() );
 			if( mTimeTillattack <= 0.0f )
 			{
 				mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
@@ -916,24 +921,24 @@ void Player::QueueEvent( IEventPtr ptr )
 
 void Player::UpgradeBody()
 {
-	mUpgrades.body++;
+	mUpgrades.currentBodyLevel++;
+	mUpgrades.damageTakenPercentage	-= 0.05f;
+	mMaxHp = 100.0f + ( ( mUpgrades.currentBodyLevel - 1 ) * 20.0f ) + ( pow( (float)( mUpgrades.currentBodyLevel - 1 ), 2 ) * 5.0f );
 }
 
 void Player::UpgradeLegs()
 {
-	mUpgrades.legs++;
+	mUpgrades.runSpeedFactor = 0.7f + ( (float)mUpgrades.currentLegsLevel *  0.1f );
 }
 
 void Player::UpgradeMelee()
 {
 	mLoadOut->meleeWeapon->LevelUp();
-	mUpgrades.melee++;
 }
 
 void Player::UpgradeRange()
 {
 	mLoadOut->rangedWeapon->LevelUp();
-	mUpgrades.range++;
 }
 
 void Player::WriteInteractionText( std::string text )
@@ -953,7 +958,7 @@ void Player::TakeDamage( float damage, unsigned int shooter )
 		float moddedDmg = damage * mBuffMod;
 		damage -= moddedDmg;
 	}
-	mCurrentHp -= damage / (float)mUpgrades.body;
+	mCurrentHp -= ( damage * mUpgrades.damageTakenPercentage );
 	if( mCurrentHp < 0.0f )
 	{
 		mCurrentHp = 0.0f;
@@ -994,54 +999,54 @@ void Player::UnLock()
 
 void Player::Reset()
 {
-	//mTimeSinceLastShot			= 0.0f;
-	//mWeaponCoolDown				= 0;
-	//mMeleeCoolDown				= 0;
-	//mTimeTillattack				= mLoadOut->meleeWeapon->timeTillAttack;
-	//mIsMeleeing					= false;
-	//mHasMeleeStarted			= false;
-	//mLock						= false;
-	//mCloseToPlayer				= false;
+	mTimeSinceLastShot			= 0.0f;
+	mWeaponCoolDown				= 0;
+	mMeleeCoolDown				= 0;
+	mTimeTillattack				= mLoadOut->meleeWeapon->timeTillAttack;
+	mIsMeleeing					= false;
+	mHasMeleeStarted			= false;
+	mLock						= false;
+	mCloseToPlayer				= false;
 
-	//mMaxVelocity				= 7.7f;
-	//mVelocity					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	//mCurrentVelocity			= 0.0f;
-	//mMaxAcceleration			= 20.0f;;
-	//mAcceleration				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mMaxVelocity				= 7.7f;
+	mVelocity					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mCurrentVelocity			= 0.0f;
+	mMaxAcceleration			= 20.0f;;
+	mAcceleration				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
-	//mIsBuffed					= false;
-	//mBuffMod					= 1; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
+	mIsBuffed					= false;
+	mBuffMod					= 1; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
 
-	//mTimeTillSpawn				= mSpawnTime;
-	//mTimeTillDeath				= mDeathTime;
-	//mTimeTillRevive				= mReviveTime;
-	//mLastKiller					= 0;
+	mTimeTillSpawn				= mSpawnTime;
+	mTimeTillDeath				= mDeathTime;
+	mTimeTillRevive				= mReviveTime;
+	mLastKiller					= 0;
 
-	//mLowerBody.position				= XMFLOAT3( 3.0f, 0.0f, 6.0f );
-	//
-	//mIsAlive				= true;
-	//mIsDown					= false;
-	//mMaxHp					= 100.0f;
-	//mCurrentHp				= mMaxHp;
-	//mNrOfDeaths				= 0;
-	//mNrOfKills				= 0;
-	//mID						= -1;
-	//mTeam					= 1;
-	//mEnergyCellID			= (UINT)-1;
-	//mPickUpCooldown			= 0.0f;
+	mLowerBody.position				= XMFLOAT3( 3.0f, 0.0f, 6.0f );
+	
+	mIsAlive				= true;
+	mIsDown					= false;
+	mMaxHp					= 100.0f;
+	mCurrentHp				= mMaxHp;
+	mNrOfDeaths				= 0;
+	mNrOfKills				= 0;
+	mID						= -1;
+	mTeam					= 1;
+	mEnergyCellID			= (UINT)-1;
+	mPickUpCooldown			= 0.0f;
 
-	//mLeftArmAnimationCompleted	= false;
-	//mRightArmAnimationCompleted	= false;
+	mLeftArmAnimationCompleted	= false;
+	mRightArmAnimationCompleted	= false;
 
-	//mUpperBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	//mLowerBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mUpperBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mLowerBody.direction	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
-	//RenderManager::GetInstance()->AnimationReset( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] );
-	//RenderManager::GetInstance()->AnimationReset( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
-	//RenderManager::GetInstance()->AnimationReset( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
+	RenderManager::GetInstance()->AnimationReset( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] );
+	RenderManager::GetInstance()->AnimationReset( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
+	RenderManager::GetInstance()->AnimationReset( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
 
-	Release();
-	Initialize();
+	/*Release();
+	Initialize();*/
 }
 
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
@@ -1183,7 +1188,8 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 					XMStoreFloat3( &inverseDir, -XMLoadFloat3( &mUpperBody.direction ) );
 					XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 					
-					RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Robot, newPos, XMFLOAT3( inverseDir.x * randY, inverseDir.y, inverseDir.z * randY ), mVelocity );			
+					RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Robot, newPos, XMFLOAT3( inverseDir.x * randY, inverseDir.y, inverseDir.z * randY ), mVelocity );
+					SoundBufferHandler::GetInstance()->Play3D( mPlayerDeath , newPos );
 				}
 				
 				float intensity = ( mCurrentHp * 0.1f ) * 0.6f;
@@ -1408,6 +1414,13 @@ HRESULT Player::Initialize()
 
 	mReviveTime			= 2.0f;
 	mTimeTillRevive		= mReviveTime;
+
+	mMiniGunOverheat	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/minigun_Overheat.wav", 10 );
+	mHammerSound		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/hammer.wav", 10 );
+	mSword				= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/sword.wav", 10 );
+	mGrenadeLauncher	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/grenadeLauncher.wav", 10 );
+	mBlowTorch			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/blow torch.wav", 10 );
+	mPlayerDeath		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/sparksPlayerDeath.wav", 10, 15 );
 
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Died::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Attempt_Revive::GUID );

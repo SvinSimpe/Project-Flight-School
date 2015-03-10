@@ -9,6 +9,7 @@
 #include <time.h>
 #include "Pathfinder.h"
 #include "RenderManager.h"
+#include "SoundBufferHandler.h"
 
 #define VELOCITY_FALLOFF 2.0f
 
@@ -22,10 +23,10 @@ class Path;
 
 struct Upgrades
 {
-	int melee				= 1;
-	int range				= 1;
-	int legs				= 1;
-	int body				= 1;
+	int		currentBodyLevel			= 1;
+	float	damageTakenPercentage		= 1.0f; // 1 == 100 % == No resistance!
+	int		currentLegsLevel			= 1;
+	float	runSpeedFactor				= 0.7f;
 };
 
 class Player: public RemotePlayer
@@ -73,6 +74,13 @@ class Player: public RemotePlayer
 
 		UINT		mEnergyCellID;
 		float		mPickUpCooldown;
+
+		int			mMiniGunOverheat;
+		int			mHammerSound;
+		int			mSword;
+		int			mPlayerDeath;
+		int			mGrenadeLauncher;
+		int			mBlowTorch;
 
 	protected:
 	public:

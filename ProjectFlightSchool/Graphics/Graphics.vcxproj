@@ -43,11 +43,13 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)Debug\</OutDir>
     <IntDir>ProjectFlightSchool\</IntDir>
+    <IncludePath>$(Project-Flight-School\ProjectFlightSchool\Visual Leak Detector\lib\Win32);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)Release\</OutDir>
     <IntDir>Release\</IntDir>
+    <IncludePath>$(Project-Flight-School\ProjectFlightSchool\Visual Leak Detector\lib\Win32);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

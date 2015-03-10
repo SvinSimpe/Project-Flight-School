@@ -9,10 +9,12 @@
 #include <stdio.h>
 #include <io.h>
 #include <fcntl.h>
+//#include <../Visual Leak Detector/include/vld.h>
 
 int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow )
 {
 #if defined(DEBUG) | defined(_DEBUG)
+
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 	// 2662792 2662791 2662790 2662789
 	//_CrtSetBreakAlloc(1556048); // Break at specific memory allocation point

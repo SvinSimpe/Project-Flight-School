@@ -79,6 +79,8 @@ class Player: public RemotePlayer
 		int			mHammerSound;
 		int			mSword;
 		int			mPlayerDeath;
+		int			mGrenadeLauncher;
+		int			mBlowTorch;
 
 	protected:
 	public:

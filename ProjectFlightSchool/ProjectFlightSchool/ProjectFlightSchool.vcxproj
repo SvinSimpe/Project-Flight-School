@@ -41,7 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)..\Graphics;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\Visual Leak Detector\include;$(ProjectDir)..\Graphics;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Projekt\ProjectFlightSchool\Visual Leak Detector\lib\Win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>

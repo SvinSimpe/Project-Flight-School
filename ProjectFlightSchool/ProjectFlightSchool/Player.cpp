@@ -1039,7 +1039,15 @@ void Player::Reset()
 	RenderManager::GetInstance()->AnimationReset( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
 	RenderManager::GetInstance()->AnimationReset( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
 
-	mUpgrades = Upgrades();
+	mUpgrades.currentBodyLevel	= 1;
+	mUpgrades.damageTakenPercentage = 1.0f;
+	mUpgrades.currentLegsLevel = 1;
+	mUpgrades.runSpeedFactor = 0.7f;
+
+	mXP					= 0.0f;
+	mNextLevelXP		= 60.0f;
+	mCurrentLevel		= 0;
+	mCurrentUpgrades	= 0;
 }
 
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
@@ -1285,9 +1293,16 @@ HRESULT Player::Render( float deltaTime, int position )
 	if( mIsOutSideZone )
 	{
 		WriteInteractionText( 
-			"Robot losing connection get back!\n\t\t\t\t\t   " + std::to_string( (int)mLeavingAreaTime ),
+			"Robot losing connection get back!",
 			(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
 			(float)( Input::GetInstance()->mScreenHeight * 0.25 ), 
+			4.0f,
+			COLOR_RED );
+
+		WriteInteractionText( 
+			std::to_string( (int)mLeavingAreaTime ),
+			(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
+			(float)( Input::GetInstance()->mScreenHeight * 0.25 ) + 40.0f, 
 			4.0f,
 			COLOR_RED );
 	}
@@ -1491,7 +1506,11 @@ Player::Player()
 	mLastKiller			= 0;
 
 	gEventList			= std::list<IEventPtr>();
-	mUpgrades			= Upgrades();
+
+	mUpgrades.currentBodyLevel	= 1;
+	mUpgrades.damageTakenPercentage = 1.0f;
+	mUpgrades.currentLegsLevel = 1;
+	mUpgrades.runSpeedFactor = 0.7f;
 }
 
 Player::~Player()

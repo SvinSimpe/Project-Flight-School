@@ -118,6 +118,14 @@ void UpgradeShipWindow::Render()
 	mBuffButtons.Render();
 }
 
+void UpgradeShipWindow::Reset()
+{
+	mTeam				= (UINT)-1;
+	mNrOfEnergyCells	= 0;
+	mUnusedCells		= 0;
+	mIsActive			= false;
+}
+
 void UpgradeShipWindow::Release()
 {
 	SAFE_DELETE_ARRAY( mTurretButtons.buttons );

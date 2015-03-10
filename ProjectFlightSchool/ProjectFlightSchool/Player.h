@@ -33,7 +33,6 @@ class Player: public RemotePlayer
 {
 	private:
 		PointLight*		mPointLight;
-		PointLight*		mEnergyCellLight;
 		Upgrades		mUpgrades;
 
 		bool		mWeaponOverheated;
@@ -116,7 +115,7 @@ class Player: public RemotePlayer
 		void		UpgradeLegs();
 		void		UpgradeMelee();
 		void		UpgradeRange();
-		void		WriteInteractionText( std::string text );
+		void		WriteInteractionText( std::string text, float yPos, XMFLOAT4 color );
 
 	protected:
 	public:

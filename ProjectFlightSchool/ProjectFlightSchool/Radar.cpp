@@ -40,6 +40,12 @@ void Radar::AddObjectToList( DirectX::XMFLOAT3 position, UINT type )
 			object.mWidthHeight.x	= mRadarShipHeight;
 			object.mWidthHeight.y	= mRadarShipWidth;
 		}
+		else if( type == RADAR_TYPE::PICKED_UP )
+		{
+			object.mAssetId			= mPickedUpID;
+			object.mWidthHeight.x	= mRadarObjHeight;
+			object.mWidthHeight.y	= mRadarObjWidth;
+		}
 	
 		mObjects[mNrOfObjects++] = object;
 	}
@@ -79,7 +85,7 @@ HRESULT	Radar::Update( DirectX::XMFLOAT3 playerPos, RADAR_UPDATE_INFO radarObjec
 				//AddObjectToList( radarObjects[i].mRadarObjectPos, mObjectiveArrowID );
 			}
 		}
-		else if( radarObjects[i].mType == RADAR_TYPE::OBJECTIVE )
+		else if( radarObjects[i].mType == RADAR_TYPE::OBJECTIVE || radarObjects[i].mType == RADAR_TYPE::PICKED_UP )
 		{
 			if( vecLength <= mRadius )
 			{
@@ -145,7 +151,9 @@ HRESULT	Radar::Initialize()
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/Radar/radarEnemyShipTest.dds", mHostileShipAssetID );
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/Radar/radar2.dds", mRadarAssetID );
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/Radar/radar2.dds", mObjectiveArrowID );
-	
+
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/GUI/Radar/pickedBattery.dds", mPickedUpID );
+
 	mObjects[0].mAssetId			= mRadarAssetID;
 	mObjects[0].mTopLeftCorner.x	= Input::GetInstance()->mScreenWidth - radarDimXY;
 	mObjects[0].mTopLeftCorner.y	= 0;

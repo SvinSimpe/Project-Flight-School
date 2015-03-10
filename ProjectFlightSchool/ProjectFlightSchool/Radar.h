@@ -22,7 +22,8 @@ enum RADAR_TYPE
 	SHIP_HOSTILE,
 	FRIENDLY,
 	HOSTILE,
-	OBJECTIVE
+	OBJECTIVE,
+	PICKED_UP
 };
 
 struct RADAR_UPDATE_INFO
@@ -47,6 +48,7 @@ class Radar
 		UINT			mFriendlyAssetID;
 		UINT			mFriendlyShipAssetID;
 		UINT			mHostileShipAssetID;
+		UINT			mPickedUpID;
 		UINT			mObjectiveArrowID;
 		UINT			mNrOfObjects;
 		ObjectOnRadar	mObjects[MAX_RADAR_OBJECTS];

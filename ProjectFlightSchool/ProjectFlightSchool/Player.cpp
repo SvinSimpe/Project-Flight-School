@@ -395,30 +395,27 @@ void Player::AddXP( float XP )
 	//Check if maxlevel
 	if ( mCurrentLevel == 16 )
 		mXP = mNextLevelXP;
-	
 }
 
 void Player::PickUpEnergyCell( EnergyCell** energyCells )
 {
 	for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
-		{
+	{
 		if( !energyCells[i]->GetPickedUp() && mEnergyCellID == (UINT)-1 )
+		{
+			if( energyCells[i]->GetPickUpRadius()->Intersect( mBoundingCircle ) )
 			{
-				if( energyCells[i]->GetPickUpRadius()->Intersect( mBoundingCircle ) )
-				{
-					energyCells[i]->SetOwnerID( mID );
-					energyCells[i]->SetPickedUp( true );
-					energyCells[i]->SetPosition( mLowerBody.position );
-					mEnergyCellID = i;
+				energyCells[i]->SetOwnerID( mID );
+				energyCells[i]->SetPickedUp( true );
+				energyCells[i]->SetSecured( false );
+				energyCells[i]->SetPosition( mLowerBody.position );
+				mEnergyCellID = i;
 
-					IEventPtr E1( new Event_Client_Sync_Energy_Cell( i, mID, mLowerBody.position, true ) );
-					QueueEvent( E1 );
-
-					IEventPtr reg( new Event_Add_Point_Light( mEnergyCellLight ) );
-					EventManager::GetInstance()->QueueEvent( reg );
-				}
+				IEventPtr E1( new Event_Client_Sync_Energy_Cell( i, mID, mLowerBody.position, energyCells[mEnergyCellID]->GetPickedUp() ) );
+				QueueEvent( E1 );
 			}
 		}
+	}
 }
 
 void Player::DropEnergyCell( EnergyCell** energyCells )
@@ -431,11 +428,8 @@ void Player::DropEnergyCell( EnergyCell** energyCells )
 		energyCells[mEnergyCellID]->SetSecured( false );
 	
 
-		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, (UINT)-1, mLowerBody.position, false ) );
+		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, (UINT)-1, mLowerBody.position, energyCells[mEnergyCellID]->GetPickedUp() ) );
 		QueueEvent( E1 );
-
-		IEventPtr reg( new Event_Remove_Point_Light( mEnergyCellLight ) );
-		EventManager::GetInstance()->QueueEvent( reg );
 
 		mEnergyCellID	= (UINT)-1;
 		mPickUpCooldown	= 3.0f;
@@ -451,11 +445,8 @@ void Player::GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, Direct
 		energyCells[mEnergyCellID]->SetPickedUp( true );
 		energyCells[mEnergyCellID]->SetSecured( true );
 
-		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, shipID, shipPos, true ) );
+		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, shipID, shipPos, energyCells[mEnergyCellID]->GetPickedUp() ) );
 		QueueEvent( E1 );
-
-		IEventPtr reg( new Event_Remove_Point_Light( mEnergyCellLight ) );
-		EventManager::GetInstance()->QueueEvent( reg );
 
 		mEnergyCellID	= (UINT)-1;
 		mPickUpCooldown = 3.0f;
@@ -499,6 +490,7 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 
 		if( mIsInWater )
 		{
+			WriteInteractionText( "Get out of the water or you will die!", 275.0f, COLOR_RED );
 			XMStoreFloat3( &mVelocity, XMLoadFloat3( &mVelocity ) * ( 1.0f - deltaTime * 10.0f ) );
 			mWaterDamageTime += deltaTime;
 			if( mWaterDamageTime > WATER_DAMAGE_TIME )
@@ -939,12 +931,12 @@ void Player::UpgradeRange()
 	mUpgrades.range++;
 }
 
-void Player::WriteInteractionText( std::string text )
+void Player::WriteInteractionText( std::string text, float yPos, XMFLOAT4 color )
 {
 	float offset = mFont.GetMiddleXPoint( text, 3.0 );
 	float textShadowWidth = 1.0f;
 
-	mFont.WriteText( text, (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 250.0f, 3.0, COLOR_CYAN );
+	mFont.WriteText( text, (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, yPos, 3.0, color );
 }
 
 /////Public
@@ -1009,11 +1001,11 @@ void Player::Reset()
 	mMaxVelocity				= 7.7f;
 	mVelocity					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mCurrentVelocity			= 0.0f;
-	mMaxAcceleration			= 20.0f;;
+	mMaxAcceleration			= 20.0f;
 	mAcceleration				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
 	mIsBuffed					= false;
-	mBuffMod					= 1; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
+	mBuffMod					= 0.5f; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
 
 	mTimeTillSpawn				= mSpawnTime;
 	mTimeTillDeath				= mDeathTime;
@@ -1043,8 +1035,7 @@ void Player::Reset()
 	RenderManager::GetInstance()->AnimationReset( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
 	RenderManager::GetInstance()->AnimationReset( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
 
-	/*Release();
-	Initialize();*/
+	mUpgrades = Upgrades();
 }
 
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
@@ -1137,7 +1128,8 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 			if( mEnergyCellID != (UINT)-1 )
 			{
-				mEnergyCellLight->positionAndIntensity = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 4.0f, mLowerBody.position.z, 1.0f );
+				IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, mID, mLowerBody.position, energyCells[mEnergyCellID]->GetPickedUp() ) );
+				QueueEvent( E1 );
 			}
 			//////////////////////////////////////////
 			// IF LEAVING AREA
@@ -1293,14 +1285,12 @@ HRESULT Player::Render( float deltaTime, int position )
 
 	if( mIsOutSideZone )
 	{
-        std::string textToWrite = "Robot losing connection get back!\n\t\t\t\t\t   " + std::to_string( (int)mLeavingAreaTime );
-		float offset = mFont.GetMiddleXPoint( "Robot losing connection get back!", 3.8f );
-		mFont.WriteText( textToWrite, (float)Input::GetInstance()->mScreenWidth/2 - offset, (float)Input::GetInstance()->mScreenHeight/4, 3.8f, COLOR_RED );
+		WriteInteractionText( "Robot losing connection get back!\n\t\t\t\t\t   " + std::to_string( (int)mLeavingAreaTime ), (float)( Input::GetInstance()->mScreenHeight * 0.25 ), COLOR_RED );
 	}
 
 	if( mEnergyCellID != (UINT)-1 )
 	{
-		WriteInteractionText( "Go back to your ship to hand in the energy cell!" );
+		WriteInteractionText( "Go back to your ship to hand in the energy cell!", 250.0f, COLOR_CYAN );
 	}
 
 	RemotePlayer::Render();
@@ -1338,7 +1328,6 @@ HRESULT Player::Render( float deltaTime, int position )
 HRESULT Player::Initialize()
 {
 	mPointLight			= nullptr;
-	mEnergyCellLight	= nullptr;
 
 	mWeaponOverheated	= false;
 	mTimeSinceLastShot	= 0.0f;
@@ -1371,7 +1360,6 @@ HRESULT Player::Initialize()
 	mWaterDamageTime		= 0.0f;
 	mLastKiller				= 0;
 
-
 	gEventList				= std::list<IEventPtr>(); 
 
 
@@ -1393,10 +1381,6 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->QueueEvent( reg );
 
 	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.0f, 0.0f, 1.0f, 5.0f );
-
-	mEnergyCellLight						= new PointLight;
-	mEnergyCellLight->positionAndIntensity	= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
-	mEnergyCellLight->colorAndRadius		= DirectX::XMFLOAT4( 2.0f, 3.0f, 8.0f, 1.0f );
 
 	mMaxVelocity		= 7.7f;
 	mCurrentVelocity	= 0.0f;
@@ -1448,15 +1432,12 @@ void Player::Release()
 	EventManager::GetInstance()->QueueEvent( reg );
 	SAFE_DELETE( mPointLight );
 	SAFE_DELETE( currentPath1 );
-	SAFE_DELETE( mEnergyCellLight );
-
 }
 
 Player::Player()
 	:RemotePlayer()
 {
 	mPointLight			= nullptr;
-	mEnergyCellLight	= nullptr;
 
 	mWeaponOverheated	= false;
 	mTimeSinceLastShot	= 0.0f;
@@ -1479,17 +1460,18 @@ Player::Player()
 	mXP					= 0.0f;
 	mNextLevelXP		= 0.0f;
 	
-	mSpawnTime				= 0.0f;
-	mTimeTillSpawn			= 0.0f;
-	mDeathTime				= 0.0f;
-	mTimeTillDeath			= 0.0f;
-	mReviveTime				= 0.0f;
-	mTimeTillRevive			= 0.0f;
-	mLeavingAreaTime		= 0.0f;
-	mWaterDamageTime		= 0.0f;
-	mLastKiller				= 0;
+	mSpawnTime			= 0.0f;
+	mTimeTillSpawn		= 0.0f;
+	mDeathTime			= 0.0f;
+	mTimeTillDeath		= 0.0f;
+	mReviveTime			= 0.0f;
+	mTimeTillRevive		= 0.0f;
+	mLeavingAreaTime	= 0.0f;
+	mWaterDamageTime	= 0.0f;
+	mLastKiller			= 0;
 
-	gEventList				= std::list<IEventPtr>();
+	gEventList			= std::list<IEventPtr>();
+	mUpgrades			= Upgrades();
 }
 
 Player::~Player()

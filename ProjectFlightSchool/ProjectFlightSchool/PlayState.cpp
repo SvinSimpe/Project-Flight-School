@@ -182,6 +182,8 @@ void PlayState::EventListener( IEventPtr newEvent )
 		mEnergyCells[data->EnergyCellID()]->SetOwnerID( data->OwnerID() );
 		mEnergyCells[data->EnergyCellID()]->SetPosition( data->Position() );
 		mEnergyCells[data->EnergyCellID()]->SetPickedUp( data->PickedUp() );
+
+		OutputDebugStringA( "Received energy cell update.\n" );
 	}
 	else if( newEvent->GetEventType() == Event_Server_XP::GUID )
 	{
@@ -573,11 +575,11 @@ void PlayState::HandleDeveloperCameraInput()
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_O ) )
 	{
 		mPlayer->AddXP( 3000.0f );
-		//if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
-		//{
-		//	IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
-		//	Client::GetInstance()->SendEvent( E1 );
-		//}
+		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
+		{
+			IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
+			Client::GetInstance()->SendEvent( E1 );
+		}
 	}
 	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_E ) )
 	{
@@ -904,7 +906,20 @@ HRESULT PlayState::Update( float deltaTime )
 		for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
 		{
 			mEnergyCells[i]->Update( deltaTime );
-			if( !mEnergyCells[i]->GetPickedUp() )
+			if( i == mPlayer->GetEnergyCellID() )
+			{
+				continue;
+			}
+
+			if( mEnergyCells[i]->GetPickedUp() )
+			{
+				if( !mEnergyCells[i]->GetSecured() )
+				{
+					mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnergyCells[i]->GetPosition();
+					mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::PICKED_UP;
+				}
+			}
+			else
 			{
 				mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnergyCells[i]->GetPosition();
 				mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::OBJECTIVE;
@@ -1003,7 +1018,7 @@ HRESULT PlayState::Render( float deltaTime )
 
 	for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
 	{
-		if( !mEnergyCells[i]->GetPickedUp() && CullEntity( mEnergyCells[i]->GetPosition() ) )
+		if( !mEnergyCells[i]->GetSecured() && CullEntity( mEnergyCells[i]->GetPosition() ) )
 		{
 			mEnergyCells[i]->Render();
 		}

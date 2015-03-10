@@ -90,7 +90,6 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 		if( mID == data->ID() )
 		{
 			mTeam = data->TeamID();
-			printf( "RemotePlayer:: Spelare: %d, blev lag %d\n", mID, mTeam );
 		}
 	}
 	else if( newEvent->GetEventType() == Event_Server_Change_Buff_State::GUID )

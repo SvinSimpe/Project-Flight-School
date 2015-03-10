@@ -781,6 +781,7 @@ void Player::FireGrenadeLauncher( XMFLOAT3* projectileOffset )
 	float elevation = CalculateLaunchAngle();
 
 	mFireDirection			= XMFLOAT3( mUpperBody.direction.x, elevation, mUpperBody.direction.z );
+	SoundBufferHandler::GetInstance()->Play3D( mGrenadeLauncher , GetPosition() );
 	IEventPtr E1( new Event_Trigger_Client_Fired_Projectile( mID, *projectileOffset, mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
 }
@@ -834,6 +835,7 @@ void Player::BlowtorchMelee( float deltaTime )
 		{
 			mTimeTillattack -= deltaTime;
 			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, loadDir, mUpperBody.direction, mVelocity );
+			SoundBufferHandler::GetInstance()->Play3D( mBlowTorch , GetPosition() );
 			if( mTimeTillattack <= 0.0f )
 			{
 				mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
@@ -1416,6 +1418,8 @@ HRESULT Player::Initialize()
 	mMiniGunOverheat	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/minigun_Overheat.wav", 10 );
 	mHammerSound		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/hammer.wav", 10 );
 	mSword				= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/sword.wav", 10 );
+	mGrenadeLauncher	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/grenadeLauncher.wav", 10 );
+	mBlowTorch			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/blow torch.wav", 10 );
 	mPlayerDeath		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/sparksPlayerDeath.wav", 10, 15 );
 
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Died::GUID );

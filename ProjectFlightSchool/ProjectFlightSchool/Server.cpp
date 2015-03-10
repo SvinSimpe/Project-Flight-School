@@ -428,9 +428,12 @@ void Server::ClientInteractEnergyCell( IEventPtr eventPtr )
 
 		for( auto s :mShips )
 		{
-			s->AddEnergyCell( mEnergyCells[data->EnergyCellID()]->GetOwnerID() );
-			IEventPtr E2( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel, s->mEngineLevel, s->mNrOfEnergyCells ) );
-			BroadcastEvent( E2 );
+			if( s->GetID() )
+			{
+				s->AddEnergyCell( mEnergyCells[data->EnergyCellID()]->GetOwnerID() );
+				IEventPtr E2( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel, s->mEngineLevel, s->mNrOfEnergyCells ) );
+				BroadcastEvent( E2 );
+			}
 		}
 
 	}
@@ -741,7 +744,8 @@ void Server::UpdateShip( float deltaTime, ServerShip* s )
 
 	s->Update( deltaTime );
 	IEventPtr E1( new Event_Server_Update_Turret( s->mServerTurret->mID, s->mServerTurret->mTurretHead->rot ) );
-	SendCulledUpdate( E1, s->mServerTurret->mPos );
+	BroadcastEvent( E1 );
+	//SendCulledUpdate( E1, s->mServerTurret->mPos );
 
 	IEventPtr E2( new Event_Server_Update_Ship( s->mID, s->mMaxShield, s->mCurrentShield, s->mCurrentHP ) );
 	BroadcastEvent( E2 );

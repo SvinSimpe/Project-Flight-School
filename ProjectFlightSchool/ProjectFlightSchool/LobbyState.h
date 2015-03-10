@@ -40,10 +40,11 @@ class LobbyState : public BaseState
 		LoadOutMenu					mLoadOutMenu;
 		Button						mChooseWeaponButton;
 		Image						mChooseWeaponText;
-		int							mStreamSoundAsset;
+		int							mLobbyMusic;
 		UINT						mMyID;
 		float						mGameCountdown;
 		bool						mGameCountdownStarted;
+		Image						mGameCountdownBack;
 		bool						mTeamsLocked;
 
 	public:

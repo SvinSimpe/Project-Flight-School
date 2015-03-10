@@ -802,11 +802,16 @@ ClientSocketManager::ClientSocketManager()
 void NetworkEventForwarder::ForwardEvent( IEventPtr eventPtr )
 {
 	std::ostringstream out;
+	
 	out << eventPtr->GetEventType() << " ";
 
 	eventPtr->Serialize( out );
 	out << "\r\n";
 
+	//const std::string& temp = out.str();
+	//const char* tempCstr = temp.c_str();
+
+	//std::shared_ptr<BinaryPacket> msg( new BinaryPacket( tempCstr, (u_long)temp.length() ) );
 	std::shared_ptr<BinaryPacket> msg( new BinaryPacket( out.str().c_str(), (u_long)out.str().length() ) );
 
 	if( this )

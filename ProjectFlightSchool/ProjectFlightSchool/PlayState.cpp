@@ -79,8 +79,16 @@ void PlayState::EventListener( IEventPtr newEvent )
 		FireProjectile( data->ID(), data->ProjectileID(), teamID, data->BodyPos(), data->Direction(), data->Speed(), data->Range(), data->Damage(), (WeaponType)data->Weapon() );
 
 		//TestSound
-		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->BodyPos());
+		if ( (WeaponType)data->Weapon() == MINIGUN )
+			SoundBufferHandler::GetInstance()->Play3D( mMiniGun , data->BodyPos());
 
+		else if ( (WeaponType)data->Weapon() == SHOTGUN )
+			SoundBufferHandler::GetInstance()->Play3D( mShotGun , data->BodyPos());
+
+		else if ( (WeaponType)data->Weapon() == SNIPER )
+			SoundBufferHandler::GetInstance()->Play3D( mSniper , data->BodyPos());
+		
+		
 		// Request Muzzle Flash from Particle Manager
 		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), SniperTrail, data->BodyPos(), data->Direction() );
 
@@ -160,7 +168,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		FireProjectile( data->ID(), data->ProjectileID(), data->TeamID(), data->Position(), data->Direction(), data->Speed(), data->Range(), 1.0f, TURRET ); // Don't know where to get damage from yet
 
 		//TestSound
-		SoundBufferHandler::GetInstance()->Play3D( m3DSoundAsset , data->Position());
+		SoundBufferHandler::GetInstance()->Play3D( mMiniGun , data->Position());
 		
 		// Request Muzzle Flash from Particle Manager
 		
@@ -183,9 +191,10 @@ void PlayState::EventListener( IEventPtr newEvent )
 			if( mPlayer->GetCurrentLevel() <= 16 )
 			{
 				int levelUp = mPlayer->Upgradable();
-				mPlayer->AddXP( data->XP() );
+				mPlayer->AddXP( (float)data->XP() );
 				if( mPlayer->Upgradable() != levelUp )
 				{
+					SoundBufferHandler::GetInstance()->Play3D( mLevelUp , mPlayer->GetBoundingCircle()->center );
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Level_Up, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.0f, 1.0f, 0.0f ) ); //both of these calls are needed for levelup effect.
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Level_Inner, mPlayer->GetBoundingCircle()->center, XMFLOAT3( 0.1f, 0.1f, 0.1f ) ); //both of these calls are needed for levelup effect.
 				}
@@ -563,11 +572,12 @@ void PlayState::HandleDeveloperCameraInput()
 
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_O ) )
 	{
-		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
-		{
-			IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
-			Client::GetInstance()->SendEvent( E1 );
-		}
+		mPlayer->AddXP( 3000.0f );
+		//if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
+		//{
+		//	IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
+		//	Client::GetInstance()->SendEvent( E1 );
+		//}
 	}
 	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_E ) )
 	{
@@ -834,7 +844,6 @@ HRESULT PlayState::Update( float deltaTime )
 		{
 			if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 			{
-				UINT temp = mPlayer->GetEnergyCellID();
 				mPlayer->GiveEnergyCellToShip( mEnergyCells, mShips[FRIEND_SHIP]->GetID(), mShips[FRIEND_SHIP]->GetPos() );
 				mShips[FRIEND_SHIP]->AddEnergyCell( mShips[FRIEND_SHIP]->GetID() );
 			}
@@ -1017,7 +1026,7 @@ HRESULT PlayState::Render( float deltaTime )
 	
 	if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 	{
-		WriteInteractionText( "Press E to open or close ship menu" );
+		WriteInteractionText( "Press E to open or close the upgrade menu!" );
 	}
 
 	RenderManager::GetInstance()->Render();
@@ -1033,8 +1042,9 @@ void PlayState::OnEnter()
 	IEventPtr E1( new Event_Game_Started() );
 	EventManager::GetInstance()->QueueEvent( E1 );
 
-	SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );
+	SoundBufferHandler::GetInstance()->LoopStream( mLobbyMusic );
 
+	mGui->SetTeamID( mPlayer->GetTeam() );
 	IEventPtr spawnPos( new Event_Request_Player_Spawn_Position( mPlayer->GetID(), mPlayer->GetTeam() ) );
 	EventManager::GetInstance()->QueueEvent( spawnPos );
 }
@@ -1042,7 +1052,7 @@ void PlayState::OnEnter()
 void PlayState::OnExit()
 {
 	Reset();
-	SoundBufferHandler::GetInstance()->StopLoopStream( mStreamSoundAsset );
+	SoundBufferHandler::GetInstance()->StopLoopStream( mLobbyMusic );
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Ended() );
 	EventManager::GetInstance()->QueueEvent( E1 );
@@ -1183,9 +1193,14 @@ HRESULT PlayState::Initialize()
 	}
 
 	//TestSound
-	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav", 2000 );
+	mMiniGun			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/minigun.wav", 500, 40 );
+	mShotGun			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/shotgun.wav", 500 );
+	mSniper				= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/railgun.wav", 500 );
+	mLevelUp			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/level up.wav", 10 );
+	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav", 2000, 40 );
 	mSoundAsset			= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
-	mStreamSoundAsset	= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav", 3000 );
+	mLobbyMusic			= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/ambientInGame.wav", 0 );
+	//mStreamSoundAsset	= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav", 3000 );
 
 	Pathfinder::GetInstance()->Initialize( mWorldMap );
 

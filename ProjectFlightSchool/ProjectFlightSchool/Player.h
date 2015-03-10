@@ -9,6 +9,7 @@
 #include <time.h>
 #include "Pathfinder.h"
 #include "RenderManager.h"
+#include "SoundBufferHandler.h"
 
 #define VELOCITY_FALLOFF 2.0f
 
@@ -44,8 +45,8 @@ class Player: public RemotePlayer
 		bool		mHasMeleeStarted;
 		bool		mLock;
 		bool		mCloseToPlayer;
-		int			mXP;
-		int			mNextLevelXP;
+		float		mXP;
+		float		mNextLevelXP;
 		int			mCurrentLevel;
 		int			mCurrentUpgrades;
 
@@ -73,6 +74,11 @@ class Player: public RemotePlayer
 
 		UINT		mEnergyCellID;
 		float		mPickUpCooldown;
+
+		int			mMiniGunOverheat;
+		int			mHammerSound;
+		int			mSword;
+		int			mPlayerDeath;
 
 	protected:
 	public:
@@ -114,7 +120,7 @@ class Player: public RemotePlayer
 
 	protected:
 	public:
-		void		AddXP( int XP );
+		void		AddXP( float XP );
 		void		PickUpEnergyCell( EnergyCell** energyCell );
 		void		DropEnergyCell( EnergyCell** energyCells );
 		void		GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, DirectX::XMFLOAT3 shipPos );

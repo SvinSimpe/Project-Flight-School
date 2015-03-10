@@ -58,7 +58,6 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 			if( data->ID() == mPlayers[i]->ID )
 			{
 				mPlayers[i]->team = data->TeamID();
-				printf( "Lobby:: Spelare: %d, blev lag %d\n", mPlayers[i]->ID, mPlayers[i]->team );
 				XMFLOAT2 pos		= XMFLOAT2( mTeamOneXPos, 740.0f );
 				if( mPlayers[i]->team == 2 )
 				{
@@ -182,7 +181,7 @@ void LobbyState::HandleInput()
 		IEventPtr E1( new Event_Reset_Game() );
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
-	if( mCheckBox.LeftMousePressed() )
+	if( mCheckBox.LeftMousePressed() && !mGameCountdownStarted )
 	{
 		for( size_t i = 0; i < mPlayers.size(); i++ )
 		{
@@ -285,15 +284,18 @@ HRESULT LobbyState::Render( float deltaTime )
 		int secondsLeft = (int) mGameCountdown;
 		std::ostringstream out;
 		out << secondsLeft + 1;
-		float offset = mFont.GetMiddleXPoint( out.str(), 20.0f );
+		float offset = mFont.GetMiddleXPoint( out.str(), 10.0f );
+
+		mGameCountdownBack.Render();
 
 		float textShadowWidth = 1.0f;
-		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 200.0f + textShadowWidth, 20.0f, COLOR_BLACK );
-		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 200.0f + textShadowWidth, 20.0f, COLOR_BLACK );
-		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 200.0f - textShadowWidth, 20.0f, COLOR_BLACK );
-		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 200.0f - textShadowWidth, 20.0f, COLOR_BLACK );
 
-		mFont.WriteText( out.str(), (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 20.0f, COLOR_ORANGE );
+		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 420.0f + textShadowWidth, 10.0f, COLOR_BLACK );
+		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 420.0f + textShadowWidth, 10.0f, COLOR_BLACK );
+		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset + textShadowWidth, 420.0f - textShadowWidth, 10.0f, COLOR_BLACK );
+		mFont.WriteText( out.str(), (float)(Input::GetInstance()->mScreenWidth) * 0.5f - offset - textShadowWidth, 420.0f - textShadowWidth, 10.0f, COLOR_BLACK );
+
+		mFont.WriteText( out.str(), (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 420.0f, 10.0f, COLOR_ORANGE );
 	}
 	
 	RenderManager::GetInstance()->Render();
@@ -305,6 +307,7 @@ void LobbyState::OnEnter()
 {
 	Reset();
 	SetCursor( mCursor );
+	SoundBufferHandler::GetInstance()->LoopStream( mLobbyMusic );
 	mActive = true;
 	mTeamsLocked = false;
 }
@@ -312,7 +315,7 @@ void LobbyState::OnEnter()
 void LobbyState::OnExit()
 {
 	Reset();
-	//SoundBufferHandler::GetInstance()->StopLoopStream( mStreamSoundAsset );
+	SoundBufferHandler::GetInstance()->StopLoopStream( mLobbyMusic );
 	mTeamsLocked = true;
 }
 
@@ -353,7 +356,6 @@ HRESULT LobbyState::Initialize()
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Change_Ready_State::GUID );
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Server_Start_Game_Countdown::GUID );
 
-	mStreamSoundAsset = SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav" );
 	//float x = ( (float)Input::GetInstance()->mScreenWidth * 0.9f ) - 650.0f;
 	//float y = ( (float)Input::GetInstance()->mScreenHeight * 0.9f ) - 200.0f;
 	//float w = 200.0f;
@@ -362,6 +364,7 @@ HRESULT LobbyState::Initialize()
 	//mBackButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/textBack.dds", x, y, w, h );
 
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Connect_Server_Success::GUID );
+	mLobbyMusic =  SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/ambient_menu.wav", 500 );
 
 	mBackButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/textBack.dds", 70.0f, 810.0f, 200.0f, 200.0f );
 	
@@ -372,7 +375,10 @@ HRESULT LobbyState::Initialize()
 
 	mChooseWeaponButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/changeYourWeaponFrame.dds", 875.0f, 820.0f, 184.0f, 152.0f );
 	mChooseWeaponText.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/textChooseYourWeapon.dds", 875.0f, 820.0f, 184.0f, 152.0f );
+	
 	mGameCountdown = 0.0f;
+	mGameCountdownBack.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/gameCountdownFrame.dds", 550.0f, 280.0f, 804.0f, 340.0f );
+
 
 	return hr;
 }
@@ -393,6 +399,7 @@ void LobbyState::Release()
 	mLoadOutMenu.Release();
 	mChooseWeaponButton.Release();
 	mChooseWeaponText.Release();
+	mGameCountdownBack.Release();
 }
 
 LobbyState::LobbyState()

@@ -20,7 +20,7 @@ public:
 protected:
 
 private:
-	LPDIRECTSOUND3DBUFFER8	mBuffer3D;
+	LPDIRECTSOUND3DBUFFER8*	mBuffer3D;
 
 public:
 	void		PlayBuffer( XMFLOAT3 pos );
@@ -28,7 +28,7 @@ public:
 	void		StopBuffer();
 	DS3DBuffer	DuplicateBuffer( LPDIRECTSOUND8 lpds, DS3DBuffer buffer1 );
 	bool		FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName, LONG volume );
-	bool		Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID, LONG volume );
+	bool		Initialize( LPDIRECTSOUND8 lpds, char *fileName, int ID, LONG volume, int nrOfBuffers = 1 );
 	void		Release();
 				DS3DBuffer();
 				~DS3DBuffer();

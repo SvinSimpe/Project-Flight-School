@@ -75,7 +75,7 @@ float4 PS_main(GS_Out input) : SV_TARGET0
 	
 	diffuse.w = diffuse.w * 0.6;// * input.timeTillDeath;
 
-	if(input.timeTillDeath < 0.065)
+	if( input.timeTillDeath < 0.065 )
 	{
 		diffuse.w = diffuse.w * 0;
 	}

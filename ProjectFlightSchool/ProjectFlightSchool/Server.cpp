@@ -506,7 +506,7 @@ void Server::EnemyFiredProjectile(IEventPtr eventPtr)
 	{
 		std::shared_ptr<Event_Enemy_Fired_Projectile> data = std::static_pointer_cast<Event_Enemy_Fired_Projectile>(eventPtr);
 		
-		IEventPtr E1(new Event_Server_Enemy_Fired_Projectile(data->ID(), data->Position(), data->Direction(), data->Speed(), data->Range()));
+		IEventPtr E1(new Event_Server_Enemy_Fired_Projectile(data->EnemyID(), CurrentPID(), data->Position(), data->Direction(), data->Speed(), data->Range()));
 		BroadcastEvent(E1);
 	}
 }

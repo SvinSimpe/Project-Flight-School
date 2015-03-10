@@ -5737,7 +5737,7 @@ class Event_Server_Start_Game_Countdown : public IEvent
 class Event_Enemy_Fired_Projectile : public IEvent
 {
 private:
-	UINT		mID;
+	UINT		mEnemy;
 	XMFLOAT3	mPosition;
 	XMFLOAT3	mDirection;
 	float		mSpeed;
@@ -5752,19 +5752,19 @@ protected:
 public:
 	Event_Enemy_Fired_Projectile()
 	{
-		mID = (UINT)-1;
-		mPosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		mDirection = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		mSpeed = 0.0f;
-		mRange = 0.0f;
+		mEnemy			= (UINT)-1;
+		mPosition		= XMFLOAT3(0.0f, 0.0f, 0.0f);
+		mDirection		= XMFLOAT3(0.0f, 0.0f, 0.0f);
+		mSpeed			= 0.0f;
+		mRange			= 0.0f;
 	}
-	Event_Enemy_Fired_Projectile(UINT id, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range)
+	Event_Enemy_Fired_Projectile(UINT enemyID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range)
 	{
-		mID = id;
-		mPosition = position;
-		mDirection = direction;
-		mSpeed = speed;
-		mRange = range;
+		mEnemy			= enemyID;
+		mPosition		= position;
+		mDirection		= direction;
+		mSpeed			= speed;
+		mRange			= range;
 	}
 	~Event_Enemy_Fired_Projectile() {}
 	const EventType& GetEventType() const
@@ -5773,7 +5773,7 @@ public:
 	}
 	void Serialize(std::ostringstream& out) const
 	{
-		out << mID << " ";
+		out << mEnemy << " ";
 
 		out << mPosition.x << " ";
 		out << mPosition.y << " ";
@@ -5788,7 +5788,7 @@ public:
 	}
 	void Deserialize(std::istringstream& in)
 	{
-		in >> mID;
+		in >> mEnemy;
 
 		in >> mPosition.x;
 		in >> mPosition.y;
@@ -5803,11 +5803,11 @@ public:
 	}
 	IEventPtr Copy() const
 	{
-		return IEventPtr(new Event_Enemy_Fired_Projectile(mID, mPosition, mDirection, mSpeed, mRange));
+		return IEventPtr(new Event_Enemy_Fired_Projectile(mEnemy, mPosition, mDirection, mSpeed, mRange));
 	}
-	UINT ID() const
+	UINT EnemyID() const
 	{
-		return mID;
+		return mEnemy;
 	}
 	XMFLOAT3 Position() const
 	{
@@ -5830,7 +5830,8 @@ public:
 class Event_Server_Enemy_Fired_Projectile : public IEvent
 {
 private:
-	UINT		mID;
+	UINT		mEnemy;
+	UINT		mProjectileID;
 	XMFLOAT3	mPosition;
 	XMFLOAT3	mDirection;
 	float		mSpeed;
@@ -5845,15 +5846,17 @@ protected:
 public:
 	Event_Server_Enemy_Fired_Projectile()
 	{
-		mID = (UINT)-1;
+		mEnemy = (UINT)-1;
+		mProjectileID = (UINT)-1;
 		mPosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		mDirection = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		mSpeed = 0.0f;
 		mRange = 0.0f;
 	}
-	Event_Server_Enemy_Fired_Projectile(UINT id, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range)
+	Event_Server_Enemy_Fired_Projectile(UINT enemyID, UINT projectileID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range)
 	{
-		mID = id;
+		mEnemy = enemyID;
+		mProjectileID = projectileID;
 		mPosition = position;
 		mDirection = direction;
 		mSpeed = speed;
@@ -5866,7 +5869,9 @@ public:
 	}
 	void Serialize(std::ostringstream& out) const
 	{
-		out << mID << " ";
+		out << mEnemy << " ";
+
+		out << mProjectileID << " ";
 
 		out << mPosition.x << " ";
 		out << mPosition.y << " ";
@@ -5881,7 +5886,9 @@ public:
 	}
 	void Deserialize(std::istringstream& in)
 	{
-		in >> mID;
+		in >> mEnemy;
+
+		in >> mProjectileID;
 
 		in >> mPosition.x;
 		in >> mPosition.y;
@@ -5896,11 +5903,15 @@ public:
 	}
 	IEventPtr Copy() const
 	{
-		return IEventPtr(new Event_Server_Enemy_Fired_Projectile(mID, mPosition, mDirection, mSpeed, mRange));
+		return IEventPtr(new Event_Server_Enemy_Fired_Projectile(mEnemy, mProjectileID, mPosition, mDirection, mSpeed, mRange));
 	}
-	UINT ID() const
+	UINT EnemyID() const
 	{
-		return mID;
+		return mEnemy;
+	}
+	UINT ProjectileID() const
+	{
+		return mProjectileID;
 	}
 	XMFLOAT3 Position() const
 	{

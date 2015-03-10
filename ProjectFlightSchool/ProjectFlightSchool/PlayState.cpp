@@ -192,7 +192,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		// Fire projectile
 		std::shared_ptr<Event_Server_Enemy_Fired_Projectile> data = std::static_pointer_cast<Event_Server_Enemy_Fired_Projectile>(newEvent);
-		FireProjectile(data->ID(), 0, 0, data->Position(), data->Direction(), data->Speed(), data->Range(), ENEMY_PROJECTILE_DAMAGE, TURRET); // Don't know where to get damage from yet
+		FireProjectile(data->EnemyID(), data->ProjectileID(), 0, data->Position(), data->Direction(), data->Speed(), data->Range(), ENEMY_PROJECTILE_DAMAGE, TURRET); // Don't know where to get damage from yet
 	}
 	else if( newEvent->GetEventType() == Event_Server_Sync_Energy_Cell::GUID )
 	{
@@ -291,6 +291,7 @@ void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XM
 	mEnemyListSynced = false;
 	mEnemies[id]->SetID( id );
 	mEnemies[id]->SetEnemyType( type );
+	//mEnemies[id]->SetLoopAnimation( true );
 	mEnemies[id]->SetModelID( mEnemyAnimationManager->GetModel( mEnemies[id]->GetEnemyType() ), mEnemyAnimationManager->GetDefaultAnimation( mEnemies[id]->GetEnemyType() ) );
 	mEnemies[id]->SetAnimation( mEnemyAnimationManager->GetAnimation( mEnemies[id]->GetEnemyType(), state ) );
 	mEnemies[id]->SetPosition( position );

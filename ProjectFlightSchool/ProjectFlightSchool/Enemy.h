@@ -15,11 +15,9 @@
 
 class Enemy;
 
-
 #define MAX_NR_OF_ENEMIES		1
 
 #define randflt() (((float) rand())/((float) RAND_MAX))
-
 
 // ---- Define all enemy animations ----
 // Standard
@@ -50,7 +48,7 @@ class Enemy;
 //----------------------------------------
 
 #define ENEMY_PROJECTILE_ID						1985
-#define ENEMY_PROJECTILE_SPEED					30
+#define ENEMY_PROJECTILE_SPEED					10
 #define ENEMY_PROJECTILE_RANGE					0.3f
 #define ENEMY_PROJECTILE_DAMAGE					6
 

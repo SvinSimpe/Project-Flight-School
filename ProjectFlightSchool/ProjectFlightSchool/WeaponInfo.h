@@ -217,7 +217,6 @@ struct RangedInfo
 					{
 						attackRate		= 0.11f;
 						damage			= 6.3f;
-						range			= 1.0f;
 						spread			= 4.7f;
 						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
@@ -229,7 +228,6 @@ struct RangedInfo
 					{
 						attackRate		= 0.09f;
 						damage			= 8.4f;
-						range			= 1.5f;
 						spread			= 4.3f;
 						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
@@ -241,7 +239,6 @@ struct RangedInfo
 					{
 						attackRate		= 0.07f;
 						damage			= 10.5f;
-						range			= 2.0f;
 						spread			= 4.0f;
 						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
@@ -253,7 +250,6 @@ struct RangedInfo
 					{
 						attackRate		= 0.05f;
 						damage			= 14.0f;
-						range			= 2.0f;
 						spread			= 3.6f;
 						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;

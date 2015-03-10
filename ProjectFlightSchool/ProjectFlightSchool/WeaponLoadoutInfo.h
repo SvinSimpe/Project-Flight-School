@@ -14,7 +14,7 @@
 // Minigun
 #define MINIGUN_AR			0.13f								// Attack Rate
 #define MINIGUN_DAMAGE		4.9f								// Damage
-#define MINIGUN_RANGE		0.6f								// Range
+#define MINIGUN_RANGE		0.3f								// Range
 #define MINIGUN_SPREAD		5.0f								// Spread
 #define MINIGUN_AOE			0.0f								// Area of effect
 #define MINIGUN_SPEED		45.0f								// Projectile Speed 30
@@ -43,7 +43,7 @@
 // Sniper
 #define SNIPER_AR			3.2f								// Attack Rate
 #define SNIPER_DAMAGE		28.0f								// Damage
-#define SNIPER_RANGE		5.0f								// Range
+#define SNIPER_RANGE		3.0f								// Range
 #define SNIPER_SPREAD		0.0f								// Spread
 #define SNIPER_AOE			0.0f								// Area of effect
 #define SNIPER_SPEED		70.0f								// Projectile Speed 90

@@ -439,6 +439,7 @@ void PlayState::CheckProjectileCollision()
 				{
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+					SoundBufferHandler::GetInstance()->Play3D( mExplosion , mPlayer->GetPosition() );
 				}
 				else
 				{
@@ -501,6 +502,7 @@ void PlayState::CheckProjectileCollision()
 
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+					SoundBufferHandler::GetInstance()->Play3D( mExplosion , mPlayer->GetPosition() );
 
 					IEventPtr E1( new Event_Client_Removed_Projectile( mProjectiles[i]->GetID() ) );
 					Client::GetInstance()->SendEvent( E1 );
@@ -1120,7 +1122,7 @@ HRESULT PlayState::Initialize()
 
 	mWorldMap->Initialize( 25 );
 
-	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/HardMap.xml" ) ); 
+	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/hardMap.xml" ) ); 
 
 	EventManager::GetInstance()->TriggerEvent( E1 );
 
@@ -1195,6 +1197,7 @@ HRESULT PlayState::Initialize()
 	//TestSound
 	mMiniGun			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/minigun.wav", 500, 40 );
 	mShotGun			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/shotgun.wav", 500 );
+	mExplosion			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/explosion.wav", 250 );
 	mSniper				= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/railgun.wav", 500 );
 	mLevelUp			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/level up.wav", 10 );
 	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav", 2000, 40 );

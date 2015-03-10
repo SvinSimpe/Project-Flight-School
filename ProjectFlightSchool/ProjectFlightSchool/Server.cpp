@@ -500,6 +500,17 @@ void Server::TurretFiredProjectile( IEventPtr eventPtr )
 	}
 }
 
+void Server::EnemyFiredProjectile(IEventPtr eventPtr)
+{
+	if (eventPtr->GetEventType() == Event_Enemy_Fired_Projectile::GUID)
+	{
+		std::shared_ptr<Event_Enemy_Fired_Projectile> data = std::static_pointer_cast<Event_Enemy_Fired_Projectile>(eventPtr);
+		
+		IEventPtr E1(new Event_Server_Enemy_Fired_Projectile(data->ID(), data->Position(), data->Direction(), data->Speed(), data->Range()));
+		BroadcastEvent(E1);
+	}
+}
+
 void Server::LobbyPlayer( IEventPtr eventPtr )
 {
 	if ( eventPtr->GetEventType() == Event_Client_Initialize_LobbyPlayer::GUID )
@@ -1071,6 +1082,8 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ResetTurretTargets, this, Event_Reset_Turret_Targets::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientChangeReady, this, Event_Client_Change_Ready_State::GUID );
 	EventManager::GetInstance()->AddListener( &Server::HostStartCountdown, this, Event_Host_Start_Game_Countdown::GUID );
+	EventManager::GetInstance()->AddListener(&Server::EnemyFiredProjectile, this, Event_Enemy_Fired_Projectile::GUID);
+	
 
 	mCurrentPID				= 0;
 	mActive					= false;

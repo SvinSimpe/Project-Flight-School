@@ -36,7 +36,7 @@ void Enemy::CreateRanged()
 	mEnemyType					= Ranged;
 	mMaxHp						= 50.0f;
 	mCurrentHp					= mMaxHp;
-	mDamage						= 5.0f;
+	mDamage						= ENEMY_PROJECTILE_DAMAGE;
 	mSpeed						= 7.0f;
 	mAttackRadius->radius		= 3.0f;
 	mAttentionRadius->radius	= 15.0f;

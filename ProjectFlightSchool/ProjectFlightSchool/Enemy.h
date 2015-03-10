@@ -16,7 +16,7 @@
 class Enemy;
 
 
-#define MAX_NR_OF_ENEMIES		2
+#define MAX_NR_OF_ENEMIES		1
 
 #define randflt() (((float) rand())/((float) RAND_MAX))
 
@@ -48,6 +48,11 @@ class Enemy;
 
 #define ENEMY_ANIMATION_COUNT					19
 //----------------------------------------
+
+#define ENEMY_PROJECTILE_ID						1985
+#define ENEMY_PROJECTILE_SPEED					30
+#define ENEMY_PROJECTILE_RANGE					0.3f
+#define ENEMY_PROJECTILE_DAMAGE					6
 
 enum EnemyType { Standard, Ranged, Boomer, Tank };
 enum EnemyState { Idle, HuntPlayer, MoveToShip, TakeDamage, Attack, Death, Stunned, };

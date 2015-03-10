@@ -106,6 +106,7 @@ class PlayState : public BaseState
 		bool			CullEntity( XMFLOAT3 entityPos );
 		void			WriteInteractionText( std::string text, float xPos, float yPos, float scale, XMFLOAT4 color );
 
+
 	protected:
 	public:
 		virtual HRESULT Update( float deltaTime );

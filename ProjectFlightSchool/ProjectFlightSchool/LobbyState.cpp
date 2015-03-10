@@ -176,7 +176,7 @@ void LobbyState::HandleInput()
 			Client::GetInstance()->SendEvent( E1 );
 		}
 	}
-	if( mBackButton.LeftMousePressed() )
+	if( mBackButton.LeftMousePressed() && !mGameCountdownStarted )
 	{
 		IEventPtr E1( new Event_Reset_Game() );
 		EventManager::GetInstance()->QueueEvent( E1 );
@@ -201,7 +201,7 @@ void LobbyState::HandleInput()
 			}
 		}
 	}
-	if( mChooseWeaponButton.LeftMousePressed() )
+	if( mChooseWeaponButton.LeftMousePressed() && !mGameCountdownStarted )
 	{
 		mLoadOutMenu.Activate();
 	}

@@ -100,6 +100,7 @@ class RemotePlayer
 		bool			mLegsAnimationCompleted;
 
 		float			mPlayerDownSparksTimer;
+		UINT			mEnergyCellID;
 
 	public:
 
@@ -139,9 +140,11 @@ class RemotePlayer
 		XMFLOAT3		GetDirection() const;
 		XMFLOAT3		GetVelocity() const;
 		std::string		GetName() const;
+		UINT			GetEnergyCellID() const;
 		void			SetDirection( XMFLOAT3 direction );
 		void			SetHP( float hp );
 		void			SetName( std::string name );
+		void			SetEnergyCellID( UINT id );
 };
 
 // Server player

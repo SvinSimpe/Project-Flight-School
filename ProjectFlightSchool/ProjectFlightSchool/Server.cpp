@@ -420,7 +420,7 @@ void Server::ClientInteractEnergyCell( IEventPtr eventPtr )
 	{
 		std::shared_ptr<Event_Client_Sync_Energy_Cell> data = std::static_pointer_cast<Event_Client_Sync_Energy_Cell>( eventPtr );
 		IEventPtr E1( new Event_Server_Sync_Energy_Cell( data->EnergyCellID(), data->OwnerID(), data->Position(), data->PickedUp() ) );
-		BroadcastEvent( E1, data->OwnerID() );
+		BroadcastEvent( E1 );
 
 		mEnergyCells[data->EnergyCellID()]->SetOwnerID( data->OwnerID() );
 		mEnergyCells[data->EnergyCellID()]->SetPickedUp( data->PickedUp() );

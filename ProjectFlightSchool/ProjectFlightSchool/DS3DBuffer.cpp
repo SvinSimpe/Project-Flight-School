@@ -216,7 +216,7 @@ void DS3DBuffer::PlayBuffer( XMFLOAT3 pos)
 	}
 	if( !played )
 	{
-		OutputDebugString( L"Not enough buffers\n" );
+		//OutputDebugString( L"Not enough buffers\n" );
 	}
 }
 

@@ -17,6 +17,19 @@ HRESULT Map::Render( float deltaTime, Player* player )
 	int playerX = ( ( (int)GetMapHalfWidth() * NODE_DIM ) + playerPosX ) / NODE_DIM;
 	int playerZ = ( ( (int)GetMapHalfHeight() * NODE_DIM ) + playerPosY ) / NODE_DIM;
 
+	for( int x = 0; x < (int)mMapDim; x++ )
+	{
+		for( int z = 0; z < (int)mMapDim; z++ )
+		{
+			MapNodeInstance* temp = GetNodeInstance( x, z );
+			if( temp && std::find( mapNodes.begin(), mapNodes.end(), temp ) == mapNodes.end() )
+			{
+				if( temp->mLightsRegistered )
+					temp->ResetLights();
+			}
+		}
+	}
+
 	for( int x = playerX - 1; x < playerX + 2; x++ )
 	{
 		for( int z = playerZ - 1; z < playerZ + 2; z++ )
@@ -28,19 +41,9 @@ HRESULT Map::Render( float deltaTime, Player* player )
 			}
 		}
 	}
-
-	for( int x = 0; x < (int)mMapDim; x++ )
-	{
-		for( int z = 0; z < (int)mMapDim; z++ )
-		{
-			MapNodeInstance* temp = GetNodeInstance( x, z );
-			if( temp && std::find( mapNodes.begin(), mapNodes.end(), temp ) == mapNodes.end() )
-			{
-				temp->ResetLights();
-			}
-		}
-	}
-
+	char buf[50];
+	sprintf_s(buf, "Nr of nodes drawn: %d \n", (int)mapNodes.size() );
+	OutputDebugStringA( buf );
 	for( auto& it : mapNodes )
 	{
 		it->Render( mEnvironmentTimer );

@@ -278,12 +278,12 @@ HRESULT RenderManager::Render()
 	//Reset the scene to default values
 	Graphics::GetInstance()->BeginScene();
 
+	SetLightStructuredBuffer();
+
 	Graphics::GetInstance()->ChangeRasterizerState( mRasterState );
 
 	//Prepare the scene to be rendered with Gbuffers
 	Graphics::GetInstance()->GbufferPass();
-
-	SetLightStructuredBuffer();
 
 	//------------------------Fill the Gbuffers with data----------------------
 	Graphics::GetInstance()->RenderStatic3dAsset( mObject3dArray, mNrOfObject3d );

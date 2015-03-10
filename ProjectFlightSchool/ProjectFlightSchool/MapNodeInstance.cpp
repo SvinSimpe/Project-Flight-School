@@ -61,11 +61,14 @@ HRESULT	MapNodeInstance::Render( float environmentTimer  )
 	DirectX::XMFLOAT3 min = DirectX::XMFLOAT3( mPos.x , 0, mPos.z );
 	DirectX::XMFLOAT3 max = DirectX::XMFLOAT3( min.x + mNode->GetGridWidth(), 5, min.z + mNode->GetGridHeight() );
 
-	mLightsRegistered = true;
-	for( int i = 0; i < (int)mPointLightCount; i++ )
+	if( !mLightsRegistered )
 	{
-		IEventPtr reg( new Event_Add_Point_Light( (PointLight*)&mPointLights[i] ) );
-		EventManager::GetInstance()->QueueEvent( reg );
+		mLightsRegistered = true;
+		for( int i = 0; i < (int)mPointLightCount; i++ )
+		{
+			IEventPtr reg( new Event_Add_Point_Light( (PointLight*)&mPointLights[i] ) );
+			EventManager::GetInstance()->QueueEvent( reg );
+		}
 	}
 
 	return S_OK;

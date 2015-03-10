@@ -34,10 +34,10 @@ public:
 
 		PointLight*		mPointLights;
 		UINT			mPointLightCount;
-		bool			mLightsRegistered;
 
 	protected:
 	public:
+		bool			mLightsRegistered;
 
 	private:
 		void				GetNavigationData();

@@ -65,9 +65,10 @@ cbuffer CbufferPerFrameShadow : register( b1 )
 	float4		shadowCameraPosition;
 }
 
-static const float SSAO_RAD		= 0.08f;
-static const float SHADOW_BIAS	= 0.001f;
-static const float SHADOW_DX	= 1.0f / 512.0f;
+static const float SSAO_RAD			= 0.08f;
+static const float SHADOW_BIAS		= 0.001f;
+static const float SHADOW_DX		= 1.0f / 512.0f;
+static const float ROBOT_MAX_RANGE	= 40000.0f;
 
 Texture2D<float4>				albedoSpecBuffer		: register( t0 );
 Texture2D<float4>				normalBuffer			: register( t1 );
@@ -267,6 +268,28 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 		float foamVar	= max( 0.0f, worldSample.y - waterLevel * 1.25f );
 		foamVar			*= frac( timeVariable * albedoSample.x + worldSample.z );
 		finalColor		= finalColor * ( 1.0f - foamVar ) + float3( 0.8f, 0.8f, 0.8f ) * foamVar;
+	}
+
+	//-------------------------------------------------------------------------------------------------
+	//	COOL EFFECT SPONSORED BY JOHANNES ANDERSSON. ALSO KNOWN AS ROBOT OUT OF RANGE
+	//-------------------------------------------------------------------------------------------------
+
+	//float3 originToPos	= worldSample - float3( 0.0f, 0.0f, 0.0f );
+	float rangeCheck	= dot( worldSample, worldSample );
+
+	if( rangeCheck > ROBOT_MAX_RANGE )
+	{
+		float rangeInterpol = 0.2f;;
+		float3 gridCheck = fmod( worldSample + float3( 1000.0f, 0.0f, 1000.0f ), 0.5f);
+
+		if( rangeCheck < ROBOT_MAX_RANGE + 80.0f )
+			rangeInterpol = 0.6f;
+		else if( gridCheck.x * 0.5f + gridCheck.z * 0.5f > 0.17f && gridCheck.x * 0.5f + gridCheck.z * 0.5f < 0.28f )
+			rangeInterpol = 0.5f;
+
+		rangeInterpol *=  0.75f + sin( timeVariable * 2.0f ) * 0.25f;
+
+		finalColor = ( 1.0f - rangeInterpol ) * finalColor + rangeInterpol * float4( 1.0f, 0.15f, 0.05f, 1.0f );
 	}
 
 	//return float4( albedoSample, 1.0f );

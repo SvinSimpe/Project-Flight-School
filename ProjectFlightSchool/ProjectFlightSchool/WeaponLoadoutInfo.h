@@ -18,7 +18,7 @@
 #define MINIGUN_SPREAD		5.0f								// Spread
 #define MINIGUN_AOE			0.0f								// Area of effect
 #define MINIGUN_SPEED		45.0f								// Projectile Speed 30
-#define MINIGUN_OFFSETS		XMFLOAT3( 0.75f, 0.5f, 1.3f )		// Offsets forward, right, up
+#define MINIGUN_OFFSETS		XMFLOAT3( 0.75f, 0.5f, 1.4f )		// Offsets forward, right, up
 #define MINIGUN_OVERHEAT_CD 2.0f								// Cooldown that occurs when the minigun overheats	
 #define MINIGUN_OVERHEAT	1.0f								// Amount of heat the minigun get's for firing once
 
@@ -118,9 +118,10 @@
 //////////////////////////////////
 
 #define TURRET_AR			0.05f								// Attack Rate
-#define TURRET_DAMAGE		0.6f								// Damage
+#define TURRET_DAMAGE		4.0f								// Damage
 #define TURRET_RANGE		0.8f								// Range
 #define TURRET_SPREAD		0.1f								// Spread
 #define TURRET_AOE			0.0f								// Area of effect
 #define TURRET_SPEED		40.0f								// Projectile Speed 30
 #define TURRET_OFFSETS		XMFLOAT3( 0.75f, 0.5f, 1.3f )		// Offsets forward, right, up
+#define TURRET_TURNSPEED	60.0f								// Turn speed

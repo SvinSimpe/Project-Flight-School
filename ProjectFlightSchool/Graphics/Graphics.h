@@ -71,7 +71,9 @@ enum RasterizerStates
 
 enum Effects
 {
+	
 	//Particle Effects
+	EFFECTS_GRANATE_TRAIL,
 	EFFECTS_SNIPER_TRAIL,
 	EFFECTS_SHELL,
 	EFFECTS_DEBRIS,

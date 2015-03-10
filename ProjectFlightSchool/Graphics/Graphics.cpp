@@ -461,7 +461,17 @@ HRESULT Graphics::InitializeEffects()
 	//			PARTICLE EFFECTS			|
 	//=======================================
 
-	//Debris effect
+	//Granate trail effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/GranateTrail.hlsl";
+	effectInfo.fileName					= "GranateTrail";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_GRANATE_TRAIL]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Sniper trail effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/SniperTrailEffect.hlsl";
 	effectInfo.fileName					= "SniperTrailEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
@@ -471,7 +481,7 @@ HRESULT Graphics::InitializeEffects()
 		return hr;
 	//--------------------------
 
-	//Debris effect
+	//Shell effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/ShellEffect.hlsl";
 	effectInfo.fileName					= "ShellEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
@@ -1272,7 +1282,7 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 					if( info[i].mParticleType == EFFECTS_SPORES || info[i].mParticleType == EFFECTS_SPARK || info[i].mParticleType == EFFECTS_LEVEL_UP 
 						|| info[i].mParticleType == EFFECTS_FIRE || info[i].mParticleType == EFFECTS_BLOWTORCH_FIRE || info[i].mParticleType == EFFECTS_BLOWTORCH_IDLE
 						|| info[i].mParticleType == EFFECTS_EXPLOSION || info[i].mParticleType == EFFECTS_SPARK_ROBOT || info[i].mParticleType == EFFECTS_SPARK_ELECTRIC
-						|| info[i].mParticleType == EFFECTS_SNIPER_TRAIL)
+						|| info[i].mParticleType == EFFECTS_SNIPER_TRAIL || info[i].mParticleType == EFFECTS_MUZZLEFLASH )
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
 					
 					else

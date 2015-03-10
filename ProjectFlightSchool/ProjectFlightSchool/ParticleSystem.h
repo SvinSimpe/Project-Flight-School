@@ -28,6 +28,11 @@ struct ParticleSystem : public ParticleData
 
 		switch ( particleType )
 		{
+			case GranateTrail:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/smokeFlares.dds", assetID );
+				break;
+			}
 			case SniperTrail:
 			{
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/smokeParticle1.dds", assetID );
@@ -89,7 +94,7 @@ struct ParticleSystem : public ParticleData
 			}
 			case MuzzleFlash:
 			{
-				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireSprite.dds", assetID );
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireParticle.dds", assetID );
 				break;
 			}
 			case Spark:
@@ -172,6 +177,13 @@ struct ParticleSystem : public ParticleData
 
 		switch ( particleType )
 		{	
+			case GranateTrail:
+			{
+				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+				SetRandomRotation( particleCount );
+				SetRandomDeathTime( 1, 5, particleCount );
+				break;
+			}
 			case SniperTrail:
 			{
 				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
@@ -234,7 +246,8 @@ struct ParticleSystem : public ParticleData
 			case MuzzleFlash:
 			{
 				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
-				SetRandomDeathTime( 1, 2, particleCount );
+				SetRandomRotation( particleCount ); 
+				SetRandomDeathTime( 1, 1, particleCount );
 				break;
 			}
 			case Smoke_MiniGun:
@@ -287,7 +300,7 @@ struct ParticleSystem : public ParticleData
 			case Explosion:
 			{
 				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
-				SetRandomDeathTime( 1, 3, particleCount );
+				SetRandomDeathTime( 1, 2, particleCount );
 				SetRandomRotation( particleCount );
 				ActivateLight( XMFLOAT3( emitterPosition.x, emitterPosition.y + 1.3f, emitterPosition.z ), XMFLOAT3( 6.0f, 3.0f, 2.0f ), 0.2f );
 				break;
@@ -295,7 +308,7 @@ struct ParticleSystem : public ParticleData
 			case ExplosionSmoke:
 			{
 				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
-				SetRandomDeathTime( 1, 6, particleCount );
+				SetRandomDeathTime( 5, 10, particleCount );
 				SetRandomRotation( particleCount ); 
 				break;
 			}
@@ -345,7 +358,8 @@ struct ParticleSystem : public ParticleData
 	}
 	void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection, XMFLOAT3 initialVelocity )
 	{
-		if( particleType == SniperTrail )			Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(10, 30),  1.0f, initialVelocity );
+		if( particleType == GranateTrail )			Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(3, 10),  1.0f, initialVelocity );
+		else if( particleType == SniperTrail )		Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(10, 30),  1.0f, initialVelocity );
 		else if( particleType == Shell )			Generate( emitterPosition, emitterDirection, 1,		10.0f,		initialVelocity  );
 		else if( particleType == Debris )			Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(0, 5),  30.0f,		initialVelocity  );
 		else if( particleType == FIRE )				Generate( emitterPosition, emitterDirection, 8,		40.0f,		initialVelocity );		
@@ -353,7 +367,7 @@ struct ParticleSystem : public ParticleData
 		else if( particleType == Spark_Robot )		Generate( emitterPosition, emitterDirection, 8,		90.0f,		initialVelocity );
 		else if( particleType == Spark_Electric )	Generate( emitterPosition, emitterDirection, 1,		360.0f,		initialVelocity );
 		else if( particleType == Blood )			Generate( emitterPosition, emitterDirection, 8,		25.0f,		initialVelocity );
-		else if( particleType == MuzzleFlash )		Generate( emitterPosition, emitterDirection, 4,		25.0f,		initialVelocity );
+		else if( particleType == MuzzleFlash )		Generate( emitterPosition, emitterDirection, 4,		1.0f,		initialVelocity );
 		else if( particleType == Smoke_MiniGun )	Generate( emitterPosition, emitterDirection, 8,		2.0f,		initialVelocity );
 		else if( particleType == Spores )			Generate( emitterPosition, emitterDirection, 8,		20.0f,		initialVelocity );
 		else if( particleType == FireSmoke )		Generate( emitterPosition, emitterDirection, 15,	25.0f,		initialVelocity );	
@@ -362,7 +376,7 @@ struct ParticleSystem : public ParticleData
 		else if( particleType == Level_Up )			Generate( emitterPosition, emitterDirection, 512,	270.0f,		initialVelocity );
 		else if( particleType == Level_Inner )		Generate( emitterPosition, emitterDirection, 32,	20.0f,		initialVelocity );
 		else if( particleType == Explosion )		Generate( emitterPosition, emitterDirection, 50,	360.0f,		initialVelocity );
-		else if( particleType == ExplosionSmoke )	Generate( emitterPosition, emitterDirection, 50,	360.0f,		initialVelocity );		
+		else if( particleType == ExplosionSmoke )	Generate( emitterPosition, emitterDirection, 50,	90.0f,		initialVelocity );		
 		else if( particleType == NormalSmoke )		Generate( emitterPosition, emitterDirection, 6,		120.0f,		initialVelocity );
 		else if( particleType == Fire_Flies )		Generate( emitterPosition, emitterDirection, 8,		5.0f,		initialVelocity );
 		else if( particleType == Hammer_Effect )	Generate( emitterPosition, emitterDirection, 64,	180.0f,		initialVelocity );
@@ -380,12 +394,19 @@ struct ParticleSystem : public ParticleData
 		// Update logic based on Particle type
 		switch( particleType )
 		{
+			case GranateTrail: 
+			{
+				// Update Debris logic here
+				GranateTrailLogic( deltaTime );
+				break;
+			}
 			case SniperTrail: 
 			{
 				// Update Debris logic here
 				SniperTrailLogic( deltaTime );
 				break;
 			}
+			
 			case Shell: 
 			{
 				// Update Shell logic here
@@ -631,6 +652,19 @@ struct ParticleSystem : public ParticleData
 		}
 	}
 	
+	void GranateTrailLogic( float deltatime )
+	{
+		for ( int i = 0; i < nrOfParticlesAlive; i++ )
+		{
+			if( damping[i] > 0.0f )
+				damping[i] -= 0.03f;
+			
+			xPosition[i] += 0.03f * ( 1.0f - damping[i] );
+			zPosition[i] += 0.010f * ( 1.0f - damping[i] );
+			yPosition[i] += 0.02f * ( 1.0f - damping[i] );
+		}
+	}
+
 	void SniperTrailLogic( float deltatime )
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
@@ -761,14 +795,14 @@ struct ParticleSystem : public ParticleData
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
 		{
 			if(damping[i] > 0)
-				damping[i] -= 0.01f;
+				damping[i] -= 0.017f;
 
 			xVelocity[i] = xVelocity[i] * damping[i];
 			zVelocity[i] = zVelocity[i] * damping[i];
 			yVelocity[i] = zVelocity[i] * damping[i] * 4;
-			xPosition[i] += 0.05f * ( 1.0f - damping[i] );
-			zPosition[i] += 0.025f * ( 1.0f - damping[i] );
-			yPosition[i] += 0.08f * ( 1.0f - damping[i] );
+			xPosition[i] += 0.02f * ( 1.0f - damping[i] );
+			zPosition[i] += 0.010f * ( 1.0f - damping[i] );
+			yPosition[i] += 0.04f * ( 1.0f - damping[i] );
 		}
 	}
 

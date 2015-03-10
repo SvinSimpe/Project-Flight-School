@@ -33,7 +33,6 @@ class Player: public RemotePlayer
 {
 	private:
 		PointLight*		mPointLight;
-		PointLight*		mEnergyCellLight;
 		Upgrades		mUpgrades;
 
 		bool		mWeaponOverheated;
@@ -72,7 +71,6 @@ class Player: public RemotePlayer
 		float		mWaterDamageTime;
 		int			mLastKiller;
 
-		UINT		mEnergyCellID;
 		float		mPickUpCooldown;
 
 		int			mMiniGunOverheat;
@@ -118,7 +116,7 @@ class Player: public RemotePlayer
 		void		UpgradeLegs();
 		void		UpgradeMelee();
 		void		UpgradeRange();
-		void		WriteInteractionText( std::string text );
+		void		WriteInteractionText( std::string text, float xPos, float yPos, float scale, XMFLOAT4 color );
 
 	protected:
 	public:
@@ -144,14 +142,12 @@ class Player: public RemotePlayer
 		bool		GetIsMeleeing()	const;
 		XMFLOAT3	GetPlayerPosition() const;
 		XMFLOAT3	GetUpperBodyDirection() const;
-		UINT		GetEnergyCellID() const;
 		float		GetXPToNext() const;
 		int			Upgradable() const;
 		void		SetIsMeleeing( bool isMeleeing );
 		void		SetID( unsigned int id );
 		void		SetTeam( int team );
 		void		SetPosition( XMVECTOR position );
-		void		SetEnergyCellID( UINT energyCellID );
 		int			GetCurrentLevel() const;
 
 		void		QueueEvent( IEventPtr ptr );

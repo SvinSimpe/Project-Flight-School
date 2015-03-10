@@ -395,30 +395,27 @@ void Player::AddXP( float XP )
 	//Check if maxlevel
 	if ( mCurrentLevel == 16 )
 		mXP = mNextLevelXP;
-	
 }
 
 void Player::PickUpEnergyCell( EnergyCell** energyCells )
 {
 	for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
-		{
+	{
 		if( !energyCells[i]->GetPickedUp() && mEnergyCellID == (UINT)-1 )
+		{
+			if( energyCells[i]->GetPickUpRadius()->Intersect( mBoundingCircle ) )
 			{
-				if( energyCells[i]->GetPickUpRadius()->Intersect( mBoundingCircle ) )
-				{
-					energyCells[i]->SetOwnerID( mID );
-					energyCells[i]->SetPickedUp( true );
-					energyCells[i]->SetPosition( mLowerBody.position );
-					mEnergyCellID = i;
+				energyCells[i]->SetOwnerID( mID );
+				energyCells[i]->SetPickedUp( true );
+				energyCells[i]->SetSecured( false );
+				energyCells[i]->SetPosition( mLowerBody.position );
+				mEnergyCellID = i;
 
-					IEventPtr E1( new Event_Client_Sync_Energy_Cell( i, mID, mLowerBody.position, true ) );
-					QueueEvent( E1 );
-
-					IEventPtr reg( new Event_Add_Point_Light( mEnergyCellLight ) );
-					EventManager::GetInstance()->QueueEvent( reg );
-				}
+				IEventPtr E1( new Event_Client_Sync_Energy_Cell( i, mID, mLowerBody.position, energyCells[mEnergyCellID]->GetPickedUp() ) );
+				QueueEvent( E1 );
 			}
 		}
+	}
 }
 
 void Player::DropEnergyCell( EnergyCell** energyCells )
@@ -431,11 +428,8 @@ void Player::DropEnergyCell( EnergyCell** energyCells )
 		energyCells[mEnergyCellID]->SetSecured( false );
 	
 
-		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, (UINT)-1, mLowerBody.position, false ) );
+		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, (UINT)-1, mLowerBody.position, energyCells[mEnergyCellID]->GetPickedUp() ) );
 		QueueEvent( E1 );
-
-		IEventPtr reg( new Event_Remove_Point_Light( mEnergyCellLight ) );
-		EventManager::GetInstance()->QueueEvent( reg );
 
 		mEnergyCellID	= (UINT)-1;
 		mPickUpCooldown	= 3.0f;
@@ -451,11 +445,8 @@ void Player::GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, Direct
 		energyCells[mEnergyCellID]->SetPickedUp( true );
 		energyCells[mEnergyCellID]->SetSecured( true );
 
-		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, shipID, shipPos, true ) );
+		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, shipID, shipPos, energyCells[mEnergyCellID]->GetPickedUp() ) );
 		QueueEvent( E1 );
-
-		IEventPtr reg( new Event_Remove_Point_Light( mEnergyCellLight ) );
-		EventManager::GetInstance()->QueueEvent( reg );
 
 		mEnergyCellID	= (UINT)-1;
 		mPickUpCooldown = 3.0f;
@@ -499,6 +490,12 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 
 		if( mIsInWater )
 		{
+			WriteInteractionText( 
+				"Get out of the water or die!", 
+				(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
+				(float)( Input::GetInstance()->mScreenHeight * 0.25f ), 
+				3.0f,
+				COLOR_CYAN );
 			XMStoreFloat3( &mVelocity, XMLoadFloat3( &mVelocity ) * ( 1.0f - deltaTime * 10.0f ) );
 			mWaterDamageTime += deltaTime;
 			if( mWaterDamageTime > WATER_DAMAGE_TIME )
@@ -736,16 +733,15 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		{
 			mWeaponOverheated = false;
 		}
+		XMFLOAT3 transFloat;
+		transFloat.x = projectileOffset->x + ( mUpperBody.direction.x * 0.4f );
+		transFloat.y = projectileOffset->y;
+		transFloat.z = projectileOffset->z + ( mUpperBody.direction.z * 0.4f );
+		RenderManager::GetInstance()->RequestParticleSystem( mID, MuzzleFlash, transFloat, mUpperBody.direction, mVelocity );
+		//transFloat.x = projectileOffset->x + ( mUpperBody.direction.x * 0.7 );
+		//transFloat.z = projectileOffset->z + ( mUpperBody.direction.z * 0.7 );
+		//RenderManager::GetInstance()->RequestParticleSystem( mID, Spark, transFloat, mUpperBody.direction, mVelocity );	
 
-		//Blowtorch particle system
-		RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchIdle, *projectileOffset, mUpperBody.direction, mVelocity );
-		RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, *projectileOffset, mUpperBody.direction, mVelocity );
-		
-		
-
-		// Request Muzzle Flash from Particle Manager
-		//RenderManager::GetInstance()->RequestParticleSystem( mID, MuzzleFlash, *projectileOffset, mFireDirection );
-		//RenderManager::GetInstance()->RequestParticleSystem( mID, MuzzleFlash, *projectileOffset, mFireDirection );
 	}
 	else
 	{
@@ -941,12 +937,10 @@ void Player::UpgradeRange()
 	mLoadOut->rangedWeapon->LevelUp();
 }
 
-void Player::WriteInteractionText( std::string text )
+void Player::WriteInteractionText( std::string text, float xPos, float yPos, float scale, XMFLOAT4 color )
 {
-	float offset = mFont.GetMiddleXPoint( text, 3.0 );
-	float textShadowWidth = 1.0f;
-
-	mFont.WriteText( text, (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 250.0f, 3.0, COLOR_CYAN );
+	float offset = mFont.GetMiddleXPoint( text, scale );
+	mFont.WriteText( text, xPos - offset, yPos, scale, color );
 }
 
 /////Public
@@ -1011,11 +1005,11 @@ void Player::Reset()
 	mMaxVelocity				= 7.7f;
 	mVelocity					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mCurrentVelocity			= 0.0f;
-	mMaxAcceleration			= 20.0f;;
+	mMaxAcceleration			= 20.0f;
 	mAcceleration				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
 	mIsBuffed					= false;
-	mBuffMod					= 1; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
+	mBuffMod					= 0.5f; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
 
 	mTimeTillSpawn				= mSpawnTime;
 	mTimeTillDeath				= mDeathTime;
@@ -1045,8 +1039,7 @@ void Player::Reset()
 	RenderManager::GetInstance()->AnimationReset( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
 	RenderManager::GetInstance()->AnimationReset( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
 
-	/*Release();
-	Initialize();*/
+	mUpgrades = Upgrades();
 }
 
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
@@ -1066,21 +1059,21 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	mCloseToPlayer = false;
 	for( auto rp : remotePlayers )
 	{
-		if( rp->IsAlive() && mBoundingCircle->Intersect( rp->GetBoundingCircleAura() ) )
+		if( rp->IsDown() && mBoundingCircle->Intersect( rp->GetBoundingCircleAura() ) && rp->GetTeam() == mTeam )
 		{
 			mCloseToPlayer = true;
 		}
 	}
 
-	//Temp visual aid to know that you're close to another player. Used to know if you can revive.
-	if( mCloseToPlayer )
-	{
-		mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.6f, 0.8f, 0.6f, 30.0f );
-	}
-	else
-	{
-		mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 10.0f );
-	}
+	////Temp visual aid to know that you're close to another player. Used to know if you can revive.
+	//if( mCloseToPlayer )
+	//{
+	//	mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.6f, 0.8f, 0.6f, 30.0f );
+	//}
+	//else
+	//{
+	//	mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 10.0f );
+	//}
 
 	if ( !mLock )
 	{
@@ -1116,7 +1109,8 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 			}
 
 			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel[TEAM_ARRAY_ID], 
-				mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] ? deltaTime * currentVelocity / 1.1f : deltaTime );
+				mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation == 
+				mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] ? deltaTime * currentVelocity / 1.1f * mSlowDown * mUpgrades.runSpeedFactor : deltaTime );
 
 			if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] )
 				RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
@@ -1135,11 +1129,6 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 			else
 			{
 				mPickUpCooldown -= deltaTime;
-			}
-
-			if( mEnergyCellID != (UINT)-1 )
-			{
-				mEnergyCellLight->positionAndIntensity = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 4.0f, mLowerBody.position.z, 1.0f );
 			}
 			//////////////////////////////////////////
 			// IF LEAVING AREA
@@ -1295,14 +1284,32 @@ HRESULT Player::Render( float deltaTime, int position )
 
 	if( mIsOutSideZone )
 	{
-        std::string textToWrite = "Robot losing connection get back!\n\t\t\t\t\t   " + std::to_string( (int)mLeavingAreaTime );
-		float offset = mFont.GetMiddleXPoint( "Robot losing connection get back!", 3.8f );
-		mFont.WriteText( textToWrite, (float)Input::GetInstance()->mScreenWidth/2 - offset, (float)Input::GetInstance()->mScreenHeight/4, 3.8f, COLOR_RED );
+		WriteInteractionText( 
+			"Robot losing connection get back!\n\t\t\t\t\t   " + std::to_string( (int)mLeavingAreaTime ),
+			(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
+			(float)( Input::GetInstance()->mScreenHeight * 0.25 ), 
+			4.0f,
+			COLOR_RED );
 	}
 
 	if( mEnergyCellID != (UINT)-1 )
 	{
-		WriteInteractionText( "Go back to your ship to hand in the energy cell!" );
+		WriteInteractionText( 
+			"Head back to your ship!", 
+			(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
+			(float)( Input::GetInstance()->mScreenHeight * 0.10f ), 
+			2.0f,
+			COLOR_CYAN );
+	}
+
+	if( mCloseToPlayer )
+	{
+		WriteInteractionText( 
+			"Hold F to revive team mate!", 
+			(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
+			(float)( Input::GetInstance()->mScreenHeight * 0.25 ) + 25.0f, 
+			2.0f,
+			COLOR_CYAN );
 	}
 
 	RemotePlayer::Render();
@@ -1340,7 +1347,6 @@ HRESULT Player::Render( float deltaTime, int position )
 HRESULT Player::Initialize()
 {
 	mPointLight			= nullptr;
-	mEnergyCellLight	= nullptr;
 
 	mWeaponOverheated	= false;
 	mTimeSinceLastShot	= 0.0f;
@@ -1373,7 +1379,6 @@ HRESULT Player::Initialize()
 	mWaterDamageTime		= 0.0f;
 	mLastKiller				= 0;
 
-
 	gEventList				= std::list<IEventPtr>(); 
 
 
@@ -1394,11 +1399,7 @@ HRESULT Player::Initialize()
 	IEventPtr reg( new Event_Add_Point_Light( mPointLight ) );
 	EventManager::GetInstance()->QueueEvent( reg );
 
-	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.0f, 0.0f, 1.0f, 5.0f );
-
-	mEnergyCellLight						= new PointLight;
-	mEnergyCellLight->positionAndIntensity	= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
-	mEnergyCellLight->colorAndRadius		= DirectX::XMFLOAT4( 2.0f, 3.0f, 8.0f, 1.0f );
+	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 10.0f );
 
 	mMaxVelocity		= 7.7f;
 	mCurrentVelocity	= 0.0f;
@@ -1436,7 +1437,6 @@ HRESULT Player::Initialize()
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
 	mPick = XMFLOAT3( 0, 0, 0 );
 
-	mEnergyCellID	= (UINT)-1;
 	mPickUpCooldown = 0.0f;
 
 	currentPath1 = new Path();
@@ -1452,15 +1452,12 @@ void Player::Release()
 	EventManager::GetInstance()->QueueEvent( reg );
 	SAFE_DELETE( mPointLight );
 	SAFE_DELETE( currentPath1 );
-	SAFE_DELETE( mEnergyCellLight );
-
 }
 
 Player::Player()
 	:RemotePlayer()
 {
 	mPointLight			= nullptr;
-	mEnergyCellLight	= nullptr;
 
 	mWeaponOverheated	= false;
 	mTimeSinceLastShot	= 0.0f;
@@ -1483,17 +1480,18 @@ Player::Player()
 	mXP					= 0.0f;
 	mNextLevelXP		= 0.0f;
 	
-	mSpawnTime				= 0.0f;
-	mTimeTillSpawn			= 0.0f;
-	mDeathTime				= 0.0f;
-	mTimeTillDeath			= 0.0f;
-	mReviveTime				= 0.0f;
-	mTimeTillRevive			= 0.0f;
-	mLeavingAreaTime		= 0.0f;
-	mWaterDamageTime		= 0.0f;
-	mLastKiller				= 0;
+	mSpawnTime			= 0.0f;
+	mTimeTillSpawn		= 0.0f;
+	mDeathTime			= 0.0f;
+	mTimeTillDeath		= 0.0f;
+	mReviveTime			= 0.0f;
+	mTimeTillRevive		= 0.0f;
+	mLeavingAreaTime	= 0.0f;
+	mWaterDamageTime	= 0.0f;
+	mLastKiller			= 0;
 
-	gEventList				= std::list<IEventPtr>();
+	gEventList			= std::list<IEventPtr>();
+	mUpgrades			= Upgrades();
 }
 
 Player::~Player()
@@ -1514,11 +1512,6 @@ XMFLOAT3 Player::GetPlayerPosition() const
 XMFLOAT3 Player::GetUpperBodyDirection() const
 {
 	return mUpperBody.direction;
-}
-
-UINT Player::GetEnergyCellID() const
-{
-	return mEnergyCellID;
 }
 
 float Player::GetXPToNext() const
@@ -1554,9 +1547,4 @@ void Player::SetTeam( int team )
 void Player::SetPosition( XMVECTOR position )
 {
 	XMStoreFloat3( &mLowerBody.position, position );
-}
-
-void Player::SetEnergyCellID( UINT energyCellID )
-{
-	mEnergyCellID = energyCellID;
 }

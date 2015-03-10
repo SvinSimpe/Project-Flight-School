@@ -19,7 +19,7 @@ class EnergyCell
 		float				mHooverFactor;
 		bool				mSecured;
 		PointLight*			mEnergyPointLight;
-		bool				isLightActive;
+		bool				mIsLightActive;
 		float				mIntensity;
 
 	protected:

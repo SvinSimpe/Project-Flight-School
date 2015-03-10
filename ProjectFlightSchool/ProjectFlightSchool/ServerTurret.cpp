@@ -14,7 +14,7 @@ void ServerTurret::AttackingTurret::Action( ServerTurret* t, float dt )
 
 	float rightDot		= XMVectorGetX( XMVector3Dot( rightDir, homingVec ) );
 	float leftDot		= XMVectorGetX( XMVector3Dot( -rightDir, homingVec ) );
-	float angleY		= dt * ( rightDot < leftDot ? -leftDot : rightDot ) * 50.0f; // The last number is the turret rotation speed
+	float angleY		= dt * ( rightDot < leftDot ? -leftDot : rightDot ) * TURRET_TURNSPEED; // The last number is the turret rotation speed
 
 	XMStoreFloat4( &t->mTurretHead->rot, XMVector3TransformNormal( XMLoadFloat4( &t->mTurretHead->rot ), XMMatrixRotationY( angleY ) ) );
 

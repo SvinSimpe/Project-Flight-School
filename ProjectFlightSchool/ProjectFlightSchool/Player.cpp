@@ -728,16 +728,15 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		{
 			mWeaponOverheated = false;
 		}
+		XMFLOAT3 transFloat;
+		transFloat.x = projectileOffset->x + ( mUpperBody.direction.x * 0.4f );
+		transFloat.y = projectileOffset->y;
+		transFloat.z = projectileOffset->z + ( mUpperBody.direction.z * 0.4f );
+		RenderManager::GetInstance()->RequestParticleSystem( mID, MuzzleFlash, transFloat, mUpperBody.direction, mVelocity );
+		//transFloat.x = projectileOffset->x + ( mUpperBody.direction.x * 0.7 );
+		//transFloat.z = projectileOffset->z + ( mUpperBody.direction.z * 0.7 );
+		//RenderManager::GetInstance()->RequestParticleSystem( mID, Spark, transFloat, mUpperBody.direction, mVelocity );	
 
-		//Blowtorch particle system
-		RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchIdle, *projectileOffset, mUpperBody.direction, mVelocity );
-		RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, *projectileOffset, mUpperBody.direction, mVelocity );
-		
-		
-
-		// Request Muzzle Flash from Particle Manager
-		//RenderManager::GetInstance()->RequestParticleSystem( mID, MuzzleFlash, *projectileOffset, mFireDirection );
-		//RenderManager::GetInstance()->RequestParticleSystem( mID, MuzzleFlash, *projectileOffset, mFireDirection );
 	}
 	else
 	{
@@ -1382,7 +1381,7 @@ HRESULT Player::Initialize()
 	IEventPtr reg( new Event_Add_Point_Light( mPointLight ) );
 	EventManager::GetInstance()->QueueEvent( reg );
 
-	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.0f, 0.0f, 1.0f, 5.0f );
+	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 10.0f );
 
 	mMaxVelocity		= 7.7f;
 	mCurrentVelocity	= 0.0f;

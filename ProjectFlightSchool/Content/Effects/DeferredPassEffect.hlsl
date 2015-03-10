@@ -65,6 +65,10 @@ cbuffer CbufferPerFrameShadow : register( b1 )
 	float4		shadowCameraPosition;
 }
 
+static const float SSAO_RAD		= 0.08f;
+static const float SHADOW_BIAS	= 0.001f;
+static const float SHADOW_DX	= 1.0f / 512.0f;
+
 Texture2D<float4>				albedoSpecBuffer		: register( t0 );
 Texture2D<float4>				normalBuffer			: register( t1 );
 Texture2D<float4>				worldPositionBuffer		: register( t2 );
@@ -84,23 +88,22 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	//========== Screen Space Ambient Occlusion =============
 	// USED FOR TESTING SSAO ONLY, SUCKY VERSION, JOCKE PLEZ HALP
 	float ssao	= 0.0f;
-	float rad	= 0.08f;
 
 	float2 vec[8] = {	float2( 1.0f, 0.0f ), float2( -1.0f, 0.0f ),
 						float2( 0.0f, 1.0f ), float2( 0.0f, -1.0f ),
-						normalize( float2( 1.0f, 1.0f ) ), normalize( float2( -1.0f, -1.0f ) ),
-						normalize( float2( -1.0f, 1.0f ) ), normalize( float2( 1.0f, -1.0f ) ), };
+						float2( 0.707f, 0.707f ), float2( -0.707f, -0.707f ),
+						float2( -0.707f, 0.707f ), float2( 0.707f, -0.707f ), };
 
 	[unroll]
 	for( int j = 0; j < 8; j++ )
 	{
 		for( float k = 0.0f; k < 1.01f; k += 0.5f )
 		{
-			float3 dif	= worldPositionBuffer.Sample( pointSampler, input.uv + vec[j] * rad * k ).xyz - worldSample;
+			float3 dif	= worldPositionBuffer.Sample( pointSampler, input.uv + vec[j] * SSAO_RAD * k ).xyz - worldSample;
 			float l		= length( dif ) * 0.5f;
 			dif			= normalize( dif );
 		
-			ssao +=	max( 0.0f, dot( normalSample, dif ) - 0.01f ) * 1.0f / ( 1.0f + l ) * 1.0f;
+			ssao +=	max( 0.0f, dot( normalSample, dif ) - 0.01f ) * 1.0f / ( 1.0f + l );
 		}
 	}
 
@@ -109,7 +112,6 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	//-------------------------------------------------------------------------------------------------
 	//	SHADOW MAP
 	//-------------------------------------------------------------------------------------------------
-	float SHADOW_BIAS = 0.001f;
 
 	float shadowSamples = 0.0f;
 
@@ -121,15 +123,16 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 
 	float depth = posLightH.z / posLightH.w;
 
-	float dx = 1.0f / 512.0f;
-	smTex	-= float2( dx, dx ) * 0.5f;
+	smTex	-= float2( SHADOW_DX, SHADOW_DX ) * 0.5f;
 
 	//16 samples
+	[unroll]
 	for( int k = -2; k < 2; k++ )
+		[unroll]
 		for( int l = -2; l < 2; l++ )
-			shadowSamples += shadowMap.Sample( linearSampler, smTex + float2( dx * k, dx * l ) ).r + SHADOW_BIAS < depth ? 0.0f : 1.0f;
+			shadowSamples += shadowMap.Sample( linearSampler, smTex + float2( SHADOW_DX * k, SHADOW_DX * l ) ).r + SHADOW_BIAS < depth ? 0.0f : 1.0f;
 
-	float shadowFactor = shadowSamples / 16.0f;
+	float shadowFactor = shadowSamples * 0.0625f; // division by 16.0f;
 
 	//======== SHADOW MAP POINTLIGHT ===========
 	float3 ambient		= float3( 0.1f, 0.1f,  0.1f );
@@ -144,11 +147,9 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	float3	diffuse			= float3( diffuseFactor, diffuseFactor, diffuseFactor );
 
 	//Calculate specular factor
-	float3 reflection		= normalize( reflect( -lightDirection, normalSample ) );
-	float3 viewVector		= normalize( worldSample - cameraPosition.xyz );
-	float specularFactor	= saturate( dot( reflection, viewVector ) );
+	float specularFactor	= saturate( dot( normalize( reflect( -lightDirection, normalSample ) ), normalize( worldSample - cameraPosition.xyz ) ) );
 	float specularPower		= 4.0f;
-	float3 specular			= float3( float3( 1.0f, 1.0f, 1.0f ) * pow( specularFactor, specularPower ) ) * specularSample;
+	float3 specular			= float3( 1.0f, 1.0f, 1.0f ) * pow( specularFactor, specularPower ) * specularSample;
 
 	float3 finalColor		= ambient * ssao + ( ( ( diffuse + specular ) * color ) * shadowFactor ) / ( dShadow * 0.01f + dShadow * dShadow * 0.005f );
 
@@ -163,16 +164,12 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 		{
 			float3 lightDir = worldSample - lightStructure[i].positionAndIntensity.xyz;
 			float d			= length( lightDir );
-			if( d < lightStructure[i].colorAndRadius.w * 2 )
+			if( d < lightStructure[i].colorAndRadius.w * 2.0f )
 			{
 				lightDir		/= d;
 
-				float3 N = normalSample;
-				float3 V = cameraPosition.xyz;
-				float3 R = reflect( lightDir, N );
-
-				float diff	= saturate( dot( -lightDir, N ) );
-				float3 spec	= float3( lightStructure[i].colorAndRadius.xyz * pow( dot( R, V ), specularPower ) ) * specularSample;
+				float diff	= saturate( dot( -lightDir, normalSample ) );
+				float3 spec	= float3( lightStructure[i].colorAndRadius.xyz * pow( dot( reflect( lightDir, normalSample ), cameraPosition.xyz ), specularPower ) ) * specularSample;
 
 				float denom			= d / lightStructure[i].colorAndRadius.w + 1.0f;
 				float attenuation	= min( lerp( 1.0f, 0.0f, d / ( lightStructure[i].colorAndRadius.w * 2.0f ) ), 1.0f / ( denom * denom ) );
@@ -213,47 +210,44 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 		waterNormal			+= mul( bumpNormal.xyz, texSpace );
 
 		//ShadowMap light
-		float3 lightDirection	= waterWorldSample - shadowCameraPosition.xyz;
-		float dShadow			= length( lightDirection );
+		lightDirection	= waterWorldSample - shadowCameraPosition.xyz;
+		dShadow			= length( lightDirection );
 		lightDirection			/= dShadow;
 
 		//Calculate diffuse factor
-		float	diffuseFactor	= saturate( dot( -lightDirection, normalSample ) );
-		float3	diffuse			= float3( diffuseFactor, diffuseFactor, diffuseFactor );
+		diffuseFactor	= saturate( dot( -lightDirection, normalSample ) );
+		diffuse			= float3( diffuseFactor, diffuseFactor, diffuseFactor );
 
 		//Calculate specular factor
-		float3 reflection		= normalize( reflect( -lightDirection, waterNormal ) );
-		float3 viewVector		= normalize( waterWorldSample - cameraPosition.xyz );
-		float specularFactor	= saturate( dot( reflection, viewVector ) );
-		float specularPower		= 4.0f;
-		float3 specular			= float3( float3( 1.0f, 1.0f, 1.0f ) * pow( specularFactor, specularPower ) );
+		specularFactor	= saturate( dot( normalize( reflect( -lightDirection, waterNormal ) ), normalize( waterWorldSample - cameraPosition.xyz ) ) );
+		specularPower		= 4.0f;
+		specular			= float3( 1.0f, 1.0f, 1.0f ) * pow( specularFactor, specularPower );
 
 		float3 waterColor	= ( ( ( ambient * ssao + diffuse + specular ) * float3( 0.4f, 0.3f, 0.6f ) ) * shadowFactor ) / ( dShadow * 0.01f + dShadow * dShadow * 0.005f );
 
 		//Point lights
 		for( int i = 0; i < numPointLights; i++ )
 		{
-
 			if( lightStructure[i].colorAndRadius.w > 0.01f )
 			{
-
-				float3 lightDir = waterWorldSample - lightStructure[i].positionAndIntensity.xyz;
+				float3 lightDir = worldSample - lightStructure[i].positionAndIntensity.xyz;
 				float d			= length( lightDir );
-				lightDir		/= d;
+				if( d < lightStructure[i].colorAndRadius.w * 2.0f )
+				{
+					lightDir		/= d;
 
-				float3 N = waterNormal;
-				float3 V = cameraPosition.xyz;
-				float3 R = reflect( lightDir, N );
+					float diff	= saturate( dot( -lightDir, normalSample ) );
+					float3 spec	= float3( lightStructure[i].colorAndRadius.xyz * pow( dot( reflect( lightDir, normalSample ), cameraPosition.xyz ), specularPower ) ) * specularSample;
 
-				float diff	= saturate( dot( -lightDir, N ) );
-				float3 spec	= float3( lightStructure[i].colorAndRadius.xyz * pow( dot( R, V ), specularPower ) );
+					float denom			= d / lightStructure[i].colorAndRadius.w + 1.0f;
+					float attenuation	= min( lerp( 1.0f, 0.0f, d / ( lightStructure[i].colorAndRadius.w * 2.0f ) ), 1.0f / ( denom * denom ) );
 
-				float denom			= d / lightStructure[i].colorAndRadius.w + 1.0f;
-				float attenuation	= 1.0f / ( denom * denom );
-
-				waterColor += ( diffuse + specular ) * lightStructure[i].colorAndRadius.xyz * attenuation;
+					waterColor += ( diffuse + specular ) * lightStructure[i].colorAndRadius.xyz * lightStructure[i].positionAndIntensity.w * attenuation;
+				}
 			}
 		}
+
+		saturate( waterColor );
 
 		float fresnel	= max( 0.1f, dot( waterNormal, toCamera ) );
 
@@ -265,14 +259,13 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	}
 	else
 	{
-		finalColor = finalColor * albedoSample;
+		finalColor *= albedoSample;
 	}
 
 	if( abs( worldSample.y - waterLevel ) <= 0.25f )
 	{
 		float foamVar	= max( 0.0f, worldSample.y - waterLevel * 1.25f );
 		foamVar			*= frac( timeVariable * albedoSample.x + worldSample.z );
-		//finalColor = float3( foamVar, foamVar, foamVar );
 		finalColor		= finalColor * ( 1.0f - foamVar ) + float3( 0.8f, 0.8f, 0.8f ) * foamVar;
 	}
 

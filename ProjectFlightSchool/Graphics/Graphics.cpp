@@ -1221,8 +1221,6 @@ void Graphics::RenderBillboard( BillboardInfo* info, UINT sizeOfList )
 
 void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 {
-
-
 	//////////////////////////////////////////////////////////////////
 	//						RENDER CALL
 	//////////////////////////////////////////////////////////////////

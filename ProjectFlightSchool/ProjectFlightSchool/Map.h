@@ -21,6 +21,8 @@ class Map
 		UINT				mNrOfNodes;
 		UINT				mMapId;
 
+		float				mEnvironmentTimer;
+
 	protected:
 	public:
 		UINT mMapDim;

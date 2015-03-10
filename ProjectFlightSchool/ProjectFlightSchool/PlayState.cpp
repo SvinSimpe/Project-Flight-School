@@ -1122,7 +1122,7 @@ HRESULT PlayState::Initialize()
 
 	mWorldMap->Initialize( 25 );
 
-	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/HardMap.xml" ) ); 
+	IEventPtr E1( new Event_Load_Level("../Content/Assets/Nodes/hardMap.xml" ) ); 
 
 	EventManager::GetInstance()->TriggerEvent( E1 );
 

@@ -20,6 +20,8 @@ struct MapNodeInfo
 		UINT			nodeDim;
 		GameObject*		staticAssets;
 		UINT			staticAssetCount;
+		PointLight*		pointLights;
+		UINT			pointLightCount;
 		AssetID			blendMap;
 		std::string		name;
 };
@@ -45,20 +47,20 @@ class MapNode
 
 		float***		mHeightMap;
 
-		float			mEnvironmentTimer;
-
 		MapNodeInstance mInstances[INSTANCE_COUNT];
 
 	protected:
 	public:
 		GameObject*		mStaticAssets;
 		UINT			mStaticAssetCount;
+		PointLight*		mPointLights;
+		UINT			mPointLightCount;
 
 	private:
 	protected:
 	public:
 		HRESULT				Update( float deltaTime );
-		HRESULT				Render( float deltaTime, XMFLOAT4X4 parentWorld );
+		HRESULT				Render( float environmentTimer, XMFLOAT4X4 parentWorld );
 
 		StaticVertex*		GetGrid() const;
 

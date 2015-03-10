@@ -19,20 +19,21 @@
 		<Node path="../Content/Assets/Nodes/tileFungusForest.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileGiantBonesAndTrees.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileGlade.lp" type="AREA_NODE" />
-		<Node path="../Content/Assets/Nodes/tilegrassshroom.lp" type="AREA_NODE" />
+		<Node path="../Content/Assets/Nodes/tilegrassShroom.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileLake1.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileLake2.lp" type="AREA_NODE" />
+		<Node path="../Content/Assets/Nodes/tileMediumForest.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileMushroomForest.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tilePassageWithANest.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileRatherOpenArea1.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileRatherOpenArea2.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileRatherOpenArea3.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileRatherOpenArea4.lp" type="AREA_NODE" />
-		<Node path="../Content/Assets/Nodes/tileshroompuddle.lp" type="AREA_NODE" />
+		<Node path="../Content/Assets/Nodes/tileshroomPuddle.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileSmallForest.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileSomeNests.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileThreeTrees.lp" type="AREA_NODE" />
-		<Node path="../Content/Assets/Nodes/tiletreeforest.lp" type="AREA_NODE" />
+		<Node path="../Content/Assets/Nodes/tiletreeForest.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileTwoIslandsOfTrees.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileWithAfricaLakeAndIsland.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileWithBigTreeAndOneNest.lp" type="AREA_NODE" />

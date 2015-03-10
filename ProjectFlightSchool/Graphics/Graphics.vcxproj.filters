@@ -262,5 +262,8 @@
     <Text Include="..\Content\Effects\Particle Effects\DebrisEffect.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
+    <Text Include="..\Content\Effects\Particle Effects\GranateTrail.hlsl">
+      <Filter>Effects\Particle Effects</Filter>
+    </Text>
   </ItemGroup>
 </Project>

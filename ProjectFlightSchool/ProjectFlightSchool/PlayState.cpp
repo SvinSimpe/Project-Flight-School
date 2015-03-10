@@ -835,7 +835,7 @@ HRESULT PlayState::Update( float deltaTime )
 			if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 			{
 				mPlayer->GiveEnergyCellToShip( mEnergyCells, mShips[FRIEND_SHIP]->GetID(), mShips[FRIEND_SHIP]->GetPos() );
-				mShips[FRIEND_SHIP]->AddEnergyCell( mShips[FRIEND_SHIP]->GetID() );
+				mShips[FRIEND_SHIP]->AddEnergyCell();
 			}
 		}
 		mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers, mEnergyCells );
@@ -1031,6 +1031,10 @@ void PlayState::OnEnter()
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Started() );
 	EventManager::GetInstance()->QueueEvent( E1 );
+
+	//Spawn a energycell
+	IEventPtr E3( new Event_Spawn_Energy_Cell() );
+	EventManager::GetInstance()->QueueEvent( E3 );
 
 	mGui->SetTeamID( mPlayer->GetTeam() );
 	//SoundBufferHandler::GetInstance()->LoopStream( mStreamSoundAsset );

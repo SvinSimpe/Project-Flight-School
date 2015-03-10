@@ -428,11 +428,13 @@ void Server::ClientInteractEnergyCell( IEventPtr eventPtr )
 
 		for( auto s :mShips )
 		{
-			if( s->GetID() )
+			if( s->GetID() == data->OwnerID() )
 			{
-				s->AddEnergyCell( mEnergyCells[data->EnergyCellID()]->GetOwnerID() );
+				s->AddEnergyCell();
 				IEventPtr E2( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel, s->mEngineLevel, s->mNrOfEnergyCells ) );
 				BroadcastEvent( E2 );
+				IEventPtr E3( new Event_Spawn_Energy_Cell() );
+				EventManager::GetInstance()->QueueEvent( E3 );
 			}
 		}
 
@@ -768,11 +770,27 @@ bool Server::CullEnemyUpdate( XMFLOAT3 playerPos, XMFLOAT3 enemyPos )
 	return HelperFunctions::Dist3Squared( playerPos, enemyPos ) <= ENEMY_UPDATE_RANGE;
 }
 
+void Server::OnSpawnEnergyCell( IEventPtr e )
+{
+	if( e->GetEventType() == Event_Spawn_Energy_Cell::GUID )
+	{
+		XMFLOAT3 cellPos = mCellPositionQueue.front();
+		mCellPositionQueue.push( cellPos );
+		mEnergyCells[mCurrentCell]->Reset();
+		mEnergyCells[mCurrentCell]->SetPosition( cellPos );
+
+		IEventPtr e( new Event_Server_Sync_Energy_Cell( mCurrentCell, -1, cellPos, false ) );
+		BroadcastEvent( e );
+	}
+}
+
 void Server::CreateEnergyCells()
 {
 	//Calculate Energy cell position
-	CalculateCellSpawnPositions( mShips.at(0)->GetPos() );
-	CalculateCellSpawnPositions( mShips.at(1)->GetPos() );
+	//CalculateCellSpawnPositions( mShips.at(0)->GetPos() );
+	//CalculateCellSpawnPositions( mShips.at(1)->GetPos() );
+
+	CalculateCellPosition( XMFLOAT3( 0, 0, 0 ), 30, 60 );
 
 	//Energy cells
 	mEnergyCells = new EnergyCell*[MAX_ENERGY_CELLS];
@@ -781,8 +799,34 @@ void Server::CreateEnergyCells()
 	for( int i = 1; i < MAX_ENERGY_CELLS ; i++ )
 	{
 		mEnergyCells[i] = new EnergyCell();
-		mEnergyCells[i]->Initialize( mCellPositionQueue.front() );
-		mCellPositionQueue.pop();
+		mEnergyCells[i]->Initialize( XMFLOAT3( 0,0,0 ) );
+	}
+}
+
+void Server::CalculateCellPosition( XMFLOAT3 pos, float offSetX, float offSetZ )
+{
+	// Length between every cell
+	float halfX = offSetX * 0.5f;
+	float halfZ = offSetZ * 0.5f;
+	
+	XMFLOAT3 energyCellPosition	= pos;
+
+	int infCounter		= 0;
+	int placeCounter	= 0;
+
+	while( placeCounter < 30 && infCounter < 10000 )
+	{
+		int x = (int)halfX - ( rand() % (int)offSetX );
+		int z = (int)halfZ - ( rand() % (int)offSetZ );
+
+		energyCellPosition = XMFLOAT3( energyCellPosition.x + x, 0 , energyCellPosition.z + z );
+
+		if( Pathfinder::GetInstance()->IsOnNavMesh( energyCellPosition ) )
+		{
+			mCellPositionQueue.push( energyCellPosition );
+			placeCounter++;
+		}
+		infCounter++;
 	}
 }
 
@@ -1071,6 +1115,8 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientChangeReady, this, Event_Client_Change_Ready_State::GUID );
 	EventManager::GetInstance()->AddListener( &Server::HostStartCountdown, this, Event_Host_Start_Game_Countdown::GUID );
 
+	EventManager::GetInstance()->AddListener( &Server::OnSpawnEnergyCell, this, Event_Spawn_Energy_Cell::GUID );
+
 	mCurrentPID				= 0;
 	mActive					= false;
 	mTeamDelegate			= 0;
@@ -1079,6 +1125,7 @@ bool Server::Initialize()
 	mNrOfProjectilesFired	= 0;
 	mStopAccept				= false;
 	mMaxClients				= 0;
+	mCurrentCell			= 1;
 
 	srand( (UINT)time( NULL ) );
 

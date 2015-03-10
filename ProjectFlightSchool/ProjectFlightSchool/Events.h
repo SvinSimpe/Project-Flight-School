@@ -5733,4 +5733,39 @@ class Event_Server_Start_Game_Countdown : public IEvent
 			return IEventPtr( new Event_Server_Start_Game_Countdown() );
 		}
 };
+
+class Event_Spawn_Energy_Cell : public IEvent
+{
+	private:
+		int mID;
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+
+		Event_Spawn_Energy_Cell()
+		{
+		}
+
+		~Event_Spawn_Energy_Cell() {}
+
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Spawn_Energy_Cell() );
+		}
+};
 #endif

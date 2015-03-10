@@ -30,6 +30,16 @@ bool EnergyCell::GetPickedUp() const
 	return mPickedUp;
 }
 
+bool EnergyCell::GetActive() const
+{
+	return mActive;
+}
+
+void EnergyCell::SetActive( bool active )
+{
+	mActive = active;
+}
+
 DirectX::XMFLOAT3 EnergyCell::GetPosition() const
 {
 	return mPickUpRadius->center;
@@ -81,6 +91,7 @@ void EnergyCell::UpdateLight( float deltaTime )
 			IEventPtr reg( new Event_Remove_Point_Light( mEnergyPointLight ) );
 			EventManager::GetInstance()->QueueEvent( reg );
 			isLightActive = false;
+			mHasBeenPickedUp = true;
 		}
 	}
 }
@@ -103,6 +114,8 @@ HRESULT EnergyCell::Initialize( DirectX::XMFLOAT3 position )
 {
 	HRESULT hr = S_OK;
 
+	mActive					= false;
+	mHasBeenPickedUp		= false;
 	mPickedUp				= false;
 	mPickUpRadius			= new BoundingCircle( 1.0f );
 	mPickUpRadius->center	= position;

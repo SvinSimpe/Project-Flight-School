@@ -288,7 +288,7 @@ struct ParticleSystem : public ParticleData
 			case Explosion:
 			{
 				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
-				SetRandomDeathTime( 1, 3, particleCount );
+				SetRandomDeathTime( 1, 2, particleCount );
 				SetRandomRotation( particleCount );
 				ActivateLight( XMFLOAT3( emitterPosition.x, emitterPosition.y + 1.3f, emitterPosition.z ), XMFLOAT3( 6.0f, 3.0f, 2.0f ), 0.2f );
 				break;
@@ -732,7 +732,7 @@ struct ParticleSystem : public ParticleData
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
 		{
 			if(damping[i] > 0)
-				damping[i] -= 0.003f;
+				damping[i] -= 0.01f;
 
 			xVelocity[i] = xVelocity[i] * damping[i];
 			zVelocity[i] = zVelocity[i] * damping[i];
@@ -748,14 +748,14 @@ struct ParticleSystem : public ParticleData
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
 		{
 			if(damping[i] > 0)
-				damping[i] -= 0.01f;
+				damping[i] -= 0.017f;
 
 			xVelocity[i] = xVelocity[i] * damping[i];
 			zVelocity[i] = zVelocity[i] * damping[i];
 			yVelocity[i] = zVelocity[i] * damping[i] * 4;
-			xPosition[i] += 0.05f * ( 1.0f - damping[i] );
-			zPosition[i] += 0.025f * ( 1.0f - damping[i] );
-			yPosition[i] += 0.08f * ( 1.0f - damping[i] );
+			xPosition[i] += 0.02f * ( 1.0f - damping[i] );
+			zPosition[i] += 0.010f * ( 1.0f - damping[i] );
+			yPosition[i] += 0.04f * ( 1.0f - damping[i] );
 		}
 	}
 

@@ -21,7 +21,7 @@ void LobbyOwnerState::ManageStartButton()
 		if( p->thisPlayer && !p->isReady )
 		{
 			p->isReady = true;
-			IEventPtr ready( new Event_Client_Change_Ready_State() );
+			IEventPtr ready( new Event_Client_Change_Ready_State( p->ID, p->isReady ) );
 			Client::GetInstance()->SendEvent( ready );
 		}
 		else if( !p->isReady )

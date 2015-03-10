@@ -59,6 +59,7 @@ class ServerTurret : public GameObject
 		UINT			mTeamID;
 		TurretHead*		mTurretHead;
 		LoadOut*		mLoadOut;
+		float			mTurretTurnSpeed;
 
 	public:
 

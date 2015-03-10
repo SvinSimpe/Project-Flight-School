@@ -1285,9 +1285,16 @@ HRESULT Player::Render( float deltaTime, int position )
 	if( mIsOutSideZone )
 	{
 		WriteInteractionText( 
-			"Robot losing connection get back!\n\t\t\t\t\t   " + std::to_string( (int)mLeavingAreaTime ),
+			"Robot losing connection get back!",
 			(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
 			(float)( Input::GetInstance()->mScreenHeight * 0.25 ), 
+			4.0f,
+			COLOR_RED );
+
+		WriteInteractionText( 
+			std::to_string( (int)mLeavingAreaTime ),
+			(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
+			(float)( Input::GetInstance()->mScreenHeight * 0.25 ) + 40.0f, 
 			4.0f,
 			COLOR_RED );
 	}

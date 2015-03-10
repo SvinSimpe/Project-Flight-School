@@ -23,10 +23,10 @@ class Path;
 
 struct Upgrades
 {
-	int melee				= 1;
-	int range				= 1;
-	int legs				= 1;
-	int body				= 1;
+	int		currentBodyLevel			= 1;
+	float	damageTakenPercentage		= 1.0f; // 1 == 100 % == No resistance!
+	int		currentLegsLevel			= 1;
+	float	runSpeedFactor				= 0.7f;
 };
 
 class Player: public RemotePlayer

@@ -490,7 +490,7 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 
 		if( mIsInWater )
 		{
-			WriteInteractionText( "Get out of the water or you will die!", 275.0f, COLOR_RED );
+			WriteInteractionText( "Get out of the water or die!", 275.0f, COLOR_RED );
 			XMStoreFloat3( &mVelocity, XMLoadFloat3( &mVelocity ) * ( 1.0f - deltaTime * 10.0f ) );
 			mWaterDamageTime += deltaTime;
 			if( mWaterDamageTime > WATER_DAMAGE_TIME )
@@ -1290,7 +1290,7 @@ HRESULT Player::Render( float deltaTime, int position )
 
 	if( mEnergyCellID != (UINT)-1 )
 	{
-		WriteInteractionText( "Go back to your ship to hand in the energy cell!", 250.0f, COLOR_CYAN );
+		WriteInteractionText( "Head back to your ship!", 225.0f, COLOR_CYAN );
 	}
 
 	RemotePlayer::Render();

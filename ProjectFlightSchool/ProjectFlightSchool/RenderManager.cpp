@@ -288,7 +288,6 @@ HRESULT RenderManager::Render()
 	Graphics::GetInstance()->RenderLine( mLineArray, mNrOfLines );
 
 	//Graphics::GetInstance()->RenderCircle( mCircleArray, mNrOfCircles );	
-
 	Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray, mNrOfAnim3d );
 
 	////------------------------Finished filling the Gbuffers----------------------
@@ -297,10 +296,8 @@ HRESULT RenderManager::Render()
 	Graphics::GetInstance()->DeferredPass();
 
 	//Render the particles
-//	HelperFunctions::StartCounter();
 	mParticleManager->Render(); // Check these separately?
 	Graphics::GetInstance()->RenderParticleSystems( mParticleInfoArray, mNrOfParticles );
-//	HelperFunctions::PrintCounter( "ParticlePass: " );
 
 	//Prepare the scene to render Screen space located assets
 	Graphics::GetInstance()->ScreenSpacePass();
@@ -310,8 +307,6 @@ HRESULT RenderManager::Render()
 
 	//Present the scene onto the screen
 	Graphics::GetInstance()->EndScene();
-
-	OutputDebugStringA( "------------------------------------------\n" );
 
 	return S_OK;
 }

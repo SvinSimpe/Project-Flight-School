@@ -36,17 +36,30 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if ( newEvent->GetEventType() == Event_Remote_Left::GUID ) // Remove a remote player from the list when they disconnect
 	{
 		std::shared_ptr<Event_Remote_Left> data = std::static_pointer_cast<Event_Remote_Left>( newEvent );
-		for( unsigned int i = 0; i < mRemotePlayers.size(); i++ )
+
+		for( auto& p : mRemotePlayers )
 		{
-			if( !mRemotePlayers.at(i) )
+			if( data->ID() == p->GetID() )
 			{
-				continue;
-			}
-			else if( data->ID() == mRemotePlayers.at(i)->GetID() )
-			{
-				mRemotePlayers.at(i)->Release();
-				SAFE_DELETE( mRemotePlayers.at(i) );
-				std::swap( mRemotePlayers.at(i), mRemotePlayers.at(mRemotePlayers.size() - 1) );
+				UINT ecID = p->GetEnergyCellID();
+				if( ecID != (UINT)-1 )
+				{
+					mEnergyCells[ecID]->SetPosition( p->GetPosition() );
+					mEnergyCells[ecID]->SetOwnerID( (UINT)-1 );
+					mEnergyCells[ecID]->SetPickedUp( false );
+					mEnergyCells[ecID]->SetSecured( false );
+	
+
+					IEventPtr E1( new Event_Client_Sync_Energy_Cell( 
+						ecID, 
+						mEnergyCells[ecID]->GetOwnerID(), 
+						mEnergyCells[ecID]->GetPosition(), 
+						mEnergyCells[ecID]->GetPickedUp() ) );
+					Client::GetInstance()->SendEvent( E1 );
+				}
+				p->Release();
+				SAFE_DELETE( p );
+				std::swap( p, mRemotePlayers.back() );
 				mRemotePlayers.pop_back();
 				break;
 			}
@@ -1121,7 +1134,6 @@ void PlayState::OnExit()
 
 void PlayState::Reset()
 {
-	mPlayer->DropEnergyCell( mEnergyCells );
 	mPlayer->Reset();
 	for( size_t i = 0; i < MAX_PROJECTILES; i++ )
 		mProjectiles[i]->Reset();
@@ -1295,12 +1307,10 @@ HRESULT PlayState::Initialize()
 
 void PlayState::Release()
 {	
-
 	Pathfinder::GetInstance()->Release();
 	mWorldMap->Release();
 	SAFE_DELETE( mWorldMap );
 
-	mPlayer->DropEnergyCell( mEnergyCells );
 	mPlayer->Release();
 	SAFE_DELETE(mPlayer);
 

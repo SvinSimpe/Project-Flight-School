@@ -146,7 +146,6 @@ class Player: public RemotePlayer
 		void		SetID( unsigned int id );
 		void		SetTeam( int team );
 		void		SetPosition( XMVECTOR position );
-		void		SetEnergyCellID( UINT energyCellID );
 		int			GetCurrentLevel() const;
 
 		void		QueueEvent( IEventPtr ptr );

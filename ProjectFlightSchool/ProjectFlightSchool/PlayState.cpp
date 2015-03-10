@@ -183,7 +183,40 @@ void PlayState::EventListener( IEventPtr newEvent )
 		mEnergyCells[data->EnergyCellID()]->SetPosition( data->Position() );
 		mEnergyCells[data->EnergyCellID()]->SetPickedUp( data->PickedUp() );
 
-		OutputDebugStringA( "Received energy cell update.\n" );
+		if( data->OwnerID() == (UINT)-1 )
+		{
+			if( mPlayer->GetEnergyCellID() != (UINT)-1 )
+			{
+				mPlayer->SetEnergyCellID( (UINT)-1 );
+			}
+			else
+			{
+				for( auto& p : mRemotePlayers )
+				{
+					if( p->GetEnergyCellID() != (UINT)-1 )
+					{
+						p->SetEnergyCellID( (UINT)-1 );
+					}
+				}
+			}
+		}
+		else
+		{
+			if( mPlayer->GetID() == data->OwnerID() )
+			{
+				mPlayer->SetEnergyCellID( data->EnergyCellID() );
+			}
+			else
+			{
+				for( auto& p : mRemotePlayers )
+				{
+					if( p->GetID() == data->OwnerID() )
+					{
+						p->SetEnergyCellID( data->EnergyCellID() );
+					}
+				}
+			}
+		}
 	}
 	else if( newEvent->GetEventType() == Event_Server_XP::GUID )
 	{
@@ -813,16 +846,17 @@ HRESULT PlayState::Update( float deltaTime )
 					if( mRemotePlayers[i]->GetEnergyCellID() != (UINT)-1 )
 					{
 						mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::PICKED_UP;
-						continue;
-					}
-
-					if( mRemotePlayers[i]->GetTeam() == mPlayer->GetTeam() )
-					{
-						mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::FRIENDLY;
 					}
 					else
 					{
-						mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::HOSTILE;
+						if( mRemotePlayers[i]->GetTeam() == mPlayer->GetTeam() )
+						{
+							mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::FRIENDLY;
+						}
+						else
+						{
+							mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::HOSTILE;
+						}
 					}
 				}
 				pName[i].mRemotePlayerPos		= mRemotePlayers[i]->GetPosition();
@@ -911,13 +945,29 @@ HRESULT PlayState::Update( float deltaTime )
 		//No need to update the first energy cell since it's not supposed to be active
 		for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
 		{
-			mEnergyCells[i]->Update( deltaTime );
-
 			if( !mEnergyCells[i]->GetPickedUp() )
 			{
 				mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnergyCells[i]->GetPosition();
 				mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::OBJECTIVE;
 			}
+			else
+			{
+				if( mEnergyCells[i]->GetOwnerID() == mPlayer->GetID() )
+				{
+					mEnergyCells[i]->SetPosition( mPlayer->GetPosition() );
+				}
+				else
+				{
+					for( auto& p : mRemotePlayers )
+					{
+						if( mEnergyCells[i]->GetOwnerID() == p->GetID() )
+						{
+							mEnergyCells[i]->SetPosition( p->GetPosition() );
+						}
+					}
+				}
+			}
+			mEnergyCells[i]->Update( deltaTime );
 		}
 
 		CheckProjectileCollision();
@@ -1069,6 +1119,7 @@ void PlayState::OnExit()
 
 void PlayState::Reset()
 {
+	mPlayer->DropEnergyCell( mEnergyCells );
 	mPlayer->Reset();
 	for( size_t i = 0; i < MAX_PROJECTILES; i++ )
 		mProjectiles[i]->Reset();
@@ -1246,6 +1297,7 @@ void PlayState::Release()
 	mWorldMap->Release();
 	SAFE_DELETE( mWorldMap );
 
+	mPlayer->DropEnergyCell( mEnergyCells );
 	mPlayer->Release();
 	SAFE_DELETE(mPlayer);
 

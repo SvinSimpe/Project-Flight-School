@@ -1125,12 +1125,6 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 			{
 				mPickUpCooldown -= deltaTime;
 			}
-
-			if( mEnergyCellID != (UINT)-1 )
-			{
-				IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, mID, mLowerBody.position, energyCells[mEnergyCellID]->GetPickedUp() ) );
-				QueueEvent( E1 );
-			}
 			//////////////////////////////////////////
 			// IF LEAVING AREA
 			if( XMVectorGetX( XMVector3LengthSq( XMLoadFloat3( &mLowerBody.position ) ) ) > MAX_ROBOT_RANGE ) // calculated from origo, not intended behaviour i guess.

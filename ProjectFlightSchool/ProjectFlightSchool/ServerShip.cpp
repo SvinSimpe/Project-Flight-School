@@ -208,7 +208,7 @@ bool ServerShip::Intersect( BoundingCircle* entity )
 void ServerShip::Update( float deltaTime )
 {
 	mWasUpdated = false;
-	mServerTurret->Update( deltaTime );
+	//mServerTurret->Update( deltaTime );
 	//RenderManager::GetInstance()->AddCircleToList( mHitCircle->center, XMFLOAT3( 1.0f, 0.0f, 0.0f ), mHitCircle->radius );
 }
 

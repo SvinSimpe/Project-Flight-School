@@ -232,6 +232,7 @@ void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XM
 	mEnemyListSynced = false;
 	mEnemies[id]->SetID( id );
 	mEnemies[id]->SetEnemyType( type );
+	//mEnemies[id]->SetLoopAnimation( true );
 	mEnemies[id]->SetModelID( mEnemyAnimationManager->GetModel( mEnemies[id]->GetEnemyType() ), mEnemyAnimationManager->GetDefaultAnimation( mEnemies[id]->GetEnemyType() ) );
 	mEnemies[id]->SetAnimation( mEnemyAnimationManager->GetAnimation( mEnemies[id]->GetEnemyType(), state ) );
 	mEnemies[id]->SetPosition( position );

@@ -52,14 +52,24 @@ HRESULT MapNodeInstance::Update( float deltaTime )
 	return S_OK;
 }
 
-HRESULT	MapNodeInstance::Render( float deltaTime  )
+HRESULT	MapNodeInstance::Render( float environmentTimer  )
 {
 	if( mNode != nullptr )
 	{
-		mNode->Render( deltaTime, mWorld );
+		mNode->Render( environmentTimer, mWorld );
 	}
 	DirectX::XMFLOAT3 min = DirectX::XMFLOAT3( mPos.x , 0, mPos.z );
 	DirectX::XMFLOAT3 max = DirectX::XMFLOAT3( min.x + mNode->GetGridWidth(), 5, min.z + mNode->GetGridHeight() );
+
+	if( !mLightsRegistered )
+	{
+		mLightsRegistered = true;
+		for( int i = 0; i < (int)mPointLightCount; i++ )
+		{
+			IEventPtr reg( new Event_Add_Point_Light( (PointLight*)&mPointLights[i] ) );
+			EventManager::GetInstance()->QueueEvent( reg );
+		}
+	}
 
 	return S_OK;
 }
@@ -152,11 +162,38 @@ void MapNodeInstance::SetMapNode( MapNode* mapNode )
 	mNode = mapNode;
 }
 
+void MapNodeInstance::ResetLights()
+{
+	mLightsRegistered = false;
+	for( int i = 0; i < (int)mPointLightCount; i++ )
+	{
+		IEventPtr reg( new Event_Remove_Point_Light( (PointLight*)&mPointLights[i] ) );
+		EventManager::GetInstance()->QueueEvent( reg );
+	}
+}
+
 HRESULT	MapNodeInstance::Initialize()
 {
 	GetNavigationData();
 	mSizeX = mNode->GetGridWidth() / 24;
 	mSizeY = mNode->GetGridHeight() / 24;
+
+	mPointLightCount	= mNode->mPointLightCount;
+	mPointLights		= new PointLight[mPointLightCount];
+	for( int i = 0; i < (int)mNode->mPointLightCount; i++ )
+	{
+		XMVECTOR lightPos = XMLoadFloat4( &mNode->mPointLights[i].positionAndIntensity );
+		lightPos = XMVector3TransformCoord( lightPos, XMLoadFloat4x4( &mWorld ) );
+		XMFLOAT3 values;
+		XMStoreFloat3( &values, lightPos );
+		mPointLights[i].positionAndIntensity.x = values.x;
+		mPointLights[i].positionAndIntensity.y = values.y;
+		mPointLights[i].positionAndIntensity.z = values.z;
+		mPointLights[i].positionAndIntensity.w = mNode->mPointLights[i].positionAndIntensity.w;
+
+		mPointLights[i].colorAndRadius	= mNode->mPointLights[i].colorAndRadius;
+	}
+
 	return S_OK;
 }
 
@@ -167,6 +204,7 @@ void MapNodeInstance::Release()
 		mNavMesh->Release();
 		delete mNavMesh;
 	}
+	SAFE_DELETE_ARRAY( mPointLights );
 }
 
 MapNodeInstance::MapNodeInstance()
@@ -179,6 +217,11 @@ MapNodeInstance::MapNodeInstance()
 	mNodeID		= -1;
 	mSizeX		= 0;
 	mSizeY		= 0;
+
+	
+	mPointLights		= nullptr;
+	mPointLightCount	= 0;
+	mLightsRegistered	= false;
 }
 
 MapNodeInstance::~MapNodeInstance()

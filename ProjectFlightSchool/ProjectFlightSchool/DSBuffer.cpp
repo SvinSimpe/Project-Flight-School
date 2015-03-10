@@ -115,7 +115,11 @@ bool DSBuffer::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName, LONG vol
 	HRESULT				hr;
 
 	// Set up WAV format structure. 
-
+	if( waveFileHeader.numChannels == 1 )
+	{
+		waveFileHeader.numChannels	= 2;
+		waveFileHeader.blockAlign	*= 2;
+	}
 	memset (&wfx, 0, sizeof(WAVEFORMATEX) );
 	wfx.wFormatTag		= WAVE_FORMAT_PCM;
 	wfx.nChannels		= waveFileHeader.numChannels;

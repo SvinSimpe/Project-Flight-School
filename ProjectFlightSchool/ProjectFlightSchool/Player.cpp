@@ -736,16 +736,15 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		{
 			mWeaponOverheated = false;
 		}
+		XMFLOAT3 transFloat;
+		transFloat.x = projectileOffset->x + ( mUpperBody.direction.x * 0.4 );
+		transFloat.y = projectileOffset->y;
+		transFloat.z = projectileOffset->z + ( mUpperBody.direction.z * 0.4 );
+		RenderManager::GetInstance()->RequestParticleSystem( mID, MuzzleFlash, transFloat, mUpperBody.direction, mVelocity );
+		//transFloat.x = projectileOffset->x + ( mUpperBody.direction.x * 0.7 );
+		//transFloat.z = projectileOffset->z + ( mUpperBody.direction.z * 0.7 );
+		//RenderManager::GetInstance()->RequestParticleSystem( mID, Spark, transFloat, mUpperBody.direction, mVelocity );	
 
-		//Blowtorch particle system
-		RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchIdle, *projectileOffset, mUpperBody.direction, mVelocity );
-		RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, *projectileOffset, mUpperBody.direction, mVelocity );
-		
-		
-
-		// Request Muzzle Flash from Particle Manager
-		//RenderManager::GetInstance()->RequestParticleSystem( mID, MuzzleFlash, *projectileOffset, mFireDirection );
-		//RenderManager::GetInstance()->RequestParticleSystem( mID, MuzzleFlash, *projectileOffset, mFireDirection );
 	}
 	else
 	{
@@ -1066,21 +1065,21 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	mCloseToPlayer = false;
 	for( auto rp : remotePlayers )
 	{
-		if( rp->IsAlive() && mBoundingCircle->Intersect( rp->GetBoundingCircleAura() ) )
+		if( rp->IsDown() && mBoundingCircle->Intersect( rp->GetBoundingCircleAura() ) && rp->GetTeam() == mTeam )
 		{
 			mCloseToPlayer = true;
 		}
 	}
 
-	//Temp visual aid to know that you're close to another player. Used to know if you can revive.
-	if( mCloseToPlayer )
-	{
-		mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.6f, 0.8f, 0.6f, 30.0f );
-	}
-	else
-	{
-		mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 10.0f );
-	}
+	////Temp visual aid to know that you're close to another player. Used to know if you can revive.
+	//if( mCloseToPlayer )
+	//{
+	//	mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.6f, 0.8f, 0.6f, 30.0f );
+	//}
+	//else
+	//{
+	//	mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 10.0f );
+	//}
 
 	if ( !mLock )
 	{
@@ -1116,7 +1115,8 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 			}
 
 			RenderManager::GetInstance()->AnimationUpdate( mLowerBody.playerModel[TEAM_ARRAY_ID], 
-				mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation == mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] ? deltaTime * currentVelocity / 1.1f : deltaTime );
+				mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation == 
+				mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] ? deltaTime * currentVelocity / 1.1f * mSlowDown * mUpgrades.runSpeedFactor : deltaTime );
 
 			if( mLeftArmAnimationCompleted && mArms.leftArm.mNextAnimation != mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] )
 				RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
@@ -1303,6 +1303,11 @@ HRESULT Player::Render( float deltaTime, int position )
 	if( mEnergyCellID != (UINT)-1 )
 	{
 		WriteInteractionText( "Go back to your ship to hand in the energy cell!" );
+	}
+
+	if( mCloseToPlayer )
+	{
+		WriteInteractionText( "Hold F to revive team mate!" );
 	}
 
 	RemotePlayer::Render();

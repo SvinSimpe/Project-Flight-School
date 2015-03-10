@@ -41,9 +41,7 @@ HRESULT Map::Render( float deltaTime, Player* player )
 			}
 		}
 	}
-	char buf[50];
-	sprintf_s(buf, "Nr of nodes drawn: %d \n", (int)mapNodes.size() );
-	OutputDebugStringA( buf );
+
 	for( auto& it : mapNodes )
 	{
 		it->Render( mEnvironmentTimer );

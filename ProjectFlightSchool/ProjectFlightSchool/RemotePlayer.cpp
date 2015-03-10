@@ -511,7 +511,7 @@ HRESULT RemotePlayer::Initialize()
 
 	mBoundingBox			= new BoundingRectangle( 1.5f, 1.5f );
 	mBoundingCircle			= new BoundingCircle( 0.5f );
-	mBoundingCircleAura		= new BoundingCircle( 1.0f );
+	mBoundingCircleAura		= new BoundingCircle( 4.0f );
 	
 	mIsAlive				= true;
 	mIsDown					= false;

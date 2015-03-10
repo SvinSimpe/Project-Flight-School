@@ -6,6 +6,9 @@ HRESULT Projectile::Update( float deltaTime )
 	{
 		float acceleration	= ( 2.0f * deltaTime );
 		mDirection.y -= acceleration;
+		RenderManager::GetInstance()->RequestParticleSystem( mPlayerID, GranateTrail, mPosition, DirectX::XMFLOAT3( 0.0f, 1.0f, 0.0f ), DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
+		////////
+
 	}
 
 

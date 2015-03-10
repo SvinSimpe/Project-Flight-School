@@ -28,6 +28,11 @@ struct ParticleSystem : public ParticleData
 
 		switch ( particleType )
 		{
+			case GranateTrail:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/smokeFlares.dds", assetID );
+				break;
+			}
 			case SniperTrail:
 			{
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/smokeParticle1.dds", assetID );
@@ -172,6 +177,13 @@ struct ParticleSystem : public ParticleData
 
 		switch ( particleType )
 		{	
+			case GranateTrail:
+			{
+				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+				SetRandomRotation( particleCount );
+				SetRandomDeathTime( 1, 5, particleCount );
+				break;
+			}
 			case SniperTrail:
 			{
 				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
@@ -345,7 +357,8 @@ struct ParticleSystem : public ParticleData
 	}
 	void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection, XMFLOAT3 initialVelocity )
 	{
-		if( particleType == SniperTrail )			Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(10, 30),  1.0f, initialVelocity );
+		if( particleType == GranateTrail )			Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(3, 10),  1.0f, initialVelocity );
+		else if( particleType == SniperTrail )		Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(10, 30),  1.0f, initialVelocity );
 		else if( particleType == Shell )			Generate( emitterPosition, emitterDirection, 1,		10.0f,		initialVelocity  );
 		else if( particleType == Debris )			Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(0, 5),  30.0f,		initialVelocity  );
 		else if( particleType == FIRE )				Generate( emitterPosition, emitterDirection, 8,		40.0f,		initialVelocity );		
@@ -380,12 +393,19 @@ struct ParticleSystem : public ParticleData
 		// Update logic based on Particle type
 		switch( particleType )
 		{
+			case GranateTrail: 
+			{
+				// Update Debris logic here
+				GranateTrailLogic( deltaTime );
+				break;
+			}
 			case SniperTrail: 
 			{
 				// Update Debris logic here
 				SniperTrailLogic( deltaTime );
 				break;
 			}
+			
 			case Shell: 
 			{
 				// Update Shell logic here
@@ -617,6 +637,19 @@ struct ParticleSystem : public ParticleData
 		}
 	}
 	
+	void GranateTrailLogic( float deltatime )
+	{
+		for ( int i = 0; i < nrOfParticlesAlive; i++ )
+		{
+			if( damping[i] > 0.0f )
+				damping[i] -= 0.03f;
+			
+			xPosition[i] += 0.03f * ( 1.0f - damping[i] );
+			zPosition[i] += 0.010f * ( 1.0f - damping[i] );
+			yPosition[i] += 0.02f * ( 1.0f - damping[i] );
+		}
+	}
+
 	void SniperTrailLogic( float deltatime )
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )

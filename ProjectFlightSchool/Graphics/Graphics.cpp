@@ -461,7 +461,17 @@ HRESULT Graphics::InitializeEffects()
 	//			PARTICLE EFFECTS			|
 	//=======================================
 
-	//Debris effect
+	//Granate trail effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/GranateTrail.hlsl";
+	effectInfo.fileName					= "GranateTrail";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_GRANATE_TRAIL]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Sniper trail effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/SniperTrailEffect.hlsl";
 	effectInfo.fileName					= "SniperTrailEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
@@ -471,7 +481,7 @@ HRESULT Graphics::InitializeEffects()
 		return hr;
 	//--------------------------
 
-	//Debris effect
+	//Shell effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/ShellEffect.hlsl";
 	effectInfo.fileName					= "ShellEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;

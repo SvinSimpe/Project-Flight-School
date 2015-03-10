@@ -15,7 +15,7 @@ using namespace DirectX;
 
 #define MAX_PARTICLES 10000
 
-#define NR_OF_PARTICLE_TYPES 21
+#define NR_OF_PARTICLE_TYPES 22
 
 
 #if !defined(SAFE_DELETE_ARRAY)
@@ -39,6 +39,7 @@ enum FloatPrecision
 
 enum ParticleType
 {
+	GranateTrail,
 	SniperTrail,
 	Shell,
 	Debris,
@@ -368,6 +369,13 @@ struct ParticleData
 		{
 			switch ( particleType )
 			{
+				case GranateTrail:
+				{
+					randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 10 );
+ 					randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 10 );
+					randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 10 );	
+					break;
+				}
 				case SniperTrail:
 				{
 					float magnitude = GetRandomSpeed( 40, 400 );

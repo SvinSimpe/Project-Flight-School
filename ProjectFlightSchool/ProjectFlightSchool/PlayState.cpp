@@ -121,7 +121,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if ( newEvent->GetEventType() == Event_Server_Update_Enemy::GUID )
 	{
 		std::shared_ptr<Event_Server_Update_Enemy> data = std::static_pointer_cast<Event_Server_Update_Enemy>( newEvent );
-		UpdateEnemyPosition( data->ID(), data->Position(), data->Direction(), data->IsAlive() );
+		UpdateEnemyPosition( data->ID(), data->Position(), data->Direction(), data->IsAlive(), data->EnemyHP() );
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Enemies_Created::GUID )
 	{
@@ -371,27 +371,26 @@ void PlayState::CheckPlayerCollision()
 void PlayState::CheckProjectileCollision()
 {
 	for ( int i	 = 0; i < mNrOfActiveProjectiles; i++ )
-	{
-
-
-		
+	{	
 		if( mProjectiles[i]->IsActive() )
 		{
 			// Enemy projectiles
-			if ( mProjectiles[i]->GetID() == ENEMY_PROJECTILE_ID )
+			if ( mProjectiles[i]->GetPlayerID() == ENEMY_PROJECTILE_ID )
 			{
 				// Players
 				if(	mPlayer->IsAlive() && mProjectiles[i]->GetBoundingCircle()->Intersect( mPlayer->GetBoundingCircle() ) )
 				{
 					mPlayer->TakeDamage(mProjectiles[i]->GetDamage(), mProjectiles[i]->GetPlayerID());
+					IEventPtr E1( new Event_Client_Removed_Projectile( mProjectiles[i]->GetID() ) );
+					Client::GetInstance()->SendEvent( E1 );
 				}
 
 				// Ship
-				for ( size_t j = 0; j < 2; i++ )
+				for ( size_t j = 0; j < 2; j++ )
 				{
 					if( mProjectiles[i]->GetBoundingCircle()->Intersect( mShips[j]->GetHitCircle() ) )
 					{
-						// Send ship damage to server for broadcasting
+						BroadcastProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID() );
 					}
 				}
 			}
@@ -786,11 +785,12 @@ void PlayState::UpdateProjectiles( float deltaTime )
 	}
 }
 
-void PlayState::UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive )
+void PlayState::UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive, float enemyHP )
 {
 	mEnemies[id]->SetPosition( position );
 	mEnemies[id]->SetDirection( direction );
 	mEnemies[id]->SetIsAlive( isAlive );
+	mEnemies[id]->SetHP( enemyHP );
 }
 
 void PlayState::RenderProjectiles()

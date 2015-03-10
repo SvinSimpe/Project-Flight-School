@@ -100,7 +100,7 @@ class PlayState : public BaseState
 		void			HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID );
 		void			HandleRemoteProjectileRemoved( UINT projectileID );
 		void			UpdateProjectiles( float deltaTime );
-		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive );
+		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive, float enemyHP );
 		void			RenderProjectiles();
 		void			SetEnemyState( unsigned int id, EnemyState state );
 		bool			CullEntity( XMFLOAT3 entityPos );

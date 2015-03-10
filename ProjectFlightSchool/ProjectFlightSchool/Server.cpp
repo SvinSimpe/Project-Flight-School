@@ -990,7 +990,8 @@ void Server::Update( float deltaTime )
 				IEventPtr enemy( new Event_Server_Update_Enemy(		mEnemies[i]->GetID(), 
 																	mEnemies[i]->GetPosition(), 
 																	mEnemies[i]->GetDirection(),
-																	mEnemies[i]->IsAlive() ) );
+																	mEnemies[i]->IsAlive(),
+																	mEnemies[i]->GetHP() ) );
 				{
 					SendCulledUpdate( enemy, mEnemies[i]->GetPosition() );
 				}
@@ -1082,8 +1083,8 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ResetTurretTargets, this, Event_Reset_Turret_Targets::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientChangeReady, this, Event_Client_Change_Ready_State::GUID );
 	EventManager::GetInstance()->AddListener( &Server::HostStartCountdown, this, Event_Host_Start_Game_Countdown::GUID );
-	EventManager::GetInstance()->AddListener(&Server::EnemyFiredProjectile, this, Event_Enemy_Fired_Projectile::GUID);
-	
+	EventManager::GetInstance()->AddListener( &Server::EnemyFiredProjectile, this, Event_Enemy_Fired_Projectile::GUID );
+	//EventManager::GetInstance()->AddListener( &Server::ClientShipProjectileDamage, this, Event_Enemy_Fired_Projectile::GUID );
 
 	mCurrentPID				= 0;
 	mActive					= false;

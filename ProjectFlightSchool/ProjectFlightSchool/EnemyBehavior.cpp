@@ -268,39 +268,44 @@ MoveToShipBehavior::~MoveToShipBehavior()
 ///////////////////////////////////////////////////////////////////////////////
 HRESULT AttackBehavior::Update( float deltaTime )
 {
+	//if( mStateTimer <= 0.0f )
+	//{
+	//	if(	( !mHasAttacked && mTimeTillAttack <= 0.0f ) && (!mEnemy->mPlayers[mEnemy->mTargetIndex]->IsDown && mEnemy->mPlayers[mEnemy->mTargetIndex]->IsAlive ) )
+	//	{
+	//		// ... and player intersects the enemy's attack radius
+	//		if( mEnemy->mAttackRadius->Intersect( mEnemy->mPlayers[mEnemy->mTargetIndex]->AggroCircle ) )
+	//		{
+	//			mHasAttacked = true;
+	//			if( mEnemy->mEnemyType == Ranged )
+	//			{
+	//				XMFLOAT3 direction;
+	//				direction.x = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.x - mEnemy->GetPosition().x;
+	//				direction.z = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.z - mEnemy->GetPosition().z;
+	//				direction.y = 0.0f;
+
+	//				IEventPtr E1(new Event_Enemy_Fired_Projectile(
+	//					ENEMY_PROJECTILE_ID,
+	//					mEnemy->mPosition,
+	//					direction,
+	//					ENEMY_PROJECTILE_SPEED,
+	//					ENEMY_PROJECTILE_RANGE ) );
+	//				EventManager::GetInstance()->QueueEvent( E1 );
+	//			}
+	//			else
+	//			{
+	//				IEventPtr state( new Event_Tell_Server_Enemy_Attack_Player( mEnemy->mID, mEnemy->mTargetID, mEnemy->mDamage ) );
+	//				EventManager::GetInstance()->QueueEvent( state );
+	//			}
+	//			mTimeTillAttack	= mEnemy->mAttackRate;
+	//		}
+	//	}
+
+	//	mEnemy->ChangeBehavior( IDLE_BEHAVIOR );
+	//	return S_OK;
+	//}
 	if( mStateTimer <= 0.0f )
 	{
-		if(	( !mHasAttacked && mTimeTillAttack <= 0.0f ) && (!mEnemy->mPlayers[mEnemy->mTargetIndex]->IsDown && mEnemy->mPlayers[mEnemy->mTargetIndex]->IsAlive ) )
-		{
-			// ... and player intersects the enemy's attack radius
-			if( mEnemy->mAttackRadius->Intersect( mEnemy->mPlayers[mEnemy->mTargetIndex]->AggroCircle ) )
-			{
-				mHasAttacked = true;
-				if( mEnemy->mEnemyType == Ranged )
-				{
-					XMFLOAT3 direction;
-					direction.x = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.x - mEnemy->GetPosition().x;
-					direction.z = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.z - mEnemy->GetPosition().z;
-					direction.y = 0.0f;
-
-					IEventPtr E1(new Event_Enemy_Fired_Projectile(
-						ENEMY_PROJECTILE_ID,
-						mEnemy->mPosition,
-						direction,
-						ENEMY_PROJECTILE_SPEED,
-						ENEMY_PROJECTILE_RANGE ) );
-					EventManager::GetInstance()->QueueEvent( E1 );
-				}
-				else
-				{
-					IEventPtr state( new Event_Tell_Server_Enemy_Attack_Player( mEnemy->mID, mEnemy->mTargetID, mEnemy->mDamage ) );
-					EventManager::GetInstance()->QueueEvent( state );
-				}
-				mTimeTillAttack	= mEnemy->mAttackRate;
-			}
-		}
-
-		mEnemy->ChangeBehavior( IDLE_BEHAVIOR );
+		mEnemy->ChangeBehavior(IDLE_BEHAVIOR);
 		return S_OK;
 	}
 
@@ -318,8 +323,8 @@ HRESULT AttackBehavior::Update( float deltaTime )
 					if (mEnemy->mEnemyType == Ranged)
 					{
 						XMFLOAT3 direction;
-						direction.x = mEnemy->mPlayers[mEnemy->mTargetShipIndex]->Pos.x - mEnemy->GetPosition().x;
-						direction.z = mEnemy->mPlayers[mEnemy->mTargetShipIndex]->Pos.z - mEnemy->GetPosition().z;
+						direction.x = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.x - mEnemy->GetPosition().x;
+						direction.z = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.z - mEnemy->GetPosition().z;
 						direction.y = 0.0f;
 
 						IEventPtr E1(new Event_Enemy_Fired_Projectile(
@@ -332,13 +337,10 @@ HRESULT AttackBehavior::Update( float deltaTime )
 					}
 					else
 					{
-						mEnemy->mShips.at(mEnemy->mTargetShipIndex)->TakeDamage( mEnemy->mDamage );
+						IEventPtr state(new Event_Tell_Server_Enemy_Attack_Player(mEnemy->mID, mEnemy->mTargetID, mEnemy->mDamage));
+						EventManager::GetInstance()->QueueEvent(state);
 					}
-
-					IEventPtr state( new Event_Tell_Server_Enemy_Attack_Player( mEnemy->mID, mEnemy->mTargetID, mEnemy->mDamage ) );
-					EventManager::GetInstance()->QueueEvent( state );
-
-					mTimeTillAttack	= mEnemy->mAttackRate;
+					mTimeTillAttack = mEnemy->mAttackRate;
 				}
 			}
 		}
@@ -348,7 +350,25 @@ HRESULT AttackBehavior::Update( float deltaTime )
 			if( mEnemy->mAttackRadius->Intersect( mEnemy->mShips.at(mEnemy->mTargetShipIndex)->GetHitCircle() ) )
 			{
 				mHasAttacked = true;
-				mEnemy->mShips.at(mEnemy->mTargetShipIndex)->TakeDamage( mEnemy->mDamage );
+				if (mEnemy->mEnemyType == Ranged)
+				{
+					XMFLOAT3 direction;
+					direction.x = mEnemy->mPlayers[mEnemy->mTargetShipIndex]->Pos.x - mEnemy->GetPosition().x;
+					direction.z = mEnemy->mPlayers[mEnemy->mTargetShipIndex]->Pos.z - mEnemy->GetPosition().z;
+					direction.y = 0.0f;
+
+					IEventPtr E1(new Event_Enemy_Fired_Projectile(
+						ENEMY_PROJECTILE_ID,
+						mEnemy->mPosition,
+						direction,
+						ENEMY_PROJECTILE_SPEED,
+						ENEMY_PROJECTILE_RANGE));
+					EventManager::GetInstance()->QueueEvent(E1);
+				}
+				else
+				{
+					mEnemy->mShips.at(mEnemy->mTargetShipIndex)->TakeDamage(mEnemy->mDamage);
+				}
 				mTimeTillAttack	= mEnemy->mAttackRate;
 			}
 		}

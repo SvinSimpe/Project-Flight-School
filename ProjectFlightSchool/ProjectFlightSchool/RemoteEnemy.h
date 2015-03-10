@@ -9,6 +9,7 @@ class RemoteEnemy
 	// Member variables
 	private:
 		unsigned int		mID;
+		float				mCurrentHP;
 		EnemyType			mEnemyType;
 		AnimationTrack		mAnimationTrack;
 		XMFLOAT3			mPosition;
@@ -30,6 +31,8 @@ class RemoteEnemy
 		HRESULT				Render();
 		void				SetID( unsigned int id );
 		unsigned int		GetID()	const;
+		void				SetHP(float hp);
+		float				GetHP() const;
 		void				SetIsAlive( bool isAlive );
 		bool				IsAlive() const;
 		void				SetLoopAnimation( bool loop );

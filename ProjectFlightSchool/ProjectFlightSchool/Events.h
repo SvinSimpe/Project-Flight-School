@@ -2068,6 +2068,7 @@ class Event_Server_Update_Enemy : public IEvent
 		XMFLOAT3	mPosition;
 		XMFLOAT3	mDirection;
 		bool		mIsAlive;
+		float		mEnemyHP;
 
 	protected:
 	public:
@@ -2082,13 +2083,15 @@ class Event_Server_Update_Enemy : public IEvent
 			mPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mDirection	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mIsAlive	= false;
+			mEnemyHP	= 0.0f;
 		}
-		Event_Server_Update_Enemy( UINT id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive )
+		Event_Server_Update_Enemy( UINT id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive, float hp )
 		{
 			mID			= id;
 			mPosition	= position;
 			mDirection	= direction;
 			mIsAlive	= isAlive;
+			mEnemyHP	= hp;
 		}
 		~Event_Server_Update_Enemy() {}
 		const EventType& GetEventType() const
@@ -2108,6 +2111,8 @@ class Event_Server_Update_Enemy : public IEvent
 			out << mDirection.z << " ";
 
 			out << mIsAlive << " ";
+
+			out << mEnemyHP << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
@@ -2122,10 +2127,12 @@ class Event_Server_Update_Enemy : public IEvent
 			in >> mDirection.z;
 
 			in >> mIsAlive;
+
+			in >> mEnemyHP;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Server_Update_Enemy( mID, mPosition, mDirection, mIsAlive ) );
+			return IEventPtr( new Event_Server_Update_Enemy( mID, mPosition, mDirection, mIsAlive, mEnemyHP ) );
 		}
 		UINT ID() const
 		{
@@ -2142,6 +2149,10 @@ class Event_Server_Update_Enemy : public IEvent
 		bool IsAlive() const
 		{
 			return mIsAlive;
+		}
+		float EnemyHP() const
+		{
+			return mEnemyHP;
 		}
 };
 

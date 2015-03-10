@@ -75,6 +75,7 @@ class PlayState : public BaseState
 		int							mMiniGun;
 		int							mLevelUp;
 		int							mShotGun;
+		int							mExplosion;
 		int							mSniper;
 		int							mLobbyMusic;
 		int							mStreamSoundAsset;

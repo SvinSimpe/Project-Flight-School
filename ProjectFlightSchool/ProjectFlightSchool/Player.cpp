@@ -477,8 +477,8 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	XMFLOAT3 testPosition	= mLowerBody.position;
 	XMFLOAT3 normal			= XMFLOAT3( 0.0f, 1.0f, 0.0f );
 
-	testPosition.x += mVelocity.x * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f ) * mSlowDown;
-	testPosition.z += mVelocity.z * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f ) * mSlowDown;
+	testPosition.x += mVelocity.x * deltaTime * mUpgrades.runSpeedFactor * mSlowDown;
+	testPosition.z += mVelocity.z * deltaTime * mUpgrades.runSpeedFactor * mSlowDown;
 	testPosition.y = worldMap->GetHeight( testPosition );
 
 	bool collisionTest = worldMap->PlayerVsMap( testPosition, normal );
@@ -773,6 +773,7 @@ void Player::FireGrenadeLauncher( XMFLOAT3* projectileOffset )
 	float elevation = CalculateLaunchAngle();
 
 	mFireDirection			= XMFLOAT3( mUpperBody.direction.x, elevation, mUpperBody.direction.z );
+	SoundBufferHandler::GetInstance()->Play3D( mGrenadeLauncher , GetPosition() );
 	IEventPtr E1( new Event_Trigger_Client_Fired_Projectile( mID, *projectileOffset, mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
 }
@@ -826,6 +827,7 @@ void Player::BlowtorchMelee( float deltaTime )
 		{
 			mTimeTillattack -= deltaTime;
 			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, loadDir, mUpperBody.direction, mVelocity );
+			SoundBufferHandler::GetInstance()->Play3D( mBlowTorch , GetPosition() );
 			if( mTimeTillattack <= 0.0f )
 			{
 				mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
@@ -911,24 +913,24 @@ void Player::QueueEvent( IEventPtr ptr )
 
 void Player::UpgradeBody()
 {
-	mUpgrades.body++;
+	mUpgrades.currentBodyLevel++;
+	mUpgrades.damageTakenPercentage	-= 0.05f;
+	mMaxHp = 100.0f + ( ( mUpgrades.currentBodyLevel - 1 ) * 20.0f ) + ( pow( (float)( mUpgrades.currentBodyLevel - 1 ), 2 ) * 5.0f );
 }
 
 void Player::UpgradeLegs()
 {
-	mUpgrades.legs++;
+	mUpgrades.runSpeedFactor = 0.7f + ( (float)mUpgrades.currentLegsLevel *  0.1f );
 }
 
 void Player::UpgradeMelee()
 {
 	mLoadOut->meleeWeapon->LevelUp();
-	mUpgrades.melee++;
 }
 
 void Player::UpgradeRange()
 {
 	mLoadOut->rangedWeapon->LevelUp();
-	mUpgrades.range++;
 }
 
 void Player::WriteInteractionText( std::string text, float yPos, XMFLOAT4 color )
@@ -948,7 +950,7 @@ void Player::TakeDamage( float damage, unsigned int shooter )
 		float moddedDmg = damage * mBuffMod;
 		damage -= moddedDmg;
 	}
-	mCurrentHp -= damage / (float)mUpgrades.body;
+	mCurrentHp -= ( damage * mUpgrades.damageTakenPercentage );
 	if( mCurrentHp < 0.0f )
 	{
 		mCurrentHp = 0.0f;
@@ -1394,6 +1396,8 @@ HRESULT Player::Initialize()
 	mMiniGunOverheat	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/minigun_Overheat.wav", 10 );
 	mHammerSound		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/hammer.wav", 10 );
 	mSword				= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/sword.wav", 10 );
+	mGrenadeLauncher	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/grenadeLauncher.wav", 10 );
+	mBlowTorch			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/blow torch.wav", 10 );
 	mPlayerDeath		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/sparksPlayerDeath.wav", 10, 15 );
 
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Died::GUID );

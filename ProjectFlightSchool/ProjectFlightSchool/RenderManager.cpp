@@ -278,12 +278,12 @@ HRESULT RenderManager::Render()
 	//Reset the scene to default values
 	Graphics::GetInstance()->BeginScene();
 
+	SetLightStructuredBuffer();
+
 	Graphics::GetInstance()->ChangeRasterizerState( mRasterState );
 
 	//Prepare the scene to be rendered with Gbuffers
 	Graphics::GetInstance()->GbufferPass();
-	
-	SetLightStructuredBuffer();
 
 	//------------------------Fill the Gbuffers with data----------------------
 	Graphics::GetInstance()->RenderStatic3dAsset( mObject3dArray, mNrOfObject3d );
@@ -309,8 +309,10 @@ HRESULT RenderManager::Render()
 	Graphics::GetInstance()->DeferredPass();
 
 	//Render the particles
+//	HelperFunctions::StartCounter();
 	mParticleManager->Render(); // Check these separately?
 	Graphics::GetInstance()->RenderParticleSystems( mParticleInfoArray, mNrOfParticles );
+//	HelperFunctions::PrintCounter( "ParticlePass: " );
 
 	//Prepare the scene to render Screen space located assets
 	Graphics::GetInstance()->ScreenSpacePass();
@@ -320,6 +322,8 @@ HRESULT RenderManager::Render()
 
 	//Present the scene onto the screen
 	Graphics::GetInstance()->EndScene();
+
+	OutputDebugStringA( "------------------------------------------\n" );
 
 	return S_OK;
 }

@@ -1066,21 +1066,21 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	mCloseToPlayer = false;
 	for( auto rp : remotePlayers )
 	{
-		if( rp->IsAlive() && mBoundingCircle->Intersect( rp->GetBoundingCircleAura() ) )
+		if( rp->IsDown() && mBoundingCircle->Intersect( rp->GetBoundingCircleAura() ) && rp->GetTeam() == mTeam )
 		{
 			mCloseToPlayer = true;
 		}
 	}
 
-	//Temp visual aid to know that you're close to another player. Used to know if you can revive.
-	if( mCloseToPlayer )
-	{
-		mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.6f, 0.8f, 0.6f, 30.0f );
-	}
-	else
-	{
-		mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 10.0f );
-	}
+	////Temp visual aid to know that you're close to another player. Used to know if you can revive.
+	//if( mCloseToPlayer )
+	//{
+	//	mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.6f, 0.8f, 0.6f, 30.0f );
+	//}
+	//else
+	//{
+	//	mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 10.0f );
+	//}
 
 	if ( !mLock )
 	{
@@ -1304,6 +1304,11 @@ HRESULT Player::Render( float deltaTime, int position )
 	if( mEnergyCellID != (UINT)-1 )
 	{
 		WriteInteractionText( "Go back to your ship to hand in the energy cell!" );
+	}
+
+	if( mCloseToPlayer )
+	{
+		WriteInteractionText( "Hold F to revive team mate!" );
 	}
 
 	RemotePlayer::Render();

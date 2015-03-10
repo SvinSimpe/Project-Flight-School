@@ -23,17 +23,16 @@ class Path;
 
 struct Upgrades
 {
-	int melee				= 1;
-	int range				= 1;
-	int legs				= 1;
-	int body				= 1;
+	int		currentBodyLevel			= 1;
+	float	damageTakenPercentage		= 1.0f; // 1 == 100 % == No resistance!
+	int		currentLegsLevel			= 1;
+	float	runSpeedFactor				= 0.7f;
 };
 
 class Player: public RemotePlayer
 {
 	private:
 		PointLight*		mPointLight;
-		PointLight*		mEnergyCellLight;
 		Upgrades		mUpgrades;
 
 		bool		mWeaponOverheated;
@@ -72,13 +71,14 @@ class Player: public RemotePlayer
 		float		mWaterDamageTime;
 		int			mLastKiller;
 
-		UINT		mEnergyCellID;
 		float		mPickUpCooldown;
 
 		int			mMiniGunOverheat;
 		int			mHammerSound;
 		int			mSword;
 		int			mPlayerDeath;
+		int			mGrenadeLauncher;
+		int			mBlowTorch;
 
 	protected:
 	public:
@@ -116,7 +116,7 @@ class Player: public RemotePlayer
 		void		UpgradeLegs();
 		void		UpgradeMelee();
 		void		UpgradeRange();
-		void		WriteInteractionText( std::string text );
+		void		WriteInteractionText( std::string text, float xPos, float yPos, float scale, XMFLOAT4 color );
 
 	protected:
 	public:
@@ -142,14 +142,12 @@ class Player: public RemotePlayer
 		bool		GetIsMeleeing()	const;
 		XMFLOAT3	GetPlayerPosition() const;
 		XMFLOAT3	GetUpperBodyDirection() const;
-		UINT		GetEnergyCellID() const;
 		float		GetXPToNext() const;
 		int			Upgradable() const;
 		void		SetIsMeleeing( bool isMeleeing );
 		void		SetID( unsigned int id );
 		void		SetTeam( int team );
 		void		SetPosition( XMVECTOR position );
-		void		SetEnergyCellID( UINT energyCellID );
 		int			GetCurrentLevel() const;
 
 		void		QueueEvent( IEventPtr ptr );

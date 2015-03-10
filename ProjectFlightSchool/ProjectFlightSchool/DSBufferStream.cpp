@@ -126,6 +126,8 @@ bool DSBufferStream::ReFillBuffer1Loop()
 		{
 			waveData[count + i] = waveData2[i];
 		}
+
+		delete waveData2;
 	}
 
 	//////////////////Dags att fylla buffern
@@ -142,8 +144,10 @@ bool DSBufferStream::ReFillBuffer1Loop()
 			return false;
 		}
 
+
 		// Copy the wave data into the buffer.
 		memcpy( bufferPtr, waveData, mDataSize );
+		delete waveData;
 
 		// Unlock the secondary buffer after the data has been written to it.
 		hr = mBuffer[i]->Unlock( (void*)bufferPtr, bufferSize, NULL, 0 );
@@ -152,8 +156,6 @@ bool DSBufferStream::ReFillBuffer1Loop()
 			return false;
 		}
 	}
-	delete[] waveData;
-	waveData = 0;
 
 	return true;
 }
@@ -178,6 +180,8 @@ bool DSBufferStream::ReFillBuffer2Loop()
 		{
 			waveData[count + i] = waveData2[i];
 		}
+
+		delete waveData2;
 	}
 
 	//////////////////Dags att fylla buffern
@@ -196,6 +200,7 @@ bool DSBufferStream::ReFillBuffer2Loop()
 
 		// Copy the wave data into the buffer.
 		memcpy( bufferPtr, waveData, mDataSize );
+		delete waveData;
 
 		// Unlock the secondary buffer after the data has been written to it.
 		hr = mBuffer[i]->Unlock( (void*)bufferPtr, bufferSize, NULL, 0 );
@@ -203,9 +208,8 @@ bool DSBufferStream::ReFillBuffer2Loop()
 		{
 			return false;
 		}
+
 	}
-	delete[] waveData;
-	waveData = 0;
 
 	return true;
 }
@@ -271,7 +275,11 @@ bool DSBufferStream::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName, LO
 	HRESULT				hr;
 
 	// Set up WAV format structure. 
-
+	if( waveFileHeader.numChannels == 1 )
+	{
+		waveFileHeader.numChannels	= 2;
+		waveFileHeader.blockAlign	*= 2;
+	}
 	memset (&wfx, 0, sizeof(WAVEFORMATEX) );
 	wfx.wFormatTag		= WAVE_FORMAT_PCM;
 	wfx.nChannels		= waveFileHeader.numChannels;
@@ -284,6 +292,7 @@ bool DSBufferStream::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName, LO
 	//{
 		waveFileHeader.dataSize = 2 * wfx.nAvgBytesPerSec;
 	//}
+
 
 	// Set up DSBUFFERDESC structure. 
 

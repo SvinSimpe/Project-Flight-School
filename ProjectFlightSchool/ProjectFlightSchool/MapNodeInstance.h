@@ -6,7 +6,7 @@
 #include "BoundingGeometry.h"
 #include "Navmesh.h"
 #include "Pathfinder.h"
-
+#include "RenderManager.h"
 
 //forward declaration
 
@@ -32,8 +32,12 @@ public:
 
 		UINT		 mNavTriangleCount;
 
+		PointLight*		mPointLights;
+		UINT			mPointLightCount;
+
 	protected:
 	public:
+		bool			mLightsRegistered;
 
 	private:
 		void				GetNavigationData();
@@ -41,7 +45,7 @@ public:
 	public:
 
 		HRESULT				Update( float deltaTime );
-		HRESULT				Render( float deltaTime );
+		HRESULT				Render( float environmentTimer );
 
 		Navmesh*			GetNavMesh() const;
 
@@ -64,6 +68,8 @@ public:
 		
 		MapNode*			GetMapNode() const;
 		void				SetMapNode( MapNode* mapNode );
+
+		void				ResetLights();
 
 		HRESULT				Initialize();
 		void				Release();

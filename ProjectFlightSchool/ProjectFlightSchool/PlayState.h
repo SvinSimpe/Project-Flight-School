@@ -75,6 +75,7 @@ class PlayState : public BaseState
 		int							mMiniGun;
 		int							mLevelUp;
 		int							mShotGun;
+		int							mExplosion;
 		int							mSniper;
 		int							mLobbyMusic;
 		int							mStreamSoundAsset;
@@ -103,8 +104,7 @@ class PlayState : public BaseState
 		void			RenderProjectiles();
 		void			SetEnemyState( unsigned int id, EnemyState state );
 		bool			CullEntity( XMFLOAT3 entityPos );
-		void			WriteInteractionText( std::string text );
-
+		void			WriteInteractionText( std::string text, float xPos, float yPos, float scale, XMFLOAT4 color );
 
 	protected:
 	public:

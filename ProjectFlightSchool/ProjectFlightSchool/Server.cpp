@@ -420,7 +420,7 @@ void Server::ClientInteractEnergyCell( IEventPtr eventPtr )
 	{
 		std::shared_ptr<Event_Client_Sync_Energy_Cell> data = std::static_pointer_cast<Event_Client_Sync_Energy_Cell>( eventPtr );
 		IEventPtr E1( new Event_Server_Sync_Energy_Cell( data->EnergyCellID(), data->OwnerID(), data->Position(), data->PickedUp() ) );
-		BroadcastEvent( E1, data->OwnerID() );
+		BroadcastEvent( E1 );
 
 		mEnergyCells[data->EnergyCellID()]->SetOwnerID( data->OwnerID() );
 		mEnergyCells[data->EnergyCellID()]->SetPickedUp( data->PickedUp() );
@@ -744,7 +744,8 @@ void Server::UpdateShip( float deltaTime, ServerShip* s )
 
 	s->Update( deltaTime );
 	IEventPtr E1( new Event_Server_Update_Turret( s->mServerTurret->mID, s->mServerTurret->mTurretHead->rot ) );
-	SendCulledUpdate( E1, s->mServerTurret->mPos );
+	BroadcastEvent( E1 );
+	//SendCulledUpdate( E1, s->mServerTurret->mPos );
 
 	IEventPtr E2( new Event_Server_Update_Ship( s->mID, s->mMaxShield, s->mCurrentShield, s->mCurrentHP ) );
 	BroadcastEvent( E2 );

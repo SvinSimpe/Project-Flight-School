@@ -71,7 +71,6 @@ class Player: public RemotePlayer
 		float		mWaterDamageTime;
 		int			mLastKiller;
 
-		UINT		mEnergyCellID;
 		float		mPickUpCooldown;
 
 		int			mMiniGunOverheat;
@@ -141,7 +140,6 @@ class Player: public RemotePlayer
 		bool		GetIsMeleeing()	const;
 		XMFLOAT3	GetPlayerPosition() const;
 		XMFLOAT3	GetUpperBodyDirection() const;
-		UINT		GetEnergyCellID() const;
 		float		GetXPToNext() const;
 		int			Upgradable() const;
 		void		SetIsMeleeing( bool isMeleeing );

@@ -50,6 +50,11 @@ bool EnergyCell::GetSecured() const
 
 HRESULT EnergyCell::Update( float deltaTime )
 {
+	if( mSecured )
+	{
+		return S_OK;
+	}
+
 	mHooverFactor += deltaTime * 1.0f;
 
 	if( mPickedUp )

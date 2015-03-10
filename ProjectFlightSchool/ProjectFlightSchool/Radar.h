@@ -57,7 +57,7 @@ class Radar
 		float			mRadarObjWidth;	
 		float			mRadarObjHeight;
 		float			mRadarShipWidth;	
-		float			mRadarShipHeight;	
+		float			mRadarShipHeight;		
 
 		float			mRadarShipOffsetX;
 		float			mRadarShipOffsetY;		

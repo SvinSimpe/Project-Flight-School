@@ -1416,7 +1416,6 @@ HRESULT Player::Initialize()
 	mTimeTillattack	= mLoadOut->meleeWeapon->timeTillAttack;
 	mPick = XMFLOAT3( 0, 0, 0 );
 
-	mEnergyCellID	= (UINT)-1;
 	mPickUpCooldown = 0.0f;
 
 	currentPath1 = new Path();
@@ -1494,11 +1493,6 @@ XMFLOAT3 Player::GetUpperBodyDirection() const
 	return mUpperBody.direction;
 }
 
-UINT Player::GetEnergyCellID() const
-{
-	return mEnergyCellID;
-}
-
 float Player::GetXPToNext() const
 {
 	return mXP / mNextLevelXP;
@@ -1532,9 +1526,4 @@ void Player::SetTeam( int team )
 void Player::SetPosition( XMVECTOR position )
 {
 	XMStoreFloat3( &mLowerBody.position, position );
-}
-
-void Player::SetEnergyCellID( UINT energyCellID )
-{
-	mEnergyCellID = energyCellID;
 }

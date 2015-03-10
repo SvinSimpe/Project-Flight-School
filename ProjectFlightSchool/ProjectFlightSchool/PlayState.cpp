@@ -810,6 +810,12 @@ HRESULT PlayState::Update( float deltaTime )
 					remotePlayerName							= mRemotePlayers[i]->GetName();
 					mRadarObjects[nrOfRadarObj].mRadarObjectPos = mRemotePlayers[i]->GetPosition();
 
+					if( mRemotePlayers[i]->GetEnergyCellID() != (UINT)-1 )
+					{
+						mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::PICKED_UP;
+						continue;
+					}
+
 					if( mRemotePlayers[i]->GetTeam() == mPlayer->GetTeam() )
 					{
 						mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::FRIENDLY;
@@ -906,20 +912,8 @@ HRESULT PlayState::Update( float deltaTime )
 		for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
 		{
 			mEnergyCells[i]->Update( deltaTime );
-			if( i == mPlayer->GetEnergyCellID() )
-			{
-				continue;
-			}
 
-			if( mEnergyCells[i]->GetPickedUp() )
-			{
-				if( !mEnergyCells[i]->GetSecured() )
-				{
-					mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnergyCells[i]->GetPosition();
-					mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::PICKED_UP;
-				}
-			}
-			else
+			if( !mEnergyCells[i]->GetPickedUp() )
 			{
 				mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnergyCells[i]->GetPosition();
 				mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::OBJECTIVE;

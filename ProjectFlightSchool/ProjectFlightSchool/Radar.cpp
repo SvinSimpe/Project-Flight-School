@@ -43,8 +43,8 @@ void Radar::AddObjectToList( DirectX::XMFLOAT3 position, UINT type )
 		else if( type == RADAR_TYPE::PICKED_UP )
 		{
 			object.mAssetId			= mPickedUpID;
-			object.mWidthHeight.x	= mRadarObjHeight;
-			object.mWidthHeight.y	= mRadarObjWidth;
+			object.mWidthHeight.x	= mRadarShipHeight; // scaling it slightly
+			object.mWidthHeight.y	= mRadarShipWidth;
 		}
 	
 		mObjects[mNrOfObjects++] = object;

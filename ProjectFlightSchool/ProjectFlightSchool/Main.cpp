@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <io.h>
 #include <fcntl.h>
-#include <vld.h>
+#include <../Visual Leak Detector/include/vld.h>
 
 int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow )
 {

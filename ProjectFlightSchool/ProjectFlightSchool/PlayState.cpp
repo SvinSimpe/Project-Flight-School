@@ -792,13 +792,10 @@ bool PlayState::CullEntity( XMFLOAT3 entityPos )
 {
 	return HelperFunctions::Dist3Squared( mPlayer->GetPosition(), entityPos  ) <= ENTITY_CULLDISTANCE;
 }
-
-void PlayState::WriteInteractionText( std::string text )
+void PlayState::WriteInteractionText( std::string text, float xPos, float yPos, float scale, XMFLOAT4 color )
 {
-	float offset = mFont.GetMiddleXPoint( text, 3.0 );
-	float textShadowWidth = 1.0f;
-
-	mFont.WriteText( text, (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, 200.0f, 3.0, COLOR_CYAN );
+	float offset = mFont.GetMiddleXPoint( text, scale );
+	mFont.WriteText( text, xPos - offset, yPos, scale, COLOR_CYAN );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1100,7 +1097,12 @@ HRESULT PlayState::Render( float deltaTime )
 	
 	if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 	{
-		WriteInteractionText( "Press E to open or close the upgrade menu!" );
+		WriteInteractionText( 
+			"Press E to open or close the upgrade menu!", 
+			(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
+			(float)( Input::GetInstance()->mScreenHeight * 0.10f ), 
+			2.0f,
+			COLOR_CYAN );
 	}
 
 	RenderManager::GetInstance()->Render();

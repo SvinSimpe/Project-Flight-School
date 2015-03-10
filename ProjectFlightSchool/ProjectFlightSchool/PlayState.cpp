@@ -182,6 +182,41 @@ void PlayState::EventListener( IEventPtr newEvent )
 		mEnergyCells[data->EnergyCellID()]->SetOwnerID( data->OwnerID() );
 		mEnergyCells[data->EnergyCellID()]->SetPosition( data->Position() );
 		mEnergyCells[data->EnergyCellID()]->SetPickedUp( data->PickedUp() );
+
+		if( data->OwnerID() == (UINT)-1 )
+		{
+			if( mPlayer->GetEnergyCellID() != (UINT)-1 )
+			{
+				mPlayer->SetEnergyCellID( (UINT)-1 );
+			}
+			else
+			{
+				for( auto& p : mRemotePlayers )
+				{
+					if( p->GetEnergyCellID() != (UINT)-1 )
+					{
+						p->SetEnergyCellID( (UINT)-1 );
+					}
+				}
+			}
+		}
+		else
+		{
+			if( mPlayer->GetID() == data->OwnerID() )
+			{
+				mPlayer->SetEnergyCellID( data->EnergyCellID() );
+			}
+			else
+			{
+				for( auto& p : mRemotePlayers )
+				{
+					if( p->GetID() == data->OwnerID() )
+					{
+						p->SetEnergyCellID( data->EnergyCellID() );
+					}
+				}
+			}
+		}
 	}
 	else if( newEvent->GetEventType() == Event_Server_XP::GUID )
 	{
@@ -575,11 +610,11 @@ void PlayState::HandleDeveloperCameraInput()
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_O ) )
 	{
 		mPlayer->AddXP( 3000.0f );
-		//if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
-		//{
-		//	IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
-		//	Client::GetInstance()->SendEvent( E1 );
-		//}
+		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
+		{
+			IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
+			Client::GetInstance()->SendEvent( E1 );
+		}
 	}
 	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_E ) )
 	{
@@ -810,13 +845,20 @@ HRESULT PlayState::Update( float deltaTime )
 					remotePlayerName							= mRemotePlayers[i]->GetName();
 					mRadarObjects[nrOfRadarObj].mRadarObjectPos = mRemotePlayers[i]->GetPosition();
 
-					if( mRemotePlayers[i]->GetTeam() == mPlayer->GetTeam() )
+					if( mRemotePlayers[i]->GetEnergyCellID() != (UINT)-1 )
 					{
-						mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::FRIENDLY;
+						mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::PICKED_UP;
 					}
 					else
 					{
-						mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::HOSTILE;
+						if( mRemotePlayers[i]->GetTeam() == mPlayer->GetTeam() )
+						{
+							mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::FRIENDLY;
+						}
+						else
+						{
+							mRadarObjects[nrOfRadarObj++].mType	= RADAR_TYPE::HOSTILE;
+						}
 					}
 				}
 				pName[i].mRemotePlayerPos		= mRemotePlayers[i]->GetPosition();
@@ -905,12 +947,29 @@ HRESULT PlayState::Update( float deltaTime )
 		//No need to update the first energy cell since it's not supposed to be active
 		for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
 		{
-			mEnergyCells[i]->Update( deltaTime );
 			if( !mEnergyCells[i]->GetPickedUp() )
 			{
 				mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnergyCells[i]->GetPosition();
 				mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::OBJECTIVE;
 			}
+			else
+			{
+				if( mEnergyCells[i]->GetOwnerID() == mPlayer->GetID() )
+				{
+					mEnergyCells[i]->SetPosition( mPlayer->GetPosition() );
+				}
+				else
+				{
+					for( auto& p : mRemotePlayers )
+					{
+						if( mEnergyCells[i]->GetOwnerID() == p->GetID() )
+						{
+							mEnergyCells[i]->SetPosition( p->GetPosition() );
+						}
+					}
+				}
+			}
+			mEnergyCells[i]->Update( deltaTime );
 		}
 
 		CheckProjectileCollision();
@@ -1005,7 +1064,7 @@ HRESULT PlayState::Render( float deltaTime )
 
 	for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
 	{
-		if( !mEnergyCells[i]->GetPickedUp() && CullEntity( mEnergyCells[i]->GetPosition() ) )
+		if( !mEnergyCells[i]->GetSecured() && CullEntity( mEnergyCells[i]->GetPosition() ) )
 		{
 			mEnergyCells[i]->Render();
 		}
@@ -1062,6 +1121,7 @@ void PlayState::OnExit()
 
 void PlayState::Reset()
 {
+	mPlayer->DropEnergyCell( mEnergyCells );
 	mPlayer->Reset();
 	for( size_t i = 0; i < MAX_PROJECTILES; i++ )
 		mProjectiles[i]->Reset();
@@ -1240,6 +1300,7 @@ void PlayState::Release()
 	mWorldMap->Release();
 	SAFE_DELETE( mWorldMap );
 
+	mPlayer->DropEnergyCell( mEnergyCells );
 	mPlayer->Release();
 	SAFE_DELETE(mPlayer);
 

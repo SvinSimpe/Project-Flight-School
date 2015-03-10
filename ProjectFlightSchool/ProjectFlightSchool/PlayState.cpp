@@ -1123,6 +1123,7 @@ void PlayState::OnExit()
 void PlayState::Reset()
 {
 	mPlayer->Reset();
+
 	for( size_t i = 0; i < MAX_PROJECTILES; i++ )
 		mProjectiles[i]->Reset();
 

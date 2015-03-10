@@ -1292,7 +1292,7 @@ HRESULT Player::Render( float deltaTime, int position )
 
 	if( mCloseToPlayer )
 	{
-		WriteInteractionText( "Hold F to revive team mate!" );
+		WriteInteractionText( "Hold F to revive team mate!", 300.0f, COLOR_CYAN );
 	}
 
 	RemotePlayer::Render();

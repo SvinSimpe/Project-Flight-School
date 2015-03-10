@@ -275,6 +275,34 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 		finalColor		= finalColor * ( 1.0f - foamVar ) + float3( 0.8f, 0.8f, 0.8f ) * foamVar;
 	}
 
+	//-------------------------------------------------------------------------------------------------
+	//	COOL EFFECT SPONSORED BY JOHANNES ANDERSSON
+	//-------------------------------------------------------------------------------------------------
+
+	float3 originToPos	= worldSample - float3( 0.0f, 0.0f, 0.0f );
+	float rangeCheck	= length( originToPos );
+
+	if( rangeCheck > 40.0f )
+	{
+		float rangeInterpol;
+		float3 test = fmod( worldSample + float3( 1000.0f, 0.0f, 1000.0f ), 0.5f);
+
+		if( rangeCheck < 40.2f )
+			rangeInterpol = 0.6f;
+		else if( test.x * 0.5f + test.z * 0.5f > 0.17f && test.x * 0.5f + test.z * 0.5f < 0.28f )
+		//else if ( test.x + test.z > 0.18f && test.x + test.z < 0.23f || abs( test.z ) + test.x > 0.1f && abs( test.z ) + test.x < 0.15f )
+		//else if ( abs( test.x - test.z ) > 0.3f ) //|| abs( test.z ) > 0.1f && abs( test.z ) < 0.15f )
+			rangeInterpol = 0.5f;
+		else
+			rangeInterpol = 0.2f;
+
+		rangeInterpol *=  0.75f + sin( timeVariable * 2.0f ) * 0.25f;
+
+		finalColor = ( 1.0f - rangeInterpol ) * finalColor + rangeInterpol * float4( 1.0f, 0.15f, 0.05f, 1.0f );
+	}
+
+
+
 	//return float4( albedoSample, 1.0f );
 	//return float4( specularSample, specularSample, specularSample, 1.0f );
 	//return float4( normalSample, 1.0f );

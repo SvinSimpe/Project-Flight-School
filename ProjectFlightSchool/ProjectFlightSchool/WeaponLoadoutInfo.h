@@ -124,4 +124,4 @@
 #define TURRET_AOE			0.0f								// Area of effect
 #define TURRET_SPEED		40.0f								// Projectile Speed 30
 #define TURRET_OFFSETS		XMFLOAT3( 0.75f, 0.5f, 1.3f )		// Offsets forward, right, up
-#define TURRET_TURNSPEED	50.0f								// Turn speed
+#define TURRET_TURNSPEED	60.0f								// Turn speed

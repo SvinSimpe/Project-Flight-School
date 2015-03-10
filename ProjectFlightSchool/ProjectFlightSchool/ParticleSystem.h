@@ -94,7 +94,6 @@ struct ParticleSystem : public ParticleData
 			}
 			case Spark:
 			{
-				mPointLightParticleEmitter 	= new PointLight;
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/sparks.dds", assetID );
 				break;
 			}
@@ -137,6 +136,7 @@ struct ParticleSystem : public ParticleData
 			}
 			case Fire_Flies:
 			{
+				mPointLightParticleEmitter 	= new PointLight;
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/fireflyParticle.dds", assetID );
 				break;
 			}
@@ -575,34 +575,48 @@ struct ParticleSystem : public ParticleData
 
 	void UpdateLight()
 	{
-		if ( particleType == Spark_Electric )
-		{
-			mPointLightParticleEmitter->positionAndIntensity.w	= 1 + nrOfParticlesAlive * 0.05f;
-			mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.012f;
-		}
+		switch ( particleType )
+		{	
+			case Spark_Electric:
+			{
+				mPointLightParticleEmitter->positionAndIntensity.w	= 1 + nrOfParticlesAlive * 0.05f;
+				mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.012f;
+				break;
+			}
 
-		else if ( particleType == BlowTorchFire ) 			
-		{
-			 mPointLightParticleEmitter->positionAndIntensity.w	= 1 + nrOfParticlesAlive * 0.0005f;
-			 mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.012f;
-		}
+			case BlowTorchFire:
+			{
+				mPointLightParticleEmitter->positionAndIntensity.w	= 1 + nrOfParticlesAlive * 0.0005f;
+				mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.012f;
+				break;
+			}
 
-		else if ( particleType == BlowTorchIdle ) 			
-		{
-			 mPointLightParticleEmitter->positionAndIntensity.w = 0.2f + nrOfParticlesAlive * 0.005f;
-			 mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.005f;
-		}
+			case BlowTorchIdle:
+			{
+				mPointLightParticleEmitter->positionAndIntensity.w = 0.2f + nrOfParticlesAlive * 0.005f;
+				mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.005f;
+				break;
+			}
 
-		else if ( particleType == FIRE ) 			
-		{
-			 mPointLightParticleEmitter->positionAndIntensity.w = 1 + nrOfParticlesAlive * 0.001f;
-			 mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.005f;
-		}
+			case FIRE:
+			{
+				mPointLightParticleEmitter->positionAndIntensity.w = 1 + nrOfParticlesAlive * 0.001f;
+				mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.005f;
+				break;
+			}
 
-		else if ( particleType == Explosion ) 			
-		{
-			 mPointLightParticleEmitter->positionAndIntensity.w = 1 + nrOfParticlesAlive * 0.004f;
-			 mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.035f;
+			case Explosion:
+			{
+				mPointLightParticleEmitter->positionAndIntensity.w = 1 + nrOfParticlesAlive * 0.004f;
+				mPointLightParticleEmitter->colorAndRadius.w		= mInitialRadius + nrOfParticlesAlive * 0.035f;
+				break;
+			}
+			
+			default:
+			{
+				//Unvalid ParticleType
+				break;
+			}
 		}
 	}
 

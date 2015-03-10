@@ -118,6 +118,7 @@ struct ParticleData
 		if( nrOfParticles > MAX_PARTICLES )
 			nrOfParticles = MAX_PARTICLES;
 
+		// Allocate alligned memory
 		xPosition					= new float[nrOfParticles];
 		yPosition					= new float[nrOfParticles];
 		zPosition					= new float[nrOfParticles];
@@ -615,6 +616,10 @@ struct ParticleData
 		SAFE_DELETE_ARRAY( yPosition );
 		SAFE_DELETE_ARRAY( zPosition );
 		
+		SAFE_DELETE_ARRAY( initialXVelocity );
+		SAFE_DELETE_ARRAY( initialYVelocity );
+		SAFE_DELETE_ARRAY( initialZVelocity );
+		
 		if ( mPointLightParticleEmitter )
 			SAFE_DELETE( mPointLightParticleEmitter );
 		
@@ -624,6 +629,7 @@ struct ParticleData
 		
 		SAFE_DELETE_ARRAY( randRot );
 		SAFE_DELETE_ARRAY( damping );
+		SAFE_DELETE_ARRAY( maxDistanceFromSpawnPos );
 	}
 
 	void GenerateCirclePosition( float xPosition, float yPosition, float zPosition, float radius, size_t particleCount )

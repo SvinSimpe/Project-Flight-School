@@ -737,9 +737,9 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 			mWeaponOverheated = false;
 		}
 		XMFLOAT3 transFloat;
-		transFloat.x = projectileOffset->x + ( mUpperBody.direction.x * 0.4 );
+		transFloat.x = projectileOffset->x + ( mUpperBody.direction.x * 0.4f );
 		transFloat.y = projectileOffset->y;
-		transFloat.z = projectileOffset->z + ( mUpperBody.direction.z * 0.4 );
+		transFloat.z = projectileOffset->z + ( mUpperBody.direction.z * 0.4f );
 		RenderManager::GetInstance()->RequestParticleSystem( mID, MuzzleFlash, transFloat, mUpperBody.direction, mVelocity );
 		//transFloat.x = projectileOffset->x + ( mUpperBody.direction.x * 0.7 );
 		//transFloat.z = projectileOffset->z + ( mUpperBody.direction.z * 0.7 );
@@ -1399,7 +1399,7 @@ HRESULT Player::Initialize()
 	IEventPtr reg( new Event_Add_Point_Light( mPointLight ) );
 	EventManager::GetInstance()->QueueEvent( reg );
 
-	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.0f, 0.0f, 1.0f, 5.0f );
+	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 10.0f );
 
 	mEnergyCellLight						= new PointLight;
 	mEnergyCellLight->positionAndIntensity	= DirectX::XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );

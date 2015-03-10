@@ -480,8 +480,8 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	XMFLOAT3 testPosition	= mLowerBody.position;
 	XMFLOAT3 normal			= XMFLOAT3( 0.0f, 1.0f, 0.0f );
 
-	testPosition.x += mVelocity.x * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f ) * mSlowDown;
-	testPosition.z += mVelocity.z * deltaTime * ( 0.8f + (float)mUpgrades.legs / 5.0f ) * mSlowDown;
+	testPosition.x += mVelocity.x * deltaTime * mUpgrades.runSpeedFactor * mSlowDown;
+	testPosition.z += mVelocity.z * deltaTime * mUpgrades.runSpeedFactor * mSlowDown;
 	testPosition.y = worldMap->GetHeight( testPosition );
 
 	bool collisionTest = worldMap->PlayerVsMap( testPosition, normal );
@@ -911,24 +911,24 @@ void Player::QueueEvent( IEventPtr ptr )
 
 void Player::UpgradeBody()
 {
-	mUpgrades.body++;
+	mUpgrades.currentBodyLevel++;
+	mUpgrades.damageTakenPercentage	-= 0.05f;
+	mMaxHp = 100.0f + ( ( mUpgrades.currentBodyLevel - 1 ) * 20.0f ) + ( pow( (float)( mUpgrades.currentBodyLevel - 1 ), 2 ) * 5.0f );
 }
 
 void Player::UpgradeLegs()
 {
-	mUpgrades.legs++;
+	mUpgrades.runSpeedFactor = 0.7f + ( (float)mUpgrades.currentLegsLevel *  0.1f );
 }
 
 void Player::UpgradeMelee()
 {
 	mLoadOut->meleeWeapon->LevelUp();
-	mUpgrades.melee++;
 }
 
 void Player::UpgradeRange()
 {
 	mLoadOut->rangedWeapon->LevelUp();
-	mUpgrades.range++;
 }
 
 void Player::WriteInteractionText( std::string text )
@@ -948,7 +948,7 @@ void Player::TakeDamage( float damage, unsigned int shooter )
 		float moddedDmg = damage * mBuffMod;
 		damage -= moddedDmg;
 	}
-	mCurrentHp -= damage / (float)mUpgrades.body;
+	mCurrentHp -= ( damage * mUpgrades.damageTakenPercentage );
 	if( mCurrentHp < 0.0f )
 	{
 		mCurrentHp = 0.0f;

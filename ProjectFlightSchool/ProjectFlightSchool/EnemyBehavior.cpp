@@ -235,8 +235,15 @@ HRESULT AttackBehavior::Update( float deltaTime )
 			if( mEnemy->mAttackRadius->Intersect( mEnemy->mPlayers[mEnemy->mTargetIndex]->AggroCircle ) )
 			{
 				mHasAttacked = true;
-				IEventPtr state( new Event_Tell_Server_Enemy_Attack_Player( mEnemy->mID, mEnemy->mTargetID, mEnemy->mDamage ) );
-				EventManager::GetInstance()->QueueEvent( state );
+				if( mEnemy->mEnemyType == Ranged )
+				{
+
+				}
+				else
+				{
+					IEventPtr state( new Event_Tell_Server_Enemy_Attack_Player( mEnemy->mID, mEnemy->mTargetID, mEnemy->mDamage ) );
+					EventManager::GetInstance()->QueueEvent( state );
+				}
 				mTimeTillAttack	= mEnemy->mAttackRate;
 			}
 		}

@@ -5733,4 +5733,97 @@ class Event_Server_Start_Game_Countdown : public IEvent
 			return IEventPtr( new Event_Server_Start_Game_Countdown() );
 		}
 };
+
+class Event_Spitter_Fired_Projectile : public IEvent
+{
+private:
+	UINT		mID;
+	XMFLOAT3	mPosition;
+	XMFLOAT3	mDirection;
+	float		mSpeed;
+	float		mRange;
+
+protected:
+public:
+	static const EventType GUID;
+
+private:
+protected:
+public:
+	Event_Spitter_Fired_Projectile()
+	{
+		mID = (UINT)-1;
+		mPosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		mDirection = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		mSpeed = 0.0f;
+		mRange = 0.0f;
+	}
+	Event_Spitter_Fired_Projectile(UINT id, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range)
+	{
+		mID = id;
+		mPosition = position;
+		mDirection = direction;
+		mSpeed = speed;
+		mRange = range;
+	}
+	~Event_Spitter_Fired_Projectile() {}
+	const EventType& GetEventType() const
+	{
+		return GUID;
+	}
+	void Serialize(std::ostringstream& out) const
+	{
+		out << mID << " ";
+
+		out << mPosition.x << " ";
+		out << mPosition.y << " ";
+		out << mPosition.z << " ";
+
+		out << mDirection.x << " ";
+		out << mDirection.y << " ";
+		out << mDirection.z << " ";
+
+		out << mSpeed << " ";
+		out << mRange << " ";
+	}
+	void Deserialize(std::istringstream& in)
+	{
+		in >> mID;
+
+		in >> mPosition.x;
+		in >> mPosition.y;
+		in >> mPosition.z;
+
+		in >> mDirection.x;
+		in >> mDirection.y;
+		in >> mDirection.z;
+
+		in >> mSpeed;
+		in >> mRange;
+	}
+	IEventPtr Copy() const
+	{
+		return IEventPtr(new Event_Spitter_Fired_Projectile(mID, mPosition, mDirection, mSpeed, mRange));
+	}
+	UINT ID() const
+	{
+		return mID;
+	}
+	XMFLOAT3 Position() const
+	{
+		return mPosition;
+	}
+	XMFLOAT3 Direction() const
+	{
+		return mDirection;
+	}
+	float Speed() const
+	{
+		return mSpeed;
+	}
+	float Range() const
+	{
+		return mRange;
+	}
+};
 #endif

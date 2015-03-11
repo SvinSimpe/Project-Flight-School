@@ -92,7 +92,9 @@ class RemotePlayer
 		BoundingCircle*	mBoundingCircleAura;
 		XMFLOAT3		mSpawnPosition;
 		bool			mIsBuffed;
-		float			mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
+		float			mLifeRegenerationAmount;	// Amount of HP regenerated when mLifeRegenerationTimer is 0.0
+		float			mLifeRegenerationTimer;		// Time between regenerations
+		int				mBufflevel;
 		float			mSlowDown;
 		Upgrades		mUpgrades;
 		XMFLOAT3		mCurrentTravelVelocity;

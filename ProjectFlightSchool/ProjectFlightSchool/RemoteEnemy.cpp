@@ -20,6 +20,9 @@ HRESULT RemoteEnemy::Render()
 		RenderManager::GetInstance()->AddAnim3dToList( mAnimationTrack, ANIMATION_PLAY_LOOPED, mPosition, XMFLOAT3( 0.0f, -radians, 0.0f ) );
 	else
 		RenderManager::GetInstance()->AddAnim3dToList( mAnimationTrack, ANIMATION_PLAY_ONCE, mPosition, XMFLOAT3( 0.0f, -radians, 0.0f ) );
+	
+	if( mIsAlive && mCurrentHP != mMaxHP )
+		RenderManager::GetInstance()->AddBillboardToList( mHPBar, XMFLOAT3( mPosition.x, mPosition.y + GetEnemyHeightOffset(), mPosition.z ), GetHPBarScaleFactor( 0.5f ), 0.1f );
 
 	return S_OK;
 }
@@ -32,6 +35,26 @@ void RemoteEnemy::SetID( unsigned int id )
 unsigned int RemoteEnemy::GetID() const
 {
 	return mID;
+}
+
+void RemoteEnemy::SetHP( float hp )
+{
+	mCurrentHP	= hp;
+}
+
+float RemoteEnemy::GetHP() const
+{
+	return mCurrentHP;
+}
+
+void RemoteEnemy::SetMaxHP( float hp )
+{
+	mMaxHP	= hp;
+}
+
+float RemoteEnemy::GetMaxHP() const
+{
+	return mMaxHP;
 }
 
 void RemoteEnemy::SetIsAlive( bool isAlive )
@@ -95,6 +118,28 @@ BoundingCircle* RemoteEnemy::GetBoundingCircle() const
 	return mBoundingCircle;
 }
 
+//float RemoteEnemy::GetHPBarScaleFactor( int initialSize ) const
+//{
+//	return initialSize * ( mCurrentHp / mMaxHp );
+//}
+
+float RemoteEnemy::GetEnemyHeightOffset() const
+{
+	switch ( mEnemyType )
+	{
+		case Tank:
+			return 4.0f;
+		default:
+			return 2.0f;	
+	break;
+	}
+}
+
+float RemoteEnemy::GetHPBarScaleFactor( float initScale ) const
+{
+	return initScale * ( mCurrentHP / mMaxHP );
+}
+
 HRESULT RemoteEnemy::Initialize( int id, AssetID model, AssetID animation )
 {
 	mID				= id;
@@ -108,6 +153,8 @@ HRESULT RemoteEnemy::Initialize( int id, AssetID model, AssetID animation )
 	//RenderManager::GetInstance()->AnimationInitialize( mAnimationTrack, model, animation );
 
 	mBoundingCircle		= new BoundingCircle( 0.5f );
+
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/hpBar.dds", mHPBar );
 
 	return S_OK;
 }

@@ -295,6 +295,9 @@ HRESULT RenderManager::Render()
 	////Render the scene with deferred
 	Graphics::GetInstance()->DeferredPass();
 
+	//Render billboarded assets
+	Graphics::GetInstance()->RenderBillboard( mBillboardArray, mNrOfBillboard );
+
 	//Render the particles
 	mParticleManager->Render(); // Check these separately?
 	Graphics::GetInstance()->RenderParticleSystems( mParticleInfoArray, mNrOfParticles );

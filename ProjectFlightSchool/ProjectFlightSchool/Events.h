@@ -3462,6 +3462,7 @@ class Event_Server_Sync_Energy_Cell : public IEvent
 		UINT				mOwnerID;
 		DirectX::XMFLOAT3	mPosition;
 		bool				mPickedUp;
+		bool				mSecured;
 
 	protected:
 	public:
@@ -3476,14 +3477,16 @@ class Event_Server_Sync_Energy_Cell : public IEvent
 			mOwnerID		= (UINT)-1;
 			mPosition		= DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mPickedUp		= false;
+			mSecured		= false;
 		}
 
-		Event_Server_Sync_Energy_Cell( UINT energyCellID, UINT ownerID, DirectX::XMFLOAT3 position, bool pickedUp )
+		Event_Server_Sync_Energy_Cell( UINT energyCellID, UINT ownerID, DirectX::XMFLOAT3 position, bool pickedUp, bool secured )
 		{
 			mEnergyCellID	= energyCellID;
 			mOwnerID		= ownerID;
 			mPosition		= position;
 			mPickedUp		= pickedUp;
+			mSecured		= secured;
 		}
 
 		~Event_Server_Sync_Energy_Cell() {}
@@ -3501,6 +3504,7 @@ class Event_Server_Sync_Energy_Cell : public IEvent
 			out << mPosition.y << " ";
 			out << mPosition.z << " ";
 			out << mPickedUp << " ";
+			out << mSecured << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
@@ -3510,11 +3514,12 @@ class Event_Server_Sync_Energy_Cell : public IEvent
 			in >> mPosition.y;
 			in >> mPosition.z;
 			in >> mPickedUp;
+			in >> mSecured;
 		}
 
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Server_Sync_Energy_Cell( mEnergyCellID, mOwnerID, mPosition, mPickedUp ) );
+			return IEventPtr( new Event_Server_Sync_Energy_Cell( mEnergyCellID, mOwnerID, mPosition, mPickedUp, mSecured ) );
 		}
 
 		UINT EnergyCellID() const
@@ -3535,6 +3540,11 @@ class Event_Server_Sync_Energy_Cell : public IEvent
 		bool PickedUp() const
 		{
 			return mPickedUp;
+		}
+
+		bool Secured() const
+		{
+			return mSecured;
 		}
 };
 
@@ -3653,6 +3663,7 @@ class Event_Client_Sync_Energy_Cell : public IEvent
 		UINT				mOwnerID;
 		DirectX::XMFLOAT3	mPosition;
 		bool				mPickedUp;
+		bool				mSecured;
 
 	protected:
 	public:
@@ -3669,12 +3680,13 @@ class Event_Client_Sync_Energy_Cell : public IEvent
 			mPickedUp		= false;
 		}
 
-		Event_Client_Sync_Energy_Cell( UINT energyCellID, UINT ownerID, DirectX::XMFLOAT3 position, bool pickedUp )
+		Event_Client_Sync_Energy_Cell( UINT energyCellID, UINT ownerID, DirectX::XMFLOAT3 position, bool pickedUp, bool secured )
 		{
 			mEnergyCellID	= energyCellID;
 			mOwnerID		= ownerID;
 			mPosition		= position;
 			mPickedUp		= pickedUp;
+			mSecured		= secured;
 		}
 
 		~Event_Client_Sync_Energy_Cell() {}
@@ -3692,6 +3704,7 @@ class Event_Client_Sync_Energy_Cell : public IEvent
 			out << mPosition.y << " ";
 			out << mPosition.z << " ";
 			out << mPickedUp << " ";
+			out << mSecured << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
@@ -3701,11 +3714,12 @@ class Event_Client_Sync_Energy_Cell : public IEvent
 			in >> mPosition.y;
 			in >> mPosition.z;
 			in >> mPickedUp;
+			in >> mSecured;
 		}
 
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Client_Sync_Energy_Cell( mEnergyCellID, mOwnerID, mPosition, mPickedUp ) );
+			return IEventPtr( new Event_Client_Sync_Energy_Cell( mEnergyCellID, mOwnerID, mPosition, mPickedUp, mSecured ) );
 		}
 
 		UINT EnergyCellID() const
@@ -3726,6 +3740,11 @@ class Event_Client_Sync_Energy_Cell : public IEvent
 		bool PickedUp() const
 		{
 			return mPickedUp;
+		}
+
+		bool Secured() const
+		{
+			return mSecured;
 		}
 };
 

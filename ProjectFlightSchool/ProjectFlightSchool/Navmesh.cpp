@@ -240,6 +240,13 @@ DirectX::XMFLOAT3 Navmesh::GetClosestEdgePoint( DirectX::XMFLOAT3 start, DirectX
 	return result;
 }
 
+DirectX::XMFLOAT3 Navmesh::GetRandomTriCenter()
+{
+	int randomTri = rand() % (int)mNavTriangleCount;
+
+	return HelperFunctions::GetTriCenter( mMesh[randomTri], mMesh[randomTri + 1], mMesh[randomTri + 2] );
+}
+
 bool Navmesh::IsTriangleAdj( Portal t1, Portal t2 )
 {
 	return HelperFunctions::Float3Equal( t1.center, t2.center );

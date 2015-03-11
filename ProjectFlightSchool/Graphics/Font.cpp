@@ -77,6 +77,10 @@ void Font::WriteText( std::string toWrite, float x, float y, float scale, XMFLOA
 		{
 			l = '_';
 		}
+		else if( l == '/' )
+		{
+			l = '\'';
+		}
 		else if( l == '?' || mCharacters.find(l) == mCharacters.end() )
 		{
 			l = '~';
@@ -85,7 +89,6 @@ void Font::WriteText( std::string toWrite, float x, float y, float scale, XMFLOA
 		{
 			l = '%';
 		}
-
 
 		RenderManager::GetInstance()->AddObject2dToList( mCharacters[l].asset, DirectX::XMFLOAT2( (x + xOffset), (y + yOffset) ), DirectX::XMFLOAT2( (mCharacters[l].w * scale), (mCharacters[l].h * scale) ), color );
 
@@ -96,42 +99,6 @@ void Font::WriteText( std::string toWrite, float x, float y, float scale, XMFLOA
 void Font::Initialize( std::string path )
 {
 	path = "../Content/Assets/GUI/Fonts/final_font/";
-	//Letter UPPER_CASE[] =
-	//{
-	//	Letter( 'A', 49.0f/LETTER_SCALE ),
-	//	Letter( 'B', 50.0f/LETTER_SCALE ),
-	//	Letter( 'C', 49.0f/LETTER_SCALE ),
-	//	Letter( 'D', 50.0f/LETTER_SCALE ),
-	//	Letter( 'E', 49.0f/LETTER_SCALE ),
-	//	Letter( 'F', 49.0f/LETTER_SCALE ),
-	//	Letter( 'G', 50.0f/LETTER_SCALE ),
-	//	Letter( 'H', 50.0f/LETTER_SCALE ),
-	//	Letter( 'I', 50.0f/LETTER_SCALE ),
-	//	Letter( 'J', 40.0f/LETTER_SCALE ),
-	//	Letter( 'K', 49.0f/LETTER_SCALE ),
-	//	Letter( 'L', 49.0f/LETTER_SCALE ),
-	//	Letter( 'M', 50.0f/LETTER_SCALE ),
-	//	Letter( 'N', 50.0f/LETTER_SCALE ),
-	//	Letter( 'O', 50.0f/LETTER_SCALE ),
-	//	Letter( 'P', 50.0f/LETTER_SCALE ),
-	//	Letter( 'Q', 50.0f/LETTER_SCALE ),
-	//	Letter( 'R', 50.0f/LETTER_SCALE ),
-	//	Letter( 'S', 50.0f/LETTER_SCALE ),
-	//	Letter( 'T', 50.0f/LETTER_SCALE ),
-	//	Letter( 'U', 50.0f/LETTER_SCALE ),
-	//	Letter( 'V', 50.0f/LETTER_SCALE ),
-	//	Letter( 'W', 50.0f/LETTER_SCALE ),
-	//	Letter( 'X', 50.0f/LETTER_SCALE ),
-	//	Letter( 'Y', 50.0f/LETTER_SCALE ),
-	//	Letter( 'Z', 50.0f/LETTER_SCALE ) // Is actually ?
-	//};
-
-	//for( auto& it : UPPER_CASE )
-	//{
-	//	std::string fullPath = path + "Upper case/" + it.name + ".dds";
-	//	Graphics::GetInstance()->LoadStatic2dAsset( fullPath, it.asset );
-	//	mCharacters[it.name] = it;
-	//}
 
 	Letter LOWER_CASE[] =
 	{
@@ -198,6 +165,7 @@ void Font::Initialize( std::string path )
 		Letter( '~', 32.0f/LETTER_SCALE ),
 		Letter( '+', 20.0f/LETTER_SCALE ),
 		Letter( '%', 32.0f/LETTER_SCALE ),
+		Letter( '\'', 32.0f/LETTER_SCALE ),
 	};
 
 	for( auto& it : SYMBOLS )

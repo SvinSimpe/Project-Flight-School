@@ -62,7 +62,6 @@ private:
 	ButtonStruct			mTurretButtons;
 	ButtonStruct			mForceFieldButtons;
 	ButtonStruct			mBuffButtons;
-	//ButtonStruct			mEngineButtons;
 	int						mNrOfEnergyCells;
 	int						mUnusedCells;
 
@@ -81,6 +80,7 @@ public:
 	void	DeActivate();
 	void	Update( float deltaTime );
 	void	Render();
+	void	Reset();
 	void	Release();
 			HRESULT	Initialize();
 			UpgradeShipWindow();

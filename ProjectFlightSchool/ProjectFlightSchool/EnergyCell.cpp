@@ -18,6 +18,9 @@ void EnergyCell::SetPickedUp( bool pickedUp )
 void EnergyCell::SetSecured( bool secured )
 {
 	mSecured = secured;
+	IEventPtr reg( new Event_Remove_Point_Light( mEnergyPointLight ) );
+	EventManager::GetInstance()->QueueEvent( reg );
+	mIsLightActive = false;
 }
 
 UINT EnergyCell::GetOwnerID() const 
@@ -58,7 +61,15 @@ bool EnergyCell::GetSecured() const
 HRESULT EnergyCell::Update( float deltaTime )
 {
 	mHooverFactor += deltaTime * 1.0f;
-	mPickUpRadius->center.y = sinf( mHooverFactor ) + 1.0f;
+
+	if( mPickedUp )
+	{
+		mPickUpRadius->center.y = ( sinf( mHooverFactor ) / 2.0f ) + 5.0f;
+	}
+	else
+	{
+		mPickUpRadius->center.y = sinf( mHooverFactor ) + 2.0f;
+	}
 
 	UpdateLight( deltaTime );
 
@@ -69,32 +80,26 @@ HRESULT EnergyCell::Update( float deltaTime )
 
 void EnergyCell::UpdateLight( float deltaTime )
 {
-	if( !mPickedUp )
-	{
-		if ( !isLightActive )
+		if( !mIsLightActive )
 		{
-			mEnergyPointLight->positionAndIntensity.x = mPickUpRadius->center.x;
-			mEnergyPointLight->positionAndIntensity.y = mPickUpRadius->center.y;
-			mEnergyPointLight->positionAndIntensity.z = mPickUpRadius->center.z;
-			mEnergyPointLight->positionAndIntensity.w = 1.0f;
-
 			IEventPtr reg( new Event_Add_Point_Light( mEnergyPointLight ) );
 			EventManager::GetInstance()->QueueEvent( reg );
-			isLightActive = true;
-		}		
-	}
-
-	else if( mPickedUp )
-	{
-		if ( isLightActive )
-		{
-			IEventPtr reg( new Event_Remove_Point_Light( mEnergyPointLight ) );
-			EventManager::GetInstance()->QueueEvent( reg );
-			isLightActive = false;
-			mHasBeenPickedUp = true;
+			mIsLightActive = true;
 		}
-	}
+		mEnergyPointLight->positionAndIntensity.x = mPickUpRadius->center.x;
+		mEnergyPointLight->positionAndIntensity.y = mPickUpRadius->center.y;
+		mEnergyPointLight->positionAndIntensity.z = mPickUpRadius->center.z;
+		mEnergyPointLight->positionAndIntensity.w = 1.0f;
+		if( mPickedUp )
+		{
+			mEnergyPointLight->colorAndRadius.w = 6.0f;
+		}
+		else
+		{
+			mEnergyPointLight->colorAndRadius.w = 3.0f;
+		}	
 }
+
 HRESULT EnergyCell::Render()
 {
 	RenderManager::GetInstance()->AddAnim3dToList( mAnimationTrack, ANIMATION_PLAY_LOOPED, mPickUpRadius->center );
@@ -107,7 +112,7 @@ void EnergyCell::Reset()
 	mOwnerID		= (UINT)-1;
 	mPickedUp		= false;
 	mSecured		= false;
-	isLightActive	= false;
+	mIsLightActive	= false;
 }
 
 HRESULT EnergyCell::Initialize( DirectX::XMFLOAT3 position )
@@ -121,8 +126,8 @@ HRESULT EnergyCell::Initialize( DirectX::XMFLOAT3 position )
 	mPickUpRadius->center	= position;
 
 	mEnergyPointLight						= new PointLight;
-	mEnergyPointLight->colorAndRadius		= XMFLOAT4( 2.0f, 2.0f, 4.0f, 1.0f );
-	isLightActive		= false;
+	mEnergyPointLight->colorAndRadius		= XMFLOAT4( 0.0f, 0.0f, 4.0f, 2.0f );
+	mIsLightActive		= false;
 
 	mSecured			= false;
 
@@ -158,6 +163,7 @@ EnergyCell::EnergyCell()
 	mHooverFactor	= 0.0f;
 	mSecured		= false;
 	mEnergyPointLight	= nullptr;
+	mIsLightActive	= false;
 }
 
 EnergyCell::~EnergyCell()

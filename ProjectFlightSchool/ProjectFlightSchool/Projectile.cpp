@@ -6,6 +6,9 @@ HRESULT Projectile::Update( float deltaTime )
 	{
 		float acceleration	= ( 2.0f * deltaTime );
 		mDirection.y -= acceleration;
+		RenderManager::GetInstance()->RequestParticleSystem( mPlayerID, GranateTrail, mPosition, DirectX::XMFLOAT3( 0.0f, 1.0f, 0.0f ), DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
+		////////
+
 	}
 
 
@@ -31,7 +34,6 @@ HRESULT Projectile::Update( float deltaTime )
 	}
 	
 	mBoundingCircle->center				= mPosition;
-	mPointLight->positionAndIntensity	= XMFLOAT4( mPosition.x, mPosition.y, mPosition.z, 1.0f );
 
 	return S_OK;
 }
@@ -62,8 +64,6 @@ void Projectile::SetDirection( unsigned int playerID, unsigned int id, unsigned 
 	mIsActive		= true;
 	mDamage			= damage;
 	mWeaponType		= weaponType;
-	IEventPtr E1( new Event_Add_Point_Light( mPointLight ) );
-	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 void Projectile::SetIsActive( bool isActive )
@@ -88,8 +88,6 @@ void Projectile::Reset()
 	mDamage		= 0.0f;
 	mWeaponType	= MINIGUN;
 	mHits.clear();
-	IEventPtr E1( new Event_Remove_Point_Light( mPointLight ) );
-	EventManager::GetInstance()->QueueEvent( E1 );
 }
 
 BoundingCircle* Projectile::GetBoundingCircle() const
@@ -157,9 +155,6 @@ HRESULT Projectile::Initialize()
 	mBoundingCircle = new BoundingCircle( 0.5f );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Bullet/", "bullet2.pfs", mProjectileAsset );
 	mWeaponType		= MINIGUN;
-	mPointLight		= new PointLight;
-	mPointLight->colorAndRadius				= XMFLOAT4( 1.0f, 1.0f, 1.0f, 0.5f );
-	mPointLight->positionAndIntensity		= XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
 
 	return S_OK;
 }
@@ -167,7 +162,6 @@ HRESULT Projectile::Initialize()
 void Projectile::Release()
 {
 	SAFE_DELETE( mBoundingCircle );
-	SAFE_DELETE( mPointLight );
 }
 
 Projectile::Projectile()

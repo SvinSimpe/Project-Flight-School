@@ -88,7 +88,8 @@ void Server::ClientJoined( IEventPtr eventPtr )
 				IEventPtr EvEnergyCell( new Event_Server_Sync_Energy_Cell(	i,
 																			mEnergyCells[i]->GetOwnerID(),
 																			mEnergyCells[i]->GetPosition(),
-																			mEnergyCells[i]->GetPickedUp() ) );
+																			mEnergyCells[i]->GetPickedUp(),
+																			mEnergyCells[i]->GetSecured() ) );
 				SendEvent( EvEnergyCell, data->ID() );
 			}
 		}
@@ -419,12 +420,13 @@ void Server::ClientInteractEnergyCell( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Client_Sync_Energy_Cell::GUID )
 	{
 		std::shared_ptr<Event_Client_Sync_Energy_Cell> data = std::static_pointer_cast<Event_Client_Sync_Energy_Cell>( eventPtr );
-		IEventPtr E1( new Event_Server_Sync_Energy_Cell( data->EnergyCellID(), data->OwnerID(), data->Position(), data->PickedUp() ) );
-		BroadcastEvent( E1, data->OwnerID() );
+		IEventPtr E1( new Event_Server_Sync_Energy_Cell( data->EnergyCellID(), data->OwnerID(), data->Position(), data->PickedUp(), data->Secured() ) );
+		BroadcastEvent( E1 );
 
 		mEnergyCells[data->EnergyCellID()]->SetOwnerID( data->OwnerID() );
 		mEnergyCells[data->EnergyCellID()]->SetPickedUp( data->PickedUp() );
 		mEnergyCells[data->EnergyCellID()]->SetPosition( data->Position() );
+		mEnergyCells[data->EnergyCellID()]->SetSecured( data->Secured() );
 
 		for( auto s :mShips )
 		{
@@ -746,7 +748,8 @@ void Server::UpdateShip( float deltaTime, ServerShip* s )
 
 	s->Update( deltaTime );
 	IEventPtr E1( new Event_Server_Update_Turret( s->mServerTurret->mID, s->mServerTurret->mTurretHead->rot ) );
-	SendCulledUpdate( E1, s->mServerTurret->mPos );
+	BroadcastEvent( E1 );
+	//SendCulledUpdate( E1, s->mServerTurret->mPos );
 
 	IEventPtr E2( new Event_Server_Update_Ship( s->mID, s->mMaxShield, s->mCurrentShield, s->mCurrentHP ) );
 	BroadcastEvent( E2 );
@@ -775,11 +778,12 @@ void Server::OnSpawnEnergyCell( IEventPtr e )
 	if( e->GetEventType() == Event_Spawn_Energy_Cell::GUID )
 	{
 		XMFLOAT3 cellPos = mCellPositionQueue.front();
+		mCellPositionQueue.pop();
 		mCellPositionQueue.push( cellPos );
 		mEnergyCells[mCurrentCell]->Reset();
 		mEnergyCells[mCurrentCell]->SetPosition( cellPos );
 
-		IEventPtr e( new Event_Server_Sync_Energy_Cell( mCurrentCell, -1, cellPos, false ) );
+		IEventPtr e( new Event_Server_Sync_Energy_Cell( mCurrentCell, -1, cellPos, false, false ) );
 		BroadcastEvent( e );
 	}
 }
@@ -799,7 +803,7 @@ void Server::CreateEnergyCells()
 	for( int i = 1; i < MAX_ENERGY_CELLS ; i++ )
 	{
 		mEnergyCells[i] = new EnergyCell();
-		mEnergyCells[i]->Initialize( XMFLOAT3( 0,0,0 ) );
+		mEnergyCells[i]->Initialize( XMFLOAT3( 1000,0,0 ) );
 	}
 }
 
@@ -810,23 +814,24 @@ void Server::CalculateCellPosition( XMFLOAT3 pos, float offSetX, float offSetZ )
 	float halfZ = offSetZ * 0.5f;
 	
 	XMFLOAT3 energyCellPosition	= pos;
+	XMFLOAT3 placePos = XMFLOAT3( 0, 0, 0 );
 
 	int infCounter		= 0;
 	int placeCounter	= 0;
 
-	while( placeCounter < 30 && infCounter < 10000 )
+	while( placeCounter < 30 )
 	{
 		int x = (int)halfX - ( rand() % (int)offSetX );
 		int z = (int)halfZ - ( rand() % (int)offSetZ );
 
 		energyCellPosition = XMFLOAT3( energyCellPosition.x + x, 0 , energyCellPosition.z + z );
+		placePos = Pathfinder::GetInstance()->GetRandomTriInMesh( energyCellPosition );
 
-		if( Pathfinder::GetInstance()->IsOnNavMesh( energyCellPosition ) )
+		if( !( HelperFunctions::Float3Equal( placePos, DirectX::XMFLOAT3( 0, 0 ,0 ) ) ) )
 		{
-			mCellPositionQueue.push( energyCellPosition );
+			mCellPositionQueue.push( placePos );
 			placeCounter++;
 		}
-		infCounter++;
 	}
 }
 

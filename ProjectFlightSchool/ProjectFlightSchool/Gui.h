@@ -115,6 +115,4 @@ class Gui
 		bool	InGameWindowIsActive();
 		bool	EnergyCellsActive();
 };
-
-
 #endif

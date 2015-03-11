@@ -21,7 +21,7 @@ class EnergyCell
 		bool				mSecured;
 		bool				mActive;
 		PointLight*			mEnergyPointLight;
-		bool				isLightActive;
+		bool				mIsLightActive;
 		float				mIntensity;
 
 	protected:

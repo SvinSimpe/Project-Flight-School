@@ -1007,13 +1007,31 @@ HRESULT PlayState::Update( float deltaTime )
 	
 		guiUpdate.deltaTime = deltaTime;
 
-		if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->GetNrOfEnergyCells() == mNeededEnergyCells )
+		if( mGui->CheckWin() )
 		{
 			guiUpdate.mEndGame = true;
 			guiUpdate.mWonGame = true;
 			mEndGame = true;
 
 			IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
+			Client::GetInstance()->SendEvent( E1 );
+		}
+		else if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->CheckLose() )
+		{
+			guiUpdate.mEndGame = true;
+			guiUpdate.mWonGame = false;
+			mEndGame = true;
+
+			UINT winTeam = 0;
+			if( mPlayer->GetTeam() == 1 )
+			{
+				winTeam = 2;
+			}
+			else
+			{
+				winTeam = 1;
+			}
+			IEventPtr E1( new Event_Client_Win( winTeam ) );
 			Client::GetInstance()->SendEvent( E1 );
 		}
 		else if( !mEndGame )
@@ -1288,10 +1306,7 @@ HRESULT PlayState::Initialize()
 	mExplosion			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/explosion.wav", 250 );
 	mSniper				= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/railgun.wav", 500 );
 	mLevelUp			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/level up.wav", 10 );
-	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav", 2000, 40 );
-	mSoundAsset			= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
 	mLobbyMusic			= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/ambientInGame.wav", 0 );
-	//mStreamSoundAsset	= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav", 3000 );
 
 	Pathfinder::GetInstance()->Initialize( mWorldMap );
 

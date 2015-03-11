@@ -75,6 +75,16 @@ void UpgradePlayerWindow::Render()
 	mFont.WriteText( textToWrite, mHealthButton.button.GetPosition().x + 100.0f - mFont.GetMiddleXPoint( textToWrite, 2.4f ), mHealthButton.button.GetPosition().y + 100.0f - 12.0f, 2.4f, COLOR_CYAN );
 }
 
+void UpgradePlayerWindow::Reset()
+{
+	mIsActive = false;
+	mHealthButton.Reset();
+	mSpeedButton.Reset();
+	mMeleeButton.Reset();
+	mRangeButton.Reset();
+	Release();
+}
+
 void UpgradePlayerWindow::Release()
 {
 	mHealthButton.button.Release();

@@ -28,7 +28,7 @@
 #define SHOTGUN_RANGE		0.3f								// Range
 #define SHOTGUN_SPREAD		6.5f								// Spread
 #define SHOTGUN_AOE			0.0f								// Area of effect
-#define SHOTGUN_SPEED		30.0f								// Projectile Speed 35
+#define SHOTGUN_SPEED		40.0f								// Projectile Speed 35
 #define SHOTGUN_OFFSETS		XMFLOAT3( 0.93f, 0.5f, 1.45f )		// Offsets forward, right, up
 
 // Grenade Launcher

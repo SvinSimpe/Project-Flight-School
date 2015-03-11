@@ -384,6 +384,11 @@ void Player::Move( float deltaTime )
 	}
 }
 
+void Player::Ding()
+{
+	AddXP( mNextLevelXP );
+}
+
 void Player::AddXP( float XP )
 {
 	//Check if maxlevel
@@ -398,7 +403,8 @@ void Player::AddXP( float XP )
 	{
 		mCurrentUpgrades++;
 		mXP -= mNextLevelXP;
-		mNextLevelXP *= 1.1f;
+		mNextLevelXP *= powf( 1.009f, (float) ( mCurrentLevel + 1.0f ) );
+		mNextLevelXP += 5.0f;
 		mCurrentLevel++;
 		if( mCurrentLevel > MAX_PLAYER_LEVEL )
 		{
@@ -1079,7 +1085,7 @@ void Player::Reset()
 	mUpgrades.runSpeedFactor = 0.7f;
 
 	mXP					= 0.0f;
-	mNextLevelXP		= 60.0f;
+	mNextLevelXP		= 20.0f;
 	mCurrentLevel		= 0;
 	mCurrentUpgrades	= 0;
 }
@@ -1362,6 +1368,22 @@ HRESULT Player::Render( float deltaTime, int position )
 			COLOR_CYAN );
 	}
 
+	std::string blblbl = "XP " + std::to_string( (int) mXP ) +  "/" + std::to_string( (int)mNextLevelXP );
+	WriteInteractionText(
+		blblbl, 
+		(float)( Input::GetInstance()->mScreenWidth * 0.1f ), 
+		(float)( Input::GetInstance()->mScreenHeight * 0.4f ) + 25.0f,
+		2.0f, 
+		COLOR_RED);
+
+	blblbl = "Current level " + std::to_string( mCurrentLevel );
+	WriteInteractionText(
+		blblbl, 
+		(float)( Input::GetInstance()->mScreenWidth * 0.1f ), 
+		(float)( Input::GetInstance()->mScreenHeight * 0.4f ) + 50.0f,
+		2.0f, 
+		COLOR_RED);
+
 	RemotePlayer::Render();
 	//---------------------------DEBUG RENDERING----------------------------
 	//MeleeInfo* currWeapon = mLoadOut->meleeWeapon;
@@ -1416,7 +1438,6 @@ HRESULT Player::Initialize()
 	mIsInWater			= false;
 	mHasMeleeStarted	= false;
 	mXP					= 0.0f;
-	mNextLevelXP		= 0.0f;
 	mCurrentLevel		= 0;
 	
 	mSpawnTime				= 0.0f;
@@ -1458,7 +1479,7 @@ HRESULT Player::Initialize()
 
 	mBuffMod			= 0.5f;
 
-	mNextLevelXP		= 60.0f;
+	mNextLevelXP		= 20.0f;
 	mCurrentUpgrades	= 0;
 
 	mReviveTime			= 2.0f;

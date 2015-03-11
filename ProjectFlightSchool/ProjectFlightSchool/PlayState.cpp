@@ -762,6 +762,10 @@ void PlayState::HandleDeveloperCameraInput()
 			mGui->ActivateInGameWindow();
 		}
 	}
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_T ) )
+	{
+		mPlayer->Ding();
+	}
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_1 ) )
 	{
 		RenderManager::GetInstance()->ChangeRasterizerState( CULL_NONE );

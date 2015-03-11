@@ -11,6 +11,7 @@
 #include "RenderManager.h"
 #include "SoundBufferHandler.h"
 
+#define MAX_PLAYER_LEVEL 16
 #define VELOCITY_FALLOFF 2.0f
 
 #define MAX_ROBOT_RANGE		40000.0f   //Squared distance here.
@@ -109,7 +110,7 @@ class Player: public RemotePlayer
 		void		UpgradeLegs();
 		void		UpgradeMelee();
 		void		UpgradeRange();
-		void		WriteInteractionText( std::string text, float yPos, XMFLOAT4 color );
+		void		WriteInteractionText( std::string text, float xPos, float yPos, float scale, XMFLOAT4 color );
 
 	protected:
 	public:

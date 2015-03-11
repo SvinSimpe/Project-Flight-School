@@ -72,7 +72,7 @@ class RemotePlayer
 	// Member variables
 	private:
 	protected:
-		unsigned int	mID;
+		UINT			mID;
 		std::string		mPlayerName;
 		int				mTeam;
 		bool			mIsAlive;
@@ -119,6 +119,9 @@ class RemotePlayer
 	private:
 		HRESULT			InitializeGraphics();
 		void			EventListener( IEventPtr newEvent );
+
+		float			GetHPBarScaleFactor() const;
+
 	protected:
 
 	public:

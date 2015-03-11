@@ -36,99 +36,85 @@ RenderManager::~RenderManager()
 #pragma region Public functions
 void RenderManager::AddObject3dToList( AssetID assetId, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation )
 {
-	Object3dInfo info;
-	info.mAssetId = assetId;
-	DirectX::XMStoreFloat4x4( &info.mWorld, ( DirectX::XMMatrixTranspose( DirectX::XMMatrixRotationRollPitchYaw( rotation.x, rotation.y, rotation.z ) *										
+	mObject3dArray[mNrOfObject3d].mAssetId = assetId;
+	DirectX::XMStoreFloat4x4( &mObject3dArray[mNrOfObject3d].mWorld, ( DirectX::XMMatrixTranspose( DirectX::XMMatrixRotationRollPitchYaw( rotation.x, rotation.y, rotation.z ) *										
 											  DirectX::XMMatrixTranslation( position.x, position.y, position.z ) ) ) );
-	
-	mObject3dArray[mNrOfObject3d++] = info;
+	mNrOfObject3d++;
 }
 
 void RenderManager::AddObject3dToList( AssetID assetId, DirectX::XMFLOAT4X4 world )
 {
-	Object3dInfo info;
-	info.mAssetId = assetId;
-
-	DirectX::XMStoreFloat4x4( &info.mWorld, DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( &world ) ) );
-
-	mObject3dArray[mNrOfObject3d++] = info;
+	mObject3dArray[mNrOfObject3d].mAssetId = assetId;
+	DirectX::XMStoreFloat4x4( &mObject3dArray[mNrOfObject3d].mWorld, DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( &world ) ) );
+	mNrOfObject3d++;
 }
 
 void RenderManager::AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLeftCorner, DirectX::XMFLOAT2 widthHeight, DirectX::XMFLOAT4 color )
 {
-	Object2dInfo info;
-	info.mAssetId		= assetId;
-	info.mTopLeftCorner	= topLeftCorner;
-	info.mWidthHeight	= widthHeight;
-	info.mColor			= color;
+	mObject2dArray[mNrOfObject2d].mAssetId			= assetId;
+	mObject2dArray[mNrOfObject2d].mTopLeftCorner	= topLeftCorner;
+	mObject2dArray[mNrOfObject2d].mWidthHeight		= widthHeight;
+	mObject2dArray[mNrOfObject2d].mColor			= color;
 
-	mObject2dArray[mNrOfObject2d++] = info;
+	mNrOfObject2d++;
 }
 
 void RenderManager::AddBoxToList( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, DirectX::XMFLOAT4X4 world )
 {
-	BoxInfo info;
-	info.min	= min;
-	info.max	= max;
-	info.world	= world;
-	mBoxArray[mNrOfBoxes++] = info;
+	mBoxArray[mNrOfBoxes].min	= min;
+	mBoxArray[mNrOfBoxes].max	= max;
+	mBoxArray[mNrOfBoxes].world	= world;
+	mNrOfBoxes++;
 }
 
 void RenderManager::AddLineToList( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end )
 {
-	LineInfo info;
-	info.start	= start;
-	info.end	= end;
+	mLineArray[mNrOfLines].start	= start;
+	mLineArray[mNrOfLines].end		= end;
 
-	mLineArray[mNrOfLines++] = info;
+	mNrOfLines++;
 }
 
 bool RenderManager::AddAnim3dToList( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation )
 {
-    static Anim3dInfo info;
-	info.mModelId = animTrack.mModelID;
-	DirectX::XMStoreFloat4x4( &info.mWorld, DirectX::XMMatrixTranspose( DirectX::XMMatrixRotationRollPitchYaw( rotation.x, rotation.y, rotation.z ) *										
+	mAnim3dArray[mNrOfAnim3d].mModelId = animTrack.mModelID;
+	DirectX::XMStoreFloat4x4( &mAnim3dArray[mNrOfAnim3d].mWorld, DirectX::XMMatrixTranspose( DirectX::XMMatrixRotationRollPitchYaw( rotation.x, rotation.y, rotation.z ) *										
 											DirectX::XMMatrixTranslation( position.x, position.y, position.z ) ) );
+	bool localReturn = Graphics::GetInstance()->GetAnimationMatrices( animTrack, playType, mAnim3dArray[mNrOfAnim3d] ); 
 
-	bool localReturn = Graphics::GetInstance()->GetAnimationMatrices( animTrack, playType, info ); 
-
-	mAnim3dArray[mNrOfAnim3d++] = info;
+	mNrOfAnim3d++;
 
 	return localReturn;
 }
 
 bool RenderManager::AddAnim3dToList( AnimationTrack &animTrack, int playType, XMFLOAT4X4* world )
 {
-	static Anim3dInfo info;
-	info.mModelId = animTrack.mModelID;
-	DirectX::XMStoreFloat4x4( &info.mWorld, DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( world ) ) );
+	mAnim3dArray[mNrOfAnim3d].mModelId = animTrack.mModelID;
+	DirectX::XMStoreFloat4x4( &mAnim3dArray[mNrOfAnim3d].mWorld, DirectX::XMMatrixTranspose( DirectX::XMLoadFloat4x4( world ) ) );
+	bool localReturn = Graphics::GetInstance()->GetAnimationMatrices( animTrack, playType, mAnim3dArray[mNrOfAnim3d] ); 
 
-	bool localReturn = Graphics::GetInstance()->GetAnimationMatrices( animTrack, playType, info ); 
-
-	mAnim3dArray[mNrOfAnim3d++] = info;
+	mNrOfAnim3d++;
 
 	return localReturn;
 }
 
 void RenderManager::AddPlaneToList( AssetID assetId, DirectX::XMFLOAT3 topTriangle, DirectX::XMFLOAT3 bottomTriangle )
 {
-	PlaneInfo info;
-	info.mAssetId			= assetId;
-	info.mTopTriangle		= topTriangle;
-	info.mBottomTriangle	= bottomTriangle;
+	mPlaneArray[mNrOfPlane].mAssetId		= assetId;
+	mPlaneArray[mNrOfPlane].mTopTriangle	= topTriangle;
+	mPlaneArray[mNrOfPlane].mBottomTriangle	= bottomTriangle;
 
-	mPlaneArray[mNrOfPlane++] = info;
+	mNrOfPlane++;
 }
 
 void RenderManager::AddBillboardToList( AssetID assetId, DirectX::XMFLOAT3 worldPosition, float width, float height )
 {
-	BillboardInfo info;
-	info.mAssetId		= assetId;
-	info.mWorldPosition	= worldPosition;
-	info.mWidth			= width;
-	info.mHeight		= height;
+	mBillboardArray[mNrOfBillboard].mAssetId		= assetId;
+	mBillboardArray[mNrOfBillboard].mWorldPosition	= worldPosition;
+	mBillboardArray[mNrOfBillboard].mWidth			= width;
+	mBillboardArray[mNrOfBillboard].mHeight			= height;
 
-	mBillboardArray[mNrOfBillboard++] = info;
+	mNrOfBillboard++;
 }
 
 void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, int* nrOfActiveParticleSystemsPerType  )
@@ -157,15 +143,19 @@ void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, i
 		{
 			for ( int k = 0; k < particleSystem[i][j]->nrOfParticlesAlive; k++ )
 			{
-				info.mWorldPosition.x	= particleSystem[i][j]->xPosition[k];
-				info.mWorldPosition.y	= particleSystem[i][j]->yPosition[k];
-				info.mWorldPosition.z	= particleSystem[i][j]->zPosition[k];
+				mParticleInfoArray[mNrOfParticles].mAssetId						= info.mAssetId;
+				mParticleInfoArray[mNrOfParticles].mOffsetToNextParticleType	= info.mOffsetToNextParticleType;
+				mParticleInfoArray[mNrOfParticles].mParticleType				= info.mParticleType;
 
-				info.mAge				= particleSystem[i][j]->lifeTime[k];
-				info.mTimeTillDeath		= particleSystem[i][j]->deathTime[k] - particleSystem[i][j]->lifeTime[k];
-				info.mRandomRotation	= particleSystem[i][j]->randRot[k];
+				mParticleInfoArray[mNrOfParticles].mWorldPosition.x	= particleSystem[i][j]->xPosition[k];
+				mParticleInfoArray[mNrOfParticles].mWorldPosition.y	= particleSystem[i][j]->yPosition[k];
+				mParticleInfoArray[mNrOfParticles].mWorldPosition.z	= particleSystem[i][j]->zPosition[k];
 
-				mParticleInfoArray[mNrOfParticles++] = info;
+				mParticleInfoArray[mNrOfParticles].mAge				= particleSystem[i][j]->lifeTime[k];
+				mParticleInfoArray[mNrOfParticles].mTimeTillDeath	= particleSystem[i][j]->deathTime[k] - particleSystem[i][j]->lifeTime[k];
+				mParticleInfoArray[mNrOfParticles].mRandomRotation	= particleSystem[i][j]->randRot[k];
+
+				mNrOfParticles++;
 			}
 		}
 	}	
@@ -173,23 +163,21 @@ void RenderManager::AddParticleSystemToList( ParticleSystem*** particleSystem, i
 
 void RenderManager::AddNodeGridToList( StaticVertex* vertices, UINT nrOfVertices, AssetID blendMap, DirectX::XMFLOAT4X4 world )
 {
-	NodeGridInfo info;
-	info.mVertices		= vertices;
-	info.mNrOfVertices	= nrOfVertices;
-	info.mBlendMap		= blendMap;
-	DirectX::XMStoreFloat4x4( &info.mWorld, ( DirectX::XMMatrixTranspose( XMLoadFloat4x4( &world ) ) ) );
+	mNodeGridArray[mNrOfNodeGrid].mVertices		= vertices;
+	mNodeGridArray[mNrOfNodeGrid].mNrOfVertices	= nrOfVertices;
+	mNodeGridArray[mNrOfNodeGrid].mBlendMap		= blendMap;
+	DirectX::XMStoreFloat4x4( &mNodeGridArray[mNrOfNodeGrid].mWorld, ( DirectX::XMMatrixTranspose( XMLoadFloat4x4( &world ) ) ) );
 
-	mNodeGridArray[mNrOfNodeGrid++] = info;
+	mNrOfNodeGrid++;
 }
 
 void RenderManager::AddCircleToList( DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 color, float radius )
 {
-	CircleInfo info;
-	info.center	= pos;
-	info.color	= color;
-	info.radius	= radius;
+	mCircleArray[mNrOfCircles].center	= pos;
+	mCircleArray[mNrOfCircles].color	= color;
+	mCircleArray[mNrOfCircles].radius	= radius;
 
-	mCircleArray[mNrOfCircles++] = info;
+	mNrOfCircles++;
 }
 
 void RenderManager::AnimationInitialize( AnimationTrack &animationTrack, AssetID model, AssetID defaultAnimation )
@@ -300,7 +288,6 @@ HRESULT RenderManager::Render()
 	Graphics::GetInstance()->RenderLine( mLineArray, mNrOfLines );
 
 	//Graphics::GetInstance()->RenderCircle( mCircleArray, mNrOfCircles );	
-
 	Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray, mNrOfAnim3d );
 
 	////------------------------Finished filling the Gbuffers----------------------
@@ -308,11 +295,12 @@ HRESULT RenderManager::Render()
 	////Render the scene with deferred
 	Graphics::GetInstance()->DeferredPass();
 
+	//Render billboarded assets
+	Graphics::GetInstance()->RenderBillboard( mBillboardArray, mNrOfBillboard );
+
 	//Render the particles
-//	HelperFunctions::StartCounter();
 	mParticleManager->Render(); // Check these separately?
 	Graphics::GetInstance()->RenderParticleSystems( mParticleInfoArray, mNrOfParticles );
-//	HelperFunctions::PrintCounter( "ParticlePass: " );
 
 	//Prepare the scene to render Screen space located assets
 	Graphics::GetInstance()->ScreenSpacePass();
@@ -322,8 +310,6 @@ HRESULT RenderManager::Render()
 
 	//Present the scene onto the screen
 	Graphics::GetInstance()->EndScene();
-
-	OutputDebugStringA( "------------------------------------------\n" );
 
 	return S_OK;
 }

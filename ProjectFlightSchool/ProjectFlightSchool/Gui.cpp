@@ -45,6 +45,11 @@ void Gui::DeActivateInGameWindow()
 	mInGameWindow.DeActivate();
 }
 
+bool Gui::CheckWin()
+{
+	return mShipWindow.GetNrOfEnergyCells() == mNeededEnergyCells;
+}
+
 HRESULT Gui::Update( GuiUpdate guiUpdate )
 {
 	HRESULT result = S_OK;

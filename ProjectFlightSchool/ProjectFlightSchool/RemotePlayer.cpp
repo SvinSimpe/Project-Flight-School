@@ -511,7 +511,7 @@ HRESULT RemotePlayer::Initialize()
 
 	mBoundingBox			= new BoundingRectangle( 1.5f, 1.5f );
 	mBoundingCircle			= new BoundingCircle( 0.5f );
-	mBoundingCircleAura		= new BoundingCircle( 1.0f );
+	mBoundingCircleAura		= new BoundingCircle( 4.0f );
 	
 	mIsAlive				= true;
 	mIsDown					= false;
@@ -530,7 +530,7 @@ HRESULT RemotePlayer::Initialize()
 	mLoadOut				= new LoadOut();
 
 	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN );
-	mLoadOut->meleeWeapon	= new MeleeInfo( HAMMER );
+	mLoadOut->meleeWeapon	= new MeleeInfo( CLAYMORE );
 	//mLoadOut->meleeWeapon	= new MeleeInfo( BLOWTORCH );
 	//mLoadOut->rangedWeapon	= new RangedInfo( GRENADELAUNCHER );
 
@@ -560,6 +560,7 @@ void RemotePlayer::RemoteInit( unsigned int id, int team )
 
 void RemotePlayer::Release()
 {
+	mID = (UINT)-1;
 	mLoadOut->Release();
 	SAFE_DELETE( mLoadOut );
 

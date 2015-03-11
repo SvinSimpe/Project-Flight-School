@@ -22,22 +22,15 @@ void LoadOutMenu::Update( float deltaTime )
 	{
 		if( mButtons[i].Pressed() )
 		{
-			if( mButtons[i].weaponType != SAW )
+			IEventPtr E1( new Event_Change_Weapon( (int)mButtons[i].weaponType ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+			if( mButtons[i].weaponType == MINIGUN || mButtons[i].weaponType == SHOTGUN || mButtons[i].weaponType == GRENADELAUNCHER || mButtons[i].weaponType == SNIPER )
 			{
-				IEventPtr E1( new Event_Change_Weapon( (int)mButtons[i].weaponType ) );
-				EventManager::GetInstance()->QueueEvent( E1 );
-				if( mButtons[i].weaponType == MINIGUN || mButtons[i].weaponType == SHOTGUN || mButtons[i].weaponType == GRENADELAUNCHER || mButtons[i].weaponType == SNIPER )
-				{
-					mCurrentRanged = i;
-				}
-				else
-				{
-					mCurrentMelee = i;
-				}
+				mCurrentRanged = i;
 			}
 			else
 			{
-				MessageBox( NULL, L"You don't want it to crash, do you?", L"Ja vi vet att detta är en bugg", MB_OK );
+				mCurrentMelee = i;
 			}
 		}
 	}

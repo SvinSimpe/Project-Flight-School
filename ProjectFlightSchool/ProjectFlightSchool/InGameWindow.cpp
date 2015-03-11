@@ -89,6 +89,7 @@ void InGameWindow::Update( float deltaTime )
 		case 1:
 		{
 			mInControls	= true;
+			break;
 		}
 		case 2:
 		{

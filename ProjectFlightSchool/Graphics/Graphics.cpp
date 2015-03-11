@@ -641,16 +641,6 @@ HRESULT Graphics::InitializeEffects()
 		return hr;
 	//--------------------------
 
-	//Muzzle Flash effect
-	effectInfo.filePath					= "../Content/Effects/Particle Effects/MuzzleFlashEffect.hlsl";
-	effectInfo.fileName					= "MuzzleFlashEffect";
-	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
-	effectInfo.isGeometryShaderIncluded = true;
-
-	if( FAILED( hr = mEffects[EFFECTS_MUZZLEFLASH]->Intialize( mDevice, &effectInfo ) ) )
-		return hr;
-	//--------------------------
-
 
 	//Minigun Smoke effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/Smoke_MiniGunEffect.hlsl";

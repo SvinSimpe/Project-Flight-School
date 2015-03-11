@@ -481,6 +481,9 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	testPosition.z += mVelocity.z * deltaTime * mUpgrades.runSpeedFactor * mSlowDown;
 	testPosition.y = worldMap->GetHeight( testPosition );
 
+	mCurrentTravelVelocity.x = mVelocity.x * deltaTime * mUpgrades.runSpeedFactor * mSlowDown;
+	mCurrentTravelVelocity.z = mVelocity.z * deltaTime * mUpgrades.runSpeedFactor * mSlowDown;
+
 	bool collisionTest = worldMap->PlayerVsMap( testPosition, normal );
 	if( !collisionTest )
 	{
@@ -591,10 +594,6 @@ void Player::Fire()
 	else if( mLoadOut->rangedWeapon->weaponType == GRENADELAUNCHER )
 	{
 		FireGrenadeLauncher( &loadDir );
-	}
-	else if( mLoadOut->rangedWeapon->weaponType == SNIPER )
-	{
-		FireSniper( &loadDir );
 	}
 	else
 	{
@@ -718,7 +717,14 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		float directionOffsetX	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
 		float directionOffsetZ	=  (float)(( rand() % 100 - 50 ) * 0.001f) * mLoadOut->rangedWeapon->spread;// - mLoadOut->rangedWeapon->spread;
 		mFireDirection			= XMFLOAT3( mUpperBody.direction.x + directionOffsetX, mUpperBody.direction.y, mUpperBody.direction.z + directionOffsetZ );// + sin(directionOffset) );
-		IEventPtr E1( new Event_Trigger_Client_Fired_Projectile( mID, *projectileOffset, mFireDirection, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
+
+		XMFLOAT3 transFloat;
+		transFloat.x = projectileOffset->x + ( mUpperBody.direction.x * 0.4f );
+		transFloat.y = projectileOffset->y;
+		transFloat.z = projectileOffset->z + ( mUpperBody.direction.z * 0.4f );
+
+
+		IEventPtr E1( new Event_Trigger_Client_Fired_Projectile( mID, transFloat, mFireDirection, mLoadOut->rangedWeapon->GetRandomProjectileSpeed(), mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
 
 		mLoadOut->rangedWeapon->overheat += MINIGUN_OVERHEAT;
@@ -728,11 +734,11 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		{
 			mWeaponOverheated = false;
 		}
-		XMFLOAT3 transFloat;
-		transFloat.x = projectileOffset->x + ( mUpperBody.direction.x * 0.4f );
-		transFloat.y = projectileOffset->y;
-		transFloat.z = projectileOffset->z + ( mUpperBody.direction.z * 0.4f );
-		RenderManager::GetInstance()->RequestParticleSystem( mID, MuzzleFlash, transFloat, mUpperBody.direction, mVelocity );
+		//XMFLOAT3 transFloat;
+		//transFloat.x = projectileOffset->x + ( mUpperBody.direction.x * 0.4f );
+		//transFloat.y = projectileOffset->y;
+		//transFloat.z = projectileOffset->z + ( mUpperBody.direction.z * 0.4f );
+		//RenderManager::GetInstance()->RequestParticleSystem( mID, MuzzleFlash, transFloat, mUpperBody.direction, mVelocity );
 		//transFloat.x = projectileOffset->x + ( mUpperBody.direction.x * 0.7 );
 		//transFloat.z = projectileOffset->z + ( mUpperBody.direction.z * 0.7 );
 		//RenderManager::GetInstance()->RequestParticleSystem( mID, Spark, transFloat, mUpperBody.direction, mVelocity );	
@@ -775,11 +781,6 @@ void Player::FireGrenadeLauncher( XMFLOAT3* projectileOffset )
 	SoundBufferHandler::GetInstance()->Play3D( mGrenadeLauncher , GetPosition() );
 	IEventPtr E1( new Event_Trigger_Client_Fired_Projectile( mID, *projectileOffset, mFireDirection, mLoadOut->rangedWeapon->projectileSpeed, mLoadOut->rangedWeapon->range, mLoadOut->rangedWeapon->damage, (int)mLoadOut->rangedWeapon->weaponType ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
-}
-
-void Player::FireSniper( XMFLOAT3* projectileOffset )
-{
-	RenderManager::GetInstance()->RequestParticleSystem( mID, SniperTrail, *projectileOffset, mUpperBody.direction, mVelocity );
 }
 
 void Player::HammerMelee( float deltaTime )
@@ -914,7 +915,7 @@ void Player::UpgradeBody()
 {
 	mUpgrades.currentBodyLevel++;
 	mUpgrades.damageTakenPercentage	-= 0.05f;
-	mMaxHp = 100.0f + ( ( mUpgrades.currentBodyLevel - 1 ) * 20.0f ) + ( pow( (float)( mUpgrades.currentBodyLevel - 1 ), 2 ) * 5.0f );
+	mCurrentHp = mMaxHp = 100.0f + ( ( mUpgrades.currentBodyLevel - 1 ) * 20.0f ) + ( pow( (float)( mUpgrades.currentBodyLevel - 1 ), 2 ) * 5.0f );
 }
 
 void Player::UpgradeLegs()

@@ -92,6 +92,7 @@ void Player::EventListener( IEventPtr newEvent )
 	else if( newEvent->GetEventType() == Event_Change_Weapon::GUID )
 	{
 		std::shared_ptr<Event_Change_Weapon> data = std::static_pointer_cast<Event_Change_Weapon>( newEvent );
+
 		if( (WeaponType)data->Weapon() == MINIGUN || (WeaponType)data->Weapon() == SHOTGUN || (WeaponType)data->Weapon() == GRENADELAUNCHER || (WeaponType)data->Weapon() == SNIPER )
 		{
 			delete mLoadOut->rangedWeapon;
@@ -383,6 +384,13 @@ void Player::Move( float deltaTime )
 
 void Player::AddXP( float XP )
 {
+	//Check if maxlevel
+	if( mCurrentLevel > MAX_PLAYER_LEVEL )
+	{
+		mXP = 0;
+		return;
+	}
+
 	mXP += XP;
 	while( ( mXP / mNextLevelXP ) >= 1 )
 	{
@@ -390,11 +398,14 @@ void Player::AddXP( float XP )
 		mXP -= mNextLevelXP;
 		mNextLevelXP *= 1.1f;
 		mCurrentLevel++;
+		if( mCurrentLevel > MAX_PLAYER_LEVEL )
+		{
+			int modUpg = ( mCurrentUpgrades + MAX_PLAYER_LEVEL ) % MAX_PLAYER_LEVEL;
+			mCurrentUpgrades -= modUpg;
+			mXP = 0;
+			break;
+		}
 	}
-
-	//Check if maxlevel
-	if ( mCurrentLevel == 16 )
-		mXP = mNextLevelXP;
 }
 
 void Player::PickUpEnergyCell( EnergyCell** energyCells )
@@ -919,11 +930,11 @@ void Player::UpgradeBody()
 {
 	mUpgrades.currentBodyLevel++;
 	mUpgrades.damageTakenPercentage	-= 0.05f;
-	mMaxHp = 100.0f + ( ( mUpgrades.currentBodyLevel - 1 ) * 20.0f ) + ( pow( (float)( mUpgrades.currentBodyLevel - 1 ), 2 ) * 5.0f );
 }
 
 void Player::UpgradeLegs()
 {
+	mUpgrades.currentLegsLevel++;
 	mUpgrades.runSpeedFactor = 0.7f + ( (float)mUpgrades.currentLegsLevel *  0.1f );
 }
 
@@ -1396,8 +1407,6 @@ HRESULT Player::Initialize()
 
 	gEventList				= std::list<IEventPtr>(); 
 
-
-
 	RemotePlayer::Initialize();
 
 	mFollowPath = false;
@@ -1435,7 +1444,7 @@ HRESULT Player::Initialize()
 	mHammerSound		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/hammer.wav", 10 );
 	mSword				= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/sword.wav", 10 );
 	mGrenadeLauncher	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/grenadeLauncher.wav", 10 );
-	mBlowTorch			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/blow torch.wav", 10 );
+	mBlowTorch			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/tempBlowT.wav", 1000 );
 	mPlayerDeath		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/sparksPlayerDeath.wav", 10, 15 );
 
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Died::GUID );

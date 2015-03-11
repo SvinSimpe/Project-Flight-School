@@ -12,14 +12,13 @@
 #include "EventManager.h"
 #include "Pathfinder.h"
 #include "ServerShip.h"
+#include "Image.h"
 
 class Enemy;
 
-
-#define MAX_NR_OF_ENEMIES		50
+#define MAX_NR_OF_ENEMIES		20
 
 #define randflt() (((float) rand())/((float) RAND_MAX))
-
 
 // ---- Define all enemy animations ----
 // Standard
@@ -48,6 +47,11 @@ class Enemy;
 
 #define ENEMY_ANIMATION_COUNT					19
 //----------------------------------------
+
+#define ENEMY_PROJECTILE_ID						1985
+#define ENEMY_PROJECTILE_SPEED					1
+#define ENEMY_PROJECTILE_RANGE					1.0f
+#define ENEMY_PROJECTILE_DAMAGE					6
 
 enum EnemyType { Standard, Ranged, Boomer, Tank };
 enum EnemyState { Idle, HuntPlayer, MoveToShip, TakeDamage, Attack, Death, Stunned, };
@@ -447,6 +451,7 @@ class Enemy
 		XMFLOAT3			GetPosition() const;
 		XMFLOAT3			GetDirection() const;
 		float				GetHP() const;
+		float				GetMaxHP() const;
 		float				GetSpeed() const;
 		XMFLOAT3			GetVelocity() const;
 

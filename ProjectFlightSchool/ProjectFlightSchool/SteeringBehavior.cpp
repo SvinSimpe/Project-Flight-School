@@ -101,7 +101,7 @@ bool SteerApproach::Update( float deltaTime, XMFLOAT3& totalForce )
 		{
 			SteerTowards( mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos, steeringForce );
 		}
-		else if( mEnemy->mCurrentState == MoveToShip )
+		else //if( mEnemy->mCurrentState == MoveToShip )
 		{
 			//XMFLOAT3 blblbl = mEnemy->mShips[mEnemy->mTargetShipIndex]->GetPos();
 			//blblbl.z *= -1;

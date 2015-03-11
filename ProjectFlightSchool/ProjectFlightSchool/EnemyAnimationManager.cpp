@@ -22,7 +22,8 @@ AssetID EnemyAnimationManager::GetAnimation( EnemyType enemy, EnemyState state )
 			if( state == MoveToShip || 
 				state == HuntPlayer )		return mAnimations[ENEMY_ANIMATION_RANGED_RUN];
 			else if( state == TakeDamage )	return mAnimations[ENEMY_ANIMATION_RANGED_RUN_DAMAGED];
-			else if( state == Idle )		return mAnimations[ENEMY_ANIMATION_RANGED_IDLE];	
+			else if( state == Idle ||
+				state == Stunned )			return mAnimations[ENEMY_ANIMATION_RANGED_IDLE];	
 			else if( state == Attack )		return mAnimations[ENEMY_ANIMATION_RANGED_ATTACK];
 			else if( state == Death  )		return mAnimations[ENEMY_ANIMATION_RANGED_DEATH];
 			else OutputDebugStringA( "--Error getting Ranged animation" );
@@ -33,7 +34,8 @@ AssetID EnemyAnimationManager::GetAnimation( EnemyType enemy, EnemyState state )
 			if( state == MoveToShip || 
 				state == HuntPlayer )		return mAnimations[ENEMY_ANIMATION_BOOMER_RUN];
 			else if( state == TakeDamage )	return mAnimations[ENEMY_ANIMATION_BOOMER_RUN_DAMAGED];
-			else if( state == Idle )		return mAnimations[ENEMY_ANIMATION_BOOMER_IDLE];	
+			else if( state == Idle ||
+				state == Stunned )			return mAnimations[ENEMY_ANIMATION_BOOMER_IDLE];	
 			else if( state == Attack )		return mAnimations[ENEMY_ANIMATION_BOOMER_ATTACK];
 			else if( state == Death  )		return mAnimations[ENEMY_ANIMATION_BOOMER_DEATH];
 			else OutputDebugStringA( "--Error getting Boomer animation" );
@@ -45,7 +47,7 @@ AssetID EnemyAnimationManager::GetAnimation( EnemyType enemy, EnemyState state )
 				state == HuntPlayer )		return mAnimations[ENEMY_ANIMATION_TANK_RUN];
 			else if( state == TakeDamage )	return mAnimations[ENEMY_ANIMATION_TANK_RUN];
 			else if( state == Idle ||
-					state == Stunned )		return mAnimations[ENEMY_ANIMATION_TANK_IDLE];	
+				state == Stunned )			return mAnimations[ENEMY_ANIMATION_TANK_IDLE];	
 			else if( state == Attack )		return mAnimations[ENEMY_ANIMATION_TANK_ATTACK];
 			else if( state == Death  )		return mAnimations[ENEMY_ANIMATION_TANK_DEATH];
 			else OutputDebugStringA( "--Error getting Tank animation" );

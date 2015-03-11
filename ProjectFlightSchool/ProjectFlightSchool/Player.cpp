@@ -92,6 +92,7 @@ void Player::EventListener( IEventPtr newEvent )
 	else if( newEvent->GetEventType() == Event_Change_Weapon::GUID )
 	{
 		std::shared_ptr<Event_Change_Weapon> data = std::static_pointer_cast<Event_Change_Weapon>( newEvent );
+
 		if( (WeaponType)data->Weapon() == MINIGUN || (WeaponType)data->Weapon() == SHOTGUN || (WeaponType)data->Weapon() == GRENADELAUNCHER || (WeaponType)data->Weapon() == SNIPER )
 		{
 			delete mLoadOut->rangedWeapon;
@@ -1405,8 +1406,6 @@ HRESULT Player::Initialize()
 	mLastKiller				= 0;
 
 	gEventList				= std::list<IEventPtr>(); 
-
-
 
 	RemotePlayer::Initialize();
 

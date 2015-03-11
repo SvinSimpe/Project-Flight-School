@@ -19,8 +19,8 @@
 #define MINIGUN_AOE			0.0f								// Area of effect
 #define MINIGUN_SPEED		40.0f								// Projectile Speed 30
 #define MINIGUN_OFFSETS		XMFLOAT3( 0.75f, 0.5f, 1.4f )		// Offsets forward, right, up
-#define MINIGUN_OVERHEAT_CD 2.0f								// Cooldown that occurs when the minigun overheats	
-#define MINIGUN_OVERHEAT	1.8f								// Amount of heat the minigun get's for firing once
+#define MINIGUN_OVERHEAT_CD 3.0f								// Cooldown that occurs when the minigun overheats	
+#define MINIGUN_OVERHEAT	2.0f								// Amount of heat the minigun get's for firing once
 
 // Shotgun
 #define SHOTGUN_AR			2.0f								// Attack Rate

@@ -215,37 +215,37 @@ struct RangedInfo
 				{
 					case 2:
 					{
-						attackRate		= 0.11f;
+						attackRate		= 0.12f;
 						damage			= 6.3f;
 						spread			= 4.7f;
-						overheat		= 1.5f;
+						overheat		= 1.8f;
 					}
 						break;
 
 					case 3:
 					{
-						attackRate		= 0.09f;
+						attackRate		= 0.1f;
 						damage			= 8.4f;
 						spread			= 4.3f;
-						overheat		= 1.2f;
+						overheat		= 1.6f;
 					}
 						break;
 
 					case 4:
 					{
-						attackRate		= 0.07f;
+						attackRate		= 0.09f;
 						damage			= 10.5f;
 						spread			= 4.0f;
-						overheat		= 0.9f;
+						overheat		= 1.4f;
 					}
 						break;
 
 					case 5:
 					{
-						attackRate		= 0.05f;
+						attackRate		= 0.08f;
 						damage			= 14.0f;
 						spread			= 3.6f;
-						overheat		= 0.6f;
+						overheat		= 1.2f;
 					}
 						break;
 

@@ -21,8 +21,8 @@ HRESULT RemoteEnemy::Render()
 	else
 		RenderManager::GetInstance()->AddAnim3dToList( mAnimationTrack, ANIMATION_PLAY_ONCE, mPosition, XMFLOAT3( 0.0f, -radians, 0.0f ) );
 	
-	if( mIsAlive )
-		RenderManager::GetInstance()->AddBillboardToList( mHPBar, XMFLOAT3( mPosition.x, mPosition.y + GetEnemyHeightOffset(), mPosition.z ), 0.5f * ( mCurrentHP / 60.0f ), 0.1f );
+	if( mIsAlive && mCurrentHP != mMaxHP )
+		RenderManager::GetInstance()->AddBillboardToList( mHPBar, XMFLOAT3( mPosition.x, mPosition.y + GetEnemyHeightOffset(), mPosition.z ), GetHPBarScaleFactor( 0.5f ), 0.1f );
 
 	return S_OK;
 }
@@ -137,6 +137,7 @@ float RemoteEnemy::GetEnemyHeightOffset() const
 
 float RemoteEnemy::GetHPBarScaleFactor( float initScale ) const
 {
+	return initScale * ( mCurrentHP / mMaxHP );
 }
 
 HRESULT RemoteEnemy::Initialize( int id, AssetID model, AssetID animation )

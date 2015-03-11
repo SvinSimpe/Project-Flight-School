@@ -353,8 +353,8 @@ HRESULT AttackBehavior::Update( float deltaTime )
 				if (mEnemy->mEnemyType == Ranged)
 				{
 					XMFLOAT3 direction;
-					direction.x = mEnemy->mPlayers[mEnemy->mTargetShipIndex]->Pos.x - mEnemy->GetPosition().x;
-					direction.z = mEnemy->mPlayers[mEnemy->mTargetShipIndex]->Pos.z - mEnemy->GetPosition().z;
+					direction.x = mEnemy->mShips[mEnemy->mTargetShipIndex]->GetPos().x - mEnemy->GetPosition().x;
+					direction.z = mEnemy->mShips[mEnemy->mTargetShipIndex]->GetPos().z - mEnemy->GetPosition().z;
 					direction.y = 0.0f;
 
 					IEventPtr E1(new Event_Enemy_Fired_Projectile(
@@ -364,6 +364,7 @@ HRESULT AttackBehavior::Update( float deltaTime )
 						ENEMY_PROJECTILE_SPEED,
 						ENEMY_PROJECTILE_RANGE));
 					EventManager::GetInstance()->QueueEvent(E1);
+					mEnemy->mShips.at(mEnemy->mTargetShipIndex)->TakeDamage(mEnemy->mDamage);
 				}
 				else
 				{

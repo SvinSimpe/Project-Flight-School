@@ -384,15 +384,6 @@ void PlayState::CheckProjectileCollision()
 					IEventPtr E1( new Event_Client_Removed_Projectile( mProjectiles[i]->GetID() ) );
 					Client::GetInstance()->SendEvent( E1 );
 				}
-
-				// Ship
-				for ( size_t j = 0; j < 2; j++ )
-				{
-					if( mProjectiles[i]->GetBoundingCircle()->Intersect( mShips[j]->GetHitCircle() ) )
-					{
-						BroadcastProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID() );
-					}
-				}
 			}
 			else
 			{

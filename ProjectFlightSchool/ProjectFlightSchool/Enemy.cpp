@@ -326,6 +326,10 @@ void Enemy::Spawn()
 	case 9:
 		CreateTank();
 		break;
+	case 1:
+	case 3:
+		CreateRanged();
+		break;
 	default:
 		CreateStandard();
 	}
@@ -344,7 +348,7 @@ void Enemy::Spawn()
 		}
 	}
 	//CreateStandard();
-	CreateRanged();
+	//CreateRanged();
 	//CreateBoomer();
 	//CreateTank();
 

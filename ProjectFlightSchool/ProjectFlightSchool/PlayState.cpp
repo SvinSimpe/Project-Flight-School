@@ -37,7 +37,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		std::shared_ptr<Event_Remote_Left> data = std::static_pointer_cast<Event_Remote_Left>( newEvent );
 
-		for( int i = 0; i < mRemotePlayers.size(); i++ )
+		for( size_t i = 0; i < mRemotePlayers.size(); i++ )
 		{
 			if( data->ID() == mRemotePlayers.at(i)->GetID() )
 			{

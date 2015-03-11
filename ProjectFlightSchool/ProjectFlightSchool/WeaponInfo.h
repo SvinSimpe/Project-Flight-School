@@ -586,6 +586,7 @@ struct MeleeInfo
 				boundingCircle	= new BoundingCircle( SAW_RADIUS );
 				timeTillAttack	= SAW_TTA;
 				stun			= SAW_STUN;
+				offSet			= SAW_OFFSETS;
 			}
 				break;
 

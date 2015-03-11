@@ -112,6 +112,9 @@ bool DSBufferStream::ReFillBuffer1Loop()
 	if ( !waveData )
 	{
 		printf( "waveData array allocation in FillBufferWithWave has failed\n" );
+
+		delete waveData;
+
 		return false;
 	}
 
@@ -147,15 +150,19 @@ bool DSBufferStream::ReFillBuffer1Loop()
 
 		// Copy the wave data into the buffer.
 		memcpy( bufferPtr, waveData, mDataSize );
-		delete waveData;
+		
 
 		// Unlock the secondary buffer after the data has been written to it.
 		hr = mBuffer[i]->Unlock( (void*)bufferPtr, bufferSize, NULL, 0 );
 		if ( FAILED( hr ) )
 		{
+			delete waveData;
+
 			return false;
 		}
 	}
+
+	delete waveData;
 
 	return true;
 }
@@ -200,16 +207,19 @@ bool DSBufferStream::ReFillBuffer2Loop()
 
 		// Copy the wave data into the buffer.
 		memcpy( bufferPtr, waveData, mDataSize );
-		delete waveData;
 
 		// Unlock the secondary buffer after the data has been written to it.
 		hr = mBuffer[i]->Unlock( (void*)bufferPtr, bufferSize, NULL, 0 );
 		if ( FAILED( hr ) )
 		{
+			delete waveData;
+
 			return false;
 		}
 
 	}
+
+	delete waveData;
 
 	return true;
 }

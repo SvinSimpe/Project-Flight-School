@@ -37,7 +37,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		std::shared_ptr<Event_Remote_Left> data = std::static_pointer_cast<Event_Remote_Left>( newEvent );
 
-		for( int i = 0; i < mRemotePlayers.size(); i++ )
+		for( size_t i = 0; i < mRemotePlayers.size(); i++ )
 		{
 			if( data->ID() == mRemotePlayers.at(i)->GetID() )
 			{
@@ -412,7 +412,10 @@ void PlayState::CheckPlayerCollision()
 
 					//New position of player			 
 					XMVECTOR playerPosition = XMLoadFloat3(&mRemotePlayers.at(i)->GetBoundingCircle()->center) + remoteToPlayerVec * vectorLength;
-					mPlayer->SetPosition(playerPosition);
+					XMFLOAT3 playerTest, norm;
+					XMStoreFloat3( &playerTest, playerPosition );
+					if( !mWorldMap->PlayerVsMap( playerTest, norm ) )
+						mPlayer->SetPosition(playerPosition);
 				}
 			}	
 		}
@@ -697,7 +700,29 @@ void PlayState::HandleDeveloperCameraInput()
 		mPlayer->AddXP( 3000.0f );
 		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 		{
-			IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
+			UINT winTeam = 1;
+			bool hasGnidleif = false;
+			if( !std::strcmp( mPlayer->GetName().c_str(), "gnidleif" ) )
+			{
+				winTeam = mPlayer->GetTeam();
+				hasGnidleif = true;
+			}
+			else
+			{
+				for( auto& p : mRemotePlayers )
+				{
+					if( !std::strcmp( p->GetName().c_str(), "gnidleif" ) )
+					{
+						winTeam = p->GetTeam();
+						hasGnidleif = true;
+					}
+				}
+			}
+			if( !hasGnidleif )
+			{
+				winTeam = mPlayer->GetTeam();
+			}
+			IEventPtr E1( new Event_Client_Win( winTeam ) );
 			Client::GetInstance()->SendEvent( E1 );
 		}
 	}
@@ -985,7 +1010,7 @@ HRESULT PlayState::Update( float deltaTime )
 		{
 			for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 			{
-				if( mEnemies[i]->IsSynced() )
+				if( mEnemies[i]->IsSynced() && CullEntity( mEnemies[i]->GetPosition() ) )
 				{
 					mEnemies[i]->Update( deltaTime );
 

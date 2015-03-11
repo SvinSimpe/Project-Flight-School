@@ -234,15 +234,23 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		Fire();
 	}
 
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_RIGHT ) && mMeleeCoolDown <= 0.0f )
+	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_RIGHT ) )
 	{
-		mSlowDown -= mLoadOut->meleeWeapon->slowDown;
-		if( mSlowDown < 0.3f )
+		if( mLoadOut->meleeWeapon->weaponType == SAW )
 		{
-			mSlowDown = 0.3f;
+			mHasMeleeStarted = true;
 		}
-		mHasMeleeStarted = true;
+		else if( mMeleeCoolDown <= 0.0f )
+		{
+			mSlowDown -= mLoadOut->meleeWeapon->slowDown;
+			if( mSlowDown < 0.3f )
+			{
+				mSlowDown = 0.3f;
+			}
+			mHasMeleeStarted = true;
+		}
 	}
+
 	if( mHasMeleeStarted )
 		Melee( deltaTime );
 	else if( mLoadOut->meleeWeapon->weaponType == BLOWTORCH  )
@@ -659,6 +667,10 @@ void Player::Melee( float deltaTime )
 	{
 		ClaymoreMelee( deltaTime );
 	}
+	else if( currWeapon->weaponType == SAW )
+	{
+		SawMelee( deltaTime );
+	}
 }
 
 void Player::FireShotgun( XMFLOAT3* spawnPoint )
@@ -912,6 +924,30 @@ void Player::ClaymoreMelee( float deltaTime )
 		{
 			mIsMeleeing			= true;
 			//RenderManager::GetInstance()->RequestParticleSystem( mID, Hammer_Effect, XMFLOAT3( mLoadOut->meleeWeapon->boundingCircle->center.x, 0.3f, mLoadOut->meleeWeapon->boundingCircle->center.z ) , XMFLOAT3( 1.0f, 0.0f, 1.0f ) );
+			mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
+			mHasMeleeStarted	= false;
+		}
+	}
+}
+
+void Player::SawMelee( float deltaTime )
+{
+	if( mMeleeCoolDown <= 0.0f )
+	{
+		IEventPtr E1( new Event_Client_Attack( mID, LEFT_ARM_ID, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] ) );
+		QueueEvent( E1 );
+		mLeftArmAnimationCompleted	= false;
+		RenderManager::GetInstance()->AnimationStartNew( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][ATTACK] );
+		mMeleeCoolDown				= mLoadOut->meleeWeapon->attackRate;
+	}
+	else
+	{
+		if( mHasMeleeStarted )
+			mTimeTillattack -= deltaTime;
+
+		if( mTimeTillattack <= 0.0f && mHasMeleeStarted )
+		{
+			mIsMeleeing			= true;
 			mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
 			mHasMeleeStarted	= false;
 		}
@@ -1367,30 +1403,30 @@ HRESULT Player::Render( float deltaTime, int position )
 
 	RemotePlayer::Render();
 	//---------------------------DEBUG RENDERING----------------------------
-	//MeleeInfo* currWeapon = mLoadOut->meleeWeapon;
-	//RenderManager::GetInstance()->AddCircleToList( currWeapon->boundingCircle->center, DirectX::XMFLOAT3( 0, 1, 1 ), currWeapon->boundingCircle->radius );
-	//RenderManager::GetInstance()->AddBoxToList( XMFLOAT3( mPick.x - 0.5f, mPick.y - 0.5f, mPick.z - 0.5f ), XMFLOAT3( mPick.x + 0.5f, mPick.y + 0.5f, mPick.z + 0.5f ) );
-	//RenderManager::GetInstance()->AddCircleToList( mLoadOut->meleeWeapon->boundingCircle->center, DirectX::XMFLOAT3(1,1,0), mLoadOut->meleeWeapon->boundingCircle->radius );
-	//RenderManager::GetInstance()->AddCircleToList( mBoundingCircle->center, DirectX::XMFLOAT3(0,1,0), mBoundingCircle->radius );
-	//if( mHasMeleeStarted )
-	//{
-	//	
-	//	XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mUpperBody.direction ) * currWeapon->radius );
+	MeleeInfo* currWeapon = mLoadOut->meleeWeapon;
+	RenderManager::GetInstance()->AddCircleToList( currWeapon->boundingCircle->center, DirectX::XMFLOAT3( 0, 2, 1 ), currWeapon->boundingCircle->radius );
+	RenderManager::GetInstance()->AddBoxToList( XMFLOAT3( mPick.x - 0.5f, mPick.y - 0.5f, mPick.z - 0.5f ), XMFLOAT3( mPick.x + 0.5f, mPick.y + 0.5f, mPick.z + 0.5f ) );
+	RenderManager::GetInstance()->AddCircleToList( mLoadOut->meleeWeapon->boundingCircle->center, DirectX::XMFLOAT3(1,1,0), mLoadOut->meleeWeapon->boundingCircle->radius );
+	RenderManager::GetInstance()->AddCircleToList( mBoundingCircle->center, DirectX::XMFLOAT3(0,1,0), mBoundingCircle->radius );
+	if( mHasMeleeStarted )
+	{
+		
+		XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mUpperBody.direction ) * currWeapon->radius );
 
-	//	float halfRadian = XMConvertToRadians( currWeapon->spread * 18.0f ) * 0.5f;
+		float halfRadian = XMConvertToRadians( currWeapon->spread * 18.0f ) * 0.5f;
 
-	//	XMVECTOR leftVector = XMVector3Rotate( meeleRadiusVector, XMQuaternionRotationRollPitchYawFromVector( XMVectorSet( 0, -halfRadian, 0 , 1 ) ) );
-	//	XMVECTOR rightVector = XMVector3Rotate( meeleRadiusVector, XMQuaternionRotationRollPitchYawFromVector( XMVectorSet( 0, halfRadian, 0 , 1 ) ) );
+		XMVECTOR leftVector = XMVector3Rotate( meeleRadiusVector, XMQuaternionRotationRollPitchYawFromVector( XMVectorSet( 0, -halfRadian, 0 , 1 ) ) );
+		XMVECTOR rightVector = XMVector3Rotate( meeleRadiusVector, XMQuaternionRotationRollPitchYawFromVector( XMVectorSet( 0, halfRadian, 0 , 1 ) ) );
 
-	//	XMFLOAT3 leftEnd, rightEnd;
-	//	XMFLOAT3 pos = currWeapon->boundingCircle->center;
-	//	
-	//	XMStoreFloat3( &leftEnd, XMLoadFloat3( &pos ) + leftVector );
-	//	XMStoreFloat3( &rightEnd, XMLoadFloat3( &pos ) + rightVector );
-	//	RenderManager::GetInstance()->AddCircleToList( currWeapon->boundingCircle->center, DirectX::XMFLOAT3( 0, 1, 1 ), currWeapon->boundingCircle->radius );
-	//	RenderManager::GetInstance()->AddLineToList( pos, XMFLOAT3( leftEnd.x, 0.1f, leftEnd.z ) );
-	//	RenderManager::GetInstance()->AddLineToList( pos, XMFLOAT3( rightEnd.x, 0.1f, rightEnd.z ) );
-	//}
+		XMFLOAT3 leftEnd, rightEnd;
+		XMFLOAT3 pos = currWeapon->boundingCircle->center;
+		
+		XMStoreFloat3( &leftEnd, XMLoadFloat3( &pos ) + leftVector );
+		XMStoreFloat3( &rightEnd, XMLoadFloat3( &pos ) + rightVector );
+		RenderManager::GetInstance()->AddCircleToList( currWeapon->boundingCircle->center, DirectX::XMFLOAT3( 0, 1, 1 ), currWeapon->boundingCircle->radius );
+		RenderManager::GetInstance()->AddLineToList( pos, XMFLOAT3( leftEnd.x, 0.1f, leftEnd.z ) );
+		RenderManager::GetInstance()->AddLineToList( pos, XMFLOAT3( rightEnd.x, 0.1f, rightEnd.z ) );
+	}
 	//---------------------------DEBUG RENDERING----------------------------
 
 

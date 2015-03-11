@@ -635,9 +635,26 @@ void PlayState::HandleDeveloperCameraInput()
 		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 		{
 			UINT winTeam = 1;
-			if( mPlayer->GetTeam() == winTeam )
+			bool hasGnidleif = false;
+			if( !std::strcmp( mPlayer->GetName().c_str(), "gnidleif" ) )
 			{
-				winTeam = 2;
+				winTeam = mPlayer->GetTeam();
+				hasGnidleif = true;
+			}
+			else
+			{
+				for( auto& p : mRemotePlayers )
+				{
+					if( !std::strcmp( p->GetName().c_str(), "gnidleif" ) )
+					{
+						winTeam = p->GetTeam();
+						hasGnidleif = true;
+					}
+				}
+			}
+			if( !hasGnidleif )
+			{
+				winTeam = mPlayer->GetTeam();
 			}
 			IEventPtr E1( new Event_Client_Win( winTeam ) );
 			Client::GetInstance()->SendEvent( E1 );

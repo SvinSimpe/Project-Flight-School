@@ -560,6 +560,7 @@ void RemotePlayer::RemoteInit( unsigned int id, int team )
 
 void RemotePlayer::Release()
 {
+	mID = (UINT)-1;
 	mLoadOut->Release();
 	SAFE_DELETE( mLoadOut );
 

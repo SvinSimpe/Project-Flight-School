@@ -43,7 +43,7 @@ class RemoteEnemy
 		bool				IsSynced() const;
 		EnemyType			GetEnemyType() const;
 		BoundingCircle*		GetBoundingCircle() const;
-		float				GetHPBarMeter() const;
+		float				GetHPBarScaleFactor( float initScale ) const;
 		float				GetEnemyHeightOffset() const;
 		virtual HRESULT		Initialize( int id, AssetID model, AssetID animation );
 		void				Release();

@@ -108,6 +108,9 @@ class RemotePlayer
 	private:
 		HRESULT			InitializeGraphics();
 		void			EventListener( IEventPtr newEvent );
+
+		float			GetHPBarScaleFactor() const;
+
 	protected:
 
 	public:

@@ -115,6 +115,10 @@ float RemoteEnemy::GetEnemyHeightOffset() const
 	}
 }
 
+float RemoteEnemy::GetHPBarScaleFactor( float initScale ) const
+{
+}
+
 HRESULT RemoteEnemy::Initialize( int id, AssetID model, AssetID animation )
 {
 	mID				= id;

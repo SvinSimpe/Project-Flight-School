@@ -11,6 +11,7 @@
 #include "RenderManager.h"
 #include "SoundBufferHandler.h"
 
+#define MAX_PLAYER_LEVEL 16
 #define VELOCITY_FALLOFF 2.0f
 
 #define MAX_ROBOT_RANGE		40000.0f   //Squared distance here.

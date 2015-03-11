@@ -1407,21 +1407,21 @@ HRESULT Player::Render( float deltaTime, int position )
 			COLOR_CYAN );
 	}
 
-	std::string blblbl = "XP " + std::to_string( (int) mXP ) +  "/" + std::to_string( (int)mNextLevelXP );
-	WriteInteractionText(
-		blblbl, 
-		(float)( Input::GetInstance()->mScreenWidth * 0.1f ), 
-		(float)( Input::GetInstance()->mScreenHeight * 0.4f ) + 25.0f,
-		2.0f, 
-		COLOR_RED);
+	//std::string blblbl = "XP " + std::to_string( (int) mXP ) +  "/" + std::to_string( (int)mNextLevelXP );
+	//WriteInteractionText(
+	//	blblbl, 
+	//	(float)( Input::GetInstance()->mScreenWidth * 0.1f ), 
+	//	(float)( Input::GetInstance()->mScreenHeight * 0.4f ) + 25.0f,
+	//	2.0f, 
+	//	COLOR_RED);
 
-	blblbl = "Current level " + std::to_string( mCurrentLevel );
-	WriteInteractionText(
-		blblbl, 
-		(float)( Input::GetInstance()->mScreenWidth * 0.1f ), 
-		(float)( Input::GetInstance()->mScreenHeight * 0.4f ) + 50.0f,
-		2.0f, 
-		COLOR_RED);
+	//blblbl = "Current level " + std::to_string( mCurrentLevel );
+	//WriteInteractionText(
+	//	blblbl, 
+	//	(float)( Input::GetInstance()->mScreenWidth * 0.1f ), 
+	//	(float)( Input::GetInstance()->mScreenHeight * 0.4f ) + 50.0f,
+	//	2.0f, 
+	//	COLOR_RED);
 
 	RemotePlayer::Render();
 	//---------------------------DEBUG RENDERING----------------------------

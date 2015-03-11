@@ -89,7 +89,8 @@ void Server::ClientJoined( IEventPtr eventPtr )
 				IEventPtr EvEnergyCell( new Event_Server_Sync_Energy_Cell(	i,
 																			mEnergyCells[i]->GetOwnerID(),
 																			mEnergyCells[i]->GetPosition(),
-																			mEnergyCells[i]->GetPickedUp() ) );
+																			mEnergyCells[i]->GetPickedUp(),
+																			mEnergyCells[i]->GetActive() ) );
 				SendEvent( EvEnergyCell, data->ID() );
 			}
 		}
@@ -421,20 +422,26 @@ void Server::ClientInteractEnergyCell( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Client_Sync_Energy_Cell::GUID )
 	{
 		std::shared_ptr<Event_Client_Sync_Energy_Cell> data = std::static_pointer_cast<Event_Client_Sync_Energy_Cell>( eventPtr );
-		IEventPtr E1( new Event_Server_Sync_Energy_Cell( data->EnergyCellID(), data->OwnerID(), data->Position(), data->PickedUp() ) );
+		IEventPtr E1( new Event_Server_Sync_Energy_Cell( data->EnergyCellID(), data->OwnerID(), data->Position(), data->PickedUp(), data->Active() ) );
 		BroadcastEvent( E1 );
 
 		mEnergyCells[data->EnergyCellID()]->SetOwnerID( data->OwnerID() );
 		mEnergyCells[data->EnergyCellID()]->SetPickedUp( data->PickedUp() );
 		mEnergyCells[data->EnergyCellID()]->SetPosition( data->Position() );
+		mEnergyCells[data->EnergyCellID()]->SetSecured( data->Active() );
 
 		for( auto s :mShips )
 		{
-			if( s->GetID() )
+			if( s->GetID() == data->OwnerID() )
 			{
-				s->AddEnergyCell( mEnergyCells[data->EnergyCellID()]->GetOwnerID() );
+				s->AddEnergyCell();
 				IEventPtr E2( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel, s->mEngineLevel, s->mNrOfEnergyCells ) );
 				BroadcastEvent( E2 );
+				mEnergyCells[data->EnergyCellID()]->Reset();
+				mEnergyCells[mCurrentCell]->SetPosition( XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
+				mEnergyCells[mCurrentCell]->SetActive( false );
+				IEventPtr E3( new Event_Server_Sync_Energy_Cell( data->EnergyCellID(), (UINT)-1, XMFLOAT3( 0.0f, 0.0f, 0.0f ), false, false ) );
+				BroadcastEvent( E3 );
 			}
 		}
 
@@ -791,11 +798,38 @@ bool Server::CullEnemyUpdate( XMFLOAT3 playerPos, XMFLOAT3 enemyPos )
 	return HelperFunctions::Dist3Squared( playerPos, enemyPos ) <= ENEMY_UPDATE_RANGE;
 }
 
+void Server::OnSpawnEnergyCell( IEventPtr e )
+{
+	if( e->GetEventType() == Event_Spawn_Energy_Cell::GUID )
+	{
+		XMFLOAT3 cellPos = mCellPositionQueue.front();
+		mCellPositionQueue.pop();
+		mCellPositionQueue.push( cellPos );
+		mEnergyCells[mCurrentCell]->Reset();
+		mEnergyCells[mCurrentCell]->SetPosition( cellPos );
+		mEnergyCells[mCurrentCell]->SetActive( true );
+		
+		mDropped = false;
+		IEventPtr e( new Event_Server_Sync_Energy_Cell( mCurrentCell, -1, cellPos, false, true ) );
+		BroadcastEvent( e );
+	}
+}
+
+void Server::OnDroppedEnergyCell( IEventPtr e )
+{
+	if( e->GetEventType() == Event_Client_Dropped_Energy_Cell::GUID )
+	{
+		mDropped = true;
+	}
+}
+
 void Server::CreateEnergyCells()
 {
 	//Calculate Energy cell position
-	CalculateCellSpawnPositions( mShips.at(0)->GetPos() );
-	CalculateCellSpawnPositions( mShips.at(1)->GetPos() );
+	//CalculateCellSpawnPositions( mShips.at(0)->GetPos() );
+	//CalculateCellSpawnPositions( mShips.at(1)->GetPos() );
+
+	CalculateCellPosition( XMFLOAT3( 0, 0, 0 ), 30, 60 );
 
 	//Energy cells
 	mEnergyCells = new EnergyCell*[MAX_ENERGY_CELLS];
@@ -804,8 +838,35 @@ void Server::CreateEnergyCells()
 	for( int i = 1; i < MAX_ENERGY_CELLS ; i++ )
 	{
 		mEnergyCells[i] = new EnergyCell();
-		mEnergyCells[i]->Initialize( mCellPositionQueue.front() );
-		mCellPositionQueue.pop();
+		mEnergyCells[i]->Initialize( XMFLOAT3( 1000,0,0 ) );
+	}
+}
+
+void Server::CalculateCellPosition( XMFLOAT3 pos, float offSetX, float offSetZ )
+{
+	// Length between every cell
+	float halfX = offSetX * 0.5f;
+	float halfZ = offSetZ * 0.5f;
+	
+	XMFLOAT3 energyCellPosition	= pos;
+	XMFLOAT3 placePos = XMFLOAT3( 0, 0, 0 );
+
+	int infCounter		= 0;
+	int placeCounter	= 0;
+
+	while( placeCounter < 30 )
+	{
+		int x = (int)halfX - ( rand() % (int)offSetX );
+		int z = (int)halfZ - ( rand() % (int)offSetZ );
+
+		energyCellPosition = XMFLOAT3( energyCellPosition.x + x, 0 , energyCellPosition.z + z );
+		placePos = Pathfinder::GetInstance()->GetRandomTriInMesh( energyCellPosition );
+
+		if( !( HelperFunctions::Float3Equal( placePos, DirectX::XMFLOAT3( 0, 0 ,0 ) ) ) )
+		{
+			mCellPositionQueue.push( placePos );
+			placeCounter++;
+		}
 	}
 }
 
@@ -957,6 +1018,31 @@ void Server::Update( float deltaTime )
 	}
 	if( this && mActive && mStopAccept )
 	{
+		if( !mEnergyCells[1]->GetActive() )
+		{
+			mCellSpawnTimer -= deltaTime;
+			if( mCellSpawnTimer <= 0.0f )
+			{
+				mCellSpawnTimer = 5.0f;
+				IEventPtr e( new Event_Spawn_Energy_Cell() );
+				EventManager::GetInstance()->QueueEvent( e );
+			}
+		}
+		if( !mEnergyCells[1]->GetPickedUp() && mDropped && mEnergyCells[1]->GetActive() )
+		{
+			mRespawnCellTimer -= deltaTime;
+			if( mRespawnCellTimer <= 0.0f )
+			{
+				mEnergyCells[1]->SetActive( false );
+				IEventPtr e( new Event_Server_Sync_Energy_Cell( 1, -1, XMFLOAT3(0,0,0), false, false ) );
+				BroadcastEvent( e );
+			}
+
+		}
+		else
+		{
+			mRespawnCellTimer = 10.0f;
+		}
 		// Handles the client getting buffed by the ship
 		bool shipBuff = false;
 
@@ -1097,6 +1183,8 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientRequestParticleSystem, this, Event_Client_Request_ParticleSystem::GUID );
 	EventManager::GetInstance()->AddListener( &Server::EnemyFiredProjectile, this, Event_Enemy_Fired_Projectile::GUID );
 
+	EventManager::GetInstance()->AddListener( &Server::OnSpawnEnergyCell, this, Event_Spawn_Energy_Cell::GUID );
+	EventManager::GetInstance()->AddListener( &Server::OnDroppedEnergyCell, this, Event_Client_Dropped_Energy_Cell::GUID );
 
 	mCurrentPID				= 0;
 	mActive					= false;
@@ -1106,6 +1194,10 @@ bool Server::Initialize()
 	mNrOfProjectilesFired	= 0;
 	mStopAccept				= false;
 	mMaxClients				= 0;
+	mCurrentCell			= 1;
+	mCellSpawnTimer			= 5.0f;
+	mRespawnCellTimer		= 10.0f;
+	mDropped				= false;
 
 	srand( (UINT)time( NULL ) );
 

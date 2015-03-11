@@ -49,6 +49,8 @@ class Player: public RemotePlayer
 		XMFLOAT3	mAcceleration;
 		XMFLOAT3	mFireDirection;
 		XMFLOAT3	mPick;
+		XMFLOAT3	mPlayerGoal;
+		XMFLOAT3	mShipPos;
 		std::vector<DirectX::XMFLOAT2>::iterator	currStep;
 		bool		mFollowPath;
 
@@ -144,6 +146,7 @@ class Player: public RemotePlayer
 		void		SetID( unsigned int id );
 		void		SetTeam( int team );
 		void		SetPosition( XMVECTOR position );
+		void		SetHomePos( XMFLOAT3 pos );
 		int			GetCurrentLevel() const;
 
 		void		QueueEvent( IEventPtr ptr );

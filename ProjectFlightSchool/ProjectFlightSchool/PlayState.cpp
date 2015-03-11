@@ -634,8 +634,8 @@ void PlayState::HandleDeveloperCameraInput()
 		mPlayer->AddXP( 3000.0f );
 		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 		{
-			IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
-			Client::GetInstance()->SendEvent( E1 );
+			//IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
+			//Client::GetInstance()->SendEvent( E1 );
 		}
 	}
 	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_E ) )
@@ -1006,7 +1006,7 @@ HRESULT PlayState::Update( float deltaTime )
 	
 		guiUpdate.deltaTime = deltaTime;
 
-		if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->GetNrOfEnergyCells() == mNeededEnergyCells )
+		if( mGui->CheckWin() )
 		{
 			guiUpdate.mEndGame = true;
 			guiUpdate.mWonGame = true;

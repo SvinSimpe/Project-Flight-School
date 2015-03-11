@@ -5756,6 +5756,213 @@ class Event_Server_Start_Game_Countdown : public IEvent
 		}
 };
 
+
+class Event_Client_Request_ParticleSystem : public IEvent
+{
+	private:
+		UINT			mID;
+		int				mParticleType;
+		XMFLOAT3		mPosition;
+		XMFLOAT3		mDirection;
+		XMFLOAT3		mInitialVelocity;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Request_ParticleSystem()
+		{
+			mID					= (UINT)-1;
+			mParticleType		= -1;
+			mPosition			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mDirection			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mInitialVelocity	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		}
+
+		Event_Client_Request_ParticleSystem( UINT id, int particleType, XMFLOAT3 position, XMFLOAT3 direction, XMFLOAT3 intialVelocity )
+		{
+			mID					= id;
+			mParticleType		= particleType;
+			mPosition			= position;
+			mDirection			= direction;
+			mInitialVelocity	= intialVelocity;
+		}
+		~Event_Client_Request_ParticleSystem() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mParticleType << " ";
+
+			out << mPosition.x << " ";
+			out << mPosition.y << " ";
+			out << mPosition.z << " ";
+
+			out << mDirection.x << " ";
+			out << mDirection.y << " ";
+			out << mDirection.z << " ";
+
+			out << mInitialVelocity.x << " ";
+			out << mInitialVelocity.y << " ";
+			out << mInitialVelocity.z << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mParticleType;
+
+			in >> mPosition.x;
+			in >> mPosition.y;
+			in >> mPosition.z;
+
+			in >> mDirection.x;
+			in >> mDirection.y;
+			in >> mDirection.z;
+
+			in >> mInitialVelocity.x;
+			in >> mInitialVelocity.y;
+			in >> mInitialVelocity.z;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Request_ParticleSystem() );
+		}
+
+		UINT ID() const
+		{
+			return mID;
+		}
+
+		int ParticleType() const
+		{
+			return mParticleType;
+		}
+
+		XMFLOAT3 Position() const
+		{
+			return mPosition;
+		}
+
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
+		}
+
+		XMFLOAT3 InitialVelocity() const
+		{
+			return mInitialVelocity;
+		}
+};
+
+class Event_Remote_Request_ParticleSystem : public IEvent
+{
+	private:
+		UINT		mID;
+		int			mParticleType;
+		XMFLOAT3	mPosition;
+		XMFLOAT3	mDirection;
+		XMFLOAT3	mInitialVelocity;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Request_ParticleSystem()
+		{
+			mID					= (UINT)-1;
+			mParticleType		= -1;
+			mPosition			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mDirection			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mInitialVelocity	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		}
+
+		Event_Remote_Request_ParticleSystem( UINT id, int particleType, XMFLOAT3 position, XMFLOAT3 direction, XMFLOAT3 intialVelocity )
+		{
+			mID					= id;
+			mParticleType		= particleType;
+			mPosition			= position;
+			mDirection			= direction;
+			mInitialVelocity	= intialVelocity;
+		}
+		~Event_Remote_Request_ParticleSystem() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+			out << mParticleType << " ";
+
+			out << mPosition.x << " ";
+			out << mPosition.y << " ";
+			out << mPosition.z << " ";
+
+			out << mDirection.x << " ";
+			out << mDirection.y << " ";
+			out << mDirection.z << " ";
+
+			out << mInitialVelocity.x << " ";
+			out << mInitialVelocity.y << " ";
+			out << mInitialVelocity.z << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+			in >> mParticleType;
+
+			in >> mPosition.x;
+			in >> mPosition.y;
+			in >> mPosition.z;
+
+			in >> mDirection.x;
+			in >> mDirection.y;
+			in >> mDirection.z;
+
+			in >> mInitialVelocity.x;
+			in >> mInitialVelocity.y;
+			in >> mInitialVelocity.z;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Request_ParticleSystem() );
+		}
+
+		UINT ID() const
+		{
+			return mID;
+		}
+
+		int ParticleType() const
+		{
+			return mParticleType;
+		}
+
+		XMFLOAT3 Position() const
+		{
+			return mPosition;
+		}
+
+		XMFLOAT3 Direction() const
+		{
+			return mDirection;
+		}
+
+		XMFLOAT3 InitialVelocity() const
+		{
+			return mInitialVelocity;
+		}
+};
+
 class Event_Enemy_Fired_Projectile : public IEvent
 {
 private:
@@ -5952,5 +6159,4 @@ public:
 		return mRange;
 	}
 };
-
 #endif

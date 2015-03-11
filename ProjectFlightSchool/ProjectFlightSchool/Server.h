@@ -62,6 +62,7 @@ class Server : public Network
 
 		EnergyCell**				mEnergyCells;
 		bool						mStopAccept;
+		bool						mGameFull;
 
 		std::queue<XMFLOAT3>		mCellPositionQueue;
 		UINT						mMaxClients;

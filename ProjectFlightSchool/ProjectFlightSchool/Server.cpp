@@ -23,10 +23,10 @@ void Server::ClientJoined( IEventPtr eventPtr )
 			mClientMap[data->ID()]->ID		= data->ID();
 			//mClientMap[data->ID()]->AggroCircle	= new BoundingCircle( 1.0f );
 
-			if( mClientMap.size() > mMaxClients || mStopAccept )
+			if( mClientMap.size() > mMaxClients || mGameFull )
 			{
 				IEventPtr bounceClient( new Event_Shutdown_Client() );
-				mStopAccept = true;
+				mGameFull = true;
 				SendEvent( bounceClient, data->ID() );
 				SAFE_DELETE( mClientMap[data->ID()] );
 				mClientMap.erase( data->ID() );
@@ -109,6 +109,7 @@ void Server::ClientLeft( IEventPtr eventPtr )
 
 			IEventPtr E1( new Event_Remote_Left( data->ID() ) );
 			BroadcastEvent( E1 );
+			mGameFull = false;
 		}
 	}
 }

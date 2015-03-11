@@ -1798,9 +1798,9 @@ class Event_Remote_Melee_Hit : public IEvent
 class Event_Client_Attack : public IEvent
 {
 	private:
-		UINT mID;
-		UINT mArmID;
-		UINT mAnimation;
+		UINT	mID;
+		UINT	mArmID;
+		UINT	mAnimation;
 
 	public:
 		static const EventType GUID;
@@ -1810,15 +1810,15 @@ class Event_Client_Attack : public IEvent
 	public:
 		Event_Client_Attack()
 		{
-			mID			= (UINT)-1;
-			mArmID		= (UINT)-1;
-			mAnimation	= (UINT)-1;
+			mID					= (UINT)-1;
+			mArmID				= (UINT)-1;
+			mAnimation			= (UINT)-1;
 		}
 		Event_Client_Attack( UINT id, UINT armID, UINT animation )
 		{
-			mID			= id;
-			mArmID		= armID;
-			mAnimation	= animation;
+			mID					= id;
+			mArmID				= armID;
+			mAnimation			= animation;
 		}
 		~Event_Client_Attack() {}
 		const EventType& GetEventType() const
@@ -1859,9 +1859,9 @@ class Event_Client_Attack : public IEvent
 class Event_Remote_Attack : public IEvent
 {
 	private:
-		UINT mID;
-		UINT mArmID;
-		UINT mAnimation;
+		UINT	mID;
+		UINT	mArmID;
+		UINT	mAnimation;
 
 	public:
 		static const EventType GUID;
@@ -1871,15 +1871,16 @@ class Event_Remote_Attack : public IEvent
 	public:
 		Event_Remote_Attack()
 		{
-			mID			= (UINT)-1;
-			mArmID		= (UINT)-1;
-			mAnimation	= (UINT)-1;
+			mID					= (UINT)-1;
+			mArmID				= (UINT)-1;
+			mAnimation			= (UINT)-1;
+
 		}
 		Event_Remote_Attack( UINT id, UINT armID, UINT animation )
 		{
-			mID			= id;
-			mArmID		= armID;
-			mAnimation	= animation;
+			mID					= id;
+			mArmID				= armID;
+			mAnimation			= animation;
 		}
 		~Event_Remote_Attack() {}
 		const EventType& GetEventType() const

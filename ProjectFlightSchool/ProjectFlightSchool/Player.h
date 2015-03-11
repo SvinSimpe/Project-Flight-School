@@ -108,6 +108,7 @@ class Player: public RemotePlayer
 		void		HammerMelee( float deltaTime );
 		void		BlowtorchMelee( float deltaTime );
 		void		ClaymoreMelee( float deltaTime );
+		void		SawMelee( float deltaTime );
 
 		float		CalculateLaunchAngle();
 		void		AddImpuls( XMFLOAT3 impuls );

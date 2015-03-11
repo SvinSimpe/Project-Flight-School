@@ -215,6 +215,16 @@ HRESULT RemotePlayer::InitializeGraphics()
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Sniper/Animations/", "sniperAnim.PaMan",	mWeaponAnimations[SNIPER][ATTACK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
+	//CHAINSAW
+		if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Saw/Animations/", "sawAnim1.PaMan",	mWeaponAnimations[SAW][ATTACK] ) ) )
+		OutputDebugString( L"\nERROR loading chainsaw animation\n" );
+
+		if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Saw/Animations/", "sawIdle.PaMan",	mWeaponAnimations[SAW][IDLE] ) ) )
+		OutputDebugString( L"\nERROR loading chainsaw animation\n" );
+
+		if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Saw/Animations/", "sawWalk.PaMan",	mWeaponAnimations[SAW][WALK] ) ) )
+		OutputDebugString( L"\nERROR loading chainsaw animation\n" );
+
 	//////////////////////////////////////
 	//			ROBOT PARTS
 	/////////////////////////////////////
@@ -493,7 +503,9 @@ HRESULT RemotePlayer::Render()
 	if ( RenderManager::GetInstance()->AddAnim3dToList( mArms.rightArm,
 		ANIMATION_PLAY_ONCE,
 		&mLowerBody.rootMatrix ) )
+	{
 		mRightArmAnimationCompleted = true;
+	}
 
 	//Render lower body
 

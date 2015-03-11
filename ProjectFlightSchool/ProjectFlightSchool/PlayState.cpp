@@ -556,18 +556,6 @@ void PlayState::CheckProjectileCollision()
 					{
 						IEventPtr E1( new Event_Client_Removed_Projectile( mProjectiles[i]->GetID() ) );
 						Client::GetInstance()->SendEvent( E1 );
-					
-					if( mProjectiles[i]->GetWeaponType() == GRENADELAUNCHER )
-					{
-						RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-						RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-						SoundBufferHandler::GetInstance()->Play3D( mExplosion , mPlayer->GetPosition() );
-					}
-					else
-					{
-						RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Spark, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-						RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Debris, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-					}
 					}
 				}
 
@@ -823,6 +811,20 @@ void PlayState::HandleRemoteProjectileRemoved( UINT projectileID )
 	{
 		if( mProjectiles[i]->GetID() == projectileID )
 		{
+			mProjectiles[i]->Update( -0.016f );
+
+			if( mProjectiles[i]->GetWeaponType() == GRENADELAUNCHER )
+			{
+				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+				SoundBufferHandler::GetInstance()->Play3D( mExplosion , mPlayer->GetPosition() );
+			}
+			else
+			{
+				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Spark, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Debris, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+			}
+
 			mProjectiles[i]->Reset();
 			Projectile* temp							= mProjectiles[mNrOfActiveProjectiles - 1];
 			mProjectiles[mNrOfActiveProjectiles - 1]	= mProjectiles[i];

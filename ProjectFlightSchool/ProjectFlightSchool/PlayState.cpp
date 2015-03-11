@@ -1009,7 +1009,6 @@ HRESULT PlayState::Update( float deltaTime )
 		}
 		mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers, mEnergyCells );
 
-		UpdateProjectiles( deltaTime );
 
 		// Enemies
 		if( mEnemyListSynced )
@@ -1088,6 +1087,7 @@ HRESULT PlayState::Update( float deltaTime )
 		}
 
 		CheckProjectileCollision();
+		UpdateProjectiles( deltaTime );
 
 		//GUI UPDATE ANYTHING RELATED TO IT NEEDS TO PUT ABOVE THIS COMMENT
 		////////////////////////////////////////////////////////////////////////////////////////////

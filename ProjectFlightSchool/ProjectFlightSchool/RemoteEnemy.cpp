@@ -22,7 +22,7 @@ HRESULT RemoteEnemy::Render()
 		RenderManager::GetInstance()->AddAnim3dToList( mAnimationTrack, ANIMATION_PLAY_ONCE, mPosition, XMFLOAT3( 0.0f, -radians, 0.0f ) );
 	
 	if( mIsAlive )
-		RenderManager::GetInstance()->AddBillboardToList( mHPBar, XMFLOAT3( mPosition.x, mPosition.y + GetEnemyHeightOffset(), mPosition.z ), 0.5f, 0.1f );
+		RenderManager::GetInstance()->AddBillboardToList( mHPBar, XMFLOAT3( mPosition.x, mPosition.y + GetEnemyHeightOffset(), mPosition.z ), 0.5f * ( mCurrentHP / 60.0f ), 0.1f );
 
 	return S_OK;
 }

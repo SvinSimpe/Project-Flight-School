@@ -218,9 +218,8 @@ struct RangedInfo
 						attackRate		= 0.11f;
 						damage			= 6.3f;
 						spread			= 4.7f;
-						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
-						overheat		= 0.8f;
+						overheat		= 1.3f;
 					}
 						break;
 
@@ -229,9 +228,8 @@ struct RangedInfo
 						attackRate		= 0.09f;
 						damage			= 8.4f;
 						spread			= 4.3f;
-						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
-						overheat		= 0.6f;
+						overheat		= 1.0f;
 					}
 						break;
 
@@ -240,9 +238,8 @@ struct RangedInfo
 						attackRate		= 0.07f;
 						damage			= 10.5f;
 						spread			= 4.0f;
-						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
-						overheat		= 0.3f;
+						overheat		= 0.6f;
 					}
 						break;
 
@@ -251,9 +248,8 @@ struct RangedInfo
 						attackRate		= 0.05f;
 						damage			= 14.0f;
 						spread			= 3.6f;
-						areaOfEffect	= 0.0f;
 						projectileSpeed	= 60.0f;
-						overheat		= 0.1f;
+						overheat		= 0.3f;
 					}
 						break;
 
@@ -269,8 +265,7 @@ struct RangedInfo
 					{
 						attackRate		= 1.8f;
 						damage			= 15.4f;
-						spread			= 6.3f;
-						projectileSpeed	= 35.0f;
+						spread			= 6.7f;
 					}
 						break;
 
@@ -278,8 +273,7 @@ struct RangedInfo
 					{
 						attackRate		= 1.6f;
 						damage			= 17.5f;
-						spread			= 5.6f;
-						projectileSpeed	= 40.0f;
+						spread			= 6.3f;
 					}
 						break;
 
@@ -287,8 +281,7 @@ struct RangedInfo
 					{
 						attackRate		= 1.4f;
 						damage			= 18.9f;
-						spread			= 5.0f;
-						projectileSpeed	= 45.0f;
+						spread			= 5.8f;
 					}
 						break;
 
@@ -296,8 +289,7 @@ struct RangedInfo
 					{
 						attackRate		= 1.1f;
 						damage			= 21.0f;
-						spread			= 4.5f;
-						projectileSpeed	= 50.0f;
+						spread			= 5.5f;
 					}
 						break;
 

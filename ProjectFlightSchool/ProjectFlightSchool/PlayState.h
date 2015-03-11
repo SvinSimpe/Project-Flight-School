@@ -90,6 +90,7 @@ class PlayState : public BaseState
 		void			BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage );
 		void			BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float knockBack, XMFLOAT3 direction );
 		void			FireProjectile( unsigned int id, unsigned int projectileID, unsigned int teamID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range, float damage, WeaponType weaponType );
+		void			DecideParticleEffect( unsigned int shooterID, WeaponType weaponType, XMFLOAT3 position, XMFLOAT3 direction );
 		void			CheckPlayerCollision();
 		void			CheckProjectileCollision();
 		void			CheckMeeleCollision();

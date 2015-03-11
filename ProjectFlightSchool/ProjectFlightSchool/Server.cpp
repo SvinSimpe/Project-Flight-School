@@ -622,6 +622,16 @@ void Server::HostStartCountdown( IEventPtr eventPtr )
 	}
 }
 
+void Server::ClientRequestParticleSystem( IEventPtr eventPtr )
+{
+	if ( eventPtr->GetEventType() == Event_Client_Request_ParticleSystem::GUID )
+	{
+		std::shared_ptr<Event_Client_Request_ParticleSystem> data = std::static_pointer_cast<Event_Client_Request_ParticleSystem>( eventPtr );
+		IEventPtr E1( new Event_Remote_Request_ParticleSystem( data->ID(), data->ParticleType(), data->Position(), data->Direction(), data->InitialVelocity() ) );
+		BroadcastEvent( E1 );
+	}
+}
+
 // End of eventlistening functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1084,8 +1094,9 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ResetTurretTargets, this, Event_Reset_Turret_Targets::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientChangeReady, this, Event_Client_Change_Ready_State::GUID );
 	EventManager::GetInstance()->AddListener( &Server::HostStartCountdown, this, Event_Host_Start_Game_Countdown::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientRequestParticleSystem, this, Event_Client_Request_ParticleSystem::GUID );
 	EventManager::GetInstance()->AddListener( &Server::EnemyFiredProjectile, this, Event_Enemy_Fired_Projectile::GUID );
-	//EventManager::GetInstance()->AddListener( &Server::ClientShipProjectileDamage, this, Event_Enemy_Fired_Projectile::GUID );
+
 
 	mCurrentPID				= 0;
 	mActive					= false;

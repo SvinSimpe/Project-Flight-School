@@ -12,6 +12,7 @@
 #include "EventManager.h"
 #include "Pathfinder.h"
 #include "ServerShip.h"
+#include "Image.h"
 
 class Enemy;
 

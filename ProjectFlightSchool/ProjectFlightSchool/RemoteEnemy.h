@@ -17,6 +17,7 @@ class RemoteEnemy
 		bool				mIsSynced;
 		bool				mLoopAnimation;
 		BoundingCircle*		mBoundingCircle;
+		AssetID				mHPBar;
 
 	protected:
 	public:
@@ -42,6 +43,8 @@ class RemoteEnemy
 		bool				IsSynced() const;
 		EnemyType			GetEnemyType() const;
 		BoundingCircle*		GetBoundingCircle() const;
+		float				GetHPBarMeter() const;
+		float				GetEnemyHeightOffset() const;
 		virtual HRESULT		Initialize( int id, AssetID model, AssetID animation );
 		void				Release();
 							RemoteEnemy();

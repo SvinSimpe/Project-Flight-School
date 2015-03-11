@@ -560,6 +560,7 @@ void RemotePlayer::RemoteInit( unsigned int id, int team )
 
 void RemotePlayer::Release()
 {
+	mID = (UINT)-1;
 	mLoadOut->Release();
 	SAFE_DELETE( mLoadOut );
 
@@ -666,11 +667,36 @@ XMFLOAT3 RemotePlayer::GetVelocity() const
 	return mVelocity;
 }
 
+XMFLOAT3 RemotePlayer::GetCurrentVelocity() const
+{
+	return mCurrentTravelVelocity;
+}
+
+XMFLOAT3 RemotePlayer::GetWeaponOffset()
+{
+	//Offset calcs
+	XMFLOAT3 weaponOffsets =	mLoadOut->rangedWeapon->weaponType == MINIGUN			? MINIGUN_OFFSETS : 
+								mLoadOut->rangedWeapon->weaponType == SHOTGUN			? SHOTGUN_OFFSETS :
+								mLoadOut->rangedWeapon->weaponType == GRENADELAUNCHER	? GL_OFFSETS :
+								mLoadOut->rangedWeapon->weaponType == SNIPER			? SNIPER_OFFSETS : XMFLOAT3( 0.0f, 0.0f, 1.0f );
+
+	XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
+	XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
+	XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + weaponOffsets.z, mLowerBody.position.z ) );
+	
+	offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * weaponOffsets.y;
+	offset += direction * weaponOffsets.x;
+
+	XMFLOAT3 loadDir;
+	XMStoreFloat3( &loadDir, offset );
+
+	return loadDir;
+}
+
 std::string RemotePlayer::GetName() const
 {
 	return mPlayerName;
 }
-
 
 UINT RemotePlayer::GetEnergyCellID() const
 {

@@ -37,20 +37,20 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		std::shared_ptr<Event_Remote_Left> data = std::static_pointer_cast<Event_Remote_Left>( newEvent );
 
-		for( auto& p : mRemotePlayers )
+		for( size_t i = 0; i < mRemotePlayers.size(); i++ )
 		{
-			if( data->ID() == p->GetID() )
+			if( data->ID() == mRemotePlayers.at(i)->GetID() )
 			{
-				XMFLOAT3 pos = p->GetPosition();
-				UINT ecID = p->GetEnergyCellID();
-				p->Release();
-				SAFE_DELETE( p );
-				std::swap( p, mRemotePlayers.back() );
+				XMFLOAT3 pos = mRemotePlayers.at(i)->GetPosition();
+				UINT ecID = mRemotePlayers.at(i)->GetEnergyCellID();
+				mRemotePlayers.at(i)->Release();
+				SAFE_DELETE( mRemotePlayers.at(i) );
+				std::swap( mRemotePlayers.at(i), mRemotePlayers.back() );
 				mRemotePlayers.pop_back();
 
 				if( ecID != (UINT)-1 )
 				{
-					mEnergyCells[ecID]->SetPosition( p->GetPosition() );
+					mEnergyCells[ecID]->SetPosition( pos );
 					mEnergyCells[ecID]->SetOwnerID( (UINT)-1 );
 					mEnergyCells[ecID]->SetPickedUp( false );
 					mEnergyCells[ecID]->SetSecured( false );
@@ -103,16 +103,10 @@ void PlayState::EventListener( IEventPtr newEvent )
 			SoundBufferHandler::GetInstance()->Play3D( mSniper , data->BodyPos());
 		
 		
-		// Request Muzzle Flash from Particle Manager
-		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), SniperTrail, data->BodyPos(), data->Direction() );
-
+		
 		XMFLOAT3 cross;
 		XMStoreFloat3( &cross, XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), XMLoadFloat3( &data->Direction() ) ) );
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Shell, XMFLOAT3(data->BodyPos().x - data->Direction().x, data->BodyPos().y, data->BodyPos().z - data->Direction().z), cross );
-
-		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Explosion, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), ExplosionSmoke, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Shell, XMFLOAT3(data->BodyPos().x - data->Direction().x, data->BodyPos().y, data->BodyPos().z - data->Direction().z), cross );		
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
 	{
@@ -185,9 +179,8 @@ void PlayState::EventListener( IEventPtr newEvent )
 		SoundBufferHandler::GetInstance()->Play3D( mMiniGun , data->Position());
 		
 		// Request Muzzle Flash from Particle Manager
-		
-		/*RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->Position(), data->Direction() );
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->Position(), data->Direction() );	*/	
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->Position(), data->Direction() );
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->Position(), data->Direction() );		
 	}
 	else if (newEvent->GetEventType() == Event_Server_Enemy_Fired_Projectile::GUID)
 	{
@@ -271,6 +264,15 @@ void PlayState::EventListener( IEventPtr newEvent )
 			std::swap( mShips[FRIEND_SHIP], mShips[ENEMY_SHIP] );
 		}
 	}
+	
+	
+	
+	else if( newEvent->GetEventType() == Event_Remote_Request_ParticleSystem::GUID )
+	{
+		std::shared_ptr<Event_Remote_Request_ParticleSystem> data = std::static_pointer_cast<Event_Remote_Request_ParticleSystem>( newEvent );
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), (ParticleType)data->ParticleType(), data->Position(), data->Direction(), data->InitialVelocity() );
+	}
+
 }
 
 void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction, float maxHp )
@@ -324,6 +326,65 @@ void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, unsi
 {
 	mProjectiles[mNrOfActiveProjectiles]->SetDirection( id, projectileID, teamID, position, direction, speed, range, damage, weaponType );
 	mNrOfActiveProjectiles++;
+	if( weaponType != TURRET )
+		DecideParticleEffect( id, weaponType, position, direction );
+}
+
+void PlayState::DecideParticleEffect( unsigned int shooterID, WeaponType weaponType, XMFLOAT3 position, XMFLOAT3 direction )
+{
+	int index = -1;
+	for (size_t i = 0; i < mRemotePlayers.size(); i++)
+	{
+		if( shooterID == mRemotePlayers.at(i)->GetID() )
+		{
+			index = i;
+			break;
+		}
+	}
+
+	switch ( weaponType )
+	{
+		case MINIGUN:
+		{
+			if( index == -1 )
+				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), MuzzleFlash, position, direction, mPlayer->GetVelocity() );
+			else
+				RenderManager::GetInstance()->RequestParticleSystem( mRemotePlayers[index]->GetID(), MuzzleFlash, position, direction, mRemotePlayers[index]->GetVelocity() );
+			break;
+		}
+
+		case SHOTGUN:
+		{
+			if( index == -1 )
+				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), MuzzleFlash, position, direction, mPlayer->GetVelocity() );
+			else
+				RenderManager::GetInstance()->RequestParticleSystem( mRemotePlayers[index]->GetID(), MuzzleFlash, position, direction, mRemotePlayers[index]->GetVelocity() );
+			
+			break;
+		}
+
+		case SNIPER:
+		{
+			if( index == -1 )
+				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), SniperTrail, mPlayer->GetWeaponOffset(), direction, mPlayer->GetVelocity() );
+			else
+				RenderManager::GetInstance()->RequestParticleSystem( mRemotePlayers[index]->GetID(), SniperTrail, position, direction, mRemotePlayers[index]->GetVelocity() );
+			
+			break;
+		}
+
+		case GRENADELAUNCHER:
+		{
+			if( index == -1 )
+				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), MuzzleFlash, mPlayer->GetWeaponOffset(), direction, mPlayer->GetCurrentVelocity() );
+			else
+				RenderManager::GetInstance()->RequestParticleSystem( mRemotePlayers[index]->GetID(), MuzzleFlash, position, direction, mRemotePlayers[index]->GetCurrentVelocity() );
+			
+			break;
+		}
+		default:
+			break;
+	}
 }
 
 void PlayState::CheckPlayerCollision()
@@ -349,7 +410,10 @@ void PlayState::CheckPlayerCollision()
 
 					//New position of player			 
 					XMVECTOR playerPosition = XMLoadFloat3(&mRemotePlayers.at(i)->GetBoundingCircle()->center) + remoteToPlayerVec * vectorLength;
-					mPlayer->SetPosition(playerPosition);
+					XMFLOAT3 playerTest, norm;
+					XMStoreFloat3( &playerTest, playerPosition );
+					if( !mWorldMap->PlayerVsMap( playerTest, norm ) )
+						mPlayer->SetPosition(playerPosition);
 				}
 			}	
 		}
@@ -634,7 +698,29 @@ void PlayState::HandleDeveloperCameraInput()
 		mPlayer->AddXP( 3000.0f );
 		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 		{
-			IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
+			UINT winTeam = 1;
+			bool hasGnidleif = false;
+			if( !std::strcmp( mPlayer->GetName().c_str(), "gnidleif" ) )
+			{
+				winTeam = mPlayer->GetTeam();
+				hasGnidleif = true;
+			}
+			else
+			{
+				for( auto& p : mRemotePlayers )
+				{
+					if( !std::strcmp( p->GetName().c_str(), "gnidleif" ) )
+					{
+						winTeam = p->GetTeam();
+						hasGnidleif = true;
+					}
+				}
+			}
+			if( !hasGnidleif )
+			{
+				winTeam = mPlayer->GetTeam();
+			}
+			IEventPtr E1( new Event_Client_Win( winTeam ) );
 			Client::GetInstance()->SendEvent( E1 );
 		}
 	}
@@ -802,6 +888,7 @@ bool PlayState::CullEntity( XMFLOAT3 entityPos )
 {
 	return HelperFunctions::Dist3Squared( mPlayer->GetPosition(), entityPos  ) <= ENTITY_CULLDISTANCE;
 }
+
 void PlayState::WriteInteractionText( std::string text, float xPos, float yPos, float scale, XMFLOAT4 color )
 {
 	float offset = mFont.GetMiddleXPoint( text, scale );
@@ -921,7 +1008,7 @@ HRESULT PlayState::Update( float deltaTime )
 		{
 			for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 			{
-				if( mEnemies[i]->IsSynced() )
+				if( mEnemies[i]->IsSynced() && CullEntity( mEnemies[i]->GetPosition() ) )
 				{
 					mEnemies[i]->Update( deltaTime );
 
@@ -1263,9 +1350,9 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Trigger_Client_Update::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Unlock_Player::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Reset_Game::GUID );
-
-	EventManager::GetInstance()->AddListener(&PlayState::EventListener, this, Event_Server_Switch_Team::GUID );
-	EventManager::GetInstance()->AddListener(&PlayState::EventListener, this, Event_Server_Enemy_Fired_Projectile::GUID);
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Switch_Team::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Request_ParticleSystem::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Enemy_Fired_Projectile::GUID);
 
 
 	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );

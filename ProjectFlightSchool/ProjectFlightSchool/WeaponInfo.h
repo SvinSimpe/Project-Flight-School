@@ -360,7 +360,7 @@ struct RangedInfo
 					case 2:
 					{
 						attackRate		= 3.0f;
-						damage			= 35.0f * 7;
+						damage			= 35.0f;
 					}
 						break;
 

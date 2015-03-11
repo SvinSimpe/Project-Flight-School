@@ -117,6 +117,7 @@ class Player: public RemotePlayer
 
 	protected:
 	public:
+		void		Ding();
 		void		AddXP( float XP );
 		void		PickUpEnergyCell( EnergyCell** energyCell );
 		void		DropEnergyCell( EnergyCell** energyCells );

@@ -118,6 +118,7 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 				SAFE_DELETE( mPlayers.at(i) );
 				std::swap( mPlayers.at(i), mPlayers.at(mPlayers.size() - 1) );
 				mPlayers.pop_back();
+				break;
 			}
 		}
 	}

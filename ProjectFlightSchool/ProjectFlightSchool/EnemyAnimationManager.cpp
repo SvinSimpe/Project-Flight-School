@@ -44,7 +44,8 @@ AssetID EnemyAnimationManager::GetAnimation( EnemyType enemy, EnemyState state )
 			if( state == MoveToShip || 
 				state == HuntPlayer )		return mAnimations[ENEMY_ANIMATION_TANK_RUN];
 			else if( state == TakeDamage )	return mAnimations[ENEMY_ANIMATION_TANK_RUN];
-			else if( state == Idle )		return mAnimations[ENEMY_ANIMATION_TANK_IDLE];	
+			else if( state == Idle ||
+					state == Stunned )		return mAnimations[ENEMY_ANIMATION_TANK_IDLE];	
 			else if( state == Attack )		return mAnimations[ENEMY_ANIMATION_TANK_ATTACK];
 			else if( state == Death  )		return mAnimations[ENEMY_ANIMATION_TANK_DEATH];
 			else OutputDebugStringA( "--Error getting Tank animation" );

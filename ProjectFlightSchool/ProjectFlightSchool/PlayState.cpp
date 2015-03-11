@@ -41,14 +41,19 @@ void PlayState::EventListener( IEventPtr newEvent )
 		{
 			if( data->ID() == p->GetID() )
 			{
+				XMFLOAT3 pos = p->GetPosition();
 				UINT ecID = p->GetEnergyCellID();
+				p->Release();
+				SAFE_DELETE( p );
+				std::swap( p, mRemotePlayers.back() );
+				mRemotePlayers.pop_back();
+
 				if( ecID != (UINT)-1 )
 				{
 					mEnergyCells[ecID]->SetPosition( p->GetPosition() );
 					mEnergyCells[ecID]->SetOwnerID( (UINT)-1 );
 					mEnergyCells[ecID]->SetPickedUp( false );
 					mEnergyCells[ecID]->SetSecured( false );
-	
 
 					IEventPtr E1( new Event_Client_Sync_Energy_Cell( 
 						ecID, 
@@ -57,11 +62,6 @@ void PlayState::EventListener( IEventPtr newEvent )
 						mEnergyCells[ecID]->GetPickedUp() ) );
 					Client::GetInstance()->SendEvent( E1 );
 				}
-				p->Release();
-				SAFE_DELETE( p );
-				std::swap( p, mRemotePlayers.back() );
-				mRemotePlayers.pop_back();
-				break;
 			}
 		}
 	}
@@ -202,37 +202,23 @@ void PlayState::EventListener( IEventPtr newEvent )
 		mEnergyCells[data->EnergyCellID()]->SetPosition( data->Position() );
 		mEnergyCells[data->EnergyCellID()]->SetPickedUp( data->PickedUp() );
 
-		if( data->OwnerID() == (UINT)-1 )
+		if( data->OwnerID() != (UINT)-1 )
 		{
-			if( mPlayer->GetEnergyCellID() != (UINT)-1 )
+			for( auto& rp : mRemotePlayers )
 			{
-				mPlayer->SetEnergyCellID( (UINT)-1 );
-			}
-			else
-			{
-				for( auto& p : mRemotePlayers )
+				if( rp->GetID() == data->OwnerID() )
 				{
-					if( p->GetEnergyCellID() != (UINT)-1 )
-					{
-						p->SetEnergyCellID( (UINT)-1 );
-					}
+					rp->SetEnergyCellID( data->EnergyCellID() );
 				}
 			}
 		}
 		else
 		{
-			if( mPlayer->GetID() == data->OwnerID() )
+			for( auto& rp : mRemotePlayers )
 			{
-				mPlayer->SetEnergyCellID( data->EnergyCellID() );
-			}
-			else
-			{
-				for( auto& p : mRemotePlayers )
+				if( rp->GetEnergyCellID() == data->EnergyCellID() )
 				{
-					if( p->GetID() == data->OwnerID() )
-					{
-						p->SetEnergyCellID( data->EnergyCellID() );
-					}
+					rp->SetEnergyCellID( (UINT)-1 );
 				}
 			}
 		}
@@ -1159,6 +1145,7 @@ void PlayState::OnExit()
 void PlayState::Reset()
 {
 	mPlayer->Reset();
+
 	for( size_t i = 0; i < MAX_PROJECTILES; i++ )
 		mProjectiles[i]->Reset();
 

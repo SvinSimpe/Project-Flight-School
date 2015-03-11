@@ -37,6 +37,16 @@ unsigned int RemoteEnemy::GetID() const
 	return mID;
 }
 
+void RemoteEnemy::SetHP( float hp )
+{
+	mCurrentHP	= hp;
+}
+
+float RemoteEnemy::GetHP() const
+{
+	return mCurrentHP;
+}
+
 void RemoteEnemy::SetIsAlive( bool isAlive )
 {
 	mIsAlive	= isAlive;

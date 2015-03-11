@@ -1006,13 +1006,31 @@ HRESULT PlayState::Update( float deltaTime )
 	
 		guiUpdate.deltaTime = deltaTime;
 
-		if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->GetNrOfEnergyCells() == mNeededEnergyCells )
+		if( mGui->CheckWin() )
 		{
 			guiUpdate.mEndGame = true;
 			guiUpdate.mWonGame = true;
 			mEndGame = true;
 
 			IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
+			Client::GetInstance()->SendEvent( E1 );
+		}
+		else if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->CheckLose() )
+		{
+			guiUpdate.mEndGame = true;
+			guiUpdate.mWonGame = false;
+			mEndGame = true;
+
+			UINT winTeam = 0;
+			if( mPlayer->GetTeam() == 1 )
+			{
+				winTeam = 2;
+			}
+			else
+			{
+				winTeam = 1;
+			}
+			IEventPtr E1( new Event_Client_Win( winTeam ) );
 			Client::GetInstance()->SendEvent( E1 );
 		}
 		else if( !mEndGame )

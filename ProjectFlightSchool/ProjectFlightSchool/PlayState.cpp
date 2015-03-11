@@ -37,20 +37,20 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		std::shared_ptr<Event_Remote_Left> data = std::static_pointer_cast<Event_Remote_Left>( newEvent );
 
-		for( auto& p : mRemotePlayers )
+		for( int i = 0; i < mRemotePlayers.size(); i++ )
 		{
-			if( data->ID() == p->GetID() )
+			if( data->ID() == mRemotePlayers.at(i)->GetID() )
 			{
-				XMFLOAT3 pos = p->GetPosition();
-				UINT ecID = p->GetEnergyCellID();
-				p->Release();
-				SAFE_DELETE( p );
-				std::swap( p, mRemotePlayers.back() );
+				XMFLOAT3 pos = mRemotePlayers.at(i)->GetPosition();
+				UINT ecID = mRemotePlayers.at(i)->GetEnergyCellID();
+				mRemotePlayers.at(i)->Release();
+				SAFE_DELETE( mRemotePlayers.at(i) );
+				std::swap( mRemotePlayers.at(i), mRemotePlayers.back() );
 				mRemotePlayers.pop_back();
 
 				if( ecID != (UINT)-1 )
 				{
-					mEnergyCells[ecID]->SetPosition( p->GetPosition() );
+					mEnergyCells[ecID]->SetPosition( pos );
 					mEnergyCells[ecID]->SetOwnerID( (UINT)-1 );
 					mEnergyCells[ecID]->SetPickedUp( false );
 					mEnergyCells[ecID]->SetSecured( false );
@@ -802,6 +802,7 @@ bool PlayState::CullEntity( XMFLOAT3 entityPos )
 {
 	return HelperFunctions::Dist3Squared( mPlayer->GetPosition(), entityPos  ) <= ENTITY_CULLDISTANCE;
 }
+
 void PlayState::WriteInteractionText( std::string text, float xPos, float yPos, float scale, XMFLOAT4 color )
 {
 	float offset = mFont.GetMiddleXPoint( text, scale );

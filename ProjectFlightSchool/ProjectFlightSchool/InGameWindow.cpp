@@ -48,14 +48,14 @@ void InGameWindow::Update( float deltaTime )
 		{
 			DeActivate();
 			IEventPtr E1( new Event_Reset_Game() );
-			EventManager::GetInstance()->QueueEvent( E1 );
+			EventManager::GetInstance()->TriggerEvent( E1 );
 			break;
 		}
 		case 3:
 		{
 			DeActivate();
 			IEventPtr E1( new Event_Exit_Game() );
-			EventManager::GetInstance()->QueueEvent( E1 );
+			EventManager::GetInstance()->TriggerEvent( E1 );
 			break;
 		}
 		default:

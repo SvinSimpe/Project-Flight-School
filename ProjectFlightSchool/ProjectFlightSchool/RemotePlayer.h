@@ -64,7 +64,7 @@ class RemotePlayer
 	// Member variables
 	private:
 	protected:
-		unsigned int	mID;
+		UINT			mID;
 		std::string		mPlayerName;
 		int				mTeam;
 		bool			mIsAlive;

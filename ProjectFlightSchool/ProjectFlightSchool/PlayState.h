@@ -86,7 +86,7 @@ class PlayState : public BaseState
 	// Class functions
 	private:
 		void			EventListener( IEventPtr newEvent );
-		void			SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction );
+		void			SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction, float maxHp );
 		void			SyncSpawn( unsigned int id, XMFLOAT3 position );
 		void			BroadcastProjectileDamage( unsigned int playerID, unsigned int projectileID );						// Tell server that local  player has taken damage
 		void			BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction );
@@ -100,11 +100,12 @@ class PlayState : public BaseState
 		void			HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID );
 		void			HandleRemoteProjectileRemoved( UINT projectileID );
 		void			UpdateProjectiles( float deltaTime );
-		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive );
+		void			UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive, float enemyHP );
 		void			RenderProjectiles();
 		void			SetEnemyState( unsigned int id, EnemyState state );
 		bool			CullEntity( XMFLOAT3 entityPos );
 		void			WriteInteractionText( std::string text, float xPos, float yPos, float scale, XMFLOAT4 color );
+
 
 	protected:
 	public:

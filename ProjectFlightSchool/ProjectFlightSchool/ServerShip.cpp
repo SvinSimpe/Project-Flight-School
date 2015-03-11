@@ -261,7 +261,6 @@ void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 	mMaxShield		= 5000.0f;
 	mCurrentShield	= mMaxShield;
 	mMaxHP			= 20000.0f;
-	mMaxHP		*= 7;
 	mCurrentHP		= mMaxHP;
 	mIsAlive		= true;
 

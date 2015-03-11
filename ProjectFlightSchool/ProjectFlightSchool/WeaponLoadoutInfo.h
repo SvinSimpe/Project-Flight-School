@@ -95,11 +95,11 @@
 #define BLOWTORCH_OFFSETS	XMFLOAT3( -0.35f, -0.65f, 1.3f )	// Offsets forward, right, up
 
 // Saw
-#define SAW_AR				3.0f								// Attack Rate
-#define SAW_DAMAGE			5.0f								// Damage
+#define SAW_AR				0.1f								// Attack Rate
+#define SAW_DAMAGE			3.0f								// Damage
 #define SAW_RADIUS			5.0f								// Radius
-#define SAW_SPREAD			7									// Spread
-#define SAW_KB				2.0f								// Knockback
+#define SAW_SPREAD			1									// Spread
+#define SAW_KB				0.6f								// Knockback
 #define SAW_TTA				0.95f								// Time till Attack
 #define SAW_STUN			0.0f								// Stun
 #define SAW_REACH			1.3f								// Reach

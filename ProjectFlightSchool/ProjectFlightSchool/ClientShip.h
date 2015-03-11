@@ -23,6 +23,8 @@ class ClientShip : public ServerShip
 		UINT	GetTeamID() const;
 		UINT	GetNrOfEnergyCells() const;
 
+		bool	CheckLose();
+
 		void	CalculatePlayerRespawnPosition( IEventPtr eventPtr );
 		void	Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale );
 		bool	Intersect( BoundingCircle* entity ); // Will check for intersects with damaging stuff

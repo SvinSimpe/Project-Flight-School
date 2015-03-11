@@ -577,7 +577,6 @@ void Server::ChangeWeapon( IEventPtr eventPtr )
 	}
 }
 
-
 void Server::ClientUpdateShip( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Client_Update_Ship::GUID )

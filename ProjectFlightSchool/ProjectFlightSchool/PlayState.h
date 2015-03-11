@@ -24,7 +24,7 @@
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
-#define ENTITY_CULLDISTANCE		1200.0f
+#define ENTITY_CULLDISTANCE		1500.0f
 
 class PlayState : public BaseState
 {

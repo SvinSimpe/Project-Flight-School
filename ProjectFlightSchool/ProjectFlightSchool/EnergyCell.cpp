@@ -60,21 +60,23 @@ bool EnergyCell::GetSecured() const
 
 HRESULT EnergyCell::Update( float deltaTime )
 {
-	mHooverFactor += deltaTime * 1.0f;
-
-	if( mPickedUp )
+	if( mActive )
 	{
-		mPickUpRadius->center.y = ( sinf( mHooverFactor ) / 2.0f ) + 5.0f;
+		mHooverFactor += deltaTime * 1.0f;
+
+		if( mPickedUp )
+		{
+			mPickUpRadius->center.y = ( sinf( mHooverFactor ) / 2.0f ) + 5.0f;
+		}
+		else
+		{
+			mPickUpRadius->center.y = sinf( mHooverFactor ) + 2.0f;
+		}
+
+		UpdateLight( deltaTime );
+
+		RenderManager::GetInstance()->AnimationUpdate( mAnimationTrack, deltaTime );
 	}
-	else
-	{
-		mPickUpRadius->center.y = sinf( mHooverFactor ) + 2.0f;
-	}
-
-	UpdateLight( deltaTime );
-
-	RenderManager::GetInstance()->AnimationUpdate( mAnimationTrack, deltaTime );
-
 	return S_OK;
 }
 
@@ -102,8 +104,8 @@ void EnergyCell::UpdateLight( float deltaTime )
 
 HRESULT EnergyCell::Render()
 {
-	RenderManager::GetInstance()->AddAnim3dToList( mAnimationTrack, ANIMATION_PLAY_LOOPED, mPickUpRadius->center );
-
+	if( mActive )
+		RenderManager::GetInstance()->AddAnim3dToList( mAnimationTrack, ANIMATION_PLAY_LOOPED, mPickUpRadius->center );
 	return S_OK;
 }
 
@@ -113,6 +115,7 @@ void EnergyCell::Reset()
 	mPickedUp		= false;
 	mSecured		= false;
 	mIsLightActive	= false;
+	mActive			= false;
 }
 
 HRESULT EnergyCell::Initialize( DirectX::XMFLOAT3 position )

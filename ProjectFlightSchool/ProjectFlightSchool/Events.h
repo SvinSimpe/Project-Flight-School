@@ -3484,7 +3484,7 @@ class Event_Server_Sync_Energy_Cell : public IEvent
 		UINT				mOwnerID;
 		DirectX::XMFLOAT3	mPosition;
 		bool				mPickedUp;
-		bool				mSecured;
+		bool				mActive;
 
 	protected:
 	public:
@@ -3499,16 +3499,16 @@ class Event_Server_Sync_Energy_Cell : public IEvent
 			mOwnerID		= (UINT)-1;
 			mPosition		= DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mPickedUp		= false;
-			mSecured		= false;
+			mActive			= false;
 		}
 
-		Event_Server_Sync_Energy_Cell( UINT energyCellID, UINT ownerID, DirectX::XMFLOAT3 position, bool pickedUp, bool secured )
+		Event_Server_Sync_Energy_Cell( UINT energyCellID, UINT ownerID, DirectX::XMFLOAT3 position, bool pickedUp, bool active )
 		{
 			mEnergyCellID	= energyCellID;
 			mOwnerID		= ownerID;
 			mPosition		= position;
 			mPickedUp		= pickedUp;
-			mSecured		= secured;
+			mActive			= active;
 		}
 
 		~Event_Server_Sync_Energy_Cell() {}
@@ -3526,7 +3526,7 @@ class Event_Server_Sync_Energy_Cell : public IEvent
 			out << mPosition.y << " ";
 			out << mPosition.z << " ";
 			out << mPickedUp << " ";
-			out << mSecured << " ";
+			out << mActive << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
@@ -3536,12 +3536,12 @@ class Event_Server_Sync_Energy_Cell : public IEvent
 			in >> mPosition.y;
 			in >> mPosition.z;
 			in >> mPickedUp;
-			in >> mSecured;
+			in >> mActive;
 		}
 
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Server_Sync_Energy_Cell( mEnergyCellID, mOwnerID, mPosition, mPickedUp, mSecured ) );
+			return IEventPtr( new Event_Server_Sync_Energy_Cell( mEnergyCellID, mOwnerID, mPosition, mPickedUp, mActive ) );
 		}
 
 		UINT EnergyCellID() const
@@ -3564,9 +3564,9 @@ class Event_Server_Sync_Energy_Cell : public IEvent
 			return mPickedUp;
 		}
 
-		bool Secured() const
+		bool Active() const
 		{
-			return mSecured;
+			return mActive;
 		}
 };
 
@@ -3685,7 +3685,7 @@ class Event_Client_Sync_Energy_Cell : public IEvent
 		UINT				mOwnerID;
 		DirectX::XMFLOAT3	mPosition;
 		bool				mPickedUp;
-		bool				mSecured;
+		bool				mActive;
 
 	protected:
 	public:
@@ -3702,13 +3702,13 @@ class Event_Client_Sync_Energy_Cell : public IEvent
 			mPickedUp		= false;
 		}
 
-		Event_Client_Sync_Energy_Cell( UINT energyCellID, UINT ownerID, DirectX::XMFLOAT3 position, bool pickedUp, bool secured )
+		Event_Client_Sync_Energy_Cell( UINT energyCellID, UINT ownerID, DirectX::XMFLOAT3 position, bool pickedUp, bool active )
 		{
 			mEnergyCellID	= energyCellID;
 			mOwnerID		= ownerID;
 			mPosition		= position;
 			mPickedUp		= pickedUp;
-			mSecured		= secured;
+			mActive			= active;
 		}
 
 		~Event_Client_Sync_Energy_Cell() {}
@@ -3726,7 +3726,7 @@ class Event_Client_Sync_Energy_Cell : public IEvent
 			out << mPosition.y << " ";
 			out << mPosition.z << " ";
 			out << mPickedUp << " ";
-			out << mSecured << " ";
+			out << mActive << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
@@ -3736,12 +3736,12 @@ class Event_Client_Sync_Energy_Cell : public IEvent
 			in >> mPosition.y;
 			in >> mPosition.z;
 			in >> mPickedUp;
-			in >> mSecured;
+			in >> mActive;
 		}
 
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Client_Sync_Energy_Cell( mEnergyCellID, mOwnerID, mPosition, mPickedUp, mSecured ) );
+			return IEventPtr( new Event_Client_Sync_Energy_Cell( mEnergyCellID, mOwnerID, mPosition, mPickedUp, mActive ) );
 		}
 
 		UINT EnergyCellID() const
@@ -3764,9 +3764,9 @@ class Event_Client_Sync_Energy_Cell : public IEvent
 			return mPickedUp;
 		}
 
-		bool Secured() const
+		bool Active() const
 		{
-			return mSecured;
+			return mActive;
 		}
 };
 
@@ -5803,6 +5803,68 @@ class Event_Spawn_Energy_Cell : public IEvent
 		IEventPtr Copy() const
 		{
 			return IEventPtr( new Event_Spawn_Energy_Cell() );
+		}
+};
+
+class Event_Spawn_Timer_Energy_Cell : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Spawn_Timer_Energy_Cell()
+		{
+		}
+		~Event_Spawn_Timer_Energy_Cell() {}
+		
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Spawn_Timer_Energy_Cell() );
+		}
+};
+
+class Event_Client_Dropped_Energy_Cell : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Dropped_Energy_Cell()
+		{
+		}
+		~Event_Client_Dropped_Energy_Cell() {}
+		
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Dropped_Energy_Cell() );
 		}
 };
 

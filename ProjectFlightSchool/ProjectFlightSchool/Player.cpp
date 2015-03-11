@@ -402,7 +402,7 @@ void Player::PickUpEnergyCell( EnergyCell** energyCells )
 {
 	for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
 	{
-		if( !energyCells[i]->GetPickedUp() && mEnergyCellID == (UINT)-1 )
+		if( !energyCells[i]->GetPickedUp() && mEnergyCellID == (UINT)-1 && energyCells[i]->GetActive() )
 		{
 			if( energyCells[i]->GetPickUpRadius()->Intersect( mBoundingCircle ) )
 			{
@@ -412,7 +412,7 @@ void Player::PickUpEnergyCell( EnergyCell** energyCells )
 				energyCells[i]->SetPosition( mLowerBody.position );
 				mEnergyCellID = i;
 
-				IEventPtr E1( new Event_Client_Sync_Energy_Cell( i, mID, mLowerBody.position, energyCells[mEnergyCellID]->GetPickedUp(), energyCells[mEnergyCellID]->GetSecured() ) );
+				IEventPtr E1( new Event_Client_Sync_Energy_Cell( i, mID, mLowerBody.position, energyCells[mEnergyCellID]->GetPickedUp(), energyCells[mEnergyCellID]->GetActive() ) );
 				QueueEvent( E1 );
 			}
 		}
@@ -429,8 +429,11 @@ void Player::DropEnergyCell( EnergyCell** energyCells )
 		energyCells[mEnergyCellID]->SetSecured( false );
 	
 
-		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, (UINT)-1, mLowerBody.position, energyCells[mEnergyCellID]->GetPickedUp(), energyCells[mEnergyCellID]->GetPickedUp() ) );
+		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, (UINT)-1, mLowerBody.position, energyCells[mEnergyCellID]->GetPickedUp(), energyCells[mEnergyCellID]->GetActive() ) );
 		QueueEvent( E1 );
+
+		IEventPtr E2( new Event_Client_Dropped_Energy_Cell() );
+		QueueEvent( E2 );
 
 		mEnergyCellID	= (UINT)-1;
 		mPickUpCooldown	= 3.0f;
@@ -446,7 +449,7 @@ void Player::GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, Direct
 		energyCells[mEnergyCellID]->SetPickedUp( true );
 		energyCells[mEnergyCellID]->SetSecured( true );
 
-		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, shipID, shipPos, energyCells[mEnergyCellID]->GetPickedUp(), energyCells[mEnergyCellID]->GetSecured() ) );
+		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, shipID, shipPos, energyCells[mEnergyCellID]->GetPickedUp(), energyCells[mEnergyCellID]->GetActive() ) );
 		QueueEvent( E1 );
 
 		mEnergyCellID	= (UINT)-1;
@@ -456,14 +459,8 @@ void Player::GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, Direct
 
 HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
 {
-	if( energyCells[1]->GetOwnerID() != mID )
-	{
-		mPlayerGoal = energyCells[1]->GetPosition();
-	}
-	else
-	{
-		mPlayerGoal = mShipPos;
-	}
+	//Draw goal arrow
+
 
 	float circleRadius = 2.0f;
 
@@ -479,7 +476,19 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	XMFLOAT4X4 world;
 	XMStoreFloat4x4( &world, XMMatrixTranspose( rotMatrix * trans ) );
 
-	RenderManager::GetInstance()->AddBoxToList( XMFLOAT3( -0.5f, -0.5f, -0.5f ), XMFLOAT3( 0.5f, 0.5f, 0.5f ), world );
+	
+	if( energyCells[1]->GetActive() )
+	{
+		if( energyCells[1]->GetOwnerID() != mID )
+		{
+			mPlayerGoal = energyCells[1]->GetPosition();
+		}
+		else
+		{
+			mPlayerGoal = mShipPos;
+		}
+		RenderManager::GetInstance()->AddBoxToList( XMFLOAT3( -0.5f, -0.5f, -0.5f ), XMFLOAT3( 0.5f, 0.5f, 0.5f ), world );
+	}
 
 
 	// Update water status	

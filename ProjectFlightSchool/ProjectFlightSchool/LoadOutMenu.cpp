@@ -64,9 +64,6 @@ void LoadOutMenu::Render()
 
 void LoadOutMenu::Reset()
 {
-	mCurrentRanged	= 0;
-	mCurrentMelee	= 4;
-
 	IEventPtr E1( new Event_Change_Weapon( (int)mButtons[mCurrentMelee].weaponType ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
 	

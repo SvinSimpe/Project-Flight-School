@@ -7,11 +7,11 @@
 
 #define KEYCOOLDOWN 0.2f
 #define HELDCOOLDOWN 0.1f
-#define MAX_CHAR_INPUT 15
 
 class InputSquare : public MovingButton
 {
 	private:
+		size_t		mMaxChars;
 		Image*		mTitle;
 		Font*		mText;
 		std::string mCurrentText;

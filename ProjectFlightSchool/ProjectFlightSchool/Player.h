@@ -99,6 +99,7 @@ class Player: public RemotePlayer
 
 		void		HammerMelee( float deltaTime );
 		void		BlowtorchMelee( float deltaTime );
+		void		BlowtorchIdle();
 		void		ClaymoreMelee( float deltaTime );
 
 		float		CalculateLaunchAngle();

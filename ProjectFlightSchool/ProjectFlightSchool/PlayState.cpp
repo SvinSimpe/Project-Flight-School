@@ -258,6 +258,15 @@ void PlayState::EventListener( IEventPtr newEvent )
 			std::swap( mShips[FRIEND_SHIP], mShips[ENEMY_SHIP] );
 		}
 	}
+	
+	
+	
+	else if( newEvent->GetEventType() == Event_Remote_Request_ParticleSystem::GUID )
+	{
+		std::shared_ptr<Event_Remote_Request_ParticleSystem> data = std::static_pointer_cast<Event_Remote_Request_ParticleSystem>( newEvent );
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), (ParticleType)data->ParticleType(), data->Position(), data->Direction(), data->InitialVelocity() );
+	}
+
 }
 
 void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction )
@@ -1274,6 +1283,7 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Reset_Game::GUID );
 
 	EventManager::GetInstance()->AddListener(&PlayState::EventListener, this, Event_Server_Switch_Team::GUID );
+	EventManager::GetInstance()->AddListener(&PlayState::EventListener, this, Event_Remote_Request_ParticleSystem::GUID );
 
 	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 

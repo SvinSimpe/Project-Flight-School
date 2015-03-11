@@ -140,3 +140,5 @@ const EventType Event_Client_Change_Ready_State::GUID( counter++ );
 const EventType Event_Server_Change_Ready_State::GUID( counter++ );
 const EventType Event_Server_Start_Game_Countdown::GUID( counter++ );
 const EventType Event_Host_Start_Game_Countdown::GUID( counter++ );
+const EventType Event_Client_Request_ParticleSystem::GUID( counter++ );
+const EventType Event_Remote_Request_ParticleSystem::GUID( counter++ );

@@ -256,6 +256,8 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 	}
 	if( mHasMeleeStarted )
 		Melee( deltaTime );
+	else if( mLoadOut->meleeWeapon->weaponType == BLOWTORCH  )
+		BlowtorchIdle();
 
 	//Minigun behaviour
 	if( mLoadOut->rangedWeapon->weaponType == MINIGUN )
@@ -764,7 +766,8 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		XMFLOAT3 loadDir;
 		XMStoreFloat3( &loadDir, offset );
 
-		RenderManager::GetInstance()->mParticleManager->RequestParticleSystem( mID, NormalSmoke, loadDir, DirectX::XMFLOAT3( 0.0f, 1.0f, 0.0f ) ); 
+		IEventPtr E2( new Event_Client_Request_ParticleSystem( mID, (int)NormalSmoke, loadDir, DirectX::XMFLOAT3( 0.0f, 1.0f, 0.0f ), mVelocity ) );
+		QueueEvent( E2 );
 
 		if( mWeaponCoolDown <= 0.0f )
 		{
@@ -826,7 +829,8 @@ void Player::BlowtorchMelee( float deltaTime )
 		if( mHasMeleeStarted )
 		{
 			mTimeTillattack -= deltaTime;
-			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchFire, loadDir, mUpperBody.direction, mVelocity );
+			IEventPtr E1( new Event_Client_Request_ParticleSystem( mID, (int)BlowTorchFire, loadDir, mUpperBody.direction, mVelocity ) );
+			QueueEvent( E1 );
 			SoundBufferHandler::GetInstance()->Play3D( mBlowTorch , GetPosition() );
 			if( mTimeTillattack <= 0.0f )
 			{
@@ -839,8 +843,25 @@ void Player::BlowtorchMelee( float deltaTime )
 				mIsMeleeing			= false;
 			}
 		}
-		else
-			RenderManager::GetInstance()->RequestParticleSystem( mID, BlowTorchIdle, loadDir, mUpperBody.direction, mVelocity );
+}
+
+void Player::BlowtorchIdle()
+{
+	XMFLOAT3 weaponOffsets = BLOWTORCH_OFFSETS;
+
+	weaponOffsets = XMFLOAT3( weaponOffsets.x + 1.25f, weaponOffsets.y, weaponOffsets.z );
+	XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
+	XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
+	XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + weaponOffsets.z, mLowerBody.position.z ) );
+	
+	offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * weaponOffsets.y;
+	offset += direction * weaponOffsets.x;
+
+	XMFLOAT3 loadDir;
+	XMStoreFloat3( &loadDir, offset );
+
+	IEventPtr E1( new Event_Client_Request_ParticleSystem( mID, (int)BlowTorchIdle, loadDir, mUpperBody.direction, mVelocity ) );
+	QueueEvent( E1 );
 }
 
 void Player::ClaymoreMelee( float deltaTime )
@@ -1259,6 +1280,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 	IEventPtr E1( new Event_Trigger_Client_Update( mID, mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName, mIsBuffed, mIsAlive ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
+
 	return S_OK;
 }
 

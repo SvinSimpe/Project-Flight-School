@@ -62,6 +62,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 						mEnergyCells[ecID]->GetPickedUp() ) );
 					Client::GetInstance()->SendEvent( E1 );
 				}
+				break;
 			}
 		}
 	}

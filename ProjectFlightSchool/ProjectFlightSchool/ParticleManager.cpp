@@ -98,8 +98,8 @@ void ParticleManager::Initialize()
 	mNrOfParticleSystemsPerType[FireSmoke]		= 0;
 	mNrOfParticleSystemsPerType[BlowTorchFire]	= 0;
 	mNrOfParticleSystemsPerType[BlowTorchIdle]	= 0;
-	mNrOfParticleSystemsPerType[Fire_Flies]		= 0;// Below this
-	mNrOfParticleSystemsPerType[NormalSmoke]	= 0;// Below this
+	mNrOfParticleSystemsPerType[Fire_Flies]		= 0;
+	mNrOfParticleSystemsPerType[NormalSmoke]	= 0;
 	mNrOfParticleSystemsPerType[Hammer_Effect]	= 0;
 
 	mMaxNrOfParticleSystemsPerType[GranateTrail]	= 6;
@@ -121,10 +121,10 @@ void ParticleManager::Initialize()
 	mMaxNrOfParticleSystemsPerType[FireSmoke]		= 8;
 	mMaxNrOfParticleSystemsPerType[BlowTorchFire]	= 8;
 	mMaxNrOfParticleSystemsPerType[BlowTorchIdle]	= 8;
-	mMaxNrOfParticleSystemsPerType[Fire_Flies]		= 100;// Below this
+	mMaxNrOfParticleSystemsPerType[Fire_Flies]		= 100;
 	mMaxNrOfParticleSystemsPerType[NormalSmoke]		= 8;
-	mMaxNrOfParticleSystemsPerType[Hammer_Effect]	= 8; // Aswell as this
-	
+	mMaxNrOfParticleSystemsPerType[Hammer_Effect]	= 8;
+
 	mNrOfActiveParticleSystemsPerType[GranateTrail]		= 0;
 	mNrOfActiveParticleSystemsPerType[SniperTrail]		= 0;
 	mNrOfActiveParticleSystemsPerType[Shell]			= 0;
@@ -144,8 +144,8 @@ void ParticleManager::Initialize()
 	mNrOfActiveParticleSystemsPerType[BlowTorchFire]	= 0;
 	mNrOfActiveParticleSystemsPerType[BlowTorchIdle]	= 0;
 	mNrOfActiveParticleSystemsPerType[FireSmoke]		= 0;
-	mNrOfActiveParticleSystemsPerType[Fire_Flies]		= 0;// And this
-	mNrOfActiveParticleSystemsPerType[NormalSmoke]		= 0;// And this
+	mNrOfActiveParticleSystemsPerType[Fire_Flies]		= 0;
+	mNrOfActiveParticleSystemsPerType[NormalSmoke]		= 0;
 	mNrOfActiveParticleSystemsPerType[Hammer_Effect]	= 0;
 
 	//======= Allocate memory for Particle Systems =======

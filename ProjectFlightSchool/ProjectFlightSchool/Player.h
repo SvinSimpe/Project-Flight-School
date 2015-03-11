@@ -22,19 +22,12 @@
 class Map;
 class Path;
 
-struct Upgrades
-{
-	int		currentBodyLevel			= 1;
-	float	damageTakenPercentage		= 1.0f; // 1 == 100 % == No resistance!
-	int		currentLegsLevel			= 1;
-	float	runSpeedFactor				= 0.7f;
-};
+
 
 class Player: public RemotePlayer
 {
 	private:
 		PointLight*		mPointLight;
-		Upgrades		mUpgrades;
 
 		bool		mWeaponOverheated;
 		float		mTimeSinceLastShot;
@@ -53,7 +46,6 @@ class Player: public RemotePlayer
 		float		mMaxVelocity;
 		float		mCurrentVelocity;
 		float		mMaxAcceleration;
-		float		mSlowDown;
 		XMFLOAT3	mAcceleration;
 		XMFLOAT3	mFireDirection;
 		XMFLOAT3	mPick;
@@ -108,6 +100,7 @@ class Player: public RemotePlayer
 
 		void		HammerMelee( float deltaTime );
 		void		BlowtorchMelee( float deltaTime );
+		void		BlowtorchIdle();
 		void		ClaymoreMelee( float deltaTime );
 
 		float		CalculateLaunchAngle();
@@ -143,6 +136,7 @@ class Player: public RemotePlayer
 		bool		GetIsMeleeing()	const;
 		XMFLOAT3	GetPlayerPosition() const;
 		XMFLOAT3	GetUpperBodyDirection() const;
+
 		float		GetXPToNext() const;
 		int			Upgradable() const;
 		void		SetIsMeleeing( bool isMeleeing );

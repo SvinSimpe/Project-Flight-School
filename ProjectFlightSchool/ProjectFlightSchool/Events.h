@@ -3485,6 +3485,7 @@ class Event_Server_Sync_Energy_Cell : public IEvent
 		UINT				mOwnerID;
 		DirectX::XMFLOAT3	mPosition;
 		bool				mPickedUp;
+		bool				mActive;
 
 	protected:
 	public:
@@ -3499,14 +3500,16 @@ class Event_Server_Sync_Energy_Cell : public IEvent
 			mOwnerID		= (UINT)-1;
 			mPosition		= DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mPickedUp		= false;
+			mActive			= false;
 		}
 
-		Event_Server_Sync_Energy_Cell( UINT energyCellID, UINT ownerID, DirectX::XMFLOAT3 position, bool pickedUp )
+		Event_Server_Sync_Energy_Cell( UINT energyCellID, UINT ownerID, DirectX::XMFLOAT3 position, bool pickedUp, bool active )
 		{
 			mEnergyCellID	= energyCellID;
 			mOwnerID		= ownerID;
 			mPosition		= position;
 			mPickedUp		= pickedUp;
+			mActive			= active;
 		}
 
 		~Event_Server_Sync_Energy_Cell() {}
@@ -3524,6 +3527,7 @@ class Event_Server_Sync_Energy_Cell : public IEvent
 			out << mPosition.y << " ";
 			out << mPosition.z << " ";
 			out << mPickedUp << " ";
+			out << mActive << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
@@ -3533,11 +3537,12 @@ class Event_Server_Sync_Energy_Cell : public IEvent
 			in >> mPosition.y;
 			in >> mPosition.z;
 			in >> mPickedUp;
+			in >> mActive;
 		}
 
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Server_Sync_Energy_Cell( mEnergyCellID, mOwnerID, mPosition, mPickedUp ) );
+			return IEventPtr( new Event_Server_Sync_Energy_Cell( mEnergyCellID, mOwnerID, mPosition, mPickedUp, mActive ) );
 		}
 
 		UINT EnergyCellID() const
@@ -3558,6 +3563,11 @@ class Event_Server_Sync_Energy_Cell : public IEvent
 		bool PickedUp() const
 		{
 			return mPickedUp;
+		}
+
+		bool Active() const
+		{
+			return mActive;
 		}
 };
 
@@ -3676,6 +3686,7 @@ class Event_Client_Sync_Energy_Cell : public IEvent
 		UINT				mOwnerID;
 		DirectX::XMFLOAT3	mPosition;
 		bool				mPickedUp;
+		bool				mActive;
 
 	protected:
 	public:
@@ -3692,12 +3703,13 @@ class Event_Client_Sync_Energy_Cell : public IEvent
 			mPickedUp		= false;
 		}
 
-		Event_Client_Sync_Energy_Cell( UINT energyCellID, UINT ownerID, DirectX::XMFLOAT3 position, bool pickedUp )
+		Event_Client_Sync_Energy_Cell( UINT energyCellID, UINT ownerID, DirectX::XMFLOAT3 position, bool pickedUp, bool active )
 		{
 			mEnergyCellID	= energyCellID;
 			mOwnerID		= ownerID;
 			mPosition		= position;
 			mPickedUp		= pickedUp;
+			mActive			= active;
 		}
 
 		~Event_Client_Sync_Energy_Cell() {}
@@ -3715,6 +3727,7 @@ class Event_Client_Sync_Energy_Cell : public IEvent
 			out << mPosition.y << " ";
 			out << mPosition.z << " ";
 			out << mPickedUp << " ";
+			out << mActive << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
@@ -3724,11 +3737,12 @@ class Event_Client_Sync_Energy_Cell : public IEvent
 			in >> mPosition.y;
 			in >> mPosition.z;
 			in >> mPickedUp;
+			in >> mActive;
 		}
 
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Client_Sync_Energy_Cell( mEnergyCellID, mOwnerID, mPosition, mPickedUp ) );
+			return IEventPtr( new Event_Client_Sync_Energy_Cell( mEnergyCellID, mOwnerID, mPosition, mPickedUp, mActive ) );
 		}
 
 		UINT EnergyCellID() const
@@ -3749,6 +3763,11 @@ class Event_Client_Sync_Energy_Cell : public IEvent
 		bool PickedUp() const
 		{
 			return mPickedUp;
+		}
+
+		bool Active() const
+		{
+			return mActive;
 		}
 };
 
@@ -5757,6 +5776,98 @@ class Event_Server_Start_Game_Countdown : public IEvent
 		}
 };
 
+class Event_Spawn_Energy_Cell : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Spawn_Energy_Cell()
+		{
+		}
+		~Event_Spawn_Energy_Cell() {}
+		
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Spawn_Energy_Cell() );
+		}
+};
+
+class Event_Spawn_Timer_Energy_Cell : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Spawn_Timer_Energy_Cell()
+		{
+		}
+		~Event_Spawn_Timer_Energy_Cell() {}
+		
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Spawn_Timer_Energy_Cell() );
+		}
+};
+
+class Event_Client_Dropped_Energy_Cell : public IEvent
+{
+	private:
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Dropped_Energy_Cell()
+		{
+		}
+		~Event_Client_Dropped_Energy_Cell() {}
+		
+		void Serialize( std::ostringstream& out ) const
+		{
+		}
+		void Deserialize( std::istringstream& in )
+		{
+		}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Dropped_Energy_Cell() );
+		}
+};
 
 class Event_Client_Request_ParticleSystem : public IEvent
 {
@@ -5766,7 +5877,6 @@ class Event_Client_Request_ParticleSystem : public IEvent
 		XMFLOAT3		mPosition;
 		XMFLOAT3		mDirection;
 		XMFLOAT3		mInitialVelocity;
-
 	protected:
 	public:
 		static const EventType GUID;
@@ -5774,6 +5884,7 @@ class Event_Client_Request_ParticleSystem : public IEvent
 	private:
 	protected:
 	public:
+
 		Event_Client_Request_ParticleSystem()
 		{
 			mID					= (UINT)-1;
@@ -5894,7 +6005,9 @@ class Event_Remote_Request_ParticleSystem : public IEvent
 			mDirection			= direction;
 			mInitialVelocity	= intialVelocity;
 		}
+
 		~Event_Remote_Request_ParticleSystem() {}
+
 		const EventType& GetEventType() const
 		{
 			return GUID;

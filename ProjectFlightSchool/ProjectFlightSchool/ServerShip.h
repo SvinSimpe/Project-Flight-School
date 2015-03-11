@@ -58,7 +58,7 @@ class ServerShip : public GameObject
 
 	protected:
 	public:
-		void			AddEnergyCell( UINT energyCellOwnerID );
+		void			AddEnergyCell();
 		float			PercentShield() const;
 		float			PercentHP() const;
 		

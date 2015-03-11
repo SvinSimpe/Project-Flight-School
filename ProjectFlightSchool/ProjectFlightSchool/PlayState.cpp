@@ -59,7 +59,8 @@ void PlayState::EventListener( IEventPtr newEvent )
 						ecID, 
 						mEnergyCells[ecID]->GetOwnerID(), 
 						mEnergyCells[ecID]->GetPosition(), 
-						mEnergyCells[ecID]->GetPickedUp() ) );
+						mEnergyCells[ecID]->GetPickedUp(),
+						mEnergyCells[ecID]->GetActive() ) );
 					Client::GetInstance()->SendEvent( E1 );
 				}
 				break;
@@ -195,6 +196,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		mEnergyCells[data->EnergyCellID()]->SetOwnerID( data->OwnerID() );
 		mEnergyCells[data->EnergyCellID()]->SetPosition( data->Position() );
 		mEnergyCells[data->EnergyCellID()]->SetPickedUp( data->PickedUp() );
+		mEnergyCells[data->EnergyCellID()]->SetActive( data->Active() );
 
 		if( data->OwnerID() != (UINT)-1 )
 		{
@@ -998,7 +1000,7 @@ HRESULT PlayState::Update( float deltaTime )
 			if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 			{
 				mPlayer->GiveEnergyCellToShip( mEnergyCells, mShips[FRIEND_SHIP]->GetID(), mShips[FRIEND_SHIP]->GetPos() );
-				mShips[FRIEND_SHIP]->AddEnergyCell( mShips[FRIEND_SHIP]->GetID() );
+				mShips[FRIEND_SHIP]->AddEnergyCell();
 			}
 		}
 		mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers, mEnergyCells );
@@ -1056,7 +1058,7 @@ HRESULT PlayState::Update( float deltaTime )
 		//No need to update the first energy cell since it's not supposed to be active
 		for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
 		{
-			if( !mEnergyCells[i]->GetPickedUp() )
+			if( !mEnergyCells[i]->GetPickedUp() && mEnergyCells[i]->GetActive() )
 			{
 				mRadarObjects[nrOfRadarObj].mRadarObjectPos = mEnergyCells[i]->GetPosition();
 				mRadarObjects[nrOfRadarObj++].mType			= RADAR_TYPE::OBJECTIVE;
@@ -1191,7 +1193,7 @@ HRESULT PlayState::Render( float deltaTime )
 
 	for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
 	{
-		if( !mEnergyCells[i]->GetSecured() && CullEntity( mEnergyCells[i]->GetPosition() ) )
+		if( CullEntity( mEnergyCells[i]->GetPosition() ) )
 		{
 			mEnergyCells[i]->Render();
 		}
@@ -1235,11 +1237,15 @@ void PlayState::OnEnter()
 	IEventPtr E1( new Event_Game_Started() );
 	EventManager::GetInstance()->QueueEvent( E1 );
 
+	//Spawn a energycell
+
 	SoundBufferHandler::GetInstance()->LoopStream( mLobbyMusic );
 
 	mGui->SetTeamID( mPlayer->GetTeam() );
 	IEventPtr spawnPos( new Event_Request_Player_Spawn_Position( mPlayer->GetID(), mPlayer->GetTeam() ) );
 	EventManager::GetInstance()->QueueEvent( spawnPos );
+
+	mPlayer->SetHomePos( mShips[FRIEND_SHIP]->GetPos() );
 }
 
 void PlayState::OnExit()
@@ -1385,7 +1391,7 @@ HRESULT PlayState::Initialize()
 	for ( size_t i = 0; i < MAX_ENERGY_CELLS; i++ )
 	{
 		mEnergyCells[i] = new EnergyCell();
-		mEnergyCells[i]->Initialize( DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
+		mEnergyCells[i]->Initialize( DirectX::XMFLOAT3( 1000.0f, 0.0f, 0.0f ) );
 	}
 
 	//TestSound

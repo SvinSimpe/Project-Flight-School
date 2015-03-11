@@ -31,6 +31,11 @@ UINT ClientShip::GetNrOfEnergyCells() const
 	return mNrOfEnergyCells;
 }
 
+bool ClientShip::CheckLose()
+{
+	return mCurrentHP <= 0.0f;
+}
+
 void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 {
 	if ( eventPtr->GetEventType() == Event_Request_Player_Spawn_Position::GUID )

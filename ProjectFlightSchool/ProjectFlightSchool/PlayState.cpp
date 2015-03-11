@@ -116,7 +116,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
 	{
 		std::shared_ptr<Event_Server_Create_Enemy> data = std::static_pointer_cast<Event_Server_Create_Enemy>( newEvent );
-		SyncEnemy( data->ID(), (EnemyState)data->State(), (EnemyType)data->Type(), data->Position(), data->Direction() );
+		SyncEnemy( data->ID(), (EnemyState)data->State(), (EnemyType)data->Type(), data->Position(), data->Direction(), data->MaxHP() );
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Update_Enemy::GUID )
 	{
@@ -272,7 +272,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	}
 }
 
-void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction )
+void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction, float maxHp )
 {
 	mEnemyListSynced = false;
 	mEnemies[id]->SetID( id );
@@ -282,6 +282,7 @@ void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XM
 	mEnemies[id]->SetAnimation( mEnemyAnimationManager->GetAnimation( mEnemies[id]->GetEnemyType(), state ) );
 	mEnemies[id]->SetPosition( position );
 	mEnemies[id]->SetDirection( direction );
+	mEnemies[id]->SetMaxHP( maxHp );
 	mEnemies[id]->SetSynced( true );
 
 	if( id == (MAX_NR_OF_ENEMIES-1) )

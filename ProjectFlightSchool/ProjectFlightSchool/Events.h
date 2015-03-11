@@ -1526,6 +1526,7 @@ class Event_Server_Create_Enemy : public IEvent
 		UINT		mType;
 		XMFLOAT3	mPosition;
 		XMFLOAT3	mDirection;
+		float		mMaxHp; 
 
 	protected:
 	public:
@@ -1541,14 +1542,16 @@ class Event_Server_Create_Enemy : public IEvent
 			mType		= (UINT)-1;
 			mPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mDirection	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mMaxHp		= 0.0f;
 		}
-		Event_Server_Create_Enemy( UINT id, UINT state, UINT type, XMFLOAT3 position, XMFLOAT3 direction )
+		Event_Server_Create_Enemy( UINT id, UINT state, UINT type, XMFLOAT3 position, XMFLOAT3 direction, float maxHp )
 		{
 			mID			= id;
 			mState		= state;
 			mType		= type;
 			mPosition	= position;
 			mDirection	= direction;
+			mMaxHp		= maxHp;
 		}
 		~Event_Server_Create_Enemy() {}
 		const EventType& GetEventType() const
@@ -1568,6 +1571,8 @@ class Event_Server_Create_Enemy : public IEvent
 			out << mDirection.x << " ";
 			out << mDirection.y << " ";
 			out << mDirection.z << " ";
+
+			out << mMaxHp << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
@@ -1582,10 +1587,12 @@ class Event_Server_Create_Enemy : public IEvent
 			in >> mDirection.x;
 			in >> mDirection.y;
 			in >> mDirection.z;
+
+			in >> mMaxHp;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Server_Create_Enemy( mID, mState, mType, mPosition, mDirection ) );
+			return IEventPtr( new Event_Server_Create_Enemy( mID, mState, mType, mPosition, mDirection, mMaxHp ) );
 		}
 		UINT ID() const
 		{
@@ -1606,6 +1613,10 @@ class Event_Server_Create_Enemy : public IEvent
 		XMFLOAT3 Direction() const
 		{
 			return mDirection;
+		}
+		float MaxHP() const
+		{
+			return mMaxHp;
 		}
 };
 

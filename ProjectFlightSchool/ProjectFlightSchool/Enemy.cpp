@@ -432,6 +432,11 @@ float Enemy::GetHP() const
 	return mCurrentHp;
 }
 
+float Enemy::GetMaxHP() const
+{
+	return mMaxHp;
+}
+
 float Enemy::GetSpeed() const
 {
 	return mSpeed;

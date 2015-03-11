@@ -451,6 +451,7 @@ class Enemy
 		XMFLOAT3			GetPosition() const;
 		XMFLOAT3			GetDirection() const;
 		float				GetHP() const;
+		float				GetMaxHP() const;
 		float				GetSpeed() const;
 		XMFLOAT3			GetVelocity() const;
 

@@ -47,6 +47,16 @@ float RemoteEnemy::GetHP() const
 	return mCurrentHP;
 }
 
+void RemoteEnemy::SetMaxHP( float hp )
+{
+	mMaxHP	= hp;
+}
+
+float RemoteEnemy::GetMaxHP() const
+{
+	return mMaxHP;
+}
+
 void RemoteEnemy::SetIsAlive( bool isAlive )
 {
 	mIsAlive	= isAlive;

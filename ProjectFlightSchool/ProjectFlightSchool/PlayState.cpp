@@ -634,7 +634,12 @@ void PlayState::HandleDeveloperCameraInput()
 		mPlayer->AddXP( 3000.0f );
 		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
 		{
-			IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
+			UINT winTeam = 1;
+			if( mPlayer->GetTeam() == winTeam )
+			{
+				winTeam = 2;
+			}
+			IEventPtr E1( new Event_Client_Win( winTeam ) );
 			Client::GetInstance()->SendEvent( E1 );
 		}
 	}

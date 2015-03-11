@@ -164,18 +164,6 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		{
 			mLowerBody.position = XMFLOAT3( 0, 0, 0 );
 		}
-		if( mFollowPath && !currentPath.empty() )
-		{
-			if( currStep != currentPath.end() )
-			{
-				mAcceleration = XMFLOAT3( ( (*currStep).x - mLowerBody.position.x ) * mMaxAcceleration, 0, ( (*currStep).y - mLowerBody.position.z ) * mMaxAcceleration );
-				XMFLOAT3 step = XMFLOAT3( (*currStep).x, 0, (*currStep).y );
-				if( HelperFunctions::Dist3Squared( step, mLowerBody.position  ) < 1.0f )
-				{
-					currStep = currentPath.erase(currStep);		
-				}
-			}
-		}
 
 		//Normalize acceleration 
 		XMVECTOR normalizer = XMVector3Length( XMLoadFloat3( &mAcceleration ) );
@@ -392,6 +380,11 @@ void Player::Move( float deltaTime )
 	}
 }
 
+void Player::Ding()
+{
+	AddXP( mNextLevelXP );
+}
+
 void Player::AddXP( float XP )
 {
 	//Check if maxlevel
@@ -406,7 +399,8 @@ void Player::AddXP( float XP )
 	{
 		mCurrentUpgrades++;
 		mXP -= mNextLevelXP;
-		mNextLevelXP *= 1.1f;
+		mNextLevelXP *= powf( 1.009f, (float) ( mCurrentLevel + 1.0f ) );
+		mNextLevelXP += 5.0f;
 		mCurrentLevel++;
 		if( mCurrentLevel > MAX_PLAYER_LEVEL )
 		{
@@ -422,7 +416,7 @@ void Player::PickUpEnergyCell( EnergyCell** energyCells )
 {
 	for( UINT i = 0; i < MAX_ENERGY_CELLS; i++ )
 	{
-		if( !energyCells[i]->GetPickedUp() && mEnergyCellID == (UINT)-1 )
+		if( !energyCells[i]->GetPickedUp() && mEnergyCellID == (UINT)-1 && energyCells[i]->GetActive() )
 		{
 			if( energyCells[i]->GetPickUpRadius()->Intersect( mBoundingCircle ) )
 			{
@@ -432,7 +426,7 @@ void Player::PickUpEnergyCell( EnergyCell** energyCells )
 				energyCells[i]->SetPosition( mLowerBody.position );
 				mEnergyCellID = i;
 
-				IEventPtr E1( new Event_Client_Sync_Energy_Cell( i, mID, mLowerBody.position, energyCells[mEnergyCellID]->GetPickedUp() ) );
+				IEventPtr E1( new Event_Client_Sync_Energy_Cell( i, mID, mLowerBody.position, energyCells[mEnergyCellID]->GetPickedUp(), energyCells[mEnergyCellID]->GetActive() ) );
 				QueueEvent( E1 );
 			}
 		}
@@ -449,8 +443,11 @@ void Player::DropEnergyCell( EnergyCell** energyCells )
 		energyCells[mEnergyCellID]->SetSecured( false );
 	
 
-		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, (UINT)-1, mLowerBody.position, energyCells[mEnergyCellID]->GetPickedUp() ) );
+		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, (UINT)-1, mLowerBody.position, energyCells[mEnergyCellID]->GetPickedUp(), energyCells[mEnergyCellID]->GetActive() ) );
 		QueueEvent( E1 );
+
+		IEventPtr E2( new Event_Client_Dropped_Energy_Cell() );
+		QueueEvent( E2 );
 
 		mEnergyCellID	= (UINT)-1;
 		mPickUpCooldown	= 3.0f;
@@ -466,7 +463,7 @@ void Player::GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, Direct
 		energyCells[mEnergyCellID]->SetPickedUp( true );
 		energyCells[mEnergyCellID]->SetSecured( true );
 
-		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, shipID, shipPos, energyCells[mEnergyCellID]->GetPickedUp() ) );
+		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, shipID, shipPos, energyCells[mEnergyCellID]->GetPickedUp(), energyCells[mEnergyCellID]->GetActive() ) );
 		QueueEvent( E1 );
 
 		mEnergyCellID	= (UINT)-1;
@@ -476,15 +473,37 @@ void Player::GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, Direct
 
 HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
 {
-	//Comment in for click-to-move
-	//if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
-	//{
-	//	mFollowPath = false;
-	//	Pathfinder::GetInstance()->RequestPath( currentPath1, mLowerBody.position, mPick  );
-	//	Pathfinder::GetInstance()->CalculateSubPath( currentPath1 );
-	//	currentPath = currentPath1->TotalPath();
-	//	currStep = currentPath.begin();
-	//}
+	//Draw goal arrow
+
+
+	float circleRadius = 2.0f;
+
+	XMVECTOR playerGoal = XMLoadFloat3( &XMFLOAT3( mPlayerGoal.x, 0.0f, mPlayerGoal.z ) );
+	XMVECTOR playerPos = XMLoadFloat3( &mLowerBody.position );
+	XMVECTOR goalDir = playerGoal - playerPos;
+	goalDir = XMVector3Normalize( goalDir );
+
+	float rot = -atan2f( XMVectorGetZ( goalDir ), XMVectorGetX( goalDir ) );
+
+	XMMATRIX rotMatrix = XMMatrixRotationY( rot );
+	XMMATRIX trans = XMMatrixTranslationFromVector( playerPos + ( goalDir * circleRadius ) );
+	XMFLOAT4X4 world;
+	XMStoreFloat4x4( &world, XMMatrixTranspose( rotMatrix * trans ) );
+
+	
+	if( energyCells[1]->GetActive() )
+	{
+		if( energyCells[1]->GetOwnerID() != mID )
+		{
+			mPlayerGoal = energyCells[1]->GetPosition();
+		}
+		else
+		{
+			mPlayerGoal = mShipPos;
+		}
+		RenderManager::GetInstance()->AddBoxToList( XMFLOAT3( -0.5f, -0.5f, -0.5f ), XMFLOAT3( 0.5f, 0.5f, 0.5f ), world );
+	}
+
 
 	// Update water status	
 	mSlowDown += deltaTime / 5;
@@ -1017,11 +1036,11 @@ void Player::WriteInteractionText( std::string text, float xPos, float yPos, flo
 
 void Player::TakeDamage( float damage, unsigned int shooter )
 {
-	if( mIsBuffed )
-	{
-		float moddedDmg = damage * mBuffMod;
-		damage -= moddedDmg;
-	}
+	//if( mIsBuffed )
+	//{
+	//	float moddedDmg = damage * mBuffMod;
+	//	damage -= moddedDmg;
+	//}
 	mCurrentHp -= ( damage * mUpgrades.damageTakenPercentage );
 	if( mCurrentHp < 0.0f )
 	{
@@ -1079,7 +1098,8 @@ void Player::Reset()
 	mAcceleration				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
 	mIsBuffed					= false;
-	mBuffMod					= 0.5f; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
+	mLifeRegenerationAmount		= 2.0f; 
+	mLifeRegenerationTimer		= 5.0f;
 
 	mTimeTillSpawn				= mSpawnTime;
 	mTimeTillDeath				= mDeathTime;
@@ -1115,7 +1135,7 @@ void Player::Reset()
 	mUpgrades.runSpeedFactor = 0.7f;
 
 	mXP					= 0.0f;
-	mNextLevelXP		= 60.0f;
+	mNextLevelXP		= 20.0f;
 	mCurrentLevel		= 0;
 	mCurrentUpgrades	= 0;
 }
@@ -1340,6 +1360,24 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	IEventPtr E1( new Event_Trigger_Client_Update( mID, mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName, mIsBuffed, mIsAlive ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
 
+
+	if( mIsBuffed && mCurrentHp < mMaxHp && mCurrentHp != 0.0f )
+	{
+		mLifeRegenerationTimer -= deltaTime;
+
+		if( mLifeRegenerationTimer <= 0.0f )
+		{
+			mCurrentHp				+= 1.0f;
+			
+			if( mCurrentHp > mMaxHp )
+				mCurrentHp = mMaxHp;
+
+			mLifeRegenerationTimer	= 2.0f - ( (float)mBufflevel * 0.8f );
+		}
+	}
+	else
+		mLifeRegenerationTimer = 2.0f - ( (float)mBufflevel * 0.8f );
+
 	return S_OK;
 }
 
@@ -1349,16 +1387,6 @@ HRESULT Player::Render( float deltaTime, int position )
 	{
         std::string textToWrite = std::to_string( (int)mTimeTillSpawn );
 		mFont.WriteText( textToWrite, (float)Input::GetInstance()->mScreenWidth/2, (float)Input::GetInstance()->mScreenHeight/2, 7.8f );
-	}
-
-	if( !currentPath.empty() )
-	{
-		for( UINT i = 0; i < currentPath.size() - 1; i++ )
-		{
-			XMFLOAT3 start = XMFLOAT3( currentPath[i].x, 0, currentPath[i].y );
-			XMFLOAT3 end = XMFLOAT3( currentPath[i + 1].x, 0, currentPath[i + 1].y );
-			RenderManager::GetInstance()->AddLineToList( start, end );
-		}
 	}
 
 	if( mIsOutSideZone )
@@ -1397,6 +1425,22 @@ HRESULT Player::Render( float deltaTime, int position )
 			2.0f,
 			COLOR_CYAN );
 	}
+
+	//std::string blblbl = "XP " + std::to_string( (int) mXP ) +  "/" + std::to_string( (int)mNextLevelXP );
+	//WriteInteractionText(
+	//	blblbl, 
+	//	(float)( Input::GetInstance()->mScreenWidth * 0.1f ), 
+	//	(float)( Input::GetInstance()->mScreenHeight * 0.4f ) + 25.0f,
+	//	2.0f, 
+	//	COLOR_RED);
+
+	//blblbl = "Current level " + std::to_string( mCurrentLevel );
+	//WriteInteractionText(
+	//	blblbl, 
+	//	(float)( Input::GetInstance()->mScreenWidth * 0.1f ), 
+	//	(float)( Input::GetInstance()->mScreenHeight * 0.4f ) + 50.0f,
+	//	2.0f, 
+	//	COLOR_RED);
 
 	RemotePlayer::Render();
 	//---------------------------DEBUG RENDERING----------------------------
@@ -1452,7 +1496,6 @@ HRESULT Player::Initialize()
 	mIsInWater			= false;
 	mHasMeleeStarted	= false;
 	mXP					= 0.0f;
-	mNextLevelXP		= 0.0f;
 	mCurrentLevel		= 0;
 	
 	mSpawnTime				= 0.0f;
@@ -1464,6 +1507,10 @@ HRESULT Player::Initialize()
 	mLeavingAreaTime		= 0.0f;
 	mWaterDamageTime		= 0.0f;
 	mLastKiller				= 0;
+
+	mLifeRegenerationAmount	= 0.0f;
+	mLifeRegenerationTimer	= 0.0f;
+	mBufflevel				= 0;
 
 	gEventList				= std::list<IEventPtr>(); 
 
@@ -1492,9 +1539,9 @@ HRESULT Player::Initialize()
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
-	mBuffMod			= 0.5f;
 
-	mNextLevelXP		= 60.0f;
+
+	mNextLevelXP		= 20.0f;
 	mCurrentUpgrades	= 0;
 
 	mReviveTime			= 2.0f;
@@ -1635,4 +1682,9 @@ void Player::SetTeam( int team )
 void Player::SetPosition( XMVECTOR position )
 {
 	XMStoreFloat3( &mLowerBody.position, position );
+}
+
+void Player::SetHomePos( XMFLOAT3 pos )
+{
+	mShipPos = pos;
 }

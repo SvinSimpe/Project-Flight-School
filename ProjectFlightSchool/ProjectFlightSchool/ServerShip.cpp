@@ -103,7 +103,9 @@ void ServerShip::CalcShieldLevel()
 
 void ServerShip::CalcBuffMod()
 {
-	mBuffMod = 0.5f + ( 0.2f * (mBuffLevel - 1) );
+	//mBuffMod = 0.5f + ( 0.2f * (mBuffLevel - 1) );
+	//mBuffMod = 2.0f + ( ( mBuffLevel - 1 ) * 2 );
+	mBuffMod += 1.0f;
 }
 
 void ServerShip::ClientUpdateShip( IEventPtr eventPtr )
@@ -123,13 +125,10 @@ void ServerShip::ClientUpdateShip( IEventPtr eventPtr )
 	}
 }
 
-void ServerShip::AddEnergyCell( UINT energyCellID )
+void ServerShip::AddEnergyCell()
 {
-	if( energyCellID == mID )
-	{
-		mNrOfEnergyCells++;
-		mNrOfAvailableEnergyCells++;
-	}
+	mNrOfEnergyCells++;
+	mNrOfAvailableEnergyCells++;
 }
 
 float ServerShip::PercentShield() const
@@ -223,7 +222,7 @@ void ServerShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 {
 	GameObject::Initialize( pos, rot, scale, assetID );
 
-	mBuffMod		= 0.5f;
+	mBuffMod		= 1.0f;
 	mBuffCircle->center = pos;
 	mHitCircle->center	= pos;
 	mID				= id;
@@ -236,6 +235,7 @@ void ServerShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 	mMaxShield					= 100.0f;
 	mCurrentShield				= mMaxShield;
 	mMaxHP						= 20000.0f;
+	//mMaxHP						*= 5.0f; // remove this later
 	mCurrentHP					= mMaxHP;
 	mNrOfEnergyCells			= 0;
 	mNrOfAvailableEnergyCells	= 0;
@@ -254,7 +254,7 @@ void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 	mBuffCircle		= new BoundingCircle( mPos, 20.0f );
 	mHitCircle		= new BoundingCircle( mPos, 10.0f );
 
-	mBuffMod		= 0.5f;
+	mBuffMod		= 1.0f;
 	mID				= id;
 	mTeamID			= teamID;
 	mTurretLevel	= MIN_LEVEL;

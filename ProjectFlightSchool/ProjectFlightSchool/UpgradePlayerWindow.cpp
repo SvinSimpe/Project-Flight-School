@@ -71,7 +71,7 @@ void UpgradePlayerWindow::Render()
 	mFont.WriteText( textToWrite, mRangeButton.button.GetPosition().x + 100.0f - mFont.GetMiddleXPoint( textToWrite, 2.4f ), mRangeButton.button.GetPosition().y + 100.0f - 12.0f, 2.4f, COLOR_CYAN );
 	textToWrite = "Speed " + std::to_string( mSpeedButton.nrOfLevels ) + "/" + std::to_string( MAX_NR_OF_PLAYER_UPGRADES );
 	mFont.WriteText( textToWrite, mSpeedButton.button.GetPosition().x + 100.0f - mFont.GetMiddleXPoint( textToWrite, 2.4f ), mSpeedButton.button.GetPosition().y + 100.0f - 12.0f, 2.4f, COLOR_CYAN );
-	textToWrite = "Health " + std::to_string( mHealthButton.nrOfLevels ) + "/" + std::to_string( MAX_NR_OF_PLAYER_UPGRADES );
+	textToWrite = "Armor " + std::to_string( mHealthButton.nrOfLevels ) + "/" + std::to_string( MAX_NR_OF_PLAYER_UPGRADES );
 	mFont.WriteText( textToWrite, mHealthButton.button.GetPosition().x + 100.0f - mFont.GetMiddleXPoint( textToWrite, 2.4f ), mHealthButton.button.GetPosition().y + 100.0f - 12.0f, 2.4f, COLOR_CYAN );
 }
 

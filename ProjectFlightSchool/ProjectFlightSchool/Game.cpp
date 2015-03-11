@@ -46,12 +46,9 @@ void Game::ReachEvents( IEventPtr eventPtr )
 
 HRESULT Game::Update( float deltaTime )
 {
+	EventManager::GetInstance()->Update();
 	Client::GetInstance()->Update( deltaTime );
 	mServer->Update( deltaTime );
-
-	Client::GetInstance()->DoSelect( 0 );
-	mServer->DoSelect( 0 );
-	EventManager::GetInstance()->Update();
 
 	Client::GetInstance()->DoSelect( 0 );
 	mServer->DoSelect( 0 );

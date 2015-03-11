@@ -37,20 +37,20 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		std::shared_ptr<Event_Remote_Left> data = std::static_pointer_cast<Event_Remote_Left>( newEvent );
 
-		for( auto& p : mRemotePlayers )
+		for( int i = 0; i < mRemotePlayers.size(); i++ )
 		{
-			if( data->ID() == p->GetID() )
+			if( data->ID() == mRemotePlayers.at(i)->GetID() )
 			{
-				XMFLOAT3 pos = p->GetPosition();
-				UINT ecID = p->GetEnergyCellID();
-				p->Release();
-				SAFE_DELETE( p );
-				std::swap( p, mRemotePlayers.back() );
+				XMFLOAT3 pos = mRemotePlayers.at(i)->GetPosition();
+				UINT ecID = mRemotePlayers.at(i)->GetEnergyCellID();
+				mRemotePlayers.at(i)->Release();
+				SAFE_DELETE( mRemotePlayers.at(i) );
+				std::swap( mRemotePlayers.at(i), mRemotePlayers.back() );
 				mRemotePlayers.pop_back();
 
 				if( ecID != (UINT)-1 )
 				{
-					mEnergyCells[ecID]->SetPosition( p->GetPosition() );
+					mEnergyCells[ecID]->SetPosition( pos );
 					mEnergyCells[ecID]->SetOwnerID( (UINT)-1 );
 					mEnergyCells[ecID]->SetPickedUp( false );
 					mEnergyCells[ecID]->SetSecured( false );
@@ -63,6 +63,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 						mEnergyCells[ecID]->GetSecured() ) );
 					Client::GetInstance()->SendEvent( E1 );
 				}
+				break;
 			}
 		}
 	}
@@ -103,26 +104,20 @@ void PlayState::EventListener( IEventPtr newEvent )
 			SoundBufferHandler::GetInstance()->Play3D( mSniper , data->BodyPos());
 		
 		
-		// Request Muzzle Flash from Particle Manager
-		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), SniperTrail, data->BodyPos(), data->Direction() );
-
+		
 		XMFLOAT3 cross;
 		XMStoreFloat3( &cross, XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), XMLoadFloat3( &data->Direction() ) ) );
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Shell, XMFLOAT3(data->BodyPos().x - data->Direction().x, data->BodyPos().y, data->BodyPos().z - data->Direction().z), cross );
-
-		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Explosion, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-		//RenderManager::GetInstance()->RequestParticleSystem( data->ID(), ExplosionSmoke, XMFLOAT3( 5.0f, 0.5f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Shell, XMFLOAT3(data->BodyPos().x - data->Direction().x, data->BodyPos().y, data->BodyPos().z - data->Direction().z), cross );		
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Create_Enemy::GUID )
 	{
 		std::shared_ptr<Event_Server_Create_Enemy> data = std::static_pointer_cast<Event_Server_Create_Enemy>( newEvent );
-		SyncEnemy( data->ID(), (EnemyState)data->State(), (EnemyType)data->Type(), data->Position(), data->Direction() );
+		SyncEnemy( data->ID(), (EnemyState)data->State(), (EnemyType)data->Type(), data->Position(), data->Direction(), data->MaxHP() );
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Update_Enemy::GUID )
 	{
 		std::shared_ptr<Event_Server_Update_Enemy> data = std::static_pointer_cast<Event_Server_Update_Enemy>( newEvent );
-		UpdateEnemyPosition( data->ID(), data->Position(), data->Direction(), data->IsAlive() );
+		UpdateEnemyPosition( data->ID(), data->Position(), data->Direction(), data->IsAlive(), data->EnemyHP() );
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Enemies_Created::GUID )
 	{
@@ -185,9 +180,14 @@ void PlayState::EventListener( IEventPtr newEvent )
 		SoundBufferHandler::GetInstance()->Play3D( mMiniGun , data->Position());
 		
 		// Request Muzzle Flash from Particle Manager
-		
-		/*RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->Position(), data->Direction() );
-		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->Position(), data->Direction() );	*/	
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), MuzzleFlash, data->Position(), data->Direction() );
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Smoke_MiniGun, data->Position(), data->Direction() );		
+	}
+	else if (newEvent->GetEventType() == Event_Server_Enemy_Fired_Projectile::GUID)
+	{
+		// Fire projectile
+		std::shared_ptr<Event_Server_Enemy_Fired_Projectile> data = std::static_pointer_cast<Event_Server_Enemy_Fired_Projectile>(newEvent);
+		FireProjectile(data->EnemyID(), data->ProjectileID(), 0, data->Position(), data->Direction(), data->Speed(), data->Range(), ENEMY_PROJECTILE_DAMAGE, TURRET); // Don't know where to get damage from yet
 	}
 	else if( newEvent->GetEventType() == Event_Server_Sync_Energy_Cell::GUID )
 	{
@@ -265,17 +265,28 @@ void PlayState::EventListener( IEventPtr newEvent )
 			std::swap( mShips[FRIEND_SHIP], mShips[ENEMY_SHIP] );
 		}
 	}
+	
+	
+	
+	else if( newEvent->GetEventType() == Event_Remote_Request_ParticleSystem::GUID )
+	{
+		std::shared_ptr<Event_Remote_Request_ParticleSystem> data = std::static_pointer_cast<Event_Remote_Request_ParticleSystem>( newEvent );
+		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), (ParticleType)data->ParticleType(), data->Position(), data->Direction(), data->InitialVelocity() );
+	}
+
 }
 
-void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction )
+void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction, float maxHp )
 {
 	mEnemyListSynced = false;
 	mEnemies[id]->SetID( id );
 	mEnemies[id]->SetEnemyType( type );
+	//mEnemies[id]->SetLoopAnimation( true );
 	mEnemies[id]->SetModelID( mEnemyAnimationManager->GetModel( mEnemies[id]->GetEnemyType() ), mEnemyAnimationManager->GetDefaultAnimation( mEnemies[id]->GetEnemyType() ) );
 	mEnemies[id]->SetAnimation( mEnemyAnimationManager->GetAnimation( mEnemies[id]->GetEnemyType(), state ) );
 	mEnemies[id]->SetPosition( position );
 	mEnemies[id]->SetDirection( direction );
+	mEnemies[id]->SetMaxHP( maxHp );
 	mEnemies[id]->SetSynced( true );
 
 	if( id == (MAX_NR_OF_ENEMIES-1) )
@@ -316,6 +327,65 @@ void PlayState::FireProjectile( unsigned int id, unsigned int projectileID, unsi
 {
 	mProjectiles[mNrOfActiveProjectiles]->SetDirection( id, projectileID, teamID, position, direction, speed, range, damage, weaponType );
 	mNrOfActiveProjectiles++;
+	if( weaponType != TURRET )
+		DecideParticleEffect( id, weaponType, position, direction );
+}
+
+void PlayState::DecideParticleEffect( unsigned int shooterID, WeaponType weaponType, XMFLOAT3 position, XMFLOAT3 direction )
+{
+	int index = -1;
+	for (size_t i = 0; i < mRemotePlayers.size(); i++)
+	{
+		if( shooterID == mRemotePlayers.at(i)->GetID() )
+		{
+			index = i;
+			break;
+		}
+	}
+
+	switch ( weaponType )
+	{
+		case MINIGUN:
+		{
+			if( index == -1 )
+				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), MuzzleFlash, position, direction, mPlayer->GetVelocity() );
+			else
+				RenderManager::GetInstance()->RequestParticleSystem( mRemotePlayers[index]->GetID(), MuzzleFlash, position, direction, mRemotePlayers[index]->GetVelocity() );
+			break;
+		}
+
+		case SHOTGUN:
+		{
+			if( index == -1 )
+				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), MuzzleFlash, position, direction, mPlayer->GetVelocity() );
+			else
+				RenderManager::GetInstance()->RequestParticleSystem( mRemotePlayers[index]->GetID(), MuzzleFlash, position, direction, mRemotePlayers[index]->GetVelocity() );
+			
+			break;
+		}
+
+		case SNIPER:
+		{
+			if( index == -1 )
+				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), SniperTrail, mPlayer->GetWeaponOffset(), direction, mPlayer->GetVelocity() );
+			else
+				RenderManager::GetInstance()->RequestParticleSystem( mRemotePlayers[index]->GetID(), SniperTrail, position, direction, mRemotePlayers[index]->GetVelocity() );
+			
+			break;
+		}
+
+		case GRENADELAUNCHER:
+		{
+			if( index == -1 )
+				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), MuzzleFlash, mPlayer->GetWeaponOffset(), direction, mPlayer->GetCurrentVelocity() );
+			else
+				RenderManager::GetInstance()->RequestParticleSystem( mRemotePlayers[index]->GetID(), MuzzleFlash, position, direction, mRemotePlayers[index]->GetCurrentVelocity() );
+			
+			break;
+		}
+		default:
+			break;
+	}
 }
 
 void PlayState::CheckPlayerCollision()
@@ -351,197 +421,211 @@ void PlayState::CheckPlayerCollision()
 void PlayState::CheckProjectileCollision()
 {
 	for ( int i	 = 0; i < mNrOfActiveProjectiles; i++ )
-	{
-		// Players
+	{	
 		if( mProjectiles[i]->IsActive() )
 		{
-			if( mPlayer->IsAlive() &&
-				( mProjectiles[i]->GetPlayerID() == 70 || mProjectiles[i]->GetPlayerID() == 71 ) && 
-				mPlayer->GetTeam() != mProjectiles[i]->GetTeamID() &&
-				mProjectiles[i]->GetBoundingCircle()->Intersect( mPlayer->GetBoundingCircle() ) && mProjectiles[i]->GetWeaponType() != GRENADELAUNCHER )
+			// Enemy projectiles
+			if ( mProjectiles[i]->GetPlayerID() == ENEMY_PROJECTILE_ID )
 			{
-				mPlayer->TakeDamage( mProjectiles[i]->GetDamage(), mProjectiles[i]->GetPlayerID() );
-				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Spark, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Debris, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-			}
-			for ( size_t j = 0; j < mRemotePlayers.size(); j++ )
-			{
-				if( mRemotePlayers[j]->IsAlive() && mProjectiles[i]->GetWeaponType() != GRENADELAUNCHER )
+				// Players
+				if(	mPlayer->IsAlive() && mProjectiles[i]->GetBoundingCircle()->Intersect( mPlayer->GetBoundingCircle() ) )
 				{
-					if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() &&
-						mProjectiles[i]->GetBoundingCircle()->Intersect( mRemotePlayers[j]->GetBoundingCircle() ) )
-					{
-						if( mProjectiles[i]->GetWeaponType() != SNIPER )
-						{
-							BroadcastProjectileDamage( mRemotePlayers[j]->GetID(), mProjectiles[i]->GetID() );
-							RenderManager::GetInstance()->RequestParticleSystem( mRemotePlayers[j]->GetID(), Spark, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-							RenderManager::GetInstance()->RequestParticleSystem( mRemotePlayers[j]->GetID(), Debris, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-						}
-						if( mProjectiles[i]->GetWeaponType() != SNIPER )
-						{
-							BroadcastProjectileDamage( mRemotePlayers[j]->GetID(), mProjectiles[i]->GetID() );
-							RenderManager::GetInstance()->RequestParticleSystem( mRemotePlayers[j]->GetID(), Spark, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-							RenderManager::GetInstance()->RequestParticleSystem( mRemotePlayers[j]->GetID(), Debris, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-						}
-						else
-						{
-							if( mProjectiles[i]->SetHit( mRemotePlayers[j]->GetID() ) )
-							{
-								XMFLOAT3 pos = mProjectiles[i]->GetPosition();
-								RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Spark, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
-								RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Debris, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
-								pos = XMFLOAT3( mProjectiles[i]->GetPosition().x + mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetPosition().y + mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetPosition().z + mProjectiles[i]->GetDirection().z );
-								RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Spark, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
-								RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Debris, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
-								pos = XMFLOAT3( mProjectiles[i]->GetPosition().x + mProjectiles[i]->GetDirection().x * 2, mProjectiles[i]->GetPosition().y + mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetPosition().z + mProjectiles[i]->GetDirection().z * 2 );							
-								RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Spark, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
-								RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Debris, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
-								pos = XMFLOAT3( mProjectiles[i]->GetPosition().x + mProjectiles[i]->GetDirection().x * 0.5f, mProjectiles[i]->GetPosition().y + mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetPosition().z + mProjectiles[i]->GetDirection().z * 0.5f );
-								RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Spark, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
-								RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Debris, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
-								BroadcastProjectileDamage( mRemotePlayers[j]->GetID(), mProjectiles[i]->GetID() );
-							}
-						}
-						break;
-					}
-				}
-			}
-
-			// Enemies
-			if( mProjectiles[i]->GetWeaponType() != GRENADELAUNCHER )
-			{
-				for ( size_t j = 0; j < MAX_NR_OF_ENEMIES; j++ )
-				{
-					if( mEnemies[j]->IsAlive() )
-					{
-						if( mPlayer->GetID() == 1 &&
-							( mProjectiles[i]->GetPlayerID() == 70 || mProjectiles[i]->GetPlayerID() == 71 ) &&
-							mProjectiles[i]->GetBoundingCircle()->Intersect( mEnemies[j]->GetBoundingCircle() ) )
-						{
-							// hit
-							BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
-							RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-							mProjectiles[i]->Reset();
-							break;
-						}
-
-						if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() &&
-							mProjectiles[i]->GetBoundingCircle()->Intersect( mEnemies[j]->GetBoundingCircle() ) )
-						{
-							if( mProjectiles[i]->GetWeaponType() == TURRET )
-							{
-								RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-								BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
-								mProjectiles[i]->Reset();
-							}
-							else if( mProjectiles[i]->GetWeaponType() != SNIPER )
-							{
-								RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-								BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
-								mProjectiles[i]->Reset();
-							}
-							else
-							{
-								if( mProjectiles[i]->SetHit( mEnemies[j]->GetID() ) )
-								{
-									XMFLOAT3 pos = mProjectiles[i]->GetPosition();
-									RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
-									pos = XMFLOAT3( mProjectiles[i]->GetPosition().x + mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetPosition().y + mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetPosition().z + mProjectiles[i]->GetDirection().z );
-									RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
-									pos = XMFLOAT3( mProjectiles[i]->GetPosition().x + mProjectiles[i]->GetDirection().x * 2, mProjectiles[i]->GetPosition().y + mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetPosition().z + mProjectiles[i]->GetDirection().z * 2 );							
-									RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
-									pos = XMFLOAT3( mProjectiles[i]->GetPosition().x + mProjectiles[i]->GetDirection().x * 0.5f, mProjectiles[i]->GetPosition().y + mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetPosition().z + mProjectiles[i]->GetDirection().z * 0.5f );
-									RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
-									BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
-								}
-							}
-							break;
-						}
-					}
-				}
-			}
-
-			// Environment
-			if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() || ( ( mProjectiles[i]->GetPlayerID() == 70 || mProjectiles[i]->GetPlayerID() == 71 ) && mPlayer->GetID() == 1 ) )
-			{
-				XMFLOAT3 normal;
-				if( mWorldMap->BulletVsMap( mProjectiles[i]->GetPosition(), normal ) )
-				{
+					mPlayer->TakeDamage(mProjectiles[i]->GetDamage(), mProjectiles[i]->GetPlayerID());
 					IEventPtr E1( new Event_Client_Removed_Projectile( mProjectiles[i]->GetID() ) );
 					Client::GetInstance()->SendEvent( E1 );
-					
-				if( mProjectiles[i]->GetWeaponType() == GRENADELAUNCHER )
-				{
-					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-					SoundBufferHandler::GetInstance()->Play3D( mExplosion , mPlayer->GetPosition() );
 				}
-				else
+			}
+			else
+			{
+				// Players
+				if( mPlayer->IsAlive() &&
+					( mProjectiles[i]->GetPlayerID() == 70 || mProjectiles[i]->GetPlayerID() == 71 ) && 
+					mPlayer->GetTeam() != mProjectiles[i]->GetTeamID() &&
+					mProjectiles[i]->GetBoundingCircle()->Intersect( mPlayer->GetBoundingCircle() ) && mProjectiles[i]->GetWeaponType() != GRENADELAUNCHER )
 				{
+					mPlayer->TakeDamage( mProjectiles[i]->GetDamage(), mProjectiles[i]->GetPlayerID() );
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Spark, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
 					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Debris, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
 				}
-				}
-			}
-
-			if( mProjectiles[i]->GetWeaponType() == GRENADELAUNCHER )
-			{
-				if( mProjectiles[i]->GetPosition().y <= 0.5f )
+				for ( size_t j = 0; j < mRemotePlayers.size(); j++ )
 				{
-					for (size_t j = 0; j < MAX_NR_OF_ENEMIES; j++)
+					if( mRemotePlayers[j]->IsAlive() && mProjectiles[i]->GetWeaponType() != GRENADELAUNCHER )
+					{
+						if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() &&
+							mProjectiles[i]->GetBoundingCircle()->Intersect( mRemotePlayers[j]->GetBoundingCircle() ) )
+						{
+							if( mProjectiles[i]->GetWeaponType() != SNIPER )
+							{
+								BroadcastProjectileDamage( mRemotePlayers[j]->GetID(), mProjectiles[i]->GetID() );
+								RenderManager::GetInstance()->RequestParticleSystem( mRemotePlayers[j]->GetID(), Spark, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+								RenderManager::GetInstance()->RequestParticleSystem( mRemotePlayers[j]->GetID(), Debris, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+							}
+							if( mProjectiles[i]->GetWeaponType() != SNIPER )
+							{
+								BroadcastProjectileDamage( mRemotePlayers[j]->GetID(), mProjectiles[i]->GetID() );
+								RenderManager::GetInstance()->RequestParticleSystem( mRemotePlayers[j]->GetID(), Spark, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+								RenderManager::GetInstance()->RequestParticleSystem( mRemotePlayers[j]->GetID(), Debris, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+							}
+							else
+							{
+								if( mProjectiles[i]->SetHit( mRemotePlayers[j]->GetID() ) )
+								{
+									XMFLOAT3 pos = mProjectiles[i]->GetPosition();
+									RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Spark, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
+									RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Debris, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
+									pos = XMFLOAT3( mProjectiles[i]->GetPosition().x + mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetPosition().y + mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetPosition().z + mProjectiles[i]->GetDirection().z );
+									RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Spark, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
+									RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Debris, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
+									pos = XMFLOAT3( mProjectiles[i]->GetPosition().x + mProjectiles[i]->GetDirection().x * 2, mProjectiles[i]->GetPosition().y + mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetPosition().z + mProjectiles[i]->GetDirection().z * 2 );							
+									RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Spark, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
+									RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Debris, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
+									pos = XMFLOAT3( mProjectiles[i]->GetPosition().x + mProjectiles[i]->GetDirection().x * 0.5f, mProjectiles[i]->GetPosition().y + mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetPosition().z + mProjectiles[i]->GetDirection().z * 0.5f );
+									RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Spark, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
+									RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Debris, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
+									BroadcastProjectileDamage( mRemotePlayers[j]->GetID(), mProjectiles[i]->GetID() );
+								}
+							}
+							break;
+						}
+					}
+				}
+
+				// Enemies
+				if( mProjectiles[i]->GetWeaponType() != GRENADELAUNCHER )
+				{
+					for ( size_t j = 0; j < MAX_NR_OF_ENEMIES; j++ )
 					{
 						if( mEnemies[j]->IsAlive() )
 						{
-							if( BoundingCircle( mProjectiles[i]->GetPosition(), mPlayer->GetLoadOut()->rangedWeapon->areaOfEffect ).Intersect( mEnemies[j]->GetBoundingCircle() ) )
+							if( mPlayer->GetID() == 1 &&
+								( mProjectiles[i]->GetPlayerID() == 70 || mProjectiles[i]->GetPlayerID() == 71 ) &&
+								mProjectiles[i]->GetBoundingCircle()->Intersect( mEnemies[j]->GetBoundingCircle() ) )
 							{
-								// Hit
+								// hit
 								BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
 								RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+								mProjectiles[i]->Reset();
+								break;
+							}
+
+							if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() &&
+								mProjectiles[i]->GetBoundingCircle()->Intersect( mEnemies[j]->GetBoundingCircle() ) )
+							{
+								if( mProjectiles[i]->GetWeaponType() == TURRET )
+								{
+									RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+									BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
+									mProjectiles[i]->Reset();
+								}
+								else if( mProjectiles[i]->GetWeaponType() != SNIPER )
+								{
+									RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+									BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
+									mProjectiles[i]->Reset();
+								}
+								else
+								{
+									if( mProjectiles[i]->SetHit( mEnemies[j]->GetID() ) )
+									{
+										XMFLOAT3 pos = mProjectiles[i]->GetPosition();
+										RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
+										pos = XMFLOAT3( mProjectiles[i]->GetPosition().x + mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetPosition().y + mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetPosition().z + mProjectiles[i]->GetDirection().z );
+										RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
+										pos = XMFLOAT3( mProjectiles[i]->GetPosition().x + mProjectiles[i]->GetDirection().x * 2, mProjectiles[i]->GetPosition().y + mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetPosition().z + mProjectiles[i]->GetDirection().z * 2 );							
+										RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
+										pos = XMFLOAT3( mProjectiles[i]->GetPosition().x + mProjectiles[i]->GetDirection().x * 0.5f, mProjectiles[i]->GetPosition().y + mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetPosition().z + mProjectiles[i]->GetDirection().z * 0.5f );
+										RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, pos, XMFLOAT3( mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, mProjectiles[i]->GetDirection().z ) );
+										BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
+									}
+								}
+								break;
 							}
 						}
 					}
+				}
 
-					// Player is hit by remote player grenade
-					if( mPlayer->IsAlive() && mPlayer->GetTeam() != mProjectiles[i]->GetTeamID() )
+				// Environment
+				if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() || ( ( mProjectiles[i]->GetPlayerID() == 70 || mProjectiles[i]->GetPlayerID() == 71 ) && mPlayer->GetID() == 1 ) )
+				{
+					XMFLOAT3 normal;
+					if( mWorldMap->BulletVsMap( mProjectiles[i]->GetPosition(), normal ) )
 					{
-						for (size_t j = 0; j < mRemotePlayers.size(); j++)
-						{
-							if( mProjectiles[i]->GetPlayerID() == mRemotePlayers[j]->GetID() )
-							{
-								if( BoundingCircle( mProjectiles[i]->GetPosition(), mRemotePlayers[j]->GetLoadOut()->rangedWeapon->areaOfEffect ).Intersect( mPlayer->GetBoundingCircle() ) )
-								{
-									mPlayer->TakeDamage( mProjectiles[i]->GetDamage(), mProjectiles[i]->GetPlayerID() );
-									RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Spark, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-									RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Debris, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-								}
-							}
-						}						
+						IEventPtr E1( new Event_Client_Removed_Projectile( mProjectiles[i]->GetID() ) );
+						Client::GetInstance()->SendEvent( E1 );
+					
+					if( mProjectiles[i]->GetWeaponType() == GRENADELAUNCHER )
+					{
+						RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+						RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+						SoundBufferHandler::GetInstance()->Play3D( mExplosion , mPlayer->GetPosition() );
 					}
-
-					// Remote player is hit by Player grenade
-					if( mRemotePlayers.size() > 0 )
+					else
 					{
-						for (size_t j = 0; j < mRemotePlayers.size(); j++)
+						RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Spark, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+						RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Debris, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+					}
+					}
+				}
+
+				if( mProjectiles[i]->GetWeaponType() == GRENADELAUNCHER )
+				{
+					if( mProjectiles[i]->GetPosition().y <= 0.5f )
+					{
+						for (size_t j = 0; j < MAX_NR_OF_ENEMIES; j++)
 						{
-							if( mRemotePlayers[j]->IsAlive() )
+							if( mEnemies[j]->IsAlive() )
 							{
-								if( BoundingCircle( mProjectiles[i]->GetPosition(), mPlayer->GetLoadOut()->rangedWeapon->areaOfEffect ).Intersect( mRemotePlayers[j]->GetBoundingCircle() ) )
+								if( BoundingCircle( mProjectiles[i]->GetPosition(), mPlayer->GetLoadOut()->rangedWeapon->areaOfEffect ).Intersect( mEnemies[j]->GetBoundingCircle() ) )
 								{
 									// Hit
-									BroadcastProjectileDamage(mRemotePlayers[j]->GetID() , mProjectiles[i]->GetID() );
+									BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
 									RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
 								}
 							}
 						}
+
+						// Player is hit by remote player grenade
+						if( mPlayer->IsAlive() && mPlayer->GetTeam() != mProjectiles[i]->GetTeamID() )
+						{
+							for (size_t j = 0; j < mRemotePlayers.size(); j++)
+							{
+								if( mProjectiles[i]->GetPlayerID() == mRemotePlayers[j]->GetID() )
+								{
+									if( BoundingCircle( mProjectiles[i]->GetPosition(), mRemotePlayers[j]->GetLoadOut()->rangedWeapon->areaOfEffect ).Intersect( mPlayer->GetBoundingCircle() ) )
+									{
+										mPlayer->TakeDamage( mProjectiles[i]->GetDamage(), mProjectiles[i]->GetPlayerID() );
+										RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Spark, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+										RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Debris, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+									}
+								}
+							}						
+						}
+
+						// Remote player is hit by Player grenade
+						if( mRemotePlayers.size() > 0 )
+						{
+							for (size_t j = 0; j < mRemotePlayers.size(); j++)
+							{
+								if( mRemotePlayers[j]->IsAlive() )
+								{
+									if( BoundingCircle( mProjectiles[i]->GetPosition(), mPlayer->GetLoadOut()->rangedWeapon->areaOfEffect ).Intersect( mRemotePlayers[j]->GetBoundingCircle() ) )
+									{
+										// Hit
+										BroadcastProjectileDamage(mRemotePlayers[j]->GetID() , mProjectiles[i]->GetID() );
+										RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
+									}
+								}
+							}
+						}
+
+						RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+						RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+						SoundBufferHandler::GetInstance()->Play3D( mExplosion , mPlayer->GetPosition() );
+
+						IEventPtr E1( new Event_Client_Removed_Projectile( mProjectiles[i]->GetID() ) );
+						Client::GetInstance()->SendEvent( E1 );
+
 					}
-
-					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-					RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-					SoundBufferHandler::GetInstance()->Play3D( mExplosion , mPlayer->GetPosition() );
-
-					IEventPtr E1( new Event_Client_Removed_Projectile( mProjectiles[i]->GetID() ) );
-					Client::GetInstance()->SendEvent( E1 );
-
 				}
 			}
 		}
@@ -742,11 +826,12 @@ void PlayState::UpdateProjectiles( float deltaTime )
 	}
 }
 
-void PlayState::UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive )
+void PlayState::UpdateEnemyPosition( unsigned int id, XMFLOAT3 position, XMFLOAT3 direction, bool isAlive, float enemyHP )
 {
 	mEnemies[id]->SetPosition( position );
 	mEnemies[id]->SetDirection( direction );
 	mEnemies[id]->SetIsAlive( isAlive );
+	mEnemies[id]->SetHP( enemyHP );
 }
 
 void PlayState::RenderProjectiles()
@@ -779,6 +864,7 @@ bool PlayState::CullEntity( XMFLOAT3 entityPos )
 {
 	return HelperFunctions::Dist3Squared( mPlayer->GetPosition(), entityPos  ) <= ENTITY_CULLDISTANCE;
 }
+
 void PlayState::WriteInteractionText( std::string text, float xPos, float yPos, float scale, XMFLOAT4 color )
 {
 	float offset = mFont.GetMiddleXPoint( text, scale );
@@ -983,13 +1069,31 @@ HRESULT PlayState::Update( float deltaTime )
 	
 		guiUpdate.deltaTime = deltaTime;
 
-		if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->GetNrOfEnergyCells() == mNeededEnergyCells )
+		if( mGui->CheckWin() )
 		{
 			guiUpdate.mEndGame = true;
 			guiUpdate.mWonGame = true;
 			mEndGame = true;
 
 			IEventPtr E1( new Event_Client_Win( mPlayer->GetTeam() ) );
+			Client::GetInstance()->SendEvent( E1 );
+		}
+		else if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->CheckLose() )
+		{
+			guiUpdate.mEndGame = true;
+			guiUpdate.mWonGame = false;
+			mEndGame = true;
+
+			UINT winTeam = 0;
+			if( mPlayer->GetTeam() == 1 )
+			{
+				winTeam = 2;
+			}
+			else
+			{
+				winTeam = 1;
+			}
+			IEventPtr E1( new Event_Client_Win( winTeam ) );
 			Client::GetInstance()->SendEvent( E1 );
 		}
 		else if( !mEndGame )
@@ -1229,8 +1333,10 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Trigger_Client_Update::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Unlock_Player::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Reset_Game::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Switch_Team::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Request_ParticleSystem::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Enemy_Fired_Projectile::GUID);
 
-	EventManager::GetInstance()->AddListener(&PlayState::EventListener, this, Event_Server_Switch_Team::GUID );
 
 	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 
@@ -1269,10 +1375,7 @@ HRESULT PlayState::Initialize()
 	mExplosion			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/explosion.wav", 250 );
 	mSniper				= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/railgun.wav", 500 );
 	mLevelUp			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/level up.wav", 10 );
-	m3DSoundAsset		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/alert02.wav", 2000, 40 );
-	mSoundAsset			= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/alert02.wav" );
 	mLobbyMusic			= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/ambientInGame.wav", 0 );
-	//mStreamSoundAsset	= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/Groove 1 Bass.wav", 3000 );
 
 	Pathfinder::GetInstance()->Initialize( mWorldMap );
 

@@ -23,10 +23,10 @@ void Server::ClientJoined( IEventPtr eventPtr )
 			mClientMap[data->ID()]->ID		= data->ID();
 			//mClientMap[data->ID()]->AggroCircle	= new BoundingCircle( 1.0f );
 
-			if( mClientMap.size() > mMaxClients || mStopAccept )
+			if( mClientMap.size() > mMaxClients || mGameFull )
 			{
 				IEventPtr bounceClient( new Event_Shutdown_Client() );
-				mStopAccept = true;
+				mGameFull = true;
 				SendEvent( bounceClient, data->ID() );
 				SAFE_DELETE( mClientMap[data->ID()] );
 				mClientMap.erase( data->ID() );
@@ -79,7 +79,8 @@ void Server::ClientJoined( IEventPtr eventPtr )
 																	mEnemies[i]->GetEnemyState(), 
 																	mEnemies[i]->GetEnemyType(), 
 																	mEnemies[i]->GetPosition(), 
-																	mEnemies[i]->GetDirection() ) );
+																	mEnemies[i]->GetDirection(),
+																	mEnemies[i]->GetMaxHP() ) );
 				SendEvent( EvEnemy, data->ID() );
 			}
 
@@ -109,6 +110,7 @@ void Server::ClientLeft( IEventPtr eventPtr )
 
 			IEventPtr E1( new Event_Remote_Left( data->ID() ) );
 			BroadcastEvent( E1 );
+			mGameFull = false;
 		}
 	}
 }
@@ -504,6 +506,17 @@ void Server::TurretFiredProjectile( IEventPtr eventPtr )
 	}
 }
 
+void Server::EnemyFiredProjectile(IEventPtr eventPtr)
+{
+	if (eventPtr->GetEventType() == Event_Enemy_Fired_Projectile::GUID)
+	{
+		std::shared_ptr<Event_Enemy_Fired_Projectile> data = std::static_pointer_cast<Event_Enemy_Fired_Projectile>(eventPtr);
+		
+		IEventPtr E1(new Event_Server_Enemy_Fired_Projectile( data->EnemyID(), CurrentPID(), data->Position(), data->Direction(), data->Speed(), data->Range() ) );
+		BroadcastEvent(E1);
+	}
+}
+
 void Server::LobbyPlayer( IEventPtr eventPtr )
 {
 	if ( eventPtr->GetEventType() == Event_Client_Initialize_LobbyPlayer::GUID )
@@ -569,7 +582,6 @@ void Server::ChangeWeapon( IEventPtr eventPtr )
 	}
 }
 
-
 void Server::ClientUpdateShip( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Client_Update_Ship::GUID )
@@ -610,6 +622,16 @@ void Server::HostStartCountdown( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Host_Start_Game_Countdown::GUID )
 	{
 		IEventPtr E1( new Event_Server_Start_Game_Countdown() );
+		BroadcastEvent( E1 );
+	}
+}
+
+void Server::ClientRequestParticleSystem( IEventPtr eventPtr )
+{
+	if ( eventPtr->GetEventType() == Event_Client_Request_ParticleSystem::GUID )
+	{
+		std::shared_ptr<Event_Client_Request_ParticleSystem> data = std::static_pointer_cast<Event_Client_Request_ParticleSystem>( eventPtr );
+		IEventPtr E1( new Event_Remote_Request_ParticleSystem( data->ID(), data->ParticleType(), data->Position(), data->Direction(), data->InitialVelocity() ) );
 		BroadcastEvent( E1 );
 	}
 }
@@ -1027,7 +1049,8 @@ void Server::Update( float deltaTime )
 				IEventPtr enemy( new Event_Server_Update_Enemy(		mEnemies[i]->GetID(), 
 																	mEnemies[i]->GetPosition(), 
 																	mEnemies[i]->GetDirection(),
-																	mEnemies[i]->IsAlive() ) );
+																	mEnemies[i]->IsAlive(),
+																	mEnemies[i]->GetHP() ) );
 				{
 					SendCulledUpdate( enemy, mEnemies[i]->GetPosition() );
 				}
@@ -1119,6 +1142,9 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ResetTurretTargets, this, Event_Reset_Turret_Targets::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientChangeReady, this, Event_Client_Change_Ready_State::GUID );
 	EventManager::GetInstance()->AddListener( &Server::HostStartCountdown, this, Event_Host_Start_Game_Countdown::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientRequestParticleSystem, this, Event_Client_Request_ParticleSystem::GUID );
+	EventManager::GetInstance()->AddListener( &Server::EnemyFiredProjectile, this, Event_Enemy_Fired_Projectile::GUID );
+
 
 	EventManager::GetInstance()->AddListener( &Server::OnSpawnEnergyCell, this, Event_Spawn_Energy_Cell::GUID );
 

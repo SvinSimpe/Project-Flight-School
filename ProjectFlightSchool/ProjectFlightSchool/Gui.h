@@ -102,6 +102,7 @@ class Gui
 		void	DeActivateEnergyCellsShowing();
 		void	ActivateInGameWindow();
 		void	DeActivateInGameWindow();
+		bool	CheckWin();
 		HRESULT	Update( GuiUpdate guiUpdate );
 		HRESULT	Render();
 		HRESULT	Initialize( UINT neededEnergyCells );

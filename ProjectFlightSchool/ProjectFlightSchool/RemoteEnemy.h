@@ -10,6 +10,7 @@ class RemoteEnemy
 	private:
 		unsigned int		mID;
 		float				mCurrentHP;
+		float				mMaxHP;
 		EnemyType			mEnemyType;
 		AnimationTrack		mAnimationTrack;
 		XMFLOAT3			mPosition;
@@ -32,6 +33,8 @@ class RemoteEnemy
 		void				SetID( unsigned int id );
 		unsigned int		GetID()	const;
 		void				SetHP(float hp);
+		void				SetMaxHP( float hp );
+		float				GetMaxHP() const;
 		float				GetHP() const;
 		void				SetIsAlive( bool isAlive );
 		bool				IsAlive() const;

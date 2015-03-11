@@ -79,7 +79,8 @@ void Server::ClientJoined( IEventPtr eventPtr )
 																	mEnemies[i]->GetEnemyState(), 
 																	mEnemies[i]->GetEnemyType(), 
 																	mEnemies[i]->GetPosition(), 
-																	mEnemies[i]->GetDirection() ) );
+																	mEnemies[i]->GetDirection(),
+																	mEnemies[i]->GetMaxHP() ) );
 				SendEvent( EvEnemy, data->ID() );
 			}
 

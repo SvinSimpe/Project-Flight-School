@@ -410,7 +410,10 @@ void PlayState::CheckPlayerCollision()
 
 					//New position of player			 
 					XMVECTOR playerPosition = XMLoadFloat3(&mRemotePlayers.at(i)->GetBoundingCircle()->center) + remoteToPlayerVec * vectorLength;
-					mPlayer->SetPosition(playerPosition);
+					XMFLOAT3 playerTest, norm;
+					XMStoreFloat3( &playerTest, playerPosition );
+					if( !mWorldMap->PlayerVsMap( playerTest, norm ) )
+						mPlayer->SetPosition(playerPosition);
 				}
 			}	
 		}

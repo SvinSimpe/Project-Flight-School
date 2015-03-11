@@ -259,17 +259,17 @@ struct RangedInfo
 				{
 					case 2:
 					{
-						attackRate		= 1.8f;
+						attackRate		= 1.6f;
 						damage			= 18.0f;
-						spread			= 6.3f;
+						spread			= 5.7f;
 					}
 						break;
 
 					case 3:
 					{
-						attackRate		= 1.6f;
-						damage			= 20.f;
-						spread			= 6.0f;
+						attackRate		= 1.5f;
+						damage			= 20.0f;
+						spread			= 5.4f;
 					}
 						break;
 
@@ -277,7 +277,7 @@ struct RangedInfo
 					{
 						attackRate		= 1.4f;
 						damage			= 22.0f;
-						spread			= 5.8f;
+						spread			= 5.1f;
 					}
 						break;
 
@@ -285,7 +285,7 @@ struct RangedInfo
 					{
 						attackRate		= 1.1f;
 						damage			= 25.0f;
-						spread			= 5.5f;
+						spread			= 4.8f;
 					}
 						break;
 

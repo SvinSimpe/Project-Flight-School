@@ -490,7 +490,12 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 
 		if( mIsInWater )
 		{
-			WriteInteractionText( "Get out of the water or die!", 275.0f, COLOR_RED );
+			WriteInteractionText( 
+				"Get out of the water or die!", 
+				(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
+				(float)( Input::GetInstance()->mScreenHeight * 0.25f ), 
+				3.0f,
+				COLOR_CYAN );
 			XMStoreFloat3( &mVelocity, XMLoadFloat3( &mVelocity ) * ( 1.0f - deltaTime * 10.0f ) );
 			mWaterDamageTime += deltaTime;
 			if( mWaterDamageTime > WATER_DAMAGE_TIME )
@@ -932,12 +937,10 @@ void Player::UpgradeRange()
 	mLoadOut->rangedWeapon->LevelUp();
 }
 
-void Player::WriteInteractionText( std::string text, float yPos, XMFLOAT4 color )
+void Player::WriteInteractionText( std::string text, float xPos, float yPos, float scale, XMFLOAT4 color )
 {
-	float offset = mFont.GetMiddleXPoint( text, 3.0 );
-	float textShadowWidth = 1.0f;
-
-	mFont.WriteText( text, (float)( Input::GetInstance()->mScreenWidth * 0.5f ) - offset, yPos, 3.0, color );
+	float offset = mFont.GetMiddleXPoint( text, scale );
+	mFont.WriteText( text, xPos - offset, yPos, scale, color );
 }
 
 /////Public
@@ -1036,7 +1039,15 @@ void Player::Reset()
 	RenderManager::GetInstance()->AnimationReset( mArms.leftArm, mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
 	RenderManager::GetInstance()->AnimationReset( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][WEAPON_ANIMATION::IDLE] );
 
-	mUpgrades = Upgrades();
+	mUpgrades.currentBodyLevel	= 1;
+	mUpgrades.damageTakenPercentage = 1.0f;
+	mUpgrades.currentLegsLevel = 1;
+	mUpgrades.runSpeedFactor = 0.7f;
+
+	mXP					= 0.0f;
+	mNextLevelXP		= 60.0f;
+	mCurrentLevel		= 0;
+	mCurrentUpgrades	= 0;
 }
 
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
@@ -1281,17 +1292,39 @@ HRESULT Player::Render( float deltaTime, int position )
 
 	if( mIsOutSideZone )
 	{
-		WriteInteractionText( "Robot losing connection get back!\n\t\t\t\t\t   " + std::to_string( (int)mLeavingAreaTime ), (float)( Input::GetInstance()->mScreenHeight * 0.25 ), COLOR_RED );
+		WriteInteractionText( 
+			"Robot losing connection get back!",
+			(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
+			(float)( Input::GetInstance()->mScreenHeight * 0.25 ), 
+			4.0f,
+			COLOR_RED );
+
+		WriteInteractionText( 
+			std::to_string( (int)mLeavingAreaTime ),
+			(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
+			(float)( Input::GetInstance()->mScreenHeight * 0.25 ) + 40.0f, 
+			4.0f,
+			COLOR_RED );
 	}
 
 	if( mEnergyCellID != (UINT)-1 )
 	{
-		WriteInteractionText( "Head back to your ship!", 225.0f, COLOR_CYAN );
+		WriteInteractionText( 
+			"Head back to your ship!", 
+			(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
+			(float)( Input::GetInstance()->mScreenHeight * 0.10f ), 
+			2.0f,
+			COLOR_CYAN );
 	}
 
 	if( mCloseToPlayer )
 	{
-		WriteInteractionText( "Hold F to revive team mate!", 300.0f, COLOR_CYAN );
+		WriteInteractionText( 
+			"Hold F to revive team mate!", 
+			(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
+			(float)( Input::GetInstance()->mScreenHeight * 0.25 ) + 25.0f, 
+			2.0f,
+			COLOR_CYAN );
 	}
 
 	RemotePlayer::Render();
@@ -1473,7 +1506,11 @@ Player::Player()
 	mLastKiller			= 0;
 
 	gEventList			= std::list<IEventPtr>();
-	mUpgrades			= Upgrades();
+
+	mUpgrades.currentBodyLevel	= 1;
+	mUpgrades.damageTakenPercentage = 1.0f;
+	mUpgrades.currentLegsLevel = 1;
+	mUpgrades.runSpeedFactor = 0.7f;
 }
 
 Player::~Player()

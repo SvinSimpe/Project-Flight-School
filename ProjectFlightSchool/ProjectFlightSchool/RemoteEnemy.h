@@ -9,6 +9,8 @@ class RemoteEnemy
 	// Member variables
 	private:
 		unsigned int		mID;
+		float				mCurrentHP;
+		float				mMaxHP;
 		EnemyType			mEnemyType;
 		AnimationTrack		mAnimationTrack;
 		XMFLOAT3			mPosition;
@@ -17,6 +19,7 @@ class RemoteEnemy
 		bool				mIsSynced;
 		bool				mLoopAnimation;
 		BoundingCircle*		mBoundingCircle;
+		AssetID				mHPBar;
 
 	protected:
 	public:
@@ -30,6 +33,10 @@ class RemoteEnemy
 		HRESULT				Render();
 		void				SetID( unsigned int id );
 		unsigned int		GetID()	const;
+		void				SetHP(float hp);
+		void				SetMaxHP( float hp );
+		float				GetMaxHP() const;
+		float				GetHP() const;
 		void				SetIsAlive( bool isAlive );
 		bool				IsAlive() const;
 		void				SetLoopAnimation( bool loop );
@@ -42,6 +49,8 @@ class RemoteEnemy
 		bool				IsSynced() const;
 		EnemyType			GetEnemyType() const;
 		BoundingCircle*		GetBoundingCircle() const;
+		float				GetHPBarScaleFactor( float initScale ) const;
+		float				GetEnemyHeightOffset() const;
 		virtual HRESULT		Initialize( int id, AssetID model, AssetID animation );
 		void				Release();
 							RemoteEnemy();

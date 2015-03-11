@@ -11,6 +11,7 @@
 #include "RenderManager.h"
 #include "SoundBufferHandler.h"
 
+#define MAX_PLAYER_LEVEL 16
 #define VELOCITY_FALLOFF 2.0f
 
 #define MAX_ROBOT_RANGE		40000.0f   //Squared distance here.
@@ -21,20 +22,12 @@
 class Map;
 class Path;
 
-struct Upgrades
-{
-	int melee				= 1;
-	int range				= 1;
-	int legs				= 1;
-	int body				= 1;
-};
+
 
 class Player: public RemotePlayer
 {
 	private:
 		PointLight*		mPointLight;
-		PointLight*		mEnergyCellLight;
-		Upgrades		mUpgrades;
 
 		bool		mWeaponOverheated;
 		float		mTimeSinceLastShot;
@@ -53,7 +46,6 @@ class Player: public RemotePlayer
 		float		mMaxVelocity;
 		float		mCurrentVelocity;
 		float		mMaxAcceleration;
-		float		mSlowDown;
 		XMFLOAT3	mAcceleration;
 		XMFLOAT3	mFireDirection;
 		XMFLOAT3	mPick;
@@ -72,13 +64,14 @@ class Player: public RemotePlayer
 		float		mWaterDamageTime;
 		int			mLastKiller;
 
-		UINT		mEnergyCellID;
 		float		mPickUpCooldown;
 
 		int			mMiniGunOverheat;
 		int			mHammerSound;
 		int			mSword;
 		int			mPlayerDeath;
+		int			mGrenadeLauncher;
+		int			mBlowTorch;
 
 	protected:
 	public:
@@ -107,6 +100,7 @@ class Player: public RemotePlayer
 
 		void		HammerMelee( float deltaTime );
 		void		BlowtorchMelee( float deltaTime );
+		void		BlowtorchIdle();
 		void		ClaymoreMelee( float deltaTime );
 		void		SawMelee( float deltaTime );
 
@@ -117,7 +111,7 @@ class Player: public RemotePlayer
 		void		UpgradeLegs();
 		void		UpgradeMelee();
 		void		UpgradeRange();
-		void		WriteInteractionText( std::string text );
+		void		WriteInteractionText( std::string text, float xPos, float yPos, float scale, XMFLOAT4 color );
 
 	protected:
 	public:
@@ -143,14 +137,13 @@ class Player: public RemotePlayer
 		bool		GetIsMeleeing()	const;
 		XMFLOAT3	GetPlayerPosition() const;
 		XMFLOAT3	GetUpperBodyDirection() const;
-		UINT		GetEnergyCellID() const;
+
 		float		GetXPToNext() const;
 		int			Upgradable() const;
 		void		SetIsMeleeing( bool isMeleeing );
 		void		SetID( unsigned int id );
 		void		SetTeam( int team );
 		void		SetPosition( XMVECTOR position );
-		void		SetEnergyCellID( UINT energyCellID );
 		int			GetCurrentLevel() const;
 
 		void		QueueEvent( IEventPtr ptr );

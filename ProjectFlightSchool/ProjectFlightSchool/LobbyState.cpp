@@ -118,6 +118,7 @@ void LobbyState::EventListener( IEventPtr  newEvent )
 				SAFE_DELETE( mPlayers.at(i) );
 				std::swap( mPlayers.at(i), mPlayers.at(mPlayers.size() - 1) );
 				mPlayers.pop_back();
+				break;
 			}
 		}
 	}
@@ -176,7 +177,7 @@ void LobbyState::HandleInput()
 			Client::GetInstance()->SendEvent( E1 );
 		}
 	}
-	if( mBackButton.LeftMousePressed() )
+	if( mBackButton.LeftMousePressed() && !mGameCountdownStarted )
 	{
 		IEventPtr E1( new Event_Reset_Game() );
 		EventManager::GetInstance()->QueueEvent( E1 );
@@ -201,7 +202,7 @@ void LobbyState::HandleInput()
 			}
 		}
 	}
-	if( mChooseWeaponButton.LeftMousePressed() )
+	if( mChooseWeaponButton.LeftMousePressed() && !mGameCountdownStarted )
 	{
 		mLoadOutMenu.Activate();
 	}

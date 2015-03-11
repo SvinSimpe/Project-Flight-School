@@ -18,7 +18,7 @@ void Enemy::CreateStandard()
 	mDamage						= 10.0f;
 	mSpeed						= 5.0f;
 	mAttackRadius->radius		= 0.5f;
-	mAttentionRadius->radius	= 18.0f;
+	mAttentionRadius->radius	= 10.0f;
 	mXpDrop						= 5;
 	mSpawnTime					= 10.0f;
 	mAttackRate					= 0.8f;
@@ -36,9 +36,9 @@ void Enemy::CreateRanged()
 	mEnemyType					= Ranged;
 	mMaxHp						= 50.0f;
 	mCurrentHp					= mMaxHp;
-	mDamage						= 5.0f;
+	mDamage						= ENEMY_PROJECTILE_DAMAGE;
 	mSpeed						= 7.0f;
-	mAttackRadius->radius		= 3.0f;
+	mAttackRadius->radius		= 5.0f;
 	mAttentionRadius->radius	= 15.0f;
 	mXpDrop						= 7;
 	mSpawnTime					= 10.0f;
@@ -81,7 +81,7 @@ void Enemy::CreateTank()
 	mDamage						= 50.0f;
 	mSpeed						= 1.5f;
 	mAttackRadius->radius		= 1.0f;
-	mAttentionRadius->radius	= 15.0f;
+	mAttentionRadius->radius	= 10.0f;
 	mXpDrop						= 15;
 	mSpawnTime					= 10.0f;
 	mAttackRate					= 1.1f;
@@ -326,6 +326,10 @@ void Enemy::Spawn()
 	case 9:
 		CreateTank();
 		break;
+	case 1:
+	case 3:
+		CreateRanged();
+		break;
 	default:
 		CreateStandard();
 	}
@@ -426,6 +430,11 @@ XMFLOAT3 Enemy::GetDirection() const
 float Enemy::GetHP() const
 {
 	return mCurrentHp;
+}
+
+float Enemy::GetMaxHP() const
+{
+	return mMaxHp;
 }
 
 float Enemy::GetSpeed() const

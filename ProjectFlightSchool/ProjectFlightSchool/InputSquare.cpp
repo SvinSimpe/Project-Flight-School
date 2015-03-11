@@ -2,7 +2,7 @@
 
 void InputSquare::Add( std::string letter )
 {
-	if( mCurrentText.size() < MAX_CHAR_INPUT )
+	if( mCurrentText.size() < mMaxChars )
 		mCurrentText += letter;
 }
 
@@ -331,10 +331,14 @@ void InputSquare::Reset( std::string text )
 
 void InputSquare::Initialize( std::string text, std::string imgName, float x, float y, float width, float height )
 {
+	if( !std::strcmp( imgName.c_str(), "Name" ) )
+	{
+		mMaxChars = 13;
+	}
 	Image::Initialize( "../Content/Assets/Textures/Menu/ip_portInput.dds", x, y, width, height );
 	mCurrentText = text;
 	mTitle = new Image();
-	mTitle->Initialize( "../Content/Assets/Textures/Menu/" + imgName + ".png", x, y, width, height );
+	mTitle->Initialize( "../Content/Assets/Textures/Menu/" + imgName + ".dds", x, y, width, height );
 	mText = new Font();
 	mText->Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
 	mLastPressed = -1;
@@ -354,6 +358,7 @@ InputSquare::InputSquare()
 	mCurrentText	= "";
 	mActive			= false;
 	mKeyTimer		= KEYCOOLDOWN;
+	mMaxChars		= 15;
 }
 
 

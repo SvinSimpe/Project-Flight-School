@@ -461,7 +461,17 @@ HRESULT Graphics::InitializeEffects()
 	//			PARTICLE EFFECTS			|
 	//=======================================
 
-	//Debris effect
+	//Granate trail effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/GranateTrail.hlsl";
+	effectInfo.fileName					= "GranateTrail";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_GRANATE_TRAIL]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Sniper trail effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/SniperTrailEffect.hlsl";
 	effectInfo.fileName					= "SniperTrailEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
@@ -471,7 +481,7 @@ HRESULT Graphics::InitializeEffects()
 		return hr;
 	//--------------------------
 
-	//Debris effect
+	//Shell effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/ShellEffect.hlsl";
 	effectInfo.fileName					= "ShellEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
@@ -638,16 +648,6 @@ HRESULT Graphics::InitializeEffects()
 	effectInfo.isGeometryShaderIncluded = true;
 
 	if( FAILED( hr = mEffects[EFFECTS_BLOOD]->Intialize( mDevice, &effectInfo ) ) )
-		return hr;
-	//--------------------------
-
-	//Muzzle Flash effect
-	effectInfo.filePath					= "../Content/Effects/Particle Effects/MuzzleFlashEffect.hlsl";
-	effectInfo.fileName					= "MuzzleFlashEffect";
-	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
-	effectInfo.isGeometryShaderIncluded = true;
-
-	if( FAILED( hr = mEffects[EFFECTS_MUZZLEFLASH]->Intialize( mDevice, &effectInfo ) ) )
 		return hr;
 	//--------------------------
 
@@ -1221,8 +1221,6 @@ void Graphics::RenderBillboard( BillboardInfo* info, UINT sizeOfList )
 
 void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 {
-
-
 	//////////////////////////////////////////////////////////////////
 	//						RENDER CALL
 	//////////////////////////////////////////////////////////////////
@@ -1274,7 +1272,7 @@ void Graphics::RenderParticleSystems( ParticleInfo* info, UINT sizeOfList )
 					if( info[i].mParticleType == EFFECTS_SPORES || info[i].mParticleType == EFFECTS_SPARK || info[i].mParticleType == EFFECTS_LEVEL_UP 
 						|| info[i].mParticleType == EFFECTS_FIRE || info[i].mParticleType == EFFECTS_BLOWTORCH_FIRE || info[i].mParticleType == EFFECTS_BLOWTORCH_IDLE
 						|| info[i].mParticleType == EFFECTS_EXPLOSION || info[i].mParticleType == EFFECTS_SPARK_ROBOT || info[i].mParticleType == EFFECTS_SPARK_ELECTRIC
-						|| info[i].mParticleType == EFFECTS_SNIPER_TRAIL)
+						|| info[i].mParticleType == EFFECTS_SNIPER_TRAIL || info[i].mParticleType == EFFECTS_MUZZLEFLASH )
 						mDeviceContext->OMSetBlendState( mBlendStates[BLEND_ADD], 0, 0xFFFFFFFF );
 					
 					else
@@ -2329,7 +2327,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 	shadowMapCameraInfo.up			= DirectX::XMFLOAT4( 0.0f, 0.0f, 1.0f, 0.0f );
 	shadowMapCameraInfo.width		= (float)SHADOW_MAP_WIDTH;
 	shadowMapCameraInfo.height		= (float)SHADOW_MAP_HEIGHT;
-	shadowMapCameraInfo.foVY		= 3.14159265f * 0.4f;
+	shadowMapCameraInfo.foVY		= 3.14159265f * 0.45f;
 	shadowMapCameraInfo.nearZ		= 15.0f;
 	shadowMapCameraInfo.farZ		= 40.0f;
 

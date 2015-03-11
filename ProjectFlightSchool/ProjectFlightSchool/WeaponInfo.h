@@ -66,12 +66,6 @@ struct RangedInfo
 				areaOfEffect	=	MINIGUN_AOE;
 				projectileSpeed	=	MINIGUN_SPEED;
 				overheat		=	0.0f;
-				/*attackRate		= 0.005f;
-				damage			= 2.0f;
-				range			= 0.1f;
-				spread			= 0.2f;
-				areaOfEffect	= 0.0f;
-				projectileSpeed	= 60.0f;*/
 			}
 				break;
 
@@ -708,25 +702,25 @@ struct MeleeInfo
 				{
 					case 2:
 					{
-						damage					= 10.0f;
+						damage	= 10.0f;
 					}
-						break;
+						break;	
 
 					case 3:
 					{
-						damage					= 15.0f;
+						damage	= 15.0f;
 					}
-						break;
+						break;	
 
 					case 4:
 					{
-						damage					= 20.0f;
+						damage	= 20.0f;
 					}
-						break;
+						break;	
 
 					case 5:
 					{
-						damage					= 25.0f;
+						damage	= 25.0f;
 					}
 						break;
 

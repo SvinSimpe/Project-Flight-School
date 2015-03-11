@@ -62,6 +62,7 @@ class Server : public Network
 
 		EnergyCell**				mEnergyCells;
 		bool						mStopAccept;
+		bool						mGameFull;
 
 		std::queue<XMFLOAT3>		mCellPositionQueue;
 		UINT						mMaxClients;
@@ -93,6 +94,7 @@ class Server : public Network
 		void	ClientWinLose( IEventPtr eventPtr );
 		void	ClientChangeShipLevels( IEventPtr eventPtr );
 		void	TurretFiredProjectile( IEventPtr eventPtr );
+		void	EnemyFiredProjectile(IEventPtr eventPtr);
 		void	LobbyPlayer( IEventPtr eventPtr );
 		void	StopLobby( IEventPtr eventPtr );
 		void	SwitchTeam( IEventPtr eventPtr );
@@ -102,7 +104,7 @@ class Server : public Network
 		void	ResetTurretTargets( IEventPtr eventPtr );
 		void	ClientChangeReady( IEventPtr eventPtr );
 		void	HostStartCountdown( IEventPtr eventPtr );
-
+		void	ClientRequestParticleSystem( IEventPtr eventPtr );
 		void	ClientInteractEnergyCell( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );

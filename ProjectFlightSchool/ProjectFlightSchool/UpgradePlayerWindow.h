@@ -29,6 +29,11 @@ struct UpgradeButtonStruct
 		button.Update( deltaTime );
 	}
 
+	void Reset()
+	{
+		nrOfLevels = 1;
+	}
+
 	void Render()
 	{
 		button.Render();
@@ -58,6 +63,7 @@ public:
 	void	DeActivate();
 	void	Update( float deltaTime );
 	void	Render();
+	void	Reset();
 	void	Release();
 	HRESULT	Initialize();
 	UpgradePlayerWindow();

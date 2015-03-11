@@ -90,7 +90,6 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 		if( mID == data->ID() )
 		{
 			mTeam = data->TeamID();
-			printf( "RemotePlayer:: Spelare: %d, blev lag %d\n", mID, mTeam );
 		}
 	}
 	else if( newEvent->GetEventType() == Event_Server_Change_Buff_State::GUID )
@@ -524,7 +523,7 @@ HRESULT RemotePlayer::Initialize()
 
 	mBoundingBox			= new BoundingRectangle( 1.5f, 1.5f );
 	mBoundingCircle			= new BoundingCircle( 0.5f );
-	mBoundingCircleAura		= new BoundingCircle( 1.0f );
+	mBoundingCircleAura		= new BoundingCircle( 4.0f );
 	
 	mIsAlive				= true;
 	mIsDown					= false;
@@ -543,7 +542,7 @@ HRESULT RemotePlayer::Initialize()
 	mLoadOut				= new LoadOut();
 
 	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN );
-	mLoadOut->meleeWeapon	= new MeleeInfo( HAMMER );
+	mLoadOut->meleeWeapon	= new MeleeInfo( CLAYMORE );
 	//mLoadOut->meleeWeapon	= new MeleeInfo( BLOWTORCH );
 	//mLoadOut->rangedWeapon	= new RangedInfo( GRENADELAUNCHER );
 
@@ -551,6 +550,7 @@ HRESULT RemotePlayer::Initialize()
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Server_Change_Buff_State::GUID );
 
 	mBuffMod				= 0.5f;
+	mEnergyCellID			= (UINT)-1;
 
 	return S_OK;
 }
@@ -572,6 +572,7 @@ void RemotePlayer::RemoteInit( unsigned int id, int team )
 
 void RemotePlayer::Release()
 {
+	mID = (UINT)-1;
 	mLoadOut->Release();
 	SAFE_DELETE( mLoadOut );
 
@@ -678,9 +679,40 @@ XMFLOAT3 RemotePlayer::GetVelocity() const
 	return mVelocity;
 }
 
+XMFLOAT3 RemotePlayer::GetCurrentVelocity() const
+{
+	return mCurrentTravelVelocity;
+}
+
+XMFLOAT3 RemotePlayer::GetWeaponOffset()
+{
+	//Offset calcs
+	XMFLOAT3 weaponOffsets =	mLoadOut->rangedWeapon->weaponType == MINIGUN			? MINIGUN_OFFSETS : 
+								mLoadOut->rangedWeapon->weaponType == SHOTGUN			? SHOTGUN_OFFSETS :
+								mLoadOut->rangedWeapon->weaponType == GRENADELAUNCHER	? GL_OFFSETS :
+								mLoadOut->rangedWeapon->weaponType == SNIPER			? SNIPER_OFFSETS : XMFLOAT3( 0.0f, 0.0f, 1.0f );
+
+	XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
+	XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
+	XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + weaponOffsets.z, mLowerBody.position.z ) );
+	
+	offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * weaponOffsets.y;
+	offset += direction * weaponOffsets.x;
+
+	XMFLOAT3 loadDir;
+	XMStoreFloat3( &loadDir, offset );
+
+	return loadDir;
+}
+
 std::string RemotePlayer::GetName() const
 {
 	return mPlayerName;
+}
+
+UINT RemotePlayer::GetEnergyCellID() const
+{
+	return mEnergyCellID;
 }
 
 void RemotePlayer::SetDirection( XMFLOAT3 direction )
@@ -697,4 +729,9 @@ void RemotePlayer::SetHP( float hp )
 void RemotePlayer::SetName( std::string name )
 {
 	mPlayerName = name;
+}
+
+void RemotePlayer::SetEnergyCellID( UINT energyCellID )
+{
+	mEnergyCellID = energyCellID;
 }

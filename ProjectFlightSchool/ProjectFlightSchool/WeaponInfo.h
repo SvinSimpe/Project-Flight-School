@@ -344,7 +344,7 @@ struct RangedInfo
 					case 2:
 					{
 						attackRate		= 3.0f;
-						damage			= 35.0f * 7;
+						damage			= 35.0f;
 					}
 						break;
 
@@ -570,6 +570,7 @@ struct MeleeInfo
 				boundingCircle	= new BoundingCircle( SAW_RADIUS );
 				timeTillAttack	= SAW_TTA;
 				stun			= SAW_STUN;
+				offSet			= SAW_OFFSETS;
 			}
 				break;
 

@@ -61,8 +61,13 @@ class Server : public Network
 		UINT						mNrOfProjectilesFired;
 
 		EnergyCell**				mEnergyCells;
+		int							mCurrentCell;
 		bool						mStopAccept;
 		bool						mGameFull;
+		bool						mDropped;
+
+		float						mCellSpawnTimer;
+		float						mRespawnCellTimer;
 
 		std::queue<XMFLOAT3>		mCellPositionQueue;
 		UINT						mMaxClients;
@@ -115,7 +120,10 @@ class Server : public Network
 		void	CreateShips();
 		bool	CheckShipBuff( ServerShip* ship, XMFLOAT3 pos );
 		void	UpdateShip( float deltaTime, ServerShip* s );
+		void	OnSpawnEnergyCell( IEventPtr e );
+		void	OnDroppedEnergyCell( IEventPtr e );
 		void	CreateEnergyCells();
+		void	CalculateCellPosition( XMFLOAT3 pos, float offSetX, float offSetZ );
 		void	CalculateCellSpawnPositions( XMFLOAT3 shipPosition );
 		void	SetEnemySpawnerPositions();
 		void	CalculateEnemySpawnerPositions();

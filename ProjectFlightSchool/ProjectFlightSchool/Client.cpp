@@ -199,6 +199,9 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Server_Enemy_Fired_Projectile );
 	
 
+	EF::REGISTER_EVENT( Event_Client_Request_ParticleSystem );
+	EF::REGISTER_EVENT( Event_Remote_Request_ParticleSystem );
+
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	EventManager::GetInstance()->AddListener( &Client::Shutdown, this, Event_Shutdown_Client::GUID );
 

@@ -59,12 +59,20 @@ struct Arms
 	AnimationTrack rightArm;
 };
 
+struct Upgrades
+{
+	int		currentBodyLevel			= 1;
+	float	damageTakenPercentage		= 1.0f; // 1 == 100 % == No resistance!
+	int		currentLegsLevel			= 1;
+	float	runSpeedFactor				= 0.7f;
+};
+
 class RemotePlayer
 {
 	// Member variables
 	private:
 	protected:
-		unsigned int	mID;
+		UINT			mID;
 		std::string		mPlayerName;
 		int				mTeam;
 		bool			mIsAlive;
@@ -85,6 +93,9 @@ class RemotePlayer
 		XMFLOAT3		mSpawnPosition;
 		bool			mIsBuffed;
 		float			mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
+		float			mSlowDown;
+		Upgrades		mUpgrades;
+		XMFLOAT3		mCurrentTravelVelocity;
 
 		//Graphics
 		Font			mFont;
@@ -142,6 +153,8 @@ class RemotePlayer
 		XMFLOAT3		GetPosition() const;
 		XMFLOAT3		GetDirection() const;
 		XMFLOAT3		GetVelocity() const;
+		XMFLOAT3		GetCurrentVelocity() const;
+		XMFLOAT3		GetWeaponOffset();
 		std::string		GetName() const;
 		UINT			GetEnergyCellID() const;
 		void			SetDirection( XMFLOAT3 direction );

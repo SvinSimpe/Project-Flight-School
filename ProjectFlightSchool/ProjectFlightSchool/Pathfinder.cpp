@@ -50,6 +50,28 @@ bool Pathfinder::IsOnNavMesh( DirectX::XMFLOAT3 pos )
 	return false;
 }
 
+DirectX::XMFLOAT3 Pathfinder::GetRandomTriInMesh( DirectX::XMFLOAT3 pos )
+{
+	XMFLOAT2 tempPos = XMFLOAT2(pos.x, pos.z);
+	XMFLOAT2 p0, p1, p2;
+
+	int unitPosX = (int)pos.x;
+	int unitPosZ = (int)pos.z;
+
+	int playerX = ( ( (int)mMap->GetMapHalfWidth() * NODE_DIM ) + unitPosX ) / NODE_DIM;
+	int playerZ = ( ( (int)mMap->GetMapHalfHeight() * NODE_DIM ) + unitPosZ ) / NODE_DIM;
+
+	UINT index = ( playerX * mMapWidth ) + playerZ;
+
+	if( index < mMapWidth * mMapHeight )
+	{
+		Navmesh* temp = mNavmeshMap[index];
+		if( temp )
+			return temp->GetRandomTriCenter();
+	}
+	return DirectX::XMFLOAT3( 0, 0, 0 );
+}
+
 void Pathfinder::RequestPath( Path* path, DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end )
 {	
 	DirectX::XMFLOAT3 currStart = start;

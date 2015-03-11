@@ -95,6 +95,7 @@ class Navmesh
 		bool IsOnNavMesh( DirectX::XMFLOAT3 pos );
 		std::vector<DirectX::XMFLOAT2> FindPath( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end );
 		DirectX::XMFLOAT3 GetClosestEdgePoint( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 goal );
+		DirectX::XMFLOAT3 GetRandomTriCenter();
 		void Release();
 
 		Navmesh();

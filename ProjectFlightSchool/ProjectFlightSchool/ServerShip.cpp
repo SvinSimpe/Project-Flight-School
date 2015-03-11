@@ -125,13 +125,10 @@ void ServerShip::ClientUpdateShip( IEventPtr eventPtr )
 	}
 }
 
-void ServerShip::AddEnergyCell( UINT energyCellID )
+void ServerShip::AddEnergyCell()
 {
-	if( energyCellID == mID )
-	{
-		mNrOfEnergyCells++;
-		mNrOfAvailableEnergyCells++;
-	}
+	mNrOfEnergyCells++;
+	mNrOfAvailableEnergyCells++;
 }
 
 float ServerShip::PercentShield() const
@@ -238,6 +235,7 @@ void ServerShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 	mMaxShield					= 100.0f;
 	mCurrentShield				= mMaxShield;
 	mMaxHP						= 20000.0f;
+	//mMaxHP						*= 5.0f; // remove this later
 	mCurrentHP					= mMaxHP;
 	mNrOfEnergyCells			= 0;
 	mNrOfAvailableEnergyCells	= 0;

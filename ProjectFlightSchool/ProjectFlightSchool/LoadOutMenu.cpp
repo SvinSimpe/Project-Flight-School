@@ -65,7 +65,13 @@ void LoadOutMenu::Render()
 void LoadOutMenu::Reset()
 {
 	mCurrentRanged	= 0;
-	mCurrentMelee	= 5;
+	mCurrentMelee	= 4;
+
+	IEventPtr E1( new Event_Change_Weapon( (int)mButtons[mCurrentMelee].weaponType ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
+	
+	IEventPtr E2( new Event_Change_Weapon( (int)mButtons[mCurrentRanged].weaponType ) );
+	EventManager::GetInstance()->QueueEvent( E2 );
 }
 
 void LoadOutMenu::Release()
@@ -113,6 +119,10 @@ HRESULT LoadOutMenu::Initialize()
 	{
 		mButtons[i].weaponType = types[i];
 	}
+
+	mCurrentRanged	= 0;
+	mCurrentMelee	= 4;
+
 	IEventPtr E1( new Event_Change_Weapon( (int)mButtons[mCurrentMelee].weaponType ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
 	
@@ -126,8 +136,6 @@ LoadOutMenu::LoadOutMenu()
 {
 	mIsActive		= false;
 	mBackground		= 0;
-	mCurrentRanged	= 0;
-	mCurrentMelee	= 5;
 }
 
 LoadOutMenu::~LoadOutMenu()

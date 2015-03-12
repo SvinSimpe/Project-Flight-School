@@ -75,6 +75,8 @@ class Player: public RemotePlayer
 		int			mGrenadeLauncher;
 		int			mBlowTorch;
 
+		float		mDashCoolDown;
+
 	protected:
 	public:
 		std::list<IEventPtr> gEventList;

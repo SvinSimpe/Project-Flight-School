@@ -88,6 +88,7 @@ class Server : public Network
 		void	ClientUpdateHP( IEventPtr eventPtr );
 		void	ClientMeleeHit( IEventPtr eventPtr );
 		void	ClientAttack( IEventPtr eventPtr );
+		void	ClientDash( IEventPtr eventPtr );
 		void	ClientDown( IEventPtr eventPtr );
 		void	ClientUp( IEventPtr eventPtr );
 		void	ClientAttemptRevive( IEventPtr eventPtr );

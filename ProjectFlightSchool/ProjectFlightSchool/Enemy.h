@@ -49,9 +49,9 @@ class Enemy;
 //----------------------------------------
 
 #define ENEMY_PROJECTILE_ID						1985
-#define ENEMY_PROJECTILE_SPEED					3
+#define ENEMY_PROJECTILE_SPEED					1
 #define ENEMY_PROJECTILE_RANGE					1.0f
-#define ENEMY_PROJECTILE_DAMAGE					6
+#define ENEMY_PROJECTILE_DAMAGE					0.1
 
 enum EnemyType { Standard, Ranged, Boomer, Tank };
 enum EnemyState { Idle, HuntPlayer, MoveToShip, TakeDamage, Attack, Death, Stunned, };

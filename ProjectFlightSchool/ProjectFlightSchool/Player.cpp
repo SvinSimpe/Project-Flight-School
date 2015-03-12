@@ -852,9 +852,10 @@ void Player::HammerMelee( float deltaTime )
 		{
 			mIsMeleeing			= true;
 			SoundBufferHandler::GetInstance()->Play3D( mHammerSound , GetPosition() );
-			RenderManager::GetInstance()->RequestParticleSystem( mID, Hammer_Effect, XMFLOAT3( mLoadOut->meleeWeapon->boundingCircle->center.x, 0.3f, mLoadOut->meleeWeapon->boundingCircle->center.z ) , XMFLOAT3( 1.0f, 0.0f, 1.0f ) );
 			mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
 			mHasMeleeStarted	= false;
+			IEventPtr E1( new Event_Client_Request_ParticleSystem( mID, (int)Hammer_Effect, XMFLOAT3( mLoadOut->meleeWeapon->boundingCircle->center.x, 0.3f, mLoadOut->meleeWeapon->boundingCircle->center.z ) , XMFLOAT3( 1.0f, 0.0f, 1.0f ), mVelocity ) );
+			QueueEvent( E1 );
 		}
 	}
 }

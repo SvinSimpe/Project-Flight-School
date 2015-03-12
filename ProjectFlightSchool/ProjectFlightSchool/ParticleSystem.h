@@ -30,7 +30,7 @@ struct ParticleSystem : public ParticleData
 		{
 			case SpitterTrail:
 			{
-				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/blood.dds", assetID );
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/goo.dds", assetID );
 				break;
 			}
 			case GranateTrail:
@@ -675,7 +675,7 @@ struct ParticleSystem : public ParticleData
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
 		{
-			yVelocity -= 1;
+			yVelocity[i] -= 0.2f;
 		}
 	}
 

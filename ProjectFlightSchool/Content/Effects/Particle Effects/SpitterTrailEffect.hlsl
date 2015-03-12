@@ -36,7 +36,7 @@ void GS_main( point VS_In input[1], inout TriangleStream<GS_Out> outputStream )
 	float3 rightVec = float3( cos( input[0].randomRotation * 10 + ( input[0].age * 0.2 ) ), sin( input[0].randomRotation * 10 + ( input[0].age * 0.2 ) ), 0.0f );
 	float3 upVec = normalize( cross( vecToCam, rightVec ) );
 
-	float size = 0.2f - (input[0].age * 1);
+	float size = 0.35f - (input[0].age * 1);
 
 	//Get vertices for the quad
 	float3 vert[4];

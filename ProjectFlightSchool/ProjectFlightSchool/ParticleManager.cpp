@@ -103,7 +103,7 @@ void ParticleManager::Initialize()
 	mNrOfParticleSystemsPerType[NormalSmoke]	= 0;
 	mNrOfParticleSystemsPerType[Hammer_Effect]	= 0;
 
-	mMaxNrOfParticleSystemsPerType[SpitterTrail]	= 6;
+	mMaxNrOfParticleSystemsPerType[SpitterTrail]	= 12;
 	mMaxNrOfParticleSystemsPerType[GranateTrail]	= 6;
 	mMaxNrOfParticleSystemsPerType[SniperTrail]		= 15;
 	mMaxNrOfParticleSystemsPerType[Shell]			= 6;

@@ -305,6 +305,20 @@ void Server::ClientAttack( IEventPtr eventPtr )
 	}
 }
 
+void Server::ClientDash( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Dash::GUID )
+	{
+		std::shared_ptr<Event_Client_Dash> data = std::static_pointer_cast<Event_Client_Dash>( eventPtr );
+		auto& it = mClientMap.find(data->ID());
+		if( it != mClientMap.end() )
+		{
+			IEventPtr E1( new Event_Remote_Dash( data->ID() ) );
+			BroadcastEvent( E1, data->ID() );
+		}
+	}
+}
+
 void Server::ClientDown( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Client_Down::GUID )
@@ -1158,6 +1172,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientUpdateHP, this, Event_Client_Update_HP::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientMeleeHit, this, Event_Client_Melee_Hit::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientAttack, this, Event_Client_Attack::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientDash, this, Event_Client_Dash::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientDown, this, Event_Client_Down::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientUp, this, Event_Client_Up::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientAttemptRevive, this, Event_Client_Attempt_Revive::GUID );

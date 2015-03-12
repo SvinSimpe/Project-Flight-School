@@ -1928,6 +1928,92 @@ class Event_Remote_Attack : public IEvent
 		}
 };
 
+// Sent by the client whenever it attacks in order to sync the animations to the remotes
+class Event_Client_Dash : public IEvent
+{
+	private:
+		UINT	mID;
+
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Dash()
+		{
+			mID					= (UINT)-1;
+		}
+		Event_Client_Dash( UINT id )
+		{
+			mID					= id;
+		}
+		~Event_Client_Dash() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Dash( mID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+};
+
+// Sent by the server to update the remotes on the animation of the client
+class Event_Remote_Dash : public IEvent
+{
+	private:
+		UINT	mID;
+
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Dash()
+		{
+			mID					= (UINT)-1;
+		}
+		Event_Remote_Dash( UINT id )
+		{
+			mID					= id;
+		}
+		~Event_Remote_Dash() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Dash( mID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+};
+
 // Syncs the list of spawners that the server has with the one the client (apparantely?) has
 class Event_Server_Sync_Spawn : public IEvent
 {

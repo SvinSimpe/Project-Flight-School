@@ -128,6 +128,8 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Remote_Melee_Hit );
 	EF::REGISTER_EVENT( Event_Client_Attack );
 	EF::REGISTER_EVENT( Event_Remote_Attack );
+	EF::REGISTER_EVENT( Event_Client_Dash );
+	EF::REGISTER_EVENT( Event_Remote_Dash );
 	EF::REGISTER_EVENT( Event_Server_Sync_Spawn );
 	EF::REGISTER_EVENT( Event_Add_Point_Light );
 	EF::REGISTER_EVENT( Event_Remove_Point_Light );

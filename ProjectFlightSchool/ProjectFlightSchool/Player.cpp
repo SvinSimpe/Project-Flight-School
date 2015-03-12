@@ -174,6 +174,24 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 			XMStoreFloat3( &mAcceleration, normalizer );
 		}
 
+		//Dashing
+		if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_SPACE ) && mDashCoolDown <= 0.0f )
+		{
+			mDashCoolDown = DASH_COOLDOWN;
+			mDashVelocity = DASH_VELOCITY;
+			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[LEGS_DASH][TEAM_ARRAY_ID] );
+
+			XMVECTOR normalizer = XMVector3Length( XMLoadFloat3( &mVelocity ) );
+			mCurrentVelocity = XMVectorGetX( normalizer );
+			normalizer	 = XMVector3Normalize( XMLoadFloat3( &mVelocity ) );
+			normalizer	*= mMaxVelocity;
+			XMStoreFloat3( &mVelocity, normalizer );
+
+			IEventPtr E1( new Event_Client_Dash( mID ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+
+
 		//== Calculate upper body rotation ==
 		XMVECTOR rayOrigin = XMVECTOR( Input::GetInstance()->mCurrentNDCMousePos );
 		XMVECTOR rayDir = rayOrigin;
@@ -480,18 +498,23 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	{
 		mSlowDown = 1.0f;
 	}
+	mDashVelocity -= deltaTime * 0.5f;
+	mDashVelocity = max( 1.0f, mDashVelocity );
+	mDashCoolDown -= deltaTime;
+	mDashCoolDown = max( 0.0f, mDashCoolDown );
 
 	mIsInWater	= mLowerBody.position.y < -0.7f ? true : false;
 	
 	XMFLOAT3 testPosition	= mLowerBody.position;
 	XMFLOAT3 normal			= XMFLOAT3( 0.0f, 1.0f, 0.0f );
 
-	testPosition.x += mVelocity.x * deltaTime * mUpgrades.runSpeedFactor * mSlowDown;
-	testPosition.z += mVelocity.z * deltaTime * mUpgrades.runSpeedFactor * mSlowDown;
+	mCurrentTravelVelocity.x = mVelocity.x * deltaTime * mUpgrades.runSpeedFactor * mSlowDown * mDashVelocity;
+	mCurrentTravelVelocity.z = mVelocity.z * deltaTime * mUpgrades.runSpeedFactor * mSlowDown * mDashVelocity;
+
+	testPosition.x += mCurrentTravelVelocity.x;
+	testPosition.z += mCurrentTravelVelocity.z;
 	testPosition.y = worldMap->GetHeight( testPosition );
 
-	mCurrentTravelVelocity.x = mVelocity.x * deltaTime * mUpgrades.runSpeedFactor * mSlowDown;
-	mCurrentTravelVelocity.z = mVelocity.z * deltaTime * mUpgrades.runSpeedFactor * mSlowDown;
 
 	bool collisionTest = worldMap->PlayerVsMap( testPosition, normal );
 	if( !collisionTest )
@@ -1087,6 +1110,7 @@ void Player::Reset()
 	mCurrentVelocity			= 0.0f;
 	mMaxAcceleration			= 20.0f;
 	mAcceleration				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mDashVelocity				= 1.0f;
 
 	mIsBuffed					= false;
 	mLifeRegenerationAmount		= 1.0f; 
@@ -1138,10 +1162,14 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	XMMATRIX loadedMat = XMLoadFloat4x4( &upperBody );
 	XMMATRIX translate = XMMatrixTranslation( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z );
 
-	float yaw = -atan2f( mUpperBody.direction.z, mUpperBody.direction.x );
-	XMMATRIX rotate	= XMMatrixRotationRollPitchYaw( 0.0f, yaw, 0.0 );
+	float yaw				= -atan2f( mLowerBody.direction.z, mLowerBody.direction.x );
+	XMMATRIX legRotation	= XMMatrixRotationRollPitchYaw( 0.0f, yaw, 0.0f );
+	XMMATRIX invLegRotation = XMMatrixInverse( nullptr, legRotation );
 
-	XMMATRIX transformation = loadedMat * rotate * translate;
+	yaw						= -atan2f( mUpperBody.direction.z, mUpperBody.direction.x );
+	XMMATRIX upperRotation	= XMMatrixRotationRollPitchYaw( 0.0f, yaw, 0.0f );
+
+	XMMATRIX transformation = invLegRotation * upperRotation * loadedMat * legRotation * translate;
 
 	XMStoreFloat4x4( &mLowerBody.rootMatrix, transformation );
 
@@ -1182,18 +1210,21 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 			//ANIMATIONS
 			float currentVelocity = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) );
 
-			if( currentVelocity < 0.2f )
+			if( mDashVelocity < 1.35f )
 			{
-				if( mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] )
+				if( currentVelocity < 0.2f )
 				{
-					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] );
+					if( mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] )
+					{
+						RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] );
+					}
 				}
-			}
-			else
-			{
-				if(	mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] )
+				else
 				{
-					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] );
+					if(	mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] )
+					{
+						RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] );
+					}
 				}
 			}
 
@@ -1493,6 +1524,7 @@ HRESULT Player::Initialize()
 	mMaxVelocity		= 0.0f;
 	mCurrentVelocity	= 0.0f;
 	mMaxAcceleration	= 0.0f;
+	mDashVelocity		= 1.0f;
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mFireDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mIsOutSideZone		= false;
@@ -1514,6 +1546,8 @@ HRESULT Player::Initialize()
 	mLifeRegenerationAmount	= 0.0f;
 	mLifeRegenerationTimer	= 0.0f;
 	mBufflevel				= 0;
+
+	mDashCoolDown			= 0.0f;
 
 	gEventList				= std::list<IEventPtr>(); 
 
@@ -1605,6 +1639,7 @@ Player::Player()
 	mMaxVelocity		= 0.0f;
 	mCurrentVelocity	= 0.0f;
 	mMaxAcceleration	= 0.0f;
+	mDashVelocity		= 0.0f;
 	mSlowDown			= 0.0f;
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mFireDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
@@ -1623,6 +1658,8 @@ Player::Player()
 	mLeavingAreaTime	= 0.0f;
 	mWaterDamageTime	= 0.0f;
 	mLastKiller			= 0;
+
+	mDashCoolDown		= 0.0f;
 
 	gEventList			= std::list<IEventPtr>();
 

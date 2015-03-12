@@ -349,7 +349,7 @@ void Enemy::Spawn()
 	}
 	//CreateStandard();
 	//CreateRanged();
-	CreateBoomer();
+	//CreateBoomer();
 	//CreateTank();
 
 	mPosition		= mSpawnPos;

@@ -1248,8 +1248,9 @@ void PlayState::OnEnter()
 	EventManager::GetInstance()->QueueEvent( E1 );
 
 	//Spawn a energycell
-
-	SoundBufferHandler::GetInstance()->LoopStream( mLobbyMusic );
+	
+	SoundBufferHandler::GetInstance()->StopLoopStream( mLobbyMusic );
+	SoundBufferHandler::GetInstance()->LoopStream( mAmbientMusic );
 
 	mGui->SetTeamID( mPlayer->GetTeam() );
 	IEventPtr spawnPos( new Event_Request_Player_Spawn_Position( mPlayer->GetID(), mPlayer->GetTeam() ) );
@@ -1261,7 +1262,7 @@ void PlayState::OnEnter()
 void PlayState::OnExit()
 {
 	Reset();
-	SoundBufferHandler::GetInstance()->StopLoopStream( mLobbyMusic );
+	SoundBufferHandler::GetInstance()->StopLoopStream( mAmbientMusic );
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Ended() );
 	EventManager::GetInstance()->QueueEvent( E1 );
@@ -1410,7 +1411,8 @@ HRESULT PlayState::Initialize()
 	mExplosion			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/explosion.wav", 250 );
 	mSniper				= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/railgun.wav", 500 );
 	mLevelUp			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/level up.wav", 10 );
-	mLobbyMusic			= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/ambientInGame.wav", 0 );
+	mAmbientMusic		= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/ambientInGame.wav", 0 );
+	mLobbyMusic			=  SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/ambient_menu.wav", 500 );
 
 	Pathfinder::GetInstance()->Initialize( mWorldMap );
 

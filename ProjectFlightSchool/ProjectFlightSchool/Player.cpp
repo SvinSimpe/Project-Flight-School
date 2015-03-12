@@ -1098,8 +1098,8 @@ void Player::Reset()
 	mAcceleration				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
 	mIsBuffed					= false;
-	mLifeRegenerationAmount		= 2.0f; 
-	mLifeRegenerationTimer		= 5.0f;
+	mLifeRegenerationAmount		= 1.0f; 
+	mLifeRegenerationTimer		= 1.4f;
 
 	mTimeTillSpawn				= mSpawnTime;
 	mTimeTillDeath				= mDeathTime;
@@ -1379,16 +1379,16 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 		if( mLifeRegenerationTimer <= 0.0f )
 		{
-			mCurrentHp				+= 1.0f;
+			mCurrentHp	+= mLifeRegenerationAmount;
 			
 			if( mCurrentHp > mMaxHp )
 				mCurrentHp = mMaxHp;
 
-			mLifeRegenerationTimer	= 2.0f - ( (float)mBufflevel * 0.8f );
+			mLifeRegenerationTimer	= 1.4f - ( (float)( mBufflevel - 1 ) * 0.6f );
 		}
 	}
 	else
-		mLifeRegenerationTimer = 2.0f - ( (float)mBufflevel * 0.8f );
+		mLifeRegenerationTimer =  1.4f - ( (float)( mBufflevel - 1 ) * 0.6f );
 
 	return S_OK;
 }

@@ -151,4 +151,5 @@ const EventType Event_Client_Request_ParticleSystem::GUID( counter++ );
 const EventType Event_Remote_Request_ParticleSystem::GUID( counter++ );
 const EventType Event_Enemy_Fired_Projectile::GUID(counter++);
 const EventType Event_Server_Enemy_Fired_Projectile::GUID(counter++);
-
+const EventType Event_Client_Set_Name::GUID( counter++ );
+const EventType Event_Remote_Set_Name::GUID( counter++ );

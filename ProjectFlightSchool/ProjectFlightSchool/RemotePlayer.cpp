@@ -14,7 +14,6 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 			if( XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) ) > 0.05f )
 				XMStoreFloat3( &mLowerBody.direction, XMVector3Normalize( XMLoadFloat3( &data->Velocity() ) ) );
 			mUpperBody.direction							= data->UpperBodyDirection();
-			mPlayerName										= data->Name();
 
 			mBoundingBox->position		= mLowerBody.position;
 			mBoundingCircle->center		= mLowerBody.position;
@@ -128,6 +127,14 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 				mLoadOut->meleeWeapon	= new MeleeInfo( (WeaponType)data->Weapon() );
 				RenderManager::GetInstance()->AnimationInitialize( mArms.leftArm, mWeaponModels[mLoadOut->meleeWeapon->weaponType], mWeaponAnimations[mLoadOut->meleeWeapon->weaponType][IDLE] );
 			}
+		}
+	}
+	else if( newEvent->GetEventType() == Event_Remote_Set_Name::GUID )
+	{
+		std::shared_ptr<Event_Remote_Set_Name> data = std::static_pointer_cast<Event_Remote_Set_Name>( newEvent );
+		if( data->ID() == mID )
+		{
+			mPlayerName = data->Name();
 		}
 	}
 }
@@ -612,6 +619,7 @@ void RemotePlayer::RemoteInit( unsigned int id, int team )
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Up::GUID );
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Server_Switch_Team::GUID );
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Server_Change_Weapon::GUID );
+	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Set_Name::GUID );
 }
 
 void RemotePlayer::Release()

@@ -112,6 +112,7 @@ class Server : public Network
 		void	HostStartCountdown( IEventPtr eventPtr );
 		void	ClientRequestParticleSystem( IEventPtr eventPtr );
 		void	ClientInteractEnergyCell( IEventPtr eventPtr );
+		void	ClientSetName( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 
@@ -129,7 +130,6 @@ class Server : public Network
 		void	SetEnemySpawnerPositions();
 		void	CalculateEnemySpawnerPositions();
 		bool	IsEnergyCellHere( XMFLOAT3 checkPosition ) const;
-		void	SendCulledUpdate( IEventPtr eventPtr, XMFLOAT3 enemyPos, UINT exception = (UINT)-1 );
 		bool	CullEnemyUpdate( XMFLOAT3 playerPos, XMFLOAT3 enemyPos );
 
 		XMFLOAT3	GetNextSpawn();

@@ -515,7 +515,6 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	testPosition.z += mCurrentTravelVelocity.z;
 	testPosition.y = worldMap->GetHeight( testPosition );
 
-
 	bool collisionTest = worldMap->PlayerVsMap( testPosition, normal );
 	if( !collisionTest )
 	{
@@ -523,7 +522,7 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 		mLowerBody.position.y = testPosition.y;
 		mLowerBody.position.z = testPosition.z;
 
-		if( mIsInWater )
+		if( mIsInWater && mIsAlive && !mIsDown )
 		{
 			WriteInteractionText( 
 				"Get out of the water or die!", 
@@ -1419,8 +1418,13 @@ HRESULT Player::Render( float deltaTime, int position )
 {
 	if( !mIsAlive )
 	{
-        std::string textToWrite = std::to_string( (int)mTimeTillSpawn );
-		mFont.WriteText( textToWrite, (float)Input::GetInstance()->mScreenWidth/2, (float)Input::GetInstance()->mScreenHeight/2, 7.8f );
+        std::string textToWrite = std::to_string( (int)( mTimeTillSpawn + 1 ) );
+		WriteInteractionText( 
+			textToWrite, 
+			(float)Input::GetInstance()->mScreenWidth * 0.5f, 
+			(float)( Input::GetInstance()->mScreenHeight * 0.5f ), 
+			7.8f, 
+			COLOR_RED );
 	}
 
 	if( mIsOutSideZone )

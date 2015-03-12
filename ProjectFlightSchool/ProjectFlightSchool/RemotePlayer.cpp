@@ -312,6 +312,10 @@ HRESULT RemotePlayer::InitializeGraphics()
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 
+
+	if( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Arrow/", "energyArrow.pfs", mCellArrow ) )
+		OutputDebugString( L"\nERROR loading arrow model\n" );
+
 	//////////////////////////////////////
 	//			HUD ELEMENTS
 	/////////////////////////////////////
@@ -419,7 +423,19 @@ HRESULT RemotePlayer::Update( float deltaTime )
 			if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] )
 				RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
 
-			RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
+			if( mLoadOut->meleeWeapon->weaponType == CLAYMORE )
+			{
+				RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime * CLAYMORE_SPEED_INCREASE );
+			}
+			else if( mLoadOut->meleeWeapon->weaponType == HAMMER )
+			{
+				RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime * HAMMER_SPEED_INCREASE );
+			}
+			else
+			{
+				RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
+			}
+
 			RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
 		}
 		else

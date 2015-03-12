@@ -16,7 +16,6 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 			mUpperBody.direction							= data->UpperBodyDirection();
 			mPlayerName										= data->Name();
 
-			//TEST
 			mBoundingBox->position		= mLowerBody.position;
 			mBoundingCircle->center		= mLowerBody.position;
 			mBoundingCircleAura->center	= mLowerBody.position;
@@ -575,7 +574,7 @@ HRESULT RemotePlayer::Initialize()
 	mDeathTime				= 8.0f;
 	mTimeTillDeath			= mDeathTime;
 
-	mSpawnTime				= 10.0f;
+	mSpawnTime				= 5.0f;
 	mTimeTillSpawn			= mSpawnTime;
 
 	mDashVelocity			= 1.0f;

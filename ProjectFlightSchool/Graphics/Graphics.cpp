@@ -461,6 +461,16 @@ HRESULT Graphics::InitializeEffects()
 	//			PARTICLE EFFECTS			|
 	//=======================================
 
+	//Sniper trail effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/SpitterTrailEffect.hlsl";
+	effectInfo.fileName					= "SpitterTrailEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_SPITTER_TRAIL]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
 	//Granate trail effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/GranateTrail.hlsl";
 	effectInfo.fileName					= "GranateTrail";

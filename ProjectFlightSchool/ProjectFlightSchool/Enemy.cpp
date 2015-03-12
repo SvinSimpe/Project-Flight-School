@@ -42,7 +42,7 @@ void Enemy::CreateRanged()
 	mAttentionRadius->radius	= 15.0f;
 	mXpDrop						= 7;
 	mSpawnTime					= 10.0f;
-	mAttackRate					= 1.0f;
+	mAttackRate					= 2.0f;
 }
 
 void Enemy::CreateBoomer()

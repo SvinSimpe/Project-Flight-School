@@ -16,7 +16,7 @@
 
 class Enemy;
 
-#define MAX_NR_OF_ENEMIES		4
+#define MAX_NR_OF_ENEMIES		30
 
 #define randflt() (((float) rand())/((float) RAND_MAX))
 
@@ -49,9 +49,9 @@ class Enemy;
 //----------------------------------------
 
 #define ENEMY_PROJECTILE_ID						1985
-#define ENEMY_PROJECTILE_SPEED					1
+#define ENEMY_PROJECTILE_SPEED					3
 #define ENEMY_PROJECTILE_RANGE					1.0f
-#define ENEMY_PROJECTILE_DAMAGE					0.1
+#define ENEMY_PROJECTILE_DAMAGE					0.1 // 6
 
 enum EnemyType { Standard, Ranged, Boomer, Tank };
 enum EnemyState { Idle, HuntPlayer, MoveToShip, TakeDamage, Attack, Death, Stunned, };
@@ -361,8 +361,6 @@ class Enemy
 
 		unsigned int		mID;
 		EnemyType			mEnemyType;
-		EnemyState			mCurrentState;
-		EnemyState			mLastState;
 		float				mCurrentHp;
 		float				mMaxHp;
 		float				mDamage;
@@ -403,6 +401,9 @@ class Enemy
 		// Behaviors
 		IEnemyBehavior**			mBehaviors;
 		int							mCurrentBehavior;
+		int							mLastBehavior;
+		EnemyState					mCurrentState;
+		EnemyState					mLastState;
 
 		SteeringBehaviorManager*	mSteeringBehaviorManager;
 

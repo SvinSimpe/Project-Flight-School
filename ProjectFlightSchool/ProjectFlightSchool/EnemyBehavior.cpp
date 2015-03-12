@@ -76,6 +76,7 @@ void IdleBehavior::OnEnter()
 void IdleBehavior::OnExit()
 {
 	mEnemy->mLastState	= Idle;
+	mEnemy->mLastBehavior = IDLE_BEHAVIOR;
 }
 
 void IdleBehavior::Reset()
@@ -115,6 +116,18 @@ HRESULT HuntPlayerBehavior::Update( float deltaTime )
 		//mEnemy->mSteeringBehaviorManager->Update( deltaTime );
 		mEnemy->Hunt( deltaTime );
 
+		// If enemy damaged check, go to take Damage
+		mEnemy->mTakingDamageTimer += deltaTime;
+		if (mEnemy->mTakingDamage)
+		{
+			if (mEnemy->mTakingDamageTimer > 0.4f)
+			{
+				mEnemy->ChangeBehavior(TAKE_DAMAGE_BEHAVIOR);
+				mEnemy->mTakingDamageTimer = 0.0f;
+			}
+			mEnemy->mTakingDamage = false;
+		}
+
 		// If enemy lost track of target, go back to Idle
 		if( mEnemy->mPlayers[mEnemy->mTargetIndex] != nullptr )
 		{
@@ -142,13 +155,17 @@ HRESULT HuntPlayerBehavior::Update( float deltaTime )
 void HuntPlayerBehavior::OnEnter()
 {
 	mEnemy->mCurrentState	= HuntPlayer;
-	IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), HuntPlayer ) );
-	EventManager::GetInstance()->QueueEvent( state );
+	if( mEnemy->mLastState != MoveToShip )
+	{
+		IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), HuntPlayer ) );
+		EventManager::GetInstance()->QueueEvent( state );
+	}
 }
 
 void HuntPlayerBehavior::OnExit()
 {
-	mEnemy->mLastState	= HuntPlayer;
+	mEnemy->mLastState		= HuntPlayer;
+	mEnemy->mLastBehavior	= HUNT_PLAYER_BEHAVIOR;
 }
 
 void HuntPlayerBehavior::Reset()
@@ -228,13 +245,17 @@ HRESULT MoveToShipBehavior::Update( float deltaTime )
 void MoveToShipBehavior::OnEnter()
 {
 	mEnemy->mCurrentState	= MoveToShip;
-	IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), MoveToShip ) );
-	EventManager::GetInstance()->QueueEvent( state );
+	if( mEnemy->mLastState != HuntPlayer )
+	{
+		IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), MoveToShip ) );
+		EventManager::GetInstance()->QueueEvent( state );
+	}
 }
 
 void MoveToShipBehavior::OnExit()
 {
-	mEnemy->mLastState	= MoveToShip;
+	mEnemy->mLastState		= MoveToShip;
+	mEnemy->mLastBehavior	= MOVE_TO_SHIP_BEHAVIOR;
 }
 
 void MoveToShipBehavior::Reset()
@@ -306,8 +327,16 @@ HRESULT AttackBehavior::Update( float deltaTime )
 
 	if( mStateTimer <= 0.0f )
 	{
-		mEnemy->ChangeBehavior(IDLE_BEHAVIOR);
+		mEnemy->ChangeBehavior( mEnemy->mLastBehavior );
 		return S_OK;
+	}
+
+	if( mEnemy->mEnemyType == Ranged && mEnemy->mLastState == HuntPlayer )
+	{
+		mEnemy->mDirection.x = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.x - mEnemy->GetPosition().x;
+		mEnemy->mDirection.z = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.z - mEnemy->GetPosition().z;
+		mEnemy->mDirection.y = 0.0f;
+
 	}
 
 	if( !mHasAttacked && mTimeTillAttack <= 0.0f )
@@ -423,7 +452,7 @@ void AttackBehavior::OnEnter()
 			break;
 
 		case Ranged:
-			mStateTimer = 2.0f;
+			mStateTimer = 2.5f;
 			break;
 
 		case Boomer:
@@ -441,7 +470,8 @@ void AttackBehavior::OnEnter()
 
 void AttackBehavior::OnExit()
 {
-	mEnemy->mLastState	= Attack;
+	mEnemy->mLastState		= Attack;
+	mEnemy->mLastBehavior	= ATTACK_BEHAVIOR;
 }
 
 void AttackBehavior::Reset()
@@ -491,7 +521,7 @@ void TakeDamageBehavior::DamageFromPlayer( IEventPtr eventPtr )
 HRESULT TakeDamageBehavior::Update( float deltaTime )
 {
 	if( mEnemy->mIsAlive )
-		mEnemy->ChangeBehavior( HUNT_PLAYER_BEHAVIOR );
+		mEnemy->ChangeBehavior( mEnemy->mLastBehavior );
 	//else
 	//	mEnemy->ChangeBehavior( DEAD_BEHAVIOR );
 
@@ -507,7 +537,8 @@ void TakeDamageBehavior::OnEnter()
 
 void TakeDamageBehavior::OnExit()
 {
-	mEnemy->mLastState	= TakeDamage;
+	mEnemy->mLastState		= TakeDamage;
+	mEnemy->mLastBehavior	= TAKE_DAMAGE_BEHAVIOR;
 }
 
 void TakeDamageBehavior::Reset()
@@ -564,7 +595,8 @@ void StunnedBehavior::OnEnter()
 
 void StunnedBehavior::OnExit()
 {
-	mEnemy->mLastState	= Stunned;
+	mEnemy->mLastState		= Stunned;
+	mEnemy->mLastBehavior	= STUNNED_BEHAVIOR;
 }
 
 void StunnedBehavior::Reset()
@@ -618,7 +650,8 @@ void DeadBehavior::OnEnter()
 
 void DeadBehavior::OnExit()
 {
-	mEnemy->mLastState	= Death;
+	mEnemy->mLastState		= Death;
+	mEnemy->mLastBehavior	= DEAD_BEHAVIOR;
 }
 
 void DeadBehavior::Reset()

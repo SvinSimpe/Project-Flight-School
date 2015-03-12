@@ -570,7 +570,16 @@ void Server::XP( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_XP::GUID )
 	{
 		std::shared_ptr<Event_XP> data = std::static_pointer_cast<Event_XP>( eventPtr );
-		IEventPtr E1( new Event_Server_XP( data->PlayerID(), data->XP() ) );
+		UINT playerID = data->PlayerID();
+		//if( data->PlayerID() == 70 )
+		//{
+		//	playerID = 1;
+		//}
+		//else if( data->PlayerID() == 71 )
+		//{
+		//	playerID = 2;
+		//}
+		IEventPtr E1( new Event_Server_XP( playerID, data->XP() ) );
 		BroadcastEvent( E1 );
 	}
 }

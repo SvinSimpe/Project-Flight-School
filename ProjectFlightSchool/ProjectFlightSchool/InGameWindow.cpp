@@ -136,7 +136,7 @@ void InGameWindow::Render()
 	}
 	else
 	{
-		mFont.WriteText( "Options", ( Input::GetInstance()->mScreenWidth / 2 ) - mFont.GetMiddleXPoint( "Options", 7.0f ), 270.0f, 7.0f, COLOR_CYAN );
+		mFont.WriteText( "Options", ( Input::GetInstance()->mScreenWidth / 2 ) - mFont.GetMiddleXPoint( "Options", 7.0f ), 210.0f, 7.0f, COLOR_CYAN );
 
 		for( int i = 0; i < NR_OF_OPTION_BUTTONS; i++ )
 		{
@@ -203,7 +203,7 @@ HRESULT InGameWindow::Initialize()
 	offsetY = 0.0f;
 	for( int i = 0; i < NR_OF_OPTION_BUTTONS; i++ )
 	{
-		mOptionButtons[i].button.Initialize( "../Content/Assets/Textures/Menu/ingameMenu/ingame_menuButton.dds", 720.0f, 380.0f + offsetY, 496.0f, 124.0f );
+		mOptionButtons[i].button.Initialize( "../Content/Assets/Textures/Menu/ingameMenu/ingame_menuButton.dds", 720.0f, 330.0f + offsetY, 496.0f, 124.0f );
 		offsetY += 124.0f;
 	}
 

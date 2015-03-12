@@ -280,113 +280,23 @@ bool DSBufferStream::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName, LO
 	{
 		return false;
 	}
+	
+	if( waveFileHeader.numChannels == 1 )
+	{
+		waveFileHeader.numChannels	= 2;
+		waveFileHeader.sampleRate	/= 2;
+	}
 
-	///////////////////////////////////Prepare buffer desc
-	WAVEFORMATEX		wfx;
-	DSBUFFERDESC		dsbdesc;
-	LPDIRECTSOUNDBUFFER pDsb = NULL;
-	HRESULT				hr;
-
-	// Set up WAV format structure. 
-	memset (&wfx, 0, sizeof(WAVEFORMATEX) );
-	wfx.wFormatTag		= WAVE_FORMAT_PCM;
-	wfx.nChannels		= waveFileHeader.numChannels;
-	wfx.nSamplesPerSec	= waveFileHeader.sampleRate;
-	wfx.nBlockAlign		= waveFileHeader.blockAlign;
-	wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
-	wfx.wBitsPerSample	= waveFileHeader.bitsPerSample;
-
-	//if ( waveFileHeader.dataSize == 0 )
-	//{
-		waveFileHeader.dataSize = 2 * wfx.nAvgBytesPerSec;
-	//}
-
-
-	// Set up DSBUFFERDESC structure. 
-
-	memset( &dsbdesc, 0, sizeof(DSBUFFERDESC) );
-	dsbdesc.dwSize			= sizeof(DSBUFFERDESC);
-	dsbdesc.dwFlags			=
-		DSBCAPS_CTRLPAN | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY //DSBCAPS_CTRL3D och DSBCAPS_CTRLPAN can't be used at the same time. PAN is left/right.
-		| DSBCAPS_GLOBALFOCUS; //Continue playing no matter which window is used.
-	dsbdesc.dwBufferBytes	= waveFileHeader.dataSize; //3 seconds size
-	dsbdesc.lpwfxFormat		= &wfx;
+	waveFileHeader.dataSize = 2 * waveFileHeader.sampleRate * ( ( waveFileHeader.numChannels * waveFileHeader.bitsPerSample ) / 8 );
 
 	mDataSize = waveFileHeader.dataSize / 2;
 
-	////////////////////////////////////// Create buffer and initialize it. 
-	hr = lpds->CreateSoundBuffer( &dsbdesc, &pDsb, NULL );
-	if ( FAILED( hr ) )
-	{
-		printf( "CreateSoundBuffer has failed\n" );
-		return false;
-	}
-	else if ( SUCCEEDED( hr ) )
-	{
-		for( int i = 0; i < mNrOfBuffers; i++ )
-		{
-			hr = pDsb->QueryInterface( IID_IDirectSoundBuffer8, (LPVOID*)&mBuffer[i] );
-			if ( FAILED( hr ) )
-			{
-				printf( "QueryInterface has failed\n" );
-				return false;
-		}
-		}
-		pDsb->Release();
-	}
-
-	hr = CreateBasicBuffer( lpds, waveFileHeader );
+	HRESULT hr = CreateBasicBuffer( lpds, waveFileHeader );
 	if ( FAILED( hr ) )
 	{
 		printf( "CreateBasicBuffer in FillBufferWithWave has failed\n" );
 		return false;
 	}
-
-	/////////////////////////////////////// Fill the buffer with wavedata.
-
-	//unsigned char* waveData = new unsigned char[mDataSize];
-	//if ( !waveData )
-	//{
-	//	printf( "waveData array allocation in FillBufferWithWave has failed\n" );
-	//	return false;
-	//}
-
-	//// Read in the wave file data into the newly created buffer.
-	//count = fread( waveData, 1, mDataSize, mFileptr );
-	//if ( count != mDataSize )
-	//{
-	//	printf( "fread in FillBufferWithWave has not read correctly\n" );
-	//	//return false;
-	//}
-
-	////////////////////Dags att fylla buffern
-	//unsigned char *bufferPtr;
-	//unsigned long bufferSize;
-
-	//// Lock the secondary buffer to write wave data into it.
-	//hr = mBuffer->Lock( 0, mDataSize, (void**)&bufferPtr, (DWORD*)&bufferSize, NULL, 0, 0 );
-	//if ( FAILED( hr ) )
-	//{
-	//	return false;
-	//}
-
-	//// Copy the wave data into the buffer.
-	//memcpy( bufferPtr, waveData, mDataSize );
-
-	//// Unlock the secondary buffer after the data has been written to it.
-	//hr = mBuffer->Unlock( (void*)bufferPtr, bufferSize, NULL, 0 );
-	//if ( FAILED( hr ) )
-	//{
-	//	return false;
-	//}
-
-	//
-
-	//// Release the wave data since it was copied into the secondary buffer.
-	//delete[] waveData;
-	//waveData = 0;
-
-	// Set volume of the buffer to 100%.
 	
 	for( int i = 0; i < mNrOfBuffers; i++ )
 	{

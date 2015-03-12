@@ -128,7 +128,6 @@ class Server : public Network
 		void	SetEnemySpawnerPositions();
 		void	CalculateEnemySpawnerPositions();
 		bool	IsEnergyCellHere( XMFLOAT3 checkPosition ) const;
-		void	SendCulledUpdate( IEventPtr eventPtr, XMFLOAT3 enemyPos, UINT exception = (UINT)-1 );
 		bool	CullEnemyUpdate( XMFLOAT3 playerPos, XMFLOAT3 enemyPos );
 
 		XMFLOAT3	GetNextSpawn();

@@ -16,7 +16,6 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 			mUpperBody.direction							= data->UpperBodyDirection();
 			mPlayerName										= data->Name();
 
-			//TEST
 			mBoundingBox->position		= mLowerBody.position;
 			mBoundingCircle->center		= mLowerBody.position;
 			mBoundingCircleAura->center	= mLowerBody.position;
@@ -98,7 +97,7 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 		if( data->ID() == mID )
 		{
 			mIsBuffed	= data->IsBuffed();
-			mBufflevel	= (float)data->BuffMod();
+			mBufflevel	= (int)data->BuffMod();
 		}
 	}
 	else if( newEvent->GetEventType() == Event_Server_Change_Weapon::GUID )

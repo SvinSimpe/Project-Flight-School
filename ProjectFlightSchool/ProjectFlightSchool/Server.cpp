@@ -147,7 +147,7 @@ void Server::ClientUpdate( IEventPtr eventPtr )
 			if( mClientMap.size() > 1 )
 			{
 				IEventPtr E1( new Event_Remote_Update( data->ID(), mClientMap[data->ID()]->Pos.center, vel, dir, name, data->IsAlive() ) );
-				SendCulledUpdate( E1, mClientMap[data->ID()]->Pos.center, data->ID() );
+				BroadcastEvent( E1 );
 			}
 		}
 	}
@@ -780,19 +780,6 @@ void Server::UpdateShip( float deltaTime, ServerShip* s )
 	BroadcastEvent( E2 );
 }
 
-void Server::SendCulledUpdate( IEventPtr eventPtr, XMFLOAT3 enemyPos, UINT exception )
-{
-	/*for( auto& cm : mClientMap )
-	{
-		auto c = cm.second;
-		if( CullEnemyUpdate( c->Pos.center, enemyPos ) && c->ID != exception )
-		{*/
-			//SendEvent( eventPtr, c->ID );
-	BroadcastEvent( eventPtr );
-	//	}
-	//}
-}
-
 bool Server::CullEnemyUpdate( XMFLOAT3 playerPos, XMFLOAT3 enemyPos )
 {
 	return HelperFunctions::Dist3Squared( playerPos, enemyPos ) <= ENEMY_UPDATE_RANGE;
@@ -1090,7 +1077,7 @@ void Server::Update( float deltaTime )
 																	mEnemies[i]->IsAlive(),
 																	mEnemies[i]->GetHP() ) );
 				{
-					SendCulledUpdate( enemy, mEnemies[i]->GetPosition() );
+					BroadcastEvent( enemy );
 				}
 			}
 		}

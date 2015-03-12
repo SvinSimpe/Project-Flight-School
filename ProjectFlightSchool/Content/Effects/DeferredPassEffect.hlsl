@@ -81,10 +81,30 @@ SamplerState pointSampler			: register( s0 );
 SamplerState linearSampler			: register( s1 );
 float4 PS_main( VS_Out input ) : SV_TARGET0
 {
-	float3	albedoSample	= albedoSpecBuffer.Sample( pointSampler, input.uv ).xyz;
-	float	specularSample	= albedoSpecBuffer.Sample( pointSampler, input.uv ).w;
-	float3	normalSample	= normalBuffer.Sample( pointSampler, input.uv ).xyz;
-	float3	worldSample		= worldPositionBuffer.Sample( linearSampler, input.uv).xyz;
+	float3	albedoSample	= float3( 0.0f, 0.0f, 0.0f );
+	float	specularSample	= 0.0f;
+	float3	normalSample	= float3( 0.0f, 0.0f, 0.0f );
+	float3	worldSample		= worldPositionBuffer.Sample( linearSampler, input.uv ).xyz;
+
+	float3 blurVector	= cameraPosition - float3( 0.0f, 20.0f, -8.0f ) - worldSample;
+	float blurFactor	= dot( blurVector, blurVector ) * 0.008f;	
+
+	float deltaX = 1.0f / 1920.0f * blurFactor;
+	float deltaY = 1.0f / 1080.0f * blurFactor;
+
+	for( float x = -2.0f; x < 2.5f; x += 1.0f )
+		for( float y = -2.0f; y < 2.5f; y += 1.0f )
+		{
+			float2  samplePos = input.uv + float2( x * deltaX, y * deltaY );
+
+			albedoSample	+= albedoSpecBuffer.Sample( pointSampler, samplePos ).xyz;
+			specularSample	+= albedoSpecBuffer.Sample( pointSampler, samplePos ).w;
+			normalSample	+= normalBuffer.Sample( pointSampler, samplePos ).xyz;
+		}
+
+	albedoSample	/= 16.0f;
+	specularSample	/= 16.0f;
+	normalSample	/= 16.0f;
 
 	//========== Screen Space Ambient Occlusion =============
 	// USED FOR TESTING SSAO ONLY, SUCKY VERSION, JOCKE PLEZ HALP

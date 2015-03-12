@@ -1437,7 +1437,7 @@ HRESULT Player::Render( float deltaTime, int position )
 			COLOR_RED );
 
 		WriteInteractionText( 
-			std::to_string( (int)mLeavingAreaTime ),
+			std::to_string( (int)( mLeavingAreaTime + 1 ) ),
 			(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
 			(float)( Input::GetInstance()->mScreenHeight * 0.25 ) + 40.0f, 
 			4.0f,

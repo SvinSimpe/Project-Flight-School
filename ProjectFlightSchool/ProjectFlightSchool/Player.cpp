@@ -1037,11 +1037,11 @@ void Player::WriteInteractionText( std::string text, float xPos, float yPos, flo
 
 void Player::TakeDamage( float damage, unsigned int shooter )
 {
-	if( mIsBuffed )
-	{
-		float moddedDmg = damage * mBuffMod;
-		damage -= moddedDmg;
-	}
+	//if( mIsBuffed )
+	//{
+	//	float moddedDmg = damage * mBuffMod;
+	//	damage -= moddedDmg;
+	//}
 	mCurrentHp -= ( damage * mUpgrades.damageTakenPercentage );
 	if( mCurrentHp < 0.0f )
 	{
@@ -1099,7 +1099,8 @@ void Player::Reset()
 	mAcceleration				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
 	mIsBuffed					= false;
-	mBuffMod					= 0.5f; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
+	mLifeRegenerationAmount		= 2.0f; 
+	mLifeRegenerationTimer		= 5.0f;
 
 	mTimeTillSpawn				= mSpawnTime;
 	mTimeTillDeath				= mDeathTime;
@@ -1216,7 +1217,19 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 			if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] )
 				RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
 
-			RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
+			if( mLoadOut->meleeWeapon->weaponType == CLAYMORE )
+			{
+				RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime * CLAYMORE_SPEED_INCREASE );
+			}
+			else if( mLoadOut->meleeWeapon->weaponType == HAMMER )
+			{
+				RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime * HAMMER_SPEED_INCREASE );
+			}
+			else
+			{
+				RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
+			}
+			
 			RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
 			////////////////////////////////////
 			//ENERGY CELLS
@@ -1360,6 +1373,24 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	IEventPtr E1( new Event_Trigger_Client_Update( mID, mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName, mIsBuffed, mIsAlive ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
 
+
+	if( mIsBuffed && mCurrentHp < mMaxHp && mCurrentHp != 0.0f )
+	{
+		mLifeRegenerationTimer -= deltaTime;
+
+		if( mLifeRegenerationTimer <= 0.0f )
+		{
+			mCurrentHp				+= 1.0f;
+			
+			if( mCurrentHp > mMaxHp )
+				mCurrentHp = mMaxHp;
+
+			mLifeRegenerationTimer	= 2.0f - ( (float)mBufflevel * 0.8f );
+		}
+	}
+	else
+		mLifeRegenerationTimer = 2.0f - ( (float)mBufflevel * 0.8f );
+
 	return S_OK;
 }
 
@@ -1490,6 +1521,10 @@ HRESULT Player::Initialize()
 	mWaterDamageTime		= 0.0f;
 	mLastKiller				= 0;
 
+	mLifeRegenerationAmount	= 0.0f;
+	mLifeRegenerationTimer	= 0.0f;
+	mBufflevel				= 0;
+
 	gEventList				= std::list<IEventPtr>(); 
 
 	RemotePlayer::Initialize();
@@ -1517,7 +1552,7 @@ HRESULT Player::Initialize()
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
-	mBuffMod			= 0.5f;
+
 
 	mNextLevelXP		= 20.0f;
 	mCurrentUpgrades	= 0;

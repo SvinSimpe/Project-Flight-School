@@ -72,11 +72,11 @@ void MapNodePlacer::BuildMap( MapNodeInstance***& buildMap )
 
 
 	//Hardcoding Ships
-	CanPlace( mMap->GetMapHalfWidth() - 3, mMap->GetMapHalfHeight(), nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance(), buildMap );
+	CanPlace( mMap->GetMapHalfWidth() - 5, mMap->GetMapHalfHeight(), nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance(), buildMap );
 	//map[mNrOfNodes++] = nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance();
 	//////////////////
 	////Hardcoding Ships
-	CanPlace( mMap->GetMapHalfWidth() + 1, mMap->GetMapHalfHeight(), nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance(), buildMap );
+	CanPlace( mMap->GetMapHalfWidth() + 3, mMap->GetMapHalfHeight(), nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance(), buildMap );
 	//map[mNrOfNodes++] = nodeMap[NodeTypes::SHIP_NODE][randomNode]->GetMapNodeInstance();
 	////////////////
 

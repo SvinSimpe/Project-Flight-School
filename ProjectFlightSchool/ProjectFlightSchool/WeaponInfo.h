@@ -302,7 +302,6 @@ struct RangedInfo
 						attackRate		= 2.8f;
 						damage			= 27.4f;
 						areaOfEffect	= 2.5f;
-						projectileSpeed	= 30.0f;
 					}
 						break;
 
@@ -311,7 +310,6 @@ struct RangedInfo
 						attackRate		= 2.5f;
 						damage			= 30.9f;
 						areaOfEffect	= 3.0f;
-						projectileSpeed	= 30.0f;
 					}
 						break;
 
@@ -320,7 +318,6 @@ struct RangedInfo
 						attackRate		= 2.2f;
 						damage			= 34.0f;
 						areaOfEffect	= 3.5f;
-						projectileSpeed	= 30.0f;
 					}
 						break;
 
@@ -329,7 +326,6 @@ struct RangedInfo
 						attackRate		= 2.0f;
 						damage			= 38.5f;
 						areaOfEffect	= 3.7f;
-						projectileSpeed	= 30.0f;
 					}
 						break;
 

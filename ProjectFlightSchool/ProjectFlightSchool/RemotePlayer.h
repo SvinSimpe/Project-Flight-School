@@ -105,6 +105,7 @@ class RemotePlayer
 		AssetID			mAnimations[PLAYER_ANIMATION::COUNT][2];
 		AssetID			mWeaponModels[WEAPON_COUNT];
 		AssetID			mWeaponAnimations[WEAPON_COUNT][WEAPON_ANIMATION_COUNT];
+		AssetID			mCellArrow;
 		UpperBody		mUpperBody;
 		LowerBody		mLowerBody;
 		Arms			mArms;

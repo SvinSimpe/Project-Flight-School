@@ -473,37 +473,6 @@ void Player::GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, Direct
 
 HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
 {
-	//Draw goal arrow
-
-
-	float circleRadius = 2.0f;
-
-	XMVECTOR playerGoal = XMLoadFloat3( &XMFLOAT3( mPlayerGoal.x, 0.0f, mPlayerGoal.z ) );
-	XMVECTOR playerPos = XMLoadFloat3( &mLowerBody.position );
-	XMVECTOR goalDir = playerGoal - playerPos;
-	goalDir = XMVector3Normalize( goalDir );
-
-	float rot = -atan2f( XMVectorGetZ( goalDir ), XMVectorGetX( goalDir ) );
-
-	XMMATRIX rotMatrix = XMMatrixRotationY( rot );
-	XMMATRIX trans = XMMatrixTranslationFromVector( playerPos + ( goalDir * circleRadius ) );
-	XMFLOAT4X4 world;
-	XMStoreFloat4x4( &world, XMMatrixTranspose( rotMatrix * trans ) );
-
-	
-	if( energyCells[1]->GetActive() )
-	{
-		if( energyCells[1]->GetOwnerID() != mID )
-		{
-			mPlayerGoal = energyCells[1]->GetPosition();
-		}
-		else
-		{
-			mPlayerGoal = mShipPos;
-		}
-		RenderManager::GetInstance()->AddBoxToList( XMFLOAT3( -0.5f, -0.5f, -0.5f ), XMFLOAT3( 0.5f, 0.5f, 0.5f ), world );
-	}
-
 
 	// Update water status	
 	mSlowDown += deltaTime / 5;
@@ -550,16 +519,37 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	}
 	else
 	{
-		//mFollowPath = false;
-		//Pathfinder::GetInstance()->RequestPath( currentPath1, mLowerBody.position, mPick  );
-		//Pathfinder::GetInstance()->CalculateSubPath( currentPath1 );
-		//currentPath = currentPath1->TotalPath();
-		//currStep = currentPath.begin();
-
 		XMVECTOR loadVel		= XMLoadFloat3( &mVelocity );
 		XMVECTOR loadNorm		= XMLoadFloat3( &XMFLOAT3( normal.x, normal.y, normal.z ) );
 		XMVECTOR loadNormNorm	= XMLoadFloat3( &XMFLOAT3( -normal.z, -normal.y, normal.x ) );
 		XMStoreFloat3( &mVelocity, loadNormNorm * XMVectorGetX( XMVector3Dot( loadVel, loadNormNorm ) ) + loadNorm * deltaTime * 20.0f );
+	}
+
+	//Draw goal arrow
+	float circleRadius = 2.0f;
+	if( energyCells[1]->GetActive() )
+	{
+		XMVECTOR playerGoal = XMLoadFloat3( &XMFLOAT3( mPlayerGoal.x, mLowerBody.position.y + 1.0f, mPlayerGoal.z ) );
+		XMVECTOR playerPos = XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + 1.0f, mLowerBody.position.z ) );
+		XMVECTOR goalDir = playerGoal - playerPos;
+		goalDir = XMVector3Normalize( goalDir );
+	
+		float rot = -atan2f( XMVectorGetZ( goalDir ), XMVectorGetX( goalDir ) );
+	
+		XMMATRIX rotMatrix = XMMatrixRotationY( rot );
+		XMMATRIX trans = XMMatrixTranslationFromVector( playerPos + ( goalDir * circleRadius ) );
+		XMFLOAT4X4 world;
+		XMStoreFloat4x4( &world, ( rotMatrix * trans ) );
+
+		if( energyCells[1]->GetOwnerID() != mID )
+		{
+			mPlayerGoal = energyCells[1]->GetPosition();
+		}
+		else
+		{
+			mPlayerGoal = mShipPos;
+		}
+		RenderManager::GetInstance()->AddObject3dToList( mCellArrow, world );
 	}
 
 	Update( deltaTime, remotePlayers, energyCells );
@@ -1457,30 +1447,30 @@ HRESULT Player::Render( float deltaTime, int position )
 
 	RemotePlayer::Render();
 	//---------------------------DEBUG RENDERING----------------------------
-	MeleeInfo* currWeapon = mLoadOut->meleeWeapon;
-	RenderManager::GetInstance()->AddCircleToList( currWeapon->boundingCircle->center, DirectX::XMFLOAT3( 0, 2, 1 ), currWeapon->boundingCircle->radius );
-	RenderManager::GetInstance()->AddBoxToList( XMFLOAT3( mPick.x - 0.5f, mPick.y - 0.5f, mPick.z - 0.5f ), XMFLOAT3( mPick.x + 0.5f, mPick.y + 0.5f, mPick.z + 0.5f ) );
-	RenderManager::GetInstance()->AddCircleToList( mLoadOut->meleeWeapon->boundingCircle->center, DirectX::XMFLOAT3(1,1,0), mLoadOut->meleeWeapon->boundingCircle->radius );
-	RenderManager::GetInstance()->AddCircleToList( mBoundingCircle->center, DirectX::XMFLOAT3(0,1,0), mBoundingCircle->radius );
-	if( mHasMeleeStarted )
-	{
-		
-		XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mUpperBody.direction ) * currWeapon->radius );
+	//MeleeInfo* currWeapon = mLoadOut->meleeWeapon;
+	//RenderManager::GetInstance()->AddCircleToList( currWeapon->boundingCircle->center, DirectX::XMFLOAT3( 0, 2, 1 ), currWeapon->boundingCircle->radius );
+	//RenderManager::GetInstance()->AddBoxToList( XMFLOAT3( mPick.x - 0.5f, mPick.y - 0.5f, mPick.z - 0.5f ), XMFLOAT3( mPick.x + 0.5f, mPick.y + 0.5f, mPick.z + 0.5f ) );
+	//RenderManager::GetInstance()->AddCircleToList( mLoadOut->meleeWeapon->boundingCircle->center, DirectX::XMFLOAT3(1,1,0), mLoadOut->meleeWeapon->boundingCircle->radius );
+	//RenderManager::GetInstance()->AddCircleToList( mBoundingCircle->center, DirectX::XMFLOAT3(0,1,0), mBoundingCircle->radius );
+	//if( mHasMeleeStarted )
+	//{
+	//	
+	//	XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mUpperBody.direction ) * currWeapon->radius );
 
-		float halfRadian = XMConvertToRadians( currWeapon->spread * 18.0f ) * 0.5f;
+	//	float halfRadian = XMConvertToRadians( currWeapon->spread * 18.0f ) * 0.5f;
 
-		XMVECTOR leftVector = XMVector3Rotate( meeleRadiusVector, XMQuaternionRotationRollPitchYawFromVector( XMVectorSet( 0, -halfRadian, 0 , 1 ) ) );
-		XMVECTOR rightVector = XMVector3Rotate( meeleRadiusVector, XMQuaternionRotationRollPitchYawFromVector( XMVectorSet( 0, halfRadian, 0 , 1 ) ) );
+	//	XMVECTOR leftVector = XMVector3Rotate( meeleRadiusVector, XMQuaternionRotationRollPitchYawFromVector( XMVectorSet( 0, -halfRadian, 0 , 1 ) ) );
+	//	XMVECTOR rightVector = XMVector3Rotate( meeleRadiusVector, XMQuaternionRotationRollPitchYawFromVector( XMVectorSet( 0, halfRadian, 0 , 1 ) ) );
 
-		XMFLOAT3 leftEnd, rightEnd;
-		XMFLOAT3 pos = currWeapon->boundingCircle->center;
-		
-		XMStoreFloat3( &leftEnd, XMLoadFloat3( &pos ) + leftVector );
-		XMStoreFloat3( &rightEnd, XMLoadFloat3( &pos ) + rightVector );
-		RenderManager::GetInstance()->AddCircleToList( currWeapon->boundingCircle->center, DirectX::XMFLOAT3( 0, 1, 1 ), currWeapon->boundingCircle->radius );
-		RenderManager::GetInstance()->AddLineToList( pos, XMFLOAT3( leftEnd.x, 0.1f, leftEnd.z ) );
-		RenderManager::GetInstance()->AddLineToList( pos, XMFLOAT3( rightEnd.x, 0.1f, rightEnd.z ) );
-	}
+	//	XMFLOAT3 leftEnd, rightEnd;
+	//	XMFLOAT3 pos = currWeapon->boundingCircle->center;
+	//	
+	//	XMStoreFloat3( &leftEnd, XMLoadFloat3( &pos ) + leftVector );
+	//	XMStoreFloat3( &rightEnd, XMLoadFloat3( &pos ) + rightVector );
+	//	RenderManager::GetInstance()->AddCircleToList( currWeapon->boundingCircle->center, DirectX::XMFLOAT3( 0, 1, 1 ), currWeapon->boundingCircle->radius );
+	//	RenderManager::GetInstance()->AddLineToList( pos, XMFLOAT3( leftEnd.x, 0.1f, leftEnd.z ) );
+	//	RenderManager::GetInstance()->AddLineToList( pos, XMFLOAT3( rightEnd.x, 0.1f, rightEnd.z ) );
+	//}
 	//---------------------------DEBUG RENDERING----------------------------
 
 

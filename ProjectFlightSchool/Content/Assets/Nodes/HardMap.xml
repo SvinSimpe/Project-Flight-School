@@ -8,11 +8,11 @@
 		<Node path="../Content/Assets/Nodes/tileBigOpenAreaWithFourTreeGrooves.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileBigOpenAreaWithManyNests.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileBigOpenAreaWithOneNest.lp" type="AREA_NODE" />
-		<Node path="../Content/Assets/Nodes/tileBossArenaBigTreeLine.lp" type="AREA_NODE" />
-		<Node path="../Content/Assets/Nodes/tileBossArenaPuddleStomper.lp" type="AREA_NODE" />
-		<Node path="../Content/Assets/Nodes/tileBossArenaWaterPools.lp" type="AREA_NODE" />
-		<Node path="../Content/Assets/Nodes/tileBossNestArena.lp" type="AREA_NODE" />
-		<Node path="../Content/Assets/Nodes/tileBossNestBoneArena.lp" type="AREA_NODE" />
+		<--<Node path="../Content/Assets/Nodes/tileBossArenaBigTreeLine.lp" type="AREA_NODE" />-->
+		<--<Node path="../Content/Assets/Nodes/tileBossArenaPuddleStomper.lp" type="AREA_NODE" />-->
+		<--<Node path="../Content/Assets/Nodes/tileBossArenaWaterPools.lp" type="AREA_NODE" />-->
+		<--<Node path="../Content/Assets/Nodes/tileBossNestArena.lp" type="AREA_NODE" />-->
+		<--<Node path="../Content/Assets/Nodes/tileBossNestBoneArena.lp" type="AREA_NODE" />-->
 		<Node path="../Content/Assets/Nodes/tileForest2.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileForest3.lp" type="AREA_NODE" />
 		<Node path="../Content/Assets/Nodes/tileForest4.lp" type="AREA_NODE" />

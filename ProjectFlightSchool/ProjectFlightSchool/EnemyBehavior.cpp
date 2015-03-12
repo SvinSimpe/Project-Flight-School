@@ -155,7 +155,7 @@ HRESULT HuntPlayerBehavior::Update( float deltaTime )
 void HuntPlayerBehavior::OnEnter()
 {
 	mEnemy->mCurrentState	= HuntPlayer;
-	if( mEnemy->mLastState != MoveToShip )
+	if ( ( mEnemy->mLastState != MoveToShip ) || ( mEnemy->mLastBehavior != ATTACK_BEHAVIOR ) )
 	{
 		IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), HuntPlayer ) );
 		EventManager::GetInstance()->QueueEvent( state );
@@ -245,7 +245,7 @@ HRESULT MoveToShipBehavior::Update( float deltaTime )
 void MoveToShipBehavior::OnEnter()
 {
 	mEnemy->mCurrentState	= MoveToShip;
-	if( mEnemy->mLastState != HuntPlayer )
+	if ( ( mEnemy->mLastState != HuntPlayer ) || ( mEnemy->mLastBehavior != ATTACK_BEHAVIOR ) )
 	{
 		IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), MoveToShip ) );
 		EventManager::GetInstance()->QueueEvent( state );
@@ -350,7 +350,7 @@ HRESULT AttackBehavior::Update( float deltaTime )
 				if( mEnemy->mAttackRadius->Intersect( mEnemy->mPlayers[mEnemy->mTargetIndex]->AggroCircle ) )
 				{
 					mHasAttacked = true;
-					if (mEnemy->mEnemyType == Ranged)
+					if ( mEnemy->mEnemyType == Ranged )
 					{
 						XMFLOAT3 direction;
 						direction.x = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.x - mEnemy->GetPosition().x;
@@ -379,6 +379,13 @@ HRESULT AttackBehavior::Update( float deltaTime )
 							ENEMY_PROJECTILE_RANGE));
 						EventManager::GetInstance()->QueueEvent(E1);
 					}
+					else if (mEnemy->mEnemyType == Boomer)
+					{
+						IEventPtr state(new Event_Tell_Server_Enemy_Attack_Player(mEnemy->mID, mEnemy->mTargetID, mEnemy->mDamage));
+						EventManager::GetInstance()->QueueEvent(state);
+						mEnemy->ChangeBehavior(DEAD_BEHAVIOR);
+						return S_OK;
+					}
 					else
 					{
 						IEventPtr state(new Event_Tell_Server_Enemy_Attack_Player(mEnemy->mID, mEnemy->mTargetID, mEnemy->mDamage));
@@ -394,7 +401,7 @@ HRESULT AttackBehavior::Update( float deltaTime )
 			if( mEnemy->mAttackRadius->Intersect( mEnemy->mShips.at(mEnemy->mTargetShipIndex)->GetHitCircle() ) )
 			{
 				mHasAttacked = true;
-				if (mEnemy->mEnemyType == Ranged)
+				if ( mEnemy->mEnemyType == Ranged )
 				{
 					XMFLOAT3 direction;
 					direction.x = mEnemy->mShips[mEnemy->mTargetIndex]->GetPos().x - mEnemy->GetPosition().x;
@@ -422,6 +429,12 @@ HRESULT AttackBehavior::Update( float deltaTime )
 						ENEMY_PROJECTILE_SPEED,
 						ENEMY_PROJECTILE_RANGE));
 					EventManager::GetInstance()->QueueEvent(E1);
+				}
+				else if( mEnemy->mEnemyType == Boomer )
+				{
+					mEnemy->mShips.at(mEnemy->mTargetShipIndex)->TakeDamage(mEnemy->mDamage);
+					mEnemy->ChangeBehavior( DEAD_BEHAVIOR );
+					return S_OK;
 				}
 				else
 				{
@@ -452,7 +465,7 @@ void AttackBehavior::OnEnter()
 			break;
 
 		case Ranged:
-			mStateTimer = 2.5f;
+			mStateTimer = 1.8f;
 			break;
 
 		case Boomer:

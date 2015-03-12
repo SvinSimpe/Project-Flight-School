@@ -395,7 +395,19 @@ HRESULT RemotePlayer::Update( float deltaTime )
 			if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] )
 				RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
 
-			RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
+			if( mLoadOut->meleeWeapon->weaponType == CLAYMORE )
+			{
+				RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime * CLAYMORE_SPEED_INCREASE );
+			}
+			else if( mLoadOut->meleeWeapon->weaponType == HAMMER )
+			{
+				RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime * HAMMER_SPEED_INCREASE );
+			}
+			else
+			{
+				RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
+			}
+
 			RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
 		}
 		else

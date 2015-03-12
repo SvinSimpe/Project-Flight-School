@@ -103,9 +103,7 @@ void ServerShip::CalcShieldLevel()
 
 void ServerShip::CalcBuffMod()
 {
-	//mBuffMod = 0.5f + ( 0.2f * (mBuffLevel - 1) );
-	//mBuffMod = 2.0f + ( ( mBuffLevel - 1 ) * 2 );
-	mBuffMod += 1.0f;
+	mBuffMod = 1.0f + (mBuffLevel - 1);
 }
 
 void ServerShip::ClientUpdateShip( IEventPtr eventPtr )

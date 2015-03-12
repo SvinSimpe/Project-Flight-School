@@ -79,6 +79,7 @@ void ParticleManager::Initialize()
 	
 	// For every new ParticleType initiate values below
 
+	mNrOfParticleSystemsPerType[SpitterTrail]	= 0;
 	mNrOfParticleSystemsPerType[GranateTrail]	= 0;
 	mNrOfParticleSystemsPerType[SniperTrail]	= 0;
 	mNrOfParticleSystemsPerType[Shell]			= 0;
@@ -102,6 +103,7 @@ void ParticleManager::Initialize()
 	mNrOfParticleSystemsPerType[NormalSmoke]	= 0;
 	mNrOfParticleSystemsPerType[Hammer_Effect]	= 0;
 
+	mMaxNrOfParticleSystemsPerType[SpitterTrail]	= 12;
 	mMaxNrOfParticleSystemsPerType[GranateTrail]	= 6;
 	mMaxNrOfParticleSystemsPerType[SniperTrail]		= 15;
 	mMaxNrOfParticleSystemsPerType[Shell]			= 6;
@@ -125,6 +127,7 @@ void ParticleManager::Initialize()
 	mMaxNrOfParticleSystemsPerType[NormalSmoke]		= 8;
 	mMaxNrOfParticleSystemsPerType[Hammer_Effect]	= 8;
 
+	mNrOfActiveParticleSystemsPerType[SpitterTrail]		= 0;
 	mNrOfActiveParticleSystemsPerType[GranateTrail]		= 0;
 	mNrOfActiveParticleSystemsPerType[SniperTrail]		= 0;
 	mNrOfActiveParticleSystemsPerType[Shell]			= 0;
@@ -167,6 +170,13 @@ void ParticleManager::Initialize()
 	//		mNrOfParticleSystemsPerType[MuzzleFlash]++;
 	//		mNrOfParticleSystems++;
 	//	}
+
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[SpitterTrail]; i++ )
+	{
+		mParticleSystems[SpitterTrail][i]->Initialize( SpitterTrail, 6.0f, 1000 );
+		mNrOfParticleSystemsPerType[SpitterTrail]++;
+		mNrOfParticleSystems++;
+	}
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[GranateTrail]; i++ )
 	{

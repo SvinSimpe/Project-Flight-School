@@ -14,9 +14,7 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 			if( XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) ) > 0.05f )
 				XMStoreFloat3( &mLowerBody.direction, XMVector3Normalize( XMLoadFloat3( &data->Velocity() ) ) );
 			mUpperBody.direction							= data->UpperBodyDirection();
-			mPlayerName										= data->Name();
 
-			//TEST
 			mBoundingBox->position		= mLowerBody.position;
 			mBoundingCircle->center		= mLowerBody.position;
 			mBoundingCircleAura->center	= mLowerBody.position;
@@ -131,6 +129,14 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 			}
 		}
 	}
+	else if( newEvent->GetEventType() == Event_Remote_Set_Name::GUID )
+	{
+		std::shared_ptr<Event_Remote_Set_Name> data = std::static_pointer_cast<Event_Remote_Set_Name>( newEvent );
+		if( data->ID() == mID )
+		{
+			mPlayerName = data->Name();
+		}
+	}
 }
 
 HRESULT RemotePlayer::InitializeGraphics()
@@ -149,11 +155,11 @@ HRESULT RemotePlayer::InitializeGraphics()
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	//team B
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/Animations/", "idle.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_IDLE][1] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/Animations/", "idles.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_IDLE][1] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/Animations/", "walk.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_WALK][1] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/Animations/", "walks.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_WALK][1] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/Animations/", "death.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DEATH][1] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/Animations/", "deaths.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DEATH][1] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/Animations/", "down.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DOWN][1] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
@@ -575,7 +581,7 @@ HRESULT RemotePlayer::Initialize()
 	mDeathTime				= 8.0f;
 	mTimeTillDeath			= mDeathTime;
 
-	mSpawnTime				= 10.0f;
+	mSpawnTime				= 5.0f;
 	mTimeTillSpawn			= mSpawnTime;
 
 	mDashVelocity			= 1.0f;
@@ -613,6 +619,7 @@ void RemotePlayer::RemoteInit( unsigned int id, int team )
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Up::GUID );
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Server_Switch_Team::GUID );
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Server_Change_Weapon::GUID );
+	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Set_Name::GUID );
 }
 
 void RemotePlayer::Release()

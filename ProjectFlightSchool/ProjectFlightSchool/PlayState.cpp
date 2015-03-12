@@ -246,7 +246,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	else if( newEvent->GetEventType() == Event_Trigger_Client_Update::GUID )
 	{
 		std::shared_ptr<Event_Trigger_Client_Update> data = std::static_pointer_cast<Event_Trigger_Client_Update>( newEvent );
-		IEventPtr E1( new Event_Client_Update( data->ID(), data->LowerBodyPos(), data->Velocity(), data->UpperBodyDirection(), data->Name(), data->IsBuffed(), data->IsAlive() ) );
+		IEventPtr E1( new Event_Client_Update( data->ID(), data->LowerBodyPos(), data->Velocity(), data->UpperBodyDirection(), data->IsBuffed(), data->IsAlive() ) );
 		Client::GetInstance()->SendEvent( E1 );
 	}
 	else if( newEvent->GetEventType() == Event_Unlock_Player::GUID )
@@ -266,8 +266,6 @@ void PlayState::EventListener( IEventPtr newEvent )
 			std::swap( mShips[FRIEND_SHIP], mShips[ENEMY_SHIP] );
 		}
 	}
-	
-	
 	
 	else if( newEvent->GetEventType() == Event_Remote_Request_ParticleSystem::GUID )
 	{
@@ -502,26 +500,17 @@ void PlayState::CheckProjectileCollision()
 						if( mEnemies[j]->IsAlive() )
 						{
 							if( mPlayer->GetID() == 1 &&
-								( mProjectiles[i]->GetPlayerID() == 70 || mProjectiles[i]->GetPlayerID() == 71 ) &&
+								mProjectiles[i]->GetWeaponType() == TURRET &&
 								mProjectiles[i]->GetBoundingCircle()->Intersect( mEnemies[j]->GetBoundingCircle() ) )
 							{
-								// hit
 								BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
 								RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
 								mProjectiles[i]->Reset();
-								break;
 							}
-
-							if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() &&
+							else if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() &&
 								mProjectiles[i]->GetBoundingCircle()->Intersect( mEnemies[j]->GetBoundingCircle() ) )
 							{
-								if( mProjectiles[i]->GetWeaponType() == TURRET )
-								{
-									RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-									BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
-									mProjectiles[i]->Reset();
-								}
-								else if( mProjectiles[i]->GetWeaponType() != SNIPER )
+								if( mProjectiles[i]->GetWeaponType() != SNIPER )
 								{
 									RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
 									BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
@@ -1241,6 +1230,7 @@ HRESULT PlayState::Render( float deltaTime )
 
 void PlayState::OnEnter()
 {
+	HelperFunctions::StartCounter();
 	SetCursor( mSight );
 	mActive = true;
 	// Send Game Started event to server
@@ -1256,6 +1246,9 @@ void PlayState::OnEnter()
 	EventManager::GetInstance()->QueueEvent( spawnPos );
 
 	mPlayer->SetHomePos( mShips[FRIEND_SHIP]->GetPos() );
+
+	IEventPtr name( new Event_Client_Set_Name( mPlayer->GetID(), mPlayer->GetName() ) );
+	Client::GetInstance()->SendEvent( name );
 }
 
 void PlayState::OnExit()

@@ -28,6 +28,11 @@ struct ParticleSystem : public ParticleData
 
 		switch ( particleType )
 		{
+			case BoomerExplosion:
+			{
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/blood.dds", assetID );
+				break;
+			}
 			case SpitterTrail:
 			{
 				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/goo.dds", assetID );
@@ -182,6 +187,13 @@ struct ParticleSystem : public ParticleData
 
 		switch ( particleType )
 		{	
+			case BoomerExplosion:
+			{
+				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
+				SetRandomRotation( particleCount );
+				SetRandomDeathTime( 2, 5, particleCount );
+				break;
+			}
 			case SpitterTrail:
 			{
 				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
@@ -370,7 +382,8 @@ struct ParticleSystem : public ParticleData
 	}
 	void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection, XMFLOAT3 initialVelocity )
 	{
-		if( particleType == SpitterTrail )			Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(3, 10),  1.0f, initialVelocity );
+		if( particleType == BoomerExplosion )		Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(15, 20),  1.0f, initialVelocity );
+		else if( particleType == SpitterTrail )		Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(3, 10),  1.0f, initialVelocity );
 		else if( particleType == GranateTrail )		Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(3, 10),  1.0f, initialVelocity );
 		else if( particleType == SniperTrail )		Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(10, 30),  1.0f, initialVelocity );
 		else if( particleType == Shell )			Generate( emitterPosition, emitterDirection, 1,		10.0f,		initialVelocity  );
@@ -407,6 +420,12 @@ struct ParticleSystem : public ParticleData
 		// Update logic based on Particle type
 		switch( particleType )
 		{
+			case BoomerExplosion: 
+			{
+				// Update Debris logic here
+				BoomerLogic( deltaTime );
+				break;
+			}
 			case SpitterTrail: 
 			{
 				// Update Debris logic here
@@ -671,6 +690,14 @@ struct ParticleSystem : public ParticleData
 		}
 	}
 	
+	void BoomerLogic( float deltatime )
+	{
+		for ( int i = 0; i < nrOfParticlesAlive; i++ )
+		{
+			yVelocity[i] -= 0.2f;
+		}
+	}
+
 	void SpitterTrailLogic( float deltatime )
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )

@@ -15,7 +15,7 @@ using namespace DirectX;
 
 #define MAX_PARTICLES 10000
 
-#define NR_OF_PARTICLE_TYPES 23
+#define NR_OF_PARTICLE_TYPES 24
 
 
 #if !defined(SAFE_DELETE_ARRAY)
@@ -34,11 +34,9 @@ enum FloatPrecision
 	HIGH_PRECISION		// Three decimals
 };
 
-
-
-
 enum ParticleType
 {
+	BoomerExplosion,
 	SpitterTrail,
 	GranateTrail,
 	SniperTrail,
@@ -371,6 +369,13 @@ struct ParticleData
 		{
 			switch ( particleType )
 			{
+				case BoomerExplosion:
+				{
+					randomDirectionVector.x = xDirection * GetRandomSpeed( -50, 50 );
+ 					randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 75 );
+					randomDirectionVector.z = zDirection * GetRandomSpeed( -50, 50 );
+					break;
+				}
 				case SpitterTrail:
 				{
 					randomDirectionVector.x = xDirection * GetRandomSpeed( -20, 20 );

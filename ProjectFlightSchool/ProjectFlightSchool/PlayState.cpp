@@ -802,6 +802,7 @@ bool PlayState::CullEntity( XMFLOAT3 entityPos )
 {
 	return HelperFunctions::Dist3Squared( mPlayer->GetPosition(), entityPos  ) <= ENTITY_CULLDISTANCE;
 }
+
 void PlayState::WriteInteractionText( std::string text, float xPos, float yPos, float scale, XMFLOAT4 color )
 {
 	float offset = mFont.GetMiddleXPoint( text, scale );
@@ -1133,6 +1134,10 @@ void PlayState::OnEnter()
 	mGui->SetTeamID( mPlayer->GetTeam() );
 	IEventPtr spawnPos( new Event_Request_Player_Spawn_Position( mPlayer->GetID(), mPlayer->GetTeam() ) );
 	EventManager::GetInstance()->QueueEvent( spawnPos );
+
+	//Set ship position and radius for shader	
+	Graphics::GetInstance()->SetShipPosAndRad( mShips[FRIEND_SHIP]->GetBuffCircle()->center, mShips[FRIEND_SHIP]->GetBuffCircle()->radius, FRIEND_SHIP );
+	Graphics::GetInstance()->SetShipPosAndRad( mShips[ENEMY_SHIP]->GetBuffCircle()->center, mShips[ENEMY_SHIP]->GetBuffCircle()->radius, ENEMY_SHIP );	
 }
 
 void PlayState::OnExit()
@@ -1301,8 +1306,6 @@ HRESULT PlayState::Initialize()
 	int worldDim = mWorldMap->GetMapWidth() * NODE_DIM;
 
 	int worldOffset = mWorldMap->GetMapHalfWidth() * NODE_DIM;
-
-	RenderManager::GetInstance()->RequestParticleSystem( 3333, Fire_Flies, XMFLOAT3 ( 0.0f, 2.0f, 0.0f ), XMFLOAT3( 0.0f, 0.1f, 0.0f ) );	//---id, effect, position, direction
 
 	for (int i = 0; i < 100; i++)
 	{

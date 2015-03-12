@@ -69,6 +69,8 @@ void ServerShip::ChangeBuffLevel( int change )
 			}
 		}
 		CalcBuffMod();
+		
+		//Graphics::GetInstance()->SetShipPosAndRad( mBuffCircle->center, mBuffCircle->radius, mID );
 	}
 }
 
@@ -164,6 +166,11 @@ BoundingCircle* ServerShip::GetHitCircle() const
 	return mHitCircle;
 }
 
+BoundingCircle* ServerShip::GetBuffCircle() const
+{
+	return mBuffCircle;
+}
+
 bool ServerShip::IsAlive() const
 {
 	return mIsAlive;
@@ -251,8 +258,12 @@ void ServerShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID )
 {
 	GameObject::Initialize( pos, rot, scale, assetID );
-	mBuffCircle		= new BoundingCircle( mPos, 20.0f );
-	mHitCircle		= new BoundingCircle( mPos, 10.0f );
+
+	XMFLOAT3 posOffset;
+	XMStoreFloat3( &posOffset, XMLoadFloat3 ( &pos ) + XMLoadFloat3 ( &XMFLOAT3( -1.60f, 0.0f, 1.2f ) ) );
+	
+	mBuffCircle		= new BoundingCircle( posOffset, 20.0f );
+	mHitCircle		= new BoundingCircle( posOffset, 10.0f );
 
 	mBuffMod		= 0.5f;
 	mID				= id;

@@ -1,5 +1,9 @@
-//		LEVEL 1 WEAPON DEFINES
+// Melee weapon animation alterations
+#define HAMMER_SPEED_INCREASE 3.85f
+#define CLAYMORE_SPEED_INCREASE 3.14f
 
+
+//		LEVEL 1 WEAPON DEFINES
 
 //////////////////////////////////
 //		 RANGED WEAPONS
@@ -67,7 +71,7 @@
 #define CLAYMORE_RADIUS		3.5f								// Radius
 #define CLAYMORE_SPREAD		8									// Spread
 #define CLAYMORE_KB			1.0f								// Knockback
-#define CLAYMORE_TTA		0.75f								// Time till Attack
+#define CLAYMORE_TTA		0.75f / CLAYMORE_SPEED_INCREASE		// Time till Attack
 #define CLAYMORE_STUN		0.3f								// Stun
 #define CLAYMORE_REACH		3.0f								// Reach
 #define CLAYMORE_OFFSETS	XMFLOAT3( 0.8f, -0.65f, 1.3f )		// Offsets forward, right, up
@@ -78,7 +82,7 @@
 #define HAMMER_RADIUS		2.0f								// Radius
 #define HAMMER_SPREAD		20									// Spread
 #define HAMMER_KB			3.0f								// Knockback
-#define HAMMER_TTA			0.82f								// Time till Attack Can't be changed
+#define HAMMER_TTA			0.82f / HAMMER_SPEED_INCREASE		// Time till Attack Can't be changed
 #define HAMMER_STUN			3.0f								// Stun
 #define HAMMER_REACH		2.0f								// Reach
 #define HAMMER_OFFSETS		XMFLOAT3( 1.5f, -0.70f, 1.3f )		// Offsets forward, right, up

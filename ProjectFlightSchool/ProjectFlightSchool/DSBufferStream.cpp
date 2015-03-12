@@ -113,7 +113,7 @@ bool DSBufferStream::ReFillBuffer1Loop()
 	{
 		printf( "waveData array allocation in FillBufferWithWave has failed\n" );
 
-		delete waveData;
+		delete [] waveData;
 
 		return false;
 	}
@@ -130,7 +130,7 @@ bool DSBufferStream::ReFillBuffer1Loop()
 			waveData[count + i] = waveData2[i];
 		}
 
-		delete waveData2;
+		delete [] waveData2;
 	}
 
 	//////////////////Dags att fylla buffern
@@ -144,6 +144,7 @@ bool DSBufferStream::ReFillBuffer1Loop()
 		HRESULT hr = mBuffer[i]->Lock( 0, mDataSize, (void**)&bufferPtr, (DWORD*)&bufferSize, NULL, 0, 0 );
 		if ( FAILED( hr ) )
 		{
+			delete [] waveData;
 			return false;
 		}
 
@@ -156,13 +157,13 @@ bool DSBufferStream::ReFillBuffer1Loop()
 		hr = mBuffer[i]->Unlock( (void*)bufferPtr, bufferSize, NULL, 0 );
 		if ( FAILED( hr ) )
 		{
-			delete waveData;
+			delete [] waveData;
 
 			return false;
 		}
 	}
 
-	delete waveData;
+	delete [] waveData;
 
 	return true;
 }
@@ -173,6 +174,7 @@ bool DSBufferStream::ReFillBuffer2Loop()
 	if ( !waveData )
 	{
 		printf( "waveData array allocation in FillBufferWithWave has failed\n" );
+		delete [] waveData;
 		return false;
 	}
 
@@ -188,7 +190,7 @@ bool DSBufferStream::ReFillBuffer2Loop()
 			waveData[count + i] = waveData2[i];
 		}
 
-		delete waveData2;
+		delete [] waveData2;
 	}
 
 	//////////////////Dags att fylla buffern
@@ -202,6 +204,7 @@ bool DSBufferStream::ReFillBuffer2Loop()
 		HRESULT hr = mBuffer[i]->Lock( mDataSize, mDataSize, (void**)&bufferPtr, (DWORD*)&bufferSize, NULL, 0, 0 );
 		if ( FAILED( hr ) )
 		{
+			delete [] waveData;
 			return false;
 		}
 
@@ -212,14 +215,14 @@ bool DSBufferStream::ReFillBuffer2Loop()
 		hr = mBuffer[i]->Unlock( (void*)bufferPtr, bufferSize, NULL, 0 );
 		if ( FAILED( hr ) )
 		{
-			delete waveData;
+			delete [] waveData;
 
 			return false;
 		}
 
 	}
 
-	delete waveData;
+	delete [] waveData;
 
 	return true;
 }

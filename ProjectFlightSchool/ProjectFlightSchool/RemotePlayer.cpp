@@ -574,7 +574,7 @@ HRESULT RemotePlayer::Initialize()
 	mDeathTime				= 8.0f;
 	mTimeTillDeath			= mDeathTime;
 
-	mSpawnTime				= 10.0f;
+	mSpawnTime				= 5.0f;
 	mTimeTillSpawn			= mSpawnTime;
 
 	mDashVelocity			= 1.0f;

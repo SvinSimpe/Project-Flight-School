@@ -298,6 +298,10 @@ HRESULT RemotePlayer::InitializeGraphics()
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 
+
+	if( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Arrow/", "energyArrow.pfs", mCellArrow ) )
+		OutputDebugString( L"\nERROR loading arrow model\n" );
+
 	//////////////////////////////////////
 	//			HUD ELEMENTS
 	/////////////////////////////////////

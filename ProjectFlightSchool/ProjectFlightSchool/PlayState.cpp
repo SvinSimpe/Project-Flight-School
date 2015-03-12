@@ -502,26 +502,17 @@ void PlayState::CheckProjectileCollision()
 						if( mEnemies[j]->IsAlive() )
 						{
 							if( mPlayer->GetID() == 1 &&
-								( mProjectiles[i]->GetPlayerID() == 70 || mProjectiles[i]->GetPlayerID() == 71 ) &&
+								mProjectiles[i]->GetWeaponType() == TURRET &&
 								mProjectiles[i]->GetBoundingCircle()->Intersect( mEnemies[j]->GetBoundingCircle() ) )
 							{
-								// hit
 								BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
 								RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
 								mProjectiles[i]->Reset();
-								break;
 							}
-
-							if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() &&
+							else if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() &&
 								mProjectiles[i]->GetBoundingCircle()->Intersect( mEnemies[j]->GetBoundingCircle() ) )
 							{
-								if( mProjectiles[i]->GetWeaponType() == TURRET )
-								{
-									RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
-									BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
-									mProjectiles[i]->Reset();
-								}
-								else if( mProjectiles[i]->GetWeaponType() != SNIPER )
+								if( mProjectiles[i]->GetWeaponType() != SNIPER )
 								{
 									RenderManager::GetInstance()->RequestParticleSystem( mProjectiles[i]->GetPlayerID(), Blood, mProjectiles[i]->GetPosition(), XMFLOAT3( -mProjectiles[i]->GetDirection().x, mProjectiles[i]->GetDirection().y, -mProjectiles[i]->GetDirection().z ) );
 									BroadcastEnemyProjectileDamage( mProjectiles[i]->GetPlayerID(), mProjectiles[i]->GetID(), mEnemies[j]->GetID(), mProjectiles[i]->GetDamage() );
@@ -1241,6 +1232,7 @@ HRESULT PlayState::Render( float deltaTime )
 
 void PlayState::OnEnter()
 {
+	HelperFunctions::StartCounter();
 	SetCursor( mSight );
 	mActive = true;
 	// Send Game Started event to server

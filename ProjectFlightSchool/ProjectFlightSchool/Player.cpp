@@ -1419,8 +1419,13 @@ HRESULT Player::Render( float deltaTime, int position )
 {
 	if( !mIsAlive )
 	{
-        std::string textToWrite = std::to_string( (int)mTimeTillSpawn );
-		mFont.WriteText( textToWrite, (float)Input::GetInstance()->mScreenWidth/2, (float)Input::GetInstance()->mScreenHeight/2, 7.8f );
+        std::string textToWrite = std::to_string( (int)( mTimeTillSpawn + 1 ) );
+		WriteInteractionText( 
+			textToWrite, 
+			(float)Input::GetInstance()->mScreenWidth * 0.5f, 
+			(float)( Input::GetInstance()->mScreenHeight * 0.5f ), 
+			7.8f, 
+			COLOR_RED );
 	}
 
 	if( mIsOutSideZone )

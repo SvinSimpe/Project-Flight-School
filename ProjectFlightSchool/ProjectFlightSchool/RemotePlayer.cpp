@@ -16,7 +16,6 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 			mUpperBody.direction							= data->UpperBodyDirection();
 			mPlayerName										= data->Name();
 
-			//TEST
 			mBoundingBox->position		= mLowerBody.position;
 			mBoundingCircle->center		= mLowerBody.position;
 			mBoundingCircleAura->center	= mLowerBody.position;

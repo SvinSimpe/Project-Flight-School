@@ -147,7 +147,7 @@ void Server::ClientUpdate( IEventPtr eventPtr )
 			if( mClientMap.size() > 1 )
 			{
 				IEventPtr E1( new Event_Remote_Update( data->ID(), mClientMap[data->ID()]->Pos.center, vel, dir, name, data->IsAlive() ) );
-				SendCulledUpdate( E1, mClientMap[data->ID()]->Pos.center, data->ID() );
+				BroadcastEvent( E1 );
 			}
 		}
 	}
@@ -584,7 +584,16 @@ void Server::XP( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_XP::GUID )
 	{
 		std::shared_ptr<Event_XP> data = std::static_pointer_cast<Event_XP>( eventPtr );
-		IEventPtr E1( new Event_Server_XP( data->PlayerID(), data->XP() ) );
+		UINT playerID = data->PlayerID();
+		//if( data->PlayerID() == 70 )
+		//{
+		//	playerID = 1;
+		//}
+		//else if( data->PlayerID() == 71 )
+		//{
+		//	playerID = 2;
+		//}
+		IEventPtr E1( new Event_Server_XP( playerID, data->XP() ) );
 		BroadcastEvent( E1 );
 	}
 }
@@ -792,19 +801,6 @@ void Server::UpdateShip( float deltaTime, ServerShip* s )
 
 	IEventPtr E2( new Event_Server_Update_Ship( s->mID, s->mMaxShield, s->mCurrentShield, s->mCurrentHP ) );
 	BroadcastEvent( E2 );
-}
-
-void Server::SendCulledUpdate( IEventPtr eventPtr, XMFLOAT3 enemyPos, UINT exception )
-{
-	/*for( auto& cm : mClientMap )
-	{
-		auto c = cm.second;
-		if( CullEnemyUpdate( c->Pos.center, enemyPos ) && c->ID != exception )
-		{*/
-			//SendEvent( eventPtr, c->ID );
-	BroadcastEvent( eventPtr );
-	//	}
-	//}
 }
 
 bool Server::CullEnemyUpdate( XMFLOAT3 playerPos, XMFLOAT3 enemyPos )
@@ -1104,7 +1100,7 @@ void Server::Update( float deltaTime )
 																	mEnemies[i]->IsAlive(),
 																	mEnemies[i]->GetHP() ) );
 				{
-					SendCulledUpdate( enemy, mEnemies[i]->GetPosition() );
+					BroadcastEvent( enemy );
 				}
 			}
 		}

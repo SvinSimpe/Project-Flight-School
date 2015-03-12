@@ -41,12 +41,12 @@
 #define GL_OFFSETS			XMFLOAT3( 0.92f, 0.5f, 1.45f )		// Offsets forward, right, up
 
 // Sniper
-#define SNIPER_AR			3.2f								// Attack Rate
+#define SNIPER_AR			3.9f								// Attack Rate
 #define SNIPER_DAMAGE		45.0f								// Damage
-#define SNIPER_RANGE		3.0f								// Range
+#define SNIPER_RANGE		1.0f								// Range
 #define SNIPER_SPREAD		0.0f								// Spread
 #define SNIPER_AOE			0.0f								// Area of effect
-#define SNIPER_SPEED		70.0f								// Projectile Speed 90
+#define SNIPER_SPEED		40.0f								// Projectile Speed 90
 #define SNIPER_OFFSETS		XMFLOAT3( 1.15f, 0.45f, 1.9f )		// Offsets forward, right, up
 
 #define MINIGUN_SLOWDOWN	0.02f	// How much is the player slowed down

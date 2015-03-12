@@ -515,7 +515,6 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	testPosition.z += mCurrentTravelVelocity.z;
 	testPosition.y = worldMap->GetHeight( testPosition );
 
-
 	bool collisionTest = worldMap->PlayerVsMap( testPosition, normal );
 	if( !collisionTest )
 	{
@@ -523,7 +522,7 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 		mLowerBody.position.y = testPosition.y;
 		mLowerBody.position.z = testPosition.z;
 
-		if( mIsInWater )
+		if( mIsInWater && mIsAlive && !mIsDown )
 		{
 			WriteInteractionText( 
 				"Get out of the water or die!", 

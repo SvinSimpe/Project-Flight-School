@@ -307,9 +307,8 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 			//float3 posToShip	=  worldSample;
 			//float rangeCheck	= dot( posToShip, posToShip );
 			float rangeCheck	= length( posToShip );
-			float maxRange		= dot( chipsPosAndRad[i].w, chipsPosAndRad[i].w );
 		
-			if ( rangeCheck <= chipsPosAndRad[i].w )
+			if ( rangeCheck < chipsPosAndRad[i].w )
 			{
 				float rangeInterpol		= 0.085f * ( rangeCheck / chipsPosAndRad[i].w );
 				float4 colorInterpol	= float4( 0.15f, 1.0f, 0.05f, 1.0f ); 

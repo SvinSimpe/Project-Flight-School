@@ -15,12 +15,16 @@
 #define RIGHT_ARM_ID		1
 #define TEAM_ARRAY_ID		mTeam - 1
 
+#define DASH_COOLDOWN		4.0f
+#define DASH_VELOCITY		1.8f
+
 enum PLAYER_ANIMATION
 {
 	LEGS_IDLE,
 	LEGS_WALK,
 	LEGS_DEATH,
 	LEGS_DOWN,
+	LEGS_DASH,
 	COUNT,
 };
 
@@ -86,6 +90,7 @@ class RemotePlayer
 		float			mSpawnTime;
 		float			mTimeTillSpawn;
 		XMFLOAT3		mVelocity;
+		float			mDashVelocity;
 		LoadOut*		mLoadOut;
 		BoundingRectangle*	mBoundingBox;
 		BoundingCircle*	mBoundingCircle;
@@ -105,6 +110,7 @@ class RemotePlayer
 		AssetID			mAnimations[PLAYER_ANIMATION::COUNT][2];
 		AssetID			mWeaponModels[WEAPON_COUNT];
 		AssetID			mWeaponAnimations[WEAPON_COUNT][WEAPON_ANIMATION_COUNT];
+		AssetID			mCellArrow;
 		UpperBody		mUpperBody;
 		LowerBody		mLowerBody;
 		Arms			mArms;

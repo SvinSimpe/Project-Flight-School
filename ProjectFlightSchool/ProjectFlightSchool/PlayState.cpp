@@ -1022,7 +1022,13 @@ HRESULT PlayState::Update( float deltaTime )
 		/// Spore particles
 		RenderManager::GetInstance()->RequestParticleSystem( 997, Spores, XMFLOAT3( mPlayer->GetPlayerPosition().x, mPlayer->GetPlayerPosition().y + 2.5f, mPlayer->GetPlayerPosition().z ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) );
 
-		if( mPlayer->Upgradable() < 1 && mGui->UpgradePlayerWindowIsActive() )
+		if( !mPlayer->IsAlive() )
+		{
+			mGui->DeActivateInGameWindow();
+			mGui->DeActivateUpgradePlayerWindow();
+			mGui->DeActivateUpgradeShipWindow();
+		}
+		else if( mPlayer->Upgradable() < 1 && mGui->UpgradePlayerWindowIsActive() )
 		{
 			mGui->DeActivateUpgradePlayerWindow();
 		

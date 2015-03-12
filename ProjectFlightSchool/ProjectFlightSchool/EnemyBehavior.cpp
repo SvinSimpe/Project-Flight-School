@@ -303,6 +303,7 @@ HRESULT AttackBehavior::Update( float deltaTime )
 	//	mEnemy->ChangeBehavior( IDLE_BEHAVIOR );
 	//	return S_OK;
 	//}
+
 	if( mStateTimer <= 0.0f )
 	{
 		mEnemy->ChangeBehavior(IDLE_BEHAVIOR);
@@ -322,15 +323,27 @@ HRESULT AttackBehavior::Update( float deltaTime )
 					mHasAttacked = true;
 					if (mEnemy->mEnemyType == Ranged)
 					{
-						XMFLOAT3 direction;
+						/*XMFLOAT3 direction;
 						direction.x = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.x - mEnemy->GetPosition().x;
 						direction.z = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.z - mEnemy->GetPosition().z;
-						direction.y = 0.0f;
+						direction.y = 0.0f;*/
+
+						mEnemy->mDirection.x = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.x - mEnemy->GetPosition().x;
+						mEnemy->mDirection.z = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.z - mEnemy->GetPosition().z;
+						mEnemy->mDirection.y = 0.0f;
+
+						XMVECTOR position	= XMLoadFloat3( &mEnemy->mPosition );
+						XMVECTOR direction	= XMLoadFloat3( &mEnemy->mDirection );
+
+						position += direction * 1.5f;
+
+						XMFLOAT3 fireDirOff = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+						XMStoreFloat3( &fireDirOff, position );
 
 						IEventPtr E1(new Event_Enemy_Fired_Projectile(
 							ENEMY_PROJECTILE_ID,
-							mEnemy->mPosition,
-							direction,
+							fireDirOff,/*mEnemy->mPosition,*/
+							mEnemy->mDirection, /*direction,*/
 							ENEMY_PROJECTILE_SPEED,
 							ENEMY_PROJECTILE_RANGE));
 						EventManager::GetInstance()->QueueEvent(E1);
@@ -352,19 +365,32 @@ HRESULT AttackBehavior::Update( float deltaTime )
 				mHasAttacked = true;
 				if (mEnemy->mEnemyType == Ranged)
 				{
-					XMFLOAT3 direction;
-					direction.x = mEnemy->mShips[mEnemy->mTargetShipIndex]->GetPos().x - mEnemy->GetPosition().x;
-					direction.z = mEnemy->mShips[mEnemy->mTargetShipIndex]->GetPos().z - mEnemy->GetPosition().z;
-					direction.y = 0.0f;
+					/*XMFLOAT3 direction;
+					direction.x = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.x - mEnemy->GetPosition().x;
+					direction.z = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.z - mEnemy->GetPosition().z;
+					direction.y = 0.0f;*/
+
+					mEnemy->mDirection.x = mEnemy->mShips[mEnemy->mTargetShipIndex]->GetPos().x - mEnemy->GetPosition().x;
+					mEnemy->mDirection.z = mEnemy->mShips[mEnemy->mTargetShipIndex]->GetPos().z - mEnemy->GetPosition().z;
+					mEnemy->mDirection.y = 0.0f;
+
+					XMVECTOR position = XMLoadFloat3(&mEnemy->mPosition);
+					XMVECTOR direction = XMLoadFloat3(&mEnemy->mDirection);
+
+					
+
+					position += ( direction * 1.5f );
+
+					XMFLOAT3 fireDirOff = XMFLOAT3(0.0f, 0.0f, 0.0f);
+					XMStoreFloat3(&fireDirOff, position);
 
 					IEventPtr E1(new Event_Enemy_Fired_Projectile(
 						ENEMY_PROJECTILE_ID,
-						mEnemy->mPosition,
-						direction,
+						fireDirOff,/*mEnemy->mPosition,*/
+						mEnemy->mDirection, /*direction,*/
 						ENEMY_PROJECTILE_SPEED,
 						ENEMY_PROJECTILE_RANGE));
 					EventManager::GetInstance()->QueueEvent(E1);
-					mEnemy->mShips.at(mEnemy->mTargetShipIndex)->TakeDamage(mEnemy->mDamage);
 				}
 				else
 				{

@@ -348,7 +348,7 @@ void Enemy::Spawn()
 		}
 	}
 	//CreateStandard();
-	//CreateRanged();
+	CreateRanged();
 	//CreateBoomer();
 	//CreateTank();
 

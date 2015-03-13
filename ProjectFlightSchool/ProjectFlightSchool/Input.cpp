@@ -142,6 +142,38 @@ void Input::RawRead( LPARAM lParam )
 					KeyChecker( KEYS::KEYS_9, raw->data.keyboard.Flags );
 					break;
 
+				//Numpad
+				case 0x60: // 0
+					KeyChecker( KEYS::KEYS_0, raw->data.keyboard.Flags );
+					break;
+				case 0x61: // 1
+					KeyChecker( KEYS::KEYS_1, raw->data.keyboard.Flags );
+					break;
+				case 0x62: // 2
+					KeyChecker( KEYS::KEYS_2, raw->data.keyboard.Flags );
+					break;
+				case 0x63: // 3 
+					KeyChecker( KEYS::KEYS_3, raw->data.keyboard.Flags );
+					break;
+				case 0x64: // 4
+					KeyChecker( KEYS::KEYS_4, raw->data.keyboard.Flags );
+					break;
+				case 0x65: // 5
+					KeyChecker( KEYS::KEYS_5, raw->data.keyboard.Flags );
+					break;
+				case 0x66: // 6
+					KeyChecker( KEYS::KEYS_6, raw->data.keyboard.Flags );
+					break;
+				case 0x67: // 7
+					KeyChecker( KEYS::KEYS_7, raw->data.keyboard.Flags );
+					break;
+				case 0x68: // 8
+					KeyChecker( KEYS::KEYS_8, raw->data.keyboard.Flags );
+					break;
+				case 0x69: // 9
+					KeyChecker( KEYS::KEYS_9, raw->data.keyboard.Flags );
+					break;
+
 				case 0x41:		//A
 					KeyChecker( KEYS::KEYS_A, raw->data.keyboard.Flags );
 					break;

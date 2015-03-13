@@ -38,6 +38,22 @@ void Player::EventListener( IEventPtr newEvent )
 			direction.z *= data->KnockBack();
 			AddImpuls( direction );
 			TakeDamage( data->Damage(), 0);
+
+			for (size_t i = 0; i < 10; i++)
+			{
+				IEventPtr E1( new Event_Client_Request_ParticleSystem( mID, (int)Debris, XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + 1.0f, mLowerBody.position.z ),
+																						 XMFLOAT3( direction.x * -1.0f, direction.y * -1.0f, direction.z * -1.0f ), mVelocity ) );
+				
+				IEventPtr E2( new Event_Client_Request_ParticleSystem( mID, (int)Spark_Robot, XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + 1.0f, mLowerBody.position.z ),
+																							  XMFLOAT3( direction.x * -1.0f, direction.y * -1.0f, direction.z * -1.0f ), mVelocity ) );
+
+				IEventPtr E3( new Event_Client_Request_ParticleSystem( mID, (int)Spark_Electric, XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + 1.0f, mLowerBody.position.z ),
+																								 XMFLOAT3( direction.x * -1.0f, direction.y * -1.0f, direction.z * -1.0f ), mVelocity ) );
+				QueueEvent( E1 );
+				QueueEvent( E2 );
+				QueueEvent( E3 );
+			}
+
 		}
 	}
 	else if ( newEvent->GetEventType() == Event_Create_Player_Name::GUID )
@@ -344,7 +360,7 @@ void Player::HandleDeath( float deltaTime )
 		XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 
 		RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
-
+		SoundBufferHandler::GetInstance()->Play3D( mPlayerDeath , newPos );
 		XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorZero(), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 		XMStoreFloat3( &inverseDir, -XMLoadFloat3( &mUpperBody.direction ) );
 		
@@ -1351,7 +1367,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 				XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 
 				RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction, mVelocity );
-
+				SoundBufferHandler::GetInstance()->Play3D( mPlayerDeath , newPos );
 				// Spawn spark on lowerBody
 				if ( mCurrentHp <= 10 )
 				{
@@ -1716,7 +1732,7 @@ HRESULT Player::Initialize()
 	mSword				= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/sword.wav", 10 );
 	mGrenadeLauncher	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/grenadeLauncher.wav", 10 );
 	mBlowTorch			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/tempBlowT.wav", 1000 );
-	mPlayerDeath		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/sparksPlayerDeath.wav", 10, 15 );
+	mPlayerDeath		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/sparksPlayerDeath.wav", 10, 60 );
 
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Died::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Attempt_Revive::GUID );

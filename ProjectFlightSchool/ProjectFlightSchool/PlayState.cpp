@@ -639,6 +639,10 @@ void PlayState::CheckMeeleCollision()
 				DirectX::XMFLOAT3 direction = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
 				XMStoreFloat3( &direction, XMVector4Normalize( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) ) );
 				BroadcastMeleeDamage( mRemotePlayers.at(i)->GetID(), mPlayer->GetLoadOut()->meleeWeapon->damage, currWeapon->knockBack, direction );
+
+
+				XMFLOAT3 tempDir;
+				XMStoreFloat3( &tempDir, XMVector3Normalize( XMLoadFloat3( &mPlayer->GetPosition() ) - XMLoadFloat3( &mRemotePlayers[i]->GetPosition() ) ) );
 			}
 		}
 	}
@@ -1406,13 +1410,14 @@ HRESULT PlayState::Initialize()
 	}
 
 	//TestSound
-	mMiniGun			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/minigun.wav", 500, 80 );
+	mMiniGun			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/minigun.wav", 500, 200 );
 	mShotGun			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/shotgun.wav", 500 );
 	mExplosion			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/explosion.wav", 250 );
 	mSniper				= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/railgun.wav", 500 );
 	mLevelUp			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/level up.wav", 10 );
-	mAmbientMusic		= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/ambientInGame.wav", 0 );
-	mLobbyMusic			=  SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/ambient_menu.wav", 500 );
+	mAmbientMusic		= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/ambientInGame.wav", 300 );
+	mLobbyMusic			= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/ambient_menu.wav", 500 );
+
 
 	Pathfinder::GetInstance()->Initialize( mWorldMap );
 

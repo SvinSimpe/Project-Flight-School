@@ -110,7 +110,7 @@ HRESULT Graphics::InitializeSamplerStates()
 	samplerDesc.AddressW		= D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.ComparisonFunc	= D3D11_COMPARISON_ALWAYS;
 	samplerDesc.MaxAnisotropy	= 1;
-	samplerDesc.MaxLOD			= D3D11_FLOAT32_MAX;
+	samplerDesc.MaxLOD			= FLT_MAX;
 	samplerDesc.MinLOD			= 0.0f;
 	samplerDesc.MipLODBias		= 0.0f;
 

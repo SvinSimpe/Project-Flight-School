@@ -599,6 +599,7 @@ struct MeleeInfo
 				{
 					case 2:
 					{
+						attackRate				= 2.7f;
 						damage					= 25.0f;
 						knockBack				= 1.2f;
 						stun					= 0.4f;
@@ -608,6 +609,7 @@ struct MeleeInfo
 
 					case 3:
 					{
+						attackRate				= 2.5f;
 						damage					= 30.0f;
 						knockBack				= 1.6f;
 					}
@@ -615,6 +617,7 @@ struct MeleeInfo
 
 					case 4:
 					{
+						attackRate				= 2.4f;
 						damage					= 35.0f;
 						knockBack				= 1.8f;
 						stun					= 0.5f;
@@ -623,6 +626,7 @@ struct MeleeInfo
 
 					case 5:
 					{
+						attackRate				= 2.3f;
 						damage					= 40.0f;
 						knockBack				= 2.0f;
 						stun					= 0.6f;

@@ -19,6 +19,7 @@ class ServerShip : public GameObject
 		ServerTurret*	mServerTurret;
 		BoundingCircle* mBuffCircle;
 		BoundingCircle* mHitCircle;
+		BoundingCircle* mCollisionCircles[3];
 		UINT			mID;
 		UINT			mTeamID;
 		XMFLOAT4X4		mWorld;
@@ -63,6 +64,7 @@ class ServerShip : public GameObject
 		float			PercentHP() const;
 		
 		void			ClientChangeShipLevels( int changeTurretLevel, int changeShieldLevel, int changeBuffLevel, int changeEngineLevel );
+		bool			PositionVsShip( BoundingCircle* entity, XMFLOAT3 &normal );
 
 		UINT			GetID() const;
 		BoundingCircle*	GetHitCircle() const;

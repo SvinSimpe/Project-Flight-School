@@ -75,6 +75,8 @@ const EventType Event_Client_Melee_Hit::GUID( counter++ );
 const EventType Event_Remote_Melee_Hit::GUID( counter++ );
 const EventType Event_Client_Attack::GUID( counter++ );
 const EventType Event_Remote_Attack::GUID( counter++ );
+const EventType Event_Client_Dash::GUID( counter++ );
+const EventType Event_Remote_Dash::GUID( counter++ );
 const EventType Event_Server_Sync_Spawn::GUID( counter++ );
 const EventType Event_Add_Point_Light::GUID( counter++ );
 const EventType Event_Remove_Point_Light::GUID( counter++ );
@@ -149,4 +151,5 @@ const EventType Event_Client_Request_ParticleSystem::GUID( counter++ );
 const EventType Event_Remote_Request_ParticleSystem::GUID( counter++ );
 const EventType Event_Enemy_Fired_Projectile::GUID(counter++);
 const EventType Event_Server_Enemy_Fired_Projectile::GUID(counter++);
-
+const EventType Event_Client_Set_Name::GUID( counter++ );
+const EventType Event_Remote_Set_Name::GUID( counter++ );

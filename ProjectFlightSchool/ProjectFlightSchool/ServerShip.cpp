@@ -103,9 +103,7 @@ void ServerShip::CalcShieldLevel()
 
 void ServerShip::CalcBuffMod()
 {
-	//mBuffMod = 0.5f + ( 0.2f * (mBuffLevel - 1) );
-	//mBuffMod = 2.0f + ( ( mBuffLevel - 1 ) * 2 );
-	mBuffMod += 1.0f;
+	mBuffMod = 1.0f + (mBuffLevel - 1);
 }
 
 void ServerShip::ClientUpdateShip( IEventPtr eventPtr )
@@ -207,7 +205,7 @@ bool ServerShip::Intersect( BoundingCircle* entity )
 void ServerShip::Update( float deltaTime )
 {
 	mWasUpdated = false;
-	mServerTurret->Update( deltaTime );
+	//mServerTurret->Update( deltaTime );
 }
 
 void ServerShip::FindTurretTarget( std::vector<BoundingCircle*> enemies )
@@ -260,9 +258,9 @@ void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 	mTurretLevel	= MIN_LEVEL;
 	mShieldLevel	= MIN_LEVEL;
 	mBuffLevel		= MIN_LEVEL;
-	mMaxShield		= 5000.0f;
+	mMaxShield		= 6000.0f;
 	mCurrentShield	= mMaxShield;
-	mMaxHP			= 20000.0f;
+	mMaxHP			= 30000.0f;
 	mCurrentHP		= mMaxHP;
 	mIsAlive		= true;
 

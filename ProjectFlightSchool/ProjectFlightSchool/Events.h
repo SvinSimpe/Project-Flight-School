@@ -355,7 +355,6 @@ class Event_Client_Update : public IEvent
 		XMFLOAT3	mLowerBodyPos;
 		XMFLOAT3	mVelocity;
 		XMFLOAT3	mUpperBodyDirection;
-		std::string mName;
 		bool		mIsBuffed;
 		bool		mIsAlive;
 
@@ -372,17 +371,15 @@ class Event_Client_Update : public IEvent
 			mLowerBodyPos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mVelocity				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mUpperBodyDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-			mName					= "";
 			mIsBuffed				= false;
 			mIsAlive				= false;
 		}
-		Event_Client_Update( UINT id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDir, std::string name, bool isBuffed, bool isAlive )
+		Event_Client_Update( UINT id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDir, bool isBuffed, bool isAlive )
 		{
 			mID						= id;
 			mLowerBodyPos			= lowerBodyPos;
 			mVelocity				= velocity;
 			mUpperBodyDirection		= upperBodyDir;
-			mName					= name;
 			mIsBuffed				= isBuffed;
 			mIsAlive				= isAlive;
 		}
@@ -407,7 +404,6 @@ class Event_Client_Update : public IEvent
 			out << mUpperBodyDirection.y << " ";
 			out << mUpperBodyDirection.z << " ";
 
-			out << mName << " ";
 			out << mIsBuffed << " ";
 			out << mIsAlive << " ";
 		}
@@ -427,13 +423,12 @@ class Event_Client_Update : public IEvent
 			in >> mUpperBodyDirection.y;
 			in >> mUpperBodyDirection.z;
 
-			in >> mName;
 			in >> mIsBuffed;
 			in >> mIsAlive;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Client_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection, mName, mIsBuffed, mIsAlive ) );
+			return IEventPtr( new Event_Client_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection, mIsBuffed, mIsAlive ) );
 		}
 		UINT ID() const
 		{
@@ -450,10 +445,6 @@ class Event_Client_Update : public IEvent
 		XMFLOAT3 UpperBodyDirection() const
 		{
 			return mUpperBodyDirection;
-		}
-		std::string Name() const
-		{
-			return mName;
 		}
 		bool IsBuffed() const
 		{
@@ -473,7 +464,6 @@ class Event_Remote_Update : public IEvent
 		XMFLOAT3	mLowerBodyPos;
 		XMFLOAT3	mVelocity;
 		XMFLOAT3	mUpperBodyDirection;
-		std::string mName;
 		bool		mIsAlive;
 
 	protected:
@@ -489,16 +479,14 @@ class Event_Remote_Update : public IEvent
 			mLowerBodyPos			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mVelocity				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 			mUpperBodyDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-			mName					= "";
 			mIsAlive				= false;
 		}
-		Event_Remote_Update( UINT id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDir, std::string name, bool isAlive )
+		Event_Remote_Update( UINT id, XMFLOAT3 lowerBodyPos, XMFLOAT3 velocity, XMFLOAT3 upperBodyDir, bool isAlive )
 		{
 			mID						= id;
 			mLowerBodyPos			= lowerBodyPos;
 			mVelocity				= velocity;
 			mUpperBodyDirection		= upperBodyDir;
-			mName					= name;
 			mIsAlive				= isAlive;
 		}
 		~Event_Remote_Update() {}
@@ -522,8 +510,6 @@ class Event_Remote_Update : public IEvent
 			out << mUpperBodyDirection.y << " ";
 			out << mUpperBodyDirection.z << " ";
 
-			out << mName << " ";
-
 			out << mIsAlive << " ";
 		}
 		void Deserialize( std::istringstream& in )
@@ -542,13 +528,11 @@ class Event_Remote_Update : public IEvent
 			in >> mUpperBodyDirection.y;
 			in >> mUpperBodyDirection.z;
 
-			in >> mName;
-
 			in >> mIsAlive;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Remote_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection, mName, mIsAlive ) );
+			return IEventPtr( new Event_Remote_Update( mID, mLowerBodyPos, mVelocity, mUpperBodyDirection, mIsAlive ) );
 		}
 		UINT ID() const
 		{
@@ -565,10 +549,6 @@ class Event_Remote_Update : public IEvent
 		XMFLOAT3 UpperBodyDirection() const
 		{
 			return mUpperBodyDirection;
-		}
-		std::string Name() const
-		{
-			return mName;
 		}
 		bool IsAlive() const
 		{
@@ -1925,6 +1905,92 @@ class Event_Remote_Attack : public IEvent
 		UINT Animation() const
 		{
 			return mAnimation;
+		}
+};
+
+// Sent by the client whenever it attacks in order to sync the animations to the remotes
+class Event_Client_Dash : public IEvent
+{
+	private:
+		UINT	mID;
+
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Dash()
+		{
+			mID					= (UINT)-1;
+		}
+		Event_Client_Dash( UINT id )
+		{
+			mID					= id;
+		}
+		~Event_Client_Dash() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Dash( mID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
+		}
+};
+
+// Sent by the server to update the remotes on the animation of the client
+class Event_Remote_Dash : public IEvent
+{
+	private:
+		UINT	mID;
+
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Dash()
+		{
+			mID					= (UINT)-1;
+		}
+		Event_Remote_Dash( UINT id )
+		{
+			mID					= id;
+		}
+		~Event_Remote_Dash() {}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Dash( mID ) );
+		}
+		UINT ID() const
+		{
+			return mID;
 		}
 };
 
@@ -6271,6 +6337,106 @@ public:
 	float Range() const
 	{
 		return mRange;
+	}
+};
+
+class Event_Client_Set_Name : public IEvent
+{
+private:
+	UINT		mID;
+	std::string mName;
+
+protected:
+public:
+	static const EventType GUID;
+
+private:
+protected:
+public:
+	Event_Client_Set_Name()
+	{
+	}
+	Event_Client_Set_Name( UINT id, std::string name )
+	{
+		mID = id;
+		mName = name;
+	}
+	~Event_Client_Set_Name() {}
+	const EventType& GetEventType() const
+	{
+		return GUID;
+	}
+	void Serialize(std::ostringstream& out) const
+	{
+		out << mID << " ";
+		out << mName << " ";
+	}
+	void Deserialize(std::istringstream& in)
+	{
+		in >> mID;
+		in >> mName;
+	}
+	IEventPtr Copy() const
+	{
+		return IEventPtr(new Event_Client_Set_Name( mID, mName ) );
+	}
+	UINT ID() const
+	{
+		return mID;
+	}
+	std::string Name() const
+	{
+		return mName;
+	}
+};
+
+class Event_Remote_Set_Name : public IEvent
+{
+private:
+	UINT		mID;
+	std::string mName;
+
+protected:
+public:
+	static const EventType GUID;
+
+private:
+protected:
+public:
+	Event_Remote_Set_Name()
+	{
+	}
+	Event_Remote_Set_Name( UINT id, std::string name )
+	{
+		mID = id;
+		mName = name;
+	}
+	~Event_Remote_Set_Name() {}
+	const EventType& GetEventType() const
+	{
+		return GUID;
+	}
+	void Serialize(std::ostringstream& out) const
+	{
+		out << mID << " ";
+		out << mName << " ";
+	}
+	void Deserialize(std::istringstream& in)
+	{
+		in >> mID;
+		in >> mName;
+	}
+	IEventPtr Copy() const
+	{
+		return IEventPtr(new Event_Remote_Set_Name( mID, mName ) );
+	}
+	UINT ID() const
+	{
+		return mID;
+	}
+	std::string Name() const
+	{
+		return mName;
 	}
 };
 #endif

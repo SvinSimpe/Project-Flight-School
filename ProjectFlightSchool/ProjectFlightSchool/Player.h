@@ -19,6 +19,10 @@
 #define WATER_DAMAGE_TIME	0.1f
 #define WATER_DAMAGE		1.0f
 
+#define CAMERA_Y		20.0f
+#define CAMERA_Z		-8.0f
+#define CAMERA_CAP		1.0f
+
 class Map;
 class Path;
 
@@ -74,6 +78,11 @@ class Player: public RemotePlayer
 		int			mPlayerDeath;
 		int			mGrenadeLauncher;
 		int			mBlowTorch;
+
+		float		mDashCoolDown;
+
+		XMFLOAT3	mCameraPosition;
+		XMFLOAT3	mPlayerToCursor;
 
 	protected:
 	public:

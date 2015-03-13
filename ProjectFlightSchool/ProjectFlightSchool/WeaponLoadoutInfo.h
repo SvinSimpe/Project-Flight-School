@@ -114,7 +114,7 @@
 
 #define HAMMER_SLOWDOWN		0.5f	// How much is the player slowed down
 
-#define BLOWTORCH_SLOWDOWN	0.1f	// How much is the player slowed down
+#define BLOWTORCH_SLOWDOWN	0.3f	// How much is the player slowed down
 
 #define SAW_SLOWDOWN		0.5f	// How much is the player slowed down
 

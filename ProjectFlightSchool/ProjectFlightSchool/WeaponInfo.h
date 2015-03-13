@@ -700,19 +700,19 @@ struct MeleeInfo
 
 					case 3:
 					{
-						damage	= 19.0f;
+						damage	= 17.0f;
 					}
 						break;	
 
 					case 4:
 					{
-						damage	= 24.0f;
+						damage	= 19.0f;
 					}
 						break;	
 
 					case 5:
 					{
-						damage	= 29.0f;
+						damage	= 22.0f;
 					}
 						break;
 

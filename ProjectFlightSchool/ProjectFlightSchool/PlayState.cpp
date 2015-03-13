@@ -996,8 +996,7 @@ HRESULT PlayState::Update( float deltaTime )
 				mShips[FRIEND_SHIP]->AddEnergyCell();
 			}
 		}
-		mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers, mEnergyCells );
-
+		mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers, mEnergyCells, mShips );
 
 		// Enemies
 		if( mEnemyListSynced )

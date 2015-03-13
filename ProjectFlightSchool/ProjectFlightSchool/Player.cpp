@@ -500,7 +500,7 @@ void Player::GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, Direct
 	}
 }
 
-HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
+HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells, ClientShip** clientShips )
 {
 
 	// Update water status	
@@ -527,7 +527,21 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	testPosition.y = worldMap->GetHeight( testPosition );
 
 	bool collisionTest = worldMap->PlayerVsMap( testPosition, normal );
-	if( !collisionTest )
+
+	BoundingCircle testCircle = *mBoundingCircle;
+	testCircle.center.x += mCurrentTravelVelocity.x;
+	testCircle.center.z += mCurrentTravelVelocity.z;
+	bool shipCollision = false;
+
+	for( int i = 0; i < 2; i++ )
+	{
+		if( shipCollision = clientShips[i]->PositionVsShip( &testCircle, normal ) )
+		{
+			break;
+		}
+	}
+
+	if( !collisionTest && !shipCollision )
 	{
 		mLowerBody.position.x = testPosition.x;
 		mLowerBody.position.y = testPosition.y;

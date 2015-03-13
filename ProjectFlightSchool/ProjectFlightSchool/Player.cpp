@@ -176,7 +176,7 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		}
 
 		//Dashing
-		if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_SPACE ) && mDashCoolDown <= 0.0f )
+		if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_SPACE ) && mDashCoolDown <= 0.0f )
 		{
 			mDashCoolDown = DASH_COOLDOWN;
 			mDashVelocity = DASH_VELOCITY;
@@ -189,7 +189,7 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 			XMStoreFloat3( &mVelocity, normalizer );
 
 			IEventPtr E1( new Event_Client_Dash( mID ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
+			QueueEvent( E1 );
 		}
 
 

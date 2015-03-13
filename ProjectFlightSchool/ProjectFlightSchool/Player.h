@@ -85,6 +85,8 @@ class Player: public RemotePlayer
 		XMFLOAT3	mCameraPosition;
 		XMFLOAT3	mPlayerToCursor;
 
+		bool		mSniperLock;
+
 	protected:
 	public:
 		std::list<IEventPtr> gEventList;
@@ -159,6 +161,7 @@ class Player: public RemotePlayer
 		void		SetPosition( XMVECTOR position );
 		void		SetHomePos( XMFLOAT3 pos );
 		int			GetCurrentLevel() const;
+		bool		GetSniperLock() const;
 
 		void		QueueEvent( IEventPtr ptr );
 };

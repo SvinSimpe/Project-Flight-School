@@ -137,33 +137,47 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 	else
 	{
 		mAcceleration = XMFLOAT3(0.0f, 0.0f, 0.0f);
-
-		if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_W) && !Input::GetInstance()->IsKeyDown(KEYS::KEYS_S))
+		if( mLoadOut->rangedWeapon->weaponType == SNIPER )
 		{
-			mFollowPath = false;
-			mAcceleration.z = mMaxAcceleration;
+			if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_LSHIFT ) )
+			{
+				mSniperLock = true;
+			}
+			else
+			{
+				mSniperLock = false;
+			}
 		}
 
-		if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_A) && !Input::GetInstance()->IsKeyDown(KEYS::KEYS_D))
+		if( !mSniperLock )
 		{
-			mFollowPath = false;
-			mAcceleration.x = -mMaxAcceleration;
-		}
+			if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_W) && !Input::GetInstance()->IsKeyDown(KEYS::KEYS_S))
+			{
+				mFollowPath = false;
+				mAcceleration.z = mMaxAcceleration;
+			}
 
-		if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_S) && !Input::GetInstance()->IsKeyDown(KEYS::KEYS_W))
-		{
-			mFollowPath = false;
-			mAcceleration.z = -mMaxAcceleration;
-		}
+			if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_A) && !Input::GetInstance()->IsKeyDown(KEYS::KEYS_D))
+			{
+				mFollowPath = false;
+				mAcceleration.x = -mMaxAcceleration;
+			}
 
-		if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_D) && !Input::GetInstance()->IsKeyDown(KEYS::KEYS_A))
-		{
-			mFollowPath = false;
-			mAcceleration.x = mMaxAcceleration;
-		}
-		if ( Input::GetInstance()->IsKeyDown(KEYS::KEYS_H) )
-		{
-			mLowerBody.position = XMFLOAT3( 0, 0, 0 );
+			if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_S) && !Input::GetInstance()->IsKeyDown(KEYS::KEYS_W))
+			{
+				mFollowPath = false;
+				mAcceleration.z = -mMaxAcceleration;
+			}
+
+			if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_D) && !Input::GetInstance()->IsKeyDown(KEYS::KEYS_A))
+			{
+				mFollowPath = false;
+				mAcceleration.x = mMaxAcceleration;
+			}
+			if ( Input::GetInstance()->IsKeyDown(KEYS::KEYS_H) )
+			{
+				mLowerBody.position = XMFLOAT3( 0, 0, 0 );
+			}
 		}
 
 		//Normalize acceleration 
@@ -1173,6 +1187,8 @@ void Player::Reset()
 	mNextLevelXP		= 20.0f;
 	mCurrentLevel		= 0;
 	mCurrentUpgrades	= 0;
+
+	mSniperLock			= false;
 }
 
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
@@ -1641,6 +1657,8 @@ HRESULT Player::Initialize()
 
 	mCameraPosition = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mPlayerToCursor = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+
+	mSniperLock = false;
 	
 	return S_OK;
 }
@@ -1703,6 +1721,8 @@ Player::Player()
 
 	mCameraPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mPlayerToCursor = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+
+	mSniperLock = false;
 }
 
 Player::~Player()
@@ -1733,6 +1753,11 @@ float Player::GetXPToNext() const
 int Player::GetCurrentLevel() const
 {
 	return mCurrentLevel;
+}
+
+bool Player::GetSniperLock() const
+{
+	return mSniperLock;
 }
 
 int Player::Upgradable() const

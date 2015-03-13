@@ -69,7 +69,7 @@ cbuffer CbufferPerFrameShadow : register( b1 )
 
 static const float SSAO_RAD			= 0.08f;
 static const float SHADOW_BIAS		= 0.001f;
-static const float SHADOW_DX		= 1.0f / 512.0f;
+static const float SHADOW_DX		= 1.0f / 1024.0f;
 static const float ROBOT_MAX_RANGE	= 40000.0f;
 
 Texture2D<float4>				albedoSpecBuffer		: register( t0 );
@@ -319,7 +319,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	//	2nd COOL EFFECT SPONSORED BY JOHANNES ANDERSSON. ALSO KNOWN AS SHIP BUFF RANGE
 	//-------------------------------------------------------------------------------------------------
 
-	if ( worldSample.y >= 0.0f && worldSample.y <= 0.15f )
+	if ( worldSample.y > -0.1f && worldSample.y < 0.15f )
 	{
 		for (int i = 0; i < 2; i++)
 		{

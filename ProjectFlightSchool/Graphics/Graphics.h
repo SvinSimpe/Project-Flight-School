@@ -142,8 +142,8 @@ enum Cameras
 #define MAX_SINGLE_STATIC_VERTICES	20000
 #define MAX_CIRCLE_POINTS			1000
 
-#define SHADOW_MAP_WIDTH	512
-#define SHADOW_MAP_HEIGHT	512
+#define SHADOW_MAP_WIDTH	1024
+#define SHADOW_MAP_HEIGHT	1024
 
 #define SAFE_RELEASE_DELETE( x ) if( x ) { ( x )->Release(); delete x; ( x ) = nullptr; }
 

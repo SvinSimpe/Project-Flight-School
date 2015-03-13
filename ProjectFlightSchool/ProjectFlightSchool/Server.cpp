@@ -139,15 +139,14 @@ void Server::ClientUpdate( IEventPtr eventPtr )
 			mClientMap[data->ID()]->Pos.center = data->LowerBodyPos();
 			XMFLOAT3 vel = data->Velocity();
 			XMFLOAT3 dir = data->UpperBodyDirection();
-			std::string name = data->Name();
 			mClientMap[data->ID()]->IsBuffed = data->IsBuffed();
 			mClientMap[data->ID()]->IsAlive = data->IsAlive();
 
 			// No need to update clients about your movements if they don't exist!
 			if( mClientMap.size() > 1 )
 			{
-				IEventPtr E1( new Event_Remote_Update( data->ID(), mClientMap[data->ID()]->Pos.center, vel, dir, name, data->IsAlive() ) );
-				SendCulledUpdate( E1, mClientMap[data->ID()]->Pos.center, data->ID() );
+				IEventPtr E1( new Event_Remote_Update( data->ID(), mClientMap[data->ID()]->Pos.center, vel, dir, data->IsAlive() ) );
+				BroadcastEvent( E1 );
 			}
 		}
 	}
@@ -169,7 +168,7 @@ void Server::ClientDied( IEventPtr eventPtr )
 			IEventPtr E1( new Event_Remote_Died( data->ID(), killerID ) );
 			BroadcastEvent( E1, data->ID() );
 
-			IEventPtr E2( new Event_Remote_Log_Event( data->ID(), 0, killerID ) );
+			IEventPtr E2( new Event_Remote_Log_Event( killerID, 0, data->ID() ) );
 			BroadcastEvent( E2 );
 
 			for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
@@ -303,6 +302,20 @@ void Server::ClientAttack( IEventPtr eventPtr )
 			UINT anim = data->Animation();
 
 			IEventPtr E1( new Event_Remote_Attack( data->ID(), armID, anim ) );
+			BroadcastEvent( E1, data->ID() );
+		}
+	}
+}
+
+void Server::ClientDash( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Dash::GUID )
+	{
+		std::shared_ptr<Event_Client_Dash> data = std::static_pointer_cast<Event_Client_Dash>( eventPtr );
+		auto& it = mClientMap.find(data->ID());
+		if( it != mClientMap.end() )
+		{
+			IEventPtr E1( new Event_Remote_Dash( data->ID() ) );
 			BroadcastEvent( E1, data->ID() );
 		}
 	}
@@ -451,6 +464,16 @@ void Server::ClientInteractEnergyCell( IEventPtr eventPtr )
 	}
 }
 
+void Server::ClientSetName( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Set_Name::GUID )
+	{
+		std::shared_ptr<Event_Client_Set_Name> data = std::static_pointer_cast<Event_Client_Set_Name>( eventPtr );
+		IEventPtr E1( new Event_Remote_Set_Name( data->ID(), data->Name() ) ); 
+		BroadcastEvent( E1, data->ID() );
+	}
+}
+
 void Server::BroadcastEnemyAttackToClients( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Tell_Server_Enemy_Attack_Player::GUID )
@@ -573,7 +596,16 @@ void Server::XP( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_XP::GUID )
 	{
 		std::shared_ptr<Event_XP> data = std::static_pointer_cast<Event_XP>( eventPtr );
-		IEventPtr E1( new Event_Server_XP( data->PlayerID(), data->XP() ) );
+		UINT playerID = data->PlayerID();
+		//if( data->PlayerID() == 70 )
+		//{
+		//	playerID = 1;
+		//}
+		//else if( data->PlayerID() == 71 )
+		//{
+		//	playerID = 2;
+		//}
+		IEventPtr E1( new Event_Server_XP( playerID, data->XP() ) );
 		BroadcastEvent( E1 );
 	}
 }
@@ -777,23 +809,9 @@ void Server::UpdateShip( float deltaTime, ServerShip* s )
 	s->Update( deltaTime );
 	IEventPtr E1( new Event_Server_Update_Turret( s->mServerTurret->mID, s->mServerTurret->mTurretHead->rot ) );
 	BroadcastEvent( E1 );
-	//SendCulledUpdate( E1, s->mServerTurret->mPos );
 
 	IEventPtr E2( new Event_Server_Update_Ship( s->mID, s->mMaxShield, s->mCurrentShield, s->mCurrentHP ) );
 	BroadcastEvent( E2 );
-}
-
-void Server::SendCulledUpdate( IEventPtr eventPtr, XMFLOAT3 enemyPos, UINT exception )
-{
-	/*for( auto& cm : mClientMap )
-	{
-		auto c = cm.second;
-		if( CullEnemyUpdate( c->Pos.center, enemyPos ) && c->ID != exception )
-		{*/
-			//SendEvent( eventPtr, c->ID );
-	BroadcastEvent( eventPtr );
-	//	}
-	//}
 }
 
 bool Server::CullEnemyUpdate( XMFLOAT3 playerPos, XMFLOAT3 enemyPos )
@@ -1093,7 +1111,7 @@ void Server::Update( float deltaTime )
 																	mEnemies[i]->IsAlive(),
 																	mEnemies[i]->GetHP() ) );
 				{
-					SendCulledUpdate( enemy, mEnemies[i]->GetPosition() );
+					BroadcastEvent( enemy );
 				}
 			}
 		}
@@ -1161,6 +1179,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientUpdateHP, this, Event_Client_Update_HP::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientMeleeHit, this, Event_Client_Melee_Hit::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientAttack, this, Event_Client_Attack::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientDash, this, Event_Client_Dash::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientDown, this, Event_Client_Down::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientUp, this, Event_Client_Up::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientAttemptRevive, this, Event_Client_Attempt_Revive::GUID );
@@ -1188,6 +1207,9 @@ bool Server::Initialize()
 
 	EventManager::GetInstance()->AddListener( &Server::OnSpawnEnergyCell, this, Event_Spawn_Energy_Cell::GUID );
 	EventManager::GetInstance()->AddListener( &Server::OnDroppedEnergyCell, this, Event_Client_Dropped_Energy_Cell::GUID );
+
+	EventManager::GetInstance()->AddListener( &Server::ClientSetName, this, Event_Client_Set_Name::GUID );
+
 
 	mCurrentPID				= 0;
 	mActive					= false;

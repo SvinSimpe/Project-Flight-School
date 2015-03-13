@@ -11,6 +11,12 @@ HRESULT Projectile::Update( float deltaTime )
 		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 
+	else if( mWeaponType == SPITTER )
+	{
+		IEventPtr E1( new Event_Client_Request_ParticleSystem( mPlayerID, (int)SpitterTrail, mPosition, DirectX::XMFLOAT3( 0.0f, 1.0f, 0.0f ), XMFLOAT3( 0.0f, 0.0f, 0.0f ) ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
+	}
+
 
 	mPosition.x += mDirection.x * mSpeed * deltaTime;
 	mPosition.y += mDirection.y * mSpeed * deltaTime;

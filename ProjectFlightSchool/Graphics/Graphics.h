@@ -73,6 +73,8 @@ enum Effects
 {
 	
 	//Particle Effects
+	EFFECTS_BOOMER_EXPLOSION,
+	EFFECTS_SPITTER_TRAIL,
 	EFFECTS_GRANATE_TRAIL,
 	EFFECTS_SNIPER_TRAIL,
 	EFFECTS_SHELL,
@@ -189,6 +191,8 @@ class LIBRARY_EXPORT Graphics
 		BillboardInstanced			mBillboardInstanced[MAX_BILLBOARD_BATCH];
 		ParticleVertex16			mParticleInstanced[MAX_PARTICLE_BATCH];
 
+		float						mShipPosAndRad[8];
+
 	protected:
 	public:
 
@@ -243,6 +247,7 @@ class LIBRARY_EXPORT Graphics
 		void SetNDCSpaceCoordinates		( float &mousePositionX, float &mousePositionY );
 		void SetEyePosition				( Cameras camera, DirectX::XMFLOAT3 &eyePosition );
 		void SetFocus					( Cameras camera, DirectX::XMFLOAT3 &focusPoint );
+		void SetShipPosAndRad			( XMFLOAT3 position, float radius, int index );
 
 		void BeginScene();
 		void GbufferPass();

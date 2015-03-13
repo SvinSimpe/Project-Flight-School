@@ -52,12 +52,17 @@ struct PlayerInfo
 	}
 };
 
+struct TeamInfo
+{
+	DirectX::XMFLOAT3 color;
+	std::string teamName;
+};
 class BattleLog
 {
 	private:
 		std::string mActions[NR_OF_ACTIONS];
 		std::string mObjects[NR_OF_OBJECTS];
-		std::string mTeams[3];
+		TeamInfo mTeams[3];
 		std::unordered_map< int, PlayerInfo > mPlayerMap;
 
 		std::vector< BattleLogEntry > mLogQueue;
@@ -95,6 +100,7 @@ class BattleLog
 
 		void OnPlayerActionEvent( IEventPtr e );
 		void OnHeadlineEvent( IEventPtr e );
+		void OnServerSetName( IEventPtr e );
 
 		void Reset();
 };

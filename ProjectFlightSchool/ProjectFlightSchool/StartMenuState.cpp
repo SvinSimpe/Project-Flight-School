@@ -64,7 +64,6 @@ void StartMenuState::OnEnter()
 
 void StartMenuState::OnExit()
 {
-	SoundBufferHandler::GetInstance()->StopLoopStream( mStreamSoundAsset );
 	BaseMenuState::OnExit();
 }
 

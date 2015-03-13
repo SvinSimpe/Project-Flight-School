@@ -265,5 +265,11 @@
     <Text Include="..\Content\Effects\Particle Effects\GranateTrail.hlsl">
       <Filter>Effects\Particle Effects</Filter>
     </Text>
+    <Text Include="..\Content\Effects\Particle Effects\SpitterTrailEffect.hlsl">
+      <Filter>Effects\Particle Effects</Filter>
+    </Text>
+    <Text Include="..\Content\Effects\Particle Effects\BoomerExplosionEffect.hlsl">
+      <Filter>Effects\Particle Effects</Filter>
+    </Text>
   </ItemGroup>
 </Project>

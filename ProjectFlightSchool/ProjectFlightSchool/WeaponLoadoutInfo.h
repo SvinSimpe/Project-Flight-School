@@ -37,7 +37,7 @@
 
 // Grenade Launcher
 #define GL_AR				3.0f								// Attack Rate
-#define GL_DAMAGE			20.0f								// Damage
+#define GL_DAMAGE			25.0f								// Damage
 #define GL_RANGE			25.0f								// Range
 #define GL_SPREAD			0.0f								// Spread
 #define GL_AOE				2.0f								// Area of effect
@@ -46,7 +46,7 @@
 
 // Sniper
 #define SNIPER_AR			3.2f								// Attack Rate
-#define SNIPER_DAMAGE		28.0f								// Damage
+#define SNIPER_DAMAGE		45.0f								// Damage
 #define SNIPER_RANGE		3.0f								// Range
 #define SNIPER_SPREAD		0.0f								// Spread
 #define SNIPER_AOE			0.0f								// Area of effect

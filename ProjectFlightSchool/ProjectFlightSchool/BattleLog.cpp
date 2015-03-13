@@ -38,15 +38,28 @@ HRESULT BattleLog::Initialize( Player* player, std::vector<RemotePlayer*>& remot
 	mObjects[ENERGY_CELL]	= "ENERGY CELL";
 
 	//Define Teams----------
-	mTeams[1]	= "RED TEAM ";
-	mTeams[2]	= "BLUE TEAM ";
+	mTeams[0].teamName	= "WORLD ";
+	//mTeams[0].color		= XMFLOAT3( 0.0f, 0.102f, 0.0f );
+	mTeams[0].color		= XMFLOAT3( 0.0f, 0.4f, 0.0f );
+
+	mTeams[1].teamName	= "YELLOW TEAM ";
+	//mTeams[1].color		= XMFLOAT3( 0.214f, 0.167f, 0.240f );
+	mTeams[1].color		= XMFLOAT3( 1.0f, 0.94f, 0.12f );
+
+	mTeams[2].teamName	= "RED TEAM ";
+	//mTeams[2].color		= XMFLOAT3( 0.204f, 0.0f, 0.0f );
+	mTeams[2].color		= XMFLOAT3( 0.8f, 0.0f, 0.0f );
 
 	mPlayerMap[player->GetID()] = PlayerInfo( player->GetName(), player->GetTeam() );
 	
 	for( auto it : remotePlayers )
 	{
-		mPlayerMap[it->GetID()] = PlayerInfo( it->GetName(), it->GetID() );
+		mPlayerMap[it->GetID()] = PlayerInfo( it->GetName(), it->GetTeam() );
 	}
+
+	EventManager::GetInstance()->AddListener( &BattleLog::OnHeadlineEvent, this, Event_Server_Headline_Event::GUID );
+	EventManager::GetInstance()->AddListener( &BattleLog::OnPlayerActionEvent, this, Event_Remote_Log_Event::GUID );
+	EventManager::GetInstance()->AddListener( &BattleLog::OnServerSetName, this, Event_Remote_Set_Name::GUID );
 
 	return S_OK;
 }
@@ -100,26 +113,29 @@ void BattleLog::Render()
 	{
 		BattleLogEntry* current = &mLogQueue[i];
 
-		if( mPlayerMap[current->mFirstUnitID].mTeamID == 1 )
+		mActionString		= mActions[current->mActionID];
+
+		if( mPlayerMap.count( current->mFirstUnitID ) == 1 )
 		{
-			first = mBlueTeam;
+			mFirstUnitString	= mPlayerMap[current->mFirstUnitID].mName + " ";
+			first				= mTeams[mPlayerMap[current->mFirstUnitID].mTeamID].color;
 		}
-		else if( mPlayerMap[current->mFirstUnitID].mTeamID == 2 )
+		else
 		{
-			first = mRedTeam;
-		}
-		if( mPlayerMap[current->mSecondUnitID].mTeamID == 1 )
-		{
-			second = mBlueTeam;
-		}
-		else if( mPlayerMap[current->mSecondUnitID].mTeamID == 2 )
-		{
-			second = mRedTeam;
+			mFirstUnitString	= mTeams[0].teamName;
+			first				= mTeams[0].color;
 		}
 
-		mFirstUnitString	= mPlayerMap[current->mFirstUnitID].mName;
-		mActionString		= mActions[current->mActionID];
-		mSecondUnitString	= mPlayerMap[current->mSecondUnitID].mName;
+		if( mPlayerMap.count( current->mSecondUnitID ) == 1 )
+		{
+			mSecondUnitString	= mPlayerMap[current->mSecondUnitID].mName + " ";
+			second				= mTeams[mPlayerMap[current->mSecondUnitID].mTeamID].color;
+		}
+		else
+		{
+			mSecondUnitString	= mTeams[0].teamName;
+			second				= mTeams[0].color;
+		}
 
 		x1 = mFont->GetMiddleXPoint( mFirstUnitString, scale );
 		x2 = mFont->GetMiddleXPoint( mActionString, scale );
@@ -142,7 +158,7 @@ void BattleLog::Render()
 			first = mRedTeam;
 		}
 
-		mFirstUnitString	= mTeams[current->mTeamID];
+		mFirstUnitString	= mTeams[current->mTeamID].teamName;
 		mActionString		= mActions[current->mActionID];
 		mSecondUnitString	= mObjects[current->mGoalID];
 
@@ -198,6 +214,17 @@ void BattleLog::OnHeadlineEvent( IEventPtr e )
 		temp.mGoalID	= data->GetGoalID();
 
 		AddHeadLineEntry( temp );
+	}
+}
+
+void BattleLog::OnServerSetName( IEventPtr e )
+{
+	if ( e->GetEventType() == Event_Remote_Set_Name::GUID )
+	{
+		std::shared_ptr<Event_Remote_Set_Name> data = std::static_pointer_cast<Event_Remote_Set_Name>( e );
+
+		if( mPlayerMap.count( data->ID() ) == 1 )
+			mPlayerMap[data->ID()].mName = data->Name();
 	}
 }
 

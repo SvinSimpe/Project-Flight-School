@@ -461,6 +461,26 @@ HRESULT Graphics::InitializeEffects()
 	//			PARTICLE EFFECTS			|
 	//=======================================
 
+	//Sniper trail effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/BoomerExplosionEffect.hlsl";
+	effectInfo.fileName					= "BoomerExplosionEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_BOOMER_EXPLOSION]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Sniper trail effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/SpitterTrailEffect.hlsl";
+	effectInfo.fileName					= "SpitterTrailEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_SPITTER_TRAIL]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
 	//Granate trail effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/GranateTrail.hlsl";
 	effectInfo.fileName					= "GranateTrail";
@@ -1894,6 +1914,14 @@ void Graphics::SetFocus( Cameras camera, DirectX::XMFLOAT3 &focusPoint )
 	}
 }
 
+void Graphics::SetShipPosAndRad( XMFLOAT3 position, float radius, int index )
+{
+	mShipPosAndRad[0 + index * 4] = position.x;
+	mShipPosAndRad[1 + index * 4] = position.y;
+	mShipPosAndRad[2 + index * 4] = position.z;
+	mShipPosAndRad[3 + index * 4] = radius;
+}
+
 //Clear canvas and prepare for rendering.
 void Graphics::BeginScene()
 {
@@ -1940,13 +1968,15 @@ void Graphics::GbufferPass()
 	//Map CbufferPerFrame
 	CbufferPerFrame data;
 
-
 	data.viewMatrix			= mCamera[mCurrentCamera]->GetViewMatrix();
 	data.projectionMatrix	= mCamera[mCurrentCamera]->GetProjMatrix();
 	data.cameraPosition		= mCamera[mCurrentCamera]->GetPos();
+	data.numPointLights		= mNumPointLights;
+	data.timeVariable		= mTimeVariable;
 	
-	data.numPointLights = mNumPointLights;
-	data.timeVariable	= mTimeVariable;
+	for (int i = 0; i < 8; i++)
+		data.shipPosAndRad[i] = mShipPosAndRad[i];
+
 	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_FRAME], &data, sizeof( CbufferPerFrame ) );
 
 	CbufferPerFrameShadow dataShadow;

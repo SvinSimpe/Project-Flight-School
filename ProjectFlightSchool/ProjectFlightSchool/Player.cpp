@@ -74,7 +74,8 @@ void Player::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_New_Player_Spawn_Position> data = std::static_pointer_cast<Event_New_Player_Spawn_Position>( newEvent );
 		if( data->PlayerID() == mID )
 		{
-			mSpawnPosition = XMFLOAT3( data->SpawnPosition().x, 0.0f, data->SpawnPosition().y );
+			mSpawnPosition	= XMFLOAT3( data->SpawnPosition().x, 0.0f, data->SpawnPosition().y );
+			mCameraPosition	= XMFLOAT3( data->SpawnPosition().x, CAMERA_Y, data->SpawnPosition().y + CAMERA_Z );
 			if( IsAlive() )
 			{
 				RemotePlayer::Spawn();
@@ -174,6 +175,24 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 			XMStoreFloat3( &mAcceleration, normalizer );
 		}
 
+		//Dashing
+		if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_SPACE ) && mDashCoolDown <= 0.0f )
+		{
+			mDashCoolDown = DASH_COOLDOWN;
+			mDashVelocity = DASH_VELOCITY;
+			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[LEGS_DASH][TEAM_ARRAY_ID] );
+
+			XMVECTOR normalizer = XMVector3Length( XMLoadFloat3( &mVelocity ) );
+			mCurrentVelocity = XMVectorGetX( normalizer );
+			normalizer	 = XMVector3Normalize( XMLoadFloat3( &mVelocity ) );
+			normalizer	*= mMaxVelocity;
+			XMStoreFloat3( &mVelocity, normalizer );
+
+			IEventPtr E1( new Event_Client_Dash( mID ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+
+
 		//== Calculate upper body rotation ==
 		XMVECTOR rayOrigin = XMVECTOR( Input::GetInstance()->mCurrentNDCMousePos );
 		XMVECTOR rayDir = rayOrigin;
@@ -202,9 +221,19 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 
 		XMVECTOR playerToCursor = XMVectorSubtract( intersection, XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, 1.0f, mLowerBody.position.z ) ) );
 		XMStoreFloat3( &unPack, playerToCursor );
+		XMStoreFloat3( &mPlayerToCursor, XMLoadFloat3( &mPlayerToCursor ) * 0.95f + ( XMVectorSet( unPack.x, 0.0f, unPack.z, 0.0f ) * 0.1f ) * 0.05f );
 		playerToCursor = XMVector3Normalize( XMVectorSet( unPack.x, 0.0f, unPack.z, 0.0f ) );
 		XMStoreFloat3( &mUpperBody.direction, playerToCursor );
 
+		//Cap the mPlayerToCursor vector
+		normalizer = XMVector3Length( XMLoadFloat3( &mPlayerToCursor ) );
+		float currCamera = XMVectorGetX( normalizer );
+		if(  currCamera > CAMERA_CAP )
+		{
+			normalizer	 = XMVector3Normalize( XMLoadFloat3( &mPlayerToCursor ) );
+			normalizer	*= CAMERA_CAP;
+			XMStoreFloat3( &mPlayerToCursor, normalizer );
+		}
 
 		if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
 		{
@@ -471,39 +500,8 @@ void Player::GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, Direct
 	}
 }
 
-HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
+HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells, ClientShip** clientShips )
 {
-	//Draw goal arrow
-
-
-	float circleRadius = 2.0f;
-
-	XMVECTOR playerGoal = XMLoadFloat3( &XMFLOAT3( mPlayerGoal.x, 0.0f, mPlayerGoal.z ) );
-	XMVECTOR playerPos = XMLoadFloat3( &mLowerBody.position );
-	XMVECTOR goalDir = playerGoal - playerPos;
-	goalDir = XMVector3Normalize( goalDir );
-
-	float rot = -atan2f( XMVectorGetZ( goalDir ), XMVectorGetX( goalDir ) );
-
-	XMMATRIX rotMatrix = XMMatrixRotationY( rot );
-	XMMATRIX trans = XMMatrixTranslationFromVector( playerPos + ( goalDir * circleRadius ) );
-	XMFLOAT4X4 world;
-	XMStoreFloat4x4( &world, XMMatrixTranspose( rotMatrix * trans ) );
-
-	
-	if( energyCells[1]->GetActive() )
-	{
-		if( energyCells[1]->GetOwnerID() != mID )
-		{
-			mPlayerGoal = energyCells[1]->GetPosition();
-		}
-		else
-		{
-			mPlayerGoal = mShipPos;
-		}
-		RenderManager::GetInstance()->AddBoxToList( XMFLOAT3( -0.5f, -0.5f, -0.5f ), XMFLOAT3( 0.5f, 0.5f, 0.5f ), world );
-	}
-
 
 	// Update water status	
 	mSlowDown += deltaTime / 5;
@@ -511,27 +509,50 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	{
 		mSlowDown = 1.0f;
 	}
+	mDashVelocity -= deltaTime * 0.5f;
+	mDashVelocity = max( 1.0f, mDashVelocity );
+	mDashCoolDown -= deltaTime;
+	mDashCoolDown = max( 0.0f, mDashCoolDown );
 
 	mIsInWater	= mLowerBody.position.y < -0.7f ? true : false;
 	
 	XMFLOAT3 testPosition	= mLowerBody.position;
 	XMFLOAT3 normal			= XMFLOAT3( 0.0f, 1.0f, 0.0f );
 
-	testPosition.x += mVelocity.x * deltaTime * mUpgrades.runSpeedFactor * mSlowDown;
-	testPosition.z += mVelocity.z * deltaTime * mUpgrades.runSpeedFactor * mSlowDown;
+	if( mEnergyCellID != (UINT)-1 )
+	{
+		mSlowDown = 0.5f;
+	}
+
+	mCurrentTravelVelocity.x = mVelocity.x * deltaTime * mUpgrades.runSpeedFactor * mSlowDown * mDashVelocity;
+	mCurrentTravelVelocity.z = mVelocity.z * deltaTime * mUpgrades.runSpeedFactor * mSlowDown * mDashVelocity;
+
+	testPosition.x += mCurrentTravelVelocity.x;
+	testPosition.z += mCurrentTravelVelocity.z;
 	testPosition.y = worldMap->GetHeight( testPosition );
 
-	mCurrentTravelVelocity.x = mVelocity.x * deltaTime * mUpgrades.runSpeedFactor * mSlowDown;
-	mCurrentTravelVelocity.z = mVelocity.z * deltaTime * mUpgrades.runSpeedFactor * mSlowDown;
-
 	bool collisionTest = worldMap->PlayerVsMap( testPosition, normal );
-	if( !collisionTest )
+
+	BoundingCircle testCircle = *mBoundingCircle;
+	testCircle.center.x += mCurrentTravelVelocity.x;
+	testCircle.center.z += mCurrentTravelVelocity.z;
+	bool shipCollision = false;
+
+	for( int i = 0; i < 2; i++ )
+	{
+		if( shipCollision = clientShips[i]->PositionVsShip( &testCircle, normal ) )
+		{
+			break;
+		}
+	}
+
+	if( !collisionTest && !shipCollision )
 	{
 		mLowerBody.position.x = testPosition.x;
 		mLowerBody.position.y = testPosition.y;
 		mLowerBody.position.z = testPosition.z;
 
-		if( mIsInWater )
+		if( mIsInWater && mIsAlive && !mIsDown )
 		{
 			WriteInteractionText( 
 				"Get out of the water or die!", 
@@ -550,16 +571,37 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	}
 	else
 	{
-		//mFollowPath = false;
-		//Pathfinder::GetInstance()->RequestPath( currentPath1, mLowerBody.position, mPick  );
-		//Pathfinder::GetInstance()->CalculateSubPath( currentPath1 );
-		//currentPath = currentPath1->TotalPath();
-		//currStep = currentPath.begin();
-
 		XMVECTOR loadVel		= XMLoadFloat3( &mVelocity );
 		XMVECTOR loadNorm		= XMLoadFloat3( &XMFLOAT3( normal.x, normal.y, normal.z ) );
 		XMVECTOR loadNormNorm	= XMLoadFloat3( &XMFLOAT3( -normal.z, -normal.y, normal.x ) );
 		XMStoreFloat3( &mVelocity, loadNormNorm * XMVectorGetX( XMVector3Dot( loadVel, loadNormNorm ) ) + loadNorm * deltaTime * 20.0f );
+	}
+
+	//Draw goal arrow
+	float circleRadius = 2.0f;
+	if( energyCells[1]->GetActive() )
+	{
+		XMVECTOR playerGoal = XMLoadFloat3( &XMFLOAT3( mPlayerGoal.x, mLowerBody.position.y + 1.0f, mPlayerGoal.z ) );
+		XMVECTOR playerPos = XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + 1.0f, mLowerBody.position.z ) );
+		XMVECTOR goalDir = playerGoal - playerPos;
+		goalDir = XMVector3Normalize( goalDir );
+	
+		float rot = -atan2f( XMVectorGetZ( goalDir ), XMVectorGetX( goalDir ) );
+	
+		XMMATRIX rotMatrix = XMMatrixRotationY( rot );
+		XMMATRIX trans = XMMatrixTranslationFromVector( playerPos + ( goalDir * circleRadius ) );
+		XMFLOAT4X4 world;
+		XMStoreFloat4x4( &world, ( rotMatrix * trans ) );
+
+		if( energyCells[1]->GetOwnerID() != mID )
+		{
+			mPlayerGoal = energyCells[1]->GetPosition();
+		}
+		else
+		{
+			mPlayerGoal = mShipPos;
+		}
+		RenderManager::GetInstance()->AddObject3dToList( mCellArrow, world );
 	}
 
 	Update( deltaTime, remotePlayers, energyCells );
@@ -1097,10 +1139,12 @@ void Player::Reset()
 	mCurrentVelocity			= 0.0f;
 	mMaxAcceleration			= 20.0f;
 	mAcceleration				= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mDashVelocity				= 1.0f;
 
 	mIsBuffed					= false;
-	mLifeRegenerationAmount		= 2.0f; 
-	mLifeRegenerationTimer		= 5.0f;
+	mLifeRegenerationAmount		= 1.0f; 
+	mLifeRegenerationMaxTimer	= 1.4f;
+	mLifeRegenerationTimer		= mLifeRegenerationMaxTimer;
 
 	mTimeTillSpawn				= mSpawnTime;
 	mTimeTillDeath				= mDeathTime;
@@ -1148,10 +1192,14 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	XMMATRIX loadedMat = XMLoadFloat4x4( &upperBody );
 	XMMATRIX translate = XMMatrixTranslation( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z );
 
-	float yaw = -atan2f( mUpperBody.direction.z, mUpperBody.direction.x );
-	XMMATRIX rotate	= XMMatrixRotationRollPitchYaw( 0.0f, yaw, 0.0 );
+	float yaw				= -atan2f( mLowerBody.direction.z, mLowerBody.direction.x );
+	XMMATRIX legRotation	= XMMatrixRotationRollPitchYaw( 0.0f, yaw, 0.0f );
+	XMMATRIX invLegRotation = XMMatrixInverse( nullptr, legRotation );
 
-	XMMATRIX transformation = loadedMat * rotate * translate;
+	yaw						= -atan2f( mUpperBody.direction.z, mUpperBody.direction.x );
+	XMMATRIX upperRotation	= XMMatrixRotationRollPitchYaw( 0.0f, yaw, 0.0f );
+
+	XMMATRIX transformation = invLegRotation * upperRotation * loadedMat * legRotation * translate;
 
 	XMStoreFloat4x4( &mLowerBody.rootMatrix, transformation );
 
@@ -1192,18 +1240,21 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 			//ANIMATIONS
 			float currentVelocity = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) );
 
-			if( currentVelocity < 0.2f )
+			if( mDashVelocity < 1.35f )
 			{
-				if( mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] )
+				if( currentVelocity < 0.2f )
 				{
-					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] );
+					if( mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] )
+					{
+						RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] );
+					}
 				}
-			}
-			else
-			{
-				if(	mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] )
+				else
 				{
-					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] );
+					if(	mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] )
+					{
+						RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] );
+					}
 				}
 			}
 
@@ -1334,12 +1385,17 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 	///Lock camera position to player
 	XMFLOAT3 cameraPosition;
-	cameraPosition.x = mLowerBody.position.x;
-	cameraPosition.y = mLowerBody.position.y + 20.0f;
-	cameraPosition.z = mLowerBody.position.z - 12.0f;
+	cameraPosition.x = mLowerBody.position.x			+ mPlayerToCursor.x;
+	cameraPosition.y = mLowerBody.position.y + CAMERA_Y;
+	cameraPosition.z = mLowerBody.position.z + CAMERA_Z	+ mPlayerToCursor.z;
 
 	Graphics::GetInstance()->SetEyePosition( CAMERAS_MAIN, cameraPosition );
-	Graphics::GetInstance()->SetFocus( CAMERAS_MAIN, mLowerBody.position );
+
+	cameraPosition.x = mLowerBody.position.x + mPlayerToCursor.x;
+	cameraPosition.y = mLowerBody.position.y;
+	cameraPosition.z = mLowerBody.position.z + mPlayerToCursor.z;
+
+	Graphics::GetInstance()->SetFocus( CAMERAS_MAIN, cameraPosition );
 
 	//Shadow map camera
 	cameraPosition.y = mLowerBody.position.y + 30.0f;
@@ -1380,16 +1436,16 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 		if( mLifeRegenerationTimer <= 0.0f )
 		{
-			mCurrentHp				+= 1.0f;
+			mCurrentHp	+= mLifeRegenerationAmount;
 			
 			if( mCurrentHp > mMaxHp )
 				mCurrentHp = mMaxHp;
 
-			mLifeRegenerationTimer	= 2.0f - ( (float)mBufflevel * 0.8f );
+			mLifeRegenerationTimer	= mLifeRegenerationMaxTimer;
 		}
 	}
 	else
-		mLifeRegenerationTimer = 2.0f - ( (float)mBufflevel * 0.8f );
+		mLifeRegenerationTimer = mLifeRegenerationMaxTimer;
 
 	return S_OK;
 }
@@ -1398,8 +1454,29 @@ HRESULT Player::Render( float deltaTime, int position )
 {
 	if( !mIsAlive )
 	{
-        std::string textToWrite = std::to_string( (int)mTimeTillSpawn );
-		mFont.WriteText( textToWrite, (float)Input::GetInstance()->mScreenWidth/2, (float)Input::GetInstance()->mScreenHeight/2, 7.8f );
+        std::string textToWrite = std::to_string( (int)( mTimeTillSpawn + 1 ) );
+		WriteInteractionText( 
+			textToWrite, 
+			(float)Input::GetInstance()->mScreenWidth * 0.5f, 
+			(float)( Input::GetInstance()->mScreenHeight * 0.5f ), 
+			7.8f, 
+			COLOR_RED );
+	}
+	else
+	{
+		if( mIsBuffed && !mLock )
+		{
+			std::stringstream out;
+			out.precision( 2 );
+			out << "Regenerating " << mLifeRegenerationAmount << " health every " << mLifeRegenerationMaxTimer << " sec";
+
+			WriteInteractionText( 
+				out.str(), 
+				(float)Input::GetInstance()->mScreenWidth * 0.5f, 
+				(float)( Input::GetInstance()->mScreenHeight * 0.95f ), 
+				2.5f, 
+				COLOR_CYAN );
+		}
 	}
 
 	if( mIsOutSideZone )
@@ -1412,7 +1489,7 @@ HRESULT Player::Render( float deltaTime, int position )
 			COLOR_RED );
 
 		WriteInteractionText( 
-			std::to_string( (int)mLeavingAreaTime ),
+			std::to_string( (int)( mLeavingAreaTime + 1 ) ),
 			(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
 			(float)( Input::GetInstance()->mScreenHeight * 0.25 ) + 40.0f, 
 			4.0f,
@@ -1439,48 +1516,32 @@ HRESULT Player::Render( float deltaTime, int position )
 			COLOR_CYAN );
 	}
 
-	//std::string blblbl = "XP " + std::to_string( (int) mXP ) +  "/" + std::to_string( (int)mNextLevelXP );
-	//WriteInteractionText(
-	//	blblbl, 
-	//	(float)( Input::GetInstance()->mScreenWidth * 0.1f ), 
-	//	(float)( Input::GetInstance()->mScreenHeight * 0.4f ) + 25.0f,
-	//	2.0f, 
-	//	COLOR_RED);
-
-	//blblbl = "Current level " + std::to_string( mCurrentLevel );
-	//WriteInteractionText(
-	//	blblbl, 
-	//	(float)( Input::GetInstance()->mScreenWidth * 0.1f ), 
-	//	(float)( Input::GetInstance()->mScreenHeight * 0.4f ) + 50.0f,
-	//	2.0f, 
-	//	COLOR_RED);
-
 	RemotePlayer::Render();
 	//---------------------------DEBUG RENDERING----------------------------
-	MeleeInfo* currWeapon = mLoadOut->meleeWeapon;
-	RenderManager::GetInstance()->AddCircleToList( currWeapon->boundingCircle->center, DirectX::XMFLOAT3( 0, 2, 1 ), currWeapon->boundingCircle->radius );
-	RenderManager::GetInstance()->AddBoxToList( XMFLOAT3( mPick.x - 0.5f, mPick.y - 0.5f, mPick.z - 0.5f ), XMFLOAT3( mPick.x + 0.5f, mPick.y + 0.5f, mPick.z + 0.5f ) );
-	RenderManager::GetInstance()->AddCircleToList( mLoadOut->meleeWeapon->boundingCircle->center, DirectX::XMFLOAT3(1,1,0), mLoadOut->meleeWeapon->boundingCircle->radius );
-	RenderManager::GetInstance()->AddCircleToList( mBoundingCircle->center, DirectX::XMFLOAT3(0,1,0), mBoundingCircle->radius );
-	if( mHasMeleeStarted )
-	{
-		
-		XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mUpperBody.direction ) * currWeapon->radius );
+	//MeleeInfo* currWeapon = mLoadOut->meleeWeapon;
+	//RenderManager::GetInstance()->AddCircleToList( currWeapon->boundingCircle->center, DirectX::XMFLOAT3( 0, 2, 1 ), currWeapon->boundingCircle->radius );
+	//RenderManager::GetInstance()->AddBoxToList( XMFLOAT3( mPick.x - 0.5f, mPick.y - 0.5f, mPick.z - 0.5f ), XMFLOAT3( mPick.x + 0.5f, mPick.y + 0.5f, mPick.z + 0.5f ) );
+	//RenderManager::GetInstance()->AddCircleToList( mLoadOut->meleeWeapon->boundingCircle->center, DirectX::XMFLOAT3(1,1,0), mLoadOut->meleeWeapon->boundingCircle->radius );
+	//RenderManager::GetInstance()->AddCircleToList( mBoundingCircle->center, DirectX::XMFLOAT3(0,1,0), mBoundingCircle->radius );
+	//if( mHasMeleeStarted )
+	//{
+	//	
+	//	XMVECTOR meeleRadiusVector =  ( XMLoadFloat3( &mUpperBody.direction ) * currWeapon->radius );
 
-		float halfRadian = XMConvertToRadians( currWeapon->spread * 18.0f ) * 0.5f;
+	//	float halfRadian = XMConvertToRadians( currWeapon->spread * 18.0f ) * 0.5f;
 
-		XMVECTOR leftVector = XMVector3Rotate( meeleRadiusVector, XMQuaternionRotationRollPitchYawFromVector( XMVectorSet( 0, -halfRadian, 0 , 1 ) ) );
-		XMVECTOR rightVector = XMVector3Rotate( meeleRadiusVector, XMQuaternionRotationRollPitchYawFromVector( XMVectorSet( 0, halfRadian, 0 , 1 ) ) );
+	//	XMVECTOR leftVector = XMVector3Rotate( meeleRadiusVector, XMQuaternionRotationRollPitchYawFromVector( XMVectorSet( 0, -halfRadian, 0 , 1 ) ) );
+	//	XMVECTOR rightVector = XMVector3Rotate( meeleRadiusVector, XMQuaternionRotationRollPitchYawFromVector( XMVectorSet( 0, halfRadian, 0 , 1 ) ) );
 
-		XMFLOAT3 leftEnd, rightEnd;
-		XMFLOAT3 pos = currWeapon->boundingCircle->center;
-		
-		XMStoreFloat3( &leftEnd, XMLoadFloat3( &pos ) + leftVector );
-		XMStoreFloat3( &rightEnd, XMLoadFloat3( &pos ) + rightVector );
-		RenderManager::GetInstance()->AddCircleToList( currWeapon->boundingCircle->center, DirectX::XMFLOAT3( 0, 1, 1 ), currWeapon->boundingCircle->radius );
-		RenderManager::GetInstance()->AddLineToList( pos, XMFLOAT3( leftEnd.x, 0.1f, leftEnd.z ) );
-		RenderManager::GetInstance()->AddLineToList( pos, XMFLOAT3( rightEnd.x, 0.1f, rightEnd.z ) );
-	}
+	//	XMFLOAT3 leftEnd, rightEnd;
+	//	XMFLOAT3 pos = currWeapon->boundingCircle->center;
+	//	
+	//	XMStoreFloat3( &leftEnd, XMLoadFloat3( &pos ) + leftVector );
+	//	XMStoreFloat3( &rightEnd, XMLoadFloat3( &pos ) + rightVector );
+	//	RenderManager::GetInstance()->AddCircleToList( currWeapon->boundingCircle->center, DirectX::XMFLOAT3( 0, 1, 1 ), currWeapon->boundingCircle->radius );
+	//	RenderManager::GetInstance()->AddLineToList( pos, XMFLOAT3( leftEnd.x, 0.1f, leftEnd.z ) );
+	//	RenderManager::GetInstance()->AddLineToList( pos, XMFLOAT3( rightEnd.x, 0.1f, rightEnd.z ) );
+	//}
 	//---------------------------DEBUG RENDERING----------------------------
 
 
@@ -1503,6 +1564,7 @@ HRESULT Player::Initialize()
 	mMaxVelocity		= 0.0f;
 	mCurrentVelocity	= 0.0f;
 	mMaxAcceleration	= 0.0f;
+	mDashVelocity		= 1.0f;
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mFireDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mIsOutSideZone		= false;
@@ -1524,6 +1586,8 @@ HRESULT Player::Initialize()
 	mLifeRegenerationAmount	= 0.0f;
 	mLifeRegenerationTimer	= 0.0f;
 	mBufflevel				= 0;
+
+	mDashCoolDown			= 0.0f;
 
 	gEventList				= std::list<IEventPtr>(); 
 
@@ -1584,6 +1648,9 @@ HRESULT Player::Initialize()
 	mPickUpCooldown = 0.0f;
 
 	currentPath1 = new Path();
+
+	mCameraPosition = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mPlayerToCursor = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	
 	return S_OK;
 }
@@ -1615,6 +1682,7 @@ Player::Player()
 	mMaxVelocity		= 0.0f;
 	mCurrentVelocity	= 0.0f;
 	mMaxAcceleration	= 0.0f;
+	mDashVelocity		= 0.0f;
 	mSlowDown			= 0.0f;
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mFireDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
@@ -1634,12 +1702,17 @@ Player::Player()
 	mWaterDamageTime	= 0.0f;
 	mLastKiller			= 0;
 
+	mDashCoolDown		= 0.0f;
+
 	gEventList			= std::list<IEventPtr>();
 
 	mUpgrades.currentBodyLevel	= 1;
 	mUpgrades.damageTakenPercentage = 1.0f;
 	mUpgrades.currentLegsLevel = 1;
 	mUpgrades.runSpeedFactor = 0.7f;
+
+	mCameraPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mPlayerToCursor = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 }
 
 Player::~Player()

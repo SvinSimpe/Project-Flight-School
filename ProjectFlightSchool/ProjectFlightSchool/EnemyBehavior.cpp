@@ -76,6 +76,7 @@ void IdleBehavior::OnEnter()
 void IdleBehavior::OnExit()
 {
 	mEnemy->mLastState	= Idle;
+	mEnemy->mLastBehavior = IDLE_BEHAVIOR;
 }
 
 void IdleBehavior::Reset()
@@ -115,6 +116,18 @@ HRESULT HuntPlayerBehavior::Update( float deltaTime )
 		//mEnemy->mSteeringBehaviorManager->Update( deltaTime );
 		mEnemy->Hunt( deltaTime );
 
+		// If enemy damaged check, go to take Damage
+		mEnemy->mTakingDamageTimer += deltaTime;
+		if (mEnemy->mTakingDamage)
+		{
+			if (mEnemy->mTakingDamageTimer > 0.4f)
+			{
+				mEnemy->ChangeBehavior(TAKE_DAMAGE_BEHAVIOR);
+				mEnemy->mTakingDamageTimer = 0.0f;
+			}
+			mEnemy->mTakingDamage = false;
+		}
+
 		// If enemy lost track of target, go back to Idle
 		if( mEnemy->mPlayers[mEnemy->mTargetIndex] != nullptr )
 		{
@@ -142,13 +155,17 @@ HRESULT HuntPlayerBehavior::Update( float deltaTime )
 void HuntPlayerBehavior::OnEnter()
 {
 	mEnemy->mCurrentState	= HuntPlayer;
-	IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), HuntPlayer ) );
-	EventManager::GetInstance()->QueueEvent( state );
+	if ( ( mEnemy->mLastState != MoveToShip ) || ( mEnemy->mLastBehavior != ATTACK_BEHAVIOR ) )
+	{
+		IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), HuntPlayer ) );
+		EventManager::GetInstance()->QueueEvent( state );
+	}
 }
 
 void HuntPlayerBehavior::OnExit()
 {
-	mEnemy->mLastState	= HuntPlayer;
+	mEnemy->mLastState		= HuntPlayer;
+	mEnemy->mLastBehavior	= HUNT_PLAYER_BEHAVIOR;
 }
 
 void HuntPlayerBehavior::Reset()
@@ -214,7 +231,9 @@ HRESULT MoveToShipBehavior::Update( float deltaTime )
 
 		if( mEnemy->mShips.at(mEnemy->mTargetShipIndex)->GetHitCircle() != nullptr )
 		{
-			if( mEnemy->mAttackRadius->Intersect( mEnemy->mShips.at(mEnemy->mTargetShipIndex)->GetHitCircle() ) )
+			//if( mEnemy->mAttackRadius->Intersect( mEnemy->mShips.at(mEnemy->mTargetShipIndex)->GetHitCircle() ) )
+			XMFLOAT3 collisionNormal;
+			if( mEnemy->mShips.at(mEnemy->mTargetShipIndex)->PositionVsShip( mEnemy->mAttackRadius, collisionNormal ) )
 			{
 				mEnemy->ChangeBehavior( ATTACK_BEHAVIOR );
 				return S_OK;
@@ -228,13 +247,17 @@ HRESULT MoveToShipBehavior::Update( float deltaTime )
 void MoveToShipBehavior::OnEnter()
 {
 	mEnemy->mCurrentState	= MoveToShip;
-	IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), MoveToShip ) );
-	EventManager::GetInstance()->QueueEvent( state );
+	if ( ( mEnemy->mLastState != HuntPlayer ) || ( mEnemy->mLastBehavior != ATTACK_BEHAVIOR ) )
+	{
+		IEventPtr state( new Event_Set_Enemy_State( mEnemy->GetID(), MoveToShip ) );
+		EventManager::GetInstance()->QueueEvent( state );
+	}
 }
 
 void MoveToShipBehavior::OnExit()
 {
-	mEnemy->mLastState	= MoveToShip;
+	mEnemy->mLastState		= MoveToShip;
+	mEnemy->mLastBehavior	= MOVE_TO_SHIP_BEHAVIOR;
 }
 
 void MoveToShipBehavior::Reset()
@@ -303,10 +326,19 @@ HRESULT AttackBehavior::Update( float deltaTime )
 	//	mEnemy->ChangeBehavior( IDLE_BEHAVIOR );
 	//	return S_OK;
 	//}
+
 	if( mStateTimer <= 0.0f )
 	{
-		mEnemy->ChangeBehavior(IDLE_BEHAVIOR);
+		mEnemy->ChangeBehavior( mEnemy->mLastBehavior );
 		return S_OK;
+	}
+
+	if( mEnemy->mEnemyType == Ranged && mEnemy->mLastState == HuntPlayer )
+	{
+		mEnemy->mDirection.x = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.x - mEnemy->GetPosition().x;
+		mEnemy->mDirection.z = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.z - mEnemy->GetPosition().z;
+		mEnemy->mDirection.y = 0.0f;
+
 	}
 
 	if( !mHasAttacked && mTimeTillAttack <= 0.0f )
@@ -320,20 +352,41 @@ HRESULT AttackBehavior::Update( float deltaTime )
 				if( mEnemy->mAttackRadius->Intersect( mEnemy->mPlayers[mEnemy->mTargetIndex]->AggroCircle ) )
 				{
 					mHasAttacked = true;
-					if (mEnemy->mEnemyType == Ranged)
+					if ( mEnemy->mEnemyType == Ranged )
 					{
 						XMFLOAT3 direction;
 						direction.x = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.x - mEnemy->GetPosition().x;
 						direction.z = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.z - mEnemy->GetPosition().z;
 						direction.y = 0.0f;
 
+						mEnemy->mDirection.x = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.x - mEnemy->GetPosition().x;
+						mEnemy->mDirection.z = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.z - mEnemy->GetPosition().z;
+						mEnemy->mDirection.y = 0.0f;
+
+						/*XMVECTOR position	= XMLoadFloat3( &mEnemy->mPosition );
+						XMVECTOR direction	= XMLoadFloat3( &mEnemy->mDirection );
+
+						XMVector3Normalize( direction );
+
+						position += direction * 1.1f;
+
+						XMFLOAT3 fireDirOff = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+						XMStoreFloat3( &fireDirOff, position );*/
+
 						IEventPtr E1(new Event_Enemy_Fired_Projectile(
 							ENEMY_PROJECTILE_ID,
-							mEnemy->mPosition,
-							direction,
+							/*fireDirOff,*/mEnemy->mPosition,
+							/*mEnemy->mDirection,*/ direction,
 							ENEMY_PROJECTILE_SPEED,
 							ENEMY_PROJECTILE_RANGE));
 						EventManager::GetInstance()->QueueEvent(E1);
+					}
+					else if (mEnemy->mEnemyType == Boomer)
+					{
+						IEventPtr state(new Event_Tell_Server_Enemy_Attack_Player(mEnemy->mID, mEnemy->mTargetID, mEnemy->mDamage));
+						EventManager::GetInstance()->QueueEvent(state);
+						mEnemy->ChangeBehavior(DEAD_BEHAVIOR);
+						return S_OK;
 					}
 					else
 					{
@@ -350,21 +403,40 @@ HRESULT AttackBehavior::Update( float deltaTime )
 			if( mEnemy->mAttackRadius->Intersect( mEnemy->mShips.at(mEnemy->mTargetShipIndex)->GetHitCircle() ) )
 			{
 				mHasAttacked = true;
-				if (mEnemy->mEnemyType == Ranged)
+				if ( mEnemy->mEnemyType == Ranged )
 				{
 					XMFLOAT3 direction;
-					direction.x = mEnemy->mShips[mEnemy->mTargetShipIndex]->GetPos().x - mEnemy->GetPosition().x;
-					direction.z = mEnemy->mShips[mEnemy->mTargetShipIndex]->GetPos().z - mEnemy->GetPosition().z;
+					direction.x = mEnemy->mShips[mEnemy->mTargetIndex]->GetPos().x - mEnemy->GetPosition().x;
+					direction.z = mEnemy->mShips[mEnemy->mTargetIndex]->GetPos().z - mEnemy->GetPosition().z;
 					direction.y = 0.0f;
+
+					mEnemy->mDirection.x = mEnemy->mShips[mEnemy->mTargetShipIndex]->GetPos().x - mEnemy->GetPosition().x;
+					mEnemy->mDirection.z = mEnemy->mShips[mEnemy->mTargetShipIndex]->GetPos().z - mEnemy->GetPosition().z;
+					mEnemy->mDirection.y = 0.0f;
+
+					//XMVECTOR position = XMLoadFloat3(&mEnemy->mPosition);
+					//XMVECTOR direction = XMLoadFloat3(&mEnemy->mDirection);
+
+					//XMVector3Normalize( direction );
+
+					//position += direction;
+
+					//XMFLOAT3 fireDirOff = XMFLOAT3(0.0f, 0.0f, 0.0f);
+					//XMStoreFloat3(&fireDirOff, position);
 
 					IEventPtr E1(new Event_Enemy_Fired_Projectile(
 						ENEMY_PROJECTILE_ID,
-						mEnemy->mPosition,
-						direction,
+						/*fireDirOff,*/ mEnemy->mPosition,
+						/*mEnemy->mDirection,*/ direction,
 						ENEMY_PROJECTILE_SPEED,
 						ENEMY_PROJECTILE_RANGE));
 					EventManager::GetInstance()->QueueEvent(E1);
+				}
+				else if( mEnemy->mEnemyType == Boomer )
+				{
 					mEnemy->mShips.at(mEnemy->mTargetShipIndex)->TakeDamage(mEnemy->mDamage);
+					mEnemy->ChangeBehavior( DEAD_BEHAVIOR );
+					return S_OK;
 				}
 				else
 				{
@@ -395,7 +467,7 @@ void AttackBehavior::OnEnter()
 			break;
 
 		case Ranged:
-			mStateTimer = 2.0f;
+			mStateTimer = 1.8f;
 			break;
 
 		case Boomer:
@@ -413,7 +485,8 @@ void AttackBehavior::OnEnter()
 
 void AttackBehavior::OnExit()
 {
-	mEnemy->mLastState	= Attack;
+	mEnemy->mLastState		= Attack;
+	mEnemy->mLastBehavior	= ATTACK_BEHAVIOR;
 }
 
 void AttackBehavior::Reset()
@@ -463,7 +536,7 @@ void TakeDamageBehavior::DamageFromPlayer( IEventPtr eventPtr )
 HRESULT TakeDamageBehavior::Update( float deltaTime )
 {
 	if( mEnemy->mIsAlive )
-		mEnemy->ChangeBehavior( HUNT_PLAYER_BEHAVIOR );
+		mEnemy->ChangeBehavior( mEnemy->mLastBehavior );
 	//else
 	//	mEnemy->ChangeBehavior( DEAD_BEHAVIOR );
 
@@ -479,7 +552,8 @@ void TakeDamageBehavior::OnEnter()
 
 void TakeDamageBehavior::OnExit()
 {
-	mEnemy->mLastState	= TakeDamage;
+	mEnemy->mLastState		= TakeDamage;
+	mEnemy->mLastBehavior	= TAKE_DAMAGE_BEHAVIOR;
 }
 
 void TakeDamageBehavior::Reset()
@@ -536,7 +610,8 @@ void StunnedBehavior::OnEnter()
 
 void StunnedBehavior::OnExit()
 {
-	mEnemy->mLastState	= Stunned;
+	mEnemy->mLastState		= Stunned;
+	mEnemy->mLastBehavior	= STUNNED_BEHAVIOR;
 }
 
 void StunnedBehavior::Reset()
@@ -590,7 +665,8 @@ void DeadBehavior::OnEnter()
 
 void DeadBehavior::OnExit()
 {
-	mEnemy->mLastState	= Death;
+	mEnemy->mLastState		= Death;
+	mEnemy->mLastBehavior	= DEAD_BEHAVIOR;
 }
 
 void DeadBehavior::Reset()

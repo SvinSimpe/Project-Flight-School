@@ -100,7 +100,7 @@
 
 // Saw
 #define SAW_AR				0.5f								// Attack Rate
-#define SAW_DAMAGE			15.0f								// Damage
+#define SAW_DAMAGE			17.0f								// Damage
 #define SAW_RADIUS			3.0f								// Radius
 #define SAW_SPREAD			4									// Spread
 #define SAW_KB				0.0f								// Knockback
@@ -114,9 +114,9 @@
 
 #define HAMMER_SLOWDOWN		0.5f	// How much is the player slowed down
 
-#define BLOWTORCH_SLOWDOWN	0.3f	// How much is the player slowed down
+#define BLOWTORCH_SLOWDOWN	0.01f	// How much is the player slowed down
 
-#define SAW_SLOWDOWN		0.5f	// How much is the player slowed down
+#define SAW_SLOWDOWN		0.1f	// How much is the player slowed down
 
 
 //////////////////////////////////

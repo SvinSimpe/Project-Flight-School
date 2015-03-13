@@ -114,10 +114,6 @@ void ServerShip::ClientUpdateShip( IEventPtr eventPtr )
 
 		if( data->ID() == mID && data->Damage() != 0.0f && !mWasUpdated )
 		{
-			if( !TakeDamage( data->Damage() ) )
-			{
-				// Handle ship dying here
-			}
 			mWasUpdated = true;
 		}
 	}

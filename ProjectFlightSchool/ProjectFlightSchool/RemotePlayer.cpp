@@ -464,7 +464,7 @@ HRESULT RemotePlayer::Update( float deltaTime )
 			mTimeTillSpawn			-= deltaTime;
 
 			// Spawn smoke and electricity after ground impact
-			if ( mTimeTillSpawn < 8.6f )
+			if ( mTimeTillSpawn < mSpawnTime - 1.4f )
 			{
 				XMFLOAT3 newPos;
 				float randY = (float)( rand() % 8 ) * 0.1f;
@@ -481,7 +481,7 @@ HRESULT RemotePlayer::Update( float deltaTime )
 			}
 
 			// Spawn fire at death
-			else if (  9.75f <= mTimeTillSpawn && mTimeTillSpawn <= 10.0f )
+			else if (  mSpawnTime - 0.45f <= mTimeTillSpawn && mTimeTillSpawn <= mSpawnTime )
 			{
 				XMFLOAT3 newPos;
 				XMFLOAT3 inverseDir;

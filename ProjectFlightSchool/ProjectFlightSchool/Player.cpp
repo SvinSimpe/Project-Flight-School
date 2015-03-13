@@ -825,15 +825,6 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		{
 			mWeaponOverheated = false;
 		}
-		//XMFLOAT3 transFloat;
-		//transFloat.x = projectileOffset->x + ( mUpperBody.direction.x * 0.4f );
-		//transFloat.y = projectileOffset->y;
-		//transFloat.z = projectileOffset->z + ( mUpperBody.direction.z * 0.4f );
-		//RenderManager::GetInstance()->RequestParticleSystem( mID, MuzzleFlash, transFloat, mUpperBody.direction, mVelocity );
-		//transFloat.x = projectileOffset->x + ( mUpperBody.direction.x * 0.7 );
-		//transFloat.z = projectileOffset->z + ( mUpperBody.direction.z * 0.7 );
-		//RenderManager::GetInstance()->RequestParticleSystem( mID, Spark, transFloat, mUpperBody.direction, mVelocity );	
-
 	}
 	else
 	{
@@ -919,7 +910,7 @@ void Player::BlowtorchMelee( float deltaTime )
 		if( mHasMeleeStarted )
 		{
 			mTimeTillattack -= deltaTime;
-			IEventPtr E1( new Event_Client_Request_ParticleSystem( mID, (int)BlowTorchFire, loadDir, mUpperBody.direction, mVelocity ) );
+			IEventPtr E1( new Event_Client_Request_ParticleSystem( mID, (int)BlowTorchFire, loadDir, mUpperBody.direction, mCurrentTravelVelocity ) );
 			QueueEvent( E1 );
 			SoundBufferHandler::GetInstance()->Play3D( mBlowTorch , GetPosition() );
 			if( mTimeTillattack <= 0.0f )
@@ -950,6 +941,7 @@ void Player::BlowtorchIdle()
 	XMFLOAT3 loadDir;
 	XMStoreFloat3( &loadDir, offset );
 
+	//IEventPtr E1( new Event_Client_Request_ParticleSystem( mID, (int)BlowTorchIdle, loadDir, mUpperBody.direction, mCurrentTravelVelocity ) );
 	IEventPtr E1( new Event_Client_Request_ParticleSystem( mID, (int)BlowTorchIdle, loadDir, mUpperBody.direction, mVelocity ) );
 	QueueEvent( E1 );
 }
@@ -972,8 +964,6 @@ void Player::ClaymoreMelee( float deltaTime )
 		if( mTimeTillattack <= 0.0f && mHasMeleeStarted )
 		{
 			mIsMeleeing			= true;
-			//RenderManager::GetInstance()->RequestParticleSystem( mID, Hammer_Effect, XMFLOAT3( mLoadOut->meleeWeapon->boundingCircle->center.x, 0.3f, mLoadOut->meleeWeapon->boundingCircle->center.z ) , XMFLOAT3( 1.0f, 0.0f, 1.0f ) );
-			mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
 			mHasMeleeStarted	= false;
 		}
 	}

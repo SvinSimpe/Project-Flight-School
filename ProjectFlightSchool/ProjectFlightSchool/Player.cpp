@@ -1433,23 +1433,6 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 HRESULT Player::Render( float deltaTime, int position )
 {
-	if( mIsBuffed && !mLock )
-	{
-		int lifeReg = (int)( mLifeRegenerationAmount * 10 );
-		int lifeTimer = (int)( mLifeRegenerationMaxTimer * 10 );
-
-		std::stringstream out;
-		out.precision( 2 );
-		out << "Regenerating " << mLifeRegenerationAmount << " health every " << mLifeRegenerationMaxTimer << " sec";
-
-		WriteInteractionText( 
-			out.str(), 
-			(float)Input::GetInstance()->mScreenWidth * 0.5f, 
-			(float)( Input::GetInstance()->mScreenHeight * 0.95f ), 
-			2.5f, 
-			COLOR_CYAN );
-	}
-
 	if( !mIsAlive )
 	{
         std::string textToWrite = std::to_string( (int)( mTimeTillSpawn + 1 ) );
@@ -1459,6 +1442,22 @@ HRESULT Player::Render( float deltaTime, int position )
 			(float)( Input::GetInstance()->mScreenHeight * 0.5f ), 
 			7.8f, 
 			COLOR_RED );
+	}
+	else
+	{
+		if( mIsBuffed && !mLock )
+		{
+			std::stringstream out;
+			out.precision( 2 );
+			out << "Regenerating " << mLifeRegenerationAmount << " health every " << mLifeRegenerationMaxTimer << " sec";
+
+			WriteInteractionText( 
+				out.str(), 
+				(float)Input::GetInstance()->mScreenWidth * 0.5f, 
+				(float)( Input::GetInstance()->mScreenHeight * 0.95f ), 
+				2.5f, 
+				COLOR_CYAN );
+		}
 	}
 
 	if( mIsOutSideZone )

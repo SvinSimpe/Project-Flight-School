@@ -519,6 +519,11 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	XMFLOAT3 testPosition	= mLowerBody.position;
 	XMFLOAT3 normal			= XMFLOAT3( 0.0f, 1.0f, 0.0f );
 
+	if( mEnergyCellID != (UINT)-1 )
+	{
+		mSlowDown = 0.5f;
+	}
+
 	mCurrentTravelVelocity.x = mVelocity.x * deltaTime * mUpgrades.runSpeedFactor * mSlowDown * mDashVelocity;
 	mCurrentTravelVelocity.z = mVelocity.z * deltaTime * mUpgrades.runSpeedFactor * mSlowDown * mDashVelocity;
 

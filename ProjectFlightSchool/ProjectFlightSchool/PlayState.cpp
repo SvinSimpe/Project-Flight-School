@@ -1417,8 +1417,8 @@ HRESULT PlayState::Initialize()
 	mExplosion			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/explosion.wav", 250 );
 	mSniper				= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/railgun.wav", 500 );
 	mLevelUp			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/level up.wav", 10 );
-	mAmbientMusic		= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/ambientInGame.wav", 300 );
-	mLobbyMusic			=  SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/ambient_menu.wav", 500 );
+	mAmbientMusic		= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/ambientInGame.wav", 300 );
+	mLobbyMusic			= SoundBufferHandler::GetInstance()->LoadBuffer( "../Content/Assets/Sound/ambient_menu.wav", 500 );
 
 
 	Pathfinder::GetInstance()->Initialize( mWorldMap );

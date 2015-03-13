@@ -110,7 +110,7 @@ HRESULT Graphics::InitializeSamplerStates()
 	samplerDesc.AddressW		= D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.ComparisonFunc	= D3D11_COMPARISON_ALWAYS;
 	samplerDesc.MaxAnisotropy	= 1;
-	samplerDesc.MaxLOD			= D3D11_FLOAT32_MAX;
+	samplerDesc.MaxLOD			= FLT_MAX;
 	samplerDesc.MinLOD			= 0.0f;
 	samplerDesc.MipLODBias		= 0.0f;
 
@@ -1187,8 +1187,6 @@ void Graphics::RenderBillboard( BillboardInfo* info, UINT sizeOfList )
 	UINT currAssetID = (UINT)-1;
 	UINT strider = 0;
 
-
-
 	while( true )
 	{
 		objectToRender = 0;
@@ -1210,6 +1208,12 @@ void Graphics::RenderBillboard( BillboardInfo* info, UINT sizeOfList )
 					mBillboardInstanced[objectToRender].position[2] = info[i].mWorldPosition.z;
 					mBillboardInstanced[objectToRender].width		= info[i].mWidth;
 					mBillboardInstanced[objectToRender].height		= info[i].mHeight;
+
+					CbufferPerObject2D cbuff;
+					cbuff.color = info[i].mColor;
+					MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT_2D], &cbuff, sizeof( CbufferPerObject2D ) );
+					mDeviceContext->PSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT_2D] );
+					
 					info[i].mAssetId = (UINT)-1;
 					objectToRender++;
 

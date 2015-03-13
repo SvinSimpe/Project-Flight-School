@@ -176,7 +176,7 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		}
 
 		//Dashing
-		if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_SPACE ) && mDashCoolDown <= 0.0f )
+		if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_SPACE ) && mDashCoolDown <= 0.0f )
 		{
 			mDashCoolDown = DASH_COOLDOWN;
 			mDashVelocity = DASH_VELOCITY;
@@ -189,7 +189,7 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 			XMStoreFloat3( &mVelocity, normalizer );
 
 			IEventPtr E1( new Event_Client_Dash( mID ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
+			QueueEvent( E1 );
 		}
 
 
@@ -248,9 +248,6 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 	//}
 
 	//== Weapon handling ==
-	mWeaponCoolDown -= deltaTime;
-	mMeleeCoolDown -= deltaTime;
-
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_LEFT ) && mWeaponCoolDown <= 0.0f )
 	{
 		mSlowDown -= mLoadOut->rangedWeapon->slowDown;
@@ -284,22 +281,6 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		Melee( deltaTime );
 	else if( mLoadOut->meleeWeapon->weaponType == BLOWTORCH  )
 		BlowtorchIdle();
-
-	//Minigun behaviour
-	if( mLoadOut->rangedWeapon->weaponType == MINIGUN )
-	{
-		if( !mWeaponOverheated )
-		{
-			if( mTimeSinceLastShot > 0.0f )
-			{
-				mTimeSinceLastShot -= deltaTime;
-			}
-			else if( mLoadOut->rangedWeapon->overheat > 0.0f )
-			{
-				mLoadOut->rangedWeapon->overheat -= MINIGUN_OVERHEAT;
-			}
-		}
-	}
 }
 
 void Player::HandleSpawn( float deltaTime )
@@ -363,7 +344,7 @@ void Player::HandleDeath( float deltaTime )
 		XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 
 		RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction );
-
+		SoundBufferHandler::GetInstance()->Play3D( mPlayerDeath , newPos );
 		XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorZero(), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 		XMStoreFloat3( &inverseDir, -XMLoadFloat3( &mUpperBody.direction ) );
 		
@@ -801,7 +782,7 @@ void Player::FireShotgun( XMFLOAT3* spawnPoint )
 
 void Player::FireMinigun( XMFLOAT3* projectileOffset )
 {
-	if( mLoadOut->rangedWeapon->overheat <= 100 )
+	if( mLoadOut->rangedWeapon->overheat < 100.0f )
 	{
 		IEventPtr E2( new Event_Client_Attack( mID, RIGHT_ARM_ID, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][ATTACK] ) );
 		QueueEvent( E2 );
@@ -819,27 +800,20 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		EventManager::GetInstance()->QueueEvent( E1 );
 
 		mLoadOut->rangedWeapon->overheat += MINIGUN_OVERHEAT;
-		mTimeSinceLastShot = MINIGUN_OVERHEAT_CD;
+		mWeaponOverheatMultiplier = 1.0f;
+		mTimeSinceLastShot = 0.5f;
 
 		if( mWeaponOverheated )
 		{
 			mWeaponOverheated = false;
 		}
-		//XMFLOAT3 transFloat;
-		//transFloat.x = projectileOffset->x + ( mUpperBody.direction.x * 0.4f );
-		//transFloat.y = projectileOffset->y;
-		//transFloat.z = projectileOffset->z + ( mUpperBody.direction.z * 0.4f );
-		//RenderManager::GetInstance()->RequestParticleSystem( mID, MuzzleFlash, transFloat, mUpperBody.direction, mVelocity );
-		//transFloat.x = projectileOffset->x + ( mUpperBody.direction.x * 0.7 );
-		//transFloat.z = projectileOffset->z + ( mUpperBody.direction.z * 0.7 );
-		//RenderManager::GetInstance()->RequestParticleSystem( mID, Spark, transFloat, mUpperBody.direction, mVelocity );	
-
 	}
 	else
 	{
 		mWeaponCoolDown						= MINIGUN_OVERHEAT_CD;
-		mLoadOut->rangedWeapon->overheat	= 0.0f;
-		mTimeSinceLastShot					= 0.0f;
+		mLoadOut->rangedWeapon->overheat	= 100.0f;
+		mWeaponOverheatMultiplier			= 3.0f;
+		mTimeSinceLastShot					= MINIGUN_OVERHEAT_CD;
 		mWeaponOverheated					= true;
 		SoundBufferHandler::GetInstance()->Play3D( mMiniGunOverheat , GetPosition() );
 
@@ -919,7 +893,7 @@ void Player::BlowtorchMelee( float deltaTime )
 		if( mHasMeleeStarted )
 		{
 			mTimeTillattack -= deltaTime;
-			IEventPtr E1( new Event_Client_Request_ParticleSystem( mID, (int)BlowTorchFire, loadDir, mUpperBody.direction, mVelocity ) );
+			IEventPtr E1( new Event_Client_Request_ParticleSystem( mID, (int)BlowTorchFire, loadDir, mUpperBody.direction, mCurrentTravelVelocity ) );
 			QueueEvent( E1 );
 			SoundBufferHandler::GetInstance()->Play3D( mBlowTorch , GetPosition() );
 			if( mTimeTillattack <= 0.0f )
@@ -950,6 +924,7 @@ void Player::BlowtorchIdle()
 	XMFLOAT3 loadDir;
 	XMStoreFloat3( &loadDir, offset );
 
+	//IEventPtr E1( new Event_Client_Request_ParticleSystem( mID, (int)BlowTorchIdle, loadDir, mUpperBody.direction, mCurrentTravelVelocity ) );
 	IEventPtr E1( new Event_Client_Request_ParticleSystem( mID, (int)BlowTorchIdle, loadDir, mUpperBody.direction, mVelocity ) );
 	QueueEvent( E1 );
 }
@@ -972,8 +947,6 @@ void Player::ClaymoreMelee( float deltaTime )
 		if( mTimeTillattack <= 0.0f && mHasMeleeStarted )
 		{
 			mIsMeleeing			= true;
-			//RenderManager::GetInstance()->RequestParticleSystem( mID, Hammer_Effect, XMFLOAT3( mLoadOut->meleeWeapon->boundingCircle->center.x, 0.3f, mLoadOut->meleeWeapon->boundingCircle->center.z ) , XMFLOAT3( 1.0f, 0.0f, 1.0f ) );
-			mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
 			mHasMeleeStarted	= false;
 		}
 	}
@@ -1228,6 +1201,37 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 		Move( deltaTime );
 	}
 
+	//== Weapon handling ==
+	mWeaponCoolDown -= deltaTime;
+	mMeleeCoolDown -= deltaTime;
+
+	//Minigun behaviour
+	if( mLoadOut->rangedWeapon->weaponType == MINIGUN )
+	{
+		if( !mWeaponOverheated )
+		{
+			if( mTimeSinceLastShot > 0.0f )
+			{
+				mTimeSinceLastShot -= deltaTime;
+			}
+			else if( mLoadOut->rangedWeapon->overheat > 0.0f )
+			{
+				mLoadOut->rangedWeapon->overheat -= 0.75f;
+
+				if ( mLoadOut->rangedWeapon->overheat < 0.0f )
+					mLoadOut->rangedWeapon->overheat = 0.0f;
+			}
+		}
+		else if( mWeaponOverheated && mTimeSinceLastShot > 0.0f )
+		{
+			mTimeSinceLastShot -= deltaTime;
+			mLoadOut->rangedWeapon->overheat -= 0.25f;
+
+			if (mTimeSinceLastShot <= 0.0f)
+				mWeaponOverheated = false;
+		}
+	}
+
 	// Mele attack
 	//mLoadOut->meleeWeapon->boundingCircle->center = GetPosition() + ( GetDirection() * mLoadOut->meleeWeapon->radius );
 
@@ -1329,7 +1333,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 				XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 
 				RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction, mVelocity );
-
+				SoundBufferHandler::GetInstance()->Play3D( mPlayerDeath , newPos );
 				// Spawn spark on lowerBody
 				if ( mCurrentHp <= 10 )
 				{
@@ -1516,6 +1520,8 @@ HRESULT Player::Render( float deltaTime, int position )
 			COLOR_CYAN );
 	}
 
+	RenderPowerBars();
+
 	RemotePlayer::Render();
 	//---------------------------DEBUG RENDERING----------------------------
 	//MeleeInfo* currWeapon = mLoadOut->meleeWeapon;
@@ -1548,18 +1554,90 @@ HRESULT Player::Render( float deltaTime, int position )
 	return S_OK;
 }
 
+void Player::RenderPowerBars()
+{
+	//======== STAMINA BAR ==========
+	if ( mDashCoolDown != 0.0f && mDashCoolDown > 0.0f )
+	{
+		mStaminaBar.mPosition	= XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + 3.95f, mLowerBody.position.z );
+		mStaminaBar.mWidth		= 0.72f * ( mDashCoolDown / DASH_COOLDOWN );
+		mStaminaBar.mHeight		= 0.095f;
+
+		mBarFrame.mPosition		= XMFLOAT3( mStaminaBar.mPosition.x, mStaminaBar.mPosition.y + 0.01f, mStaminaBar.mPosition.z - 0.01f );
+		mBarFrame.mWidth		= 0.72f + 0.02f;
+		mBarFrame.mHeight		= mStaminaBar.mHeight + 0.02f;
+		
+		RenderManager::GetInstance()->AddBillboardToList( mStaminaBar.mAssetID, mStaminaBar.mPosition, mStaminaBar.mWidth, mStaminaBar.mHeight );
+		RenderManager::GetInstance()->AddBillboardToList( mBarFrame.mAssetID, mBarFrame.mPosition, mBarFrame.mWidth, mBarFrame.mHeight );
+	}
+
+
+	//======== OVERHEAT/TIMETILATTACK BAR ==========
+	if( mLoadOut->rangedWeapon->weaponType == MINIGUN )
+	{
+		if( mLoadOut->rangedWeapon->overheat != 0 || mWeaponOverheated )
+		{
+			mOverHeatBar.mPosition	= XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + 4.5f, mLowerBody.position.z );
+			mOverHeatBar.mWidth		= 0.7f * ( mLoadOut->rangedWeapon->overheat / MAX_OVERHEAT_VALUE );
+			mOverHeatBar.mHeight		= 0.075f;
+
+			mBarFrame.mPosition		= XMFLOAT3( mOverHeatBar.mPosition.x, mOverHeatBar.mPosition.y + 0.01f, mOverHeatBar.mPosition.z - 0.01f );
+			mBarFrame.mWidth		= 0.7f + 0.02f;
+			mBarFrame.mHeight		= mOverHeatBar.mHeight + 0.02f;
+		
+			if( !mWeaponOverheated )
+				mOverHeatBar.mColor		= XMFLOAT4( 1.0f, 1.0f - mOverHeatBar.mWidth, 1.0f, 1.0f );
+			else
+				mOverHeatBar.mColor		= XMFLOAT4( 1.0f, 0.0f, 1.0f, 1.0f );
+
+			RenderManager::GetInstance()->AddBillboardToList( mOverHeatBar.mAssetID, mOverHeatBar.mPosition, mOverHeatBar.mWidth, mOverHeatBar.mHeight, mOverHeatBar.mColor );
+			RenderManager::GetInstance()->AddBillboardToList( mBarFrame.mAssetID, mBarFrame.mPosition, mBarFrame.mWidth, mBarFrame.mHeight );
+		}
+	}
+
+	else
+	{
+		if ( mWeaponCoolDown != 0.0f && mWeaponCoolDown > 0.0f )
+		{
+			mOverHeatBar.mPosition	= XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + 4.5f, mLowerBody.position.z );
+			mOverHeatBar.mWidth		= 0.7f * ( mWeaponCoolDown / mLoadOut->rangedWeapon->attackRate );
+			mOverHeatBar.mHeight	= 0.075f;
+
+			mBarFrame.mPosition		= XMFLOAT3( mOverHeatBar.mPosition.x, mOverHeatBar.mPosition.y + 0.01f, mOverHeatBar.mPosition.z - 0.01f );
+			mBarFrame.mWidth		= 0.7f + 0.02f;
+			mBarFrame.mHeight		= mOverHeatBar.mHeight + 0.02f;
+		
+			if( !mWeaponOverheated )
+				mOverHeatBar.mColor		= XMFLOAT4( 1.0f, 1.0f - mOverHeatBar.mWidth, 1.0f, 1.0f );
+			else
+				mOverHeatBar.mColor		= XMFLOAT4( 1.0f, 0.0f, 1.0f, 1.0f );
+
+			RenderManager::GetInstance()->AddBillboardToList( mOverHeatBar.mAssetID, mOverHeatBar.mPosition, mOverHeatBar.mWidth, mOverHeatBar.mHeight, mOverHeatBar.mColor );
+			RenderManager::GetInstance()->AddBillboardToList( mBarFrame.mAssetID, mBarFrame.mPosition, mBarFrame.mWidth, mBarFrame.mHeight );			
+		}
+	}
+
+
+
+	//RenderManager::GetInstance()->AddBillboardToList( mStaminaBar.mAssetID, mStaminaBar.mPosition, mStaminaBar.mWidth, mStaminaBar.mHeight  );
+	//RenderManager::GetInstance()->AddBillboardToList( mBarFrame.mAssetID, mBarFrame.mPosition, mBarFrame.mWidth, mBarFrame.mHeight  );
+
+
+}
+
 HRESULT Player::Initialize()
 {
-	mPointLight			= nullptr;
+	mPointLight					= nullptr;
 
-	mWeaponOverheated	= false;
-	mTimeSinceLastShot	= 0.0f;
-	mWeaponCoolDown		= 0.0f;
-	mMeleeCoolDown		= 0.0f;
-	mTimeTillattack		= 0.0f;
-	mIsMeleeing			= false;
-	mLock				= false;
-	mCloseToPlayer		= false;
+	mWeaponOverheated			= false;
+	mWeaponOverheatMultiplier	= 0.0f;
+	mTimeSinceLastShot			= 0.0f;
+	mWeaponCoolDown				= 0.0f;
+	mMeleeCoolDown				= 0.0f;
+	mTimeTillattack				= 0.0f;
+	mIsMeleeing					= false;
+	mLock						= false;
+	mCloseToPlayer				= false;
 
 	mMaxVelocity		= 0.0f;
 	mCurrentVelocity	= 0.0f;
@@ -1616,8 +1694,6 @@ HRESULT Player::Initialize()
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 
-
-
 	mNextLevelXP		= 20.0f;
 	mCurrentUpgrades	= 0;
 
@@ -1629,7 +1705,7 @@ HRESULT Player::Initialize()
 	mSword				= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/sword.wav", 10 );
 	mGrenadeLauncher	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/grenadeLauncher.wav", 10 );
 	mBlowTorch			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/tempBlowT.wav", 1000 );
-	mPlayerDeath		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/sparksPlayerDeath.wav", 10, 15 );
+	mPlayerDeath		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/sparksPlayerDeath.wav", 10, 60 );
 
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Died::GUID );
 	EventManager::GetInstance()->AddListener( &Player::EventListener, this, Event_Remote_Attempt_Revive::GUID );
@@ -1648,6 +1724,24 @@ HRESULT Player::Initialize()
 	mPickUpCooldown = 0.0f;
 
 	currentPath1 = new Path();
+
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/barFrame.dds", mBarFrame.mAssetID );
+	mBarFrame.mPosition = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mBarFrame.mWidth	= 0.0f;
+	mBarFrame.mHeight	= 0.0f;
+	mBarFrame.mColor	= XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f );
+
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/overheatBar.dds", mOverHeatBar.mAssetID );
+	mOverHeatBar.mPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mOverHeatBar.mWidth		= 0.0f;
+	mOverHeatBar.mHeight		= 0.0f;
+	mOverHeatBar.mColor		= XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f );
+
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/staminaBar.dds", mStaminaBar.mAssetID );
+	mStaminaBar.mPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mStaminaBar.mWidth		= 0.0f;
+	mStaminaBar.mHeight		= 0.0f;
+	mBarFrame.mColor		= XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f );
 
 	mCameraPosition = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mPlayerToCursor = XMFLOAT3( 0.0f, 0.0f, 0.0f );
@@ -1670,14 +1764,15 @@ Player::Player()
 {
 	mPointLight			= nullptr;
 
-	mWeaponOverheated	= false;
-	mTimeSinceLastShot	= 0.0f;
-	mWeaponCoolDown		= 0.0f;
-	mMeleeCoolDown		= 0.0f;
-	mTimeTillattack		= 0.0f;
-	mIsMeleeing			= false;
-	mLock				= false;
-	mCloseToPlayer		= false;
+	mWeaponOverheated			= false;
+	mWeaponOverheatMultiplier	= 0.0f;
+	mTimeSinceLastShot			= 0.0f;
+	mWeaponCoolDown				= 0.0f;
+	mMeleeCoolDown				= 0.0f;
+	mTimeTillattack				= 0.0f;
+	mIsMeleeing					= false;
+	mLock						= false;
+	mCloseToPlayer				= false;
 
 	mMaxVelocity		= 0.0f;
 	mCurrentVelocity	= 0.0f;

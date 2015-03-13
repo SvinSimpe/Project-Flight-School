@@ -91,6 +91,17 @@ struct BoundingCircle
 	{
 		return ( pow( center.x - inCircle->center.x, 2 ) + pow( center.z - inCircle->center.z, 2 ) ) < pow( radius + inCircle->radius, 2 );
 	}
+
+	bool Intersect( BoundingCircle* inCircle, XMFLOAT3 &normal )
+	{
+		if( ( pow( center.x - inCircle->center.x, 2 ) + pow( center.z - inCircle->center.z, 2 ) ) < pow( radius + inCircle->radius, 2 ) )
+		{
+			XMVECTOR norm = XMVector3Normalize( XMLoadFloat3( &inCircle->center ) - XMLoadFloat3( &center ) );
+			XMStoreFloat3( &normal, norm );
+			return true;
+		}
+		return false;
+	}
 };
 #endif
 

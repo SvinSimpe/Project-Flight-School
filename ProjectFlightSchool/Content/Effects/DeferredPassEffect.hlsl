@@ -54,8 +54,10 @@ cbuffer CbufferPerFrame	: register( b0 )
 	float4x4	viewMatrix;
 	float4x4	projectionMatrix;
 	float4		cameraPosition;
+	float4		chipsPosAndRad[2]; // With original flavor
 	int			numPointLights;
 	float		timeVariable;
+
 }
 
 cbuffer CbufferPerFrameShadow : register( b1 )
@@ -295,27 +297,63 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 	//-------------------------------------------------------------------------------------------------
 
 	//float3 originToPos	= worldSample - float3( 0.0f, 0.0f, 0.0f );
+
 	float rangeCheck	= dot( worldSample, worldSample );
 
-	if( rangeCheck > ROBOT_MAX_RANGE )
+	if( rangeCheck >= ROBOT_MAX_RANGE )
 	{
-		float rangeInterpol = 0.2f;;
+		float rangeInterpol = 0.2f;
 		float3 gridCheck = fmod( worldSample + float3( 1000.0f, 0.0f, 1000.0f ), 0.5f);
 
-		if( rangeCheck < ROBOT_MAX_RANGE + 80.0f )
+		if( rangeCheck <= ROBOT_MAX_RANGE + 80.0f )
 			rangeInterpol = 0.6f;
 		else if( gridCheck.x * 0.5f + gridCheck.z * 0.5f > 0.17f && gridCheck.x * 0.5f + gridCheck.z * 0.5f < 0.28f )
 			rangeInterpol = 0.5f;
 
 		rangeInterpol *=  0.75f + sin( timeVariable * 2.0f ) * 0.25f;
 
-		finalColor = ( 1.0f - rangeInterpol ) * finalColor + rangeInterpol * float4( 1.0f, 0.15f, 0.05f, 1.0f );
+		finalColor = ( 1.0f - rangeInterpol ) * finalColor + rangeInterpol * float3( 1.0f, 0.15f, 0.05f );
 	}
+
+	//-------------------------------------------------------------------------------------------------
+	//	2nd COOL EFFECT SPONSORED BY JOHANNES ANDERSSON. ALSO KNOWN AS SHIP BUFF RANGE
+	//-------------------------------------------------------------------------------------------------
+
+	if ( worldSample.y >= 0.0f && worldSample.y <= 0.15f )
+	{
+		for (int i = 0; i < 2; i++)
+		{
+			float3 posToShip	= worldSample - chipsPosAndRad[i].xyz;
+			//float3 posToShip	=  worldSample;
+			//float rangeCheck	= dot( posToShip, posToShip );
+			float rangeCheck	= length( posToShip );
+		
+			if ( rangeCheck < chipsPosAndRad[i].w )
+			{
+				float rangeInterpol		= 0.085f * ( rangeCheck / chipsPosAndRad[i].w );
+				float4 colorInterpol	= float4( 0.15f, 1.0f, 0.05f, 1.0f ); 
+			
+				if( rangeCheck >= chipsPosAndRad[i].w - 0.3f )
+					rangeInterpol = 0.4f;
+
+				//Enemy ship color
+				if( i == 1 )
+					colorInterpol = float4( 1.0f, 0.05f, 0.15f, 1.0f );
+
+				rangeInterpol *=  0.75f + sin( timeVariable * 2.0f ) * 0.25f;
+			
+				finalColor = ( 1.0f - rangeInterpol ) * finalColor + rangeInterpol * colorInterpol;
+			}
+		}
+	}
+
+
 
 	//return float4( albedoSample, 1.0f );
 	//return float4( specularSample, specularSample, specularSample, 1.0f );
 	//return float4( normalSample, 1.0f );
 	//return float4( ssao, ssao, ssao, 1.0f );
+	//return float4( chipsPosAndRad[0].xyz - worldSample, 1.0f );
 
 	return float4( finalColor * ( shadowFactor * 0.4f + 0.6f ), 1.0f );
 }

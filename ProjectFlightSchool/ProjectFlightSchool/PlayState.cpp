@@ -602,6 +602,7 @@ void PlayState::CheckProjectileCollision()
 
 						RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 						RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+						//RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), BoomerExplosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 						SoundBufferHandler::GetInstance()->Play3D( mExplosion , mPlayer->GetPosition() );
 
 						IEventPtr E1( new Event_Client_Removed_Projectile( mProjectiles[i]->GetID() ) );
@@ -811,6 +812,7 @@ void PlayState::HandleRemoteProjectileRemoved( UINT projectileID )
 			{
 				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+				//RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), BoomerExplosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 				SoundBufferHandler::GetInstance()->Play3D( mExplosion , mPlayer->GetPosition() );
 			}
 			else

@@ -79,32 +79,34 @@ void ParticleManager::Initialize()
 	
 	// For every new ParticleType initiate values below
 
-	mNrOfParticleSystemsPerType[SpitterTrail]	= 0;
-	mNrOfParticleSystemsPerType[GranateTrail]	= 0;
-	mNrOfParticleSystemsPerType[SniperTrail]	= 0;
-	mNrOfParticleSystemsPerType[Shell]			= 0;
-	mNrOfParticleSystemsPerType[Debris]			= 0;
-	mNrOfParticleSystemsPerType[FIRE]			= 0;
-	mNrOfParticleSystemsPerType[Spark]			= 0;
-	mNrOfParticleSystemsPerType[Spark_Robot]	= 0;
-	mNrOfParticleSystemsPerType[Spark_Electric]	= 0;
-	mNrOfParticleSystemsPerType[Blood]			= 0;
-	mNrOfParticleSystemsPerType[MuzzleFlash]	= 0;
-	mNrOfParticleSystemsPerType[Smoke_MiniGun]	= 0;
-	mNrOfParticleSystemsPerType[Level_Up]		= 0;
-	mNrOfParticleSystemsPerType[Level_Inner]	= 0;
-	mNrOfParticleSystemsPerType[Spores]			= 0;
-	mNrOfParticleSystemsPerType[Explosion]		= 0;
-	mNrOfParticleSystemsPerType[ExplosionSmoke]	= 0;
-	mNrOfParticleSystemsPerType[FireSmoke]		= 0;
-	mNrOfParticleSystemsPerType[BlowTorchFire]	= 0;
-	mNrOfParticleSystemsPerType[BlowTorchIdle]	= 0;
-	mNrOfParticleSystemsPerType[Fire_Flies]		= 0;
-	mNrOfParticleSystemsPerType[NormalSmoke]	= 0;
-	mNrOfParticleSystemsPerType[Hammer_Effect]	= 0;
+	mNrOfParticleSystemsPerType[BoomerExplosion]	= 0;
+	mNrOfParticleSystemsPerType[SpitterTrail]		= 0;
+	mNrOfParticleSystemsPerType[GranateTrail]		= 0;
+	mNrOfParticleSystemsPerType[SniperTrail]		= 0;
+	mNrOfParticleSystemsPerType[Shell]				= 0;
+	mNrOfParticleSystemsPerType[Debris]				= 0;
+	mNrOfParticleSystemsPerType[FIRE]				= 0;
+	mNrOfParticleSystemsPerType[Spark]				= 0;
+	mNrOfParticleSystemsPerType[Spark_Robot]		= 0;
+	mNrOfParticleSystemsPerType[Spark_Electric]		= 0;
+	mNrOfParticleSystemsPerType[Blood]				= 0;
+	mNrOfParticleSystemsPerType[MuzzleFlash]		= 0;
+	mNrOfParticleSystemsPerType[Smoke_MiniGun]		= 0;
+	mNrOfParticleSystemsPerType[Level_Up]			= 0;
+	mNrOfParticleSystemsPerType[Level_Inner]		= 0;
+	mNrOfParticleSystemsPerType[Spores]				= 0;
+	mNrOfParticleSystemsPerType[Explosion]			= 0;
+	mNrOfParticleSystemsPerType[ExplosionSmoke]		= 0;
+	mNrOfParticleSystemsPerType[FireSmoke]			= 0;
+	mNrOfParticleSystemsPerType[BlowTorchFire]		= 0;
+	mNrOfParticleSystemsPerType[BlowTorchIdle]		= 0;
+	mNrOfParticleSystemsPerType[Fire_Flies]			= 0;
+	mNrOfParticleSystemsPerType[NormalSmoke]		= 0;
+	mNrOfParticleSystemsPerType[Hammer_Effect]		= 0;
 
+	mMaxNrOfParticleSystemsPerType[BoomerExplosion]	= 6;
 	mMaxNrOfParticleSystemsPerType[SpitterTrail]	= 76;
-	mMaxNrOfParticleSystemsPerType[GranateTrail]	= 6;
+	mMaxNrOfParticleSystemsPerType[GranateTrail]	= 8;
 	mMaxNrOfParticleSystemsPerType[SniperTrail]		= 15;
 	mMaxNrOfParticleSystemsPerType[Shell]			= 6;
 	mMaxNrOfParticleSystemsPerType[Debris]			= 10;
@@ -127,6 +129,7 @@ void ParticleManager::Initialize()
 	mMaxNrOfParticleSystemsPerType[NormalSmoke]		= 8;
 	mMaxNrOfParticleSystemsPerType[Hammer_Effect]	= 8;
 
+	mNrOfActiveParticleSystemsPerType[BoomerExplosion]	= 0;
 	mNrOfActiveParticleSystemsPerType[SpitterTrail]		= 0;
 	mNrOfActiveParticleSystemsPerType[GranateTrail]		= 0;
 	mNrOfActiveParticleSystemsPerType[SniperTrail]		= 0;
@@ -171,16 +174,23 @@ void ParticleManager::Initialize()
 	//		mNrOfParticleSystems++;
 	//	}
 
+	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[BoomerExplosion]; i++ )
+	{
+		mParticleSystems[BoomerExplosion][i]->Initialize( BoomerExplosion, 20.0f, 100 );
+		mNrOfParticleSystemsPerType[BoomerExplosion]++;
+		mNrOfParticleSystems++;
+	}
+
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[SpitterTrail]; i++ )
 	{
-		mParticleSystems[SpitterTrail][i]->Initialize( SpitterTrail, 6.0f, 800 );
+		mParticleSystems[SpitterTrail][i]->Initialize( SpitterTrail, 6.0f, 100 );
 		mNrOfParticleSystemsPerType[SpitterTrail]++;
 		mNrOfParticleSystems++;
 	}
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[GranateTrail]; i++ )
 	{
-		mParticleSystems[GranateTrail][i]->Initialize( GranateTrail, 6.0f, 1000 );
+		mParticleSystems[GranateTrail][i]->Initialize( GranateTrail, 6.0f, 100 );
 		mNrOfParticleSystemsPerType[GranateTrail]++;
 		mNrOfParticleSystems++;
 	}

@@ -107,12 +107,13 @@ void RenderManager::AddPlaneToList( AssetID assetId, DirectX::XMFLOAT3 topTriang
 	mNrOfPlane++;
 }
 
-void RenderManager::AddBillboardToList( AssetID assetId, DirectX::XMFLOAT3 worldPosition, float width, float height )
+void RenderManager::AddBillboardToList( AssetID assetId, DirectX::XMFLOAT3 worldPosition, float width, float height, DirectX::XMFLOAT4 color )
 {
 	mBillboardArray[mNrOfBillboard].mAssetId		= assetId;
 	mBillboardArray[mNrOfBillboard].mWorldPosition	= worldPosition;
 	mBillboardArray[mNrOfBillboard].mWidth			= width;
 	mBillboardArray[mNrOfBillboard].mHeight			= height;
+	mBillboardArray[mNrOfBillboard].mColor			= color;
 
 	mNrOfBillboard++;
 }

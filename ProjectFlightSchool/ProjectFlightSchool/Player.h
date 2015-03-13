@@ -18,11 +18,19 @@
 #define LEAVING_AREA_TIME	10.0f
 #define WATER_DAMAGE_TIME	0.1f
 #define WATER_DAMAGE		1.0f
+#define MAX_OVERHEAT_VALUE	100.0f
 
 class Map;
 class Path;
 
-
+struct PowerBar
+{
+	AssetID		mAssetID;
+	XMFLOAT3	mPosition;
+	float		mWidth;
+	float		mHeight;
+	XMFLOAT4	mColor;
+};
 
 class Player: public RemotePlayer
 {
@@ -30,6 +38,7 @@ class Player: public RemotePlayer
 		PointLight*		mPointLight;
 
 		bool		mWeaponOverheated;
+		float		mWeaponOverheatMultiplier;
 		float		mTimeSinceLastShot;
 		float		mWeaponCoolDown;
 		float		mMeleeCoolDown;
@@ -77,6 +86,10 @@ class Player: public RemotePlayer
 
 		float		mDashCoolDown;
 
+		PowerBar	mBarFrame;
+		PowerBar	mStaminaBar;
+		PowerBar	mOverHeatBar;
+
 	protected:
 	public:
 		std::list<IEventPtr> gEventList;
@@ -116,6 +129,8 @@ class Player: public RemotePlayer
 		void		UpgradeMelee();
 		void		UpgradeRange();
 		void		WriteInteractionText( std::string text, float xPos, float yPos, float scale, XMFLOAT4 color );
+
+		void		RenderPowerBars();
 
 	protected:
 	public:

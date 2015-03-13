@@ -17,6 +17,7 @@ enum WeaponType
 	SHOTGUN,
 	SNIPER,
 	TURRET,
+	SPITTER,
 	WEAPON_COUNT,
 };
 

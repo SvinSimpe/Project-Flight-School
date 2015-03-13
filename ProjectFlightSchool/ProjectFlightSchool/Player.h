@@ -10,6 +10,7 @@
 #include "Pathfinder.h"
 #include "RenderManager.h"
 #include "SoundBufferHandler.h"
+#include "ClientShip.h"
 
 #define MAX_PLAYER_LEVEL 16
 #define VELOCITY_FALLOFF 2.0f
@@ -131,7 +132,7 @@ class Player: public RemotePlayer
 		void		PickUpEnergyCell( EnergyCell** energyCell );
 		void		DropEnergyCell( EnergyCell** energyCells );
 		void		GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, DirectX::XMFLOAT3 shipPos );
-		HRESULT		UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells );
+		HRESULT		UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells, ClientShip** clientShips  );
 		void		TakeDamage( float damage, unsigned int shooter );
 		void		HandleRevive( float deltaTime );
 		void		Lock();

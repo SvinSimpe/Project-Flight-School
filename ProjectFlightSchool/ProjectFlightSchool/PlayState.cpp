@@ -1035,6 +1035,7 @@ HRESULT PlayState::Update( float deltaTime )
 				mPlayer->UnLock();
 			}
 		}
+		UpdateProjectiles( deltaTime );
 
 		for( int i = 0; i < SHIP_AMOUNT; i++ )
 		{
@@ -1082,7 +1083,6 @@ HRESULT PlayState::Update( float deltaTime )
 		}
 
 		CheckProjectileCollision();
-		UpdateProjectiles( deltaTime );
 
 		//GUI UPDATE ANYTHING RELATED TO IT NEEDS TO PUT ABOVE THIS COMMENT
 		////////////////////////////////////////////////////////////////////////////////////////////
@@ -1175,9 +1175,9 @@ HRESULT PlayState::Render( float deltaTime )
 	{
 		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 		{
+			RenderManager::GetInstance()->AddCircleToList( mEnemies[i]->GetBoundingCircle()->center, XMFLOAT3( 1,0,0), mEnemies[i]->GetBoundingCircle()->radius );
 			if( mEnemies[i]->IsSynced() && CullEntity( mEnemies[i]->GetPosition() ) )
 			{
-				//RenderManager::GetInstance()->AddCircleToList( mEnemies[i]->GetBoundingCircle()->center, XMFLOAT3( 1,0,0), mEnemies[i]->GetBoundingCircle()->radius );
 				mEnemies[i]->Render();
 			}
 		}

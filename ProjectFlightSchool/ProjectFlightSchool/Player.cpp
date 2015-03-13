@@ -519,6 +519,11 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	XMFLOAT3 testPosition	= mLowerBody.position;
 	XMFLOAT3 normal			= XMFLOAT3( 0.0f, 1.0f, 0.0f );
 
+	if( mEnergyCellID != (UINT)-1 )
+	{
+		mSlowDown = 0.5f;
+	}
+
 	mCurrentTravelVelocity.x = mVelocity.x * deltaTime * mUpgrades.runSpeedFactor * mSlowDown * mDashVelocity;
 	mCurrentTravelVelocity.z = mVelocity.z * deltaTime * mUpgrades.runSpeedFactor * mSlowDown * mDashVelocity;
 
@@ -1124,7 +1129,8 @@ void Player::Reset()
 
 	mIsBuffed					= false;
 	mLifeRegenerationAmount		= 1.0f; 
-	mLifeRegenerationTimer		= 1.4f;
+	mLifeRegenerationMaxTimer	= 1.4f;
+	mLifeRegenerationTimer		= mLifeRegenerationMaxTimer;
 
 	mTimeTillSpawn				= mSpawnTime;
 	mTimeTillDeath				= mDeathTime;
@@ -1421,11 +1427,11 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 			if( mCurrentHp > mMaxHp )
 				mCurrentHp = mMaxHp;
 
-			mLifeRegenerationTimer	= 1.4f - ( (float)( mBufflevel - 1 ) * 0.6f );
+			mLifeRegenerationTimer	= mLifeRegenerationMaxTimer;
 		}
 	}
 	else
-		mLifeRegenerationTimer =  1.4f - ( (float)( mBufflevel - 1 ) * 0.6f );
+		mLifeRegenerationTimer = mLifeRegenerationMaxTimer;
 
 	return S_OK;
 }
@@ -1441,6 +1447,22 @@ HRESULT Player::Render( float deltaTime, int position )
 			(float)( Input::GetInstance()->mScreenHeight * 0.5f ), 
 			7.8f, 
 			COLOR_RED );
+	}
+	else
+	{
+		if( mIsBuffed && !mLock )
+		{
+			std::stringstream out;
+			out.precision( 2 );
+			out << "Regenerating " << mLifeRegenerationAmount << " health every " << mLifeRegenerationMaxTimer << " sec";
+
+			WriteInteractionText( 
+				out.str(), 
+				(float)Input::GetInstance()->mScreenWidth * 0.5f, 
+				(float)( Input::GetInstance()->mScreenHeight * 0.95f ), 
+				2.5f, 
+				COLOR_CYAN );
+		}
 	}
 
 	if( mIsOutSideZone )

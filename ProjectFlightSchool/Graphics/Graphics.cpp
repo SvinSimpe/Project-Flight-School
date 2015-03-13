@@ -462,6 +462,16 @@ HRESULT Graphics::InitializeEffects()
 	//=======================================
 
 	//Sniper trail effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/BoomerExplosionEffect.hlsl";
+	effectInfo.fileName					= "BoomerExplosionEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_BOOMER_EXPLOSION]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
+
+	//Sniper trail effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/SpitterTrailEffect.hlsl";
 	effectInfo.fileName					= "SpitterTrailEffect";
 	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;

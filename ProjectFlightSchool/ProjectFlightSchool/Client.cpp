@@ -59,7 +59,7 @@ bool Client::Connect( std::string ip, UINT port )
 	}
 
 	mNEF = new NetworkEventForwarder();
-	mNEF->Initialize( 0, mSocketManager ); // Always sends to socket 0, the server's socketID
+	mNEF->Initialize( 100, mSocketManager ); // Always sends to socket 0, the server's socketID
 	return true;
 }
 

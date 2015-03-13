@@ -68,7 +68,7 @@
 // Claymore
 #define CLAYMORE_AR			2.8f								// Attack Rate
 #define CLAYMORE_DAMAGE		20.0f								// Damage
-#define CLAYMORE_RADIUS		2.5f								// Radius
+#define CLAYMORE_RADIUS		2.8f								// Radius
 #define CLAYMORE_SPREAD		8									// Spread
 #define CLAYMORE_KB			1.0f								// Knockback
 #define CLAYMORE_TTA		0.75f / CLAYMORE_SPEED_INCREASE		// Time till Attack

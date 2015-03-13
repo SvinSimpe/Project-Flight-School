@@ -641,7 +641,7 @@ struct MeleeInfo
 					{
 						attackRate				= 3.8f;
 						damage					= 30.0f;
-						radius					= 3.0f;
+						radius					= 2.3f;
 						spread					= 7;
 						knockBack				= 3.2f;
 						boundingCircle->radius	= radius;
@@ -653,7 +653,7 @@ struct MeleeInfo
 					{
 						attackRate				= 3.7f;
 						damage					= 35.0f;
-						radius					= 3.5f;
+						radius					= 2.7f;
 						spread					= 7;
 						knockBack				= 3.5f;
 						boundingCircle->radius	= radius;
@@ -665,7 +665,7 @@ struct MeleeInfo
 					{
 						attackRate				= 3.6f;
 						damage					= 40.0;
-						radius					= 4.0;
+						radius					= 3.0;
 						spread					= 7;
 						knockBack				= 3.8f;
 						boundingCircle->radius	= radius;

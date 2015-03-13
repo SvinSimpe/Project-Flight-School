@@ -642,9 +642,7 @@ void PlayState::CheckMeeleCollision()
 
 
 				XMFLOAT3 tempDir;
-				XMStoreFloat3( &tempDir, XMVector3Normalize( XMLoadFloat3( &mRemotePlayers[i]->GetPosition() ) - XMLoadFloat3( &mPlayer->GetPosition() ) ) );
-
-				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Spark, mRemotePlayers[i]->GetPosition(), tempDir );
+				XMStoreFloat3( &tempDir, XMVector3Normalize( XMLoadFloat3( &mPlayer->GetPosition() ) - XMLoadFloat3( &mRemotePlayers[i]->GetPosition() ) ) );
 			}
 		}
 	}

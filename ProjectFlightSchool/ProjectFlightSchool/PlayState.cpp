@@ -187,7 +187,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		// Fire projectile
 		std::shared_ptr<Event_Server_Enemy_Fired_Projectile> data = std::static_pointer_cast<Event_Server_Enemy_Fired_Projectile>(newEvent);
-		FireProjectile(data->EnemyID(), data->ProjectileID(), 0, data->Position(), data->Direction(), data->Speed(), data->Range(), ENEMY_PROJECTILE_DAMAGE, TURRET); // Don't know where to get damage from yet
+		FireProjectile(data->EnemyID(), data->ProjectileID(), 0, data->Position(), data->Direction(), data->Speed(), data->Range(), ENEMY_PROJECTILE_DAMAGE, SPITTER); // Don't know where to get damage from yet
 	}
 	else if( newEvent->GetEventType() == Event_Server_Sync_Energy_Cell::GUID )
 	{
@@ -996,8 +996,7 @@ HRESULT PlayState::Update( float deltaTime )
 				mShips[FRIEND_SHIP]->AddEnergyCell();
 			}
 		}
-		mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers, mEnergyCells );
-
+		mPlayer->UpdateSpecific( deltaTime, mWorldMap, mRemotePlayers, mEnergyCells, mShips );
 
 		// Enemies
 		if( mEnemyListSynced )
@@ -1035,6 +1034,7 @@ HRESULT PlayState::Update( float deltaTime )
 				mPlayer->UnLock();
 			}
 		}
+		UpdateProjectiles( deltaTime );
 
 		for( int i = 0; i < SHIP_AMOUNT; i++ )
 		{
@@ -1082,7 +1082,6 @@ HRESULT PlayState::Update( float deltaTime )
 		}
 
 		CheckProjectileCollision();
-		UpdateProjectiles( deltaTime );
 
 		//GUI UPDATE ANYTHING RELATED TO IT NEEDS TO PUT ABOVE THIS COMMENT
 		////////////////////////////////////////////////////////////////////////////////////////////
@@ -1175,9 +1174,9 @@ HRESULT PlayState::Render( float deltaTime )
 	{
 		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 		{
+			//RenderManager::GetInstance()->AddCircleToList( mEnemies[i]->GetBoundingCircle()->center, XMFLOAT3( 1,0,0), mEnemies[i]->GetBoundingCircle()->radius );
 			if( mEnemies[i]->IsSynced() && CullEntity( mEnemies[i]->GetPosition() ) )
 			{
-				//RenderManager::GetInstance()->AddCircleToList( mEnemies[i]->GetBoundingCircle()->center, XMFLOAT3( 1,0,0), mEnemies[i]->GetBoundingCircle()->radius );
 				mEnemies[i]->Render();
 			}
 		}
@@ -1246,10 +1245,15 @@ void PlayState::OnEnter()
 	IEventPtr spawnPos( new Event_Request_Player_Spawn_Position( mPlayer->GetID(), mPlayer->GetTeam() ) );
 	EventManager::GetInstance()->QueueEvent( spawnPos );
 
+	//Set ship position and radius for shader	
+	Graphics::GetInstance()->SetShipPosAndRad( mShips[FRIEND_SHIP]->GetBuffCircle()->center, mShips[FRIEND_SHIP]->GetBuffCircle()->radius, FRIEND_SHIP );
+	Graphics::GetInstance()->SetShipPosAndRad( mShips[ENEMY_SHIP]->GetBuffCircle()->center, mShips[ENEMY_SHIP]->GetBuffCircle()->radius, ENEMY_SHIP );	
+
 	mPlayer->SetHomePos( mShips[FRIEND_SHIP]->GetPos() );
 
 	IEventPtr name( new Event_Client_Set_Name( mPlayer->GetID(), mPlayer->GetName() ) );
 	Client::GetInstance()->SendEvent( name );
+
 }
 
 void PlayState::OnExit()
@@ -1416,8 +1420,6 @@ HRESULT PlayState::Initialize()
 	int worldDim = mWorldMap->GetMapWidth() * NODE_DIM;
 
 	int worldOffset = mWorldMap->GetMapHalfWidth() * NODE_DIM;
-
-	RenderManager::GetInstance()->RequestParticleSystem( 3333, Fire_Flies, XMFLOAT3 ( 0.0f, 2.0f, 0.0f ), XMFLOAT3( 0.0f, 0.1f, 0.0f ) );	//---id, effect, position, direction
 
 	for (int i = 0; i < 100; i++)
 	{

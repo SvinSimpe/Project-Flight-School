@@ -98,6 +98,7 @@ class RemotePlayer
 		XMFLOAT3		mSpawnPosition;
 		bool			mIsBuffed;
 		float			mLifeRegenerationAmount;	// Amount of HP regenerated when mLifeRegenerationTimer is 0.0
+		float			mLifeRegenerationMaxTimer;
 		float			mLifeRegenerationTimer;		// Time between regenerations
 		int				mBufflevel;
 		float			mSlowDown;

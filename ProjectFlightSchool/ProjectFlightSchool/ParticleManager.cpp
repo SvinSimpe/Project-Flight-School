@@ -103,7 +103,7 @@ void ParticleManager::Initialize()
 	mNrOfParticleSystemsPerType[NormalSmoke]	= 0;
 	mNrOfParticleSystemsPerType[Hammer_Effect]	= 0;
 
-	mMaxNrOfParticleSystemsPerType[SpitterTrail]	= 12;
+	mMaxNrOfParticleSystemsPerType[SpitterTrail]	= 76;
 	mMaxNrOfParticleSystemsPerType[GranateTrail]	= 6;
 	mMaxNrOfParticleSystemsPerType[SniperTrail]		= 15;
 	mMaxNrOfParticleSystemsPerType[Shell]			= 6;
@@ -173,7 +173,7 @@ void ParticleManager::Initialize()
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[SpitterTrail]; i++ )
 	{
-		mParticleSystems[SpitterTrail][i]->Initialize( SpitterTrail, 6.0f, 1000 );
+		mParticleSystems[SpitterTrail][i]->Initialize( SpitterTrail, 6.0f, 800 );
 		mNrOfParticleSystemsPerType[SpitterTrail]++;
 		mNrOfParticleSystems++;
 	}

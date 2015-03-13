@@ -308,7 +308,6 @@ void LobbyState::OnEnter()
 {
 	Reset();
 	SetCursor( mCursor );
-	SoundBufferHandler::GetInstance()->LoopStream( mLobbyMusic );
 	mActive = true;
 	mTeamsLocked = false;
 }
@@ -316,7 +315,6 @@ void LobbyState::OnEnter()
 void LobbyState::OnExit()
 {
 	Reset();
-	SoundBufferHandler::GetInstance()->StopLoopStream( mLobbyMusic );
 	mTeamsLocked = true;
 }
 
@@ -365,7 +363,6 @@ HRESULT LobbyState::Initialize()
 	//mBackButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/textBack.dds", x, y, w, h );
 
 	EventManager::GetInstance()->AddListener( &LobbyState::EventListener, this, Event_Connect_Server_Success::GUID );
-	mLobbyMusic =  SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/ambient_menu.wav", 500 );
 
 	mBackButton.Initialize( "../Content/Assets/Textures/Menu/lobby_loadout_menu/textBack.dds", 70.0f, 810.0f, 200.0f, 200.0f );
 	

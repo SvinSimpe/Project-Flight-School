@@ -1187,8 +1187,6 @@ void Graphics::RenderBillboard( BillboardInfo* info, UINT sizeOfList )
 	UINT currAssetID = (UINT)-1;
 	UINT strider = 0;
 
-
-
 	while( true )
 	{
 		objectToRender = 0;
@@ -1210,6 +1208,12 @@ void Graphics::RenderBillboard( BillboardInfo* info, UINT sizeOfList )
 					mBillboardInstanced[objectToRender].position[2] = info[i].mWorldPosition.z;
 					mBillboardInstanced[objectToRender].width		= info[i].mWidth;
 					mBillboardInstanced[objectToRender].height		= info[i].mHeight;
+
+					CbufferPerObject2D cbuff;
+					cbuff.color = info[i].mColor;
+					MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT_2D], &cbuff, sizeof( CbufferPerObject2D ) );
+					mDeviceContext->PSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT_2D] );
+					
 					info[i].mAssetId = (UINT)-1;
 					objectToRender++;
 

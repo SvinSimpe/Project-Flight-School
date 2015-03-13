@@ -43,8 +43,8 @@ void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 		std::shared_ptr<Event_Request_Player_Spawn_Position> data = std::static_pointer_cast<Event_Request_Player_Spawn_Position>( eventPtr );
 		if ( data->TeamID() == mTeamID )
 		{
-			int width	= 20;
-			int height	= 20;
+			int width	= 15;
+			int height	= 15;
 			int xMin	= 0;
 			int xMax	= 0;
 			int zMin	= 0;
@@ -59,7 +59,7 @@ void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 			zMax = (int)mBuffCircle->center.z + height;
 
 			//Check if min OR max is origo
-			if( xMin == 0 || xMax == 0 || zMin == 0 || zMax == 0 )
+			if( xMin || xMax == 0 || zMin == 0 || zMax == 0 )
 			{
 				width++;
 				height++;
@@ -123,6 +123,7 @@ void ClientShip::Render( float deltaTime, DirectX::XMFLOAT4X4 parentWorld )
 void ClientShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale )
 {
 	ServerShip::Initialize( id, teamID, pos, rot, scale );
+	mPos = pos;
 
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Ship/", "ShipWithTripod.pfs", mAssetID );
 	

@@ -139,14 +139,13 @@ void Server::ClientUpdate( IEventPtr eventPtr )
 			mClientMap[data->ID()]->Pos.center = data->LowerBodyPos();
 			XMFLOAT3 vel = data->Velocity();
 			XMFLOAT3 dir = data->UpperBodyDirection();
-			std::string name = data->Name();
 			mClientMap[data->ID()]->IsBuffed = data->IsBuffed();
 			mClientMap[data->ID()]->IsAlive = data->IsAlive();
 
 			// No need to update clients about your movements if they don't exist!
 			if( mClientMap.size() > 1 )
 			{
-				IEventPtr E1( new Event_Remote_Update( data->ID(), mClientMap[data->ID()]->Pos.center, vel, dir, name, data->IsAlive() ) );
+				IEventPtr E1( new Event_Remote_Update( data->ID(), mClientMap[data->ID()]->Pos.center, vel, dir, data->IsAlive() ) );
 				BroadcastEvent( E1 );
 			}
 		}
@@ -459,6 +458,16 @@ void Server::ClientInteractEnergyCell( IEventPtr eventPtr )
 			}
 		}
 
+	}
+}
+
+void Server::ClientSetName( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Set_Name::GUID )
+	{
+		std::shared_ptr<Event_Client_Set_Name> data = std::static_pointer_cast<Event_Client_Set_Name>( eventPtr );
+		IEventPtr E1( new Event_Remote_Set_Name( data->ID(), data->Name() ) ); 
+		BroadcastEvent( E1, data->ID() );
 	}
 }
 
@@ -797,7 +806,6 @@ void Server::UpdateShip( float deltaTime, ServerShip* s )
 	s->Update( deltaTime );
 	IEventPtr E1( new Event_Server_Update_Turret( s->mServerTurret->mID, s->mServerTurret->mTurretHead->rot ) );
 	BroadcastEvent( E1 );
-	//SendCulledUpdate( E1, s->mServerTurret->mPos );
 
 	IEventPtr E2( new Event_Server_Update_Ship( s->mID, s->mMaxShield, s->mCurrentShield, s->mCurrentHP ) );
 	BroadcastEvent( E2 );
@@ -1196,6 +1204,9 @@ bool Server::Initialize()
 
 	EventManager::GetInstance()->AddListener( &Server::OnSpawnEnergyCell, this, Event_Spawn_Energy_Cell::GUID );
 	EventManager::GetInstance()->AddListener( &Server::OnDroppedEnergyCell, this, Event_Client_Dropped_Energy_Cell::GUID );
+
+	EventManager::GetInstance()->AddListener( &Server::ClientSetName, this, Event_Client_Set_Name::GUID );
+
 
 	mCurrentPID				= 0;
 	mActive					= false;

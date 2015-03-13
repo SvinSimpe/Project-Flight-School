@@ -110,7 +110,7 @@ HRESULT Graphics::InitializeSamplerStates()
 	samplerDesc.AddressW		= D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.ComparisonFunc	= D3D11_COMPARISON_ALWAYS;
 	samplerDesc.MaxAnisotropy	= 1;
-	samplerDesc.MaxLOD			= D3D11_FLOAT32_MAX;
+	samplerDesc.MaxLOD			= FLT_MAX;
 	samplerDesc.MinLOD			= 0.0f;
 	samplerDesc.MipLODBias		= 0.0f;
 
@@ -460,6 +460,16 @@ HRESULT Graphics::InitializeEffects()
 	//=======================================
 	//			PARTICLE EFFECTS			|
 	//=======================================
+
+	//Sniper trail effect
+	effectInfo.filePath					= "../Content/Effects/Particle Effects/BoomerExplosionEffect.hlsl";
+	effectInfo.fileName					= "BoomerExplosionEffect";
+	effectInfo.vertexType				= PARTICLE_VERTEX_TYPE;
+	effectInfo.isGeometryShaderIncluded = true;
+
+	if( FAILED( hr = mEffects[EFFECTS_BOOMER_EXPLOSION]->Intialize( mDevice, &effectInfo ) ) )
+		return hr;
+	//--------------------------
 
 	//Sniper trail effect
 	effectInfo.filePath					= "../Content/Effects/Particle Effects/SpitterTrailEffect.hlsl";
@@ -1908,6 +1918,14 @@ void Graphics::SetFocus( Cameras camera, DirectX::XMFLOAT3 &focusPoint )
 	}
 }
 
+void Graphics::SetShipPosAndRad( XMFLOAT3 position, float radius, int index )
+{
+	mShipPosAndRad[0 + index * 4] = position.x;
+	mShipPosAndRad[1 + index * 4] = position.y;
+	mShipPosAndRad[2 + index * 4] = position.z;
+	mShipPosAndRad[3 + index * 4] = radius;
+}
+
 //Clear canvas and prepare for rendering.
 void Graphics::BeginScene()
 {
@@ -1954,13 +1972,15 @@ void Graphics::GbufferPass()
 	//Map CbufferPerFrame
 	CbufferPerFrame data;
 
-
 	data.viewMatrix			= mCamera[mCurrentCamera]->GetViewMatrix();
 	data.projectionMatrix	= mCamera[mCurrentCamera]->GetProjMatrix();
 	data.cameraPosition		= mCamera[mCurrentCamera]->GetPos();
+	data.numPointLights		= mNumPointLights;
+	data.timeVariable		= mTimeVariable;
 	
-	data.numPointLights = mNumPointLights;
-	data.timeVariable	= mTimeVariable;
+	for (int i = 0; i < 8; i++)
+		data.shipPosAndRad[i] = mShipPosAndRad[i];
+
 	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_FRAME], &data, sizeof( CbufferPerFrame ) );
 
 	CbufferPerFrameShadow dataShadow;

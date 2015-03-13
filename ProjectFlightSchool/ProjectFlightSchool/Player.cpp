@@ -74,7 +74,8 @@ void Player::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_New_Player_Spawn_Position> data = std::static_pointer_cast<Event_New_Player_Spawn_Position>( newEvent );
 		if( data->PlayerID() == mID )
 		{
-			mSpawnPosition = XMFLOAT3( data->SpawnPosition().x, 0.0f, data->SpawnPosition().y );
+			mSpawnPosition	= XMFLOAT3( data->SpawnPosition().x, 0.0f, data->SpawnPosition().y );
+			mCameraPosition	= XMFLOAT3( data->SpawnPosition().x, CAMERA_Y, data->SpawnPosition().y + CAMERA_Z );
 			if( IsAlive() )
 			{
 				RemotePlayer::Spawn();
@@ -175,7 +176,7 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		}
 
 		//Dashing
-		if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_SPACE ) && mDashCoolDown <= 0.0f )
+		if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_SPACE ) && mDashCoolDown <= 0.0f )
 		{
 			mDashCoolDown = DASH_COOLDOWN;
 			mDashVelocity = DASH_VELOCITY;
@@ -188,7 +189,7 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 			XMStoreFloat3( &mVelocity, normalizer );
 
 			IEventPtr E1( new Event_Client_Dash( mID ) );
-			EventManager::GetInstance()->QueueEvent( E1 );
+			QueueEvent( E1 );
 		}
 
 
@@ -220,9 +221,19 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 
 		XMVECTOR playerToCursor = XMVectorSubtract( intersection, XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, 1.0f, mLowerBody.position.z ) ) );
 		XMStoreFloat3( &unPack, playerToCursor );
+		XMStoreFloat3( &mPlayerToCursor, XMLoadFloat3( &mPlayerToCursor ) * 0.95f + ( XMVectorSet( unPack.x, 0.0f, unPack.z, 0.0f ) * 0.1f ) * 0.05f );
 		playerToCursor = XMVector3Normalize( XMVectorSet( unPack.x, 0.0f, unPack.z, 0.0f ) );
 		XMStoreFloat3( &mUpperBody.direction, playerToCursor );
 
+		//Cap the mPlayerToCursor vector
+		normalizer = XMVector3Length( XMLoadFloat3( &mPlayerToCursor ) );
+		float currCamera = XMVectorGetX( normalizer );
+		if(  currCamera > CAMERA_CAP )
+		{
+			normalizer	 = XMVector3Normalize( XMLoadFloat3( &mPlayerToCursor ) );
+			normalizer	*= CAMERA_CAP;
+			XMStoreFloat3( &mPlayerToCursor, normalizer );
+		}
 
 		if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
 		{
@@ -470,7 +481,7 @@ void Player::GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, Direct
 	}
 }
 
-HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
+HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells, ClientShip** clientShips )
 {
 
 	// Update water status	
@@ -489,6 +500,11 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	XMFLOAT3 testPosition	= mLowerBody.position;
 	XMFLOAT3 normal			= XMFLOAT3( 0.0f, 1.0f, 0.0f );
 
+	if( mEnergyCellID != (UINT)-1 )
+	{
+		mSlowDown = 0.5f;
+	}
+
 	mCurrentTravelVelocity.x = mVelocity.x * deltaTime * mUpgrades.runSpeedFactor * mSlowDown * mDashVelocity;
 	mCurrentTravelVelocity.z = mVelocity.z * deltaTime * mUpgrades.runSpeedFactor * mSlowDown * mDashVelocity;
 
@@ -496,15 +512,28 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	testPosition.z += mCurrentTravelVelocity.z;
 	testPosition.y = worldMap->GetHeight( testPosition );
 
-
 	bool collisionTest = worldMap->PlayerVsMap( testPosition, normal );
-	if( !collisionTest )
+
+	BoundingCircle testCircle = *mBoundingCircle;
+	testCircle.center.x += mCurrentTravelVelocity.x;
+	testCircle.center.z += mCurrentTravelVelocity.z;
+	bool shipCollision = false;
+
+	for( int i = 0; i < 2; i++ )
+	{
+		if( shipCollision = clientShips[i]->PositionVsShip( &testCircle, normal ) )
+		{
+			break;
+		}
+	}
+
+	if( !collisionTest && !shipCollision )
 	{
 		mLowerBody.position.x = testPosition.x;
 		mLowerBody.position.y = testPosition.y;
 		mLowerBody.position.z = testPosition.z;
 
-		if( mIsInWater )
+		if( mIsInWater && mIsAlive && !mIsDown )
 		{
 			WriteInteractionText( 
 				"Get out of the water or die!", 
@@ -778,15 +807,6 @@ void Player::FireMinigun( XMFLOAT3* projectileOffset )
 		{
 			mWeaponOverheated = false;
 		}
-		//XMFLOAT3 transFloat;
-		//transFloat.x = projectileOffset->x + ( mUpperBody.direction.x * 0.4f );
-		//transFloat.y = projectileOffset->y;
-		//transFloat.z = projectileOffset->z + ( mUpperBody.direction.z * 0.4f );
-		//RenderManager::GetInstance()->RequestParticleSystem( mID, MuzzleFlash, transFloat, mUpperBody.direction, mVelocity );
-		//transFloat.x = projectileOffset->x + ( mUpperBody.direction.x * 0.7 );
-		//transFloat.z = projectileOffset->z + ( mUpperBody.direction.z * 0.7 );
-		//RenderManager::GetInstance()->RequestParticleSystem( mID, Spark, transFloat, mUpperBody.direction, mVelocity );	
-
 	}
 	else
 	{
@@ -873,7 +893,7 @@ void Player::BlowtorchMelee( float deltaTime )
 		if( mHasMeleeStarted )
 		{
 			mTimeTillattack -= deltaTime;
-			IEventPtr E1( new Event_Client_Request_ParticleSystem( mID, (int)BlowTorchFire, loadDir, mUpperBody.direction, mVelocity ) );
+			IEventPtr E1( new Event_Client_Request_ParticleSystem( mID, (int)BlowTorchFire, loadDir, mUpperBody.direction, mCurrentTravelVelocity ) );
 			QueueEvent( E1 );
 			SoundBufferHandler::GetInstance()->Play3D( mBlowTorch , GetPosition() );
 			if( mTimeTillattack <= 0.0f )
@@ -904,6 +924,7 @@ void Player::BlowtorchIdle()
 	XMFLOAT3 loadDir;
 	XMStoreFloat3( &loadDir, offset );
 
+	//IEventPtr E1( new Event_Client_Request_ParticleSystem( mID, (int)BlowTorchIdle, loadDir, mUpperBody.direction, mCurrentTravelVelocity ) );
 	IEventPtr E1( new Event_Client_Request_ParticleSystem( mID, (int)BlowTorchIdle, loadDir, mUpperBody.direction, mVelocity ) );
 	QueueEvent( E1 );
 }
@@ -926,8 +947,6 @@ void Player::ClaymoreMelee( float deltaTime )
 		if( mTimeTillattack <= 0.0f && mHasMeleeStarted )
 		{
 			mIsMeleeing			= true;
-			//RenderManager::GetInstance()->RequestParticleSystem( mID, Hammer_Effect, XMFLOAT3( mLoadOut->meleeWeapon->boundingCircle->center.x, 0.3f, mLoadOut->meleeWeapon->boundingCircle->center.z ) , XMFLOAT3( 1.0f, 0.0f, 1.0f ) );
-			mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
 			mHasMeleeStarted	= false;
 		}
 	}
@@ -1097,7 +1116,8 @@ void Player::Reset()
 
 	mIsBuffed					= false;
 	mLifeRegenerationAmount		= 1.0f; 
-	mLifeRegenerationTimer		= 1.4f;
+	mLifeRegenerationMaxTimer	= 1.4f;
+	mLifeRegenerationTimer		= mLifeRegenerationMaxTimer;
 
 	mTimeTillSpawn				= mSpawnTime;
 	mTimeTillDeath				= mDeathTime;
@@ -1369,12 +1389,17 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 	///Lock camera position to player
 	XMFLOAT3 cameraPosition;
-	cameraPosition.x = mLowerBody.position.x;
-	cameraPosition.y = mLowerBody.position.y + 20.0f;
-	cameraPosition.z = mLowerBody.position.z - 12.0f;
+	cameraPosition.x = mLowerBody.position.x			+ mPlayerToCursor.x;
+	cameraPosition.y = mLowerBody.position.y + CAMERA_Y;
+	cameraPosition.z = mLowerBody.position.z + CAMERA_Z	+ mPlayerToCursor.z;
 
 	Graphics::GetInstance()->SetEyePosition( CAMERAS_MAIN, cameraPosition );
-	Graphics::GetInstance()->SetFocus( CAMERAS_MAIN, mLowerBody.position );
+
+	cameraPosition.x = mLowerBody.position.x + mPlayerToCursor.x;
+	cameraPosition.y = mLowerBody.position.y;
+	cameraPosition.z = mLowerBody.position.z + mPlayerToCursor.z;
+
+	Graphics::GetInstance()->SetFocus( CAMERAS_MAIN, cameraPosition );
 
 	//Shadow map camera
 	cameraPosition.y = mLowerBody.position.y + 30.0f;
@@ -1420,11 +1445,11 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 			if( mCurrentHp > mMaxHp )
 				mCurrentHp = mMaxHp;
 
-			mLifeRegenerationTimer	= 1.4f - ( (float)( mBufflevel - 1 ) * 0.6f );
+			mLifeRegenerationTimer	= mLifeRegenerationMaxTimer;
 		}
 	}
 	else
-		mLifeRegenerationTimer =  1.4f - ( (float)( mBufflevel - 1 ) * 0.6f );
+		mLifeRegenerationTimer = mLifeRegenerationMaxTimer;
 
 	return S_OK;
 }
@@ -1441,6 +1466,22 @@ HRESULT Player::Render( float deltaTime, int position )
 			7.8f, 
 			COLOR_RED );
 	}
+	else
+	{
+		if( mIsBuffed && !mLock )
+		{
+			std::stringstream out;
+			out.precision( 2 );
+			out << "Regenerating " << mLifeRegenerationAmount << " health every " << mLifeRegenerationMaxTimer << " sec";
+
+			WriteInteractionText( 
+				out.str(), 
+				(float)Input::GetInstance()->mScreenWidth * 0.5f, 
+				(float)( Input::GetInstance()->mScreenHeight * 0.95f ), 
+				2.5f, 
+				COLOR_CYAN );
+		}
+	}
 
 	if( mIsOutSideZone )
 	{
@@ -1452,7 +1493,7 @@ HRESULT Player::Render( float deltaTime, int position )
 			COLOR_RED );
 
 		WriteInteractionText( 
-			std::to_string( (int)mLeavingAreaTime ),
+			std::to_string( (int)( mLeavingAreaTime + 1 ) ),
 			(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
 			(float)( Input::GetInstance()->mScreenHeight * 0.25 ) + 40.0f, 
 			4.0f,
@@ -1480,22 +1521,6 @@ HRESULT Player::Render( float deltaTime, int position )
 	}
 
 	RenderPowerBars();
-
-	//std::string blblbl = "XP " + std::to_string( (int) mXP ) +  "/" + std::to_string( (int)mNextLevelXP );
-	//WriteInteractionText(
-	//	blblbl, 
-	//	(float)( Input::GetInstance()->mScreenWidth * 0.1f ), 
-	//	(float)( Input::GetInstance()->mScreenHeight * 0.4f ) + 25.0f,
-	//	2.0f, 
-	//	COLOR_RED);
-
-	//blblbl = "Current level " + std::to_string( mCurrentLevel );
-	//WriteInteractionText(
-	//	blblbl, 
-	//	(float)( Input::GetInstance()->mScreenWidth * 0.1f ), 
-	//	(float)( Input::GetInstance()->mScreenHeight * 0.4f ) + 50.0f,
-	//	2.0f, 
-	//	COLOR_RED);
 
 	RemotePlayer::Render();
 	//---------------------------DEBUG RENDERING----------------------------
@@ -1534,12 +1559,12 @@ void Player::RenderPowerBars()
 	//======== STAMINA BAR ==========
 	if ( mDashCoolDown != 0.0f && mDashCoolDown > 0.0f )
 	{
-		mStaminaBar.mPosition	= XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + 4.1f, mLowerBody.position.z );
-		mStaminaBar.mWidth		= 0.7f * ( mDashCoolDown / DASH_COOLDOWN );
-		mStaminaBar.mHeight		= 0.075f;
+		mStaminaBar.mPosition	= XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + 3.95f, mLowerBody.position.z );
+		mStaminaBar.mWidth		= 0.72f * ( mDashCoolDown / DASH_COOLDOWN );
+		mStaminaBar.mHeight		= 0.095f;
 
 		mBarFrame.mPosition		= XMFLOAT3( mStaminaBar.mPosition.x, mStaminaBar.mPosition.y + 0.01f, mStaminaBar.mPosition.z - 0.01f );
-		mBarFrame.mWidth		= 0.7f + 0.02f;
+		mBarFrame.mWidth		= 0.72f + 0.02f;
 		mBarFrame.mHeight		= mStaminaBar.mHeight + 0.02f;
 		
 		RenderManager::GetInstance()->AddBillboardToList( mStaminaBar.mAssetID, mStaminaBar.mPosition, mStaminaBar.mWidth, mStaminaBar.mHeight );
@@ -1717,6 +1742,9 @@ HRESULT Player::Initialize()
 	mStaminaBar.mWidth		= 0.0f;
 	mStaminaBar.mHeight		= 0.0f;
 	mBarFrame.mColor		= XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f );
+
+	mCameraPosition = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mPlayerToCursor = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	
 	return S_OK;
 }
@@ -1777,6 +1805,9 @@ Player::Player()
 	mUpgrades.damageTakenPercentage = 1.0f;
 	mUpgrades.currentLegsLevel = 1;
 	mUpgrades.runSpeedFactor = 0.7f;
+
+	mCameraPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mPlayerToCursor = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 }
 
 Player::~Player()

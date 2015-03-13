@@ -10,6 +10,7 @@
 #include "Pathfinder.h"
 #include "RenderManager.h"
 #include "SoundBufferHandler.h"
+#include "ClientShip.h"
 
 #define MAX_PLAYER_LEVEL 16
 #define VELOCITY_FALLOFF 2.0f
@@ -19,6 +20,10 @@
 #define WATER_DAMAGE_TIME	0.1f
 #define WATER_DAMAGE		1.0f
 #define MAX_OVERHEAT_VALUE	100.0f
+
+#define CAMERA_Y		20.0f
+#define CAMERA_Z		-8.0f
+#define CAMERA_CAP		1.0f
 
 class Map;
 class Path;
@@ -90,6 +95,10 @@ class Player: public RemotePlayer
 		PowerBar	mStaminaBar;
 		PowerBar	mOverHeatBar;
 
+		XMFLOAT3	mCameraPosition;
+		XMFLOAT3	mPlayerToCursor;
+
+
 	protected:
 	public:
 		std::list<IEventPtr> gEventList;
@@ -139,7 +148,7 @@ class Player: public RemotePlayer
 		void		PickUpEnergyCell( EnergyCell** energyCell );
 		void		DropEnergyCell( EnergyCell** energyCells );
 		void		GiveEnergyCellToShip( EnergyCell** energyCells, UINT shipID, DirectX::XMFLOAT3 shipPos );
-		HRESULT		UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells );
+		HRESULT		UpdateSpecific( float deltaTime, Map* worldMap, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells, ClientShip** clientShips  );
 		void		TakeDamage( float damage, unsigned int shooter );
 		void		HandleRevive( float deltaTime );
 		void		Lock();

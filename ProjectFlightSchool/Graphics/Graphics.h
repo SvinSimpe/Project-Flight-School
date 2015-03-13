@@ -73,6 +73,7 @@ enum Effects
 {
 	
 	//Particle Effects
+	EFFECTS_BOOMER_EXPLOSION,
 	EFFECTS_SPITTER_TRAIL,
 	EFFECTS_GRANATE_TRAIL,
 	EFFECTS_SNIPER_TRAIL,
@@ -142,8 +143,8 @@ enum Cameras
 #define MAX_SINGLE_STATIC_VERTICES	20000
 #define MAX_CIRCLE_POINTS			1000
 
-#define SHADOW_MAP_WIDTH	512
-#define SHADOW_MAP_HEIGHT	512
+#define SHADOW_MAP_WIDTH	1024
+#define SHADOW_MAP_HEIGHT	1024
 
 #define SAFE_RELEASE_DELETE( x ) if( x ) { ( x )->Release(); delete x; ( x ) = nullptr; }
 
@@ -189,6 +190,8 @@ class LIBRARY_EXPORT Graphics
 		CbufferPerObjectAnimated	mAnimCbufferInstanced[MAX_ANIM_INSTANCE_BATCH];
 		BillboardInstanced			mBillboardInstanced[MAX_BILLBOARD_BATCH];
 		ParticleVertex16			mParticleInstanced[MAX_PARTICLE_BATCH];
+
+		float						mShipPosAndRad[8];
 
 	protected:
 	public:
@@ -244,6 +247,7 @@ class LIBRARY_EXPORT Graphics
 		void SetNDCSpaceCoordinates		( float &mousePositionX, float &mousePositionY );
 		void SetEyePosition				( Cameras camera, DirectX::XMFLOAT3 &eyePosition );
 		void SetFocus					( Cameras camera, DirectX::XMFLOAT3 &focusPoint );
+		void SetShipPosAndRad			( XMFLOAT3 position, float radius, int index );
 
 		void BeginScene();
 		void GbufferPass();

@@ -7,9 +7,14 @@ HRESULT Projectile::Update( float deltaTime )
 		float acceleration	= ( 2.0f * deltaTime );
 		mDirection.y -= acceleration;
 
-		//IEventPtr E1( new Event_Client_Request_ParticleSystem( mPlayerID, (int)GranateTrail, mPosition, DirectX::XMFLOAT3( 0.0f, 1.0f, 0.0f ), XMFLOAT3( 0.0f, 0.0f, 0.0f ) ) );
-		IEventPtr E1( new Event_Client_Request_ParticleSystem( mPlayerID, (int)SpitterTrail, mPosition, DirectX::XMFLOAT3( 0.0f, 1.0f, 0.0f ), XMFLOAT3( 0.0f, 0.0f, 0.0f ) ) );
+		IEventPtr E1( new Event_Client_Request_ParticleSystem( mPlayerID, (int)GranateTrail, mPosition, DirectX::XMFLOAT3( 0.0f, 1.0f, 0.0f ), XMFLOAT3( 0.0f, 0.0f, 0.0f ) ) );
 		EventManager::GetInstance()->QueueEvent( E1 );
+	}
+
+	else if( mWeaponType == SPITTER )
+	{
+		//IEventPtr E1( new Event_Client_Request_ParticleSystem( mPlayerID, (int)SpitterTrail, mPosition, DirectX::XMFLOAT3( 0.0f, 1.0f, 0.0f ), XMFLOAT3( 0.0f, 0.0f, 0.0f ) ) );
+		//EventManager::GetInstance()->QueueEvent( E1 );
 	}
 
 

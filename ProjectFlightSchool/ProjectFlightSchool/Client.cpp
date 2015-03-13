@@ -59,7 +59,7 @@ bool Client::Connect( std::string ip, UINT port )
 	}
 
 	mNEF = new NetworkEventForwarder();
-	mNEF->Initialize( 0, mSocketManager ); // Always sends to socket 0, the server's socketID
+	mNEF->Initialize( 100, mSocketManager ); // Always sends to socket 0, the server's socketID
 	return true;
 }
 
@@ -199,13 +199,15 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Host_Start_Game_Countdown );
 	EF::REGISTER_EVENT( Event_Server_Start_Game_Countdown );
 	EF::REGISTER_EVENT( Event_Server_Enemy_Fired_Projectile );
-	
 
 	EF::REGISTER_EVENT( Event_Client_Request_ParticleSystem );
 	EF::REGISTER_EVENT( Event_Remote_Request_ParticleSystem );
 
 	EF::REGISTER_EVENT( Event_Client_Dropped_Energy_Cell );
 	//EF::REGISTER_EVENT( EventSpawn_Timer_Energy_Cell );
+
+	EF::REGISTER_EVENT( Event_Client_Set_Name );
+	EF::REGISTER_EVENT( Event_Remote_Set_Name );
 
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	EventManager::GetInstance()->AddListener( &Client::Shutdown, this, Event_Shutdown_Client::GUID );

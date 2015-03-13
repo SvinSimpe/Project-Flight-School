@@ -112,6 +112,7 @@ class Server : public Network
 		void	HostStartCountdown( IEventPtr eventPtr );
 		void	ClientRequestParticleSystem( IEventPtr eventPtr );
 		void	ClientInteractEnergyCell( IEventPtr eventPtr );
+		void	ClientSetName( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 

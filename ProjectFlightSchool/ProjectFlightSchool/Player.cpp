@@ -38,6 +38,22 @@ void Player::EventListener( IEventPtr newEvent )
 			direction.z *= data->KnockBack();
 			AddImpuls( direction );
 			TakeDamage( data->Damage(), 0);
+
+			for (size_t i = 0; i < 10; i++)
+			{
+				IEventPtr E1( new Event_Client_Request_ParticleSystem( mID, (int)Debris, XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + 1.0f, mLowerBody.position.z ),
+																						 XMFLOAT3( direction.x * -1.0f, direction.y * -1.0f, direction.z * -1.0f ), mVelocity ) );
+				
+				IEventPtr E2( new Event_Client_Request_ParticleSystem( mID, (int)Spark_Robot, XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + 1.0f, mLowerBody.position.z ),
+																							  XMFLOAT3( direction.x * -1.0f, direction.y * -1.0f, direction.z * -1.0f ), mVelocity ) );
+
+				IEventPtr E3( new Event_Client_Request_ParticleSystem( mID, (int)Spark_Electric, XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + 1.0f, mLowerBody.position.z ),
+																								 XMFLOAT3( direction.x * -1.0f, direction.y * -1.0f, direction.z * -1.0f ), mVelocity ) );
+				QueueEvent( E1 );
+				QueueEvent( E2 );
+				QueueEvent( E3 );
+			}
+
 		}
 	}
 	else if ( newEvent->GetEventType() == Event_Create_Player_Name::GUID )

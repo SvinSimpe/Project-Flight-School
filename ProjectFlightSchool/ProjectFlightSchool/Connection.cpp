@@ -539,7 +539,7 @@ void SocketManager::RemoveSocket( NetSocket* socket )
 	IEventPtr E1( PFS_NEW Event_Client_Left( id ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
 
-	if( id == 0 )
+	if( id == 100 )
 	{
 		IEventPtr E2( PFS_NEW Event_Shutdown_Client() );
 		EventManager::GetInstance()->QueueEvent( E2 );
@@ -752,7 +752,7 @@ SocketManager::SocketManager()
 	mMaxOpenSockets = 0;
 	mSubnetMask = 0;
 	mSubnet = 0xffffffff;
-	mNextSocketID = 0;
+	mNextSocketID = 100;
 	ZeroMemory( &mWsaData, sizeof( WSADATA ) );
 }
 

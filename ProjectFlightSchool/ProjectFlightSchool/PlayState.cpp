@@ -12,6 +12,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Local_Joined> data = std::static_pointer_cast<Event_Local_Joined>( newEvent );
 		if ( mPlayer != nullptr )
 		{
+			OutputDebugStringA( std::to_string( data->ID() ).c_str() );
 			mPlayer->SetID( data->ID() );
 			mPlayer->SetTeam( data->TeamID() );
 
@@ -499,7 +500,7 @@ void PlayState::CheckProjectileCollision()
 					{
 						if( mEnemies[j]->IsAlive() )
 						{
-							if( mPlayer->GetID() == 1 &&
+							if( mPlayer->GetID() == 101 &&
 								mProjectiles[i]->GetWeaponType() == TURRET &&
 								mProjectiles[i]->GetBoundingCircle()->Intersect( mEnemies[j]->GetBoundingCircle() ) )
 							{
@@ -538,7 +539,7 @@ void PlayState::CheckProjectileCollision()
 				}
 
 				// Environment
-				if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() || ( ( mProjectiles[i]->GetPlayerID() == 70 || mProjectiles[i]->GetPlayerID() == 71 ) && mPlayer->GetID() == 1 ) )
+				if( mProjectiles[i]->GetPlayerID() == mPlayer->GetID() || mProjectiles[i]->GetWeaponType() == TURRET && mPlayer->GetID() == 101 )
 				{
 					XMFLOAT3 normal;
 					if( mWorldMap->BulletVsMap( mProjectiles[i]->GetPosition(), normal ) )
@@ -601,6 +602,7 @@ void PlayState::CheckProjectileCollision()
 
 						RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 						RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+						//RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), BoomerExplosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 						SoundBufferHandler::GetInstance()->Play3D( mExplosion , mPlayer->GetPosition() );
 
 						IEventPtr E1( new Event_Client_Removed_Projectile( mProjectiles[i]->GetID() ) );
@@ -810,6 +812,7 @@ void PlayState::HandleRemoteProjectileRemoved( UINT projectileID )
 			{
 				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+				//RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), BoomerExplosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 				SoundBufferHandler::GetInstance()->Play3D( mExplosion , mPlayer->GetPosition() );
 			}
 			else

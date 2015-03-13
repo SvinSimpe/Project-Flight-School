@@ -1440,13 +1440,13 @@ HRESULT Player::Render( float deltaTime, int position )
 
 		std::stringstream out;
 		out.precision( 2 );
-		out << "Regenerating " << mLifeRegenerationAmount << " life every " << mLifeRegenerationMaxTimer << "s";
+		out << "Regenerating " << mLifeRegenerationAmount << " health every " << mLifeRegenerationMaxTimer << " sec";
 
 		WriteInteractionText( 
 			out.str(), 
 			(float)Input::GetInstance()->mScreenWidth * 0.5f, 
 			(float)( Input::GetInstance()->mScreenHeight * 0.95f ), 
-			3.0f, 
+			2.5f, 
 			COLOR_CYAN );
 	}
 

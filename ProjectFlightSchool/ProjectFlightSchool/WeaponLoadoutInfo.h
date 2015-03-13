@@ -89,7 +89,7 @@
 
 // Blowtorch
 #define BLOWTORCH_AR		0.1f								// Attack Rate
-#define BLOWTORCH_DAMAGE	6.6f								// Damage
+#define BLOWTORCH_DAMAGE	12.0f								// Damage
 #define BLOWTORCH_RADIUS	4.0f								// Radius
 #define BLOWTORCH_SPREAD	3									// Spread
 #define BLOWTORCH_KB		0.0f								// Knockback
@@ -100,10 +100,10 @@
 
 // Saw
 #define SAW_AR				0.5f								// Attack Rate
-#define SAW_DAMAGE			13.2f								// Damage
+#define SAW_DAMAGE			15.0f								// Damage
 #define SAW_RADIUS			3.0f								// Radius
 #define SAW_SPREAD			4									// Spread
-#define SAW_KB				2.2f								// Knockback
+#define SAW_KB				0.0f								// Knockback
 #define SAW_TTA				1.5f								// Time till Attack
 #define SAW_STUN			0.0f								// Stun
 #define SAW_REACH			1.3f								// Reach
@@ -114,7 +114,7 @@
 
 #define HAMMER_SLOWDOWN		0.5f	// How much is the player slowed down
 
-#define BLOWTORCH_SLOWDOWN	0.04f	// How much is the player slowed down
+#define BLOWTORCH_SLOWDOWN	0.1f	// How much is the player slowed down
 
 #define SAW_SLOWDOWN		0.5f	// How much is the player slowed down
 

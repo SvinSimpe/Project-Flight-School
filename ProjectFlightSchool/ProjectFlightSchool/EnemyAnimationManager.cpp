@@ -125,7 +125,7 @@ HRESULT EnemyAnimationManager::Initialize()
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Raptor/Animations/", "raptorIdle.PaMan",				mAnimations[ENEMY_ANIMATION_STANDARD_IDLE] );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Raptor/Animations/", "raptorRun.PaMan",				mAnimations[ENEMY_ANIMATION_STANDARD_RUN] );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Raptor/Animations/", "raptorRunDamaged.PaMan",			mAnimations[ENEMY_ANIMATION_STANDARD_RUN_DAMAGED] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Raptor/Animations/", "raptorAttack1.PaMan",			mAnimations[ENEMY_ANIMATION_STANDARD_ATTACK] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Raptor/Animations/", "raptorAttackSpeedUp.PaMan",			mAnimations[ENEMY_ANIMATION_STANDARD_ATTACK] );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Raptor/Animations/", "raptorDeath2(fix(fix)).PaMan",	mAnimations[ENEMY_ANIMATION_STANDARD_DEATH] );
 
 	// -------------------
@@ -133,7 +133,7 @@ HRESULT EnemyAnimationManager::Initialize()
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Goblin/Animations/", "goblinIdle.PaMan",			mAnimations[ENEMY_ANIMATION_RANGED_IDLE] );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Goblin/Animations/", "goblinWalk.PaMan",			mAnimations[ENEMY_ANIMATION_RANGED_RUN] );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Goblin/Animations/", "goblinWalkDamaged.PaMan",	mAnimations[ENEMY_ANIMATION_RANGED_RUN_DAMAGED] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Goblin/Animations/", "goblinAttack.PaMan",			mAnimations[ENEMY_ANIMATION_RANGED_ATTACK] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Goblin/Animations/", "goblinAttackSpeedUp.PaMan",			mAnimations[ENEMY_ANIMATION_RANGED_ATTACK] );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Goblin/Animations/", "goblinDeath.PaMan",			mAnimations[ENEMY_ANIMATION_RANGED_DEATH] );
 
 	// -------------------
@@ -149,7 +149,7 @@ HRESULT EnemyAnimationManager::Initialize()
 	// Pate Waiting
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Tank/Animations/", "tankIdle.PaMan",		mAnimations[ENEMY_ANIMATION_TANK_IDLE] );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Tank/Animations/", "tankWalk.PaMan",		mAnimations[ENEMY_ANIMATION_TANK_RUN] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Tank/Animations/", "tankAttack.PaMan",		mAnimations[ENEMY_ANIMATION_TANK_ATTACK] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Tank/Animations/", "tankAttackSpeedUp.PaMan",		mAnimations[ENEMY_ANIMATION_TANK_ATTACK] );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Tank/Animations/", "tankDeath.PaMan",		mAnimations[ENEMY_ANIMATION_TANK_DEATH] );
 	return S_OK;
 }

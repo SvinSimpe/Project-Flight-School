@@ -447,8 +447,8 @@ HRESULT AttackBehavior::Update( float deltaTime )
 		}
 	}
 	
-	mStateTimer		-= deltaTime;
-	mTimeTillAttack -= deltaTime;
+	mStateTimer		-= deltaTime * 2.0f;
+	mTimeTillAttack -= deltaTime * 2.0f;
 
 	return S_OK;
 }

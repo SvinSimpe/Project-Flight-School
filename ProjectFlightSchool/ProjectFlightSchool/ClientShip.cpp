@@ -59,7 +59,7 @@ void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 			zMax = (int)mBuffCircle->center.z + height;
 
 			//Check if min OR max is origo
-			if( xMin == 0 || xMax == 0 || zMin == 0 || zMax == 0 )
+			if( xMin || xMax == 0 || zMin == 0 || zMax == 0 )
 			{
 				width++;
 				height++;

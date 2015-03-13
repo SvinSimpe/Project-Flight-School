@@ -258,10 +258,11 @@ void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 	mTurretLevel	= MIN_LEVEL;
 	mShieldLevel	= MIN_LEVEL;
 	mBuffLevel		= MIN_LEVEL;
-	mMaxShield		= 5000.0f;
+	mMaxShield		= 6000.0f;
 	mCurrentShield	= mMaxShield;
 	mMaxHP			= 20000.0f;
 	mMaxHP *= 10.0f;
+
 	mCurrentHP		= mMaxHP;
 	mIsAlive		= true;
 

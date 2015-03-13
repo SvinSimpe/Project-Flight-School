@@ -74,7 +74,8 @@ void Player::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_New_Player_Spawn_Position> data = std::static_pointer_cast<Event_New_Player_Spawn_Position>( newEvent );
 		if( data->PlayerID() == mID )
 		{
-			mSpawnPosition = XMFLOAT3( data->SpawnPosition().x, 0.0f, data->SpawnPosition().y );
+			mSpawnPosition	= XMFLOAT3( data->SpawnPosition().x, 0.0f, data->SpawnPosition().y );
+			mCameraPosition	= XMFLOAT3( data->SpawnPosition().x, CAMERA_Y, data->SpawnPosition().y + CAMERA_Z );
 			if( IsAlive() )
 			{
 				RemotePlayer::Spawn();
@@ -220,9 +221,19 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 
 		XMVECTOR playerToCursor = XMVectorSubtract( intersection, XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, 1.0f, mLowerBody.position.z ) ) );
 		XMStoreFloat3( &unPack, playerToCursor );
+		XMStoreFloat3( &mPlayerToCursor, XMLoadFloat3( &mPlayerToCursor ) * 0.95f + ( XMVectorSet( unPack.x, 0.0f, unPack.z, 0.0f ) * 0.1f ) * 0.05f );
 		playerToCursor = XMVector3Normalize( XMVectorSet( unPack.x, 0.0f, unPack.z, 0.0f ) );
 		XMStoreFloat3( &mUpperBody.direction, playerToCursor );
 
+		//Cap the mPlayerToCursor vector
+		normalizer = XMVector3Length( XMLoadFloat3( &mPlayerToCursor ) );
+		float currCamera = XMVectorGetX( normalizer );
+		if(  currCamera > CAMERA_CAP )
+		{
+			normalizer	 = XMVector3Normalize( XMLoadFloat3( &mPlayerToCursor ) );
+			normalizer	*= CAMERA_CAP;
+			XMStoreFloat3( &mPlayerToCursor, normalizer );
+		}
 
 		if( Input::GetInstance()->IsKeyDown(KEYS::KEYS_MOUSE_LEFT) )
 		{
@@ -1354,12 +1365,17 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 	///Lock camera position to player
 	XMFLOAT3 cameraPosition;
-	cameraPosition.x = mLowerBody.position.x;
-	cameraPosition.y = mLowerBody.position.y + 20.0f;
-	cameraPosition.z = mLowerBody.position.z - 12.0f;
+	cameraPosition.x = mLowerBody.position.x			+ mPlayerToCursor.x;
+	cameraPosition.y = mLowerBody.position.y + CAMERA_Y;
+	cameraPosition.z = mLowerBody.position.z + CAMERA_Z	+ mPlayerToCursor.z;
 
 	Graphics::GetInstance()->SetEyePosition( CAMERAS_MAIN, cameraPosition );
-	Graphics::GetInstance()->SetFocus( CAMERAS_MAIN, mLowerBody.position );
+
+	cameraPosition.x = mLowerBody.position.x + mPlayerToCursor.x;
+	cameraPosition.y = mLowerBody.position.y;
+	cameraPosition.z = mLowerBody.position.z + mPlayerToCursor.z;
+
+	Graphics::GetInstance()->SetFocus( CAMERAS_MAIN, cameraPosition );
 
 	//Shadow map camera
 	cameraPosition.y = mLowerBody.position.y + 30.0f;
@@ -1437,7 +1453,7 @@ HRESULT Player::Render( float deltaTime, int position )
 			COLOR_RED );
 
 		WriteInteractionText( 
-			std::to_string( (int)mLeavingAreaTime ),
+			std::to_string( (int)( mLeavingAreaTime + 1 ) ),
 			(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
 			(float)( Input::GetInstance()->mScreenHeight * 0.25 ) + 40.0f, 
 			4.0f,
@@ -1463,22 +1479,6 @@ HRESULT Player::Render( float deltaTime, int position )
 			2.0f,
 			COLOR_CYAN );
 	}
-
-	//std::string blblbl = "XP " + std::to_string( (int) mXP ) +  "/" + std::to_string( (int)mNextLevelXP );
-	//WriteInteractionText(
-	//	blblbl, 
-	//	(float)( Input::GetInstance()->mScreenWidth * 0.1f ), 
-	//	(float)( Input::GetInstance()->mScreenHeight * 0.4f ) + 25.0f,
-	//	2.0f, 
-	//	COLOR_RED);
-
-	//blblbl = "Current level " + std::to_string( mCurrentLevel );
-	//WriteInteractionText(
-	//	blblbl, 
-	//	(float)( Input::GetInstance()->mScreenWidth * 0.1f ), 
-	//	(float)( Input::GetInstance()->mScreenHeight * 0.4f ) + 50.0f,
-	//	2.0f, 
-	//	COLOR_RED);
 
 	RemotePlayer::Render();
 	//---------------------------DEBUG RENDERING----------------------------
@@ -1612,6 +1612,9 @@ HRESULT Player::Initialize()
 	mPickUpCooldown = 0.0f;
 
 	currentPath1 = new Path();
+
+	mCameraPosition = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mPlayerToCursor = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	
 	return S_OK;
 }
@@ -1671,6 +1674,9 @@ Player::Player()
 	mUpgrades.damageTakenPercentage = 1.0f;
 	mUpgrades.currentLegsLevel = 1;
 	mUpgrades.runSpeedFactor = 0.7f;
+
+	mCameraPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mPlayerToCursor = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 }
 
 Player::~Player()

@@ -43,8 +43,8 @@ void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 		std::shared_ptr<Event_Request_Player_Spawn_Position> data = std::static_pointer_cast<Event_Request_Player_Spawn_Position>( eventPtr );
 		if ( data->TeamID() == mTeamID )
 		{
-			int width	= 20;
-			int height	= 20;
+			int width	= 15;
+			int height	= 15;
 			int xMin	= 0;
 			int xMax	= 0;
 			int zMin	= 0;

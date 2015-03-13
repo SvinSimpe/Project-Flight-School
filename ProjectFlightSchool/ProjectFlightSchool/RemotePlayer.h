@@ -15,12 +15,16 @@
 #define RIGHT_ARM_ID		1
 #define TEAM_ARRAY_ID		mTeam - 1
 
+#define DASH_COOLDOWN		4.0f
+#define DASH_VELOCITY		1.8f
+
 enum PLAYER_ANIMATION
 {
 	LEGS_IDLE,
 	LEGS_WALK,
 	LEGS_DEATH,
 	LEGS_DOWN,
+	LEGS_DASH,
 	COUNT,
 };
 
@@ -59,12 +63,20 @@ struct Arms
 	AnimationTrack rightArm;
 };
 
+struct Upgrades
+{
+	int		currentBodyLevel			= 1;
+	float	damageTakenPercentage		= 1.0f; // 1 == 100 % == No resistance!
+	int		currentLegsLevel			= 1;
+	float	runSpeedFactor				= 0.7f;
+};
+
 class RemotePlayer
 {
 	// Member variables
 	private:
 	protected:
-		unsigned int	mID;
+		UINT			mID;
 		std::string		mPlayerName;
 		int				mTeam;
 		bool			mIsAlive;
@@ -78,13 +90,19 @@ class RemotePlayer
 		float			mSpawnTime;
 		float			mTimeTillSpawn;
 		XMFLOAT3		mVelocity;
+		float			mDashVelocity;
 		LoadOut*		mLoadOut;
 		BoundingRectangle*	mBoundingBox;
 		BoundingCircle*	mBoundingCircle;
 		BoundingCircle*	mBoundingCircleAura;
 		XMFLOAT3		mSpawnPosition;
 		bool			mIsBuffed;
-		float			mBuffMod; // Modifies the damage a player takes by a percentage, should only range between 0 and 1
+		float			mLifeRegenerationAmount;	// Amount of HP regenerated when mLifeRegenerationTimer is 0.0
+		float			mLifeRegenerationTimer;		// Time between regenerations
+		int				mBufflevel;
+		float			mSlowDown;
+		Upgrades		mUpgrades;
+		XMFLOAT3		mCurrentTravelVelocity;
 
 		//Graphics
 		Font			mFont;
@@ -92,6 +110,7 @@ class RemotePlayer
 		AssetID			mAnimations[PLAYER_ANIMATION::COUNT][2];
 		AssetID			mWeaponModels[WEAPON_COUNT];
 		AssetID			mWeaponAnimations[WEAPON_COUNT][WEAPON_ANIMATION_COUNT];
+		AssetID			mCellArrow;
 		UpperBody		mUpperBody;
 		LowerBody		mLowerBody;
 		Arms			mArms;
@@ -142,6 +161,8 @@ class RemotePlayer
 		XMFLOAT3		GetPosition() const;
 		XMFLOAT3		GetDirection() const;
 		XMFLOAT3		GetVelocity() const;
+		XMFLOAT3		GetCurrentVelocity() const;
+		XMFLOAT3		GetWeaponOffset();
 		std::string		GetName() const;
 		UINT			GetEnergyCellID() const;
 		void			SetDirection( XMFLOAT3 direction );

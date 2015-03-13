@@ -22,22 +22,15 @@ void LoadOutMenu::Update( float deltaTime )
 	{
 		if( mButtons[i].Pressed() )
 		{
-			if( mButtons[i].weaponType != SAW )
+			IEventPtr E1( new Event_Change_Weapon( (int)mButtons[i].weaponType ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+			if( mButtons[i].weaponType == MINIGUN || mButtons[i].weaponType == SHOTGUN || mButtons[i].weaponType == GRENADELAUNCHER || mButtons[i].weaponType == SNIPER )
 			{
-				IEventPtr E1( new Event_Change_Weapon( (int)mButtons[i].weaponType ) );
-				EventManager::GetInstance()->QueueEvent( E1 );
-				if( mButtons[i].weaponType == MINIGUN || mButtons[i].weaponType == SHOTGUN || mButtons[i].weaponType == GRENADELAUNCHER || mButtons[i].weaponType == SNIPER )
-				{
-					mCurrentRanged = i;
-				}
-				else
-				{
-					mCurrentMelee = i;
-				}
+				mCurrentRanged = i;
 			}
 			else
 			{
-				MessageBox( NULL, L"You don't want it to crash, do you?", L"Ja vi vet att detta är en bugg", MB_OK );
+				mCurrentMelee = i;
 			}
 		}
 	}
@@ -64,8 +57,11 @@ void LoadOutMenu::Render()
 
 void LoadOutMenu::Reset()
 {
-	mCurrentRanged	= 0;
-	mCurrentMelee	= 5;
+	IEventPtr E1( new Event_Change_Weapon( (int)mButtons[mCurrentMelee].weaponType ) );
+	EventManager::GetInstance()->QueueEvent( E1 );
+	
+	IEventPtr E2( new Event_Change_Weapon( (int)mButtons[mCurrentRanged].weaponType ) );
+	EventManager::GetInstance()->QueueEvent( E2 );
 }
 
 void LoadOutMenu::Release()
@@ -113,6 +109,10 @@ HRESULT LoadOutMenu::Initialize()
 	{
 		mButtons[i].weaponType = types[i];
 	}
+
+	mCurrentRanged	= 0;
+	mCurrentMelee	= 4;
+
 	IEventPtr E1( new Event_Change_Weapon( (int)mButtons[mCurrentMelee].weaponType ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
 	
@@ -126,8 +126,6 @@ LoadOutMenu::LoadOutMenu()
 {
 	mIsActive		= false;
 	mBackground		= 0;
-	mCurrentRanged	= 0;
-	mCurrentMelee	= 5;
 }
 
 LoadOutMenu::~LoadOutMenu()

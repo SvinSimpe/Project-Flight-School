@@ -24,7 +24,7 @@
 
 #define MAX_REMOTE_PLAYERS		14 //There is only 14 colorIDs.
 #define COLLISION_CHECK_OFFSET	1	// 0 == Every frame
-#define ENTITY_CULLDISTANCE		1200.0f
+#define ENTITY_CULLDISTANCE		1500.0f
 
 class PlayState : public BaseState
 {
@@ -70,15 +70,13 @@ class PlayState : public BaseState
 		bool						mActive;
 
 		//TestSound
-		int							m3DSoundAsset;
-		int							mSoundAsset;
 		int							mMiniGun;
 		int							mLevelUp;
 		int							mShotGun;
 		int							mExplosion;
 		int							mSniper;
+		int							mAmbientMusic;
 		int							mLobbyMusic;
-		int							mStreamSoundAsset;
 	
 	protected:
 	public:
@@ -93,6 +91,7 @@ class PlayState : public BaseState
 		void			BroadcastEnemyProjectileDamage( unsigned int shooterID, unsigned int projectileID, unsigned int enemyID, float damage );
 		void			BroadcastEnemyMeleeDamage( unsigned enemyID, float damage, float knockBack, XMFLOAT3 direction );
 		void			FireProjectile( unsigned int id, unsigned int projectileID, unsigned int teamID, XMFLOAT3 position, XMFLOAT3 direction, float speed, float range, float damage, WeaponType weaponType );
+		void			DecideParticleEffect( unsigned int shooterID, WeaponType weaponType, XMFLOAT3 position, XMFLOAT3 direction );
 		void			CheckPlayerCollision();
 		void			CheckProjectileCollision();
 		void			CheckMeeleCollision();

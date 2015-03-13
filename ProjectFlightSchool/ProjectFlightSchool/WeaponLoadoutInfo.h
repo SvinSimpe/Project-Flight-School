@@ -1,5 +1,9 @@
-//		LEVEL 1 WEAPON DEFINES
+// Melee weapon animation alterations
+#define HAMMER_SPEED_INCREASE 3.85f
+#define CLAYMORE_SPEED_INCREASE 3.14f
 
+
+//		LEVEL 1 WEAPON DEFINES
 
 //////////////////////////////////
 //		 RANGED WEAPONS
@@ -14,26 +18,26 @@
 // Minigun
 #define MINIGUN_AR			0.13f								// Attack Rate
 #define MINIGUN_DAMAGE		4.9f								// Damage
-#define MINIGUN_RANGE		0.6f								// Range
+#define MINIGUN_RANGE		0.35f								// Range
 #define MINIGUN_SPREAD		5.0f								// Spread
 #define MINIGUN_AOE			0.0f								// Area of effect
-#define MINIGUN_SPEED		45.0f								// Projectile Speed 30
+#define MINIGUN_SPEED		40.0f								// Projectile Speed 30
 #define MINIGUN_OFFSETS		XMFLOAT3( 0.75f, 0.5f, 1.4f )		// Offsets forward, right, up
-#define MINIGUN_OVERHEAT_CD 2.0f								// Cooldown that occurs when the minigun overheats	
-#define MINIGUN_OVERHEAT	1.0f								// Amount of heat the minigun get's for firing once
+#define MINIGUN_OVERHEAT_CD 3.0f								// Cooldown that occurs when the minigun overheats	
+#define MINIGUN_OVERHEAT	2.0f								// Amount of heat the minigun get's for firing once
 
 // Shotgun
-#define SHOTGUN_AR			2.0f								// Attack Rate
-#define SHOTGUN_DAMAGE		21.0f								// Damage
-#define SHOTGUN_RANGE		0.3f								// Range
-#define SHOTGUN_SPREAD		7.0f								// Spread
+#define SHOTGUN_AR			1.8f								// Attack Rate
+#define SHOTGUN_DAMAGE		16.0f								// Damage
+#define SHOTGUN_RANGE		0.23f								// Range
+#define SHOTGUN_SPREAD		6.0f								// Spread
 #define SHOTGUN_AOE			0.0f								// Area of effect
-#define SHOTGUN_SPEED		30.0f								// Projectile Speed 35
+#define SHOTGUN_SPEED		40.0f								// Projectile Speed 35
 #define SHOTGUN_OFFSETS		XMFLOAT3( 0.93f, 0.5f, 1.45f )		// Offsets forward, right, up
 
 // Grenade Launcher
 #define GL_AR				3.0f								// Attack Rate
-#define GL_DAMAGE			20.0f								// Damage
+#define GL_DAMAGE			25.0f								// Damage
 #define GL_RANGE			25.0f								// Range
 #define GL_SPREAD			0.0f								// Spread
 #define GL_AOE				2.0f								// Area of effect
@@ -42,8 +46,8 @@
 
 // Sniper
 #define SNIPER_AR			3.2f								// Attack Rate
-#define SNIPER_DAMAGE		28.0f								// Damage
-#define SNIPER_RANGE		5.0f								// Range
+#define SNIPER_DAMAGE		45.0f								// Damage
+#define SNIPER_RANGE		3.0f								// Range
 #define SNIPER_SPREAD		0.0f								// Spread
 #define SNIPER_AOE			0.0f								// Area of effect
 #define SNIPER_SPEED		70.0f								// Projectile Speed 90
@@ -63,11 +67,11 @@
 
 // Claymore
 #define CLAYMORE_AR			2.8f								// Attack Rate
-#define CLAYMORE_DAMAGE		2.0f								// Damage
+#define CLAYMORE_DAMAGE		20.0f								// Damage
 #define CLAYMORE_RADIUS		3.5f								// Radius
 #define CLAYMORE_SPREAD		8									// Spread
 #define CLAYMORE_KB			1.0f								// Knockback
-#define CLAYMORE_TTA		0.75f								// Time till Attack
+#define CLAYMORE_TTA		0.75f / CLAYMORE_SPEED_INCREASE		// Time till Attack
 #define CLAYMORE_STUN		0.3f								// Stun
 #define CLAYMORE_REACH		3.0f								// Reach
 #define CLAYMORE_OFFSETS	XMFLOAT3( 0.8f, -0.65f, 1.3f )		// Offsets forward, right, up
@@ -78,7 +82,7 @@
 #define HAMMER_RADIUS		2.0f								// Radius
 #define HAMMER_SPREAD		20									// Spread
 #define HAMMER_KB			3.0f								// Knockback
-#define HAMMER_TTA			0.82f								// Time till Attack Can't be changed
+#define HAMMER_TTA			0.82f / HAMMER_SPEED_INCREASE		// Time till Attack Can't be changed
 #define HAMMER_STUN			3.0f								// Stun
 #define HAMMER_REACH		2.0f								// Reach
 #define HAMMER_OFFSETS		XMFLOAT3( 1.5f, -0.70f, 1.3f )		// Offsets forward, right, up
@@ -95,14 +99,16 @@
 #define BLOWTORCH_OFFSETS	XMFLOAT3( -0.35f, -0.65f, 1.3f )	// Offsets forward, right, up
 
 // Saw
-#define SAW_AR				3.0f								// Attack Rate
+#define SAW_AR				0.5f								// Attack Rate
 #define SAW_DAMAGE			5.0f								// Damage
-#define SAW_RADIUS			5.0f								// Radius
-#define SAW_SPREAD			7									// Spread
-#define SAW_KB				2.0f								// Knockback
-#define SAW_TTA				0.95f								// Time till Attack
+#define SAW_RADIUS			3.0f								// Radius
+#define SAW_SPREAD			4									// Spread
+#define SAW_KB				2.2f								// Knockback
+#define SAW_TTA				1.5f								// Time till Attack
 #define SAW_STUN			0.0f								// Stun
 #define SAW_REACH			1.3f								// Reach
+#define SAW_OFFSETS			XMFLOAT3( 0.15f, -0.45f, 1.3f )		// Offsets forward, right, up
+
 
 #define CLAYMORE_SLOWDOWN	0.1f	// How much is the player slowed down
 

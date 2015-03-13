@@ -23,10 +23,10 @@ void Server::ClientJoined( IEventPtr eventPtr )
 			mClientMap[data->ID()]->ID		= data->ID();
 			//mClientMap[data->ID()]->AggroCircle	= new BoundingCircle( 1.0f );
 
-			if( mClientMap.size() > mMaxClients || mStopAccept )
+			if( mClientMap.size() > mMaxClients || mGameFull )
 			{
 				IEventPtr bounceClient( new Event_Shutdown_Client() );
-				mStopAccept = true;
+				mGameFull = true;
 				SendEvent( bounceClient, data->ID() );
 				SAFE_DELETE( mClientMap[data->ID()] );
 				mClientMap.erase( data->ID() );
@@ -89,7 +89,8 @@ void Server::ClientJoined( IEventPtr eventPtr )
 				IEventPtr EvEnergyCell( new Event_Server_Sync_Energy_Cell(	i,
 																			mEnergyCells[i]->GetOwnerID(),
 																			mEnergyCells[i]->GetPosition(),
-																			mEnergyCells[i]->GetPickedUp() ) );
+																			mEnergyCells[i]->GetPickedUp(),
+																			mEnergyCells[i]->GetActive() ) );
 				SendEvent( EvEnergyCell, data->ID() );
 			}
 		}
@@ -109,6 +110,7 @@ void Server::ClientLeft( IEventPtr eventPtr )
 
 			IEventPtr E1( new Event_Remote_Left( data->ID() ) );
 			BroadcastEvent( E1 );
+			mGameFull = false;
 		}
 	}
 }
@@ -137,15 +139,14 @@ void Server::ClientUpdate( IEventPtr eventPtr )
 			mClientMap[data->ID()]->Pos.center = data->LowerBodyPos();
 			XMFLOAT3 vel = data->Velocity();
 			XMFLOAT3 dir = data->UpperBodyDirection();
-			std::string name = data->Name();
 			mClientMap[data->ID()]->IsBuffed = data->IsBuffed();
 			mClientMap[data->ID()]->IsAlive = data->IsAlive();
 
 			// No need to update clients about your movements if they don't exist!
 			if( mClientMap.size() > 1 )
 			{
-				IEventPtr E1( new Event_Remote_Update( data->ID(), mClientMap[data->ID()]->Pos.center, vel, dir, name, data->IsAlive() ) );
-				SendCulledUpdate( E1, mClientMap[data->ID()]->Pos.center, data->ID() );
+				IEventPtr E1( new Event_Remote_Update( data->ID(), mClientMap[data->ID()]->Pos.center, vel, dir, data->IsAlive() ) );
+				BroadcastEvent( E1 );
 			}
 		}
 	}
@@ -303,6 +304,20 @@ void Server::ClientAttack( IEventPtr eventPtr )
 	}
 }
 
+void Server::ClientDash( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Dash::GUID )
+	{
+		std::shared_ptr<Event_Client_Dash> data = std::static_pointer_cast<Event_Client_Dash>( eventPtr );
+		auto& it = mClientMap.find(data->ID());
+		if( it != mClientMap.end() )
+		{
+			IEventPtr E1( new Event_Remote_Dash( data->ID() ) );
+			BroadcastEvent( E1, data->ID() );
+		}
+	}
+}
+
 void Server::ClientDown( IEventPtr eventPtr )
 {
 	if( eventPtr->GetEventType() == Event_Client_Down::GUID )
@@ -420,23 +435,39 @@ void Server::ClientInteractEnergyCell( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Client_Sync_Energy_Cell::GUID )
 	{
 		std::shared_ptr<Event_Client_Sync_Energy_Cell> data = std::static_pointer_cast<Event_Client_Sync_Energy_Cell>( eventPtr );
-		IEventPtr E1( new Event_Server_Sync_Energy_Cell( data->EnergyCellID(), data->OwnerID(), data->Position(), data->PickedUp() ) );
+		IEventPtr E1( new Event_Server_Sync_Energy_Cell( data->EnergyCellID(), data->OwnerID(), data->Position(), data->PickedUp(), data->Active() ) );
 		BroadcastEvent( E1 );
 
 		mEnergyCells[data->EnergyCellID()]->SetOwnerID( data->OwnerID() );
 		mEnergyCells[data->EnergyCellID()]->SetPickedUp( data->PickedUp() );
 		mEnergyCells[data->EnergyCellID()]->SetPosition( data->Position() );
+		mEnergyCells[data->EnergyCellID()]->SetSecured( data->Active() );
 
 		for( auto s :mShips )
 		{
-			if( s->GetID() )
+			if( s->GetID() == data->OwnerID() )
 			{
-				s->AddEnergyCell( mEnergyCells[data->EnergyCellID()]->GetOwnerID() );
+				s->AddEnergyCell();
 				IEventPtr E2( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel, s->mEngineLevel, s->mNrOfEnergyCells ) );
 				BroadcastEvent( E2 );
+				mEnergyCells[data->EnergyCellID()]->Reset();
+				mEnergyCells[mCurrentCell]->SetPosition( XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
+				mEnergyCells[mCurrentCell]->SetActive( false );
+				IEventPtr E3( new Event_Server_Sync_Energy_Cell( data->EnergyCellID(), (UINT)-1, XMFLOAT3( 0.0f, 0.0f, 0.0f ), false, false ) );
+				BroadcastEvent( E3 );
 			}
 		}
 
+	}
+}
+
+void Server::ClientSetName( IEventPtr eventPtr )
+{
+	if( eventPtr->GetEventType() == Event_Client_Set_Name::GUID )
+	{
+		std::shared_ptr<Event_Client_Set_Name> data = std::static_pointer_cast<Event_Client_Set_Name>( eventPtr );
+		IEventPtr E1( new Event_Remote_Set_Name( data->ID(), data->Name() ) ); 
+		BroadcastEvent( E1, data->ID() );
 	}
 }
 
@@ -562,7 +593,16 @@ void Server::XP( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_XP::GUID )
 	{
 		std::shared_ptr<Event_XP> data = std::static_pointer_cast<Event_XP>( eventPtr );
-		IEventPtr E1( new Event_Server_XP( data->PlayerID(), data->XP() ) );
+		UINT playerID = data->PlayerID();
+		//if( data->PlayerID() == 70 )
+		//{
+		//	playerID = 1;
+		//}
+		//else if( data->PlayerID() == 71 )
+		//{
+		//	playerID = 2;
+		//}
+		IEventPtr E1( new Event_Server_XP( playerID, data->XP() ) );
 		BroadcastEvent( E1 );
 	}
 }
@@ -576,7 +616,6 @@ void Server::ChangeWeapon( IEventPtr eventPtr )
 		BroadcastEvent( E1, data->ID() );
 	}
 }
-
 
 void Server::ClientUpdateShip( IEventPtr eventPtr )
 {
@@ -618,6 +657,16 @@ void Server::HostStartCountdown( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Host_Start_Game_Countdown::GUID )
 	{
 		IEventPtr E1( new Event_Server_Start_Game_Countdown() );
+		BroadcastEvent( E1 );
+	}
+}
+
+void Server::ClientRequestParticleSystem( IEventPtr eventPtr )
+{
+	if ( eventPtr->GetEventType() == Event_Client_Request_ParticleSystem::GUID )
+	{
+		std::shared_ptr<Event_Client_Request_ParticleSystem> data = std::static_pointer_cast<Event_Client_Request_ParticleSystem>( eventPtr );
+		IEventPtr E1( new Event_Remote_Request_ParticleSystem( data->ID(), data->ParticleType(), data->Position(), data->Direction(), data->InitialVelocity() ) );
 		BroadcastEvent( E1 );
 	}
 }
@@ -704,14 +753,14 @@ UINT Server::CurrentPID()
 void Server::CreateShips()
 {
 	UINT shipID = 60;
-	float xOffset = -48.0f;
+	float xOffset = -96.0f;
 
 	for( UINT i = 0; i < MAX_TEAMS; i++ )
 	{
 		mShips.push_back( new ServerShip() );
 		mShips.back()->Initialize( shipID, CurrentTeamDelegate(), XMFLOAT3( xOffset, 0.0f, 20.0f ), XMFLOAT4( 0.0f, 0.0f, 0.0f, 0.0f ), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 		shipID++;
-		xOffset += 96.0f;
+		xOffset += 192.0f;
 	}
 
 	for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
@@ -757,23 +806,9 @@ void Server::UpdateShip( float deltaTime, ServerShip* s )
 	s->Update( deltaTime );
 	IEventPtr E1( new Event_Server_Update_Turret( s->mServerTurret->mID, s->mServerTurret->mTurretHead->rot ) );
 	BroadcastEvent( E1 );
-	//SendCulledUpdate( E1, s->mServerTurret->mPos );
 
 	IEventPtr E2( new Event_Server_Update_Ship( s->mID, s->mMaxShield, s->mCurrentShield, s->mCurrentHP ) );
 	BroadcastEvent( E2 );
-}
-
-void Server::SendCulledUpdate( IEventPtr eventPtr, XMFLOAT3 enemyPos, UINT exception )
-{
-	/*for( auto& cm : mClientMap )
-	{
-		auto c = cm.second;
-		if( CullEnemyUpdate( c->Pos.center, enemyPos ) && c->ID != exception )
-		{*/
-			//SendEvent( eventPtr, c->ID );
-	BroadcastEvent( eventPtr );
-	//	}
-	//}
 }
 
 bool Server::CullEnemyUpdate( XMFLOAT3 playerPos, XMFLOAT3 enemyPos )
@@ -781,11 +816,38 @@ bool Server::CullEnemyUpdate( XMFLOAT3 playerPos, XMFLOAT3 enemyPos )
 	return HelperFunctions::Dist3Squared( playerPos, enemyPos ) <= ENEMY_UPDATE_RANGE;
 }
 
+void Server::OnSpawnEnergyCell( IEventPtr e )
+{
+	if( e->GetEventType() == Event_Spawn_Energy_Cell::GUID )
+	{
+		XMFLOAT3 cellPos = mCellPositionQueue.front();
+		mCellPositionQueue.pop();
+		mCellPositionQueue.push( cellPos );
+		mEnergyCells[mCurrentCell]->Reset();
+		mEnergyCells[mCurrentCell]->SetPosition( cellPos );
+		mEnergyCells[mCurrentCell]->SetActive( true );
+		
+		mDropped = false;
+		IEventPtr e( new Event_Server_Sync_Energy_Cell( mCurrentCell, -1, cellPos, false, true ) );
+		BroadcastEvent( e );
+	}
+}
+
+void Server::OnDroppedEnergyCell( IEventPtr e )
+{
+	if( e->GetEventType() == Event_Client_Dropped_Energy_Cell::GUID )
+	{
+		mDropped = true;
+	}
+}
+
 void Server::CreateEnergyCells()
 {
 	//Calculate Energy cell position
-	CalculateCellSpawnPositions( mShips.at(0)->GetPos() );
-	CalculateCellSpawnPositions( mShips.at(1)->GetPos() );
+	//CalculateCellSpawnPositions( mShips.at(0)->GetPos() );
+	//CalculateCellSpawnPositions( mShips.at(1)->GetPos() );
+
+	CalculateCellPosition( XMFLOAT3( 0, 0, 0 ), 30, 60 );
 
 	//Energy cells
 	mEnergyCells = new EnergyCell*[MAX_ENERGY_CELLS];
@@ -794,8 +856,35 @@ void Server::CreateEnergyCells()
 	for( int i = 1; i < MAX_ENERGY_CELLS ; i++ )
 	{
 		mEnergyCells[i] = new EnergyCell();
-		mEnergyCells[i]->Initialize( mCellPositionQueue.front() );
-		mCellPositionQueue.pop();
+		mEnergyCells[i]->Initialize( XMFLOAT3( 1000,0,0 ) );
+	}
+}
+
+void Server::CalculateCellPosition( XMFLOAT3 pos, float offSetX, float offSetZ )
+{
+	// Length between every cell
+	float halfX = offSetX * 0.5f;
+	float halfZ = offSetZ * 0.5f;
+	
+	XMFLOAT3 energyCellPosition	= pos;
+	XMFLOAT3 placePos = XMFLOAT3( 0, 0, 0 );
+
+	int infCounter		= 0;
+	int placeCounter	= 0;
+
+	while( placeCounter < 30 )
+	{
+		int x = (int)halfX - ( rand() % (int)offSetX );
+		int z = (int)halfZ - ( rand() % (int)offSetZ );
+
+		energyCellPosition = XMFLOAT3( energyCellPosition.x + x, 0 , energyCellPosition.z + z );
+		placePos = Pathfinder::GetInstance()->GetRandomTriInMesh( energyCellPosition );
+
+		if( !( HelperFunctions::Float3Equal( placePos, DirectX::XMFLOAT3( 0, 0 ,0 ) ) ) )
+		{
+			mCellPositionQueue.push( placePos );
+			placeCounter++;
+		}
 	}
 }
 
@@ -947,6 +1036,31 @@ void Server::Update( float deltaTime )
 	}
 	if( this && mActive && mStopAccept )
 	{
+		if( !mEnergyCells[1]->GetActive() )
+		{
+			mCellSpawnTimer -= deltaTime;
+			if( mCellSpawnTimer <= 0.0f )
+			{
+				mCellSpawnTimer = 5.0f;
+				IEventPtr e( new Event_Spawn_Energy_Cell() );
+				EventManager::GetInstance()->QueueEvent( e );
+			}
+		}
+		if( !mEnergyCells[1]->GetPickedUp() && mDropped && mEnergyCells[1]->GetActive() )
+		{
+			mRespawnCellTimer -= deltaTime;
+			if( mRespawnCellTimer <= 0.0f )
+			{
+				mEnergyCells[1]->SetActive( false );
+				IEventPtr e( new Event_Server_Sync_Energy_Cell( 1, -1, XMFLOAT3(0,0,0), false, false ) );
+				BroadcastEvent( e );
+			}
+
+		}
+		else
+		{
+			mRespawnCellTimer = 10.0f;
+		}
 		// Handles the client getting buffed by the ship
 		bool shipBuff = false;
 
@@ -994,7 +1108,7 @@ void Server::Update( float deltaTime )
 																	mEnemies[i]->IsAlive(),
 																	mEnemies[i]->GetHP() ) );
 				{
-					SendCulledUpdate( enemy, mEnemies[i]->GetPosition() );
+					BroadcastEvent( enemy );
 				}
 			}
 		}
@@ -1062,6 +1176,7 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ClientUpdateHP, this, Event_Client_Update_HP::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientMeleeHit, this, Event_Client_Melee_Hit::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientAttack, this, Event_Client_Attack::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientDash, this, Event_Client_Dash::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientDown, this, Event_Client_Down::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientUp, this, Event_Client_Up::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientAttemptRevive, this, Event_Client_Attempt_Revive::GUID );
@@ -1084,8 +1199,14 @@ bool Server::Initialize()
 	EventManager::GetInstance()->AddListener( &Server::ResetTurretTargets, this, Event_Reset_Turret_Targets::GUID );
 	EventManager::GetInstance()->AddListener( &Server::ClientChangeReady, this, Event_Client_Change_Ready_State::GUID );
 	EventManager::GetInstance()->AddListener( &Server::HostStartCountdown, this, Event_Host_Start_Game_Countdown::GUID );
+	EventManager::GetInstance()->AddListener( &Server::ClientRequestParticleSystem, this, Event_Client_Request_ParticleSystem::GUID );
 	EventManager::GetInstance()->AddListener( &Server::EnemyFiredProjectile, this, Event_Enemy_Fired_Projectile::GUID );
-	//EventManager::GetInstance()->AddListener( &Server::ClientShipProjectileDamage, this, Event_Enemy_Fired_Projectile::GUID );
+
+	EventManager::GetInstance()->AddListener( &Server::OnSpawnEnergyCell, this, Event_Spawn_Energy_Cell::GUID );
+	EventManager::GetInstance()->AddListener( &Server::OnDroppedEnergyCell, this, Event_Client_Dropped_Energy_Cell::GUID );
+
+	EventManager::GetInstance()->AddListener( &Server::ClientSetName, this, Event_Client_Set_Name::GUID );
+
 
 	mCurrentPID				= 0;
 	mActive					= false;
@@ -1095,6 +1216,10 @@ bool Server::Initialize()
 	mNrOfProjectilesFired	= 0;
 	mStopAccept				= false;
 	mMaxClients				= 0;
+	mCurrentCell			= 1;
+	mCellSpawnTimer			= 5.0f;
+	mRespawnCellTimer		= 10.0f;
+	mDropped				= false;
 
 	srand( (UINT)time( NULL ) );
 

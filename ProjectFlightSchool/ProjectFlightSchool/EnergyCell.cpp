@@ -33,6 +33,16 @@ bool EnergyCell::GetPickedUp() const
 	return mPickedUp;
 }
 
+bool EnergyCell::GetActive() const
+{
+	return mActive;
+}
+
+void EnergyCell::SetActive( bool active )
+{
+	mActive = active;
+}
+
 DirectX::XMFLOAT3 EnergyCell::GetPosition() const
 {
 	return mPickUpRadius->center;
@@ -50,33 +60,28 @@ bool EnergyCell::GetSecured() const
 
 HRESULT EnergyCell::Update( float deltaTime )
 {
-	if( mSecured )
+	if( mActive )
 	{
-		return S_OK;
+		mHooverFactor += deltaTime * 1.0f;
+
+		if( mPickedUp )
+		{
+			mPickUpRadius->center.y = ( sinf( mHooverFactor ) / 2.0f ) + 5.0f;
+		}
+		else
+		{
+			mPickUpRadius->center.y = sinf( mHooverFactor ) + 2.0f;
+		}
+
+		UpdateLight( deltaTime );
+
+		RenderManager::GetInstance()->AnimationUpdate( mAnimationTrack, deltaTime );
 	}
-
-	mHooverFactor += deltaTime * 1.0f;
-
-	if( mPickedUp )
-	{
-		mPickUpRadius->center.y = ( sinf( mHooverFactor ) / 2.0f ) + 5.0f;
-	}
-	else
-	{
-		mPickUpRadius->center.y = sinf( mHooverFactor ) + 2.0f;
-	}
-
-	UpdateLight( deltaTime );
-
-	RenderManager::GetInstance()->AnimationUpdate( mAnimationTrack, deltaTime );
-
 	return S_OK;
 }
 
 void EnergyCell::UpdateLight( float deltaTime )
 {
-	if( !mSecured )
-	{
 		if( !mIsLightActive )
 		{
 			IEventPtr reg( new Event_Add_Point_Light( mEnergyPointLight ) );
@@ -95,13 +100,12 @@ void EnergyCell::UpdateLight( float deltaTime )
 		{
 			mEnergyPointLight->colorAndRadius.w = 3.0f;
 		}	
-	}
 }
 
 HRESULT EnergyCell::Render()
 {
-	RenderManager::GetInstance()->AddAnim3dToList( mAnimationTrack, ANIMATION_PLAY_LOOPED, mPickUpRadius->center );
-
+	if( mActive )
+		RenderManager::GetInstance()->AddAnim3dToList( mAnimationTrack, ANIMATION_PLAY_LOOPED, mPickUpRadius->center );
 	return S_OK;
 }
 
@@ -111,12 +115,15 @@ void EnergyCell::Reset()
 	mPickedUp		= false;
 	mSecured		= false;
 	mIsLightActive	= false;
+	mActive			= false;
 }
 
 HRESULT EnergyCell::Initialize( DirectX::XMFLOAT3 position )
 {
 	HRESULT hr = S_OK;
 
+	mActive					= false;
+	mHasBeenPickedUp		= false;
 	mPickedUp				= false;
 	mPickUpRadius			= new BoundingCircle( 1.0f );
 	mPickUpRadius->center	= position;

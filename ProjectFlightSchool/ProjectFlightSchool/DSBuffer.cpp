@@ -8,14 +8,19 @@ HRESULT DSBuffer::CreateBasicBuffer( LPDIRECTSOUND8 lpDirectSound, WaveHeaderTyp
 	HRESULT				hr;
 
 	// Set up WAV format structure. 
+	if( waveFileHeader.numChannels == 1 )
+	{
+		waveFileHeader.numChannels	= 2;
+		waveFileHeader.sampleRate	/= 2;
+	}
 
 	memset( &wfx, 0, sizeof(WAVEFORMATEX) );
 	wfx.wFormatTag		= WAVE_FORMAT_PCM;
 	wfx.nChannels		= waveFileHeader.numChannels;
 	wfx.nSamplesPerSec	= waveFileHeader.sampleRate;
-	wfx.nBlockAlign		= waveFileHeader.blockAlign;
-	wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
 	wfx.wBitsPerSample	= waveFileHeader.bitsPerSample;
+	wfx.nBlockAlign		= ( wfx.nChannels * wfx.wBitsPerSample ) / 8;
+	wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
 
 	if ( waveFileHeader.dataSize == 0 )
 	{
@@ -27,7 +32,7 @@ HRESULT DSBuffer::CreateBasicBuffer( LPDIRECTSOUND8 lpDirectSound, WaveHeaderTyp
 	memset( &dsbdesc, 0, sizeof(DSBUFFERDESC) );
 	dsbdesc.dwSize			= sizeof(DSBUFFERDESC);
 	dsbdesc.dwFlags			=
-		DSBCAPS_CTRL3D | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY //DSBCAPS_CTRL3D och DSBCAPS_CTRLPAN kan inte användas samtidigt. PAN är höger/vänster och tror inte att det kommer att behövas. Antingen 3D eller inget låter vettigt.
+		DSBCAPS_CTRLPAN | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY //DSBCAPS_CTRL3D och DSBCAPS_CTRLPAN kan inte användas samtidigt. PAN är höger/vänster och tror inte att det kommer att behövas. Antingen 3D eller inget låter vettigt.
 		| DSBCAPS_GLOBALFOCUS; //Fortsätter spela trots att andra fönster är i fokus
 	dsbdesc.dwBufferBytes	= waveFileHeader.dataSize;//3 * wfx.nAvgBytesPerSec; //storlek på 3 sekunders streamingdata
 	dsbdesc.lpwfxFormat		= &wfx;
@@ -109,65 +114,7 @@ bool DSBuffer::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName, LONG vol
 		return false;
 	}
 
-	///////////////////////////////////Prepare buffer desc
-	WAVEFORMATEX		wfx;
-	DSBUFFERDESC		dsbdesc;
-	HRESULT				hr;
-
-	// Set up WAV format structure. 
-	if( waveFileHeader.numChannels == 1 )
-	{
-		waveFileHeader.numChannels	= 2;
-		waveFileHeader.blockAlign	*= 2;
-	}
-	memset (&wfx, 0, sizeof(WAVEFORMATEX) );
-	wfx.wFormatTag		= WAVE_FORMAT_PCM;
-	wfx.nChannels		= waveFileHeader.numChannels;
-	wfx.nSamplesPerSec	= waveFileHeader.sampleRate;
-	wfx.nBlockAlign		= waveFileHeader.blockAlign;
-	wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
-	wfx.wBitsPerSample	= waveFileHeader.bitsPerSample;
-
-	if ( waveFileHeader.dataSize == 0 )
-	{
-		waveFileHeader.dataSize = 3 * wfx.nAvgBytesPerSec;
-	}
-
-	// Set up DSBUFFERDESC structure. 
-
-	memset( &dsbdesc, 0, sizeof(DSBUFFERDESC) );
-	dsbdesc.dwSize			= sizeof(DSBUFFERDESC);
-	dsbdesc.dwFlags			=
-		DSBCAPS_CTRL3D | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY //DSBCAPS_CTRL3D och DSBCAPS_CTRLPAN can't be used at the same time. PAN is left/right.
-		| DSBCAPS_GLOBALFOCUS; //Continue playing no matter which window is used.
-	dsbdesc.dwBufferBytes	= waveFileHeader.dataSize;//3 * wfx.nAvgBytesPerSec; //3 seconds size
-	dsbdesc.lpwfxFormat		= &wfx;
-
-	////////////////////////////////////// Create buffer and initialize it. 
-	for( int i = 0; i < mNrOfBuffers; i++ )
-	{
-		LPDIRECTSOUNDBUFFER pDsb = NULL;
-		hr = lpds->CreateSoundBuffer( &dsbdesc, &pDsb, NULL );
-		if ( FAILED( hr ) )
-		{
-			printf( "CreateSoundBuffer has failed\n" );
-			return false;
-		}
-		else if ( SUCCEEDED( hr ) )
-		{
-		
-
-				hr = pDsb->QueryInterface( IID_IDirectSoundBuffer8, (LPVOID*)&mBuffer[i] );
-				if ( FAILED( hr ) )
-				{
-					printf( "QueryInterface has failed\n" );
-					return false;
-				}
-		
-			pDsb->Release();
-		}
-	}
-	hr = CreateBasicBuffer( lpds, waveFileHeader );
+	HRESULT hr = CreateBasicBuffer( lpds, waveFileHeader );
 	if ( FAILED( hr ) )
 	{
 		printf( "CreateBasicBuffer in FillBufferWithWave has failed\n" );

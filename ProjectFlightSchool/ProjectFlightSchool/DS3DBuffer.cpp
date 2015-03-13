@@ -1,5 +1,58 @@
 #include "DS3DBuffer.h"
 
+//Kalla bara på denna en gång. Sen kan du använda IDirectSound8::DuplicateSoundBuffer
+HRESULT DS3DBuffer::CreateBasicBuffer( LPDIRECTSOUND8 lpDirectSound, WaveHeaderType waveFileHeader )
+{
+	WAVEFORMATEX		wfx;
+	DSBUFFERDESC		dsbdesc;
+	HRESULT				hr;
+
+	// Set up WAV format structure. 
+	memset( &wfx, 0, sizeof(WAVEFORMATEX) );
+	wfx.wFormatTag		= WAVE_FORMAT_PCM;
+	wfx.nChannels		= waveFileHeader.numChannels;
+	wfx.nSamplesPerSec	= waveFileHeader.sampleRate;
+	wfx.nBlockAlign		= waveFileHeader.blockAlign;
+	wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
+	wfx.wBitsPerSample	= waveFileHeader.bitsPerSample;
+
+	if ( waveFileHeader.dataSize == 0 )
+	{
+		waveFileHeader.dataSize = 3 * wfx.nAvgBytesPerSec;
+	}
+
+	// Set up DSBUFFERDESC structure. 
+
+	memset( &dsbdesc, 0, sizeof(DSBUFFERDESC) );
+	dsbdesc.dwSize			= sizeof(DSBUFFERDESC);
+	dsbdesc.dwFlags			=
+		DSBCAPS_CTRL3D | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY //DSBCAPS_CTRL3D och DSBCAPS_CTRLPAN kan inte användas samtidigt. PAN är höger/vänster och tror inte att det kommer att behövas. Antingen 3D eller inget låter vettigt.
+		| DSBCAPS_GLOBALFOCUS; //Fortsätter spela trots att andra fönster är i fokus
+	dsbdesc.dwBufferBytes	= waveFileHeader.dataSize;//3 * wfx.nAvgBytesPerSec; //storlek på 3 sekunders streamingdata
+	dsbdesc.lpwfxFormat		= &wfx;
+
+	// Create buffer. 
+
+
+	for( int i = 0; i < mNrOfBuffers; i++ )
+	{
+		LPDIRECTSOUNDBUFFER pDsb = NULL;
+		hr = lpDirectSound->CreateSoundBuffer( &dsbdesc, &pDsb, NULL );
+		if ( FAILED( hr ) )
+		{
+			printf( "CreateSoundBuffer has failed\n" );
+			return FAILED( hr );
+		}
+		else if ( SUCCEEDED( hr ) )
+		{
+			hr = pDsb->QueryInterface( IID_IDirectSoundBuffer8, (LPVOID*)&mBuffer[i] );
+		}
+		pDsb->Release();
+	}
+		
+	return hr;
+}
+
 bool DS3DBuffer::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName, LONG volume )
 {
 	///////////////////////////Read header
@@ -107,7 +160,7 @@ bool DS3DBuffer::FillBufferWithWave( LPDIRECTSOUND8 lpds, char *fileName, LONG v
 			pDsb->Release();
 		}
 	}
-	hr = DSBuffer::CreateBasicBuffer( lpds, waveFileHeader );
+	hr = CreateBasicBuffer( lpds, waveFileHeader );
 	if ( FAILED( hr ) )
 	{
 		printf( "CreateBasicBuffer in FillBufferWithWave has failed\n" );

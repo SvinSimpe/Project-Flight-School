@@ -45,6 +45,11 @@ void Gui::DeActivateInGameWindow()
 	mInGameWindow.DeActivate();
 }
 
+bool Gui::CheckWin()
+{
+	return mShipWindow.GetNrOfEnergyCells() == mNeededEnergyCells;
+}
+
 HRESULT Gui::Update( GuiUpdate guiUpdate )
 {
 	HRESULT result = S_OK;
@@ -183,7 +188,7 @@ HRESULT Gui::Render()
 		else
 		{
 			renderText = std::to_string( mShipWindow.GetNrOfEnergyCells() ) + " of " + std::to_string( mNeededEnergyCells ) + " energy cells";
-			mFont.WriteText( renderText, 1680.0f, 280.0f, 2.0f );
+			mFont.WriteText( renderText, 1680.0f, 280.0f, 2.0f, COLOR_CYAN );
 		}
 	}
 	else

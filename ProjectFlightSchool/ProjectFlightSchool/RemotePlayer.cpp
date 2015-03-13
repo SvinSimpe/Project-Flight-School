@@ -14,9 +14,7 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 			if( XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) ) > 0.05f )
 				XMStoreFloat3( &mLowerBody.direction, XMVector3Normalize( XMLoadFloat3( &data->Velocity() ) ) );
 			mUpperBody.direction							= data->UpperBodyDirection();
-			mPlayerName										= data->Name();
 
-			//TEST
 			mBoundingBox->position		= mLowerBody.position;
 			mBoundingCircle->center		= mLowerBody.position;
 			mBoundingCircleAura->center	= mLowerBody.position;
@@ -37,6 +35,15 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 				RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, data->Animation() );
 				mRightArmAnimationCompleted = false;
 			}
+		}
+	}
+	else if( newEvent->GetEventType() == Event_Remote_Dash::GUID )
+	{
+		std::shared_ptr<Event_Remote_Dash> data = std::static_pointer_cast<Event_Remote_Dash>( newEvent );
+		if( mID == data->ID() )
+		{
+			mDashVelocity = DASH_VELOCITY;
+			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[LEGS_DASH][TEAM_ARRAY_ID] );
 		}
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Died::GUID )
@@ -98,7 +105,7 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 		if( data->ID() == mID )
 		{
 			mIsBuffed	= data->IsBuffed();
-			mBuffMod	= data->BuffMod();
+			mBufflevel	= (int)data->BuffMod();
 		}
 	}
 	else if( newEvent->GetEventType() == Event_Server_Change_Weapon::GUID )
@@ -122,6 +129,14 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 			}
 		}
 	}
+	else if( newEvent->GetEventType() == Event_Remote_Set_Name::GUID )
+	{
+		std::shared_ptr<Event_Remote_Set_Name> data = std::static_pointer_cast<Event_Remote_Set_Name>( newEvent );
+		if( data->ID() == mID )
+		{
+			mPlayerName = data->Name();
+		}
+	}
 }
 
 HRESULT RemotePlayer::InitializeGraphics()
@@ -136,14 +151,19 @@ HRESULT RemotePlayer::InitializeGraphics()
 		OutputDebugString( L"\nERROR loading player model\n" );
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamA/Animations/", "down.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DOWN][0] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamA/Animations/", "dash.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DASH][0] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+
 	//team B
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/Animations/", "idle.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_IDLE][1] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/Animations/", "idles.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_IDLE][1] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/Animations/", "walk.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_WALK][1] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/Animations/", "walks.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_WALK][1] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/Animations/", "death.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DEATH][1] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/Animations/", "deaths.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DEATH][1] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/Animations/", "downs.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DOWN][1] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/Animations/", "down.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DOWN][1] ) ) )
+		OutputDebugString( L"\nERROR loading player model\n" );
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/robotTeamB/Animations/", "robotDash.PaMan", mAnimations[PLAYER_ANIMATION::LEGS_DASH][1] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	//BLOWTORCH
@@ -213,6 +233,16 @@ HRESULT RemotePlayer::InitializeGraphics()
 
 	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Sniper/Animations/", "sniperAnim.PaMan",	mWeaponAnimations[SNIPER][ATTACK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
+
+	//CHAINSAW
+		if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Saw/Animations/", "sawAnim1.PaMan",	mWeaponAnimations[SAW][ATTACK] ) ) )
+		OutputDebugString( L"\nERROR loading chainsaw animation\n" );
+
+		if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Saw/Animations/", "sawIdle.PaMan",	mWeaponAnimations[SAW][IDLE] ) ) )
+		OutputDebugString( L"\nERROR loading chainsaw animation\n" );
+
+		if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Saw/Animations/", "sawWalk.PaMan",	mWeaponAnimations[SAW][WALK] ) ) )
+		OutputDebugString( L"\nERROR loading chainsaw animation\n" );
 
 	//////////////////////////////////////
 	//			ROBOT PARTS
@@ -288,6 +318,10 @@ HRESULT RemotePlayer::InitializeGraphics()
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 
+
+	if( Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Arrow/", "energyArrow.pfs", mCellArrow ) )
+		OutputDebugString( L"\nERROR loading arrow model\n" );
+
 	//////////////////////////////////////
 	//			HUD ELEMENTS
 	/////////////////////////////////////
@@ -347,12 +381,19 @@ HRESULT RemotePlayer::Update( float deltaTime )
 	XMMATRIX loadedMat = XMLoadFloat4x4( &upperBody );
 	XMMATRIX translate = XMMatrixTranslation( mLowerBody.position.x, mLowerBody.position.y, mLowerBody.position.z );
 
-	float yaw = -atan2f( mUpperBody.direction.z, mUpperBody.direction.x );
-	XMMATRIX rotate	= XMMatrixRotationRollPitchYaw( 0.0f, yaw, 0.0 );
+	float yaw				= -atan2f( mLowerBody.direction.z, mLowerBody.direction.x );
+	XMMATRIX legRotation	= XMMatrixRotationRollPitchYaw( 0.0f, yaw, 0.0f );
+	XMMATRIX invLegRotation = XMMatrixInverse( nullptr, legRotation );
 
-	XMMATRIX transformation = loadedMat * rotate * translate;
+	yaw						= -atan2f( mUpperBody.direction.z, mUpperBody.direction.x );
+	XMMATRIX upperRotation	= XMMatrixRotationRollPitchYaw( 0.0f, yaw, 0.0f );
+
+	XMMATRIX transformation = invLegRotation * upperRotation * loadedMat * legRotation * translate;
 
 	XMStoreFloat4x4( &mLowerBody.rootMatrix, transformation );
+
+	mDashVelocity -= deltaTime * 0.5f;
+	mDashVelocity = max( 1.0f, mDashVelocity );
 
 	// Update Animation
 	if( !mIsDown )
@@ -361,18 +402,21 @@ HRESULT RemotePlayer::Update( float deltaTime )
 		{
 			float currentVelocity = XMVectorGetX( XMVector3Length( XMLoadFloat3( &mVelocity ) ) );
 
-			if( currentVelocity < 0.2f )
+			if( mDashVelocity < 1.35f )
 			{
-				if( mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] )
+				if( currentVelocity < 0.2f )
 				{
-					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] );
+					if( mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] )
+					{
+						RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_IDLE][TEAM_ARRAY_ID] );
+					}
 				}
-			}
-			else
-			{
-				if(	mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] )
+				else
 				{
-					RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] );
+					if(	mLowerBody.playerModel[TEAM_ARRAY_ID].mNextAnimation != mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] )
+					{
+						RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[PLAYER_ANIMATION::LEGS_WALK][TEAM_ARRAY_ID] );
+					}
 				}
 			}
 
@@ -385,7 +429,19 @@ HRESULT RemotePlayer::Update( float deltaTime )
 			if( mRightArmAnimationCompleted && mArms.rightArm.mNextAnimation != mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] )
 				RenderManager::GetInstance()->AnimationStartNew( mArms.rightArm, mWeaponAnimations[mLoadOut->rangedWeapon->weaponType][IDLE] );
 
-			RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
+			if( mLoadOut->meleeWeapon->weaponType == CLAYMORE )
+			{
+				RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime * CLAYMORE_SPEED_INCREASE );
+			}
+			else if( mLoadOut->meleeWeapon->weaponType == HAMMER )
+			{
+				RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime * HAMMER_SPEED_INCREASE );
+			}
+			else
+			{
+				RenderManager::GetInstance()->AnimationUpdate( mArms.leftArm, deltaTime );
+			}
+
 			RenderManager::GetInstance()->AnimationUpdate( mArms.rightArm, deltaTime );
 		}
 		else
@@ -492,7 +548,9 @@ HRESULT RemotePlayer::Render()
 	if ( RenderManager::GetInstance()->AddAnim3dToList( mArms.rightArm,
 		ANIMATION_PLAY_ONCE,
 		&mLowerBody.rootMatrix ) )
+	{
 		mRightArmAnimationCompleted = true;
+	}
 
 	//Render lower body
 
@@ -523,21 +581,25 @@ HRESULT RemotePlayer::Initialize()
 	mDeathTime				= 8.0f;
 	mTimeTillDeath			= mDeathTime;
 
-	mSpawnTime				= 10.0f;
+	mSpawnTime				= 5.0f;
 	mTimeTillSpawn			= mSpawnTime;
+
+	mDashVelocity			= 1.0f;
 
 	//Weapon Initialization
 	mLoadOut				= new LoadOut();
 
 	mLoadOut->rangedWeapon	= new RangedInfo( MINIGUN );
-	mLoadOut->meleeWeapon	= new MeleeInfo( HAMMER );
+	mLoadOut->meleeWeapon	= new MeleeInfo( CLAYMORE );
 	//mLoadOut->meleeWeapon	= new MeleeInfo( BLOWTORCH );
 	//mLoadOut->rangedWeapon	= new RangedInfo( GRENADELAUNCHER );
 
 	InitializeGraphics();
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Server_Change_Buff_State::GUID );
 
-	mBuffMod				= 0.5f;
+	mLifeRegenerationAmount	= 1.0f;
+	mLifeRegenerationTimer	= 1.4f;
+	mBufflevel				= 1;
 	mEnergyCellID			= (UINT)-1;
 
 	return S_OK;
@@ -549,6 +611,7 @@ void RemotePlayer::RemoteInit( unsigned int id, int team )
 	mTeam			= team;
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Update::GUID );
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Attack::GUID );
+	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Dash::GUID );
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Died::GUID );
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Spawned::GUID );
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Update_HP::GUID );
@@ -556,10 +619,12 @@ void RemotePlayer::RemoteInit( unsigned int id, int team )
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Up::GUID );
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Server_Switch_Team::GUID );
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Server_Change_Weapon::GUID );
+	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Remote_Set_Name::GUID );
 }
 
 void RemotePlayer::Release()
 {
+	mID = (UINT)-1;
 	mLoadOut->Release();
 	SAFE_DELETE( mLoadOut );
 
@@ -588,7 +653,7 @@ RemotePlayer::RemotePlayer()
 	mLoadOut						= nullptr;
 	mSpawnPosition					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mIsBuffed						= false;
-	mBuffMod						= 0.0f;
+	mLifeRegenerationAmount			= 0.0f;
 }
 
 RemotePlayer::~RemotePlayer()
@@ -666,11 +731,36 @@ XMFLOAT3 RemotePlayer::GetVelocity() const
 	return mVelocity;
 }
 
+XMFLOAT3 RemotePlayer::GetCurrentVelocity() const
+{
+	return mCurrentTravelVelocity;
+}
+
+XMFLOAT3 RemotePlayer::GetWeaponOffset()
+{
+	//Offset calcs
+	XMFLOAT3 weaponOffsets =	mLoadOut->rangedWeapon->weaponType == MINIGUN			? MINIGUN_OFFSETS : 
+								mLoadOut->rangedWeapon->weaponType == SHOTGUN			? SHOTGUN_OFFSETS :
+								mLoadOut->rangedWeapon->weaponType == GRENADELAUNCHER	? GL_OFFSETS :
+								mLoadOut->rangedWeapon->weaponType == SNIPER			? SNIPER_OFFSETS : XMFLOAT3( 0.0f, 0.0f, 1.0f );
+
+	XMVECTOR position	= XMLoadFloat3( &mLowerBody.position );
+	XMVECTOR direction	= XMLoadFloat3( &mUpperBody.direction );
+	XMVECTOR offset		= XMLoadFloat3( &XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + weaponOffsets.z, mLowerBody.position.z ) );
+	
+	offset += XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), direction ) ) * weaponOffsets.y;
+	offset += direction * weaponOffsets.x;
+
+	XMFLOAT3 loadDir;
+	XMStoreFloat3( &loadDir, offset );
+
+	return loadDir;
+}
+
 std::string RemotePlayer::GetName() const
 {
 	return mPlayerName;
 }
-
 
 UINT RemotePlayer::GetEnergyCellID() const
 {

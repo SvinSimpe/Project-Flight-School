@@ -6,7 +6,7 @@
 #include "BoundingGeometry.h"
 #include "RenderManager.h"
 
-#define MAX_ENERGY_CELLS 11
+#define MAX_ENERGY_CELLS 2
 
 class EnergyCell
 {
@@ -15,9 +15,11 @@ class EnergyCell
 		AssetID				mAnimation;
 		UINT				mOwnerID;
 		bool				mPickedUp;
+		bool				mHasBeenPickedUp;
 		BoundingCircle*		mPickUpRadius;
 		float				mHooverFactor;
 		bool				mSecured;
+		bool				mActive;
 		PointLight*			mEnergyPointLight;
 		bool				mIsLightActive;
 		float				mIntensity;
@@ -39,6 +41,10 @@ class EnergyCell
 		DirectX::XMFLOAT3	GetPosition() const;
 		BoundingCircle*		GetPickUpRadius() const;
 		bool				GetSecured() const;
+		bool				GetActive() const;
+		void				SetActive( bool active );
+
+
 
 		HRESULT				Update( float deltaTime );
 		HRESULT				Render();

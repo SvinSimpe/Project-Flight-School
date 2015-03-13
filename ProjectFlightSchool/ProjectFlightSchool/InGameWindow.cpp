@@ -48,14 +48,14 @@ void InGameWindow::Update( float deltaTime )
 		{
 			DeActivate();
 			IEventPtr E1( new Event_Reset_Game() );
-			EventManager::GetInstance()->QueueEvent( E1 );
+			EventManager::GetInstance()->TriggerEvent( E1 );
 			break;
 		}
 		case 3:
 		{
 			DeActivate();
 			IEventPtr E1( new Event_Exit_Game() );
-			EventManager::GetInstance()->QueueEvent( E1 );
+			EventManager::GetInstance()->TriggerEvent( E1 );
 			break;
 		}
 		default:
@@ -89,6 +89,7 @@ void InGameWindow::Update( float deltaTime )
 		case 1:
 		{
 			mInControls	= true;
+			break;
 		}
 		case 2:
 		{
@@ -135,7 +136,7 @@ void InGameWindow::Render()
 	}
 	else
 	{
-		mFont.WriteText( "Options", ( Input::GetInstance()->mScreenWidth / 2 ) - mFont.GetMiddleXPoint( "Options", 7.0f ), 270.0f, 7.0f, COLOR_CYAN );
+		mFont.WriteText( "Options", ( Input::GetInstance()->mScreenWidth / 2 ) - mFont.GetMiddleXPoint( "Options", 7.0f ), 210.0f, 7.0f, COLOR_CYAN );
 
 		for( int i = 0; i < NR_OF_OPTION_BUTTONS; i++ )
 		{
@@ -202,7 +203,7 @@ HRESULT InGameWindow::Initialize()
 	offsetY = 0.0f;
 	for( int i = 0; i < NR_OF_OPTION_BUTTONS; i++ )
 	{
-		mOptionButtons[i].button.Initialize( "../Content/Assets/Textures/Menu/ingameMenu/ingame_menuButton.dds", 720.0f, 380.0f + offsetY, 496.0f, 124.0f );
+		mOptionButtons[i].button.Initialize( "../Content/Assets/Textures/Menu/ingameMenu/ingame_menuButton.dds", 720.0f, 330.0f + offsetY, 496.0f, 124.0f );
 		offsetY += 124.0f;
 	}
 

@@ -61,7 +61,13 @@ class Server : public Network
 		UINT						mNrOfProjectilesFired;
 
 		EnergyCell**				mEnergyCells;
+		int							mCurrentCell;
 		bool						mStopAccept;
+		bool						mGameFull;
+		bool						mDropped;
+
+		float						mCellSpawnTimer;
+		float						mRespawnCellTimer;
 
 		std::queue<XMFLOAT3>		mCellPositionQueue;
 		UINT						mMaxClients;
@@ -82,6 +88,7 @@ class Server : public Network
 		void	ClientUpdateHP( IEventPtr eventPtr );
 		void	ClientMeleeHit( IEventPtr eventPtr );
 		void	ClientAttack( IEventPtr eventPtr );
+		void	ClientDash( IEventPtr eventPtr );
 		void	ClientDown( IEventPtr eventPtr );
 		void	ClientUp( IEventPtr eventPtr );
 		void	ClientAttemptRevive( IEventPtr eventPtr );
@@ -103,8 +110,9 @@ class Server : public Network
 		void	ResetTurretTargets( IEventPtr eventPtr );
 		void	ClientChangeReady( IEventPtr eventPtr );
 		void	HostStartCountdown( IEventPtr eventPtr );
-
+		void	ClientRequestParticleSystem( IEventPtr eventPtr );
 		void	ClientInteractEnergyCell( IEventPtr eventPtr );
+		void	ClientSetName( IEventPtr eventPtr );
 
 		void	StartUp( IEventPtr eventPtr );
 
@@ -114,12 +122,14 @@ class Server : public Network
 		void	CreateShips();
 		bool	CheckShipBuff( ServerShip* ship, XMFLOAT3 pos );
 		void	UpdateShip( float deltaTime, ServerShip* s );
+		void	OnSpawnEnergyCell( IEventPtr e );
+		void	OnDroppedEnergyCell( IEventPtr e );
 		void	CreateEnergyCells();
+		void	CalculateCellPosition( XMFLOAT3 pos, float offSetX, float offSetZ );
 		void	CalculateCellSpawnPositions( XMFLOAT3 shipPosition );
 		void	SetEnemySpawnerPositions();
 		void	CalculateEnemySpawnerPositions();
 		bool	IsEnergyCellHere( XMFLOAT3 checkPosition ) const;
-		void	SendCulledUpdate( IEventPtr eventPtr, XMFLOAT3 enemyPos, UINT exception = (UINT)-1 );
 		bool	CullEnemyUpdate( XMFLOAT3 playerPos, XMFLOAT3 enemyPos );
 
 		XMFLOAT3	GetNextSpawn();

@@ -11,6 +11,7 @@
 #include "RenderManager.h"
 #include "SoundBufferHandler.h"
 
+#define MAX_PLAYER_LEVEL 16
 #define VELOCITY_FALLOFF 2.0f
 
 #define MAX_ROBOT_RANGE		40000.0f   //Squared distance here.
@@ -18,22 +19,19 @@
 #define WATER_DAMAGE_TIME	0.1f
 #define WATER_DAMAGE		1.0f
 
+#define CAMERA_Y		20.0f
+#define CAMERA_Z		-8.0f
+#define CAMERA_CAP		1.0f
+
 class Map;
 class Path;
 
-struct Upgrades
-{
-	int		currentBodyLevel			= 1;
-	float	damageTakenPercentage		= 1.0f; // 1 == 100 % == No resistance!
-	int		currentLegsLevel			= 1;
-	float	runSpeedFactor				= 0.7f;
-};
+
 
 class Player: public RemotePlayer
 {
 	private:
 		PointLight*		mPointLight;
-		Upgrades		mUpgrades;
 
 		bool		mWeaponOverheated;
 		float		mTimeSinceLastShot;
@@ -52,10 +50,11 @@ class Player: public RemotePlayer
 		float		mMaxVelocity;
 		float		mCurrentVelocity;
 		float		mMaxAcceleration;
-		float		mSlowDown;
 		XMFLOAT3	mAcceleration;
 		XMFLOAT3	mFireDirection;
 		XMFLOAT3	mPick;
+		XMFLOAT3	mPlayerGoal;
+		XMFLOAT3	mShipPos;
 		std::vector<DirectX::XMFLOAT2>::iterator	currStep;
 		bool		mFollowPath;
 
@@ -79,6 +78,11 @@ class Player: public RemotePlayer
 		int			mPlayerDeath;
 		int			mGrenadeLauncher;
 		int			mBlowTorch;
+
+		float		mDashCoolDown;
+
+		XMFLOAT3	mCameraPosition;
+		XMFLOAT3	mPlayerToCursor;
 
 	protected:
 	public:
@@ -107,7 +111,9 @@ class Player: public RemotePlayer
 
 		void		HammerMelee( float deltaTime );
 		void		BlowtorchMelee( float deltaTime );
+		void		BlowtorchIdle();
 		void		ClaymoreMelee( float deltaTime );
+		void		SawMelee( float deltaTime );
 
 		float		CalculateLaunchAngle();
 		void		AddImpuls( XMFLOAT3 impuls );
@@ -120,6 +126,7 @@ class Player: public RemotePlayer
 
 	protected:
 	public:
+		void		Ding();
 		void		AddXP( float XP );
 		void		PickUpEnergyCell( EnergyCell** energyCell );
 		void		DropEnergyCell( EnergyCell** energyCells );
@@ -142,12 +149,14 @@ class Player: public RemotePlayer
 		bool		GetIsMeleeing()	const;
 		XMFLOAT3	GetPlayerPosition() const;
 		XMFLOAT3	GetUpperBodyDirection() const;
+
 		float		GetXPToNext() const;
 		int			Upgradable() const;
 		void		SetIsMeleeing( bool isMeleeing );
 		void		SetID( unsigned int id );
 		void		SetTeam( int team );
 		void		SetPosition( XMVECTOR position );
+		void		SetHomePos( XMFLOAT3 pos );
 		int			GetCurrentLevel() const;
 
 		void		QueueEvent( IEventPtr ptr );

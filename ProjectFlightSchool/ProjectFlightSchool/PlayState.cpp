@@ -1015,7 +1015,7 @@ HRESULT PlayState::Update( float deltaTime )
 		{
 			for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 			{
-				if( mEnemies[i]->IsSynced() && CullEntity( mEnemies[i]->GetPosition() ) )
+				if( mEnemies[i]->IsSynced() /*&& CullEntity( mEnemies[i]->GetPosition() )*/ )
 				{
 					mEnemies[i]->Update( deltaTime );
 
@@ -1086,8 +1086,10 @@ HRESULT PlayState::Update( float deltaTime )
 			mEnergyCells[i]->Update( deltaTime );
 		}
 
-		CheckProjectileCollision();
 		UpdateProjectiles( deltaTime );
+		CheckProjectileCollision();
+
+		mPlayer->SetPlayerGoal( mEnemies[0]->GetPosition() );
 
 		//GUI UPDATE ANYTHING RELATED TO IT NEEDS TO PUT ABOVE THIS COMMENT
 		////////////////////////////////////////////////////////////////////////////////////////////
@@ -1180,7 +1182,7 @@ HRESULT PlayState::Render( float deltaTime )
 	{
 		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 		{
-			if( mEnemies[i]->IsSynced() && CullEntity( mEnemies[i]->GetPosition() ) )
+			if( mEnemies[i]->IsSynced() /*&& CullEntity( mEnemies[i]->GetPosition() )*/ )
 			{
 				//RenderManager::GetInstance()->AddCircleToList( mEnemies[i]->GetBoundingCircle()->center, XMFLOAT3( 1,0,0), mEnemies[i]->GetBoundingCircle()->radius );
 				mEnemies[i]->Render();

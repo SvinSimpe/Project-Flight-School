@@ -493,17 +493,16 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 	
 	if( energyCells[1]->GetActive() )
 	{
-		if( energyCells[1]->GetOwnerID() != mID )
+		/*if( energyCells[1]->GetOwnerID() != mID )
 		{
 			mPlayerGoal = energyCells[1]->GetPosition();
 		}
 		else
 		{
 			mPlayerGoal = mShipPos;
-		}
+		}*/
 		RenderManager::GetInstance()->AddBoxToList( XMFLOAT3( -0.5f, -0.5f, -0.5f ), XMFLOAT3( 0.5f, 0.5f, 0.5f ), world );
 	}
-
 
 	// Update water status	
 	mSlowDown += deltaTime / 5;
@@ -1041,6 +1040,9 @@ void Player::TakeDamage( float damage, unsigned int shooter )
 	//	float moddedDmg = damage * mBuffMod;
 	//	damage -= moddedDmg;
 	//}
+
+	std::string a = "Damaged by the number: " + shooter;
+	OutputDebugStringA( a.c_str() );
 	mCurrentHp -= ( damage * mUpgrades.damageTakenPercentage );
 	if( mCurrentHp < 0.0f )
 	{
@@ -1657,6 +1659,11 @@ float Player::GetXPToNext() const
 int Player::GetCurrentLevel() const
 {
 	return mCurrentLevel;
+}
+
+void Player::SetPlayerGoal( XMFLOAT3 pos )
+{
+	mPlayerGoal = pos;
 }
 
 int Player::Upgradable() const

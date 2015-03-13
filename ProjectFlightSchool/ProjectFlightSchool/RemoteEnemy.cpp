@@ -144,7 +144,7 @@ HRESULT RemoteEnemy::Initialize( int id, AssetID model, AssetID animation )
 {
 	mID				= id;
 	mEnemyType		= Standard;		// Default enemy
-	mPosition		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mPosition		= XMFLOAT3( 100000000.0f, 0.0f, 0.0f );
 	mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mIsSynced		= false;
 	mLoopAnimation	= true;
@@ -167,7 +167,7 @@ void RemoteEnemy::Release()
 RemoteEnemy::RemoteEnemy()
 {
 	mID				= 0;
-	mPosition		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mPosition		= XMFLOAT3( 10000000000.0f, 0.0f, 0.0f );
 	mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mIsSynced		= false;
 	mIsAlive		= false;

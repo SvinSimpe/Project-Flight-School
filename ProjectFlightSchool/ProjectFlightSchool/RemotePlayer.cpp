@@ -98,7 +98,7 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 		if( data->ID() == mID )
 		{
 			mIsBuffed	= data->IsBuffed();
-			mBufflevel	= (float)data->BuffMod();
+			mBufflevel	= (int)data->BuffMod();
 		}
 	}
 	else if( newEvent->GetEventType() == Event_Server_Change_Weapon::GUID )

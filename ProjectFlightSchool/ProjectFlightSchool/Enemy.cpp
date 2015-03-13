@@ -505,7 +505,7 @@ void Enemy::Reset()
 	mCurrentState	= Idle;
 	mIsAlive		= false;
 	mHasSpawnPos	= false;
-	mPosition		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mPosition		= XMFLOAT3( 100000000.0f, 0.0f, 0.0f );
 	mDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity		= XMFLOAT3( 0.0f, 0.0f, 0.0f );	
 	mPlayers		= nullptr;
@@ -539,7 +539,7 @@ Enemy::Enemy()
 	mDamage						= 0.0f;
 	mSpeed						= 0.0f;
 	mIsAlive					= false;
-	mPosition					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mPosition					= XMFLOAT3( 10000000000.0f, 0.0f, 0.0f );
 	mDirection					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mVelocity					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mAttackRadius				= nullptr;
@@ -563,7 +563,7 @@ Enemy::Enemy()
 	mOtherEnemies				= nullptr;
 	mTakingDamage				= false;
 	mSteeringBehaviorManager	= nullptr;
-	mSpawnPos					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mSpawnPos					= XMFLOAT3( 100000.0f, 0.0f, 0.0f );
 	mDeltaTime					= 0.0f;
 	mHasSpawnPos				= false;
 }

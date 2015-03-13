@@ -149,6 +149,7 @@ class Player: public RemotePlayer
 		void		SetPosition( XMVECTOR position );
 		void		SetHomePos( XMFLOAT3 pos );
 		int			GetCurrentLevel() const;
+		void		SetPlayerGoal( XMFLOAT3 pos );
 
 		void		QueueEvent( IEventPtr ptr );
 };

@@ -31,7 +31,7 @@ struct Gbuffer
 			td.Height			= height;
 			td.BindFlags		= D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 			td.Usage			= D3D11_USAGE_DEFAULT;
-			td.MipLevels		= 1;
+			td.MipLevels		= 0;
 			td.ArraySize		= 1;
 			td.SampleDesc.Count	= 1;
 			td.Format			= DXGI_FORMAT_R16G16B16A16_FLOAT;

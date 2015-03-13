@@ -56,7 +56,7 @@ class RenderManager
 		bool AddAnim3dToList( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ), DirectX::XMFLOAT3 rotation = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 		bool AddAnim3dToList( AnimationTrack &animTrack, int playType, XMFLOAT4X4* world );
 		void AddPlaneToList( AssetID assetId, DirectX::XMFLOAT3 topTriangle, DirectX::XMFLOAT3 bottomTriangle );
-		void AddBillboardToList( AssetID assetId, DirectX::XMFLOAT3 worldPosition, float width, float height );
+		void AddBillboardToList( AssetID assetId, DirectX::XMFLOAT3 worldPosition, float width, float height, DirectX::XMFLOAT4 color = DirectX::XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		void AddParticleSystemToList( ParticleSystem*** particleSystem,  int* nrOfActiveParticleSystemsPerType );
 		void AddNodeGridToList( StaticVertex* vertices, UINT nrOfVertices, AssetID blendMap, DirectX::XMFLOAT4X4 world );
 		void AddCircleToList( DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 color, float radius );

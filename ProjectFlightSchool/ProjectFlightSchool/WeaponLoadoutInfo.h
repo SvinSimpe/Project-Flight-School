@@ -45,12 +45,12 @@
 #define GL_OFFSETS			XMFLOAT3( 0.92f, 0.5f, 1.45f )		// Offsets forward, right, up
 
 // Sniper
-#define SNIPER_AR			3.2f								// Attack Rate
+#define SNIPER_AR			3.9f								// Attack Rate
 #define SNIPER_DAMAGE		45.0f								// Damage
-#define SNIPER_RANGE		3.0f								// Range
+#define SNIPER_RANGE		1.0f								// Range
 #define SNIPER_SPREAD		0.0f								// Spread
 #define SNIPER_AOE			0.0f								// Area of effect
-#define SNIPER_SPEED		70.0f								// Projectile Speed 90
+#define SNIPER_SPEED		40.0f								// Projectile Speed 90
 #define SNIPER_OFFSETS		XMFLOAT3( 1.15f, 0.45f, 1.9f )		// Offsets forward, right, up
 
 #define MINIGUN_SLOWDOWN	0.02f	// How much is the player slowed down
@@ -68,7 +68,7 @@
 // Claymore
 #define CLAYMORE_AR			2.8f								// Attack Rate
 #define CLAYMORE_DAMAGE		20.0f								// Damage
-#define CLAYMORE_RADIUS		3.5f								// Radius
+#define CLAYMORE_RADIUS		2.5f								// Radius
 #define CLAYMORE_SPREAD		8									// Spread
 #define CLAYMORE_KB			1.0f								// Knockback
 #define CLAYMORE_TTA		0.75f / CLAYMORE_SPEED_INCREASE		// Time till Attack
@@ -78,7 +78,7 @@
 
 // Hammer
 #define HAMMER_AR			4.0f								// Attack Rate Can't be lower than 3.5f
-#define HAMMER_DAMAGE		10.0f								// Damage
+#define HAMMER_DAMAGE		25.0f								// Damage
 #define HAMMER_RADIUS		2.0f								// Radius
 #define HAMMER_SPREAD		20									// Spread
 #define HAMMER_KB			3.0f								// Knockback
@@ -89,7 +89,7 @@
 
 // Blowtorch
 #define BLOWTORCH_AR		0.1f								// Attack Rate
-#define BLOWTORCH_DAMAGE	5.0f								// Damage
+#define BLOWTORCH_DAMAGE	12.0f								// Damage
 #define BLOWTORCH_RADIUS	4.0f								// Radius
 #define BLOWTORCH_SPREAD	3									// Spread
 #define BLOWTORCH_KB		0.0f								// Knockback
@@ -100,10 +100,10 @@
 
 // Saw
 #define SAW_AR				0.5f								// Attack Rate
-#define SAW_DAMAGE			5.0f								// Damage
+#define SAW_DAMAGE			17.0f								// Damage
 #define SAW_RADIUS			3.0f								// Radius
 #define SAW_SPREAD			4									// Spread
-#define SAW_KB				2.2f								// Knockback
+#define SAW_KB				0.0f								// Knockback
 #define SAW_TTA				1.5f								// Time till Attack
 #define SAW_STUN			0.0f								// Stun
 #define SAW_REACH			1.3f								// Reach
@@ -114,9 +114,9 @@
 
 #define HAMMER_SLOWDOWN		0.5f	// How much is the player slowed down
 
-#define BLOWTORCH_SLOWDOWN	0.04f	// How much is the player slowed down
+#define BLOWTORCH_SLOWDOWN	0.01f	// How much is the player slowed down
 
-#define SAW_SLOWDOWN		0.5f	// How much is the player slowed down
+#define SAW_SLOWDOWN		0.1f	// How much is the player slowed down
 
 
 //////////////////////////////////

@@ -40,6 +40,7 @@ struct BillboardInfo
 	DirectX::XMFLOAT3	mWorldPosition;
 	float				mWidth;
 	float				mHeight;
+	DirectX::XMFLOAT4	mColor;
 };
 
 struct ParticleInfo

@@ -78,7 +78,7 @@
 
 // Hammer
 #define HAMMER_AR			4.0f								// Attack Rate Can't be lower than 3.5f
-#define HAMMER_DAMAGE		10.0f								// Damage
+#define HAMMER_DAMAGE		20.0f								// Damage
 #define HAMMER_RADIUS		2.0f								// Radius
 #define HAMMER_SPREAD		20									// Spread
 #define HAMMER_KB			3.0f								// Knockback
@@ -89,7 +89,7 @@
 
 // Blowtorch
 #define BLOWTORCH_AR		0.1f								// Attack Rate
-#define BLOWTORCH_DAMAGE	5.0f								// Damage
+#define BLOWTORCH_DAMAGE	6.6f								// Damage
 #define BLOWTORCH_RADIUS	4.0f								// Radius
 #define BLOWTORCH_SPREAD	3									// Spread
 #define BLOWTORCH_KB		0.0f								// Knockback
@@ -100,7 +100,7 @@
 
 // Saw
 #define SAW_AR				0.5f								// Attack Rate
-#define SAW_DAMAGE			5.0f								// Damage
+#define SAW_DAMAGE			13.2f								// Damage
 #define SAW_RADIUS			3.0f								// Radius
 #define SAW_SPREAD			4									// Spread
 #define SAW_KB				2.2f								// Knockback

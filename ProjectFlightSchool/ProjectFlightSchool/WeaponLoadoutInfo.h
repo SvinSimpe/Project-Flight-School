@@ -67,8 +67,8 @@
 
 // Claymore
 #define CLAYMORE_AR			2.8f								// Attack Rate
-#define CLAYMORE_DAMAGE		20.0f								// Damage
-#define CLAYMORE_RADIUS		3.5f								// Radius
+#define CLAYMORE_DAMAGE		15.0f								// Damage
+#define CLAYMORE_RADIUS		2.5f								// Radius
 #define CLAYMORE_SPREAD		8									// Spread
 #define CLAYMORE_KB			1.0f								// Knockback
 #define CLAYMORE_TTA		0.75f / CLAYMORE_SPEED_INCREASE		// Time till Attack
@@ -78,7 +78,7 @@
 
 // Hammer
 #define HAMMER_AR			4.0f								// Attack Rate Can't be lower than 3.5f
-#define HAMMER_DAMAGE		20.0f								// Damage
+#define HAMMER_DAMAGE		25.0f								// Damage
 #define HAMMER_RADIUS		2.0f								// Radius
 #define HAMMER_SPREAD		20									// Spread
 #define HAMMER_KB			3.0f								// Knockback

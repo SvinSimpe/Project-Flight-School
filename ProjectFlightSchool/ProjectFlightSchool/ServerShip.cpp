@@ -149,6 +149,16 @@ void ServerShip::ClientChangeShipLevels( int changeTurretLevel, int changeShield
 	}
 }
 
+bool ServerShip::PositionVsShip( BoundingCircle* entity, XMFLOAT3 &normal )
+{
+	for( int i = 0; i < 3; i++ )
+	{
+		if( mCollisionCircles[i]->Intersect( entity, normal ) )
+			return true;
+	}
+	return false;
+}
+
 UINT ServerShip::GetID() const
 {
 	return mID;
@@ -252,12 +262,13 @@ void ServerShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOAT3 scale, AssetID assetID )
 {
 	GameObject::Initialize( pos, rot, scale, assetID );
-
 	XMFLOAT3 posOffset;
 	XMStoreFloat3( &posOffset, XMLoadFloat3 ( &pos ) + XMLoadFloat3 ( &XMFLOAT3( -1.60f, 0.0f, 1.2f ) ) );
 	
 	mBuffCircle		= new BoundingCircle( posOffset, 20.0f );
 	mHitCircle		= new BoundingCircle( posOffset, 10.0f );
+	for( int i = 0; i < 3; i++ )
+		mCollisionCircles[i] = new BoundingCircle( XMFLOAT3( mPos.x - 2.0f, 0.0f, mPos.z - 5.0f + 5.0f * float(i) ), 5.0f + 1.0f * (float)i );
 
 	mBuffMod		= 1.0f;
 	mID				= id;
@@ -297,6 +308,10 @@ void ServerShip::Release()
 		delete mHitCircle;
 		mHitCircle = nullptr;
 	}
+	for( int i = 0; i < 3; i++ )
+		if( mCollisionCircles[i] )
+			delete mCollisionCircles[i], mCollisionCircles[i] = nullptr;
+
 }
 
 ServerShip::ServerShip() : GameObject()

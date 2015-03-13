@@ -231,7 +231,9 @@ HRESULT MoveToShipBehavior::Update( float deltaTime )
 
 		if( mEnemy->mShips.at(mEnemy->mTargetShipIndex)->GetHitCircle() != nullptr )
 		{
-			if( mEnemy->mAttackRadius->Intersect( mEnemy->mShips.at(mEnemy->mTargetShipIndex)->GetHitCircle() ) )
+			//if( mEnemy->mAttackRadius->Intersect( mEnemy->mShips.at(mEnemy->mTargetShipIndex)->GetHitCircle() ) )
+			XMFLOAT3 collisionNormal;
+			if( mEnemy->mShips.at(mEnemy->mTargetShipIndex)->PositionVsShip( mEnemy->mAttackRadius, collisionNormal ) )
 			{
 				mEnemy->ChangeBehavior( ATTACK_BEHAVIOR );
 				return S_OK;

@@ -1124,7 +1124,8 @@ void Player::Reset()
 
 	mIsBuffed					= false;
 	mLifeRegenerationAmount		= 1.0f; 
-	mLifeRegenerationTimer		= 1.4f;
+	mLifeRegenerationMaxTimer	= 1.4f;
+	mLifeRegenerationTimer		= mLifeRegenerationMaxTimer;
 
 	mTimeTillSpawn				= mSpawnTime;
 	mTimeTillDeath				= mDeathTime;
@@ -1421,17 +1422,34 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 			if( mCurrentHp > mMaxHp )
 				mCurrentHp = mMaxHp;
 
-			mLifeRegenerationTimer	= 1.4f - ( (float)( mBufflevel - 1 ) * 0.6f );
+			mLifeRegenerationTimer	= mLifeRegenerationMaxTimer;
 		}
 	}
 	else
-		mLifeRegenerationTimer =  1.4f - ( (float)( mBufflevel - 1 ) * 0.6f );
+		mLifeRegenerationTimer = mLifeRegenerationMaxTimer;
 
 	return S_OK;
 }
 
 HRESULT Player::Render( float deltaTime, int position )
 {
+	if( mIsBuffed && !mLock )
+	{
+		int lifeReg = (int)( mLifeRegenerationAmount * 10 );
+		int lifeTimer = (int)( mLifeRegenerationMaxTimer * 10 );
+
+		std::stringstream out;
+		out.precision( 2 );
+		out << "Regenerating " << mLifeRegenerationAmount << " life every " << mLifeRegenerationMaxTimer << "s";
+
+		WriteInteractionText( 
+			out.str(), 
+			(float)Input::GetInstance()->mScreenWidth * 0.5f, 
+			(float)( Input::GetInstance()->mScreenHeight * 0.95f ), 
+			3.0f, 
+			COLOR_CYAN );
+	}
+
 	if( !mIsAlive )
 	{
         std::string textToWrite = std::to_string( (int)( mTimeTillSpawn + 1 ) );

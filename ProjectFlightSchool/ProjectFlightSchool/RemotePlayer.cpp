@@ -106,6 +106,7 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 		{
 			mIsBuffed	= data->IsBuffed();
 			mBufflevel	= (int)data->BuffMod();
+			mLifeRegenerationMaxTimer = 1.4f - ( (float)( mBufflevel - 1 ) * 0.6f );
 		}
 	}
 	else if( newEvent->GetEventType() == Event_Server_Change_Weapon::GUID )
@@ -598,7 +599,8 @@ HRESULT RemotePlayer::Initialize()
 	EventManager::GetInstance()->AddListener( &RemotePlayer::EventListener, this, Event_Server_Change_Buff_State::GUID );
 
 	mLifeRegenerationAmount	= 1.0f;
-	mLifeRegenerationTimer	= 1.4f;
+	mLifeRegenerationMaxTimer = 1.4f;
+	mLifeRegenerationTimer	= mLifeRegenerationMaxTimer;
 	mBufflevel				= 1;
 	mEnergyCellID			= (UINT)-1;
 
@@ -653,6 +655,7 @@ RemotePlayer::RemotePlayer()
 	mLoadOut						= nullptr;
 	mSpawnPosition					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mIsBuffed						= false;
+	mLifeRegenerationMaxTimer		= 0.0f;
 	mLifeRegenerationAmount			= 0.0f;
 }
 

@@ -75,6 +75,7 @@ class PlayState : public BaseState
 		int							mShotGun;
 		int							mExplosion;
 		int							mSniper;
+		int							mAmbientMusic;
 		int							mLobbyMusic;
 	
 	protected:

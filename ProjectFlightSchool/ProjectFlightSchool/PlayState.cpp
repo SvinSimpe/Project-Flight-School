@@ -1003,7 +1003,7 @@ HRESULT PlayState::Update( float deltaTime )
 		{
 			for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 			{
-				if( mEnemies[i]->IsSynced() && CullEntity( mEnemies[i]->GetPosition() ) )
+				if( mEnemies[i]->IsSynced() )
 				{
 					mEnemies[i]->Update( deltaTime );
 
@@ -1034,6 +1034,7 @@ HRESULT PlayState::Update( float deltaTime )
 				mPlayer->UnLock();
 			}
 		}
+		UpdateProjectiles( deltaTime );
 
 		for( int i = 0; i < SHIP_AMOUNT; i++ )
 		{
@@ -1081,7 +1082,6 @@ HRESULT PlayState::Update( float deltaTime )
 		}
 
 		CheckProjectileCollision();
-		UpdateProjectiles( deltaTime );
 
 		//GUI UPDATE ANYTHING RELATED TO IT NEEDS TO PUT ABOVE THIS COMMENT
 		////////////////////////////////////////////////////////////////////////////////////////////
@@ -1174,9 +1174,9 @@ HRESULT PlayState::Render( float deltaTime )
 	{
 		for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 		{
+			//RenderManager::GetInstance()->AddCircleToList( mEnemies[i]->GetBoundingCircle()->center, XMFLOAT3( 1,0,0), mEnemies[i]->GetBoundingCircle()->radius );
 			if( mEnemies[i]->IsSynced() && CullEntity( mEnemies[i]->GetPosition() ) )
 			{
-				//RenderManager::GetInstance()->AddCircleToList( mEnemies[i]->GetBoundingCircle()->center, XMFLOAT3( 1,0,0), mEnemies[i]->GetBoundingCircle()->radius );
 				mEnemies[i]->Render();
 			}
 		}
@@ -1237,23 +1237,29 @@ void PlayState::OnEnter()
 	EventManager::GetInstance()->QueueEvent( E1 );
 
 	//Spawn a energycell
-
-	SoundBufferHandler::GetInstance()->LoopStream( mLobbyMusic );
+	
+	SoundBufferHandler::GetInstance()->StopLoopStream( mLobbyMusic );
+	SoundBufferHandler::GetInstance()->LoopStream( mAmbientMusic );
 
 	mGui->SetTeamID( mPlayer->GetTeam() );
 	IEventPtr spawnPos( new Event_Request_Player_Spawn_Position( mPlayer->GetID(), mPlayer->GetTeam() ) );
 	EventManager::GetInstance()->QueueEvent( spawnPos );
 
+	//Set ship position and radius for shader	
+	Graphics::GetInstance()->SetShipPosAndRad( mShips[FRIEND_SHIP]->GetBuffCircle()->center, mShips[FRIEND_SHIP]->GetBuffCircle()->radius, FRIEND_SHIP );
+	Graphics::GetInstance()->SetShipPosAndRad( mShips[ENEMY_SHIP]->GetBuffCircle()->center, mShips[ENEMY_SHIP]->GetBuffCircle()->radius, ENEMY_SHIP );	
+
 	mPlayer->SetHomePos( mShips[FRIEND_SHIP]->GetPos() );
 
 	IEventPtr name( new Event_Client_Set_Name( mPlayer->GetID(), mPlayer->GetName() ) );
 	Client::GetInstance()->SendEvent( name );
+
 }
 
 void PlayState::OnExit()
 {
 	Reset();
-	SoundBufferHandler::GetInstance()->StopLoopStream( mLobbyMusic );
+	SoundBufferHandler::GetInstance()->StopLoopStream( mAmbientMusic );
 	// Send Game Started event to server
 	IEventPtr E1( new Event_Game_Ended() );
 	EventManager::GetInstance()->QueueEvent( E1 );
@@ -1402,7 +1408,8 @@ HRESULT PlayState::Initialize()
 	mExplosion			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/explosion.wav", 250 );
 	mSniper				= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/railgun.wav", 500 );
 	mLevelUp			= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/level up.wav", 10 );
-	mLobbyMusic			= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/ambientInGame.wav", 0 );
+	mAmbientMusic		= SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/ambientInGame.wav", 0 );
+	mLobbyMusic			=  SoundBufferHandler::GetInstance()->LoadStreamBuffer( "../Content/Assets/Sound/ambient_menu.wav", 500 );
 
 	Pathfinder::GetInstance()->Initialize( mWorldMap );
 
@@ -1413,8 +1420,6 @@ HRESULT PlayState::Initialize()
 	int worldDim = mWorldMap->GetMapWidth() * NODE_DIM;
 
 	int worldOffset = mWorldMap->GetMapHalfWidth() * NODE_DIM;
-
-	RenderManager::GetInstance()->RequestParticleSystem( 3333, Fire_Flies, XMFLOAT3 ( 0.0f, 2.0f, 0.0f ), XMFLOAT3( 0.0f, 0.1f, 0.0f ) );	//---id, effect, position, direction
 
 	for (int i = 0; i < 100; i++)
 	{

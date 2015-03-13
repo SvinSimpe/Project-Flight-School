@@ -68,6 +68,7 @@ class ServerShip : public GameObject
 
 		UINT			GetID() const;
 		BoundingCircle*	GetHitCircle() const;
+		BoundingCircle*	GetBuffCircle() const;
 		bool			IsAlive() const;
 		UINT			GetTeamID() const;
 		virtual bool	TakeDamage( float damage );

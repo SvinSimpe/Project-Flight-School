@@ -41,6 +41,7 @@ void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 	if ( eventPtr->GetEventType() == Event_Request_Player_Spawn_Position::GUID )
 	{
 		std::shared_ptr<Event_Request_Player_Spawn_Position> data = std::static_pointer_cast<Event_Request_Player_Spawn_Position>( eventPtr );
+
 		if ( data->TeamID() == mTeamID )
 		{
 			int width	= 15;
@@ -69,11 +70,16 @@ void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 				zMin = (int)mBuffCircle->center.z - height;
 				zMax = (int)mBuffCircle->center.z + height;
 			}
-
+			BoundingCircle pos;
 			do
 			{
+				do
+				{
 				spawnX = ( xMin + ( rand() % (int)( xMax - xMin + 1 ) ) );
 				spawnZ = ( zMin + ( rand() % (int)( zMax - zMin + 1 ) ) );
+				pos = BoundingCircle( XMFLOAT3( (float)spawnX, 0.0f, (float)spawnZ ), 0.5f );
+				}
+				while( PositionVsShip( &pos, XMFLOAT3( 0.0f, 1.0f, 0.0f ) ) );
 			}
 			while( ( (float)spawnX > mBuffCircle->center.x - 15.0f && (float)spawnX < mBuffCircle->center.x + 15.0f &&
 				   (float)spawnZ > mBuffCircle->center.z - 15.0f && (float)spawnZ < mBuffCircle->center.z + 15.0f ) && Pathfinder::GetInstance()->IsOnNavMesh( XMFLOAT3( (float)spawnX, 0.0f, (float)spawnZ ) ) );

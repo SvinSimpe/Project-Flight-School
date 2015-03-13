@@ -382,12 +382,12 @@ struct ParticleSystem : public ParticleData
 	}
 	void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection, XMFLOAT3 initialVelocity )
 	{
-		if( particleType == BoomerExplosion )		Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(40, 60), 180.0f, initialVelocity );
-		else if( particleType == SpitterTrail )		Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(3, 10),  1.0f, initialVelocity );
-		else if( particleType == GranateTrail )		Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(3, 10),  1.0f, initialVelocity );
-		else if( particleType == SniperTrail )		Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(10, 30),  1.0f, initialVelocity );
-		else if( particleType == Shell )			Generate( emitterPosition, emitterDirection, 1,		10.0f,		initialVelocity  );
-		else if( particleType == Debris )			Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(0, 5),  30.0f,		initialVelocity  );
+		if( particleType == BoomerExplosion )		Generate( emitterPosition, emitterDirection, 50,	180.0f,		initialVelocity );
+		else if( particleType == SpitterTrail )		Generate( emitterPosition, emitterDirection, 10,	1.0f,		initialVelocity );
+		else if( particleType == GranateTrail )		Generate( emitterPosition, emitterDirection, 6,		1.0f,		initialVelocity );
+		else if( particleType == SniperTrail )		Generate( emitterPosition, emitterDirection, 100,	1.0f,		initialVelocity );
+		else if( particleType == Shell )			Generate( emitterPosition, emitterDirection, 1,		10.0f,		initialVelocity );
+		else if( particleType == Debris )			Generate( emitterPosition, emitterDirection, 2,		30.0f,		initialVelocity );
 		else if( particleType == FIRE )				Generate( emitterPosition, emitterDirection, 8,		40.0f,		initialVelocity );		
 		else if( particleType == Spark )			Generate( emitterPosition, emitterDirection, 8,		25.0f,		initialVelocity );
 		else if( particleType == Spark_Robot )		Generate( emitterPosition, emitterDirection, 8,		90.0f,		initialVelocity );

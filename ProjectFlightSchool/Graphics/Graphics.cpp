@@ -1904,6 +1904,14 @@ void Graphics::SetFocus( Cameras camera, DirectX::XMFLOAT3 &focusPoint )
 	}
 }
 
+void Graphics::SetShipPosAndRad( XMFLOAT3 position, float radius, int index )
+{
+	mShipPosAndRad[0 + index * 4] = position.x;
+	mShipPosAndRad[1 + index * 4] = position.y;
+	mShipPosAndRad[2 + index * 4] = position.z;
+	mShipPosAndRad[3 + index * 4] = radius;
+}
+
 //Clear canvas and prepare for rendering.
 void Graphics::BeginScene()
 {
@@ -1950,13 +1958,15 @@ void Graphics::GbufferPass()
 	//Map CbufferPerFrame
 	CbufferPerFrame data;
 
-
 	data.viewMatrix			= mCamera[mCurrentCamera]->GetViewMatrix();
 	data.projectionMatrix	= mCamera[mCurrentCamera]->GetProjMatrix();
 	data.cameraPosition		= mCamera[mCurrentCamera]->GetPos();
+	data.numPointLights		= mNumPointLights;
+	data.timeVariable		= mTimeVariable;
 	
-	data.numPointLights = mNumPointLights;
-	data.timeVariable	= mTimeVariable;
+	for (int i = 0; i < 8; i++)
+		data.shipPosAndRad[i] = mShipPosAndRad[i];
+
 	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_FRAME], &data, sizeof( CbufferPerFrame ) );
 
 	CbufferPerFrameShadow dataShadow;

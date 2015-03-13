@@ -316,6 +316,7 @@ struct ParticleData
 			particleType != Spark			&& 
 			particleType != Level_Up		&& 
 			particleType != Level_Inner		&& 
+			particleType != BoomerExplosion	&& 
 			particleType != Explosion		&& 
 			particleType != NormalSmoke		&& 
 			particleType != BlowTorchIdle	&& 
@@ -371,9 +372,9 @@ struct ParticleData
 			{
 				case BoomerExplosion:
 				{
-					randomDirectionVector.x = xDirection * GetRandomSpeed( -50, 50 );
- 					randomDirectionVector.y = yDirection * GetRandomSpeed( 1, 75 );
-					randomDirectionVector.z = zDirection * GetRandomSpeed( -50, 50 );
+					randomDirectionVector.x = xDirection * GetRandomSpeed( 1, 40 );
+ 					randomDirectionVector.y = xDirection * GetRandomSpeed( 50, 130 );
+					randomDirectionVector.z = zDirection * GetRandomSpeed( 1, 40 );
 					break;
 				}
 				case SpitterTrail:

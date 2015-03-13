@@ -30,7 +30,7 @@ struct ParticleSystem : public ParticleData
 		{
 			case BoomerExplosion:
 			{
-				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/blood.dds", assetID );
+				Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/ParticleSprites/goo.dds", assetID );
 				break;
 			}
 			case SpitterTrail:
@@ -191,7 +191,7 @@ struct ParticleSystem : public ParticleData
 			{
 				SetPosition( emitterPosition.x, emitterPosition.y, emitterPosition.z, particleCount );
 				SetRandomRotation( particleCount );
-				SetRandomDeathTime( 2, 5, particleCount );
+				SetRandomDeathTime( 3, 6, particleCount );
 				break;
 			}
 			case SpitterTrail:
@@ -382,7 +382,7 @@ struct ParticleSystem : public ParticleData
 	}
 	void Emitter( ParticleType particleType, XMFLOAT3 emitterPosition, XMFLOAT3 emitterDirection, XMFLOAT3 initialVelocity )
 	{
-		if( particleType == BoomerExplosion )		Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(15, 20),  1.0f, initialVelocity );
+		if( particleType == BoomerExplosion )		Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(40, 60), 180.0f, initialVelocity );
 		else if( particleType == SpitterTrail )		Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(3, 10),  1.0f, initialVelocity );
 		else if( particleType == GranateTrail )		Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(3, 10),  1.0f, initialVelocity );
 		else if( particleType == SniperTrail )		Generate( emitterPosition, emitterDirection, (int)GetRandomRotation(10, 30),  1.0f, initialVelocity );
@@ -694,7 +694,7 @@ struct ParticleSystem : public ParticleData
 	{
 		for ( int i = 0; i < nrOfParticlesAlive; i++ )
 		{
-			yVelocity[i] -= 0.2f;
+			yVelocity[i] -= 0.8f;
 		}
 	}
 

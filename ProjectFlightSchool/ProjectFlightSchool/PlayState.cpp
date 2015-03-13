@@ -187,7 +187,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 	{
 		// Fire projectile
 		std::shared_ptr<Event_Server_Enemy_Fired_Projectile> data = std::static_pointer_cast<Event_Server_Enemy_Fired_Projectile>(newEvent);
-		FireProjectile(data->EnemyID(), data->ProjectileID(), 0, data->Position(), data->Direction(), data->Speed(), data->Range(), ENEMY_PROJECTILE_DAMAGE, TURRET); // Don't know where to get damage from yet
+		FireProjectile(data->EnemyID(), data->ProjectileID(), 0, data->Position(), data->Direction(), data->Speed(), data->Range(), ENEMY_PROJECTILE_DAMAGE, SPITTER); // Don't know where to get damage from yet
 	}
 	else if( newEvent->GetEventType() == Event_Server_Sync_Energy_Cell::GUID )
 	{

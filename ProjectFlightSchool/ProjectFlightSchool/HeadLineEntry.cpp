@@ -4,6 +4,7 @@ HeadLineEntry::HeadLineEntry( float displayTime )
 {
 	mFadeTime	= 3.0f;
 	mFade		= 1.0f;
+	mTime		= displayTime;
 }
 
 HeadLineEntry::HeadLineEntry( const HeadLineEntry &origOb )

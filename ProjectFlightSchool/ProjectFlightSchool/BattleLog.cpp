@@ -6,7 +6,7 @@ BattleLog::BattleLog()
 
 	mRedTeam		= DirectX::XMFLOAT3( 1.0f, 0.0f, 0.0f );
 	mBlueTeam		= DirectX::XMFLOAT3( 0.0f, 0.0f, 1.0f );
-	mCyanBlue		= DirectX::XMFLOAT3( 0.350f, 0.255f, 0.215f );
+	mCyanBlue		= DirectX::XMFLOAT3( 0.0f, 0.55f, 0.85f );
 	mActionColor	= DirectX::XMFLOAT3( 1.0f, 1.0f, 1.0f );
 }
 
@@ -33,6 +33,7 @@ HRESULT BattleLog::Initialize( Player* player, std::vector<RemotePlayer*>& remot
 	mActions[CELL_PICKED_UP]	= "PICKED UP THE ";
 	mActions[DROPPED]			= "DROPPED THE ";
 	mActions[CAPTURED]			= "CAPTURED THE ";
+	mActions[SPAWNED]			= " HAS SPAWNED!";
 
 	//Define Objects---------
 	mObjects[ENERGY_CELL]	= "ENERGY CELL";
@@ -98,7 +99,7 @@ void BattleLog::Render()
 {
 	float offset = 35.0f;
 	DirectX::XMFLOAT2 topLeft = XMFLOAT2( 20.0f, 20.0f );
-	DirectX::XMFLOAT2 middleLeft = XMFLOAT2( 500.0f, 100.0f );
+	DirectX::XMFLOAT2 middleLeft = XMFLOAT2( 600.0f, 120.0f );
 
 	float scale = 2.0f;
 	float headLineScale = 3.0f;
@@ -148,21 +149,25 @@ void BattleLog::Render()
 	if( !mHeadLineQueue.empty() )
 	{
 		HeadLineEntry* current = &mHeadLineQueue.front();
+
+		if( current->mActionID == 6 )
+		{
+			mFirstUnitString	= mObjects[current->mGoalID];
+			first				= mCyanBlue;
+			mActionString		= mActions[current->mActionID];
+		}
+		else
+		{
+			mFirstUnitString	= mTeams[current->mTeamID].teamName;
+			mActionString		= mActions[current->mActionID];
+			mSecondUnitString	= mObjects[current->mGoalID];
+		}
 		
-		if( current->mTeamID == 1 )
-		{
-			first = mBlueTeam;
-		}
-		else if( current->mTeamID == 2 )
-		{
-			first = mRedTeam;
-		}
+		mMeasureString = mFirstUnitString + mActionString + mSecondUnitString;
 
-		mFirstUnitString	= mTeams[current->mTeamID].teamName;
-		mActionString		= mActions[current->mActionID];
-		mSecondUnitString	= mObjects[current->mGoalID];
+		float offsetX = mFont->GetMiddleXPoint( mMeasureString, headLineScale );
 
-		mFont->WriteText( mFirstUnitString, middleLeft.x, middleLeft.y, headLineScale, XMFLOAT4( first.x, first.y, first.z, current->mFade ) );
+		mFont->WriteText( mFirstUnitString, middleLeft.x - offsetX, middleLeft.y, headLineScale, XMFLOAT4( first.x, first.y, first.z, current->mFade ) );
 		mFont->WriteText( mActionString, ( middleLeft.x + x1 * 2.0f ), middleLeft.y, headLineScale, XMFLOAT4( 1.0f, 1.0f, 1.0f, current->mFade ) );
 		mFont->WriteText( mSecondUnitString, ( middleLeft.x + x1 * 2.0f ) + x2 * 2.0f, middleLeft.y, headLineScale, XMFLOAT4( mCyanBlue.x, mCyanBlue.y, mCyanBlue.z, current->mFade ) );
 	}

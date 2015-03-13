@@ -21,7 +21,7 @@ class HeadLineEntry
 	private:
 	protected:
 	public:
-		HeadLineEntry( float displayTime = 8.0f );
+		HeadLineEntry( float displayTime = 4.0f );
 		HeadLineEntry( const HeadLineEntry &origOb );
 		~HeadLineEntry();
 		

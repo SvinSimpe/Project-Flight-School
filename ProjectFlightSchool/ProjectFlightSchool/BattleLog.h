@@ -25,6 +25,7 @@ static enum Actions
 	CELL_PICKED_UP,
 	DROPPED,
 	CAPTURED,
+	SPAWNED,
 
 	NR_OF_ACTIONS
 };
@@ -79,6 +80,8 @@ class BattleLog
 		std::string mFirstUnitString;
 		std::string mActionString;
 		std::string mSecondUnitString;
+
+		std::string mMeasureString;
 
 
 	protected:

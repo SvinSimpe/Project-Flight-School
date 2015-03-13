@@ -444,20 +444,28 @@ void Server::ClientInteractEnergyCell( IEventPtr eventPtr )
 		mEnergyCells[data->EnergyCellID()]->SetOwnerID( data->OwnerID() );
 		mEnergyCells[data->EnergyCellID()]->SetPickedUp( data->PickedUp() );
 		mEnergyCells[data->EnergyCellID()]->SetPosition( data->Position() );
-		mEnergyCells[data->EnergyCellID()]->SetSecured( data->Active() );
+		mEnergyCells[data->EnergyCellID()]->SetActive( data->Active() );
+
+		if( data->PickedUp() )
+		{
+			IEventPtr E2( new Event_Server_Headline_Event( mClientMap[data->OwnerID()]->TeamID, 3, 0 ) );
+			BroadcastEvent( E2 );
+		}
 
 		for( auto s :mShips )
 		{
 			if( s->GetID() == data->OwnerID() )
 			{
+				IEventPtr E3( new Event_Server_Headline_Event( data->OwnerID(), 4, 0 ) );
+				BroadcastEvent( E3 );
 				s->AddEnergyCell();
-				IEventPtr E2( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel, s->mEngineLevel, s->mNrOfEnergyCells ) );
-				BroadcastEvent( E2 );
+				IEventPtr E4( new Event_Server_Change_Ship_Levels( s->mTeamID, s->mTurretLevel, s->mShieldLevel, s->mBuffLevel, s->mEngineLevel, s->mNrOfEnergyCells ) );
+				BroadcastEvent( E4 );
 				mEnergyCells[data->EnergyCellID()]->Reset();
 				mEnergyCells[mCurrentCell]->SetPosition( XMFLOAT3( 0.0f, 0.0f, 0.0f ) );
 				mEnergyCells[mCurrentCell]->SetActive( false );
-				IEventPtr E3( new Event_Server_Sync_Energy_Cell( data->EnergyCellID(), (UINT)-1, XMFLOAT3( 0.0f, 0.0f, 0.0f ), false, false ) );
-				BroadcastEvent( E3 );
+				IEventPtr E5( new Event_Server_Sync_Energy_Cell( data->EnergyCellID(), (UINT)-1, XMFLOAT3( 0.0f, 0.0f, 0.0f ), false, false ) );
+				BroadcastEvent( E5 );
 			}
 		}
 
@@ -833,6 +841,9 @@ void Server::OnSpawnEnergyCell( IEventPtr e )
 		mDropped = false;
 		IEventPtr e( new Event_Server_Sync_Energy_Cell( mCurrentCell, -1, cellPos, false, true ) );
 		BroadcastEvent( e );
+
+		IEventPtr e2( new Event_Server_Headline_Event( 0, 6, 0 ) );
+		BroadcastEvent( e2 );
 	}
 }
 
@@ -841,6 +852,10 @@ void Server::OnDroppedEnergyCell( IEventPtr e )
 	if( e->GetEventType() == Event_Client_Dropped_Energy_Cell::GUID )
 	{
 		mDropped = true;
+		int ownerID = mEnergyCells[1]->GetOwnerID();
+		int teamID	= mClientMap[ownerID]->TeamID;
+		IEventPtr e( new Event_Server_Headline_Event( teamID, 4, 0 ) );
+		BroadcastEvent( e );
 	}
 }
 

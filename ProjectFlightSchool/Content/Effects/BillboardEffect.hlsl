@@ -20,6 +20,11 @@ cbuffer CbufferPerFrame	: register( b0 )
 	float4	 cameraPosition;
 }
 
+cbuffer CbufferPerObject : register( b1 )
+{
+	float4 color;
+}
+
 struct GS_Out
 {
 	float4 position	: SV_POSITION;
@@ -63,7 +68,6 @@ SamplerState pointSampler			: register( s0 );
 SamplerState linearSampler			: register( s1 );
 float4 PS_main(GS_Out input) : SV_TARGET0
 {	
-
 	clip( diffuseTexture.Sample( linearSampler, input.uv ).w < 0.7f ? -1:1 );
-	return float4( diffuseTexture.Sample( linearSampler, input.uv ).xyz, 1.0f );
+	return float4( diffuseTexture.Sample( linearSampler, input.uv ).xyz, 1.0f ) * color;
 }

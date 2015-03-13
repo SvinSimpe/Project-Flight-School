@@ -169,6 +169,9 @@ void Server::ClientDied( IEventPtr eventPtr )
 			IEventPtr E1( new Event_Remote_Died( data->ID(), killerID ) );
 			BroadcastEvent( E1, data->ID() );
 
+			IEventPtr E2( new Event_Remote_Log_Event( data->ID(), 0, killerID ) );
+			BroadcastEvent( E2 );
+
 			for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )
 			{
 				if( mPlayers[i] != nullptr )

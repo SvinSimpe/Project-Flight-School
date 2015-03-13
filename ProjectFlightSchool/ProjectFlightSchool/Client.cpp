@@ -203,7 +203,11 @@ bool Client::Initialize()
 	EF::REGISTER_EVENT( Event_Remote_Request_ParticleSystem );
 
 	EF::REGISTER_EVENT( Event_Client_Dropped_Energy_Cell );
-	//EF::REGISTER_EVENT( EventSpawn_Timer_Energy_Cell );
+
+	//Log Events
+	EF::REGISTER_EVENT( Event_Client_Log_Event );
+	EF::REGISTER_EVENT( Event_Remote_Log_Event );
+	EF::REGISTER_EVENT( Event_Server_Headline_Event );
 
 	EventManager::GetInstance()->AddListener( &Client::StartUp, this, Event_Start_Client::GUID );
 	EventManager::GetInstance()->AddListener( &Client::Shutdown, this, Event_Shutdown_Client::GUID );

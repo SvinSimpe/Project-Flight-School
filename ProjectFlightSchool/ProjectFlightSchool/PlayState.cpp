@@ -909,6 +909,7 @@ void PlayState::WriteInteractionText( std::string text, float xPos, float yPos, 
 
 HRESULT PlayState::Update( float deltaTime )
 {
+	mBattleLog->Update( deltaTime );
 	if( mActive )
 	{
 		if( mGui->InGameWindowIsActive() || mGui->UpgradeShipWindowIsActive() || mGui->UpgradePlayerWindowIsActive() )
@@ -1160,6 +1161,7 @@ HRESULT PlayState::Update( float deltaTime )
 
 HRESULT PlayState::Render( float deltaTime )
 {
+	
 	mPlayer->Render( 0.0f, 1 );
 
 	mWorldMap->Render( deltaTime , mPlayer );
@@ -1203,30 +1205,31 @@ HRESULT PlayState::Render( float deltaTime )
 		}
 	}
 
-	//RENDER DEVTEXT
-	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
-	mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
+	mBattleLog->Render();
+	////RENDER DEVTEXT
+	//std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
+	//mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
 
-	XMFLOAT4X4 identity;
-	XMStoreFloat4x4( &identity, XMMatrixIdentity() );
+	//XMFLOAT4X4 identity;
+	//XMStoreFloat4x4( &identity, XMMatrixIdentity() );
 
-	for( int i = 0; i < SHIP_AMOUNT; i++ )
-	{
-		if( mShips[i] && CullEntity( mShips[i]->GetPos() ) )
-		{
-			mShips[i]->Render( 0.0f, identity );
-		}
-	}
-	
-	if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
-	{
-		WriteInteractionText( 
-			"Press E to open or close the upgrade menu!", 
-			(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
-			(float)( Input::GetInstance()->mScreenHeight * 0.10f ), 
-			2.0f,
-			COLOR_CYAN );
-	}
+	//for( int i = 0; i < SHIP_AMOUNT; i++ )
+	//{
+	//	if( mShips[i] && CullEntity( mShips[i]->GetPos() ) )
+	//	{
+	//		mShips[i]->Render( 0.0f, identity );
+	//	}
+	//}
+	//
+	//if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
+	//{
+	//	WriteInteractionText( 
+	//		"Press E to open or close the upgrade menu!", 
+	//		(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
+	//		(float)( Input::GetInstance()->mScreenHeight * 0.10f ), 
+	//		2.0f,
+	//		COLOR_CYAN );
+	//}
 
 	RenderManager::GetInstance()->Render();
 
@@ -1250,6 +1253,8 @@ void PlayState::OnEnter()
 	EventManager::GetInstance()->QueueEvent( spawnPos );
 
 	mPlayer->SetHomePos( mShips[FRIEND_SHIP]->GetPos() );
+
+	mBattleLog->Initialize( mPlayer, mRemotePlayers );
 }
 
 void PlayState::OnExit()
@@ -1429,7 +1434,9 @@ HRESULT PlayState::Initialize()
 		{
 			RenderManager::GetInstance()->RequestParticleSystem( i, Fire_Flies, randPos, XMFLOAT3( 0.0f, 0.1f, 0.0f ) );	//---id, effect, position, direction			
 		}
-	}	
+	}
+
+	mBattleLog = new BattleLog();
 
 	return S_OK;
 }

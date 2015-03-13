@@ -150,3 +150,8 @@ const EventType Event_Remote_Request_ParticleSystem::GUID( counter++ );
 const EventType Event_Enemy_Fired_Projectile::GUID(counter++);
 const EventType Event_Server_Enemy_Fired_Projectile::GUID(counter++);
 
+//Log events
+const EventType Event_Client_Log_Event::GUID( counter++ );
+const EventType Event_Remote_Log_Event::GUID( counter++ );
+
+const EventType Event_Server_Headline_Event::GUID( counter++ );

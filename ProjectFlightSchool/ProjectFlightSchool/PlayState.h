@@ -17,6 +17,7 @@
 #include "SoundBufferHandler.h"
 #include "EnergyCell.h"
 #include "Pathfinder.h"
+#include "BattleLog.h"
 
 //TestUpgradeWindow
 #include "UpgradeShipWindow.h"
@@ -45,6 +46,7 @@ class PlayState : public BaseState
 		unsigned int	mFrameCounter;
 
 		//Game Data
+		BattleLog*					mBattleLog;
 		Player*						mPlayer;
 		std::vector<RemotePlayer*>	mRemotePlayers;
 		Projectile**				mProjectiles;				// A collection of the games projectiles

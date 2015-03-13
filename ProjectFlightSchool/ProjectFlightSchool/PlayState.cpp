@@ -1004,7 +1004,7 @@ HRESULT PlayState::Update( float deltaTime )
 		{
 			for ( size_t i = 0; i < MAX_NR_OF_ENEMIES; i++ )
 			{
-				if( mEnemies[i]->IsSynced() && CullEntity( mEnemies[i]->GetPosition() ) )
+				if( mEnemies[i]->IsSynced() )
 				{
 					mEnemies[i]->Update( deltaTime );
 

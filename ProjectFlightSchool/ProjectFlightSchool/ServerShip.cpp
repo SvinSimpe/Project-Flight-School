@@ -205,7 +205,7 @@ bool ServerShip::Intersect( BoundingCircle* entity )
 void ServerShip::Update( float deltaTime )
 {
 	mWasUpdated = false;
-	//mServerTurret->Update( deltaTime );
+	mServerTurret->Update( deltaTime );
 }
 
 void ServerShip::FindTurretTarget( std::vector<BoundingCircle*> enemies )

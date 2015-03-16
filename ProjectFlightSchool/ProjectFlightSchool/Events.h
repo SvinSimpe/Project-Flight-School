@@ -1912,7 +1912,8 @@ class Event_Remote_Attack : public IEvent
 class Event_Client_Dash : public IEvent
 {
 	private:
-		UINT	mID;
+		UINT		mID;
+		XMFLOAT3	mPosition;
 
 	public:
 		static const EventType GUID;
@@ -1923,10 +1924,12 @@ class Event_Client_Dash : public IEvent
 		Event_Client_Dash()
 		{
 			mID					= (UINT)-1;
+			mPosition			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 		}
-		Event_Client_Dash( UINT id )
+		Event_Client_Dash( UINT id, XMFLOAT3 position )
 		{
 			mID					= id;
+			mPosition			= position;
 		}
 		~Event_Client_Dash() {}
 		const EventType& GetEventType() const
@@ -1936,18 +1939,28 @@ class Event_Client_Dash : public IEvent
 		void Serialize( std::ostringstream& out ) const
 		{
 			out << mID << " ";
+			out << mPosition.x << " ";
+			out << mPosition.y << " ";
+			out << mPosition.z << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
 			in >> mID;
+			in >> mPosition.x;
+			in >> mPosition.y;
+			in >> mPosition.z;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Client_Dash( mID ) );
+			return IEventPtr( new Event_Client_Dash( mID, mPosition ) );
 		}
 		UINT ID() const
 		{
 			return mID;
+		}
+		XMFLOAT3 GetPos() const
+		{
+			return mPosition;
 		}
 };
 
@@ -1955,7 +1968,8 @@ class Event_Client_Dash : public IEvent
 class Event_Remote_Dash : public IEvent
 {
 	private:
-		UINT	mID;
+		UINT		mID;
+		XMFLOAT3	mPosition;
 
 	public:
 		static const EventType GUID;
@@ -1967,9 +1981,10 @@ class Event_Remote_Dash : public IEvent
 		{
 			mID					= (UINT)-1;
 		}
-		Event_Remote_Dash( UINT id )
+		Event_Remote_Dash( UINT id, XMFLOAT3 mPosition )
 		{
 			mID					= id;
+			mPosition			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 		}
 		~Event_Remote_Dash() {}
 		const EventType& GetEventType() const
@@ -1979,18 +1994,28 @@ class Event_Remote_Dash : public IEvent
 		void Serialize( std::ostringstream& out ) const
 		{
 			out << mID << " ";
+			out << mPosition.x << " ";
+			out << mPosition.y << " ";
+			out << mPosition.z << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
 			in >> mID;
+			in >> mPosition.x;
+			in >> mPosition.y;
+			in >> mPosition.z;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Remote_Dash( mID ) );
+			return IEventPtr( new Event_Remote_Dash( mID, mPosition ) );
 		}
 		UINT ID() const
 		{
 			return mID;
+		}
+		XMFLOAT3 GetPos() const
+		{
+			return mPosition;
 		}
 };
 

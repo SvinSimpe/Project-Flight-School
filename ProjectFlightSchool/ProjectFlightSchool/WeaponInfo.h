@@ -262,7 +262,7 @@ struct RangedInfo
 					{
 						attackRate		= 1.75f;
 						//damage			= 18.0f;
-						spread			= 5.7f;
+						//spread			= 5.7f;
 					}
 						break;
 
@@ -270,7 +270,7 @@ struct RangedInfo
 					{
 						attackRate		= 1.7f;
 						//damage			= 20.0f;
-						spread			= 5.4f;
+						//spread			= 5.4f;
 					}
 						break;
 
@@ -278,7 +278,7 @@ struct RangedInfo
 					{
 						attackRate		= 1.65f;
 						//damage			= 22.0f;
-						spread			= 5.1f;
+						//spread			= 5.1f;
 					}
 						break;
 
@@ -286,7 +286,7 @@ struct RangedInfo
 					{
 						attackRate		= 1.6f;
 						//damage			= 25.0f;
-						spread			= 4.8f;
+						//spread			= 4.8f;
 					}
 						break;
 

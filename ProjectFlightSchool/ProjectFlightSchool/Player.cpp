@@ -38,6 +38,22 @@ void Player::EventListener( IEventPtr newEvent )
 			direction.z *= data->KnockBack();
 			AddImpuls( direction );
 			TakeDamage( data->Damage(), 0);
+
+			for (size_t i = 0; i < 10; i++)
+			{
+				IEventPtr E1( new Event_Client_Request_ParticleSystem( mID, (int)Debris, XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + 1.0f, mLowerBody.position.z ),
+																						 XMFLOAT3( direction.x * -1.0f, direction.y * -1.0f, direction.z * -1.0f ), mVelocity ) );
+				
+				IEventPtr E2( new Event_Client_Request_ParticleSystem( mID, (int)Spark_Robot, XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + 1.0f, mLowerBody.position.z ),
+																							  XMFLOAT3( direction.x * -1.0f, direction.y * -1.0f, direction.z * -1.0f ), mVelocity ) );
+
+				IEventPtr E3( new Event_Client_Request_ParticleSystem( mID, (int)Spark_Electric, XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + 1.0f, mLowerBody.position.z ),
+																								 XMFLOAT3( direction.x * -1.0f, direction.y * -1.0f, direction.z * -1.0f ), mVelocity ) );
+				QueueEvent( E1 );
+				QueueEvent( E2 );
+				QueueEvent( E3 );
+			}
+
 		}
 	}
 	else if ( newEvent->GetEventType() == Event_Create_Player_Name::GUID )
@@ -288,7 +304,7 @@ void Player::HandleSpawn( float deltaTime )
 	mPlayerDownSparksTimer -= deltaTime;
 
 	// Spawn smoke and electricity after ground impact
-	if ( mTimeTillSpawn < 8.6f )
+	if ( mTimeTillSpawn < mSpawnTime - 1.4f )
 	{
 		XMFLOAT3 newPos;
 		float randY = (float)( rand() % 8 ) * 0.1f;
@@ -306,7 +322,7 @@ void Player::HandleSpawn( float deltaTime )
 	}
 
 	// Spawn fire at death
-	else if (  9.55f <= mTimeTillSpawn && mTimeTillSpawn <= 10.0f )
+	else if (  mSpawnTime - 0.45f <= mTimeTillSpawn && mTimeTillSpawn <= mSpawnTime )
 	{
 		XMFLOAT3 newPos;
 		XMFLOAT3 inverseDir;
@@ -1101,13 +1117,16 @@ void Player::UnLock()
 void Player::Reset()
 {
 	mTimeSinceLastShot			= 0.0f;
-	mWeaponCoolDown				= 0;
-	mMeleeCoolDown				= 0;
-	mTimeTillattack				= mLoadOut->meleeWeapon->timeTillAttack;
+	mWeaponCoolDown				= 0.0f;
+	mMeleeCoolDown				= 0.0f;
+	mWeaponOverheatMultiplier	= 0.0f;
+	mTimeTillattack				= 0.0f;
 	mIsMeleeing					= false;
 	mHasMeleeStarted			= false;
 	mLock						= false;
 	mCloseToPlayer				= false;
+	
+	mDashCoolDown				= 0.0f;
 
 	mMaxVelocity				= 7.7f;
 	mVelocity					= XMFLOAT3( 0.0f, 0.0f, 0.0f );
@@ -1158,6 +1177,21 @@ void Player::Reset()
 	mNextLevelXP		= 20.0f;
 	mCurrentLevel		= 0;
 	mCurrentUpgrades	= 0;
+
+	mBarFrame.mPosition = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mBarFrame.mWidth	= 0.0f;
+	mBarFrame.mHeight	= 0.0f;
+	mBarFrame.mColor	= XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f );
+
+	mOverHeatBar.mPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mOverHeatBar.mWidth		= 0.0f;
+	mOverHeatBar.mHeight	= 0.0f;
+	mOverHeatBar.mColor		= XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f );
+
+	mStaminaBar.mPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mStaminaBar.mWidth		= 0.0f;
+	mStaminaBar.mHeight		= 0.0f;
+	mStaminaBar.mColor		= XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f );
 }
 
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
@@ -1581,7 +1615,7 @@ void Player::RenderPowerBars()
 		{
 			mOverHeatBar.mPosition	= XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + 4.5f, mLowerBody.position.z );
 			mOverHeatBar.mWidth		= 0.7f * ( mLoadOut->rangedWeapon->overheat / MAX_OVERHEAT_VALUE );
-			mOverHeatBar.mHeight		= 0.075f;
+			mOverHeatBar.mHeight	= 0.075f;
 
 			mBarFrame.mPosition		= XMFLOAT3( mOverHeatBar.mPosition.x, mOverHeatBar.mPosition.y + 0.01f, mOverHeatBar.mPosition.z - 0.01f );
 			mBarFrame.mWidth		= 0.7f + 0.02f;
@@ -1618,13 +1652,6 @@ void Player::RenderPowerBars()
 			RenderManager::GetInstance()->AddBillboardToList( mBarFrame.mAssetID, mBarFrame.mPosition, mBarFrame.mWidth, mBarFrame.mHeight );			
 		}
 	}
-
-
-
-	//RenderManager::GetInstance()->AddBillboardToList( mStaminaBar.mAssetID, mStaminaBar.mPosition, mStaminaBar.mWidth, mStaminaBar.mHeight  );
-	//RenderManager::GetInstance()->AddBillboardToList( mBarFrame.mAssetID, mBarFrame.mPosition, mBarFrame.mWidth, mBarFrame.mHeight  );
-
-
 }
 
 HRESULT Player::Initialize()
@@ -1736,7 +1763,7 @@ HRESULT Player::Initialize()
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/overheatBar.dds", mOverHeatBar.mAssetID );
 	mOverHeatBar.mPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mOverHeatBar.mWidth		= 0.0f;
-	mOverHeatBar.mHeight		= 0.0f;
+	mOverHeatBar.mHeight	= 0.0f;
 	mOverHeatBar.mColor		= XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f );
 
 	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/staminaBar.dds", mStaminaBar.mAssetID );

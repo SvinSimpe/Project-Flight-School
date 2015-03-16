@@ -639,6 +639,10 @@ void PlayState::CheckMeeleCollision()
 				DirectX::XMFLOAT3 direction = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
 				XMStoreFloat3( &direction, XMVector4Normalize( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) ) );
 				BroadcastMeleeDamage( mRemotePlayers.at(i)->GetID(), mPlayer->GetLoadOut()->meleeWeapon->damage, currWeapon->knockBack, direction );
+
+
+				XMFLOAT3 tempDir;
+				XMStoreFloat3( &tempDir, XMVector3Normalize( XMLoadFloat3( &mPlayer->GetPosition() ) - XMLoadFloat3( &mRemotePlayers[i]->GetPosition() ) ) );
 			}
 		}
 	}

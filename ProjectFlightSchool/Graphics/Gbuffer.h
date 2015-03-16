@@ -14,7 +14,7 @@ struct Gbuffer
 	private:
 	protected:
 	public:
-		HRESULT Initialize( ID3D11Device* device, UINT width, UINT height )
+		HRESULT Initialize( ID3D11Device* device, UINT width, UINT height, DXGI_FORMAT format = DXGI_FORMAT_R16G16B16A16_FLOAT )
 		{
 			////////////////////////////////////////////////////////
 			// Initialize RenderTargetView and ShaderResourceView
@@ -34,7 +34,7 @@ struct Gbuffer
 			td.MipLevels		= 0;
 			td.ArraySize		= 1;
 			td.SampleDesc.Count	= 1;
-			td.Format			= DXGI_FORMAT_R16G16B16A16_FLOAT;
+			td.Format			= format;
 
 			
 			hr = device->CreateTexture2D( &td, nullptr, &targetTex );

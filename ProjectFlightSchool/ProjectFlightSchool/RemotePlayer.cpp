@@ -15,7 +15,9 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 				XMStoreFloat3( &mLowerBody.direction, XMVector3Normalize( XMLoadFloat3( &data->Velocity() ) ) );
 			mUpperBody.direction							= data->UpperBodyDirection();
 
-			mBoundingBox->position		= mLowerBody.position;
+			if( mBoundingBox )
+				mBoundingBox->position	= mLowerBody.position;
+
 			mBoundingCircle->center		= mLowerBody.position;
 			mBoundingCircleAura->center	= mLowerBody.position;
 		}

@@ -67,7 +67,7 @@ class BattleLog
 		std::unordered_map< int, PlayerInfo > mPlayerMap;
 
 		std::vector< BattleLogEntry > mLogQueue;
-		std::vector< HeadLineEntry > mHeadLineQueue;
+		std::list< HeadLineEntry > mHeadLineQueue;
 		Font* mFont;
 		int mTeamID;
 

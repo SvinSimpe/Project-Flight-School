@@ -81,15 +81,11 @@ void BattleLog::Update( float deltaTime )
 	}
 
 	auto it2 = mHeadLineQueue.begin();
-	while( it2 != mHeadLineQueue.end() )
+	if( !mHeadLineQueue.empty() )
 	{
 		if( !it2->TimeOut( deltaTime ) )
 		{
 			it2 = mHeadLineQueue.erase( it2 );
-		}
-		else
-		{
-			it2++;
 		}
 	}
 
@@ -155,21 +151,26 @@ void BattleLog::Render()
 			mFirstUnitString	= mObjects[current->mGoalID];
 			first				= mCyanBlue;
 			mActionString		= mActions[current->mActionID];
+			mSecondUnitString	= "";
 		}
 		else
 		{
 			mFirstUnitString	= mTeams[current->mTeamID].teamName;
+			first				= mTeams[current->mTeamID].color;
 			mActionString		= mActions[current->mActionID];
 			mSecondUnitString	= mObjects[current->mGoalID];
+			second				= mCyanBlue;
 		}
 		
 		mMeasureString = mFirstUnitString + mActionString + mSecondUnitString;
 
-		float offsetX = mFont->GetMiddleXPoint( mMeasureString, headLineScale );
+		float offsetX = middleLeft.x - mFont->GetMiddleXPoint( mMeasureString, headLineScale );
+		x1 = mFont->GetMiddleXPoint( mFirstUnitString, headLineScale );
+		x2 = mFont->GetMiddleXPoint( mActionString, headLineScale );
 
-		mFont->WriteText( mFirstUnitString, middleLeft.x - offsetX, middleLeft.y, headLineScale, XMFLOAT4( first.x, first.y, first.z, current->mFade ) );
-		mFont->WriteText( mActionString, ( middleLeft.x + x1 * 2.0f ), middleLeft.y, headLineScale, XMFLOAT4( 1.0f, 1.0f, 1.0f, current->mFade ) );
-		mFont->WriteText( mSecondUnitString, ( middleLeft.x + x1 * 2.0f ) + x2 * 2.0f, middleLeft.y, headLineScale, XMFLOAT4( mCyanBlue.x, mCyanBlue.y, mCyanBlue.z, current->mFade ) );
+		mFont->WriteText( mFirstUnitString, offsetX, middleLeft.y, headLineScale, XMFLOAT4( first.x, first.y, first.z, current->mFade ) );
+		mFont->WriteText( mActionString, ( offsetX + x1 * 2.0f ), middleLeft.y, headLineScale, XMFLOAT4( 1.0f, 1.0f, 1.0f, current->mFade ) );
+		mFont->WriteText( mSecondUnitString, ( offsetX + x1 * 2.0f ) + x2 * 2.0f, middleLeft.y, headLineScale, XMFLOAT4( second.x, second.y, second.z, current->mFade ) );
 	}
 }
 
@@ -185,6 +186,10 @@ void BattleLog::AddHeadLineEntry( HeadLineEntry entry )
 {
 	if( mHeadLineQueue.size() < HEADLINE_QUEUE_SIZE )
 	{
+		if( !mHeadLineQueue.empty() )
+		{
+			mHeadLineQueue.pop_back();
+		}
 		mHeadLineQueue.push_back( entry );
 	}
 }

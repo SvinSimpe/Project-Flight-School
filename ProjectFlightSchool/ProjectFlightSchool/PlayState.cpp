@@ -605,6 +605,9 @@ void PlayState::CheckProjectileCollision()
 						//RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), BoomerExplosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 						SoundBufferHandler::GetInstance()->Play3D( mExplosion , mPlayer->GetPosition() );
 
+						///TEST
+						HandleRemoteProjectileRemoved( mProjectiles[i]->GetID() );
+
 						IEventPtr E1( new Event_Client_Removed_Projectile( mProjectiles[i]->GetID() ) );
 						Client::GetInstance()->SendEvent( E1 );
 
@@ -814,8 +817,6 @@ void PlayState::HandleRemoteProjectileRemoved( UINT projectileID )
 
 			if( mProjectiles[i]->GetWeaponType() == GRENADELAUNCHER )
 			{
-				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 				//RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), BoomerExplosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 				SoundBufferHandler::GetInstance()->Play3D( mExplosion , mPlayer->GetPosition() );
 			}
@@ -905,6 +906,7 @@ void PlayState::WriteInteractionText( std::string text, float xPos, float yPos, 
 
 HRESULT PlayState::Update( float deltaTime )
 {
+	mBattleLog->Update( deltaTime );
 	if( mActive )
 	{
 		if( mGui->InGameWindowIsActive() || mGui->UpgradeShipWindowIsActive() || mGui->UpgradePlayerWindowIsActive() )
@@ -1161,6 +1163,7 @@ HRESULT PlayState::Update( float deltaTime )
 
 HRESULT PlayState::Render( float deltaTime )
 {
+	
 	mPlayer->Render( 0.0f, 1 );
 
 	mWorldMap->Render( deltaTime , mPlayer );
@@ -1204,9 +1207,10 @@ HRESULT PlayState::Render( float deltaTime )
 		}
 	}
 
-	//RENDER DEVTEXT
-	std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
-	mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
+	mBattleLog->Render();
+	////RENDER DEVTEXT
+	//std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
+	//mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
 
 	XMFLOAT4X4 identity;
 	XMStoreFloat4x4( &identity, XMMatrixIdentity() );
@@ -1250,17 +1254,17 @@ void PlayState::OnEnter()
 
 	mGui->SetTeamID( mPlayer->GetTeam() );
 	IEventPtr spawnPos( new Event_Request_Player_Spawn_Position( mPlayer->GetID(), mPlayer->GetTeam() ) );
-	EventManager::GetInstance()->QueueEvent( spawnPos );
+	EventManager::GetInstance()->TriggerEvent( spawnPos );
 
 	//Set ship position and radius for shader	
 	Graphics::GetInstance()->SetShipPosAndRad( mShips[FRIEND_SHIP]->GetBuffCircle()->center, mShips[FRIEND_SHIP]->GetBuffCircle()->radius, FRIEND_SHIP );
 	Graphics::GetInstance()->SetShipPosAndRad( mShips[ENEMY_SHIP]->GetBuffCircle()->center, mShips[ENEMY_SHIP]->GetBuffCircle()->radius, ENEMY_SHIP );	
 
 	mPlayer->SetHomePos( mShips[FRIEND_SHIP]->GetPos() );
+	mBattleLog->Initialize( mPlayer, mRemotePlayers );
 
 	IEventPtr name( new Event_Client_Set_Name( mPlayer->GetID(), mPlayer->GetName() ) );
 	Client::GetInstance()->SendEvent( name );
-
 }
 
 void PlayState::OnExit()
@@ -1440,13 +1444,16 @@ HRESULT PlayState::Initialize()
 		{
 			RenderManager::GetInstance()->RequestParticleSystem( i, Fire_Flies, randPos, XMFLOAT3( 0.0f, 0.1f, 0.0f ) );	//---id, effect, position, direction			
 		}
-	}	
+	}
+
+	mBattleLog = new BattleLog();
 
 	return S_OK;
 }
 
 void PlayState::Release()
 {	
+	SAFE_DELETE( mBattleLog );
 	Pathfinder::GetInstance()->Release();
 	mWorldMap->Release();
 	SAFE_DELETE( mWorldMap );

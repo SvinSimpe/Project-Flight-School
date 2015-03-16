@@ -1040,7 +1040,7 @@ void Player::QueueEvent( IEventPtr ptr )
 void Player::UpgradeBody()
 {
 	mUpgrades.currentBodyLevel++;
-	mUpgrades.damageTakenPercentage	-= 0.05f;
+	mUpgrades.damageTakenPercentage	-= 0.1f;
 	//mCurrentHp = mMaxHp = 100.0f + ( ( mUpgrades.currentBodyLevel - 1 ) * 20.0f ) + ( pow( (float)( mUpgrades.currentBodyLevel - 1 ), 2 ) * 5.0f );
 }
 

@@ -68,7 +68,7 @@
 // Claymore
 #define CLAYMORE_AR			2.8f								// Attack Rate
 #define CLAYMORE_DAMAGE		20.0f								// Damage
-#define CLAYMORE_RADIUS		2.5f								// Radius
+#define CLAYMORE_RADIUS		2.8f								// Radius
 #define CLAYMORE_SPREAD		8									// Spread
 #define CLAYMORE_KB			1.0f								// Knockback
 #define CLAYMORE_TTA		0.75f / CLAYMORE_SPEED_INCREASE		// Time till Attack
@@ -88,8 +88,8 @@
 #define HAMMER_OFFSETS		XMFLOAT3( 1.5f, -0.70f, 1.3f )		// Offsets forward, right, up
 
 // Blowtorch
-#define BLOWTORCH_AR		0.1f								// Attack Rate
-#define BLOWTORCH_DAMAGE	12.0f								// Damage
+#define BLOWTORCH_AR		0.05f								// Attack Rate
+#define BLOWTORCH_DAMAGE	6.0f								// Damage
 #define BLOWTORCH_RADIUS	4.0f								// Radius
 #define BLOWTORCH_SPREAD	3									// Spread
 #define BLOWTORCH_KB		0.0f								// Knockback

@@ -120,7 +120,7 @@ void ParticleManager::Initialize()
 	mMaxNrOfParticleSystemsPerType[Level_Up]		= 8;
 	mMaxNrOfParticleSystemsPerType[Level_Inner]		= 8;
 	mMaxNrOfParticleSystemsPerType[Spores]			= 1;
-	mMaxNrOfParticleSystemsPerType[Explosion]		= 8;
+	mMaxNrOfParticleSystemsPerType[Explosion]		= 50;
 	mMaxNrOfParticleSystemsPerType[ExplosionSmoke]	= 8;
 	mMaxNrOfParticleSystemsPerType[FireSmoke]		= 8;
 	mMaxNrOfParticleSystemsPerType[BlowTorchFire]	= 8;

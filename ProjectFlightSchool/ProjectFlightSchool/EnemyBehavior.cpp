@@ -385,7 +385,8 @@ HRESULT AttackBehavior::Update( float deltaTime )
 					{
 						IEventPtr state(new Event_Tell_Server_Enemy_Attack_Player(mEnemy->mID, mEnemy->mTargetID, mEnemy->mDamage));
 						EventManager::GetInstance()->QueueEvent(state);
-						mEnemy->ChangeBehavior(DEAD_BEHAVIOR);
+						mEnemy->Die(0);
+						//mEnemy->ChangeBehavior( DEAD_BEHAVIOR );
 						return S_OK;
 					}
 					else
@@ -435,7 +436,8 @@ HRESULT AttackBehavior::Update( float deltaTime )
 				else if( mEnemy->mEnemyType == Boomer )
 				{
 					mEnemy->mShips.at(mEnemy->mTargetShipIndex)->TakeDamage(mEnemy->mDamage);
-					mEnemy->ChangeBehavior( DEAD_BEHAVIOR );
+					mEnemy->Die(0);
+					//mEnemy->ChangeBehavior( DEAD_BEHAVIOR );
 					return S_OK;
 				}
 				else
@@ -471,7 +473,7 @@ void AttackBehavior::OnEnter()
 			break;
 
 		case Boomer:
-			mStateTimer = 2.0f;
+			mStateTimer = 0.1f;
 			break;
 
 		case Tank:
@@ -659,8 +661,14 @@ void DeadBehavior::OnEnter()
 	mEnemy->mCurrentHp		= 0.0f;
 	mEnemy->mTimeTillSapwn	= mEnemy->mSpawnTime;
 	
-	IEventPtr state( new Event_Set_Enemy_State( mEnemy->mID, Death ) );
-	EventManager::GetInstance()->QueueEvent( state );
+	if( mEnemy->mEnemyType != Boomer )
+	{
+		IEventPtr state( new Event_Set_Enemy_State( mEnemy->mID, Death ) );
+		EventManager::GetInstance()->QueueEvent( state );
+	}
+
+	else
+		mEnemy->mPosition.y = -5.0f;
 }
 
 void DeadBehavior::OnExit()

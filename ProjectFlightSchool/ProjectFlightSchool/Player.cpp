@@ -26,6 +26,11 @@ void Player::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Server_Enemy_Attack_Player> data = std::static_pointer_cast<Event_Server_Enemy_Attack_Player>( newEvent );
 		if ( mID == data->PlayerID() )
 			TakeDamage( data->Damage(), 0);
+	/*	if( data->Damage() == 110.0f )
+		{
+			IEventPtr E1( new Event_Client_Request_ParticleSystem( mID, (int)Explosion, XMFLOAT3( data->Position().x, 1.0f, data->Position().z ), XMFLOAT3( 0.0f, 1.0f, 0.0f ), mVelocity ) );
+			QueueEvent( E1 );
+		}*/
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Melee_Hit::GUID )
 	{

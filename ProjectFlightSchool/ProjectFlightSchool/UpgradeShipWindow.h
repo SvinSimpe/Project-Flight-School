@@ -64,6 +64,7 @@ private:
 	ButtonStruct			mBuffButtons;
 	int						mUnusedCells;
 	int						mNrOfEnergyCells;
+	int						mOtherShipNrOfEnergyCells;
 
 protected:
 public:
@@ -88,6 +89,7 @@ public:
 
 	bool	IsActive() const;
 	int		GetNrOfEnergyCells() const;
+	int		GetOtherShipNrOfEnergyCells() const;
 };
 
 #endif // !UPGRADESHIPWINDOW_H

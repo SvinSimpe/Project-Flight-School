@@ -137,15 +137,12 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 	else
 	{
 		mAcceleration = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		mSniperLock = false;
 		if( mLoadOut->rangedWeapon->weaponType == SNIPER )
 		{
-			if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_LSHIFT ) )
+			if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_R ) )
 			{
 				mSniperLock = true;
-			}
-			else
-			{
-				mSniperLock = false;
 			}
 		}
 
@@ -242,10 +239,17 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 		//Cap the mPlayerToCursor vector
 		normalizer = XMVector3Length( XMLoadFloat3( &mPlayerToCursor ) );
 		float currCamera = XMVectorGetX( normalizer );
-		if(  currCamera > CAMERA_CAP )
+		if( currCamera > CAMERA_CAP )
 		{
 			normalizer	 = XMVector3Normalize( XMLoadFloat3( &mPlayerToCursor ) );
 			normalizer	*= CAMERA_CAP;
+			XMStoreFloat3( &mPlayerToCursor, normalizer );
+		}
+
+		if( mSniperLock && currCamera > CAMERA_EXTENSION )
+		{
+			normalizer	 = XMVector3Normalize( XMLoadFloat3( &mPlayerToCursor ) );
+			normalizer	*= CAMERA_EXTENSION;
 			XMStoreFloat3( &mPlayerToCursor, normalizer );
 		}
 

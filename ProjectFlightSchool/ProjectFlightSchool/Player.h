@@ -23,6 +23,7 @@
 #define CAMERA_Y		20.0f
 #define CAMERA_Z		-8.0f
 #define CAMERA_CAP		1.0f
+#define CAMERA_EXTENSION 10.0f
 
 class Map;
 class Path;

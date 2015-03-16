@@ -60,7 +60,4 @@ enum KEYS
 	//Number of keys that we can handle
 	KEYS_AMOUNT
 };
-
-
-
 #endif

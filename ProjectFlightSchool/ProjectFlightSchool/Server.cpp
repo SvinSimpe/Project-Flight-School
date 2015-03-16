@@ -1062,7 +1062,7 @@ void Server::Update( float deltaTime )
 			mCellSpawnTimer -= deltaTime;
 			if( mCellSpawnTimer <= 0.0f )
 			{
-				mCellSpawnTimer = 5.0f;
+				mCellSpawnTimer = 15.0f;
 				IEventPtr e( new Event_Spawn_Energy_Cell() );
 				EventManager::GetInstance()->QueueEvent( e );
 			}

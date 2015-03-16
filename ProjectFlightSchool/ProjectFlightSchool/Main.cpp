@@ -37,12 +37,6 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdL
 	// End of console window code
 
 	int localReturn = 0;
-	char buf[1024];
-	DWORD bufSize = 1024;
-	GetComputerNameA( buf, &bufSize );
-
-	if( strcmp( buf, "MIKAEL-PC" ) == 0 )
-		MessageBox( NULL, L"GBUFFERS ARE NOT FULL, PLEASE ADD GLOW", L"Error", MB_OK );
 
 	System* system = new System();
 	system->Initialize( hInstance, nCmdShow );

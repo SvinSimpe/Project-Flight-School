@@ -45,7 +45,7 @@
 #define GL_OFFSETS			XMFLOAT3( 0.92f, 0.5f, 1.45f )		// Offsets forward, right, up
 
 // Sniper
-#define SNIPER_AR			3.9f								// Attack Rate
+#define SNIPER_AR			3.0f								// Attack Rate
 #define SNIPER_DAMAGE		45.0f								// Damage
 #define SNIPER_RANGE		1.0f								// Range
 #define SNIPER_SPREAD		0.0f								// Spread

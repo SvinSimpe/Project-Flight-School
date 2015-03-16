@@ -1276,6 +1276,7 @@ bool Server::Initialize()
 void Server::Reset()
 {
 	mStopAccept				= false;
+	mGameFull				= false;
 	mActive					= false;
 	mCurrentPID				= 0;
 	mTeamDelegate			= 1;

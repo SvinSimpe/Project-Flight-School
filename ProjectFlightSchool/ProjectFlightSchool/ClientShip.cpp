@@ -58,11 +58,6 @@ void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 			zMin= (int)mPos.z - width;
 			zMax = (int)mPos.z + width;
 
-			//xMin = (int)mBuffCircle->center.x - width;
-			//xMax = (int)mBuffCircle->center.x + width;
-			//zMin = (int)mBuffCircle->center.z - height;
-			//zMax = (int)mBuffCircle->center.z + height;
-
 			//Check if min OR max is origo
 			if( xMin || xMax == 0 || zMin == 0 || zMax == 0 )
 			{
@@ -73,11 +68,6 @@ void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 				xMax = (int)mPos.x + width;
 				zMin= (int)mPos.z - width;
 				zMax = (int)mPos.z + width;
-
-				//xMin = (int)mBuffCircle->center.x - width;
-				//xMax = (int)mBuffCircle->center.x + width;
-				//zMin = (int)mBuffCircle->center.z - height;
-				//zMax = (int)mBuffCircle->center.z + height;
 			}
 			BoundingCircle pos;
 			do
@@ -147,9 +137,6 @@ void ClientShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 
 	mClientTurret = new ClientTurret();
 	mClientTurret->Initialize( id + 10, teamID, pos, rot, scale );
-
-	EventManager::GetInstance()->AddListener( &ClientShip::RemoteUpdateShip, this, Event_Server_Update_Ship::GUID );
-	EventManager::GetInstance()->AddListener( &ClientShip::CalculatePlayerRespawnPosition, this, Event_Request_Player_Spawn_Position::GUID );
 }
 
 void ClientShip::Release()

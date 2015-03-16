@@ -325,11 +325,11 @@
 				renderType ="1"/>
 <-------------------------------------------------------------------------------------->			
         <Asset path="../Content/Assets/ForestAssets/Water/puddle.pfs"
-				collisionType ="0"
+				collisionType ="2"
 				renderType ="0"/>
 				
         <Asset path="../Content/Assets/ForestAssets/Water/water.pfs" 
-				collisionType ="0"
+				collisionType ="2"
 				renderType ="0"/>
 				
     </Assets>

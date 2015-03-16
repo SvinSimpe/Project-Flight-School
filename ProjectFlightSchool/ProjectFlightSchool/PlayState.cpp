@@ -144,12 +144,10 @@ void PlayState::EventListener( IEventPtr newEvent )
 
 		if( data->TeamID() == mPlayer->GetTeam() )
 		{
-			mShips[FRIEND_SHIP] = new ClientShip();
 			mShips[FRIEND_SHIP]->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
 		}
 		else
 		{
-			mShips[ENEMY_SHIP] = new ClientShip();
 			mShips[ENEMY_SHIP]->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
 		}	
 	}
@@ -1297,7 +1295,7 @@ void PlayState::Reset()
 
 	for( int i = 0; i < SHIP_AMOUNT; i++ )
 	{
-		SAFE_RELEASE_DELETE( mShips[i] );
+		SAFE_RELEASE( mShips[i] );
 	}
 
 	for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
@@ -1444,6 +1442,11 @@ HRESULT PlayState::Initialize()
 		{
 			RenderManager::GetInstance()->RequestParticleSystem( i, Fire_Flies, randPos, XMFLOAT3( 0.0f, 0.1f, 0.0f ) );	//---id, effect, position, direction			
 		}
+	}
+
+	for( int i = 0; i < SHIP_AMOUNT; i++ )
+	{
+		mShips[i] = new ClientShip();
 	}
 
 	mBattleLog = new BattleLog();

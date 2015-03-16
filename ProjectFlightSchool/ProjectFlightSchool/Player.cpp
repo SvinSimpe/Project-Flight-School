@@ -1192,9 +1192,6 @@ void Player::Reset()
 	mStaminaBar.mWidth		= 0.0f;
 	mStaminaBar.mHeight		= 0.0f;
 	mStaminaBar.mColor		= XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f );
-
-	IEventPtr spawnPos( new Event_Request_Player_Spawn_Position( mID, mTeam ) );
-	EventManager::GetInstance()->QueueEvent( spawnPos );
 }
 
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )

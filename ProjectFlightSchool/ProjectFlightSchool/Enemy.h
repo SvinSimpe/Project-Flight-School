@@ -54,7 +54,7 @@ class Enemy;
 #define ENEMY_PROJECTILE_RANGE					1.0f
 #define ENEMY_PROJECTILE_DAMAGE					6
 
-#define ENEMY_BOOMER_DAMAGE						110.0f
+#define ENEMY_BOOMER_DAMAGE						65.0f
 
 enum EnemyType { Standard, Ranged, Boomer, Tank };
 enum EnemyState { Idle, HuntPlayer, MoveToShip, TakeDamage, Attack, Death, Stunned, };

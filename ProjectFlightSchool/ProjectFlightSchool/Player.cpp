@@ -469,11 +469,13 @@ void Player::DropEnergyCell( EnergyCell** energyCells )
 		energyCells[mEnergyCellID]->SetSecured( false );
 	
 
-		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, (UINT)-1, mLowerBody.position, energyCells[mEnergyCellID]->GetPickedUp(), energyCells[mEnergyCellID]->GetActive() ) );
+		IEventPtr E1( new Event_Client_Dropped_Energy_Cell() );
 		QueueEvent( E1 );
 
-		IEventPtr E2( new Event_Client_Dropped_Energy_Cell() );
+		IEventPtr E2( new Event_Client_Sync_Energy_Cell( mEnergyCellID, (UINT)-1, mLowerBody.position, energyCells[mEnergyCellID]->GetPickedUp(), energyCells[mEnergyCellID]->GetActive() ) );
 		QueueEvent( E2 );
+
+
 
 		mEnergyCellID	= (UINT)-1;
 		mPickUpCooldown	= 3.0f;

@@ -97,6 +97,15 @@
     <Filter Include="Enemy\Source Files">
       <UniqueIdentifier>{b0dd3b13-a57d-4caa-bf01-3b5fa2a82752}</UniqueIdentifier>
     </Filter>
+    <Filter Include="BattleLog">
+      <UniqueIdentifier>{6c7ec038-08f6-45b2-a03a-3329b6319589}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="BattleLog\Source Files">
+      <UniqueIdentifier>{27a2b549-25b5-4bcb-87f1-fb43ce5a9b74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="BattleLog\Header Files">
+      <UniqueIdentifier>{a3af2b2e-a8fb-47d6-96ce-a7107e3f1aae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -344,6 +353,15 @@
     <ClCompile Include="EndGameWindow.cpp">
       <Filter>GUI\Source</Filter>
     </ClCompile>
+    <ClCompile Include="BattleLog.cpp">
+      <Filter>BattleLog\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleLogEntry.cpp">
+      <Filter>BattleLog\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HeadLineEntry.cpp">
+      <Filter>BattleLog\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System.h">
@@ -587,6 +605,15 @@
     </ClInclude>
     <ClInclude Include="EndGameWindow.h">
       <Filter>GUI\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleLog.h">
+      <Filter>BattleLog\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleLogEntry.h">
+      <Filter>BattleLog\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HeadLineEntry.h">
+      <Filter>BattleLog\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

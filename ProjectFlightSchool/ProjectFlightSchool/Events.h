@@ -6352,7 +6352,206 @@ public:
 		return mRange;
 	}
 };
+class Event_Client_Log_Event : public IEvent
+{
+	private:
+		int mFirstUnitID;
 
+		int mActionID;
+
+		int mSecondUnitID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Client_Log_Event()
+		{
+			mFirstUnitID	= -1;
+			mActionID		= -1;
+			mSecondUnitID	= -1;
+		}
+		Event_Client_Log_Event( int firstUnitID, int actionID, int secondUnitID )
+		{
+			mFirstUnitID	= firstUnitID;
+			mActionID		= actionID;
+			mSecondUnitID	= secondUnitID;
+		}
+		~Event_Client_Log_Event() {}
+		
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mFirstUnitID << " ";
+
+			out << mActionID << " ";
+
+			out << mSecondUnitID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mFirstUnitID;
+
+			in >> mActionID;
+
+			in >> mSecondUnitID;
+		}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		int GetFirstUnitID() const
+		{
+			return mFirstUnitID;
+		}
+		int GetActionID() const
+		{
+			return mActionID;
+		}
+		int SecondUnitID() const
+		{
+			return mSecondUnitID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Client_Log_Event( mFirstUnitID, mActionID, mSecondUnitID ) );
+		}
+};
+
+class Event_Remote_Log_Event : public IEvent
+{
+	private:
+		int mFirstUnitID;
+
+		int mActionID;
+
+		int mSecondUnitID;
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Remote_Log_Event()
+		{
+			mFirstUnitID	= 0;
+			mActionID		= 0;
+			mSecondUnitID	= 0;
+		}
+		Event_Remote_Log_Event( int firstUnitID, int actionID, int secondUnitID )
+		{
+			mFirstUnitID	= firstUnitID;
+			mActionID		= actionID;
+			mSecondUnitID	= secondUnitID;
+		}
+		~Event_Remote_Log_Event() {}
+		
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mFirstUnitID << " ";
+
+			out << mActionID << " ";
+
+			out << mSecondUnitID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mFirstUnitID;
+
+			in >> mActionID;
+
+			in >> mSecondUnitID;
+		}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		int GetFirstUnitID() const
+		{
+			return mFirstUnitID;
+		}
+		int GetActionID() const
+		{
+			return mActionID;
+		}
+		int GetSecondUnitID() const
+		{
+			return mSecondUnitID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Remote_Log_Event( mFirstUnitID, mActionID, mSecondUnitID ) );
+		}
+};
+
+class Event_Server_Headline_Event : public IEvent
+{
+	private:
+		int mTeamID;
+		int mActionID;
+		int mGoalID;
+
+	protected:
+	public:
+		static const EventType GUID;
+
+	private:
+	protected:
+	public:
+		Event_Server_Headline_Event()
+		{
+			mTeamID		= 0;
+			mActionID	= 0;
+			mGoalID		= 0;
+		}
+		Event_Server_Headline_Event( int teamID, int actionID, int goalID )
+		{
+			mTeamID		= teamID;
+			mActionID	= actionID;
+			mGoalID		= goalID;
+		}
+		~Event_Server_Headline_Event() {}
+		
+		void Serialize( std::ostringstream& out ) const
+		{
+			out << mTeamID << " ";
+
+			out << mActionID << " ";
+
+			out << mGoalID << " ";
+		}
+		void Deserialize( std::istringstream& in )
+		{
+			in >> mTeamID;
+
+			in >> mActionID;
+
+			in >> mGoalID;
+		}
+		const EventType& GetEventType() const
+		{
+			return GUID;
+		}
+		int GetTeamID()
+		{
+			return mTeamID;
+		}
+		int GetActionID()
+		{
+			return mActionID;
+		}
+		int GetGoalID()
+		{
+			return mGoalID;
+		}
+		IEventPtr Copy() const
+		{
+			return IEventPtr( new Event_Server_Headline_Event( mTeamID, mActionID, mGoalID ) );
+		}
+};
 class Event_Client_Set_Name : public IEvent
 {
 private:

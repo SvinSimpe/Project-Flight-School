@@ -474,11 +474,13 @@ void Player::DropEnergyCell( EnergyCell** energyCells )
 		energyCells[mEnergyCellID]->SetSecured( false );
 	
 
-		IEventPtr E1( new Event_Client_Sync_Energy_Cell( mEnergyCellID, (UINT)-1, mLowerBody.position, energyCells[mEnergyCellID]->GetPickedUp(), energyCells[mEnergyCellID]->GetActive() ) );
+		IEventPtr E1( new Event_Client_Dropped_Energy_Cell() );
 		QueueEvent( E1 );
 
-		IEventPtr E2( new Event_Client_Dropped_Energy_Cell() );
+		IEventPtr E2( new Event_Client_Sync_Energy_Cell( mEnergyCellID, (UINT)-1, mLowerBody.position, energyCells[mEnergyCellID]->GetPickedUp(), energyCells[mEnergyCellID]->GetActive() ) );
 		QueueEvent( E2 );
+
+
 
 		mEnergyCellID	= (UINT)-1;
 		mPickUpCooldown	= 3.0f;
@@ -1043,7 +1045,7 @@ void Player::QueueEvent( IEventPtr ptr )
 void Player::UpgradeBody()
 {
 	mUpgrades.currentBodyLevel++;
-	mUpgrades.damageTakenPercentage	-= 0.05f;
+	mUpgrades.damageTakenPercentage	-= 0.1f;
 	//mCurrentHp = mMaxHp = 100.0f + ( ( mUpgrades.currentBodyLevel - 1 ) * 20.0f ) + ( pow( (float)( mUpgrades.currentBodyLevel - 1 ), 2 ) * 5.0f );
 }
 

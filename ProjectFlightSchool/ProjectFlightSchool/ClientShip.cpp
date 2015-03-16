@@ -53,11 +53,15 @@ void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 
 			int spawnX, spawnZ = 0;
 
+			xMin = (int)mPos.x - width;
+			xMax = (int)mPos.x + width;
+			zMin= (int)mPos.z - width;
+			zMax = (int)mPos.z + width;
 
-			xMin = (int)mBuffCircle->center.x - width;
-			xMax = (int)mBuffCircle->center.x + width;
-			zMin = (int)mBuffCircle->center.z - height;
-			zMax = (int)mBuffCircle->center.z + height;
+			//xMin = (int)mBuffCircle->center.x - width;
+			//xMax = (int)mBuffCircle->center.x + width;
+			//zMin = (int)mBuffCircle->center.z - height;
+			//zMax = (int)mBuffCircle->center.z + height;
 
 			//Check if min OR max is origo
 			if( xMin || xMax == 0 || zMin == 0 || zMax == 0 )
@@ -65,10 +69,15 @@ void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 				width++;
 				height++;
 
-				xMin = (int)mBuffCircle->center.x - width;
-				xMax = (int)mBuffCircle->center.x + width;
-				zMin = (int)mBuffCircle->center.z - height;
-				zMax = (int)mBuffCircle->center.z + height;
+				xMin = (int)mPos.x - width;
+				xMax = (int)mPos.x + width;
+				zMin= (int)mPos.z - width;
+				zMax = (int)mPos.z + width;
+
+				//xMin = (int)mBuffCircle->center.x - width;
+				//xMax = (int)mBuffCircle->center.x + width;
+				//zMin = (int)mBuffCircle->center.z - height;
+				//zMax = (int)mBuffCircle->center.z + height;
 			}
 			BoundingCircle pos;
 			do
@@ -81,8 +90,9 @@ void ClientShip::CalculatePlayerRespawnPosition( IEventPtr eventPtr )
 				}
 				while( PositionVsShip( &pos, XMFLOAT3( 0.0f, 1.0f, 0.0f ) ) );
 			}
-			while( ( (float)spawnX > mBuffCircle->center.x - 15.0f && (float)spawnX < mBuffCircle->center.x + 15.0f &&
-				   (float)spawnZ > mBuffCircle->center.z - 15.0f && (float)spawnZ < mBuffCircle->center.z + 15.0f ) && Pathfinder::GetInstance()->IsOnNavMesh( XMFLOAT3( (float)spawnX, 0.0f, (float)spawnZ ) ) );
+			while( ( (float)( spawnX > mPos.x - 15.0f ) && (float)( spawnX < mPos.x + 15.0f ) &&
+				   (float)( spawnZ > mPos.z - 15.0f ) && (float)( spawnZ < mPos.z + 15.0f ) ) 
+				   && Pathfinder::GetInstance()->IsOnNavMesh( XMFLOAT3( (float)spawnX, 0.0f, (float)spawnZ ) ) );
 
 			IEventPtr E1( new Event_New_Player_Spawn_Position( data->PlayerID(), XMFLOAT2( (float)spawnX, (float)spawnZ ) ) );
 			EventManager::GetInstance()->QueueEvent( E1 );

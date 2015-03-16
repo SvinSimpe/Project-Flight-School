@@ -407,8 +407,8 @@ HRESULT AttackBehavior::Update( float deltaTime )
 				if ( mEnemy->mEnemyType == Ranged )
 				{
 					XMFLOAT3 direction;
-					direction.x = mEnemy->mShips[mEnemy->mTargetIndex]->GetPos().x - mEnemy->GetPosition().x;
-					direction.z = mEnemy->mShips[mEnemy->mTargetIndex]->GetPos().z - mEnemy->GetPosition().z;
+					direction.x = mEnemy->mShips[mEnemy->mTargetShipIndex]->GetPos().x - mEnemy->GetPosition().x;
+					direction.z = mEnemy->mShips[mEnemy->mTargetShipIndex]->GetPos().z - mEnemy->GetPosition().z;
 					direction.y = 0.0f;
 
 					mEnemy->mDirection.x = mEnemy->mShips[mEnemy->mTargetShipIndex]->GetPos().x - mEnemy->GetPosition().x;

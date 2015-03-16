@@ -92,6 +92,8 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BattleLog.cpp" />
+    <ClCompile Include="BattleLogEntry.cpp" />
     <ClCompile Include="ClientShip.cpp" />
     <ClCompile Include="ClientTurret.cpp" />
     <ClCompile Include="DSBufferStream.cpp" />
@@ -100,6 +102,7 @@
     <ClCompile Include="EnergyCell.cpp" />
     <ClCompile Include="EnemyBehavior.cpp" />
     <ClCompile Include="Gui.cpp" />
+    <ClCompile Include="HeadLineEntry.cpp" />
     <ClCompile Include="HelperFunctions.cpp" />
     <ClCompile Include="InGameWindow.cpp" />
     <ClCompile Include="LoadOutMenu.cpp" />
@@ -165,6 +168,8 @@
     <ClInclude Include="..\Graphics\Font.h" />
     <ClInclude Include="BaseMenuState.h" />
     <ClInclude Include="BaseState.h" />
+    <ClInclude Include="BattleLog.h" />
+    <ClInclude Include="BattleLogEntry.h" />
     <ClInclude Include="BoundingGeometry.h" />
     <ClInclude Include="EnergyCell.h" />
     <ClInclude Include="ClientShip.h" />
@@ -172,6 +177,7 @@
     <ClInclude Include="DSBufferStream.h" />
     <ClInclude Include="EndGameWindow.h" />
     <ClInclude Include="Gui.h" />
+    <ClInclude Include="HeadLineEntry.h" />
     <ClInclude Include="HelperFunctions.h" />
     <ClInclude Include="InGameWindow.h" />
     <ClInclude Include="LoadOutMenu.h" />

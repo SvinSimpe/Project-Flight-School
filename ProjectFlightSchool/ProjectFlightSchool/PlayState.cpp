@@ -1254,7 +1254,7 @@ void PlayState::OnEnter()
 
 	mGui->SetTeamID( mPlayer->GetTeam() );
 	IEventPtr spawnPos( new Event_Request_Player_Spawn_Position( mPlayer->GetID(), mPlayer->GetTeam() ) );
-	EventManager::GetInstance()->TriggerEvent( spawnPos );
+	EventManager::GetInstance()->QueueEvent( spawnPos );
 
 	//Set ship position and radius for shader	
 	Graphics::GetInstance()->SetShipPosAndRad( mShips[FRIEND_SHIP]->GetBuffCircle()->center, mShips[FRIEND_SHIP]->GetBuffCircle()->radius, FRIEND_SHIP );

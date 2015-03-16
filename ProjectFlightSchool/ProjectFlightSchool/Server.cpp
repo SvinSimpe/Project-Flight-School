@@ -476,7 +476,7 @@ void Server::BroadcastEnemyAttackToClients( IEventPtr eventPtr )
 	if( eventPtr->GetEventType() == Event_Tell_Server_Enemy_Attack_Player::GUID )
 	{
 		std::shared_ptr<Event_Tell_Server_Enemy_Attack_Player> data = std::static_pointer_cast<Event_Tell_Server_Enemy_Attack_Player>( eventPtr );
-		IEventPtr E1( new Event_Server_Enemy_Attack_Player( data->ID(), data->PlayerID(), data->Damage() ) );
+		IEventPtr E1( new Event_Server_Enemy_Attack_Player( data->ID(), data->PlayerID(), data->Damage(), mEnemies[data->ID()]->GetPosition() ) );
 		BroadcastEvent( E1 );
 	}
 }

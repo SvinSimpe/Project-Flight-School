@@ -31,7 +31,7 @@ struct VS_Out
 VS_Out VS_main( VS_In input )
 {
 	VS_Out output			= (VS_Out)0;
-	output.position			= mul( float4( input.position, 1.0f ), worldMatrix );
+	output.position			= mul( float4( input.position * 1.001f, 1.0f ), worldMatrix );
 	output.worldPosition	= output.position.xyz;
 	output.position			= mul( output.position, viewMatrix );
 	output.position			= mul( output.position, projectionMatrix );

@@ -2267,11 +2267,18 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 	if( FAILED( InitializeEffects() ) ) return hr;
 
 
+	DXGI_FORMAT gf[] =
+	{
+		DXGI_FORMAT_R16G16B16A16_FLOAT, // AlbedoSpec
+		DXGI_FORMAT_R16G16B16A16_FLOAT,	// Normal
+		DXGI_FORMAT_R32G32B32A32_FLOAT	//worldpos
+	};
+
 	//Gbuffers
 	for( int i = 0; i < NUM_GBUFFERS; i++ )
 	{
 		mGbuffers[i] = new Gbuffer;
-		mGbuffers[i]->Initialize( mDevice, mScreenWidth, mScreenHeight );
+		mGbuffers[i]->Initialize( mDevice, mScreenWidth, mScreenHeight, gf[i] );
 	}
 
 	////////////////////////////////////

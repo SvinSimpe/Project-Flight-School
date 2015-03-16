@@ -895,7 +895,8 @@ void Server::CalculateCellPosition( XMFLOAT3 pos, float offSetX, float offSetZ )
 
 	while( placeCounter < 30 )
 	{
-		bool evenlyPlaced = false;
+		bool evenlyPlaced	= false;
+		int tries			= 0;
 		while( !evenlyPlaced )
 		{
 			int x = (int)halfX - ( rand() % (int)offSetX );
@@ -907,13 +908,16 @@ void Server::CalculateCellPosition( XMFLOAT3 pos, float offSetX, float offSetZ )
 			float distToShip1 = XMVectorGetX( XMVector3LengthSq( XMLoadFloat3( &placePos ) - XMLoadFloat3( &mShips[0]->GetPos() ) ) );
 			float distToShip2 = XMVectorGetX( XMVector3LengthSq( XMLoadFloat3( &placePos ) - XMLoadFloat3( &mShips[1]->GetPos() ) ) );
 
-			evenlyPlaced = abs( distToShip1 - distToShip2 ) < 1000.0f ? true : false;
-
+			evenlyPlaced = abs( distToShip1 - distToShip2 ) < 2000.0f ? true : false;
+			tries++;
+			if( tries > 20 )
+				energyCellPosition = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 		}
 		if( !( HelperFunctions::Float3Equal( placePos, DirectX::XMFLOAT3( 0, 0 ,0 ) ) ) )
 		{
 			mCellPositionQueue.push( placePos );
 			placeCounter++;
+			tries = 0;
 		}
 	}
 }

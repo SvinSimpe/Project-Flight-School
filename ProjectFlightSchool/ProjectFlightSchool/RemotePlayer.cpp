@@ -374,7 +374,7 @@ void RemotePlayer::GoDown()
 void RemotePlayer::GoUp()
 {
 	mIsDown		= false;
-	mCurrentHp	= mMaxHp / 5.0f;
+	mCurrentHp	= mMaxHp * 0.8f;
 }
 
 HRESULT RemotePlayer::Update( float deltaTime )

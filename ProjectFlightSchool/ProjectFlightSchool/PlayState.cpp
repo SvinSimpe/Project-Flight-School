@@ -1211,26 +1211,26 @@ HRESULT PlayState::Render( float deltaTime )
 	//std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
 	//mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
 
-	//XMFLOAT4X4 identity;
-	//XMStoreFloat4x4( &identity, XMMatrixIdentity() );
+	XMFLOAT4X4 identity;
+	XMStoreFloat4x4( &identity, XMMatrixIdentity() );
 
-	//for( int i = 0; i < SHIP_AMOUNT; i++ )
-	//{
-	//	if( mShips[i] && CullEntity( mShips[i]->GetPos() ) )
-	//	{
-	//		mShips[i]->Render( 0.0f, identity );
-	//	}
-	//}
-	//
-	//if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
-	//{
-	//	WriteInteractionText( 
-	//		"Press E to open or close the upgrade menu!", 
-	//		(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
-	//		(float)( Input::GetInstance()->mScreenHeight * 0.10f ), 
-	//		2.0f,
-	//		COLOR_CYAN );
-	//}
+	for( int i = 0; i < SHIP_AMOUNT; i++ )
+	{
+		if( mShips[i] && CullEntity( mShips[i]->GetPos() ) )
+		{
+			mShips[i]->Render( 0.0f, identity );
+		}
+	}
+	
+	if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
+	{
+		WriteInteractionText( 
+			"Press E to open or close the upgrade menu!", 
+			(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
+			(float)( Input::GetInstance()->mScreenHeight * 0.10f ), 
+			2.0f,
+			COLOR_CYAN );
+	}
 
 	RenderManager::GetInstance()->Render();
 

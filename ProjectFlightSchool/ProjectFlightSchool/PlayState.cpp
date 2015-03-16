@@ -146,11 +146,15 @@ void PlayState::EventListener( IEventPtr newEvent )
 		{
 			mShips[FRIEND_SHIP] = new ClientShip();
 			mShips[FRIEND_SHIP]->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
+			//Set ship position and radius for shader	
+			Graphics::GetInstance()->SetShipPosAndRad( mShips[FRIEND_SHIP]->GetBuffCircle()->center, mShips[FRIEND_SHIP]->GetBuffCircle()->radius, FRIEND_SHIP );
 		}
 		else
 		{
 			mShips[ENEMY_SHIP] = new ClientShip();
 			mShips[ENEMY_SHIP]->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
+			//Set ship position and radius for shader	
+			Graphics::GetInstance()->SetShipPosAndRad( mShips[ENEMY_SHIP]->GetBuffCircle()->center, mShips[ENEMY_SHIP]->GetBuffCircle()->radius, ENEMY_SHIP );	
 		}	
 	}
 
@@ -1276,10 +1280,6 @@ void PlayState::OnEnter()
 	mGui->SetTeamID( mPlayer->GetTeam() );
 	IEventPtr spawnPos( new Event_Request_Player_Spawn_Position( mPlayer->GetID(), mPlayer->GetTeam() ) );
 	EventManager::GetInstance()->QueueEvent( spawnPos );
-
-	//Set ship position and radius for shader	
-	Graphics::GetInstance()->SetShipPosAndRad( mShips[FRIEND_SHIP]->GetBuffCircle()->center, mShips[FRIEND_SHIP]->GetBuffCircle()->radius, FRIEND_SHIP );
-	Graphics::GetInstance()->SetShipPosAndRad( mShips[ENEMY_SHIP]->GetBuffCircle()->center, mShips[ENEMY_SHIP]->GetBuffCircle()->radius, ENEMY_SHIP );	
 
 	mPlayer->SetHomePos( mShips[FRIEND_SHIP]->GetPos() );
 	mBattleLog->Initialize( mPlayer, mRemotePlayers );

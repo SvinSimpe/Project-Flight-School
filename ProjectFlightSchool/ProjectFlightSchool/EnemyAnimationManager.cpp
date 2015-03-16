@@ -105,9 +105,9 @@ HRESULT EnemyAnimationManager::Initialize()
 	// -------------------
 	// Load Boomer Model
 	// Load skeleton
-	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/ForestAssets/Enemies/Blowuposaur/Animations/", "blowuposaurSkel.Skel", skeleton );
+	Graphics::GetInstance()->LoadSkeletonAsset( "../Content/Assets/ForestAssets/Enemies/Firesquad/Animations/", "firesquadSkel.Skel", skeleton );
 	// Load animated 3d asset
-	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/ForestAssets/Enemies/Blowuposaur/", "blowuposaur.apfs", skeleton, mModelBoomer );
+	Graphics::GetInstance()->LoadAnimated3dAsset( "../Content/Assets/ForestAssets/Enemies/Firesquad/", "firesquad.apfs", skeleton, mModelBoomer );
 
 	// ------------------- ( Pate Waiting )
 	// Load Tank Model
@@ -122,35 +122,35 @@ HRESULT EnemyAnimationManager::Initialize()
 
 	// -------------------
 	// Load Standard Animations
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Raptor/Animations/", "raptorIdle.PaMan",				mAnimations[ENEMY_ANIMATION_STANDARD_IDLE] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Raptor/Animations/", "raptorRun.PaMan",				mAnimations[ENEMY_ANIMATION_STANDARD_RUN] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Raptor/Animations/", "raptorRunDamaged.PaMan",			mAnimations[ENEMY_ANIMATION_STANDARD_RUN_DAMAGED] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Raptor/Animations/", "raptorIdle.PaMan",					mAnimations[ENEMY_ANIMATION_STANDARD_IDLE] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Raptor/Animations/", "raptorRun.PaMan",					mAnimations[ENEMY_ANIMATION_STANDARD_RUN] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Raptor/Animations/", "raptorRunDamaged.PaMan",				mAnimations[ENEMY_ANIMATION_STANDARD_RUN_DAMAGED] );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Raptor/Animations/", "raptorAttackSpeedUp.PaMan",			mAnimations[ENEMY_ANIMATION_STANDARD_ATTACK] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Raptor/Animations/", "raptorDeath2(fix(fix)).PaMan",	mAnimations[ENEMY_ANIMATION_STANDARD_DEATH] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Raptor/Animations/", "raptorDeath2(fix(fix)).PaMan",		mAnimations[ENEMY_ANIMATION_STANDARD_DEATH] );
 
 	// -------------------
 	// Load Ranged Animations
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Goblin/Animations/", "goblinIdle.PaMan",			mAnimations[ENEMY_ANIMATION_RANGED_IDLE] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Goblin/Animations/", "goblinWalk.PaMan",			mAnimations[ENEMY_ANIMATION_RANGED_RUN] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Goblin/Animations/", "goblinWalkDamaged.PaMan",	mAnimations[ENEMY_ANIMATION_RANGED_RUN_DAMAGED] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Goblin/Animations/", "goblinIdle.PaMan",					mAnimations[ENEMY_ANIMATION_RANGED_IDLE] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Goblin/Animations/", "goblinWalk.PaMan",					mAnimations[ENEMY_ANIMATION_RANGED_RUN] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Goblin/Animations/", "goblinWalkDamaged.PaMan",			mAnimations[ENEMY_ANIMATION_RANGED_RUN_DAMAGED] );
 	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Goblin/Animations/", "goblinAttackSpeedUp.PaMan",			mAnimations[ENEMY_ANIMATION_RANGED_ATTACK] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Goblin/Animations/", "goblinDeath.PaMan",			mAnimations[ENEMY_ANIMATION_RANGED_DEATH] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Goblin/Animations/", "goblinDeath.PaMan",					mAnimations[ENEMY_ANIMATION_RANGED_DEATH] );
 
 	// -------------------
 	// Load Boomer Animations
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Blowuposaur/Animations/", "blowuposaurIdle.PaMan",			mAnimations[ENEMY_ANIMATION_BOOMER_IDLE] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Blowuposaur/Animations/", "blowuposaurWalkDamaged.PaMan",	mAnimations[ENEMY_ANIMATION_BOOMER_RUN] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Blowuposaur/Animations/", "blowuposaurWalk.PaMan",			mAnimations[ENEMY_ANIMATION_BOOMER_RUN_DAMAGED] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Blowuposaur/Animations/", "blowuposaurAttack.PaMan",		mAnimations[ENEMY_ANIMATION_BOOMER_ATTACK] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Blowuposaur/Animations/", "blowuposaurDeath.PaMan",		mAnimations[ENEMY_ANIMATION_BOOMER_DEATH] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Firesquad/Animations/", "firesquadIdle1.PaMan",			mAnimations[ENEMY_ANIMATION_BOOMER_IDLE] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Firesquad/Animations/", "firesquadWalk.PaMan",				mAnimations[ENEMY_ANIMATION_BOOMER_RUN] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Firesquad/Animations/", "firesquadHitandWalk.PaMan",		mAnimations[ENEMY_ANIMATION_BOOMER_RUN_DAMAGED] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Firesquad/Animations/", "firesquadAttack.PaMan",			mAnimations[ENEMY_ANIMATION_BOOMER_ATTACK] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Firesquad/Animations/", "firesquadDeath.PaMan",			mAnimations[ENEMY_ANIMATION_BOOMER_DEATH] );
 
 	// -------------------
 	// Load Tank Animations
 	// Pate Waiting
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Tank/Animations/", "tankIdle.PaMan",		mAnimations[ENEMY_ANIMATION_TANK_IDLE] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Tank/Animations/", "tankWalk.PaMan",		mAnimations[ENEMY_ANIMATION_TANK_RUN] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Tank/Animations/", "tankAttackSpeedUp.PaMan",		mAnimations[ENEMY_ANIMATION_TANK_ATTACK] );
-	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Tank/Animations/", "tankDeath.PaMan",		mAnimations[ENEMY_ANIMATION_TANK_DEATH] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Tank/Animations/", "tankIdle.PaMan",						mAnimations[ENEMY_ANIMATION_TANK_IDLE] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Tank/Animations/", "tankWalk.PaMan",						mAnimations[ENEMY_ANIMATION_TANK_RUN] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Tank/Animations/", "tankAttackSpeedUp.PaMan",				mAnimations[ENEMY_ANIMATION_TANK_ATTACK] );
+	Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/ForestAssets/Enemies/Tank/Animations/", "tankDeath.PaMan",						mAnimations[ENEMY_ANIMATION_TANK_DEATH] );
 	return S_OK;
 }
 

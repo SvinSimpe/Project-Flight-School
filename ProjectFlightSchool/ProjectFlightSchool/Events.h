@@ -2512,9 +2512,10 @@ class Event_Server_Enemy_Died : public IEvent
 class Event_Server_Enemy_Attack_Player : public IEvent
 {
 	private:
-		UINT	mID;
-		UINT	mPlayerID;
-		float	mDamage;
+		UINT		mID;
+		UINT		mPlayerID;
+		float		mDamage;
+		XMFLOAT3	mPosition;
 
 	protected:
 	public:
@@ -2528,12 +2529,14 @@ class Event_Server_Enemy_Attack_Player : public IEvent
 			mID			= (UINT)-1;
 			mPlayerID	= (UINT)-1;
 			mDamage		= -1.0f;
+			mPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 		}
-		Event_Server_Enemy_Attack_Player( UINT id, UINT playerID, float damage )
+		Event_Server_Enemy_Attack_Player( UINT id, UINT playerID, float damage, XMFLOAT3 position )
 		{
 			mID			= id;
 			mPlayerID	= playerID;
 			mDamage		= damage;
+			mPosition	= position;
 		}
 		~Event_Server_Enemy_Attack_Player() {}
 		const EventType& GetEventType() const
@@ -2545,16 +2548,22 @@ class Event_Server_Enemy_Attack_Player : public IEvent
 			out << mID << " ";
 			out << mPlayerID << " ";
 			out << mDamage << " ";
+			out << mPosition.x << " ";
+			out << mPosition.y << " ";
+			out << mPosition.z << " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
 			in >> mID;
 			in >> mPlayerID;
 			in >> mDamage;
+			in >> mPosition.x;
+			in >> mPosition.y;
+			in >> mPosition.z;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Server_Enemy_Attack_Player( mID, mPlayerID, mDamage ) );
+			return IEventPtr( new Event_Server_Enemy_Attack_Player( mID, mPlayerID, mDamage, mPosition ) );
 		}
 		UINT ID() const
 		{
@@ -2567,6 +2576,10 @@ class Event_Server_Enemy_Attack_Player : public IEvent
 		float Damage() const
 		{
 			return mDamage;
+		}
+		XMFLOAT3 Position() const
+		{
+			return mPosition;
 		}
 };
 

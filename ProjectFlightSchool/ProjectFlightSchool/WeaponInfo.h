@@ -599,7 +599,7 @@ struct MeleeInfo
 				{
 					case 2:
 					{
-						attackRate				= 2.7f;
+						attackRate				= 2.9f;
 						damage					= 25.0f;
 						knockBack				= 1.2f;
 						stun					= 0.4f;
@@ -609,7 +609,7 @@ struct MeleeInfo
 
 					case 3:
 					{
-						attackRate				= 2.5f;
+						attackRate				= 2.6f;
 						damage					= 30.0f;
 						knockBack				= 1.6f;
 					}

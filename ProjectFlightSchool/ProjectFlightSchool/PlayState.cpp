@@ -1282,7 +1282,7 @@ void PlayState::OnEnter()
 	EventManager::GetInstance()->QueueEvent( spawnPos );
 
 	mPlayer->SetHomePos( mShips[FRIEND_SHIP]->GetPos() );
-	mBattleLog->Initialize( mPlayer, mRemotePlayers );
+	mBattleLog->SetUpPlayers( mPlayer, mRemotePlayers );
 
 	IEventPtr name( new Event_Client_Set_Name( mPlayer->GetID(), mPlayer->GetName() ) );
 	Client::GetInstance()->SendEvent( name );
@@ -1473,13 +1473,14 @@ HRESULT PlayState::Initialize()
 	}
 
 	mBattleLog = new BattleLog();
+	mBattleLog->Initialize();
 
 	return S_OK;
 }
 
 void PlayState::Release()
 {	
-	SAFE_DELETE( mBattleLog );
+	SAFE_RELEASE_DELETE( mBattleLog );
 	Pathfinder::GetInstance()->Release();
 	mWorldMap->Release();
 	SAFE_DELETE( mWorldMap );

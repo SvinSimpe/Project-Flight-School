@@ -18,51 +18,14 @@ BattleLog::~BattleLog()
 {
 }
 
-HRESULT BattleLog::Initialize( Player* player, std::vector<RemotePlayer*>& remotePlayers )
+void BattleLog::SetUpPlayers( Player* player, std::vector<RemotePlayer*>& remotePlayers )
 {
-	if( !mFont )
-	{
-		mFont = new Font();
-		mFont->Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
-	}
-
-	//Define Actions---------
-	mActions[KILLED]			= "KILLED ";
-	mActions[REVIVED]			= "REVIVED ";
-	mActions[DOWNED]			= "DOWNED ";
-	mActions[CELL_PICKED_UP]	= "PICKED UP THE ";
-	mActions[DROPPED]			= "DROPPED THE ";
-	mActions[CAPTURED]			= "CAPTURED THE ";
-	mActions[SPAWNED]			= " HAS SPAWNED!";
-
-	//Define Objects---------
-	mObjects[ENERGY_CELL]	= "ENERGY CELL";
-
-	//Define Teams----------
-	mTeams[0].teamName	= "WORLD ";
-	//mTeams[0].color		= XMFLOAT3( 0.0f, 0.102f, 0.0f );
-	mTeams[0].color		= XMFLOAT3( 0.0f, 0.4f, 0.0f );
-
-	mTeams[1].teamName	= "YELLOW TEAM ";
-	//mTeams[1].color		= XMFLOAT3( 0.214f, 0.167f, 0.240f );
-	mTeams[1].color		= XMFLOAT3( 1.0f, 0.94f, 0.12f );
-
-	mTeams[2].teamName	= "RED TEAM ";
-	//mTeams[2].color		= XMFLOAT3( 0.204f, 0.0f, 0.0f );
-	mTeams[2].color		= XMFLOAT3( 0.8f, 0.0f, 0.0f );
-
 	mPlayerMap[player->GetID()] = PlayerInfo( player->GetName(), player->GetTeam() );
 	
 	for( auto it : remotePlayers )
 	{
 		mPlayerMap[it->GetID()] = PlayerInfo( it->GetName(), it->GetTeam() );
 	}
-
-	EventManager::GetInstance()->AddListener( &BattleLog::OnHeadlineEvent, this, Event_Server_Headline_Event::GUID );
-	EventManager::GetInstance()->AddListener( &BattleLog::OnPlayerActionEvent, this, Event_Remote_Log_Event::GUID );
-	EventManager::GetInstance()->AddListener( &BattleLog::OnServerSetName, this, Event_Remote_Set_Name::GUID );
-
-	return S_OK;
 }
 
 void BattleLog::Update( float deltaTime )
@@ -93,9 +56,12 @@ void BattleLog::Update( float deltaTime )
 
 void BattleLog::Render()
 {
-	float offset = 35.0f;
-	DirectX::XMFLOAT2 topLeft = XMFLOAT2( 20.0f, 20.0f );
-	DirectX::XMFLOAT2 middleLeft = XMFLOAT2( 600.0f, 120.0f );
+	float height	= Input::GetInstance()->mScreenHeight;
+	float width		= Input::GetInstance()->mScreenWidth;
+
+	float offset = height * 0.03f;
+	DirectX::XMFLOAT2 topLeft = XMFLOAT2( width * 0.05f, height * 0.05f );
+	DirectX::XMFLOAT2 middleLeft = XMFLOAT2( width * 0.5f, height * 0.2f );
 
 	float scale = 2.0f;
 	float headLineScale = 3.0f;
@@ -172,6 +138,51 @@ void BattleLog::Render()
 		mFont->WriteText( mActionString, ( offsetX + x1 * 2.0f ), middleLeft.y, headLineScale, XMFLOAT4( 1.0f, 1.0f, 1.0f, current->mFade ) );
 		mFont->WriteText( mSecondUnitString, ( offsetX + x1 * 2.0f ) + x2 * 2.0f, middleLeft.y, headLineScale, XMFLOAT4( second.x, second.y, second.z, current->mFade ) );
 	}
+}
+
+HRESULT BattleLog::Initialize()
+{
+	if( !mFont )
+	{
+		mFont = new Font();
+		mFont->Initialize( "../Content/Assets/GUI/Fonts/final_font/" );
+	}
+
+	//Define Actions---------
+	mActions[KILLED]			= "KILLED ";
+	mActions[REVIVED]			= "REVIVED ";
+	mActions[DOWNED]			= "DOWNED ";
+	mActions[CELL_PICKED_UP]	= "PICKED UP THE ";
+	mActions[DROPPED]			= "DROPPED THE ";
+	mActions[CAPTURED]			= "CAPTURED THE ";
+	mActions[SPAWNED]			= " HAS SPAWNED!";
+
+	//Define Objects---------
+	mObjects[ENERGY_CELL]	= "ENERGY CELL";
+
+	//Define Teams----------
+	mTeams[0].teamName	= "WORLD ";
+	//mTeams[0].color		= XMFLOAT3( 0.0f, 0.102f, 0.0f );
+	mTeams[0].color		= XMFLOAT3( 0.0f, 0.4f, 0.0f );
+
+	mTeams[1].teamName	= "YELLOW TEAM ";
+	//mTeams[1].color		= XMFLOAT3( 0.214f, 0.167f, 0.240f );
+	mTeams[1].color		= XMFLOAT3( 1.0f, 0.94f, 0.12f );
+
+	mTeams[2].teamName	= "RED TEAM ";
+	//mTeams[2].color		= XMFLOAT3( 0.204f, 0.0f, 0.0f );
+	mTeams[2].color		= XMFLOAT3( 0.8f, 0.0f, 0.0f );
+
+	EventManager::GetInstance()->AddListener( &BattleLog::OnHeadlineEvent, this, Event_Server_Headline_Event::GUID );
+	EventManager::GetInstance()->AddListener( &BattleLog::OnPlayerActionEvent, this, Event_Remote_Log_Event::GUID );
+	EventManager::GetInstance()->AddListener( &BattleLog::OnServerSetName, this, Event_Remote_Set_Name::GUID );
+
+	return S_OK;
+}
+
+void BattleLog::Release()
+{
+	SAFE_RELEASE_DELETE( mFont );
 }
 
 void BattleLog::AddLogEntry( BattleLogEntry entry )

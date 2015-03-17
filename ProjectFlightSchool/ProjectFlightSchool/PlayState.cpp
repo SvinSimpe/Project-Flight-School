@@ -432,7 +432,16 @@ void PlayState::CheckPlayerCollision()
 					XMVECTOR playerPosition = XMLoadFloat3(&mRemotePlayers.at(i)->GetBoundingCircle()->center) + remoteToPlayerVec * vectorLength;
 					XMFLOAT3 playerTest, norm;
 					XMStoreFloat3( &playerTest, playerPosition );
-					if( !mWorldMap->PlayerVsMap( playerTest, norm ) )
+
+					bool shipCollision = false;
+					BoundingCircle boundingCircle;
+					boundingCircle.center = playerTest;
+					boundingCircle.radius = 0.5f;
+					for( int i = 0; i < 2; i++ )
+						if( shipCollision = mShips[i]->PositionVsShip( &boundingCircle, norm ) )
+							break;
+
+					if( !mWorldMap->PlayerVsMap( playerTest, norm ) && !shipCollision )
 						mPlayer->SetPosition(playerPosition);
 				}
 			}	

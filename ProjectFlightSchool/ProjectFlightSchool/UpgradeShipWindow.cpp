@@ -14,6 +14,10 @@ void UpgradeShipWindow::EventListener( IEventPtr eventPtr )
 
 			mUnusedCells = ( mNrOfEnergyCells + 3 ) - ( mForceFieldButtons.nrOfFilled + mTurretButtons.nrOfFilled + mBuffButtons.nrOfFilled );
 		}
+		else
+		{
+			mOtherShipNrOfEnergyCells		= data->NrOfEnergyCells();
+		}
 	}
 	else if ( eventPtr->GetEventType() == Event_Local_Joined::GUID ) // Add a remote player to the list when they connect
 	{
@@ -123,6 +127,7 @@ void UpgradeShipWindow::Reset()
 	mTeam				= (UINT)-1;
 	mNrOfEnergyCells	= 0;
 	mUnusedCells		= 0;
+	mOtherShipNrOfEnergyCells	= 0;
 	mIsActive			= false;
 }
 
@@ -185,6 +190,7 @@ UpgradeShipWindow::UpgradeShipWindow()
 {
 	mNrOfEnergyCells	= 0;
 	mUnusedCells		= 0;
+	mOtherShipNrOfEnergyCells = 0;
 }
 
 UpgradeShipWindow::~UpgradeShipWindow()
@@ -200,4 +206,9 @@ bool UpgradeShipWindow::IsActive() const
 int UpgradeShipWindow::GetNrOfEnergyCells() const
 {
 	return mNrOfEnergyCells;
+}
+
+int UpgradeShipWindow::GetOtherShipNrOfEnergyCells() const
+{
+	return mOtherShipNrOfEnergyCells;
 }

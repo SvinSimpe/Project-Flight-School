@@ -260,33 +260,33 @@ struct RangedInfo
 				{
 					case 2:
 					{
-						attackRate		= 1.6f;
+						attackRate		= 1.75f;
 						//damage			= 18.0f;
-						spread			= 5.7f;
+						//spread			= 5.7f;
 					}
 						break;
 
 					case 3:
 					{
-						attackRate		= 1.5f;
+						attackRate		= 1.7f;
 						//damage			= 20.0f;
-						spread			= 5.4f;
+						//spread			= 5.4f;
 					}
 						break;
 
 					case 4:
 					{
-						attackRate		= 1.4f;
+						attackRate		= 1.65f;
 						//damage			= 22.0f;
-						spread			= 5.1f;
+						//spread			= 5.1f;
 					}
 						break;
 
 					case 5:
 					{
-						attackRate		= 1.1f;
+						attackRate		= 1.6f;
 						//damage			= 25.0f;
-						spread			= 4.8f;
+						//spread			= 4.8f;
 					}
 						break;
 
@@ -300,32 +300,32 @@ struct RangedInfo
 				{
 					case 2:
 					{
-						attackRate		= 2.8f;
-						//damage			= 27.4f;
+						attackRate		= 2.2f;
+						damage			= 27.0f;
 						areaOfEffect	= 2.5f;
 					}
 						break;
 
 					case 3:
 					{
-						attackRate		= 2.5f;
-						//damage			= 30.9f;
+						attackRate		= 2.0f;
+						damage			= 31.0f;
 						areaOfEffect	= 3.0f;
 					}
 						break;
 
 					case 4:
 					{
-						attackRate		= 2.2f;
-						//damage			= 34.0f;
+						attackRate		= 1.8f;
+						damage			= 36.0f;
 						areaOfEffect	= 3.5f;
 					}
 						break;
 
 					case 5:
 					{
-						attackRate		= 2.0f;
-						damage			= 35.0f;
+						attackRate		= 1.5f;
+						damage			= 38.0f;
 						areaOfEffect	= 3.7f;
 					}
 						break;
@@ -340,28 +340,28 @@ struct RangedInfo
 				{
 					case 2:
 					{
-						attackRate		= 3.6f;
+						attackRate		= 2.7f;
 						damage			= 55.0f;
 					}
 						break;
 
 					case 3:
 					{
-						attackRate		= 3.3f;
+						attackRate		= 2.5f;
 						damage			= 65.0f;
 					}
 						break;
 
 					case 4:
 					{
-						attackRate		= 3.0f;
+						attackRate		= 2.3f;
 						damage			= 75.0f;
 					}
 						break;
 
 					case 5:
 					{
-						attackRate		= 2.7f;
+						attackRate		= 2.15f;
 						damage			= 85.0f;
 					}
 						break;

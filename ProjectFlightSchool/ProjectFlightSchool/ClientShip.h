@@ -14,11 +14,11 @@ class ClientShip : public ServerShip
 	public:
 
 	private:
+	protected:
+	public:
 		void	RemoteUpdateShip( IEventPtr eventPtr );
 		void	RemoteChangeShipLevels( IEventPtr eventPtr );
 
-	protected:
-	public:
 		UINT	GetID() const;
 		UINT	GetTeamID() const;
 		UINT	GetNrOfEnergyCells() const;

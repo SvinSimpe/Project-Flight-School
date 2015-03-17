@@ -30,13 +30,13 @@
 #define SHOTGUN_AR			1.8f								// Attack Rate
 #define SHOTGUN_DAMAGE		16.0f								// Damage
 #define SHOTGUN_RANGE		0.23f								// Range
-#define SHOTGUN_SPREAD		6.0f								// Spread
+#define SHOTGUN_SPREAD		6.1f								// Spread
 #define SHOTGUN_AOE			0.0f								// Area of effect
 #define SHOTGUN_SPEED		40.0f								// Projectile Speed 35
 #define SHOTGUN_OFFSETS		XMFLOAT3( 0.93f, 0.5f, 1.45f )		// Offsets forward, right, up
 
 // Grenade Launcher
-#define GL_AR				3.0f								// Attack Rate
+#define GL_AR				2.4f								// Attack Rate
 #define GL_DAMAGE			25.0f								// Damage
 #define GL_RANGE			25.0f								// Range
 #define GL_SPREAD			0.0f								// Spread
@@ -45,7 +45,7 @@
 #define GL_OFFSETS			XMFLOAT3( 0.92f, 0.5f, 1.45f )		// Offsets forward, right, up
 
 // Sniper
-#define SNIPER_AR			3.9f								// Attack Rate
+#define SNIPER_AR			3.0f								// Attack Rate
 #define SNIPER_DAMAGE		45.0f								// Damage
 #define SNIPER_RANGE		1.0f								// Range
 #define SNIPER_SPREAD		0.0f								// Spread

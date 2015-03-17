@@ -245,8 +245,7 @@ void ServerShip::Reset( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, XMFLOA
 	mEngineLevel				= 0;
 	mMaxShield					= 100.0f;
 	mCurrentShield				= mMaxShield;
-	mMaxHP						= 20000.0f;
-	//mMaxHP						*= 5.0f; // remove this later
+	mMaxHP						= 50000.0f;
 	mCurrentHP					= mMaxHP;
 	mNrOfEnergyCells			= 0;
 	mNrOfAvailableEnergyCells	= 0;
@@ -278,8 +277,7 @@ void ServerShip::Initialize( UINT id, UINT teamID, XMFLOAT3 pos, XMFLOAT4 rot, X
 	mBuffLevel		= MIN_LEVEL;
 	mMaxShield		= 6000.0f;
 	mCurrentShield	= mMaxShield;
-	mMaxHP			= 20000.0f;
-	mMaxHP *= 10.0f;
+	mMaxHP			= 50000.0f;
 
 	mCurrentHP		= mMaxHP;
 	mIsAlive		= true;

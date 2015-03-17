@@ -55,15 +55,15 @@ void Enemy::CreateBoomer()
 		Explodes on impact
 	*/
 	mEnemyType					= Boomer;
-	mMaxHp						= 20.0f;
+	mMaxHp						= 5.0f;
 	mCurrentHp					= mMaxHp;
-	mDamage						= 40.0f;
+	mDamage						= ENEMY_BOOMER_DAMAGE;
 	mSpeed						= 8.0f;
 	mAttackRadius->radius		= 1.0f;
 	mAttentionRadius->radius	= 15.0f;
 	mXpDrop						= 8;
-	mSpawnTime					= 10.0f;
-	mAttackRate					= 1.0f;
+	mSpawnTime					= 30.0f;
+	mAttackRate					= 0.01f;
 }
 
 void Enemy::CreateTank()
@@ -327,8 +327,12 @@ void Enemy::Spawn()
 		CreateTank();
 		break;
 	case 1:
-	case 3:
+	case 2:
 		CreateRanged();
+		break;
+	case 4:
+	case 5:
+		CreateBoomer();
 		break;
 	default:
 		CreateStandard();
@@ -373,8 +377,11 @@ void Enemy::Die( UINT killer )
 {
 	// Send dieEv
 	ChangeBehavior( DEAD_BEHAVIOR );
-	IEventPtr E1( new Event_XP( killer, mXpDrop ) );
-	EventManager::GetInstance()->QueueEvent( E1 );
+	if( killer != 0 )
+	{
+		IEventPtr E1( new Event_XP( killer, mXpDrop ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
+	}
 
 	IEventPtr resetTurrets( new Event_Reset_Turret_Targets() );
 	EventManager::GetInstance()->QueueEvent( resetTurrets );

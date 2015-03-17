@@ -286,7 +286,7 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_RIGHT ) )
 	{
-		if( mLoadOut->meleeWeapon->weaponType == SAW )
+		if( mLoadOut->meleeWeapon->weaponType == SAW && mMeleeCoolDown <= 0.0f )
 		{
 			mHasMeleeStarted = true;
 		}
@@ -998,7 +998,6 @@ void Player::SawMelee( float deltaTime )
 		{
 			mIsMeleeing			= true;
 			//mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
-			mMeleeCoolDown				= mLoadOut->meleeWeapon->attackRate;
 			mHasMeleeStarted	= false;
 		}
 	}

@@ -146,11 +146,15 @@ void PlayState::EventListener( IEventPtr newEvent )
 		{
 			mShips[FRIEND_SHIP] = new ClientShip();
 			mShips[FRIEND_SHIP]->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
+			//Set ship position and radius for shader	
+			Graphics::GetInstance()->SetShipPosAndRad( mShips[FRIEND_SHIP]->GetBuffCircle()->center, mShips[FRIEND_SHIP]->GetBuffCircle()->radius, FRIEND_SHIP );
 		}
 		else
 		{
 			mShips[ENEMY_SHIP] = new ClientShip();
 			mShips[ENEMY_SHIP]->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
+			//Set ship position and radius for shader	
+			Graphics::GetInstance()->SetShipPosAndRad( mShips[ENEMY_SHIP]->GetBuffCircle()->center, mShips[ENEMY_SHIP]->GetBuffCircle()->radius, ENEMY_SHIP );	
 		}	
 	}
 
@@ -273,7 +277,22 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Remote_Request_ParticleSystem> data = std::static_pointer_cast<Event_Remote_Request_ParticleSystem>( newEvent );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), (ParticleType)data->ParticleType(), data->Position(), data->Direction(), data->InitialVelocity() );
 	}
-
+	else if( newEvent->GetEventType() == Event_Server_Update_Ship::GUID )
+	{
+		for( int i = 0; i < SHIP_AMOUNT; i++ )
+		{
+			if( mShips[i] )
+				mShips[i]->RemoteUpdateShip( newEvent );
+		}
+	}
+	else if( newEvent->GetEventType() == Event_Request_Player_Spawn_Position::GUID )
+	{
+		for( int i = 0; i < SHIP_AMOUNT; i++ )
+		{
+			if( mShips[i] )
+				mShips[i]->CalculatePlayerRespawnPosition( newEvent );
+		}
+	}
 }
 
 void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction, float maxHp )
@@ -605,6 +624,9 @@ void PlayState::CheckProjectileCollision()
 						//RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), BoomerExplosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 						SoundBufferHandler::GetInstance()->Play3D( mExplosion , mPlayer->GetPosition() );
 
+						///TEST
+						HandleRemoteProjectileRemoved( mProjectiles[i]->GetID() );
+
 						IEventPtr E1( new Event_Client_Removed_Projectile( mProjectiles[i]->GetID() ) );
 						Client::GetInstance()->SendEvent( E1 );
 
@@ -814,8 +836,6 @@ void PlayState::HandleRemoteProjectileRemoved( UINT projectileID )
 
 			if( mProjectiles[i]->GetWeaponType() == GRENADELAUNCHER )
 			{
-				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
-				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 				//RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), BoomerExplosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 				SoundBufferHandler::GetInstance()->Play3D( mExplosion , mPlayer->GetPosition() );
 			}
@@ -875,6 +895,12 @@ void PlayState::SetEnemyState( unsigned int id, EnemyState state )
 {
 	if( state == Death || state == Attack )
 	{
+		if( mEnemies[id]->GetEnemyType() == Boomer )
+		{
+			IEventPtr E1( new Event_Client_Request_ParticleSystem( id, (int)Explosion, XMFLOAT3( mEnemies[id]->GetPosition().x, 2.0f, mEnemies[id]->GetPosition().z ), XMFLOAT3( 0.0f, 1.0f, 0.0f ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+
 		mEnemies[id]->SetLoopAnimation( false );
 		mEnemies[id]->SetIsAlive( false );
 
@@ -1211,26 +1237,26 @@ HRESULT PlayState::Render( float deltaTime )
 	//std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
 	//mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );
 
-	//XMFLOAT4X4 identity;
-	//XMStoreFloat4x4( &identity, XMMatrixIdentity() );
+	XMFLOAT4X4 identity;
+	XMStoreFloat4x4( &identity, XMMatrixIdentity() );
 
-	//for( int i = 0; i < SHIP_AMOUNT; i++ )
-	//{
-	//	if( mShips[i] && CullEntity( mShips[i]->GetPos() ) )
-	//	{
-	//		mShips[i]->Render( 0.0f, identity );
-	//	}
-	//}
-	//
-	//if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
-	//{
-	//	WriteInteractionText( 
-	//		"Press E to open or close the upgrade menu!", 
-	//		(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
-	//		(float)( Input::GetInstance()->mScreenHeight * 0.10f ), 
-	//		2.0f,
-	//		COLOR_CYAN );
-	//}
+	for( int i = 0; i < SHIP_AMOUNT; i++ )
+	{
+		if( mShips[i] && CullEntity( mShips[i]->GetPos() ) )
+		{
+			mShips[i]->Render( 0.0f, identity );
+		}
+	}
+	
+	if( mShips[FRIEND_SHIP] && mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
+	{
+		WriteInteractionText( 
+			"Press E to open or close the upgrade menu!", 
+			(float)( Input::GetInstance()->mScreenWidth * 0.5f ),
+			(float)( Input::GetInstance()->mScreenHeight * 0.10f ), 
+			2.0f,
+			COLOR_CYAN );
+	}
 
 	RenderManager::GetInstance()->Render();
 
@@ -1254,10 +1280,6 @@ void PlayState::OnEnter()
 	mGui->SetTeamID( mPlayer->GetTeam() );
 	IEventPtr spawnPos( new Event_Request_Player_Spawn_Position( mPlayer->GetID(), mPlayer->GetTeam() ) );
 	EventManager::GetInstance()->QueueEvent( spawnPos );
-
-	//Set ship position and radius for shader	
-	Graphics::GetInstance()->SetShipPosAndRad( mShips[FRIEND_SHIP]->GetBuffCircle()->center, mShips[FRIEND_SHIP]->GetBuffCircle()->radius, FRIEND_SHIP );
-	Graphics::GetInstance()->SetShipPosAndRad( mShips[ENEMY_SHIP]->GetBuffCircle()->center, mShips[ENEMY_SHIP]->GetBuffCircle()->radius, ENEMY_SHIP );	
 
 	mPlayer->SetHomePos( mShips[FRIEND_SHIP]->GetPos() );
 	mBattleLog->SetUpPlayers( mPlayer, mRemotePlayers );
@@ -1296,7 +1318,9 @@ void PlayState::Reset()
 
 	for( int i = 0; i < SHIP_AMOUNT; i++ )
 	{
-		SAFE_RELEASE_DELETE( mShips[i] );
+		if( mShips[i] )
+			mShips[i]->Release();
+		SAFE_DELETE( mShips[i] );
 	}
 
 	for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
@@ -1379,6 +1403,9 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Switch_Team::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Request_ParticleSystem::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Enemy_Fired_Projectile::GUID);
+
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Update_Ship::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Request_Player_Spawn_Position::GUID );
 
 
 	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );

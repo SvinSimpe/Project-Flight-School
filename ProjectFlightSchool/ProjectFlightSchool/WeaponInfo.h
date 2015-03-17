@@ -260,33 +260,33 @@ struct RangedInfo
 				{
 					case 2:
 					{
-						attackRate		= 1.6f;
+						attackRate		= 1.75f;
 						//damage			= 18.0f;
-						spread			= 5.7f;
+						//spread			= 5.7f;
 					}
 						break;
 
 					case 3:
 					{
-						attackRate		= 1.5f;
+						attackRate		= 1.7f;
 						//damage			= 20.0f;
-						spread			= 5.4f;
+						//spread			= 5.4f;
 					}
 						break;
 
 					case 4:
 					{
-						attackRate		= 1.4f;
+						attackRate		= 1.65f;
 						//damage			= 22.0f;
-						spread			= 5.1f;
+						//spread			= 5.1f;
 					}
 						break;
 
 					case 5:
 					{
-						attackRate		= 1.1f;
+						attackRate		= 1.6f;
 						//damage			= 25.0f;
-						spread			= 4.8f;
+						//spread			= 4.8f;
 					}
 						break;
 
@@ -300,32 +300,32 @@ struct RangedInfo
 				{
 					case 2:
 					{
-						attackRate		= 2.8f;
-						//damage			= 27.4f;
+						attackRate		= 2.2f;
+						damage			= 27.0f;
 						areaOfEffect	= 2.5f;
 					}
 						break;
 
 					case 3:
 					{
-						attackRate		= 2.5f;
-						//damage			= 30.9f;
+						attackRate		= 2.0f;
+						damage			= 31.0f;
 						areaOfEffect	= 3.0f;
 					}
 						break;
 
 					case 4:
 					{
-						attackRate		= 2.2f;
-						//damage			= 34.0f;
+						attackRate		= 1.8f;
+						damage			= 36.0f;
 						areaOfEffect	= 3.5f;
 					}
 						break;
 
 					case 5:
 					{
-						attackRate		= 2.0f;
-						damage			= 35.0f;
+						attackRate		= 1.5f;
+						damage			= 38.0f;
 						areaOfEffect	= 3.7f;
 					}
 						break;
@@ -340,28 +340,28 @@ struct RangedInfo
 				{
 					case 2:
 					{
-						attackRate		= 3.6f;
+						attackRate		= 2.7f;
 						damage			= 55.0f;
 					}
 						break;
 
 					case 3:
 					{
-						attackRate		= 3.3f;
+						attackRate		= 2.5f;
 						damage			= 65.0f;
 					}
 						break;
 
 					case 4:
 					{
-						attackRate		= 3.0f;
+						attackRate		= 2.3f;
 						damage			= 75.0f;
 					}
 						break;
 
 					case 5:
 					{
-						attackRate		= 2.7f;
+						attackRate		= 2.15f;
 						damage			= 85.0f;
 					}
 						break;
@@ -599,6 +599,7 @@ struct MeleeInfo
 				{
 					case 2:
 					{
+						attackRate				= 2.7f;
 						damage					= 25.0f;
 						knockBack				= 1.2f;
 						stun					= 0.4f;
@@ -608,6 +609,7 @@ struct MeleeInfo
 
 					case 3:
 					{
+						attackRate				= 2.5f;
 						damage					= 30.0f;
 						knockBack				= 1.6f;
 					}
@@ -615,6 +617,7 @@ struct MeleeInfo
 
 					case 4:
 					{
+						attackRate				= 2.4f;
 						damage					= 35.0f;
 						knockBack				= 1.8f;
 						stun					= 0.5f;
@@ -623,6 +626,7 @@ struct MeleeInfo
 
 					case 5:
 					{
+						attackRate				= 2.3f;
 						damage					= 40.0f;
 						knockBack				= 2.0f;
 						stun					= 0.6f;
@@ -641,10 +645,10 @@ struct MeleeInfo
 					{
 						attackRate				= 3.8f;
 						damage					= 30.0f;
-						radius					= 3.0f;
+						//radius					= 2.3f;
 						spread					= 7;
 						knockBack				= 3.2f;
-						boundingCircle->radius	= radius;
+						//boundingCircle->radius	= radius;
 						stun					= 3.3f;
 					}
 						break;
@@ -653,10 +657,10 @@ struct MeleeInfo
 					{
 						attackRate				= 3.7f;
 						damage					= 35.0f;
-						radius					= 3.5f;
+						//radius					= 2.7f;
 						spread					= 7;
 						knockBack				= 3.5f;
-						boundingCircle->radius	= radius;
+						//boundingCircle->radius	= radius;
 						stun					= 3.5f;
 					}
 						break;
@@ -665,10 +669,10 @@ struct MeleeInfo
 					{
 						attackRate				= 3.6f;
 						damage					= 40.0;
-						radius					= 4.0;
+						//radius					= 3.0;
 						spread					= 7;
 						knockBack				= 3.8f;
-						boundingCircle->radius	= radius;
+						//boundingCircle->radius	= radius;
 						stun					= 3.5f;
 					}
 						break;
@@ -677,10 +681,10 @@ struct MeleeInfo
 					{
 						attackRate				= 3.5f;
 						damage					= 45.0f;
-						radius					= 4.5f;
+						//radius					= 4.5f;
 						spread					= 7;
 						knockBack				= 4.0f;
-						boundingCircle->radius	= radius;
+						//boundingCircle->radius	= radius;
 						stun					= 3.5f;
 					}
 						break;
@@ -695,25 +699,25 @@ struct MeleeInfo
 				{
 					case 2:
 					{
-						damage	= 15.0f;
+						damage	= 7.5f;
 					}
 						break;	
 
 					case 3:
 					{
-						damage	= 17.0f;
+						damage	= 8.5f;
 					}
 						break;	
 
 					case 4:
 					{
-						damage	= 19.0f;
+						damage	= 9.5f;
 					}
 						break;	
 
 					case 5:
 					{
-						damage	= 22.0f;
+						damage	= 11.0f;
 					}
 						break;
 

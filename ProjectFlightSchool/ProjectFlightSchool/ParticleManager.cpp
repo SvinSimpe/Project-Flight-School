@@ -120,7 +120,7 @@ void ParticleManager::Initialize()
 	mMaxNrOfParticleSystemsPerType[Level_Up]		= 8;
 	mMaxNrOfParticleSystemsPerType[Level_Inner]		= 8;
 	mMaxNrOfParticleSystemsPerType[Spores]			= 1;
-	mMaxNrOfParticleSystemsPerType[Explosion]		= 8;
+	mMaxNrOfParticleSystemsPerType[Explosion]		= 50;
 	mMaxNrOfParticleSystemsPerType[ExplosionSmoke]	= 8;
 	mMaxNrOfParticleSystemsPerType[FireSmoke]		= 8;
 	mMaxNrOfParticleSystemsPerType[BlowTorchFire]	= 8;
@@ -204,14 +204,14 @@ void ParticleManager::Initialize()
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Shell]; i++ )
 	{
-		mParticleSystems[Shell][i]->Initialize( Shell, 8.0f, 200 );
+		mParticleSystems[Shell][i]->Initialize( Shell, 1.0f, 200 );
 		mNrOfParticleSystemsPerType[Shell]++;
 		mNrOfParticleSystems++;
 	}
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[Debris]; i++ )
 	{
-		mParticleSystems[Debris][i]->Initialize( Debris, 8.0f, 200 );
+		mParticleSystems[Debris][i]->Initialize( Debris, 2.0f, 200 );
 		mNrOfParticleSystemsPerType[Debris]++;
 		mNrOfParticleSystems++;
 	}
@@ -253,7 +253,7 @@ void ParticleManager::Initialize()
 
 	for ( int i = 0; i < mMaxNrOfParticleSystemsPerType[MuzzleFlash]; i++ )
 	{
-		mParticleSystems[MuzzleFlash][i]->Initialize( MuzzleFlash, 6.0f, 64 );
+		mParticleSystems[MuzzleFlash][i]->Initialize( MuzzleFlash, 4.0f, 64 );
 		mNrOfParticleSystemsPerType[MuzzleFlash]++;
 		mNrOfParticleSystems++;
 	}

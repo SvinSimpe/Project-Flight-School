@@ -7,9 +7,13 @@ struct PerInstanceData
 
 cbuffer CbufferPerFrame	: register( b0 )
 {
-	float4x4 viewMatrix;
-	float4x4 projectionMatrix;
-	float4	 cameraPosition;
+	float4x4	viewMatrix;
+	float4x4	projectionMatrix;
+	float4x4	invViewProjMatrix;
+	float4		cameraPosition;
+	float4		shipsPosAndRad[2];
+	int			numPointLights;
+	float		timeVariable;
 }
 
 cbuffer CbufferPerObject : register( b1 )

@@ -1,9 +1,13 @@
 //Vertex
 cbuffer CbufferPerFrame	: register( b0 )
 {
-	float4x4 viewMatrix;
-	float4x4 projectionMatrix;
-	float4	 cameraPosition;
+	float4x4	viewMatrix;
+	float4x4	projectionMatrix;
+	float4x4	invViewProjMatrix;
+	float4		cameraPosition;
+	float4		shipsPosAndRad[2];
+	int			numPointLights;
+	float		timeVariable;
 }
 
 cbuffer CbufferPerObject : register( b1 )
@@ -26,7 +30,6 @@ struct VS_In
 struct VS_Out
 {
 	float4 position			: SV_POSITION;
-	float3 worldPosition	: WORLD_POSITION;
 	float3 normal			: NORMAL;
 	float3 tangent			: TANGENT;
 	float2 uv				: TEX;
@@ -47,7 +50,6 @@ VS_Out VS_main( VS_In input )
 	}
 
 	output.position			= mul( float4( transformedPosition, 1.0f ), worldMatrix );
-	output.worldPosition	= output.position.xyz;
 	output.position			= mul( output.position, viewMatrix );
 	output.position			= mul( output.position, projectionMatrix );
 
@@ -65,7 +67,6 @@ struct PS_Out
 {
 	float4 albedoSpec		: SV_Target0;
 	float4 normal			: SV_Target1;
-	float4 worldPosition	: SV_Target2;
 };
 
 Texture2D<float4> diffuseTexture	: register( t0 );
@@ -89,6 +90,5 @@ PS_Out PS_main( VS_Out input )
 	
 	output.normal			= float4( normalize( input.normal ), 0.0f );
 	output.albedoSpec		= float4( diffuseTexture.Sample( linearSampler, input.uv ).xyz, specularTexture.Sample( linearSampler, input.uv ).x );
-	output.worldPosition	= float4( input.worldPosition, 1.0f );
 	return output;
 }

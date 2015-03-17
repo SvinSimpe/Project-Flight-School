@@ -56,8 +56,8 @@ void BattleLog::Update( float deltaTime )
 
 void BattleLog::Render()
 {
-	float height	= Input::GetInstance()->mScreenHeight;
-	float width		= Input::GetInstance()->mScreenWidth;
+	float height	= (float)Input::GetInstance()->mScreenHeight;
+	float width		= (float)Input::GetInstance()->mScreenWidth;
 
 	float offset = height * 0.03f;
 	DirectX::XMFLOAT2 topLeft = XMFLOAT2( width * 0.05f, height * 0.05f );

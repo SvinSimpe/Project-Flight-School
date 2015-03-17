@@ -1357,6 +1357,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 					{
 						Lock();
 						Die();
+						DropEnergyCell( energyCells );
 						BroadcastDeath( 0 );
 						mIsOutSideZone = false;
 					}

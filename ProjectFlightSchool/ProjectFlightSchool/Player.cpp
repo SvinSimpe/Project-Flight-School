@@ -997,7 +997,8 @@ void Player::SawMelee( float deltaTime )
 		if( mTimeTillattack <= 0.0f && mHasMeleeStarted )
 		{
 			mIsMeleeing			= true;
-			mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
+			//mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
+			mMeleeCoolDown				= mLoadOut->meleeWeapon->attackRate;
 			mHasMeleeStarted	= false;
 		}
 	}

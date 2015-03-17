@@ -19,7 +19,8 @@ void Player::EventListener( IEventPtr newEvent )
 	else if ( newEvent->GetEventType() == Event_Remote_Attempt_Revive::GUID )
 	{
 		std::shared_ptr<Event_Remote_Attempt_Revive> data = std::static_pointer_cast<Event_Remote_Attempt_Revive>( newEvent) ;
-		HandleRevive( data->DeltaTime() );
+		if( mID == data->ID() )
+			HandleRevive( data->DeltaTime() );
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Enemy_Attack_Player::GUID )
 	{

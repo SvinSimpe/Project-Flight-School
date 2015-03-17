@@ -68,7 +68,7 @@
 // Claymore
 #define CLAYMORE_AR			2.8f								// Attack Rate
 #define CLAYMORE_DAMAGE		20.0f								// Damage
-#define CLAYMORE_RADIUS		2.8f								// Radius
+#define CLAYMORE_RADIUS		2.5f								// Radius
 #define CLAYMORE_SPREAD		8									// Spread
 #define CLAYMORE_KB			1.0f								// Knockback
 #define CLAYMORE_TTA		0.75f / CLAYMORE_SPEED_INCREASE		// Time till Attack
@@ -99,9 +99,9 @@
 #define BLOWTORCH_OFFSETS	XMFLOAT3( -0.35f, -0.65f, 1.3f )	// Offsets forward, right, up
 
 // Saw
-#define SAW_AR				3.0f								// Attack Rate
+#define SAW_AR				1.5f								// Attack Rate
 #define SAW_DAMAGE			17.0f								// Damage
-#define SAW_RADIUS			3.0f								// Radius
+#define SAW_RADIUS			2.2f								// Radius
 #define SAW_SPREAD			4									// Spread
 #define SAW_KB				0.0f								// Knockback
 #define SAW_TTA				0.5f								// Time till Attack
@@ -116,7 +116,7 @@
 
 #define BLOWTORCH_SLOWDOWN	0.01f	// How much is the player slowed down
 
-#define SAW_SLOWDOWN		0.1f	// How much is the player slowed down
+#define SAW_SLOWDOWN		0.15f	// How much is the player slowed down
 
 
 //////////////////////////////////

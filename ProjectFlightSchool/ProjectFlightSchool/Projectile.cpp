@@ -51,8 +51,10 @@ HRESULT Projectile::Render( )
 					XMVector3AngleBetweenVectors( 
 					XMLoadFloat3( &XMFLOAT3( mDirection.x, 0.0f, mDirection.z ) ),
 					XMLoadFloat3( &mDirection ) ) );
-	
-	RenderManager::GetInstance()->AddObject3dToList( mProjectileAsset, mPosition, XMFLOAT3( 0.0f, yaw, roll ) );
+	if ( mWeaponType == SNIPER )
+		RenderManager::GetInstance()->AddObject3dToList( mSniperProjectileAsset, mPosition, XMFLOAT3( 0.0f, yaw, roll ) );
+	else
+		RenderManager::GetInstance()->AddObject3dToList( mProjectileAsset, mPosition, XMFLOAT3( 0.0f, yaw, roll ) );
 
 	return S_OK;
 }
@@ -160,6 +162,7 @@ HRESULT Projectile::Initialize()
 	mLifeTime		= 4.0f;
 	mBoundingCircle = new BoundingCircle( 0.5f );
 	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Bullet/", "bullet2.pfs", mProjectileAsset );
+	Graphics::GetInstance()->LoadStatic3dAsset( "../Content/Assets/PermanentAssets/Bullet/", "bullet.pfs", mSniperProjectileAsset );
 	mWeaponType		= MINIGUN;
 
 	return S_OK;

@@ -343,7 +343,7 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 					rangeInterpol = 0.4f;
 
 				//Enemy ship color
-				if( i == 0 )
+				if( i == 1 )
 					colorInterpol = float3( 1.0f, 0.05f, 0.15f );
 
 				rangeInterpol *=  0.75f + sin( timeVariable * 2.0f ) * 0.25f;

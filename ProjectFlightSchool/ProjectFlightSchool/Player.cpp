@@ -19,7 +19,7 @@ void Player::EventListener( IEventPtr newEvent )
 	else if ( newEvent->GetEventType() == Event_Remote_Attempt_Revive::GUID )
 	{
 		std::shared_ptr<Event_Remote_Attempt_Revive> data = std::static_pointer_cast<Event_Remote_Attempt_Revive>( newEvent) ;
-		if( mID == data->ID() )
+		if( mID == data->DownedID() )
 			HandleRevive( data->DeltaTime() );
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Enemy_Attack_Player::GUID )
@@ -1149,9 +1149,9 @@ void Player::Reset()
 	mLifeRegenerationMaxTimer	= 1.4f;
 	mLifeRegenerationTimer		= mLifeRegenerationMaxTimer;
 
-	mTimeTillSpawn				= mSpawnTime;
-	mTimeTillDeath				= mDeathTime;
-	mTimeTillRevive				= mReviveTime;
+	mTimeTillSpawn				= 0.0f;
+	mTimeTillDeath				= 0.0f;
+	mTimeTillRevive				= 0.0f;
 	mLastKiller					= 0;
 
 	mLowerBody.position				= XMFLOAT3( 3.0f, 0.0f, 6.0f );

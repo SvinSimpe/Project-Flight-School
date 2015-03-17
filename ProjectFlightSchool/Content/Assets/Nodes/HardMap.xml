@@ -177,7 +177,7 @@
 				renderType ="1"/>
 				
         <Asset path="../Content/Assets/ForestAssets/Mushrooms/smallmushroom1.pfs"
-				collisionType ="0"
+				collisionType ="2"
 				renderType ="1"/>
 				
         <Asset path="../Content/Assets/ForestAssets/Mushrooms/smallmushroom2.pfs"
@@ -185,7 +185,7 @@
 				renderType ="1"/>
 				
         <Asset path="../Content/Assets/ForestAssets/Mushrooms/smallmushroom3.pfs"
-				collisionType ="0"
+				collisionType ="2"
 				renderType ="1"/>
 <-------------------------------------------------------------------------------------->				
         <Asset path="../Content/Assets/ForestAssets/Nests/nest1.pfs"
@@ -209,7 +209,7 @@
 				renderType ="1"/>
 				
         <Asset path="../Content/Assets/ForestAssets/Plants/plant3.pfs" 
-				collisionType ="2"
+				collisionType ="0"
 				renderType ="1"/>
 <-------------------------------------------------------------------------------------->				
         <Asset path="../Content/Assets/ForestAssets/Stones/greaystone1.pfs" 

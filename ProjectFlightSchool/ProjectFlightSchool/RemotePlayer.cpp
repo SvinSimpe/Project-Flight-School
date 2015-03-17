@@ -230,12 +230,12 @@ HRESULT RemotePlayer::InitializeGraphics()
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	//SNIPER
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Sniper/Animations/", "sniperWalknIdle.PaMan",	mWeaponAnimations[SNIPER][IDLE] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Sniper/Animations/", "sniperIdle.PaMan",	mWeaponAnimations[SNIPER][IDLE] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 	else
 		mWeaponAnimations[SNIPER][WALK] = mWeaponAnimations[SNIPER][IDLE];
 
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Sniper/Animations/", "sniperAnim.PaMan",	mWeaponAnimations[SNIPER][ATTACK] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Sniper/Animations/", "sniperAttack.PaMan",	mWeaponAnimations[SNIPER][ATTACK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	//CHAINSAW

@@ -146,11 +146,15 @@ void PlayState::EventListener( IEventPtr newEvent )
 		{
 			mShips[FRIEND_SHIP] = new ClientShip();
 			mShips[FRIEND_SHIP]->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
+			//Set ship position and radius for shader	
+			Graphics::GetInstance()->SetShipPosAndRad( mShips[FRIEND_SHIP]->GetBuffCircle()->center, mShips[FRIEND_SHIP]->GetBuffCircle()->radius, FRIEND_SHIP );
 		}
 		else
 		{
 			mShips[ENEMY_SHIP] = new ClientShip();
 			mShips[ENEMY_SHIP]->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
+			//Set ship position and radius for shader	
+			Graphics::GetInstance()->SetShipPosAndRad( mShips[ENEMY_SHIP]->GetBuffCircle()->center, mShips[ENEMY_SHIP]->GetBuffCircle()->radius, ENEMY_SHIP );	
 		}	
 	}
 
@@ -273,7 +277,22 @@ void PlayState::EventListener( IEventPtr newEvent )
 		std::shared_ptr<Event_Remote_Request_ParticleSystem> data = std::static_pointer_cast<Event_Remote_Request_ParticleSystem>( newEvent );
 		RenderManager::GetInstance()->RequestParticleSystem( data->ID(), (ParticleType)data->ParticleType(), data->Position(), data->Direction(), data->InitialVelocity() );
 	}
-
+	else if( newEvent->GetEventType() == Event_Server_Update_Ship::GUID )
+	{
+		for( int i = 0; i < SHIP_AMOUNT; i++ )
+		{
+			if( mShips[i] )
+				mShips[i]->RemoteUpdateShip( newEvent );
+		}
+	}
+	else if( newEvent->GetEventType() == Event_Request_Player_Spawn_Position::GUID )
+	{
+		for( int i = 0; i < SHIP_AMOUNT; i++ )
+		{
+			if( mShips[i] )
+				mShips[i]->CalculatePlayerRespawnPosition( newEvent );
+		}
+	}
 }
 
 void PlayState::SyncEnemy( unsigned int id, EnemyState state, EnemyType type, XMFLOAT3 position, XMFLOAT3 direction, float maxHp )
@@ -1262,10 +1281,6 @@ void PlayState::OnEnter()
 	IEventPtr spawnPos( new Event_Request_Player_Spawn_Position( mPlayer->GetID(), mPlayer->GetTeam() ) );
 	EventManager::GetInstance()->QueueEvent( spawnPos );
 
-	//Set ship position and radius for shader	
-	Graphics::GetInstance()->SetShipPosAndRad( mShips[FRIEND_SHIP]->GetBuffCircle()->center, mShips[FRIEND_SHIP]->GetBuffCircle()->radius, FRIEND_SHIP );
-	Graphics::GetInstance()->SetShipPosAndRad( mShips[ENEMY_SHIP]->GetBuffCircle()->center, mShips[ENEMY_SHIP]->GetBuffCircle()->radius, ENEMY_SHIP );	
-
 	mPlayer->SetHomePos( mShips[FRIEND_SHIP]->GetPos() );
 	mBattleLog->Initialize( mPlayer, mRemotePlayers );
 
@@ -1303,7 +1318,9 @@ void PlayState::Reset()
 
 	for( int i = 0; i < SHIP_AMOUNT; i++ )
 	{
-		SAFE_RELEASE_DELETE( mShips[i] );
+		if( mShips[i] )
+			mShips[i]->Release();
+		SAFE_DELETE( mShips[i] );
 	}
 
 	for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
@@ -1386,6 +1403,9 @@ HRESULT PlayState::Initialize()
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Switch_Team::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Remote_Request_ParticleSystem::GUID );
 	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Enemy_Fired_Projectile::GUID);
+
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Server_Update_Ship::GUID );
+	EventManager::GetInstance()->AddListener( &PlayState::EventListener, this, Event_Request_Player_Spawn_Position::GUID );
 
 
 	mFont.Initialize( "../Content/Assets/GUI/Fonts/final_font/" );

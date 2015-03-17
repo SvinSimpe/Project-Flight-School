@@ -94,6 +94,7 @@ class Player: public RemotePlayer
 		PowerBar	mBarFrame;
 		PowerBar	mStaminaBar;
 		PowerBar	mOverHeatBar;
+		PowerBar	mReviveBar;
 
 		XMFLOAT3	mCameraPosition;
 		XMFLOAT3	mPlayerToCursor;

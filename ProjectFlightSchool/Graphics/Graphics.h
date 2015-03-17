@@ -135,7 +135,7 @@ enum Cameras
 #define ANIMATION_PLAY_LOOPED	0
 #define ANIMATION_PLAY_ONCE		1
 
-#define NUM_GBUFFERS				3
+#define NUM_GBUFFERS				2
 #define MAX_ANIM_INSTANCE_BATCH		32
 #define MAX_STATIC3D_INSTANCE_BATCH 512
 #define MAX_BILLBOARD_BATCH			5000 // Used to be 1024
@@ -164,6 +164,7 @@ class LIBRARY_EXPORT Graphics
 
 		ID3D11RenderTargetView*		mRenderTargetView;
 		ID3D11DepthStencilView*		mDepthStencilView;
+		ID3D11ShaderResourceView*	mDepthStencilShaderResource;
 		ID3D11ShaderResourceView*	mLightStructuredBuffer;
 		D3D11_VIEWPORT				mStandardView;
 		ID3D11Buffer*				mBuffers[BUFFERS_AMOUNT];

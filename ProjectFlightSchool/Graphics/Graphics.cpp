@@ -108,7 +108,7 @@ HRESULT Graphics::InitializeSamplerStates()
 	samplerDesc.AddressU		= D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressV		= D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressW		= D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.ComparisonFunc	= D3D11_COMPARISON_ALWAYS;
+	samplerDesc.ComparisonFunc	= D3D11_COMPARISON_NEVER;
 	samplerDesc.MaxAnisotropy	= 1;
 	samplerDesc.MaxLOD			= FLT_MAX;
 	samplerDesc.MinLOD			= 0.0f;
@@ -999,7 +999,7 @@ void Graphics::RenderStatic3dAsset( Object3dInfo* info, UINT sizeOfList )
 	ID3D11RenderTargetView* rtvsToSet[NUM_GBUFFERS];
 	for( int i = 0; i < NUM_GBUFFERS; i++)
 		rtvsToSet[i] = mGbuffers[i]->mRenderTargetView;
-	mDeviceContext->OMSetRenderTargets( 3, rtvsToSet, mDepthStencilView );
+	mDeviceContext->OMSetRenderTargets( NUM_GBUFFERS, rtvsToSet, mDepthStencilView );
 	mDeviceContext->RSSetViewports( 1, &mStandardView );
 }
 
@@ -1160,7 +1160,7 @@ void Graphics::RenderAnimated3dAsset( Anim3dInfo* info, UINT sizeOfList )
 	ID3D11RenderTargetView* rtvsToSet[NUM_GBUFFERS];
 	for( int i = 0; i < NUM_GBUFFERS; i++)
 		rtvsToSet[i] = mGbuffers[i]->mRenderTargetView;
-	mDeviceContext->OMSetRenderTargets( 3, rtvsToSet, mDepthStencilView );
+	mDeviceContext->OMSetRenderTargets( NUM_GBUFFERS, rtvsToSet, mDepthStencilView );
 	mDeviceContext->RSSetViewports( 1, &mStandardView );
 }
 
@@ -1966,7 +1966,7 @@ void Graphics::GbufferPass()
 	ID3D11RenderTargetView* rtvsToSet[NUM_GBUFFERS];
 	for( int i = 0; i < NUM_GBUFFERS; i++ )
 		rtvsToSet[i] = mGbuffers[i]->mRenderTargetView;
-	mDeviceContext->OMSetRenderTargets( 3, rtvsToSet, mDepthStencilView );
+	mDeviceContext->OMSetRenderTargets( NUM_GBUFFERS, rtvsToSet, mDepthStencilView );
 	mDeviceContext->RSSetViewports( 1, &mStandardView );
 
 	//Map CbufferPerFrame
@@ -1974,6 +1974,7 @@ void Graphics::GbufferPass()
 
 	data.viewMatrix			= mCamera[mCurrentCamera]->GetViewMatrix();
 	data.projectionMatrix	= mCamera[mCurrentCamera]->GetProjMatrix();
+	data.invViewProjMatrix	= XMMatrixInverse( nullptr, data.projectionMatrix * data.viewMatrix );
 	data.cameraPosition		= mCamera[mCurrentCamera]->GetPos();
 	data.numPointLights		= mNumPointLights;
 	data.timeVariable		= mTimeVariable;
@@ -2020,6 +2021,7 @@ void Graphics::DeferredPass()
 	for( int i = 0; i < NUM_GBUFFERS; i++ )
 		mDeviceContext->PSSetShaderResources( i, 1, &mGbuffers[i]->mShaderResourceView );
 
+	mDeviceContext->PSSetShaderResources( 3, 1, &mDepthStencilShaderResource );
 	mDeviceContext->PSSetShaderResources( 4, 1, &mShadowMapSRV );
 	mDeviceContext->PSSetShaderResources( 5, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[WATER_NORMALMAP] )->mSRV );
 	mDeviceContext->PSSetShaderResources( 6, 1, &mLightStructuredBuffer );
@@ -2037,7 +2039,7 @@ void Graphics::DeferredPass()
 
 	mDeviceContext->Draw( 4, 0 );
 
-	mDeviceContext->OMSetRenderTargets( 1, &mRenderTargetView, mDepthStencilView );
+	//mDeviceContext->OMSetRenderTargets( 1, &mRenderTargetView, mDepthStencilView );
 }
 
 void Graphics::ScreenSpacePass()
@@ -2157,11 +2159,11 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 	textureDesc.Height				= screenHeight;
 	textureDesc.MipLevels			= 1;
 	textureDesc.ArraySize			= 1;
-	textureDesc.Format				= DXGI_FORMAT_D32_FLOAT;
+	textureDesc.Format				= DXGI_FORMAT_R32_TYPELESS;
 	textureDesc.SampleDesc.Count	= 1;
 	textureDesc.SampleDesc.Quality	= 0;
 	textureDesc.Usage				= D3D11_USAGE_DEFAULT;
-	textureDesc.BindFlags			= D3D11_BIND_DEPTH_STENCIL;
+	textureDesc.BindFlags			= D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 	textureDesc.CPUAccessFlags		= 0;
 	textureDesc.MiscFlags			= 0;
 
@@ -2170,11 +2172,20 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC dDSV;
 	ZeroMemory( &dDSV, sizeof( dDSV ) );
-	dDSV.Format				= textureDesc.Format;
+	dDSV.Format				= DXGI_FORMAT_D32_FLOAT;
 	dDSV.ViewDimension		= D3D11_DSV_DIMENSION_TEXTURE2D;
 	dDSV.Texture2D.MipSlice	= 0;
 
 	if( FAILED( hr = mDevice->CreateDepthStencilView( depthStencil, &dDSV, &mDepthStencilView ) ) )
+		return hr;
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC sDesc;
+	ZeroMemory( &sDesc, sizeof( sDesc ) );
+	sDesc.Format				= DXGI_FORMAT_R32_FLOAT;
+	sDesc.ViewDimension			= D3D11_SRV_DIMENSION_TEXTURE2D;
+	sDesc.Texture2D.MipLevels	= 1;
+
+	if( FAILED( hr = mDevice->CreateShaderResourceView( depthStencil, &sDesc, &mDepthStencilShaderResource ) ) )
 		return hr;
 
 	SAFE_RELEASE( depthStencil );
@@ -2271,7 +2282,6 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 	{
 		DXGI_FORMAT_R16G16B16A16_FLOAT, // AlbedoSpec
 		DXGI_FORMAT_R16G16B16A16_FLOAT,	// Normal
-		DXGI_FORMAT_R32G32B32A32_FLOAT	//worldpos
 	};
 
 	//Gbuffers
@@ -2340,8 +2350,8 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 	cameraInfo.width		= (float)screenWidth;
 	cameraInfo.height		= (float)screenHeight;
 	cameraInfo.foVY			= 3.14159265f * 0.25f;
-	cameraInfo.nearZ		= 0.1f;
-	cameraInfo.farZ			= 100.0f;
+	cameraInfo.nearZ		= 2.1f;
+	cameraInfo.farZ			= 40.0f;
 
 	if( FAILED( hr = mCamera[CAMERAS_MAIN]->Initialize( &cameraInfo ) ) )
 		return hr;
@@ -2393,6 +2403,7 @@ void Graphics::Release()
 	SAFE_RELEASE( mDeviceContext );
 	SAFE_RELEASE( mRenderTargetView );
 	SAFE_RELEASE( mDepthStencilView );
+	SAFE_RELEASE( mDepthStencilShaderResource );
 	SAFE_RELEASE( mLightStructuredBuffer );
 	SAFE_RELEASE( mShadowMapDSV );
 	SAFE_RELEASE( mShadowMapSRV );

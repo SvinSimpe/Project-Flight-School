@@ -61,6 +61,7 @@ struct TeamInfo
 class BattleLog
 {
 	private:
+
 		std::string mActions[NR_OF_ACTIONS];
 		std::string mObjects[NR_OF_OBJECTS];
 		TeamInfo mTeams[3];
@@ -83,20 +84,18 @@ class BattleLog
 
 		std::string mMeasureString;
 
-
 	protected:
 	public:
 	
 	private:
 	protected:
 	public:
-		BattleLog();
-		BattleLog( const BattleLog &origOb );
-		~BattleLog();
 
-		HRESULT Initialize( Player* player, std::vector<RemotePlayer*>& remotePlayers );
+		void SetUpPlayers( Player* player, std::vector<RemotePlayer*>& remotePlayers );
 		void Update( float deltaTime );
 		void Render();
+		HRESULT Initialize();
+		void Release();
 
 		void AddLogEntry( BattleLogEntry entry );
 		void AddHeadLineEntry( HeadLineEntry entry );
@@ -106,6 +105,10 @@ class BattleLog
 		void OnServerSetName( IEventPtr e );
 
 		void Reset();
+
+		BattleLog();
+		BattleLog( const BattleLog &origOb );
+		~BattleLog();
 };
 #endif
 

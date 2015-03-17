@@ -845,7 +845,8 @@ void PlayState::HandleRemoteProjectileRemoved( UINT projectileID )
 
 			if( mProjectiles[i]->GetWeaponType() == GRENADELAUNCHER )
 			{
-				//RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), BoomerExplosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), Explosion, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
+				RenderManager::GetInstance()->RequestParticleSystem( mPlayer->GetID(), ExplosionSmoke, mProjectiles[i]->GetPosition(), XMFLOAT3( 1.0f, 1.0f, 1.0f ) );
 				SoundBufferHandler::GetInstance()->Play3D( mExplosion , mPlayer->GetPosition() );
 			}
 			else

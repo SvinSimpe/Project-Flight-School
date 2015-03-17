@@ -315,7 +315,7 @@ void Server::ClientDash( IEventPtr eventPtr )
 		auto& it = mClientMap.find(data->ID());
 		if( it != mClientMap.end() )
 		{
-			IEventPtr E1( new Event_Remote_Dash( data->ID() ) );
+			IEventPtr E1( new Event_Remote_Dash( data->ID(), data->GetPos() ) );
 			BroadcastEvent( E1, data->ID() );
 		}
 	}
@@ -895,16 +895,29 @@ void Server::CalculateCellPosition( XMFLOAT3 pos, float offSetX, float offSetZ )
 
 	while( placeCounter < 30 )
 	{
-		int x = (int)halfX - ( rand() % (int)offSetX );
-		int z = (int)halfZ - ( rand() % (int)offSetZ );
+		bool evenlyPlaced	= false;
+		int tries			= 0;
+		while( !evenlyPlaced )
+		{
+			int x = (int)halfX - ( rand() % (int)offSetX );
+			int z = (int)halfZ - ( rand() % (int)offSetZ );
 
-		energyCellPosition = XMFLOAT3( energyCellPosition.x + x, 0 , energyCellPosition.z + z );
-		placePos = Pathfinder::GetInstance()->GetRandomTriInMesh( energyCellPosition );
+			energyCellPosition = XMFLOAT3( energyCellPosition.x + x, 0 , energyCellPosition.z + z );
+			placePos = Pathfinder::GetInstance()->GetRandomTriInMesh( energyCellPosition );
 
+			float distToShip1 = XMVectorGetX( XMVector3LengthSq( XMLoadFloat3( &placePos ) - XMLoadFloat3( &mShips[0]->GetPos() ) ) );
+			float distToShip2 = XMVectorGetX( XMVector3LengthSq( XMLoadFloat3( &placePos ) - XMLoadFloat3( &mShips[1]->GetPos() ) ) );
+
+			evenlyPlaced = abs( distToShip1 - distToShip2 ) < 2000.0f ? true : false;
+			tries++;
+			if( tries > 20 )
+				energyCellPosition = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+		}
 		if( !( HelperFunctions::Float3Equal( placePos, DirectX::XMFLOAT3( 0, 0 ,0 ) ) ) )
 		{
 			mCellPositionQueue.push( placePos );
 			placeCounter++;
+			tries = 0;
 		}
 	}
 }
@@ -1062,7 +1075,7 @@ void Server::Update( float deltaTime )
 			mCellSpawnTimer -= deltaTime;
 			if( mCellSpawnTimer <= 0.0f )
 			{
-				mCellSpawnTimer = 5.0f;
+				mCellSpawnTimer = 15.0f;
 				IEventPtr e( new Event_Spawn_Energy_Cell() );
 				EventManager::GetInstance()->QueueEvent( e );
 			}
@@ -1276,6 +1289,7 @@ bool Server::Initialize()
 void Server::Reset()
 {
 	mStopAccept				= false;
+	mGameFull				= false;
 	mActive					= false;
 	mCurrentPID				= 0;
 	mTeamDelegate			= 1;

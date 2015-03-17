@@ -210,8 +210,10 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 			normalizer	*= mMaxVelocity;
 			XMStoreFloat3( &mVelocity, normalizer );
 
-			IEventPtr E1( new Event_Client_Dash( mID ) );
+			IEventPtr E1( new Event_Client_Dash( mID, mLowerBody.position ) );
 			QueueEvent( E1 );
+
+			RenderManager::GetInstance()->RequestParticleSystem( mID, Hammer_Effect, mLowerBody.position, XMFLOAT3( 1.0f, 0.0f, 1.0f ) );
 		}
 
 
@@ -343,6 +345,7 @@ void Player::HandleSpawn( float deltaTime )
 	if( mTimeTillSpawn <= 0.0f )
 	{
 		Spawn();
+		mTimeTillRevive = 0.0f;
 		UnLock();
 		IEventPtr E1( new Event_Client_Spawned( mID ) );
 		QueueEvent( E1 );
@@ -1096,7 +1099,7 @@ void Player::TakeDamage( float damage, unsigned int shooter )
 
 void Player::HandleRevive(float deltaTime)
 {
-	if (mTimeTillRevive <= 0.0f)
+	if ( mTimeTillRevive <= 0.0f )
 	{
 		GoUp();
 	}
@@ -1198,6 +1201,11 @@ void Player::Reset()
 	mStaminaBar.mWidth		= 0.0f;
 	mStaminaBar.mHeight		= 0.0f;
 	mStaminaBar.mColor		= XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f );
+
+	mReviveBar.mPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mReviveBar.mWidth		= 0.0f;
+	mReviveBar.mHeight		= 0.0f;
+	mReviveBar.mColor		= XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f );
 }
 
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
@@ -1658,12 +1666,26 @@ void Player::RenderPowerBars()
 			RenderManager::GetInstance()->AddBillboardToList( mBarFrame.mAssetID, mBarFrame.mPosition, mBarFrame.mWidth, mBarFrame.mHeight );			
 		}
 	}
+
+	//======== OVERHEAT/TIMETILATTACK BAR ==========
+	if ( mTimeTillRevive != 0.0f && mTimeTillRevive > 0.0f )
+	{
+			mReviveBar.mPosition	= XMFLOAT3( mLowerBody.position.x, mLowerBody.position.y + 5.05f, mLowerBody.position.z );
+			mReviveBar.mWidth		= 0.7f * ( mTimeTillRevive / mReviveTime );
+			mReviveBar.mHeight		= 0.075f;
+			mReviveBar.mColor		= XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
+
+			mBarFrame.mPosition		= XMFLOAT3( mReviveBar.mPosition.x, mReviveBar.mPosition.y + 0.01f, mReviveBar.mPosition.z - 0.01f );
+			mBarFrame.mWidth		= 0.7f + 0.02f;
+			mBarFrame.mHeight		= mReviveBar.mHeight + 0.02f;
+
+			RenderManager::GetInstance()->AddBillboardToList( mReviveBar.mAssetID, mReviveBar.mPosition, mReviveBar.mWidth, mReviveBar.mHeight, mReviveBar.mColor );
+			RenderManager::GetInstance()->AddBillboardToList( mBarFrame.mAssetID, mBarFrame.mPosition, mBarFrame.mWidth, mBarFrame.mHeight );
+	}
 }
 
 HRESULT Player::Initialize()
 {
-	mPointLight					= nullptr;
-
 	mWeaponOverheated			= false;
 	mWeaponOverheatMultiplier	= 0.0f;
 	mTimeSinceLastShot			= 0.0f;
@@ -1674,11 +1696,13 @@ HRESULT Player::Initialize()
 	mLock						= false;
 	mCloseToPlayer				= false;
 
-	mMaxVelocity		= 0.0f;
+	mMaxVelocity		= 7.7f;
 	mCurrentVelocity	= 0.0f;
-	mMaxAcceleration	= 0.0f;
+	mMaxAcceleration	= 20.0f;
 	mDashVelocity		= 1.0f;
+	mSlowDown			= 1.0f;
 	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mVelocity			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mFireDirection		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mIsOutSideZone		= false;
 	mIsInWater			= false;
@@ -1690,7 +1714,7 @@ HRESULT Player::Initialize()
 	mTimeTillSpawn			= 0.0f;
 	mDeathTime				= 0.0f;
 	mTimeTillDeath			= 0.0f;
-	mReviveTime				= 0.0f;
+	mReviveTime				= 2.0f;
 	mTimeTillRevive			= 0.0f;
 	mLeavingAreaTime		= 0.0f;
 	mWaterDamageTime		= 0.0f;
@@ -1701,6 +1725,9 @@ HRESULT Player::Initialize()
 	mBufflevel				= 0;
 
 	mDashCoolDown			= 0.0f;
+
+	mNextLevelXP		= 20.0f;
+	mCurrentUpgrades	= 0;
 
 	gEventList				= std::list<IEventPtr>(); 
 
@@ -1721,19 +1748,6 @@ HRESULT Player::Initialize()
 	EventManager::GetInstance()->QueueEvent( reg );
 
 	mPointLight->colorAndRadius		= DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 10.0f );
-
-	mMaxVelocity		= 7.7f;
-	mCurrentVelocity	= 0.0f;
-	mMaxAcceleration	= 20.0f;
-	mSlowDown			= 1.0f;
-	mAcceleration		= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-	mVelocity			= XMFLOAT3( 0.0f, 0.0f, 0.0f );
-
-	mNextLevelXP		= 20.0f;
-	mCurrentUpgrades	= 0;
-
-	mReviveTime			= 2.0f;
-	mTimeTillRevive		= mReviveTime;
 
 	mMiniGunOverheat	= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/minigun_Overheat.wav", 10 );
 	mHammerSound		= SoundBufferHandler::GetInstance()->Load3DBuffer( "../Content/Assets/Sound/hammer.wav", 10 );
@@ -1777,6 +1791,12 @@ HRESULT Player::Initialize()
 	mStaminaBar.mWidth		= 0.0f;
 	mStaminaBar.mHeight		= 0.0f;
 	mBarFrame.mColor		= XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f );
+
+	Graphics::GetInstance()->LoadStatic2dAsset( "../Content/Assets/Textures/whiteBar.dds", mReviveBar.mAssetID );
+	mReviveBar.mPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mReviveBar.mWidth		= 0.0f;
+	mReviveBar.mHeight		= 0.0f;
+	mReviveBar.mColor		= XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f );
 
 	mCameraPosition = XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mPlayerToCursor = XMFLOAT3( 0.0f, 0.0f, 0.0f );

@@ -315,7 +315,7 @@ void Server::ClientDash( IEventPtr eventPtr )
 		auto& it = mClientMap.find(data->ID());
 		if( it != mClientMap.end() )
 		{
-			IEventPtr E1( new Event_Remote_Dash( data->ID() ) );
+			IEventPtr E1( new Event_Remote_Dash( data->ID(), data->GetPos() ) );
 			BroadcastEvent( E1, data->ID() );
 		}
 	}

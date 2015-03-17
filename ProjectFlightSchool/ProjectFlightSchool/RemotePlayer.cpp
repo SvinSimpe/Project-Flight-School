@@ -46,6 +46,7 @@ void RemotePlayer::EventListener( IEventPtr newEvent )
 		{
 			mDashVelocity = DASH_VELOCITY;
 			RenderManager::GetInstance()->AnimationStartNew( mLowerBody.playerModel[TEAM_ARRAY_ID], mAnimations[LEGS_DASH][TEAM_ARRAY_ID] );
+			RenderManager::GetInstance()->RequestParticleSystem( data->ID(), Hammer_Effect, data->GetPos(), XMFLOAT3( 1.0f, 0.0f, 1.0f ) );
 		}
 	}
 	else if ( newEvent->GetEventType() == Event_Remote_Died::GUID )

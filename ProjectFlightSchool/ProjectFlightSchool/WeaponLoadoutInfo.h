@@ -36,7 +36,7 @@
 #define SHOTGUN_OFFSETS		XMFLOAT3( 0.93f, 0.5f, 1.45f )		// Offsets forward, right, up
 
 // Grenade Launcher
-#define GL_AR				2.7f								// Attack Rate
+#define GL_AR				2.4f								// Attack Rate
 #define GL_DAMAGE			25.0f								// Damage
 #define GL_RANGE			25.0f								// Range
 #define GL_SPREAD			0.0f								// Spread

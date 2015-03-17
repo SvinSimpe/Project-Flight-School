@@ -1671,7 +1671,8 @@ bool Graphics::GetAnimationMatrices( AnimationTrack &animTrack, int playType, An
 		if( animTrack.mNextAnimationTime >= (float)animation2->AnimLength / 60.0f )
 		{
 			if( playType == ANIMATION_PLAY_LOOPED )
-				animTrack.mNextAnimationTime -= ( (float)animation2->AnimLength / 60.0f - 1.0f / 60.0f );
+				while( animTrack.mNextAnimationTime >= (float)animation2->AnimLength / 60.0f )
+					animTrack.mNextAnimationTime -= ( (float)animation2->AnimLength / 60.0f - 1.0f / 60.0f );
 			else if( playType == ANIMATION_PLAY_ONCE )
 				animTrack.mNextAnimationTime = ( (float)animation2->AnimLength / 60.0f );
 		}
@@ -1731,7 +1732,8 @@ bool Graphics::GetAnimationMatrices( AnimationTrack &animTrack, int playType, An
 	if( animTrack.mCurrentAnimationTime >= (float)animation->AnimLength / 60.0f )
 	{
 		if( playType == ANIMATION_PLAY_LOOPED )
-			animTrack.mCurrentAnimationTime -= ( (float)animation->AnimLength / 60.0f - 1.0f / 60.0f );
+			while( animTrack.mCurrentAnimationTime >= (float)animation->AnimLength / 60.0f )
+				animTrack.mCurrentAnimationTime -= ( (float)animation->AnimLength / 60.0f - 1.0f / 60.0f );
 		else if( playType == ANIMATION_PLAY_ONCE )
 			animTrack.mCurrentAnimationTime = ( (float)animation->AnimLength / 60.0f );
 

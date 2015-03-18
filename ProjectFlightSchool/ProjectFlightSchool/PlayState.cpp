@@ -146,6 +146,7 @@ void PlayState::EventListener( IEventPtr newEvent )
 		{
 			mShips[FRIEND_SHIP] = new ClientShip();
 			mShips[FRIEND_SHIP]->Initialize( data->ID(), data->TeamID(), data->Position(), data->Rotation(), data->Scale() );
+			mPlayer->SetHomePos( mShips[FRIEND_SHIP]->GetPos() );
 			//Set ship position and radius for shader	
 			Graphics::GetInstance()->SetShipPosAndRad( mShips[FRIEND_SHIP]->GetBuffCircle()->center, mShips[FRIEND_SHIP]->GetBuffCircle()->radius, FRIEND_SHIP );
 		}
@@ -1291,7 +1292,6 @@ void PlayState::OnEnter()
 	IEventPtr spawnPos( new Event_Request_Player_Spawn_Position( mPlayer->GetID(), mPlayer->GetTeam() ) );
 	EventManager::GetInstance()->QueueEvent( spawnPos );
 
-	mPlayer->SetHomePos( mShips[FRIEND_SHIP]->GetPos() );
 	mBattleLog->SetUpPlayers( mPlayer, mRemotePlayers );
 
 	IEventPtr name( new Event_Client_Set_Name( mPlayer->GetID(), mPlayer->GetName() ) );

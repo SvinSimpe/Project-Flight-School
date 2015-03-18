@@ -599,7 +599,7 @@ struct MeleeInfo
 				{
 					case 2:
 					{
-						attackRate				= 2.7f;
+						attackRate				= 2.9f;
 						damage					= 25.0f;
 						knockBack				= 1.2f;
 						stun					= 0.4f;
@@ -609,7 +609,7 @@ struct MeleeInfo
 
 					case 3:
 					{
-						attackRate				= 2.5f;
+						attackRate				= 2.6f;
 						damage					= 30.0f;
 						knockBack				= 1.6f;
 					}
@@ -645,10 +645,8 @@ struct MeleeInfo
 					{
 						attackRate				= 3.8f;
 						damage					= 30.0f;
-						//radius					= 2.3f;
 						spread					= 7;
-						knockBack				= 3.2f;
-						//boundingCircle->radius	= radius;
+						knockBack				= 3.4f;
 						stun					= 3.3f;
 					}
 						break;
@@ -657,10 +655,8 @@ struct MeleeInfo
 					{
 						attackRate				= 3.7f;
 						damage					= 35.0f;
-						//radius					= 2.7f;
 						spread					= 7;
-						knockBack				= 3.5f;
-						//boundingCircle->radius	= radius;
+						knockBack				= 4.0f;
 						stun					= 3.5f;
 					}
 						break;
@@ -669,10 +665,8 @@ struct MeleeInfo
 					{
 						attackRate				= 3.6f;
 						damage					= 40.0;
-						//radius					= 3.0;
 						spread					= 7;
-						knockBack				= 3.8f;
-						//boundingCircle->radius	= radius;
+						knockBack				= 4.5f;
 						stun					= 3.5f;
 					}
 						break;
@@ -681,10 +675,8 @@ struct MeleeInfo
 					{
 						attackRate				= 3.5f;
 						damage					= 45.0f;
-						//radius					= 4.5f;
 						spread					= 7;
-						knockBack				= 4.0f;
-						//boundingCircle->radius	= radius;
+						knockBack				= 5.0f;
 						stun					= 3.5f;
 					}
 						break;

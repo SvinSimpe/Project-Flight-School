@@ -14,6 +14,7 @@ class Projectile
 {
 	private:
 		AssetID				mProjectileAsset;
+		AssetID				mSniperProjectileAsset;
 		unsigned int		mID;
 		unsigned int		mTeamID;
 		unsigned int		mPlayerID;

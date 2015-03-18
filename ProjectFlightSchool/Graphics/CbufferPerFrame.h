@@ -7,6 +7,7 @@ struct CbufferPerFrame
 {
 	DirectX::XMMATRIX	viewMatrix;
 	DirectX::XMMATRIX	projectionMatrix;
+	DirectX::XMMATRIX	invViewProjMatrix;
 	DirectX::XMFLOAT4	cameraPosition;
 	float				shipPosAndRad[8];
 	int					numPointLights;

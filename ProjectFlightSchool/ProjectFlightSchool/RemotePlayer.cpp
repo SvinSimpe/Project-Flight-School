@@ -230,22 +230,22 @@ HRESULT RemotePlayer::InitializeGraphics()
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	//SNIPER
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Sniper/Animations/", "sniperWalknIdle.PaMan",	mWeaponAnimations[SNIPER][IDLE] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Sniper/Animations/", "sniperIdle.PaMan",	mWeaponAnimations[SNIPER][IDLE] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 	else
 		mWeaponAnimations[SNIPER][WALK] = mWeaponAnimations[SNIPER][IDLE];
 
-	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Sniper/Animations/", "sniperAnim.PaMan",	mWeaponAnimations[SNIPER][ATTACK] ) ) )
+	if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Sniper/Animations/", "sniperAttack.PaMan",	mWeaponAnimations[SNIPER][ATTACK] ) ) )
 		OutputDebugString( L"\nERROR loading player model\n" );
 
 	//CHAINSAW
-		if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Saw/Animations/", "sawAnim1.PaMan",	mWeaponAnimations[SAW][ATTACK] ) ) )
+		if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Saw/Animations/", "SawAttack.PaMan",	mWeaponAnimations[SAW][ATTACK] ) ) )
 		OutputDebugString( L"\nERROR loading chainsaw animation\n" );
 
-		if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Saw/Animations/", "sawIdle.PaMan",	mWeaponAnimations[SAW][IDLE] ) ) )
+		if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Saw/Animations/", "SawIdle.PaMan",	mWeaponAnimations[SAW][IDLE] ) ) )
 		OutputDebugString( L"\nERROR loading chainsaw animation\n" );
 
-		if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Saw/Animations/", "sawWalk.PaMan",	mWeaponAnimations[SAW][WALK] ) ) )
+		if( FAILED( Graphics::GetInstance()->LoadAnimationAsset( "../Content/Assets/PermanentAssets/Robot/Weapons/Saw/Animations/", "SawIdle.PaMan",	mWeaponAnimations[SAW][WALK] ) ) )
 		OutputDebugString( L"\nERROR loading chainsaw animation\n" );
 
 	//////////////////////////////////////

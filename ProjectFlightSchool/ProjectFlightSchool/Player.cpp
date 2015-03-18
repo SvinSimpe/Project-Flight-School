@@ -19,7 +19,7 @@ void Player::EventListener( IEventPtr newEvent )
 	else if ( newEvent->GetEventType() == Event_Remote_Attempt_Revive::GUID )
 	{
 		std::shared_ptr<Event_Remote_Attempt_Revive> data = std::static_pointer_cast<Event_Remote_Attempt_Revive>( newEvent) ;
-		if( mID == data->ID() )
+		if( mID == data->DownedID() )
 			HandleRevive( data->DeltaTime() );
 	}
 	else if ( newEvent->GetEventType() == Event_Server_Enemy_Attack_Player::GUID )
@@ -40,8 +40,8 @@ void Player::EventListener( IEventPtr newEvent )
 		if ( mID == data->ID() )
 		{
 			XMFLOAT3 direction = data->Direction();
-			direction.x *= data->KnockBack();
-			direction.z *= data->KnockBack();
+			direction.x *= data->KnockBack() * 4;
+			direction.z *= data->KnockBack() * 4;
 			AddImpuls( direction );
 			TakeDamage( data->Damage(), 0);
 
@@ -286,7 +286,7 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 
 	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_MOUSE_RIGHT ) )
 	{
-		if( mLoadOut->meleeWeapon->weaponType == SAW )
+		if( mLoadOut->meleeWeapon->weaponType == SAW && mMeleeCoolDown <= 0.0f )
 		{
 			mHasMeleeStarted = true;
 		}
@@ -548,9 +548,12 @@ HRESULT Player::UpdateSpecific( float deltaTime, Map* worldMap, std::vector<Remo
 
 	for( int i = 0; i < 2; i++ )
 	{
-		if( shipCollision = clientShips[i]->PositionVsShip( &testCircle, normal ) )
+		if( clientShips[i] )
 		{
-			break;
+			if( shipCollision = clientShips[i]->PositionVsShip( &testCircle, normal ) )
+			{
+				break;
+			}
 		}
 	}
 
@@ -997,7 +1000,7 @@ void Player::SawMelee( float deltaTime )
 		if( mTimeTillattack <= 0.0f && mHasMeleeStarted )
 		{
 			mIsMeleeing			= true;
-			mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
+			//mTimeTillattack		= mLoadOut->meleeWeapon->timeTillAttack;
 			mHasMeleeStarted	= false;
 		}
 	}
@@ -1049,7 +1052,7 @@ void Player::QueueEvent( IEventPtr ptr )
 void Player::UpgradeBody()
 {
 	mUpgrades.currentBodyLevel++;
-	mUpgrades.damageTakenPercentage	-= 0.1f;
+	mUpgrades.damageTakenPercentage	-= 0.15f;
 	//mCurrentHp = mMaxHp = 100.0f + ( ( mUpgrades.currentBodyLevel - 1 ) * 20.0f ) + ( pow( (float)( mUpgrades.currentBodyLevel - 1 ), 2 ) * 5.0f );
 }
 
@@ -1085,9 +1088,20 @@ void Player::TakeDamage( float damage, unsigned int shooter )
 	//	damage -= moddedDmg;
 	//}
 	mCurrentHp -= ( damage * mUpgrades.damageTakenPercentage );
+	double i = 0, d = 0;
+    i = rand() % 10 - 5;
+    d = i / 100;
+	mDamageOffsetX = damage * d;
+
+	i = 0;
+	d = 0;
+    i = rand() % 10 - 5;
+    d = i / 100;
+	mDamageOffsetZ = damage * d;
+
 	if( mCurrentHp < 0.0f )
 	{
-		mCurrentHp = 0.0f;
+		mCurrentHp = 0.0;
 	}
 	IEventPtr E1( new Event_Client_Update_HP( mID, mCurrentHp ) );
 	QueueEvent( E1 );
@@ -1149,9 +1163,9 @@ void Player::Reset()
 	mLifeRegenerationMaxTimer	= 1.4f;
 	mLifeRegenerationTimer		= mLifeRegenerationMaxTimer;
 
-	mTimeTillSpawn				= mSpawnTime;
-	mTimeTillDeath				= mDeathTime;
-	mTimeTillRevive				= mReviveTime;
+	mTimeTillSpawn				= 0.0f;
+	mTimeTillDeath				= 0.0f;
+	mTimeTillRevive				= 0.0f;
 	mLastKiller					= 0;
 
 	mLowerBody.position				= XMFLOAT3( 3.0f, 0.0f, 6.0f );
@@ -1210,6 +1224,11 @@ void Player::Reset()
 
 HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayers, EnergyCell** energyCells )
 {
+	mDamageOffsetX -= deltaTime * 5;
+	mDamageOffsetX = max( 0.0f, mDamageOffsetX );
+	mDamageOffsetZ -= deltaTime * 5;
+	mDamageOffsetZ = max( 0.0f, mDamageOffsetZ );
+
 	//Keep the rootMatrix for legs updated.
 	XMFLOAT4X4 upperBody = Graphics::GetInstance()->GetRootMatrix( mLowerBody.playerModel[TEAM_ARRAY_ID] );
 	XMMATRIX loadedMat = XMLoadFloat4x4( &upperBody );
@@ -1383,7 +1402,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 				XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 
-				RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction, mVelocity );
+				RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Electric, newPos, mUpperBody.direction, mCurrentTravelVelocity );
 				SoundBufferHandler::GetInstance()->Play3D( mPlayerDeath , newPos );
 				// Spawn spark on lowerBody
 				if ( mCurrentHp <= 10 )
@@ -1394,7 +1413,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 					XMStoreFloat3( &inverseDir, -XMLoadFloat3( &mUpperBody.direction ) );
 					XMStoreFloat3( &newPos, XMVector3TransformCoord( XMVectorSet( 0.0f, randY, 0.0f, 1.0f ), XMLoadFloat4x4( &mLowerBody.rootMatrix ) ) );
 					
-					RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Robot, newPos, XMFLOAT3( inverseDir.x * randY, inverseDir.y, inverseDir.z * randY ), mVelocity );
+					RenderManager::GetInstance()->RequestParticleSystem( mID, Spark_Robot, newPos, XMFLOAT3( inverseDir.x * randY, inverseDir.y, inverseDir.z * randY ), mCurrentTravelVelocity );
 					SoundBufferHandler::GetInstance()->Play3D( mPlayerDeath , newPos );
 				}
 				
@@ -1440,15 +1459,15 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 	///Lock camera position to player
 	XMFLOAT3 cameraPosition;
-	cameraPosition.x = mLowerBody.position.x			+ mPlayerToCursor.x;
+	cameraPosition.x = mLowerBody.position.x			+ mPlayerToCursor.x + mDamageOffsetX;
 	cameraPosition.y = mLowerBody.position.y + CAMERA_Y;
-	cameraPosition.z = mLowerBody.position.z + CAMERA_Z	+ mPlayerToCursor.z;
+	cameraPosition.z = mLowerBody.position.z + CAMERA_Z	+ mPlayerToCursor.z + mDamageOffsetZ;
 
 	Graphics::GetInstance()->SetEyePosition( CAMERAS_MAIN, cameraPosition );
 
-	cameraPosition.x = mLowerBody.position.x + mPlayerToCursor.x;
+	cameraPosition.x = mLowerBody.position.x + mPlayerToCursor.x + mDamageOffsetX;
 	cameraPosition.y = mLowerBody.position.y;
-	cameraPosition.z = mLowerBody.position.z + mPlayerToCursor.z;
+	cameraPosition.z = mLowerBody.position.z + mPlayerToCursor.z + mDamageOffsetZ;
 
 	Graphics::GetInstance()->SetFocus( CAMERAS_MAIN, cameraPosition );
 

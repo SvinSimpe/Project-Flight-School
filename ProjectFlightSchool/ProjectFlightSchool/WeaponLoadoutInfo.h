@@ -68,7 +68,7 @@
 #define CLAYMORE_STUN		0.3f								// Stun
 #define CLAYMORE_REACH		3.0f								// Reach
 #define CLAYMORE_OFFSETS	XMFLOAT3( 0.8f, -0.65f, 1.3f )		// Offsets forward, right, up
-#define CLAYMORE_SLOWDOWN	0.1f								// How much is the player slowed down
+#define CLAYMORE_SLOWDOWN	0.25f								// How much is the player slowed down
 // Hammer
 
 #define HAMMER_AR			4.0f								// Attack Rate Can't be lower than 3.5f

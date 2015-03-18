@@ -25,7 +25,7 @@
 #define MINIGUN_OFFSETS		XMFLOAT3( 0.75f, 0.5f, 1.4f )		// Offsets forward, right, up
 #define MINIGUN_OVERHEAT_CD 3.0f								// Cooldown that occurs when the minigun overheats	
 #define MINIGUN_OVERHEAT	2.0f								// Amount of heat the minigun get's for firing once
-
+#define MINIGUN_SLOWDOWN	0.02f								// How much is the player slowed down
 // Shotgun
 #define SHOTGUN_AR			1.8f								// Attack Rate
 #define SHOTGUN_DAMAGE		16.0f								// Damage
@@ -34,7 +34,7 @@
 #define SHOTGUN_AOE			0.0f								// Area of effect
 #define SHOTGUN_SPEED		40.0f								// Projectile Speed 35
 #define SHOTGUN_OFFSETS		XMFLOAT3( 0.93f, 0.5f, 1.45f )		// Offsets forward, right, up
-
+#define SHOTGUN_SLOWDOWN	0.2f								// How much is the player slowed down
 // Grenade Launcher
 #define GL_AR				2.4f								// Attack Rate
 #define GL_DAMAGE			25.0f								// Damage
@@ -43,7 +43,7 @@
 #define GL_AOE				2.0f								// Area of effect
 #define GL_SPEED			20.0f								// Projectile Speed 10
 #define GL_OFFSETS			XMFLOAT3( 0.92f, 0.5f, 1.45f )		// Offsets forward, right, up
-
+#define GL_SLOWDOWN			0.5f								// How much is the player slowed down
 // Sniper
 #define SNIPER_AR			3.0f								// Attack Rate
 #define SNIPER_DAMAGE		45.0f								// Damage
@@ -52,14 +52,7 @@
 #define SNIPER_AOE			0.0f								// Area of effect
 #define SNIPER_SPEED		40.0f								// Projectile Speed 90
 #define SNIPER_OFFSETS		XMFLOAT3( 1.15f, 0.45f, 1.9f )		// Offsets forward, right, up
-
-#define MINIGUN_SLOWDOWN	0.02f	// How much is the player slowed down
-
-#define SHOTGUN_SLOWDOWN	0.2f	// How much is the player slowed down
-
-#define GL_SLOWDOWN			0.5f	// How much is the player slowed down
-
-#define SNIPER_SLOWDOWN		0.5f	// How much is the player slowed down
+#define SNIPER_SLOWDOWN		0.5f								// How much is the player slowed down
 
 //////////////////////////////////
 //		 MELEE WEAPONS			
@@ -75,8 +68,9 @@
 #define CLAYMORE_STUN		0.3f								// Stun
 #define CLAYMORE_REACH		3.0f								// Reach
 #define CLAYMORE_OFFSETS	XMFLOAT3( 0.8f, -0.65f, 1.3f )		// Offsets forward, right, up
-
+#define CLAYMORE_SLOWDOWN	0.1f								// How much is the player slowed down
 // Hammer
+
 #define HAMMER_AR			4.0f								// Attack Rate Can't be lower than 3.5f
 #define HAMMER_DAMAGE		25.0f								// Damage
 #define HAMMER_RADIUS		2.0f								// Radius
@@ -86,8 +80,9 @@
 #define HAMMER_STUN			3.0f								// Stun
 #define HAMMER_REACH		2.0f								// Reach
 #define HAMMER_OFFSETS		XMFLOAT3( 1.5f, -0.70f, 1.3f )		// Offsets forward, right, up
-
+#define HAMMER_SLOWDOWN		0.5f								// How much is the player slowed down
 // Blowtorch
+
 #define BLOWTORCH_AR		0.05f								// Attack Rate
 #define BLOWTORCH_DAMAGE	6.0f								// Damage
 #define BLOWTORCH_RADIUS	4.0f								// Radius
@@ -97,8 +92,9 @@
 #define BLOWTORCH_STUN		0.0f								// Stun
 #define BLOWTORCH_REACH		1.0f								// Reach
 #define BLOWTORCH_OFFSETS	XMFLOAT3( -0.35f, -0.65f, 1.3f )	// Offsets forward, right, up
-
+#define BLOWTORCH_SLOWDOWN	0.01f								// How much is the player slowed down
 // Saw
+
 #define SAW_AR				1.5f								// Attack Rate
 #define SAW_DAMAGE			17.0f								// Damage
 #define SAW_RADIUS			2.8f								// Radius
@@ -107,17 +103,8 @@
 #define SAW_TTA				0.65f								// Time till Attack
 #define SAW_STUN			0.0f								// Stun
 #define SAW_REACH			1.3f								// Reach
-#define SAW_OFFSETS			XMFLOAT3( -0.15f, -0.45f, 1.3f )		// Offsets forward, right, up
-
-
-#define CLAYMORE_SLOWDOWN	0.1f	// How much is the player slowed down
-
-#define HAMMER_SLOWDOWN		0.5f	// How much is the player slowed down
-
-#define BLOWTORCH_SLOWDOWN	0.01f	// How much is the player slowed down
-
-#define SAW_SLOWDOWN		0.15f	// How much is the player slowed down
-
+#define SAW_OFFSETS			XMFLOAT3( -0.15f, -0.45f, 1.3f )	// Offsets forward, right, up
+#define SAW_SLOWDOWN		0.15f								// How much is the player slowed down
 
 //////////////////////////////////
 //		 TURRET WEAPON

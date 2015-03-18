@@ -48,6 +48,8 @@ class Player: public RemotePlayer
 		float		mWeaponCoolDown;
 		float		mMeleeCoolDown;
 		float		mTimeTillattack;
+		float		mDamageOffsetX;
+		float		mDamageOffsetZ;
 		bool		mIsMeleeing;
 		bool		mHasMeleeStarted;
 		bool		mLock;

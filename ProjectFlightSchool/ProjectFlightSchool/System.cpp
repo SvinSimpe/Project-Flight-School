@@ -152,7 +152,7 @@ HRESULT System::Initialize( HINSTANCE hInstance, int nCmdShow )
 	int dwStyle = ( WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX );
 
 	if( !( mHWnd = CreateWindow( L"Project-Flight-School",
-								L"Project-Flight-School",
+								L"General Utility And Repair Drone",
 								dwStyle,
 								CW_USEDEFAULT,
 								CW_USEDEFAULT,

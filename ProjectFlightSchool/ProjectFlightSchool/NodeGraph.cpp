@@ -6,10 +6,10 @@
 
 HRESULT Edge::Render()
 {
-	DirectX::XMFLOAT3 start = From->centerPoint;
-	DirectX::XMFLOAT3 end = To->centerPoint;
+	//DirectX::XMFLOAT3 start = From->centerPoint;
+	//DirectX::XMFLOAT3 end = To->centerPoint;
 
-	RenderManager::GetInstance()->AddLineToList( start, end );
+	//RenderManager::GetInstance()->AddLineToList( start, end );
 
 
 
@@ -194,13 +194,13 @@ HRESULT NodeGraph::Render()
 	//	it->Render();
 	//}
 
-	if( !mFinishedPath.empty() )
-	{
-		for( int i = 0; i < (int)mFinishedPath.size() - 1; i++ )
-		{
-			RenderManager::GetInstance()->AddLineToList( mFinishedPath[i]->centerPoint, mFinishedPath[i+1]->centerPoint );
-		}
-	}
+	//if( !mFinishedPath.empty() )
+	//{
+	//	for( int i = 0; i < (int)mFinishedPath.size() - 1; i++ )
+	//	{
+	//		RenderManager::GetInstance()->AddLineToList( mFinishedPath[i]->centerPoint, mFinishedPath[i+1]->centerPoint );
+	//	}
+	//}
 	return S_OK;
 }
 HRESULT NodeGraph::Initialize( Map* map )

@@ -16,9 +16,9 @@ void RenderManager::Clear()
 	mNrOfBillboard	= 0;
 	mNrOfParticles	= 0;
 	mNrOfNodeGrid	= 0;
-	mNrOfBoxes		= 0;
-	mNrOfLines		= 0;
-	mNrOfCircles	= 0;
+	//mNrOfBoxes		= 0;
+	//mNrOfLines		= 0;
+	//mNrOfCircles	= 0;
 }
 
 RenderManager::RenderManager()
@@ -59,21 +59,21 @@ void RenderManager::AddObject2dToList( AssetID assetId, DirectX::XMFLOAT2 topLef
 	mNrOfObject2d++;
 }
 
-void RenderManager::AddBoxToList( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, DirectX::XMFLOAT4X4 world )
-{
-	mBoxArray[mNrOfBoxes].min	= min;
-	mBoxArray[mNrOfBoxes].max	= max;
-	mBoxArray[mNrOfBoxes].world	= world;
-	mNrOfBoxes++;
-}
-
-void RenderManager::AddLineToList( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end )
-{
-	mLineArray[mNrOfLines].start	= start;
-	mLineArray[mNrOfLines].end		= end;
-
-	mNrOfLines++;
-}
+//void RenderManager::AddBoxToList( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, DirectX::XMFLOAT4X4 world )
+//{
+//	mBoxArray[mNrOfBoxes].min	= min;
+//	mBoxArray[mNrOfBoxes].max	= max;
+//	mBoxArray[mNrOfBoxes].world	= world;
+//	mNrOfBoxes++;
+//}
+//
+//void RenderManager::AddLineToList( DirectX::XMFLOAT3 start, DirectX::XMFLOAT3 end )
+//{
+//	mLineArray[mNrOfLines].start	= start;
+//	mLineArray[mNrOfLines].end		= end;
+//
+//	mNrOfLines++;
+//}
 
 bool RenderManager::AddAnim3dToList( AnimationTrack &animTrack, int playType, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 rotation )
 {
@@ -172,14 +172,14 @@ void RenderManager::AddNodeGridToList( StaticVertex* vertices, UINT nrOfVertices
 	mNrOfNodeGrid++;
 }
 
-void RenderManager::AddCircleToList( DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 color, float radius )
-{
-	mCircleArray[mNrOfCircles].center	= pos;
-	mCircleArray[mNrOfCircles].color	= color;
-	mCircleArray[mNrOfCircles].radius	= radius;
-
-	mNrOfCircles++;
-}
+//void RenderManager::AddCircleToList( DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 color, float radius )
+//{
+//	mCircleArray[mNrOfCircles].center	= pos;
+//	mCircleArray[mNrOfCircles].color	= color;
+//	mCircleArray[mNrOfCircles].radius	= radius;
+//
+//	mNrOfCircles++;
+//}
 
 void RenderManager::AnimationInitialize( AnimationTrack &animationTrack, AssetID model, AssetID defaultAnimation )
 {
@@ -284,11 +284,12 @@ HRESULT RenderManager::Render()
 		Graphics::GetInstance()->RenderPlane2dAsset( mPlaneArray[i].mAssetId, mPlaneArray[i].mTopTriangle, mPlaneArray[i].mBottomTriangle );
 	}
 
-	Graphics::GetInstance()->RenderDebugBox( mBoxArray, mNrOfBoxes );
+/*	Graphics::GetInstance()->RenderDebugBox( mBoxArray, mNrOfBoxes );
 
 	Graphics::GetInstance()->RenderLine( mLineArray, mNrOfLines );
 
-	Graphics::GetInstance()->RenderCircle( mCircleArray, mNrOfCircles );	
+	Graphics::GetInstance()->RenderCircle( mCircleArray, mNrOfCircles );*/
+
 	Graphics::GetInstance()->RenderAnimated3dAsset( mAnim3dArray, mNrOfAnim3d );
 
 	////------------------------Finished filling the Gbuffers----------------------

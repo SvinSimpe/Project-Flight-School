@@ -1088,15 +1088,16 @@ void Player::TakeDamage( float damage, unsigned int shooter )
 	//	damage -= moddedDmg;
 	//}
 	mCurrentHp -= ( damage * mUpgrades.damageTakenPercentage );
-	double i = 0, d = 0;
+	int i = 0;
+	float d = 0;
     i = rand() % 10 - 5;
-    d = i / 100;
+    d = (float)( i / 100 );
 	mDamageOffsetX = damage * d;
 
 	i = 0;
 	d = 0;
     i = rand() % 10 - 5;
-    d = i / 100;
+    d = (float)( i / 100 );
 	mDamageOffsetZ = damage * d;
 
 	if( mCurrentHp < 0.0f )

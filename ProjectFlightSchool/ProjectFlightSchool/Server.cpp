@@ -280,11 +280,7 @@ void Server::ClientMeleeHit( IEventPtr eventPtr )
 		auto& it = mClientMap.find(data->ID());
 		if( it != mClientMap.end() )
 		{
-			float damage = data->Damage();
-			float knockBack = data->KnockBack();
-			XMFLOAT3 dir = data->Direction();
-
-			IEventPtr E1( new Event_Remote_Melee_Hit( data->ID(), damage, knockBack, dir ) );
+			IEventPtr E1( new Event_Remote_Melee_Hit( data->ID(), data->Damage(), data->KnockBack(), data->Direction(), data->Attacker() ) );
 			BroadcastEvent( E1 );
 		}
 	}
@@ -831,9 +827,9 @@ void Server::OnSpawnEnergyCell( IEventPtr e )
 {
 	if( e->GetEventType() == Event_Spawn_Energy_Cell::GUID )
 	{
-		XMFLOAT3 cellPos = mCellPositionQueue.front();
-		mCellPositionQueue.pop();
-		mCellPositionQueue.push( cellPos );
+		XMFLOAT3 cellPos = mCellPositionList.front();
+		mCellPositionList.pop_front();
+		mCellPositionList.push_back( cellPos );
 		mEnergyCells[mCurrentCell]->Reset();
 		mEnergyCells[mCurrentCell]->SetPosition( cellPos );
 		mEnergyCells[mCurrentCell]->SetActive( true );
@@ -868,7 +864,7 @@ void Server::CreateEnergyCells()
 	//CalculateCellSpawnPositions( mShips.at(0)->GetPos() );
 	//CalculateCellSpawnPositions( mShips.at(1)->GetPos() );
 
-	CalculateCellPosition( XMFLOAT3( 0, 0, 0 ), 30, 60 );
+	CalculateCellPosition( XMFLOAT3( 0, 0, 0 ), 30, 176 );
 
 	//Energy cells
 	mEnergyCells = new EnergyCell*[MAX_ENERGY_CELLS];
@@ -902,7 +898,7 @@ void Server::CalculateCellPosition( XMFLOAT3 pos, float offSetX, float offSetZ )
 			int x = (int)halfX - ( rand() % (int)offSetX );
 			int z = (int)halfZ - ( rand() % (int)offSetZ );
 
-			energyCellPosition = XMFLOAT3( energyCellPosition.x + x, 0 , energyCellPosition.z + z );
+			energyCellPosition = XMFLOAT3( pos.x + x, 0 , pos.z + z );
 			placePos = Pathfinder::GetInstance()->GetRandomTriInMesh( energyCellPosition );
 
 			float distToShip1 = XMVectorGetX( XMVector3LengthSq( XMLoadFloat3( &placePos ) - XMLoadFloat3( &mShips[0]->GetPos() ) ) );
@@ -915,7 +911,7 @@ void Server::CalculateCellPosition( XMFLOAT3 pos, float offSetX, float offSetZ )
 		}
 		if( !( HelperFunctions::Float3Equal( placePos, DirectX::XMFLOAT3( 0, 0 ,0 ) ) ) )
 		{
-			mCellPositionQueue.push( placePos );
+			mCellPositionList.push_back( placePos );
 			placeCounter++;
 			tries = 0;
 		}
@@ -974,7 +970,7 @@ void Server::CalculateCellSpawnPositions( XMFLOAT3 shipPosition )
 
 		// Add to queue
 		energyCellPosition.y = 2.5f;
-		mCellPositionQueue.push( energyCellPosition );
+		mCellPositionList.push_back( energyCellPosition );
 
 		prevCellAngle = currCellAngle;
 		
@@ -1453,7 +1449,7 @@ Server::Server() : Network()
 	mNrOfProjectilesFired	= (UINT)-1;
 	mEnergyCells			= nullptr;
 	mStopAccept				= false;
-	mCellPositionQueue		= std::queue<XMFLOAT3>();
+	mCellPositionList		= std::list<XMFLOAT3>();
 	mMaxClients				= (UINT)-1;
 }
 

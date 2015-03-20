@@ -906,11 +906,11 @@ void PlayState::SetEnemyState( unsigned int id, EnemyState state )
 {
 	if( state == Death || state == Attack )
 	{
-		if( mEnemies[id]->GetEnemyType() == Boomer )
+		/*if( mEnemies[id]->GetEnemyType() == Boomer )
 		{
-			IEventPtr E1( new Event_Client_Request_ParticleSystem( id, (int)Explosion, XMFLOAT3( mEnemies[id]->GetPosition().x, 2.0f, mEnemies[id]->GetPosition().z ), XMFLOAT3( 0.0f, 1.0f, 0.0f ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) ) );
+			IEventPtr E1( new Event_Client_Request_ParticleSystem( id, (int)BoomerExplosion, XMFLOAT3( mEnemies[id]->GetPosition().x, 2.0f, mEnemies[id]->GetPosition().z ), XMFLOAT3( 1.0f, 1.0f, 1.0f ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) ) );
 			EventManager::GetInstance()->QueueEvent( E1 );
-		}
+		}*/
 
 		mEnemies[id]->SetLoopAnimation( false );
 		mEnemies[id]->SetIsAlive( false );

@@ -328,6 +328,8 @@ void Server::ClientDown( IEventPtr eventPtr )
 			mClientMap[data->ID()]->IsAlive = false;
 			IEventPtr E1( new Event_Remote_Down( data->ID() ) );
 			BroadcastEvent( E1, data->ID() );
+			IEventPtr E2( new Event_Remote_Log_Event( data->ID(), 2, -1  ) );
+			BroadcastEvent( E2 );
 		}
 
 		for ( size_t i = 0; i < MAX_NR_OF_PLAYERS; i++ )

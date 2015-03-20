@@ -183,10 +183,10 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 			mFollowPath = false;
 			mAcceleration.x = mMaxAcceleration;
 		}
-		if ( Input::GetInstance()->IsKeyDown(KEYS::KEYS_H) )
+	/*	if ( Input::GetInstance()->IsKeyDown(KEYS::KEYS_H) )
 		{
 			mLowerBody.position = XMFLOAT3( 0, 0, 0 );
-		}
+		}*/
 
 		//Normalize acceleration 
 		XMVECTOR normalizer = XMVector3Length( XMLoadFloat3( &mAcceleration ) );

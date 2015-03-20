@@ -325,9 +325,9 @@ void PlayState::BroadcastProjectileDamage( unsigned int playerID, unsigned int p
 	Client::GetInstance()->SendEvent( E1 );
 }
 
-void PlayState::BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction )
+void PlayState::BroadcastMeleeDamage( unsigned playerID, float damage, float knockBack, XMFLOAT3 direction, UINT attacker )
 {
-	IEventPtr E1( new Event_Client_Melee_Hit( playerID, damage, knockBack, direction ) );
+	IEventPtr E1( new Event_Client_Melee_Hit( playerID, damage, knockBack, direction, attacker ) );
 	Client::GetInstance()->SendEvent( E1 );
 }
 
@@ -670,7 +670,7 @@ void PlayState::CheckMeeleCollision()
 			{
 				DirectX::XMFLOAT3 direction = DirectX::XMFLOAT3( 0.0f, 0.0f, 0.0f );
 				XMStoreFloat3( &direction, XMVector4Normalize( XMLoadFloat3( &mPlayer->GetUpperBodyDirection() ) ) );
-				BroadcastMeleeDamage( mRemotePlayers.at(i)->GetID(), mPlayer->GetLoadOut()->meleeWeapon->damage, currWeapon->knockBack, direction );
+				BroadcastMeleeDamage( mRemotePlayers.at(i)->GetID(), mPlayer->GetLoadOut()->meleeWeapon->damage, currWeapon->knockBack, direction, mPlayer->GetID() );
 
 
 				XMFLOAT3 tempDir;

@@ -83,6 +83,12 @@ void BattleLog::Render()
 			mFirstUnitString	= mPlayerMap[current->mFirstUnitID].mName + " ";
 			first				= mTeams[mPlayerMap[current->mFirstUnitID].mTeamID].color;
 		}
+
+		else if( current->mSecondUnitID == -1 )
+		{
+			mSecondUnitString = "";
+		}
+
 		else
 		{
 			mFirstUnitString	= mTeams[0].teamName;
@@ -94,6 +100,12 @@ void BattleLog::Render()
 			mSecondUnitString	= mPlayerMap[current->mSecondUnitID].mName + " ";
 			second				= mTeams[mPlayerMap[current->mSecondUnitID].mTeamID].color;
 		}
+
+		else if( current->mSecondUnitID == -1 )
+		{
+			mSecondUnitString = "";
+		}
+
 		else
 		{
 			mSecondUnitString	= mTeams[0].teamName;
@@ -151,7 +163,7 @@ HRESULT BattleLog::Initialize()
 	//Define Actions---------
 	mActions[KILLED]			= "KILLED ";
 	mActions[REVIVED]			= "REVIVED ";
-	mActions[DOWNED]			= "DOWNED ";
+	mActions[DOWNED]			= " WAS DOWNED!";
 	mActions[CELL_PICKED_UP]	= "PICKED UP THE ";
 	mActions[DROPPED]			= "DROPPED THE ";
 	mActions[CAPTURED]			= "CAPTURED THE ";

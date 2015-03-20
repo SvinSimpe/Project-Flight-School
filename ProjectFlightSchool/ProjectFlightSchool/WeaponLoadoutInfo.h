@@ -28,15 +28,15 @@
 #define MINIGUN_SLOWDOWN	0.02f								// How much is the player slowed down
 // Shotgun
 #define SHOTGUN_AR			1.8f								// Attack Rate
-#define SHOTGUN_DAMAGE		16.0f								// Damage
+#define SHOTGUN_DAMAGE		14.0f								// Damage
 #define SHOTGUN_RANGE		0.23f								// Range
 #define SHOTGUN_SPREAD		6.1f								// Spread
 #define SHOTGUN_AOE			0.0f								// Area of effect
 #define SHOTGUN_SPEED		40.0f								// Projectile Speed 35
 #define SHOTGUN_OFFSETS		XMFLOAT3( 0.93f, 0.5f, 1.45f )		// Offsets forward, right, up
-#define SHOTGUN_SLOWDOWN	0.2f								// How much is the player slowed down
+#define SHOTGUN_SLOWDOWN	0.5f								// How much is the player slowed down
 // Grenade Launcher
-#define GL_AR				2.4f								// Attack Rate
+#define GL_AR				2.2f								// Attack Rate
 #define GL_DAMAGE			25.0f								// Damage
 #define GL_RANGE			25.0f								// Range
 #define GL_SPREAD			0.0f								// Spread

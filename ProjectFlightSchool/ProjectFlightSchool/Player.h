@@ -15,11 +15,12 @@
 #define MAX_PLAYER_LEVEL 16
 #define VELOCITY_FALLOFF 2.0f
 
-#define MAX_ROBOT_RANGE		40000.0f   //Squared distance here.
-#define LEAVING_AREA_TIME	10.0f
-#define WATER_DAMAGE_TIME	0.1f
-#define WATER_DAMAGE		1.0f
-#define MAX_OVERHEAT_VALUE	100.0f
+#define MAX_ROBOT_RANGE			40000.0f   //Squared distance here.
+#define LEAVING_AREA_TIME		10.0f
+#define WATER_DAMAGE_TIME		0.1f
+#define WATER_DAMAGE			1.0f
+#define MAX_OVERHEAT_VALUE		100.0f
+#define ARMOR_HP_REGEN_MAX_TIME	1.0f
 
 #define CAMERA_Y		20.0f
 #define CAMERA_Z		-8.0f
@@ -92,6 +93,7 @@ class Player: public RemotePlayer
 		int			mBlowTorch;
 
 		float		mDashCoolDown;
+		float		mArmorHpRegenTimer;
 
 		PowerBar	mBarFrame;
 		PowerBar	mStaminaBar;

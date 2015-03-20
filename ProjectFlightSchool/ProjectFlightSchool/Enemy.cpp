@@ -377,6 +377,11 @@ void Enemy::Die( UINT killer )
 {
 	// Send dieEv
 	ChangeBehavior( DEAD_BEHAVIOR );
+	if( mEnemyType == Boomer )
+	{
+		IEventPtr E1( new Event_Client_Request_ParticleSystem( mID, (int)BoomerExplosion, XMFLOAT3( mPosition.x, 2.0f, mPosition.z ), XMFLOAT3( 1.0f, 1.0f, 1.0f ), XMFLOAT3( 0.0f, 1.0f, 0.0f ) ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
+	}
 	if( killer != 0 )
 	{
 		IEventPtr E1( new Event_XP( killer, mXpDrop ) );

@@ -43,7 +43,7 @@ void Player::EventListener( IEventPtr newEvent )
 			direction.x *= data->KnockBack() * 4;
 			direction.z *= data->KnockBack() * 4;
 			AddImpuls( direction );
-			TakeDamage( data->Damage(), 0);
+			TakeDamage( data->Damage(), data->Attacker() );
 
 			for (size_t i = 0; i < 10; i++)
 			{

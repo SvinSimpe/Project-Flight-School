@@ -1639,6 +1639,7 @@ class Event_Client_Melee_Hit : public IEvent
 		float		mDamage;
 		float		mKnockBack;
 		XMFLOAT3	mDirection;
+		UINT		mAttacker;
 
 	protected:
 	public:
@@ -1653,13 +1654,15 @@ class Event_Client_Melee_Hit : public IEvent
 			mDamage		= -1.0f;
 			mKnockBack	= -1.0f;
 			mDirection	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mAttacker	= (UINT)-1;
 		}
-		Event_Client_Melee_Hit( UINT id, float damage, float knockBack, XMFLOAT3 direction )
+		Event_Client_Melee_Hit( UINT id, float damage, float knockBack, XMFLOAT3 direction, UINT attacker )
 		{
 			mID			= id;
 			mDamage		= damage;
 			mKnockBack	= knockBack;
 			mDirection	= direction;
+			mAttacker	= attacker;
 		}
 		~Event_Client_Melee_Hit() {}
 		const EventType& GetEventType() const
@@ -1675,6 +1678,8 @@ class Event_Client_Melee_Hit : public IEvent
 			out << mDirection.x << " ";
 			out << mDirection.y << " ";
 			out << mDirection.z << " ";
+
+			out << mAttacker	<< " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
@@ -1685,10 +1690,12 @@ class Event_Client_Melee_Hit : public IEvent
 			in >> mDirection.x;
 			in >> mDirection.y;
 			in >> mDirection.z;
+
+			in >> mAttacker;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Client_Melee_Hit( mID, mDamage, mKnockBack, mDirection ) );
+			return IEventPtr( new Event_Client_Melee_Hit( mID, mDamage, mKnockBack, mDirection, mAttacker ) );
 		}
 		UINT ID() const
 		{
@@ -1706,6 +1713,10 @@ class Event_Client_Melee_Hit : public IEvent
 		{
 			return mDirection;
 		}
+		UINT Attacker() const
+		{
+			return mAttacker;
+		}
 };
 
 // This event is sent by the server to the other clients to notify them that someone's been hit
@@ -1716,6 +1727,7 @@ class Event_Remote_Melee_Hit : public IEvent
 		float		mDamage;
 		float		mKnockBack;
 		XMFLOAT3	mDirection;
+		UINT		mAttacker;
 
 	protected:
 	public:
@@ -1730,13 +1742,15 @@ class Event_Remote_Melee_Hit : public IEvent
 			mDamage		= -1.0f;
 			mKnockBack	= -1.0f;
 			mDirection	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+			mAttacker	= (UINT)-1;
 		}
-		Event_Remote_Melee_Hit( UINT id, float damage, float knockBack, XMFLOAT3 direction )
+		Event_Remote_Melee_Hit( UINT id, float damage, float knockBack, XMFLOAT3 direction, UINT attacker )
 		{
 			mID			= id;
 			mDamage		= damage;
 			mKnockBack	= knockBack;
 			mDirection	= direction;
+			mAttacker	= attacker;
 		}
 		~Event_Remote_Melee_Hit() {}
 		const EventType& GetEventType() const
@@ -1752,6 +1766,8 @@ class Event_Remote_Melee_Hit : public IEvent
 			out << mDirection.x << " ";
 			out << mDirection.y << " ";
 			out << mDirection.z << " ";
+
+			out << mAttacker	<< " ";
 		}
 		void Deserialize( std::istringstream& in )
 		{
@@ -1762,10 +1778,12 @@ class Event_Remote_Melee_Hit : public IEvent
 			in >> mDirection.x;
 			in >> mDirection.y;
 			in >> mDirection.z;
+
+			in >> mAttacker;
 		}
 		IEventPtr Copy() const
 		{
-			return IEventPtr( new Event_Remote_Melee_Hit( mID, mDamage, mKnockBack, mDirection ) );
+			return IEventPtr( new Event_Client_Melee_Hit( mID, mDamage, mKnockBack, mDirection, mAttacker ) );
 		}
 		UINT ID() const
 		{
@@ -1782,6 +1800,10 @@ class Event_Remote_Melee_Hit : public IEvent
 		XMFLOAT3 Direction() const
 		{
 			return mDirection;
+		}
+		UINT Attacker() const
+		{
+			return mAttacker;
 		}
 };
 

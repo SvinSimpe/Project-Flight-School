@@ -69,7 +69,7 @@ class Server : public Network
 		float						mCellSpawnTimer;
 		float						mRespawnCellTimer;
 
-		std::queue<XMFLOAT3>		mCellPositionQueue;
+		std::list<XMFLOAT3>			mCellPositionList;
 		UINT						mMaxClients;
 
 	protected:

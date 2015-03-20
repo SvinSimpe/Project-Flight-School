@@ -43,7 +43,7 @@ void Player::EventListener( IEventPtr newEvent )
 			direction.x *= data->KnockBack() * 4;
 			direction.z *= data->KnockBack() * 4;
 			AddImpuls( direction );
-			TakeDamage( data->Damage(), 0);
+			TakeDamage( data->Damage(), data->Attacker() );
 
 			for (size_t i = 0; i < 10; i++)
 			{
@@ -1088,15 +1088,16 @@ void Player::TakeDamage( float damage, unsigned int shooter )
 	//	damage -= moddedDmg;
 	//}
 	mCurrentHp -= ( damage * mUpgrades.damageTakenPercentage );
-	double i = 0, d = 0;
+	int i = 0;
+	float d = 0;
     i = rand() % 10 - 5;
-    d = i / 100;
+    d = (float)( i / 100 );
 	mDamageOffsetX = damage * d;
 
 	i = 0;
 	d = 0;
     i = rand() % 10 - 5;
-    d = i / 100;
+    d = (float)( i / 100 );
 	mDamageOffsetZ = damage * d;
 
 	if( mCurrentHp < 0.0f )

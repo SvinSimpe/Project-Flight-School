@@ -293,7 +293,7 @@ struct RangedInfo
 					case 2:
 					{
 						attackRate		= 1.9f;
-						damage			= 27.0f;
+						damage			= 32.0f;
 						areaOfEffect	= 2.5f;
 					}
 						break;
@@ -301,7 +301,7 @@ struct RangedInfo
 					case 3:
 					{
 						attackRate		= 1.6f;
-						damage			= 31.0f;
+						damage			= 38.0f;
 						areaOfEffect	= 3.0f;
 					}
 						break;
@@ -309,7 +309,7 @@ struct RangedInfo
 					case 4:
 					{
 						attackRate		= 1.3f;
-						damage			= 36.0f;
+						damage			= 42.0f;
 						areaOfEffect	= 3.5f;
 					}
 						break;
@@ -317,7 +317,7 @@ struct RangedInfo
 					case 5:
 					{
 						attackRate		= 1.0f;
-						damage			= 38.0f;
+						damage			= 48.0f;
 						areaOfEffect	= 3.7f;
 					}
 						break;

@@ -37,13 +37,13 @@
 #define SHOTGUN_SLOWDOWN	0.4f								// How much is the player slowed down
 // Grenade Launcher
 #define GL_AR				2.2f								// Attack Rate
-#define GL_DAMAGE			25.0f								// Damage
+#define GL_DAMAGE			27.0f								// Damage
 #define GL_RANGE			25.0f								// Range
 #define GL_SPREAD			0.0f								// Spread
 #define GL_AOE				2.0f								// Area of effect
 #define GL_SPEED			20.0f								// Projectile Speed 10
 #define GL_OFFSETS			XMFLOAT3( 0.92f, 0.5f, 1.45f )		// Offsets forward, right, up
-#define GL_SLOWDOWN			0.5f								// How much is the player slowed down
+#define GL_SLOWDOWN			0.15f								// How much is the player slowed down
 // Sniper
 #define SNIPER_AR			3.0f								// Attack Rate
 #define SNIPER_DAMAGE		45.0f								// Damage

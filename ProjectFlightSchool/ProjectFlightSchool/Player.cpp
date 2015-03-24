@@ -1265,7 +1265,7 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	//	mPointLight->colorAndRadius = DirectX::XMFLOAT4( 0.8f, 0.8f, 0.8f, 10.0f );
 	//}
 
-	if ( !mLock )
+	if ( !mLock && !mFlyCamActive )
 	{
 		HandleInput( deltaTime, remotePlayers );
 		Move( deltaTime );
@@ -1458,26 +1458,101 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 		HandleDeath( deltaTime );
 	}
 
+	// God damn flycam
+	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_RCTRL ) )
+		mFlyCamActive = !mFlyCamActive;
+
+	XMStoreFloat3( &mFlyCamForward, XMVector3Normalize( XMLoadFloat3( &mFlyCamFocusPos ) - XMLoadFloat3( &mFlyCamEyePos ) ) );
+	XMStoreFloat3( &mFlyCamRight, XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), XMLoadFloat3( &mFlyCamFocusPos ) - XMLoadFloat3( &mFlyCamEyePos ) ) ) );
+
 	///Lock camera position to player
-	XMFLOAT3 cameraPosition;
-	cameraPosition.x = mLowerBody.position.x			+ mPlayerToCursor.x + mDamageOffsetX;
-	cameraPosition.y = mLowerBody.position.y + CAMERA_Y;
-	cameraPosition.z = mLowerBody.position.z + CAMERA_Z	+ mPlayerToCursor.z + mDamageOffsetZ;
+	if( !mFlyCamActive )
+	{
+		XMFLOAT3 cameraPosition;
+		cameraPosition.x = mLowerBody.position.x			+ mPlayerToCursor.x + mDamageOffsetX;
+		cameraPosition.y = mLowerBody.position.y + CAMERA_Y;
+		cameraPosition.z = mLowerBody.position.z + CAMERA_Z	+ mPlayerToCursor.z + mDamageOffsetZ;
 
-	Graphics::GetInstance()->SetEyePosition( CAMERAS_MAIN, cameraPosition );
+		Graphics::GetInstance()->SetEyePosition( CAMERAS_MAIN, cameraPosition );
 
-	cameraPosition.x = mLowerBody.position.x + mPlayerToCursor.x + mDamageOffsetX;
-	cameraPosition.y = mLowerBody.position.y;
-	cameraPosition.z = mLowerBody.position.z + mPlayerToCursor.z + mDamageOffsetZ;
+		cameraPosition.x = mLowerBody.position.x + mPlayerToCursor.x + mDamageOffsetX;
+		cameraPosition.y = mLowerBody.position.y;
+		cameraPosition.z = mLowerBody.position.z + mPlayerToCursor.z + mDamageOffsetZ;
 
-	Graphics::GetInstance()->SetFocus( CAMERAS_MAIN, cameraPosition );
+		Graphics::GetInstance()->SetFocus( CAMERAS_MAIN, cameraPosition );
 
-	//Shadow map camera
-	cameraPosition.y = mLowerBody.position.y + 30.0f;
-	cameraPosition.z = mLowerBody.position.z;
+		//Shadow map camera
+		cameraPosition.y = mLowerBody.position.y + 30.0f;
+		cameraPosition.z = mLowerBody.position.z;
 
-	Graphics::GetInstance()->SetEyePosition( CAMERAS_SHADOWMAP, cameraPosition );
-	Graphics::GetInstance()->SetFocus( CAMERAS_SHADOWMAP, mLowerBody.position );
+		Graphics::GetInstance()->SetEyePosition( CAMERAS_SHADOWMAP, cameraPosition );
+		Graphics::GetInstance()->SetFocus( CAMERAS_SHADOWMAP, mLowerBody.position );
+	}
+	else
+	{
+		float speed = 10.0f;
+		if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_W) && !Input::GetInstance()->IsKeyDown(KEYS::KEYS_S))
+		{
+			mFlyCamFocusPos.z	+= speed * deltaTime;
+			mFlyCamEyePos.z		+= speed * deltaTime;
+		}
+
+		if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_A) && !Input::GetInstance()->IsKeyDown(KEYS::KEYS_D))
+		{
+			mFlyCamFocusPos.x	-= speed * deltaTime;
+			mFlyCamEyePos.x		-= speed * deltaTime;
+		}
+
+		if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_S) && !Input::GetInstance()->IsKeyDown(KEYS::KEYS_W))
+		{
+			mFlyCamFocusPos.z	-= speed * deltaTime;
+			mFlyCamEyePos.z		-= speed * deltaTime;
+		}
+
+		if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_D) && !Input::GetInstance()->IsKeyDown(KEYS::KEYS_A))
+		{
+			mFlyCamFocusPos.x	+= speed * deltaTime;
+			mFlyCamEyePos.x		+= speed * deltaTime;
+		}
+
+		if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_UP) && !Input::GetInstance()->IsKeyDown(KEYS::KEYS_DOWN))
+		{
+			mFlyCamEyePos.x	+= speed * deltaTime * mFlyCamForward.x;
+			mFlyCamEyePos.y	+= speed * deltaTime * mFlyCamForward.y;
+			mFlyCamEyePos.z	+= speed * deltaTime * mFlyCamForward.z;
+		}
+		if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_DOWN) && !Input::GetInstance()->IsKeyDown(KEYS::KEYS_UP))
+		{
+			mFlyCamEyePos.x	-= speed * deltaTime * mFlyCamForward.x;
+			mFlyCamEyePos.y	-= speed * deltaTime * mFlyCamForward.y;
+			mFlyCamEyePos.z	-= speed * deltaTime * mFlyCamForward.z;
+		}
+
+		if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_RIGHT) && !Input::GetInstance()->IsKeyDown(KEYS::KEYS_LEFT))
+		{
+			mFlyCamEyePos.x	+= speed * deltaTime * mFlyCamRight.x;
+			mFlyCamEyePos.y	+= speed * deltaTime * mFlyCamRight.y;
+			mFlyCamEyePos.z	+= speed * deltaTime * mFlyCamRight.z;
+		}
+		if (Input::GetInstance()->IsKeyDown(KEYS::KEYS_LEFT) && !Input::GetInstance()->IsKeyDown(KEYS::KEYS_RIGHT))
+		{
+			mFlyCamEyePos.x	-= speed * deltaTime * mFlyCamRight.x;
+			mFlyCamEyePos.y	-= speed * deltaTime * mFlyCamRight.y;
+			mFlyCamEyePos.z	-= speed * deltaTime * mFlyCamRight.z;
+		}
+
+		Graphics::GetInstance()->SetEyePosition( CAMERAS_MAIN, mFlyCamEyePos );
+
+		Graphics::GetInstance()->SetFocus( CAMERAS_MAIN, mFlyCamFocusPos );
+
+		XMFLOAT3 rightVector;
+		//XMStoreFloat3( &rightVector, XMVector3Normalize( XMVector3Cross( XMLoadFloat3( &XMFLOAT3( 0.0f, 1.0f, 0.0f ) ), XMLoadFloat3( &cameraPosition ) - XMLoadFloat3( &mFlyCamPos ) ) ) );
+
+		XMFLOAT3 cameraPosition = mFlyCamFocusPos;
+		cameraPosition.y = 30.0f;
+		Graphics::GetInstance()->SetEyePosition( CAMERAS_SHADOWMAP, cameraPosition );
+		Graphics::GetInstance()->SetFocus( CAMERAS_SHADOWMAP, mFlyCamFocusPos );
+	}
 
 	//Update Bounding Primitives
 	mBoundingBox->position								= mLowerBody.position;
@@ -1497,7 +1572,10 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	mLoadOut->meleeWeapon->boundingCircle->center = XMFLOAT3( corrPos.x, 0.0f, corrPos.z );
 
 	//Update Light
-	mPointLight->positionAndIntensity = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 1.0f, mLowerBody.position.z, 1.0f );
+	if( mFlyCamActive )
+		mPointLight->positionAndIntensity = DirectX::XMFLOAT4( mFlyCamFocusPos.x, mFlyCamFocusPos.y + 1.0f, mFlyCamFocusPos.z, 1.0f );
+	else
+		mPointLight->positionAndIntensity = DirectX::XMFLOAT4( mLowerBody.position.x, mLowerBody.position.y + 1.0f, mLowerBody.position.z, 1.0f );
 
 	//== Event to sync player with server ==
 
@@ -1557,7 +1635,7 @@ HRESULT Player::Render( float deltaTime, int position )
 	}
 	else
 	{
-		if( mIsBuffed && !mLock )
+		/*if( mIsBuffed && !mLock )
 		{
 			std::stringstream out;
 			out.precision( 2 );
@@ -1569,7 +1647,7 @@ HRESULT Player::Render( float deltaTime, int position )
 				(float)( Input::GetInstance()->mScreenHeight * 0.95f ), 
 				2.5f, 
 				COLOR_CYAN );
-		}
+		}*/
 	}
 
 	if( mIsOutSideZone )
@@ -1904,6 +1982,12 @@ Player::Player()
 
 	mCameraPosition	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
 	mPlayerToCursor = XMFLOAT3( 0.0f, 0.0f, 0.0f );
+
+	mFlyCamActive	= false;
+	mFlyCamFocusPos	= XMFLOAT3( 0.0f, 0.0f, 0.0f );
+	mFlyCamEyePos	= XMFLOAT3( 0.0f, 5.0f, -5.0f );
+	XMStoreFloat3( &mFlyCamForward, XMVector3Normalize( XMLoadFloat3( &XMFLOAT3( 0.0f, -1.0f, 1.0f ) ) ) );
+	mFlyCamRight	= XMFLOAT3( 1.0f, 0.0f, 0.0f );
 }
 
 Player::~Player()
@@ -1919,6 +2003,11 @@ bool Player::GetIsMeleeing() const
 XMFLOAT3 Player::GetPlayerPosition() const
 {
 	return mLowerBody.position;
+}
+
+XMFLOAT3 Player::GetCullPosition() const
+{
+	return mFlyCamActive ? mFlyCamFocusPos : mLowerBody.position;
 }
 
 XMFLOAT3 Player::GetUpperBodyDirection() const

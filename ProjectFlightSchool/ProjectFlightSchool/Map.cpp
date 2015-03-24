@@ -11,8 +11,8 @@ HRESULT Map::Render( float deltaTime, Player* player )
 		mEnvironmentTimer-= 6.283f;
 
 	std::vector<MapNodeInstance*> mapNodes;
-	int playerPosX = (int)player->GetPosition().x;
-	int playerPosY = (int)player->GetPosition().z;
+	int playerPosX = (int)player->GetCullPosition().x;
+	int playerPosY = (int)player->GetCullPosition().z;
 
 	int playerX = ( ( (int)GetMapHalfWidth() * NODE_DIM ) + playerPosX ) / NODE_DIM;
 	int playerZ = ( ( (int)GetMapHalfHeight() * NODE_DIM ) + playerPosY ) / NODE_DIM;

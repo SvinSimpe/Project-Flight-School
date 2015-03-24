@@ -2354,7 +2354,7 @@ HRESULT Graphics::Initialize( HWND hWnd, UINT screenWidth, UINT screenHeight, bo
 	cameraInfo.height		= (float)screenHeight;
 	cameraInfo.foVY			= 3.14159265f * 0.25f;
 	cameraInfo.nearZ		= 2.1f;
-	cameraInfo.farZ			= 40.0f;
+	cameraInfo.farZ			= 80.0f;
 
 	if( FAILED( hr = mCamera[CAMERAS_MAIN]->Initialize( &cameraInfo ) ) )
 		return hr;

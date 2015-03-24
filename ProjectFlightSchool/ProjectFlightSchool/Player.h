@@ -103,6 +103,12 @@ class Player: public RemotePlayer
 		XMFLOAT3	mCameraPosition;
 		XMFLOAT3	mPlayerToCursor;
 
+		bool		mFlyCamActive;
+		XMFLOAT3	mFlyCamFocusPos;
+		XMFLOAT3	mFlyCamEyePos;
+		XMFLOAT3	mFlyCamRight;
+		XMFLOAT3	mFlyCamForward;
+
 
 	protected:
 	public:
@@ -170,6 +176,7 @@ class Player: public RemotePlayer
 		//GetSet
 		bool		GetIsMeleeing()	const;
 		XMFLOAT3	GetPlayerPosition() const;
+		XMFLOAT3	GetCullPosition() const;
 		XMFLOAT3	GetUpperBodyDirection() const;
 
 		float		GetXPToNext() const;

@@ -102,9 +102,9 @@ float4 PS_main( VS_Out input ) : SV_TARGET0
 		{
 			float2  samplePos = input.uv + float2( x * deltaX, y * deltaY );
 
-			albedoSample	+= albedoSpecBuffer.Sample( pointSampler, samplePos ).xyz;
-			specularSample	+= albedoSpecBuffer.Sample( pointSampler, samplePos ).w;
-			normalSample	+= normalBuffer.Sample( pointSampler, samplePos ).xyz;
+			albedoSample	+= albedoSpecBuffer.Sample( pointSampler, input.uv ).xyz;
+			specularSample	+= albedoSpecBuffer.Sample( pointSampler, input.uv ).w;
+			normalSample	+= normalBuffer.Sample( pointSampler, input.uv ).xyz;
 		}
 
 	albedoSample	/= 16.0f;

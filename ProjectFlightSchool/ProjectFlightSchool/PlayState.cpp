@@ -927,7 +927,7 @@ void PlayState::SetEnemyState( unsigned int id, EnemyState state )
 
 bool PlayState::CullEntity( XMFLOAT3 entityPos )
 {
-	return HelperFunctions::Dist3Squared( mPlayer->GetPosition(), entityPos  ) <= ENTITY_CULLDISTANCE;
+	return HelperFunctions::Dist3Squared( mPlayer->GetCullPosition(), entityPos  ) <= ENTITY_CULLDISTANCE;
 }
 
 void PlayState::WriteInteractionText( std::string text, float xPos, float yPos, float scale, XMFLOAT4 color )
@@ -1233,7 +1233,7 @@ HRESULT PlayState::Render( float deltaTime )
 		RenderManager::GetInstance()->AddObject3dToList( mSpawnModel, mSpawners[i] );
 	}*/
 
-	mGui->Render();
+	//mGui->Render();
 
 	for( int i = 1; i < MAX_ENERGY_CELLS; i++ )
 	{
@@ -1243,7 +1243,7 @@ HRESULT PlayState::Render( float deltaTime )
 		}
 	}
 
-	mBattleLog->Render();
+	//mBattleLog->Render();
 	////RENDER DEVTEXT
 	//std::string textToWrite = "FPS\t" + std::to_string( (int)mFPS ) + "\nRemotePlayers\t" + std::to_string( mRemotePlayers.size() ) + "\nActiveProjectiles\t" + std::to_string( mNrOfActiveProjectiles );
 	//mFont.WriteText( textToWrite, 40.0f, 200.0f, 2.0f );

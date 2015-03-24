@@ -51,9 +51,11 @@ bool HelperFunctions::Float2Equal( DirectX::XMFLOAT2 p1, DirectX::XMFLOAT2 p2 )
 	return Dist2Squared( p1, p2 ) < 0.01f;
 }
 
+// two external variables that were used for time measurements
 double HelperFunctions::PCFreq = 0.0;
 __int64 HelperFunctions::CounterStart = 0;
 
+// Starts the time counter, if there's already a counter running, it'll be reset to zero
 void HelperFunctions::StartCounter()
 {
 	LARGE_INTEGER li;
@@ -66,6 +68,7 @@ void HelperFunctions::StartCounter()
 	CounterStart = li.QuadPart;
 }
 
+// Returns the current value of the counter
 double HelperFunctions::GetCounter()
 {
 	LARGE_INTEGER li;
@@ -73,6 +76,7 @@ double HelperFunctions::GetCounter()
 	return (double)( li.QuadPart - CounterStart ) / PCFreq;
 }
 
+// Prints the current value of the counter to the debug window
 void HelperFunctions::PrintCounter( std::string text )
 {
 	std::ostringstream ss;

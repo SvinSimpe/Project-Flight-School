@@ -21,6 +21,7 @@ BattleLog::~BattleLog()
 void BattleLog::SetUpPlayers( Player* player, std::vector<RemotePlayer*>& remotePlayers )
 {
 	mPlayerMap[player->GetID()] = PlayerInfo( player->GetName(), player->GetTeam() );
+	mPlayer = player;
 	
 	for( auto it : remotePlayers )
 	{
@@ -81,7 +82,7 @@ void BattleLog::Render()
 		if( mPlayerMap.count( current->mFirstUnitID ) == 1 )
 		{
 			mFirstUnitString	= mPlayerMap[current->mFirstUnitID].mName + " ";
-			first				= mTeams[mPlayerMap[current->mFirstUnitID].mTeamID].color;
+			first				= mTeams[1].color;
 		}
 
 		else if( current->mSecondUnitID == -1 )
@@ -98,7 +99,7 @@ void BattleLog::Render()
 		if( mPlayerMap.count( current->mSecondUnitID ) == 1 )
 		{
 			mSecondUnitString	= mPlayerMap[current->mSecondUnitID].mName + " ";
-			second				= mTeams[mPlayerMap[current->mSecondUnitID].mTeamID].color;
+			second				= mTeams[2].color;
 		}
 
 		else if( current->mSecondUnitID == -1 )
@@ -133,8 +134,16 @@ void BattleLog::Render()
 		}
 		else
 		{
-			mFirstUnitString	= mTeams[current->mTeamID].teamName;
-			first				= mTeams[current->mTeamID].color;
+			if( current->mTeamID == mPlayer->GetTeam() )
+			{
+				mFirstUnitString	= mTeams[1].teamName;
+				first				= mTeams[1].color;
+			}
+			else
+			{
+				mFirstUnitString	= mTeams[2].teamName;
+				first				= mTeams[2].color;
+			}
 			mActionString		= mActions[current->mActionID];
 			mSecondUnitString	= mObjects[current->mGoalID];
 			second				= mCyanBlue;
@@ -177,13 +186,17 @@ HRESULT BattleLog::Initialize()
 	//mTeams[0].color		= XMFLOAT3( 0.0f, 0.102f, 0.0f );
 	mTeams[0].color		= XMFLOAT3( 0.0f, 0.4f, 0.0f );
 
-	mTeams[1].teamName	= "YELLOW TEAM ";
+	mTeams[1].teamName	= "YOUR TEAM ";
 	//mTeams[1].color		= XMFLOAT3( 0.214f, 0.167f, 0.240f );
-	mTeams[1].color		= XMFLOAT3( 1.0f, 0.94f, 0.12f );
+	mTeams[1].color		= XMFLOAT3( COLOR_CYAN.x, COLOR_CYAN.y, COLOR_CYAN.z );
+	//mTeams[1].color		= XMFLOAT3( 1.0f, 0.94f, 0.12f );
 
-	mTeams[2].teamName	= "RED TEAM ";
+	//MY TEAM 1, ENMEMY TEAM 2
+
+	mTeams[2].teamName	= "ENEMY TEAM ";
 	//mTeams[2].color		= XMFLOAT3( 0.204f, 0.0f, 0.0f );
-	mTeams[2].color		= XMFLOAT3( 0.8f, 0.0f, 0.0f );
+	//mTeams[2].color		= XMFLOAT3( 0.8f, 0.0f, 0.0f );
+	mTeams[2].color		= XMFLOAT3( COLOR_RED.x, COLOR_RED.y, COLOR_RED.z );
 
 	EventManager::GetInstance()->AddListener( &BattleLog::OnHeadlineEvent, this, Event_Server_Headline_Event::GUID );
 	EventManager::GetInstance()->AddListener( &BattleLog::OnPlayerActionEvent, this, Event_Remote_Log_Event::GUID );

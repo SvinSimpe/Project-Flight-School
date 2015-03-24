@@ -84,6 +84,8 @@ class BattleLog
 
 		std::string mMeasureString;
 
+		Player* mPlayer;
+
 	protected:
 	public:
 	

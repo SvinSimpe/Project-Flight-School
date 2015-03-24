@@ -43,10 +43,10 @@ enum Buffers
 	BUFFERS_SINGLE_VERTEX,
 	BUFFERS_PARTICLE,
 	BUFFERS_SINGLE_STATIC_VERTEX,
-	BUFFERS_CIRCLE_VERTEX,
+	//BUFFERS_CIRCLE_VERTEX,
 
-	BUFFERS_DEBUG_BOX,
-	BUFFERS_DEBUG_BOX_INDICES,
+	//BUFFERS_DEBUG_BOX,
+	//BUFFERS_DEBUG_BOX_INDICES,
 	//New buffers added above this comment
 	BUFFERS_AMOUNT
 };
@@ -109,8 +109,8 @@ enum Effects
 	EFFECTS_BILLBOARD,
 	EFFECTS_NODEGRID,
 
-	EFFECTS_DEBUG_BOX,
-	EFFECTS_CIRCLE,
+	//EFFECTS_DEBUG_BOX,
+	//EFFECTS_CIRCLE,
 	//New effects added above this comment
 	EFFECTS_AMOUNT
 };
@@ -141,7 +141,7 @@ enum Cameras
 #define MAX_BILLBOARD_BATCH			5000 // Used to be 1024
 #define MAX_PARTICLE_BATCH			5000
 #define MAX_SINGLE_STATIC_VERTICES	20000
-#define MAX_CIRCLE_POINTS			1000
+//#define MAX_CIRCLE_POINTS			1000
 
 #define SHADOW_MAP_WIDTH	1024
 #define SHADOW_MAP_HEIGHT	1024
@@ -225,10 +225,10 @@ class LIBRARY_EXPORT Graphics
 		void RenderBillboard		( BillboardInfo* info, UINT sizeOfList );
 		void RenderParticleSystems	( ParticleInfo* info, UINT sizeOfList );
 		void RenderNodeGrid			( NodeGridInfo* info, UINT sizeOfList );
-		void RenderDebugBox			( BoxInfo* info, UINT sizeOfList );
-		void RenderDebugBox			( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, DirectX::XMFLOAT4X4 world );
-		void RenderLine				( LineInfo* info, UINT sizeOfList );
-		void RenderCircle			( CircleInfo* info, UINT sizeOfList );
+		//void RenderDebugBox			( BoxInfo* info, UINT sizeOfList );
+		//void RenderDebugBox			( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, DirectX::XMFLOAT4X4 world );
+		//void RenderLine				( LineInfo* info, UINT sizeOfList );
+		//void RenderCircle			( CircleInfo* info, UINT sizeOfList );
 
 		DirectX::XMFLOAT4X4	GetRootMatrix( AnimationTrack animTrack );
 		bool				GetAnimationMatrices( AnimationTrack &animTrack, int playType, Anim3dInfo &info );

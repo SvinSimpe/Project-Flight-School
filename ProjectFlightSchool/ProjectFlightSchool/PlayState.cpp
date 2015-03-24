@@ -697,47 +697,47 @@ void PlayState::CheckMeeleCollision()
 
 void PlayState::HandleDeveloperCameraInput()
 {
-	// TOGGLE CAM
-	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_RCTRL ) )
-		Graphics::GetInstance()->ChangeCamera();
-	// ZOOM IN
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_DOWN ) )
-		Graphics::GetInstance()->ZoomOutDeveloperCamera();
-	// ZOOM OUT
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_UP) )
-		Graphics::GetInstance()->ZoomInDeveloperCamera();
+	//// TOGGLE CAM
+	//if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_RCTRL ) )
+	//	Graphics::GetInstance()->ChangeCamera();
+	//// ZOOM IN
+	//if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_DOWN ) )
+	//	Graphics::GetInstance()->ZoomOutDeveloperCamera();
+	//// ZOOM OUT
+	//if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_UP) )
+	//	Graphics::GetInstance()->ZoomInDeveloperCamera();
 
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_O ) )
-	{
-		mPlayer->AddXP( 3000.0f );
-		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
-		{
-			UINT winTeam = 1;
-			bool hasGnidleif = false;
-			if( !std::strcmp( mPlayer->GetName().c_str(), "gnidleif" ) )
-			{
-				winTeam = mPlayer->GetTeam();
-				hasGnidleif = true;
-			}
-			else
-			{
-				for( auto& p : mRemotePlayers )
-				{
-					if( !std::strcmp( p->GetName().c_str(), "gnidleif" ) )
-					{
-						winTeam = p->GetTeam();
-						hasGnidleif = true;
-					}
-				}
-			}
-			if( !hasGnidleif )
-			{
-				winTeam = mPlayer->GetTeam();
-			}
-			IEventPtr E1( new Event_Client_Win( winTeam ) );
-			Client::GetInstance()->SendEvent( E1 );
-		}
-	}
+	//if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_O ) )
+	//{
+	//	mPlayer->AddXP( 3000.0f );
+	//	if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
+	//	{
+	//		UINT winTeam = 1;
+	//		bool hasGnidleif = false;
+	//		if( !std::strcmp( mPlayer->GetName().c_str(), "gnidleif" ) )
+	//		{
+	//			winTeam = mPlayer->GetTeam();
+	//			hasGnidleif = true;
+	//		}
+	//		else
+	//		{
+	//			for( auto& p : mRemotePlayers )
+	//			{
+	//				if( !std::strcmp( p->GetName().c_str(), "gnidleif" ) )
+	//				{
+	//					winTeam = p->GetTeam();
+	//					hasGnidleif = true;
+	//				}
+	//			}
+	//		}
+	//		if( !hasGnidleif )
+	//		{
+	//			winTeam = mPlayer->GetTeam();
+	//		}
+	//		IEventPtr E1( new Event_Client_Win( winTeam ) );
+	//		Client::GetInstance()->SendEvent( E1 );
+	//	}
+	//}
 	if( Input::GetInstance()->IsKeyPressed( KEYS::KEYS_E ) )
 	{
 		if( mShips[FRIEND_SHIP]->Intersect( mPlayer->GetBoundingCircle() ) )
@@ -783,17 +783,17 @@ void PlayState::HandleDeveloperCameraInput()
 	//{
 	//	mPlayer->Ding();
 	//}
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_1 ) )
-	{
-		RenderManager::GetInstance()->ChangeRasterizerState( CULL_NONE );
+	//if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_1 ) )
+	//{
+	//	RenderManager::GetInstance()->ChangeRasterizerState( CULL_NONE );
 
-		IEventPtr E1( new Event_Client_Change_Ship_Levels( mShips[FRIEND_SHIP]->GetID(), 0, -1, 0, 0 ) );
-		Client::GetInstance()->SendEvent( E1 );
-	}
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_2 ) )
-		RenderManager::GetInstance()->ChangeRasterizerState( CULL_BACK );
-	if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_3 ) )
-		RenderManager::GetInstance()->ChangeRasterizerState( WIREFRAME );
+	//	IEventPtr E1( new Event_Client_Change_Ship_Levels( mShips[FRIEND_SHIP]->GetID(), 0, -1, 0, 0 ) );
+	//	Client::GetInstance()->SendEvent( E1 );
+	//}
+	//if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_2 ) )
+	//	RenderManager::GetInstance()->ChangeRasterizerState( CULL_BACK );
+	//if( Input::GetInstance()->IsKeyDown( KEYS::KEYS_3 ) )
+	//	RenderManager::GetInstance()->ChangeRasterizerState( WIREFRAME );
 }
 
 void PlayState::HandleRemoteProjectileHit( unsigned int id, unsigned int projectileID )

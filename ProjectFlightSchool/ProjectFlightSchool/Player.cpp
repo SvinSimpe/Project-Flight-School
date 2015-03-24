@@ -183,10 +183,10 @@ void Player::HandleInput( float deltaTime, std::vector<RemotePlayer*> remotePlay
 			mFollowPath = false;
 			mAcceleration.x = mMaxAcceleration;
 		}
-		if ( Input::GetInstance()->IsKeyDown(KEYS::KEYS_H) )
+	/*	if ( Input::GetInstance()->IsKeyDown(KEYS::KEYS_H) )
 		{
 			mLowerBody.position = XMFLOAT3( 0, 0, 0 );
-		}
+		}*/
 
 		//Normalize acceleration 
 		XMVECTOR normalizer = XMVector3Length( XMLoadFloat3( &mAcceleration ) );
@@ -1504,6 +1504,21 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 	IEventPtr E1( new Event_Trigger_Client_Update( mID, mLowerBody.position, mVelocity, mUpperBody.direction, mPlayerName, mIsBuffed, mIsAlive ) );
 	EventManager::GetInstance()->QueueEvent( E1 );
 
+	if( mCurrentHp < mMaxHp && mCurrentHp != 0.0f )
+	{
+		mArmorHpRegenTimer -= deltaTime;
+		if( mArmorHpRegenTimer <= 0.0f )
+		{
+			mCurrentHp += (float)mUpgrades.currentBodyLevel * 0.2f;
+			if( mCurrentHp > mMaxHp )
+				mCurrentHp = mMaxHp;
+
+			mArmorHpRegenTimer += ARMOR_HP_REGEN_MAX_TIME;
+
+			IEventPtr E2( new Event_Client_Update_HP( mID, mCurrentHp ) );
+			EventManager::GetInstance()->QueueEvent( E1 );
+		}
+	}
 
 	if( mIsBuffed && mCurrentHp < mMaxHp && mCurrentHp != 0.0f )
 	{
@@ -1518,6 +1533,9 @@ HRESULT Player::Update( float deltaTime, std::vector<RemotePlayer*> remotePlayer
 
 			mLifeRegenerationTimer	= mLifeRegenerationMaxTimer;
 		}
+
+		IEventPtr E2( new Event_Client_Update_HP( mID, mCurrentHp ) );
+		EventManager::GetInstance()->QueueEvent( E1 );
 	}
 	else
 		mLifeRegenerationTimer = mLifeRegenerationMaxTimer;
@@ -1746,6 +1764,7 @@ HRESULT Player::Initialize()
 	mBufflevel				= 0;
 
 	mDashCoolDown			= 0.0f;
+	mArmorHpRegenTimer		= 0.0f;
 
 	mNextLevelXP		= 20.0f;
 	mCurrentUpgrades	= 0;
@@ -1874,6 +1893,7 @@ Player::Player()
 	mLastKiller			= 0;
 
 	mDashCoolDown		= 0.0f;
+	mArmorHpRegenTimer	= 0.0f;
 
 	gEventList			= std::list<IEventPtr>();
 

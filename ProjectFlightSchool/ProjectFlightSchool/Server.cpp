@@ -1114,10 +1114,14 @@ void Server::Update( float deltaTime )
 			{
 				if( s->mTeamID == c->TeamID )
 				{
-					shipBuff = s->mBuffCircle->Intersect( &c->Pos );
-					if( shipBuff != c->IsBuffed )
+					if( s->mBuffCircle->Intersect( &c->Pos ) )
 					{
-						IEventPtr BuffEvent( new Event_Server_Change_Buff_State( c->ID, shipBuff, s->mBuffMod ) );
+						IEventPtr BuffEvent( new Event_Server_Change_Buff_State( c->ID, true, s->mBuffMod ) );
+						BroadcastEvent( BuffEvent );
+					}
+					else
+					{
+						IEventPtr BuffEvent( new Event_Server_Change_Buff_State( c->ID, false, s->mBuffMod ) );
 						BroadcastEvent( BuffEvent );
 					}
 				}

@@ -50,7 +50,7 @@ class Enemy;
 //----------------------------------------
 
 #define ENEMY_PROJECTILE_ID						1985
-#define ENEMY_PROJECTILE_SPEED					4
+#define ENEMY_PROJECTILE_SPEED					16.0f
 #define ENEMY_PROJECTILE_RANGE					1.0f
 #define ENEMY_PROJECTILE_DAMAGE					6
 

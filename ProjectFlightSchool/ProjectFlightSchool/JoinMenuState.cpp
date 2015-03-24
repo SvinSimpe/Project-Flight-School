@@ -18,17 +18,6 @@ void JoinMenuState::HandleInput()
 		IEventPtr E2( new Event_Create_Player_Name( mNameBox.GetText() ) );
 		EventManager::GetInstance()->QueueEvent( E2 );
 	}
-	else if( mButtons.at(MIKAEL)->LeftMousePressed() )
-	{
-		std::string ip		= "192.168.1.88";
-		std::string port	= mPortBox.GetText();
-
-		IEventPtr E1( new Event_Start_Client( ip, port ) );
-		EventManager::GetInstance()->QueueEvent( E1 );
-
-		IEventPtr E2( new Event_Create_Player_Name( mNameBox.GetText() ) );
-		EventManager::GetInstance()->QueueEvent( E2 );
-	}
 	else if( mIPBox.LeftMousePressed() )
 	{
 		mIPBox.SwitchActive( true );
@@ -113,13 +102,6 @@ HRESULT JoinMenuState::Initialize()
 
 	mButtons.push_back( new MovingButton() );
 	mButtons.at(BACK)->Initialize( "../Content/Assets/Textures/Menu/Join_Menu_Text/textBack.dds", x - w * 0.5f, y - h * 0.5f, w, h );
-
-	////// MIKAEL JOINBUTTON
-	x -= (float)Input::GetInstance()->mScreenWidth * 0.1f;
-	y -= (float)Input::GetInstance()->mScreenHeight * 0.2f;
-
-	mButtons.push_back( new MovingButton() );
-	mButtons.at(MIKAEL)->Initialize( "../Content/Assets/Textures/Menu/Judas.png", x - w * 0.5f, y - h * 0.5f, w, h ); 
 
 	x = (float)Input::GetInstance()->mScreenWidth  * 0.2f;
 	y = (float)Input::GetInstance()->mScreenHeight * 0.9f;

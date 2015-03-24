@@ -363,6 +363,8 @@ HRESULT AttackBehavior::Update( float deltaTime )
 						mEnemy->mDirection.z = mEnemy->mPlayers[mEnemy->mTargetIndex]->Pos.z - mEnemy->GetPosition().z;
 						mEnemy->mDirection.y = 0.0f;
 
+						XMStoreFloat3( &direction, XMVector3Normalize( XMLoadFloat3( &direction ) ) );
+
 						/*XMVECTOR position	= XMLoadFloat3( &mEnemy->mPosition );
 						XMVECTOR direction	= XMLoadFloat3( &mEnemy->mDirection );
 
@@ -410,6 +412,8 @@ HRESULT AttackBehavior::Update( float deltaTime )
 					direction.x = mEnemy->mShips[mEnemy->mTargetShipIndex]->GetPos().x - mEnemy->GetPosition().x;
 					direction.z = mEnemy->mShips[mEnemy->mTargetShipIndex]->GetPos().z - mEnemy->GetPosition().z;
 					direction.y = 0.0f;
+
+					XMStoreFloat3( &direction, XMVector3Normalize( XMLoadFloat3( &direction ) ) );
 
 					mEnemy->mDirection.x = mEnemy->mShips[mEnemy->mTargetShipIndex]->GetPos().x - mEnemy->GetPosition().x;
 					mEnemy->mDirection.z = mEnemy->mShips[mEnemy->mTargetShipIndex]->GetPos().z - mEnemy->GetPosition().z;

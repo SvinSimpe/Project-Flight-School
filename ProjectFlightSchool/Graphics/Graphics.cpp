@@ -239,14 +239,14 @@ HRESULT Graphics::InitializeBuffers()
 		return hr;
 
 	//Buffer used for circle drawing
-	ZeroMemory( &bufferInstancedDesc, sizeof( bufferInstancedDesc ) );
-	bufferInstancedDesc.BindFlags		= D3D11_BIND_VERTEX_BUFFER;
-	bufferInstancedDesc.CPUAccessFlags	= D3D11_CPU_ACCESS_WRITE;
-	bufferInstancedDesc.Usage			= D3D11_USAGE_DYNAMIC;
-	bufferInstancedDesc.ByteWidth		= sizeof( CircleVertex ) * MAX_CIRCLE_POINTS;
+	//ZeroMemory( &bufferInstancedDesc, sizeof( bufferInstancedDesc ) );
+	//bufferInstancedDesc.BindFlags		= D3D11_BIND_VERTEX_BUFFER;
+	//bufferInstancedDesc.CPUAccessFlags	= D3D11_CPU_ACCESS_WRITE;
+	//bufferInstancedDesc.Usage			= D3D11_USAGE_DYNAMIC;
+	//bufferInstancedDesc.ByteWidth		= sizeof( CircleVertex ) * MAX_CIRCLE_POINTS;
 
-	if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, nullptr, &mBuffers[BUFFERS_CIRCLE_VERTEX] ) ) )
-		return hr;
+	//if( FAILED( hr = mDevice->CreateBuffer( &bufferInstancedDesc, nullptr, &mBuffers[BUFFERS_CIRCLE_VERTEX] ) ) )
+	//	return hr;
 
 	//Light buffer for structured buffer
 	D3D11_BUFFER_DESC lightBufferDesc;
@@ -301,45 +301,46 @@ HRESULT Graphics::InitializeBuffers()
 		{ -0.5,  0.5,  0.5,		0.0f, 0.0f, -1.0f,	0.0f, 0.0f, 0.0f,	0.0f, 1.0f },
 	};
 
-	D3D11_BUFFER_DESC debugBoxBuffer;
-	ZeroMemory( &debugBoxBuffer, sizeof(debugBoxBuffer) );
-	debugBoxBuffer.BindFlags		= D3D11_BIND_VERTEX_BUFFER;
-	debugBoxBuffer.ByteWidth		= sizeof(StaticVertex) * 8;
-	debugBoxBuffer.Usage			= D3D11_USAGE_IMMUTABLE;
+	//D3D11_BUFFER_DESC debugBoxBuffer;
+	//ZeroMemory( &debugBoxBuffer, sizeof(debugBoxBuffer) );
+	//debugBoxBuffer.BindFlags		= D3D11_BIND_VERTEX_BUFFER;
+	//debugBoxBuffer.ByteWidth		= sizeof(StaticVertex) * 8;
+	//debugBoxBuffer.Usage			= D3D11_USAGE_IMMUTABLE;
 
-	D3D11_SUBRESOURCE_DATA subData;
-	subData.pSysMem = boxVertices;
+	//D3D11_SUBRESOURCE_DATA subData;
+	//subData.pSysMem = boxVertices;
 
-	hr = mDevice->CreateBuffer( &debugBoxBuffer, &subData, &mBuffers[BUFFERS_DEBUG_BOX] );
-	if ( FAILED( hr ) )
-	{
-		//Failed to create vertex buffer
-		return hr;
-	}
+	//hr = mDevice->CreateBuffer( &debugBoxBuffer, &subData, &mBuffers[BUFFERS_DEBUG_BOX] );
+	//if ( FAILED( hr ) )
+	//{
+	//	//Failed to create vertex buffer
+	//	return hr;
+	//}
 
-	UINT boxIndices[] = 
-	{
-		0, 1,
-		1, 2,
-		2, 3,
-		3, 0,
+	//UINT boxIndices[] = 
+	//{
+	//	0, 1,
+	//	1, 2,
+	//	2, 3,
+	//	3, 0,
 
-		4, 5,
-		5, 6,
-		6, 7,
-		7, 4,
+	//	4, 5,
+	//	5, 6,
+	//	6, 7,
+	//	7, 4,
 
-		3, 7,
-		2, 6,
-		5, 1,
-		0, 4
-	};
-	debugBoxBuffer.BindFlags		= D3D11_BIND_INDEX_BUFFER;
-	debugBoxBuffer.ByteWidth		= sizeof( UINT ) * 24;
+	//	3, 7,
+	//	2, 6,
+	//	5, 1,
+	//	0, 4
+	//};
+	//debugBoxBuffer.BindFlags		= D3D11_BIND_INDEX_BUFFER;
+	//debugBoxBuffer.ByteWidth		= sizeof( UINT ) * 24;
 
-	subData.pSysMem = boxIndices; 
+	//subData.pSysMem = boxIndices; 
 
-	return hr = mDevice->CreateBuffer( &debugBoxBuffer, &subData, &mBuffers[BUFFERS_DEBUG_BOX_INDICES] );
+	//return hr = mDevice->CreateBuffer( &debugBoxBuffer, &subData, &mBuffers[BUFFERS_DEBUG_BOX_INDICES] );
+	return hr;
 }
 
 HRESULT Graphics::InitializeEffects()
@@ -361,11 +362,11 @@ HRESULT Graphics::InitializeEffects()
 		return hr;
 
 	//DebugEffect
-	effectInfo.filePath					= "../Content/Effects/DebugShaderEffect.hlsl";
-	effectInfo.fileName					= "DebugShaderEffect";
+	//effectInfo.filePath					= "../Content/Effects/DebugShaderEffect.hlsl";
+	//effectInfo.fileName					= "DebugShaderEffect";
 
-	if( FAILED( hr = mEffects[EFFECTS_DEBUG_BOX]->Intialize( mDevice, &effectInfo ) ) )
-		return hr;
+	//if( FAILED( hr = mEffects[EFFECTS_DEBUG_BOX]->Intialize( mDevice, &effectInfo ) ) )
+	//	return hr;
 
 	//Static instanced effect
 	effectInfo.filePath		= "../Content/Effects/Static3dInstancedEffect.hlsl";
@@ -449,13 +450,13 @@ HRESULT Graphics::InitializeEffects()
 		return hr;
 
 	////Circle effect
-	effectInfo.filePath					= "../Content/Effects/DrawCircleEffect.hlsl";
-	effectInfo.fileName					= "DrawCircleEffect";
-	effectInfo.vertexType				= CIRCLE_VERTEX_TYPE;
-	effectInfo.isGeometryShaderIncluded = true;
+	//effectInfo.filePath					= "../Content/Effects/DrawCircleEffect.hlsl";
+	//effectInfo.fileName					= "DrawCircleEffect";
+	//effectInfo.vertexType				= CIRCLE_VERTEX_TYPE;
+	//effectInfo.isGeometryShaderIncluded = true;
 
-	if( FAILED( hr = mEffects[EFFECTS_CIRCLE]->Intialize( mDevice, &effectInfo ) ) )
-		return hr;
+	//if( FAILED( hr = mEffects[EFFECTS_CIRCLE]->Intialize( mDevice, &effectInfo ) ) )
+	//	return hr;
 
 	//=======================================
 	//			PARTICLE EFFECTS			|
@@ -1367,161 +1368,161 @@ void Graphics::RenderNodeGrid( NodeGridInfo* info, UINT sizeOfList )
 	}
 }
 
-void Graphics::RenderDebugBox( BoxInfo* info, UINT sizeOfList )
-{
-	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_DISABLED], 1 );
-	DirectX::XMFLOAT3 min, max;
-
-	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
-	mDeviceContext->VSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetVertexShader(), nullptr, 0 );
-	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->PSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetPixelShader(), nullptr, 0 );
-
-	UINT32 vertexSize	= sizeof(StaticVertex);
-	UINT32 offset		= 0;
-
-	mDeviceContext->IASetIndexBuffer( mBuffers[BUFFERS_DEBUG_BOX_INDICES], DXGI_FORMAT_R32_UINT, 0 );
-	mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_DEBUG_BOX], &vertexSize, &offset );
-	mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] );
-	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_DEBUG_BOX]->GetInputLayout() );
-
-	for( UINT i = 0; i < sizeOfList; i++ )
-	{
-		max = info[i].max;
-		min = info[i].min;
-
-
-		DirectX::XMFLOAT3 boxSize = DirectX::XMFLOAT3( max.x - min.x, max.y - min.y, max.z - min.z );
-		DirectX::XMFLOAT3 center  = DirectX::XMFLOAT3( ( min.x + max.x ) / 2, ( min.y + max.y ) / 2, ( min.z + max.z ) / 2 );
-
-		//Map CbufferPerObject
-		CbufferPerObject data;
-		DirectX::XMMATRIX worldMat		= DirectX::XMLoadFloat4x4( &info[i].world );
-		DirectX::XMMATRIX scaling		= DirectX::XMMatrixScaling( boxSize.x, boxSize.y, boxSize.z );
-		DirectX::XMMATRIX translation	= DirectX::XMMatrixTranslation( center.x, center.y, center.z );
-
-		data.worldMatrix = worldMat * DirectX::XMMatrixTranspose( scaling * translation );
-
-		MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT], &data, sizeof( CbufferPerObject ) );
-
-		//mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexCount, 0 );//, 0, 0 );
-		mDeviceContext->DrawIndexed( 24, 0, 0 );
-		//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
-	}
-}
-
-void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, DirectX::XMFLOAT4X4 world )
-{
-	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_DISABLED], 1 );
-
-	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
-
-	UINT32 vertexSize	= sizeof(StaticVertex);
-	UINT32 offset		= 0;
-
-	DirectX::XMFLOAT3 boxSize = DirectX::XMFLOAT3( max.x - min.x, max.y - min.y, max.z - min.z );
-	DirectX::XMFLOAT3 center  = DirectX::XMFLOAT3( ( min.x + max.x ) / 2, ( min.y + max.y ) / 2, ( min.z + max.z ) / 2 );
-
-	ID3D11Buffer* buffersToSet[] = { ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexBuffer };
-	
-	mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_DEBUG_BOX], &vertexSize, &offset );
-	mDeviceContext->IASetIndexBuffer( mBuffers[BUFFERS_DEBUG_BOX_INDICES], DXGI_FORMAT_R32_UINT, 0 );
-
-	//Map CbufferPerObject
-	CbufferPerObject data;
-	DirectX::XMMATRIX worldMat		= DirectX::XMLoadFloat4x4( &world );
-	DirectX::XMMATRIX scaling		= DirectX::XMMatrixScaling( boxSize.x, boxSize.y, boxSize.z );
-	DirectX::XMMATRIX translation	= DirectX::XMMatrixTranslation( center.x, center.y, center.z );
-
-	data.worldMatrix = worldMat * DirectX::XMMatrixTranspose( scaling * translation );
-	//data.worldMatrix = DirectX::XMMatrixIdentity();
-	
-	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT], &data, sizeof( CbufferPerObject ) );
-
-	mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] );
-	
-	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_DEBUG_BOX]->GetInputLayout() );
-
-	mDeviceContext->VSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetVertexShader(), nullptr, 0 );
-	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->PSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetPixelShader(), nullptr, 0 );
-
-	//mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexCount, 0 );//, 0, 0 );
-	mDeviceContext->DrawIndexed( 24, 0, 0 );
-	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
-}
-
-void Graphics::RenderLine( LineInfo* info, UINT sizeOfList )
-{
-
-
-	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
-	
-	UINT32 vertexSize	= sizeof( StaticVertex );
-	UINT32 offset		= 0;
-	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_DEBUG_BOX]->GetInputLayout() );
-
-	mDeviceContext->VSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetVertexShader(), nullptr, 0 );
-	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->PSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetPixelShader(), nullptr, 0 );
-
-	for( UINT i = 0; i < sizeOfList; i++ )
-	{
-		StaticVertex tempBuff[2];
-
-		tempBuff[0].position[0] = info[i].start.x;
-		tempBuff[0].position[1] = info[i].start.y;
-		tempBuff[0].position[2] = info[i].start.z;
-
-		tempBuff[1].position[0] = info[i].end.x;
-		tempBuff[1].position[1] = info[i].end.y;
-		tempBuff[1].position[2] = info[i].end.z;
-
-		CbufferPerObject cbuff;
-		cbuff.worldMatrix = DirectX::XMMatrixIdentity();
-		MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT], &cbuff, sizeof( CbufferPerObject ) );
-		mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] );
-
-		MapBuffer( mBuffers[BUFFERS_SINGLE_STATIC_VERTEX], tempBuff, sizeof(StaticVertex) * 2 );
-		mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_SINGLE_STATIC_VERTEX], &vertexSize, &offset );
-
-		mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[DIFFUSE_PLACEHOLDER] )->mSRV );
-		mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[NORMAL_PLACEHOLDER] )->mSRV );
-		mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
-		mDeviceContext->Draw( 2, 0 );
-
-	}
-}
-
-void Graphics::RenderCircle( CircleInfo* info, UINT sizeOfList )
-{
-	mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_DISABLED], 1 );
-	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_POINTLIST );
-	
-	UINT32 vertexSize	= sizeof( CircleVertex );
-	UINT32 offset		= 0;
-	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_CIRCLE]->GetInputLayout() );
-
-	mDeviceContext->VSSetShader( mEffects[EFFECTS_CIRCLE]->GetVertexShader(), nullptr, 0 );
-	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
-	mDeviceContext->GSSetShader( mEffects[EFFECTS_CIRCLE]->GetGeometryShader(), nullptr, 0 );
-	mDeviceContext->PSSetShader( mEffects[EFFECTS_CIRCLE]->GetPixelShader(), nullptr, 0 );
-
-	mDeviceContext->GSSetConstantBuffers( 0, 1, &mBuffers[BUFFERS_CBUFFER_PER_FRAME] );
-
-	MapBuffer( mBuffers[BUFFERS_CIRCLE_VERTEX], &info[0], sizeof(CircleVertex) * sizeOfList );
-	mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_CIRCLE_VERTEX], &vertexSize, &offset );
-	mDeviceContext->Draw( sizeOfList, 0 );
-
-	mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
-}
+//void Graphics::RenderDebugBox( BoxInfo* info, UINT sizeOfList )
+//{
+//	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_DISABLED], 1 );
+//	DirectX::XMFLOAT3 min, max;
+//
+//	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
+//	mDeviceContext->VSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetVertexShader(), nullptr, 0 );
+//	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+//	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+//	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+//	mDeviceContext->PSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetPixelShader(), nullptr, 0 );
+//
+//	UINT32 vertexSize	= sizeof(StaticVertex);
+//	UINT32 offset		= 0;
+//
+//	mDeviceContext->IASetIndexBuffer( mBuffers[BUFFERS_DEBUG_BOX_INDICES], DXGI_FORMAT_R32_UINT, 0 );
+//	mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_DEBUG_BOX], &vertexSize, &offset );
+//	mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] );
+//	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_DEBUG_BOX]->GetInputLayout() );
+//
+//	for( UINT i = 0; i < sizeOfList; i++ )
+//	{
+//		max = info[i].max;
+//		min = info[i].min;
+//
+//
+//		DirectX::XMFLOAT3 boxSize = DirectX::XMFLOAT3( max.x - min.x, max.y - min.y, max.z - min.z );
+//		DirectX::XMFLOAT3 center  = DirectX::XMFLOAT3( ( min.x + max.x ) / 2, ( min.y + max.y ) / 2, ( min.z + max.z ) / 2 );
+//
+//		//Map CbufferPerObject
+//		CbufferPerObject data;
+//		DirectX::XMMATRIX worldMat		= DirectX::XMLoadFloat4x4( &info[i].world );
+//		DirectX::XMMATRIX scaling		= DirectX::XMMatrixScaling( boxSize.x, boxSize.y, boxSize.z );
+//		DirectX::XMMATRIX translation	= DirectX::XMMatrixTranslation( center.x, center.y, center.z );
+//
+//		data.worldMatrix = worldMat * DirectX::XMMatrixTranspose( scaling * translation );
+//
+//		MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT], &data, sizeof( CbufferPerObject ) );
+//
+//		//mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexCount, 0 );//, 0, 0 );
+//		mDeviceContext->DrawIndexed( 24, 0, 0 );
+//		//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
+//	}
+//}
+//
+//void Graphics::RenderDebugBox( DirectX::XMFLOAT3 min, DirectX::XMFLOAT3 max, DirectX::XMFLOAT4X4 world )
+//{
+//	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_DISABLED], 1 );
+//
+//	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
+//
+//	UINT32 vertexSize	= sizeof(StaticVertex);
+//	UINT32 offset		= 0;
+//
+//	DirectX::XMFLOAT3 boxSize = DirectX::XMFLOAT3( max.x - min.x, max.y - min.y, max.z - min.z );
+//	DirectX::XMFLOAT3 center  = DirectX::XMFLOAT3( ( min.x + max.x ) / 2, ( min.y + max.y ) / 2, ( min.z + max.z ) / 2 );
+//
+//	ID3D11Buffer* buffersToSet[] = { ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexBuffer };
+//	
+//	mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_DEBUG_BOX], &vertexSize, &offset );
+//	mDeviceContext->IASetIndexBuffer( mBuffers[BUFFERS_DEBUG_BOX_INDICES], DXGI_FORMAT_R32_UINT, 0 );
+//
+//	//Map CbufferPerObject
+//	CbufferPerObject data;
+//	DirectX::XMMATRIX worldMat		= DirectX::XMLoadFloat4x4( &world );
+//	DirectX::XMMATRIX scaling		= DirectX::XMMatrixScaling( boxSize.x, boxSize.y, boxSize.z );
+//	DirectX::XMMATRIX translation	= DirectX::XMMatrixTranslation( center.x, center.y, center.z );
+//
+//	data.worldMatrix = worldMat * DirectX::XMMatrixTranspose( scaling * translation );
+//	//data.worldMatrix = DirectX::XMMatrixIdentity();
+//	
+//	MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT], &data, sizeof( CbufferPerObject ) );
+//
+//	mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] );
+//	
+//	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_DEBUG_BOX]->GetInputLayout() );
+//
+//	mDeviceContext->VSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetVertexShader(), nullptr, 0 );
+//	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+//	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+//	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+//	mDeviceContext->PSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetPixelShader(), nullptr, 0 );
+//
+//	//mDeviceContext->Draw( ( (Static3dAsset*)mAssetManager->mAssetContainer[CUBE_PLACEHOLDER] )->mMeshes[0].mVertexCount, 0 );//, 0, 0 );
+//	mDeviceContext->DrawIndexed( 24, 0, 0 );
+//	//mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
+//}
+//
+//void Graphics::RenderLine( LineInfo* info, UINT sizeOfList )
+//{
+//
+//
+//	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
+//	
+//	UINT32 vertexSize	= sizeof( StaticVertex );
+//	UINT32 offset		= 0;
+//	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_DEBUG_BOX]->GetInputLayout() );
+//
+//	mDeviceContext->VSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetVertexShader(), nullptr, 0 );
+//	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+//	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+//	mDeviceContext->GSSetShader( nullptr, nullptr, 0 );
+//	mDeviceContext->PSSetShader( mEffects[EFFECTS_DEBUG_BOX]->GetPixelShader(), nullptr, 0 );
+//
+//	for( UINT i = 0; i < sizeOfList; i++ )
+//	{
+//		StaticVertex tempBuff[2];
+//
+//		tempBuff[0].position[0] = info[i].start.x;
+//		tempBuff[0].position[1] = info[i].start.y;
+//		tempBuff[0].position[2] = info[i].start.z;
+//
+//		tempBuff[1].position[0] = info[i].end.x;
+//		tempBuff[1].position[1] = info[i].end.y;
+//		tempBuff[1].position[2] = info[i].end.z;
+//
+//		CbufferPerObject cbuff;
+//		cbuff.worldMatrix = DirectX::XMMatrixIdentity();
+//		MapBuffer( mBuffers[BUFFERS_CBUFFER_PER_OBJECT], &cbuff, sizeof( CbufferPerObject ) );
+//		mDeviceContext->VSSetConstantBuffers( 1, 1, &mBuffers[BUFFERS_CBUFFER_PER_OBJECT] );
+//
+//		MapBuffer( mBuffers[BUFFERS_SINGLE_STATIC_VERTEX], tempBuff, sizeof(StaticVertex) * 2 );
+//		mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_SINGLE_STATIC_VERTEX], &vertexSize, &offset );
+//
+//		mDeviceContext->PSSetShaderResources( 0, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[DIFFUSE_PLACEHOLDER] )->mSRV );
+//		mDeviceContext->PSSetShaderResources( 1, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[NORMAL_PLACEHOLDER] )->mSRV );
+//		mDeviceContext->PSSetShaderResources( 2, 1, &( (Static2dAsset*)mAssetManager->mAssetContainer[SPECULAR_PLACEHOLDER] )->mSRV );
+//		mDeviceContext->Draw( 2, 0 );
+//
+//	}
+//}
+//
+//void Graphics::RenderCircle( CircleInfo* info, UINT sizeOfList )
+//{
+//	mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_DISABLED], 1 );
+//	mDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_POINTLIST );
+//	
+//	UINT32 vertexSize	= sizeof( CircleVertex );
+//	UINT32 offset		= 0;
+//	mDeviceContext->IASetInputLayout( mEffects[EFFECTS_CIRCLE]->GetInputLayout() );
+//
+//	mDeviceContext->VSSetShader( mEffects[EFFECTS_CIRCLE]->GetVertexShader(), nullptr, 0 );
+//	mDeviceContext->HSSetShader( nullptr, nullptr, 0 );
+//	mDeviceContext->DSSetShader( nullptr, nullptr, 0 );
+//	mDeviceContext->GSSetShader( mEffects[EFFECTS_CIRCLE]->GetGeometryShader(), nullptr, 0 );
+//	mDeviceContext->PSSetShader( mEffects[EFFECTS_CIRCLE]->GetPixelShader(), nullptr, 0 );
+//
+//	mDeviceContext->GSSetConstantBuffers( 0, 1, &mBuffers[BUFFERS_CBUFFER_PER_FRAME] );
+//
+//	MapBuffer( mBuffers[BUFFERS_CIRCLE_VERTEX], &info[0], sizeof(CircleVertex) * sizeOfList );
+//	mDeviceContext->IASetVertexBuffers( 0, 1, &mBuffers[BUFFERS_CIRCLE_VERTEX], &vertexSize, &offset );
+//	mDeviceContext->Draw( sizeOfList, 0 );
+//
+//	mDeviceContext->OMSetDepthStencilState( mDepthStencils[DEPTHSTENCILS_ENABLED], 1 );
+//}
 
 DirectX::XMFLOAT4X4 Graphics::GetRootMatrix( AnimationTrack animTrack )
 {

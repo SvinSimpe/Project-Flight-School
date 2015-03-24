@@ -83,6 +83,13 @@ void BattleLog::Render()
 		{
 			mFirstUnitString	= mPlayerMap[current->mFirstUnitID].mName + " ";
 			first				= mTeams[1].color;
+
+			if( mPlayer->GetTeam() != mPlayerMap[current->mFirstUnitID].mTeamID )
+			{
+
+				mFirstUnitString	= mPlayerMap[current->mFirstUnitID].mName + " ";
+				first				= mTeams[2].color;
+			}
 		}
 
 		else if( current->mSecondUnitID == -1 )
@@ -99,7 +106,12 @@ void BattleLog::Render()
 		if( mPlayerMap.count( current->mSecondUnitID ) == 1 )
 		{
 			mSecondUnitString	= mPlayerMap[current->mSecondUnitID].mName + " ";
-			second				= mTeams[2].color;
+			second				= mTeams[1].color;
+			if( mPlayer->GetTeam() != mPlayerMap[current->mSecondUnitID].mTeamID )
+			{
+				mSecondUnitString	= mPlayerMap[current->mSecondUnitID].mName + " ";
+				second				= mTeams[2].color;
+			}
 		}
 
 		else if( current->mSecondUnitID == -1 )
